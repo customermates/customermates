@@ -19,6 +19,7 @@ export function localeOf(overrides: Partial<TemplateIndexLocale> = {}): Template
     name: "Fixture template",
     page: PAGE,
     publicPage: "own",
+    publishWave: "wave1",
     status: "published",
     summary: "A short summary of the fixture template.",
     ...overrides,

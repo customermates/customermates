@@ -6,6 +6,7 @@ export type TemplateIndexLocale = {
   summary: string;
   status: TemplateSpec["status"][string];
   publicPage: TemplateSpec["publicPage"][string];
+  publishWave: TemplateSpec["publishWave"][string] | null;
   page: { metaTitle: string; metaDescription: string } | null;
 };
 

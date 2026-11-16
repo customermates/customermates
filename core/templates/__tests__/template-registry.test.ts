@@ -88,13 +88,22 @@ describe("template registry", () => {
     expect(listings.map((listing) => listing.slug)).toEqual([...TEMPLATE_SLUGS]);
     expect(listings.every((listing) => listing.translated && listing.offered)).toBe(true);
     expect(listings.find((listing) => listing.slug === "client-tracker")?.name).toBe("Kundenverwaltung");
-    expect(listings.every((listing) => listing.status === "draft")).toBe(true);
+    expect(listings.filter((listing) => listing.status === "published").map((listing) => listing.slug)).toEqual([
+      "client-tracker",
+      "real-estate-pipeline",
+      "sales-pipeline",
+    ]);
     expect(
       listTemplates({ locale: "xx", shipped: ALL }).every((listing) => !listing.translated && listing.status === null),
     ).toBe(true);
   });
 
   it("lists only published and offered templates when asked", () => {
-    expect(listTemplates({ locale: "en", publishedOnly: true, shipped: ALL })).toEqual([]);
+    expect(listTemplates({ locale: "en", publishedOnly: true, shipped: ALL }).map((listing) => listing.slug)).toEqual([
+      "client-tracker",
+      "real-estate-pipeline",
+      "sales-pipeline",
+    ]);
+    expect(listTemplates({ locale: "pl", publishedOnly: true, shipped: ALL })).toEqual([]);
   });
 });

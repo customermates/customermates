@@ -7,7 +7,12 @@ import en from "@/i18n/locales/en.json";
 import rawIndex from "@/core/templates/bundles/index.json";
 import type { TemplateIndex } from "@/core/templates/template-index.types";
 
-const BASELINE = rawIndex as unknown as TemplateIndex;
+const BASELINE: TemplateIndex = (rawIndex as unknown as TemplateIndex).map((entry) => ({
+  ...entry,
+  locales: Object.fromEntries(
+    Object.entries(entry.locales).map(([code, text]) => [code, { ...text, status: "draft" as const }]),
+  ),
+}));
 
 import { renderAsync } from "./render-async";
 
@@ -94,7 +99,12 @@ function publish(slug: string, locale: string, publicPage: "own" | "proof" | "no
           ...entry,
           locales: {
             ...entry.locales,
-            [locale]: { ...entry.locales[locale], publicPage, status: "published" as const },
+            [locale]: {
+              ...entry.locales[locale],
+              publicPage,
+              publishWave: publicPage === "own" ? ("wave1" as const) : null,
+              status: "published" as const,
+            },
           },
         }
       : entry,
@@ -225,13 +235,13 @@ describe("the proof block", () => {
     expect(html).toContain('href="/templates/client-tracker"');
   });
 
-  it("leaves out the link where the template has no page of its own", async () => {
+  it("links to the noindex page of a template that has no indexable page of its own", async () => {
     state.index = publish("client-tracker", "en", "none");
 
     const html = await renderAsync(await TemplateProofBlock({ locale: "en", path: "/features/contact-management" }));
 
     expect(html).toContain('data-template-proof-card="client-tracker"');
-    expect(html).not.toContain('href="/templates/client-tracker"');
+    expect(html).toContain('href="/templates/client-tracker"');
   });
 
   it("renders nothing for a page that no template names", async () => {

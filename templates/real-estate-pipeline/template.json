@@ -695,6 +695,6 @@
     { "url": "https://www.chavesnamao.com.br/blog/mercado-imobiliario/funil-imobiliario/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
   "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "proof", "pt": "proof", "pl": "proof", "nl": "none" }
 }

@@ -32,6 +32,7 @@
         "summary": "Was in Besprechungen beschlossen wird, soll auch erledigt werden. Jede Maßnahme hat einen Verantwortlichen und eine Deadline, verknüpft mit Beschluss oder Projekt, dazu eine wöchentliche Durchsicht.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -39,6 +40,7 @@
         "summary": "Make sure what was agreed in a meeting actually happens. Every action gets one owner and a due date, linked to the decision or project it came from, with a weekly review.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "hold",
         "page": null
       },
       "es": {
@@ -46,6 +48,7 @@
         "summary": "Haz que lo acordado en las reuniones se haga de verdad. Cada acción, vinculada a la decisión o al proyecto de donde sale, tiene un responsable y una fecha límite, y se repasa en una revisión semanal.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -53,6 +56,7 @@
         "summary": "Faites que ce qui est décidé en réunion soit réellement fait. Chaque action a un pilote, une échéance et un lien vers la décision ou le projet dont elle vient, avec une revue chaque semaine.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -60,6 +64,7 @@
         "summary": "Fai in modo che quello che si decide in riunione venga davvero fatto. Ogni azione ha un responsabile e una scadenza, è collegata alla riunione, alla decisione o al progetto da cui nasce e passa da una revisione settimanale.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -67,6 +72,7 @@
         "summary": "Zorg dat wat in een overleg is afgesproken ook echt gebeurt. Elke actie krijgt één eigenaar en een deadline, gekoppeld aan het besluit of project waaruit ze komt, met een wekelijkse controle.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "pl": {
@@ -74,6 +80,7 @@
         "summary": "Dopilnuj, żeby to, co ustalono na spotkaniu, naprawdę się wydarzyło. Każde zadanie ma jedną osobę odpowiedzialną i termin, wiadomo też, z jakiej decyzji lub jakiego projektu wynika, a raz w tygodniu robisz przegląd.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -81,6 +88,7 @@
         "summary": "Garanta que o que foi combinado na reunião realmente aconteça. Cada ação tem um responsável e um prazo e fica ligada à decisão ou ao projeto de onde veio, com uma revisão semanal.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       }
     }
@@ -118,6 +126,7 @@
         "summary": "Neue Kunden gewinnen und über das erste Projekt hinaus halten. Chancen laufen vom ersten Gespräch bis zum Abschluss, mit Pitch-Entscheidung; laufende Retainer haben Verlängerungstermin und Quartalsgespräch.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -125,6 +134,7 @@
         "summary": "Win agency clients and keep them past the first project. Opportunities run from first conversation to signed deal with a pitch go/no-go, and live retainers carry a renewal date and a quarterly review.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -132,6 +142,7 @@
         "summary": "Gana clientes y conserva las igualas más allá del primer proyecto. Las oportunidades van de la primera conversación a la firma, con decisión sobre el concurso, y cada iguala lleva fecha de renovación y revisión trimestral.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -139,6 +150,7 @@
         "summary": "Gagnez des clients et gardez-les après le premier projet. Du premier échange à la signature, avec la décision de répondre ou non à un appel d’offres, puis un renouvellement daté et une revue trimestrielle par contrat récurrent.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -146,6 +158,7 @@
         "summary": "Conquista nuovi clienti e tienili oltre il primo progetto. Le opportunità vanno dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e ogni retainer ha la sua data di rinnovo e una revisione trimestrale.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -153,6 +166,7 @@
         "summary": "Win klanten voor je bureau en houd ze langer dan het eerste project. Kansen lopen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers krijgen een verlengingsdatum en een kwartaalgesprek.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -160,6 +174,7 @@
         "summary": "Zdobywaj klientów agencji i zatrzymuj ich po pierwszym projekcie. Szanse prowadzisz od pierwszej rozmowy do podpisanej umowy, z decyzją o udziale w przetargu, a trwające umowy abonamentowe mają termin odnowienia i przegląd kwartalny.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -167,6 +182,7 @@
         "summary": "Conquiste clientes para a agência e fique com eles depois do primeiro projeto. Oportunidades da primeira conversa ao fechamento, com decisão de entrar ou não na concorrência, e contratos mensais com data de renovação.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       }
     }
@@ -195,6 +211,7 @@
         "summary": "Kein Bewerber soll auf eine Antwort warten müssen. Eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschdatum für abgelehnte Bewerbungen.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -202,6 +219,7 @@
         "summary": "Keep every applicant moving and every candidate answered. One application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -209,6 +227,7 @@
         "summary": "Mantén cada proceso en marcha y responde a todos los candidatos. Una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar las candidaturas descartadas.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -216,6 +235,7 @@
         "summary": "Faites avancer chaque candidature et répondez à chaque candidat. Une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -223,6 +243,7 @@
         "summary": "Fai avanzare ogni candidatura e dai una risposta a ogni candidato. Una candidatura per posizione attraverso nove fasi, una scheda di valutazione per ogni intervistatore e una data per cancellare quelle scartate.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -230,6 +251,7 @@
         "summary": "Zorg dat elke sollicitant antwoord krijgt en geen sollicitatie blijft liggen. Eén sollicitatie per vacature door negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -237,6 +259,7 @@
         "summary": "Dopilnuj, żeby żaden kandydat nie czekał na odpowiedź bez końca. Jedna aplikacja na ofertę pracy w dziewięciu etapach, karta oceny od każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pt": {
@@ -244,6 +267,7 @@
         "summary": "Não deixe nenhum candidato sem resposta. Cada candidatura passa por nove etapas, cada entrevistador preenche uma avaliação e as candidaturas reprovadas ganham uma data para serem excluídas.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -273,6 +297,7 @@
         "summary": "Gespräche, Beratungen und Besichtigungen nicht mehr aus Kalender und Postfach zusammensuchen. Terminarten mit Dauer und Vorlaufzeit, Status und Erinnerungen je Buchung, nach jedem Termin ein nächster Schritt.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -280,6 +305,7 @@
         "summary": "Keep every call, consultation and viewing in one place, from request to outcome. Appointment types with duration and notice, a status and reminders on every booking, and a next step after each one.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -287,6 +313,7 @@
         "summary": "Ten cada llamada, consulta y visita en un solo sitio, de la solicitud al resultado. Tipos de cita con duración y antelación, un estado y recordatorios en cada reserva, y un siguiente paso después de cada una.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -294,6 +321,7 @@
         "summary": "Gardez chaque appel, consultation ou visite au même endroit, de la demande au résultat. Des types de rendez-vous avec durée et délai de prévenance, un statut et des rappels sur chaque réservation, et une prochaine étape après chacun.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -301,6 +329,7 @@
         "summary": "Tieni ogni chiamata, consulenza e visita in un unico posto, dalla richiesta all'esito. Tipi di appuntamento con durata e preavviso, uno stato e promemoria su ogni prenotazione e un prossimo passo dopo ciascuna.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "nl": {
@@ -308,6 +337,7 @@
         "summary": "Houd elk gesprek, consult en elke bezichtiging op één plek bij, van aanvraag tot uitkomst. Afspraaktypes met duur en minimale termijn, een status en herinneringen bij elke boeking en een volgende stap na elke afspraak.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -315,6 +345,7 @@
         "summary": "Nie trać z oczu żadnej rozmowy, konsultacji ani oglądania, od zgłoszenia do wyniku. Typy wizyt z czasem trwania i wyprzedzeniem, status i przypomnienia przy każdej rezerwacji oraz następny krok po każdej wizycie.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pt": {
@@ -322,6 +353,7 @@
         "summary": "Saiba quem está agendado, quem confirmou e no que deu cada conversa. Tipos de atendimento com duração e antecedência mínima, status e lembretes em cada agendamento e um próximo passo depois de cada atendimento.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -360,6 +392,7 @@
         "summary": "Neue Mandanten aufnehmen, ohne Fragebögen, Unterlagen und Auftragsbestätigungen hinterherzulaufen. Eine Aufnahme pro Mandat, ein Termin je Phase und ein festgehaltener Grund, wenn Sie ablehnen.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -367,6 +400,7 @@
         "summary": "Take on new clients without chasing forms, documents and agreements by hand. One intake per engagement, with a dated step at every stage and a reason on record when you decline.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "hold",
         "page": null
       },
       "es": {
@@ -374,6 +408,7 @@
         "summary": "Da de alta a tus clientes nuevos sin perseguir a mano formularios, documentos y hojas de encargo. Un alta por encargo, con un paso fechado en cada etapa y el motivo anotado cuando rechazas.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -381,6 +416,7 @@
         "summary": "Accueillez de nouveaux clients sans courir après les formulaires, les pièces et les lettres de mission. Une intégration par mission, avec une étape datée à chaque phase et un motif noté quand vous refusez.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -388,6 +424,7 @@
         "summary": "Accogli i nuovi clienti senza rincorrere moduli, documenti e lettere d'incarico a mano. Un'accoglienza per incarico, con un passaggio datato a ogni fase e il motivo registrato quando rifiuti.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "nl": {
@@ -395,6 +432,7 @@
         "summary": "Neem nieuwe klanten aan zonder zelf achter formulieren, documenten en overeenkomsten aan te zitten. Eén intake per opdracht, met een stap met datum in elke fase en een vastgelegde reden als je iemand afwijst.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "pl": {
@@ -402,6 +440,7 @@
         "summary": "Przyjmuj nowych klientów bez ręcznego gonienia za ankietami, dokumentami i umowami. Jedno przyjęcie na zlecenie, z datowanym krokiem na każdym etapie i zapisanym powodem, gdy odmawiasz.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "pt": {
@@ -409,6 +448,7 @@
         "summary": "Receba clientes novos sem correr atrás de formulários, documentos e contratos. Uma integração por contrato, com um passo datado em cada etapa e o motivo registrado quando você recusa um cliente.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -438,6 +478,7 @@
         "summary": "Jeden Kunden rechtzeitig beantworten, ohne großes Helpdesk-System. Tickets mit Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -445,6 +486,7 @@
         "summary": "Answer every customer on time without a heavy helpdesk. Tickets with a priority, a first-reply time and a due time, known issues that link many tickets to one cause, and a satisfaction score.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -452,6 +494,7 @@
         "summary": "Responde a cada cliente a tiempo sin un helpdesk pesado. Tickets con prioridad, primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y valoración de satisfacción.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -459,6 +502,7 @@
         "summary": "Répondez à chaque client à temps sans outil de support lourd. Tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -466,6 +510,7 @@
         "summary": "Rispondi a ogni cliente in tempo, senza un helpdesk pesante. Ticket con priorità, tempo di prima risposta e scadenza, problemi noti che collegano molti ticket a un'unica causa e una valutazione di soddisfazione.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "nl": {
@@ -473,6 +518,7 @@
         "summary": "Beantwoord elke klant op tijd, zonder zwaar helpdesksysteem. Tickets met een prioriteit, een tijd voor de eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -480,6 +526,7 @@
         "summary": "Odpowiadaj każdemu klientowi na czas, bez ciężkiego helpdesku. Zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pt": {
@@ -487,6 +534,7 @@
         "summary": "Responda a cada cliente no prazo, sem um helpdesk pesado. Chamados com prioridade, prazo de primeira resposta e de resolução, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -522,8 +570,9 @@
       "de": {
         "name": "Kundenverwaltung",
         "summary": "Nie mehr rätseln, welchem Kunden Sie noch einen Anruf, eine Antwort oder ein Angebot schulden. Jeder Kunde hat einen Betreuer und einen terminierten nächsten Schritt, eine wöchentliche Durchsicht zeigt, was überfällig ist.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": {
           "metaTitle": "Kundenverwaltung Vorlage: keine Wiedervorlage verpassen",
           "metaDescription": "Kein Kunde geht mehr verloren: Vorlage in Claude, ChatGPT oder Codex einfügen und für jeden Kunden Betreuer und nächsten Schritt mit Datum anlegen lassen."
@@ -532,8 +581,9 @@
       "en": {
         "name": "Client tracker",
         "summary": "Never wonder which client you owe a call, a reply or a quote. Every client gets one owner and one dated next step, and a weekly review shows what is overdue.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": {
           "metaTitle": "Client Tracker Template: Never Miss a Follow-up",
           "metaDescription": "Never lose track of a client again. Paste this client tracker template into Claude, ChatGPT or Codex and get one owner and a dated next step for every client."
@@ -544,13 +594,15 @@
         "summary": "Ten siempre claro a qué cliente le debes una llamada, una respuesta o un presupuesto. Cada cliente tiene un responsable y una próxima acción con fecha, y la revisión semanal muestra lo que va con retraso.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
         "name": "Fichier client",
         "summary": "Ne vous demandez plus à quel client vous devez un appel, une réponse ou un devis. Chaque client a un responsable et une prochaine action datée, et une revue hebdomadaire montre ce qui est en retard.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": {
           "metaTitle": "Modèle de fichier client : plus aucune relance oubliée",
           "metaDescription": "Ne perdez plus aucun client de vue. Collez ce fichier client dans Claude, ChatGPT ou Codex : un responsable et une prochaine action datée pour chacun."
@@ -559,8 +611,9 @@
       "it": {
         "name": "Anagrafica clienti",
         "summary": "Smetti di chiederti a quale cliente devi una telefonata, una risposta o un preventivo. Ogni cliente ha un responsabile e un prossimo passo con scadenza, e una revisione settimanale mostra che cosa è in ritardo.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": {
           "metaTitle": "Anagrafica clienti: modello per non perdere un follow-up",
           "metaDescription": "Non perdere più il filo di un cliente. Incolla questo modello in Claude, ChatGPT o Codex: un responsabile e un prossimo passo con scadenza per ogni cliente."
@@ -571,6 +624,7 @@
         "summary": "Weet altijd aan welke klant je nog een telefoontje, antwoord of offerte schuldig bent. Elke klant krijgt één accountmanager en één volgende stap met datum, en een wekelijkse controle laat zien wat te laat is.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -578,6 +632,7 @@
         "summary": "Koniec z zastanawianiem się, któremu klientowi jesteś winien telefon, odpowiedź albo wycenę. Każdy klient ma jednego opiekuna i jeden następny krok z terminem, a cotygodniowy przegląd pokazuje, co jest po terminie.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "pt": {
@@ -585,6 +640,7 @@
         "summary": "Saiba sempre a que cliente você deve uma ligação, uma resposta ou um orçamento. Cada cliente tem um responsável e um próximo contato com data, e uma revisão semanal mostra o que está atrasado.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       }
     }
@@ -621,6 +677,7 @@
         "summary": "Wissen, wo jedes Angebot steht, und nach dem Gespräch keinen Interessenten verlieren. Aufträge vom Erstkontakt bis zur Erteilung, ein im Angebotsgespräch vereinbarter Nachfasstermin, Ergebnisse mit Abnahmedatum.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -628,6 +685,7 @@
         "summary": "Know where every proposal stands and never drop a lead after the call. Engagements from introduction to won, a follow-up date agreed on the proposal call, and deliverables that gate delivery and closeout.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -635,6 +693,7 @@
         "summary": "Ten claro en qué punto está cada propuesta y no pierdas ningún contacto tras la llamada. Encargos del contacto al ganado, una fecha de seguimiento acordada en la llamada y entregables que controlan la ejecución y el cierre.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -642,6 +701,7 @@
         "summary": "Sachez où en est chaque proposition et ne laissez plus un prospect sans suite après l’appel. Missions de la prospection à la signature, date de relance convenue lors de l’appel, livrables qui encadrent l’exécution et la clôture.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -649,6 +709,7 @@
         "summary": "Tieni d'occhio ogni proposta e non perdere nessun contatto dopo la chiamata. Incarichi dal contatto alla vittoria, una data di follow-up fissata nella chiamata sulla proposta e deliverable che regolano consegna e chiusura.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -656,6 +717,7 @@
         "summary": "Weet waar elk voorstel staat en laat geen lead vallen na het gesprek. Opdrachten van kennismaking tot gewonnen, een opvolgdatum die je in het voorstelgesprek afspreekt en resultaten die uitvoering en afsluiting bewaken.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -663,6 +725,7 @@
         "summary": "Wiedz, na jakim etapie jest każda oferta, i nie gub kontaktów po rozmowie. Zlecenia od kontaktu do wygranego, termin ponownego kontaktu ustalony na rozmowie oraz rezultaty, od których zależą realizacja i zamknięcie.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -670,6 +733,7 @@
         "summary": "Saiba em que pé está cada proposta e não deixe um contato esfriar depois da conversa. Projetos do contato ao ganho, data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       }
     }
@@ -697,6 +761,7 @@
         "summary": "Wissen, was diese Woche rausgeht und wer es aufhält. Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "en": {
@@ -704,6 +769,7 @@
         "summary": "Know what goes out this week and who is holding it up. One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -711,6 +777,7 @@
         "summary": "Ten claro qué se publica esta semana y quién lo está frenando. Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -718,6 +785,7 @@
         "summary": "Sachez ce qui sort cette semaine et qui bloque. Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -725,6 +793,7 @@
         "summary": "Vedi subito che cosa esce questa settimana e chi lo sta bloccando. Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "nl": {
@@ -732,6 +801,7 @@
         "summary": "Weet wat er deze week uitkomt en wie het ophoudt. Eén regel per stuk met een status, een eigenaar, een reviewer en een publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "pl": {
@@ -739,6 +809,7 @@
         "summary": "Wiedz, co wychodzi w tym tygodniu i na kogo czekasz. Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -746,6 +817,7 @@
         "summary": "Saiba o que vai ao ar esta semana e quem está segurando cada conteúdo. Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma rotina editorial semanal.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "hold",
         "page": null
       }
     }
@@ -773,6 +845,7 @@
         "summary": "Für Fotografen, Videografen und Eventplaner: jede Anfrage, jeden Termin und jede Anzahlung im Griff, von der ersten Nachricht bis zu Buchung, Lieferung und Jahrestagsgruß.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "en": {
@@ -780,6 +853,7 @@
         "summary": "For photographers, videographers and event planners: keep every inquiry, date and deposit straight, from the first message to booked, delivered and an anniversary note.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "es": {
@@ -787,6 +861,7 @@
         "summary": "Para fotógrafos, videógrafos y organizadores de eventos: ten a mano cada solicitud, cada fecha y cada señal, del primer mensaje a la reserva, la entrega y la nota de aniversario.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -794,6 +869,7 @@
         "summary": "Photographes, vidéastes, organisateurs d’événements : gardez chaque demande, chaque date et chaque acompte en ordre, du premier message à la réservation, à la livraison et au mot d’anniversaire.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -801,6 +877,7 @@
         "summary": "Per fotografi, videomaker e organizzatori di eventi: tieni in ordine ogni richiesta, data e acconto, dal primo messaggio alla prenotazione, alla consegna e alla nota di anniversario.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "nl": {
@@ -808,6 +885,7 @@
         "summary": "Houd elke aanvraag, datum en aanbetaling op orde, van het eerste bericht tot geboekt, geleverd en een jubileumbericht. Voor fotografen, videografen en eventplanners.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -815,6 +893,7 @@
         "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: miej pod kontrolą każde zapytanie, termin i zaliczkę, od pierwszej wiadomości po rezerwację, przekazanie materiałów i życzenia w rocznicę.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -822,6 +901,7 @@
         "summary": "Para fotógrafos, videomakers e organizadores de eventos: mantenha em ordem cada solicitação, data e sinal, da primeira mensagem à reserva, à entrega e à mensagem de aniversário.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       }
     }
@@ -851,6 +931,7 @@
         "summary": "Von der Tabelle oder dem alten Werkzeug umziehen, ohne ein großes Migrationsprojekt. Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben nach Ihrer Arbeitsweise, mit Import Ihrer Daten und wöchentlicher Durchsicht.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -858,6 +939,7 @@
         "summary": "Move off your spreadsheet or old tool without a big migration project. Contacts, organizations, opportunities and dated actions shaped around how you work, with an import of your data and a weekly review.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "hold",
         "page": null
       },
       "es": {
@@ -865,6 +947,7 @@
         "summary": "Deja tu hoja de cálculo o tu herramienta anterior sin un gran proyecto de migración. Contactos, empresas, oportunidades y tareas con fecha a tu medida, con una importación de tus datos y una revisión semanal.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -872,6 +955,7 @@
         "summary": "Quittez votre tableur ou votre ancien outil sans gros projet de migration. Contacts, entreprises, affaires et actions datées adaptés à votre façon de travailler, avec l’import de vos données et une revue hebdomadaire.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "it": {
@@ -879,6 +963,7 @@
         "summary": "Lascia il foglio di calcolo o il vecchio strumento senza un progetto di migrazione. Contatti, aziende, trattative e attività con scadenza costruiti sul tuo modo di lavorare, con l'importazione dei tuoi dati e una revisione settimanale.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -886,6 +971,7 @@
         "summary": "Stap over van je spreadsheet of oude tool zonder groot migratieproject. Contactpersonen, bedrijven, deals en acties met datum, afgestemd op hoe jij werkt, met een import van je gegevens en een wekelijkse controle.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "pl": {
@@ -893,6 +979,7 @@
         "summary": "Przejdź z arkusza lub starego narzędzia bez dużego projektu wdrożeniowego. Kontakty, organizacje, szanse sprzedaży i zadania z terminem dopasowane do Twojego sposobu pracy, z importem danych i cotygodniowym przeglądem.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -900,6 +987,7 @@
         "summary": "Troque a planilha ou a ferramenta antiga por um CRM sem montar um projeto de migração. Contatos, empresas, negócios e tarefas com data do seu jeito, com importação dos seus dados e uma revisão semanal.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -929,6 +1017,7 @@
         "summary": "Keine Anfrage aus dem Webformular bleibt unbeantwortet. Jede Einsendung wird zur Anfrage mit Quelle und fälliger Antwort, läuft von neu bis übergeben und hält Spam und „Kein Bedarf“ getrennt.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -936,6 +1025,7 @@
         "summary": "Make sure no web form inquiry goes unanswered. Every submission becomes a request with its source and a reply due, moves from new to converted, and keeps spam and not-a-fit apart.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -943,6 +1033,7 @@
         "summary": "Que ninguna consulta de tus formularios web se quede sin respuesta. Cada envío se convierte en una solicitud con su origen y una respuesta pendiente, avanza de nueva a convertida y deja aparte el spam y lo que no encaja.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -950,6 +1041,7 @@
         "summary": "Faites en sorte qu’aucune demande de formulaire web ne reste sans réponse. Chaque envoi devient une demande avec sa source et une réponse à donner, passe de nouveau à converti, et les demandes sans suite et le spam restent à part.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -957,6 +1049,7 @@
         "summary": "Fai in modo che nessuna richiesta dal modulo web resti senza risposta. Ogni invio diventa una richiesta con la sua origine e una scadenza di risposta, passa da nuova a convertita e tiene separati spam e richieste non idonee.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "nl": {
@@ -964,6 +1057,7 @@
         "summary": "Zorg dat geen aanvraag uit een webformulier onbeantwoord blijft. Elke inzending wordt een aanvraag met bron en uiterste antwoorddatum, loopt van nieuw tot omgezet en houdt spam en niet passende aanvragen apart.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -971,6 +1065,7 @@
         "summary": "Dopilnuj, żeby żadne zapytanie z formularza nie zostało bez odpowiedzi. Każde zgłoszenie staje się zapytaniem ze źródłem i terminem odpowiedzi, a spam i zapytania nietrafione są trzymane osobno.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -978,6 +1073,7 @@
         "summary": "Não deixe nenhuma mensagem do formulário do site sem resposta. Cada envio vira uma solicitação com a origem e uma resposta devida, avança de nova a convertida e mantém spam e contatos sem fit à parte.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -1014,6 +1110,7 @@
         "summary": "Selbst verkaufen, ohne den Faden der Gespräche zu verlieren. Eine kurze Pipeline vom ersten Gespräch bis gewonnen, mit optionalem Pilot mit Enddatum und einem Zurückgestellt-Status mit Wiedervorlage.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -1021,6 +1118,7 @@
         "summary": "Sell as the founder without losing the thread of your conversations. A short pipeline from first conversation to won, with an optional pilot that has an end date and a parked state with a date to come back.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -1028,6 +1126,7 @@
         "summary": "Vende como fundador sin perder el hilo de tus conversaciones. Un pipeline corto de la primera conversación a ganada, con un piloto opcional con fecha de fin y un estado en pausa con fecha para retomar.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -1035,6 +1134,7 @@
         "summary": "Vendez en tant que fondateur sans perdre le fil de vos conversations. Un pipeline court du premier échange à la signature, avec un pilote facultatif à date de fin fixe et un état en pause avec une date de relance.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -1042,6 +1142,7 @@
         "summary": "Vendi da fondatore senza perdere il filo delle tue conversazioni. Una pipeline breve dalla prima conversazione alla vittoria, con un pilota facoltativo con data di fine e uno stato in pausa con una data per riprendere.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -1049,6 +1150,7 @@
         "summary": "Verkoop zelf als oprichter zonder de draad van je gesprekken kwijt te raken. Een korte pijplijn van eerste gesprek tot gewonnen, met een optionele pilot met einddatum en een gepauzeerde status met een datum om terug te komen.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1056,6 +1158,7 @@
         "summary": "Sprzedawaj osobiście jako założyciel i nie gub wątku rozmów. Krótki lejek od pierwszej rozmowy do wygranej, z opcjonalnym pilotażem ze stałym terminem zakończenia i statusem wstrzymane z datą powrotu.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1063,6 +1166,7 @@
         "summary": "Venda como fundador sem perder o fio das suas conversas. Um funil curto da primeira conversa ao ganho, com um piloto opcional com data de término e um estado pausado com data para retomar.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       }
     }
@@ -1101,6 +1205,7 @@
         "summary": "Keine Verlängerung verpassen und das Neugeschäft in Bewegung halten. Von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, dazu je Vertrag ein Verlängerungsfall 120 bis 45 Tage vor der Hauptfälligkeit.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -1108,6 +1213,7 @@
         "summary": "See every renewal coming and keep new business moving. Lead to bound with the advice documented before the offer, plus a renewal case for each policy that opens 120 to 45 days before expiry.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -1115,6 +1221,7 @@
         "summary": "Ve venir cada renovación y mantén el nuevo negocio en marcha. De la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación por póliza, de 120 a 45 días antes del vencimiento.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -1122,6 +1229,7 @@
         "summary": "Ne laissez plus un renouvellement vous surprendre. De la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement par contrat, ouvert de 120 à 45 jours avant l’échéance.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -1129,6 +1237,7 @@
         "summary": "Vedi ogni rinnovo in arrivo e tieni in movimento i nuovi affari. Dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, più una pratica di rinnovo per ogni polizza.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -1136,6 +1245,7 @@
         "summary": "Zie elke prolongatie aankomen en houd nieuwe zaken in beweging. Van aanvraag tot polis met het advies vastgelegd vóór de offerte, plus een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1143,6 +1253,7 @@
         "summary": "Miej na oku nadchodzące odnowienia i nie zatrzymuj nowej sprzedaży. Od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, a do tego sprawa odnowienia otwierana od 120 do 45 dni przed końcem ochrony.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1150,6 +1261,7 @@
         "summary": "Veja cada renovação chegando e mantenha as vendas novas andando. Do lead à apólice emitida, com a recomendação documentada antes da proposta, e um caso de renovação por apólice, aberto de 120 a 45 dias antes do vencimento.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       }
     }
@@ -1187,6 +1299,7 @@
         "summary": "Neue Mandanten aufnehmen, ohne eine Kollisionsprüfung oder eine Frist zu verpassen. Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot und unterschriebene Vereinbarung, für alle anderen ein Absageschreiben.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -1194,6 +1307,7 @@
         "summary": "Take on new clients without missing a conflict check or a time limit. Inquiry, conflict check, consultation, fee proposal and signed engagement, and a written non-engagement letter for everyone else.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -1201,6 +1315,7 @@
         "summary": "Acepta clientes sin saltarte la comprobación de conflicto de intereses ni un plazo. Consulta, conflicto, primera reunión, presupuesto y hoja de encargo firmada, y una carta escrita de no contratación para quien no llega a cliente.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -1208,6 +1323,7 @@
         "summary": "Prenez de nouveaux clients sans oublier la vérification des conflits ni un délai. De la demande à la lettre de mission signée en passant par la convention d’honoraires, et un courrier de non-prise en charge pour les autres.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -1215,6 +1331,7 @@
         "summary": "Accogli nuovi clienti senza saltare una verifica dei conflitti o un termine. Richiesta, verifica dei conflitti, colloquio, preventivo e incarico firmato, e una lettera scritta di mancato conferimento per tutti gli altri.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -1222,6 +1339,7 @@
         "summary": "Neem nieuwe cliënten aan zonder een conflictcheck of termijn te missen. Aanvraag, conflictcheck, intake, offerte en getekende opdrachtbevestiging, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1229,6 +1347,7 @@
         "summary": "Przyjmuj nowych klientów, nie pomijając weryfikacji konfliktu interesów ani biegnącego terminu. Zapytanie, konsultacja, oferta, umowa i pełnomocnictwo oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1236,6 +1355,7 @@
         "summary": "Receba clientes novos sem deixar passar uma verificação de conflito nem um prazo. Contato, conflito, consulta, proposta de honorários e contrato assinado, e uma carta escrita de não contratação para quem não vira cliente.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       }
     }
@@ -1263,6 +1383,7 @@
         "summary": "Wissen, wer Mitglied ist, wer noch einen Dank braucht und wessen Mitgliedschaft als Nächstes fällig ist. Ein Register für Mitgliedschaften, Spenden mit Zuwendungsbestätigung, Großspenden und Förderanträge.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -1270,6 +1391,7 @@
         "summary": "Know who your members and supporters are, who still needs a thank-you and who renews next. One register for memberships with renewal dates, gifts with receipts, and major gifts and grants.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "hold",
         "page": null
       },
       "es": {
@@ -1277,6 +1399,7 @@
         "summary": "Un solo registro para saber quiénes son vuestros socios y colaboradores, a quién falta agradecer y quién renueva pronto: membresías con fecha de renovación, donativos con certificado, y grandes donaciones y subvenciones.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "fr": {
@@ -1284,6 +1407,7 @@
         "summary": "Sachez qui sont vos adhérents et vos soutiens, qui attend encore un remerciement et qui doit renouveler. Un registre unique pour les adhésions avec leur échéance, les dons avec le reçu fiscal, et les grands dons et subventions.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "it": {
@@ -1291,6 +1415,7 @@
         "summary": "Vedi subito chi sono i tuoi soci e sostenitori, chi aspetta ancora un ringraziamento e chi deve rinnovare. Un unico registro per tesseramenti con scadenza, donazioni con ricevuta, grandi donazioni e bandi.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave1",
         "page": null
       },
       "nl": {
@@ -1298,6 +1423,7 @@
         "summary": "Weet wie jullie leden en supporters zijn, wie nog een bedankje krijgt en wie als volgende verlengt. Eén register voor lidmaatschappen met verlengdatum, giften met bewijs en grote giften en subsidies.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -1305,6 +1431,7 @@
         "summary": "Wiedz, kim są Twoi członkowie i sympatycy, kto czeka na podziękowanie i komu niedługo kończy się członkostwo. Jeden rejestr: członkostwa z terminem składki, darowizny z potwierdzeniem oraz duże darowizny i granty.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1312,6 +1439,7 @@
         "summary": "Saiba quem são seus associados e apoiadores, quem ainda espera um agradecimento e quem renova em seguida. Um só registro com vínculos e data de renovação, doações com recibo e grandes doações e editais.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -1348,8 +1476,9 @@
       "de": {
         "name": "Immobilien-Pipeline",
         "summary": "Objekte hereinholen und verkaufen, ohne eine Besichtigung, eine Rückmeldung an den Eigentümer oder eine Frist zu verpassen. Zwei Pipelines, die sich beim Kaufvertrag treffen, dazu eine Routine für frühere Kunden.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "proof",
+        "publishWave": null,
         "page": {
           "metaTitle": "Immobilien-Pipeline Vorlage: Objekte, Interessenten, Fristen",
           "metaDescription": "Immobilien-Pipeline in Claude, ChatGPT oder Codex einfügen: Objekte, Interessenten, Besichtigungen mit Rückmeldung und Fristen nach dem Kaufvertrag."
@@ -1358,8 +1487,9 @@
       "en": {
         "name": "Real estate pipeline",
         "summary": "Win listings and sell them without losing a viewing, an owner update or a key date. Two pipelines that meet at the contract, the listing and the buyer, with viewings, key dates and a routine for past clients.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "proof",
+        "publishWave": null,
         "page": {
           "metaTitle": "Real Estate Pipeline Template: Listings, Buyers, Dates",
           "metaDescription": "Paste this real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, in your CRM."
@@ -1370,13 +1500,15 @@
         "summary": "Capta y vende inmuebles sin perder una visita, un aviso al propietario ni una fecha clave. Dos pipelines, el del inmueble y el del comprador, que se encuentran en las arras, con visitas y seguimiento de clientes anteriores.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "fr": {
         "name": "Pipeline immobilier",
         "summary": "Décrochez des mandats et vendez sans oublier une visite, un point avec le propriétaire ou une date clé. Deux pipelines qui se rejoignent au compromis, avec les visites, les dates clés et une routine pour les anciens clients.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "proof",
+        "publishWave": null,
         "page": {
           "metaTitle": "Modèle de pipeline immobilier : biens, acquéreurs, dates",
           "metaDescription": "Collez ce pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM."
@@ -1385,8 +1517,9 @@
       "it": {
         "name": "Pipeline immobiliare",
         "summary": "Acquisisci incarichi e vendi senza perdere una visita, un aggiornamento al proprietario o una scadenza. Due pipeline che si incontrano al compromesso, immobile e acquirente, con visite, scadenze e una routine per gli ex clienti.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "proof",
+        "publishWave": null,
         "page": {
           "metaTitle": "Pipeline immobiliare: immobili, acquirenti e scadenze",
           "metaDescription": "Incolla questa pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e scadenze dopo il compromesso, nel tuo CRM."
@@ -1397,6 +1530,7 @@
         "summary": "Haal woningen binnen en verkoop ze zonder een bezichtiging, terugkoppeling aan de verkoper of sleutelmoment te missen. Twee pipelines die samenkomen bij de koopovereenkomst, plus een routine voor oud-klanten.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1404,6 +1538,7 @@
         "summary": "Zdobywaj oferty i sprzedawaj je, nie tracąc z oczu prezentacji ani ważnych terminów. Dwa lejki, oferta właściciela i poszukiwanie kupującego, spotykają się przy umowie, a dla dawnych klientów jest osobna rutyna z datami.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1411,6 +1546,7 @@
         "summary": "Capte imóveis e venda sem perder uma visita, um retorno ao proprietário ou um prazo. Dois funis que se encontram no contrato, o do imóvel e o do comprador, com visitas, prazos e acompanhamento de clientes antigos.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       }
     }
@@ -1449,6 +1585,7 @@
         "summary": "Kein Auftrag, kein Kandidat und kein Provisionstermin geht unter. Von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Garantie- und Nachbetreuungstermine, ein Löschdatum je Kandidat.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -1456,6 +1593,7 @@
         "summary": "Keep every job order, candidate and fee date in one place. Job orders from lead to placed, one pipeline entry per candidate, guarantee and aftercare dates, and a retention date on every candidate.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -1463,6 +1601,7 @@
         "summary": "Ten cada proceso, candidato y fecha de honorarios en un solo sitio: procesos de la solicitud a la incorporación, una ficha por candidato y proceso, garantía y seguimiento posterior, y una fecha de conservación por candidato.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -1470,6 +1609,7 @@
         "summary": "Gardez missions, candidats et dates d’honoraires au même endroit. Missions du brief au placement, une présentation par candidat et par mission, garantie et suivi après l’embauche, et une date de conservation par candidat.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -1477,6 +1617,7 @@
         "summary": "Tieni in un unico posto ogni incarico, candidato e scadenza di fee. Incarichi dalla richiesta all'inserimento, una scheda per candidato e incarico, date di garanzia e di ricontatto e una data di conservazione su ogni candidato.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -1484,6 +1625,7 @@
         "summary": "Houd elke vacature, kandidaat en feedatum op één plek bij. Vacatures van aanvraag tot plaatsing, één voordracht per kandidaat, garantie- en nazorgdata en een bewaardatum bij elke kandidaat.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1491,6 +1633,7 @@
         "summary": "Trzymaj w jednym miejscu zlecenie, kandydata i termin prowizji. Zlecenia od zapytania do obsadzenia, jedna prezentacja na kandydata, terminy gwarancji i kontaktów po zatrudnieniu oraz data przechowywania danych.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1498,6 +1641,7 @@
         "summary": "Tenha cada vaga, candidato e data de honorários em um só lugar. Vagas da solicitação à contratação, uma indicação por candidato e vaga, fim da garantia e acompanhamento pós-contratação e data de retenção de cada candidato.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       }
     }
@@ -1533,8 +1677,9 @@
       "de": {
         "name": "Vertriebspipeline",
         "summary": "Sehen, welche Chancen vorankommen, welche stocken und was als Nächstes passiert. Sieben Phasen mit terminiertem nächstem Schritt bei jeder offenen Chance, dazu die Gründe, warum Sie gewinnen oder verlieren.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": {
           "metaTitle": "Vertriebspipeline Vorlage: der nächste Schritt je Chance",
           "metaDescription": "Vertriebspipeline in Claude, ChatGPT oder Codex einfügen: sieben Phasen, ein nächster Schritt mit Datum je Chance und die Gründe für Gewinn oder Verlust."
@@ -1543,8 +1688,9 @@
       "en": {
         "name": "Sales pipeline",
         "summary": "See which deals are moving, which are stuck and what happens next. Seven stages with a dated next step on every open deal, plus the reasons you won or lost.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "own",
+        "publishWave": "hold",
         "page": {
           "metaTitle": "Sales Pipeline Template: Know Every Deal's Next Step",
           "metaDescription": "Paste this sales pipeline template into Claude, ChatGPT or Codex: seven stages, a dated next step on every deal and the reasons you won or lost, in your CRM."
@@ -1555,13 +1701,15 @@
         "summary": "Mira qué oportunidades avanzan, cuáles están atascadas y qué pasa a continuación. Siete etapas con un siguiente paso con fecha en cada oportunidad abierta, y los motivos por los que ganas o pierdes.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
         "name": "Pipeline commercial",
         "summary": "Voyez quelles affaires avancent, lesquelles sont bloquées et ce qui se passe ensuite. Sept étapes avec une prochaine action datée sur chaque affaire ouverte, et les motifs de gain et de perte.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": {
           "metaTitle": "Modèle de pipeline commercial : une action par affaire",
           "metaDescription": "Collez ce pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes, une prochaine action datée par affaire et les motifs de gain et de perte."
@@ -1570,8 +1718,9 @@
       "it": {
         "name": "Pipeline commerciale",
         "summary": "Vedi quali trattative avanzano, quali sono ferme e che cosa succede dopo. Sette fasi con un prossimo passo con scadenza su ogni trattativa aperta, più i motivi per cui hai vinto o perso.",
-        "status": "draft",
+        "status": "published",
         "publicPage": "none",
+        "publishWave": null,
         "page": {
           "metaTitle": "Pipeline commerciale: il prossimo passo di ogni trattativa",
           "metaDescription": "Incolla questa pipeline commerciale in Claude, ChatGPT o Codex: sette fasi, un prossimo passo datato su ogni trattativa e i motivi di vittoria e di perdita."
@@ -1582,6 +1731,7 @@
         "summary": "Zie welke deals vooruitgaan, welke vastzitten en wat er daarna gebeurt. Zeven fasen met een volgende stap met datum bij elke open deal, plus de redenen waarom je een deal wint of verliest.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1589,6 +1739,7 @@
         "summary": "Zobacz, które szanse się ruszają, które utknęły i co dzieje się dalej. Siedem etapów z następnym krokiem z terminem przy każdej otwartej szansie oraz powody wygranej i przegranej.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1596,6 +1747,7 @@
         "summary": "Veja quais negócios estão andando, quais travaram e o que acontece em seguida. Sete etapas com um próximo passo com data em cada negócio aberto e os motivos de ganho e de perda.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "hold",
         "page": null
       }
     }
@@ -1624,6 +1776,7 @@
         "summary": "Wissen, welche Lieferanten freigegeben sind und welches Zertifikat als Nächstes abläuft. Ein Lieferantenregister mit Fragebogen, Zertifikaten mit Ablaufdatum, Risikoklasse und einer Entscheidung je Lieferant.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -1631,6 +1784,7 @@
         "summary": "Know which suppliers are approved and which certificate expires next. A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier and a decision for each supplier.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -1638,6 +1792,7 @@
         "summary": "Ten claro qué proveedores están homologados y qué certificado vence primero. Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo y decisión de homologación para cada uno.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -1645,6 +1800,7 @@
         "summary": "Sachez quels fournisseurs sont référencés et quel certificat expire en premier. Un registre de fournisseurs avec questionnaire de qualification, certificats avec date de validité, niveau de risque et décision pour chacun.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -1652,6 +1808,7 @@
         "summary": "Vedi quali fornitori sono qualificati e quale certificato scade per primo. Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio e una decisione per ogni fornitore.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "nl": {
@@ -1659,6 +1816,7 @@
         "summary": "Weet welke leveranciers zijn goedgekeurd en welk certificaat als eerste verloopt. Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -1666,6 +1824,7 @@
         "summary": "Wiedz, którzy dostawcy są zatwierdzeni i który certyfikat wygasa jako następny. Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka i decyzją o zatwierdzeniu dla każdego dostawcy.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pt": {
@@ -1673,6 +1832,7 @@
         "summary": "Saiba quais fornecedores estão homologados e qual certidão vence primeiro. Um cadastro com questionário de qualificação, certidões com validade, nível de risco e uma decisão para cada fornecedor.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -1709,6 +1869,7 @@
         "summary": "Mandate, laufende Arbeiten und Fristen im Griff behalten. Ein Mandat über Identifizierung und Mandatsvertrag gewinnen, wiederkehrende Vorgänge je Mandant führen und ein Fristenregister, das eine zweite Person verifiziert.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -1716,6 +1877,7 @@
         "summary": "Keep every mandate, client job and deadline under control. Win a mandate through identification and engagement letter, run recurring jobs per client, and keep a deadline register that a second person verifies.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -1723,6 +1885,7 @@
         "summary": "Ten bajo control cada encargo, expediente y plazo. Consigue encargos con identificación PBC/FT y hoja de encargo, lleva el trabajo recurrente de cada cliente y mantén un calendario de plazos que verifica una segunda persona.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -1730,6 +1893,7 @@
         "summary": "Gardez la main sur missions, dossiers et échéances. Obtenez une mission avec vigilance LCB-FT et lettre de mission, suivez le travail récurrent par client et tenez un registre d’échéances vérifié par une seconde personne.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -1737,6 +1901,7 @@
         "summary": "Tieni sotto controllo incarichi, pratiche e scadenze dello studio. Acquisisci l'incarico con adeguata verifica e lettera d'incarico, segui il lavoro ricorrente per cliente e tieni uno scadenzario verificato da una seconda persona.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -1744,6 +1909,7 @@
         "summary": "Houd elke opdracht, elk dossier en elke termijn onder controle. Opdrachten via cliëntenonderzoek en opdrachtbevestiging, terugkerend werk per klant en een termijnenregister dat een tweede persoon controleert.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1751,6 +1917,7 @@
         "summary": "Miej pod kontrolą każdą umowę, każde rozliczenie klienta i każdy termin. Pozyskaj klienta przez weryfikację AML i umowę, prowadź powtarzalne rozliczenia na klienta i rejestr terminów sprawdzany przez drugą osobę.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1758,6 +1925,7 @@
         "summary": "Mantenha cada contrato, entrega e prazo sob controle. Conquiste clientes com diligência de PLD e contrato de prestação de serviços, faça o trabalho recorrente por cliente e deixe cada prazo conferido por uma segunda pessoa.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       }
     }
@@ -1787,6 +1955,7 @@
         "summary": "Sehen, wer was bis wann erledigt, ohne schweres Projektwerkzeug. Projekte und Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf einer Liste.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -1794,6 +1963,7 @@
         "summary": "See who is doing what by when, without a heavy project tool. Projects and tasks with one owner and one due date, recurring chores and requests from outside the team on one list.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -1801,6 +1971,7 @@
         "summary": "Ve quién hace qué y para cuándo, sin una herramienta de proyectos pesada. Proyectos y tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes de fuera del equipo en la misma lista.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "fr": {
@@ -1808,6 +1979,7 @@
         "summary": "Voyez qui fait quoi pour quand, sans outil de projet lourd. Des projets et des tâches avec un responsable et une échéance, les tâches récurrentes et les demandes venues de l’extérieur sur la même liste.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "it": {
@@ -1815,6 +1987,7 @@
         "summary": "Vedi chi fa che cosa e per quando, senza uno strumento di project management pesante. Progetti e attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno del team sulla stessa lista.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "nl": {
@@ -1822,6 +1995,7 @@
         "summary": "Zie wie wat wanneer doet, zonder zware projecttool. Projecten en taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pl": {
@@ -1829,6 +2003,7 @@
         "summary": "Zobacz, kto co robi i do kiedy, bez ciężkiego narzędzia do projektów. Projekty i zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby spoza zespołu na jednej liście.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "pt": {
@@ -1836,6 +2011,7 @@
         "summary": "Veja quem está fazendo o quê e até quando, sem uma ferramenta pesada de projetos. Projetos e tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       }
     }
@@ -1873,6 +2049,7 @@
         "summary": "Jedes Angebot nachfassen, jeden Auftrag im Blick behalten, vom ersten Anruf bis zur Zahlung. Besichtigung, Angebot, Ausführung von geplant bis bezahlt, dazu Widerrufs-, Gewährleistungs- und Wartungstermine.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -1880,6 +2057,7 @@
         "summary": "Follow up every quote and keep every job on track, from the first call to payment. Site visit, quote and the work itself from scheduled to paid, with withdrawal, warranty and service dates on each job.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -1887,6 +2065,7 @@
         "summary": "Haz seguimiento de cada presupuesto y mantén cada trabajo al día, de la primera llamada al cobro: visita técnica, presupuesto y obra de programado a pagado, con fechas de desistimiento, garantía y mantenimiento.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -1894,6 +2073,7 @@
         "summary": "Relancez chaque devis et gardez chaque chantier sous contrôle, du premier appel au paiement. Visite, devis, puis les travaux de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -1901,6 +2081,7 @@
         "summary": "Sollecita ogni preventivo e tieni ogni lavoro sotto controllo, dalla prima chiamata al pagamento. Sopralluogo, preventivo e lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -1908,6 +2089,7 @@
         "summary": "Volg elke offerte op en houd elke opdracht op koers, van het eerste telefoontje tot betaling. Opname, offerte en het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1915,6 +2097,7 @@
         "summary": "Wracaj do każdej oferty i pilnuj każdego zlecenia, od pierwszego telefonu do zapłaty. Oględziny, wycena i same prace od zaplanowanych do opłaconych, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1922,6 +2105,7 @@
         "summary": "Retorne cada orçamento e mantenha cada serviço no prazo, da primeira ligação ao pagamento. Visita técnica, orçamento e execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       }
     }
@@ -1948,6 +2132,7 @@
         "summary": "Nie vergessen, wer einen Deal vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Ein Dealflow für einen kleinen Fonds oder Business Angel, mit acht Phasen von erkannt bis vollzogen oder abgelehnt.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "en": {
@@ -1955,6 +2140,7 @@
         "summary": "Remember who introduced a deal, why you passed and when to look again. A deal flow for a small fund or angel, with eight stages from sourced to closed or passed.",
         "status": "draft",
         "publicPage": "own",
+        "publishWave": "wave2",
         "page": null
       },
       "es": {
@@ -1962,6 +2148,7 @@
         "summary": "Recuerda quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Un dealflow para un fondo pequeño o un business angel, con ocho etapas de la detección al cierre o al rechazo.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -1969,6 +2156,7 @@
         "summary": "Retrouvez qui vous a apporté un dossier, pourquoi vous avez refusé et quand le revoir. Un dealflow pour un petit fonds ou un business angel, avec huit étapes de la détection au closing ou au refus.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -1976,6 +2164,7 @@
         "summary": "Ricorda chi ti ha presentato un'operazione, perché hai detto no e quando riguardarla. Un dealflow per un piccolo fondo o un business angel, con otto fasi dall'individuazione al closing o al rifiuto.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -1983,6 +2172,7 @@
         "summary": "Onthoud wie een deal aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Een dealflow voor een klein fonds of business angel, met acht fasen van gesignaleerd tot gesloten of afgewezen.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -1990,6 +2180,7 @@
         "summary": "Pamiętaj, kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -1997,6 +2188,7 @@
         "summary": "Lembre quem indicou cada negócio, por que você recusou e quando olhar de novo. Um dealflow para um fundo pequeno ou um investidor-anjo, com oito etapas da identificação ao fechamento ou à recusa.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       }
     }
@@ -2035,6 +2227,7 @@
         "summary": "Keine Kunden mehr verlieren, die per WhatsApp schreiben. Jeder Chat wird zur Anfrage mit Angebot, terminiertem nächstem Schritt und Wiedervorlage, damit Sie schnell antworten, nachfassen und den Wiederkauf nicht vergessen.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "en": {
@@ -2042,6 +2235,7 @@
         "summary": "Stop losing customers who write to you on WhatsApp. Every chat becomes an inquiry with a quote, a dated next step and a come-back date, so you reply fast, follow up in days and remember the repeat purchase.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "es": {
@@ -2049,6 +2243,7 @@
         "summary": "Deja de perder a los clientes que te escriben por WhatsApp. Cada chat pasa a ser una consulta con presupuesto, seguimiento con fecha y fecha para volver, así respondes rápido y te acuerdas de la recompra.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       },
       "fr": {
@@ -2056,6 +2251,7 @@
         "summary": "Ne perdez plus les clients qui vous écrivent sur WhatsApp. Chaque conversation devient une demande avec un devis, une relance datée et une date pour revenir : vous répondez vite, relancez en quelques jours et pensez au réachat.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "it": {
@@ -2063,6 +2259,7 @@
         "summary": "Smetti di perdere i clienti che ti scrivono su WhatsApp. Ogni chat diventa una richiesta con preventivo e un prossimo passo con data, così rispondi in fretta, solleciti dopo pochi giorni e ricordi il riacquisto.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "nl": {
@@ -2070,6 +2267,7 @@
         "summary": "Verlies geen klanten meer die je via WhatsApp schrijven. Elk gesprek wordt een aanvraag met offerte, een volgende stap met datum en een terugkomdatum, zodat je snel antwoordt, binnen dagen opvolgt en aan de herhaalaankoop denkt.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pl": {
@@ -2077,6 +2275,7 @@
         "summary": "Nie trać klientów, którzy piszą na WhatsAppie. Każda rozmowa staje się zapytaniem z ofertą, następnym krokiem z terminem i datą powrotu, więc odpowiadasz szybko, przypominasz się po kilku dniach i pamiętasz o ponownym zakupie.",
         "status": "draft",
         "publicPage": "none",
+        "publishWave": null,
         "page": null
       },
       "pt": {
@@ -2084,6 +2283,7 @@
         "summary": "Pare de perder clientes que escrevem no WhatsApp. Cada conversa vira um atendimento com orçamento, próximo contato com data e data para voltar, para você responder rápido, fazer o retorno em dias e lembrar da recompra.",
         "status": "draft",
         "publicPage": "proof",
+        "publishWave": null,
         "page": null
       }
     }

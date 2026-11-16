@@ -25,17 +25,21 @@ describe("template visibility", () => {
     expect(templateVisibility(entry, "en", { shipped: ALL_CAPABILITIES })).toBe("hidden");
   });
 
-  it("shows a published own page, a published proof page and a published block", () => {
+  it("indexes only a wave-1 own page and renders every other published page as noindex", () => {
     const entry = entryOf("a", {
       locales: {
-        de: localeOf({ publicPage: "proof" }),
+        de: localeOf({ publicPage: "proof", publishWave: null }),
         en: localeOf({ publicPage: "own" }),
-        fr: localeOf({ publicPage: "none" }),
+        es: localeOf({ publicPage: "own", publishWave: "wave2" }),
+        fr: localeOf({ publicPage: "none", publishWave: null }),
+        it: localeOf({ page: null, publicPage: "none", publishWave: null }),
       },
     });
     expect(templateVisibility(entry, "en")).toBe("own");
     expect(templateVisibility(entry, "de")).toBe("proof");
-    expect(templateVisibility(entry, "fr")).toBe("block");
+    expect(templateVisibility(entry, "es")).toBe("proof");
+    expect(templateVisibility(entry, "fr")).toBe("proof");
+    expect(templateVisibility(entry, "it")).toBe("block");
   });
 
   it("hides a page that has no page text, because it could not carry a title or description", () => {
@@ -71,7 +75,7 @@ describe("template listings", () => {
       pairedPages: { en: "/for/real-estate" },
     }),
     entryOf("block-one", {
-      locales: { en: localeOf({ publicPage: "none" }) },
+      locales: { en: localeOf({ page: null, publicPage: "none" }) },
       pairedPages: { en: "/for/real-estate" },
     }),
     entryOf("draft-one", { locales: { en: localeOf({ status: "draft" }) } }),

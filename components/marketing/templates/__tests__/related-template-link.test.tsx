@@ -9,7 +9,12 @@ import type { TemplateIndex } from "@/core/templates/template-index.types";
 
 import { renderAsync } from "./render-async";
 
-const BASELINE = rawIndex as unknown as TemplateIndex;
+const BASELINE: TemplateIndex = (rawIndex as unknown as TemplateIndex).map((entry) => ({
+  ...entry,
+  locales: Object.fromEntries(
+    Object.entries(entry.locales).map(([code, text]) => [code, { ...text, status: "draft" as const }]),
+  ),
+}));
 const state = vi.hoisted(() => ({ index: [] as unknown[] }));
 
 vi.mock("next-intl/server", () => ({
@@ -44,7 +49,15 @@ function publish(slug: string, publicPage: "own" | "proof") {
     entry.slug === slug
       ? {
           ...entry,
-          locales: { ...entry.locales, en: { ...entry.locales.en, publicPage, status: "published" as const } },
+          locales: {
+            ...entry.locales,
+            en: {
+              ...entry.locales.en,
+              publicPage,
+              publishWave: publicPage === "own" ? ("wave1" as const) : null,
+              status: "published" as const,
+            },
+          },
         }
       : entry,
   );

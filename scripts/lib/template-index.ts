@@ -12,6 +12,7 @@ function entryOf({ spec, text }: TemplateBundle): TemplateIndexEntry {
       summary: copy.summary,
       status,
       publicPage: spec.publicPage[locale] ?? "none",
+      publishWave: spec.publishWave[locale] ?? null,
       page: copy.page ? { metaTitle: copy.page.metaTitle, metaDescription: copy.page.metaDescription } : null,
     };
   }

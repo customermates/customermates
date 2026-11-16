@@ -40,8 +40,8 @@ export function templateVisibility(
 ): TemplateVisibility {
   const text = entry.locales[locale];
   if (!text || text.status !== "published" || !offered(entry, options)) return "hidden";
-  if (text.publicPage === "none") return "block";
-  return text.page ? text.publicPage : "hidden";
+  if (!text.page) return text.publicPage === "none" ? "block" : "hidden";
+  return text.publicPage === "own" && text.publishWave === "wave1" ? "own" : "proof";
 }
 
 function visible(locale: string, options: TemplatePublicationOptions): VisibleTemplate[] {
