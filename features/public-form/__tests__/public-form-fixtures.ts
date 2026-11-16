@@ -1,5 +1,10 @@
 import type { RecordField, RecordModel } from "@/features/records/record-model.schema";
+import type { PublicFormQuota } from "../public-form-quota";
 import type { PublicFormConfig } from "../public-form.schema";
+
+export const UNLIMITED_PUBLIC_FORM_QUOTA: PublicFormQuota = {
+  limits: () => Promise.resolve({ submissionsPerMonth: null, badge: false }),
+};
 
 export const COMPANY_ID = "00000000-0000-4000-8000-0000000000c1";
 export const USER_ID = "00000000-0000-4000-8000-0000000000a1";

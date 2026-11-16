@@ -13,10 +13,6 @@ export type PublicFormQuota = {
 
 const UNLIMITED_LIMITS: FormLimits = { submissionsPerMonth: null, badge: false };
 
-export const UNLIMITED_PUBLIC_FORM_QUOTA: PublicFormQuota = {
-  limits: () => Promise.resolve(UNLIMITED_LIMITS),
-};
-
 type PlanSource = { plan(companyId?: string): Promise<{ plan: PlanId | null }> };
 
 export class PlanPublicFormQuota implements PublicFormQuota {

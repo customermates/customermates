@@ -24,9 +24,9 @@ import { DisablePublicFormInteractor } from "../disable-public-form.interactor";
 import { GetPublicFormEditorInteractor } from "../get-public-form-editor.interactor";
 import { GetPublicFormInteractor } from "../get-public-form.interactor";
 import { ListPublicFormsInteractor } from "../list-public-forms.interactor";
-import { UNLIMITED_PUBLIC_FORM_QUOTA } from "../public-form-quota";
 import { UpsertPublicFormInteractor } from "../upsert-public-form.interactor";
 import {
+  UNLIMITED_PUBLIC_FORM_QUOTA,
   FORM_ID,
   NOTES_FIELD,
   PEOPLE_TYPE_ID,
