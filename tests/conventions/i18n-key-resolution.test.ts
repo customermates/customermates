@@ -50,6 +50,7 @@ import {
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { PLAN_IDS } from "@/core/commercial/plan-catalog";
+import { TEMPLATE_FAMILIES } from "@/core/templates/template-spec.schema";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
 import { STATIC_COMMANDS } from "@/components/keyboard/command-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
@@ -426,6 +427,9 @@ const ONBOARDING_CHOICE_KEYS = [
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
 const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
+const ONBOARDING_TEMPLATE_FAMILY_KEYS = TEMPLATE_FAMILIES.map(
+  (family) => `OnboardingWizard.template.families.${family}`,
+);
 const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
   ONBOARDING_METHODS.map((method) => `OnboardingWizard.ai.methods.${method}.${field}`);
@@ -630,6 +634,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.openai.methods.${*}.meta", onboardingOpenAiMethodKeys("meta")],
   ["OnboardingWizard.ai.openai.methods.${*}.note", onboardingOpenAiMethodKeys("note")],
   ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
+  ["OnboardingWizard.template.families.${*}", ONBOARDING_TEMPLATE_FAMILY_KEYS],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["WorkspaceSetup.suggestedSteps.${*}", SETUP_STEP_SUGGESTION_KEYS],
@@ -829,6 +834,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${s}",
+  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-copy.ts :: t :: OnboardingWizard.template.families.${family}",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.subtitle",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.title",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",

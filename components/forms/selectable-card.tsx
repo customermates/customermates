@@ -8,8 +8,10 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
+  badge?: ReactNode;
   description?: string;
   disabled?: boolean;
+  eyebrow?: ReactNode;
   id: string;
   label: string;
   labelClassName?: string;
@@ -31,12 +33,22 @@ type RadioCardProps = BaseProps & {
 type Props = CheckboxCardProps | RadioCardProps;
 
 const DESCRIPTION_CLASS = "text-xs font-normal leading-relaxed text-muted-foreground";
+const EYEBROW_CLASS = "text-[11px] font-medium tracking-wide text-muted-foreground uppercase";
 
 export function SelectableCard(props: Props) {
-  const { description, disabled, id, label, labelClassName, leading, selectionMode, visual } = props;
+  const { badge, description, disabled, eyebrow, id, label, labelClassName, leading, selectionMode, visual } = props;
   const controlClassName = "peer absolute left-3 top-3 z-10";
-  const title = (
+  const name = (
     <span className="min-w-0 max-w-full text-sm leading-snug font-medium wrap-anywhere text-foreground">{label}</span>
+  );
+  const title = badge ? (
+    <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+      {name}
+
+      {badge}
+    </span>
+  ) : (
+    name
   );
   const control =
     selectionMode === "single" ? (
@@ -68,6 +80,8 @@ export function SelectableCard(props: Props) {
         )}
         htmlFor={id}
       >
+        {eyebrow ? <span className={EYEBROW_CLASS}>{eyebrow}</span> : null}
+
         {leading ? (
           <span className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1">
             {leading}

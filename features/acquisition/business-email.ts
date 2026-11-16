@@ -1,4 +1,4 @@
-const FREE_MAIL_DOMAINS = new Set([
+export const FREE_MAIL_DOMAINS: ReadonlySet<string> = new Set([
   "aol.com",
   "bluewin.ch",
   "free.fr",

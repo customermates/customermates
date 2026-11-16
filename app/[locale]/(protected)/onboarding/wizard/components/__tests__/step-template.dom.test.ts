@@ -30,7 +30,9 @@ vi.mock("../../onboarding-agent-actions", () => ({
 
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
-import { StepTemplate, StepTemplateFooter, TEMPLATE_INITIAL_LIMIT } from "../step-template";
+import { StepTemplate, StepTemplateFooter } from "../step-template";
+
+const TEMPLATE_INITIAL_LIMIT = 6;
 
 let container: HTMLDivElement;
 let root: Root;

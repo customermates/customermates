@@ -11,18 +11,18 @@ import type {
 } from "@/features/onboarding-templates/onboarding-template-offer";
 
 import { AppCardFooter } from "@/components/card/app-card-footer";
+import { SelectableCard } from "@/components/forms/selectable-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/core/utils/cn";
 
 import { templateFamilyLabel } from "./onboarding-copy";
+import { WIZARD_CHOICE_CARD_CLASS } from "./wizard-choice";
 import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
 
-export const TEMPLATE_INITIAL_LIMIT = 6;
+const TEMPLATE_INITIAL_LIMIT = 6;
 
 type Props = {
   cards: readonly OnboardingTemplateCard[];
@@ -48,44 +48,31 @@ const TemplateCounts = ({ counts }: { counts: OnboardingTemplateCard["counts"] }
 
 const TemplateChoice = ({
   card,
-  selected,
   badge,
   disabled,
 }: {
   card: OnboardingTemplateCard;
-  selected: boolean;
   badge: string | null;
   disabled: boolean;
 }) => {
   const t = useTranslations();
-  const id = `onboarding-template-${card.slug}`;
 
   return (
-    <div className="relative min-w-0">
-      <RadioGroupItem className="peer absolute top-3 right-3 z-10" disabled={disabled} id={id} value={card.slug} />
-
-      <Label
-        className={cn(
-          "interactive-surface flex h-full min-w-0 max-w-full cursor-pointer flex-col items-start gap-2 rounded-xl border bg-input-background p-4 pr-10 text-left shadow-xs *:max-w-full",
-          selected ? "border-2 border-primary bg-primary/5 p-[15px] pr-[39px]" : "border-input",
-          "peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50",
-          "peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
-        )}
-        htmlFor={id}
-      >
-        <span className="flex flex-wrap items-center gap-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-          {badge ?? templateFamilyLabel(t, card.family)}
-        </span>
-
-        <span className="text-sm leading-snug font-semibold wrap-anywhere text-foreground">{card.name}</span>
-
-        <span className="text-xs leading-relaxed font-normal text-muted-foreground">{card.summary}</span>
-
+    <SelectableCard
+      description={card.summary}
+      disabled={disabled}
+      eyebrow={badge ?? templateFamilyLabel(t, card.family)}
+      id={`onboarding-template-${card.slug}`}
+      label={card.name}
+      labelClassName={WIZARD_CHOICE_CARD_CLASS}
+      selectionMode="single"
+      value={card.slug}
+      visual={
         <span className="mt-auto w-full border-t border-border/70 pt-2">
           <TemplateCounts counts={card.counts} />
         </span>
-      </Label>
-    </div>
+      }
+    />
   );
 };
 
@@ -171,13 +158,7 @@ export const StepTemplate = observer(({ cards, preselection }: Props) => {
           onValueChange={store.setSelectedTemplate}
         >
           {visible.map((card) => (
-            <TemplateChoice
-              key={card.slug}
-              badge={badgeFor(card)}
-              card={card}
-              disabled={disabled}
-              selected={card.slug === selected}
-            />
+            <TemplateChoice key={card.slug} badge={badgeFor(card)} card={card} disabled={disabled} />
           ))}
         </RadioGroup>
       )}

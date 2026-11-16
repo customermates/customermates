@@ -9,6 +9,7 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SelectableCard } from "@/components/forms/selectable-card";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -16,7 +17,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import type { OnboardingJob } from "@/features/onboarding-funnel/onboarding-job";
 
 import { agentChecklist } from "./onboarding-copy";
-import { SetupChoiceCard } from "./setup-choice-card";
+import { WIZARD_CHOICE_CARD_CLASS } from "./wizard-choice";
 import { WIZARD_FOOTER_CLASS } from "./wizard-footer";
 
 const AgentProviders = () => {
@@ -114,7 +115,7 @@ export const StepGoal = observer(() => {
         {jobs.map((job) => {
           if (job === "agent") {
             return (
-              <SetupChoiceCard
+              <SelectableCard
                 key={job}
                 badge={<Badge>{t("OnboardingWizard.goal.recommended")}</Badge>}
                 description={
@@ -124,20 +125,24 @@ export const StepGoal = observer(() => {
                 }
                 disabled={disabled}
                 id="onboarding-goal-agent"
+                label={t("OnboardingWizard.goal.agent.title")}
+                labelClassName={WIZARD_CHOICE_CARD_CLASS}
                 leading={<Bot aria-hidden="true" className="size-4 text-primary" />}
-                selected={store.selectedJob === job}
-                title={t("OnboardingWizard.goal.agent.title")}
+                selectionMode="single"
                 value={job}
-              >
-                <AgentProviders />
+                visual={
+                  <>
+                    <AgentProviders />
 
-                <AgentSteps />
-              </SetupChoiceCard>
+                    <AgentSteps />
+                  </>
+                }
+              />
             );
           }
           if (job === "workspace") {
             return (
-              <SetupChoiceCard
+              <SelectableCard
                 key={job}
                 badge={
                   store.selfHosted ? (
@@ -151,23 +156,25 @@ export const StepGoal = observer(() => {
                 description={mateDescription}
                 disabled={disabled}
                 id="onboarding-goal-workspace"
+                label={mateTitle}
+                labelClassName={WIZARD_CHOICE_CARD_CLASS}
                 leading={<Sparkles aria-hidden="true" className="size-4 text-primary" />}
-                selected={store.selectedJob === job}
-                title={mateTitle}
+                selectionMode="single"
                 value={job}
               />
             );
           }
           return (
-            <SetupChoiceCard
+            <SelectableCard
               key={job}
               badge={<Badge variant="secondary">{t("OnboardingWizard.goal.suggested")}</Badge>}
               description={t("OnboardingWizard.goal.followup.description")}
               disabled={disabled}
               id="onboarding-goal-followup"
+              label={t("OnboardingWizard.goal.followup.title")}
+              labelClassName={WIZARD_CHOICE_CARD_CLASS}
               leading={<MessagesSquare aria-hidden="true" className="size-4 text-primary" />}
-              selected={store.selectedJob === job}
-              title={t("OnboardingWizard.goal.followup.title")}
+              selectionMode="single"
               value={job}
             />
           );

@@ -1,20 +1,9 @@
-import { emailDomain } from "@/features/acquisition/business-email";
+import { FREE_MAIL_DOMAINS, emailDomain } from "@/features/acquisition/business-email";
 
 type EmailChannelKey = "google" | "outlook" | "imap";
 
-const MICROSOFT_DOMAINS = new Set([
-  "hotmail.co.uk",
-  "hotmail.com",
-  "hotmail.de",
-  "hotmail.fr",
-  "hotmail.it",
-  "live.com",
-  "live.de",
-  "msn.com",
-  "outlook.com",
-  "outlook.de",
-  "outlook.fr",
-]);
+const MICROSOFT_MAIL_HOST = /^(?:hotmail|live|msn|outlook)\./u;
+const MICROSOFT_DOMAINS = new Set([...FREE_MAIL_DOMAINS].filter((domain) => MICROSOFT_MAIL_HOST.test(domain)));
 
 export function orderedEmailChannels(email: string): EmailChannelKey[] {
   const domain = emailDomain(email);
