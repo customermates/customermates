@@ -1,32 +1,37 @@
 import type { EventLog } from "@/generated/prisma";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventAdmission } from "@/features/event/event-admission";
+import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
+import type { StoredAutomationRule } from "./automation-rule.repo";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 
-import { describeAutomationEvent, triggerMatchesEvent } from "./automation-event";
+import { RecordEventPayloadSchema } from "@/features/records/record-event.schema";
 import { mayTriggerAutomationRule } from "./automation-context";
+import { describeAutomationEvent, triggerMatchesEvent } from "./automation-event";
+import { eventOccurrenceKey } from "./automation-occurrence";
 import { AutomationTriggerSchema } from "./automation-rule.schema";
+
+type Occurrence = { typeId: string | null; recordId: string | null; occurrenceKey: string; chain: string[] };
 
 export class AutomationRuleAdmission implements EventAdmission {
   constructor(
     private readonly rules: AutomationRuleRepo,
     private readonly background: Pick<BackgroundTaskService, "dispatch">,
+    private readonly reader: RecordRecipientReader,
     private readonly clock: () => Date = () => new Date(),
   ) {}
 
   async admit(event: EventLog): Promise<void> {
+    if (event.subjectKind === "record") return this.admitRecordEvent(event);
     const descriptor = describeAutomationEvent(event);
     if (!descriptor) return;
-    const rules = await this.rules.findEventRulesUnscoped({
+    const rules = await this.rules.findEnabledRulesUnscoped({
       companyId: event.companyId,
-      triggerKinds: descriptor.triggerKinds,
-      typeId: descriptor.typeId,
-      includeUntyped: descriptor.includeUntyped,
+      triggerKind: descriptor.triggerKind,
     });
     for (const rule of rules) {
-      if (!rule.ownerUserId || !mayTriggerAutomationRule(rule.id, descriptor.chain)) continue;
       const trigger = AutomationTriggerSchema.safeParse(rule.trigger);
-      if (!trigger.success || !triggerMatchesEvent(trigger.data, descriptor)) continue;
+      if (!rule.ownerUserId || !trigger.success || !triggerMatchesEvent(trigger.data, descriptor)) continue;
       if (
         descriptor.connectedAccountId &&
         !(await this.rules.canUserAccessConnectedAccountUnscoped(
@@ -36,24 +41,64 @@ export class AutomationRuleAdmission implements EventAdmission {
         ))
       )
         continue;
-      const runId = await this.rules.admitRunUnscoped({
+      await this.start(event, rule, rule.ownerUserId, { ...descriptor, chain: [] });
+    }
+  }
+
+  private async admitRecordEvent(event: EventLog): Promise<void> {
+    const matches = await this.reader.findEventMatches(event, "rule");
+    if (!matches.length) return;
+    const { ref, cause } = RecordEventPayloadSchema.parse(event.payload);
+    const chain = cause.ruleChain ?? [];
+    const rules = await this.rules.findEnabledRulesUnscoped({
+      companyId: event.companyId,
+      ids: matches.map((match) => match.subscriptionId),
+    });
+    const byId = new Map(rules.map((rule) => [rule.id, rule]));
+    for (const match of matches) {
+      const rule = byId.get(match.subscriptionId);
+      if (
+        !rule?.ownerUserId ||
+        rule.ownerUserId !== match.subscription.ownerUserId ||
+        match.subscriptionRevision !== match.subscription.revision ||
+        !mayTriggerAutomationRule(rule.id, chain)
+      )
+        continue;
+      const envelope = await this.reader.readEvent({
         companyId: event.companyId,
-        ruleId: rule.id,
-        occurrenceKey: descriptor.occurrenceKey,
-        triggerKind: rule.triggerKind,
-        typeId: descriptor.typeId,
-        recordId: descriptor.recordId,
-        payload: { chain: descriptor.chain, eventId: event.id, event: event.kind },
-        depth: descriptor.chain.length,
-        scheduledFor: this.clock(),
+        userId: rule.ownerUserId,
+        eventId: event.id,
+        subscriptionId: rule.id,
       });
-      if (runId) {
-        await this.background.dispatch("run-automation-rule", {
-          runId,
-          companyId: event.companyId,
-          ownerUserId: rule.ownerUserId,
+      if (envelope) {
+        await this.start(event, rule, rule.ownerUserId, {
+          typeId: ref.typeId,
+          recordId: ref.recordId,
+          occurrenceKey: eventOccurrenceKey(event.id),
+          chain,
         });
       }
     }
+  }
+
+  private async start(
+    event: EventLog,
+    rule: StoredAutomationRule,
+    ownerUserId: string,
+    occurrence: Occurrence,
+  ): Promise<void> {
+    const runId = await this.rules.admitRunUnscoped({
+      companyId: event.companyId,
+      ruleId: rule.id,
+      occurrenceKey: occurrence.occurrenceKey,
+      triggerKind: rule.triggerKind,
+      typeId: occurrence.typeId,
+      recordId: occurrence.recordId,
+      payload: { chain: occurrence.chain, eventId: event.id, event: event.kind },
+      depth: occurrence.chain.length,
+      scheduledFor: this.clock(),
+    });
+    if (runId)
+      await this.background.dispatch("run-automation-rule", { runId, companyId: event.companyId, ownerUserId });
   }
 }

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { FreePlanMember, FreePlanMemberRepo } from "../free-plan-member.repo";
 import type { PlanInviteRepo } from "../plan-invite.repo";
 import type { PlanRoutinePauseRepo } from "../plan-routine-pause.repo";
+import type { PlanRulePauseRepo } from "../plan-rule-pause.repo";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
@@ -57,12 +58,21 @@ function setup(sub: ReturnType<typeof subscription>, members: FreePlanMember[], 
     deleteInviteTokensUnscoped: vi.fn().mockResolvedValue(1),
     pauseRoutinesForPlanCompanyWide: vi.fn().mockResolvedValue(2),
     resumeRoutinesForPlanCompanyWide: vi.fn().mockResolvedValue(2),
+    syncRulesToPlanLimitCompanyWide: vi.fn().mockResolvedValue({ paused: 4, resumed: 1 }),
   };
   const repo = fns as unknown as FreePlanMemberRepo;
   const invites = fns as unknown as PlanInviteRepo;
   const routines = fns as unknown as PlanRoutinePauseRepo;
+  const rules = fns as unknown as PlanRulePauseRepo;
   const seatQuantity = vi.fn().mockResolvedValue(undefined);
-  const service = new FreePlanPauseService(repo, invites, () => routines, "cloud", seatQuantity);
+  const service = new FreePlanPauseService(
+    repo,
+    invites,
+    () => routines,
+    () => rules,
+    "cloud",
+    seatQuantity,
+  );
   return { repo, fns, seatQuantity, service };
 }
 
@@ -153,6 +163,8 @@ describe("Free plan transitions", () => {
       resumed: 0,
       routinesPaused: 2,
       routinesResumed: 0,
+      rulesPaused: 4,
+      rulesResumed: 1,
     });
     expect(fns.pauseMembersForPlanUnscoped).toHaveBeenCalledWith({
       companyId: COMPANY,
@@ -180,12 +192,36 @@ describe("Free plan transitions", () => {
     expect(fns.pauseMembersForPlanUnscoped).not.toHaveBeenCalled();
   });
 
+  it("keeps the active rules within what the plan allows", async () => {
+    const rules = (subscriptionOverride: ReturnType<typeof subscription>) => {
+      const { fns, service } = setup(subscriptionOverride, []);
+      return { fns, sync: () => service.syncUnscoped(COMPANY, NOW) };
+    };
+    const free = rules(subscription(SubscriptionStatus.expired, -30));
+    await free.sync();
+    expect(free.fns.syncRulesToPlanLimitCompanyWide).toHaveBeenCalledExactlyOnceWith(3);
+    const starter = rules(subscription(SubscriptionStatus.active, -30, SubscriptionPlan.starter));
+    await starter.sync();
+    expect(starter.fns.syncRulesToPlanLimitCompanyWide).toHaveBeenCalledExactlyOnceWith(20);
+    const pro = rules(subscription(SubscriptionStatus.active, -30, SubscriptionPlan.pro));
+    await pro.sync();
+    expect(pro.fns.syncRulesToPlanLimitCompanyWide).toHaveBeenCalledExactlyOnceWith(null);
+  });
+
+  it("leaves the rules alone while a payment failed", async () => {
+    const { fns, service } = setup(subscription(SubscriptionStatus.pastDue, -30), []);
+
+    expect(await service.syncUnscoped(COMPANY, NOW)).toMatchObject({ rulesPaused: 0, rulesResumed: 0 });
+    expect(fns.syncRulesToPlanLimitCompanyWide).not.toHaveBeenCalled();
+  });
+
   it("changes nothing on self-hosted installs", async () => {
     const { repo, fns } = setup(subscription(SubscriptionStatus.trial, -1), [member("a"), member("bb")]);
     const service = new FreePlanPauseService(
       repo,
       { deleteInviteTokensUnscoped: vi.fn() },
       () => ({ pauseRoutinesForPlanCompanyWide: vi.fn(), resumeRoutinesForPlanCompanyWide: vi.fn() }),
+      () => ({ syncRulesToPlanLimitCompanyWide: vi.fn() }),
       "self-hosted",
     );
 
@@ -194,6 +230,8 @@ describe("Free plan transitions", () => {
       resumed: 0,
       routinesPaused: 0,
       routinesResumed: 0,
+      rulesPaused: 0,
+      rulesResumed: 0,
     });
     expect(fns.findPlanSubscriptionUnscoped).not.toHaveBeenCalled();
   });

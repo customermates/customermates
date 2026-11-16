@@ -29,18 +29,3 @@ export type AutomationPlanLimits = {
 export type AutomationNotifyPort = {
   notify(input: NotifyMembersInput): Promise<{ created: number }>;
 };
-
-export type AutomationWebhookResult = {
-  sent: boolean;
-  reason?: "missing" | "disabled" | "plan";
-  statusCode?: number | null;
-};
-
-export type AutomationWebhookPort = {
-  send(input: {
-    companyId: string;
-    webhookId: string;
-    deliveryId: string;
-    payload: Record<string, unknown>;
-  }): Promise<AutomationWebhookResult>;
-};

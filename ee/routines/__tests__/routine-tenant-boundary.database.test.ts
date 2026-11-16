@@ -24,7 +24,7 @@ import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { FailRoutineRunInteractor } from "../fail-routine-run.interactor";
 import { GetRoutineByIdInteractor } from "../get-routine-by-id.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
-import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
+import { createTestAutomationRuleRepo, createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { RoutineLimitExceededError } from "../routine-run-limits";
@@ -850,7 +850,11 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     await client.query(`UPDATE "User" SET "status" = 'inactive' WHERE "id" = $1`, [inactiveOwnerId]);
 
     const releaseRepo = createTestRoutineRepo();
-    await new ReleaseOwnerRoutinesInteractor(releaseRepo, new ReconcileRoutineRunsInteractor(releaseRepo)).invoke({
+    await new ReleaseOwnerRoutinesInteractor(
+      releaseRepo,
+      new ReconcileRoutineRunsInteractor(releaseRepo),
+      createTestAutomationRuleRepo(),
+    ).invoke({
       companyId,
       ownerUserId: inactiveOwnerId,
     });

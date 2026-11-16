@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 
 import type { Prisma } from "@/generated/prisma";
+import type { PlanRulePauseRepo } from "@/ee/subscription/plan-rule-pause.repo";
+import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
+import type { RuleRecordTrigger } from "./automation-record-trigger";
 import type {
   AutomationDateCandidate,
   AutomationOutboundWebhook,
@@ -11,11 +14,13 @@ import type {
   StoredAutomationRuleRun,
 } from "./automation-rule.repo";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
+import type { AutomationRuleLabelRepo } from "./automation-rule-label.repo";
 
-import { AutomationRunStatus } from "@/generated/prisma";
+import { AutomationRunStatus, Status } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere } from "@/ee/messaging/messaging-access";
+import { AUTOMATION_DISABLED_REASON_PLAN_PAUSED } from "./automation-disabled-reason";
 
 const RULE_SELECT = {
   id: true,
@@ -73,7 +78,21 @@ function candidateOf(row: { recordId: string; lexicalValue: string | null; insta
   return { recordId: row.recordId, fieldValue: row.lexicalValue ?? row.instantValue?.toISOString() ?? "" };
 }
 
-export class PrismaAutomationRuleRepo extends TenantRepository implements AutomationRuleRepo {
+export class PrismaAutomationRuleRepo
+  extends TenantRepository
+  implements AutomationRuleRepo, AutomationRuleLabelRepo, PlanRulePauseRepo
+{
+  constructor(
+    private readonly subscriptions: RecordEventSubscriptionRepo,
+    private readonly scopedCompanyId?: string,
+  ) {
+    super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
   async findRules(args: { typeId?: string; ownerUserId?: string; page: number; pageSize: number }) {
     const where: Prisma.AutomationRuleWhereInput = {
       companyId: this.companyId,
@@ -97,21 +116,36 @@ export class PrismaAutomationRuleRepo extends TenantRepository implements Automa
     return this.prisma.automationRule.findFirst({ where: { id, companyId: this.companyId }, select: RULE_SELECT });
   }
 
-  async saveRule(data: AutomationRuleWrite): Promise<StoredAutomationRule> {
+  async saveRule(data: AutomationRuleWrite, recordTrigger: RuleRecordTrigger | null): Promise<StoredAutomationRule> {
     const { id, ...fields } = data;
+    let saved: StoredAutomationRule | null;
     if (id) {
       await this.prisma.automationRule.updateMany({
         where: { id, companyId: this.companyId },
         data: { ...fields, disabledReason: fields.enabled ? null : undefined },
       });
-      const updated = await this.findRule(id);
-      if (!updated) throw new Error("Automation rule disappeared during an update");
-      return updated;
+      saved = await this.findRule(id);
+    } else {
+      saved = await this.prisma.automationRule.create({
+        data: { ...fields, companyId: this.companyId },
+        select: RULE_SELECT,
+      });
     }
-    return this.prisma.automationRule.create({
-      data: { ...fields, companyId: this.companyId },
-      select: RULE_SELECT,
-    });
+    if (!saved) throw new Error("Automation rule disappeared during an update");
+    if (recordTrigger) {
+      await this.subscriptions.save(
+        {
+          id: saved.id,
+          kind: "rule",
+          ownerUserId: data.ownerUserId,
+          ...recordTrigger,
+          sources: null,
+          enabled: data.enabled,
+        },
+        id ? "update" : "create",
+      );
+    } else await this.subscriptions.remove(saved.id);
+    return saved;
   }
 
   async setEnabled(id: string, enabled: boolean, disabledReason: string | null) {
@@ -119,11 +153,15 @@ export class PrismaAutomationRuleRepo extends TenantRepository implements Automa
       where: { id, companyId: this.companyId },
       data: { enabled, disabledReason: enabled ? null : disabledReason },
     });
-    return result.count === 1 ? this.findRule(id) : null;
+    if (result.count !== 1) return null;
+    if (enabled) await this.subscriptions.resume(id);
+    else await this.subscriptions.pause(id);
+    return this.findRule(id);
   }
 
   async deleteRule(id: string): Promise<boolean> {
     const result = await this.prisma.automationRule.deleteMany({ where: { id, companyId: this.companyId } });
+    await this.subscriptions.remove(id);
     return result.count === 1;
   }
 
@@ -172,24 +210,28 @@ export class PrismaAutomationRuleRepo extends TenantRepository implements Automa
   }
 
   @BypassTenantGuard
-  findEventRulesUnscoped(args: {
+  findEnabledRulesUnscoped(args: {
     companyId: string;
-    triggerKinds: StoredAutomationRule["triggerKind"][];
-    typeId: string | null;
-    includeUntyped: boolean;
+    ids?: string[];
+    triggerKind?: StoredAutomationRule["triggerKind"];
   }): Promise<StoredAutomationRule[]> {
-    const typed = args.typeId ? [{ typeId: args.typeId }] : [];
-    const untyped = args.includeUntyped ? [{ typeId: null }] : [];
-    if (typed.length + untyped.length === 0) return Promise.resolve([]);
     return this.prisma.automationRule.findMany({
       where: {
         companyId: args.companyId,
         enabled: true,
-        triggerKind: { in: args.triggerKinds },
-        OR: [...typed, ...untyped],
+        ...(args.ids ? { id: { in: args.ids } } : {}),
+        ...(args.triggerKind ? { triggerKind: args.triggerKind } : {}),
       },
       select: RULE_SELECT,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+  }
+
+  @BypassTenantGuard
+  getLabelsCompanyWide(companyId: string, ids: string[]) {
+    return this.prisma.automationRule.findMany({
+      where: { companyId, id: { in: ids } },
+      select: { id: true, name: true },
     });
   }
 
@@ -322,6 +364,51 @@ export class PrismaAutomationRuleRepo extends TenantRepository implements Automa
   }
 
   @BypassTenantGuard
+  async syncRulesToPlanLimitCompanyWide(limit: number | null): Promise<{ paused: number; resumed: number }> {
+    const companyId = this.companyId;
+    return this.withCompanyTransaction(companyId, async () => {
+      const oldestFirst = [{ createdAt: "asc" as const }, { id: "asc" as const }];
+      const active = await this.prisma.automationRule.findMany({
+        where: { companyId, enabled: true },
+        select: { id: true },
+        orderBy: oldestFirst,
+      });
+      const excess = limit === null ? [] : active.slice(limit).map((rule) => rule.id);
+      if (excess.length) {
+        await this.prisma.automationRule.updateMany({
+          where: { companyId, id: { in: excess } },
+          data: { enabled: false, disabledReason: AUTOMATION_DISABLED_REASON_PLAN_PAUSED },
+        });
+        for (const id of excess) await this.subscriptions.pause(id);
+      }
+      const room = limit === null ? undefined : Math.max(0, limit - (active.length - excess.length));
+      const resumable =
+        room === 0
+          ? []
+          : await this.prisma.automationRule.findMany({
+              where: {
+                companyId,
+                enabled: false,
+                disabledReason: AUTOMATION_DISABLED_REASON_PLAN_PAUSED,
+                owner: { status: Status.active },
+              },
+              select: { id: true },
+              orderBy: oldestFirst,
+              take: room,
+            });
+      const resumedIds = resumable.map((rule) => rule.id);
+      if (resumedIds.length) {
+        await this.prisma.automationRule.updateMany({
+          where: { companyId, id: { in: resumedIds } },
+          data: { enabled: true, disabledReason: null },
+        });
+        for (const id of resumedIds) await this.subscriptions.resume(id);
+      }
+      return { paused: excess.length, resumed: resumedIds.length };
+    });
+  }
+
+  @BypassTenantGuard
   async canUserAccessConnectedAccountUnscoped(
     companyId: string,
     userId: string,
@@ -338,7 +425,7 @@ export class PrismaAutomationRuleRepo extends TenantRepository implements Automa
   async findOutboundWebhookUnscoped(companyId: string, webhookId: string): Promise<AutomationOutboundWebhook | null> {
     return this.prisma.webhook.findFirst({
       where: { id: webhookId, companyId },
-      select: { id: true, url: true, secret: true, headers: true, bodyTemplate: true, enabled: true },
+      select: { id: true, enabled: true, events: true },
     });
   }
 }

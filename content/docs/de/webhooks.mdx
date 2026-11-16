@@ -275,7 +275,7 @@ Der Wert eines Felds vom Typ Formatierter Text ist in Payloads ein `richText`-We
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
-Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Messaging-Ereignisse. Für einen CRM-Webhook wählen Sie **Datensatz erstellt**, **Datensatz aktualisiert**, **Datensatz in den Papierkorb verschoben**, **Datensatz wiederhergestellt** oder **Datensatz endgültig gelöscht** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) und legen die [Datensatzquelle](#record-event-sources) fest; das gilt auch für Listen, die Sie selbst angelegt haben. Alle nutzen den [Standardumschlag](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **Datensatz endgültig gelöscht** (`record.deletedPermanently`), **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus. Siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
+Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[derived.webhooks.events.records]] Datensatzereignisse, [[derived.webhooks.events.messaging]] Messaging-Ereignisse und [[derived.webhooks.events.other]] Ereignisse von Formularen, eingehenden Webhooks und Automatisierungsregeln. Für einen CRM-Webhook wählen Sie **Datensatz erstellt**, **Datensatz aktualisiert**, **Datensatz in den Papierkorb verschoben**, **Datensatz wiederhergestellt** oder **Datensatz endgültig gelöscht** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) und legen die [Datensatzquelle](#record-event-sources) fest; das gilt auch für Listen, die Sie selbst angelegt haben. Alle nutzen den [Standardumschlag](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **Datensatz endgültig gelöscht** (`record.deletedPermanently`), **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus. Siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events [#record-events]
 
@@ -324,6 +324,18 @@ Messaging-Ereignisse feuern bei eingehender Provider-Aktivität auf verbundenen 
 | `messaging.calendar.changed` | Ein verbundener Kalender ändert sich |
 | `messaging.calendar_event.changed` | Ein Kalender-Event ändert sich |
 | `messaging.relation.created` | Eine neue Provider-Relation wird erstellt |
+
+### Events von Formularen, eingehenden Webhooks und Automatisierungsregeln [#other-events]
+
+Diese Events nutzen den [Standardumschlag](#what-does-the-payload-look-like). Customermates speichert eines nur, solange ein Webhook es abonniert oder eine Automatisierungsregel es verwendet, und Routinen lassen sich damit nicht auslösen.
+
+| Event | Wann es feuert | `data` |
+| --- | --- | --- |
+| `form.submitted` | Ein öffentliches Formular oder eine Buchungsseite erhält eine Übermittlung | `source`, `formId`, `formName`, `typeId`, `submissionId`, `outcome`, `recordId`, `personRecordId` und die `answers` nach Feldbezeichnung |
+| `webhook.received` | Ein [eingehender Webhook](#incoming-webhooks) erstellt oder aktualisiert einen Datensatz | `webhookId`, `webhookName`, `typeId`, `deliveryId`, `outcome` und `recordId` |
+| `automation.rule.fired` | Eine Automatisierungsregel mit dem Effekt **Webhook aufrufen** feuert | `ruleId`, `ruleName`, `runId`, `trigger`, `firedAt` und der `record`, der die Regel gestartet hat |
+
+Bei den ersten beiden ist `actorId` `null`. `automation.rule.fired` erreicht nur den Webhook, den die Regel benennt, und nur wenn dieser Webhook das Event ausgewählt hat; `actorId` ist der Besitzer der Regel. Eine Zustellung wird wie jede andere protokolliert, mit Wiederholungen und erneutem Senden.
 
 ## Wie empfange ich Daten aus anderen Tools mit einem eingehenden Webhook? [#incoming-webhooks]
 

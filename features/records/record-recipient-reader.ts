@@ -12,6 +12,7 @@ import { invalidRecordQueryPart } from "./record-query-validation";
 import {
   RecordEventSubscriptionSchema,
   type RecordEventSubscriptionDefinition,
+  type RecordEventSubscriptionKind,
 } from "./record-event-subscription.schema";
 
 export class RecordRecipientReader {
@@ -22,7 +23,7 @@ export class RecordRecipientReader {
 
   findEventMatches(
     event: Pick<EventLog, "companyId" | "id">,
-    kind: "webhook" | "routine",
+    kind: RecordEventSubscriptionKind,
   ): Promise<RecordEventMatchWithSubscription[]> {
     return this.recipients.findEventMatchesUnscoped(event, kind);
   }

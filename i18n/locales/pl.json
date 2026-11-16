@@ -966,7 +966,8 @@
     "disabledReason": {
       "disabledByUser": "Wyłączona.",
       "ownerInactive": "Wyłączona, bo jej właściciel nie jest już aktywnym członkiem.",
-      "ownerMissing": "Wyłączona, bo nie ma właściciela."
+      "ownerMissing": "Wyłączona, bo nie ma właściciela.",
+      "planPaused": "Wyłączona, bo plan pozwala na mniej aktywnych reguł. Włączy się ponownie, gdy plan na to pozwoli."
     },
     "edit": "Edytuj",
     "effect": {
@@ -1640,6 +1641,11 @@
     },
     "events": {
       "connected_account": {
+      "automation": {
+        "rule": {
+          "fired": "Reguła automatyzacji uruchomiona"
+        }
+      },
         "created": "Konto połączone",
         "deleted": "Konto odłączone",
         "reconnected": "Konto połączone ponownie",
@@ -4822,6 +4828,7 @@
         "snapshotTrigger": "{source} zapisuje swoją wartość, gdy zmienia się: {target}.",
         "webhook": "Webhook {source} wysyła zmiany dotyczące: {target}.",
         "widget": "Widżet {source} mierzy: {target}."
+        "rule": "Reguła automatyzacji {source} reaguje na zmiany: {target}.",
       },
       "cleaned": {
         "bindingAvatar": "Element {target} nie jest już używany jako zdjęcie profilowe dla: {consumers}.",

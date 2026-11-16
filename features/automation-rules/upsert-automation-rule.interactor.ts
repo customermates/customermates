@@ -13,6 +13,7 @@ import { fail, failAuthorization, failConflict, failNotFound } from "@/core/vali
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { automationModelIssues } from "./automation-model-validation";
+import { ruleConditionPlan } from "./automation-record-trigger";
 import { toAutomationRuleDto } from "./automation-rule-dto";
 import {
   AutomationConditionSchema,
@@ -57,7 +58,8 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
     const state = mergeFinalState(previous, data);
     const finalIssue = automationRuleFinalStateIssues(state)[0];
     if (finalIssue) return fail(CustomErrorCode.automationRuleInvalid, [finalIssue]);
-    const modelIssue = automationModelIssues(state, await this.records.model())[0];
+    const model = await this.records.model();
+    const modelIssue = automationModelIssues(state, model)[0];
     if (modelIssue) return fail(CustomErrorCode.automationRuleInvalid, modelIssue.split("."));
 
     if (state.enabled && !previous?.enabled) {
@@ -70,17 +72,20 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
       }
     }
 
-    const saved = await this.repo.saveRule({
-      id: previous?.id,
-      name: state.name,
-      enabled: state.enabled,
-      ownerUserId: this.user.id,
-      triggerKind: state.trigger.kind,
-      typeId: triggerTypeId(state.trigger),
-      trigger: state.trigger,
-      conditions: state.conditions,
-      effects: state.effects,
-    });
+    const saved = await this.repo.saveRule(
+      {
+        id: previous?.id,
+        name: state.name,
+        enabled: state.enabled,
+        ownerUserId: this.user.id,
+        triggerKind: state.trigger.kind,
+        typeId: triggerTypeId(state.trigger),
+        trigger: state.trigger,
+        conditions: state.conditions,
+        effects: state.effects,
+      },
+      ruleConditionPlan(state.trigger, state.conditions, model).subscription,
+    );
     return { ok: true as const, data: toAutomationRuleDto(saved) };
   }
 }

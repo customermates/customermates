@@ -22,6 +22,7 @@ const DeletionReferenceSchema = z
     kind: z.enum([
       ...CONFIGURATION_TARGET_KINDS,
       "routine",
+      "rule",
       "webhook",
       "widget",
       "view",
@@ -41,6 +42,7 @@ export const DeletionBlockerSchema = z
       "snapshotTrigger",
       "parentAccess",
       "routine",
+      "rule",
       "webhook",
       "widget",
       "requiresRestore",

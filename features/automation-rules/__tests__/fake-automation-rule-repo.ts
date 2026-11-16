@@ -9,11 +9,13 @@ import type {
   StoredAutomationRule,
   StoredAutomationRuleRun,
 } from "../automation-rule.repo";
+import type { RuleRecordTrigger } from "../automation-record-trigger";
 
 import { AutomationRuleRepo } from "../automation-rule.repo";
 
 export class FakeAutomationRuleRepo extends AutomationRuleRepo {
   rules = new Map<string, StoredAutomationRule>();
+  recordTriggers = new Map<string, RuleRecordTrigger>();
   runs = new Map<string, StoredAutomationRuleRun>();
   candidates: AutomationDateCandidate[] = [];
   webhooks = new Map<string, AutomationOutboundWebhook>();
@@ -54,7 +56,7 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve(this.rules.get(id) ?? null);
   }
 
-  saveRule(data: AutomationRuleWrite) {
+  saveRule(data: AutomationRuleWrite, recordTrigger: RuleRecordTrigger | null) {
     const previous = data.id ? this.rules.get(data.id) : undefined;
     const stored = this.addRule({
       ...previous,
@@ -65,6 +67,8 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
       effects: data.effects as StoredAutomationRule["effects"],
       disabledReason: data.enabled ? null : (previous?.disabledReason ?? null),
     });
+    if (recordTrigger) this.recordTriggers.set(stored.id, recordTrigger);
+    else this.recordTriggers.delete(stored.id);
     return Promise.resolve(stored);
   }
 
@@ -77,6 +81,7 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
   }
 
   deleteRule(id: string) {
+    this.recordTriggers.delete(id);
     return Promise.resolve(this.rules.delete(id));
   }
 
@@ -97,20 +102,27 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve({ items: this.candidates, total: this.candidates.length });
   }
 
-  findEventRulesUnscoped(args: {
+  findEnabledRulesUnscoped(args: {
     companyId: string;
-    triggerKinds: StoredAutomationRule["triggerKind"][];
-    typeId: string | null;
-    includeUntyped: boolean;
+    ids?: string[];
+    triggerKind?: StoredAutomationRule["triggerKind"];
   }) {
     return Promise.resolve(
       [...this.rules.values()].filter(
         (rule) =>
           rule.companyId === args.companyId &&
           rule.enabled &&
-          args.triggerKinds.includes(rule.triggerKind) &&
-          ((args.typeId !== null && rule.typeId === args.typeId) || (args.includeUntyped && rule.typeId === null)),
+          (!args.ids || args.ids.includes(rule.id)) &&
+          (!args.triggerKind || rule.triggerKind === args.triggerKind),
       ),
+    );
+  }
+
+  getLabelsCompanyWide(companyId: string, ids: string[]) {
+    return Promise.resolve(
+      [...this.rules.values()]
+        .filter((rule) => rule.companyId === companyId && ids.includes(rule.id))
+        .map((rule) => ({ id: rule.id, name: rule.name })),
     );
   }
 
@@ -213,6 +225,21 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
       count += 1;
     }
     return Promise.resolve(count);
+  }
+
+  syncRulesToPlanLimitCompanyWide(limit: number | null) {
+    const oldestFirst = (left: StoredAutomationRule, right: StoredAutomationRule) =>
+      left.createdAt.getTime() - right.createdAt.getTime() || left.id.localeCompare(right.id);
+    const active = [...this.rules.values()].filter((rule) => rule.enabled).sort(oldestFirst);
+    const excess = limit === null ? [] : active.slice(limit);
+    for (const rule of excess) this.rules.set(rule.id, { ...rule, enabled: false, disabledReason: "planPaused" });
+    const room = limit === null ? Infinity : Math.max(0, limit - (active.length - excess.length));
+    const resumable = [...this.rules.values()]
+      .filter((rule) => !rule.enabled && rule.disabledReason === "planPaused")
+      .sort(oldestFirst)
+      .slice(0, room);
+    for (const rule of resumable) this.rules.set(rule.id, { ...rule, enabled: true, disabledReason: null });
+    return Promise.resolve({ paused: excess.length, resumed: resumable.length });
   }
 
   canUserAccessConnectedAccountUnscoped(_companyId: string, _userId: string, connectedAccountId: string) {

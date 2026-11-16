@@ -1,4 +1,5 @@
 import type { EventLog } from "@/generated/prisma";
+import type { RecordEventSubscriptionKind } from "./record-event-subscription.schema";
 import type { RecordActor } from "./record.repo";
 import type { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import type { RecordEventMatchWithSubscription, RecordQueryMatch, RecordRecipientRepo } from "./record-recipient.repo";
@@ -38,7 +39,7 @@ export class PrismaRecordRecipientRepo extends TenantRepository implements Recor
   @BypassTenantGuard
   findEventMatchesUnscoped(
     event: Pick<EventLog, "companyId" | "id">,
-    kind: "webhook" | "routine",
+    kind: RecordEventSubscriptionKind,
   ): Promise<RecordEventMatchWithSubscription[]> {
     return this.prisma.recordEventMatch.findMany({
       where: {

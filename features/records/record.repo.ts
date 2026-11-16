@@ -43,6 +43,7 @@ import type { RecordTrashItemRepo } from "@/features/trash/record-trash-item.rep
 import type { RecordEventLogRepo } from "@/features/event/record-event-log.repo";
 import type { RecordWebhookConfigurationRepo } from "@/features/webhook/record-webhook-configuration.repo";
 import type { RoutineLabelRepo } from "@/ee/routines/routine-label.repo";
+import type { AutomationRuleLabelRepo } from "@/features/automation-rules/automation-rule-label.repo";
 import type { RecordMemberRepo } from "@/features/user/record-member.repo";
 import type { RecordRoleRepo } from "@/features/role/record-role.repo";
 import type { RecordFilePurgeRepo } from "./record-file-purge.repo";
@@ -57,6 +58,7 @@ export type RecordRepoOwners = {
   events: RecordEventLogRepo;
   webhooks: RecordWebhookConfigurationRepo;
   routines: RoutineLabelRepo;
+  rules: AutomationRuleLabelRepo;
   members: RecordMemberRepo;
   roles: RecordRoleRepo;
   subscriptions: RecordSubscriptionConfigurationRepo;

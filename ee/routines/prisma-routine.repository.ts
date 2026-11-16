@@ -13,7 +13,7 @@ import type { GetRoutinesRepo } from "./get-routines.repo";
 import type { GetRoutineByIdRepo } from "./get-routine-by-id.repo";
 import type { PauseRoutineRepo } from "./pause-routine.repo";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.repo";
-import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
+import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.repo";
 import type { RoutineRunPage } from "./routine-history";
 import { encodeRoutineRunCursor, type RoutineRunCursor } from "./routine-run-cursor";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";

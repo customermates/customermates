@@ -59,6 +59,7 @@ export function referenceChip(
       href: focusHref({ kind: "view", id: reference.id, typeId: reference.typeId }),
     };
   }
+  if (reference.kind === "rule") return { label: reference.label, icon: "routine", href: "/automations" };
   const kind = reference.kind === "routine" || reference.kind === "webhook" ? reference.kind : "widget";
   return { label: reference.label, icon: kind, href: focusHref({ kind, id: reference.id }) };
 }

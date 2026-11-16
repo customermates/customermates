@@ -82,12 +82,18 @@ function ports(record: AutomationRecordView | null = view()) {
     mutate: vi.fn().mockResolvedValue({ ok: true, refs: [{ typeId: TASKS, recordId: "created" }] }),
   };
   const notifications = { notify: vi.fn().mockResolvedValue({ created: 2 }) };
-  const webhooks = { send: vi.fn().mockResolvedValue({ sent: true, statusCode: 200 }) };
+  const events = { publish: vi.fn().mockResolvedValue(undefined) };
+  const webhooks = {
+    findOutboundWebhookUnscoped: vi
+      .fn()
+      .mockResolvedValue({ id: WEBHOOK, enabled: true, events: ["automation.rule.fired"] }),
+  };
   return {
     records,
     notifications,
+    events,
     webhooks,
-    runner: new AutomationEffectRunner(records as never, notifications, webhooks),
+    runner: new AutomationEffectRunner(records as never, notifications, events, webhooks),
   };
 }
 
@@ -240,28 +246,33 @@ describe("automation effects", () => {
     expect(notifications.notify).not.toHaveBeenCalled();
   });
 
-  it("calls an outbound webhook and reports each refusal", async () => {
-    const { webhooks, runner } = ports();
+  it("publishes the rule event for the chosen webhook and skips a webhook that cannot receive it", async () => {
+    const { events, webhooks, runner } = ports();
     const effect = { kind: "callWebhook" as const, webhookId: WEBHOOK };
-    expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({ status: "applied", detail: "200" });
-    expect(webhooks.send).toHaveBeenCalledWith(
-      expect.objectContaining({
-        companyId: COMPANY,
+    expect((await runner.run([effect], context())).outcomes[0]).toEqual({ kind: "callWebhook", status: "applied" });
+    expect(webhooks.findOutboundWebhookUnscoped).toHaveBeenCalledWith(COMPANY, WEBHOOK);
+    expect(events.publish).toHaveBeenCalledWith("automation.rule.fired", {
+      entityId: RULE,
+      payload: {
         webhookId: WEBHOOK,
-        deliveryId: "rule-run-00000001",
-        payload: expect.objectContaining({ event: "automation.rule.fired", ruleId: RULE, trigger: "recordCreated" }),
-      }),
-    );
-    webhooks.send.mockResolvedValueOnce({ sent: false, reason: "plan" });
-    expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({
-      status: "skipped",
-      detail: "webhook:plan",
+        ruleId: RULE,
+        ruleName: "Follow up",
+        runId: "run-00000001",
+        trigger: "recordCreated",
+        firedAt: NOW.toISOString(),
+        record: { typeId: TYPE, recordId: RECORD },
+      },
     });
-    webhooks.send.mockResolvedValueOnce({ sent: false, statusCode: 500 });
-    expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({
-      status: "failed",
-      detail: "webhookStatus:500",
-    });
+    events.publish.mockClear();
+    for (const [stored, detail] of [
+      [null, "webhook:missing"],
+      [{ id: WEBHOOK, enabled: false, events: ["automation.rule.fired"] }, "webhook:disabled"],
+      [{ id: WEBHOOK, enabled: true, events: ["record.created"] }, "webhook:notSubscribed"],
+    ] as const) {
+      webhooks.findOutboundWebhookUnscoped.mockResolvedValueOnce(stored);
+      expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({ status: "skipped", detail });
+    }
+    expect(events.publish).not.toHaveBeenCalled();
   });
 
   it("stops at the first failed effect and skips the rest", async () => {
@@ -513,19 +524,42 @@ function recordEvent(input: {
 describe("admitting events", () => {
   let repo: FakeAutomationRuleRepo;
   let dispatch: ReturnType<typeof vi.fn>;
+  let reader: { findEventMatches: ReturnType<typeof vi.fn>; readEvent: ReturnType<typeof vi.fn> };
   let admission: AutomationRuleAdmission;
   beforeEach(() => {
     repo = new FakeAutomationRuleRepo();
     dispatch = vi.fn().mockResolvedValue(undefined);
-    admission = new AutomationRuleAdmission(repo, { dispatch } as never, () => NOW);
+    reader = {
+      findEventMatches: vi.fn().mockResolvedValue([]),
+      readEvent: vi.fn().mockResolvedValue({ event: "record.created" }),
+    };
+    admission = new AutomationRuleAdmission(repo, { dispatch } as never, reader as never, () => NOW);
   });
 
   const admit = (event: ReturnType<typeof recordEvent> | Record<string, unknown>) => admission.admit(event as never);
 
-  it("queues one run for a created record and hands it to the background worker", async () => {
+  const matchOf = (ruleId: string, subscription: Record<string, unknown> = {}, subscriptionRevision = 1) => ({
+    companyId: COMPANY,
+    eventId: UUID("1"),
+    subscriptionId: ruleId,
+    subscriptionRevision,
+    subscription: { id: ruleId, kind: "rule", ownerUserId: OWNER, revision: 1, enabled: true, ...subscription },
+  });
+  const matched = (...matches: ReturnType<typeof matchOf>[]) => reader.findEventMatches.mockResolvedValue(matches);
+
+  it("queues one run for an event the shared layer matched and hands it to the background worker", async () => {
     seedRule(repo);
-    await admit(recordEvent({}));
+    matched(matchOf(RULE));
+    const event = recordEvent({});
+    await admit(event);
     expect([...repo.runs.values()]).toHaveLength(1);
+    expect(reader.findEventMatches).toHaveBeenCalledWith(event, "rule");
+    expect(reader.readEvent).toHaveBeenCalledWith({
+      companyId: COMPANY,
+      userId: OWNER,
+      eventId: event.id,
+      subscriptionId: RULE,
+    });
     expect(dispatch).toHaveBeenCalledWith("run-automation-rule", {
       runId: expect.any(String),
       companyId: COMPANY,
@@ -540,6 +574,7 @@ describe("admitting events", () => {
 
   it("is idempotent when the same event is delivered twice", async () => {
     seedRule(repo);
+    matched(matchOf(RULE));
     await admit(recordEvent({}));
     await admit(recordEvent({}));
     expect(repo.runs.size).toBe(1);
@@ -548,57 +583,55 @@ describe("admitting events", () => {
     expect(repo.runs.size).toBe(2);
   });
 
-  it("ignores disabled rules, other lists and rules without an owner", async () => {
+  it("queues nothing when no subscription matched the event", async () => {
+    seedRule(repo);
+    await admit(recordEvent({}));
+    expect(repo.runs.size).toBe(0);
+    expect(reader.readEvent).not.toHaveBeenCalled();
+  });
+
+  it("ignores disabled rules and rules without an owner", async () => {
     seedRule(repo, { id: RULE, enabled: false });
-    seedRule(repo, { id: RULE_B, typeId: TASKS, trigger: { kind: "recordCreated", typeId: TASKS } });
     seedRule(repo, { id: UUID("a3"), ownerUserId: null });
+    matched(matchOf(RULE), matchOf(UUID("a3")));
     await admit(recordEvent({}));
     expect(repo.runs.size).toBe(0);
   });
 
-  it("starts an update rule only when a watched field changed", async () => {
-    seedRule(repo, {
-      triggerKind: "recordUpdated",
-      trigger: { kind: "recordUpdated", typeId: TYPE, fieldIds: [STAGE] },
-    });
-    await admit(recordEvent({ kind: "record.updated", changed: [NEXT_STEP], id: UUID("3") }));
+  it("ignores a match of a changed subscription or of another owner", async () => {
+    seedRule(repo);
+    matched(matchOf(RULE, { revision: 2 }));
+    await admit(recordEvent({ id: UUID("3") }));
+    matched(matchOf(RULE, { ownerUserId: OTHER_USER }));
+    await admit(recordEvent({ id: UUID("4") }));
     expect(repo.runs.size).toBe(0);
-    await admit(recordEvent({ kind: "record.updated", changed: [STAGE], id: UUID("4") }));
-    expect(repo.runs.size).toBe(1);
+    expect(reader.readEvent).not.toHaveBeenCalled();
   });
 
-  it("starts a field-changed rule only for the chosen value", async () => {
-    seedRule(repo, {
-      triggerKind: "fieldChanged",
-      trigger: { kind: "fieldChanged", typeId: TYPE, fieldId: STAGE, to: { kind: "select", value: "won" } },
-    });
-    const to = (value: string): CalculatedValue => ({ state: "value", value: { kind: "select", value } });
-    await admit(recordEvent({ kind: "record.updated", changed: [STAGE], after: to("lost"), id: UUID("5") }));
+  it("queues nothing when the owner can no longer read the record", async () => {
+    seedRule(repo);
+    matched(matchOf(RULE));
+    reader.readEvent.mockResolvedValue(null);
+    await admit(recordEvent({}));
     expect(repo.runs.size).toBe(0);
-    await admit(recordEvent({ kind: "record.updated", changed: [STAGE], after: to("won"), id: UUID("6") }));
-    expect(repo.runs.size).toBe(1);
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it("never lets a rule's own change start the same rule again", async () => {
     seedRule(repo);
+    matched(matchOf(RULE));
     await admit(recordEvent({ ruleChain: [RULE] }));
     expect(repo.runs.size).toBe(0);
   });
 
   it("lets one rule's change start a different rule, but not a third", async () => {
     seedRule(repo);
+    matched(matchOf(RULE));
     await admit(recordEvent({ ruleChain: [RULE_B], id: UUID("7") }));
     expect(repo.runs.size).toBe(1);
     expect([...repo.runs.values()][0]?.payload).toMatchObject({ chain: [RULE_B] });
     await admit(recordEvent({ ruleChain: [RULE_B, UUID("a4")], id: UUID("8") }));
     expect(repo.runs.size).toBe(1);
-  });
-
-  it("ignores record events that are not creations or updates", async () => {
-    seedRule(repo);
-    await admit({ ...recordEvent({}), kind: "record.deleted" });
-    await admit({ ...recordEvent({}), payload: { broken: true } });
-    expect(repo.runs.size).toBe(0);
   });
 
   it("starts message rules only for accounts the owner can access, filtered by channel", async () => {

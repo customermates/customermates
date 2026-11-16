@@ -1,4 +1,5 @@
 import type { AutomationRunStatus, AutomationTriggerKind, Prisma, Status } from "@/generated/prisma";
+import type { RuleRecordTrigger } from "./automation-record-trigger";
 
 export type StoredAutomationRule = {
   id: string;
@@ -74,14 +75,7 @@ export type AutomationRunSettlement = {
 
 export type AutomationDateCandidate = { recordId: string; fieldValue: string };
 
-export type AutomationOutboundWebhook = {
-  id: string;
-  url: string;
-  secret: string | null;
-  headers: Prisma.JsonValue;
-  bodyTemplate: string | null;
-  enabled: boolean;
-};
+export type AutomationOutboundWebhook = { id: string; enabled: boolean; events: string[] };
 
 export abstract class AutomationRuleRepo {
   abstract findRules(args: {
@@ -91,7 +85,7 @@ export abstract class AutomationRuleRepo {
     pageSize: number;
   }): Promise<{ items: StoredAutomationRule[]; total: number }>;
   abstract findRule(id: string): Promise<StoredAutomationRule | null>;
-  abstract saveRule(data: AutomationRuleWrite): Promise<StoredAutomationRule>;
+  abstract saveRule(data: AutomationRuleWrite, recordTrigger: RuleRecordTrigger | null): Promise<StoredAutomationRule>;
   abstract setEnabled(
     id: string,
     enabled: boolean,
@@ -113,12 +107,12 @@ export abstract class AutomationRuleRepo {
     limit: number;
   }): Promise<{ items: AutomationDateCandidate[]; total: number }>;
 
-  abstract findEventRulesUnscoped(args: {
+  abstract findEnabledRulesUnscoped(args: {
     companyId: string;
-    triggerKinds: AutomationTriggerKind[];
-    typeId: string | null;
-    includeUntyped: boolean;
+    ids?: string[];
+    triggerKind?: AutomationTriggerKind;
   }): Promise<StoredAutomationRule[]>;
+  abstract getLabelsCompanyWide(companyId: string, ids: string[]): Promise<Array<{ id: string; name: string }>>;
   abstract admitRunUnscoped(admission: AutomationRunAdmission): Promise<string | null>;
   abstract findRunUnscoped(
     companyId: string,
@@ -143,6 +137,7 @@ export abstract class AutomationRuleRepo {
   abstract findOccurrencesUnscoped(ruleId: string, keys: string[]): Promise<Set<string>>;
   abstract disableRuleUnscoped(companyId: string, ruleId: string, reason: string): Promise<void>;
   abstract disableOwnerRulesUnscoped(companyId: string, ownerUserId: string, reason: string): Promise<number>;
+  abstract syncRulesToPlanLimitCompanyWide(limit: number | null): Promise<{ paused: number; resumed: number }>;
   abstract canUserAccessConnectedAccountUnscoped(
     companyId: string,
     userId: string,

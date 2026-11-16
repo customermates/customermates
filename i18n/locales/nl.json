@@ -966,7 +966,8 @@
     "disabledReason": {
       "disabledByUser": "Uitgezet.",
       "ownerInactive": "Uitgezet omdat de eigenaar geen actief lid meer is.",
-      "ownerMissing": "Uitgezet omdat ze geen eigenaar heeft."
+      "ownerMissing": "Uitgezet omdat ze geen eigenaar heeft.",
+      "planPaused": "Uitgezet omdat het abonnement minder actieve regels toestaat. Ze gaat weer aan zodra het abonnement dat toelaat."
     },
     "edit": "Bewerken",
     "effect": {
@@ -1640,6 +1641,11 @@
     },
     "events": {
       "connected_account": {
+      "automation": {
+        "rule": {
+          "fired": "Automatiseringsregel geactiveerd"
+        }
+      },
         "created": "Account verbonden",
         "deleted": "Account losgekoppeld",
         "reconnected": "Account opnieuw verbonden",
@@ -4822,6 +4828,7 @@
         "snapshotTrigger": "{source} slaat zijn waarde op wanneer {target} verandert.",
         "webhook": "De webhook {source} verstuurt wijzigingen van {target}.",
         "widget": "De widget {source} meet {target}."
+        "rule": "De automatiseringsregel {source} reageert op {target}.",
       },
       "cleaned": {
         "bindingAvatar": "{target} wordt niet meer gebruikt als profielfoto van {consumers}.",

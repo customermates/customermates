@@ -701,7 +701,7 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
   [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
   [
     `${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: disabledReason.\${rule.disabledReason}`,
-    AUTOMATION_KEYS("disabledReason", ["disabledByUser", "ownerInactive", "ownerMissing"]),
+    AUTOMATION_KEYS("disabledReason", ["disabledByUser", "ownerInactive", "ownerMissing", "planPaused"]),
   ],
   [`${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
   [`${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: status.\${rule.lastRunStatus}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],

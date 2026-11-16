@@ -1,6 +1,7 @@
 import type { AccountRemovalReason } from "@/ee/messaging/connect/account-removal-reason";
 import type { RoutineDto } from "@/ee/routines/routine.schema";
 import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
+import type { AutomationRuleFiredPayload } from "@/features/automation-rules/automation-rule-fired";
 import type { FormSubmittedPayload, WebhookReceivedPayload } from "@/features/event/external-trigger-events";
 import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
@@ -52,6 +53,7 @@ export enum DomainEvent {
   PUBLIC_LINKS_BLOCKED = "public_link.blocked",
   FORM_SUBMITTED = "form.submitted",
   WEBHOOK_RECEIVED = "webhook.received",
+  AUTOMATION_RULE_FIRED = "automation.rule.fired",
 }
 
 type ConnectedAccountAuditPayload = {
@@ -401,5 +403,11 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: WebhookReceivedPayload;
+  };
+  [DomainEvent.AUTOMATION_RULE_FIRED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: AutomationRuleFiredPayload;
   };
 };

@@ -1,6 +1,7 @@
 import type { RecordFieldView, RecordModelView } from "@/features/records/record-model.schema";
 import type { AutomationCondition, AutomationEffect, AutomationTrigger } from "./automation-rule.schema";
 
+import { fieldChangedFilter } from "./automation-record-trigger";
 import { triggerTypeId } from "./automation-rule.schema";
 
 type RuleDefinition = { trigger: AutomationTrigger; conditions: AutomationCondition[]; effects: AutomationEffect[] };
@@ -29,7 +30,10 @@ function triggerIssues(model: RecordModelView, trigger: AutomationTrigger): stri
       fieldOf(model, typeId, fieldId) ? [] : [`trigger.fieldIds.${index}`],
     );
   }
-  if (trigger.kind === "fieldChanged") return fieldOf(model, typeId, trigger.fieldId) ? [] : ["trigger.fieldId"];
+  if (trigger.kind === "fieldChanged") {
+    if (!fieldOf(model, typeId, trigger.fieldId)) return ["trigger.fieldId"];
+    return trigger.to && !fieldChangedFilter(trigger, model) ? ["trigger.to"] : [];
+  }
   if (trigger.kind === "dateReached") {
     const field = fieldOf(model, typeId, trigger.fieldId);
     return field && DATE_TYPES.has(field.valueType) ? [] : ["trigger.fieldId"];

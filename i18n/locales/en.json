@@ -966,7 +966,8 @@
     "disabledReason": {
       "disabledByUser": "Switched off.",
       "ownerInactive": "Switched off because its owner is no longer an active member.",
-      "ownerMissing": "Switched off because it has no owner."
+      "ownerMissing": "Switched off because it has no owner.",
+      "planPaused": "Switched off because the plan allows fewer active rules. It switches on again when the plan does."
     },
     "edit": "Edit",
     "effect": {
@@ -1640,6 +1641,11 @@
     },
     "events": {
       "connected_account": {
+      "automation": {
+        "rule": {
+          "fired": "Automation Rule Fired"
+        }
+      },
         "created": "Account Connected",
         "deleted": "Account Disconnected",
         "reconnected": "Account Reconnected",
@@ -4822,6 +4828,7 @@
         "snapshotTrigger": "{source} saves its value when {target} changes.",
         "webhook": "The webhook {source} sends changes of {target}.",
         "widget": "The widget {source} measures {target}."
+        "rule": "The automation rule {source} reacts to {target}.",
       },
       "cleaned": {
         "bindingAvatar": "{target} is no longer used as the profile picture of {consumers}.",

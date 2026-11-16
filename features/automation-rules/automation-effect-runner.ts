@@ -1,14 +1,12 @@
 import type { RecordFieldAssignmentSchema, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordMutation } from "@/features/records/record-query.schema";
 import type { z } from "zod";
-import type {
-  AutomationNotifyPort,
-  AutomationRecordPort,
-  AutomationRecordView,
-  AutomationWebhookPort,
-} from "./automation-ports";
+import type { EventService } from "@/features/event/event.service";
+import type { AutomationNotifyPort, AutomationRecordPort, AutomationRecordView } from "./automation-ports";
+import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationEffect, AutomationEffectOutcome, AutomationTrigger } from "./automation-rule.schema";
 
+import { DomainEvent } from "@/features/event/domain-events";
 import { localDay, shiftDay } from "./automation-date";
 import { renderAutomationTemplate } from "./automation-template";
 
@@ -56,7 +54,8 @@ export class AutomationEffectRunner {
   constructor(
     private readonly records: AutomationRecordPort,
     private readonly notifications: AutomationNotifyPort,
-    private readonly webhooks: AutomationWebhookPort,
+    private readonly events: Pick<EventService, "publish">,
+    private readonly webhooks: Pick<AutomationRuleRepo, "findOutboundWebhookUnscoped">,
   ) {}
 
   async run(
@@ -193,12 +192,15 @@ export class AutomationEffectRunner {
     context: AutomationEffectContext,
   ): Promise<AutomationEffectOutcome> {
     const kind = effect.kind;
-    const result = await this.webhooks.send({
-      companyId: context.companyId,
-      webhookId: effect.webhookId,
-      deliveryId: `rule-${context.runId}`,
+    const webhook = await this.webhooks.findOutboundWebhookUnscoped(context.companyId, effect.webhookId);
+    if (!webhook) return { kind, status: "skipped", detail: "webhook:missing" };
+    if (!webhook.enabled) return { kind, status: "skipped", detail: "webhook:disabled" };
+    if (!webhook.events.includes(DomainEvent.AUTOMATION_RULE_FIRED))
+      return { kind, status: "skipped", detail: "webhook:notSubscribed" };
+    await this.events.publish(DomainEvent.AUTOMATION_RULE_FIRED, {
+      entityId: context.rule.id,
       payload: {
-        event: "automation.rule.fired",
+        webhookId: webhook.id,
         ruleId: context.rule.id,
         ruleName: context.rule.name,
         runId: context.runId,
@@ -207,8 +209,6 @@ export class AutomationEffectRunner {
         record: context.recordRef,
       },
     });
-    if (result.sent) return { kind, status: "applied", detail: String(result.statusCode ?? "") };
-    if (result.reason) return { kind, status: "skipped", detail: `webhook:${result.reason}` };
-    return { kind, status: "failed", detail: `webhookStatus:${result.statusCode ?? "none"}` };
+    return { kind, status: "applied" };
   }
 }

@@ -108,6 +108,16 @@ import {
 } from "@/features/webhook/webhook-rest.openapi";
 import { routineApiPaths } from "@/ee/routines/routines.openapi";
 import { automationRuleApiPaths } from "@/features/automation-rules/automation-rules.openapi";
+import {
+  WebhookAutomationRuleFiredSchema,
+  webhookAutomationRuleFiredOperation,
+} from "@/features/automation-rules/automation-rule-fired.openapi";
+import {
+  WebhookFormSubmittedSchema,
+  WebhookWebhookReceivedSchema,
+  webhookFormSubmittedOperation,
+  webhookWebhookReceivedOperation,
+} from "@/features/event/external-trigger-events.openapi";
 import { RoutineDtoSchema } from "@/ee/routines/routine.schema";
 import { WebhookPublicDtoSchema } from "@/features/webhook/webhook.schema";
 
@@ -300,6 +310,15 @@ export function generateOpenApiSpec() {
       messagingRelationCreated: {
         post: webhookMessagingRelationCreatedOperation,
       },
+      formSubmitted: {
+        post: webhookFormSubmittedOperation,
+      },
+      webhookReceived: {
+        post: webhookWebhookReceivedOperation,
+      },
+      automationRuleFired: {
+        post: webhookAutomationRuleFiredOperation,
+      },
     },
     components: {
       schemas: {
@@ -321,6 +340,9 @@ export function generateOpenApiSpec() {
         WebhookMessagingCalendarChangedSchema,
         WebhookMessagingCalendarEventChangedSchema,
         WebhookMessagingRelationCreatedSchema,
+        WebhookFormSubmittedSchema,
+        WebhookWebhookReceivedSchema,
+        WebhookAutomationRuleFiredSchema,
         UserDtoSchema,
         MemberDtoSchema,
         RoutineDtoSchema,

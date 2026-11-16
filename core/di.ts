@@ -594,6 +594,7 @@ const getRecordRepoOwners = (): RecordRepoOwners => ({
   webhooks: getWebhookRepo(),
   routines: getRoutineRepo(),
   members: getUserRepo(),
+  rules: getAutomationRuleRepo(),
   roles: getRoleRepo(),
   subscriptions: getRecordEventSubscriptionRepo(),
   files: getRecordFileRepo(),
@@ -1260,6 +1261,7 @@ export const getFreePlanPauseService = () =>
     getCompanyRepo(),
     (companyId) => getRoutineRepo(companyId),
     env.APP_MODE,
+    (companyId) => getAutomationRuleRepo(companyId),
     new PaidSeatQuantitySync(getCompanyRepo(), getSubscriptionService()).sync,
   );
 export const getSyncFreePlanPausesInteractor = () =>
@@ -2404,7 +2406,7 @@ export const getSweepDueRoutinesInteractor = () =>
 export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
 
 export const getReleaseOwnerRoutinesInteractor = () =>
-  new ReleaseOwnerRoutinesInteractor(getRoutineRepo(), getReconcileRoutineRunsInteractor());
+  new ReleaseOwnerRoutinesInteractor(getRoutineRepo(), getReconcileRoutineRunsInteractor(), getAutomationRuleRepo());
 
 export const getPruneRoutineRunsInteractor = () => new PruneRoutineRunsInteractor(getRoutineRepo());
 
@@ -2826,7 +2828,6 @@ import { DiscardAutomationRuleRunInteractor } from "@/features/automation-rules/
 import { GetAutomationRuleRunsInteractor } from "@/features/automation-rules/get-automation-rule-runs.interactor";
 import { GetAutomationRuleInteractor } from "@/features/automation-rules/get-automation-rule.interactor";
 import { GetAutomationRulesInteractor } from "@/features/automation-rules/get-automation-rules.interactor";
-import { OutboundWebhookAutomationPort } from "@/features/automation-rules/outbound-webhook-automation.port";
 import { PreviewAutomationRuleInteractor } from "@/features/automation-rules/preview-automation-rule.interactor";
 import { RecordAutomationPort } from "@/features/automation-rules/record-automation.port";
 import { RunAutomationRuleInteractor } from "@/features/automation-rules/run-automation-rule.interactor";
@@ -2854,7 +2855,8 @@ export const getSetNotificationPreferencesInteractor = () =>
 export const getSendNotificationDigestInteractor = () =>
   new SendNotificationDigestInteractor(getNotificationRepo(), getNotificationMailer());
 
-const getAutomationRuleRepo = () => new PrismaAutomationRuleRepo();
+const getAutomationRuleRepo = (companyId?: string) =>
+  new PrismaAutomationRuleRepo(getRecordEventSubscriptionRepo(companyId), companyId);
 const getRecordAutomationPort = () =>
   new RecordAutomationPort(getGetRecordModelInteractor(), getGetRecordInteractor(), getMutateRecordInteractor());
 const getAutomationPlanLimits = () =>
@@ -2863,10 +2865,11 @@ const getAutomationEffectRunner = () =>
   new AutomationEffectRunner(
     getRecordAutomationPort(),
     getNotificationService(),
-    new OutboundWebhookAutomationPort(getAutomationRuleRepo(), getWebhookTransport(), getPlanLimitsService()),
+    getEventService(),
+    getAutomationRuleRepo(),
   );
 export const getAutomationRuleAdmission = () =>
-  new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService());
+  new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getGetAutomationRulesInteractor = () => new GetAutomationRulesInteractor(getAutomationRuleRepo());
 export const getGetAutomationRuleInteractor = () => new GetAutomationRuleInteractor(getAutomationRuleRepo());
 export const getGetAutomationRuleRunsInteractor = () => new GetAutomationRuleRunsInteractor(getAutomationRuleRepo());

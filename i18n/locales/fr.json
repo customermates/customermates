@@ -966,7 +966,8 @@
     "disabledReason": {
       "disabledByUser": "Désactivée.",
       "ownerInactive": "Désactivée, car son propriétaire n’est plus un membre actif.",
-      "ownerMissing": "Désactivée, car elle n’a pas de propriétaire."
+      "ownerMissing": "Désactivée, car elle n’a pas de propriétaire.",
+      "planPaused": "Désactivée, car le forfait autorise moins de règles actives. Elle se réactive dès que le forfait le permet."
     },
     "edit": "Modifier",
     "effect": {
@@ -1640,6 +1641,11 @@
     },
     "events": {
       "connected_account": {
+      "automation": {
+        "rule": {
+          "fired": "Règle d’automatisation déclenchée"
+        }
+      },
         "created": "Compte connecté",
         "deleted": "Compte déconnecté",
         "reconnected": "Compte reconnecté",
@@ -4822,6 +4828,7 @@
         "snapshotTrigger": "{source} enregistre sa valeur quand {target} change.",
         "webhook": "Le webhook {source} envoie les changements de {target}.",
         "widget": "Le widget {source} mesure {target}."
+        "rule": "La règle d’automatisation {source} réagit à {target}.",
       },
       "cleaned": {
         "bindingAvatar": "{target} n’est plus utilisé comme photo de profil de {consumers}.",

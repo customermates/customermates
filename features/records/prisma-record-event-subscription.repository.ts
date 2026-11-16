@@ -101,7 +101,7 @@ export class PrismaRecordEventSubscriptionRepo
     const companyId = this.companyId;
     const { model, state, policy } = await this.actorAccess();
     if (
-      !policy.allowedSystem(input.kind === "routine" ? "routines" : "api", action) ||
+      !policy.allowedSystem(input.kind === "webhook" ? "api" : "routines", action) ||
       (!policy.isAdmin && input.ownerUserId !== this.userId)
     )
       throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");

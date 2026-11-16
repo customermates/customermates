@@ -1,0 +1,4 @@
+export const AUTOMATION_DISABLED_REASON_BY_USER = "disabledByUser";
+export const AUTOMATION_DISABLED_REASON_OWNER_INACTIVE = "ownerInactive";
+export const AUTOMATION_DISABLED_REASON_OWNER_MISSING = "ownerMissing";
+export const AUTOMATION_DISABLED_REASON_PLAN_PAUSED = "planPaused";

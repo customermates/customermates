@@ -6,6 +6,9 @@ import { DomainEvent } from "@/features/event/domain-events";
 const NON_TRIGGERING_EVENTS = [
   DomainEvent.MESSAGING_EMAIL_DELETED,
   DomainEvent.MESSAGING_CHAT_DELETED,
+  DomainEvent.AUTOMATION_RULE_FIRED,
+  DomainEvent.FORM_SUBMITTED,
+  DomainEvent.WEBHOOK_RECEIVED,
   "record.deletedPermanently",
 ] as const;
 

@@ -24,7 +24,7 @@ export const RecordTriggerSourceSchema = RecordTriggerDefinitionSchema.extend({
 export const RecordEventSubscriptionSchema = z
   .object({
     id: z.uuid(),
-    kind: z.enum(["routine", "webhook"]),
+    kind: z.enum(["routine", "webhook", "rule"]),
     ownerUserId: z.uuid(),
     typeId: z.uuid().nullable(),
     events: z.array(RecordEventKindSchema).min(1).max(RECORD_EVENT_KINDS.length),
@@ -36,8 +36,8 @@ export const RecordEventSubscriptionSchema = z
   })
   .strict()
   .superRefine((input, ctx) => {
-    if (input.kind === "routine" && !input.typeId && !input.sources?.length)
-      ctx.addIssue({ code: "custom", path: ["typeId"], message: "A record routine requires a source type" });
+    if (input.kind !== "webhook" && !input.typeId && !input.sources?.length)
+      ctx.addIssue({ code: "custom", path: ["typeId"], message: "A record routine or rule requires a source type" });
     if (input.query && input.query.typeId !== input.typeId)
       ctx.addIssue({ code: "custom", path: ["query", "typeId"], message: "The query must use the subscription type" });
     if (input.sources?.length && (input.typeId || input.query || input.changedFieldIds.length)) {
@@ -63,3 +63,4 @@ export const RecordEventSubscriptionSchema = z
   });
 
 export type RecordEventSubscriptionDefinition = z.infer<typeof RecordEventSubscriptionSchema>;
+export type RecordEventSubscriptionKind = RecordEventSubscriptionDefinition["kind"];

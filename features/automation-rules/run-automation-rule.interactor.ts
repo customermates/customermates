@@ -15,6 +15,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 
 import { evaluateConditions } from "./automation-conditions";
 import { extendAutomationChain, runInAutomationContext } from "./automation-context";
+import { ruleConditionPlan } from "./automation-record-trigger";
 import { AutomationConditionSchema, AutomationEffectSchema, AutomationTriggerSchema } from "./automation-rule.schema";
 
 export const AUTOMATION_RUN_STALE_MS = 10 * 60 * 1000;
@@ -89,7 +90,8 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     if (recordRef) {
       const record = await this.records.read(recordRef);
       if (!record) return { status: "skipped", reason: "recordUnavailable" };
-      if (!evaluateConditions(definition.conditions, record.values, { now, timeZone }))
+      const { residual } = ruleConditionPlan(definition.trigger, definition.conditions, await this.records.model());
+      if (!evaluateConditions(residual, record.values, { now, timeZone }))
         return { status: "skipped", reason: "conditionsNotMet" };
     }
     const parentChain = RunPayloadSchema.parse(run.payload ?? {}).chain;

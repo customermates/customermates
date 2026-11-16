@@ -966,7 +966,8 @@
     "disabledReason": {
       "disabledByUser": "Ausgeschaltet.",
       "ownerInactive": "Ausgeschaltet, weil die Eigentümerin oder der Eigentümer kein aktives Mitglied mehr ist.",
-      "ownerMissing": "Ausgeschaltet, weil sie keine Eigentümerin und keinen Eigentümer hat."
+      "ownerMissing": "Ausgeschaltet, weil sie keine Eigentümerin und keinen Eigentümer hat.",
+      "planPaused": "Ausgeschaltet, weil der Tarif weniger aktive Regeln erlaubt. Sie schaltet sich wieder ein, sobald der Tarif es erlaubt."
     },
     "edit": "Bearbeiten",
     "effect": {
@@ -1640,6 +1641,11 @@
     },
     "events": {
       "connected_account": {
+      "automation": {
+        "rule": {
+          "fired": "Automatisierungsregel ausgelöst"
+        }
+      },
         "created": "Konto verbunden",
         "deleted": "Konto getrennt",
         "reconnected": "Konto neu verbunden",
@@ -4822,6 +4828,7 @@
         "snapshotTrigger": "{source} speichert seinen Wert, wenn sich {target} ändert.",
         "webhook": "Der Webhook {source} sendet Änderungen an {target}.",
         "widget": "Das Widget {source} misst {target}."
+        "rule": "Die Automatisierungsregel {source} reagiert auf {target}.",
       },
       "cleaned": {
         "bindingAvatar": "{target} wird nicht mehr als Profilbild von {consumers} verwendet.",
