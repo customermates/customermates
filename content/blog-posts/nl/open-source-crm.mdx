@@ -24,8 +24,8 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    action: Beoordeel Customermates als open source CRM
-    description: Volg elk klantgesprek op in het beheerde cloud-CRM, of bekijk de zelf gehoste editie met AGPL-kern, Docker en PostgreSQL. Zelf hosten gebruikt de functieset van Starter en bevat noch de gehoste inbox noch Mate.
+    action: "Beoordeel Customermates: source-available CRM"
+    description: Volg elk klantgesprek op in het beheerde cloud-CRM, of bekijk de zelf gehoste Community Edition (source-available), Docker en PostgreSQL. Zelf hosten gebruikt de functieset van Starter en bevat noch de gehoste inbox noch Mate.
     buttonLeftText: Start je proefperiode van [[commercial.trial.days]] dagen
     buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Bekijk zelf hosten
@@ -64,7 +64,7 @@ acquisition:
       text: Zelf gehoste app
     semanticLabels:
       - locale: nl
-        text: AGPL-kern
+        text: Source-available
       - locale: nl
         text: PostgreSQL
     focalSubject:
@@ -104,7 +104,7 @@ blogPost:
 
 De beste **CRM software open source** is de software waarvan de licentie, de manier van zelf hosten, de beheerinspanning en de CRM-scope bij jouw team passen. “Source available”, “open core” en “open source” zijn niet uitwisselbaar, en een lange lijst met functies zegt weinig over wat je legaal kunt draaien of realistisch kunt onderhouden.
 
-Voor een klein team dat contacten, deals en opvolging wil beheren, begin je bij een gericht CRM en pas je bij een bredere suite uit zodra je meer modules nodig hebt. Deze gids gebruikt een duurzaam beoordelingskader in plaats van projecten te rangschikken op prijzen die veranderen, aantallen sterren of functieclaims zonder bron. Openheid vooraf: Customermates publiceert deze vergelijking en is een van de producten die hieronder worden besproken.
+Voor een klein team dat contacten, deals en opvolging wil beheren, begin je bij een gericht CRM en pas je bij een bredere suite uit zodra je meer modules nodig hebt. Deze gids gebruikt een duurzaam beoordelingskader in plaats van projecten te rangschikken op prijzen die veranderen, aantallen sterren of functieclaims zonder bron. Openheid vooraf: Customermates publiceert deze vergelijking en is een van de producten die hieronder worden besproken. Customermates is geen open source in OSI-zin: het is source-available (fair-code), dus we beschrijven het hier als zodanig, naast echte open-sourceprojecten.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="Begin met">
@@ -132,6 +132,12 @@ Voor een klein team dat contacten, deals en opvolging wil beheren, begin je bij 
   <ProofItem label="Beheer">Back-ups, upgrades en herstel</ProofItem>
   <ProofItem label="Productfit">Records, workflows en interfaces</ProofItem>
 </ProofRail>
+
+## Is Customermates een open source CRM? [#is-customermates-een-open-source-crm]
+
+Niet in OSI-zin. Het Open Source Initiative staat geen beperkingen op gebruik toe, en de Sustainable Use License van Customermates heeft die wel: je mag de code gebruiken en wijzigen voor je eigen bedrijf of voor niet-commercieel en persoonlijk gebruik, en alleen gratis en niet-commercieel verder verspreiden. Daarom is Customermates source-available (fair-code), met een gratis Community Edition om zelf te hosten.
+
+In de praktijk: intern gebruik in je eigen bedrijf, ook als bureau voor je eigen klanten, is gratis, en workshops en advies rond Customermates mogen. Doorverkopen, hosten voor derden, insluiten in andermans product en white-label vragen een aparte overeenkomst (met zichtbare Customermates-branding), en een instantie uitrollen en de klant ervoor laten betalen vraagt een Enterprise-licentie. Heb je de volledige vrijheid van een OSI-licentie nodig, kies dan een van de echte open-sourceprojecten uit de lijst hieronder. De voorwaarden worden uitgelegd op de pagina's [Licentie](/docs/licence) en [Licentie-FAQ](/docs/licence-faq) en in [`LICENSING.md`](https://github.com/customermates/customermates/blob/main/LICENSING.md) (verificatie op 16 november 2026).
 
 ## Begin bij de licentie, niet bij de homepage
 
@@ -161,7 +167,7 @@ Behandel een niet gemeten of niet gedocumenteerde mogelijkheid als onbekend, nie
 
 ## Een shortlist zonder nepranglijst
 
-Zoekopdrachten naar open source CRM leveren projecten op met zeer verschillende reikwijdte. Customermates, SuiteCRM, EspoCRM en Twenty zijn bruikbare beginpunten voor een shortlist die op de bron is gebaseerd. Odoo Community en CiviCRM kunnen relevant zijn als een bredere bedrijfssuite of een lidmaatschapscontext bij de eisen hoort. Controleer de actuele officiële licentie, de editiegrens, de deploymentdocumentatie en de onderhoudsstatus voordat je beslist. Vergelijkingen naast elkaar: [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) en [Twenty](/compare/twenty-alternative).
+Zoekopdrachten naar open source CRM leveren projecten op met zeer verschillende reikwijdte. SuiteCRM, EspoCRM en Twenty (open source) en Customermates (source-available, geen open source) zijn bruikbare beginpunten voor een shortlist die op de bron is gebaseerd. Odoo Community en CiviCRM kunnen relevant zijn als een bredere bedrijfssuite of een lidmaatschapscontext bij de eisen hoort. Controleer de actuele officiële licentie, de editiegrens, de deploymentdocumentatie en de onderhoudsstatus voordat je beslist. Vergelijkingen naast elkaar: [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) en [Twenty](/compare/twenty-alternative).
 
 Voor meer detail over twee van deze projecten zijn er de vergelijkingen met [EspoCRM als alternatief](/compare/espocrm-alternative) en [Twenty als alternatief](/compare/twenty-alternative). Ze zetten licentie, stack, prijzen, kanalen en MCP-ondersteuning van elk project uit de officiële pagina's naast elkaar.
 
@@ -171,7 +177,7 @@ Hun beoogde breedte verschilt. Sommige richten zich op CRM, sommige zitten in ee
 
 | Project | Actueel officieel bewijs om te inspecteren | Wat deze bron onderbouwt |
 | --- | --- | --- |
-| Customermates | [AGPL-licentie van de kern](https://github.com/customermates/customermates/blob/main/LICENSE), [grens tussen commercieel materiaal en AGPL-clientmateriaal](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) en [Compose-deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | De exacte licenties van de repository en de vastgelegde deployment van applicatie plus PostgreSQL |
+| Customermates | [Sustainable Use License](https://github.com/customermates/customermates/blob/main/LICENSE.md), [commerciële licentie van `ee/`](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) en [Compose-deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | De exacte licenties van de repository en de vastgelegde deployment van applicatie plus PostgreSQL |
 | SuiteCRM | [AGPL-licentie](https://docs.suitecrm.com/admin/licensing/) en [installatiehandleiding](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/) | De documentatie noemt AGPLv3 en biedt een onderhouden installatiepad voor beheerders |
 | EspoCRM | [Repository en licentie](https://github.com/espocrm/espocrm) en [Docker-installatie](https://docs.espocrm.com/administration/docker/installation/) | Een openbare bronlicentie en een officieel Docker-deploymentpad |
 | Twenty | [Licentie](https://github.com/twentyhq/twenty/blob/main/LICENSE) en [Docker Compose-handleiding](https://docs.twenty.com/developers/self-host/capabilities/docker-compose) | Een openbare bronlicentie en een officieel pad om zelf te hosten met Docker Compose |
@@ -202,7 +208,7 @@ Voor teams in Nederland en België speelt de AVG mee. Waar de applicatie en de d
 
 ## Waar Customermates past
 
-Customermates is een open-core CRM voor klantrelaties en pipelines, gemaakt in Duitsland. Eigen materiaal buiten `ee/` valt onder AGPL-3.0-only. Binnen `ee/` is het materiaal commercieel gelicentieerd, behalve het clientmateriaal dat in sectie 6 van `ee/LICENSE.md` als AGPL-3.0-only is aangemerkt.
+Customermates is een source-available (fair-code) CRM voor klantrelaties en pipelines, gemaakt in Duitsland; het is geen open source in OSI-zin. Eigen materiaal buiten `ee/` valt onder de Sustainable Use License: je mag het gebruiken en wijzigen voor je eigen bedrijf of voor niet-commercieel gebruik, en alleen gratis en niet-commercieel verder verspreiden, zonder doorverkoop of hosting voor anderen. Binnen `ee/` is het materiaal commercieel gelicentieerd (Enterprise-licentie).
 
 De officiële [zelf gehoste CRM](/features/self-hosted)-deployment bevat de applicatie en PostgreSQL 16. De zelf gehoste editie heeft de functieset van Starter.
 
@@ -221,7 +227,7 @@ Daarmee past Customermates als je een gericht CRM wilt, een deployment met Docke
 
 Als het opvolgen van klantgesprekken het doel is, voegt de beheerde cloud toe wat zelf hosten weglaat: vanaf Pro staan LinkedIn- en e-mailgesprekken op het klantrecord, en Mate of je eigen AI-agent schrijft het antwoord en de volgende stap voor je op, die je beoordeelt en verstuurt. Bij zelf hosten houd je het CRM en MCP voor je eigen AI-client.
 
-Wil je Customermates zelf proberen, [start dan je proefperiode](/auth/signup?job=followup) in de beheerde cloud ([[commercial.trial.days]] dagen Pro, geen creditcard) of host zelf met Docker; zie de productpagina [open source CRM: cloud of zelf gehost](/features/open-source-crm).
+Wil je Customermates zelf proberen, [start dan je proefperiode](/auth/signup?job=followup) in de beheerde cloud ([[commercial.trial.days]] dagen Pro, geen creditcard) of host zelf met Docker; zie de productpagina [open source CRM of source-available: cloud of zelf gehost](/features/open-source-crm).
 
 <ProductDemo hostedBoundary path="/dashboard" />
 
@@ -285,8 +291,8 @@ Bij Customermates is het onderscheid expliciet: het kern-CRM, REST, webhooks en 
 Dat hangt af van je licentie-eisen, de manier van zelf hosten, de beheerinspanning en de CRM-scope. Voor een klein team zijn Customermates, SuiteCRM, EspoCRM en Twenty bruikbare beginpunten voor een shortlist; score ze op je eigen criteria en controleer de actuele officiële licentie en deploymentdocumentatie.
 </FaqItem>
 
-<FaqItem question="Wat is het verschil tussen open source en open core?">
-Bij open source geeft de licentie je rechten op de code. Bij open core is een deel van de code open source en een ander deel onder een commerciële licentie. Customermates is zo opgebouwd: eigen materiaal buiten `ee/` valt onder AGPL-3.0-only, het overige materiaal in `ee/` onder een commerciële licentie.
+<FaqItem question="Wat is het verschil tussen open source en source-available?">
+Bij open source geeft een door het OSI goedgekeurde licentie iedereen rechten om de code voor elk doel te gebruiken, te wijzigen en te verspreiden. Bij source-available is de code openbaar, maar beperkt de licentie het gebruik. Customermates is zo opgebouwd: eigen materiaal buiten `ee/` valt onder de Sustainable Use License, het materiaal in `ee/` onder een commerciële licentie.
 </FaqItem>
 
 <FaqItem question="Wat betekent open source CRM?">
@@ -305,11 +311,12 @@ Het betekent dat de CRM-code wordt aangeboden onder een open-sourcelicentie die 
   gekoppelde providers, contracten, beleid en beheer.
 </FaqItem>
 
-<FaqItem question="Is alle code van Customermates AGPL-3.0?">
-  Nee. Eigen materiaal buiten `ee/` is AGPL-3.0-only. Binnen `ee/` is het
-  clientmateriaal dat in sectie 6 van `ee/LICENSE.md` wordt genoemd ook
-  AGPL-3.0-only; het overige eigen materiaal valt onder de commerciële licentie.
-  Lees beide licentiebestanden voor de exacte grens.
+<FaqItem question="Is Customermates een open source CRM?">
+  Niet in OSI-zin. Customermates is source-available (fair-code): eigen
+  materiaal buiten `ee/` valt onder de Sustainable Use License en binnen `ee/`
+  geldt een commerciële licentie. Intern gebruik is gratis; doorverkopen en
+  hosten voor anderen vragen een overeenkomst. Lees beide licentiebestanden voor
+  de exacte grens.
 </FaqItem>
 
 <FaqItem question="Kan ik CRM-records importeren of exporteren in zelf gehost Customermates?">

@@ -15,8 +15,8 @@ sections:
       description: "Vanaf Pro zet de gecombineerde inbox Gmail-, Outlook- en IMAP-mailboxen, LinkedIn, WhatsApp, Instagram en Telegram in één lijst die aan je contactpersonen is gekoppeld, en je antwoordt op het oorspronkelijke kanaal."
     - title: "Antwoorden in concept, records bijgewerkt"
       description: "In Customermates Cloud vat Mate threads samen, schrijft conceptantwoorden en werkt records bij, ter controle door jou. Je eigen Claude of ChatGPT kan via MCP meewerken."
-    - title: "Open source"
-      description: "De AGPL-3.0-kern draait op je eigen server met Docker Compose, inclusief REST, webhooks en MCP, maar zonder de inbox en Mate."
+    - title: "Source-available"
+      description: "De Community Edition (Sustainable Use License) draait op je eigen server met Docker Compose, inclusief REST, webhooks en MCP, maar zonder de inbox en Mate."
   switchSteps: true
 
 hero:
@@ -92,8 +92,8 @@ comparison:
       competitor2: Gehoste MCP-servers voor orgs met Enterprise Edition en hoger
   - title: Hosting en licentie
     features:
-    - name: Open-sourcelicentie
-      source: AGPL-3.0-kern
+    - name: Licentie
+      source: Sustainable Use License (source-available, fair-code)
       competitor: false
       competitor2: false
     - name: Self-hosting
@@ -126,7 +126,7 @@ cta:
 | Regelgebaseerde automatiseringen en e-mailsequenties in een kant-en-klaar abonnement | Pipedrive Growth of hoger | Beide beginnen op Growth, met 50 tot 250 automatiseringen en 5 tot 50 sequenties, afhankelijk van het abonnement |
 | Verkoop, service en marketing op één platform, met offertes en prognoses | Salesforce Pro Suite of hoger | Pro Suite voegt offertes, prognoses, meer maatwerk en AppExchange-apps toe; het wordt jaarlijks gefactureerd en vraagt een contract |
 | Agentforce for Sales inbegrepen in de seatprijs | Salesforce Max | Max vermeldt Agentforce for Sales en Agentforce Coworker; voor Core en hoger zegt Salesforce dat AI kan worden toegevoegd |
-| Klanten schrijven net zo vaak op LinkedIn of WhatsApp als per e-mail, of je wilt een open-source CRM | Customermates | Zie de derde optie hieronder |
+| Klanten schrijven net zo vaak op LinkedIn of WhatsApp als per e-mail, of je wilt een CRM met zichtbare broncode | Customermates | Zie de derde optie hieronder |
 
 ## Wat Pipedrive anders maakt dan Salesforce
 
@@ -192,11 +192,11 @@ Pipedrive [host op AWS](https://support.pipedrive.com/en/article/how-secure-is-m
 
 ## Een derde optie: Customermates
 
-Customermates publiceert deze pagina, dus lees deze sectie als een aanbieder die zijn eigen product beschrijft. Customermates is een open-source, AI-native CRM voor kleine klantgerichte teams zoals adviseurs, bureaus en oprichters, gebouwd in Duitsland en gemaakt om elk klantgesprek op te volgen: vanaf Pro staan ze op het klantrecord, en Mate of je eigen AI-agent schrijft het conceptantwoord en de volgende stap. Qua omvang zit het dichter bij Pipedrive dan bij Salesforce: een nieuwe werkruimte begint zonder lijsten, je maakt de lijsten en velden die je nodig hebt (contactpersonen, organisaties, deals of je eigen), en betaalde abonnementen hebben geen recordlimieten. Op vier punten verschilt het van beide:
+Customermates publiceert deze pagina, dus lees deze sectie als een aanbieder die zijn eigen product beschrijft. Customermates is een source-available, AI-native CRM voor kleine klantgerichte teams zoals adviseurs, bureaus en oprichters, gebouwd in Duitsland en gemaakt om elk klantgesprek op te volgen: vanaf Pro staan ze op het klantrecord, en Mate of je eigen AI-agent schrijft het conceptantwoord en de volgende stap. Qua omvang zit het dichter bij Pipedrive dan bij Salesforce: een nieuwe werkruimte begint zonder lijsten, je maakt de lijsten en velden die je nodig hebt (contactpersonen, organisaties, deals of je eigen), en betaalde abonnementen hebben geen recordlimieten. Op vier punten verschilt het van beide:
 
 - **Gesprekken naast de deal.** Vanaf Pro zet de [gecombineerde inbox](/features/unified-inbox) Gmail-, Outlook- en IMAP-mailboxen, LinkedIn, WhatsApp, Instagram en Telegram in één lijst die aan je contactpersonen is gekoppeld, en je antwoordt op het oorspronkelijke kanaal. Pro bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter heeft geen inbox.
 - **AI die het CRM-werk doet.** In Customermates Cloud vat Mate threads samen, schrijft conceptantwoorden en werkt records bij. Mate gebruikt gehoste AI-credits, een maandelijks tegoed per actieve gebruiker dat op de [prijspagina](/pricing) staat. Routines voeren een opgeslagen instructie uit volgens een schema of wanneer een record verandert. Claude, ChatGPT of een andere client kan de [MCP-server](/docs/mcp) met [[derived.mcp.tools.total]] tools op elk abonnement gebruiken, afgerekend door je eigen AI-aanbieder.
-- **Open source.** De AGPL-3.0-kern [draait op je eigen server](/features/self-hosted) met Docker Compose, inclusief REST, webhooks en MCP, maar zonder de inbox en Mate. In Customermates Cloud is de database geconfigureerd in de AWS-regio Frankfurt, staan andere aanbieders, ook Amerikaanse, op de [pagina met subverwerkers](/subprocessors) en is een [verwerkersovereenkomst](/dpa) beschikbaar.
+- **Source-available.** De Community Edition (Sustainable Use License) [draait op je eigen server](/features/self-hosted) met Docker Compose, inclusief REST, webhooks en MCP, maar zonder de inbox en Mate. In Customermates Cloud is de database geconfigureerd in de AWS-regio Frankfurt, staan andere aanbieders, ook Amerikaanse, op de [pagina met subverwerkers](/subprocessors) en is een [verwerkersovereenkomst](/dpa) beschikbaar.
 - **Maandprijzen per gebruiker.** Maandelijks is de enige factureringscyclus. Vijf personen betalen [[commercial.price.starter.monthly.seats.5]] per maand op Starter of [[commercial.price.pro.monthly.seats.5]] op Pro.
 
 Een adviesbureau van vijf personen zou het zo inrichten. Maak de aanbiedingen eerst aan als diensten, want de waarde van een deal is de som van zijn regelitems, elk een dienst maal het aantal. Open in Datamodel voor Deals het Fase-veld en geef de opties kansen zoals Lead 10%, Voorstel verstuurd 50%, Onderhandeling 75%, Gewonnen 100% en Verloren 0%; Customermates toont dan de gewogen waarde van elke deal, en een grafiekwidget op het Dashboard kan ze optellen. Dat is rekenwerk met je eigen cijfers en voorspelt niets. Voeg een veld met enkele keuze "Bron" toe met Doorverwijzing, LinkedIn en Website. Elke persoon slaat een bord op met de eigen toegewezen deals, gegroepeerd per fase, en kan dat met het team delen. In Customermates Cloud kan elke partner een routine zoals deze hebben, die als eigenaar draait en gehoste AI-credits gebruikt:

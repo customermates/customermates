@@ -1,6 +1,6 @@
 ---
 title: "Self hosted CRM met Docker en PostgreSQL"
-description: "Self hosted CRM met Docker Compose: de Customermates-applicatie en PostgreSQL 16 op je eigen infrastructuur, met AGPL-kern, MCP, REST en webhooks inbegrepen."
+description: "Self hosted CRM met Docker Compose: de Customermates-applicatie en PostgreSQL 16 op je eigen infrastructuur, source-available, met MCP, REST en webhooks."
 featureName: Self hosted CRM
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: Self hosted CRM zelf uitrollen
   metadata:
     title: "Self hosted CRM met Docker en PostgreSQL"
-    description: "Self hosted CRM met Docker Compose: de Customermates-applicatie en PostgreSQL 16 op je eigen infrastructuur, met AGPL-kern, MCP, REST en webhooks inbegrepen."
+    description: "Self hosted CRM met Docker Compose: de Customermates-applicatie en PostgreSQL 16 op je eigen infrastructuur, source-available, met MCP, REST en webhooks."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -120,7 +120,7 @@ hero:
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Lees de installatiehandleiding"
   buttonRightHref: /docs/self-hosting
-  hint: "AGPL-kern • Docker Compose • PostgreSQL 16"
+  hint: "Source-available • Docker Compose • PostgreSQL 16"
 
 cta:
   action: "Wil je ook LinkedIn en e-mail opvolgen? Probeer eerst de cloud"
@@ -132,7 +132,7 @@ cta:
   hint: "De beheerder is verantwoordelijk voor infrastructuur, updates, back-ups en gekoppelde aanbieders."
 ---
 
-Customermates is een **self hosted CRM** dat je als twee Docker Compose-services draait: de applicatie en PostgreSQL 16. Het past bij een team dat de infrastructuur van zijn CRM zelf wil beheren en een open-source kern wil gebruiken. Het is niet de self hosted versie van elke functie van Customermates Cloud.
+Customermates is een **self hosted CRM** dat je als twee Docker Compose-services draait: de applicatie en PostgreSQL 16. Het past bij een team dat de infrastructuur van zijn CRM zelf wil beheren en de gratis Community Edition (source-available, voor intern gebruik) wil gebruiken. Het is niet de self hosted versie van elke functie van Customermates Cloud.
 
 Een self hosted CRM draait op servers die je zelf beheert in plaats van in de cloud van de leverancier. Je CRM zelf hosten betekent dat jij bepaalt waar de applicatie en de database staan, en dat je updates, back-ups en beveiliging op je neemt. Of de code open source is, is een aparte vraag over licentierechten, die de [gids over open-source CRM](/blog/open-source-crm) behandelt. Deze pagina gaat over de praktische kant van Customermates.
 
@@ -192,11 +192,11 @@ Een domeinnaam heb je alleen nodig als je de CRM-omgeving via HTTPS bereikbaar m
 | Alleen-lezen agendaweergave van gekoppelde accounts         | Niet inbegrepen           |
 | Gedeelde gekoppelde accounts                                | Niet inbegrepen           |
 
-De [unified CRM-inbox](/features/unified-inbox) hoort bij de beheerde cloud, vanaf Pro. Zelf hosten blijft gericht op de open-source kern van het CRM en op externe MCP-clients.
+De [unified CRM-inbox](/features/unified-inbox) hoort bij de beheerde cloud, vanaf Pro. Zelf hosten blijft gericht op de Community Edition van het CRM en op externe MCP-clients.
 
-## Grenzen tussen open source en commerciële code
+## Grenzen tussen source-available en commerciële code
 
-Materiaal van Customermates zelf buiten `ee/` heeft de licentie AGPL-3.0-only. Binnen `ee/` is het materiaal commercieel gelicentieerd, met uitzondering van de afbeeldingen, lettertypen, CSS en JavaScript aan de clientzijde die in sectie 6 van `ee/LICENSE.md` als AGPL Client Material zijn aangeduid. Lees beide licenties voordat je de software aanpast, verspreidt of voor jouw situatie in productie neemt.
+Materiaal van Customermates zelf buiten `ee/` heeft de Sustainable Use License: je mag het gebruiken en wijzigen voor je eigen bedrijf of voor niet-commercieel en persoonlijk gebruik, en alleen gratis en niet-commercieel verder verspreiden. Binnen `ee/` is het materiaal commercieel gelicentieerd (Customermates Commercial License). Lees beide licenties voordat je de software aanpast, verspreidt of voor jouw situatie in productie neemt.
 
 Dat onderscheid telt als je een [open-source CRM](/blog/open-source-crm) vergelijkt: een openbare repository vertelt je niet welke code je onder welke voorwaarden mag gebruiken. Weeg je andere projecten die je zelf kunt hosten, dan laten de vergelijkingen met [EspoCRM](/compare/espocrm-alternative) en [Twenty](/compare/twenty-alternative) zien waar hun deployment en licentiegrenzen verschillen.
 
@@ -215,7 +215,7 @@ Gekoppelde diensten blijven aparte verwerkingsgrenzen. OAuth-aanbieders, Resend 
 | je externe AI-clients MCP wilt laten gebruiken      | je de rechten van de cloudabonnementen en beheerde accounts wilt    |
 | je updates, back-ups en herstel zelf op je neemt    | je liever een abonnement hebt met beheerde infrastructuur           |
 
-Wil je Customermates proberen voordat je een eigen server draait, dan zet de pagina [open source CRM in de cloud of self hosted](/features/open-source-crm) beide routes naast elkaar, met de gratis cloudproefperiode als snelste start.
+Wil je Customermates proberen voordat je een eigen server draait, dan zet de pagina [open source CRM of source-available: cloud of self hosted](/features/open-source-crm) beide routes naast elkaar, met de gratis cloudproefperiode als snelste start.
 
 Records verhuizen tussen installaties of vanuit een ander CRM als XLSX-werkmappen, per recordtype en binnen de limieten voor het aantal rijen, of via de REST API, waarmee je ook bestanden kunt uploaden naar velden van het type Bestand. Een XLSX-import neemt geen bijlagen mee en een complete accountoverdracht bestaat niet. Behandel een grotere verhuizing dus als een migratieproject dat je valideert.
 
@@ -242,7 +242,7 @@ Vergelijk daarom de totale kosten in plaats van aan te nemen dat de ene route go
 
 <Faq>
 <FaqItem question="Is Customermates volledig open source?">
-Materiaal van Customermates zelf buiten `ee/` is AGPL-3.0-only. Binnen `ee/` is het clientmateriaal dat in sectie 6 van `ee/LICENSE.md` wordt genoemd ook AGPL-3.0-only; de rest van het materiaal van Customermates zelf valt onder de commerciële licentie. Lees beide licentiebestanden voor de exacte grens.
+Nee. Customermates is source-available (fair-code), geen open source. Materiaal van Customermates zelf buiten `ee/` valt onder de Sustainable Use License; materiaal binnen `ee/` valt onder de commerciële licentie. Lees beide licentiebestanden voor de exacte grens.
 </FaqItem>
 
 <FaqItem question="Zit de unified inbox in de self hosted versie?">

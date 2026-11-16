@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Open source"
+    "label": "Source available"
   },
   "ApiKeyModal": {
     "addDescription": "Maak een sleutel voor je eigen integratie of kies een AI-client voor begeleide installatie.",
@@ -2785,7 +2785,7 @@
     "invalid": "Bevat fouten"
   },
   "EmailLayout": {
-    "tagline": "De open-source CRM voor het opvolgen van klanten"
+    "tagline": "De source-available CRM voor het opvolgen van klanten"
   },
   "EmailVerification": {
     "notVerified": "E-mailadres niet geverifieerd",
@@ -2990,7 +2990,7 @@
       "cancelAnytime": "Op elk moment opzegbaar",
       "gdpr": "Database in een EU-regio; geen certificeringsclaim",
       "noLimits": "Transparante abonnementen",
-      "openSource": "Open core"
+      "openSource": "Source available"
     },
     "eyebrow": "Prijzen",
     "selfHosted": {
@@ -3000,12 +3000,12 @@
       "featureN8n": "Interfaces voor een aparte n8n-instantie",
       "featureRecords": "Kern-CRM-records",
       "featureUsers": "Gebruikers van de werkruimte",
-      "period": "onder AGPL",
-      "price": "Gratis kern",
-      "tag": "Draai de AGPL-kernapp en PostgreSQL met Docker Compose op je eigen server in de omvang van Starter, zonder de inbox en gehoste AI. Externe diensten blijven apart.",
+      "period": "Community Edition",
+      "price": "Gratis",
+      "tag": "Draai de source-available Community Edition en PostgreSQL met Docker Compose op je eigen server in de omvang van Starter, gratis voor intern gebruik, zonder de inbox en gehoste AI. Externe diensten blijven apart.",
       "title": "Zelf gehost"
     },
-    "subtitle": "Transparante abonnementen, geen verborgen kosten. Host de AGPL-kern gratis zelf; externe diensten blijven apart. Of begin met een gratis proefperiode in de Cloud, zonder creditcard.",
+    "subtitle": "Transparante abonnementen, geen verborgen kosten. Host de gratis Community Edition zelf voor je eigen bedrijf; externe diensten blijven apart. Of begin met een gratis proefperiode in de Cloud, zonder creditcard.",
     "title": "Eenvoudig, eerlijk, Europees"
   },
   "HomepageWorkspacePrompt": {
@@ -3481,7 +3481,7 @@
       "mcpDocs": "MCP-documentatie",
       "n8n": "n8n-automatisering",
       "openExampleWorkspace": "Open deze voorbeeldwerkruimte",
-      "openSourceCrm": "Open-source CRM",
+      "openSourceCrm": "Source-available CRM",
       "pillarData": "Data",
       "pillarDataDescription": "Klanten, deals en lijsten die je zelf vormgeeft",
       "pillarInbox": "Inbox",

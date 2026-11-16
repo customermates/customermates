@@ -28,7 +28,7 @@ relatedHrefs:
 
 Wat is een MCP server? Het is een programma dat een AI-toepassing via het Model Context Protocol (MCP), een open standaard, een set tools, data en promptsjablonen aanbiedt. Daardoor kan Claude, ChatGPT, Cursor of een andere MCP-client dingen opzoeken en acties uitvoeren in een systeem dat de client anders niet zou bereiken. De server staat voor dat systeem, een map met bestanden, een database of een CRM, en bepaalt wat de AI daar mag zien en doen.
 
-Anthropic introduceerde MCP op 25 november 2024 als open standaard om AI-assistenten te verbinden met de systemen waar data staat. Sindsdien hebben de grote AI-clients ondersteuning toegevoegd en draaien veel softwareleveranciers eigen servers. Deze gids legt de onderdelen in gewone taal uit en loopt daarna één echte server voor bedrijfsdata door: de MCP server die in Customermates is ingebouwd, het open-source CRM dat dit artikel publiceert.
+Anthropic introduceerde MCP op 25 november 2024 als open standaard om AI-assistenten te verbinden met de systemen waar data staat. Sindsdien hebben de grote AI-clients ondersteuning toegevoegd en draaien veel softwareleveranciers eigen servers. Deze gids legt de onderdelen in gewone taal uit en loopt daarna één echte server voor bedrijfsdata door: de MCP server die in Customermates is ingebouwd, het source-available CRM dat dit artikel publiceert.
 
 Twijfel je tussen een vaste integratie en een AI-client? Zet [MCP en API naast elkaar bij dezelfde klantrecordtaak](/blog/mcp-vs-api). Tooldetectie verandert alleen hoe de client een bewerking vindt; authenticatie en rechten blijven gelden.
 
@@ -158,7 +158,7 @@ Wil je geen code schrijven? Dan is de server van de leverancier van het systeem 
 
 De meeste uitleg stopt bij een weertool. Zo ziet een productieserver voor klantdata eruit, met Customermates als voorbeeld. Alle details hieronder komen uit de openbare [MCP-referentie](/docs/mcp).
 
-**Het endpoint.** Customermates draait een remote server op `/api/v1/mcp` op het adres dat je voor de app gebruikt, plus een werkruimtespecifieke URL met dezelfde tools, vergrendeld op die werkruimte. Hij spreekt Streamable HTTP. Het endpoint hoort bij elk Cloud-pakket en bij zelf gehoste installaties; host je de open-sourceversie zelf, dan is het nog steeds een remote server, alleen op je eigen infrastructuur.
+**Het endpoint.** Customermates draait een remote server op `/api/v1/mcp` op het adres dat je voor de app gebruikt, plus een werkruimtespecifieke URL met dezelfde tools, vergrendeld op die werkruimte. Hij spreekt Streamable HTTP. Het endpoint hoort bij elk Cloud-pakket en bij zelf gehoste installaties; host je de Community Edition zelf, dan is het nog steeds een remote server, alleen op je eigen infrastructuur.
 
 **Verbinden.** In Claude en ChatGPT voeg je de URL toe als aangepaste connector, log je in en geef je toegang ([instellen van een aangepaste connector](/docs/connect-custom-connector)). Claude Code, Codex, Cursor en Gemini CLI verbinden met een API-sleutel in de `x-api-key`-header ([CLI-installatie](/docs/connect-cli)). In beide gevallen handelt de client als precies één gebruiker in precies één werkruimte, en voor verbinden is leestoegang tot API en webhooks nodig in de rol van die gebruiker.
 
@@ -176,7 +176,7 @@ De meeste uitleg stopt bij een weertool. Zo ziet een productieserver voor klantd
 
 **Waar het voor is.** Voor een team met veel klantcontact is opvolging de nuttige klus: met LinkedIn en e-mail gekoppeld in Customermates Cloud vanaf Pro leest je eigen Claude of ChatGPT het gesprek bij het klantrecord en schrijft het het antwoord en de volgende stap, die jij controleert en verstuurt. Wil je het proberen, [start je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard.
 
-Customermates is de verkeerde keuze als je alleen een AI wilt verbinden met het CRM dat je al gebruikt; gebruik dan de eigen server van dat CRM. Het past wanneer je een CRM kiest en de MCP server, de data en de [open-sourcecode](/features/open-source-crm) in één product wilt.
+Customermates is de verkeerde keuze als je alleen een AI wilt verbinden met het CRM dat je al gebruikt; gebruik dan de eigen server van dat CRM. Het past wanneer je een CRM kiest en de MCP server, de data en de [source-available code](/features/open-source-crm) in één product wilt.
 
 ## Wat zijn de beveiligingsrisico's van MCP servers?
 

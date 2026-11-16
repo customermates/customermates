@@ -23,7 +23,7 @@ blogPost:
     - microsoft-copilot
     - Sales-AI
     - CRM
-    - Open source
+    - Zelf hosten
 ---
 
 # Copilot for Sales: wat Sales agent doet, wat het nodig heeft en wat het kost
@@ -127,7 +127,7 @@ Over de vraag "is het het waard": Sales agent loont wanneer verkopers de dag al 
 
 ## Waar Customermates past
 
-Customermates is een open-source, AI-native CRM voor kleine klantgerichte teams zoals consultancy's en bureaus, gebouwd in Duitsland. Het is één optie voor de laatste rij van de tabel, en geen vervanger van Sales agent voor een bedrijf dat Dynamics 365 draait en klantgesprekken in Teams opneemt.
+Customermates is een source-available, AI-native CRM voor kleine klantgerichte teams zoals consultancy's en bureaus, gebouwd in Duitsland. Het is één optie voor de laatste rij van de tabel, en geen vervanger van Sales agent voor een bedrijf dat Dynamics 365 draait en klantgesprekken in Teams opneemt.
 
 Een typische opzet voor een team van vijf:
 
@@ -137,7 +137,7 @@ Een typische opzet voor een team van vijf:
 - **Een routine, in Customermates Cloud.** Trigger "Wanneer er iets verandert", gebeurtenis "Record bijgewerkt" voor Deals, onder "Gewijzigde velden" het veld Fase. Instructies: "Wanneer een deal naar Voorstel gaat, lees dan de laatste thread met de contactpersoon en bewaar een antwoordconcept. Verstuur niets." De routine draait als haar eigenaar, met de kanalen van die eigenaar. Zie [routines](/docs/app-routines).
 - **Je eigen AI-client.** Gebruikt je team al Claude of ChatGPT, koppel die dan via MCP met de [aangepaste connector](/docs/connect-custom-connector). Microsoft documenteert dat Copilot Studio-agents verbinding kunnen maken met een bestaande MCP-server; voor die client is er nog geen gepubliceerde Customermates-gids, dus test één leesactie voordat je erop vertrouwt.
 
-**Kosten.** Vijf gebruikers op Pro kosten [[commercial.price.pro.monthly.seats.5]] per maand, maandelijks gefactureerd, inclusief de inbox en maandelijkse gehoste AI-tegoeden per actieve gebruiker ([zie prijzen](/pricing)). Starter voor [[commercial.price.starter.monthly]] per gebruiker heeft geen inbox. De AGPL-kern zelf hosten is vrij van licentiekosten en behoudt REST, webhooks en MCP, maar heeft geen inbox en geen Mate.
+**Kosten.** Vijf gebruikers op Pro kosten [[commercial.price.pro.monthly.seats.5]] per maand, maandelijks gefactureerd, inclusief de inbox en maandelijkse gehoste AI-tegoeden per actieve gebruiker ([zie prijzen](/pricing)). Starter voor [[commercial.price.starter.monthly]] per gebruiker heeft geen inbox. De Community Edition zelf hosten is vrij van licentiekosten (voor intern gebruik) en behoudt REST, webhooks en MCP, maar heeft geen inbox en geen Mate.
 
 Wat een klein team voor die seat krijgt, is opvolging zonder Microsoft-stack: threads op het klantrecord, een antwoordconcept en een volgende stap die Mate of je eigen AI-client voorbereidt, en jij beoordeelt en verstuurt. Om het met je eigen mailbox of LinkedIn te proberen, [start je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Zonder creditcard.
 

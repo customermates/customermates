@@ -28,7 +28,7 @@ relatedHrefs:
 
 De beste MCP-servers voor sales zijn de servers die de leverancier van je CRM zelf beheert: de remote server van HubSpot, de gehoste servers van Pipedrive en Attio en, voor grote organisaties met beheerders, de Salesforce Hosted MCP Servers. Bij e-mail ligt het zwakker. De Gmail-server van Google is een previewversie voor ontwikkelaars die concepten maakt en labels zet maar niets verstuurt, en de Work IQ-server van Microsoft moet eerst door een tenantbeheerder worden ingeschakeld. Hieronder staan acht servers gerangschikt voor sales en klantwerk, met per server de beheerder, de hosting, de aanmelding en het schrijfbereik.
 
-Openheid: Customermates, een open-source CRM met een eigen MCP-server, publiceert deze lijst en is een van de acht vermeldingen. Elke rij is op 12 november 2026 gecontroleerd in de documentatie of de officiële repository van de leverancier, gelinkt in de tabel. We hebben die pagina's gelezen en niet elke server draaien laten: een rij laat zien wat de leverancier documenteert, geen meting.
+Openheid: Customermates, een source-available CRM met een eigen MCP-server, publiceert deze lijst en is een van de acht vermeldingen. Elke rij is op 12 november 2026 gecontroleerd in de documentatie of de officiële repository van de leverancier, gelinkt in de tabel. We hebben die pagina's gelezen en niet elke server draaien laten: een rij laat zien wat de leverancier documenteert, geen meting.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="CRM-servers">
@@ -70,7 +70,7 @@ De maatstaf is een klein team dat dicht bij klanten werkt: een paar plekken, lan
 | 1 | Remote MCP-server van HubSpot | Teams die HubSpot gebruiken en records, activiteiten en gesprekken in één server willen | Geen verwijderen in de gedocumenteerde schrijftoegang; activiteitsgegevens worden geblokkeerd als gevoelige gegevens aan staan |
 | 2 | MCP van Pipedrive | Pipelinegerichte salesteams, in elk Pipedrive-pakket | Verwijderen is niet gedocumenteerd; gebruik telt mee voor de tokenlimieten van het pakket |
 | 3 | MCP van Attio | Een eigen datamodel met lijsten, notities en taken | Verwijdert alleen taken en opmerkingen; één SQL-tool zit niet in elk pakket |
-| 4 | MCP van Customermates (uitgever) | Kleine teams dicht bij klanten die de gesprekken naast de records willen, met een open-sourcekern | Berichttools vragen Pro in de cloud; geen rechten op veldniveau; geen sequences, telefonie of facturatie |
+| 4 | MCP van Customermates (uitgever) | Kleine teams dicht bij klanten die de gesprekken naast de records willen, met een zelf te hosten Community Edition | Berichttools vragen Pro in de cloud; geen rechten op veldniveau; geen sequences, telefonie of facturatie |
 | 5 | Salesforce Hosted MCP Servers | Organisaties die al Salesforce gebruiken en beheerders hebben | Vraagt een beheerder, een External Client App en de Enterprise Edition of hoger |
 | 6 | Microsoft Work IQ MCP | Outlook-mail, agenda en Teams binnen een Microsoft 365-tenant | Een globale beheerder richt hem in, plus een gebruiksafhankelijk factureringsplan in Copilot Studio |
 | 7 | Gmail-MCP-server (Google) | Threads lezen en antwoorden opstellen in Gmail | Previewversie voor ontwikkelaars; geen verzend- of verwijdertool vermeld; vraagt een eigen Google Cloud-project |
@@ -139,7 +139,7 @@ Op 12 november 2026 vonden we geen MCP-server die LinkedIn zelf beheert. Communi
 | Je gebruikt Pipedrive | De server van Pipedrive, met een pakket waarvan de tokenlimiet bij je gebruik past |
 | Je wilt een eigen datamodel met lijsten en rapporten | Attio |
 | Je gebruikt Salesforce met beheerders en eigen logica | Salesforce Hosted MCP Servers, eerst `platform/sobject-reads` in een sandbox |
-| Je kiest een eerste CRM en wilt MCP-server, gesprekken en open-sourcekern in één product | Customermates |
+| Je kiest een eerste CRM en wilt MCP-server, gesprekken en zichtbare broncode in één product | Customermates |
 | De AI moet je mailbox lezen en antwoorden opstellen | De server van Gmail als je een preview accepteert, Microsoft Work IQ als je Microsoft 365 gebruikt |
 | Je mailbox is IMAP, geen Gmail en geen Microsoft 365 | Noch de server van Google noch die van Microsoft past; Customermates koppelt Gmail-, Outlook- en IMAP-mailboxen in de cloud vanaf Pro |
 | Je wilt vaste stappen over meerdere tools | De server van n8n |
