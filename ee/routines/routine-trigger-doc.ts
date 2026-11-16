@@ -29,8 +29,6 @@ export const ROUTINE_TRIGGER_ENTITY_GUIDE: Record<RoutineTriggerEvent, TriggerGu
   "messaging.message.reaction": { kind: "message", ...THREAD_READ },
   "messaging.email.received": { kind: "message", ...THREAD_READ },
   "messaging.chat.updated": { kind: "thread", ...THREAD_READ },
-  "messaging.chat.deleted": { kind: "thread", ...THREAD_READ },
-  "messaging.email.deleted": { kind: "message", ...THREAD_READ },
   "messaging.calendar.changed": { kind: "calendar", tool: "get_calendars", argument: "filters by connectedAccountId" },
   "messaging.calendar_event.changed": { kind: "calendarEvent", tool: "get_calendars", argument: "eventId" },
   "messaging.relation.created": {

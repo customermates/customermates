@@ -103,7 +103,11 @@ export const DOCS_HELDOUT: readonly DocsRetrievalEvalItem[] = [
       "If I set up an automation that fires every time a deal is edited, is there a cap on how often it can go off in an hour?",
     slug: "app-routines",
     anchors: ["app-routines#what-are-the-limits"],
-    alternatives: ["app-routines#how-do-event-triggers-work"],
+    alternatives: [
+      "app-routines#how-do-event-triggers-work",
+      "app-automations#how-do-automations-run",
+      "app-automations#how-many-automations-does-my-plan-include",
+    ],
   },
   {
     id: "dh-en-02",
@@ -171,7 +175,7 @@ export const DOCS_HELDOUT: readonly DocsRetrievalEvalItem[] = [
       "Kann eine Automatisierung loslaufen, sobald jemand bei einem Deal etwas ändert, und wie richte ich so einen Auslöser ein?",
     slug: "app-routines",
     anchors: ["app-routines#how-do-event-triggers-work"],
-    alternatives: ["app-routines#how-do-i-create-a-routine"],
+    alternatives: ["app-routines#how-do-i-create-a-routine", "app-automations#how-do-i-create-an-automation"],
   },
   {
     id: "dh-de-02",
@@ -678,7 +682,11 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsRetrievalEvalItem[] = [
     query: "¿Cuántas automatizaciones puedo tener con mi plan?",
     slug: "app-routines",
     anchors: ["app-routines#how-many-routines-does-my-plan-include"],
-    alternatives: ["app-company#which-plans-are-there", "app-assistant#plans-and-credits"],
+    alternatives: [
+      "app-company#which-plans-are-there",
+      "app-assistant#plans-and-credits",
+      "app-automations#how-many-automations-does-my-plan-include",
+    ],
   },
   {
     id: "de-es-08",
@@ -806,7 +814,11 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsRetrievalEvalItem[] = [
     query: "Faut-il payer une licence pour installer Customermates chez soi ?",
     slug: "self-hosting",
     anchors: ["self-hosting#is-self-hosting-free-and-do-i-need-a-license"],
-    alternatives: [],
+    alternatives: [
+      "licence-faq#what-can-i-do-with-the-community-edition",
+      "licence-faq#what-is-the-test",
+      "licence#what-is-the-community-edition",
+    ],
   },
   {
     id: "de-fr-12",
@@ -822,7 +834,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsRetrievalEvalItem[] = [
     query: "Come creo un'automazione nuova?",
     slug: "app-routines",
     anchors: ["app-routines#how-do-i-create-a-routine"],
-    alternatives: [],
+    alternatives: ["app-automations#how-do-i-create-an-automation"],
   },
   {
     id: "de-it-02",

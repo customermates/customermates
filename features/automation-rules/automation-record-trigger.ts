@@ -1,11 +1,10 @@
 import type { RecordEventKind } from "@/features/records/record-event.schema";
 import type { RecordEventSubscriptionDefinition } from "@/features/records/record-event-subscription.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordQuery } from "@/features/records/record-query.schema";
 import type { AutomationCondition, AutomationTrigger } from "./automation-rule.schema";
 
-import { invalidRecordQueryPart } from "@/features/records/record-query-validation";
-import { RecordQuerySchema } from "@/features/records/record-query.schema";
+import { recordFieldFilterIsValid } from "@/features/records/record-query-validation";
 
 type RecordFilter = RecordQuery["filters"][number];
 
@@ -24,20 +23,22 @@ const FILTER_OPERATORS = {
   after: "gt",
 } as const;
 
-function usableFilter(typeId: string, filter: RecordFilter, model: RecordModel): RecordFilter | null {
-  const query = RecordQuerySchema.parse({ typeId, filters: [filter] });
-  return invalidRecordQueryPart(query, model) ? null : filter;
+function usableFilter(typeId: string, filter: RecordFilter, model: RecordModelView): RecordFilter | null {
+  const field = model.fields.find(
+    (candidate) => candidate.typeId === typeId && candidate.id === filter.fieldId && !candidate.archived,
+  );
+  return field && recordFieldFilterIsValid(filter, field) ? filter : null;
 }
 
 export function fieldChangedFilter(
   trigger: Extract<AutomationTrigger, { kind: "fieldChanged" }>,
-  model: RecordModel,
+  model: RecordModelView,
 ): RecordFilter | null {
   if (!trigger.to) return null;
   return usableFilter(trigger.typeId, { fieldId: trigger.fieldId, operator: "eq", value: trigger.to }, model);
 }
 
-function conditionFilter(typeId: string, condition: AutomationCondition, model: RecordModel): RecordFilter | null {
+function conditionFilter(typeId: string, condition: AutomationCondition, model: RecordModelView): RecordFilter | null {
   if (condition.relativeDays !== undefined) return null;
   return usableFilter(
     typeId,
@@ -67,10 +68,11 @@ function eventTrigger(trigger: AutomationTrigger): { events: RecordEventKind[]; 
 export function ruleConditionPlan(
   trigger: AutomationTrigger,
   conditions: readonly AutomationCondition[],
-  model: RecordModel,
+  model: RecordModelView,
 ): { subscription: RuleRecordTrigger | null; residual: AutomationCondition[] } {
   const shape = eventTrigger(trigger);
-  if (!shape || !("typeId" in trigger)) return { subscription: null, residual: [...conditions] };
+  const typeId = "typeId" in trigger ? trigger.typeId : undefined;
+  if (!shape || !typeId) return { subscription: null, residual: [...conditions] };
   const filters: RecordFilter[] = [];
   if (trigger.kind === "fieldChanged") {
     const changedTo = fieldChangedFilter(trigger, model);
@@ -78,12 +80,12 @@ export function ruleConditionPlan(
   }
   const residual: AutomationCondition[] = [];
   for (const condition of conditions) {
-    const filter = conditionFilter(trigger.typeId, condition, model);
+    const filter = conditionFilter(typeId, condition, model);
     if (filter) filters.push(filter);
     else residual.push(condition);
   }
   return {
-    subscription: { typeId: trigger.typeId, ...shape, query: { typeId: trigger.typeId, filters, relationships: [] } },
+    subscription: { typeId, ...shape, query: { typeId, filters, relationships: [] } },
     residual,
   };
 }

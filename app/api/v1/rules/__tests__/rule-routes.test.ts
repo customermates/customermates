@@ -92,10 +92,7 @@ describe("automation rule REST routes", () => {
     await enable(request("enable", { id: ID, enabled: false }));
     await disable(request("disable", { id: ID, enabled: true }));
 
-    expect(interactors.enabled.mock.calls).toEqual([
-      [{ id: ID, enabled: true }],
-      [{ id: ID, enabled: false }],
-    ]);
+    expect(interactors.enabled.mock.calls).toEqual([[{ id: ID, enabled: true }], [{ id: ID, enabled: false }]]);
   });
 
   it("returns interactor failures and thrown access errors as structured bodies", async () => {

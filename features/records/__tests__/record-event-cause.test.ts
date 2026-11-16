@@ -42,9 +42,9 @@ describe("record event cause attribution", () => {
   });
 
   it("lets an explicit routine depth of the cause win over the running context", async () => {
-    expect(await runInCausation({ routineDepth: 2 }, () => recordCauseBy({}, { kind: "mutation", routineDepth: 1 }))).toEqual(
-      { kind: "mutation", routineDepth: 1 },
-    );
+    expect(
+      await runInCausation({ routineDepth: 2 }, () => recordCauseBy({}, { kind: "mutation", routineDepth: 1 })),
+    ).toEqual({ kind: "mutation", routineDepth: 1 });
   });
 
   it("separates the attribution from the cause an event stores in its payload", () => {

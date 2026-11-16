@@ -274,7 +274,15 @@ describe("occurrence keys", () => {
   });
 
   it("lists the dates that are due, once each, with the key that records them", () => {
-    const date = { fieldId: FIELD, days: 2, direction: "before" as const, atHour: 8, timezone: "Europe/Berlin" };
+    const date = {
+      kind: "dateReached" as const,
+      typeId: TYPE,
+      fieldId: FIELD,
+      days: 2,
+      direction: "before" as const,
+      atHour: 8,
+      timezone: "Europe/Berlin",
+    };
     const now = new Date("2026-11-18T09:00:00.000Z");
     const due = dueDateOccurrences(
       date,

@@ -17,8 +17,10 @@ import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AUTOMATION_RULE_PAGE_SIZE } from "@/features/automation-rules/automation-rule.schema";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -79,7 +81,7 @@ const AutomationsViewContent = ({ initialRules, model, prefill, total: initialTo
         owner: "all",
       });
       if (!result.ok) {
-        toastZodErrorTree(result.error);
+        if (!notifyIfWorkspaceChanged(result.failure)) toastZodErrorTree(serializedFailureErrorTree(result.failure));
         return;
       }
       setPageCount((current) => current + 1);
