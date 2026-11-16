@@ -41,7 +41,7 @@ Si un tipo también te llega por correo lo decides tú, tipo por tipo, en la tar
 
 ## ¿Cuántas automatizaciones incluye mi plan? [#how-many-automations-does-my-plan-include]
 
-El límite cuenta las automatizaciones activadas: Free incluye [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], y Pro, Business, Max y Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Desactivar una automatización libera su hueco de inmediato. En el límite, crear o activar otra se rechaza con una invitación a mejorar el plan en [Facturación](app:settings/billing) o a desactivar otra automatización. Las instancias autoalojadas no tienen plan, así que allí no hay límite.
+El límite cuenta las automatizaciones activadas: Free incluye [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], y Pro, Business, Max y Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Desactivar una automatización libera su hueco de inmediato. En el límite, crear o activar otra se rechaza con una invitación a mejorar el plan en [Facturación](app:settings/billing) o a desactivar otra automatización. Cuando el plan cambia a uno que permite menos, las automatizaciones más nuevas por encima del límite se desactivan con la nota de que el plan las pausó, y se activan de nuevo cuando el plan lo permite. Las instancias autoalojadas no tienen plan, así que allí no hay límite.
 
 ## ¿Cómo gestiona Mate las automatizaciones? [#how-does-mate-manage-automations]
 
@@ -61,7 +61,7 @@ No. Una rutina abre una conversación y deja que Mate trabaje, usa la asignació
 Abre el **Historial** de la automatización. Una ejecución omitida indica el motivo, por ejemplo condiciones sin cumplir o un propietario que ya no está activo. Una regla de fecha también necesita una fecha en el campo y se dispara una vez por registro y fecha.
 </FaqItem>
 <FaqItem question="¿Puede una automatización enviar un correo a un cliente?">
-No directamente. Una automatización no envía correos ni mensajes por sí misma. Puede notificar a miembros de tu espacio de trabajo, lo que puede llegarles por correo, y puede llamar a uno de tus webhooks, por ejemplo para iniciar un flujo de [n8n](/docs/n8n) que envíe algo.
+No directamente. Una automatización no envía correos ni mensajes por sí misma. Puede notificar a miembros de tu espacio de trabajo, lo que puede llegarles por correo, y puede llamar a uno de tus webhooks, por ejemplo para iniciar un flujo de [n8n](/docs/n8n) que envíe algo. La llamada es el evento `automation.rule.fired`, que se entrega como cualquier otro evento de webhook con reintentos e historial, así que el webhook debe haberlo seleccionado en [¿Qué eventos existen?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="¿Quién recibe la notificación cuando una automatización avisa a alguien?">
 Lo decide la acción: **Avisarme** llega al propietario de la automatización, **Avisar a las personas asignadas** llega a los miembros a quienes está asignado el registro que la disparó. La notificación aparece en su campana y sigue su preferencia de correo para **Alertas de automatización**.

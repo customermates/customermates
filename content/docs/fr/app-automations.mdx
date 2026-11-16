@@ -41,7 +41,7 @@ Que chaque type vous parvienne aussi par e-mail, c’est votre choix, type par t
 
 ## Combien d’automatisations mon forfait inclut-il ? [#how-many-automations-does-my-plan-include]
 
-La limite compte les automatisations activées : Free en inclut [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], et Pro, Business, Max et Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Désactiver une automatisation libère aussitôt sa place. À la limite, la création ou l’activation d’une autre est refusée avec une invitation à passer à un forfait supérieur sous [Facturation](app:settings/billing) ou à désactiver une autre automatisation. Les instances auto-hébergées n’ont pas de forfait, donc aucune limite ne s’y applique.
+La limite compte les automatisations activées : Free en inclut [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], et Pro, Business, Max et Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Désactiver une automatisation libère aussitôt sa place. À la limite, la création ou l’activation d’une autre est refusée avec une invitation à passer à un forfait supérieur sous [Facturation](app:settings/billing) ou à désactiver une autre automatisation. Quand le forfait passe à un forfait qui en autorise moins, les automatisations les plus récentes au-dessus de la limite sont désactivées avec la mention que le forfait les a mises en pause, et elles se réactivent dès que le forfait le permet. Les instances auto-hébergées n’ont pas de forfait, donc aucune limite ne s’y applique.
 
 ## Comment Mate gère-t-il les automatisations ? [#how-does-mate-manage-automations]
 
@@ -61,7 +61,7 @@ Non. Une routine ouvre une conversation et laisse Mate travailler, utilise le qu
 Ouvrez l’**Historique** de l’automatisation. Une exécution ignorée donne la raison, par exemple des conditions non remplies ou un propriétaire qui n’est plus actif. Une règle de date a aussi besoin d’une date dans le champ et se déclenche une fois par enregistrement et par date.
 </FaqItem>
 <FaqItem question="Une automatisation peut-elle envoyer un e-mail à un client ?">
-Pas directement. Une automatisation n’envoie elle-même ni e-mails ni messages. Elle peut notifier des membres de votre espace de travail, ce qui peut les atteindre par e-mail, et appeler l’un de vos webhooks, par exemple pour lancer un workflow [n8n](/docs/n8n) qui envoie quelque chose.
+Pas directement. Une automatisation n’envoie elle-même ni e-mails ni messages. Elle peut notifier des membres de votre espace de travail, ce qui peut les atteindre par e-mail, et appeler l’un de vos webhooks, par exemple pour lancer un workflow [n8n](/docs/n8n) qui envoie quelque chose. L’appel est l’évènement `automation.rule.fired`, livré comme tout autre évènement de webhook avec nouvelles tentatives et historique ; le webhook doit donc l’avoir sélectionné sous [Quels évènements existent ?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Qui reçoit la notification quand une automatisation prévient quelqu’un ?">
 L’action en décide : **Me prévenir** atteint le propriétaire de l’automatisation, **Prévenir les personnes assignées** atteint les membres auxquels l’enregistrement déclencheur est assigné. La notification apparaît dans leur cloche et suit leur préférence d’e-mail pour **Alertes d’automatisation**.

@@ -41,7 +41,7 @@ Ob eine Art Sie zusätzlich per E-Mail erreicht, entscheiden Sie pro Art in der 
 
 ## Wie viele Automatisierungen enthält mein Tarif? [#how-many-automations-does-my-plan-include]
 
-Das Limit zählt eingeschaltete Automatisierungen: Free enthält [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], und Pro, Business, Max und Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Wer eine Automatisierung ausschaltet, gibt ihren Platz sofort frei. Am Limit wird das Anlegen oder Einschalten einer weiteren abgelehnt, mit dem Hinweis, unter [Abrechnung](app:settings/billing) zu upgraden oder eine andere Automatisierung auszuschalten. Selbst gehostete Instanzen haben keinen Tarif, daher gilt dort kein Limit.
+Das Limit zählt eingeschaltete Automatisierungen: Free enthält [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], und Pro, Business, Max und Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Wer eine Automatisierung ausschaltet, gibt ihren Platz sofort frei. Am Limit wird das Anlegen oder Einschalten einer weiteren abgelehnt, mit dem Hinweis, unter [Abrechnung](app:settings/billing) zu upgraden oder eine andere Automatisierung auszuschalten. Wechselt der Tarif zu einem, der weniger erlaubt, schalten sich die neuesten Automatisierungen über dem Limit mit dem Hinweis aus, dass der Tarif sie pausiert hat, und schalten sich wieder ein, sobald der Tarif es erlaubt. Selbst gehostete Instanzen haben keinen Tarif, daher gilt dort kein Limit.
 
 ## Wie verwaltet Mate Automatisierungen? [#how-does-mate-manage-automations]
 
@@ -61,7 +61,7 @@ Nein. Eine Routine öffnet eine Unterhaltung und lässt Mate arbeiten, nutzt das
 Öffnen Sie den **Verlauf** der Automatisierung. Ein übersprungener Lauf nennt den Grund, etwa nicht erfüllte Bedingungen oder eine Eigentümerin oder einen Eigentümer, die oder der nicht mehr aktiv ist. Eine Datumsregel braucht außerdem ein Datum im Feld und löst einmal pro Datensatz und Datum aus.
 </FaqItem>
 <FaqItem question="Kann eine Automatisierung eine E-Mail an einen Kunden senden?">
-Nicht direkt. Eine Automatisierung sendet selbst keine E-Mails oder Nachrichten. Sie kann Mitglieder Ihres Workspace benachrichtigen, was sie auch per E-Mail erreichen kann, und einen Ihrer Webhooks aufrufen, zum Beispiel um einen [n8n](/docs/n8n)-Workflow zu starten, der etwas versendet.
+Nicht direkt. Eine Automatisierung sendet selbst keine E-Mails oder Nachrichten. Sie kann Mitglieder Ihres Workspace benachrichtigen, was sie auch per E-Mail erreichen kann, und einen Ihrer Webhooks aufrufen, zum Beispiel um einen [n8n](/docs/n8n)-Workflow zu starten, der etwas versendet. Der Aufruf ist das Event `automation.rule.fired`, das wie jedes andere Webhook-Event mit Wiederholungen und Verlauf zugestellt wird; der Webhook muss es daher unter [Welche Events gibt es?](/docs/webhooks#other-events) ausgewählt haben.
 </FaqItem>
 <FaqItem question="Wer erhält die Benachrichtigung, wenn eine Automatisierung jemanden informiert?">
 Das bestimmt die Aktion: **Mich benachrichtigen** erreicht die Eigentümerin oder den Eigentümer der Automatisierung, **Die zugewiesenen Personen benachrichtigen** erreicht die Mitglieder, denen der auslösende Datensatz zugewiesen ist. Die Benachrichtigung erscheint in ihrer Glocke und folgt ihrer E-Mail-Einstellung für **Hinweise von Automatisierungen**.

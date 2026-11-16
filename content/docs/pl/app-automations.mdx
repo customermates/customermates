@@ -41,7 +41,7 @@ To, czy dany rodzaj dociera do Ciebie także e-mailem, zależy od Ciebie, osobno
 
 ## Ile automatyzacji obejmuje mój plan? [#how-many-automations-does-my-plan-include]
 
-Limit liczy włączone automatyzacje: Free obejmuje [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], a Pro, Business, Max i Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Wyłączenie automatyzacji od razu zwalnia jej miejsce. Przy limicie utworzenie lub włączenie kolejnej zostaje odrzucone z zachętą do zmiany planu w sekcji [Rozliczenia](app:settings/billing) lub do wyłączenia innej automatyzacji. Instancje self-hosted nie mają planu, więc nie obowiązuje tam żaden limit.
+Limit liczy włączone automatyzacje: Free obejmuje [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], a Pro, Business, Max i Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Wyłączenie automatyzacji od razu zwalnia jej miejsce. Przy limicie utworzenie lub włączenie kolejnej zostaje odrzucone z zachętą do zmiany planu w sekcji [Rozliczenia](app:settings/billing) lub do wyłączenia innej automatyzacji. Gdy plan zmieni się na taki, który pozwala na mniej, najnowsze automatyzacje ponad limitem wyłączają się z adnotacją, że plan je wstrzymał, i włączają się ponownie, gdy plan na to pozwoli. Instancje self-hosted nie mają planu, więc nie obowiązuje tam żaden limit.
 
 ## Jak Mate zarządza automatyzacjami? [#how-does-mate-manage-automations]
 
@@ -61,7 +61,7 @@ Nie. Rutyna otwiera rozmowę i pozwala Mate pracować, zużywa limit Mate właś
 Otwórz **Historię** automatyzacji. Pominięte uruchomienie podaje powód, na przykład niespełnione warunki lub właściciela, który nie jest już aktywny. Reguła daty potrzebuje też daty w polu i uruchamia się raz na rekord i datę.
 </FaqItem>
 <FaqItem question="Czy automatyzacja może wysłać e-mail do klienta?">
-Nie bezpośrednio. Automatyzacja sama nie wysyła e-maili ani wiadomości. Może powiadamiać członków Twojej przestrzeni roboczej, co może do nich dotrzeć także e-mailem, i może wywołać jeden z Twoich webhooków, na przykład aby uruchomić przepływ [n8n](/docs/n8n), który coś wyśle.
+Nie bezpośrednio. Automatyzacja sama nie wysyła e-maili ani wiadomości. Może powiadamiać członków Twojej przestrzeni roboczej, co może do nich dotrzeć także e-mailem, i może wywołać jeden z Twoich webhooków, na przykład aby uruchomić przepływ [n8n](/docs/n8n), który coś wyśle. Wywołanie to zdarzenie `automation.rule.fired`, dostarczane jak każde inne zdarzenie webhooka z ponowieniami i historią, więc webhook musi je mieć wybrane w sekcji [Jakie zdarzenia istnieją?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Kto dostaje powiadomienie, gdy automatyzacja kogoś powiadamia?">
 Decyduje działanie: **Powiadom mnie** trafia do właściciela automatyzacji, **Powiadom przypisane osoby** trafia do członków, którym przypisano rekord wyzwalający. Powiadomienie pojawia się w ich dzwonku i podlega ich preferencji e-mail dla **Alerty automatyzacji**.

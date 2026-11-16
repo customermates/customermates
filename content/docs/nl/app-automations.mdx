@@ -41,7 +41,7 @@ Of een soort je ook per e-mail bereikt, bepaal je zelf, per soort, in de kaart *
 
 ## Hoeveel automatiseringen bevat mijn pakket? [#how-many-automations-does-my-plan-include]
 
-De limiet telt automatiseringen die aanstaan: Free bevat [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], en Pro, Business, Max en Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Een automatisering uitzetten maakt haar plek meteen vrij. Bij de limiet wordt een nieuwe aanmaken of aanzetten geweigerd, met de uitnodiging een hoger pakket te nemen onder [Facturering](app:settings/billing) of een andere automatisering uit te zetten. Zelfgehoste instanties hebben geen pakket, dus daar geldt geen limiet.
+De limiet telt automatiseringen die aanstaan: Free bevat [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], en Pro, Business, Max en Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Een automatisering uitzetten maakt haar plek meteen vrij. Bij de limiet wordt een nieuwe aanmaken of aanzetten geweigerd, met de uitnodiging een hoger pakket te nemen onder [Facturering](app:settings/billing) of een andere automatisering uit te zetten. Wisselt het pakket naar een pakket dat minder toestaat, dan gaan de nieuwste automatiseringen boven de limiet uit met de melding dat het pakket ze heeft gepauzeerd, en ze gaan weer aan zodra het pakket dat toelaat. Zelfgehoste instanties hebben geen pakket, dus daar geldt geen limiet.
 
 ## Hoe beheert Mate automatiseringen? [#how-does-mate-manage-automations]
 
@@ -61,7 +61,7 @@ Nee. Een routine opent een gesprek en laat Mate werken, gebruikt het Mate-tegoed
 Open de **Geschiedenis** van de automatisering. Een overgeslagen uitvoering noemt de reden, zoals voorwaarden die niet klopten of een eigenaar die niet meer actief is. Een datumregel heeft ook een datum in het veld nodig en gaat één keer per record en datum af.
 </FaqItem>
 <FaqItem question="Kan een automatisering een e-mail naar een klant sturen?">
-Niet rechtstreeks. Een automatisering verstuurt zelf geen e-mails of berichten. Ze kan leden van je werkruimte melden, wat hen ook per e-mail kan bereiken, en een van je webhooks aanroepen, bijvoorbeeld om een [n8n](/docs/n8n)-workflow te starten die iets verstuurt.
+Niet rechtstreeks. Een automatisering verstuurt zelf geen e-mails of berichten. Ze kan leden van je werkruimte melden, wat hen ook per e-mail kan bereiken, en een van je webhooks aanroepen, bijvoorbeeld om een [n8n](/docs/n8n)-workflow te starten die iets verstuurt. De aanroep is de gebeurtenis `automation.rule.fired`, die net als elke andere webhookgebeurtenis wordt afgeleverd met nieuwe pogingen en geschiedenis; de webhook moet haar dus hebben geselecteerd onder [Welke gebeurtenissen bestaan er?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Wie krijgt de melding als een automatisering iemand op de hoogte stelt?">
 De actie bepaalt het: **Mij op de hoogte stellen** bereikt de eigenaar van de automatisering, **De toegewezen personen op de hoogte stellen** bereikt de leden aan wie het startende record is toegewezen. De melding verschijnt in hun belletje en volgt hun e-mailvoorkeur voor **Meldingen van automatiseringen**.

@@ -41,7 +41,7 @@ Whether a kind also reaches you by email is your choice, per kind, in the **Noti
 
 ## How many automations does my plan include? [#how-many-automations-does-my-plan-include]
 
-The limit counts automations that are switched on: Free includes [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], and Pro, Business, Max and Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Switching an automation off frees its slot at once. At the limit, creating or switching on another one is refused with a prompt to upgrade under [Billing](app:settings/billing) or to switch another automation off. Self-hosted instances have no plan, so no limit applies there.
+The limit counts automations that are switched on: Free includes [[commercial.entitlement.free.activeAutomationRules]], Starter [[commercial.entitlement.starter.activeAutomationRules]], and Pro, Business, Max and Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Switching an automation off frees its slot at once. At the limit, creating or switching on another one is refused with a prompt to upgrade under [Billing](app:settings/billing) or to switch another automation off. When the plan changes to one that allows fewer, the newest automations above the limit switch off with the note that the plan paused them, and they switch on again when the plan allows. Self-hosted instances have no plan, so no limit applies there.
 
 ## How does Mate manage automations? [#how-does-mate-manage-automations]
 
@@ -61,7 +61,7 @@ No. A routine opens a conversation and lets Mate work, uses the owner's Mate all
 Open **History** on the automation. A skipped run names the reason, such as unmet conditions or an owner who is no longer active. A date rule also needs a date in the field, and it fires once per record and date.
 </FaqItem>
 <FaqItem question="Can I send an email to a customer from an automation?">
-Not directly. An automation does not send emails or messages itself. It can notify members of your workspace, which may reach them by email, and it can call one of your webhooks, for example to start an [n8n](/docs/n8n) workflow that sends something.
+Not directly. An automation does not send emails or messages itself. It can notify members of your workspace, which may reach them by email, and it can call one of your webhooks, for example to start an [n8n](/docs/n8n) workflow that sends something. The call is the event `automation.rule.fired`, delivered like any other webhook event with retries and history, so the webhook must have selected it under [Which events exist?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Who gets the notification when an automation tells someone?">
 The action chooses: **Tell me** reaches the owner of the automation, **Tell the people it is assigned to** reaches the members the triggering record is assigned to. The notification appears in their bell and follows their email preference for **Automation alerts**.

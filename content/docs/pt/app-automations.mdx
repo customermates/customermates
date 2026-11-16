@@ -41,7 +41,7 @@ Se um tipo também chega a você por e-mail, a escolha é sua, tipo por tipo, no
 
 ## Quantas automações meu plano inclui? [#how-many-automations-does-my-plan-include]
 
-O limite conta as automações ligadas: o Free inclui [[commercial.entitlement.free.activeAutomationRules]], o Starter [[commercial.entitlement.starter.activeAutomationRules]], e o Pro, o Business, o Max e o Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Desligar uma automação libera a vaga dela na hora. No limite, criar ou ligar outra é recusado com um convite para fazer upgrade em [Faturamento](app:settings/billing) ou para desligar outra automação. Instâncias auto-hospedadas não têm plano, então lá não vale nenhum limite.
+O limite conta as automações ligadas: o Free inclui [[commercial.entitlement.free.activeAutomationRules]], o Starter [[commercial.entitlement.starter.activeAutomationRules]], e o Pro, o Business, o Max e o Enterprise [[commercial.entitlement.pro.activeAutomationRules]]. Desligar uma automação libera a vaga dela na hora. No limite, criar ou ligar outra é recusado com um convite para fazer upgrade em [Faturamento](app:settings/billing) ou para desligar outra automação. Quando o plano muda para um que permite menos, as automações mais novas acima do limite são desligadas com a nota de que o plano as pausou, e voltam a ser ligadas quando o plano permitir. Instâncias auto-hospedadas não têm plano, então lá não vale nenhum limite.
 
 ## Como o Mate gerencia as automações? [#how-does-mate-manage-automations]
 
@@ -61,7 +61,7 @@ Não. Uma rotina abre uma conversa e deixa o Mate trabalhar, usa a franquia do M
 Abra o **Histórico** da automação. Uma execução ignorada diz o motivo, por exemplo condições não atendidas ou um proprietário que não está mais ativo. Uma regra de data também precisa de uma data no campo e dispara uma vez por registro e data.
 </FaqItem>
 <FaqItem question="Uma automação pode enviar um e-mail para um cliente?">
-Não diretamente. Uma automação não envia e-mails nem mensagens por si mesma. Ela pode notificar membros do seu espaço de trabalho, o que pode alcançá-los por e-mail, e pode chamar um dos seus webhooks, por exemplo para iniciar um fluxo do [n8n](/docs/n8n) que envie algo.
+Não diretamente. Uma automação não envia e-mails nem mensagens por si mesma. Ela pode notificar membros do seu espaço de trabalho, o que pode alcançá-los por e-mail, e pode chamar um dos seus webhooks, por exemplo para iniciar um fluxo do [n8n](/docs/n8n) que envie algo. A chamada é o evento `automation.rule.fired`, entregue como qualquer outro evento de webhook com novas tentativas e histórico, então o webhook precisa tê-lo selecionado em [Quais eventos existem?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Quem recebe a notificação quando uma automação avisa alguém?">
 A ação decide: **Avisar-me** alcança o proprietário da automação, **Avisar as pessoas atribuídas** alcança os membros a quem o registro que a disparou está atribuído. A notificação aparece no sino deles e segue a preferência de e-mail deles para **Alertas de automação**.
