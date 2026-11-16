@@ -1,6 +1,11 @@
 "use client";
 
-import type { PointerEvent as ReactPointerEvent, KeyboardEvent as ReactKeyboardEvent, Ref } from "react";
+import type {
+  PointerEvent as ReactPointerEvent,
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  Ref,
+} from "react";
 import type { WikiGraph, WikiGraphNode } from "@/features/wiki/wiki-graph.schema";
 import type { WikiGraphTransform } from "./wiki-graph-model";
 
@@ -29,9 +34,10 @@ type Props = {
   onPointerDown: (event: ReactPointerEvent<SVGSVGElement>) => void;
   onPointerMove: (event: ReactPointerEvent<SVGSVGElement>) => void;
   onPointerUp: (event: ReactPointerEvent<SVGSVGElement>) => void;
+  onPointerCancel: (event: ReactPointerEvent<SVGSVGElement>) => void;
+  onDoubleClick: (event: ReactMouseEvent<SVGSVGElement>) => void;
   onNodeHover: (id: string | null) => void;
   onNodeKeyDown: (event: ReactKeyboardEvent<SVGGElement>, id: string) => void;
-  onNodeDoubleClick: (id: string) => void;
 };
 
 export function WikiGraphCanvas({
@@ -47,9 +53,10 @@ export function WikiGraphCanvas({
   onPointerDown,
   onPointerMove,
   onPointerUp,
+  onPointerCancel,
+  onDoubleClick,
   onNodeHover,
   onNodeKeyDown,
-  onNodeDoubleClick,
 }: Props) {
   const byId = new Map(nodes.map((node) => [node.id, node] as const));
   const strokeWidth = 1 / transform.k;
@@ -65,7 +72,8 @@ export function WikiGraphCanvas({
       className="size-full touch-none select-none"
       data-wiki-graph=""
       role="application"
-      onPointerCancel={onPointerUp}
+      onDoubleClick={onDoubleClick}
+      onPointerCancel={onPointerCancel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -113,10 +121,9 @@ export function WikiGraphCanvas({
                 data-wiki-graph-node={node.id}
                 data-wiki-graph-pinned={node.pinned || undefined}
                 role="button"
-                tabIndex={faded ? -1 : 0}
+                tabIndex={visible.has(node.id) ? 0 : -1}
                 transform={`translate(${point.x} ${point.y})`}
                 onBlur={() => onNodeHover(null)}
-                onDoubleClick={() => onNodeDoubleClick(node.id)}
                 onFocus={() => onNodeHover(node.id)}
                 onKeyDown={(event) => onNodeKeyDown(event, node.id)}
                 onPointerEnter={() => onNodeHover(node.id)}

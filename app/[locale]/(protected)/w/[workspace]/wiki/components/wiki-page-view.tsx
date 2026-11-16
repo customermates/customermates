@@ -174,7 +174,7 @@ const WikiPageViewContent = observer(function WikiPageView({
     });
   }, [store, tryNavigate]);
   const selectPage = (pageId: string) => {
-    if (!store.creating && pageId === store.form.id) {
+    if (!store.creating && pageId === store.form.id && pageState !== "graph") {
       setMobileOpen(false);
       return;
     }
@@ -199,14 +199,14 @@ const WikiPageViewContent = observer(function WikiPageView({
       isNavigating ? null : (
         <WikiPageActions
           canCreate
-          hasDocument={hasDocument}
+          hasDocument={hasDocument && pageState !== "graph"}
           proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
           store={store}
           onCreate={create}
           onReload={reload}
         />
       ),
-    [canReviewProposals, create, hasDocument, isNavigating, proposals, reload, store],
+    [canReviewProposals, create, hasDocument, isNavigating, pageState, proposals, reload, store],
   );
   useSetTopBarActions(topBar);
   const kindLabels: Record<WikiPageKind, string> = {

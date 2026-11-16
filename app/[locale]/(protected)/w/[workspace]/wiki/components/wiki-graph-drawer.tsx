@@ -3,7 +3,7 @@
 import type { WikiGraphNode, WikiGraphRecordType, WikiPageLinks } from "@/features/wiki/wiki-graph.schema";
 import type { WikiPageDto, WikiPageKind } from "@/features/wiki/wiki.schema";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, Pin, PinOff, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -21,6 +21,8 @@ import { IntlLink } from "@/i18n/navigation";
 import { WIKI_GRAPH_KIND_DOT } from "./wiki-graph-model";
 
 type Segment = "page" | "links";
+
+export const WIKI_GRAPH_DRAWER_WIDTH = 512;
 
 type Props = {
   node: WikiGraphNode;
@@ -116,14 +118,20 @@ export function WikiGraphDrawer({
 }: Props) {
   const t = useTranslations();
   const [segment, setSegment] = useState<Segment>("page");
+  const heading = useRef<HTMLHeadingElement | null>(null);
   const document = useMemo(() => (page ? parseMarkdownToJSON(page.markdown) : null), [page]);
   const loading = page === undefined || links === undefined;
+
+  useEffect(() => {
+    heading.current?.focus({ preventScroll: true });
+  }, [node.id]);
 
   return (
     <aside
       aria-label={t("Wiki.graph.drawerLabel", { title: node.title })}
-      className="absolute inset-y-0 right-0 flex w-[min(32rem,100%)] flex-col border-l border-border bg-card shadow-md animate-in slide-in-from-right-4 fade-in-0 motion-reduce:animate-none"
+      className="absolute inset-y-0 right-0 flex flex-col border-l border-border bg-card shadow-md animate-in slide-in-from-right-4 fade-in-0 motion-reduce:animate-none"
       data-wiki-graph-drawer=""
+      style={{ width: `min(${WIKI_GRAPH_DRAWER_WIDTH}px, 100%)` }}
     >
       <header className="flex items-start gap-3 border-b border-border px-5 pt-4 pb-3">
         <div className="min-w-0 flex-1 space-y-1.5">
@@ -141,7 +149,13 @@ export function WikiGraphDrawer({
             {node.pinned && <AppChip>{t("Wiki.graph.pinned")}</AppChip>}
           </div>
 
-          <h2 className="text-lg leading-snug font-semibold tracking-tight break-words">{node.title}</h2>
+          <h2
+            ref={heading}
+            className="text-lg leading-snug font-semibold tracking-tight break-words outline-none"
+            tabIndex={-1}
+          >
+            {node.title}
+          </h2>
         </div>
 
         <div className="flex shrink-0 items-center gap-1">

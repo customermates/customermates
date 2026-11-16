@@ -5,18 +5,19 @@ export type WikiGraphPositions = Record<string, WikiGraphPosition>;
 
 export const WIKI_GRAPH_MAX_NODES = 600;
 
+const LAYOUT_VERSION = "3";
 const CENTER = 0.5;
 const SPREAD = 0.42;
-const REPULSION = 0.0008;
-const REPULSION_RANGE = 0.35;
-const REPULSION_MAX = 0.05;
-const LINK_LENGTH = 0.2;
-const LINK_STRENGTH = 0.05;
-const GRAVITY = 0.03;
-const DAMPING = 0.6;
 const EDGE = 0.02;
-const WARM_ITERATIONS = 120;
-const WARM_ALPHA = 0.1;
+const MAX_IDEAL_DISTANCE = 0.28;
+const IDEAL_DISTANCE_FACTOR = 0.85;
+const REPULSION_REACH = 3;
+const GRAVITY_PER_IDEAL = 18;
+const COLD_TEMPERATURE = 0.1;
+const WARM_TEMPERATURE = 0.006;
+const FINAL_TEMPERATURE = 0.002;
+const WARM_ITERATIONS = 30;
+const COINCIDENT = 1e-6;
 
 function hash32(value: string): number {
   let hash = 2166136261;
@@ -36,8 +37,8 @@ function seededRandom(seed: string) {
 }
 
 function iterationsFor(count: number): number {
-  if (count <= 120) return 600;
-  if (count <= 300) return 250;
+  if (count <= 120) return 400;
+  if (count <= 300) return 200;
   return 120;
 }
 
@@ -45,8 +46,6 @@ function clamp(value: number): number {
   if (!Number.isFinite(value)) return CENTER;
   return Math.min(1 - EDGE, Math.max(EDGE, value));
 }
-
-const LAYOUT_VERSION = "2";
 
 export function wikiLinksHash(nodeIds: readonly string[], links: ReadonlyArray<readonly [string, string]>): string {
   const hash = createHash("sha256");
@@ -82,8 +81,8 @@ export function layoutWikiGraph({
 
   const x = new Float64Array(count);
   const y = new Float64Array(count);
-  const vx = new Float64Array(count);
-  const vy = new Float64Array(count);
+  const dx = new Float64Array(count);
+  const dy = new Float64Array(count);
   const fixed = new Uint8Array(count);
   const placed = new Uint8Array(count);
   const random = seededRandom(ids.join("|"));
@@ -104,18 +103,20 @@ export function layoutWikiGraph({
     placed[hubPosition] = 1;
     fixed[hubPosition] = 1;
   }
+  const ideal = Math.min(MAX_IDEAL_DISTANCE, IDEAL_DISTANCE_FACTOR / Math.sqrt(count));
   for (let position = 0; position < count; position += 1) {
     if (placed[position]) continue;
     const anchors = neighbours[position].filter((other) => placed[other]);
+    const angle = random() * Math.PI * 2;
     if (anchors.length > 0) {
-      const angle = random() * Math.PI * 2;
-      x[position] = clamp(anchors.reduce((sum, other) => sum + x[other], 0) / anchors.length + Math.cos(angle) * 0.08);
-      y[position] = clamp(anchors.reduce((sum, other) => sum + y[other], 0) / anchors.length + Math.sin(angle) * 0.08);
+      const anchorX = anchors.reduce((sum, other) => sum + x[other], 0) / anchors.length;
+      const anchorY = anchors.reduce((sum, other) => sum + y[other], 0) / anchors.length;
+      x[position] = clamp(anchorX + Math.cos(angle) * ideal);
+      y[position] = clamp(anchorY + Math.sin(angle) * ideal);
     } else {
-      const angle = random() * Math.PI * 2;
-      const radius = SPREAD * (0.55 + random() * 0.45);
-      x[position] = CENTER + Math.cos(angle) * radius;
-      y[position] = CENTER + Math.sin(angle) * radius;
+      const radius = SPREAD * (0.35 + random() * 0.65);
+      x[position] = clamp(CENTER + Math.cos(angle) * radius);
+      y[position] = clamp(CENTER + Math.sin(angle) * radius);
     }
     placed[position] = 1;
   }
@@ -123,47 +124,56 @@ export function layoutWikiGraph({
   const previouslyPlaced = ids.filter((id) => previous[id]).length;
   const warm = previouslyPlaced > 0 && previouslyPlaced * 2 >= count;
   const iterations = warm ? WARM_ITERATIONS : iterationsFor(count);
-  const startAlpha = warm ? WARM_ALPHA : 0.9;
+  const startTemperature = warm ? WARM_TEMPERATURE : COLD_TEMPERATURE;
+  const reach = ideal * REPULSION_REACH;
+  const gravity = GRAVITY_PER_IDEAL * ideal;
   for (let iteration = 0; iteration < iterations; iteration += 1) {
-    const alpha = startAlpha * (1 - iteration / iterations) + 0.02;
+    const temperature = startTemperature * (1 - iteration / iterations) + FINAL_TEMPERATURE;
+    dx.fill(0);
+    dy.fill(0);
     for (let a = 0; a < count; a += 1) {
       for (let b = a + 1; b < count; b += 1) {
-        let dx = x[b] - x[a];
-        let dy = y[b] - y[a];
-        const distanceSquared = dx * dx + dy * dy + 1e-4;
-        const distance = Math.sqrt(distanceSquared);
-        if (distance > REPULSION_RANGE) continue;
-        const force = Math.min(REPULSION_MAX, REPULSION / distanceSquared);
-        dx /= distance;
-        dy /= distance;
-        vx[a] -= dx * force;
-        vy[a] -= dy * force;
-        vx[b] += dx * force;
-        vy[b] += dy * force;
+        let deltaX = x[b] - x[a];
+        let deltaY = y[b] - y[a];
+        let distance = Math.hypot(deltaX, deltaY);
+        if (distance < COINCIDENT) {
+          const angle = ((a * 7919 + b * 104729) % 360) * (Math.PI / 180);
+          deltaX = Math.cos(angle) * COINCIDENT;
+          deltaY = Math.sin(angle) * COINCIDENT;
+          distance = COINCIDENT;
+        }
+        if (distance > reach) continue;
+        const force = (ideal * ideal) / distance;
+        const unitX = (deltaX / distance) * force;
+        const unitY = (deltaY / distance) * force;
+        dx[a] -= unitX;
+        dy[a] -= unitY;
+        dx[b] += unitX;
+        dy[b] += unitY;
       }
     }
     for (const [a, b] of edges) {
-      const dx = x[b] - x[a];
-      const dy = y[b] - y[a];
-      const distance = Math.sqrt(dx * dx + dy * dy) + 1e-6;
-      const force = (distance - LINK_LENGTH) * LINK_STRENGTH;
-      vx[a] += (dx / distance) * force;
-      vy[a] += (dy / distance) * force;
-      vx[b] -= (dx / distance) * force;
-      vy[b] -= (dy / distance) * force;
+      const deltaX = x[b] - x[a];
+      const deltaY = y[b] - y[a];
+      const distance = Math.hypot(deltaX, deltaY);
+      if (distance < COINCIDENT) continue;
+      const force = (distance * distance) / ideal;
+      const unitX = (deltaX / distance) * force;
+      const unitY = (deltaY / distance) * force;
+      dx[a] += unitX;
+      dy[a] += unitY;
+      dx[b] -= unitX;
+      dy[b] -= unitY;
     }
     for (let position = 0; position < count; position += 1) {
-      vx[position] += (CENTER - x[position]) * GRAVITY;
-      vy[position] += (CENTER - y[position]) * GRAVITY;
-      if (fixed[position]) {
-        vx[position] = 0;
-        vy[position] = 0;
-        continue;
-      }
-      x[position] = clamp(x[position] + vx[position] * alpha);
-      y[position] = clamp(y[position] + vy[position] * alpha);
-      vx[position] *= DAMPING;
-      vy[position] *= DAMPING;
+      if (fixed[position]) continue;
+      dx[position] += (CENTER - x[position]) * gravity;
+      dy[position] += (CENTER - y[position]) * gravity;
+      const length = Math.hypot(dx[position], dy[position]);
+      if (length < COINCIDENT) continue;
+      const step = Math.min(length, temperature) / length;
+      x[position] = clamp(x[position] + dx[position] * step);
+      y[position] = clamp(y[position] + dy[position] * step);
     }
   }
 

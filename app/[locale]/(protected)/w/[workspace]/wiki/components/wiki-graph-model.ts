@@ -93,19 +93,26 @@ export function wikiGraphFitTransform(
   };
 }
 
-export function wikiGraphCenterOn(
+export const WIKI_GRAPH_REVEAL_PADDING = 72;
+
+export function wikiGraphRevealNode(
   node: Pick<WikiGraphNode, "x" | "y">,
   viewport: { width: number; height: number },
   current: WikiGraphTransform,
   reservedRight = 0,
 ): WikiGraphTransform {
+  if (viewport.width === 0 || viewport.height === 0) return current;
   const point = wikiGraphWorldPoint(node);
-  const k = Math.max(current.k, 1);
-  return {
-    k,
-    x: (viewport.width - reservedRight) / 2 - point.x * k,
-    y: viewport.height / 2 - point.y * k,
-  };
+  const screenX = point.x * current.k + current.x;
+  const screenY = point.y * current.k + current.y;
+  const minX = WIKI_GRAPH_REVEAL_PADDING;
+  const maxX = Math.max(minX, viewport.width - reservedRight - WIKI_GRAPH_REVEAL_PADDING);
+  const minY = WIKI_GRAPH_REVEAL_PADDING;
+  const maxY = Math.max(minY, viewport.height - WIKI_GRAPH_REVEAL_PADDING);
+  const shiftX = screenX < minX ? minX - screenX : screenX > maxX ? maxX - screenX : 0;
+  const shiftY = screenY < minY ? minY - screenY : screenY > maxY ? maxY - screenY : 0;
+  if (shiftX === 0 && shiftY === 0) return current;
+  return { k: current.k, x: current.x + shiftX, y: current.y + shiftY };
 }
 
 export function wikiGraphZoomAt(

@@ -5,11 +5,11 @@ import { describe, expect, it } from "vitest";
 import {
   WIKI_GRAPH_LABEL_LIMIT,
   WIKI_GRAPH_WORLD,
-  wikiGraphCenterOn,
   wikiGraphFitTransform,
   wikiGraphLabel,
   wikiGraphNeighbours,
   wikiGraphNodeRadius,
+  wikiGraphRevealNode,
   wikiGraphShowsLabel,
   wikiGraphToUnit,
   wikiGraphVisibleIds,
@@ -84,9 +84,12 @@ describe("Knowledge Base map model", () => {
       expect(y).toBeGreaterThanOrEqual(96);
       expect(y).toBeLessThanOrEqual(504);
     }
-    const centred = wikiGraphCenterOn(nodes[1], { width: 1000, height: 600 }, fit, 400);
-    expect(0.9 * WIKI_GRAPH_WORLD * centred.k + centred.x).toBeCloseTo(300);
-    expect(0.6 * WIKI_GRAPH_WORLD * centred.k + centred.y).toBeCloseTo(300);
+    expect(wikiGraphRevealNode(nodes[0], { width: 1000, height: 600 }, fit, 400)).toBe(fit);
+    const revealed = wikiGraphRevealNode(nodes[1], { width: 1000, height: 600 }, fit, 400);
+    expect(revealed.k).toBe(fit.k);
+    expect(0.9 * WIKI_GRAPH_WORLD * revealed.k + revealed.x).toBeCloseTo(1000 - 400 - 72);
+    expect(revealed.y).toBe(fit.y);
+    expect(wikiGraphRevealNode(nodes[1], { width: 0, height: 0 }, fit, 400)).toBe(fit);
   });
 
   it("zooms around the pointer and maps screen points back to unit coordinates", () => {

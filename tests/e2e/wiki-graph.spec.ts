@@ -101,13 +101,27 @@ test("opens the Knowledge Base as a map, previews a page beside it and opens the
     await page.keyboard.press("Escape");
     await expect(page.getByRole("complementary")).toHaveCount(0);
 
-    await map.getByRole("button", { name: /^Onboarding/ }).click();
-    await page.getByRole("complementary").getByRole("button", { name: englishMessages.Wiki.graph.openPage }).click();
-    await expect(page).toHaveURL(new RegExp(`[?&]page=${onboarding.id}`));
+    const leftmost = await map.evaluate((svg) => {
+      const nodes = [...svg.querySelectorAll<SVGGElement>("[data-wiki-graph-node]")];
+      const x = (node: SVGGElement) => node.getBoundingClientRect().left;
+      return nodes.sort((a, b) => x(a) - x(b))[0]?.getAttribute("aria-label") ?? "";
+    });
+    const leftmostTitle = leftmost.replace(/ \([^)]*\)$/, "");
+    await map.getByRole("button", { name: leftmost, exact: true }).dblclick();
+    await expect(page).toHaveURL(/[?&]page=/);
     await expect(page.getByRole("textbox", { name: englishMessages.Wiki.pageTitle, exact: true })).toHaveValue(
-      "Onboarding",
+      leftmostTitle,
     );
     await expect(page.getByRole("navigation", { name: englishMessages.Wiki.pagesLabel })).toBeVisible();
+
+    await page.goto(appPath(workspace.slug, "/wiki"));
+    await expect(map).toBeVisible();
+    await map.getByRole("button", { name: /^Operating Guide/ }).click();
+    await page.getByRole("complementary").getByRole("button", { name: englishMessages.Wiki.graph.openPage }).click();
+    await expect(page).toHaveURL(new RegExp(`[?&]page=${guide.id}`));
+    await expect(page.getByRole("textbox", { name: englishMessages.Wiki.pageTitle, exact: true })).toHaveValue(
+      "Operating Guide",
+    );
   } finally {
     await api.dispose();
   }

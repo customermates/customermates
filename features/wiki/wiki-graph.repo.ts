@@ -28,7 +28,7 @@ export abstract class WikiGraphRepo {
   abstract loadLinks(): Promise<WikiStoredLink[]>;
   abstract loadLinksOfPage(pageId: string): Promise<{ outgoing: WikiStoredLink[]; incomingPageIds: string[] }>;
   abstract loadLayout(): Promise<WikiStoredLayout | null>;
-  abstract saveLayout(layout: WikiStoredLayout): Promise<void>;
+  abstract saveLayout(layout: WikiStoredLayout): Promise<WikiGraphPositions>;
   abstract updateLayoutPositions(
     update: (positions: WikiGraphPositions) => WikiGraphPositions,
   ): Promise<WikiGraphPositions | null>;

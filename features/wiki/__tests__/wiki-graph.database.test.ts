@@ -10,7 +10,12 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { Action, Resource } from "@/generated/prisma";
 import { PermissionService } from "@/core/base/permission.service";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { getGetWikiGraphInteractor, getGetWikiPageLinksInteractor, getPinWikiGraphNodeInteractor } from "@/core/di";
+import {
+  getGetWikiGraphInteractor,
+  getGetWikiPageLinksInteractor,
+  getPinWikiGraphNodeInteractor,
+  getWikiGraphRepo,
+} from "@/core/di";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { EventService } from "@/features/event/event.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -216,6 +221,21 @@ describeDatabase("Knowledge Base map on PostgreSQL", () => {
       pinned: false,
     });
     expect(await pin({ id: MISSING_PAGE_ID, x: 0.5, y: 0.5 })).toMatchObject({ ok: false });
+  });
+
+  it("keeps a pin that lands while a re-layout is being saved", async () => {
+    const { pricing, guide } = await seedLinkedPages();
+    ok(await graph());
+    ok(await pin({ id: pricing.id, x: 0.9, y: 0.1 }));
+    const saved = await runWithTenant(user, () =>
+      getWikiGraphRepo().saveLayout({
+        linksHash: "stale",
+        positions: { [pricing.id]: { x: 0.2, y: 0.2 }, [guide.id]: { x: 0.5, y: 0.5 } },
+      }),
+    );
+    expect(saved[pricing.id]).toEqual({ x: 0.9, y: 0.1, pinned: true });
+    expect(saved[guide.id]).toEqual({ x: 0.5, y: 0.5 });
+    expect(ok(await graph()).nodes.find(({ id }) => id === pricing.id)).toMatchObject({ x: 0.9, y: 0.1, pinned: true });
   });
 
   it("lists the links of one page in both directions and counts links to deleted pages", async () => {

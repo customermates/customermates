@@ -10,11 +10,14 @@ import type { WikiLinkSyncRepo } from "./wiki-link-sync.repo";
 import type { Prisma } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 
 import { extractWikiLinkTargets } from "./wiki-link-targets";
 
 const GRAPH_PAGE_SELECT = { id: true, title: true, kind: true, whenToUse: true, updatedAt: true } as const;
 const LINK_SELECT = { pageId: true, targetKind: true, targetId: true, targetTypeId: true } as const;
+const SYNC_LOCK_WAIT_MS = 100;
 
 function positionsFromJson(value: Prisma.JsonValue): WikiGraphPositions {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -44,30 +47,39 @@ export class PrismaWikiGraphRepo extends TenantRepository implements WikiGraphRe
     let synced = 0;
     for (const page of pages) {
       const targets = extractWikiLinkTargets(page.markdown, { baseUrl, workspaceSlug, pageId: page.id });
-      const written = await this.withCompanyTransaction(this.companyId, async () => {
-        if (!(await this.pages.markLinksSynced(page.id, page.updatedAt))) return false;
-        await this.prisma.wikiPageLink.deleteMany({ where: { companyId: this.companyId, pageId: page.id } });
-        const rows = [
-          ...targets.pages.map((targetId) => ({
-            companyId: this.companyId,
-            pageId: page.id,
-            targetKind: "page" as const,
-            targetId,
-            targetTypeId: null,
-            pageUpdatedAt: page.updatedAt,
-          })),
-          ...targets.records.map((record) => ({
-            companyId: this.companyId,
-            pageId: page.id,
-            targetKind: "record" as const,
-            targetId: record.recordId,
-            targetTypeId: record.typeId,
-            pageUpdatedAt: page.updatedAt,
-          })),
-        ];
-        if (rows.length > 0) await this.prisma.wikiPageLink.createMany({ data: rows, skipDuplicates: true });
-        return true;
-      });
+      let written: boolean;
+      try {
+        written = await runInTransaction(
+          async () => {
+            if (!(await this.pages.markLinksSynced(page.id, page.updatedAt))) return false;
+            await this.prisma.wikiPageLink.deleteMany({ where: { companyId: this.companyId, pageId: page.id } });
+            const rows = [
+              ...targets.pages.map((targetId) => ({
+                companyId: this.companyId,
+                pageId: page.id,
+                targetKind: "page" as const,
+                targetId,
+                targetTypeId: null,
+                pageUpdatedAt: page.updatedAt,
+              })),
+              ...targets.records.map((record) => ({
+                companyId: this.companyId,
+                pageId: page.id,
+                targetKind: "record" as const,
+                targetId: record.recordId,
+                targetTypeId: record.typeId,
+                pageUpdatedAt: page.updatedAt,
+              })),
+            ];
+            if (rows.length > 0) await this.prisma.wikiPageLink.createMany({ data: rows, skipDuplicates: true });
+            return true;
+          },
+          { companyId: this.companyId, companyLockWait: SYNC_LOCK_WAIT_MS },
+        );
+      } catch (error) {
+        if (isBusyDatabaseError(error)) return { synced, remaining: true };
+        throw error;
+      }
       if (written) synced += 1;
     }
     return { synced, remaining: stale.length > batch.length };
@@ -127,12 +139,20 @@ export class PrismaWikiGraphRepo extends TenantRepository implements WikiGraphRe
     return layout ? { linksHash: layout.linksHash, positions: positionsFromJson(layout.positions) } : null;
   }
 
-  async saveLayout(layout: WikiStoredLayout): Promise<void> {
-    const positions = layout.positions as Prisma.InputJsonObject;
-    await this.prisma.wikiGraphLayout.upsert({
-      where: { companyId: this.companyId },
-      create: { companyId: this.companyId, linksHash: layout.linksHash, positions },
-      update: { companyId: this.companyId, linksHash: layout.linksHash, positions },
+  async saveLayout(layout: WikiStoredLayout): Promise<WikiGraphPositions> {
+    return this.withCompanyTransaction(this.companyId, async () => {
+      const current = await this.loadLayout();
+      const positions: WikiGraphPositions = { ...layout.positions };
+      for (const [id, stored] of Object.entries(current?.positions ?? {}))
+        if (stored.pinned && id in positions) positions[id] = stored;
+
+      const data = {
+        companyId: this.companyId,
+        linksHash: layout.linksHash,
+        positions: positions as Prisma.InputJsonObject,
+      };
+      await this.prisma.wikiGraphLayout.upsert({ where: { companyId: this.companyId }, create: data, update: data });
+      return positions;
     });
   }
 

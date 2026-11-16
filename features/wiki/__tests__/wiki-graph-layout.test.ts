@@ -75,6 +75,25 @@ describe("Knowledge Base map layout", () => {
     expect(Object.keys(positions)).toHaveLength(WIKI_GRAPH_MAX_NODES);
   });
 
+  it("spreads a few hundred sparsely linked pages without piling them on the border", () => {
+    const many = Array.from({ length: 300 }, (_, index) => id(index));
+    const sparse: Array<[string, string]> = many
+      .filter((_, index) => index % 3 === 0 && index + 1 < many.length)
+      .map((node, index) => [node, many[index * 3 + 1]]);
+    const positions = layoutWikiGraph({ nodeIds: many, links: sparse, hubId: many[0] });
+    const values = Object.values(positions);
+    const onBorder = values.filter(({ x, y }) => x <= 0.02 || x >= 0.98 || y <= 0.02 || y >= 0.98).length;
+    expect(onBorder / values.length).toBeLessThan(0.15);
+    expect(new Set(values.map(({ x, y }) => `${x},${y}`)).size).toBe(values.length);
+    let nearestSum = 0;
+    for (const a of values) {
+      let nearest = Infinity;
+      for (const b of values) if (a !== b) nearest = Math.min(nearest, distance(a, b));
+      nearestSum += nearest;
+    }
+    expect(nearestSum / values.length).toBeGreaterThan(0.01);
+  });
+
   it("hashes the link set independent of order", () => {
     const forward = wikiLinksHash(ids, links);
     const reversed = wikiLinksHash([...ids].reverse(), [...links].reverse());

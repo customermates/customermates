@@ -238,6 +238,62 @@ describe("WikiGraphView", () => {
     expect(harness.reported).toEqual([]);
   });
 
+  it("focuses the drawer heading and opens the page on a double click", async () => {
+    await render();
+    await press("Refunds");
+    expect(document.activeElement).toBe(container.querySelector("[data-wiki-graph-drawer] h2"));
+    await press("Pricing");
+    await press("Pricing");
+    await act(async () => {
+      container.querySelector("svg")?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+      await settle();
+    });
+    expect(onOpenPage).toHaveBeenCalledWith(PRICING);
+    await act(async () => {
+      container.querySelector("svg")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
+      container.querySelector("svg")?.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, button: 0 }));
+      container.querySelector("svg")?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+      await settle();
+    });
+    expect(onOpenPage).toHaveBeenCalledTimes(1);
+  });
+
+  it("pins a dragged page, reverts a cancelled drag and restores the origin when the pin fails", async () => {
+    await render();
+    const svg = container.querySelector("svg");
+    const before = nodeButton("Refunds")?.getAttribute("transform");
+    const drag = (end: "pointerup" | "pointercancel") =>
+      act(async () => {
+        nodeButton("Refunds")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
+        svg?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 40, clientY: 40 }));
+        svg?.dispatchEvent(new MouseEvent(end, { bubbles: true, clientX: 40, clientY: 40 }));
+        await settle();
+      });
+
+    await drag("pointercancel");
+    expect(harness.pin).not.toHaveBeenCalled();
+    expect(nodeButton("Refunds")?.getAttribute("transform")).toBe(before);
+    expect(container.querySelector("[data-wiki-graph-drawer]")).toBeNull();
+
+    await drag("pointerup");
+    expect(harness.pin).toHaveBeenCalledWith(expect.objectContaining({ id: REFUNDS, x: expect.any(Number) }));
+    expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBe("true");
+    expect(nodeButton("Refunds")?.getAttribute("transform")).not.toBe(before);
+
+    harness.pin.mockImplementation(() => Promise.reject(new Error("offline")));
+    const pinnedAt = nodeButton("Refunds")?.getAttribute("transform");
+    await act(async () => {
+      nodeButton("Refunds")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
+      svg?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 120, clientY: 90 }));
+      svg?.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, clientX: 120, clientY: 90 }));
+      await settle();
+      await settle();
+    });
+    expect(harness.reported).toHaveLength(1);
+    expect(nodeButton("Refunds")?.getAttribute("transform")).toBe(pinnedAt);
+    expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBe("true");
+  });
+
   it("hides pinning for readers", async () => {
     await render(false);
     await press("Pricing");

@@ -14,9 +14,8 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { env } from "@/env";
 
-import { WIKI_LINK_SYNC_BATCH_PAGES } from "./get-wiki-graph.interactor";
+import { syncWikiLinksBestEffort } from "./get-wiki-graph.interactor";
 import { wikiGraphRecordTypes } from "./wiki-graph-records";
 import { GetWikiPageLinksSchema, WikiPageLinksSchema } from "./wiki-graph.schema";
 
@@ -36,7 +35,7 @@ export class GetWikiPageLinksInteractor extends AuthenticatedInteractor<GetWikiP
   async invoke(data: GetWikiPageLinksData): Validated<WikiPageLinks> {
     const [page] = await this.repo.loadPagesByIds([data.id]);
     if (!page) return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
-    await this.repo.syncStaleLinks({ baseUrl: env.BASE_URL, limit: WIKI_LINK_SYNC_BATCH_PAGES });
+    await syncWikiLinksBestEffort(this.repo, 1);
 
     const { outgoing, incomingPageIds } = await this.repo.loadLinksOfPage(page.id);
     const outgoingPageIds = outgoing.filter((link) => link.targetKind === "page").map((link) => link.targetId);
@@ -52,14 +51,19 @@ export class GetWikiPageLinksInteractor extends AuthenticatedInteractor<GetWikiP
       if (link.targetKind !== "record" || !link.targetTypeId) continue;
       counts.set(link.targetTypeId, (counts.get(link.targetTypeId) ?? 0) + 1);
     }
-    const records = await runInTransaction(async () => {
-      if (counts.size === 0) return [];
-      const [model, access] = await Promise.all([this.records.getModel(), this.policy.load()]);
-      return wikiGraphRecordTypes(model, counts.keys(), access.canReadType).map((type) => ({
-        ...type,
-        count: counts.get(type.id) ?? 1,
-      }));
-    });
+    const records =
+      counts.size === 0
+        ? []
+        : await runInTransaction(
+            async () => {
+              const [model, access] = await Promise.all([this.records.getModel(), this.policy.load()]);
+              return wikiGraphRecordTypes(model, counts.keys(), access.canReadType).map((type) => ({
+                ...type,
+                count: counts.get(type.id) ?? 1,
+              }));
+            },
+            { readOnly: true },
+          );
 
     return {
       ok: true as const,

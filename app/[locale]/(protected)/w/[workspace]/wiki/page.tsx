@@ -1,6 +1,9 @@
+import type { WikiGraph } from "@/features/wiki/wiki-graph.schema";
+
 import { Resource } from "@/generated/prisma";
 
 import { PageContainer } from "@/components/shared/page-container";
+import * as ErrorReporter from "@/core/observability/server";
 import {
   getGetWikiGraphInteractor,
   getGetWikiHomepageSetupStateInteractor,
@@ -22,6 +25,16 @@ function firstString(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+async function loadGraph(): Promise<WikiGraph | null> {
+  try {
+    const result = await getGetWikiGraphInteractor().invoke({});
+    return result.ok ? result.data : null;
+  } catch (error) {
+    ErrorReporter.captureException(error, { tags: { kind: "wiki-graph-page" } });
+    return null;
+  }
+}
+
 export default async function WikiPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.wiki });
 
@@ -39,12 +52,11 @@ export default async function WikiPage({ searchParams }: Props) {
 
   const requestedId = firstString(raw.page);
   const selectedId = requestedId ?? pages.items[0]?.id;
-  const [selectedResult, graphResult] = await Promise.all([
+  const [selectedResult, graph] = await Promise.all([
     selectedId ? getGetWikiPageInteractor().invoke({ id: selectedId }) : null,
-    !requestedId && pages.total > 1 ? getGetWikiGraphInteractor().invoke({}) : null,
+    !requestedId && pages.total > 1 ? loadGraph() : null,
   ]);
   const selectedPage = selectedResult?.ok ? selectedResult.data : null;
-  const graph = graphResult?.ok ? graphResult.data : null;
   const pinnedPage =
     selectedPage && !pages.items.some(({ id }) => id === selectedPage.id)
       ? (({ markdown: _markdown, ...summary }) => summary)(selectedPage)
