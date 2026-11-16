@@ -1202,14 +1202,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "proof",
@@ -1625,6 +1625,51 @@
         "notice_days_field": "Jeder laufende Auftrag hält seine Kündigungsfrist fest.",
         "opportunities_board_view": "Die Chancen öffnen sich als Board nach Phase."
       },
+      "page": {
+        "metaTitle": "Agentur-Kundenpipeline: Pitch, Retainer und Verlängerung",
+        "metaDescription": "Agentur-Kundenpipeline für Claude, ChatGPT oder Codex: Pitch-Entscheidung, Fünf-Schritte-Onboarding, Retainer mit Verlängerungstermin und Quartalsgespräch.",
+        "headline": "Kunden gewinnen und jede Verlängerung kommen sehen: eine Agentur-Pipeline, die Ihr KI-Agent aufbaut",
+        "answer": "Eine Agentur-Kundenpipeline hält zwei Dinge an einem Ort fest: Neugeschäft vom ersten Gespräch bis zum Abschluss und die Retainer und Projekte danach, jeweils mit Verlängerungstermin und Quartalsgespräch. Sie ist die Pipeline- und Retainer-Ebene neben Ihrer Agentursoftware. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit Pitch-Entscheidung, Onboarding in fünf Schritten nach einem Gewinn und einer Kündigungsfrist je laufendem Auftrag. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die wöchentliche Agenturrunde",
+          "steps": [
+            "Öffnen Sie jede Chance ohne nächsten Schritt und setzen Sie entweder einen Termin oder schließen Sie sie.",
+            "Entscheiden Sie bei jedem neuen Briefing oder jeder Pitch-Einladung über Go oder No-Go: was der Pitch kostet, wie viele Agenturen teilnehmen und wer pitcht und wer liefert.",
+            "Prüfen Sie die laufenden Aufträge, die in den nächsten 90 Tagen verlängert werden, und die Kündigungstermine der kommenden Wochen.",
+            "Sehen Sie sich Retainer ohne Kontakt seit 30 Tagen und laufende Aufträge mit roter Ampel an, und planen Sie das Nachfassen oder das Partnergespräch."
+          ]
+        },
+        "limits": [
+          "Es ist keine Agentursoftware für Projekte, Zeiterfassung, Ressourcenplanung oder Abrechnung. Das bleibt in Ihren eigenen Werkzeugen; hier liegt die Vertriebs- und Retainer-Ebene daneben.",
+          "Es ist kein Kundenportal und kein Freigabe-Workflow, und es berichtet nicht über Kampagnenergebnisse.",
+          "Speichern Sie niemals Kundenzugänge, Markenmaterial oder Zugriff auf Werbekonten im Workspace. Die gehören in einen Passwortmanager und in Ihre Asset-Ablage.",
+          "Es schreibt keine Angebote und holt keine elektronischen Unterschriften ein. Angebote und Verträge liegen in Ihrem Dokumentenwerkzeug und werden mit der Chance verknüpft.",
+          "Es ist kein Werkzeug für Ansprache in Sequenzen. Jedes Nachfassen ist eine terminierte Aufgabe und ein Entwurf, den Sie prüfen und selbst senden.",
+          "Ein Budget wird nur erfasst, wenn der Kunde es nennt, und eine Kündigungsfrist gibt es nicht vorab: Sie tragen die Frist aus dem jeweiligen Vertrag ein."
+        ],
+        "faq": [
+          {
+            "question": "Wie unterscheidet sich eine Agentur-Pipeline von einer normalen Vertriebspipeline?",
+            "answer": "Agenturen haben weniger, größere Chancen mit mehreren Beteiligten und langen Entscheidungen, und der meiste Umsatz kommt von Kunden, die bleiben und wachsen. Darum ergänzt diese Vorlage eine Pitch-Entscheidung, ein Onboarding in fünf Schritten nach dem Gewinn und laufende Aufträge mit Verlängerungstermin, statt bei Gewonnen aufzuhören."
+          },
+          {
+            "question": "Sollte eine Agentur an jedem Pitch teilnehmen?",
+            "answer": "Nein. Ein Pitch kostet viel Zeit und Geld, deshalb raten Berater, zuerst zu prüfen, ob er überhaupt nötig ist: Gibt es ein klares Briefing mit Budgetrahmen, wie viele Agenturen nehmen teil, gibt es ein Pitch-Honorar, und wer pitcht und wer liefert. Die Vorlage verlangt diese Entscheidung an dem Tag, an dem eine Chance die Phase Briefing oder Pitch erreicht."
+          },
+          {
+            "question": "Wie lang sollte die Kündigungsfrist eines Retainers sein?",
+            "answer": "Eine einheitliche gesetzliche Antwort gibt es nicht. Üblich sind 30 Tage schriftlich, und eine automatische Verlängerung mit 90 Tagen Frist begünstigt die Agentur. Die Vorlage speichert die Kündigungsfrist je laufendem Auftrag und nimmt keine an. Sie legt 90 Tage vor der Verlängerung eine Prüfung an und erinnert 45 Tage vorher daran, die Absicht des Kunden zu klären. Ein Agenturvertrag ist meist ein Geschäftsbesorgungsvertrag nach § 675 BGB; bei Vertragsfragen fragen Sie Ihre Anwältin oder Ihren Anwalt. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Was passiert nach einem gewonnenen Auftrag?",
+            "answer": "Ein Gewinn startet ein Onboarding in fünf Schritten: Begrüßung und Kickoff-Bestätigung, Materialien einsammeln, Zeitplan abstimmen, Kickoff halten und den Lieferablauf festlegen. Viele Agenturen koppeln den Kickoff an die Zahlung. Danach läuft der Kunde als laufender Auftrag mit Verlängerungstermin und Quartalsgespräch weiter."
+          },
+          {
+            "question": "Schreibt der Agent meine Kunden oder Interessenten an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Wir gewinnen neue Kunden, verlieren aber den Überblick über laufende Pitches und darüber, wann Retainer verlängert werden. Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
         "questions": [
@@ -2035,6 +2080,51 @@
         "renewal_date_field": "Every engagement records its renewal date.",
         "notice_days_field": "Every engagement records its notice period.",
         "opportunities_board_view": "The opportunities open as a board by stage."
+      },
+      "page": {
+        "metaTitle": "Agency Client Pipeline: Pitches, Retainers and Renewals",
+        "metaDescription": "Paste this agency client pipeline into Claude, ChatGPT or Codex: pitch go/no-go, five-step onboarding and retainers with a renewal date and quarterly review.",
+        "headline": "Win clients and see every renewal coming: an agency pipeline your AI agent builds in your CRM",
+        "answer": "An agency client pipeline tracks two things in one place: new business from first conversation to a signed deal, and the retainers and projects that follow, each with a renewal date and a quarterly review. Paste this template into your AI agent and it builds both in Customermates, with a pitch go/no-go, a five-step onboarding after a win and a notice period on every engagement. You approve the plan before anything is built.",
+        "routine": {
+          "title": "The weekly agency round",
+          "steps": [
+            "Open every opportunity without a next step and either add one with a date or close it.",
+            "Decide go or no-go for each new brief or pitch invitation: what the pitch costs, how many agencies take part, and who pitches and who delivers.",
+            "Check the engagements that renew in the next 90 days and the notice dates that close in the coming weeks.",
+            "Look at retainers with no contact for 30 days and at engagements whose health turned red, and plan the check-in or the partner call."
+          ]
+        },
+        "limits": [
+          "It is not agency software for projects, time tracking, resource planning or billing. Those stay in your own tools; this is the sales and retainer layer beside them.",
+          "It is not a client portal or an approval workflow, and it does not report on campaign results.",
+          "Never store client logins, brand assets or ad-account access in the workspace. Keep them in a password manager and your asset library.",
+          "It does not write proposals or collect e-signatures. Proposals and contracts live in your document tool and are linked to the deal.",
+          "It is not an outreach or sequence tool. Every follow-up is a dated Action and a draft that you review and send yourself.",
+          "It records a budget only when the client states it and has no default notice period: you enter the one in each contract."
+        ],
+        "faq": [
+          {
+            "question": "How is an agency pipeline different from a normal sales pipeline?",
+            "answer": "Agencies have fewer, larger opportunities with several stakeholders and long decisions, and most revenue comes from clients who stay and grow. So this template adds a pitch go/no-go, a five-step onboarding after a win and engagements with renewal dates, instead of stopping at won."
+          },
+          {
+            "question": "Should an agency take part in every pitch?",
+            "answer": "No. A pitch costs a lot of time and money, so advisers recommend checking first whether it is needed at all: is there a clear brief with a budget range, how many agencies take part, is there a pitch fee, and who pitches and who delivers. The template asks for that decision on the day an opportunity reaches the brief or pitch stage."
+          },
+          {
+            "question": "How long should a retainer notice period be?",
+            "answer": "No law gives one answer. Thirty days in writing is the common convention, and an auto-renewal with a 90-day notice favours the agency. The template stores the notice period on each engagement and assumes none. It creates a renewal review 90 days before renewal and a reminder 45 days before to confirm the client's intention."
+          },
+          {
+            "question": "What happens after a deal is won?",
+            "answer": "A win starts a five-step onboarding: welcome and kickoff confirmation, collecting assets, communicating the timeline, the kickoff itself and confirming the delivery workflow. Many agencies tie the kickoff to payment. After that the client continues as an engagement with its renewal date and quarterly review."
+          },
+          {
+            "question": "Does the agent contact my clients or prospects?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "We win new clients but lose track of pitches in progress and of when retainers renew. Set up an agency client pipeline in my Customermates workspace: opportunities with a pitch go/no-go, engagements for retainers and projects with renewal date, notice period, quarterly review and a health flag, and dated follow-ups. Never store client logins or brand assets.",
@@ -2447,6 +2537,51 @@
         "notice_days_field": "Cada iguala registra su preaviso.",
         "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
       },
+      "page": {
+        "metaTitle": "Pipeline de clientes para agencias: concursos e igualas",
+        "metaDescription": "Pega este pipeline para agencias en Claude, ChatGPT o Codex: decisión sobre el concurso, onboarding en cinco pasos e igualas con renovación y revisión.",
+        "headline": "Gana clientes y ve venir cada renovación: un pipeline para agencias que tu agente de IA construye",
+        "answer": "Un pipeline de clientes para agencias sigue dos cosas en un mismo sitio: el negocio nuevo, de la primera conversación a la firma, y las igualas y proyectos que vienen después, cada uno con fecha de renovación y revisión trimestral. Pega esta plantilla en tu agente de IA y construye ambos en Customermates, con la decisión sobre el concurso, un onboarding de cinco pasos tras una victoria y un preaviso en cada iguala. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La ronda semanal de la agencia",
+          "steps": [
+            "Abre cada oportunidad sin siguiente paso y añade uno con fecha, o ciérrala.",
+            "Decide para cada nuevo briefing o invitación a un concurso si entras o no: lo que cuesta presentarse, cuántas agencias participan y quién presenta y quién ejecuta.",
+            "Revisa las igualas que se renuevan en los próximos 90 días y las fechas de preaviso que se cierran en las próximas semanas.",
+            "Mira las igualas sin contacto desde hace 30 días y las que tienen el indicador de salud en rojo, y planifica el seguimiento o la llamada del socio."
+          ]
+        },
+        "limits": [
+          "No es un software de agencia para proyectos, control de horas, planificación de recursos o facturación. Eso sigue en tus propias herramientas; aquí está la capa comercial y de igualas junto a ellas.",
+          "No es un portal de clientes ni un flujo de aprobaciones, y no informa de los resultados de las campañas.",
+          "No guardes nunca en el espacio de trabajo accesos de clientes, materiales de marca ni acceso a cuentas publicitarias. Guárdalos en un gestor de contraseñas y en tu biblioteca de recursos.",
+          "No redacta propuestas ni recoge firmas electrónicas. Las propuestas y los contratos viven en tu herramienta de documentos y se vinculan a la oportunidad.",
+          "No es una herramienta de secuencias ni de envíos masivos. Cada seguimiento es una tarea con fecha y un borrador que revisas y envías tú.",
+          "Un presupuesto solo se anota cuando lo indica el cliente y no hay un preaviso por defecto: introduces el de cada contrato."
+        ],
+        "faq": [
+          {
+            "question": "¿En qué se diferencia el pipeline de una agencia del de ventas normal?",
+            "answer": "Una agencia tiene menos oportunidades, más grandes, con varios interlocutores y decisiones largas, y la mayor parte de los ingresos viene de clientes que se quedan y crecen. Por eso esta plantilla añade la decisión sobre el concurso, un onboarding de cinco pasos tras una victoria e igualas con fecha de renovación, en lugar de quedarse en ganada."
+          },
+          {
+            "question": "¿Debe una agencia presentarse a todos los concursos?",
+            "answer": "No. Presentarse cuesta mucho tiempo y dinero, por eso los asesores recomiendan comprobar primero si hace falta: si hay un briefing claro con un rango de presupuesto, cuántas agencias participan, si se paga por presentar la propuesta y quién presenta y quién ejecuta. La plantilla pide esa decisión el día en que una oportunidad llega a la etapa de briefing o concurso."
+          },
+          {
+            "question": "¿Qué preaviso debe tener una iguala?",
+            "answer": "Ninguna ley da una respuesta única. Lo habitual es un preaviso por escrito de 30 días, y una renovación automática con 90 días de preaviso favorece a la agencia. La plantilla guarda el preaviso de cada iguala y no supone ninguno. Crea una revisión de la renovación 90 días antes y un aviso 45 días antes para confirmar la intención del cliente."
+          },
+          {
+            "question": "¿Qué pasa después de ganar una oportunidad?",
+            "answer": "Una victoria inicia un onboarding de cinco pasos: bienvenida y confirmación del kickoff, recogida de materiales, calendario, kickoff y flujo de entrega. Muchas agencias vinculan el kickoff al pago. Después el cliente sigue como iguala, con su fecha de renovación y su revisión trimestral."
+          },
+          {
+            "question": "¿El agente contacta con mis clientes o posibles clientes?",
+            "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ganamos clientes nuevos, pero perdemos el hilo de los concursos en marcha y de cuándo se renuevan las igualas. Configura en mi espacio de trabajo de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
         "questions": [
@@ -2857,6 +2992,51 @@
         "renewal_date_field": "Chaque contrat indique sa date de renouvellement.",
         "notice_days_field": "Chaque contrat indique son préavis.",
         "opportunities_board_view": "Les opportunités s’ouvrent en board par étape."
+      },
+      "page": {
+        "metaTitle": "Pipeline clients d’agence : appels d’offres et contrats",
+        "metaDescription": "Collez ce pipeline d’agence dans Claude, ChatGPT ou Codex : décision sur les appels d’offres, onboarding en cinq étapes, contrats et renouvellements datés.",
+        "headline": "Gagnez des clients et voyez chaque renouvellement venir : un pipeline d’agence que votre agent IA construit",
+        "answer": "Un pipeline clients d’agence suit deux choses au même endroit : le nouveau business, du premier échange à la signature, et les contrats récurrents et projets qui suivent, chacun avec une date de renouvellement et une revue trimestrielle. Collez ce modèle dans votre agent IA : il construit les deux dans Customermates, avec la décision de répondre ou non à un appel d’offres, un onboarding en cinq étapes après un gain et un préavis sur chaque contrat. Vous validez le plan avant que rien ne soit créé.",
+        "routine": {
+          "title": "La tournée hebdomadaire de l’agence",
+          "steps": [
+            "Ouvrez chaque opportunité sans prochaine action et ajoutez-en une avec une date, ou clôturez-la.",
+            "Décidez pour chaque nouveau brief ou appel d’offres : go ou no-go, selon ce que coûte la réponse, le nombre d’agences en lice et qui présente et qui livre.",
+            "Vérifiez les contrats qui se renouvellent dans les 90 prochains jours et les dates de préavis qui se ferment dans les semaines à venir.",
+            "Regardez les contrats récurrents sans contact depuis 30 jours et ceux dont l’indicateur de santé est passé au rouge, et planifiez le point ou l’appel du partenaire."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas un logiciel d’agence pour les projets, le suivi du temps, la planification des ressources ou la facturation. Ces besoins restent dans vos propres outils ; ici, c’est la couche commerciale et des contrats récurrents à leurs côtés.",
+          "Ce n’est pas un portail client ni un circuit de validation, et il ne fait pas de reporting sur les résultats des campagnes.",
+          "Ne stockez jamais d’identifiants clients, d’éléments de marque ou d’accès aux comptes publicitaires dans l’espace de travail. Gardez-les dans un gestionnaire de mots de passe et votre bibliothèque de ressources.",
+          "Il ne rédige pas de propositions et ne recueille pas de signatures électroniques. Les propositions et les contrats restent dans votre outil documentaire et sont liés à l’opportunité.",
+          "Ce n’est pas un outil de prospection ou de séquences. Chaque relance est une action datée et un brouillon que vous relisez et envoyez vous-même.",
+          "Un budget n’est noté que lorsque le client l’annonce, et il n’y a pas de préavis par défaut : vous saisissez celui de chaque contrat."
+        ],
+        "faq": [
+          {
+            "question": "En quoi un pipeline d’agence diffère-t-il d’un pipeline commercial classique ?",
+            "answer": "Une agence a moins d’opportunités, plus grosses, avec plusieurs interlocuteurs et des décisions longues, et l’essentiel du chiffre d’affaires vient de clients qui restent et s’agrandissent. Ce modèle ajoute donc une décision sur l’appel d’offres, un onboarding en cinq étapes après un gain et des contrats avec une date de renouvellement, au lieu de s’arrêter à gagné."
+          },
+          {
+            "question": "Une agence doit-elle répondre à tous les appels d’offres ?",
+            "answer": "Non. Un pitch coûte beaucoup de temps et d’argent, donc les conseillers recommandent de vérifier d’abord s’il est nécessaire : y a-t-il un brief clair avec une fourchette de budget, combien d’agences sont en lice, y a-t-il une indemnité de pitch, et qui présente et qui livre. Le modèle demande cette décision le jour où une opportunité arrive à l’étape brief ou appel d’offres."
+          },
+          {
+            "question": "Quel préavis prévoir pour un contrat récurrent ?",
+            "answer": "Aucune loi ne donne une réponse unique. Trente jours par écrit est l’usage courant, et un renouvellement tacite avec un préavis de 90 jours avantage l’agence. Le modèle enregistre le préavis de chaque contrat et n’en suppose aucun. Il crée une revue du renouvellement 90 jours avant l’échéance et un rappel 45 jours avant pour confirmer l’intention du client."
+          },
+          {
+            "question": "Que se passe-t-il après un gain ?",
+            "answer": "Un gain lance un onboarding en cinq étapes : accueil et confirmation du kickoff, collecte des éléments, calendrier, kickoff, puis circuit de livraison. Beaucoup d’agences lient le kickoff au paiement. Ensuite, le client continue comme contrat avec sa date de renouvellement et sa revue trimestrielle."
+          },
+          {
+            "question": "L’agent contacte-t-il mes clients ou prospects ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
       },
       "prompt": {
         "intro": "Mon agence gagne de nouveaux clients, mais je perds le fil des appels d’offres en cours et des dates de renouvellement des contrats. Mets en place dans mon espace de travail Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d’offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d’identifiants clients ni d’éléments de marque.",
@@ -3269,6 +3449,51 @@
         "notice_days_field": "Ogni contratto indica il preavviso.",
         "opportunities_board_view": "Le opportunità si aprono come board per fase."
       },
+      "page": {
+        "metaTitle": "Pipeline clienti per agenzie: gare, retainer e rinnovi",
+        "metaDescription": "Incolla questa pipeline clienti per agenzie in Claude, ChatGPT o Codex: decisione sulla gara, onboarding in cinque passaggi, retainer con rinnovo e revisione.",
+        "headline": "Conquista clienti e vedi arrivare ogni rinnovo: la pipeline per agenzie che il tuo agente IA costruisce",
+        "answer": "Una pipeline clienti per agenzie segue due cose nello stesso posto: i nuovi clienti, dalla prima conversazione alla firma, e i contratti e progetti che seguono, ciascuno con una data di rinnovo e una revisione trimestrale. Incolla questo modello nel tuo agente IA e costruisce entrambi in Customermates, con la decisione se partecipare alla gara, un onboarding in cinque passaggi dopo una vittoria e un preavviso su ogni contratto. Approvi il piano prima che venga costruito qualcosa.",
+        "routine": {
+          "title": "Il giro settimanale dell'agenzia",
+          "steps": [
+            "Apri ogni opportunità senza un prossimo passo e aggiungine uno con una data, oppure chiudila.",
+            "Decidi per ogni nuovo brief o invito a una gara se partecipare o no: quanto costa la proposta, quante agenzie sono in gara e chi presenta e chi consegna.",
+            "Controlla i contratti che si rinnovano nei prossimi 90 giorni e le date di preavviso che scadono nelle prossime settimane.",
+            "Guarda i retainer senza contatti da 30 giorni e i contratti con l'indicatore di salute passato al rosso, e pianifica il check-in o la chiamata del partner."
+          ]
+        },
+        "limits": [
+          "Non è un software per agenzie per progetti, rilevazione dei tempi, pianificazione delle risorse o fatturazione. Queste funzioni restano nei tuoi strumenti; qui c'è lo strato commerciale e dei retainer accanto a loro.",
+          "Non è un portale clienti né un flusso di approvazione, e non fa report sui risultati delle campagne.",
+          "Non salvare mai nello spazio di lavoro credenziali dei clienti, materiali del marchio o accessi agli account pubblicitari. Tienili in un gestore di password e nella tua libreria di materiali.",
+          "Non scrive proposte e non raccoglie firme elettroniche. Proposte e contratti stanno nel tuo strumento per i documenti e si collegano all'opportunità.",
+          "Non è uno strumento per sequenze o invii di massa. Ogni follow-up è un'attività con data e una bozza che rivedi e invii tu.",
+          "Un budget si registra solo quando lo dichiara il cliente e non c'è un preavviso predefinito: inserisci quello di ogni contratto."
+        ],
+        "faq": [
+          {
+            "question": "In che cosa una pipeline per agenzie è diversa da una pipeline commerciale normale?",
+            "answer": "Un'agenzia ha meno opportunità, più grandi, con più interlocutori e decisioni lunghe, e la maggior parte del fatturato viene dai clienti che restano e crescono. Per questo il modello aggiunge la decisione sulla gara, un onboarding in cinque passaggi dopo una vittoria e contratti con una data di rinnovo, invece di fermarsi a vinto."
+          },
+          {
+            "question": "Un'agenzia deve partecipare a ogni gara?",
+            "answer": "No. Una gara costa molto tempo e denaro, quindi chi consiglia raccomanda di verificare prima se serve davvero: c'è un brief chiaro con una fascia di budget, quante agenzie partecipano, c'è un compenso per la presentazione, e chi presenta e chi consegna. Il modello chiede questa decisione il giorno in cui un'opportunità arriva alla fase brief o gara."
+          },
+          {
+            "question": "Quanto dovrebbe durare il preavviso di un retainer?",
+            "answer": "Nessuna legge dà una risposta unica. Trenta giorni per iscritto sono l'uso più comune, e un rinnovo automatico con preavviso di 90 giorni favorisce l'agenzia. Il modello registra il preavviso di ogni contratto e non ne presume nessuno. Crea una revisione del rinnovo 90 giorni prima della scadenza e un promemoria 45 giorni prima per confermare l'intenzione del cliente."
+          },
+          {
+            "question": "Che cosa succede dopo una vittoria?",
+            "answer": "Una vittoria avvia un onboarding in cinque passaggi: benvenuto e conferma del kickoff, raccolta dei materiali, calendario, kickoff e flusso di consegna. Molte agenzie legano il kickoff al pagamento. Poi il cliente prosegue come contratto, con la sua data di rinnovo e la revisione trimestrale."
+          },
+          {
+            "question": "L'agente contatta i miei clienti o i potenziali clienti?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Conquisto nuovi clienti per la mia agenzia ma perdo il filo delle gare in corso e di quando scadono i retainer. Imposta nel mio spazio di lavoro Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai credenziali di accesso dei clienti né materiali del marchio.",
         "questions": [
@@ -3679,6 +3904,51 @@
         "renewal_date_field": "Elke lopende opdracht legt de verlengingsdatum vast.",
         "notice_days_field": "Elke lopende opdracht legt de opzegtermijn vast.",
         "opportunities_board_view": "De kansen openen als bord per fase."
+      },
+      "page": {
+        "metaTitle": "Klantenpijplijn voor bureaus: pitches en retainers",
+        "metaDescription": "Plak deze klantenpijplijn voor bureaus in Claude, ChatGPT of Codex: pitchbeslissing, onboarding in vijf stappen en retainers met verlengingsdatum.",
+        "headline": "Win klanten en zie elke verlenging aankomen: een bureaupijplijn die je AI-agent opbouwt",
+        "answer": "Een klantenpijplijn voor bureaus houdt twee dingen op één plek bij: nieuwe klanten, van eerste gesprek tot getekende opdracht, en de retainers en projecten die daarna volgen, elk met een verlengingsdatum en een kwartaalgesprek. Plak dit sjabloon in je AI-agent en die bouwt beide op in Customermates, met een pitchbeslissing, een onboarding in vijf stappen na een gewonnen kans en een opzegtermijn bij elke lopende opdracht. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De wekelijkse bureauronde",
+          "steps": [
+            "Open elke kans zonder volgende stap en voeg er een toe met een datum, of sluit de kans af.",
+            "Beslis bij elke nieuwe briefing of pitchuitnodiging over go of no-go: wat de pitch kost, hoeveel bureaus meedoen en wie pitcht en wie uitvoert.",
+            "Controleer de opdrachten die de komende 90 dagen worden verlengd en de opzegdata die de komende weken verstrijken.",
+            "Kijk naar retainers zonder contact in de afgelopen 30 dagen en naar opdrachten waarvan het stoplicht op rood staat, en plan het contactmoment of het gesprek met de partner."
+          ]
+        },
+        "limits": [
+          "Het is geen bureausoftware voor projecten, urenregistratie, capaciteitsplanning of facturering. Die blijven in je eigen tools; hier staat de verkoop- en retainerlaag ernaast.",
+          "Het is geen klantenportaal of goedkeuringsproces en het rapporteert niet over campagneresultaten.",
+          "Bewaar nooit inloggegevens van klanten, merkmateriaal of toegang tot advertentieaccounts in de werkruimte. Bewaar ze in een wachtwoordmanager en in je eigen bestandsbibliotheek.",
+          "Het schrijft geen voorstellen en verzamelt geen e-handtekeningen. Voorstellen en contracten staan in je documenttool en worden aan de kans gekoppeld.",
+          "Het is geen tool voor outreach of sequenties. Elke opvolging is een actie met datum en een concept dat je zelf nakijkt en verstuurt.",
+          "Een budget leg je alleen vast als de klant het noemt, en er is geen standaard opzegtermijn: je vult de termijn uit elk contract in."
+        ],
+        "faq": [
+          {
+            "question": "Wat is het verschil tussen een bureaupijplijn en een gewone sales pipeline?",
+            "answer": "Een bureau heeft minder, maar grotere kansen met meerdere betrokkenen en lange beslissingen, en het grootste deel van de omzet komt van klanten die blijven en groeien. Daarom voegt dit sjabloon een pitchbeslissing toe, een onboarding in vijf stappen na een gewonnen kans en lopende opdrachten met een verlengingsdatum, in plaats van bij gewonnen te stoppen."
+          },
+          {
+            "question": "Moet een bureau aan elke pitch meedoen?",
+            "answer": "Nee. Een pitch kost veel tijd en geld, dus adviseurs raden aan eerst te kijken of hij nodig is: is er een duidelijke briefing met een budgetrange, hoeveel bureaus doen mee, is er een pitchvergoeding en wie pitcht en wie voert uit. Het sjabloon vraagt om die beslissing op de dag dat een kans de fase briefing of pitch bereikt."
+          },
+          {
+            "question": "Hoe lang moet de opzegtermijn van een retainer zijn?",
+            "answer": "Geen enkele wet geeft één antwoord. Gebruikelijk is 30 dagen schriftelijk, en een automatische verlenging met 90 dagen opzegtermijn is gunstig voor het bureau. Het sjabloon legt de opzegtermijn per lopende opdracht vast en gaat van geen enkele uit. Het maakt 90 dagen voor de verlenging een beoordeling aan en 45 dagen ervoor een herinnering om de bedoeling van de klant te bevestigen."
+          },
+          {
+            "question": "Wat gebeurt er na een gewonnen kans?",
+            "answer": "Een gewonnen kans start een onboarding in vijf stappen: welkom en bevestiging van de kickoff, materiaal verzamelen, planning, kickoff en het werkproces voor oplevering. Veel bureaus koppelen de kickoff aan de betaling. Daarna loopt de klant verder als lopende opdracht met verlengingsdatum en kwartaalgesprek."
+          },
+          {
+            "question": "Neemt de agent contact op met mijn klanten of prospects?",
+            "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "We winnen nieuwe klanten, maar verliezen het overzicht over lopende pitches en over de datum waarop retainers worden verlengd. Richt in mijn Customermates-werkruimte een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, lopende opdrachten (retainers en projecten) met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
@@ -4091,6 +4361,51 @@
         "notice_days_field": "Każda umowa zapisuje okres wypowiedzenia.",
         "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
       },
+      "page": {
+        "metaTitle": "Lejek klientów dla agencji: przetargi i abonamenty",
+        "metaDescription": "Wklej ten lejek dla agencji w Claude, ChatGPT lub Codex: decyzja o udziale w przetargu, onboarding w pięciu krokach i abonamenty z terminem odnowienia.",
+        "headline": "Zdobywaj klientów i widź każde odnowienie z wyprzedzeniem: lejek dla agencji, który buduje Twój agent AI",
+        "answer": "Lejek klientów dla agencji pokazuje w jednym miejscu dwie rzeczy: nowych klientów, od pierwszej rozmowy do podpisania umowy, oraz umowy abonamentowe i projekty, które po niej następują, każdą z terminem odnowienia i przeglądem kwartalnym. Wklej ten szablon do swojego agenta AI, a zbuduje on oba w Customermates, z decyzją o udziale w przetargu, onboardingiem w pięciu krokach po wygranej i okresem wypowiedzenia przy każdej umowie. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowa runda w agencji",
+          "steps": [
+            "Otwórz każdą szansę bez następnego kroku i dodaj krok z terminem albo ją zamknij.",
+            "Przy każdym nowym briefie lub zaproszeniu do przetargu zdecyduj, czy startujesz: ile kosztuje udział, ile agencji w nim uczestniczy oraz kto prezentuje, a kto realizuje.",
+            "Sprawdź umowy, które odnawiają się w ciągu 90 dni, i terminy wypowiedzenia, które zamykają się w najbliższych tygodniach.",
+            "Przejrzyj umowy abonamentowe bez kontaktu od 30 dni i te, których wskaźnik kondycji zmienił się na czerwony, i zaplanuj kontakt lub rozmowę wspólnika."
+          ]
+        },
+        "limits": [
+          "To nie jest oprogramowanie dla agencji do projektów, rejestrowania czasu, planowania zasobów ani rozliczeń. Te zadania zostają w Twoich narzędziach; tutaj jest warstwa sprzedażowa i abonamentowa obok nich.",
+          "To nie jest portal klienta ani obieg akceptacji i nie raportuje wyników kampanii.",
+          "Nigdy nie zapisuj w przestrzeni roboczej danych dostępowych klientów, materiałów marki ani dostępu do kont reklamowych. Trzymaj je w menedżerze haseł i w swojej bibliotece plików.",
+          "Nie pisze ofert i nie zbiera podpisów elektronicznych. Oferty i umowy zostają w Twoim narzędziu do dokumentów i są powiązane z szansą sprzedaży.",
+          "To nie jest narzędzie do sekwencji ani masowej wysyłki. Każdy kolejny kontakt to zadanie z terminem i szkic, który sprawdzasz i wysyłasz samodzielnie.",
+          "Budżet zapisujesz tylko wtedy, gdy poda go klient, a okresu wypowiedzenia nie ma z góry: wpisujesz ten z każdej umowy."
+        ],
+        "faq": [
+          {
+            "question": "Czym lejek agencji różni się od zwykłego lejka sprzedaży?",
+            "answer": "Agencja ma mniej szans, ale większych, z kilkoma decydentami i długimi decyzjami, a większość przychodu pochodzi od klientów, którzy zostają i rosną. Dlatego ten szablon dodaje decyzję o udziale w przetargu, onboarding w pięciu krokach po wygranej i umowy z terminem odnowienia, zamiast kończyć się na wygranej."
+          },
+          {
+            "question": "Czy agencja powinna startować w każdym przetargu?",
+            "answer": "Nie. Udział w przetargu kosztuje dużo czasu i pieniędzy, więc doradcy zalecają najpierw sprawdzić, czy jest potrzebny: czy jest jasny brief z widełkami budżetu, ile agencji startuje, czy jest wynagrodzenie za udział i kto prezentuje, a kto realizuje. Szablon wymaga tej decyzji w dniu, w którym szansa trafia na etap brief lub przetarg."
+          },
+          {
+            "question": "Jaki okres wypowiedzenia ma mieć umowa abonamentowa?",
+            "answer": "Żaden przepis nie daje jednej odpowiedzi. Zwyczajowo jest to 30 dni na piśmie, a automatyczne odnowienie z 90-dniowym wypowiedzeniem sprzyja agencji. Szablon zapisuje okres wypowiedzenia przy każdej umowie i niczego nie zakłada. Tworzy przegląd odnowienia 90 dni przed terminem i przypomnienie 45 dni przed nim, by potwierdzić zamiar klienta."
+          },
+          {
+            "question": "Co dzieje się po wygranej?",
+            "answer": "Wygrana uruchamia onboarding w pięciu krokach: powitanie i potwierdzenie kickoffu, zebranie materiałów, harmonogram, kickoff i ustalenie obiegu realizacji. Wiele agencji wiąże kickoff z płatnością. Potem klient działa dalej jako umowa z terminem odnowienia i przeglądem kwartalnym."
+          },
+          {
+            "question": "Czy agent kontaktuje się z moimi klientami lub potencjalnymi klientami?",
+            "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Prowadzę agencję: zdobywam nowych klientów, ale gubię się w trwających przetargach i w tym, kiedy odnawiają się umowy abonamentowe. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse sprzedaży z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
         "questions": [
@@ -4501,6 +4816,51 @@
         "renewal_date_field": "Todo contrato registra a data de renovação.",
         "notice_days_field": "Todo contrato registra o aviso prévio.",
         "opportunities_board_view": "As oportunidades abrem como quadro por etapa."
+      },
+      "page": {
+        "metaTitle": "Funil de clientes para agências: concorrências e contratos",
+        "metaDescription": "Cole este funil para agências no Claude, ChatGPT ou Codex: decisão sobre a concorrência, onboarding em cinco passos e contratos com renovação e revisão.",
+        "headline": "Conquiste clientes e veja cada renovação chegar: um funil para agências que o seu agente de IA monta",
+        "answer": "Um funil de clientes para agências acompanha duas coisas no mesmo lugar: o novo negócio, da primeira conversa ao fechamento, e os contratos e projetos que vêm depois, cada um com data de renovação e revisão trimestral. Cole este modelo no seu agente de IA e ele monta os dois no Customermates, com a decisão de entrar ou não na concorrência, um onboarding em cinco passos depois de um ganho e um aviso prévio em cada contrato. Você aprova o plano antes que qualquer coisa seja criada.",
+        "routine": {
+          "title": "A rodada semanal da agência",
+          "steps": [
+            "Abra cada oportunidade sem próximo passo e acrescente um com data, ou encerre.",
+            "Decida, para cada novo briefing ou convite de concorrência, se entra ou não: quanto custa participar, quantas agências concorrem e quem apresenta e quem entrega.",
+            "Confira os contratos que renovam nos próximos 90 dias e as datas de aviso prévio que se fecham nas próximas semanas.",
+            "Olhe os contratos mensais sem contato há 30 dias e os que estão com o indicador de saúde em vermelho, e planeje o contato ou a ligação do sócio."
+          ]
+        },
+        "limits": [
+          "Não é um software de agência para projetos, controle de horas, planejamento de equipe ou cobrança. Isso continua nas suas próprias ferramentas; aqui fica a camada comercial e de contratos mensais ao lado delas.",
+          "Não é um portal do cliente nem um fluxo de aprovação, e não gera relatórios de resultados de campanha.",
+          "Nunca guarde no espaço de trabalho acessos de clientes, materiais da marca ou acesso a contas de anúncios. Guarde-os em um gerenciador de senhas e na sua biblioteca de arquivos.",
+          "Não escreve propostas nem coleta assinaturas eletrônicas. Propostas e contratos ficam na sua ferramenta de documentos e são ligados à oportunidade.",
+          "Não é uma ferramenta de sequências nem de disparo em massa. Cada retorno é uma tarefa com data e um rascunho que você revisa e envia.",
+          "O orçamento só é registrado quando o cliente o informa e não existe aviso prévio padrão: você informa o de cada contrato."
+        ],
+        "faq": [
+          {
+            "question": "Em que o funil de uma agência difere de um funil de vendas comum?",
+            "answer": "Uma agência tem menos oportunidades, maiores, com vários interlocutores e decisões longas, e a maior parte da receita vem de clientes que ficam e crescem. Por isso este modelo acrescenta a decisão sobre a concorrência, um onboarding em cinco passos depois de um ganho e contratos com data de renovação, em vez de parar em ganho."
+          },
+          {
+            "question": "A agência deve entrar em todas as concorrências?",
+            "answer": "Não. Participar de uma concorrência custa muito tempo e dinheiro, por isso quem aconselha recomenda verificar antes se ela é necessária: se há um briefing claro com faixa de orçamento, quantas agências participam, se há pagamento pela proposta e quem apresenta e quem entrega. O modelo pede essa decisão no dia em que uma oportunidade chega à etapa de briefing ou concorrência."
+          },
+          {
+            "question": "Qual deve ser o aviso prévio de um contrato mensal?",
+            "answer": "Nenhuma lei dá uma resposta única. O costume é um aviso prévio por escrito de 30 dias, e uma renovação automática com 90 dias de aviso favorece a agência. O modelo guarda o aviso prévio de cada contrato e não presume nenhum. Ele cria uma revisão da renovação 90 dias antes e um lembrete 45 dias antes para confirmar a intenção do cliente."
+          },
+          {
+            "question": "O que acontece depois de um ganho?",
+            "answer": "Um ganho inicia um onboarding em cinco passos: boas-vindas e confirmação do kickoff, coleta de materiais, cronograma, kickoff e fluxo de entrega. Muitas agências ligam o kickoff ao pagamento. Depois o cliente segue como contrato, com data de renovação e revisão trimestral."
+          },
+          {
+            "question": "O agente entra em contato com os meus clientes ou prospects?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu fecho clientes novos, mas perco o fio das concorrências em andamento e de quando cada contrato mensal renova. Configure no meu espaço de trabalho do Customermates um funil de clientes para uma agência: oportunidades com decisão de entrar ou não na concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",

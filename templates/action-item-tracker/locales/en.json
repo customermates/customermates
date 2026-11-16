@@ -103,6 +103,46 @@
     "due_field": "Every action has an owner and a due date.",
     "overdue_widget": "The dashboard shows how many actions are overdue."
   },
+  "page": {
+    "metaTitle": "Action Item Tracker Template: One Owner, One Due Date",
+    "metaDescription": "Task tracker template for meeting actions: paste it into Claude, ChatGPT or Codex and get one owner, a due date and a weekly review for every action item.",
+    "headline": "Make sure what was agreed gets done: an action item tracker your AI agent builds in your CRM",
+    "answer": "An action item tracker is one list of actions, each with one owner, one due date and a status, linked to the meeting or decision it came from, so what was agreed actually happens. Paste this template into your AI agent and it builds the list in Customermates, with meetings, decisions, projects, a decision log and a weekly review of what is open, overdue or blocked. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly 15-minute action review",
+      "steps": [
+        "Open the list and look only at the exceptions: blocked actions, actions that slip past their date and actions without a next step.",
+        "For every blocked action, name who can unblock it and set a date to look at it again.",
+        "For every overdue action, decide with its owner: set a new date, hand it to someone else or cancel it.",
+        "Confirm date changes in the meeting, not afterwards, and close an action only with proof such as a link, a file or a message."
+      ]
+    },
+    "limits": [
+      "It is not a project management suite. There are no task dependencies, no timeline or Gantt view, no sprints and no time tracking. Keep those jobs in your project tool.",
+      "It is not a validated quality system. Regulated corrective action, for example in medical devices, pharma or aviation, needs electronic signatures and validated audit trails. The template gives a small organisation a clear record and an effectiveness check, not that.",
+      "Keep care plans and any health data out of it.",
+      "Nobody is reminded automatically. The weekly review and the dashboard show what is due; reminders come from automation rules and notifications, or from a routine your agent runs on a schedule, and you decide which ones to switch on.",
+      "A view cannot show overdue and blocked actions at once, so the template keeps one view for each."
+    ],
+    "faq": [
+      {
+        "question": "What should an action item contain?",
+        "answer": "A title that starts with a verb and has fewer than ten words, one named owner, a specific date rather than a window such as next week, and a status. Practitioners add a priority and a link to the meeting or decision the action came from. The template holds all of this in one list, so an action without an owner or a date stands out."
+      },
+      {
+        "question": "Which statuses should an action have?",
+        "answer": "Practitioner guides use Not started, In progress, Blocked, In review and Done, and some add Cancelled. This template uses six: open, in progress, blocked, in review, done and cancelled. Escalate at Blocked, not at the deadline: a blocked action names who can unblock it and gets a date to look at it again."
+      },
+      {
+        "question": "When is an action really closed?",
+        "answer": "When there is proof, not only the word done: a link, a file or a message, and the actual completion date. A corrective or preventive action counts as closed only when its effectiveness has been checked; the template creates that check 30 days after the action is done, and you can change the period."
+      },
+      {
+        "question": "Does the agent send minutes or reminders?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Things we agree in meetings keep falling through, and nobody can say who owns what by when. Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
     "questions": [

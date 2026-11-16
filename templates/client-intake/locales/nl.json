@@ -199,8 +199,58 @@
     "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een opvolgactie.",
     "process_page": "De kennisbank bevat het intakeproces."
   },
+  "page": {
+    "metaTitle": "Intakeformulier: klantintake en onboarding in je CRM",
+    "metaDescription": "Intakeformulier en onboarding in één proces: je AI-agent bouwt in je CRM documentaanvragen, stappen met datum en een vastgelegde reden voor afwijzing.",
+    "headline": "Een intakeformulier dat elk document en elke volgende stap bijhoudt, gebouwd door je AI-agent",
+    "answer": "Een intakeformulier verzamelt wat je nodig hebt om een klant aan te nemen, maar het werk zit in het najagen van documenten en de getekende overeenkomst. Dit template richt één intake per opdracht in met negen fasen van aanvraag tot kickoff, documentaanvragen en een stap met datum in elke fase. Plak het in je AI-agent en die bouwt de pipeline in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+    "routine": {
+      "title": "De wekelijkse intakeronde",
+      "steps": [
+        "Beantwoord elke nieuwe aanvraag. Standaard gaat het antwoord binnen een dag de deur uit, en elke aanvraag eindigt in een volgende stap of een afwijzing.",
+        "Stuur een herinnering voor formulieren die 3 dagen geleden zijn verstuurd en voor documenten waarvan de uiterste datum voorbij is.",
+        "Bekijk de binnengekomen documenten, noteer wat ontbreekt en vraag na bij overeenkomsten die 7 dagen geleden zijn verstuurd.",
+        "Bekijk intakes die 7 dagen niet zijn opgeschoten: spreek een datum af of wijs af met een reden en een korte schriftelijke mededeling dat er geen relatie ontstaat, met vermelding van elke bekende termijn.",
+        "Vraag bij klanten die 14 dagen geleden zijn gestart of het eerste resultaat is aangekomen."
+      ]
+    },
+    "limits": [
+      "Het laat niet tekenen. Ondertekening gebeurt in je e-signature- of boekhoudtool; de intake bewaart de data en een link.",
+      "Het is geen hulpmiddel voor identiteitscontrole of witwaspreventie en geen register voor belangenconflicten. Gereguleerde beroepen leggen vast wie de identiteit wanneer en hoe controleerde; de documenten en het leidende register blijven in je vakpakket of KYC-systeem.",
+      "Het neemt geen betalingen aan en maakt geen facturen. Aanbetalingen en voorschotten blijven in je bank of boekhoudpakket.",
+      "Een klantportaal of openbaar uploadformulier bestaat vandaag niet in Customermates. De vragenlijst gaat als document de deur uit of loopt via een extern formulier dat via de API of n8n in Customermates schrijft.",
+      "Houd identiteitsnummers en -kopieën, het BSN, gezondheids-, therapie- en geloofsgegevens en bankgegevens erbuiten. Niet geschikt voor intakes in de zorg of voor schoonheids- en trainingspraktijken die gezondheidsgegevens verzamelen.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een intakeformulier voor klanten?",
+        "answer": "Contact- en bedrijfsgegevens, wat de klant wil, reikwijdte, planning en budget, wie beslist, de toegang die je nodig hebt en juridische of compliancevragen. In de praktijk is het formulier een geheugensteun voor het eerste gesprek, geen juridische toets; houd het voor particulieren korter."
+      },
+      {
+        "question": "Wat zijn de stappen van klantonboarding?",
+        "answer": "De volgorde is in veel beroepen gelijk: eerste antwoord, screening op geschiktheid, intakeformulier en documenten, controles waar je beroep ze vraagt, de schriftelijke overeenkomst, een eventuele aanbetaling en dan de kickoff. Termijnen houden het tempo erin: gidsen van aanbieders noemen een antwoord binnen 24 uur en een herinnering voor de handtekening na 7 dagen. Zie deze getallen als standaardwaarden, niet als norm."
+      },
+      {
+        "question": "Moet ik een klant schriftelijk afwijzen?",
+        "answer": "Een schriftelijke afwijzing helpt beide kanten. Een gids voor advocatenkantoren raadt aan erin te vermelden dat er geen relatie ontstaat en een naderende termijn te noemen. Het template legt de reden van afwijzing vast en maakt een actie met datum om de mededeling te sturen. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Welke klantgegevens horen niet in het CRM?",
+        "answer": "Identiteitsnummers en -kopieën, het BSN, geboortedatum voor zover niet nodig voor de controle, gezondheidsgegevens, geloof en bankgegevens. Volgens berichtgeving mogen particuliere organisaties het BSN alleen verwerken als een wet dat vereist; controleer dat bij de Autoriteit Persoonsgegevens. Voor een gereguleerd beroep bewaart het template alleen dat de identiteit is gecontroleerd, door wie en wanneer."
+      },
+      {
+        "question": "Kan de klant het formulier online invullen?",
+        "answer": "Vandaag niet via een openbaar formulier in Customermates. De vragenlijst gaat als document de deur uit dat je agent opstelt, of via een extern formulier dat via de API of n8n in Customermates schrijft. Je verstuurt het zelf."
+      },
+      {
+        "question": "Schrijft de agent mijn klanten aan?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Nieuwe klanten haken af tussen de eerste aanvraag en de eerste werkdag, omdat ik vergeet het formulier te sturen of de documenten na te jagen. Richt de klantintake in mijn Customermates-werkruimte in: één intake per opdracht met negen fasen, documentverzoeken, een stap met datum in elke fase, een reden van afwijzing en optionele controles op identiteit, conflict en risico die vastleggen wie wanneer controleerde.",
+    "intro":"Nieuwe klanten haken af tussen de eerste aanvraag en de eerste werkdag, omdat ik vergeet het formulier te sturen of de documenten na te jagen. Richt de klantintake in mijn Customermates-werkruimte in: één intake per opdracht met negen fasen, documentverzoeken, een stap met datum in elke fase, een reden van afwijzing en optionele controles op identiteit, conflict en risico die vastleggen wie wanneer controleerde.",
     "questions": [
       "Wat verkoop je en wie zijn je klanten: bedrijven, zzp’ers of particulieren?",
       "Welke stappen doorloopt een nieuwe klant nu en welke van de negen fasen heb je niet nodig?",

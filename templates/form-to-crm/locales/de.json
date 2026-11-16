@@ -80,6 +80,52 @@
     "submitted_field": "Jede Anfrage hält fest, wann sie eingegangen ist.",
     "requests_board_view": "Die Anfragen öffnen sich als Board nach Phase."
   },
+  "page": {
+    "metaTitle": "Google Forms Alternative: Formular mit CRM und Antwortfrist",
+    "metaDescription": "Google Forms Alternative mit CRM: Vorlage in Claude, ChatGPT oder Codex einfügen, und jede Anfrage aus Ihrem Formular bekommt Zuständigen und Antwortfrist.",
+    "headline": "Eine Google-Forms-Alternative mit CRM: Jede Anfrage bekommt einen Zuständigen und eine Antwortfrist",
+    "answer": "Ein Formular nützt nur, wenn jede Einsendung beantwortet wird. Diese Vorlage macht jede Einsendung zu einer Anfrage, verknüpft mit dem Kontakt, mit dem Formular, aus dem sie kam, einer Antwort, die am nächsten Tag fällig ist, und einer Phase von neu bis übergeben. Fügen Sie sie in Ihren KI-Agenten ein: Er baut die Anfragenliste in Customermates und den Weg von Ihrem Formular dorthin auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die Erstreaktion auf jede Anfrage",
+      "steps": [
+        "Beantworten Sie neue Anfragen am selben Tag. Die Vorlage legt eine Wiedervorlage zum Antworten für den nächsten Tag an und meldet eine Anfrage, die nach einem Tag noch neu ist.",
+        "Senden Sie eine kurze Bestätigung, die die Anfrage in den Worten der Person wiedergibt und sagt, wann die Antwort oder das Angebot kommt.",
+        "Stellen Sie die ein oder zwei Fragen, die über Preis oder Zuständigkeit entscheiden, statt vorab ein langes Formular zu verlangen.",
+        "Fassen Sie eine kontaktierte Anfrage nach 3 Tagen nach. Bleiben die Nachfragen unbeantwortet, markieren Sie sie als „Kein Bedarf“ mit dem Grund „Keine Antwort“.",
+        "Markieren Sie Spam und Anfragen ohne Bedarf und lassen Sie ihr Datum zur Datenprüfung laufen, damit alte Anfragen rechtzeitig geprüft oder gelöscht werden.",
+        "Übergeben Sie jede Anfrage, die zum Geschäft wird, an Ihre Vertriebspipeline und setzen Sie sie hier auf „Übergeben“."
+      ]
+    },
+    "limits": [
+      "Das öffentliche Formular ist einfach gehalten, kein vollwertiger Formularbaukasten: keine Zahlungen, Quiz, Rechner, Datei-Uploads oder elektronische Unterschriften. Dafür bleiben Typeform, Tally oder Jotform besser geeignet, und ein eingehender Webhook bringt deren Antworten hierher.",
+      "Sensible Dokumente gehören nicht ins Formular. Fordern Sie sie über einen Kanal mit Zugriffskontrolle an.",
+      "Es versendet nichts von selbst. Bestätigungen und Antworten sind Entwürfe, die Sie prüfen und selbst senden.",
+      "Es ist kein Mailing-Werkzeug. Eine Werbeeinwilligung wird festgehalten, aber Sequenzen und Newsletter brauchen ein Mailwerkzeug, denn Customermates hat keine Sequenzen und keinen Massenversand.",
+      "Die Datenschutztexte sind Ausgangspunkte, keine Rechtsberatung. Passen Sie Hinweis, Einwilligungstext und Aufbewahrungsfristen mit Ihrer Beratung an Ihr Land an."
+    ],
+    "faq": [
+      {
+        "question": "Was sollte ein Anfrageformular für Angebote abfragen?",
+        "answer": "Nur, was den Preis ändert oder entscheidet, wer antwortet: meist vier bis sieben Fragen, etwa was Sie brauchen, bis wann und ein grober Budgetrahmen. Die Einzelheiten klären Sie im ersten Gespräch. Die Vorlage hält fest, aus welchem Formular, von welcher Seite und aus welcher Quelle jede Anfrage kam, damit Sie sehen, woher die guten kommen."
+      },
+      {
+        "question": "Wie schnell sollte ich eine Anfrage aus dem Web beantworten?",
+        "answer": "So schnell, wie Sie es zusagen und halten können: spätestens am selben Tag, und sagen Sie am Formular, wann man von Ihnen hört. Ratgeber von Formularanbietern empfehlen eine erste Nachricht, die die Anfrage bestätigt und nennt, wann das Angebot kommt. Die Vorlage legt eine Wiedervorlage zum Antworten für den nächsten Tag an und meldet eine Anfrage, die nach einem Tag noch niemand angefasst hat."
+      },
+      {
+        "question": "Brauche ich bei einem Anfrageformular ein Einwilligungskästchen?",
+        "answer": "Nicht automatisch. Nach der DSGVO wird eine Anfrage in der Regel verarbeitet, um sie zu beantworten, geschuldet ist am Formular also eine Information: wer Sie sind, wozu Sie die Daten nutzen, auf welcher Grundlage, wie lange Sie sie speichern und welche Rechte die Person hat. Werbung braucht eine eigene, nicht vorangekreuzte Einwilligung, die Sie nachweisen können. Vorangekreuzte Kästchen zählen nicht, und in Deutschland erlaubt eine Anfrage keine spätere Werbe-E-Mail. Die Vorlage hält Einwilligung und ein Datum zur Datenprüfung fest, und das optionale Einwilligungskästchen des Formulars speichert Ihren Wortlaut, dessen Version und die Zeit bei jeder Einsendung. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Funktioniert das mit Typeform, Tally oder Jotform?",
+        "answer": "Ja, mit jedem Formularwerkzeug, das einen Webhook senden kann, etwa Typeform, Tally oder Jotform. Ein eingehender Webhook gibt einer Liste eine geheime Adresse, und jede dorthin gesendete Einsendung legt einen Datensatz an oder aktualisiert ihn. Die Vorlage enthält eine Regel, die Kontakt und Anfrage anlegt, wenn ein anderes Formularwerkzeug eine Einsendung sendet, und Ihr Agent richtet im Interview Adresse und Feldzuordnung ein. Eingehende Webhooks brauchen in Customermates Cloud den Tarif Starter oder höher und haben selbst gehostet keine Grenze. Ein Formular auf Ihrer eigenen Website funktioniert genauso, oder Sie nutzen das öffentliche Formular von Customermates."
+      },
+      {
+        "question": "Schreibt der Agent die Menschen an, die mein Formular ausfüllen?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Anfragen aus den Formularen meiner Website werden spät oder gar nicht beantwortet, und ich sehe nicht, woher die guten kommen. Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
     "questions": [

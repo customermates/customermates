@@ -104,6 +104,53 @@
     "retain_until_field": "Każda aplikacja zapisuje, jak długo jest przechowywana.",
     "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
   },
+  "page": {
+    "metaTitle": "Formularz rekrutacyjny i śledzenie kandydatów: szablon",
+    "metaDescription": "Formularz rekrutacyjny to dopiero początek: szablon dla Claude, ChatGPT lub Codex prowadzi kandydatów przez dziewięć etapów, z kartami ocen i datą usunięcia.",
+    "headline": "Odpowiedz każdemu kandydatowi i trzymaj notatki razem: śledzenie kandydatów, które buduje Twój agent AI",
+    "answer": "Śledzenie kandydatów w małej firmie to lista ofert pracy z jedną aplikacją na kandydata i ofertę, która przechodzi od otrzymanej do zatrudnionej lub odrzuconej, żeby żaden kandydat nie czekał na odpowiedź. Formularz rekrutacyjny czy e-mail to tylko wejście; ten szablon prowadzi aplikacje dalej. Wklej go do swojego agenta AI, a zbuduje on to w Customermates, z ofertami, kartą oceny dla każdej osoby prowadzącej rozmowę, kolejnymi krokami z terminem i datą przechowywania odrzuconych aplikacji. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda rekrutacyjna",
+      "steps": [
+        "Sprawdź, czy każda nowa aplikacja dostała potwierdzenie i kolejną datę, i odpowiedz na te, które wciąż czekają.",
+        "Porównaj nowe aplikacje z wymaganiami obowiązkowymi oferty i zdecyduj, kogo zaprosić na rozmowę.",
+        "Zbierz kartę oceny od każdej osoby prowadzącej rozmowę następnego dnia po rozmowie, póki notatki są świeże.",
+        "Przypomnij się w sprawie ofert czekających na decyzję i wyślij wiadomość kończącą do kandydatów odrzuconych lub takich, dla których oferta pracy została obsadzona."
+      ]
+    },
+    "limits": [
+      "To nie jest portal z ogłoszeniami, narzędzie do multipostingu ani kreator stron kariery. Nie publikuje Twoich ogłoszeń.",
+      "To nie jest kreator formularzy. Aplikacje, które przychodzą e-mailem lub z Twojego formularza, zapisujesz w szablonie samodzielnie albo z pomocą agenta.",
+      "Nie czyta ani nie ocenia CV i nikogo nie odrzuca automatycznie. Karty ocen to oceny wystawiane przez człowieka.",
+      "To nie jest platforma do testów, ocen kompetencji ani rozmów wideo, ani narzędzie do ofert pracy i podpisów elektronicznych.",
+      "Nie sprawdza przeszłości ani prawa do pracy i nie jest systemem onboardingu, teczką osobową ani systemem płacowym. Po zatrudnieniu dokumentacja trafia do Twojego systemu kadrowego.",
+      "Nie wrzucaj tu kopii dokumentów tożsamości ani danych do monitorowania równych szans. Zbieraj tylko to, czego potrzebuje decyzja o zatrudnieniu.",
+      "Nie daje porad prawnych. Zapisuje datę przechowywania i osobę odpowiedzialną; okres ustalasz Ty z doradcą.",
+      "Jest dobrany do kilku otwartych ofert naraz. Przy rekrutacji masowej lub w wielu lokalizacjach lepiej sprawdzi się osobny system ATS."
+    ],
+    "faq": [
+      {
+        "question": "Co powinno zawierać śledzenie kandydatów?",
+        "answer": "Oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydatów oraz po jednej aplikacji na kandydata i ofertę z etapem, terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia. Praktycy dodają kartę oceny dla każdej osoby prowadzącej rozmowę, żeby opinie były uporządkowane, a nie rozrzucone po e-mailach i czatach."
+      },
+      {
+        "question": "Jakie etapy powinna mieć rekrutacja?",
+        "answer": "Typowe poradniki wymieniają otrzymaną aplikację, wstępną selekcję, rozmowę, weryfikację referencji i ofertę. Ten szablon ma dziewięć: otrzymana, wstępna selekcja, rozmowa wstępna, rozmowa kwalifikacyjna, weryfikacja referencji, oferta, zatrudniony, odrzucona i wycofana, bo mała firma rzadko potrzebuje więcej niż dwóch rund rozmów. Zmień nazwy etapów lub usuń niektóre w planie, który zaproponuje Twój agent."
+      },
+      {
+        "question": "Jak długo mogę przechowywać odrzucone aplikacje?",
+        "answer": "To zależy od kraju. W Niemczech odrzucone aplikacje przechowuje się zwykle około sześciu miesięcy po zakończeniu procesu, a bazę talentów tylko za zgodą; francuski organ ochrony danych dopuszcza bazę niewybranych kandydatów przez dwa lata od ostatniego kontaktu, jeśli zostali poinformowani. W Polsce obowiązuje RODO. Szablon ustawia datę przechowywania 180 dni po odrzuceniu, żeby usunąć aplikację albo poprosić o zgodę. Dopasuj okres do swojego kraju i zapytaj doradcę. To nie jest porada prawna."
+      },
+      {
+        "question": "Czy mogę prowadzić bazę talentów?",
+        "answer": "Tylko za zgodą kandydata. Gdy nadejdzie data przechowywania odrzuconej aplikacji, usuwasz ją albo zapisujesz zgodę kandydata na pozostanie w bazie. Źródła niemieckie wymagają zgody na bazę talentów, inne dopuszczają krótki okres na podstawie prawnie uzasadnionego interesu; sprawdź regułę obowiązującą w Twoim kraju."
+      },
+      {
+        "question": "Czy agent kontaktuje się z kandydatami albo kogoś odrzuca?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Wiadomości, takie jak potwierdzenie otrzymania czy odmowa, są szkicami, które powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie. Nic nie jest odrzucane automatycznie."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Rekrutuję do swojej małej firmy: kandydaci za długo czekają na odpowiedź, a notatki z rozmów leżą w różnych miejscach. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
     "questions": [

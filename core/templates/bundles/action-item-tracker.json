@@ -921,14 +921,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -1270,6 +1270,46 @@
         "due_field": "Jede Maßnahme hat einen Verantwortlichen und eine Deadline.",
         "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
       },
+      "page": {
+        "metaTitle": "ToDo Liste Vorlage: Maßnahmenplan mit Verantwortlichem",
+        "metaDescription": "ToDo Liste Vorlage für Besprechungen: in Claude, ChatGPT oder Codex einfügen und jede Maßnahme mit Verantwortlichem, Deadline und Durchsicht anlegen.",
+        "headline": "Beschlossenes wird erledigt: ein Maßnahmenplan, den Ihr KI-Agent in Ihrem CRM aufbaut",
+        "answer": "Ein Maßnahmenplan ist eine Liste von Maßnahmen aus Besprechungen, Projekten und Audits, jede mit einem Verantwortlichen, einer Deadline und einem Status, verknüpft mit der Besprechung oder dem Beschluss, aus dem sie stammt. Gemeint ist der Maßnahmenplan für Projekte und Qualitätsmanagement, keine Pflegeplanung. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Besprechungen, Beschlussprotokoll und wöchentlicher Durchsicht. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die wöchentliche Maßnahmen-Durchsicht in 15 Minuten",
+          "steps": [
+            "Sehen Sie nur die Ausnahmen an: blockierte Maßnahmen, Maßnahmen, die ihre Deadline reißen, und Maßnahmen ohne nächsten Schritt.",
+            "Legen Sie bei jeder blockierten Maßnahme fest, wer die Blockade auflösen kann, und setzen Sie eine Wiedervorlage.",
+            "Entscheiden Sie bei jeder überfälligen Maßnahme mit dem Verantwortlichen: neue Deadline, an jemand anderen übergeben oder abbrechen.",
+            "Bestätigen Sie Terminänderungen in der Besprechung und nicht erst danach, und schließen Sie eine Maßnahme nur mit Nachweis ab, etwa einem Link, einer Datei oder einer Nachricht."
+          ]
+        },
+        "limits": [
+          "Es ist keine Projektmanagement-Software. Es gibt keine Abhängigkeiten zwischen Aufgaben, keine Zeitleiste und kein Gantt-Diagramm, keine Sprints und keine Zeiterfassung. Diese Aufgaben bleiben in Ihrem Projektwerkzeug.",
+          "Es ist kein validiertes Qualitätsmanagementsystem. Regulierte Korrekturmaßnahmen, etwa bei Medizinprodukten oder in der Luftfahrt, brauchen elektronische Signaturen und validierte Audit-Trails. Die Vorlage bietet einem kleinen Betrieb Übersicht und eine Wirksamkeitsprüfung, mehr nicht.",
+          "Pflegepläne und Gesundheitsdaten gehören nicht hinein.",
+          "Niemand wird automatisch erinnert. Die wöchentliche Durchsicht und das Dashboard zeigen, was fällig ist; Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt, und Sie entscheiden, welche Sie einschalten.",
+          "Eine Ansicht kann überfällige und blockierte Maßnahmen nicht zugleich zeigen, deshalb gibt es für jede eine eigene Ansicht."
+        ],
+        "faq": [
+          {
+            "question": "Was gehört in einen Maßnahmenplan?",
+            "answer": "Eine Überschrift, die mit einem Verb beginnt und weniger als zehn Wörter hat, ein benannter Verantwortlicher, ein konkretes Datum statt eines Zeitfensters wie nächste Woche und ein Status. Praktiker ergänzen eine Priorität und die Verknüpfung mit der Besprechung oder dem Beschluss, aus dem die Maßnahme stammt. Die Vorlage hält das alles in einer Liste, sodass eine Maßnahme ohne Verantwortlichen oder Datum sofort auffällt."
+          },
+          {
+            "question": "Welche Status braucht eine Maßnahme?",
+            "answer": "Gängige Leitfäden nennen Offen, In Bearbeitung, Erledigt und Blockiert, manche ergänzen eine Prüfung. Diese Vorlage hat sechs: Offen, In Bearbeitung, Blockiert, In Prüfung, Erledigt und Abgebrochen. Eskaliert wird bei Blockiert, nicht erst an der Deadline: Eine blockierte Maßnahme benennt, wer sie auflösen kann, und erhält eine Wiedervorlage."
+          },
+          {
+            "question": "Wann ist eine Maßnahme wirklich abgeschlossen?",
+            "answer": "Wenn es einen Nachweis gibt und nicht nur das Wort erledigt: einen Link, eine Datei oder eine Nachricht, dazu das tatsächliche Abschlussdatum. Eine Korrektur- oder Vorbeugungsmaßnahme gilt erst als abgeschlossen, wenn ihre Wirksamkeit geprüft wurde. Die Vorlage legt diese Prüfung 30 Tage nach dem Abschluss an, und Sie können die Frist ändern."
+          },
+          {
+            "question": "Versendet der Agent Protokolle oder Erinnerungen?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Was wir in Besprechungen vereinbaren, bleibt liegen, und ich sehe nicht, wer was bis wann erledigt. Richte in meinem Customermates-Workspace einen Maßnahmenplan ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
         "questions": [
@@ -1600,6 +1640,46 @@
         "status_field": "Every action has one of six statuses.",
         "due_field": "Every action has an owner and a due date.",
         "overdue_widget": "The dashboard shows how many actions are overdue."
+      },
+      "page": {
+        "metaTitle": "Action Item Tracker Template: One Owner, One Due Date",
+        "metaDescription": "Task tracker template for meeting actions: paste it into Claude, ChatGPT or Codex and get one owner, a due date and a weekly review for every action item.",
+        "headline": "Make sure what was agreed gets done: an action item tracker your AI agent builds in your CRM",
+        "answer": "An action item tracker is one list of actions, each with one owner, one due date and a status, linked to the meeting or decision it came from, so what was agreed actually happens. Paste this template into your AI agent and it builds the list in Customermates, with meetings, decisions, projects, a decision log and a weekly review of what is open, overdue or blocked. You approve the plan before anything is built.",
+        "routine": {
+          "title": "The weekly 15-minute action review",
+          "steps": [
+            "Open the list and look only at the exceptions: blocked actions, actions that slip past their date and actions without a next step.",
+            "For every blocked action, name who can unblock it and set a date to look at it again.",
+            "For every overdue action, decide with its owner: set a new date, hand it to someone else or cancel it.",
+            "Confirm date changes in the meeting, not afterwards, and close an action only with proof such as a link, a file or a message."
+          ]
+        },
+        "limits": [
+          "It is not a project management suite. There are no task dependencies, no timeline or Gantt view, no sprints and no time tracking. Keep those jobs in your project tool.",
+          "It is not a validated quality system. Regulated corrective action, for example in medical devices, pharma or aviation, needs electronic signatures and validated audit trails. The template gives a small organisation a clear record and an effectiveness check, not that.",
+          "Keep care plans and any health data out of it.",
+          "Nobody is reminded automatically. The weekly review and the dashboard show what is due; reminders come from automation rules and notifications, or from a routine your agent runs on a schedule, and you decide which ones to switch on.",
+          "A view cannot show overdue and blocked actions at once, so the template keeps one view for each."
+        ],
+        "faq": [
+          {
+            "question": "What should an action item contain?",
+            "answer": "A title that starts with a verb and has fewer than ten words, one named owner, a specific date rather than a window such as next week, and a status. Practitioners add a priority and a link to the meeting or decision the action came from. The template holds all of this in one list, so an action without an owner or a date stands out."
+          },
+          {
+            "question": "Which statuses should an action have?",
+            "answer": "Practitioner guides use Not started, In progress, Blocked, In review and Done, and some add Cancelled. This template uses six: open, in progress, blocked, in review, done and cancelled. Escalate at Blocked, not at the deadline: a blocked action names who can unblock it and gets a date to look at it again."
+          },
+          {
+            "question": "When is an action really closed?",
+            "answer": "When there is proof, not only the word done: a link, a file or a message, and the actual completion date. A corrective or preventive action counts as closed only when its effectiveness has been checked; the template creates that check 30 days after the action is done, and you can change the period."
+          },
+          {
+            "question": "Does the agent send minutes or reminders?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "Things we agree in meetings keep falling through, and nobody can say who owns what by when. Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
@@ -1932,6 +2012,46 @@
         "due_field": "Cada acción tiene un responsable y una fecha límite.",
         "overdue_widget": "El panel muestra cuántas acciones están vencidas."
       },
+      "page": {
+        "metaTitle": "Plan de acción: plantilla para que se cumpla lo acordado",
+        "metaDescription": "Pega este plan de acción en Claude, ChatGPT o Codex: cada acción acordada en una reunión tiene un responsable, una fecha límite y una revisión semanal.",
+        "headline": "Que se cumpla lo acordado: un plan de acción que tu agente de IA construye en tu CRM",
+        "answer": "Un plan de acción es una lista en la que cada acción tiene un responsable, una fecha límite y un estado, vinculada a la reunión o la decisión de donde sale, para que lo acordado se haga de verdad. Pega esta plantilla en tu agente de IA y construye la lista en Customermates, con reuniones, decisiones, proyectos, un registro de decisiones y una revisión semanal de lo que está abierto, vencido o bloqueado. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La revisión semanal de acciones en 15 minutos",
+          "steps": [
+            "Mira solo las excepciones: las acciones bloqueadas, las que se pasan de fecha y las que no tienen un siguiente paso.",
+            "En cada acción bloqueada, indica quién puede desbloquearla y fija una fecha para retomarla.",
+            "En cada acción vencida, decide con su responsable: nueva fecha, pasarla a otra persona o cancelarla.",
+            "Confirma los cambios de fecha en la reunión, no después, y cierra una acción solo con una prueba, como un enlace, un archivo o un mensaje."
+          ]
+        },
+        "limits": [
+          "No es una suite de gestión de proyectos. No hay dependencias entre tareas, vista de cronograma o Gantt, sprints ni control de horas. Esas funciones se quedan en tu herramienta de proyectos.",
+          "No es un sistema de calidad validado. Las acciones correctivas reguladas, por ejemplo en productos sanitarios, farmacia o aviación, exigen firmas electrónicas y pistas de auditoría validadas. La plantilla ofrece a una organización pequeña un registro claro y una comprobación de eficacia, nada más.",
+          "Deja fuera los planes de cuidados y cualquier dato de salud.",
+          "Nadie recibe un aviso automático. La revisión semanal y el panel muestran lo que vence; los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con una periodicidad fija, y tú decides cuáles activar.",
+          "Una vista no puede mostrar a la vez las acciones vencidas y las bloqueadas, así que la plantilla tiene una vista para cada una."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué debe llevar una acción?",
+            "answer": "Un título que empiece por un verbo y tenga menos de diez palabras, un responsable con nombre, una fecha concreta y no un margen como la semana que viene, y un estado. Los profesionales añaden una prioridad y el vínculo con la reunión o la decisión de donde sale la acción. La plantilla lo reúne todo en una sola lista, así que una acción sin responsable ni fecha salta a la vista."
+          },
+          {
+            "question": "¿Qué estados debe tener una acción?",
+            "answer": "Las guías de profesionales usan Pendiente, En curso, Bloqueada, En revisión y Hecha, y algunas añaden Cancelada. Esta plantilla tiene seis: pendiente, en curso, bloqueada, en revisión, hecha y cancelada. Se escala al bloqueo, no a la fecha límite: una acción bloqueada indica quién puede desbloquearla y recibe una fecha de seguimiento."
+          },
+          {
+            "question": "¿Cuándo se da una acción por cerrada?",
+            "answer": "Cuando hay una prueba y no solo la palabra hecho: un enlace, un archivo o un mensaje, más la fecha real de cierre. Una acción correctiva o preventiva solo se cierra cuando se ha comprobado su eficacia; la plantilla crea esa comprobación a los 30 días de terminarla, y puedes cambiar el plazo."
+          },
+          {
+            "question": "¿El agente envía las actas o los recordatorios?",
+            "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Lo que acordamos en las reuniones se queda por el camino y nadie sabe quién se encarga de qué ni para cuándo. Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
         "questions": [
@@ -2262,6 +2382,46 @@
         "status_field": "Chaque action a l’un des six statuts.",
         "due_field": "Chaque action a un pilote et une échéance.",
         "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
+      },
+      "page": {
+        "metaTitle": "Tableau de suivi des actions : un pilote et une échéance",
+        "metaDescription": "Tableau de suivi des actions à coller dans Claude, ChatGPT ou Codex : un pilote, une échéance et une revue hebdomadaire pour chaque action décidée en réunion.",
+        "headline": "Ce qui est décidé est fait : un plan d’action que votre agent IA construit dans votre CRM",
+        "answer": "Un tableau de suivi des actions est une liste où chaque action a un pilote, une échéance et un statut, reliée à la réunion ou à la décision dont elle vient, pour que ce qui a été décidé soit réellement fait. Collez ce modèle dans votre agent IA : il construit la liste dans Customermates, avec les réunions, les décisions, les projets, un relevé de décisions et une revue hebdomadaire de ce qui est ouvert, en retard ou bloqué. Vous validez le plan avant que rien ne soit créé.",
+        "routine": {
+          "title": "La revue hebdomadaire des actions en 15 minutes",
+          "steps": [
+            "Ne regardez que les exceptions : les actions bloquées, celles qui dépassent leur échéance et celles sans prochaine étape.",
+            "Pour chaque action bloquée, nommez qui peut la débloquer et fixez une date pour la reprendre.",
+            "Pour chaque action en retard, décidez avec son pilote : nouvelle échéance, passage à quelqu’un d’autre ou annulation.",
+            "Confirmez les changements de date en réunion, pas après, et ne fermez une action qu’avec une preuve : un lien, un fichier ou un message."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas une suite de gestion de projet. Il n’y a ni dépendances entre tâches, ni vue chronologique ou Gantt, ni sprints, ni suivi du temps. Ces besoins restent dans votre outil de projet.",
+          "Ce n’est pas un système qualité validé. Les actions correctives réglementées, par exemple pour les dispositifs médicaux ou l’aéronautique, exigent des signatures électroniques et une piste d’audit validée. Le modèle offre un suivi clair et une vérification d’efficacité, rien de plus.",
+          "Gardez-en à l’écart les plans de soins et toute donnée de santé.",
+          "Personne n’est rappelé automatiquement. La revue hebdomadaire et le tableau de bord montrent ce qui est dû ; les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers, et vous décidez lesquels activer.",
+          "Une vue ne peut pas afficher en même temps les actions en retard et les actions bloquées ; le modèle garde donc une vue pour chacune."
+        ],
+        "faq": [
+          {
+            "question": "Que doit contenir une action dans un tableau de suivi ?",
+            "answer": "Un titre qui commence par un verbe, de moins de dix mots, un pilote nommé, une date précise plutôt qu’une fenêtre comme la semaine prochaine et un statut. Les praticiens ajoutent une priorité et le lien avec la réunion ou la décision d’où vient l’action. Le modèle réunit tout cela dans une seule liste : une action sans pilote ni date se remarque tout de suite."
+          },
+          {
+            "question": "Quels statuts donner à une action ?",
+            "answer": "Les guides de praticiens proposent À faire, En cours, Bloqué, En revue et Fait, certains ajoutent Annulé. Ce modèle en compte six : À faire, En cours, Bloquée, En revue, Faite et Annulée. On escalade au blocage, pas à l’échéance : une action bloquée nomme qui peut la débloquer et reçoit une date de relance."
+          },
+          {
+            "question": "Quand une action est-elle vraiment fermée ?",
+            "answer": "Quand il y a une preuve, pas seulement le mot fait : un lien, un fichier ou un message, et la date réelle de fin. Une action corrective ou préventive n’est fermée qu’une fois son efficacité vérifiée ; le modèle crée cette vérification 30 jours après la fin de l’action, et vous pouvez changer le délai."
+          },
+          {
+            "question": "L’agent envoie-t-il les comptes rendus ou les rappels ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
       },
       "prompt": {
         "intro": "Les actions décidées en réunion nous échappent et je ne sais plus qui doit faire quoi pour quand. Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
@@ -2594,6 +2754,46 @@
         "due_field": "Ogni azione ha un responsabile e una scadenza.",
         "overdue_widget": "La dashboard mostra quante azioni sono scadute."
       },
+      "page": {
+        "metaTitle": "Piano d'azione: responsabile e scadenza per ogni azione",
+        "metaDescription": "Incolla questo piano d'azione in Claude, ChatGPT o Codex: ogni azione decisa in riunione ha un responsabile, una scadenza e una revisione settimanale.",
+        "headline": "Quello che si decide si fa: il piano d'azione che il tuo agente IA costruisce nel tuo CRM",
+        "answer": "Un piano d'azione è un elenco in cui ogni azione ha un responsabile, una scadenza e uno stato, collegata alla riunione o alla decisione da cui nasce, perché quello che si decide in riunione venga davvero fatto. Incolla questo modello nel tuo agente IA e costruisce l'elenco in Customermates, con riunioni, decisioni, progetti, un registro delle decisioni e una revisione settimanale di ciò che è aperto, scaduto o bloccato. Approvi il piano prima che venga costruito qualcosa.",
+        "routine": {
+          "title": "La revisione settimanale delle azioni in 15 minuti",
+          "steps": [
+            "Guarda solo le eccezioni: le azioni bloccate, quelle che superano la scadenza e quelle senza un prossimo passo.",
+            "Per ogni azione bloccata indica chi può sbloccarla e fissa una data per riprenderla.",
+            "Per ogni azione scaduta decidi insieme al responsabile: nuova scadenza, passarla a qualcun altro oppure annullarla.",
+            "Conferma i cambi di data durante la riunione, non dopo, e chiudi un'azione solo con una prova, come un link, un file o un messaggio."
+          ]
+        },
+        "limits": [
+          "Non è una suite di project management. Non ci sono dipendenze tra attività, vista cronologica o Gantt, sprint né rilevazione del tempo. Queste funzioni restano nel tuo strumento di progetto.",
+          "Non è un sistema qualità validato. Le azioni correttive regolamentate, per esempio nei dispositivi medici o nell'aviazione, richiedono firme elettroniche e audit trail validati. Il modello dà a una piccola organizzazione un registro chiaro e una verifica di efficacia, niente di più.",
+          "Tieni fuori i piani di cura e qualsiasi dato sanitario.",
+          "Nessuno viene avvisato in automatico. La revisione settimanale e la dashboard mostrano che cosa è in scadenza; i promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari, e decidi tu quali attivare.",
+          "Una vista non può mostrare insieme le azioni scadute e quelle bloccate, quindi il modello tiene una vista per ciascuna."
+        ],
+        "faq": [
+          {
+            "question": "Che cosa deve contenere un'azione?",
+            "answer": "Un titolo che comincia con un verbo e ha meno di dieci parole, un responsabile indicato per nome, una data precisa invece di una finestra come la prossima settimana e uno stato. Chi lavora sul campo aggiunge una priorità e il collegamento alla riunione o alla decisione da cui nasce l'azione. Il modello tiene tutto in un unico elenco, così un'azione senza responsabile o senza data si nota subito."
+          },
+          {
+            "question": "Quali stati dare a un'azione?",
+            "answer": "Le guide di chi lavora sul campo usano Da fare, In corso, Bloccata, In verifica e Completata, e alcune aggiungono Annullata. Questo modello ne ha sei: da fare, in corso, bloccata, in verifica, completata e annullata. Si interviene quando l'azione si blocca, non alla scadenza: un'azione bloccata indica chi può sbloccarla e riceve una data di follow-up."
+          },
+          {
+            "question": "Quando un'azione è davvero chiusa?",
+            "answer": "Quando c'è una prova e non solo la parola fatto: un link, un file o un messaggio, più la data effettiva di chiusura. Un'azione correttiva o preventiva è chiusa solo quando se ne è verificata l'efficacia; il modello crea la verifica 30 giorni dopo il completamento dell'azione, e puoi cambiare il periodo."
+          },
+          {
+            "question": "L'agente invia i verbali o i promemoria?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Quello che decidiamo in riunione si perde per strada e nessuno sa dire chi se ne occupa e per quando. Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
         "questions": [
@@ -2924,6 +3124,46 @@
         "status_field": "Elke actie heeft een van de zes statussen.",
         "due_field": "Elke actie heeft een eigenaar en een deadline.",
         "overdue_widget": "Het dashboard toont hoeveel acties achterstallig zijn."
+      },
+      "page": {
+        "metaTitle": "Actiepuntenlijst sjabloon: één eigenaar en een deadline",
+        "metaDescription": "Actiepuntenlijst voor Claude, ChatGPT of Codex: elke afspraak uit een overleg krijgt één eigenaar, een deadline en een wekelijkse controle op wat openstaat.",
+        "headline": "Zorg dat afspraken ook gebeuren: een actiepuntenlijst die je AI-agent in je CRM opbouwt",
+        "answer": "Een actiepuntenlijst is één lijst met acties, elk met één eigenaar, een deadline en een status, gekoppeld aan het overleg of besluit waaruit ze komen, zodat wat is afgesproken ook echt gebeurt. Plak dit sjabloon in je AI-agent en die bouwt de lijst op in Customermates, met overleggen, besluiten, projecten, een besluitenlijst en een wekelijkse controle op wat openstaat, te laat is of vastloopt. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De wekelijkse actiecontrole van 15 minuten",
+          "steps": [
+            "Kijk alleen naar de uitzonderingen: geblokkeerde acties, acties die hun deadline overschrijden en acties zonder volgende stap.",
+            "Benoem bij elke geblokkeerde actie wie hem kan losmaken en zet een datum om er opnieuw naar te kijken.",
+            "Beslis bij elke actie die te laat is samen met de eigenaar: nieuwe deadline, overdragen aan iemand anders of annuleren.",
+            "Bevestig wijzigingen van data in het overleg, niet achteraf, en sluit een actie alleen af met bewijs, zoals een link, een bestand of een bericht."
+          ]
+        },
+        "limits": [
+          "Het is geen projectmanagementpakket. Er zijn geen afhankelijkheden tussen taken, geen tijdlijn of Gantt-weergave, geen sprints en geen tijdregistratie. Die taken blijven in je projecttool.",
+          "Het is geen gevalideerd kwaliteitssysteem. Gereguleerde corrigerende acties, bijvoorbeeld bij medische hulpmiddelen of in de luchtvaart, vragen om elektronische handtekeningen en gevalideerde audittrails. Het sjabloon geeft een klein bedrijf overzicht en een effectiviteitscontrole, meer niet.",
+          "Houd zorgplannen en alle gezondheidsgegevens erbuiten.",
+          "Niemand wordt automatisch herinnerd. De wekelijkse controle en het dashboard laten zien wat aan de beurt is; herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert, en jij bepaalt welke je aanzet.",
+          "Een weergave kan te late en geblokkeerde acties niet tegelijk tonen, daarom heeft het sjabloon voor elk een eigen weergave."
+        ],
+        "faq": [
+          {
+            "question": "Wat hoort er in een actiepunt?",
+            "answer": "Een titel die met een werkwoord begint en uit minder dan tien woorden bestaat, één genoemde eigenaar, een concrete datum in plaats van een termijn als volgende week en een status. Praktijkmensen voegen een prioriteit toe en de koppeling aan het overleg of besluit waaruit de actie komt. Het sjabloon houdt dit alles in één lijst, zodat een actie zonder eigenaar of datum meteen opvalt."
+          },
+          {
+            "question": "Welke statussen moet een actie hebben?",
+            "answer": "Praktijkgidsen gebruiken open, in uitvoering, geblokkeerd, ter beoordeling en afgerond, en sommige voegen geannuleerd toe. Dit sjabloon heeft er zes: open, in uitvoering, geblokkeerd, ter beoordeling, afgerond en geannuleerd. Escaleer bij geblokkeerd, niet bij de deadline: een geblokkeerde actie benoemt wie hem kan losmaken en krijgt een opvolgdatum."
+          },
+          {
+            "question": "Wanneer is een actie echt afgesloten?",
+            "answer": "Als er bewijs is en niet alleen het woord afgerond: een link, een bestand of een bericht, plus de werkelijke einddatum. Een corrigerende of preventieve actie is pas afgesloten als de effectiviteit is gecontroleerd; het sjabloon maakt die controle 30 dagen nadat de actie klaar is, en je kunt de termijn aanpassen."
+          },
+          {
+            "question": "Verstuurt de agent notulen of herinneringen?",
+            "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Wat we in overleggen afspreken blijft liggen, en niemand kan zeggen wie wat wanneer oppakt. Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
@@ -3256,6 +3496,46 @@
         "due_field": "Każde zadanie ma osobę odpowiedzialną i termin.",
         "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych."
       },
+      "page": {
+        "metaTitle": "Rejestr zadań i działań: osoba odpowiedzialna i termin",
+        "metaDescription": "Lista zadań ze spotkań do wklejenia w Claude, ChatGPT lub Codex: każde ustalenie ma osobę odpowiedzialną, termin i cotygodniowy przegląd zaległości.",
+        "headline": "Dopilnuj, żeby ustalenia się wydarzyły: rejestr zadań, który Twój agent AI buduje w Twoim CRM",
+        "answer": "Rejestr zadań i działań to jedna lista, w której każde zadanie ma osobę odpowiedzialną, termin i status oraz powiązanie ze spotkaniem lub decyzją, z których wynika, żeby ustalenia ze spotkań naprawdę się wydarzyły. Wklej ten szablon do swojego agenta AI, a zbuduje on listę w Customermates, ze spotkaniami, decyzjami, projektami, rejestrem decyzji i cotygodniowym przeglądem tego, co otwarte, po terminie lub zablokowane. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowy przegląd zadań w 15 minut",
+          "steps": [
+            "Patrz tylko na wyjątki: zadania zablokowane, zadania po terminie i zadania bez następnego kroku.",
+            "Przy każdym zablokowanym zadaniu wskaż, kto może je odblokować, i ustaw datę, kiedy do niego wrócisz.",
+            "Przy każdym zadaniu po terminie zdecyduj razem z osobą odpowiedzialną: nowy termin, przekazanie komuś innemu albo anulowanie.",
+            "Zmiany terminów potwierdzaj na spotkaniu, a nie po nim, i zamykaj zadanie tylko z dowodem, takim jak link, plik lub wiadomość."
+          ]
+        },
+        "limits": [
+          "To nie jest pakiet do zarządzania projektami. Nie ma zależności między zadaniami, osi czasu ani wykresu Gantta, sprintów ani rejestrowania czasu pracy. Te zadania zostają w Twoim narzędziu do projektów.",
+          "To nie jest zwalidowany system jakości. Regulowane działania korygujące, na przykład w wyrobach medycznych, farmacji czy lotnictwie, wymagają podpisów elektronicznych i zwalidowanych ścieżek audytu. Szablon daje małej organizacji czytelny rejestr i sprawdzenie skuteczności, nic więcej.",
+          "Nie wpisuj tu planów opieki ani żadnych danych o zdrowiu.",
+          "Nikt nie dostaje przypomnień automatycznie. Cotygodniowy przegląd i pulpit pokazują, co jest do zrobienia; przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą Twój agent uruchamia według harmonogramu, a Ty decydujesz, które włączyć.",
+          "Widok nie pokaże jednocześnie zadań po terminie i zablokowanych, dlatego szablon ma osobny widok dla każdych."
+        ],
+        "faq": [
+          {
+            "question": "Co powinno zawierać zadanie na liście działań?",
+            "answer": "Tytuł zaczynający się od czasownika i krótszy niż dziesięć słów, jedną wskazaną osobę odpowiedzialną, konkretną datę zamiast przedziału w rodzaju w przyszłym tygodniu oraz status. Praktycy dodają priorytet i powiązanie ze spotkaniem lub decyzją, z których zadanie wynika. Szablon trzyma to wszystko na jednej liście, więc zadanie bez osoby odpowiedzialnej lub bez daty od razu rzuca się w oczy."
+          },
+          {
+            "question": "Jakie statusy powinno mieć zadanie?",
+            "answer": "Poradniki praktyków używają statusów do zrobienia, w toku, zablokowane, do weryfikacji i zrobione, a niektóre dodają anulowane. Ten szablon ma sześć: do zrobienia, w toku, zablokowane, do weryfikacji, zrobione i anulowane. Eskaluje się przy zablokowaniu, a nie przy terminie: zablokowane zadanie wskazuje, kto może je odblokować, i dostaje termin kontrolny."
+          },
+          {
+            "question": "Kiedy zadanie jest naprawdę zamknięte?",
+            "answer": "Gdy jest dowód, a nie samo słowo zrobione: link, plik lub wiadomość, a do tego rzeczywista data zakończenia. Działanie korygujące lub zapobiegawcze uznaje się za zamknięte dopiero po sprawdzeniu jego skuteczności; szablon tworzy takie sprawdzenie po 30 dniach od zakończenia działania, a okres możesz zmienić."
+          },
+          {
+            "question": "Czy agent wysyła protokoły lub przypomnienia?",
+            "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ustalenia ze spotkań przepadają i nikt nie wie, kto za co odpowiada i do kiedy. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr zadań i działań: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
         "questions": [
@@ -3586,6 +3866,50 @@
         "status_field": "Cada ação tem um dos seis status.",
         "due_field": "Cada ação tem um responsável e um prazo.",
         "overdue_widget": "O painel mostra quantas ações estão atrasadas."
+      },
+      "page": {
+        "metaTitle": "Planilha de tarefas: plano de ação com responsável e prazo",
+        "metaDescription": "Planilha de tarefas para reuniões: cole no Claude, ChatGPT ou Codex e tenha um plano de ação 5W2H com responsável, prazo e revisão semanal de cada ação.",
+        "headline": "Uma planilha de tarefas que cobra o prazo: um plano de ação que o seu agente de IA monta no CRM",
+        "answer": "Um plano de ação é uma lista em que cada ação tem um responsável, um prazo e um status, ligada à reunião ou à decisão de onde veio, para que o que foi combinado aconteça de verdade. Quem usa a planilha 5W2H encontra aqui responsável, prazo e origem de cada ação. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com reuniões, decisões, projetos e uma revisão semanal do que está aberto, atrasado ou bloqueado. Você aprova o plano antes que qualquer coisa seja criada.",
+        "routine": {
+          "title": "A revisão semanal das ações em 15 minutos",
+          "steps": [
+            "Olhe só as exceções: ações bloqueadas, ações que estouram o prazo e ações sem próximo passo.",
+            "Para cada ação bloqueada, indique quem pode desbloqueá-la e marque uma data para retomá-la.",
+            "Para cada ação atrasada, decida com o responsável: novo prazo, passar para outra pessoa ou cancelar.",
+            "Confirme as mudanças de prazo na reunião, não depois, e só conclua uma ação com prova, como um link, um arquivo ou uma mensagem."
+          ]
+        },
+        "limits": [
+          "Não é uma suíte de gestão de projetos. Não há dependências entre tarefas, linha do tempo ou Gantt, sprints nem controle de horas. Essas funções ficam na sua ferramenta de projetos.",
+          "Não é um sistema de qualidade validado. Ações corretivas regulamentadas, por exemplo em dispositivos médicos ou aviação, exigem assinaturas eletrônicas e trilhas de auditoria validadas. O modelo oferece a uma organização pequena um registro claro e uma verificação de eficácia, nada além disso.",
+          "Deixe de fora planos de cuidado e qualquer dado de saúde.",
+          "Ninguém é lembrado automaticamente. A revisão semanal e o painel mostram o que vence; os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em intervalos regulares, e você decide quais ativar.",
+          "Uma visão não consegue mostrar ao mesmo tempo as ações atrasadas e as bloqueadas, por isso o modelo tem uma visão para cada uma."
+        ],
+        "faq": [
+          {
+            "question": "O que deve ter uma ação num plano de ação?",
+            "answer": "Um título que começa com um verbo e tem menos de dez palavras, um responsável com nome, uma data concreta e não uma janela como semana que vem, e um status. Quem trabalha com 5W2H responde sete perguntas: o quê, por quê, quem, onde, quando, como e quanto. O modelo cobre o essencial, que é a ação, o responsável, o prazo e a origem; se quiser as outras perguntas como campos, peça ao seu agente no plano."
+          },
+          {
+            "question": "Quais status uma ação deve ter?",
+            "answer": "Os guias de quem trabalha na prática usam A fazer, Em andamento, Bloqueado, Em revisão e Concluído, e alguns acrescentam Cancelado. Este modelo tem seis: a fazer, em andamento, bloqueada, em revisão, concluída e cancelada. Escale no bloqueio, não no prazo: uma ação bloqueada indica quem pode desbloqueá-la e ganha uma data para ser retomada."
+          },
+          {
+            "question": "Quando uma ação está realmente concluída?",
+            "answer": "Quando há uma prova e não só a palavra feito: um link, um arquivo ou uma mensagem, mais a data real de conclusão. Uma ação corretiva ou preventiva só é concluída quando a sua eficácia foi verificada; o modelo cria essa verificação 30 dias depois de a ação ser concluída, e você pode mudar o prazo."
+          },
+          {
+            "question": "Planilha de tarefas ou CRM: qual escolher?",
+            "answer": "Uma planilha basta para uma lista curta de um grupo pequeno, mas não lembra ninguém do prazo nem liga a ação à reunião de onde ela veio. Aqui cada ação fica ligada à reunião, à decisão e ao projeto, e a revisão semanal mostra o que está atrasado ou bloqueado. Dá para importar uma planilha em Excel ou CSV por um assistente de mapeamento de colunas."
+          },
+          {
+            "question": "O agente envia as atas ou os lembretes?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+          }
+        ]
       },
       "prompt": {
         "intro": "As ações que combinamos nas reuniões ficam pelo caminho, e ninguém sabe quem é responsável por quê nem até quando. Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",

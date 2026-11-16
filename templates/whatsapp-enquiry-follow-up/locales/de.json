@@ -82,6 +82,51 @@
     "quote_valid_field": "Jedes Angebot hält fest, wie lange es gültig ist.",
     "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
   },
+  "page": {
+    "metaTitle": "WhatsApp CRM Vorlage: Anfragen und Angebote nachfassen",
+    "metaDescription": "WhatsApp CRM: jeder Chat wird zur Anfrage mit Angebot und terminiertem nächstem Schritt. Vorlage im KI-Agenten einfügen. Nicht die offizielle WhatsApp-API.",
+    "headline": "Ein WhatsApp CRM, das jeden Chat zur Anfrage mit terminiertem nächstem Schritt macht, aufgebaut von Ihrem KI-Agenten",
+    "answer": "Wer auf WhatsApp nachfassen will, antwortet schnell, hält jeden Chat als Anfrage mit Angebot und Gültigkeit fest, gibt ihr einen terminierten nächsten Schritt und notiert, wann er wieder ansetzt. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Anfragenliste in Customermates auf, mit jedem Chat verknüpft zu seiner Anfrage. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Es arbeitet mit einzeln geprüften Antworten, ohne Massennachrichten, Bots oder die offizielle Business-API.",
+    "routine": {
+      "title": "Der tägliche WhatsApp-Check",
+      "steps": [
+        "Öffnen Sie das WhatsApp-Postfach und antworten Sie auf jeden neuen Chat. Als Richtwert: innerhalb etwa einer Stunde zu Geschäftszeiten bestätigen und am selben Tag vollständig antworten.",
+        "Stellen Sie sicher, dass jeder Chat des letzten Tages genau einen Zustand hat: beantwortet, mit terminiertem nächstem Schritt versehen oder mit Grund geschlossen.",
+        "Fassen Sie Angebote zwei Tage nach dem Versand nach und noch einmal einige Tage später. Senden Sie dann eine abschließende Nachricht und setzen Sie ein Datum zur Wiederansprache.",
+        "Fragen Sie am Tag nach der Phase Zahlung offen nach der Zahlung und bestätigen Sie Lieferung oder Termin am Vortag.",
+        "Sehen Sie sich fällige Wiederansprache- und Nachbestelltermine an und schreiben Sie diese Kunden einzeln an."
+      ]
+    },
+    "limits": [
+      "Es ist nicht die offizielle WhatsApp Business Platform. Das Konto wird per QR-Code verbunden, deshalb gibt es keine Nachrichtenvorlagen, Rundnachrichten, Kampagnen, Sequenzen, Chatbots oder Flows, keine Katalogsynchronisierung und keine Funktionen für verifizierte Unternehmen.",
+      "Das Kontorisiko liegt bei Ihnen. WhatsApp kann ein Konto einschränken oder entfernen, das auf eine von den Richtlinien verbotene Weise genutzt wird, etwa durch Nachrichten an viele Personen. Halten Sie das Volumen klein, mit Einwilligung und persönlich.",
+      "Ein Chat wird nicht automatisch mit einer Anfrage verknüpft. Sie oder Ihr Agent verknüpfen ihn, und Gruppenchats gehören nicht an einen Kunden.",
+      "Es gibt keine Angebote, Rechnungen, Zahlungslinks oder Bestellverwaltung. Diese bleiben in Ihrer Buchhaltung oder Ihrem Shop, die Vorlage hält Angebotssumme, Gültigkeit und Phase fest.",
+      "Für die WhatsApp-Verbindung braucht es einen Tarif mit Postfach. Ohne ihn können Sie Anfragen weiter von Hand verfolgen."
+    ],
+    "faq": [
+      {
+        "question": "Wie schnell sollte ich auf eine WhatsApp-Anfrage antworten?",
+        "answer": "Jede Quelle sagt schnell, keine nennt eine amtliche Zahl. Eine Studie zu Online-Anfragen fand, dass die meisten Unternehmen viel zu langsam antworten, und die oft zitierte Fünf-Minuten-Zahl ließ sich nicht bestätigen. Die Vorlage nutzt als Richtwert etwa eine Stunde zu Geschäftszeiten für eine erste Antwort und die vollständige Antwort am selben Tag. Passen Sie das an Ihren Betrieb an."
+      },
+      {
+        "question": "Reicht die WhatsApp-Business-App mit Labels?",
+        "answer": "Ratgeber für kleine Unternehmen empfehlen drei bis fünf Labels als Pipeline, etwa neuer Kunde, Auftrag bestätigt und Zahlung offen. Ihre Schwäche: kein Verlauf über Personen hinweg, keine Wiedervorlagen und nichts übersteht das Ausscheiden eines Mitarbeiters. Die Vorlage macht aus Labels Phasen und ergänzt Termine und Zuständige, der Chat bleibt der Beleg."
+      },
+      {
+        "question": "Wie oft sollte ich ein Angebot nachfassen?",
+        "answer": "Auf WhatsApp ist der Takt kürzer als bei E-Mail. Ein sinnvoller Richtwert sind zwei Tage nach dem Angebot und ein zweites Mal einige Tage später, danach eine abschließende Nachricht, dass der Zeitpunkt vielleicht nicht passt, und eine Wiederansprache nach etwa 90 Tagen. Die Vorlage legt das erste Nachfassen als terminierte Wiedervorlage an, die Abstände stellen Sie selbst ein."
+      },
+      {
+        "question": "Ist WhatsApp für Anfragen datenschutzrechtlich in Ordnung?",
+        "answer": "Das hängt von Ihrer Rechtsgrundlage ab. In deutschen Ratgebern gilt der Kontaktabgleich der WhatsApp-App als zentrales Problem, viele Betriebe nutzen deshalb die Business-API über einen Anbieter oder verzichten auf WhatsApp. Customermates verbindet das Konto per QR-Code, nicht über die offizielle API. Klären Sie Rechtsgrundlage und Datenschutzhinweis vor dem Start. Die Vorlage hält fest, ob ein Kontakt zugestimmt hat. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Schickt der Agent Nachrichten an meine Kunden?",
+        "answer": "Nein. Der Prompt verlangt Antworten, die einzeln zu Ihrer Prüfung geschrieben werden, nichts in Masse und keine Beispieldaten. Jede Antwort senden Sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Kunden fragen auf WhatsApp nach Preisen, und ich verliere den Chat, bevor ich nachfasse. Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
     "questions": [

@@ -199,8 +199,58 @@
     "chase_signature_rule": "Una hoja de encargo enviada recibe una tarea de reclamación a los 7 días.",
     "process_page": "La base de conocimiento contiene el proceso de alta."
   },
+  "page": {
+    "metaTitle": "Ficha de cliente: alta y onboarding en tu CRM",
+    "metaDescription": "Ficha de cliente y alta en un solo flujo: tu agente de IA crea en el CRM solicitudes de documentos, pasos con fecha y el motivo de cada rechazo.",
+    "headline": "Ficha de cliente y alta sin perseguir a nadie: el flujo que tu agente de IA crea en tu CRM",
+    "answer": "Una ficha de cliente recoge lo necesario para dar de alta a un cliente, pero el trabajo está en perseguir los documentos y la hoja de encargo firmada. Esta plantilla configura un alta por encargo con nueve etapas, de la solicitud a la reunión de arranque, solicitudes de documentos y un paso con fecha en cada etapa. Pégala en tu agente de IA y él construye el flujo en Customermates; tú apruebas el plan antes de que se cree nada.",
+    "routine": {
+      "title": "La ronda semanal de altas",
+      "steps": [
+        "Responde a cada nueva solicitud. Por defecto la respuesta sale en un día, y cada solicitud termina en un siguiente paso o en un rechazo.",
+        "Reclama los formularios enviados hace 3 días y los documentos cuya fecha límite ha pasado.",
+        "Revisa los documentos recibidos, anota lo que falta y reclama las hojas de encargo enviadas hace 7 días.",
+        "Mira las altas que no se han movido en 7 días: fija una fecha o rechaza anotando el motivo, con una breve comunicación escrita que diga que no existe relación e indique cualquier plazo que conozcas.",
+        "Pregunta a los clientes dados de alta hace 14 días si ya ha llegado el primer resultado."
+      ]
+    },
+    "limits": [
+      "No hace firmar. La firma se hace en tu herramienta de firma electrónica o de contabilidad; el alta guarda las fechas y un enlace.",
+      "No es una herramienta de verificación de identidad ni de prevención del blanqueo, ni un registro de conflictos de intereses. Las profesiones reguladas anotan quién verificó la identidad, cuándo y cómo; los documentos y el registro de referencia se quedan en tu software profesional o sistema KYC.",
+      "No cobra pagos ni emite facturas. Anticipos y provisiones se quedan en tu banco o en tu herramienta de contabilidad.",
+      "Hoy Customermates no tiene portal de clientes ni formulario público para subir documentos. El cuestionario sale como documento o pasa por un formulario externo que escribe en Customermates mediante la API o n8n.",
+      "Deja fuera números y copias de documentos de identidad, datos de salud, de terapia o de religión y datos bancarios. No sirve para fichas de estética, clínicas o entrenamiento personal, que recogen datos de salud.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe incluir una ficha de cliente?",
+        "answer": "Datos de contacto y de la empresa, lo que quiere el cliente, alcance, plazos y presupuesto, quién decide, los accesos que necesitas y las cuestiones legales o de cumplimiento. En la práctica la ficha es una ayuda de memoria para la primera conversación, no una prueba legal; hazla más corta para particulares."
+      },
+      {
+        "question": "¿Cuáles son los pasos del alta de un cliente?",
+        "answer": "El orden es estable entre profesiones: primera respuesta, valoración de encaje, cuestionario y documentos, verificaciones donde tu profesión las exige, acuerdo por escrito, un posible anticipo y la reunión de arranque. Los plazos mantienen el ritmo: guías de proveedores citan una respuesta en 24 horas y un recordatorio de la firma a los 7 días. Toma esas cifras como valores por defecto, no como norma."
+      },
+      {
+        "question": "¿Debo rechazar a un cliente por escrito?",
+        "answer": "Un rechazo por escrito ayuda a ambas partes. Una guía para despachos de abogados recomienda indicar que no existe relación y citar cualquier plazo cercano. La plantilla anota el motivo del rechazo y crea una acción con fecha para enviar la comunicación. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Qué datos del cliente deben quedar fuera del CRM?",
+        "answer": "Números y copias de documentos de identidad, identificadores fiscales personales, fecha de nacimiento más allá de lo que exige la verificación, datos de salud, religión y credenciales bancarias. Una guía española recuerda que el RGPD pide recoger solo lo necesario y llevar un registro de tratamientos. En una profesión regulada la plantilla guarda solo que la identidad fue verificada, por quién y en qué fecha."
+      },
+      {
+        "question": "¿Puede el cliente rellenar el cuestionario en línea?",
+        "answer": "Hoy no mediante un formulario público de Customermates. El cuestionario sale como documento que prepara tu agente o desde un formulario externo que escribe en Customermates mediante la API o n8n. Lo envías tú."
+      },
+      {
+        "question": "¿El agente escribe a mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Pierdo clientes nuevos entre la primera consulta y el primer día de trabajo porque se me olvida enviar el cuestionario o reclamar los documentos. Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
+    "intro":"Pierdo clientes nuevos entre la primera consulta y el primer día de trabajo porque se me olvida enviar el cuestionario o reclamar los documentos. Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
     "questions": [
       "¿Qué vendes y quiénes son tus clientes: empresas, autónomos o particulares?",
       "¿Por qué pasos pasa hoy un cliente nuevo y cuáles de las nueve etapas no necesitas?",

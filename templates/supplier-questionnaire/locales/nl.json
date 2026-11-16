@@ -115,6 +115,51 @@
     "valid_until_field": "Elk document legt vast tot wanneer het geldig is.",
     "suppliers_board_view": "De leveranciers openen als bord per status."
   },
+  "page": {
+    "metaTitle": "Leveranciersmanagement sjabloon: register met vervaldata",
+    "metaDescription": "Leveranciersmanagement en leveranciersbeoordeling in één register: vragenlijst, certificaten met vervaldatum, risiconiveau. Plak het sjabloon in je AI-agent.",
+    "headline": "Leveranciersmanagement dat laat zien welk certificaat het eerst verloopt, gebouwd door je AI-agent in je CRM",
+    "answer": "Leveranciersmanagement voor een klein team draait om een register met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier. Plak dit sjabloon in je AI-agent en hij bouwt het register in Customermates, met opvolgacties met datum voor vragenlijsten, verlengingen en herbeoordelingen. Jij keurt het plan goed voordat er iets wordt gebouwd. Het register legt verzoeken en beslissingen vast en beslist niet over naleving van wetgeving.",
+    "routine": {
+      "title": "De wekelijkse leverancierscheck",
+      "steps": [
+        "Spreek de leveranciers aan van wie de vragenlijst over de deadline is.",
+        "Bekijk de antwoorden op de vragenlijsten van de afgelopen dagen en noteer welke antwoorden nog geen actueel bewijs hebben.",
+        "Vraag verlenging van certificaten en verklaringen die binnen 30 dagen verlopen en regel de al verlopen: de leverancier schorsen of het risico schriftelijk accepteren.",
+        "Leg de beslissing vast voor leveranciers in beoordeling (goedkeuren, voorwaardelijk goedkeuren, escaleren of afwijzen) en zet de volgende beoordeling naar risiconiveau.",
+        "Start de herbeoordeling van leveranciers van wie de volgende beoordeling binnen 14 dagen valt."
+      ]
+    },
+    "limits": [
+      "Het beslist niet dat een leverancier, product of keten aan een wet voldoet en dient geen zorgvuldigheidsverklaring of rapport in. Het legt verzoeken, bewijs en beslissingen vast.",
+      "Het is geen screeningsdienst: geen controle op sancties, negatieve berichtgeving of financieel risico en geen verrijking van bedrijfsgegevens.",
+      "Het is geen ERP, inkoop- of factureringssysteem. Er zijn geen inkooporders, bestedingen of facturen.",
+      "Het is geen documentarchief. Bestanden zijn alleen doorzoekbaar met een tekstlaag, gescande certificaten worden niet gelezen en er is geen onveranderlijk of onafhankelijk bewaard auditspoor. Bewaar de originelen in je documentsysteem en voeg de link toe.",
+      "Leveranciers kunnen niet inloggen om te antwoorden of bestanden te uploaden, en er is geen elektronische handtekening of rechten per veld. Vertrouwelijk materiaal hoort in een aparte lijst of werkruimte. Platforms als EcoVadis, Sedex of SAP Ariba doen wat hier ontbreekt."
+    ],
+    "faq": [
+      {
+        "question": "Hoe vaak moet ik leveranciers opnieuw beoordelen?",
+        "answer": "Gidsen noemen minimaal één keer per jaar. In de praktijk worden kritieke leveranciers elke zes of twaalf maanden bekeken en ook na een gebeurtenis zoals een overname, een nieuwe onderaannemer of een incident, terwijl leveranciers met een laag risico een jaar of langer kunnen wachten. Het sjabloon zet de volgende beoordeling naar risiconiveau; na een gebeurtenis start je de herbeoordeling zelf."
+      },
+      {
+        "question": "Welke criteria horen bij een leveranciersbeoordeling?",
+        "answer": "Gebruikelijk zijn zes: kwaliteit, prijs-kwaliteit, leverbetrouwbaarheid, flexibiliteit, communicatie en duurzaamheid. Of je nu met punten, een nuttigheidsanalyse of een ABC-analyse werkt: ISO 9001 schrijft geen methode voor, maar eist gedocumenteerde, herleidbare criteria. Certificaten zijn aanwijzingen en vervangen je eigen beoordeling niet."
+      },
+      {
+        "question": "Moet ik leveranciers indelen naar inkoopbedrag?",
+        "answer": "Nee. De diepgang moet het risico volgen: de gegevens die een leverancier verwerkt, zijn toegang, hoe kritiek hij is en hoe makkelijk je hem vervangt. Gebruik vier niveaus, van laag tot kritiek, met een korte vragenlijst voor leveranciers met een laag risico en een volledige voor kritieke. Het inkoopbedrag is geen veld in dit sjabloon."
+      },
+      {
+        "question": "Heb ik een verwerkersovereenkomst nodig en kan ik die hier bijhouden?",
+        "answer": "Verwerkt een leverancier persoonsgegevens voor jou, dan is een verwerkersovereenkomst nodig (artikel 28 AVG). Het sjabloon helpt bij te houden of die er is en geldig blijft, maar het zegt nooit dat een leverancier voldoet aan de wet. Wat voor jouw sector verder nodig is, stem je af met je adviseur."
+      },
+      {
+        "question": "Neemt de agent contact op met mijn leveranciers?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik werk met veel leveranciers en kan niet zien van wie de certificaten zijn verlopen of wie aan een herbeoordeling toe is. Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
     "questions": [

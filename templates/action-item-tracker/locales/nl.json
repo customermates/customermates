@@ -103,6 +103,46 @@
     "due_field": "Elke actie heeft een eigenaar en een deadline.",
     "overdue_widget": "Het dashboard toont hoeveel acties achterstallig zijn."
   },
+  "page": {
+    "metaTitle": "Actiepuntenlijst sjabloon: één eigenaar en een deadline",
+    "metaDescription": "Actiepuntenlijst voor Claude, ChatGPT of Codex: elke afspraak uit een overleg krijgt één eigenaar, een deadline en een wekelijkse controle op wat openstaat.",
+    "headline": "Zorg dat afspraken ook gebeuren: een actiepuntenlijst die je AI-agent in je CRM opbouwt",
+    "answer": "Een actiepuntenlijst is één lijst met acties, elk met één eigenaar, een deadline en een status, gekoppeld aan het overleg of besluit waaruit ze komen, zodat wat is afgesproken ook echt gebeurt. Plak dit sjabloon in je AI-agent en die bouwt de lijst op in Customermates, met overleggen, besluiten, projecten, een besluitenlijst en een wekelijkse controle op wat openstaat, te laat is of vastloopt. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse actiecontrole van 15 minuten",
+      "steps": [
+        "Kijk alleen naar de uitzonderingen: geblokkeerde acties, acties die hun deadline overschrijden en acties zonder volgende stap.",
+        "Benoem bij elke geblokkeerde actie wie hem kan losmaken en zet een datum om er opnieuw naar te kijken.",
+        "Beslis bij elke actie die te laat is samen met de eigenaar: nieuwe deadline, overdragen aan iemand anders of annuleren.",
+        "Bevestig wijzigingen van data in het overleg, niet achteraf, en sluit een actie alleen af met bewijs, zoals een link, een bestand of een bericht."
+      ]
+    },
+    "limits": [
+      "Het is geen projectmanagementpakket. Er zijn geen afhankelijkheden tussen taken, geen tijdlijn of Gantt-weergave, geen sprints en geen tijdregistratie. Die taken blijven in je projecttool.",
+      "Het is geen gevalideerd kwaliteitssysteem. Gereguleerde corrigerende acties, bijvoorbeeld bij medische hulpmiddelen of in de luchtvaart, vragen om elektronische handtekeningen en gevalideerde audittrails. Het sjabloon geeft een klein bedrijf overzicht en een effectiviteitscontrole, meer niet.",
+      "Houd zorgplannen en alle gezondheidsgegevens erbuiten.",
+      "Niemand wordt automatisch herinnerd. De wekelijkse controle en het dashboard laten zien wat aan de beurt is; herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert, en jij bepaalt welke je aanzet.",
+      "Een weergave kan te late en geblokkeerde acties niet tegelijk tonen, daarom heeft het sjabloon voor elk een eigen weergave."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een actiepunt?",
+        "answer": "Een titel die met een werkwoord begint en uit minder dan tien woorden bestaat, één genoemde eigenaar, een concrete datum in plaats van een termijn als volgende week en een status. Praktijkmensen voegen een prioriteit toe en de koppeling aan het overleg of besluit waaruit de actie komt. Het sjabloon houdt dit alles in één lijst, zodat een actie zonder eigenaar of datum meteen opvalt."
+      },
+      {
+        "question": "Welke statussen moet een actie hebben?",
+        "answer": "Praktijkgidsen gebruiken open, in uitvoering, geblokkeerd, ter beoordeling en afgerond, en sommige voegen geannuleerd toe. Dit sjabloon heeft er zes: open, in uitvoering, geblokkeerd, ter beoordeling, afgerond en geannuleerd. Escaleer bij geblokkeerd, niet bij de deadline: een geblokkeerde actie benoemt wie hem kan losmaken en krijgt een opvolgdatum."
+      },
+      {
+        "question": "Wanneer is een actie echt afgesloten?",
+        "answer": "Als er bewijs is en niet alleen het woord afgerond: een link, een bestand of een bericht, plus de werkelijke einddatum. Een corrigerende of preventieve actie is pas afgesloten als de effectiviteit is gecontroleerd; het sjabloon maakt die controle 30 dagen nadat de actie klaar is, en je kunt de termijn aanpassen."
+      },
+      {
+        "question": "Verstuurt de agent notulen of herinneringen?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Wat we in overleggen afspreken blijft liggen, en niemand kan zeggen wie wat wanneer oppakt. Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
     "questions": [

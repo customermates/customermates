@@ -104,6 +104,53 @@
     "inquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase.",
     "conflict_check_page": "Die Wissensdatenbank enthält eine Seite zur Kollisionsprüfung."
   },
+  "page": {
+    "metaTitle": "Mandatsaufnahme: von der Kollisionsprüfung zur Vereinbarung",
+    "metaDescription": "Mandatsaufnahme ohne verpasste Kollisionsprüfung oder Frist: Vorlage in Claude, ChatGPT oder Codex einfügen, und Ihr KI-Agent baut die Aufnahme auf.",
+    "headline": "Mandatsaufnahme ohne verpasste Kollisionsprüfung oder Frist: Ihr KI-Agent baut sie in Ihrem CRM auf",
+    "answer": "Eine Mandatsaufnahme führt einen Interessenten in fester Reihenfolge von der ersten Anfrage zur unterschriebenen Mandatsvereinbarung: frühester bekannter Fristablauf, Kollisionsprüfung, Erstberatung, Mandatsangebot und Vereinbarung, mit einem Absageschreiben für alle, die nicht angenommen werden. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Aufnahme in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird; Fallinhalte bleiben draußen.",
+    "routine": {
+      "title": "Die Routine der Mandatsaufnahme",
+      "steps": [
+        "Erfassen Sie jede neue Anfrage noch am selben Tag: Rechtsgebiet, wie die Person auf Sie gekommen ist, die Beteiligten und den frühesten bekannten Fristablauf.",
+        "Bearbeiten Sie zuerst Anfragen mit einem Fristablauf innerhalb von 14 Tagen: annehmen, weitervermitteln oder die Person noch am selben Tag warnen.",
+        "Führen Sie die Kollisionsprüfung vor jeder Beratung durch: Beteiligte, Mandanten und frühere Mandanten durchsuchen, das Ergebnis und die prüfende Person festhalten.",
+        "Senden Sie das Mandatsangebot am Tag nach der Erstberatung und fassen Sie nach drei Tagen nach, wenn Sie nichts hören.",
+        "Fordern Sie nach unterschriebener Mandatsvereinbarung den Vorschuss an und mahnen Sie ihn nach einer Woche an. Legen Sie die Akte in Ihrem Kanzleiprogramm an.",
+        "Schicken Sie allen, die Sie ablehnen oder die verstummen, ein Absageschreiben, damit belegt ist, dass kein Mandatsverhältnis entstanden ist."
+      ]
+    },
+    "limits": [
+      "Es ist nicht Ihre Kanzleisoftware. Dokumente, Zeiterfassung, Prozessfristen und Schriftsätze bleiben in Ihrem Kanzleiprogramm; ein Mandat ist hier nur ein Verweis.",
+      "Es ist keine Fristenkontrolle. Das einzige Datum bei der Aufnahme ist der früheste bekannte Fristablauf, um zu entscheiden, was zuerst anzusehen ist. Prozessfristen bleiben in dem System, auf das Sie sich verlassen.",
+      "Es führt keine Fremdgeldkonten und keine Abrechnung. Es gibt kein Rechnungsmodell: Der Vorschuss wird als Datum erfasst, das Konto bleibt in Ihrer Buchhaltung.",
+      "Die Kollisionsprüfung ist eine Hilfe für Menschen. Sie durchsuchen die Liste der Beteiligten selbst und halten das Ergebnis fest; Customermates kann Sie nicht daran hindern, ein Mandat anzulegen.",
+      "Es ist kein Mandantenportal und kein Werkzeug für elektronische Unterschriften. Eine unterschriebene Vereinbarung ist ein Link auf die unterschriebene Datei.",
+      "Halten Sie Fallinhalte, vertrauliche Inhalte, Gesundheitsdaten und Angaben zu Gegnern heraus. Customermates hat keine Berechtigungen auf Feldebene, was in einer Liste steht, sehen also alle mit Zugriff auf diese Liste."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört zu einer Mandatsaufnahme in der Kanzlei?",
+        "answer": "Checklisten aus der Praxis laufen so: Anfrage, Prüfung mit Kollisionsprüfung und Dringlichkeit, Erstberatung, Honorar- und Mandatsbedingungen, unterschriebene Vereinbarung mit Vollmacht und Vorschuss, und erst dann die Akte im Kanzleiprogramm. Kanzleien halten es unterschiedlich, etwa ob der Vorschuss vor Arbeitsbeginn kommt. Die Vorlage legt die Reihenfolge fest und lässt Ihnen den Rest."
+      },
+      {
+        "question": "Sollte die Kollisionsprüfung vor der Erstberatung kommen?",
+        "answer": "Der Leitfaden der Young Lawyers der American Bar Association und deutsche Praxisquellen stellen die Kollisionsprüfung vor jede Beratung und vor das Mandatsschreiben, eine Checkliste sogar vor die erste Beratung. Die Vorlage hat vor der Erstberatung eine Prüfungsphase und hält Ergebnis und die prüfende Person fest. Die Regeln unterscheiden sich je Land, prüfen Sie also Ihr eigenes Berufsrecht."
+      },
+      {
+        "question": "Warum den Fristablauf schon beim ersten Kontakt erfassen?",
+        "answer": "Eine Frist kann ablaufen, bevor Sie das Mandat annehmen, und Kommentare in deutschen Fachzeitschriften weisen darauf hin, dass ein vermeidbares Versäumnis schon vor der Annahme eine Haftung auslösen kann. Wer den frühesten bekannten Fristablauf und seine Quelle erfasst, sieht noch am selben Tag, was dringend ist. Es ist ein Datum zur Einordnung, kein Fristenkalender."
+      },
+      {
+        "question": "Brauche ich ein Absageschreiben?",
+        "answer": "Es ist gute Praxis: Leitfäden für Anwälte empfehlen ein schriftliches Schreiben an Interessenten, die Sie ablehnen oder die Sie nicht beauftragen, damit belegt ist, dass kein Mandatsverhältnis entstanden ist. Die Vorlage legt eine Aufgabe zum Verfassen an, wenn Sie eine Anfrage ablehnen oder ein Interessent Sie nicht beauftragt. Ob es vorgeschrieben ist, hängt von Ihrem Land ab."
+      },
+      {
+        "question": "Darf ich Mandate in Customermates ablegen?",
+        "answer": "Nur als Verweise: eine Referenz auf das Mandat in Ihrem Kanzleiprogramm. Fallinhalte, vertrauliche Inhalte, Gesundheitsdaten und Angaben zu Gegnern bleiben draußen, denn Customermates hat keine Berechtigungen auf Feldebene. Der Agent versendet nichts und legt keine Beispieldaten an; Entwürfe gibt es nur auf Ihre Bitte."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Interessenten rufen wegen eines Falls an, und ich muss Kollisionen prüfen, die früheste Frist festhalten und jeden Schritt dokumentieren, bevor ich ein Mandat annehme. Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
     "questions": [

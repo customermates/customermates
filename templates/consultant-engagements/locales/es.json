@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Cada encargo registra cuándo se comprobó la aceptación.",
     "engagements_board_view": "Los encargos se abren como tablero por fase."
   },
+  "page": {
+    "metaTitle": "Encargos de consultoría: propuestas y seguimiento en tu CRM",
+    "metaDescription": "Encargos de consultoría que tu agente de IA crea en tu CRM: del contacto al ganado, con una fecha de seguimiento acordada en la llamada y entregables.",
+    "headline": "No pierdas una propuesta en el silencio tras la llamada: un CRM de consultoría que crea tu agente de IA",
+    "answer": "Un CRM de consultoría sigue unos pocos encargos de alto valor del contacto al ganado y, sobre todo, la fecha en que haces el seguimiento de una propuesta. Esta plantilla configura encargos con descubrimiento, alcance, propuesta y decisión, una comprobación de aceptación antes de la oferta, entregables con fechas de vencimiento y de aceptación, y un cierre. Pégala en tu agente de IA y él lo construye todo en Customermates; tú apruebas el plan antes de que se cree nada.",
+    "routine": {
+      "title": "La revisión del lunes de los encargos",
+      "steps": [
+        "Recorre el pipeline por etapas y añade un siguiente paso con fecha a cada encargo que no lo tenga, o ciérralo.",
+        "Revisa las propuestas enviadas: cada una necesita una fecha de seguimiento acordada con el decisor durante la llamada, luego un segundo seguimiento hacia el décimo día y la petición de decisión en la fecha prevista.",
+        "Mira los entregables que vencen en los próximos 14 días y confirma con el cliente la franja de revisión.",
+        "Retoma el contacto con las relaciones fuertes o cálidas a las que no ves desde hace 60 días y agradece a quien te recomendó en tu último encargo."
+      ]
+    },
+    "limits": [
+      "No es control de horas ni facturación. Horas y facturas se quedan en tus herramientas de tiempo y contabilidad; una tarea de hito solo te recuerda facturar.",
+      "No redacta propuestas ni recoge firmas. Una propuesta y un contrato firmado son enlaces a documentos en otro sitio.",
+      "No es planificación de recursos ni gestión de proyectos más allá de entregables y fechas. Las tareas del trabajo en sí van en tu herramienta de proyectos.",
+      "Deja fuera el material confidencial de clientes y los datos de entrevistas. No hay permisos a nivel de campo: guarda un título de encargo neutro y un enlace.",
+      "No envía secuencias. Cada seguimiento es una tarea con fecha y un borrador que revisas y envías tú; Customermates no tiene motor de envíos automáticos ni masivos.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué CRM usan los consultores?",
+        "answer": "Muchos consultores independientes empiezan con una hoja de cálculo o un CRM comercial genérico. Lo que necesita un consultor es poco: unos pocos contactos y encargos, un siguiente paso con fecha en cada uno, la fecha de seguimiento de la propuesta y los pasos de aceptación tras la venta. Esta plantilla lo configura en Customermates."
+      },
+      {
+        "question": "¿Cuándo debo hacer el seguimiento de una propuesta?",
+        "answer": "Acuerda la fecha durante la llamada de la propuesta, como describe Alan Weiss: indica un día y una hora concretos, llama primero y escribe solo si el comprador no responde. La plantilla propone por defecto un primer seguimiento a los 3 días y un segundo a los 10; puedes cambiar ambos."
+      },
+      {
+        "question": "¿Qué es una comprobación de aceptación?",
+        "answer": "Una revisión breve antes de redactar una oferta: ¿tienes capacidad?, ¿eres independiente de las demás partes del cliente?, ¿se puede mantener la confidencialidad?, ¿encaja el encargo? Una asociación alemana de consultores recomienda comprobar si un encargo puede aceptarse antes de formular la oferta y, si no, rechazarlo."
+      },
+      {
+        "question": "¿Cuánto después de la firma debe celebrarse la reunión de arranque?",
+        "answer": "Una guía de un proveedor apunta a una reunión de arranque en las 48 horas siguientes al cierre, con material previo enviado 24 horas antes de una reunión de 60 minutos; advierte de que los encargos regulados o subcontratados necesitan más tiempo. La plantilla crea un paso de arranque el día después de ganar el encargo."
+      },
+      {
+        "question": "¿Qué hago después de perder una propuesta?",
+        "answer": "Anota el motivo y, dos días después, pregunta al decisor qué podrías haber hecho de otra manera. Alan Weiss recomienda justo esa pregunta cuando la respuesta es no. La plantilla crea ese paso por ti."
+      },
+      {
+        "question": "¿El agente escribe a mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Tengo mi propia consultoría y pierdo encargos en el silencio que sigue a la llamada de la propuesta. Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
+    "intro":"Tengo mi propia consultoría y pierdo encargos en el silencio que sigue a la llamada de la propuesta. Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
     "questions": [
       "¿Qué tipos de encargos vendes y a qué tarifa diaria?",
       "¿Cómo decides si aceptas un trabajo?",

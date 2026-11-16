@@ -124,6 +124,52 @@
     "deadline_verifier_field": "Jede Frist hält fest, wer sie verifiziert hat.",
     "deadline_control_page": "Die Wissensdatenbank enthält eine Seite zur Fristenkontrolle."
   },
+  "page": {
+    "metaTitle": "Steuerberater Software Vorlage: Mandate und Fristenregister",
+    "metaDescription": "Steuerberater Software: Mandate, Vorgänge, Unterlagen und Fristenregister mit Vorfrist. Vorlage in Claude, ChatGPT oder Codex einfügen und aufbauen lassen.",
+    "headline": "Steuerberatersoftware, die jede Frist und jede fehlende Unterlage im Blick hält, aufgebaut von Ihrem KI-Agenten",
+    "answer": "Eine Steuerkanzlei führt zwei Abläufe nebeneinander: ein Mandat über Identifizierung und Mandatsvertrag gewinnen und die wiederkehrende Arbeit je Mandant und Zeitraum erledigen, während man auf Unterlagen wartet. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit einem Fristenregister, das Vorfrist und die Person festhält, die jede Frist verifiziert hat. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Es ergänzt Ihre Kanzleisoftware und ersetzt sie nicht.",
+    "routine": {
+      "title": "Die wöchentliche Durchsicht der Kanzlei",
+      "steps": [
+        "Öffnen Sie das Board der Vorgänge und sehen Sie, wer am Zug ist: Wartet auf Unterlagen, wartet auf Freigabe des Mandanten oder wartet auf das Finanzamt.",
+        "Fordern Sie Unterlagen nach, die in drei Tagen fällig sind, und entscheiden Sie bei den nach dem Termin noch fehlenden: verlängern, teilweise bearbeiten oder an den Partner eskalieren.",
+        "Prüfen Sie das Fristenregister: Jede offene Frist hat eine Quelle, eine Vorfrist und eine zweite Person, die das Datum verifiziert hat.",
+        "Tragen Sie jeden in dieser Woche eingegangenen Bescheid mit Einspruchsfrist und Quelle ein, und lassen Sie das Datum von einer zweiten Person verifizieren.",
+        "Geben Sie jedem aktiven Vorgang ohne offene Wiedervorlage einen nächsten Schritt, oder halten Sie fest, warum er ruht.",
+        "Prüfen Sie Angebote, die vor mehr als drei Tagen versendet wurden, und Mandate in der Identifizierungsphase, damit keine Arbeit vor der Identifizierung des Mandanten beginnt."
+      ]
+    },
+    "limits": [
+      "Es ist nicht Ihre Kanzlei- oder Abgabesoftware. Abgabe, Buchführung, Lohn und die Berechnung gesetzlicher Fristen bleiben in Werkzeugen wie DATEV, Karbon oder TaxDome, und die Vorlage sagt nie, dass eine Erklärung fristgerecht ist.",
+      "Es berechnet keine gesetzlichen Fristen. Eine Frist ist ein Datensatz mit Quelle, Vorfrist und einer benannten Person, die sie verifiziert hat; das Datum selbst kommt von Ihnen.",
+      "Es ist kein Werkzeug für Zeiterfassung oder Rechnungen und hat weder Mandantenportal noch elektronische Signatur. Ein unterschriebener Mandatsvertrag ist ein Link auf die unterschriebene Datei.",
+      "Ausweiskopien, Steuernummern und besonders schützenswerte Daten gehören nicht hinein, denn es gibt keine Rechte auf Feldebene. Sie gehören in Ihr Dokumentensystem mit seinen Aufbewahrungsregeln.",
+      "Eingescannte Belege werden gespeichert, aber nicht gelesen, denn es gibt keine Texterkennung."
+    ],
+    "faq": [
+      {
+        "question": "Was ist die beste Software für Steuerberater?",
+        "answer": "Das hängt davon ab, was Sie brauchen. Werkzeuge wie DATEV, Addison oder TaxDome decken Abgabe, Buchführung, Abrechnung und ein Mandantenportal ab. Customermates ist die Schicht für Beziehung, Fristennachweis und Wiedervorlage daneben: Mandate, Vorgänge, die auf Unterlagen warten, und ein Fristenregister. Wer ein einziges Werkzeug für alles will, findet es hier nicht."
+      },
+      {
+        "question": "Wozu ein eigenes Fristenregister?",
+        "answer": "Die Rechtsprechung zur Berufshaftung verlangt, dass eine Kanzlei die Fristenkontrolle belegen kann; für die Wiedereinsetzung nach einer versäumten Frist (§ 110 AO) genügt die Behauptung nicht, Fristen seien geprüft worden. Ein Register mit Quelle, Vorfrist und Verifizierung lässt Sie diese Kontrolle später zeigen. Die Vorlage hält die Kontrolle fest und berechnet das Datum nie."
+      },
+      {
+        "question": "Kommt die Identifizierung nach dem GwG vor dem Mandatsvertrag?",
+        "answer": "Die Praxis ist uneinheitlich. Die Vorlage macht die Identifizierung zu einer eigenen Phase vor dem Mandatsvertrag, weil sie eine Reihenfolge nicht erzwingen kann und der vorsichtige Standard Arbeit vor der Identifizierung vermeidet. Zur Identifizierung gehören der Mandant, die handelnde Person und der wirtschaftlich Berechtigte, dazu eine Risikoeinstufung. Ein festes Prüfintervall nennt keine Quelle, das legen Sie selbst fest. Ausweiskopien gehören in Ihr Dokumentensystem."
+      },
+      {
+        "question": "Wie höre ich auf, Unterlagen von Hand nachzufordern?",
+        "answer": "Setzen Sie bei jeder Unterlagenanforderung ein Datum, bis zu dem die Unterlagen da sein müssen. Die Vorlage legt dann drei Tage vorher eine Wiedervorlage zum Nachfordern an und informiert den Zuständigen, wenn die Unterlagen fällig und noch nicht da sind. Wartet auf Unterlagen, wartet auf Freigabe des Mandanten und wartet auf das Finanzamt sind drei getrennte Status, so zeigt das Board, wer am Zug ist."
+      },
+      {
+        "question": "Schreibt der Agent meine Mandanten an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ich führe eine Steuerkanzlei und muss sehen, welche Mandate offen sind, welche Vorgänge auf Unterlagen warten und welche Fristen geprüft wurden. Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
     "questions": [

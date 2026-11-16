@@ -235,6 +235,51 @@
     "proposal_follow_up_rule": "Szansa, która trafia na etap Oferta wysłana, dostaje zadanie ponownego kontaktu.",
     "stages_page": "Baza wiedzy zawiera etapy i ich kryteria wyjścia."
   },
+  "page": {
+    "metaTitle": "Lejek sprzedaży: szablon z następnym krokiem przy szansie",
+    "metaDescription": "Wklej ten lejek sprzedaży w Claude, ChatGPT lub Codex: siedem etapów, następny krok z terminem przy każdej szansie i powody wygranej oraz przegranej.",
+    "headline": "Zobacz, które szanse się ruszają: lejek sprzedaży, który Twój agent AI buduje w Twoim CRM",
+    "answer": "Lejek sprzedaży to krótka lista etapów, z których każdy ma jasne kryterium wyjścia, dzięki czemu widzisz, które szanse się ruszają, które utknęły i co dzieje się dalej. Wklej ten szablon do swojego agenta AI, a zbuduje on lejek w Customermates: siedem etapów, wartość ważoną, następny krok z terminem przy każdej otwartej szansie, komitet zakupowy, powody wygranej i przegranej oraz zadanie przy każdej zmianie etapu. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowy przegląd lejka",
+      "steps": [
+        "Otwórz tablicę i przejrzyj każdą szansę, która tkwi w swoim etapie dłużej niż 14 dni.",
+        "Przy każdej zdecyduj: przesunąć dalej, bo kryterium wyjścia jest spełnione, ożywić z nowym następnym krokiem albo zamknąć jako przegraną z powodem.",
+        "Upewnij się, że każda otwarta szansa ma następny krok z terminem, ustalony na koniec każdej rozmowy.",
+        "Przejrzyj wygrane i przegrane z ich powodami oraz szanse, które minęły planowaną datę zamknięcia."
+      ]
+    },
+    "limits": [
+      "Nie tworzy ofert cenowych ani faktur. Ofertę przygotowujesz w narzędziu do dokumentów i podpinasz do szansy.",
+      "To nie jest narzędzie do sekwencji ani masowej wysyłki. Kolejne kontakty to szkice dla konkretnych osób, a wysyłasz je Ty.",
+      "Nie ma punktowania leadów ani wzbogacania danych, kategorii prognozy ani zarządzania kwotami i prowizjami. Wartość ważona to prosta waga kwot szans według etapu, a nie prognoza.",
+      "Nie ma telefonii ani SMS-ów.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą Twój agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć.",
+      "Jest dobrany do zespołu od jednego do dziesięciu handlowców. Zespoły z formalnym procesem prognozowania lepiej obsłuży narzędzie stworzone do tego celu."
+    ],
+    "faq": [
+      {
+        "question": "Ile etapów powinien mieć lejek sprzedaży?",
+        "answer": "Praktycy się spierają: jedni radzą pięć lub mniej, inni używają dziewięciu. Ten szablon ma pięć etapów otwartych plus wygraną i przegraną, bo każdy etap ma mierzalne kryterium wyjścia. Zmień nazwy etapów lub usuń niektóre w planie, który zaproponuje Twój agent."
+      },
+      {
+        "question": "Czym jest wartość ważona szansy?",
+        "answer": "Kwota szansy pomnożona przez wagę jej etapu, na przykład 10, 25, 40, 60 i 80 procent od pierwszego do piątego etapu. To waga, którą możesz dopasować do własnych wskaźników zamknięcia, a nie przewidywanie."
+      },
+      {
+        "question": "Jak kwalifikować szanse sprzedaży?",
+        "answer": "Praktycy najczęściej stosują BANT: budżet, decydent, potrzeba i czas. Szablon nie narzuca metody, a kryterium wyjścia z etapu Nowa to potrzeba i zakres budżetu potwierdzone w jednej rozmowie."
+      },
+      {
+        "question": "Po co zapisywać powód wygranej i przegranej?",
+        "answer": "Raporty z lejka działają tylko wtedy, gdy istnieją oba wyniki, a powody pokazują, co zmienić. Szablon prosi o powód przy zamknięciu i tworzy zadanie, by wrócić do przegranych szans po 90 dniach."
+      },
+      {
+        "question": "Czy agent wysyła moje wiadomości do klientów?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mój zespół sprzedaje firmom i nie umiem ocenić, które szanse są realne, które utknęły i dlaczego wygrywamy albo przegrywamy. Skonfiguruj lejek sprzedaży w mojej przestrzeni roboczej Customermates: szanse sprzedaży z siedmioma etapami i wagami, wartość ważona, następny krok z terminem przy każdej otwartej szansie, powody przegranej i wygranej, komitet zakupowy przy każdej szansie i zadanie tworzone przy każdej zmianie etapu.",
     "questions": [

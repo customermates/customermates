@@ -80,6 +80,52 @@
     "submitted_field": "Ogni richiesta indica quando è stata ricevuta.",
     "requests_board_view": "Le richieste si aprono come board per fase."
   },
+  "page": {
+    "metaTitle": "Modulo di contatto online con CRM: nessuna richiesta persa",
+    "metaDescription": "Modulo di contatto online che alimenta il CRM: incolla il modello in Claude, ChatGPT o Codex e ogni richiesta ha un responsabile e una risposta da dare.",
+    "headline": "Un modulo di contatto online collegato al tuo CRM: ogni richiesta ha un responsabile e una risposta da dare",
+    "answer": "Un modulo online serve solo se ogni invio riceve una risposta. Questo modello trasforma ogni invio in una richiesta collegata a un contatto, con il modulo di provenienza, una risposta da dare entro il giorno dopo e uno stato da nuova a convertita. Incollalo nel tuo agente IA: costruisce l'elenco delle richieste in Customermates e il percorso dal tuo modulo, e tu approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La prima risposta a ogni richiesta",
+      "steps": [
+        "Rispondi alle nuove richieste lo stesso giorno. Il modello crea un'attività di risposta con scadenza il giorno dopo e segnala una richiesta ancora nuova dopo un giorno.",
+        "Invia una breve conferma che riprende la richiesta con le parole della persona e dice quando arriverà la risposta o il preventivo.",
+        "Fai le una o due domande che decidono il prezzo o chi se ne occupa, invece di pretendere subito un modulo lungo.",
+        "Sollecita una richiesta contattata dopo 3 giorni. Se i solleciti restano senza risposta, segnala la richiesta come non idonea con il motivo mancata risposta.",
+        "Segna lo spam e le richieste non idonee e lascia correre la loro data di verifica dei dati, così le richieste vecchie vengono riviste o cancellate in tempo.",
+        "Passa ogni richiesta che diventa un affare alla tua pipeline di vendita e impostala qui come convertita."
+      ]
+    },
+    "limits": [
+      "Il modulo pubblico è semplice e non è un costruttore completo: niente pagamenti, quiz, calcolatori, caricamento di file o firme elettroniche. Per questo restano più adatti Typeform, Tally o Jotform, e un webhook in entrata porta qui le loro risposte.",
+      "Tieni i documenti sensibili fuori dal modulo. Chiedili tramite un canale con accesso controllato.",
+      "Non invia nulla da solo. Conferme e risposte sono bozze che controlli e invii tu.",
+      "Non è uno strumento di mailing. Registra un consenso marketing, ma sequenze e newsletter richiedono uno strumento di email marketing, perché Customermates non ha sequenze né invii di massa.",
+      "I testi sulla privacy sono punti di partenza, non una consulenza legale. Adatta informativa, formula di consenso e tempi di conservazione al tuo paese insieme al tuo consulente."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve chiedere un modulo di richiesta preventivo?",
+        "answer": "Solo ciò che cambia il prezzo o decide chi risponde: di solito da quattro a sette domande, come di cosa hai bisogno, per quando e una fascia di budget. I dettagli lasciali alla prima chiamata. Il modello conserva il modulo, la pagina e la fonte di ogni richiesta, così vedi da dove arrivano quelle buone."
+      },
+      {
+        "question": "Quanto in fretta devo rispondere a una richiesta dal web?",
+        "answer": "Il più in fretta che puoi promettere e mantenere: al più tardi lo stesso giorno, e dì sul modulo quando la persona avrà tue notizie. Le guide dei fornitori di moduli consigliano un primo messaggio che conferma la richiesta e dice quando arriva il preventivo. Il modello crea un'attività di risposta con scadenza il giorno dopo e segnala una richiesta che nessuno ha toccato dopo un giorno."
+      },
+      {
+        "question": "Serve una casella di consenso in un modulo di richiesta preventivo?",
+        "answer": "Non automaticamente. Secondo il GDPR una richiesta di preventivo si tratta di norma per rispondere, quindi ciò che devi alla persona sul modulo è un'informativa: chi sei, perché usi i dati, su quale base, per quanto tempo li conservi e quali diritti ha. La pubblicità richiede un consenso separato, non preselezionato, che sai dimostrare; una casella già spuntata non vale. Il modello registra il consenso e una data di verifica dei dati, e la casella di consenso facoltativa del modulo salva il tuo testo, la sua versione e l'orario a ogni compilazione. Non è una consulenza legale."
+      },
+      {
+        "question": "Funziona con Typeform, Tally o Jotform?",
+        "answer": "Sì, con qualsiasi strumento di moduli in grado di inviare un webhook, come Typeform, Tally o Jotform. Un webhook in entrata dà a una lista un indirizzo segreto, e ogni compilazione inviata lì crea o aggiorna un record. Il modello contiene una regola che crea il contatto e la richiesta quando un altro strumento di moduli invia una compilazione, e il tuo agente imposta durante l'intervista l'indirizzo e la mappatura dei campi. I webhook in entrata richiedono il piano Starter o superiore su Customermates Cloud e non hanno limiti in self-hosting. Un modulo sul tuo sito funziona allo stesso modo, oppure usi il modulo pubblico di Customermates."
+      },
+      {
+        "question": "L'agente contatta le persone che compilano il mio modulo?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Le richieste dai moduli del mio sito ricevono risposta tardi o mai e non vedo da dove arrivino quelle buone. Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
     "questions": [

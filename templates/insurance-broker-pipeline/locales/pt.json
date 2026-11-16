@@ -113,6 +113,52 @@
     "renewals_board_view": "As renovações abrem como quadro por etapa.",
     "advice_documentation_page": "A base de conhecimento tem uma página sobre a documentação da recomendação."
   },
+  "page": {
+    "metaTitle": "CRM para corretora de seguros: vendas novas e renovações",
+    "metaDescription": "Nenhuma renovação passa batido: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta o CRM da corretora com a recomendação documentada.",
+    "headline": "Nenhuma renovação passa batido: o CRM de corretora que seu agente de IA monta para vendas novas e renovações",
+    "answer": "Um CRM para corretora de seguros conduz dois funis lado a lado: as vendas novas, do primeiro contato à apólice emitida, e um caso de renovação para cada apólice, aberto bem antes do fim da vigência. Cole este modelo no seu agente de IA e ele monta os dois no Customermates, com a recomendação documentada antes de cada proposta. Você aprova o plano antes de qualquer coisa ser construída. Os dados das apólices ficam no seu sistema.",
+    "routine": {
+      "title": "A rotina semanal da mesa da corretora",
+      "steps": [
+        "Abra as renovações que se aproximam: apólices empresariais a partir de cerca de 120 dias antes do fim da vigência, apólices de pessoa física a partir de cerca de 45 dias. Dê a cada caso um responsável e um primeiro passo.",
+        "Cobre das seguradoras as cotações atrasadas e dos clientes que não responderam a uma proposta de renovação depois de uma semana.",
+        "Confira se cada proposta traz a data do registro da recomendação, ou seja, se a análise de necessidades está documentada antes do envio. Faça o acompanhamento de cada proposta no dia seguinte à apresentação.",
+        "Peça ao cliente que confirme a decisão cerca de 30 dias antes da renovação, antes do prazo de aviso do contrato.",
+        "Ligue para os clientes novos uma semana depois da emissão da apólice e escreva ao cliente quando o seu sistema avisar de um prêmio em atraso."
+      ]
+    },
+    "limits": [
+      "Não é o seu sistema de gestão da corretora nem a administração de apólices. Apólices, prêmios e extratos de comissões ficam no seu sistema; aqui você guarda uma referência e a data da renovação.",
+      "Não é um comparador nem um motor de tarifação. As cotações vêm dos portais das seguradoras e de comparadores, e você registra o resultado.",
+      "Não cuida de sinistros, de propostas de subscrição nem da conciliação de comissões.",
+      "Não guarda dados de saúde, detalhes de sinistros, dados bancários nem cópias de documentos de identidade, e também não o registro da recomendação: só a data dele e um link para onde você o guarda.",
+      "Não produz nem certifica a recomendação. Registra que a recomendação foi documentada antes da proposta; a recomendação é sua, e as obrigações que valem dependem do seu país.",
+      "Não há disparos em massa, sequências, telefonia nem SMS. As mensagens são rascunhos individuais que você revisa e envia."
+    ],
+    "faq": [
+      {
+        "question": "Qual a diferença entre o sistema da corretora e um CRM?",
+        "answer": "O sistema da corretora guarda apólices, prêmios, documentos e extratos de comissões. Um CRM guarda o relacionamento e o próximo passo: quem pediu, qual cotação está aberta, qual renovação se aproxima e quem liga para quem e até quando. Este modelo é a segunda camada e guarda só referências à primeira."
+      },
+      {
+        "question": "Com quanta antecedência devo começar uma renovação?",
+        "answer": "Depende do ramo e do país. As fontes apontam de 90 a 120 dias para apólices empresariais e de 30 a 45 para pessoa física. O modelo abre um caso de renovação 120 dias antes do fim da vigência nas apólices empresariais e 45 dias antes nas de pessoa física, e você pode mudar os dois. Os prazos de aviso variam conforme o país e o contrato: confira na apólice o prazo real."
+      },
+      {
+        "question": "Preciso documentar a recomendação antes de uma proposta?",
+        "answer": "Na União Europeia, a Diretiva de Distribuição de Seguros exige uma análise de necessidades antes da celebração do contrato, e muitos países esperam que a recomendação fique documentada. Os detalhes dependem do seu país e do órgão regulador, como a Susep no Brasil, então confira as suas próprias obrigações. O modelo registra a data da recomendação e um link para onde ela está guardada, e mostra as propostas que não têm. Não é aconselhamento jurídico."
+      },
+      {
+        "question": "Posso guardar dados de apólices ou de saúde no CRM?",
+        "answer": "Guarde o mínimo: uma referência ou link da apólice, o ramo, a data da renovação e o prêmio anual. Dados de saúde, detalhes de sinistros, dados bancários e cópias de documentos de identidade ficam de fora, e o Customermates não tem permissões por campo para esconder colunas isoladas. Guarde os documentos no seu sistema ou em um repositório de documentos com controle de acesso."
+      },
+      {
+        "question": "O agente escreve para os meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu cuido de uma carteira de seguros, e as renovações me pegam de surpresa, além de eu precisar documentar a recomendação antes de cada proposta. Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
     "questions": [

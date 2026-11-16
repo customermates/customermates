@@ -113,6 +113,52 @@
     "renewals_board_view": "Odnowienia otwierają się jako tablica według etapu.",
     "advice_documentation_page": "Baza wiedzy zawiera stronę o dokumentacji rekomendacji."
   },
+  "page": {
+    "metaTitle": "Program dla brokera ubezpieczeniowego: odnowienia",
+    "metaDescription": "Żadne odnowienie nie umknie: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje CRM brokera z udokumentowaną rekomendacją przed ofertą.",
+    "headline": "Żadne odnowienie nie umknie: CRM brokera ubezpieczeniowego, który Twój agent AI buduje dla nowej sprzedaży i odnowień",
+    "answer": "CRM dla brokera ubezpieczeniowego prowadzi dwa lejki obok siebie: nową sprzedaż od zapytania do wystawionej polisy oraz sprawę odnowienia dla każdej polisy, otwieraną na długo przed jej wygaśnięciem. Wklej ten szablon do swojego agenta AI, a zbuduje oba w Customermates, z rekomendacją udokumentowaną przed każdą ofertą. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Dane polis zostają w Twoim systemie.",
+    "routine": {
+      "title": "Cotygodniowa rutyna przy biurku brokera",
+      "steps": [
+        "Otwórz nadchodzące odnowienia: polisy firmowe od około 120 dni przed terminem, polisy indywidualne od około 45 dni. Przypisz do każdej sprawy opiekuna i pierwszy krok.",
+        "Ponagl towarzystwa w sprawie spóźnionych ofert oraz klientów, którzy po tygodniu nie odpowiedzieli na ofertę odnowienia.",
+        "Sprawdź, czy każda oferta ma datę udokumentowania rekomendacji, czyli czy analiza potrzeb jest udokumentowana przed jej wysłaniem. Wróć do każdej oferty dzień po jej przedstawieniu.",
+        "Poproś klienta o potwierdzenie decyzji około 30 dni przed odnowieniem, przed terminem wypowiedzenia umowy.",
+        "Zadzwoń do nowych klientów tydzień po wystawieniu polisy i napisz do klienta, gdy Twój system zgłosi niezapłaconą składkę."
+      ]
+    },
+    "limits": [
+      "To nie jest Twój system do obsługi biura brokerskiego ani do administrowania polisami. Polisy, składki i rozliczenia prowizji zostają w Twoim systemie; tu trzymasz odnośnik i termin odnowienia.",
+      "To nie jest porównywarka ani kalkulator składek. Oferty pochodzą z portali towarzystw i porównywarek, a Ty zapisujesz wynik.",
+      "Nie obsługuje szkód, wniosków do underwritingu ani rozliczania prowizji.",
+      "Nie przechowuje danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości, a także samej dokumentacji rekomendacji: tylko jej datę i link do miejsca, gdzie ją trzymasz.",
+      "Nie tworzy ani nie poświadcza rekomendacji. Zapisuje, że rekomendacja została udokumentowana przed ofertą; rekomendacja jest Twoja, a to, jakie obowiązki Cię dotyczą, zależy od Twojego kraju.",
+      "Nie ma wysyłek masowych, sekwencji, telefonii ani SMS. Wiadomości to pojedyncze szkice, które sprawdzasz i wysyłasz sam."
+    ],
+    "faq": [
+      {
+        "question": "Czym różni się system biura brokerskiego od CRM?",
+        "answer": "System biura brokerskiego przechowuje polisy, składki, dokumenty i rozliczenia prowizji. CRM przechowuje relację i następny krok: kto zapytał, która oferta jest otwarta, które odnowienie się zbliża i kto do kogo dzwoni, do kiedy. Ten szablon to druga warstwa i trzyma tylko odnośniki do pierwszej."
+      },
+      {
+        "question": "Ile czasu przed terminem zacząć odnowienie?",
+        "answer": "To zależy od rodzaju ubezpieczenia i kraju. Źródła podają od 90 do 120 dni dla polis firmowych i od 30 do 45 dla indywidualnych. Szablon otwiera sprawę odnowienia 120 dni przed terminem dla polis firmowych i 45 dni przed dla indywidualnych, a oba terminy możesz zmienić. Terminy wypowiedzenia różnią się w zależności od kraju i umowy, więc sprawdź w polisie rzeczywisty termin."
+      },
+      {
+        "question": "Czy muszę dokumentować rekomendację przed ofertą?",
+        "answer": "W UE dyrektywa o dystrybucji ubezpieczeń wymaga analizy potrzeb przed zawarciem umowy, a wiele krajów oczekuje udokumentowania rekomendacji. W Polsce wynika to z ustawy o dystrybucji ubezpieczeń (analiza wymagań i potrzeb), ale szczegóły zależą od Twojego statusu, więc sprawdź własne obowiązki. Szablon zapisuje datę rekomendacji i link do miejsca jej przechowywania oraz pokazuje oferty bez niej. To nie jest porada prawna."
+      },
+      {
+        "question": "Czy mogę przechowywać w CRM dane polis i dane o zdrowiu?",
+        "answer": "Przechowuj jak najmniej: odnośnik lub link do polisy, rodzaj ubezpieczenia, termin odnowienia i roczną składkę. Dane o zdrowiu, szczegóły szkód, dane bankowe i kopie dokumentów tożsamości zostają poza CRM, a Customermates nie ma uprawnień na poziomie pola, które ukrywałyby pojedyncze kolumny. Dokumenty trzymaj w swoim systemie albo w repozytorium dokumentów z kontrolą dostępu."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Prowadzę portfel klientów jako broker ubezpieczeniowy: odnowienia zaskakują mnie w ostatniej chwili, a przed każdą ofertą muszę jeszcze udokumentować rekomendację. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
     "questions": [

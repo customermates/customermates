@@ -103,6 +103,46 @@
     "due_field": "Każde zadanie ma osobę odpowiedzialną i termin.",
     "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych."
   },
+  "page": {
+    "metaTitle": "Rejestr zadań i działań: osoba odpowiedzialna i termin",
+    "metaDescription": "Lista zadań ze spotkań do wklejenia w Claude, ChatGPT lub Codex: każde ustalenie ma osobę odpowiedzialną, termin i cotygodniowy przegląd zaległości.",
+    "headline": "Dopilnuj, żeby ustalenia się wydarzyły: rejestr zadań, który Twój agent AI buduje w Twoim CRM",
+    "answer": "Rejestr zadań i działań to jedna lista, w której każde zadanie ma osobę odpowiedzialną, termin i status oraz powiązanie ze spotkaniem lub decyzją, z których wynika, żeby ustalenia ze spotkań naprawdę się wydarzyły. Wklej ten szablon do swojego agenta AI, a zbuduje on listę w Customermates, ze spotkaniami, decyzjami, projektami, rejestrem decyzji i cotygodniowym przeglądem tego, co otwarte, po terminie lub zablokowane. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowy przegląd zadań w 15 minut",
+      "steps": [
+        "Patrz tylko na wyjątki: zadania zablokowane, zadania po terminie i zadania bez następnego kroku.",
+        "Przy każdym zablokowanym zadaniu wskaż, kto może je odblokować, i ustaw datę, kiedy do niego wrócisz.",
+        "Przy każdym zadaniu po terminie zdecyduj razem z osobą odpowiedzialną: nowy termin, przekazanie komuś innemu albo anulowanie.",
+        "Zmiany terminów potwierdzaj na spotkaniu, a nie po nim, i zamykaj zadanie tylko z dowodem, takim jak link, plik lub wiadomość."
+      ]
+    },
+    "limits": [
+      "To nie jest pakiet do zarządzania projektami. Nie ma zależności między zadaniami, osi czasu ani wykresu Gantta, sprintów ani rejestrowania czasu pracy. Te zadania zostają w Twoim narzędziu do projektów.",
+      "To nie jest zwalidowany system jakości. Regulowane działania korygujące, na przykład w wyrobach medycznych, farmacji czy lotnictwie, wymagają podpisów elektronicznych i zwalidowanych ścieżek audytu. Szablon daje małej organizacji czytelny rejestr i sprawdzenie skuteczności, nic więcej.",
+      "Nie wpisuj tu planów opieki ani żadnych danych o zdrowiu.",
+      "Nikt nie dostaje przypomnień automatycznie. Cotygodniowy przegląd i pulpit pokazują, co jest do zrobienia; przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą Twój agent uruchamia według harmonogramu, a Ty decydujesz, które włączyć.",
+      "Widok nie pokaże jednocześnie zadań po terminie i zablokowanych, dlatego szablon ma osobny widok dla każdych."
+    ],
+    "faq": [
+      {
+        "question": "Co powinno zawierać zadanie na liście działań?",
+        "answer": "Tytuł zaczynający się od czasownika i krótszy niż dziesięć słów, jedną wskazaną osobę odpowiedzialną, konkretną datę zamiast przedziału w rodzaju w przyszłym tygodniu oraz status. Praktycy dodają priorytet i powiązanie ze spotkaniem lub decyzją, z których zadanie wynika. Szablon trzyma to wszystko na jednej liście, więc zadanie bez osoby odpowiedzialnej lub bez daty od razu rzuca się w oczy."
+      },
+      {
+        "question": "Jakie statusy powinno mieć zadanie?",
+        "answer": "Poradniki praktyków używają statusów do zrobienia, w toku, zablokowane, do weryfikacji i zrobione, a niektóre dodają anulowane. Ten szablon ma sześć: do zrobienia, w toku, zablokowane, do weryfikacji, zrobione i anulowane. Eskaluje się przy zablokowaniu, a nie przy terminie: zablokowane zadanie wskazuje, kto może je odblokować, i dostaje termin kontrolny."
+      },
+      {
+        "question": "Kiedy zadanie jest naprawdę zamknięte?",
+        "answer": "Gdy jest dowód, a nie samo słowo zrobione: link, plik lub wiadomość, a do tego rzeczywista data zakończenia. Działanie korygujące lub zapobiegawcze uznaje się za zamknięte dopiero po sprawdzeniu jego skuteczności; szablon tworzy takie sprawdzenie po 30 dniach od zakończenia działania, a okres możesz zmienić."
+      },
+      {
+        "question": "Czy agent wysyła protokoły lub przypomnienia?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ustalenia ze spotkań przepadają i nikt nie wie, kto za co odpowiada i do kiedy. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr zadań i działań: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
     "questions": [

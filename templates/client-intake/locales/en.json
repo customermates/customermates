@@ -199,8 +199,58 @@
     "chase_signature_rule": "An agreement that is sent gets a chase Action after 7 days.",
     "process_page": "The Knowledge Base holds the intake process."
   },
+  "page": {
+    "metaTitle": "Client Intake Form Template: Onboarding in Your CRM",
+    "metaDescription": "Client intake form and onboarding in one pipeline: documents, dated steps and a decline reason. Paste it into your AI agent and it builds it in your CRM.",
+    "headline": "A client intake form that tracks every document and next step, built by your AI agent in your CRM",
+    "answer": "A client intake form collects what you need to take on a client, but the real work is chasing the documents and the signed agreement. This template sets up one intake per engagement with nine stages from inquiry to kickoff, document requests and a dated step at every stage. Paste it into your AI agent and it builds the pipeline in Customermates, and you approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly intake round",
+      "steps": [
+        "Answer every new inquiry. The default is a reply within one day, and every inquiry ends in a next step or a decline.",
+        "Chase intake forms that went out 3 days ago and documents that are past their needed-by date.",
+        "Review the documents that arrived, list the gaps and chase agreements sent 7 days ago.",
+        "Check intakes that have not moved for 7 days: set a date, or decline with a reason and a short written notice that says no engagement exists and names any deadline you know of.",
+        "Ask clients who were onboarded 14 days ago whether the first result has landed."
+      ]
+    },
+    "limits": [
+      "It does not sign agreements. Signing happens in your e-signature or accounting tool; the intake keeps the dates and a link.",
+      "It is not an identity verification or anti-money-laundering tool, and it holds no conflict-check register. Regulated professions record who verified identity, when and how; the documents and the authoritative register stay in your practice or KYC system.",
+      "It takes no payments and issues no invoices. Deposits and retainers stay in your banking or accounting tool.",
+      "There is no client portal or public upload form in Customermates today. The questionnaire goes out as a document, or through an external form that writes into Customermates by API or n8n.",
+      "Keep identity document numbers and scans, health, therapy, religion and bank details out of it. It does not suit beauty, clinic or personal-training intake, which collects health data.",
+      "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+    ],
+    "faq": [
+      {
+        "question": "What belongs in a client intake form?",
+        "answer": "Contact and company details, what the client wants, scope, timeline and budget signals, who decides, the access you will need and any legal or compliance questions. Practitioners treat the form as a memory aid for the first conversation, not a legal test, and keep it shorter for individuals."
+      },
+      {
+        "question": "What are the steps of client onboarding?",
+        "answer": "The order is stable across professions: first reply, screening for fit, intake form and documents, checks where your profession requires them, the written agreement, any deposit, then a kickoff. Time boxes keep it moving: vendor guides suggest a reply within 24 hours and a signature follow-up after 7 days. Treat these numbers as defaults, not standards."
+      },
+      {
+        "question": "Do I have to decline a client in writing?",
+        "answer": "A written decline helps both sides. A guide for law firms says the notice should state that no relationship exists and name any deadline that is coming up. The template records a decline reason and creates a dated Action to send the notice. This is not legal advice."
+      },
+      {
+        "question": "Which client data should stay out of the CRM?",
+        "answer": "Identity document numbers and scans, personal tax IDs, dates of birth beyond what verification needs, health data, religion and bank credentials. For a regulated profession the template stores only that identity was verified, by whom and on which date."
+      },
+      {
+        "question": "Can the client fill in the form online?",
+        "answer": "Not through a public form in Customermates today. The questionnaire goes out as a document your agent drafts, or through an external form that writes into Customermates by API or n8n. You send it yourself."
+      },
+      {
+        "question": "Does the agent contact my clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "New clients drop out between the first inquiry and the first day of work because I forget to send the form or chase the documents. Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
+    "intro":"New clients drop out between the first inquiry and the first day of work because I forget to send the form or chase the documents. Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
     "questions": [
       "What do you sell, and who are your clients: companies, sole traders or individuals?",
       "Which steps does a new client go through today, and which of the nine stages do you not need?",

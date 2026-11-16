@@ -95,8 +95,58 @@
     "first_response_field": "Jedes Ticket hält fest, bis wann die Erstantwort fällig ist.",
     "tickets_board_view": "Die Tickets öffnen sich als Board nach Status."
   },
+  "page": {
+    "metaTitle": "Ticketsystem kostenlos starten: Support-Desk im CRM",
+    "metaDescription": "Ticketsystem kostenlos starten: Ihr KI-Agent baut im CRM Tickets mit Priorität und Fristen, bekannte Probleme und eine Zufriedenheitsbewertung auf.",
+    "headline": "Ticketsystem für kleine Teams: Ihr KI-Agent baut Tickets, Fristen und bekannte Probleme in Ihrem CRM auf",
+    "answer": "Ein leichtes Ticketsystem gibt jeder Kundennachricht ein Ticket mit Zuständigem, Priorität und einer Frist, bis zu der Sie antworten müssen. Diese Vorlage richtet Tickets, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung ein. Fügen Sie sie in Ihren KI-Agenten ein, und er baut den Support-Desk in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Gedacht ist sie für ein Unternehmen oder eine Agentur mit ein bis acht Personen, nicht für ein großes Support-Team.",
+    "routine": {
+      "title": "Die wöchentliche Support-Durchsicht",
+      "steps": [
+        "Beginnen Sie mit den Tickets, deren erste Antwort oder Lösung überfällig ist, danach mit denen, die seit mehr als zwei Tagen auf Sie warten.",
+        "Erinnern Sie Kunden, die seit 3 Tagen nicht geantwortet haben, und setzen Sie Tickets nach 7 Tagen Schweigen auf gelöst, mit dem Vermerk, dass keine Antwort kam.",
+        "Sehen Sie sich wieder geöffnete Tickets und gelöste Tickets ohne Bewertung an, und fassen Sie bei jeder Bewertung von 1 oder 2 nach.",
+        "Prüfen Sie die offenen bekannten Probleme: Ist eines behoben, informieren Sie jeden Kunden mit verknüpftem Ticket, und halten Sie die häufigsten Kategorien der Woche fest."
+      ]
+    },
+    "limits": [
+      "Es ist keine Telefon- oder SMS-Anlage und kein Live-Chat-Widget. Tickets entstehen aus E-Mail-, WhatsApp-, LinkedIn-, Instagram- und Telegram-Nachrichten im Postfach oder durch Ihren Agenten.",
+      "Ein Kundenportal und ein öffentliches Ticketformular gibt es in Customermates heute nicht. Kunden können sich nicht anmelden, um ein Ticket zu verfolgen.",
+      "Es berechnet keine Geschäftszeiten und keine Feiertage. Fristen stammen aus der Tabelle der Supportpläne in Ihrer Wissensdatenbank und werden von einer Regel oder Ihrem Agenten gesetzt.",
+      "Es ist kein ITIL-Change- oder Asset-Manager, keine Statusseite und kein Massenversand, und es hat kein SSO. Für hohes Ticketaufkommen und Konzernbedarf passen Zendesk, Freshdesk oder Zammad besser.",
+      "Antworten sind Entwürfe, die Sie prüfen und senden. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt; die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten.",
+      "Kartennummern, Passwörter, Ausweiskopien und Gesundheitsdaten gehören nicht in Tickets. Bei einem Auskunftsersuchen wird die Identitätsprüfung als Ja oder Nein mit Datum festgehalten, nicht als Kopie.",
+      "Für die Anbindung von E-Mail oder WhatsApp an das CRM brauchen Sie einen Tarif mit Postfach, für ein Postfach des ganzen Teams einen Tarif mit geteilten Konten. Welcher Tarif was enthält, zeigt die Preisseite."
+    ],
+    "faq": [
+      {
+        "question": "Welches Ticketsystem reicht für ein kleines Team kostenlos?",
+        "answer": "Für wenige Dutzend Tickets pro Woche genügt eine Liste mit einem Zuständigen je Ticket, Status, Priorität und zwei Fristen: erste Antwort und Lösung. Wer ein eigenes System betreiben will, findet Open-Source-Lösungen wie Zammad, GLPI oder osTicket. Customermates hat einen kostenlosen Tarif, aber ohne Postfachanbindung; was in welchem Tarif steckt, zeigt die Preisseite."
+      },
+      {
+        "question": "Welche Status braucht ein Support-Ticket?",
+        "answer": "Üblich sind Neu, Offen, Wartet, Gelöst und Geschlossen. Diese Vorlage nutzt Neu, Offen, Wartet auf Kunden, Wartet auf Dritte, Gelöst und Geschlossen, dazu Spam oder Duplikat. Anbieter sind sich uneinig, ob ein Warte-Status die Uhr anhält; die Hausregel der Vorlage lautet: Warten auf den Kunden pausiert sie, Warten auf Dritte nicht. Sie können das ändern."
+      },
+      {
+        "question": "Welche Reaktionszeiten soll ich zusagen?",
+        "answer": "Einen allgemeinen Richtwert gibt es nicht. Anbieter nennen als Beispiele kritische Probleme innerhalb von 4 Stunden und kleine Anfragen innerhalb von 72 Stunden, bei einem Ausfall 1 Stunde bis zur ersten Antwort und 4 Stunden bis zur Lösung. Beginnen Sie mit solchen Werten in der Tabelle der Supportpläne und ersetzen Sie sie durch das, was Sie halten können."
+      },
+      {
+        "question": "Wie gehe ich mit einem Auskunftsersuchen nach DSGVO um, das als Ticket eintrifft?",
+        "answer": "Ein Auskunftsersuchen ist unverzüglich, spätestens innerhalb eines Monats zu beantworten. Bei Bedarf verlängert sich die Frist um bis zu zwei weitere Monate, wenn Sie den Grund innerhalb des ersten Monats mitteilen. Die Vorlage legt dafür den Typ Auskunftsersuchen mit sichtbarer Monatsfrist an. Das ist keine Rechtsberatung; beziehen Sie Ihre Datenschutzbeauftragte oder Ihren Datenschutzbeauftragten ein."
+      },
+      {
+        "question": "Kann das Zendesk oder Freshdesk ersetzen?",
+        "answer": "Für ein Team mit wenigen Dutzend Tickets pro Woche, das terminierte Wiedervorlagen und eine Zufriedenheitsbewertung will: ja. Für großes Ticketaufkommen, viele Kanäle oder Konzernbedarf bleiben Zendesk, Freshdesk, Zammad, Help Scout oder Front die bessere Wahl, mit SLA-Engines, Makros, Geschäftszeitenkalendern und Portalen, die diese Vorlage bewusst weglässt."
+      },
+      {
+        "question": "Antwortet der Agent meinen Kunden?",
+        "answer": "Der Agent entwirft Antworten aus der verknüpften Unterhaltung, Sie prüfen und senden sie. Der Prompt weist ihn an, nichts zu versenden und keine Beispieldaten anzulegen."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Ich bekomme Kundenfragen per E-Mail und Chat und sehe nicht, welche noch auf eine Antwort warten. Richte in meinem Customermates-Workspace einen Kundensupport ein: Tickets mit Status, Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme mit Verknüpfung zu Tickets, eine Zufriedenheitsbewertung und terminierte Folgeaufgaben.",
+    "intro":"Ich bekomme Kundenfragen per E-Mail und Chat und sehe nicht, welche noch auf eine Antwort warten. Richte in meinem Customermates-Workspace einen Kundensupport ein: Tickets mit Status, Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme mit Verknüpfung zu Tickets, eine Zufriedenheitsbewertung und terminierte Folgeaufgaben.",
     "questions": [
       "Wie viele Tickets bearbeitest du pro Woche, und über welche Kanäle kommen sie?",
       "Wie schnell versprichst du Erstantwort und Lösung, je nach Priorität oder Supportvertrag?",

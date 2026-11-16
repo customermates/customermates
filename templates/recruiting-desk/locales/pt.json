@@ -183,6 +183,51 @@
     "jobs_board_view": "As vagas abrem como quadro por etapa.",
     "candidate_data_page": "A base de conhecimento tem uma página sobre dados de candidatos e retenção."
   },
+  "page": {
+    "metaTitle": "Modelo de CRM de recrutamento: vagas e candidatos",
+    "metaDescription": "Vagas, candidatos e datas de honorários em um só lugar. Cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta a consultoria para você.",
+    "headline": "Saber qual candidato está em qual vaga: uma consultoria de recrutamento que seu agente de IA monta no seu CRM",
+    "answer": "Uma consultoria de recrutamento toca dois fluxos ligados: a vaga, que gera os honorários, e, dentro de cada vaga, uma indicação por candidato com etapa própria. Cole este modelo no seu agente de IA e ele monta os dois no Customermates, com contratações, fim da garantia, acompanhamento pós-contratação e uma data de retenção em cada candidato. Você aprova o plano antes de qualquer coisa ser construída.",
+    "routine": {
+      "title": "A revisão semanal da mesa de recrutamento",
+      "steps": [
+        "Abra as vagas como quadro e procure buscas sem próximo passo com data ou paradas há 10 dias.",
+        "Cobre o retorno do cliente sobre cada candidato indicado há mais de dois dias e planeje o debriefing de cada entrevista da semana.",
+        "Ligue para os clientes ativos cuja data do próximo contato chegou e pergunte das contratações previstas.",
+        "Confira as contratações: os acompanhamentos de 30, 60 e 90 dias desta semana e toda garantia que termina em até 14 dias.",
+        "Limpe os candidatos cuja data de retenção passou: exclua ou registre um novo consentimento."
+      ]
+    },
+    "limits": [
+      "Não é um portal de vagas nem uma ferramenta de multipostagem, e não lê currículos. Os arquivos só são pesquisáveis se tiverem camada de texto, então currículos escaneados não são lidos.",
+      "Não há sequências nem disparos em massa. As mensagens são escritas uma a uma, e o prompt manda o agente não enviar nada automaticamente.",
+      "As entrevistas são agendadas no seu calendário do Google ou da Microsoft a partir do registro, no Customermates Cloud com o plano Pro ou superior; com hospedagem própria, continuam sendo um campo com data e uma tarefa. O vínculo vai em uma só direção: alterar o evento não muda o registro.",
+      "Não é um sistema de faturamento, ponto ou folha de pagamento para trabalho temporário. As notas fiscais ficam no seu programa de contabilidade e o modelo guarda só uma referência. Alto volume ou trabalho temporário pede um ATS para agências.",
+      "Não é um portal de candidaturas nem uma ferramenta de checagem de antecedentes. Deixe dados de saúde, data de nascimento e semelhantes fora das notas dos candidatos."
+    ],
+    "faq": [
+      {
+        "question": "Candidatos e vagas devem ser registros separados?",
+        "answer": "Sim. Sistemas para agências como Bullhorn e Recruiterflow ligam um candidato a cada vaga, de modo que a mesma pessoa pode estar em etapas diferentes em vagas diferentes. O modelo mantém uma lista de vagas e uma indicação por candidato e vaga, e cada candidato tem o próprio histórico de etapas em cada uma."
+      },
+      {
+        "question": "Por quanto tempo posso guardar os dados de candidatos descartados?",
+        "answer": "A LGPD não fixa um prazo único para currículos: contam a finalidade e ter avisado o candidato. Para um banco de talentos é preciso um consentimento específico com prazo definido, por exemplo de 12 ou 24 meses. Cada candidato tem uma data de retenção e uma tarefa de revisão: excluir ou registrar um novo consentimento. Isso não é aconselhamento jurídico."
+      },
+      {
+        "question": "Que condições de honorários e garantia vale registrar?",
+        "answer": "Os honorários por êxito só são devidos se houver contratação; uma busca em retainer costuma ser faturada em parcelas, por exemplo um terço no início, um terço na shortlist e um terço na contratação, em geral com exclusividade. Uma garantia de reposição de três a seis meses é o prazo mais citado. São cláusulas de contrato, não regras: o modelo guarda o percentual de honorários, os dias de garantia e o fim da garantia de cada contratação, sem valores padrão."
+      },
+      {
+        "question": "O que não deve entrar nas notas de um candidato?",
+        "answer": "Só fatos relevantes para a vaga. Nada de dados de saúde ou deficiência, religião, filiação sindical, data de nascimento, situação familiar nem resultados de checagem de antecedentes. Notas em texto livre sobre idade, origem ou família podem virar um risco se o candidato pedir acesso aos seus dados."
+      },
+      {
+        "question": "O agente entra em contato com candidatos ou clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu indico candidatos a empresas clientes e perco o controle de quem foi indicado para onde, de quando uma garantia termina e de por quanto tempo posso guardar os dados dos candidatos. Configure no meu espaço de trabalho do Customermates uma consultoria de recrutamento: clientes com suas condições, vagas com nove etapas e honorários previstos, uma indicação por candidato e vaga, contratações com o fim da garantia e o acompanhamento, e uma data de retenção para cada candidato.",
     "questions": [

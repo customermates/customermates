@@ -1222,14 +1222,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "proof",
@@ -1649,6 +1649,53 @@
         "inquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase.",
         "conflict_check_page": "Die Wissensdatenbank enthält eine Seite zur Kollisionsprüfung."
       },
+      "page": {
+        "metaTitle": "Mandatsaufnahme: von der Kollisionsprüfung zur Vereinbarung",
+        "metaDescription": "Mandatsaufnahme ohne verpasste Kollisionsprüfung oder Frist: Vorlage in Claude, ChatGPT oder Codex einfügen, und Ihr KI-Agent baut die Aufnahme auf.",
+        "headline": "Mandatsaufnahme ohne verpasste Kollisionsprüfung oder Frist: Ihr KI-Agent baut sie in Ihrem CRM auf",
+        "answer": "Eine Mandatsaufnahme führt einen Interessenten in fester Reihenfolge von der ersten Anfrage zur unterschriebenen Mandatsvereinbarung: frühester bekannter Fristablauf, Kollisionsprüfung, Erstberatung, Mandatsangebot und Vereinbarung, mit einem Absageschreiben für alle, die nicht angenommen werden. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Aufnahme in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird; Fallinhalte bleiben draußen.",
+        "routine": {
+          "title": "Die Routine der Mandatsaufnahme",
+          "steps": [
+            "Erfassen Sie jede neue Anfrage noch am selben Tag: Rechtsgebiet, wie die Person auf Sie gekommen ist, die Beteiligten und den frühesten bekannten Fristablauf.",
+            "Bearbeiten Sie zuerst Anfragen mit einem Fristablauf innerhalb von 14 Tagen: annehmen, weitervermitteln oder die Person noch am selben Tag warnen.",
+            "Führen Sie die Kollisionsprüfung vor jeder Beratung durch: Beteiligte, Mandanten und frühere Mandanten durchsuchen, das Ergebnis und die prüfende Person festhalten.",
+            "Senden Sie das Mandatsangebot am Tag nach der Erstberatung und fassen Sie nach drei Tagen nach, wenn Sie nichts hören.",
+            "Fordern Sie nach unterschriebener Mandatsvereinbarung den Vorschuss an und mahnen Sie ihn nach einer Woche an. Legen Sie die Akte in Ihrem Kanzleiprogramm an.",
+            "Schicken Sie allen, die Sie ablehnen oder die verstummen, ein Absageschreiben, damit belegt ist, dass kein Mandatsverhältnis entstanden ist."
+          ]
+        },
+        "limits": [
+          "Es ist nicht Ihre Kanzleisoftware. Dokumente, Zeiterfassung, Prozessfristen und Schriftsätze bleiben in Ihrem Kanzleiprogramm; ein Mandat ist hier nur ein Verweis.",
+          "Es ist keine Fristenkontrolle. Das einzige Datum bei der Aufnahme ist der früheste bekannte Fristablauf, um zu entscheiden, was zuerst anzusehen ist. Prozessfristen bleiben in dem System, auf das Sie sich verlassen.",
+          "Es führt keine Fremdgeldkonten und keine Abrechnung. Es gibt kein Rechnungsmodell: Der Vorschuss wird als Datum erfasst, das Konto bleibt in Ihrer Buchhaltung.",
+          "Die Kollisionsprüfung ist eine Hilfe für Menschen. Sie durchsuchen die Liste der Beteiligten selbst und halten das Ergebnis fest; Customermates kann Sie nicht daran hindern, ein Mandat anzulegen.",
+          "Es ist kein Mandantenportal und kein Werkzeug für elektronische Unterschriften. Eine unterschriebene Vereinbarung ist ein Link auf die unterschriebene Datei.",
+          "Halten Sie Fallinhalte, vertrauliche Inhalte, Gesundheitsdaten und Angaben zu Gegnern heraus. Customermates hat keine Berechtigungen auf Feldebene, was in einer Liste steht, sehen also alle mit Zugriff auf diese Liste."
+        ],
+        "faq": [
+          {
+            "question": "Was gehört zu einer Mandatsaufnahme in der Kanzlei?",
+            "answer": "Checklisten aus der Praxis laufen so: Anfrage, Prüfung mit Kollisionsprüfung und Dringlichkeit, Erstberatung, Honorar- und Mandatsbedingungen, unterschriebene Vereinbarung mit Vollmacht und Vorschuss, und erst dann die Akte im Kanzleiprogramm. Kanzleien halten es unterschiedlich, etwa ob der Vorschuss vor Arbeitsbeginn kommt. Die Vorlage legt die Reihenfolge fest und lässt Ihnen den Rest."
+          },
+          {
+            "question": "Sollte die Kollisionsprüfung vor der Erstberatung kommen?",
+            "answer": "Der Leitfaden der Young Lawyers der American Bar Association und deutsche Praxisquellen stellen die Kollisionsprüfung vor jede Beratung und vor das Mandatsschreiben, eine Checkliste sogar vor die erste Beratung. Die Vorlage hat vor der Erstberatung eine Prüfungsphase und hält Ergebnis und die prüfende Person fest. Die Regeln unterscheiden sich je Land, prüfen Sie also Ihr eigenes Berufsrecht."
+          },
+          {
+            "question": "Warum den Fristablauf schon beim ersten Kontakt erfassen?",
+            "answer": "Eine Frist kann ablaufen, bevor Sie das Mandat annehmen, und Kommentare in deutschen Fachzeitschriften weisen darauf hin, dass ein vermeidbares Versäumnis schon vor der Annahme eine Haftung auslösen kann. Wer den frühesten bekannten Fristablauf und seine Quelle erfasst, sieht noch am selben Tag, was dringend ist. Es ist ein Datum zur Einordnung, kein Fristenkalender."
+          },
+          {
+            "question": "Brauche ich ein Absageschreiben?",
+            "answer": "Es ist gute Praxis: Leitfäden für Anwälte empfehlen ein schriftliches Schreiben an Interessenten, die Sie ablehnen oder die Sie nicht beauftragen, damit belegt ist, dass kein Mandatsverhältnis entstanden ist. Die Vorlage legt eine Aufgabe zum Verfassen an, wenn Sie eine Anfrage ablehnen oder ein Interessent Sie nicht beauftragt. Ob es vorgeschrieben ist, hängt von Ihrem Land ab."
+          },
+          {
+            "question": "Darf ich Mandate in Customermates ablegen?",
+            "answer": "Nur als Verweise: eine Referenz auf das Mandat in Ihrem Kanzleiprogramm. Fallinhalte, vertrauliche Inhalte, Gesundheitsdaten und Angaben zu Gegnern bleiben draußen, denn Customermates hat keine Berechtigungen auf Feldebene. Der Agent versendet nichts und legt keine Beispieldaten an; Entwürfe gibt es nur auf Ihre Bitte."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Interessenten rufen wegen eines Falls an, und ich muss Kollisionen prüfen, die früheste Frist festhalten und jeden Schritt dokumentieren, bevor ich ein Mandat annehme. Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
         "questions": [
@@ -2063,6 +2110,53 @@
         "urgent_deadline_field": "Every inquiry records the earliest known time limit.",
         "inquiries_board_view": "The inquiries open as a board by stage.",
         "conflict_check_page": "The knowledge base holds a page on the conflict check."
+      },
+      "page": {
+        "metaTitle": "Law Firm Intake: Conflict Check to Signed Engagement",
+        "metaDescription": "Law firm intake without missed conflict checks or time limits. Paste this template into Claude, ChatGPT or Codex: your agent builds the intake desk.",
+        "headline": "Law firm intake that never misses a conflict check or a time limit, built by your AI agent",
+        "answer": "A law firm intake takes a prospect from the first inquiry to a signed engagement in a fixed order: the earliest known time limit, the conflict check, the consultation, the fee proposal and the agreement, with a written non-engagement letter for everyone who is not taken on. Paste this template into your AI agent and it builds the intake desk in Customermates. You approve the plan before anything is built, and case facts stay out.",
+        "routine": {
+          "title": "The intake desk routine",
+          "steps": [
+            "Record every new inquiry the same day: practice area, how the person found you, the parties involved and the earliest known time limit.",
+            "Triage inquiries with a time limit inside 14 days first: accept, refer out or warn the person the same day.",
+            "Run the conflict check before any advice: search the parties, clients and former clients, and record the result and who made it.",
+            "Send the fee proposal the day after the consultation, and follow up after three days if you hear nothing.",
+            "Once the agreement is signed, collect the advance and chase it after a week. Open the matter in your case system.",
+            "Send the written non-engagement letter to everyone you decline or who goes silent, so there is a record that no relationship was formed."
+          ]
+        },
+        "limits": [
+          "It is not your case system. Documents, time records, procedural deadlines and court filings stay in your case software; a matter here is a pointer.",
+          "It is not a deadline authority. The only date held at intake is the earliest known time limit, to decide what to look at first. Procedural deadlines stay in the system you rely on.",
+          "It does no trust accounting or billing. There is no invoice model: the advance is recorded as a date, and the ledger stays in your accounting system.",
+          "The conflict check is a human aid. You search the list of parties yourself and record the result; Customermates cannot stop you from opening a matter.",
+          "It is not a client portal or an e-signature tool. A signed agreement is a link to the signed file.",
+          "Keep case facts, privileged content, health data and details of opponents out. Customermates has no field-level permissions, so what is in a list is visible to everyone who has access to that list."
+        ],
+        "faq": [
+          {
+            "question": "What does a law firm intake process include?",
+            "answer": "Practitioner checklists run: inquiry, screening with conflict check and urgency, consultation, fee and engagement terms, signed agreement with power of attorney and advance, and only then the matter in the case system. Firms differ on details such as whether the advance comes before work starts. The template fixes the order and lets you set the rest."
+          },
+          {
+            "question": "Should the conflict check come before the consultation?",
+            "answer": "Guidance from the American Bar Association's young lawyers and German practice sources put the conflict check before any advice and before the engagement letter; one checklist even runs it before the first consultation. The template has a screening step before the consultation and records the result and who made it. Rules differ by country, so check your own professional rules."
+          },
+          {
+            "question": "Why record a time limit at first contact?",
+            "answer": "A limitation period can run out before you accept the case, and commentary in German practice magazines notes that an avoidable lapse can create liability even before acceptance. Recording the earliest known time limit and where it comes from lets you triage what is urgent the same day. It is a triage date, not a deadline calendar."
+          },
+          {
+            "question": "Do I need a non-engagement letter?",
+            "answer": "It is good practice: guidance for lawyers recommends a written letter to prospects you decline or who do not retain you, so there is a record that no relationship was formed. The template creates an Action to write it when you decline an inquiry or a prospect does not retain you. Whether it is required depends on your country."
+          },
+          {
+            "question": "Can I put client matters in Customermates?",
+            "answer": "Only as pointers: a reference to the matter in your case system. Keep case facts, privileged content, health data and details of opponents out, because Customermates has no field-level permissions. The agent sends nothing and creates no sample records; drafts exist only when you ask for them."
+          }
+        ]
       },
       "prompt": {
         "intro": "Prospects call about a case and I must check for conflicts, note the earliest time limit and document every step before I take them on. Set up a law firm intake in my Customermates workspace: inquiries with a conflict check, the earliest known time limit, consultation, fee proposal and signed engagement, matters as pointers to the case system, parties for the conflict search and written non-engagement letters. Store no case facts or privileged content.",
@@ -2479,6 +2573,53 @@
         "inquiries_board_view": "Las consultas se abren como tablero por fase.",
         "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
       },
+      "page": {
+        "metaTitle": "Alta de clientes en despachos: conflictos, plazos y encargo",
+        "metaDescription": "Alta de clientes sin saltarte un conflicto de intereses ni un plazo: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el proceso.",
+        "headline": "Alta de clientes sin saltarte un conflicto de intereses ni un plazo: tu agente de IA monta el proceso en tu CRM",
+        "answer": "El alta de un cliente lleva a un posible cliente desde la primera consulta hasta la hoja de encargo firmada, en un orden fijo: el plazo más próximo conocido, el conflicto de intereses, la primera reunión, el presupuesto y la hoja de encargo, con una carta de no contratación para quien no llega a cliente. Pega esta plantilla en tu agente de IA y él monta el proceso en Customermates. Tú apruebas el plan antes de que se construya nada, y los hechos del caso se quedan fuera.",
+        "routine": {
+          "title": "La rutina de la mesa de altas",
+          "steps": [
+            "Registra cada consulta nueva el mismo día: área, cómo te ha encontrado la persona, las partes implicadas y el plazo más próximo conocido.",
+            "Atiende primero las consultas con un plazo en los próximos 14 días: aceptar, derivar o avisar a la persona ese mismo día.",
+            "Haz la comprobación del conflicto de intereses antes de dar ningún consejo: busca entre las partes, los clientes y los antiguos clientes, y anota el resultado y quién la hizo.",
+            "Envía el presupuesto al día siguiente de la primera reunión y haz seguimiento a los tres días si no sabes nada.",
+            "Con la hoja de encargo firmada, pide la provisión de fondos y reclámala a la semana. Abre el expediente en tu programa de gestión.",
+            "Manda la carta de no contratación a quien rechaces o a quien se quede en silencio, para que quede constancia de que no se formó ninguna relación."
+          ]
+        },
+        "limits": [
+          "No es tu programa de gestión de expedientes. Documentos, partes de horas, plazos procesales y escritos judiciales se quedan en tu programa; aquí un expediente es solo una referencia.",
+          "No es una autoridad de plazos. La única fecha que guarda el alta es el plazo más próximo conocido, para decidir qué mirar primero. Los plazos procesales se quedan en el sistema en el que confías.",
+          "No lleva contabilidad de fondos de clientes ni facturación. No hay modelo de factura: la provisión se registra como una fecha y el libro contable se queda en tu contabilidad.",
+          "La comprobación del conflicto de intereses es una ayuda humana. Buscas tú mismo en la lista de partes y anotas el resultado; Customermates no puede impedirte abrir un expediente.",
+          "No es un portal de clientes ni una herramienta de firma electrónica. Una hoja de encargo firmada es un enlace al archivo firmado.",
+          "Deja fuera los hechos del caso, el contenido sujeto a secreto profesional, los datos de salud y los datos de la parte contraria. Customermates no tiene permisos a nivel de campo: lo que está en una lista lo ve todo el que tenga acceso a esa lista."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué incluye el proceso de alta de un cliente en un despacho?",
+            "answer": "Las listas de comprobación de la práctica siguen este orden: consulta, cribado con conflicto de intereses y urgencia, primera reunión, presupuesto y condiciones del encargo, hoja de encargo firmada con poder y provisión de fondos, y solo después el expediente en el programa de gestión. Los despachos difieren en detalles como pedir la provisión antes de empezar a trabajar. La plantilla fija el orden y te deja el resto."
+          },
+          {
+            "question": "¿La comprobación de conflictos va antes de la primera reunión?",
+            "answer": "Las orientaciones de los jóvenes abogados de la American Bar Association y fuentes de la práctica alemana la sitúan antes de cualquier consejo y antes de la hoja de encargo; una lista de comprobación la hace incluso antes de la primera reunión. La plantilla tiene un paso de cribado antes de la primera reunión y registra el resultado y quién lo hizo. Las normas varían según el país: comprueba tu propio código deontológico."
+          },
+          {
+            "question": "¿Por qué anotar un plazo ya en el primer contacto?",
+            "answer": "Un plazo puede vencer antes de que aceptes el caso, y comentarios de revistas profesionales alemanas señalan que una omisión evitable puede generar responsabilidad incluso antes de la aceptación. Anotar el plazo más próximo conocido y de dónde sale permite ordenar lo urgente ese mismo día. Es una fecha de triaje, no un calendario procesal."
+          },
+          {
+            "question": "¿Necesito una carta de no contratación?",
+            "answer": "Es buena práctica: las orientaciones para abogados recomiendan una carta escrita a quienes rechazas o a quienes no te contratan, para que quede constancia de que no se formó ninguna relación. La plantilla crea una tarea para redactarla cuando rechazas una consulta o un posible cliente no te contrata. Si es obligatoria depende de tu país."
+          },
+          {
+            "question": "¿Puedo meter los asuntos de mis clientes en Customermates?",
+            "answer": "Solo como referencias: un puntero al expediente en tu programa de gestión. Deja fuera los hechos del caso, el contenido sujeto a secreto profesional, los datos de salud y los datos de la parte contraria, porque Customermates no tiene permisos a nivel de campo. El agente no envía nada y no crea datos de ejemplo; los borradores solo existen si los pides."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Me llaman posibles clientes por un asunto y, antes de aceptarlos, tengo que comprobar conflictos, anotar el plazo más próximo y documentar cada paso. Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
         "questions": [
@@ -2893,6 +3034,53 @@
         "urgent_deadline_field": "Chaque demande consigne le délai le plus proche connu.",
         "inquiries_board_view": "Les demandes s’ouvrent en board par étape.",
         "conflict_check_page": "La base de connaissances contient une page sur la vérification des conflits."
+      },
+      "page": {
+        "metaTitle": "Prise de dossier avocat : conflits et délais maîtrisés",
+        "metaDescription": "Prise de dossier sans conflit oublié ni délai manqué : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit l’accueil des clients.",
+        "headline": "Prise de dossier sans conflit oublié ni délai manqué : votre agent IA construit l’accueil de votre cabinet",
+        "answer": "Une prise de dossier mène un prospect de la première demande à la lettre de mission signée, dans un ordre fixe : le délai le plus proche connu, la vérification des conflits, le premier rendez-vous, la convention d’honoraires et la lettre de mission, avec un courrier de non-prise en charge pour tous ceux qui ne sont pas retenus. Collez ce modèle dans votre agent IA : il construit l’accueil dans Customermates. Vous validez le plan avant que rien ne soit créé, et les faits du dossier restent dehors.",
+        "routine": {
+          "title": "La routine du bureau d’accueil",
+          "steps": [
+            "Enregistrez chaque nouvelle demande le jour même : domaine du droit, comment la personne vous a trouvé, les parties concernées et le délai le plus proche connu.",
+            "Traitez d’abord les demandes dont le délai tombe dans les 14 jours : accepter, orienter ailleurs ou prévenir la personne le jour même.",
+            "Faites la vérification des conflits avant tout conseil : cherchez parmi les parties, les clients et les anciens clients, et notez le résultat et la personne qui l’a faite.",
+            "Envoyez la convention d’honoraires le lendemain du premier rendez-vous et relancez au bout de trois jours sans nouvelle.",
+            "Une fois la lettre de mission signée, demandez la provision et relancez-la au bout d’une semaine. Ouvrez le dossier dans votre logiciel de cabinet.",
+            "Envoyez un courrier de non-prise en charge à tous ceux que vous refusez ou qui se taisent, pour garder la trace qu’aucune relation n’est née."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas votre logiciel de gestion de dossiers. Documents, relevés de temps, délais de procédure et dépôts restent dans votre logiciel de cabinet ; un dossier est ici un simple renvoi.",
+          "Ce n’est pas un agenda des délais. La seule date conservée à l’accueil est le délai le plus proche connu, pour décider quoi regarder d’abord. Les délais de procédure restent dans le système sur lequel vous vous appuyez.",
+          "Il ne fait ni comptabilité de fonds de tiers ni facturation. Il n’y a pas de modèle de facture : la provision est consignée comme une date, le grand livre reste dans votre comptabilité.",
+          "La vérification des conflits est une aide humaine. Vous cherchez vous-même dans la liste des parties et notez le résultat ; Customermates ne peut pas vous empêcher d’ouvrir un dossier.",
+          "Ce n’est ni un portail client ni un outil de signature électronique. Une convention signée est un lien vers le fichier signé.",
+          "Gardez hors de l’outil les faits du dossier, les contenus couverts par le secret, les données de santé et les détails sur les adversaires. Customermates n’a pas de droits au niveau du champ : ce qui figure dans une liste est visible de tous ceux qui y ont accès."
+        ],
+        "faq": [
+          {
+            "question": "Que comprend un processus de prise de dossier ?",
+            "answer": "Les listes de contrôle de praticiens suivent cet ordre : demande, tri avec vérification des conflits et urgence, premier rendez-vous, convention d’honoraires et termes de la mission, convention signée avec pouvoir et provision, et seulement ensuite le dossier dans le logiciel de gestion. Les cabinets diffèrent sur des points comme la provision avant le début du travail. Le modèle fixe l’ordre et vous laisse le reste."
+          },
+          {
+            "question": "La vérification des conflits doit-elle précéder le premier rendez-vous ?",
+            "answer": "Les recommandations des jeunes avocats de l’American Bar Association et des sources de pratique allemandes placent la vérification des conflits avant tout conseil et avant la lettre de mission ; une liste de contrôle la place même avant le premier rendez-vous. Le modèle comporte une étape de vérification avant le premier rendez-vous et consigne le résultat et la personne qui l’a faite. Les règles varient selon le pays : vérifiez votre propre déontologie."
+          },
+          {
+            "question": "Pourquoi noter un délai dès le premier contact ?",
+            "answer": "Un délai peut expirer avant que vous acceptiez le dossier, et des commentaires de revues professionnelles allemandes notent qu’un manquement évitable peut engager la responsabilité avant même l’acceptation. Noter le délai le plus proche connu et son origine permet de trier l’urgent le jour même. C’est une date de tri, pas un agenda de procédure."
+          },
+          {
+            "question": "Ai-je besoin d’un courrier de non-prise en charge ?",
+            "answer": "C’est une bonne pratique : les recommandations pour avocats conseillent un courrier écrit aux prospects que vous refusez ou qui ne vous retiennent pas, pour garder la trace qu’aucune relation n’est née. Le modèle crée une action pour le rédiger quand vous refusez une demande ou qu’un prospect ne vous retient pas. Son caractère obligatoire dépend de votre pays."
+          },
+          {
+            "question": "Puis-je mettre des dossiers de clients dans Customermates ?",
+            "answer": "Seulement comme renvois : une référence au dossier dans votre logiciel de cabinet. Gardez dehors les faits du dossier, les contenus couverts par le secret, les données de santé et les détails sur les adversaires, car Customermates n’a pas de droits au niveau du champ. L’agent n’envoie rien et ne crée aucun exemple de données ; des brouillons n’existent que si vous en demandez."
+          }
+        ]
       },
       "prompt": {
         "intro": "Des prospects m’appellent pour une affaire, et je dois vérifier les conflits, noter le délai le plus proche et documenter chaque étape avant de les prendre en charge. Mets en place dans mon espace de travail Customermates une prise de dossier pour un cabinet d’avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d’honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-prise en charge. Ne stocke aucun fait de l’affaire ni information couverte par le secret professionnel.",
@@ -3309,6 +3497,53 @@
         "inquiries_board_view": "Le richieste si aprono come board per fase.",
         "conflict_check_page": "La base di conoscenza contiene una pagina sulla verifica dei conflitti."
       },
+      "page": {
+        "metaTitle": "Acquisizione clienti studio legale: conflitti e termini",
+        "metaDescription": "Acquisizione clienti senza saltare verifica dei conflitti o termini: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il processo.",
+        "headline": "Acquisizione clienti senza saltare un conflitto o un termine: il tuo agente IA la costruisce per il tuo studio",
+        "answer": "L'acquisizione di un cliente porta un potenziale cliente dalla prima richiesta all'incarico firmato in un ordine fisso: il termine più vicino noto, la verifica dei conflitti, il primo colloquio, il preventivo e l'incarico con la procura, con una lettera di mancato conferimento per chi non viene accolto. Incolla questo modello nel tuo agente IA e costruisce il processo in Customermates. Approvi il piano prima che venga costruito qualcosa, e i fatti della pratica restano fuori.",
+        "routine": {
+          "title": "La routine di acquisizione clienti",
+          "steps": [
+            "Registra ogni nuova richiesta lo stesso giorno: materia, come la persona ti ha trovato, le parti coinvolte e il termine più vicino noto.",
+            "Tratta per prime le richieste con un termine entro 14 giorni: accettare, indirizzare altrove o avvisare la persona lo stesso giorno.",
+            "Fai la verifica dei conflitti prima di qualsiasi consiglio: cerca tra le parti, i clienti e gli ex clienti e annota il risultato e chi l'ha fatta.",
+            "Invia il preventivo il giorno dopo il primo colloquio e sollecita dopo tre giorni se non senti nulla.",
+            "A incarico firmato, chiedi l'acconto e sollecitalo dopo una settimana. Apri la pratica nel tuo gestionale.",
+            "Manda la lettera di mancato conferimento a chi rifiuti o a chi tace, così resta traccia che non è nato alcun rapporto."
+          ]
+        },
+        "limits": [
+          "Non è il tuo gestionale di studio. Documenti, rilevazione del tempo, scadenze processuali e depositi restano nel tuo gestionale; qui una pratica è solo un rimando.",
+          "Non è un'autorità sulle scadenze. L'unica data tenuta all'acquisizione è il termine più vicino noto, per decidere cosa guardare per primo. Le scadenze processuali restano nel sistema su cui ti affidi.",
+          "Non fa contabilità dei fondi dei clienti né fatturazione. Non c'è un modello di fattura: l'acconto è registrato come data, il registro resta nella tua contabilità.",
+          "La verifica dei conflitti è un aiuto umano. Cerchi tu stesso nell'elenco delle controparti e annoti il risultato; Customermates non può impedirti di aprire una pratica.",
+          "Non è un portale clienti né uno strumento di firma elettronica. Un incarico firmato è un link al file firmato.",
+          "Tieni fuori i fatti della pratica, i contenuti riservati, i dati sanitari e i dettagli sulle controparti. Customermates non ha permessi a livello di campo: ciò che sta in un elenco lo vedono tutti quelli che hanno accesso a quell'elenco."
+        ],
+        "faq": [
+          {
+            "question": "Che cosa comprende l'acquisizione di un cliente in uno studio legale?",
+            "answer": "Le liste di controllo dei professionisti seguono questo ordine: richiesta, screening con verifica dei conflitti e urgenza, primo colloquio, preventivo e condizioni dell'incarico, incarico firmato con procura e acconto, e solo dopo la pratica nel gestionale. Gli studi differiscono su dettagli come l'acconto prima dell'inizio del lavoro. Il modello fissa l'ordine e ti lascia il resto."
+          },
+          {
+            "question": "La verifica dei conflitti va fatta prima del primo colloquio?",
+            "answer": "Le indicazioni dei giovani avvocati dell'American Bar Association e fonti della pratica tedesca mettono la verifica dei conflitti prima di qualsiasi consiglio e prima della lettera di incarico; una lista di controllo la fa addirittura prima del primo colloquio. Il modello ha una fase di verifica prima del primo colloquio e registra il risultato e chi l'ha fatta. Le regole cambiano da paese a paese: controlla il tuo codice deontologico."
+          },
+          {
+            "question": "Perché annotare un termine già al primo contatto?",
+            "answer": "Un termine può scadere prima che tu accetti la pratica, e commenti di riviste professionali tedesche osservano che una mancanza evitabile può far sorgere responsabilità anche prima dell'accettazione. Annotare il termine più vicino noto e la sua origine permette di ordinare l'urgente lo stesso giorno. È una data di smistamento, non uno scadenzario processuale."
+          },
+          {
+            "question": "Mi serve una lettera di mancato conferimento?",
+            "answer": "È buona prassi: le indicazioni per gli avvocati consigliano una lettera scritta a chi rifiuti o a chi non ti conferisce l'incarico, così resta traccia che non è nato alcun rapporto. Il modello crea un'attività per scriverla quando rifiuti una richiesta o un potenziale cliente non ti conferisce l'incarico. Se sia obbligatoria dipende dal tuo paese."
+          },
+          {
+            "question": "Posso mettere le pratiche dei clienti in Customermates?",
+            "answer": "Solo come rimandi: un riferimento alla pratica nel tuo gestionale. Tieni fuori fatti della pratica, contenuti riservati, dati sanitari e dettagli sulle controparti, perché Customermates non ha permessi a livello di campo. L'agente non invia nulla e non crea dati di esempio; le bozze esistono solo se le chiedi."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Mi chiamano potenziali clienti per una causa e prima di accettarli devo verificare i conflitti, annotare il termine più vicino e documentare ogni passaggio. Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
         "questions": [
@@ -3723,6 +3958,53 @@
         "urgent_deadline_field": "Elke aanvraag legt de vroegst bekende termijn vast.",
         "inquiries_board_view": "De aanvragen openen als bord per fase.",
         "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
+      },
+      "page": {
+        "metaTitle": "Intake voor advocatenkantoren: conflictcheck en termijnen",
+        "metaDescription": "Intake zonder gemiste conflictcheck of termijn: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt de intake voor je advocatenkantoor.",
+        "headline": "Intake voor advocatenkantoren zonder gemiste conflictcheck of termijn: je AI-agent bouwt hem in je CRM",
+        "answer": "Een intake neemt een aanvrager in vaste volgorde mee van de eerste aanvraag tot een getekende opdrachtbevestiging: de vroegst bekende termijn, de conflictcheck, het intakegesprek, de offerte en de opdrachtbevestiging, met een afwijzingsbrief voor iedereen die geen cliënt wordt. Plak dit sjabloon in je AI-agent en die bouwt de intake in Customermates. Je keurt het plan goed voordat er iets wordt gebouwd, en de feiten van de zaak blijven erbuiten.",
+        "routine": {
+          "title": "De routine van de intakebalie",
+          "steps": [
+            "Leg elke nieuwe aanvraag dezelfde dag vast: rechtsgebied, hoe de persoon je heeft gevonden, de betrokken partijen en de vroegst bekende termijn.",
+            "Behandel eerst de aanvragen met een termijn binnen 14 dagen: aannemen, doorverwijzen of de persoon dezelfde dag waarschuwen.",
+            "Doe de conflictcheck vóór elk advies: zoek in de partijen, cliënten en voormalige cliënten en leg het resultaat vast en wie de check deed.",
+            "Stuur de offerte de dag na het intakegesprek en volg na drie dagen op als je niets hoort.",
+            "Vraag na de getekende opdrachtbevestiging het voorschot en zet het na een week opnieuw uit. Open de zaak in je dossiersysteem.",
+            "Stuur een afwijzingsbrief aan iedereen die je afwijst of die niets meer laat horen, zodat vastligt dat er geen relatie is ontstaan."
+          ]
+        },
+        "limits": [
+          "Het is niet je dossiersysteem. Documenten, urenregistratie, procestermijnen en indieningen blijven in je kantoorsoftware; een zaak is hier alleen een verwijzing.",
+          "Het is geen termijnenbewaking. De enige datum die bij de intake wordt bewaard is de vroegst bekende termijn, om te bepalen waar je eerst naar kijkt. Procestermijnen blijven in het systeem waarop je vertrouwt.",
+          "Het beheert geen derdengeldrekening en doet geen facturatie. Er is geen factuurmodel: het voorschot wordt vastgelegd als datum en het grootboek blijft in je boekhouding.",
+          "De conflictcheck is een hulpmiddel voor mensen. Je doorzoekt de lijst met partijen zelf en legt het resultaat vast; Customermates kan je niet tegenhouden een zaak te openen.",
+          "Het is geen cliëntenportaal of tool voor elektronische handtekeningen. Een getekende overeenkomst is een link naar het getekende bestand.",
+          "Houd de feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens en gegevens van wederpartijen erbuiten. Customermates heeft geen rechten op veldniveau: wat in een lijst staat, zien allen met toegang tot die lijst."
+        ],
+        "faq": [
+          {
+            "question": "Wat hoort er bij een intakeproces van een advocatenkantoor?",
+            "answer": "Checklists uit de praktijk lopen zo: aanvraag, screening met conflictcheck en urgentie, intakegesprek, honorarium- en opdrachtvoorwaarden, getekende opdrachtbevestiging met volmacht en voorschot, en pas daarna de zaak in het dossiersysteem. Kantoren verschillen in details, bijvoorbeeld of het voorschot komt voordat het werk begint. Het sjabloon legt de volgorde vast en laat de rest aan jou."
+          },
+          {
+            "question": "Moet de conflictcheck vóór het intakegesprek komen?",
+            "answer": "Richtlijnen van de young lawyers van de American Bar Association en Duitse praktijkbronnen zetten de conflictcheck vóór elk advies en vóór de opdrachtbevestiging; een checklist doet hem zelfs vóór het eerste gesprek. Het sjabloon heeft een screeningstap vóór het intakegesprek en legt het resultaat vast en wie de check deed. Regels verschillen per land, dus controleer je eigen beroepsregels."
+          },
+          {
+            "question": "Waarom een termijn al bij het eerste contact vastleggen?",
+            "answer": "Een termijn kan verstrijken voordat je de zaak aanneemt, en commentaren in Duitse vakbladen wijzen erop dat een vermijdbare fout al vóór de aanname aansprakelijkheid kan opleveren. Door de vroegst bekende termijn en de bron vast te leggen zie je dezelfde dag wat urgent is. Het is een datum om te sorteren, geen termijnenagenda."
+          },
+          {
+            "question": "Heb ik een afwijzingsbrief nodig?",
+            "answer": "Het is goede praktijk: richtlijnen voor advocaten raden een schriftelijke brief aan voor aanvragers die je afwijst of die je niet inschakelen, zodat vastligt dat er geen relatie is ontstaan. Het sjabloon maakt een taak om hem te schrijven wanneer je een aanvraag afwijst of een aanvrager je niet inschakelt. Of het verplicht is, hangt af van je land."
+          },
+          {
+            "question": "Mag ik zaken van cliënten in Customermates zetten?",
+            "answer": "Alleen als verwijzingen: een verwijzing naar de zaak in je dossiersysteem. Houd de feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens en gegevens van wederpartijen erbuiten, want Customermates heeft geen rechten op veldniveau. De agent verstuurt niets en maakt geen voorbeeldgegevens aan; concepten bestaan alleen als je erom vraagt."
+          }
+        ]
       },
       "prompt": {
         "intro": "Potentiële cliënten bellen over een zaak en ik moet op conflicten controleren, de vroegst bekende termijn noteren en elke stap vastleggen voordat ik ze aanneem. Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
@@ -4139,6 +4421,53 @@
         "inquiries_board_view": "Zapytania otwierają się jako tablica według etapu.",
         "conflict_check_page": "Baza wiedzy zawiera stronę o weryfikacji konfliktu interesów."
       },
+      "page": {
+        "metaTitle": "Przyjmowanie klientów w kancelarii: konflikt i terminy",
+        "metaDescription": "Przyjmowanie klientów bez pominiętej weryfikacji konfliktu i terminu: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje cały proces.",
+        "headline": "Przyjmowanie klientów bez pominiętego konfliktu i terminu: proces, który Twój agent AI buduje w Twoim CRM",
+        "answer": "Przyjęcie klienta prowadzi osobę zainteresowaną od pierwszego zapytania do podpisanej umowy w stałej kolejności: najbliższy znany termin, weryfikacja konfliktu interesów, konsultacja, oferta oraz umowa z pełnomocnictwem, a dla każdego, kto nie zostaje klientem, pismo o niepodjęciu sprawy. Wklej ten szablon do swojego agenta AI, a zbuduje proces w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie, a fakty ze sprawy zostają poza narzędziem.",
+        "routine": {
+          "title": "Rutyna przyjmowania klientów",
+          "steps": [
+            "Zapisz każde nowe zapytanie tego samego dnia: dziedzinę prawa, skąd osoba o Tobie wie, strony sprawy i najbliższy znany termin.",
+            "Najpierw zajmij się zapytaniami z terminem w ciągu 14 dni: przyjmij, skieruj gdzie indziej albo ostrzeż osobę tego samego dnia.",
+            "Zrób weryfikację konfliktu interesów przed jakąkolwiek poradą: przeszukaj strony, klientów i byłych klientów, zapisz wynik i to, kto go sprawdził.",
+            "Wyślij ofertę dzień po konsultacji, a po trzech dniach ponów kontakt, jeśli nie ma odpowiedzi.",
+            "Po podpisaniu umowy i pełnomocnictwa poproś o zaliczkę i przypomnij o niej po tygodniu. Otwórz sprawę w swoim systemie kancelaryjnym.",
+            "Wyślij pismo o niepodjęciu sprawy każdemu, komu odmawiasz albo kto milknie, żeby został ślad, że nie powstał żaden stosunek."
+          ]
+        },
+        "limits": [
+          "To nie jest Twój system do prowadzenia spraw. Dokumenty, ewidencja czasu, terminy procesowe i pisma procesowe zostają w oprogramowaniu kancelarii; sprawa jest tu tylko odnośnikiem.",
+          "To nie jest kalendarz terminów procesowych. Jedyna data trzymana przy przyjęciu to najbliższy znany termin, żeby zdecydować, na co spojrzeć najpierw. Terminy procesowe zostają w systemie, na którym polegasz.",
+          "Nie prowadzi rachunku powierniczego ani rozliczeń. Nie ma modelu faktury: zaliczka jest zapisana jako data, a księga zostaje w Twojej księgowości.",
+          "Weryfikacja konfliktu interesów jest pomocą dla człowieka. Sam przeszukujesz listę stron i zapisujesz wynik; Customermates nie może Cię powstrzymać przed otwarciem sprawy.",
+          "To nie jest portal dla klientów ani narzędzie do podpisu elektronicznego. Podpisana umowa to link do podpisanego pliku.",
+          "Zostaw poza narzędziem fakty ze sprawy, treści objęte tajemnicą, dane o zdrowiu i dane przeciwników. Customermates nie ma uprawnień na poziomie pola: to, co jest na liście, widzą wszyscy, którzy mają do niej dostęp."
+        ],
+        "faq": [
+          {
+            "question": "Co obejmuje proces przyjmowania klienta w kancelarii?",
+            "answer": "Listy kontrolne z praktyki idą tak: zapytanie, wstępna ocena z weryfikacją konfliktu i pilności, konsultacja, warunki wynagrodzenia i zlecenia, podpisana umowa z pełnomocnictwem i zaliczką, i dopiero potem sprawa w systemie kancelaryjnym. Kancelarie różnią się w szczegółach, na przykład co do zaliczki przed rozpoczęciem pracy. Szablon ustala kolejność, a resztę zostawia Tobie."
+          },
+          {
+            "question": "Czy weryfikacja konfliktu powinna być przed konsultacją?",
+            "answer": "Wskazówki młodych prawników z American Bar Association i niemieckie źródła z praktyki stawiają weryfikację konfliktu przed jakąkolwiek poradą i przed umową; jedna lista kontrolna robi ją nawet przed pierwszą konsultacją. Szablon ma etap oceny przed konsultacją i zapisuje wynik oraz osobę, która go sprawdziła. Zasady różnią się w zależności od kraju, więc sprawdź własne zasady etyki zawodowej."
+          },
+          {
+            "question": "Po co zapisywać termin już przy pierwszym kontakcie?",
+            "answer": "Termin może upłynąć, zanim przyjmiesz sprawę, a komentarze w niemieckich pismach branżowych wskazują, że możliwe do uniknięcia zaniedbanie może rodzić odpowiedzialność jeszcze przed przyjęciem. Zapisanie najbliższego znanego terminu i jego źródła pozwala tego samego dnia ustalić, co jest pilne. To data do wstępnej oceny, nie kalendarz terminów procesowych."
+          },
+          {
+            "question": "Czy potrzebuję pisma o niepodjęciu sprawy?",
+            "answer": "To dobra praktyka: wskazówki dla prawników zalecają pisemne pismo do osób, którym odmawiasz lub które nie powierzają Ci sprawy, żeby został ślad, że nie powstał żaden stosunek. Szablon tworzy zadanie jego napisania, gdy odmawiasz zapytania albo potencjalny klient nie powierza Ci sprawy. To, czy jest obowiązkowe, zależy od Twojego kraju."
+          },
+          {
+            "question": "Czy mogę trzymać w Customermates sprawy klientów?",
+            "answer": "Tylko jako odnośniki: odwołanie do sprawy w Twoim systemie kancelaryjnym. Fakty ze sprawy, treści objęte tajemnicą, dane o zdrowiu i dane przeciwników zostaw poza narzędziem, bo Customermates nie ma uprawnień na poziomie pola. Agent niczego nie wysyła i nie tworzy przykładowych danych; szkice powstają tylko na Twoją prośbę."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Potencjalni klienci dzwonią w sprawie, a ja muszę sprawdzić konflikt interesów, zanotować najbliższy termin i udokumentować każdy krok, zanim ich przyjmę. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
         "questions": [
@@ -4553,6 +4882,53 @@
         "urgent_deadline_field": "Todo atendimento registra o prazo mais próximo conhecido.",
         "inquiries_board_view": "Os atendimentos abrem como quadro por etapa.",
         "conflict_check_page": "A base de conhecimento tem uma página sobre a verificação de conflito."
+      },
+      "page": {
+        "metaTitle": "Atendimento de clientes para advocacia: triagem a contrato",
+        "metaDescription": "Atendimento sem deixar passar conflito nem prazo: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta a triagem do escritório.",
+        "headline": "Atendimento de clientes sem deixar passar um conflito ou um prazo: seu agente de IA monta a triagem no seu CRM",
+        "answer": "O atendimento de um cliente leva o interessado do primeiro contato ao contrato assinado numa ordem fixa: o prazo mais próximo conhecido, a verificação de conflito, a consulta, a proposta de honorários e o contrato com a procuração, com uma carta de não contratação para quem não é aceito. Cole este modelo no seu agente de IA e ele monta a triagem no Customermates. Você aprova o plano antes de qualquer coisa ser construída, e os fatos do caso ficam de fora.",
+        "routine": {
+          "title": "A rotina da mesa de atendimento",
+          "steps": [
+            "Registre cada novo atendimento no mesmo dia: área do direito, como a pessoa chegou até você, as partes envolvidas e o prazo mais próximo conhecido.",
+            "Trate primeiro os atendimentos com prazo dentro de 14 dias: aceitar, encaminhar ou avisar a pessoa no mesmo dia.",
+            "Faça a verificação de conflito antes de qualquer orientação: busque entre as partes, os clientes e os ex-clientes e anote o resultado e quem o fez.",
+            "Envie a proposta de honorários no dia seguinte à consulta e cobre retorno depois de três dias se não houver resposta.",
+            "Com o contrato e a procuração assinados, peça o adiantamento e cobre depois de uma semana. Abra o caso no seu sistema.",
+            "Mande a carta de não contratação a quem você recusar ou a quem sumir, para ficar registrado que não se formou nenhuma relação."
+          ]
+        },
+        "limits": [
+          "Não é o seu sistema de gestão de casos. Documentos, controle de horas, prazos processuais e peticionamento ficam no seu sistema; aqui um caso é só uma referência.",
+          "Não é uma autoridade de prazos. A única data guardada no atendimento é o prazo mais próximo conhecido, para decidir o que olhar primeiro. Os prazos processuais ficam no sistema em que você confia.",
+          "Não faz contabilidade de valores de clientes nem faturamento. Não há modelo de nota ou fatura: o adiantamento é registrado como uma data, e o razão fica na sua contabilidade.",
+          "A verificação de conflito é um auxílio humano. Você mesmo busca na lista de partes e anota o resultado; o Customermates não impede você de abrir um caso.",
+          "Não é um portal do cliente nem uma ferramenta de assinatura eletrônica. Um contrato assinado é um link para o arquivo assinado.",
+          "Deixe de fora os fatos do caso, o conteúdo sigiloso, dados de saúde e detalhes da parte contrária. O Customermates não tem permissões por campo: o que está numa lista é visto por todos que têm acesso a essa lista."
+        ],
+        "faq": [
+          {
+            "question": "O que inclui o processo de atendimento de um cliente num escritório de advocacia?",
+            "answer": "As listas de verificação da prática seguem esta ordem: contato, triagem com verificação de conflito e urgência, consulta, proposta de honorários e condições da contratação, contrato e procuração assinados com adiantamento, e só depois o caso no sistema. Os escritórios divergem em detalhes, como pedir o adiantamento antes de começar o trabalho. O modelo fixa a ordem e deixa o resto com você."
+          },
+          {
+            "question": "A verificação de conflito deve vir antes da consulta?",
+            "answer": "As orientações dos jovens advogados da American Bar Association e fontes da prática alemã colocam a verificação de conflito antes de qualquer orientação e antes da carta de contratação; uma lista de verificação chega a fazê-la antes da primeira consulta. O modelo tem uma etapa de triagem antes da consulta e registra o resultado e quem o fez. As regras variam conforme o país: confira o seu código de ética, como o da OAB no Brasil."
+          },
+          {
+            "question": "Por que anotar um prazo já no primeiro contato?",
+            "answer": "Um prazo pode vencer antes de você aceitar o caso, e comentários de revistas profissionais alemãs apontam que uma falha evitável pode gerar responsabilidade mesmo antes da aceitação. Anotar o prazo mais próximo conhecido e de onde ele vem permite separar o urgente no mesmo dia. É uma data de triagem, não uma agenda de prazos processuais."
+          },
+          {
+            "question": "Preciso de uma carta de não contratação?",
+            "answer": "É boa prática: orientações para advogados recomendam uma carta escrita a quem você recusa ou a quem não contrata o escritório, para ficar registrado que não se formou nenhuma relação. O modelo cria uma tarefa para redigi-la quando você recusa um atendimento ou o interessado não contrata. Se é obrigatória depende do seu país."
+          },
+          {
+            "question": "Posso colocar casos de clientes no Customermates?",
+            "answer": "Só como referências: um ponteiro para o caso no seu sistema. Deixe de fora os fatos do caso, o conteúdo sigiloso, dados de saúde e detalhes da parte contrária, porque o Customermates não tem permissões por campo. O agente não envia nada e não cria dados de exemplo; rascunhos só existem se você pedir."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu atendo interessados que ligam por causa de um caso e preciso verificar conflitos, anotar o prazo mais próximo e documentar cada passo antes de aceitá-los como clientes. Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",

@@ -115,6 +115,51 @@
     "valid_until_field": "Every document records when it stops being valid.",
     "suppliers_board_view": "The suppliers open as a board by status."
   },
+  "page": {
+    "metaTitle": "Vendor Management Software Template: Supplier Register",
+    "metaDescription": "Vendor management for small teams: a supplier register with questionnaire, certificate expiry dates and risk tiers. Paste the template into your AI agent.",
+    "headline": "Vendor management software that shows which certificate expires next, built in your CRM by your AI agent",
+    "answer": "Vendor management for a small team means a supplier register with a qualification questionnaire, certificates with valid-until dates, a risk tier and a recorded decision for each supplier. Paste this template into your AI agent and it builds the register in Customermates, with dated follow-ups for questionnaires, renewals and re-evaluations. You approve the plan before anything is built. The register records requests and decisions; it does not decide compliance.",
+    "routine": {
+      "title": "The weekly supplier check",
+      "steps": [
+        "Chase every supplier whose questionnaire is past its due date.",
+        "Review the answers of questionnaires received in the last few days and note which answers still lack current evidence.",
+        "Ask for renewed certificates and clearances that expire within 30 days, and settle the ones that have already expired: suspend the supplier or accept the risk in writing.",
+        "Record the decision for suppliers under review (approve, approve with conditions, escalate or reject) and set the next review date by risk tier.",
+        "Start the re-evaluation of suppliers whose next review falls within 14 days."
+      ]
+    },
+    "limits": [
+      "It does not decide that a supplier, product or supply chain complies with any law, and it files no due diligence statement or report. It records requests, evidence and decisions.",
+      "It is not a screening service: no sanctions, adverse-media or financial-risk checks, and no enrichment of company data.",
+      "It is not an ERP, purchasing or invoicing system. There are no purchase orders, spend figures or invoices.",
+      "It is not a document archive. Files are searchable only when they carry a text layer, scanned certificates are not read, and there is no immutable or independently retained audit trail. Keep the originals in your document system and link them.",
+      "Suppliers cannot sign in to answer or upload, and there is no e-signature or field-level permission. Keep restricted material in a separate list or workspace. Platforms such as EcoVadis, Sedex or SAP Ariba keep the jobs this does not do."
+    ],
+    "faq": [
+      {
+        "question": "How often should I re-evaluate suppliers?",
+        "answer": "Guides put the minimum at once a year. In practice critical suppliers are reviewed every six or twelve months and again after an event such as an acquisition, a new subcontractor or an incident, while low-risk suppliers can go a year or more. The template sets the next review date by risk tier; after an event you start the re-evaluation yourself."
+      },
+      {
+        "question": "Should I tier suppliers by spend?",
+        "answer": "No. Depth should follow risk: the data a supplier handles, the access it has, how critical it is and how easily you can replace it. Use four tiers from low to critical, a light questionnaire for low-risk suppliers and a full one for critical suppliers. Sending every supplier a 300-question form wastes their time and yours. Spend is not a field in this template."
+      },
+      {
+        "question": "What should a supplier questionnaire ask for?",
+        "answer": "Practitioners split it into three parts: a registration or self-disclosure form, the certificates and clearances (for example ISO 9001, an insurance policy, a company register extract) and a qualification questionnaire whose depth follows the risk tier. For any answer that changes a decision, ask for scope, owner, date last reviewed and evidence, and leave a yes without current evidence open."
+      },
+      {
+        "question": "Does this make us compliant with supply chain rules such as EUDR?",
+        "answer": "No. It coordinates evidence requests and records dates and decisions. Scope and deadlines of rules such as the EU deforestation regulation or national supply chain laws keep changing, so confirm them with your adviser. The template never says that a supplier or a product is compliant."
+      },
+      {
+        "question": "Does the agent contact my suppliers?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "I work with many suppliers and cannot see whose certificates have expired or who is due for re-evaluation. Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
     "questions": [

@@ -235,6 +235,47 @@
     "proposal_follow_up_rule": "Una oportunidad que llega a Presupuesto enviado recibe una tarea de seguimiento.",
     "stages_page": "La base de conocimiento contiene las etapas y sus criterios de salida."
   },
+  "page": {
+    "metaTitle": "Pipeline de ventas: el siguiente paso de cada oportunidad",
+    "metaDescription": "Pega este pipeline de ventas en Claude, ChatGPT o Codex: siete etapas, un siguiente paso con fecha en cada oportunidad y los motivos de victoria y de pérdida.",
+    "headline": "Mira qué oportunidades avanzan: un pipeline de ventas que tu agente de IA construye en tu CRM",
+    "answer": "Un pipeline de ventas es una lista corta de etapas, cada una con un criterio de salida claro, que te dice qué oportunidades avanzan, cuáles están atascadas y qué pasa a continuación. Pega esta plantilla en tu agente de IA y construye el pipeline en Customermates: siete etapas, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, el comité de compra, los motivos de victoria y de pérdida y una tarea en cada cambio de etapa. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión semanal del pipeline",
+      "steps": [
+        "Abre el tablero y mira cada oportunidad que lleva más de 14 días en su etapa.",
+        "Para cada una, decide: avanzarla porque cumple el criterio de salida, reactivarla con un nuevo siguiente paso o cerrarla como perdida con un motivo.",
+        "Comprueba que cada oportunidad abierta tiene un siguiente paso con fecha, fijado al terminar cada llamada.",
+        "Repasa las ganadas y las perdidas con sus motivos, y las oportunidades que han pasado su fecha de cierre prevista."
+      ]
+    },
+    "limits": [
+      "No genera presupuestos ni facturas. La propuesta se redacta en tu herramienta de documentos y se vincula a la oportunidad.",
+      "No es una herramienta de secuencias ni de envíos masivos. Los seguimientos son borradores para personas concretas, y los envías tú.",
+      "No hay puntuación de leads ni enriquecimiento de datos, ni categorías de previsión, ni gestión de cuotas o comisiones. El valor ponderado es una ponderación sencilla de tus importes por etapa, no una previsión.",
+      "No hay telefonía ni SMS.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con una periodicidad fija. La plantilla los propone y tú decides cuáles activar.",
+      "Está dimensionada para entre uno y diez vendedores. Los equipos con un proceso formal de previsión están mejor servidos por una herramienta hecha para eso."
+    ],
+    "faq": [
+      {
+        "question": "¿Cuántas etapas debe tener un pipeline de ventas?",
+        "answer": "Los profesionales no se ponen de acuerdo: unos aconsejan cinco o menos, otros usan nueve. Esta plantilla tiene cinco etapas abiertas más ganada y perdida, porque cada etapa tiene un criterio de salida medible. Renombra o quita etapas en el plan que te proponga tu agente."
+      },
+      {
+        "question": "¿Qué es el valor ponderado de una oportunidad?",
+        "answer": "El importe de la oportunidad multiplicado por la ponderación de su etapa, por ejemplo 10, 25, 40, 60 y 80 por ciento de la primera a la quinta etapa. Es una ponderación que puedes ajustar a tus propias tasas de cierre, no una predicción."
+      },
+      {
+        "question": "¿Por qué anotar el motivo de una victoria y de una pérdida?",
+        "answer": "Los informes de un pipeline solo funcionan si existen los dos resultados, y los motivos muestran qué cambiar. La plantilla pide un motivo al cerrar y crea una tarea de seguimiento para retomar las oportunidades perdidas a los 90 días."
+      },
+      {
+        "question": "¿El agente envía mis seguimientos?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mi equipo vende a empresas y no sé cuáles son las oportunidades reales, cuáles se han parado ni por qué ganamos o perdemos. Configura un pipeline de ventas en mi espacio de trabajo de Customermates: oportunidades con siete etapas y ponderaciones, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria, el comité de compra en cada oportunidad y una tarea creada en cada cambio de etapa.",
     "questions": [

@@ -82,6 +82,51 @@
     "quote_valid_field": "Chaque devis indique sa durée de validité.",
     "enquiries_board_view": "Les demandes s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "CRM WhatsApp : modèle pour suivre demandes et devis",
+    "metaDescription": "CRM WhatsApp : chaque conversation devient une demande avec devis et relance datée. Collez le modèle dans votre agent IA. Pas l’API officielle de WhatsApp.",
+    "headline": "Un CRM WhatsApp qui transforme chaque conversation en demande avec une relance datée, construit par votre agent IA",
+    "answer": "Pour suivre vos clients sur WhatsApp, répondez vite, notez chaque conversation comme une demande avec le devis et sa validité, donnez-lui une relance datée et notez quand revenir. Collez ce modèle dans votre agent IA et il construit la liste des demandes dans Customermates, chaque conversation étant reliée à sa demande. Vous validez le plan avant toute construction. Il fonctionne avec des réponses relues une à une, sans diffusion en masse, sans robot ni API officielle.",
+    "routine": {
+      "title": "Le point quotidien sur WhatsApp",
+      "steps": [
+        "Ouvrez la boîte WhatsApp et répondez à chaque nouvelle conversation. Par défaut, accusez réception en une heure environ pendant les heures ouvrées et répondez complètement le jour même.",
+        "Vérifiez que chaque conversation de la veille est dans un seul état : répondue, dotée d’une relance datée ou close avec un motif.",
+        "Relancez les devis deux jours après l’envoi, puis une fois encore quelques jours plus tard. Envoyez ensuite un message de clôture et fixez une date pour revenir.",
+        "Demandez le paiement le lendemain du passage d’une demande en attente de paiement, et confirmez la livraison ou le rendez-vous la veille.",
+        "Regardez les dates pour revenir et les rappels de réachat échus et écrivez à ces clients un par un."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas la plateforme officielle WhatsApp Business. Le compte est relié par QR code : il n’y a donc ni modèles de messages, ni diffusion, ni campagnes, ni séquences, ni chatbots ou flows, ni synchronisation de catalogue, ni fonctions d’entreprise vérifiée.",
+      "Le risque pour le compte est le vôtre. WhatsApp peut limiter ou retirer un compte utilisé d’une façon que sa politique interdit, par exemple en écrivant à beaucoup de monde. Gardez un volume faible, consenti et humain.",
+      "Une conversation n’est pas reliée automatiquement à une demande. Vous ou votre agent la reliez, et les groupes ne se rattachent pas à un client.",
+      "Il n’y a ni devis, ni factures, ni liens de paiement, ni gestion des commandes. Cela reste dans votre outil de comptabilité ou de boutique ; le modèle garde le montant du devis, sa validité et l’étape.",
+      "Relier WhatsApp demande un abonnement qui inclut la messagerie. Sans elle, vous pouvez quand même suivre les demandes à la main."
+    ],
+    "faq": [
+      {
+        "question": "En combien de temps répondre à une demande WhatsApp ?",
+        "answer": "Toutes les sources disent vite et aucune ne donne un chiffre officiel. Une étude sur les demandes en ligne a constaté que la plupart des entreprises répondent bien trop lentement, et le chiffre souvent cité de cinq minutes n’a pas pu être confirmé. Le modèle retient par défaut environ une heure pendant les heures ouvrées pour une première réponse et la réponse complète le jour même. Adaptez-le à votre activité."
+      },
+      {
+        "question": "L’application WhatsApp Business avec ses étiquettes suffit-elle ?",
+        "answer": "Les guides pour petites entreprises recommandent trois à cinq étiquettes comme pipeline, par exemple nouveau client, commande confirmée et en attente de paiement. Leur faiblesse : pas d’historique entre les personnes, pas de dates de relance et rien ne survit au départ d’un collaborateur. Le modèle transforme les étiquettes en étapes et ajoute des dates et un responsable, la conversation restant la preuve."
+      },
+      {
+        "question": "À quelle fréquence relancer un devis ?",
+        "answer": "Sur WhatsApp, le rythme est plus court que par e-mail. Un bon réglage par défaut : deux jours après le devis, une seconde fois quelques jours plus tard, puis un message de clôture disant que le moment ne convient peut-être pas et une date pour revenir environ 90 jours plus tard. Le modèle programme la première relance en action datée ; les délais sont à régler vous-même."
+      },
+      {
+        "question": "Faut-il le consentement du client pour lui écrire sur WhatsApp ?",
+        "answer": "La politique de WhatsApp pour les entreprises demande de ne contacter que les personnes qui ont donné leur numéro et leur accord, et de respecter les refus. Avec l’API, un guide du secteur exige un consentement explicite avant d’envoyer des messages. Le modèle note pour chaque contact si le client a lancé la conversation, a donné son accord ou a demandé l’arrêt. Il vous faut aussi une base légale et une information conforme au RGPD."
+      },
+      {
+        "question": "L’agent envoie-t-il des messages à mes clients ?",
+        "answer": "Non. Le prompt demande des réponses rédigées une à une pour votre relecture, rien en masse et aucun exemple. Vous envoyez chaque réponse vous-même."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mes clients me demandent des prix sur WhatsApp et je perds la conversation avant de relancer. Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
     "questions": [

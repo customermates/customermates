@@ -104,6 +104,53 @@
     "inquiries_board_view": "Las consultas se abren como tablero por fase.",
     "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
   },
+  "page": {
+    "metaTitle": "Alta de clientes en despachos: conflictos, plazos y encargo",
+    "metaDescription": "Alta de clientes sin saltarte un conflicto de intereses ni un plazo: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el proceso.",
+    "headline": "Alta de clientes sin saltarte un conflicto de intereses ni un plazo: tu agente de IA monta el proceso en tu CRM",
+    "answer": "El alta de un cliente lleva a un posible cliente desde la primera consulta hasta la hoja de encargo firmada, en un orden fijo: el plazo más próximo conocido, el conflicto de intereses, la primera reunión, el presupuesto y la hoja de encargo, con una carta de no contratación para quien no llega a cliente. Pega esta plantilla en tu agente de IA y él monta el proceso en Customermates. Tú apruebas el plan antes de que se construya nada, y los hechos del caso se quedan fuera.",
+    "routine": {
+      "title": "La rutina de la mesa de altas",
+      "steps": [
+        "Registra cada consulta nueva el mismo día: área, cómo te ha encontrado la persona, las partes implicadas y el plazo más próximo conocido.",
+        "Atiende primero las consultas con un plazo en los próximos 14 días: aceptar, derivar o avisar a la persona ese mismo día.",
+        "Haz la comprobación del conflicto de intereses antes de dar ningún consejo: busca entre las partes, los clientes y los antiguos clientes, y anota el resultado y quién la hizo.",
+        "Envía el presupuesto al día siguiente de la primera reunión y haz seguimiento a los tres días si no sabes nada.",
+        "Con la hoja de encargo firmada, pide la provisión de fondos y reclámala a la semana. Abre el expediente en tu programa de gestión.",
+        "Manda la carta de no contratación a quien rechaces o a quien se quede en silencio, para que quede constancia de que no se formó ninguna relación."
+      ]
+    },
+    "limits": [
+      "No es tu programa de gestión de expedientes. Documentos, partes de horas, plazos procesales y escritos judiciales se quedan en tu programa; aquí un expediente es solo una referencia.",
+      "No es una autoridad de plazos. La única fecha que guarda el alta es el plazo más próximo conocido, para decidir qué mirar primero. Los plazos procesales se quedan en el sistema en el que confías.",
+      "No lleva contabilidad de fondos de clientes ni facturación. No hay modelo de factura: la provisión se registra como una fecha y el libro contable se queda en tu contabilidad.",
+      "La comprobación del conflicto de intereses es una ayuda humana. Buscas tú mismo en la lista de partes y anotas el resultado; Customermates no puede impedirte abrir un expediente.",
+      "No es un portal de clientes ni una herramienta de firma electrónica. Una hoja de encargo firmada es un enlace al archivo firmado.",
+      "Deja fuera los hechos del caso, el contenido sujeto a secreto profesional, los datos de salud y los datos de la parte contraria. Customermates no tiene permisos a nivel de campo: lo que está en una lista lo ve todo el que tenga acceso a esa lista."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué incluye el proceso de alta de un cliente en un despacho?",
+        "answer": "Las listas de comprobación de la práctica siguen este orden: consulta, cribado con conflicto de intereses y urgencia, primera reunión, presupuesto y condiciones del encargo, hoja de encargo firmada con poder y provisión de fondos, y solo después el expediente en el programa de gestión. Los despachos difieren en detalles como pedir la provisión antes de empezar a trabajar. La plantilla fija el orden y te deja el resto."
+      },
+      {
+        "question": "¿La comprobación de conflictos va antes de la primera reunión?",
+        "answer": "Las orientaciones de los jóvenes abogados de la American Bar Association y fuentes de la práctica alemana la sitúan antes de cualquier consejo y antes de la hoja de encargo; una lista de comprobación la hace incluso antes de la primera reunión. La plantilla tiene un paso de cribado antes de la primera reunión y registra el resultado y quién lo hizo. Las normas varían según el país: comprueba tu propio código deontológico."
+      },
+      {
+        "question": "¿Por qué anotar un plazo ya en el primer contacto?",
+        "answer": "Un plazo puede vencer antes de que aceptes el caso, y comentarios de revistas profesionales alemanas señalan que una omisión evitable puede generar responsabilidad incluso antes de la aceptación. Anotar el plazo más próximo conocido y de dónde sale permite ordenar lo urgente ese mismo día. Es una fecha de triaje, no un calendario procesal."
+      },
+      {
+        "question": "¿Necesito una carta de no contratación?",
+        "answer": "Es buena práctica: las orientaciones para abogados recomiendan una carta escrita a quienes rechazas o a quienes no te contratan, para que quede constancia de que no se formó ninguna relación. La plantilla crea una tarea para redactarla cuando rechazas una consulta o un posible cliente no te contrata. Si es obligatoria depende de tu país."
+      },
+      {
+        "question": "¿Puedo meter los asuntos de mis clientes en Customermates?",
+        "answer": "Solo como referencias: un puntero al expediente en tu programa de gestión. Deja fuera los hechos del caso, el contenido sujeto a secreto profesional, los datos de salud y los datos de la parte contraria, porque Customermates no tiene permisos a nivel de campo. El agente no envía nada y no crea datos de ejemplo; los borradores solo existen si los pides."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Me llaman posibles clientes por un asunto y, antes de aceptarlos, tengo que comprobar conflictos, anotar el plazo más próximo y documentar cada paso. Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
     "questions": [

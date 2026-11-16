@@ -80,6 +80,55 @@
     "due_field": "Jede Aufgabe hat einen Fälligkeitstermin.",
     "tasks_board_view": "Die Aufgaben öffnen sich als Board nach Status."
   },
+  "page": {
+    "metaTitle": "Jira Alternative für kleine Teams: Aufgaben mit Termin",
+    "metaDescription": "Jira Alternative für 2 bis 15 Personen: ein Verantwortlicher und ein Termin je Aufgabe, Fehler, Routineaufgaben. Vorlage in Ihren KI-Agenten einfügen.",
+    "headline": "Eine einfache Jira Alternative für kleine Teams, aufgebaut von Ihrem KI-Agenten in Ihrem CRM",
+    "answer": "Eine einfache Aufgabenverwaltung für ein kleines Team ist eine Liste mit Arbeitspaketen, jedes mit einem Verantwortlichen, einem Status, einer Priorität und einem Termin, dazu ein Board und eine kurze wöchentliche Durchsicht von Überfälligem und Blockiertem. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Projekten, wiederkehrenden Aufgaben und Anfragen von außerhalb des Teams. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Teambesprechung in 30 Minuten",
+      "steps": [
+        "Öffnen Sie die Liste der letzten Woche und beginnen Sie mit dem Zugesagten: Was ist erledigt, was ist gerutscht?",
+        "Gehen Sie die überfälligen und blockierten Aufgaben durch und entscheiden Sie je Aufgabe: neu zusagen, verkleinern oder neu zuweisen. Rutscht ein Termin, bleibt der ursprüngliche Termin stehen und der neue kommt mit Begründung dazu.",
+        "Sehen Sie sich Aufgaben an, die seit fünf Tagen nicht vorangekommen sind, und fragen Sie, ob die Aufgabe unklar oder zu groß ist. Schließen Sie, was niemand braucht.",
+        "Sichten Sie neue Anfragen und Fehler: Jede bekommt eine Art, eine Priorität und einen Verantwortlichen.",
+        "Lesen Sie die Liste zum Schluss vor, damit jede Aufgabe vor dem Ende der Besprechung einen benannten Verantwortlichen und einen Termin hat."
+      ]
+    },
+    "limits": [
+      "Es ist kein Werkzeug für Sprints und Velocity: Es gibt keine Sprints, Story Points oder Burn-down-Diagramme. Wer sie braucht, bleibt bei Linear oder Jira.",
+      "Es ist kein Gantt-, Abhängigkeits- oder Kapazitätsplaner, keine Zeiterfassung und kein Release-Management.",
+      "Es ist kein Code-Host, kein CI-System und kein Service Desk mit Reaktionszeiten. Der Link zu einem Pull Request oder Ticket ist ein einfaches Linkfeld.",
+      "Es gibt keine native Slack- oder Teams-Anbindung und keine mobile App. Der Weg zu Slack führt über n8n.",
+      "Es ist kein HR- oder Leistungsbeurteilungssystem und hat weder Single Sign-on noch Rechte auf Feldebene."
+    ],
+    "faq": [
+      {
+        "question": "Kann eine einfache Aufgabenverwaltung Trello, Jira oder eine Tabelle ersetzen?",
+        "answer": "Für zwei bis fünfzehn Personen, die je Aufgabe einen Verantwortlichen und einen Termin, eine wöchentliche Durchsicht und Anfragen von außerhalb auf derselben Liste wollen, ja. Exportieren Sie Ihr Board oder Ihre Tabelle als CSV oder Excel und importieren Sie sie über den Assistenten zur Spaltenzuordnung, oder lassen Sie Ihren Agenten zuordnen und importieren. Wer Sprints, Velocity oder Abhängigkeiten braucht, bleibt bei Linear, Jira oder ClickUp."
+      },
+      {
+        "question": "Welche Status sollte ein kleines Team verwenden?",
+        "answer": "Weniger, als man denkt. Typisch sind Trellos Zu erledigen, In Arbeit und Erledigt oder Linears Backlog, Todo, In Progress, Done und Canceled. Die Vorlage startet mit sieben (Backlog, Geplant, In Arbeit, In Prüfung, Blockiert, Erledigt, Abgebrochen), und Sie benennen um oder lassen weg. Blockiert hat seinen Platz, weil eine blockierte Aufgabe sonst bis zum Fälligkeitstag unbemerkt bleibt."
+      },
+      {
+        "question": "Sollte ein Team in Sprints oder auf einem Board arbeiten?",
+        "answer": "Kanban-Leitfäden setzen auf Fluss und begrenzte parallele Arbeit, Linear und Jira eher auf Sprints. Diese Vorlage arbeitet mit einem Board und einem Termin und kennt kein Sprint-Objekt. Wer Velocity braucht, bleibt bei einem Sprint-Werkzeug."
+      },
+      {
+        "question": "Sollen liegen gebliebene Aufgaben automatisch geschlossen werden?",
+        "answer": "Nein. Eine Erinnerung nach fünf Tagen ohne Bewegung ist sicherer als ein automatisches Schließen, und Besprechungsleitfäden raten dazu, liegen gebliebene Punkte ausdrücklich zu schließen. Die Vorlage erinnert den Verantwortlichen, und er entscheidet. Eine Aufgabe, die Woche für Woche offen bleibt, ist meist unklar oder zu groß: Verbessern Sie die Definition, nicht die Person."
+      },
+      {
+        "question": "Braucht es den Betriebsrat, wenn das Team Aufgaben so erfasst?",
+        "answer": "Ein Werkzeug, mit dem sich Zeiten oder Ergebnisse einzelner Beschäftigter auswerten lassen, kann nach § 87 Abs. 1 Nr. 6 BetrVG mitbestimmungspflichtig sein, und schon die objektive Eignung kann genügen. Die Vorlage hat keine Zeiterfassung und keine Leistungsauswertung, die Frage bleibt aber Ihre. Klären Sie sie vor dem Start mit Ihrer Rechtsberatung. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Schreibt der Agent meinem Team?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Die Arbeit in unserem Team verteilt sich auf Chat, Board und Tabelle, und ich sehe nicht, was überfällig oder blockiert ist. Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
     "questions": [

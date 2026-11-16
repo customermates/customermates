@@ -1080,14 +1080,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -1515,6 +1515,55 @@
         "publish_field": "Jeder Beitrag hat ein Veröffentlichungsdatum mit Uhrzeit.",
         "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
       },
+      "page": {
+        "metaTitle": "Social Media Redaktionsplan: Vorlage für Ihr CRM",
+        "metaDescription": "Social Media Redaktionsplan, den Ihr KI-Agent im CRM aufbaut: Beiträge mit Verantwortlichem, Prüfer und Datum, dazu Kampagnen und eine Wochenroutine.",
+        "headline": "Social Media Redaktionsplan, der zeigt, wer was aufhält: Ihr KI-Agent baut ihn in Ihrem CRM auf",
+        "answer": "Ein Redaktionsplan listet jeden Beitrag, Newsletter und jedes Video mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, damit Sie sehen, was diese Woche rausgeht. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut den Plan in Customermates auf, mit Kampagnen, Anlässen, einer Kennzeichnungsprüfung und einer wöchentlichen Redaktionsroutine. Die Vorlage plant und verfolgt, sie veröffentlicht nichts. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die wöchentliche Redaktionssitzung in 15 Minuten",
+          "steps": [
+            "Besprechen Sie, was in der Vorwoche erschienen ist, und tragen Sie den Link zur Veröffentlichung ein.",
+            "Prüfen Sie, was in den nächsten 7 Tagen fällig und noch nicht freigegeben oder geplant ist: verschieben, streichen oder vorziehen.",
+            "Nennen Sie zu jedem blockierten Beitrag, wer ihn lösen kann und bis wann. Ein Beitrag, der sich seit 14 Tagen nicht bewegt hat, wird freigegeben oder gestrichen.",
+            "Planen Sie zu Monatsbeginn den nächsten Monat: Füllen Sie die Plätze zu etwa 70 bis 85 Prozent der Kapazität und halten Sie zwei bis drei Ersatzbeiträge bereit."
+          ]
+        },
+        "limits": [
+          "Die Vorlage plant und verfolgt, sie veröffentlicht oder terminiert keine Beiträge. Das übernehmen Ihr Veröffentlichungswerkzeug oder Ihr CMS, die auch die Auswertung liefern; die Vorlage postet nie von selbst.",
+          "Sie sammelt keine Statistiken. Reichweite, Interaktionen und Klicks werden eingetragen oder importiert; einen Link-Kürzer oder UTM-Generator gibt es nicht.",
+          "Sie ist kein Designwerkzeug und keine Medienbibliothek. Bilder und Videos bleiben in Ihrem Designwerkzeug, der Plan hält den Link.",
+          "Eine Freigabe ist eine festgehaltene Entscheidung, keine rechtliche Abnahme und kein Prüfpfad für regulierte Inhalte. Regulierte Branchen führen ihr eigenes Compliance-System.",
+          "Unveröffentlichte vertrauliche Texte, Sperrfristmaterial, Kontaktdaten des Publikums und Passwörter von Social-Media-Konten gehören nicht hinein.",
+          "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+        ],
+        "faq": [
+          {
+            "question": "Was gehört in einen Redaktionsplan?",
+            "answer": "Zehn Spalten leisten die meiste Arbeit: Veröffentlichungsdatum, Status, Titel, Kanal, Format, Verantwortlicher, Link zum Briefing, veröffentlichte URL, Content-Säule oder Kampagne und das Ergebnis nach 30 Tagen. Ergänzen Sie einen Prüfer und ein Prüfdatum, sobald mehr als eine Person beteiligt ist."
+          },
+          {
+            "question": "Wie weit im Voraus sollte ich planen?",
+            "answer": "Planen Sie 2 bis 4 Wochen im Detail, halten Sie Monat und Quartal grob fest und treffen Sie sich jede Woche 15 Minuten. Der deutsche HubSpot-Leitfaden nennt einen rollierenden Horizont von zwei bis vier Wochen und eine wöchentliche Redaktionssitzung für die nächsten 7 bis 14 Tage."
+          },
+          {
+            "question": "Muss ich bezahlte oder geschenkte Beiträge kennzeichnen?",
+            "answer": "In der Regel ja. Die Regeln unterscheiden sich je nach Land; in Deutschland gilt die Werbekennzeichnung für gesponserte Beiträge, prüfen Sie die Einzelheiten für Ihren Fall. Als Beispiel verlangt die US-Behörde FTC den Hinweis beim Beitrag selbst, in klaren Worten wie „Anzeige“, nicht zwischen Hashtags versteckt und bei Videos in Ton und Text. Die Vorlage hat ein Kennzeichnungsfeld und einen Prüfschritt. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Tabelle oder CRM für den Redaktionsplan?",
+            "answer": "Eine Tabelle genügt für eine Person mit einem Kanal. Sobald Personen, Marken und Kampagnen verknüpft sein sollen, eine Prüfung eine Frist hat und ein veröffentlichter Beitrag eine Folgeaufgabe auslösen soll, hält ein CRM das als Datensätze statt als Spalten fest. Die Vorlage tut das und überlässt das Veröffentlichen Ihrem Veröffentlichungswerkzeug."
+          },
+          {
+            "question": "Wie viele Beiträge darf eine Person gleichzeitig bearbeiten?",
+            "answer": "Rework empfiehlt höchstens sechs je Person (zwei im Entwurf, zwei in Prüfung, zwei geplant) und eine Streichregel für alles, was sich 14 Tage nicht bewegt hat. Bitrix24 nennt drei für Autoren, fünf für Redakteure und sechs für Manager. Die Vorlage hält die Obergrenze als Regel für die Wochensitzung fest, nicht als Systemgrenze."
+          },
+          {
+            "question": "Veröffentlicht der Agent für mich?",
+            "answer": "Nein. Die Vorlage plant und verfolgt; veröffentlicht wird in Ihrem Veröffentlichungswerkzeug oder CMS. Der Prompt weist den Agenten an, keine Beispieldaten anzulegen."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Unsere Beiträge, Newsletter und Videos kommen zu spät, weil ich nicht sehe, wer was prüft und wann es erscheint. Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
         "questions": [
@@ -1929,6 +1978,55 @@
         "stage_field": "Every piece has one of seven statuses.",
         "publish_field": "Every piece has a publish date and time.",
         "calendar_widget": "The dashboard shows the publishing calendar."
+      },
+      "page": {
+        "metaTitle": "Content Calendar Template: Plan, Review, Publish",
+        "metaDescription": "A content calendar template your AI agent builds in your CRM: owner, reviewer and publish date per piece, plus campaigns, key dates and a weekly routine.",
+        "headline": "A content calendar template that shows who is holding up what, built by your AI agent",
+        "answer": "A content calendar lists every post, newsletter and video with a status, an owner, a reviewer and a publish date, so you can see what goes out this week. Paste this template into your AI agent and it builds the calendar in Customermates, with campaigns, key dates, a disclosure check and a weekly editorial routine. It plans and tracks; it does not publish. You approve the plan before anything is built.",
+        "routine": {
+          "title": "The weekly 15-minute editorial meeting",
+          "steps": [
+            "Go through what shipped last week and record the link to each published piece.",
+            "Look at what is due in the next 7 days and is not yet approved or scheduled: push it, cut it or rush it.",
+            "For every blocked piece, name who can unblock it and by when. A piece that has not moved for 14 days is unblocked or killed.",
+            "At the start of each month plan the next one: fill the slots to about 70 to 85 percent of capacity and keep two or three replacement pieces ready."
+          ]
+        },
+        "limits": [
+          "It plans and tracks; it does not publish or schedule posts. Your publishing tool or CMS does that and reads the analytics, and the template never posts by itself.",
+          "It does not collect analytics. Reach, engagements and clicks are typed in or imported, and there is no link shortener or UTM builder.",
+          "It is not a design tool or an asset library. Images and video stay in your design tool, and the calendar keeps the link.",
+          "Approval is a recorded decision, not a legal sign-off or an audit trail for regulated content. Regulated industries keep their own compliance system.",
+          "Keep unpublished confidential copy, embargoed material, audience contact data and social account passwords out of it.",
+          "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+        ],
+        "faq": [
+          {
+            "question": "What should a content calendar include?",
+            "answer": "Ten columns do most of the work: publish date, status, title, channel, format, owner, a link to the brief, the published URL, a pillar or campaign and the result after 30 days. Add a reviewer and a review date once more than one person is involved."
+          },
+          {
+            "question": "How far ahead should I plan?",
+            "answer": "Plan 2 to 4 weeks ahead in detail, keep the month and the quarter in outline, and meet for 15 minutes each week. HubSpot's German guide suggests a rolling horizon of two to four weeks and a weekly editorial meeting for the next 7 to 14 days."
+          },
+          {
+            "question": "Do I need to label paid or gifted content?",
+            "answer": "Usually yes, and rules differ by country, so check yours. In the US the FTC expects the disclosure with the endorsement, in plain words such as ad or sponsored, not buried among hashtags, and in both audio and text for video. The template has a disclosure field and a review step for paid or gifted pieces. This is not legal advice."
+          },
+          {
+            "question": "Should a content calendar be a spreadsheet or a CRM?",
+            "answer": "A spreadsheet works for one person with one channel. Once people, brands and campaigns need to be linked, a review has a deadline and a published piece should trigger a follow-up task, a CRM keeps those as records instead of columns. The template does that and leaves publishing to your publishing tool."
+          },
+          {
+            "question": "How many pieces should one person have in flight?",
+            "answer": "Rework suggests a cap of six per person (two drafting, two in review, two scheduled) and a kill rule for anything that has not moved for 14 days. Bitrix24 uses three for a writer, five for an editor and six for a manager. The template keeps the cap as a rule for the weekly meeting, not as a system limit."
+          },
+          {
+            "question": "Can the agent publish for me?",
+            "answer": "No. The template plans and tracks; your publishing tool or CMS publishes. The prompt tells the agent to create no sample records."
+          }
+        ]
       },
       "prompt": {
         "intro": "Our posts, newsletters and videos run late because I cannot see who is reviewing what or when it goes out. Set up a content calendar in my Customermates workspace: pieces with seven statuses, an owner, a reviewer and a publish date, campaigns, key dates, a disclosure check and a weekly editorial routine.",
@@ -2345,6 +2443,55 @@
         "publish_field": "Cada pieza tiene fecha y hora de publicación.",
         "calendar_widget": "El panel muestra el calendario de publicación."
       },
+      "page": {
+        "metaTitle": "Calendario editorial: plantilla de contenidos para tu CRM",
+        "metaDescription": "Calendario editorial que tu agente de IA crea en tu CRM: responsable, revisor y fecha por pieza, más campañas, fechas clave y una reunión editorial semanal.",
+        "headline": "Un calendario editorial que muestra quién frena qué, creado por tu agente de IA en tu CRM",
+        "answer": "Un calendario editorial lista cada publicación, boletín y vídeo con estado, responsable, revisor y fecha de publicación, para que veas qué sale esta semana. Pega esta plantilla en tu agente de IA y él construye el calendario en Customermates, con campañas, fechas clave, una comprobación de publicidad y una reunión editorial semanal. Planifica y hace seguimiento, pero no publica. Tú apruebas el plan antes de que se cree nada.",
+        "routine": {
+          "title": "La reunión editorial semanal de 15 minutos",
+          "steps": [
+            "Repasa lo que salió la semana pasada y anota el enlace de la publicación.",
+            "Mira qué vence en los próximos 7 días sin estar aprobado ni programado: aplázalo, recórtalo o acelera.",
+            "Para cada pieza bloqueada, nombra quién puede desbloquearla y para cuándo. Una pieza sin movimiento desde hace 14 días se desbloquea o se descarta.",
+            "A principio de mes planifica el siguiente: llena los huecos al 70-85 % de la capacidad y ten dos o tres piezas de reserva."
+          ]
+        },
+        "limits": [
+          "Planifica y hace seguimiento, pero no publica ni programa publicaciones. Eso lo hacen tu herramienta de publicación o tu CMS, que también dan las estadísticas; la plantilla nunca publica por sí sola.",
+          "No recoge estadísticas. Alcance, interacciones y clics se escriben o se importan, y no hay acortador de enlaces ni generador de UTM.",
+          "No es una herramienta de diseño ni una biblioteca de recursos. Imágenes y vídeos se quedan en tu herramienta de diseño y el calendario guarda el enlace.",
+          "La aprobación es una decisión registrada, no una validación legal ni una pista de auditoría para contenido regulado. Los sectores regulados mantienen su propio sistema de cumplimiento.",
+          "Deja fuera textos confidenciales sin publicar, material bajo embargo, datos de contacto del público y contraseñas de cuentas sociales.",
+          "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué debe incluir un calendario editorial?",
+            "answer": "Diez columnas hacen casi todo el trabajo: fecha de publicación, estado, título, canal, formato, responsable, enlace al briefing, URL publicada, pilar o campaña y resultado a los 30 días. Añade un revisor y una fecha de revisión cuando participe más de una persona."
+          },
+          {
+            "question": "¿Con cuánta antelación debo planificar?",
+            "answer": "Planifica 2 a 4 semanas al detalle, deja el mes y el trimestre en líneas generales y reúnete 15 minutos cada semana. La guía alemana de HubSpot habla de un horizonte móvil de dos a cuatro semanas y de una reunión editorial semanal para los 7 a 14 días siguientes."
+          },
+          {
+            "question": "¿Debo señalar el contenido patrocinado o regalado?",
+            "answer": "Normalmente sí. Las reglas varían según el país y en España también hay normas sobre el contenido de pago de los influencers, así que verifica los detalles de tu caso. A modo de ejemplo, la autoridad estadounidense FTC espera que el aviso vaya junto a la publicación, con palabras claras como ad o patrocinado, sin esconderlo entre hashtags y, en vídeo, tanto en audio como en texto. La plantilla tiene un campo de aviso y un paso de revisión. No es asesoramiento jurídico."
+          },
+          {
+            "question": "¿Hoja de cálculo o CRM para el calendario editorial?",
+            "answer": "Una hoja de cálculo basta para una persona y un canal. Cuando hay que enlazar personas, marcas y campañas, una revisión tiene plazo y una pieza publicada debe generar una tarea, un CRM lo guarda como registros en lugar de columnas. La plantilla lo hace y deja la publicación a tu herramienta de publicación."
+          },
+          {
+            "question": "¿Cuántas piezas puede llevar una persona a la vez?",
+            "answer": "Rework sugiere un tope de seis por persona (dos en redacción, dos en revisión, dos programadas) y una regla de descarte para lo que no se haya movido en 14 días. Bitrix24 usa tres para un redactor, cinco para un editor y seis para un responsable. La plantilla deja el tope como regla de la reunión semanal, no como límite del sistema."
+          },
+          {
+            "question": "¿Puede publicar el agente por mí?",
+            "answer": "No. La plantilla planifica y hace seguimiento; publica tu herramienta de publicación o tu CMS. El prompt indica al agente que no cree datos de ejemplo."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Nuestras publicaciones, newsletters y vídeos salen tarde porque no veo quién revisa qué ni cuándo sale cada cosa. Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
         "questions": [
@@ -2759,6 +2906,55 @@
         "stage_field": "Chaque contenu a l’un des sept statuts.",
         "publish_field": "Chaque contenu a une date et une heure de publication.",
         "calendar_widget": "Le tableau de bord montre le calendrier de publication."
+      },
+      "page": {
+        "metaTitle": "Calendrier éditorial réseaux sociaux : modèle CRM",
+        "metaDescription": "Calendrier éditorial réseaux sociaux que votre agent IA crée dans votre CRM : responsable, relecteur et date par contenu, campagnes et dates clés.",
+        "headline": "Un calendrier éditorial pour les réseaux sociaux qui montre qui bloque quoi, construit par votre agent IA",
+        "answer": "Un calendrier éditorial liste chaque publication, newsletter et vidéo avec un statut, un responsable, un relecteur et une date de publication, pour voir ce qui sort cette semaine. Collez ce modèle dans votre agent IA : il construit le calendrier dans Customermates, avec campagnes, dates clés, un contrôle des mentions de partenariat et une routine éditoriale hebdomadaire. Il planifie et suit, mais ne publie pas. Vous validez le plan avant que quoi que ce soit ne soit créé.",
+        "routine": {
+          "title": "La réunion éditoriale hebdomadaire de 15 minutes",
+          "steps": [
+            "Passez en revue ce qui est sorti la semaine passée et notez le lien de publication.",
+            "Regardez ce qui doit sortir dans les 7 prochains jours sans être encore validé ou programmé : décalez, supprimez ou accélérez.",
+            "Pour chaque contenu bloqué, nommez qui peut le débloquer et pour quand. Un contenu immobile depuis 14 jours est débloqué ou abandonné.",
+            "En début de mois, planifiez le suivant : remplissez les créneaux à 70 à 85 % de la capacité environ et gardez deux ou trois contenus de remplacement."
+          ]
+        },
+        "limits": [
+          "Il planifie et suit, mais ne publie ni ne programme les publications. C’est le rôle de votre outil de publication ou de votre CMS, qui fournit aussi les statistiques ; le modèle ne poste jamais de lui-même.",
+          "Il ne collecte pas de statistiques. Portée, interactions et clics sont saisis ou importés, et il n’y a ni raccourcisseur de liens ni générateur d’UTM.",
+          "Ce n’est ni un outil de création graphique ni une bibliothèque de médias. Images et vidéos restent dans votre outil de design, le calendrier garde le lien.",
+          "La validation est une décision enregistrée, pas une validation juridique ni une piste d’audit pour des contenus réglementés. Les secteurs réglementés gardent leur propre système de conformité.",
+          "Gardez-en hors les textes confidentiels non publiés, les contenus sous embargo, les coordonnées du public et les mots de passe des comptes sociaux.",
+          "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+        ],
+        "faq": [
+          {
+            "question": "Que doit contenir un calendrier éditorial ?",
+            "answer": "Dix colonnes font l’essentiel : date de publication, statut, titre, canal, format, responsable, lien vers le brief, URL publiée, pilier ou campagne et résultat à 30 jours. Ajoutez un relecteur et une date de relecture dès que plusieurs personnes interviennent."
+          },
+          {
+            "question": "Combien de temps à l’avance planifier ?",
+            "answer": "Planifiez 2 à 4 semaines en détail, gardez le mois et le trimestre en grandes lignes et retrouvez-vous 15 minutes chaque semaine. Le guide allemand de HubSpot parle d’un horizon glissant de deux à quatre semaines et d’une réunion éditoriale hebdomadaire pour les 7 à 14 jours suivants."
+          },
+          {
+            "question": "Faut-il signaler les contenus sponsorisés ou offerts ?",
+            "answer": "En général, oui. Les règles varient selon les pays ; en France, la publicité par des influenceurs est encadrée, vérifiez la mention exigée pour votre cas. À titre d’exemple, l’autorité américaine FTC veut que l’information figure avec la publication, en mots clairs comme pub ou sponsorisé, pas noyée dans les hashtags et, en vidéo, à l’oral et à l’écrit. Le modèle propose un champ de mention et une étape de contrôle. Ce n’est pas un conseil juridique."
+          },
+          {
+            "question": "Tableur ou CRM pour un calendrier éditorial ?",
+            "answer": "Un tableur suffit pour une personne et un canal. Dès qu’il faut relier personnes, marques et campagnes, qu’une relecture a une échéance et qu’un contenu publié doit déclencher une tâche, un CRM garde cela sous forme de fiches plutôt que de colonnes. Le modèle le fait et laisse la publication à votre outil de publication."
+          },
+          {
+            "question": "Combien de contenus une personne peut-elle mener de front ?",
+            "answer": "Rework recommande six au plus par personne (deux en rédaction, deux en relecture, deux programmés) et une règle d’abandon pour tout ce qui n’a pas bougé depuis 14 jours. Bitrix24 retient trois pour un rédacteur, cinq pour un éditeur et six pour un manager. Le modèle garde ce plafond comme règle de la réunion hebdomadaire, pas comme limite du système."
+          },
+          {
+            "question": "L’agent publie-t-il à ma place ?",
+            "answer": "Non. Le modèle planifie et suit ; la publication se fait dans votre outil de publication ou votre CMS. Le prompt demande à l’agent de ne créer aucune donnée d’exemple."
+          }
+        ]
       },
       "prompt": {
         "intro": "Nos publications, newsletters et vidéos sortent en retard, car je ne vois pas qui relit quoi ni quand tout part. Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
@@ -3175,6 +3371,55 @@
         "publish_field": "Ogni contenuto ha una data e un'ora di pubblicazione.",
         "calendar_widget": "La dashboard mostra il calendario di pubblicazione."
       },
+      "page": {
+        "metaTitle": "Calendario editoriale e piano editoriale social nel CRM",
+        "metaDescription": "Calendario editoriale e piano editoriale che il tuo agente IA costruisce nel CRM: responsabile, revisore e data per contenuto, campagne e date chiave.",
+        "headline": "Calendario editoriale che mostra chi blocca cosa, costruito dal tuo agente IA nel CRM",
+        "answer": "Un calendario editoriale elenca ogni post, newsletter e video con stato, responsabile, revisore e data di pubblicazione, così vedi che cosa esce questa settimana. Incolla questo modello nel tuo agente IA: costruisce il calendario in Customermates, con campagne, date chiave, un controllo della dichiarazione di pubblicità e una routine editoriale settimanale. Pianifica e traccia, ma non pubblica. Tu approvi il piano prima che venga creato qualcosa.",
+        "routine": {
+          "title": "La riunione editoriale settimanale di 15 minuti",
+          "steps": [
+            "Rivedi che cosa è uscito la settimana scorsa e annota il link alla pubblicazione.",
+            "Controlla che cosa scade nei prossimi 7 giorni senza essere ancora approvato o programmato: sposta, taglia o accelera.",
+            "Per ogni contenuto bloccato indica chi può sbloccarlo e entro quando. Un contenuto fermo da 14 giorni si sblocca o si scarta.",
+            "A inizio mese pianifica il successivo: riempi gli slot al 70-85% circa della capacità e tieni pronti due o tre contenuti di riserva."
+          ]
+        },
+        "limits": [
+          "Pianifica e traccia, ma non pubblica né programma i post. Lo fanno il tuo strumento di pubblicazione o il tuo CMS, che forniscono anche le statistiche; il modello non pubblica mai da solo.",
+          "Non raccoglie statistiche. Copertura, interazioni e clic si inseriscono o si importano e non ci sono né un accorciatore di link né un generatore di UTM.",
+          "Non è uno strumento di design né una libreria di asset. Immagini e video restano nel tuo strumento di design, il calendario conserva il link.",
+          "L'approvazione è una decisione registrata, non un'autorizzazione legale né una traccia di audit per contenuti regolamentati. I settori regolamentati tengono il proprio sistema di conformità.",
+          "Tieni fuori testi riservati non pubblicati, materiali sotto embargo, dati di contatto del pubblico e password degli account social.",
+          "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+        ],
+        "faq": [
+          {
+            "question": "Che cosa deve contenere un calendario editoriale?",
+            "answer": "Dieci colonne fanno gran parte del lavoro: data di pubblicazione, stato, titolo, canale, formato, responsabile, link al brief, URL pubblicato, pilastro o campagna e risultato a 30 giorni. Aggiungi un revisore e una data di revisione quando c'è più di una persona."
+          },
+          {
+            "question": "Che differenza c'è tra piano editoriale e calendario editoriale?",
+            "answer": "Il piano editoriale risponde a che cosa e perché: obiettivi, target, temi e tono di voce. Il calendario editoriale risponde a quando e come: date, cadenza e scadenze. Questo modello è il calendario, con righe, stati e responsabili; gli obiettivi e i temi del piano trovano posto nella base di conoscenza."
+          },
+          {
+            "question": "Quanto in anticipo conviene pianificare?",
+            "answer": "Pianifica 2-4 settimane nel dettaglio, tieni mese e trimestre a grandi linee e incontratevi 15 minuti ogni settimana. La guida tedesca di HubSpot parla di un orizzonte mobile di due-quattro settimane e di una riunione editoriale settimanale per i 7-14 giorni successivi."
+          },
+          {
+            "question": "Devo dichiarare i contenuti sponsorizzati o ricevuti in regalo?",
+            "answer": "In genere sì. Le regole cambiano da paese a paese; per gli influencer la pubblicità nei post è regolamentata, verifica i dettagli per il tuo caso. A titolo di esempio, l'autorità statunitense FTC vuole l'informazione insieme alla pubblicazione, con parole chiare come ad o sponsorizzato, non nascosta tra gli hashtag e, nei video, sia a voce sia nel testo. Il modello offre un campo di dichiarazione e un passaggio di controllo. Non è consulenza legale."
+          },
+          {
+            "question": "Foglio di calcolo o CRM per il calendario editoriale?",
+            "answer": "Un foglio di calcolo basta per una persona e un canale. Quando servono collegamenti tra persone, marchi e campagne, una revisione ha una scadenza e un contenuto pubblicato deve generare un'attività, un CRM tiene tutto questo come record invece che come colonne. Il modello lo fa e lascia la pubblicazione al tuo strumento di pubblicazione."
+          },
+          {
+            "question": "L'agente pubblica al posto mio?",
+            "answer": "No. Il modello pianifica e traccia; la pubblicazione avviene nel tuo strumento di pubblicazione o nel tuo CMS. Il prompt dice all'agente di non creare dati di esempio."
+          }
+        ]
+      },
       "prompt": {
         "intro": "I nostri post, newsletter e video escono in ritardo perché non vedo chi sta rivedendo che cosa né quando va online. Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
         "questions": [
@@ -3589,6 +3834,55 @@
         "stage_field": "Elk contentstuk heeft een van de zeven statussen.",
         "publish_field": "Elk contentstuk heeft een publicatiedatum met tijd.",
         "calendar_widget": "Het dashboard toont de publicatiekalender."
+      },
+      "page": {
+        "metaTitle": "Contentplanning: contentkalender template voor je CRM",
+        "metaDescription": "Contentplanning met een contentkalender die je AI-agent in je CRM bouwt: eigenaar, reviewer en publicatiedatum per stuk, plus campagnes en belangrijke data.",
+        "headline": "Contentplanning die laat zien wie wat ophoudt: een contentkalender, gebouwd door je AI-agent",
+        "answer": "Een contentkalender zet elk bericht, elke nieuwsbrief en elke video met een status, een eigenaar, een reviewer en een publicatiedatum op een rij, zodat je ziet wat er deze week uitkomt. Plak dit template in je AI-agent en die bouwt de kalender in Customermates, met campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine. Het plant en volgt, maar publiceert niet. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+        "routine": {
+          "title": "De wekelijkse redactiebespreking van 15 minuten",
+          "steps": [
+            "Loop langs wat vorige week is uitgekomen en noteer de link naar de publicatie.",
+            "Bekijk wat de komende 7 dagen af moet zijn en nog niet is goedgekeurd of ingepland: verschuiven, schrappen of versnellen.",
+            "Noem bij elk geblokkeerd stuk wie het kan vrijmaken en uiterlijk wanneer. Een stuk dat 14 dagen niet is opgeschoten, wordt vrijgemaakt of geschrapt.",
+            "Plan aan het begin van de maand de volgende: vul de plekken tot ongeveer 70 à 85 procent van de capaciteit en houd twee of drie reservestukken achter de hand."
+          ]
+        },
+        "limits": [
+          "Het plant en volgt, maar publiceert of plant geen berichten in. Dat doet je publicatietool of CMS, dat ook de statistieken levert; het template plaatst nooit zelf iets.",
+          "Het verzamelt geen statistieken. Bereik, interacties en klikken worden ingetypt of geïmporteerd, en er is geen linkverkorter of UTM-generator.",
+          "Het is geen ontwerptool of mediabibliotheek. Beeld en video blijven in je ontwerptool, en de kalender bewaart de link.",
+          "Goedkeuring is een vastgelegde beslissing, geen juridische akkoordverklaring en geen auditspoor voor gereguleerde content. Gereguleerde sectoren houden hun eigen compliancesysteem.",
+          "Houd onuitgebrachte vertrouwelijke teksten, materiaal onder embargo, contactgegevens van het publiek en wachtwoorden van socialmedia-accounts erbuiten.",
+          "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+        ],
+        "faq": [
+          {
+            "question": "Wat hoort er in een contentkalender?",
+            "answer": "Tien kolommen doen het meeste werk: publicatiedatum, status, titel, kanaal, formaat, eigenaar, een link naar de briefing, de gepubliceerde URL, een pijler of campagne en het resultaat na 30 dagen. Voeg een reviewer en een reviewdatum toe zodra er meer dan één persoon bij betrokken is."
+          },
+          {
+            "question": "Hoe ver vooruit moet ik plannen?",
+            "answer": "Plan 2 tot 4 weken vooruit in detail, houd de maand en het kwartaal globaal en kom elke week 15 minuten bij elkaar. De Duitse gids van HubSpot noemt een voortschrijdende horizon van twee tot vier weken en een wekelijkse redactiebespreking voor de komende 7 tot 14 dagen."
+          },
+          {
+            "question": "Moet ik betaalde of cadeau gekregen content labelen?",
+            "answer": "Meestal wel. Regels verschillen per land; in Nederland bestaat een code voor het herkenbaar maken van reclame op social media, controleer de details voor jouw geval. Als voorbeeld verwacht de Amerikaanse toezichthouder FTC de melding bij de publicatie zelf, in duidelijke woorden zoals ad of gesponsord, niet verstopt tussen hashtags en bij video in beeld en geluid. Het template heeft een veld voor de melding en een controlestap. Dit is geen juridisch advies."
+          },
+          {
+            "question": "Spreadsheet of CRM voor een contentkalender?",
+            "answer": "Een spreadsheet werkt voor één persoon met één kanaal. Zodra je personen, merken en campagnes wilt koppelen, een review een deadline heeft en een gepubliceerd stuk een vervolgtaak moet starten, bewaart een CRM dat als records in plaats van kolommen. Het template doet dat en laat het publiceren aan je publicatietool."
+          },
+          {
+            "question": "Hoeveel stukken mag één persoon tegelijk hebben lopen?",
+            "answer": "Rework stelt een plafond van zes per persoon voor (twee in concept, twee in review, twee ingepland) en een schrapregel voor alles wat 14 dagen niet is opgeschoten. Bitrix24 hanteert drie voor een schrijver, vijf voor een redacteur en zes voor een manager. Het template bewaart het plafond als regel voor de wekelijkse bespreking, niet als systeemgrens."
+          },
+          {
+            "question": "Kan de agent voor mij publiceren?",
+            "answer": "Nee. Het template plant en volgt; je publicatietool of CMS publiceert. De prompt zegt de agent geen voorbeeldgegevens aan te maken."
+          }
+        ]
       },
       "prompt": {
         "intro": "Onze posts, nieuwsbrieven en video’s lopen uit, omdat ik niet kan zien wie wat reviewt of wanneer het verschijnt. Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
@@ -4005,6 +4299,55 @@
         "publish_field": "Każdy materiał ma datę i godzinę publikacji.",
         "calendar_widget": "Pulpit pokazuje kalendarz publikacji."
       },
+      "page": {
+        "metaTitle": "Kalendarz treści: szablon planu publikacji w Twoim CRM",
+        "metaDescription": "Kalendarz treści, który agent AI buduje w Twoim CRM: osoba odpowiedzialna, recenzent i data przy każdym materiale, do tego kampanie i ważne daty.",
+        "headline": "Kalendarz treści, który pokazuje, kto co wstrzymuje, zbudowany przez Twojego agenta AI w CRM",
+        "answer": "Kalendarz treści wymienia każdy post, newsletter i film ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, żeby było widać, co wychodzi w tym tygodniu. Wklej ten szablon do swojego agenta AI, a on zbuduje kalendarz w Customermates, z kampaniami, ważnymi datami, kontrolą oznaczenia reklamy i cotygodniową rutyną redakcyjną. Planuje i śledzi, ale nie publikuje. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowe 15-minutowe spotkanie redakcyjne",
+          "steps": [
+            "Omówcie, co wyszło w zeszłym tygodniu, i zapisz link do publikacji.",
+            "Sprawdź, co ma wyjść w ciągu 7 dni, a nie jest jeszcze zaakceptowane ani zaplanowane: przesuń, wytnij albo przyspiesz.",
+            "Przy każdym zablokowanym materiale wskaż, kto może go odblokować i do kiedy. Materiał, który od 14 dni stoi w miejscu, odblokowujesz albo porzucasz.",
+            "Na początku miesiąca zaplanuj następny: wypełnij sloty w około 70 do 85% mocy i miej gotowe dwa, trzy materiały zastępcze."
+          ]
+        },
+        "limits": [
+          "Planuje i śledzi, ale nie publikuje ani nie planuje postów w sieciach. Robi to Twoje narzędzie do publikacji lub CMS, które dostarcza też statystyki; szablon nigdy nie publikuje sam.",
+          "Nie zbiera statystyk. Zasięg, interakcje i kliknięcia wpisuje się ręcznie lub importuje, nie ma skracacza linków ani generatora UTM.",
+          "To nie jest narzędzie do projektowania ani biblioteka plików. Obrazy i wideo zostają w Twoim narzędziu graficznym, a kalendarz zachowuje link.",
+          "Akceptacja to zapisana decyzja, a nie prawne zatwierdzenie ani ścieżka audytu dla treści regulowanych. Branże regulowane prowadzą własny system zgodności.",
+          "Nie trzymaj w nim niepublikowanych poufnych tekstów, materiałów objętych embargiem, danych kontaktowych odbiorców ani haseł do kont społecznościowych.",
+          "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+        ],
+        "faq": [
+          {
+            "question": "Co powinien zawierać kalendarz treści?",
+            "answer": "Dziesięć kolumn robi większość pracy: data publikacji, status, tytuł, kanał, format, osoba odpowiedzialna, link do briefu, opublikowany adres URL, filar lub kampania oraz wynik po 30 dniach. Dodaj recenzenta i datę recenzji, gdy w pracę zaangażowana jest więcej niż jedna osoba."
+          },
+          {
+            "question": "Z jakim wyprzedzeniem planować?",
+            "answer": "Planuj szczegółowo na 2 do 4 tygodni, miesiąc i kwartał trzymaj w zarysie i spotykajcie się co tydzień na 15 minut. Niemiecki przewodnik HubSpot podaje ruchomy horyzont dwóch do czterech tygodni i cotygodniowe spotkanie redakcyjne na najbliższe 7 do 14 dni."
+          },
+          {
+            "question": "Czy muszę oznaczać treści płatne lub otrzymane w prezencie?",
+            "answer": "Zwykle tak. Zasady różnią się w zależności od kraju, a oznaczanie reklamy przez influencerów jest oczekiwane także w Polsce, więc sprawdź szczegóły w swoim przypadku. Dla przykładu amerykański urząd FTC oczekuje informacji razem z publikacją, prostymi słowami, takimi jak ad lub sponsorowane, nie ukrytej wśród hashtagów, a w wideo zarówno w dźwięku, jak i w tekście. Szablon ma pole oznaczenia i krok kontroli. To nie jest porada prawna."
+          },
+          {
+            "question": "Arkusz czy CRM do kalendarza treści?",
+            "answer": "Arkusz wystarcza jednej osobie z jednym kanałem. Gdy trzeba powiązać osoby, marki i kampanie, recenzja ma termin, a opublikowany materiał ma uruchamiać zadanie, CRM przechowuje to jako rekordy zamiast kolumn. Szablon tak robi, a publikację zostawia Twojemu narzędziu do publikacji."
+          },
+          {
+            "question": "Ile materiałów może prowadzić jednocześnie jedna osoba?",
+            "answer": "Rework proponuje limit sześciu na osobę (dwa w pisaniu, dwa w recenzji, dwa zaplanowane) i zasadę porzucania tego, co nie ruszyło się od 14 dni. Bitrix24 przyjmuje trzy dla autora, pięć dla redaktora i sześć dla menedżera. Szablon zapisuje limit jako zasadę spotkania tygodniowego, a nie ograniczenie systemu."
+          },
+          {
+            "question": "Czy agent opublikuje coś za mnie?",
+            "answer": "Nie. Szablon planuje i śledzi; publikuje Twoje narzędzie do publikacji lub CMS. Prompt każe agentowi nie tworzyć przykładowych danych."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Nasze posty, newslettery i filmy się opóźniają, bo nie widzę, kto co recenzuje i kiedy materiał wychodzi. Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
         "questions": [
@@ -4419,6 +4762,55 @@
         "stage_field": "Cada conteúdo tem um dos sete status.",
         "publish_field": "Cada conteúdo tem data e hora de publicação.",
         "calendar_widget": "O painel mostra o calendário de postagens."
+      },
+      "page": {
+        "metaTitle": "Calendário de postagens: modelo editorial para o seu CRM",
+        "metaDescription": "Calendário de postagens que seu agente de IA monta no CRM: responsável, revisor e data por conteúdo, mais campanhas, datas-chave e uma rotina semanal.",
+        "headline": "Um calendário de postagens que mostra quem está segurando o quê, montado pelo seu agente de IA",
+        "answer": "Um calendário de postagens lista cada post, newsletter e vídeo com status, responsável, revisor e data de publicação, para você ver o que vai ao ar esta semana. Cole este modelo no seu agente de IA e ele monta o calendário no Customermates, com campanhas, datas-chave, uma checagem de publicidade e uma rotina editorial semanal. Ele planeja e acompanha, mas não publica. Você aprova o plano antes de qualquer coisa ser criada.",
+        "routine": {
+          "title": "A reunião editorial semanal de 15 minutos",
+          "steps": [
+            "Revise o que foi ao ar na semana passada e anote o link da publicação.",
+            "Veja o que vence nos próximos 7 dias sem estar aprovado nem agendado: adie, corte ou acelere.",
+            "Para cada conteúdo travado, diga quem pode destravá-lo e até quando. Um conteúdo parado há 14 dias é destravado ou descartado.",
+            "No começo do mês, planeje o seguinte: preencha os horários com cerca de 70 a 85% da capacidade e mantenha dois ou três conteúdos de reserva."
+          ]
+        },
+        "limits": [
+          "Ele planeja e acompanha, mas não publica nem agenda posts. Isso fica com sua ferramenta de publicação ou seu CMS, que também trazem as métricas; o modelo nunca posta sozinho.",
+          "Não coleta métricas. Alcance, interações e cliques são digitados ou importados, e não há encurtador de links nem gerador de UTM.",
+          "Não é uma ferramenta de design nem uma biblioteca de arquivos. Imagens e vídeos ficam na sua ferramenta de design, e o calendário guarda o link.",
+          "A aprovação é uma decisão registrada, não uma validação jurídica nem uma trilha de auditoria para conteúdo regulado. Setores regulados mantêm o próprio sistema de conformidade.",
+          "Deixe de fora textos confidenciais não publicados, material sob embargo, dados de contato do público e senhas de contas sociais.",
+          "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar."
+        ],
+        "faq": [
+          {
+            "question": "O que deve ter um calendário de postagens?",
+            "answer": "Dez colunas fazem a maior parte do trabalho: data de publicação, status, título, canal, formato, responsável, link do briefing, URL publicada, pilar ou campanha e resultado após 30 dias. Acrescente um revisor e uma data de revisão quando houver mais de uma pessoa."
+          },
+          {
+            "question": "Com quanta antecedência devo planejar?",
+            "answer": "Planeje 2 a 4 semanas em detalhe, deixe o mês e o trimestre em linhas gerais e reúna-se 15 minutos por semana. O guia alemão da HubSpot fala de um horizonte móvel de duas a quatro semanas e de uma reunião editorial semanal para os 7 a 14 dias seguintes."
+          },
+          {
+            "question": "Preciso identificar publicidade nas postagens?",
+            "answer": "Em geral sim. Segundo resumos da imprensa especializada, o guia do CONAR para influenciadores pede que a identificação apareça desde o início da publicação, sem ficar atrás de ver mais nem escondida entre hashtags, e que #publi sozinho não basta: use também a ferramenta de parceria paga da plataforma. Confirme com um profissional. O modelo tem um campo de identificação de publicidade e uma etapa de revisão."
+          },
+          {
+            "question": "Planilha ou CRM para o calendário de postagens?",
+            "answer": "Uma planilha basta para uma pessoa e um canal. Quando é preciso ligar pessoas, marcas e campanhas, uma revisão tem prazo e um conteúdo publicado deve gerar uma tarefa, um CRM guarda isso como registros em vez de colunas. O modelo faz isso e deixa a publicação para sua ferramenta de publicação."
+          },
+          {
+            "question": "Quantos conteúdos uma pessoa pode tocar ao mesmo tempo?",
+            "answer": "A Rework sugere um teto de seis por pessoa (dois em redação, dois em revisão, dois agendados) e uma regra de descarte para o que não se mexeu em 14 dias. A Bitrix24 usa três para quem escreve, cinco para o editor e seis para o gerente. O modelo deixa o teto como regra da reunião semanal, não como limite do sistema."
+          },
+          {
+            "question": "O agente publica por mim?",
+            "answer": "Não. O modelo planeja e acompanha; quem publica é sua ferramenta de publicação ou seu CMS. O prompt manda o agente não criar dados de exemplo."
+          }
+        ]
       },
       "prompt": {
         "intro": "Nossos posts, newsletters e vídeos saem atrasados porque eu não sei quem está revisando o quê nem quando cada conteúdo vai ao ar. Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma rotina editorial semanal.",

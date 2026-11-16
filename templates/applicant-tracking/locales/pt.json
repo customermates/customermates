@@ -104,6 +104,52 @@
     "retain_until_field": "Toda candidatura registra até quando é mantida.",
     "applications_board_view": "As candidaturas abrem como quadro por etapa."
   },
+  "page": {
+    "metaTitle": "Software de recrutamento e seleção: modelo de candidaturas",
+    "metaDescription": "Software de recrutamento e seleção para pequenas empresas: cole no Claude, ChatGPT ou Codex e controle vagas, nove etapas, avaliações e a data de exclusão.",
+    "headline": "Responda a cada candidato e guarde as anotações juntas: um acompanhamento de candidaturas que o seu agente de IA monta",
+    "answer": "Um sistema de recrutamento para uma empresa pequena é uma lista de vagas com uma candidatura por candidato e por vaga, que avança de recebida a admitido ou reprovado, para que nenhum candidato fique sem resposta. Cole este modelo no seu agente de IA e ele o monta no Customermates, com vagas, uma avaliação por entrevistador, acompanhamentos com data e uma data de guarda para as candidaturas reprovadas. Você aprova o plano antes que qualquer coisa seja criada.",
+    "routine": {
+      "title": "A rodada semanal de candidaturas",
+      "steps": [
+        "Confira se cada candidatura nova recebeu confirmação e uma data seguinte, e responda às que ainda esperam.",
+        "Compare as candidaturas novas com os requisitos indispensáveis da vaga e decida quem convidar para uma entrevista.",
+        "Recolha a avaliação de cada entrevistador no dia seguinte a cada entrevista, enquanto as anotações estão frescas.",
+        "Cobre uma resposta nas propostas que aguardam decisão e envie a mensagem de encerramento aos candidatos reprovados ou cuja vaga foi preenchida."
+      ]
+    },
+    "limits": [
+      "Não é um site de vagas, uma ferramenta de multipostagem nem um criador de página de carreiras. Não publica os seus anúncios.",
+      "Não lê nem classifica currículos e não reprova ninguém automaticamente. As avaliações são notas dadas por uma pessoa.",
+      "Não é uma plataforma de testes, avaliação ou entrevistas em vídeo, nem uma ferramenta de carta-proposta e assinatura eletrônica.",
+      "Não faz checagem de antecedentes nem de direito ao trabalho e não é um sistema de integração, de prontuário de pessoal ou de folha de pagamento. Depois da admissão, a pasta passa para o seu sistema de RH.",
+      "Deixe de fora cópias de documentos de identidade e dados de monitoramento de igualdade de oportunidades. Colete só o que a decisão de contratação exige.",
+      "Não dá aconselhamento jurídico. Guarda uma data de guarda e um responsável; o prazo é decisão sua, com o seu advogado ou consultor.",
+      "Foi pensado para poucas vagas abertas ao mesmo tempo. Para contratação em grande volume ou em várias unidades, um sistema de recrutamento dedicado atende melhor."
+    ],
+    "faq": [
+      {
+        "question": "O que deve conter um acompanhamento de candidaturas?",
+        "answer": "Vagas com um gestor e uma faixa salarial, candidatos e uma candidatura por candidato e por vaga, com a etapa, a data da entrevista, o prazo de resposta à proposta e o motivo da reprovação. Quem trabalha na prática acrescenta uma avaliação por entrevistador, para que as opiniões fiquem estruturadas e não espalhadas entre e-mails e conversas."
+      },
+      {
+        "question": "Quais etapas um processo seletivo deve ter?",
+        "answer": "Os guias comuns citam candidatura recebida, triagem, entrevista, checagem de referências e proposta. Este modelo tem nove: recebida, triagem, entrevista com RH, entrevista com gestor, checagem de referências, proposta, admitido, reprovado e desistiu, porque uma empresa pequena raramente precisa de mais de duas rodadas de entrevistas. Renomeie ou retire etapas no plano que o seu agente propuser."
+      },
+      {
+        "question": "Por quanto tempo posso guardar candidaturas reprovadas?",
+        "answer": "Depende do país. Na França, a autoridade de proteção de dados admite em princípio um banco de candidatos não selecionados por dois anos desde o último contato, se eles foram informados; na Alemanha, guarda-se em geral cerca de seis meses depois do fim do processo, e um banco de talentos só com consentimento. No Brasil, a orientação comum para um banco de talentos é o consentimento específico, com prazo definido. O modelo define a data de guarda 180 dias depois de uma reprovação, para que você exclua a candidatura ou peça consentimento. Ajuste o prazo ao seu caso e consulte um advogado. Isto não é aconselhamento jurídico."
+      },
+      {
+        "question": "Posso manter um banco de talentos?",
+        "answer": "Só com o consentimento do candidato. Quando chega a data de guarda de uma candidatura reprovada, você a exclui ou registra o consentimento do candidato para ficar no banco. Fontes alemãs exigem consentimento para um banco de talentos, outras admitem um período curto por legítimo interesse; verifique a regra do seu caso."
+      },
+      {
+        "question": "O agente entra em contato com os candidatos ou reprova alguém?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. As mensagens, como uma confirmação de recebimento ou um retorno negativo, são rascunhos que só existem se você pedir, e quem envia é você. Nada é reprovado automaticamente."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu faço a seleção da minha pequena empresa e os candidatos esperam demais por uma resposta, enquanto as anotações das entrevistas ficam em lugares diferentes. Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para as candidaturas reprovadas e acompanhamentos com data.",
     "questions": [

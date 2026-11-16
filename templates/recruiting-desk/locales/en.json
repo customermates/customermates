@@ -183,6 +183,51 @@
     "jobs_board_view": "The job orders open as a board by stage.",
     "candidate_data_page": "The knowledge base holds a page on candidate data and retention."
   },
+  "page": {
+    "metaTitle": "Recruiting CRM Template: Job Orders, Candidates, Placements",
+    "metaDescription": "Track every job order, candidate and placement in one place. Paste this recruiting desk template into Claude, ChatGPT or Codex and let your agent build it.",
+    "headline": "Know which candidate sits on which job and when a guarantee ends: a recruiting desk your AI agent builds",
+    "answer": "A recruiting desk runs two linked pipelines: the job order that earns the fee and, inside each job, one entry per candidate with its own stage. Paste this template into your AI agent and it builds both in Customermates, with placements, guarantee end dates, aftercare check-ins and a keep-until date on every candidate. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly desk review",
+      "steps": [
+        "Open the job orders as a board and look for searches with no dated next step or no movement for 10 days.",
+        "Chase the client for feedback on every candidate submitted more than two days ago, and plan the debrief for each interview this week.",
+        "Call the active clients whose next-touch date has come and ask about upcoming hires.",
+        "Check the placements: the 30, 60 and 90 day check-ins due this week and any guarantee that ends within 14 days.",
+        "Clear the candidates whose keep-until date has passed: delete them or record fresh consent."
+      ]
+    },
+    "limits": [
+      "It is not a job board or a multiposting tool, and it is not a CV parser. Files are searchable only when they carry a text layer, so scanned CVs are not read.",
+      "It has no sequences or mass outreach. Messages are written one by one, and the prompt tells the agent to send nothing automatically.",
+      "Interviews can be scheduled into your Google or Microsoft calendar from the record, on Customermates Cloud with the Pro plan or higher; self-hosted, an interview stays a dated field and an Action. The link is one-way: changing the event in the calendar does not update the record.",
+      "It is not an invoicing, timesheet or payroll system for contract staffing. Invoices stay in your accounting tool and the template keeps only a reference. High-volume or temporary staffing belongs in an agency ATS.",
+      "It is not an application portal or a background-check system. Keep health data, date of birth and similar details out of candidate notes."
+    ],
+    "faq": [
+      {
+        "question": "Should candidates and job orders be separate records?",
+        "answer": "Yes. Agency systems such as Bullhorn and Recruiterflow attach a candidate to each job, so one person can be at different stages on different jobs. The template keeps a list of job orders and one submission per candidate and job, so every candidate has their own stage history per job."
+      },
+      {
+        "question": "How long may I keep the data of rejected candidates?",
+        "answer": "That depends on the country, and telling candidates how long you keep their data matters as much as the number. Examples: in Germany commentary suggests about six months after the process, the UK regulator sets no fixed period and keeps its own example candidates for six months, and the French CNIL allows a talent pool for up to two years from the last contact if the candidate was told. Every candidate gets a keep-until date and a review Action: delete or record fresh consent. This is not legal advice."
+      },
+      {
+        "question": "What fee and guarantee terms should a desk record?",
+        "answer": "Contingency fees are paid only if a hire happens, and retained searches are often billed in instalments such as thirds. A German law-firm guide puts a typical placement fee at 20 to 30 percent of the first-year gross salary, and a replacement guarantee of three to six months is the figure most often quoted. These are contract terms, not rules, so the template stores the fee percent, the guarantee days and the guarantee end date per placement without defaults."
+      },
+      {
+        "question": "What should not go into candidate notes?",
+        "answer": "Only facts that matter for the role. Leave out health or disability data, religion, union membership, date of birth, family status and background-check results. In Germany, free-text notes about age, origin or family can become a legal risk if a candidate asks for access."
+      },
+      {
+        "question": "Does the agent contact candidates or clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "I place candidates with client companies and lose track of who is submitted where, when a guarantee ends and how long I may keep candidate data. Set up a recruiting desk in my Customermates workspace: clients with their terms, job orders with nine stages and an expected fee, one submission per candidate and job, placements with the guarantee end and aftercare check-ins, and a keep-until date on every candidate.",
     "questions": [

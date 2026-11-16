@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Każde zlecenie zapisuje, kiedy sprawdzono przyjęcie.",
     "engagements_board_view": "Zlecenia otwierają się jako tablica według etapu."
   },
+  "page": {
+    "metaTitle": "Zlecenia konsultingowe: oferty i follow-up w Twoim CRM",
+    "metaDescription": "Zlecenia konsultingowe, które agent AI buduje w Twoim CRM: od kontaktu do wygranego, z terminem ponownego kontaktu ustalonym na rozmowie o ofercie.",
+    "headline": "Nie trać oferty w ciszy po rozmowie: CRM dla konsultanta, który buduje Twój agent AI",
+    "answer": "CRM dla konsultanta śledzi kilka zleceń o dużej wartości od kontaktu do wygranego i przede wszystkim termin, w którym wracasz do oferty. Ten szablon konfiguruje zlecenia z rozmową odkrywczą, zakresem, ofertą i decyzją, sprawdzenie przyjęcia zlecenia przed ofertą, rezultaty z terminami wykonania i odbioru oraz zamknięcie. Wklej go do swojego agenta AI, a on zbuduje wszystko w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Poniedziałkowy przegląd zleceń",
+      "steps": [
+        "Przejdź przez pipeline etapami i dodaj datowany następny krok do każdego zlecenia, które go nie ma, albo je zamknij.",
+        "Sprawdź wysłane oferty: każda wymaga terminu ponownego kontaktu ustalonego z decydentem na rozmowie, potem drugiego kontaktu około dziesiątego dnia i pytania o decyzję w planowanym terminie.",
+        "Zerknij na rezultaty z terminem w ciągu 14 dni i potwierdź z klientem termin przeglądu.",
+        "Odezwij się do silnych lub ciepłych kontaktów, z którymi nie spotykaliście się od 60 dni, i podziękuj osobie, która poleciła Cię przy ostatnim zleceniu."
+      ]
+    },
+    "limits": [
+      "To nie jest ewidencja czasu pracy ani fakturowanie. Godziny i faktury zostają w Twoich narzędziach do czasu i księgowości; zadanie przy kamieniu milowym tylko przypomina o fakturze.",
+      "Nie pisze ofert i nie zbiera podpisów. Oferta i podpisana umowa to linki do dokumentów w innym miejscu.",
+      "To nie jest planowanie zasobów ani zarządzanie projektem poza rezultatami i terminami. Zadania samej pracy należą do Twojego narzędzia projektowego.",
+      "Nie trzymaj w nim poufnych materiałów klientów ani danych z wywiadów. Nie ma uprawnień na poziomie pola, więc zapisuj neutralny tytuł zlecenia i link.",
+      "Nie wysyła sekwencji. Każdy kolejny kontakt to datowane zadanie i szkic, który sprawdzasz i wysyłasz Ty; Customermates nie ma silnika wysyłki automatycznej ani masowej.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+    ],
+    "faq": [
+      {
+        "question": "Jakiego CRM używają konsultanci?",
+        "answer": "Wielu niezależnych konsultantów zaczyna od arkusza albo ogólnego CRM sprzedażowego. Konsultant potrzebuje niewiele: kilku kontaktów i zleceń, datowanego następnego kroku przy każdym, terminu powrotu do oferty i kroków odbioru po sprzedaży. Ten szablon konfiguruje to w Customermates."
+      },
+      {
+        "question": "Kiedy wrócić do oferty po jej wysłaniu?",
+        "answer": "Ustal termin w trakcie rozmowy o ofercie, tak jak opisuje to Alan Weiss: podaj konkretny dzień i godzinę, zadzwoń najpierw i napisz tylko wtedy, gdy kupujący jest nieosiągalny. Szablon domyślnie proponuje pierwszy kontakt po 3 dniach i drugi po 10; oba możesz zmienić."
+      },
+      {
+        "question": "Czym jest sprawdzenie przyjęcia zlecenia?",
+        "answer": "To krótka kontrola przed napisaniem oferty: czy masz moce, czy zachowasz niezależność wobec innych stron klienta, czy da się utrzymać poufność i czy zlecenie do Ciebie pasuje? Niemieckie stowarzyszenie konsultantów zaleca sprawdzić, czy zlecenie można przyjąć, zanim sformułujesz ofertę, a w przeciwnym razie odmówić."
+      },
+      {
+        "question": "Jak szybko po podpisaniu powinno odbyć się spotkanie startowe?",
+        "answer": "Przewodnik jednego z dostawców celuje w spotkanie startowe w ciągu 48 godzin od zamknięcia, z materiałem wstępnym wysłanym 24 godziny przed 60-minutowym spotkaniem; zaznacza, że zlecenia regulowane lub podzlecane wymagają więcej czasu. Szablon tworzy krok startowy dzień po wygraniu zlecenia."
+      },
+      {
+        "question": "Co zrobić po utracie oferty?",
+        "answer": "Zapisz powód, a dwa dni później zapytaj decydenta, co można było zrobić inaczej. Alan Weiss zaleca właśnie to pytanie, gdy odpowiedź brzmi nie. Szablon tworzy ten krok za Ciebie."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Prowadzę własną firmę konsultingową i tracę zlecenia w ciszy po rozmowie o ofercie. Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
+    "intro":"Prowadzę własną firmę konsultingową i tracę zlecenia w ciszy po rozmowie o ofercie. Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
     "questions": [
       "Jakie rodzaje zleceń sprzedajesz i w jakiej stawce dziennej?",
       "Jak decydujesz, czy przyjąć zlecenie?",

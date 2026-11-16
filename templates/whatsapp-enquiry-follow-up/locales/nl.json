@@ -82,6 +82,51 @@
     "quote_valid_field": "Elke offerte legt vast hoe lang ze geldig is.",
     "enquiries_board_view": "De aanvragen openen als bord per fase."
   },
+  "page": {
+    "metaTitle": "WhatsApp CRM: sjabloon voor aanvragen en offertes",
+    "metaDescription": "WhatsApp CRM: elk gesprek wordt een aanvraag met offerte en een volgende stap met datum. Plak het sjabloon in je AI-agent. Niet de officiële WhatsApp-API.",
+    "headline": "Een WhatsApp CRM dat elk gesprek een aanvraag met een volgende stap met datum maakt, gebouwd door je AI-agent",
+    "answer": "Om op WhatsApp op te volgen, antwoord je snel, leg je elk gesprek vast als aanvraag met de offerte en de geldigheid, geef je het een volgende stap met datum en noteer je wanneer je terugkomt. Plak dit sjabloon in je AI-agent en hij bouwt de lijst met aanvragen in Customermates, met elk gesprek gekoppeld aan zijn aanvraag. Jij keurt het plan goed voordat er iets wordt gebouwd. Het werkt met antwoorden die je een voor een controleert, zonder massaberichten, bots of de officiële Business-API.",
+    "routine": {
+      "title": "De dagelijkse WhatsApp-check",
+      "steps": [
+        "Open de WhatsApp-inbox en antwoord op elk nieuw gesprek. Bevestig standaard binnen ongeveer een uur tijdens kantooruren en antwoord dezelfde dag volledig.",
+        "Zorg dat elk gesprek van de afgelopen dag in precies één toestand zit: beantwoord, voorzien van een volgende stap met datum of gesloten met een reden.",
+        "Volg offertes twee dagen na verzending op en nog eens enkele dagen later. Stuur daarna een afsluitend bericht en zet een terugkomdatum.",
+        "Vraag de dag nadat een aanvraag op wacht op betaling komt om betaling en bevestig de levering of afspraak de dag ervoor.",
+        "Bekijk de terugkomdata en herbestelherinneringen die aan de beurt zijn en schrijf die klanten een voor een."
+      ]
+    },
+    "limits": [
+      "Het is niet het officiële WhatsApp Business Platform. Het account wordt met een QR-code gekoppeld, dus er zijn geen berichtsjablonen, broadcasts, campagnes, sequenties, chatbots of flows, geen catalogussynchronisatie en geen functies voor geverifieerde bedrijven.",
+      "Het accountrisico is van jou. WhatsApp kan een account beperken of verwijderen dat wordt gebruikt op een manier die het beleid verbiedt, bijvoorbeeld door veel mensen te berichten. Houd het volume laag, met toestemming en menselijk.",
+      "Een gesprek wordt niet automatisch aan een aanvraag gekoppeld. Jij of je agent koppelt het, en groepsgesprekken horen niet bij een klant.",
+      "Er zijn geen offertes, facturen, betaallinks of orderbeheer. Die blijven in je boekhoudpakket of webshop, het sjabloon bewaart offertebedrag, geldigheid en fase.",
+      "Voor de WhatsApp-koppeling is een abonnement met inbox nodig. Zonder kun je aanvragen nog steeds met de hand bijhouden."
+    ],
+    "faq": [
+      {
+        "question": "Hoe snel moet ik op een WhatsApp-aanvraag antwoorden?",
+        "answer": "Elke bron zegt snel en geen enkele noemt een officieel getal. Onderzoek naar online aanvragen vond dat de meeste bedrijven veel te langzaam reageren, en het vaak aangehaalde getal van vijf minuten kon niet worden bevestigd. Het sjabloon gebruikt standaard ongeveer een uur tijdens kantooruren voor een eerste antwoord en het volledige antwoord dezelfde dag. Pas het aan je bedrijf aan."
+      },
+      {
+        "question": "Is de WhatsApp Business-app met labels genoeg?",
+        "answer": "Gidsen voor kleine bedrijven raden drie tot vijf labels aan als pijplijn, bijvoorbeeld nieuwe klant, bestelling bevestigd en wacht op betaling. De zwakte: geen geschiedenis over personen heen, geen opvolgdata en niets overleeft het vertrek van een medewerker. Het sjabloon maakt van labels fasen en voegt data en een eigenaar toe, terwijl het gesprek het bewijs blijft."
+      },
+      {
+        "question": "Hoe vaak moet ik een offerte opvolgen?",
+        "answer": "Op WhatsApp is het ritme korter dan bij e-mail. Een goede standaard: twee dagen na de offerte, een tweede keer enkele dagen later, daarna een afsluitend bericht dat het misschien niet het goede moment is en een terugkomdatum na ongeveer 90 dagen. Het sjabloon plant de eerste opvolging als actie met een datum; de termijnen stel je zelf in."
+      },
+      {
+        "question": "Heb ik toestemming van de klant nodig om hem op WhatsApp te berichten?",
+        "answer": "Het WhatsApp-beleid voor bedrijven zegt dat je alleen mensen benadert die hun nummer en toestemming hebben gegeven en dat je verzoeken om te stoppen respecteert. Het sjabloon noteert per contact of de klant het gesprek begon, toestemming gaf of vroeg om te stoppen. Je hebt daarnaast een grondslag en een privacyverklaring nodig volgens de AVG."
+      },
+      {
+        "question": "Stuurt de agent berichten naar mijn klanten?",
+        "answer": "Nee. De prompt vraagt om antwoorden die een voor een ter controle worden geschreven, niets in bulk en geen voorbeeldgegevens. Elk antwoord verstuur je zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Klanten vragen via WhatsApp om prijzen en ik raak het gesprek kwijt voordat ik opvolg. Richt in mijn Customermates-werkruimte het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een verwachte nabestelling per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
     "questions": [

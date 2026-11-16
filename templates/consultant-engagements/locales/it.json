@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Ogni incarico indica quando è stata verificata l'accettazione.",
     "engagements_board_view": "Gli incarichi si aprono come board per fase."
   },
+  "page": {
+    "metaTitle": "Incarichi di consulenza: proposte, follow-up e consegne",
+    "metaDescription": "Incarichi di consulenza che il tuo agente IA costruisce nel CRM: dal contatto alla vittoria, con una data di follow-up fissata nella chiamata e deliverable.",
+    "headline": "Non perdere più una proposta nel silenzio dopo la chiamata: un CRM per consulenti costruito dal tuo agente IA",
+    "answer": "Un CRM per consulenti segue pochi incarichi di alto valore dal contatto alla vittoria e, soprattutto, la data in cui fai il follow-up di una proposta. Questo modello imposta incarichi con analisi, ambito, proposta e decisione, un controllo di accettazione prima dell'offerta, deliverable con date di scadenza e di approvazione e una chiusura. Incollalo nel tuo agente IA: costruisce tutto in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+    "routine": {
+      "title": "La revisione del lunedì sugli incarichi",
+      "steps": [
+        "Scorri la pipeline per fase e aggiungi un prossimo passo con data a ogni incarico che ne è privo, oppure chiudilo.",
+        "Controlla le proposte in corso: ognuna richiede una data di follow-up concordata con il referente durante la chiamata, poi un secondo follow-up verso il decimo giorno e la richiesta di decisione alla data prevista.",
+        "Guarda i deliverable in scadenza nei prossimi 14 giorni e conferma con il cliente lo slot di revisione.",
+        "Ricontatta i contatti forti o caldi che non vedi da 60 giorni e ringrazia chi ti ha segnalato nell'ultimo incarico."
+      ]
+    },
+    "limits": [
+      "Non è un sistema di tracciamento delle ore né di fatturazione. Ore e fatture restano nei tuoi strumenti di tempo e contabilità; un'attività su una milestone ti ricorda solo di fatturare.",
+      "Non scrive proposte e non raccoglie firme. Una proposta e un contratto firmato sono link a documenti altrove.",
+      "Non è pianificazione delle risorse né gestione di progetto oltre a deliverable e date. Le attività del lavoro vero e proprio stanno nel tuo strumento di progetto.",
+      "Tieni fuori materiali riservati dei clienti e dati di interviste. Non ci sono permessi a livello di campo: salva un titolo neutro dell'incarico e un link.",
+      "Non invia sequenze. Ogni follow-up è un'attività datata e una bozza che rivedi e invii tu; Customermates non ha un motore di invio automatico o di massa.",
+      "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+    ],
+    "faq": [
+      {
+        "question": "Quale CRM usano i consulenti?",
+        "answer": "Molti consulenti indipendenti partono da un foglio di calcolo o da un CRM commerciale generico. Ciò che serve a un consulente è poco: pochi contatti e incarichi, un prossimo passo datato su ciascuno, la data di follow-up della proposta e i passaggi di approvazione dopo la vendita. Questo modello imposta proprio questo in Customermates."
+      },
+      {
+        "question": "Quando fare follow-up dopo l'invio di una proposta?",
+        "answer": "Concorda la data durante la chiamata sulla proposta, come descrive Alan Weiss: indica un giorno e un'ora precisi, chiama prima e scrivi solo se il cliente non è raggiungibile. Il modello propone di default un primo follow-up dopo 3 giorni e un secondo dopo 10; puoi cambiare entrambi."
+      },
+      {
+        "question": "Che cos'è un controllo di accettazione?",
+        "answer": "Una verifica breve prima di scrivere un'offerta: hai capacità, sei indipendente dalle altre parti del cliente, si può mantenere la riservatezza, l'incarico fa per te? Un'associazione tedesca di consulenti consiglia di verificare se un incarico può essere accettato prima di formulare l'offerta e, altrimenti, di rifiutarlo."
+      },
+      {
+        "question": "Quanto presto dopo la firma va fatta la riunione di avvio?",
+        "answer": "Una guida di un fornitore punta a una riunione di avvio entro 48 ore dalla chiusura, con un documento preliminare inviato 24 ore prima di una riunione di 60 minuti; avverte che incarichi regolamentati o in subappalto richiedono più tempo. Il modello crea un passaggio di avvio il giorno dopo la vittoria."
+      },
+      {
+        "question": "Che cosa faccio dopo aver perso una proposta?",
+        "answer": "Registra il motivo e, due giorni dopo, chiedi al referente che cosa avresti potuto fare diversamente. Alan Weiss consiglia proprio questa domanda quando la risposta è no. Il modello crea questo passaggio per te."
+      },
+      {
+        "question": "L'agente scrive ai miei clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Lavoro come consulente indipendente e perdo trattative nel silenzio dopo la chiamata sulla proposta. Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
+    "intro":"Lavoro come consulente indipendente e perdo trattative nel silenzio dopo la chiamata sulla proposta. Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
     "questions": [
       "Che tipi di incarico vendi e a quale tariffa giornaliera?",
       "Come decidi se accettare un lavoro?",

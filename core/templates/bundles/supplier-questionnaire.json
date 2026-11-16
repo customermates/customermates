@@ -995,14 +995,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -1384,6 +1384,51 @@
         "valid_until_field": "Jedes Dokument hält fest, bis wann es gültig ist.",
         "suppliers_board_view": "Die Lieferanten öffnen sich als Board nach Status."
       },
+      "page": {
+        "metaTitle": "Lieferantenbewertung Vorlage: Register mit Ablaufdaten",
+        "metaDescription": "Lieferantenbewertung mit Fragebogen, Zertifikaten und Ablaufdaten in einem Register. Vorlage in Claude, ChatGPT oder Codex einfügen und aufbauen lassen.",
+        "headline": "Lieferantenbewertung mit Ablaufdaten: ein Lieferantenregister, das Ihr KI-Agent in Ihrem CRM aufbaut",
+        "answer": "Eine Lieferantenbewertung hält für jeden Lieferanten Fragebogen, Zertifikate mit Gültig-bis-Datum, Risikoklasse und Entscheidung an einem Ort fest und zeigt, wann die nächste Bewertung fällig ist. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut das Lieferantenregister in Customermates auf, mit terminierten Folgeaufgaben für Fragebögen, Erneuerungen und Neubewertungen. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Das Register dokumentiert Anforderungen und Entscheidungen, es entscheidet nicht über Rechtskonformität.",
+        "routine": {
+          "title": "Der wöchentliche Lieferantencheck",
+          "steps": [
+            "Haken Sie bei jedem Lieferanten nach, dessen Fragebogen über die Frist hinaus ist.",
+            "Prüfen Sie die Antworten der zuletzt eingegangenen Fragebögen und vermerken Sie, welche Antworten noch keinen aktuellen Nachweis haben.",
+            "Fordern Sie erneuerte Zertifikate und Bescheinigungen an, die innerhalb von 30 Tagen ablaufen, und klären Sie die bereits abgelaufenen: Lieferant sperren oder das Risiko schriftlich akzeptieren.",
+            "Halten Sie bei Lieferanten in Prüfung die Entscheidung fest (freigeben, bedingt freigeben, eskalieren oder ablehnen) und setzen Sie den nächsten Bewertungstermin nach Risikoklasse.",
+            "Starten Sie die Neubewertung der Lieferanten, deren nächster Bewertungstermin innerhalb von 14 Tagen liegt."
+          ]
+        },
+        "limits": [
+          "Es entscheidet nicht, ob ein Lieferant, ein Produkt oder eine Lieferkette ein Gesetz einhält, und reicht keine Sorgfaltserklärung und keinen Bericht ein. Es hält Anforderungen, Nachweise und Entscheidungen fest.",
+          "Es ist kein Prüfdienst: keine Sanktionslisten-, Negativpresse- oder Bonitätsprüfung und keine Anreicherung von Firmendaten.",
+          "Es ist kein ERP-, Einkaufs- oder Rechnungssystem. Bestellungen, Umsätze und Rechnungen gibt es hier nicht.",
+          "Es ist kein Dokumentenarchiv. Dateien sind nur durchsuchbar, wenn sie eine Textebene haben, eingescannte Zertifikate werden nicht gelesen, und es gibt keinen unveränderlichen oder unabhängig aufbewahrten Prüfpfad. Die Originale bleiben in Ihrem Dokumentensystem, hier steht der Link.",
+          "Lieferanten können sich nicht anmelden, um zu antworten oder Dateien hochzuladen, und es gibt weder elektronische Signatur noch Rechte auf Feldebene. Vertrauliches gehört in eine eigene Liste oder einen eigenen Workspace. Plattformen wie EcoVadis, Sedex oder SAP Ariba übernehmen, was hier fehlt."
+        ],
+        "faq": [
+          {
+            "question": "Wie oft sollte ich Lieferanten neu bewerten?",
+            "answer": "Die Fachliteratur nennt mindestens einmal jährlich. In der Praxis werden kritische Lieferanten halbjährlich oder jährlich geprüft und zusätzlich nach einem Anlass wie einer Übernahme, einem neuen Unterlieferanten oder einem Vorfall, unkritische Lieferanten auch ein Jahr oder länger nicht. Die Vorlage setzt den nächsten Bewertungstermin nach Risikoklasse; bei einem Anlass lösen Sie die Neubewertung selbst aus."
+          },
+          {
+            "question": "Welche Kriterien gehören in eine Lieferantenbewertung?",
+            "answer": "Üblich sind sechs: Qualität, Preis-Leistung, Lieferzuverlässigkeit, Flexibilität, Kommunikation und Nachhaltigkeit. Ob Punktbewertung, Nutzwertanalyse oder ABC-Analyse: Die ISO 9001 schreibt keine Methode vor, verlangt aber dokumentierte, nachvollziehbare Kriterien. Zertifikate sind Hinweise und ersetzen die eigene Bewertung nicht."
+          },
+          {
+            "question": "Was gehört in eine Lieferantenselbstauskunft?",
+            "answer": "Firmendaten und Ansprechpartner, Zertifikate wie ISO 9001, ISO 14001 oder ISO 45001, Versicherungsnachweise und, wenn der Lieferant personenbezogene Daten verarbeitet, ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO. Zu jeder Antwort, die eine Entscheidung beeinflusst, gehören Nachweis und Datum; ein Ja ohne aktuellen Nachweis bleibt offen."
+          },
+          {
+            "question": "Entscheidet die Vorlage, ob wir das Lieferkettengesetz einhalten?",
+            "answer": "Nein. Sie sammelt Anforderungen und Nachweise und hält Termine und Entscheidungen fest. Geltungsbereich und Fristen von Regelungen wie dem Lieferkettengesetz oder der EU-Entwaldungsverordnung ändern sich weiter, klären Sie sie mit Ihrer Rechtsberatung. Die Vorlage sagt nie, dass ein Lieferant oder ein Produkt konform ist."
+          },
+          {
+            "question": "Schreibt der Agent meine Lieferanten an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ich arbeite mit vielen Lieferanten und sehe nicht, wessen Zertifikate abgelaufen sind und wer neu bewertet werden muss. Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
         "questions": [
@@ -1751,6 +1796,51 @@
         "status_field": "Every supplier has a qualification status.",
         "valid_until_field": "Every document records when it stops being valid.",
         "suppliers_board_view": "The suppliers open as a board by status."
+      },
+      "page": {
+        "metaTitle": "Vendor Management Software Template: Supplier Register",
+        "metaDescription": "Vendor management for small teams: a supplier register with questionnaire, certificate expiry dates and risk tiers. Paste the template into your AI agent.",
+        "headline": "Vendor management software that shows which certificate expires next, built in your CRM by your AI agent",
+        "answer": "Vendor management for a small team means a supplier register with a qualification questionnaire, certificates with valid-until dates, a risk tier and a recorded decision for each supplier. Paste this template into your AI agent and it builds the register in Customermates, with dated follow-ups for questionnaires, renewals and re-evaluations. You approve the plan before anything is built. The register records requests and decisions; it does not decide compliance.",
+        "routine": {
+          "title": "The weekly supplier check",
+          "steps": [
+            "Chase every supplier whose questionnaire is past its due date.",
+            "Review the answers of questionnaires received in the last few days and note which answers still lack current evidence.",
+            "Ask for renewed certificates and clearances that expire within 30 days, and settle the ones that have already expired: suspend the supplier or accept the risk in writing.",
+            "Record the decision for suppliers under review (approve, approve with conditions, escalate or reject) and set the next review date by risk tier.",
+            "Start the re-evaluation of suppliers whose next review falls within 14 days."
+          ]
+        },
+        "limits": [
+          "It does not decide that a supplier, product or supply chain complies with any law, and it files no due diligence statement or report. It records requests, evidence and decisions.",
+          "It is not a screening service: no sanctions, adverse-media or financial-risk checks, and no enrichment of company data.",
+          "It is not an ERP, purchasing or invoicing system. There are no purchase orders, spend figures or invoices.",
+          "It is not a document archive. Files are searchable only when they carry a text layer, scanned certificates are not read, and there is no immutable or independently retained audit trail. Keep the originals in your document system and link them.",
+          "Suppliers cannot sign in to answer or upload, and there is no e-signature or field-level permission. Keep restricted material in a separate list or workspace. Platforms such as EcoVadis, Sedex or SAP Ariba keep the jobs this does not do."
+        ],
+        "faq": [
+          {
+            "question": "How often should I re-evaluate suppliers?",
+            "answer": "Guides put the minimum at once a year. In practice critical suppliers are reviewed every six or twelve months and again after an event such as an acquisition, a new subcontractor or an incident, while low-risk suppliers can go a year or more. The template sets the next review date by risk tier; after an event you start the re-evaluation yourself."
+          },
+          {
+            "question": "Should I tier suppliers by spend?",
+            "answer": "No. Depth should follow risk: the data a supplier handles, the access it has, how critical it is and how easily you can replace it. Use four tiers from low to critical, a light questionnaire for low-risk suppliers and a full one for critical suppliers. Sending every supplier a 300-question form wastes their time and yours. Spend is not a field in this template."
+          },
+          {
+            "question": "What should a supplier questionnaire ask for?",
+            "answer": "Practitioners split it into three parts: a registration or self-disclosure form, the certificates and clearances (for example ISO 9001, an insurance policy, a company register extract) and a qualification questionnaire whose depth follows the risk tier. For any answer that changes a decision, ask for scope, owner, date last reviewed and evidence, and leave a yes without current evidence open."
+          },
+          {
+            "question": "Does this make us compliant with supply chain rules such as EUDR?",
+            "answer": "No. It coordinates evidence requests and records dates and decisions. Scope and deadlines of rules such as the EU deforestation regulation or national supply chain laws keep changing, so confirm them with your adviser. The template never says that a supplier or a product is compliant."
+          },
+          {
+            "question": "Does the agent contact my suppliers?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "I work with many suppliers and cannot see whose certificates have expired or who is due for re-evaluation. Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
@@ -2120,6 +2210,51 @@
         "valid_until_field": "Cada documento indica hasta cuándo es válido.",
         "suppliers_board_view": "Los proveedores se abren como tablero por estado."
       },
+      "page": {
+        "metaTitle": "Homologación de proveedores: plantilla de registro y fechas",
+        "metaDescription": "Homologación de proveedores con cuestionario, documentos con fecha de vencimiento y nivel de riesgo. Pega la plantilla en tu agente de IA y monta el registro.",
+        "headline": "Homologación de proveedores que muestra qué certificado vence primero, montada por tu agente de IA en tu CRM",
+        "answer": "La homologación de proveedores reúne en un registro el cuestionario, los documentos con fecha de vencimiento, el nivel de riesgo y la decisión de cada proveedor. Pega esta plantilla en tu agente de IA y él monta el registro en Customermates, con seguimientos con fecha para cuestionarios, renovaciones y reevaluaciones. Tú apruebas el plan antes de que se construya nada. El registro anota solicitudes y decisiones, no decide el cumplimiento normativo.",
+        "routine": {
+          "title": "La revisión semanal de proveedores",
+          "steps": [
+            "Reclama a los proveedores cuyo cuestionario ha pasado de su fecha límite.",
+            "Revisa las respuestas de los cuestionarios recibidos estos días y anota cuáles aún no tienen una prueba vigente.",
+            "Pide la renovación de los certificados y documentos que vencen en 30 días y decide sobre los ya vencidos: suspender al proveedor o aceptar el riesgo por escrito.",
+            "Registra la decisión de los proveedores en revisión (homologar, homologar con condiciones, escalar o rechazar) y fija la próxima evaluación según el nivel de riesgo.",
+            "Inicia la reevaluación de los proveedores cuya próxima evaluación cae dentro de 14 días."
+          ]
+        },
+        "limits": [
+          "No decide que un proveedor, un producto o una cadena de suministro cumpla una ley, y no presenta declaraciones de diligencia debida ni informes. Registra solicitudes, pruebas y decisiones.",
+          "No es un servicio de cribado: no comprueba sanciones, prensa adversa ni riesgo financiero, y no enriquece datos de empresas.",
+          "No es un ERP ni un sistema de compras o facturación. No hay pedidos de compra, importes de gasto ni facturas.",
+          "No es un archivo de documentos. Los archivos solo se pueden buscar si tienen capa de texto, los certificados escaneados no se leen y no hay un registro de auditoría inalterable o conservado de forma independiente. Guarda los originales en tu sistema de documentos y enlázalos.",
+          "Los proveedores no pueden entrar para responder o subir archivos, y no hay firma electrónica ni permisos por campo. Lo reservado va en una lista o un espacio de trabajo aparte. Plataformas como EcoVadis, Sedex o SAP Ariba hacen lo que aquí falta."
+        ],
+        "faq": [
+          {
+            "question": "¿Cómo funciona la homologación de proveedores?",
+            "answer": "Los pasos son comunes en la práctica: definir la necesidad y los criterios, enviar un cuestionario de alta, recoger documentos y certificados, clasificar por nivel de riesgo, decidir (homologar, homologar con condiciones, escalar o rechazar) y reevaluar. La lista de proveedores homologados es el registro de proveedores aprobados que pide la ISO 9001:2015 en su apartado 8.4.1."
+          },
+          {
+            "question": "¿Cada cuánto debo reevaluar a los proveedores?",
+            "answer": "Las guías sitúan el mínimo en una vez al año. En la práctica los proveedores críticos se revisan cada seis o doce meses y también tras un hecho como una adquisición, un nuevo subcontratista o un incidente, mientras que los de bajo riesgo pueden pasar un año o más. La plantilla fija la próxima evaluación según el nivel de riesgo; tras un hecho, inicias tú la reevaluación."
+          },
+          {
+            "question": "¿Conviene clasificar a los proveedores por volumen de compra?",
+            "answer": "No. La profundidad debe seguir el riesgo: los datos que maneja el proveedor, el acceso que tiene, lo crítico que es y lo fácil que sea sustituirlo. Usa cuatro niveles, de bajo a crítico, con un cuestionario ligero para los de bajo riesgo y uno completo para los críticos. El importe de compra no es un campo de esta plantilla. Comprueba con tu asesor qué certificados exige tu sector y cuánto tiempo es válido cada uno."
+          },
+          {
+            "question": "¿Decide la plantilla si cumplimos las normas de la cadena de suministro?",
+            "answer": "No. Coordina las solicitudes de pruebas y registra fechas y decisiones. El alcance y los plazos de normas como el reglamento europeo contra la deforestación o las leyes de diligencia debida siguen cambiando: confírmalos con tu asesor. La plantilla nunca dice que un proveedor o un producto cumple."
+          },
+          {
+            "question": "¿El agente contacta con mis proveedores?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Trabajo con muchos proveedores y no veo a quién se le han caducado los certificados ni a quién le toca la reevaluación. Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
         "questions": [
@@ -2487,6 +2622,51 @@
         "status_field": "Chaque fournisseur a un statut de qualification.",
         "valid_until_field": "Chaque document indique jusqu’à quand il est valable.",
         "suppliers_board_view": "Les fournisseurs s’ouvrent en board par statut."
+      },
+      "page": {
+        "metaTitle": "Logiciel gestion fournisseurs : modèle de registre",
+        "metaDescription": "Logiciel de gestion des fournisseurs : registre, questionnaire, certificats avec dates de validité et risque. Collez le modèle dans votre agent IA.",
+        "headline": "Un logiciel de gestion des fournisseurs qui montre quel certificat expire en premier, construit par votre agent IA",
+        "answer": "La gestion des fournisseurs d’une petite équipe repose sur un registre : questionnaire de qualification, certificats avec date de validité, niveau de risque et décision pour chaque fournisseur. Collez ce modèle dans votre agent IA et il construit le registre dans Customermates, avec des relances datées pour les questionnaires, les renouvellements et les réévaluations. Vous validez le plan avant toute construction. Le registre consigne les demandes et les décisions, il ne décide pas de la conformité.",
+        "routine": {
+          "title": "Le point hebdomadaire sur les fournisseurs",
+          "steps": [
+            "Relancez les fournisseurs dont le questionnaire a dépassé son échéance.",
+            "Examinez les réponses des questionnaires reçus ces derniers jours et notez celles qui n’ont pas encore de justificatif à jour.",
+            "Demandez le renouvellement des certificats et attestations qui expirent dans 30 jours, et tranchez pour ceux qui ont expiré : suspendre le fournisseur ou accepter le risque par écrit.",
+            "Consignez la décision pour les fournisseurs en revue (référencer, référencer sous conditions, escalader ou refuser) et fixez la prochaine évaluation selon le niveau de risque.",
+            "Lancez la réévaluation des fournisseurs dont la prochaine évaluation tombe dans les 14 jours."
+          ]
+        },
+        "limits": [
+          "Il ne décide pas qu’un fournisseur, un produit ou une chaîne d’approvisionnement respecte une loi, et il ne dépose ni déclaration de diligence ni rapport. Il consigne les demandes, les justificatifs et les décisions.",
+          "Ce n’est pas un service de contrôle : pas de vérification de sanctions, de presse défavorable ou de solvabilité, et pas d’enrichissement des données d’entreprise.",
+          "Ce n’est ni un ERP, ni un outil d’achats ou de facturation. Il n’y a ni bons de commande, ni montants d’achats, ni factures.",
+          "Ce n’est pas une archive. Les fichiers ne sont consultables que s’ils ont une couche de texte, les certificats scannés ne sont pas lus et la piste d’audit n’est ni inaltérable ni conservée à part. Gardez les originaux dans votre système de documents, avec un lien.",
+          "Les fournisseurs ne peuvent pas se connecter pour répondre ou déposer des fichiers, et il n’y a ni signature électronique ni droits par champ. Le confidentiel va dans une liste ou un espace à part. EcoVadis, Sedex ou SAP Ariba font ce qu’il ne fait pas."
+        ],
+        "faq": [
+          {
+            "question": "À quelle fréquence réévaluer les fournisseurs ?",
+            "answer": "Les guides placent le minimum à une fois par an. En pratique, les fournisseurs critiques sont revus tous les six ou douze mois et après un événement tel qu’un rachat, un nouveau sous-traitant ou un incident ; les fournisseurs à faible risque peuvent attendre un an ou plus. Le modèle fixe la prochaine évaluation selon le niveau de risque ; après un événement, vous lancez vous-même la réévaluation."
+          },
+          {
+            "question": "Faut-il classer les fournisseurs selon le montant des achats ?",
+            "answer": "Non. La profondeur du contrôle doit suivre le risque : les données que le fournisseur traite, ses accès, son caractère critique et la facilité à le remplacer. Utilisez quatre niveaux, de faible à critique, avec un questionnaire léger pour les fournisseurs à faible risque et un questionnaire complet pour les critiques. Envoyer 300 questions à chaque fournisseur fait perdre du temps à tout le monde. Le montant des achats n’est pas un champ du modèle."
+          },
+          {
+            "question": "Quels documents demander à un sous-traitant en France ?",
+            "answer": "Pour un contrat de plus de 5 000 euros hors taxes, le donneur d’ordre contrôle l’attestation de vigilance à la signature, puis tous les six mois jusqu’à la fin du contrat ; elle se vérifie en ligne avec son code de sécurité sur le site de l’Urssaf. On demande aussi un extrait Kbis. Sans ces contrôles, le donneur d’ordre risque d’être tenu solidairement des cotisations impayées. Les seuils varient selon les sources : vérifiez-les auprès de l’Urssaf. Le modèle ne fait que dater la prochaine vérification."
+          },
+          {
+            "question": "Le modèle décide-t-il de notre conformité au devoir de vigilance ?",
+            "answer": "Non. Il coordonne les demandes de justificatifs et consigne les dates et les décisions. Le champ et les échéances de règles comme le règlement européen sur la déforestation ou les lois sur le devoir de vigilance évoluent encore : confirmez-les avec votre conseil. Le modèle ne dit jamais qu’un fournisseur ou un produit est conforme."
+          },
+          {
+            "question": "L’agent contacte-t-il mes fournisseurs ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple. Des brouillons n’existent que si vous les demandez, et c’est vous qui les envoyez."
+          }
+        ]
       },
       "prompt": {
         "intro": "Je travaille avec de nombreux fournisseurs et je ne vois pas quels certificats ont expiré ni qui doit être réévalué. Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
@@ -2856,6 +3036,51 @@
         "valid_until_field": "Ogni documento indica fino a quando è valido.",
         "suppliers_board_view": "I fornitori si aprono come board per stato."
       },
+      "page": {
+        "metaTitle": "Albo fornitori: modello per qualifica e scadenze",
+        "metaDescription": "Albo fornitori con questionario di qualifica, certificati con scadenza e livello di rischio. Incolla il modello nel tuo agente IA e lo costruisce nel tuo CRM.",
+        "headline": "Un albo fornitori che mostra quale certificato scade per primo, costruito dal tuo agente IA nel tuo CRM",
+        "answer": "Un albo fornitori tiene in un unico posto, per ogni fornitore, il questionario di qualifica, i certificati con scadenza, il livello di rischio e la decisione. Incolla questo modello nel tuo agente IA e lui costruisce l’albo in Customermates, con attività con data per questionari, rinnovi e rivalutazioni. Approvi tu il piano prima che venga costruito qualcosa. L’albo registra richieste e decisioni, non stabilisce la conformità.",
+        "routine": {
+          "title": "Il controllo settimanale dei fornitori",
+          "steps": [
+            "Sollecita i fornitori il cui questionario ha superato la scadenza.",
+            "Esamina le risposte dei questionari ricevuti negli ultimi giorni e segna quelle che non hanno ancora una prova aggiornata.",
+            "Chiedi il rinnovo di certificati e documenti, per esempio il DURC, che scadono entro 30 giorni e decidi per quelli già scaduti: sospendere il fornitore o accettare il rischio per iscritto.",
+            "Registra la decisione per i fornitori in valutazione (qualificare, qualificare con riserva, escalation o respingere) e fissa la prossima rivalutazione in base al livello di rischio.",
+            "Avvia la rivalutazione dei fornitori la cui prossima rivalutazione cade entro 14 giorni."
+          ]
+        },
+        "limits": [
+          "Non stabilisce che un fornitore, un prodotto o una filiera rispetti una legge e non presenta dichiarazioni di due diligence né report. Registra richieste, prove e decisioni.",
+          "Non è un servizio di screening: niente controlli su sanzioni, notizie negative o affidabilità finanziaria, e nessun arricchimento dei dati aziendali.",
+          "Non è un ERP né un sistema di acquisti o fatturazione. Non ci sono ordini d’acquisto, importi di spesa o fatture.",
+          "Non è un archivio documentale. I file sono ricercabili solo se hanno un livello di testo, i certificati scansionati non vengono letti e non esiste una traccia di audit immodificabile o conservata in modo indipendente. Tieni gli originali nel tuo sistema documentale e aggiungi il link.",
+          "I fornitori non possono accedere per rispondere o caricare file, e non ci sono firma elettronica né permessi per campo. Il materiale riservato va in un elenco o in uno spazio di lavoro a parte. Piattaforme come EcoVadis, Sedex o SAP Ariba fanno ciò che qui manca."
+        ],
+        "faq": [
+          {
+            "question": "Ogni quanto va rivalutato un fornitore?",
+            "answer": "Almeno una volta all’anno è il minimo più citato. Nella pratica italiana la qualifica è dinamica: rivalutazione semestrale o annuale in base alla criticità e in più dopo eventi come fusioni, nuovi subfornitori, incidenti di sicurezza o obiettivi mancati. Il modello fissa la prossima rivalutazione in base al livello di rischio; dopo un evento avvii tu la rivalutazione."
+          },
+          {
+            "question": "Come si struttura la qualifica di un fornitore?",
+            "answer": "Di solito il fornitore si candida con un questionario, viene iscritto all’albo dopo l’approvazione e poi qualificato. Molte aziende usano tre questionari: registrazione, certificati e qualifica, per categoria merceologica. La qualifica segue il rischio: il percorso completo serve solo ai fornitori critici. L’elenco dei fornitori qualificati è il registro dei fornitori approvati all’uso richiesto dalla ISO 9001:2015, punto 8.4.1."
+          },
+          {
+            "question": "Quali documenti chiedere e quanto sono validi?",
+            "answer": "Di solito certificazioni ISO 9001, 14001 e 45001, visura camerale, DURC e polizza assicurativa. Il DURC vale 120 giorni e l’idoneità va mantenuta per tutta la durata del contratto. Il modello registra la scadenza di ogni documento e crea un’attività per chiederne il rinnovo 30 giorni prima. La validità di ogni documento va verificata presso chi lo rilascia."
+          },
+          {
+            "question": "Il modello stabilisce se siamo conformi alla NIS2 o al GDPR?",
+            "answer": "No. Coordina le richieste di prove e registra date e decisioni. Se un fornitore tratta dati personali serve un accordo sul trattamento dei dati ai sensi dell’art. 28 del GDPR: il modello ti aiuta a tenere traccia che esista e sia valido, ma non dice mai che un fornitore è conforme. Conferma ambito e scadenze con il tuo consulente."
+          },
+          {
+            "question": "L’agente contatta i miei fornitori?",
+            "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Lavoro con molti fornitori e non riesco a vedere di chi sono scaduti i certificati o chi è da rivalutare. Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
         "questions": [
@@ -3223,6 +3448,51 @@
         "status_field": "Elke leverancier heeft een kwalificatiestatus.",
         "valid_until_field": "Elk document legt vast tot wanneer het geldig is.",
         "suppliers_board_view": "De leveranciers openen als bord per status."
+      },
+      "page": {
+        "metaTitle": "Leveranciersmanagement sjabloon: register met vervaldata",
+        "metaDescription": "Leveranciersmanagement en leveranciersbeoordeling in één register: vragenlijst, certificaten met vervaldatum, risiconiveau. Plak het sjabloon in je AI-agent.",
+        "headline": "Leveranciersmanagement dat laat zien welk certificaat het eerst verloopt, gebouwd door je AI-agent in je CRM",
+        "answer": "Leveranciersmanagement voor een klein team draait om een register met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier. Plak dit sjabloon in je AI-agent en hij bouwt het register in Customermates, met opvolgacties met datum voor vragenlijsten, verlengingen en herbeoordelingen. Jij keurt het plan goed voordat er iets wordt gebouwd. Het register legt verzoeken en beslissingen vast en beslist niet over naleving van wetgeving.",
+        "routine": {
+          "title": "De wekelijkse leverancierscheck",
+          "steps": [
+            "Spreek de leveranciers aan van wie de vragenlijst over de deadline is.",
+            "Bekijk de antwoorden op de vragenlijsten van de afgelopen dagen en noteer welke antwoorden nog geen actueel bewijs hebben.",
+            "Vraag verlenging van certificaten en verklaringen die binnen 30 dagen verlopen en regel de al verlopen: de leverancier schorsen of het risico schriftelijk accepteren.",
+            "Leg de beslissing vast voor leveranciers in beoordeling (goedkeuren, voorwaardelijk goedkeuren, escaleren of afwijzen) en zet de volgende beoordeling naar risiconiveau.",
+            "Start de herbeoordeling van leveranciers van wie de volgende beoordeling binnen 14 dagen valt."
+          ]
+        },
+        "limits": [
+          "Het beslist niet dat een leverancier, product of keten aan een wet voldoet en dient geen zorgvuldigheidsverklaring of rapport in. Het legt verzoeken, bewijs en beslissingen vast.",
+          "Het is geen screeningsdienst: geen controle op sancties, negatieve berichtgeving of financieel risico en geen verrijking van bedrijfsgegevens.",
+          "Het is geen ERP, inkoop- of factureringssysteem. Er zijn geen inkooporders, bestedingen of facturen.",
+          "Het is geen documentarchief. Bestanden zijn alleen doorzoekbaar met een tekstlaag, gescande certificaten worden niet gelezen en er is geen onveranderlijk of onafhankelijk bewaard auditspoor. Bewaar de originelen in je documentsysteem en voeg de link toe.",
+          "Leveranciers kunnen niet inloggen om te antwoorden of bestanden te uploaden, en er is geen elektronische handtekening of rechten per veld. Vertrouwelijk materiaal hoort in een aparte lijst of werkruimte. Platforms als EcoVadis, Sedex of SAP Ariba doen wat hier ontbreekt."
+        ],
+        "faq": [
+          {
+            "question": "Hoe vaak moet ik leveranciers opnieuw beoordelen?",
+            "answer": "Gidsen noemen minimaal één keer per jaar. In de praktijk worden kritieke leveranciers elke zes of twaalf maanden bekeken en ook na een gebeurtenis zoals een overname, een nieuwe onderaannemer of een incident, terwijl leveranciers met een laag risico een jaar of langer kunnen wachten. Het sjabloon zet de volgende beoordeling naar risiconiveau; na een gebeurtenis start je de herbeoordeling zelf."
+          },
+          {
+            "question": "Welke criteria horen bij een leveranciersbeoordeling?",
+            "answer": "Gebruikelijk zijn zes: kwaliteit, prijs-kwaliteit, leverbetrouwbaarheid, flexibiliteit, communicatie en duurzaamheid. Of je nu met punten, een nuttigheidsanalyse of een ABC-analyse werkt: ISO 9001 schrijft geen methode voor, maar eist gedocumenteerde, herleidbare criteria. Certificaten zijn aanwijzingen en vervangen je eigen beoordeling niet."
+          },
+          {
+            "question": "Moet ik leveranciers indelen naar inkoopbedrag?",
+            "answer": "Nee. De diepgang moet het risico volgen: de gegevens die een leverancier verwerkt, zijn toegang, hoe kritiek hij is en hoe makkelijk je hem vervangt. Gebruik vier niveaus, van laag tot kritiek, met een korte vragenlijst voor leveranciers met een laag risico en een volledige voor kritieke. Het inkoopbedrag is geen veld in dit sjabloon."
+          },
+          {
+            "question": "Heb ik een verwerkersovereenkomst nodig en kan ik die hier bijhouden?",
+            "answer": "Verwerkt een leverancier persoonsgegevens voor jou, dan is een verwerkersovereenkomst nodig (artikel 28 AVG). Het sjabloon helpt bij te houden of die er is en geldig blijft, maar het zegt nooit dat een leverancier voldoet aan de wet. Wat voor jouw sector verder nodig is, stem je af met je adviseur."
+          },
+          {
+            "question": "Neemt de agent contact op met mijn leveranciers?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Ik werk met veel leveranciers en kan niet zien van wie de certificaten zijn verlopen of wie aan een herbeoordeling toe is. Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
@@ -3592,6 +3862,51 @@
         "valid_until_field": "Każdy dokument zapisuje, do kiedy jest ważny.",
         "suppliers_board_view": "Dostawcy otwierają się jako tablica według statusu."
       },
+      "page": {
+        "metaTitle": "Ocena dostawców: szablon rejestru z terminami ważności",
+        "metaDescription": "Ocena dostawców w jednym rejestrze: kwestionariusz, certyfikaty z datą ważności i poziom ryzyka. Wklej szablon do agenta AI, a zbuduje rejestr w Twoim CRM.",
+        "headline": "Ocena dostawców, która pokazuje, który certyfikat wygasa pierwszy: rejestr, który Twój agent AI buduje w CRM",
+        "answer": "Ocena dostawców zbiera w jednym rejestrze kwestionariusz, certyfikaty z datą ważności, poziom ryzyka i decyzję o każdym dostawcy. Wklej ten szablon do swojego agenta AI, a zbuduje rejestr w Customermates, z zadaniami z terminem dla kwestionariuszy, odnowień i ponownych ocen. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Rejestr zapisuje prośby i decyzje, nie rozstrzyga o zgodności z prawem.",
+        "routine": {
+          "title": "Cotygodniowy przegląd dostawców",
+          "steps": [
+            "Ponagl dostawców, którym minął termin na kwestionariusz.",
+            "Sprawdź odpowiedzi z kwestionariuszy otrzymanych w ostatnich dniach i zaznacz te, do których brakuje aktualnego potwierdzenia.",
+            "Poproś o odnowienie certyfikatów i zaświadczeń, które wygasają w ciągu 30 dni, i rozstrzygnij sprawy tych, które już wygasły: zawiesić dostawcę albo zaakceptować ryzyko na piśmie.",
+            "Zapisz decyzję o dostawcach w ocenie (zatwierdzić, zatwierdzić warunkowo, eskalować lub odrzucić) i ustaw następną ocenę według poziomu ryzyka.",
+            "Rozpocznij ponowną ocenę dostawców, których następna ocena przypada w ciągu 14 dni."
+          ]
+        },
+        "limits": [
+          "Nie rozstrzyga, że dostawca, produkt lub łańcuch dostaw spełnia jakiś przepis, i nie składa oświadczeń o należytej staranności ani raportów. Zapisuje prośby, dowody i decyzje.",
+          "To nie jest usługa weryfikacji: bez sprawdzania sankcji, negatywnych publikacji ani ryzyka finansowego i bez wzbogacania danych o firmach.",
+          "To nie jest system ERP, zakupowy ani fakturowy. Nie ma tu zamówień zakupu, kwot wydatków ani faktur.",
+          "To nie jest archiwum dokumentów. Pliki można przeszukiwać tylko wtedy, gdy mają warstwę tekstową, zeskanowane certyfikaty nie są odczytywane, a ścieżka audytu nie jest niezmienna ani przechowywana niezależnie. Oryginały trzymaj w swoim systemie dokumentów i dodaj link.",
+          "Dostawcy nie mogą się zalogować, by odpowiedzieć lub wgrać pliki, i nie ma podpisu elektronicznego ani uprawnień na poziomie pola. Materiały poufne trzymaj w osobnej liście lub przestrzeni roboczej. Platformy takie jak EcoVadis, Sedex czy SAP Ariba robią to, czego tu brakuje."
+        ],
+        "faq": [
+          {
+            "question": "Jak często oceniać dostawców ponownie?",
+            "answer": "Poradniki wskazują minimum raz w roku. W praktyce dostawców krytycznych przegląda się co sześć lub dwanaście miesięcy oraz po zdarzeniu, takim jak przejęcie, nowy podwykonawca czy incydent, a dostawcy o niskim ryzyku mogą czekać rok lub dłużej. Szablon ustawia następną ocenę według poziomu ryzyka; po zdarzeniu ponowną ocenę rozpoczynasz sam."
+          },
+          {
+            "question": "Jakie kryteria powinna mieć ocena dostawców?",
+            "answer": "Najczęściej sześć: jakość, stosunek ceny do jakości, terminowość dostaw, elastyczność, komunikację i zrównoważony rozwój. Punktowanie, analiza użyteczności czy analiza ABC: norma ISO 9001 nie narzuca metody, ale wymaga udokumentowanych, możliwych do prześledzenia kryteriów. Certyfikaty są wskazówką i nie zastępują własnej oceny."
+          },
+          {
+            "question": "Czy dostawców dzielić według wartości zakupów?",
+            "answer": "Nie. Głębokość kontroli powinna wynikać z ryzyka: danych, które dostawca przetwarza, jego dostępu, znaczenia dla firmy i łatwości zastąpienia go innym. Użyj czterech poziomów, od niskiego do krytycznego, z krótkim kwestionariuszem dla dostawców o niskim ryzyku i pełnym dla krytycznych. Wartość zakupów nie jest polem tego szablonu."
+          },
+          {
+            "question": "Czy szablon rozstrzyga, czy spełniamy przepisy o łańcuchu dostaw?",
+            "answer": "Nie. Koordynuje prośby o dowody i zapisuje terminy oraz decyzje. Zakres i terminy przepisów, takich jak unijne rozporządzenie w sprawie wylesiania czy prawo dotyczące należytej staranności, wciąż się zmieniają: potwierdź je u swojego doradcy. Szablon nigdy nie mówi, że dostawca lub produkt jest zgodny z prawem."
+          },
+          {
+            "question": "Czy agent pisze do moich dostawców?",
+            "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Współpracuję z wieloma dostawcami i nie widzę, komu wygasły certyfikaty ani kogo trzeba ocenić ponownie. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
         "questions": [
@@ -3959,6 +4274,51 @@
         "status_field": "Cada fornecedor tem um status de qualificação.",
         "valid_until_field": "Cada documento registra até quando é válido.",
         "suppliers_board_view": "Os fornecedores abrem como quadro por status."
+      },
+      "page": {
+        "metaTitle": "Gestão de fornecedores: modelo de cadastro e homologação",
+        "metaDescription": "Gestão de fornecedores com questionário, certidões com validade e nível de risco. Cole o modelo no seu agente de IA e ele monta o cadastro no CRM.",
+        "headline": "Gestão de fornecedores que mostra qual certidão vence primeiro, montada pelo seu agente de IA no seu CRM",
+        "answer": "A gestão de fornecedores de uma equipe pequena reúne num cadastro o questionário de qualificação, as certidões com validade, o nível de risco e a decisão de cada fornecedor. Cole este modelo no seu agente de IA e ele monta o cadastro no Customermates, com acompanhamentos com data para questionários, renovações e reavaliações. Você aprova o plano antes de qualquer coisa ser construída. O cadastro registra pedidos e decisões, não decide a conformidade legal.",
+        "routine": {
+          "title": "A conferência semanal de fornecedores",
+          "steps": [
+            "Cobre os fornecedores cujo questionário passou do prazo.",
+            "Analise as respostas dos questionários recebidos nos últimos dias e anote quais ainda não têm comprovação atual.",
+            "Peça a renovação das certidões e documentos que vencem em até 30 dias e resolva os que já venceram: suspender o fornecedor ou aceitar o risco por escrito.",
+            "Registre a decisão dos fornecedores em análise (homologar, homologar com restrições, escalar ou reprovar) e defina a próxima avaliação conforme o nível de risco.",
+            "Inicie a reavaliação dos fornecedores cuja próxima avaliação cai nos próximos 14 dias."
+          ]
+        },
+        "limits": [
+          "Não decide que um fornecedor, produto ou cadeia de fornecimento cumpre uma lei e não protocola declaração de diligência nem relatório. Registra pedidos, comprovações e decisões.",
+          "Não é um serviço de triagem: sem checagem de sanções, mídia negativa ou risco financeiro, e sem enriquecimento de dados de empresas.",
+          "Não é um ERP nem um sistema de compras ou faturamento. Não há pedidos de compra, valores de gasto ou notas fiscais.",
+          "Não é um arquivo de documentos. Os arquivos só são pesquisáveis se tiverem camada de texto, certidões escaneadas não são lidas e não há trilha de auditoria imutável ou guardada de forma independente. Guarde os originais no seu sistema de documentos e coloque o link.",
+          "Os fornecedores não podem entrar para responder ou enviar arquivos, e não há assinatura eletrônica nem permissão por campo. O que é restrito vai para uma lista ou um espaço de trabalho à parte. Plataformas como EcoVadis, Sedex ou SAP Ariba fazem o que aqui falta."
+        ],
+        "faq": [
+          {
+            "question": "Como funciona a homologação de fornecedores?",
+            "answer": "Costuma seguir cinco etapas: levantar a necessidade, buscar e selecionar fornecedores, pedir propostas e documentos, avaliar e validar (auditorias, visitas, entrevistas, referências) e aprovar, incluindo o fornecedor na lista de fornecedores homologados. A qualificação é a avaliação inicial, e a homologação formaliza o fornecedor, com decisão de homologar, homologar com restrições ou reprovar."
+          },
+          {
+            "question": "Com que frequência devo reavaliar os fornecedores?",
+            "answer": "Os guias colocam o mínimo em uma vez por ano, e a renovação cadastral periódica mantém a homologação válida. Na prática, fornecedores críticos são revistos a cada seis ou doze meses e também depois de um fato como uma aquisição, um novo subcontratado ou um incidente, enquanto os de baixo risco podem passar um ano ou mais. O modelo define a próxima avaliação pelo nível de risco; depois de um fato, você inicia a reavaliação."
+          },
+          {
+            "question": "Quais documentos e certidões pedir?",
+            "answer": "Depende do setor. Na construção, por exemplo, costumam ser exigidas certidões trabalhistas, tributárias e fiscais. O modelo registra a data de validade de cada documento e cria uma tarefa para pedir a renovação 30 dias antes do vencimento. Confirme com seu contador ou advogado o que o seu setor exige e por quanto tempo vale cada certidão."
+          },
+          {
+            "question": "O modelo decide se estamos em conformidade com as regras da cadeia de fornecimento?",
+            "answer": "Não. Ele coordena os pedidos de comprovação e registra datas e decisões. Alcance e prazos de normas como o regulamento europeu contra o desmatamento ou leis de diligência continuam mudando: confirme com seu assessor. O modelo nunca diz que um fornecedor ou produto está em conformidade."
+          },
+          {
+            "question": "O agente entra em contato com meus fornecedores?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu trabalho com muitos fornecedores e não vejo de quais os certificados já venceram nem quais precisam ser reavaliados. Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",

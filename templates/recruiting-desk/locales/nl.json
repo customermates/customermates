@@ -183,6 +183,51 @@
     "jobs_board_view": "De vacatures openen als bord per fase.",
     "candidate_data_page": "De kennisbank bevat een pagina over kandidaatgegevens en bewaartermijnen."
   },
+  "page": {
+    "metaTitle": "CRM-sjabloon voor wervingsbureaus: vacatures en kandidaten",
+    "metaDescription": "Vacatures, kandidaten en feedata op één plek. Plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt het wervingsbureau voor je in je CRM.",
+    "headline": "Weten welke kandidaat bij welke vacature zit: een wervingsbureau dat je AI-agent in je CRM bouwt",
+    "answer": "Een wervingsbureau draait twee gekoppelde trajecten: de vacature die de fee oplevert en binnen elke vacature één voordracht per kandidaat met een eigen fase. Plak dit sjabloon in je AI-agent en hij bouwt beide in Customermates, met plaatsingen, het einde van de garantie, nazorgmomenten en een bewaardatum bij elke kandidaat. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse bureaucontrole",
+      "steps": [
+        "Open de vacatures als bord en zoek searches zonder datum voor de volgende stap of zonder beweging sinds 10 dagen.",
+        "Vraag de opdrachtgever om feedback over elke kandidaat die langer dan twee dagen geleden is voorgesteld en plan de nabespreking van elk gesprek van deze week.",
+        "Bel de actieve opdrachtgevers van wie de volgende contactdatum is aangebroken en vraag naar komende vacatures.",
+        "Loop de plaatsingen na: de check-ins na 30, 60 en 90 dagen van deze week en elke garantie die binnen 14 dagen afloopt.",
+        "Ruim de kandidaten op van wie de bewaardatum is verstreken: verwijder ze of leg nieuwe toestemming vast."
+      ]
+    },
+    "limits": [
+      "Het is geen vacaturesite en geen tool om te multiposten, en het leest geen cv's. Bestanden zijn alleen doorzoekbaar met een tekstlaag, dus gescande cv's worden niet gelezen.",
+      "Er zijn geen sequenties en geen massamailing. Berichten schrijf je één voor één, en de prompt zegt de agent niets automatisch te versturen.",
+      "Gesprekken plan je vanaf het record in je Google- of Microsoft-agenda, op Customermates Cloud met het abonnement Pro of hoger; bij zelf hosten blijft een gesprek een datumveld en een actie. De koppeling werkt één kant op: een wijziging aan de afspraak past het record niet aan.",
+      "Het is geen systeem voor facturen, uren of loon bij uitzendwerk. Facturen blijven in je boekhoudpakket en het sjabloon bewaart alleen een verwijzing. Grote volumes of uitzendwerk vragen om een ATS voor bureaus.",
+      "Het is geen sollicitatieportaal en geen hulpmiddel voor antecedentenonderzoek. Houd gezondheidsgegevens, geboortedatum en dergelijke buiten de notities over kandidaten."
+    ],
+    "faq": [
+      {
+        "question": "Moeten kandidaten en vacatures aparte records zijn?",
+        "answer": "Ja. Systemen voor bureaus zoals Bullhorn en Recruiterflow koppelen een kandidaat aan elke vacature, zodat dezelfde persoon bij verschillende vacatures in verschillende fasen kan staan. Het sjabloon houdt een lijst met vacatures bij en één voordracht per kandidaat en vacature, zodat elke kandidaat per vacature een eigen fasegeschiedenis heeft."
+      },
+      {
+        "question": "Hoe lang mag ik gegevens van afgewezen kandidaten bewaren?",
+        "answer": "Dat hangt af van de situatie, en kandidaten informeren is net zo belangrijk als de termijn. Als richtlijn noemen bronnen vier weken na afloop van de procedure en met toestemming tot een jaar; controleer dat bij de Autoriteit Persoonsgegevens. Elke kandidaat krijgt een bewaardatum en een controleactie: verwijderen of nieuwe toestemming vastleggen. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Welke fee- en garantievoorwaarden leg ik vast?",
+        "answer": "Een succesfee is alleen verschuldigd als er een plaatsing komt; een search op retainerbasis wordt vaak in termijnen gefactureerd, bijvoorbeeld een derde bij de start, een derde bij de shortlist en een derde bij de plaatsing, meestal met exclusiviteit. Een garantie met vervanging van drie tot zes maanden wordt het vaakst genoemd. Dat zijn contractvoorwaarden, geen regels: het sjabloon bewaart het feepercentage, de garantiedagen en het einde van de garantie per plaatsing, zonder standaardwaarden."
+      },
+      {
+        "question": "Wat hoort niet in de notities over een kandidaat?",
+        "answer": "Alleen feiten die voor de functie ter zake doen. Geen gezondheids- of handicapgegevens, geloof, vakbondslidmaatschap, geboortedatum, gezinssituatie of uitkomsten van antecedentenonderzoek. Vrije notities over leeftijd, afkomst of gezin kunnen een risico worden als een kandidaat inzage vraagt in zijn gegevens."
+      },
+      {
+        "question": "Neemt de agent contact op met kandidaten of opdrachtgevers?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik plaats kandidaten bij opdrachtgevers en raak het overzicht kwijt van wie waar is voorgesteld, wanneer een garantie afloopt en hoe lang ik kandidaatgegevens mag bewaren. Richt in mijn Customermates-werkruimte een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voordracht per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
     "questions": [

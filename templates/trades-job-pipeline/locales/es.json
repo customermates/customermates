@@ -117,6 +117,51 @@
     "warranty_field": "Cada trabajo indica hasta cuándo dura su garantía.",
     "jobs_board_view": "Los trabajos se abren como tablero por fase."
   },
+  "page": {
+    "metaTitle": "CRM para instaladores: plantilla de presupuestos y obras",
+    "metaDescription": "CRM para instaladores: haz seguimiento de cada presupuesto, de la visita al cobro, y guarda las garantías. Pega la plantilla en tu agente de IA.",
+    "headline": "Un CRM para instaladores que da seguimiento a cada presupuesto y recuerda las garantías, montado por tu agente de IA",
+    "answer": "Un CRM para una pequeña empresa de oficios acompaña cada trabajo desde la primera llamada hasta la última factura: la visita técnica, el presupuesto y su seguimiento, la obra de programada a cobrada y las fechas que importan, como la validez del presupuesto, el desistimiento, la garantía y la renovación del mantenimiento. Pega esta plantilla en tu agente de IA y él monta el pipeline en Customermates. Tú apruebas el plan antes de que se construya nada. Las fechas legales son campos que confirmas tú, no asesoramiento jurídico.",
+    "routine": {
+      "title": "La revisión semanal de presupuestos y trabajos",
+      "steps": [
+        "Devuelve la llamada a cada solicitud nueva el mismo día y envía el presupuesto en los dos días siguientes a cada visita.",
+        "Haz seguimiento de los presupuestos enviados hace tres días y de los que caducan en tres días. Tras un segundo intento, decide: mantener el presupuesto abierto o cerrarlo con un motivo.",
+        "Revisa los trabajos de la semana y confirma la planificación con cada cliente. En cada trabajo terminado, registra la entrega y la aceptación y pide la factura a administración.",
+        "Mira los trabajos facturados que han pasado su fecha de pago y comprueba si se han cobrado.",
+        "Mira 30 días por delante: garantías a punto de acabar, visitas de mantenimiento por reservar y contratos de mantenimiento por renovar."
+      ]
+    },
+    "limits": [
+      "No es una herramienta de presupuestos, mediciones ni facturación. Las líneas dan un valor del trabajo, no un documento con líneas de IVA, numeración y menciones legales. Guarda presupuestos y facturas en tu herramienta de presupuestos o de contabilidad.",
+      "No es una herramienta de firma electrónica ni de pago, ni un sistema de reparto de trabajos, rutas, GPS o control de horas.",
+      "No es una aplicación móvil nativa para la obra. La aplicación web funciona en el teléfono, pero no hay una app propia.",
+      "No emite certificados. El certificado de instalación y las actas de aceptación se quedan en tu herramienta de documentos; el CRM guarda la fecha y una referencia.",
+      "El SMS no es un canal: lo son WhatsApp, el correo y LinkedIn. Y no es una autoridad legal sobre desistimiento, garantía o validez del presupuesto."
+    ],
+    "faq": [
+      {
+        "question": "¿Con qué rapidez debe enviar un presupuesto una empresa de oficios?",
+        "answer": "Una guía para tejados sugiere un presupuesto en 24 a 48 horas tras la inspección y devolver la llamada a una solicitud en línea en pocos minutos. Jobber aconseja un primer seguimiento dos o tres días después del presupuesto y un segundo unos días más tarde, y luego seguir adelante. La plantilla lo programa como tareas con fecha; los plazos los ajustas tú."
+      },
+      {
+        "question": "¿Cuánto tiempo debe ser válido un presupuesto?",
+        "answer": "No hay una regla única. Las condiciones holandesas para consumidores usan 30 días y la práctica francesa suele usar tres meses. Fija la validez en cada presupuesto: la plantilla guarda una fecha de validez y crea un seguimiento tres días antes. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Puede un cliente desistir de un contrato firmado en su casa?",
+        "answer": "Depende del país y de la situación: en Alemania, por ejemplo, un consumidor tiene 14 días para un contrato celebrado fuera del establecimiento, plazo que solo corre con una información correcta. Hay una excepción para reparaciones urgentes que pide el propio cliente. La plantilla fija el fin de los 14 días cuando se acepta un trabajo; confirma la norma que se aplica en España y tu información al cliente."
+      },
+      {
+        "question": "¿Qué fechas debe vigilar una empresa de oficios?",
+        "answer": "La validez del presupuesto, el fin de cualquier plazo de desistimiento, la aceptación de la obra, el certificado de instalación (por ejemplo el CIE en electricidad), el fin de la garantía y las renovaciones de mantenimiento, que los profesionales recuerdan 30 a 45 días antes. Los plazos dependen del contrato y de la ley: la plantilla guarda la fecha de fin que fijas tú y nunca la calcula."
+      },
+      {
+        "question": "¿El agente contacta con mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Llevo una pequeña empresa de oficios: los presupuestos salen sin seguimiento y los trabajos, las visitas y las fechas de garantía están solo en mi cabeza. Configura en mi espacio de trabajo de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
     "questions": [

@@ -1157,14 +1157,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -1591,6 +1591,56 @@
         "renewal_field": "Jede Mitgliedschaft hat ein Fälligkeitsdatum.",
         "receipt_field": "Jede Spende zeigt, ob eine Zuwendungsbestätigung fällig ist."
       },
+      "page": {
+        "metaTitle": "Software für Vereine: Mitglieder, Spenden und Beiträge",
+        "metaDescription": "Software für Vereine: Vorlage in Claude, ChatGPT oder Codex einfügen, und Ihr KI-Agent baut ein Register für Mitglieder, Spenden, Dank und Beiträge auf.",
+        "headline": "Software für Vereine, die keine Verlängerung und keinen Dank vergisst: ein Register, das Ihr KI-Agent aufbaut",
+        "answer": "Software für einen Verein beginnt mit einem Register statt mehrerer Listen bei verschiedenen Ehrenamtlichen: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut das Register in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Es zieht keine Beiträge ein und stellt keine Zuwendungsbestätigungen aus, es zeigt, welche fällig sind.",
+        "routine": {
+          "title": "Die wöchentliche Routine für Mitglieder und Spenden",
+          "steps": [
+            "Danken Sie jeder neuen Spende innerhalb von zwei Tagen, per Anruf oder mit einem persönlichen Schreiben.",
+            "Begrüßen Sie die Mitglieder, deren Aufnahmeantrag diese Woche eingegangen ist, und kündigen Sie den Beitrag für Mitgliedschaften an, die in etwa 60 Tagen fällig werden.",
+            "Erinnern Sie Mitglieder mit offenem Beitrag 30 Tage vor der Fälligkeit und mahnen Sie die Beiträge von Mitgliedschaften an, die unbezahlt erloschen sind.",
+            "Sehen Sie sich die Spenden an, bei denen eine Zuwendungsbestätigung fällig ist, und stellen Sie sie in Ihrem Buchhaltungsprogramm im amtlichen Muster aus.",
+            "Prüfen Sie die Pipeline für Großspenden und Förderungen: den nächsten Schritt je Vorhaben und die Berichtstermine, die Förderer erwarten."
+          ]
+        },
+        "limits": [
+          "Es zieht keine Beiträge ein, führt keine Lastschriften aus und ersetzt keine Buchhaltung. Ihr Buchhaltungsprogramm oder Vereinsprogramm führt die Konten; hier steht der Beitragsstatus, nicht das Geld.",
+          "Es stellt keine Zuwendungsbestätigungen aus. Sie entstehen im Muster, das Ihr Finanzamt verlangt, mit Ihrem Buchhaltungsprogramm; das Register hält nur fest, dass eine fällig ist.",
+          "Es ist keine Spendenseite im Netz. Spenden werden über eine Zahlungsplattform eingesammelt, und Sie erfassen die Spende hier.",
+          "Für Kirchengemeinden deckt es Besuchernachfassung und Mitgliedschaft ab, nicht Check-in-Stationen, Dienstpläne, Anwesenheit oder Spendenbescheinigungen. Seelsorgliche Notizen und Schutzkonzepte gehören nie hierher.",
+          "Halten Sie Gesundheitsdaten, Angaben zu Kindern, Bankdaten und alles, was die Mitgliedschaft nicht braucht, aus dem Register heraus. Customermates hat keine Berechtigungen auf Feldebene.",
+          "Es macht kein Wealth Screening, keine Dauerspenden-Abwicklung und keine Massen-Newsletter. Es ist das Register einer kleinen Organisation, keine Plattform zur Spenderanalyse."
+        ],
+        "faq": [
+          {
+            "question": "Ist ein Mitgliedsbeitrag steuerlich eine Spende?",
+            "answer": "In der Regel nicht. In Deutschland stellen nur steuerbegünstigte Körperschaften eine Zuwendungsbestätigung im amtlichen Muster aus, und die Beiträge der meisten Sportvereine sind nicht abziehbar. In Frankreich berechtigt ein Beitrag, der Zugang zu Aktivitäten gibt, nicht zu einer Spendenquittung, nur eine Spende ohne Gegenleistung an eine berechtigte Organisation. Die Regeln unterscheiden sich je Land, fragen Sie also Ihre Steuerberatung oder das Finanzamt. Das Register hält den Status der Zuwendungsbestätigung fest und stellt keine aus."
+          },
+          {
+            "question": "Wie schnell sollte ich einem Spender danken?",
+            "answer": "Innerhalb von 48 Stunden ist der übliche Rat in Fundraising-Ratgebern, am besten per Anruf oder mit einem persönlichen Schreiben. Die Vorlage legt eine Aufgabe zum Danken an, sobald eine Spende erfasst ist, damit der Dank nicht vom Gedächtnis einer einzelnen Person im Ehrenamt abhängt."
+          },
+          {
+            "question": "Wann sollte ich Mitglieder an die Verlängerung erinnern?",
+            "answer": "Ratgeber für Vereine empfehlen mehrere Kontakte vor dem Stichtag, oft ab etwa 90 Tagen bis zum Tag selbst, und einen danach. Die Vorlage legt 60 Tage vor der Fälligkeit einer aktiven Mitgliedschaft eine Aufgabe an, den Beitrag anzukündigen, 30 Tage vorher eine Aufgabe zum Erinnern bei offenem Beitrag und am Tag der Fälligkeit eine zum Anmahnen, wenn der Beitrag unbezahlt ist."
+          },
+          {
+            "question": "Welche Mitglieder- und Spenderdaten darf ich speichern?",
+            "answer": "Nur, was die Mitgliedschaft oder die Spende braucht. Nach der DSGVO sollen Daten, die für die Mitgliedschaft nicht nötig sind, nicht erfasst werden; der Aufnahmeantrag soll zeigen, welche Felder Pflicht und welche freiwillig sind, und für Fotos braucht es eine Einwilligung. Gesundheitsdaten, Angaben zu Kindern und Bankdaten bleiben aus dem Register heraus. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Eignet es sich für eine Kirchengemeinde oder einen Sportverein?",
+            "answer": "Ja für die Registerseite: Unterstützer, Mitgliedschaften, Spenden und die Nachfassung von Mitgliedern und Besuchern an einem Ort. Es ersetzt weder ein Gemeindeverwaltungsprogramm für Check-in, Dienstpläne oder Spendenbescheinigungen noch ein Vereinsprogramm für Lastschriften und Beitragseinzug."
+          },
+          {
+            "question": "Schreibt der Agent meine Mitglieder und Spender an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Unsere Mitglieder, Spender und Ehrenamtlichen stehen in mehreren Listen, und Verlängerungen und Dankesschreiben gehen unter. Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
         "questions": [
@@ -2004,6 +2054,56 @@
         "status_field": "Every membership has a status.",
         "renewal_field": "Every membership has a renewal date.",
         "receipt_field": "Every gift shows whether a receipt is due."
+      },
+      "page": {
+        "metaTitle": "Software for Nonprofits: Members, Donors, Renewals",
+        "metaDescription": "Software for nonprofits: paste this template into Claude, ChatGPT or Codex and your agent builds one register for members, gifts and renewals.",
+        "headline": "Software for nonprofits that remembers every renewal and thank-you, built by your AI agent in your CRM",
+        "answer": "Software for a nonprofit starts with one register instead of several volunteer lists: supporters, memberships with a fee and a renewal date, gifts with thank-you and receipt status, and a pipeline for major gifts and grants. Paste this template into your AI agent and it builds the register in Customermates. You approve the plan before anything is built. It does not collect payments or issue tax receipts; it tells you which are due.",
+        "routine": {
+          "title": "The weekly membership and gifts routine",
+          "steps": [
+            "Thank every new gift within two days, with a call or a personal note.",
+            "Welcome the members whose application came in this week, and send the renewal notice to memberships that renew in about 60 days.",
+            "Remind the members whose fee is still open 30 days before renewal, and chase the fees of memberships that expired unpaid.",
+            "Look at the gifts whose tax receipt is due and issue them in your accounting tool, in the official format of your country.",
+            "Review the pipeline of major gifts and grants: the next move for each and the report dates that funders expect."
+          ]
+        },
+        "limits": [
+          "It does not collect payments, run direct debits or do bookkeeping. Your accounting tool or club tool keeps the ledger; here you keep the fee status, not the money.",
+          "It does not issue tax receipts. They are made in the format your tax authority requires, with your accounting tool; the register only tracks that one is due.",
+          "It is not an online giving page. Donations are collected on a payment platform, and you record the gift here.",
+          "For churches it covers visitor follow-up and membership, not check-in kiosks, rotas, attendance or giving statements. Pastoral notes, confession and safeguarding records never belong here.",
+          "Keep health data, details of children, bank details and anything beyond what membership needs out of the register. Customermates has no field-level permissions.",
+          "It does no wealth screening, recurring-gift engines or bulk newsletters. It is the register of a small body, not a donor intelligence platform."
+        ],
+        "faq": [
+          {
+            "question": "Is a membership fee a donation for tax?",
+            "answer": "Usually not. In France a membership fee that gives access to activities does not qualify for a tax receipt, only a gift without counterpart to an eligible body does. In Germany only tax-privileged bodies issue a donation receipt in the official format, and the fees of most sports clubs are not deductible. Rules differ by country, so ask your accountant or tax authority. The register tracks the receipt status and does not issue receipts."
+          },
+          {
+            "question": "How quickly should I thank a donor?",
+            "answer": "Within 48 hours is the common advice in fundraising guides, ideally with a call or a personal note. The template creates a thank-you Action when a gift is recorded, so that the thank-you does not depend on one volunteer's memory."
+          },
+          {
+            "question": "When should I remind members to renew?",
+            "answer": "Association guides suggest several touches before the date, often from about 90 days down to the day itself, and one after it. The template creates an Action to send a renewal notice 60 days before an active membership renews, one to remind members whose fee is still open 30 days before, and one to chase the fee on the day a membership expires unpaid."
+          },
+          {
+            "question": "What member and donor data should I keep?",
+            "answer": "Only what membership or the gift needs. Under the GDPR, data that membership does not need should not be recorded, the application form should show which fields are mandatory and which are voluntary, and photos need consent. Health data, children's details and bank details stay out of the register. This is not legal advice."
+          },
+          {
+            "question": "Does it work for a church or a club?",
+            "answer": "Yes for the register side: supporters, memberships, gifts and the follow-up of members and visitors in one place. It does not replace a church management system for check-in, rotas or giving statements, or a club tool for direct debits and fee collection."
+          },
+          {
+            "question": "Does the agent write to my members and donors?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "Our members, donors and volunteers are spread over several lists, and renewals and thank-yous get missed. Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
@@ -2419,6 +2519,56 @@
         "renewal_field": "Cada membresía tiene una fecha de renovación.",
         "receipt_field": "Cada donativo muestra si hay que emitir un certificado."
       },
+      "page": {
+        "metaTitle": "CRM para ONG: socios, donantes y renovaciones",
+        "metaDescription": "CRM para ONG y asociaciones: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta un registro único de socios, donativos y renovaciones.",
+        "headline": "Un CRM para ONG que no olvida ninguna renovación ni agradecimiento: el registro que tu agente de IA monta por ti",
+        "answer": "Un CRM para una ONG o una asociación empieza por un solo registro en lugar de varias listas en manos de voluntarios distintos: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones. Pega esta plantilla en tu agente de IA y él monta el registro en Customermates. Tú apruebas el plan antes de que se construya nada. No cobra cuotas ni emite certificados de donación: te dice cuáles tocan.",
+        "routine": {
+          "title": "La rutina semanal de socios y donativos",
+          "steps": [
+            "Agradece cada donativo nuevo en un plazo de dos días, con una llamada o una nota personal.",
+            "Da la bienvenida a los socios cuya solicitud ha llegado esta semana y envía el aviso de renovación a las membresías que vencen en unos 60 días.",
+            "Recuerda a los socios con la cuota aún pendiente 30 días antes del vencimiento y reclama las cuotas de las membresías vencidas sin pagar.",
+            "Mira los donativos cuyo certificado toca emitir y emítelos con tu herramienta de contabilidad, en el formato oficial de tu país.",
+            "Revisa el seguimiento de grandes donaciones y subvenciones: el siguiente paso de cada una y las fechas de informe que esperan los financiadores."
+          ]
+        },
+        "limits": [
+          "No cobra cuotas, no gestiona domiciliaciones ni lleva la contabilidad. Tu herramienta de contabilidad o de gestión de la entidad lleva el libro; aquí guardas el estado de la cuota, no el dinero.",
+          "No emite certificados de donación. Se hacen en el formato que exige tu administración tributaria, con tu herramienta de contabilidad; el registro solo anota que hay uno por emitir.",
+          "No es una página de donaciones en línea. Los donativos se cobran en una plataforma de pago y tú los registras aquí.",
+          "Para una parroquia cubre el seguimiento de visitantes y miembros, no los quioscos de registro, los turnos, la asistencia ni los extractos de ofrendas. Las notas pastorales, la confesión y los registros de protección no van nunca aquí.",
+          "Deja fuera del registro los datos de salud, los datos de menores, los datos bancarios y todo lo que la afiliación no necesite. Customermates no tiene permisos a nivel de campo.",
+          "No hace estudio de patrimonio de donantes, ni donaciones recurrentes con reintentos de cobro, ni boletines masivos. Es el registro de una entidad pequeña, no una plataforma de inteligencia de donantes."
+        ],
+        "faq": [
+          {
+            "question": "¿Es una cuota de socio un donativo a efectos fiscales?",
+            "answer": "Normalmente no. En Francia una cuota que da acceso a actividades no da derecho a un recibo fiscal; solo un donativo sin contrapartida a una entidad elegible. En Alemania solo las entidades con beneficios fiscales emiten un justificante de donación en el modelo oficial, y las cuotas de la mayoría de los clubes deportivos no son deducibles. Las normas varían según el país: consulta a tu asesor fiscal o a la administración tributaria. El registro lleva el estado del certificado y no emite ninguno."
+          },
+          {
+            "question": "¿Con qué rapidez debo agradecer un donativo?",
+            "answer": "En 48 horas, según el consejo habitual de las guías de captación de fondos, mejor con una llamada o una nota personal. La plantilla crea una tarea de agradecimiento en cuanto se registra un donativo, para que no dependa de la memoria de un único voluntario."
+          },
+          {
+            "question": "¿Cuándo debo recordar a los socios que renueven?",
+            "answer": "Las guías para asociaciones sugieren varios contactos antes de la fecha, a menudo desde unos 90 días hasta el propio día, y uno después. La plantilla crea una tarea para enviar un aviso de renovación 60 días antes del vencimiento de una membresía activa, otra para recordárselo a los socios con la cuota pendiente 30 días antes y otra para reclamar la cuota impagada el día del vencimiento."
+          },
+          {
+            "question": "¿Qué datos de socios y donantes debo guardar?",
+            "answer": "Solo lo que la afiliación o el donativo necesitan. Según las guías del RGPD, no deben registrarse datos que la afiliación no necesita, el formulario de solicitud debe mostrar qué campos son obligatorios y cuáles voluntarios, y las fotos requieren consentimiento. Los datos de salud, los datos de menores y los datos bancarios quedan fuera del registro. No es asesoramiento jurídico."
+          },
+          {
+            "question": "¿Sirve para una parroquia o un club?",
+            "answer": "Sí para la parte de registro: colaboradores, membresías, donativos y seguimiento de socios y visitantes en un solo sitio. No sustituye a un programa de gestión parroquial para el registro de asistentes, los turnos o los extractos de ofrendas, ni a una herramienta de club para domiciliaciones y cobro de cuotas."
+          },
+          {
+            "question": "¿El agente escribe a mis socios y donantes?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Nuestros socios, donantes y voluntarios están repartidos en varias listas y se nos escapan renovaciones y agradecimientos. Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
         "questions": [
@@ -2832,6 +2982,56 @@
         "status_field": "Chaque adhésion a un statut.",
         "renewal_field": "Chaque adhésion a une date d’échéance.",
         "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
+      },
+      "page": {
+        "metaTitle": "Logiciel association : adhérents, dons et renouvellements",
+        "metaDescription": "Logiciel association : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit un registre des adhérents, des dons et des renouvellements.",
+        "headline": "Un logiciel d’association qui n’oublie ni renouvellement ni remerciement : le registre que votre agent IA construit",
+        "answer": "Un logiciel d’association commence par un seul registre au lieu de plusieurs listes tenues par des bénévoles : personnes, adhésions avec cotisation et date d’échéance, dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions. Collez ce modèle dans votre agent IA : il construit le registre dans Customermates. Vous validez le plan avant que rien ne soit créé. L’outil n’encaisse rien et n’émet pas de reçus fiscaux : il vous montre lesquels sont à faire.",
+        "routine": {
+          "title": "La routine hebdomadaire des adhésions et des dons",
+          "steps": [
+            "Remerciez chaque nouveau don dans les deux jours, par un appel ou un mot personnel.",
+            "Accueillez les adhérents dont la demande est arrivée cette semaine, et envoyez l’avis de renouvellement aux adhésions qui arrivent à échéance dans environ 60 jours.",
+            "Relancez les adhérents dont la cotisation reste à payer 30 jours avant l’échéance, et les cotisations des adhésions échues impayées.",
+            "Regardez les dons dont le reçu fiscal est à émettre et émettez-les dans votre logiciel de comptabilité, au format officiel de votre pays.",
+            "Passez en revue le suivi des grands dons et subventions : la prochaine étape de chaque piste et les dates de rapport attendues par les financeurs."
+          ]
+        },
+        "limits": [
+          "Il n’encaisse pas les cotisations, ne lance pas de prélèvements et ne tient pas la comptabilité. Votre logiciel de comptabilité ou de gestion d’association tient le grand livre ; ici vous gardez l’état de la cotisation, pas l’argent.",
+          "Il n’émet pas de reçus fiscaux. Ils se font au format exigé par l’administration fiscale, avec votre logiciel de comptabilité ; le registre suit seulement qu’un reçu est à faire.",
+          "Ce n’est pas une page de dons en ligne. Les dons se collectent sur une plateforme de paiement, et vous enregistrez le don ici.",
+          "Pour une paroisse, il couvre le suivi des visiteurs et des membres, pas les bornes d’accueil, les plannings de service, les présences ni les relevés de dons. Les notes pastorales, la confession et les dossiers de protection n’ont jamais leur place ici.",
+          "Gardez hors du registre les données de santé, les détails sur les enfants, les coordonnées bancaires et tout ce que l’adhésion n’exige pas. Customermates n’a pas de droits au niveau du champ.",
+          "Il ne fait ni analyse de patrimoine des donateurs, ni dons récurrents avec relance de paiement, ni newsletters en masse. C’est le registre d’une petite structure, pas une plateforme d’analyse des donateurs."
+        ],
+        "faq": [
+          {
+            "question": "Une cotisation d’adhérent est-elle un don déductible ?",
+            "answer": "En général non. En France, une cotisation qui donne accès aux activités n’ouvre pas droit à un reçu fiscal ; seul un don sans contrepartie à un organisme éligible le permet. En Allemagne, seuls les organismes à but non lucratif reconnus émettent un reçu de don au modèle officiel, et les cotisations de la plupart des clubs de sport ne sont pas déductibles. Les règles varient selon le pays : demandez à votre expert-comptable ou à l’administration fiscale. Le registre suit l’état du reçu fiscal et n’en émet aucun."
+          },
+          {
+            "question": "En combien de temps remercier un donateur ?",
+            "answer": "Dans les 48 heures, selon le conseil courant des guides de collecte de fonds, de préférence par un appel ou un mot personnel. Le modèle crée une action de remerciement dès qu’un don est enregistré, pour que le remerciement ne dépende pas de la mémoire d’un seul bénévole."
+          },
+          {
+            "question": "Quand rappeler aux adhérents de renouveler ?",
+            "answer": "Les guides pour associations suggèrent plusieurs relances avant l’échéance, souvent de 90 jours environ jusqu’au jour même, et une après. Le modèle crée une action pour envoyer un avis de renouvellement 60 jours avant l’échéance d’une adhésion active, une pour relancer l’adhérent dont la cotisation reste à payer 30 jours avant, et une pour relancer la cotisation impayée le jour de l’échéance."
+          },
+          {
+            "question": "Quelles données d’adhérents et de donateurs conserver ?",
+            "answer": "Seulement ce que l’adhésion ou le don exige. Les guides sur le RGPD indiquent que les informations inutiles à l’adhésion ne doivent pas être enregistrées, que le bulletin d’adhésion doit montrer quels champs sont obligatoires et lesquels facultatifs, et que les photos demandent un consentement. Les données de santé, les détails sur les enfants et les coordonnées bancaires restent hors du registre. Ce n’est pas un avis juridique."
+          },
+          {
+            "question": "Convient-il à une paroisse ou à un club ?",
+            "answer": "Oui pour la partie registre : personnes, adhésions, dons et suivi des membres et des visiteurs au même endroit. Il ne remplace ni un logiciel de gestion paroissiale pour l’accueil, les plannings ou les relevés de dons, ni un outil de club pour les prélèvements et l’encaissement des cotisations."
+          },
+          {
+            "question": "L’agent écrit-il à mes adhérents et donateurs ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
       },
       "prompt": {
         "intro": "Nos adhérents, donateurs et bénévoles sont répartis sur plusieurs listes, et des renouvellements et des remerciements nous échappent. Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
@@ -3247,6 +3447,56 @@
         "renewal_field": "Ogni tesseramento ha una data di scadenza.",
         "receipt_field": "Ogni erogazione indica se una ricevuta è da emettere."
       },
+      "page": {
+        "metaTitle": "Gestionale associazioni: soci, donazioni e rinnovi",
+        "metaDescription": "Gestionale associazioni: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce un registro unico di soci, donazioni e rinnovi.",
+        "headline": "Un gestionale per associazioni che non dimentica rinnovi né ringraziamenti, costruito dal tuo agente IA",
+        "answer": "Un gestionale per associazioni parte da un solo registro invece di tanti elenchi in mano a volontari diversi: sostenitori, tesseramenti con quota e scadenza, erogazioni liberali con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi. Incolla questo modello nel tuo agente IA e costruisce il registro in Customermates. Approvi il piano prima che venga costruito qualcosa. Non incassa quote né emette ricevute fiscali: ti dice quali sono da emettere.",
+        "routine": {
+          "title": "La routine settimanale di soci e donazioni",
+          "steps": [
+            "Ringrazia ogni nuova donazione entro due giorni, con una telefonata o un biglietto personale.",
+            "Accogli i soci la cui domanda di ammissione è arrivata questa settimana e manda l'avviso di rinnovo ai tesseramenti che scadono tra circa 60 giorni.",
+            "Ricorda ai soci con la quota ancora da pagare 30 giorni prima della scadenza e sollecita le quote dei tesseramenti scaduti non pagati.",
+            "Guarda le donazioni per cui la ricevuta è da emettere ed emettile con il tuo strumento di contabilità, nel formato ufficiale del tuo paese.",
+            "Rivedi la pipeline di grandi donazioni e bandi: la prossima mossa per ciascuna e le date delle relazioni attese dai finanziatori."
+          ]
+        },
+        "limits": [
+          "Non incassa quote, non esegue addebiti diretti e non fa contabilità. Il tuo strumento di contabilità o di gestione dell'associazione tiene il registro dei conti; qui tieni lo stato della quota, non il denaro.",
+          "Non emette ricevute fiscali. Si fanno nel formato richiesto dall'amministrazione fiscale, con il tuo strumento di contabilità; il registro segnala solo che una è da emettere.",
+          "Non è una pagina di donazioni online. Le donazioni si raccolgono su una piattaforma di pagamento e tu registri qui l'erogazione.",
+          "Per una parrocchia copre il contatto con i visitatori e i soci, non le postazioni di accoglienza, i turni, le presenze o gli estratti conto delle offerte. Note pastorali, confessione e registri di tutela non vanno mai qui.",
+          "Tieni fuori dal registro dati sanitari, dettagli sui minori, coordinate bancarie e tutto ciò che il tesseramento non richiede. Customermates non ha permessi a livello di campo.",
+          "Non fa profilazione patrimoniale dei donatori, donazioni ricorrenti con nuovi tentativi di pagamento né newsletter di massa. È il registro di un piccolo ente, non una piattaforma di analisi dei donatori."
+        ],
+        "faq": [
+          {
+            "question": "La quota associativa è una donazione deducibile?",
+            "answer": "Di solito no. In Francia una quota che dà accesso alle attività non dà diritto a una ricevuta fiscale: solo una donazione senza controprestazione a un ente idoneo. In Germania solo gli enti con agevolazioni fiscali rilasciano una ricevuta di donazione nel modello ufficiale, e le quote della maggior parte dei club sportivi non sono deducibili. Le regole cambiano da paese a paese: chiedi al tuo commercialista o all'amministrazione fiscale. Il registro tiene lo stato della ricevuta e non ne emette."
+          },
+          {
+            "question": "In quanto tempo ringraziare un donatore?",
+            "answer": "Entro 48 ore, secondo il consiglio comune delle guide alla raccolta fondi, meglio con una telefonata o un biglietto personale. Il modello crea un'attività di ringraziamento appena una donazione è registrata, così il ringraziamento non dipende dalla memoria di un solo volontario."
+          },
+          {
+            "question": "Quando ricordare ai soci di rinnovare?",
+            "answer": "Le guide per le associazioni suggeriscono più contatti prima della scadenza, spesso da circa 90 giorni fino al giorno stesso, e uno dopo. Il modello crea un'attività per inviare un avviso di rinnovo 60 giorni prima della scadenza di una tessera attiva, una per ricordarlo ai soci con la quota ancora da pagare 30 giorni prima e una per sollecitare la quota non pagata il giorno della scadenza."
+          },
+          {
+            "question": "Quali dati di soci e donatori conservare?",
+            "answer": "Solo ciò che il tesseramento o la donazione richiede. Secondo le guide sul GDPR, le informazioni non necessarie all'iscrizione non vanno registrate, il modulo di ammissione deve indicare quali campi sono obbligatori e quali facoltativi, e le foto richiedono un consenso. Dati sanitari, dettagli sui minori e coordinate bancarie restano fuori dal registro. Non è una consulenza legale."
+          },
+          {
+            "question": "Va bene per una parrocchia o per un club?",
+            "answer": "Sì per la parte di registro: sostenitori, tesseramenti, donazioni e contatto con soci e visitatori in un unico posto. Non sostituisce un gestionale parrocchiale per accoglienza, turni o estratti conto delle offerte, né uno strumento per club per gli addebiti diretti e l'incasso delle quote."
+          },
+          {
+            "question": "L'agente scrive ai miei soci e donatori?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "I nostri soci, donatori e volontari sono sparsi in più elenchi e rinnovi e ringraziamenti ci sfuggono. Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
         "questions": [
@@ -3660,6 +3910,56 @@
         "status_field": "Elk lidmaatschap heeft een status.",
         "renewal_field": "Elk lidmaatschap heeft een verlengdatum.",
         "receipt_field": "Elke gift toont of een donatiebewijs nodig is."
+      },
+      "page": {
+        "metaTitle": "Ledenadministratie: leden, giften en verlengingen op orde",
+        "metaDescription": "Ledenadministratie zonder losse lijsten: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt één register voor leden, giften en verlengingen.",
+        "headline": "Een ledenadministratie die elke verlenging en elk bedankje onthoudt: het register dat je AI-agent voor je bouwt",
+        "answer": "Een ledenadministratie begint met één register in plaats van losse lijsten bij verschillende vrijwilligers: supporters, lidmaatschappen met contributie en een verlengdatum, giften met de status van bedankje en bewijs, en een pijplijn voor grote giften en subsidies. Plak dit sjabloon in je AI-agent en die bouwt het register in Customermates. Je keurt het plan goed voordat er iets wordt gebouwd. Het int geen contributie en geeft geen donatiebewijzen af, maar laat zien welke aan de beurt zijn.",
+        "routine": {
+          "title": "De wekelijkse routine voor leden en giften",
+          "steps": [
+            "Bedank elke nieuwe gift binnen twee dagen, met een telefoontje of een persoonlijk briefje.",
+            "Heet de leden welkom van wie de aanmelding deze week binnenkwam en stuur het verlengingsbericht naar lidmaatschappen die over ongeveer 60 dagen verlengen.",
+            "Herinner leden met open contributie 30 dagen voor de verlenging en maan de contributie aan van lidmaatschappen die onbetaald zijn verlopen.",
+            "Bekijk de giften waarvoor een donatiebewijs moet worden afgegeven en geef die af met je boekhoudprogramma, in het officiële formaat van je land.",
+            "Loop de pijplijn van grote giften en subsidies langs: de volgende stap per kans en de rapportagedata die subsidiegevers verwachten."
+          ]
+        },
+        "limits": [
+          "Het int geen contributie, voert geen incasso's uit en doet geen boekhouding. Je boekhoudprogramma of verenigingsprogramma houdt het grootboek bij; hier bewaar je de status van de contributie, niet het geld.",
+          "Het geeft geen donatiebewijzen af. Die maak je in het formaat dat je belastingdienst vraagt, met je boekhoudprogramma; het register houdt alleen bij dat er een moet komen.",
+          "Het is geen pagina voor online doneren. Giften worden binnengehaald via een betaalplatform en je legt de gift hier vast.",
+          "Voor kerken dekt het opvolging van bezoekers en lidmaatschap, niet inchecken, roosters, aanwezigheid of giftenoverzichten. Pastorale notities, biecht en meldingen over veiligheid horen hier nooit.",
+          "Houd gezondheidsgegevens, gegevens van kinderen, bankgegevens en alles wat het lidmaatschap niet nodig heeft buiten het register. Customermates heeft geen rechten op veldniveau.",
+          "Het doet geen vermogensscreening van donateurs, geen terugkerende giften met herhaalde incasso en geen massanieuwsbrieven. Het is het register van een kleine organisatie, geen platform voor donateursanalyse."
+        ],
+        "faq": [
+          {
+            "question": "Is contributie van een lid een gift voor de belasting?",
+            "answer": "Meestal niet. In Frankrijk geeft een bijdrage die toegang tot activiteiten geeft geen recht op een fiscaal bewijs, alleen een gift zonder tegenprestatie aan een erkende instelling. In Duitsland geven alleen fiscaal begunstigde organisaties een donatiebewijs in het officiële model af, en de bijdragen van de meeste sportclubs zijn niet aftrekbaar. Regels verschillen per land, dus vraag het je boekhouder of de belastingdienst. Het register houdt de status van het bewijs bij en geeft er zelf geen af."
+          },
+          {
+            "question": "Hoe snel moet ik een donateur bedanken?",
+            "answer": "Binnen 48 uur is het gebruikelijke advies in fondsenwervingsgidsen, het liefst met een telefoontje of een persoonlijk briefje. Het sjabloon maakt een bedanktaak aan zodra een gift is vastgelegd, zodat het bedankje niet afhangt van het geheugen van één vrijwilliger."
+          },
+          {
+            "question": "Wanneer moet ik leden herinneren aan de verlenging?",
+            "answer": "Gidsen voor verenigingen stellen meerdere contactmomenten voor vóór de datum, vaak vanaf ongeveer 90 dagen tot de dag zelf, en één erna. Het sjabloon maakt 60 dagen voor de verlenging van een actief lidmaatschap een taak om het verlengingsbericht te sturen, 30 dagen ervoor een taak om leden met open contributie te herinneren en op de dag dat een lidmaatschap onbetaald verloopt een taak om de contributie aan te manen."
+          },
+          {
+            "question": "Welke gegevens van leden en donateurs mag ik bewaren?",
+            "answer": "Alleen wat het lidmaatschap of de gift nodig heeft. Volgens de KVK mag informatie die niet nodig is voor het lidmaatschap niet worden vastgelegd, en voor foto's is toestemming nodig. Het aanmeldformulier moet laten zien welke velden verplicht en welke vrijwillig zijn. Gezondheidsgegevens, gegevens van kinderen en bankgegevens blijven buiten het register. Dit is geen juridisch advies."
+          },
+          {
+            "question": "Is het geschikt voor een kerk of club?",
+            "answer": "Ja voor de registerkant: supporters, lidmaatschappen, giften en opvolging van leden en bezoekers op één plek. Het vervangt geen kerkbeheerprogramma voor inchecken, roosters of giftenoverzichten, en geen clubprogramma voor incasso en het innen van contributie."
+          },
+          {
+            "question": "Mailt de agent mijn leden en donateurs?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en jij verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Onze leden, donateurs en vrijwilligers staan verspreid over meerdere lijsten en verlengingen en bedankjes worden gemist. Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
@@ -4075,6 +4375,56 @@
         "renewal_field": "Każde członkostwo ma termin składki.",
         "receipt_field": "Każda darowizna pokazuje, czy trzeba wystawić potwierdzenie."
       },
+      "page": {
+        "metaTitle": "Program dla stowarzyszenia: członkowie, darczyńcy, składki",
+        "metaDescription": "Program dla stowarzyszenia: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje jeden rejestr członków, darowizn i terminów składek.",
+        "headline": "Program dla stowarzyszenia, który pamięta o składkach i podziękowaniach: rejestr budowany przez agenta AI",
+        "answer": "Program dla stowarzyszenia zaczyna się od jednego rejestru zamiast kilku list prowadzonych przez różnych wolontariuszy: sympatycy, członkostwa ze składką i terminem, darowizny ze stanem podziękowania i potwierdzenia oraz lejek dużych darowizn i grantów. Wklej ten szablon do swojego agenta AI, a zbuduje rejestr w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Nie pobiera składek i nie wystawia potwierdzeń darowizn, tylko pokazuje, co jest do zrobienia.",
+        "routine": {
+          "title": "Cotygodniowa rutyna członków i darowizn",
+          "steps": [
+            "Podziękuj za każdą nową darowiznę w ciągu dwóch dni, telefonem lub osobistym listem.",
+            "Powitaj członków, których deklaracje wpłynęły w tym tygodniu, i wyślij zawiadomienie o składce do członkostw, których termin przypada za około 60 dni.",
+            "Przypomnij członkom z niezapłaconą składką 30 dni przed terminem i ponagl składki członkostw wygasłych bez opłaty.",
+            "Sprawdź darowizny, dla których należy wystawić potwierdzenie, i wystaw je w swoim programie księgowym, w oficjalnym formacie obowiązującym w Twoim kraju.",
+            "Przejrzyj lejek dużych darowizn i grantów: następny krok dla każdej szansy i terminy sprawozdań, których oczekują darczyńcy instytucjonalni."
+          ]
+        },
+        "limits": [
+          "Nie pobiera składek, nie obsługuje poleceń zapłaty i nie prowadzi księgowości. Księgę prowadzi Twój program księgowy lub program dla organizacji; tu trzymasz stan składki, nie pieniądze.",
+          "Nie wystawia potwierdzeń darowizn. Powstają w formacie wymaganym przez urząd skarbowy, w Twoim programie księgowym; rejestr tylko zapisuje, że potwierdzenie jest do wystawienia.",
+          "To nie jest strona do zbierania darowizn online. Darowizny zbiera platforma płatnicza, a Ty zapisujesz darowiznę tutaj.",
+          "Dla parafii obejmuje kontakt z gośćmi i członkami, a nie rejestrację wejść, grafiki służb, obecność ani zestawienia ofiar. Notatki duszpasterskie, spowiedź i rejestry ochrony małoletnich nigdy nie należą tutaj.",
+          "Dane o zdrowiu, dane dzieci, dane bankowe i wszystko, czego nie wymaga członkostwo, zostaw poza rejestrem. Customermates nie ma uprawnień na poziomie pola.",
+          "Nie robi profilowania majątkowego darczyńców, cyklicznych darowizn z ponawianiem płatności ani masowych newsletterów. To rejestr małej organizacji, nie platforma analityczna dla fundraisera."
+        ],
+        "faq": [
+          {
+            "question": "Czy składka członkowska to darowizna do odliczenia?",
+            "answer": "Zwykle nie. We Francji składka dająca dostęp do działalności nie uprawnia do potwierdzenia podatkowego, uprawnia do niego tylko darowizna bez świadczenia wzajemnego na rzecz uprawnionej organizacji. W Niemczech potwierdzenie darowizny w urzędowym wzorze wystawiają tylko organizacje z ulgami podatkowymi, a składki większości klubów sportowych nie są odliczalne. Zasady różnią się w zależności od kraju, więc zapytaj księgowego lub urząd skarbowy. Rejestr śledzi stan potwierdzenia i żadnego nie wystawia."
+          },
+          {
+            "question": "Jak szybko dziękować darczyńcy?",
+            "answer": "W ciągu 48 godzin, to częsta rada poradników o fundraisingu, najlepiej telefonem lub osobistym listem. Szablon tworzy zadanie podziękowania, gdy tylko darowizna zostanie zapisana, żeby podziękowanie nie zależało od pamięci jednego wolontariusza."
+          },
+          {
+            "question": "Kiedy przypominać członkom o odnowieniu?",
+            "answer": "Poradniki dla stowarzyszeń sugerują kilka kontaktów przed terminem, często od około 90 dni do samego dnia, i jeden po nim. Szablon tworzy zadanie wysłania zawiadomienia o składce 60 dni przed terminem aktywnego członkostwa, zadanie przypomnienia członkom z niezapłaconą składką 30 dni przed terminem i zadanie ponaglenia składki w dniu, gdy członkostwo wygasa bez opłaty."
+          },
+          {
+            "question": "Jakie dane członków i darczyńców przechowywać?",
+            "answer": "Tylko to, czego wymaga członkostwo lub darowizna. Poradniki o RODO wskazują, że nie należy zapisywać informacji zbędnych dla członkostwa, że deklaracja członkowska powinna pokazywać, które pola są obowiązkowe, a które dobrowolne, i że zdjęcia wymagają zgody. Dane o zdrowiu, dane dzieci i dane bankowe zostają poza rejestrem. To nie jest porada prawna."
+          },
+          {
+            "question": "Czy to się nadaje dla parafii lub klubu?",
+            "answer": "Tak, w części rejestru: sympatycy, członkostwa, darowizny i kontakt z członkami i gośćmi w jednym miejscu. Nie zastępuje programu parafialnego do rejestracji wejść, grafików służb i zestawień ofiar ani narzędzia dla klubu do poleceń zapłaty i pobierania składek."
+          },
+          {
+            "question": "Czy agent pisze do moich członków i darczyńców?",
+            "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Nasi członkowie, darczyńcy i wolontariusze są rozrzuceni po kilku listach, a przez to umykają nam składki i podziękowania. Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
         "questions": [
@@ -4488,6 +4838,56 @@
         "status_field": "Cada vínculo tem um status.",
         "renewal_field": "Cada vínculo tem uma data de renovação.",
         "receipt_field": "Cada doação mostra se há um recibo a emitir."
+      },
+      "page": {
+        "metaTitle": "Sistema para igreja e associação: associados e doações",
+        "metaDescription": "Sistema para igreja e associação: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta um registro de associados, doações e renovações.",
+        "headline": "Um sistema para igreja ou associação que não esquece renovações nem agradecimentos, montado pelo seu agente de IA",
+        "answer": "Um sistema para igreja ou associação começa por um só registro, no lugar de várias listas na mão de voluntários diferentes: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais. Cole este modelo no seu agente de IA e ele monta o registro no Customermates. Você aprova o plano antes de qualquer coisa ser construída. Ele não cobra mensalidades nem emite recibos: mostra quais estão pendentes.",
+        "routine": {
+          "title": "A rotina semanal de associados e doações",
+          "steps": [
+            "Agradeça cada doação nova em até dois dias, com uma ligação ou um bilhete pessoal.",
+            "Dê as boas-vindas aos associados cuja solicitação chegou esta semana e envie o aviso de renovação aos vínculos que vencem em cerca de 60 dias.",
+            "Lembre os associados com pagamento em aberto 30 dias antes da renovação e cobre as mensalidades dos vínculos vencidos sem pagamento.",
+            "Veja as doações cujo recibo está para ser emitido e emita-os com a sua ferramenta de contabilidade, no formato oficial do seu país.",
+            "Revise o acompanhamento de grandes doações e editais: o próximo passo de cada uma e as datas de prestação de contas que os financiadores esperam."
+          ]
+        },
+        "limits": [
+          "Não cobra mensalidades, não faz débito automático nem contabilidade. A sua ferramenta de contabilidade ou de gestão da entidade guarda o razão; aqui você guarda o status do pagamento, não o dinheiro.",
+          "Não emite recibos de doação com validade fiscal. Eles são feitos no formato que o seu país exige, com a sua ferramenta de contabilidade; o registro só aponta que um recibo está pendente.",
+          "Não é uma página de doações online. As doações são recebidas numa plataforma de pagamento, e você registra a doação aqui.",
+          "Para igrejas cobre o acompanhamento de visitantes e membros, não o controle de presença, escalas, dízimos e ofertas por fundo nem extratos de contribuição. Anotações pastorais, confissão e registros de proteção nunca devem entrar aqui.",
+          "Deixe de fora do registro dados de saúde, dados de crianças, dados bancários e o que a associação não precisa. Dados sobre religião são sensíveis pela LGPD. O Customermates não tem permissões por campo.",
+          "Não faz análise de patrimônio de doadores, doações recorrentes com nova tentativa de cobrança nem newsletters em massa. É o registro de uma entidade pequena, não uma plataforma de inteligência de doadores."
+        ],
+        "faq": [
+          {
+            "question": "Mensalidade de associado conta como doação para fins fiscais?",
+            "answer": "Em geral não. Na França, uma mensalidade que dá acesso a atividades não dá direito a recibo fiscal, só uma doação sem contrapartida a uma entidade elegível. Na Alemanha, só entidades com benefício fiscal emitem comprovante de doação no modelo oficial, e as contribuições da maioria dos clubes esportivos não são dedutíveis. As regras variam por país e por tipo de entidade, então consulte o seu contador ou a autoridade fiscal. O registro acompanha o status do recibo e não emite nenhum."
+          },
+          {
+            "question": "Em quanto tempo devo agradecer uma doação?",
+            "answer": "Em até 48 horas, é o conselho comum dos guias de captação de recursos, de preferência com uma ligação ou um bilhete pessoal. O modelo cria uma tarefa de agradecimento assim que uma doação é registrada, para que o agradecimento não dependa da memória de um único voluntário."
+          },
+          {
+            "question": "Quando devo lembrar os associados de renovar?",
+            "answer": "Guias para associações sugerem vários contatos antes da data, muitas vezes de cerca de 90 dias até o próprio dia, e um depois. O modelo cria uma tarefa para enviar um aviso de renovação 60 dias antes do vencimento de um vínculo ativo, outra para lembrar quem está com pagamento em aberto 30 dias antes e outra para cobrar a mensalidade não paga no dia do vencimento."
+          },
+          {
+            "question": "Que dados de associados e doadores devo guardar?",
+            "answer": "Só o que a associação ou a doação exige. Guias sobre proteção de dados dizem que não se deve registrar o que não é necessário ao vínculo, que a ficha de inscrição deve mostrar quais campos são obrigatórios e quais são opcionais, e que fotos pedem consentimento. Dados sobre religião são sensíveis pela LGPD: registre só o necessário. Dados de saúde, de crianças e bancários ficam de fora do registro. Isso não é aconselhamento jurídico."
+          },
+          {
+            "question": "Serve para uma igreja ou um clube?",
+            "answer": "Sim, para o lado do registro: apoiadores, vínculos, doações e acompanhamento de membros e visitantes num só lugar. Não substitui um sistema de gestão de igreja para controle de presença, escalas, dízimos e ofertas por fundo, nem uma ferramenta de clube para débito automático e cobrança de mensalidades."
+          },
+          {
+            "question": "O agente escreve para meus associados e doadores?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+          }
+        ]
       },
       "prompt": {
         "intro": "Nossos associados, doadores e voluntários estão espalhados em várias listas, e as renovações e os agradecimentos ficam para trás. Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",

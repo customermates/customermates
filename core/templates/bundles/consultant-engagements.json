@@ -1130,14 +1130,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "proof",
@@ -1531,6 +1531,55 @@
         "acceptance_checked_field": "Jeder Beratungsauftrag hält fest, wann die Annahme geprüft wurde.",
         "engagements_board_view": "Die Beratungsaufträge öffnen sich als Board nach Phase."
       },
+      "page": {
+        "metaTitle": "Berater-CRM Vorlage: Angebote, Aufträge und Nachfassen",
+        "metaDescription": "Berater-CRM Vorlage für Ihren KI-Agenten: Beratungsaufträge vom Erstkontakt bis zur Erteilung, im Angebotsgespräch vereinbarter Nachfasstermin, Ergebnisse.",
+        "headline": "Kein Angebot verlieren in der Stille nach dem Gespräch: ein Berater-CRM, das Ihr KI-Agent aufbaut",
+        "answer": "Ein Berater-CRM verfolgt wenige hochwertige Aufträge vom Erstkontakt bis zur Erteilung und vor allem den Termin, an dem Sie ein Angebot nachfassen. Diese Vorlage richtet Aufträge mit Vorgespräch, Auftragsklärung, Angebot und Entscheidung ein, dazu eine Annahmeprüfung vor dem Angebot, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss. Fügen Sie sie in Ihren KI-Agenten ein, und er baut alles in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die Montagsdurchsicht der Beratungsaufträge",
+          "steps": [
+            "Gehen Sie die Pipeline nach Phase durch und tragen Sie bei jedem Auftrag ohne nächsten Schritt einen Schritt mit Datum ein, oder schließen Sie ihn.",
+            "Prüfen Sie die offenen Angebote: Jedes braucht einen im Gespräch mit dem Ansprechpartner vereinbarten Nachfasstermin, danach ein zweites Nachfassen nach etwa 10 Tagen und die Frage nach der Entscheidung zum Entscheidungstermin.",
+            "Sehen Sie sich die Ergebnisse an, die in den nächsten 14 Tagen fällig sind, und bestätigen Sie mit dem Kunden den Termin für die Durchsicht.",
+            "Melden Sie sich bei starken oder warmen Kontakten, die Sie seit 60 Tagen nicht getroffen haben, und bedanken Sie sich bei dem, der Ihren letzten Auftrag empfohlen hat."
+          ]
+        },
+        "limits": [
+          "Es ist keine Zeiterfassung und keine Rechnungsstellung. Stunden und Rechnungen bleiben in Ihren Zeiterfassungs- und Buchhaltungswerkzeugen; eine Meilenstein-Wiedervorlage erinnert Sie nur ans Fakturieren.",
+          "Es schreibt keine Angebote und holt keine Unterschriften ein. Angebot und unterschriebener Vertrag sind Links auf Dokumente an anderer Stelle.",
+          "Es ist keine Ressourcenplanung und kein Projektmanagement jenseits von Ergebnissen und Terminen. Die Aufgaben der Arbeit selbst gehören in Ihr Projektwerkzeug.",
+          "Vertrauliche Kundenunterlagen und Interviewdaten gehören nicht hinein. Es gibt keine Berechtigungen auf Feldebene, speichern Sie deshalb einen neutralen Auftragstitel und einen Link.",
+          "Es versendet keine Sequenzen. Jedes Nachfassen ist eine terminierte Wiedervorlage und ein Entwurf, den Sie prüfen und selbst senden; Customermates hat keine Drip- oder Massenversand-Funktion.",
+          "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+        ],
+        "faq": [
+          {
+            "question": "Welches CRM nutzen Berater?",
+            "answer": "Viele selbstständige Berater beginnen mit einer Tabelle oder einem allgemeinen Vertriebs-CRM. Was ein Berater braucht, ist klein: wenige Ansprechpartner und Aufträge, ein terminierter nächster Schritt bei jedem, der Nachfasstermin für das Angebot und die Abnahmeschritte nach dem Verkauf. Genau das richtet diese Vorlage in Customermates ein."
+          },
+          {
+            "question": "Wann soll ich ein Angebot nachfassen?",
+            "answer": "Vereinbaren Sie den Termin im Angebotsgespräch selbst, so wie es Alan Weiss beschreibt: Nennen Sie einen konkreten Tag und eine Uhrzeit, rufen Sie zuerst an und schreiben Sie nur, wenn der Kunde nicht erreichbar ist. Die Vorlage nimmt als Standard ein erstes Nachfassen nach 3 Tagen und ein zweites nach 10 Tagen; beides lässt sich ändern."
+          },
+          {
+            "question": "Was ist eine Annahmeprüfung?",
+            "answer": "Eine kurze Prüfung, bevor Sie ein Angebot schreiben: Haben Sie Kapazität, sind Sie unabhängig von den übrigen Beteiligten des Kunden, lässt sich die Vertraulichkeit wahren, und passt der Auftrag zu Ihnen? Ein deutscher Beraterverband empfiehlt, vor der Angebotserstellung zu klären, ob ein Mandat angenommen werden kann, und sonst abzulehnen."
+          },
+          {
+            "question": "Wie schnell nach der Beauftragung sollte der Kickoff stattfinden?",
+            "answer": "Ein Anbieter-Leitfaden nennt als Ziel einen Kickoff innerhalb von 48 Stunden nach Abschluss, mit Vorab-Material 24 Stunden vor einem 60-minütigen Termin; für regulierte oder mit Subunternehmern besetzte Aufträge braucht es länger. Die Vorlage legt am Tag nach der Erteilung einen Schritt für den Kickoff an."
+          },
+          {
+            "question": "Was tue ich, wenn ich ein Angebot verliere?",
+            "answer": "Halten Sie den Grund fest und fragen Sie zwei Tage später beim Ansprechpartner nach, was Sie hätten anders machen können. Alan Weiss empfiehlt genau diese Frage, wenn die Antwort Nein lautet. Die Vorlage legt diesen Schritt für Sie an."
+          },
+          {
+            "question": "Schreibt der Agent meine Kunden an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ich berate selbstständig und verliere Aufträge in der Stille nach dem Angebotsgespräch. Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
         "questions": [
@@ -1919,6 +1968,55 @@
         "follow_up_field": "Every proposal records the follow-up date agreed with the sponsor.",
         "acceptance_checked_field": "Every engagement records when acceptance was checked.",
         "engagements_board_view": "The engagements open as a board by stage."
+      },
+      "page": {
+        "metaTitle": "Consultant CRM Template: Proposals and Follow-up",
+        "metaDescription": "A consultant CRM template your AI agent builds: engagements from introduction to won, a follow-up date agreed on the proposal call and deliverables.",
+        "headline": "Never lose a proposal in the silence after the call: a consultant CRM your AI agent builds",
+        "answer": "A consultant CRM tracks a few high-value engagements from introduction to won, and above all the date on which you follow up a proposal. This template sets up engagements through discovery, scoping, proposal and decision, an acceptance check before the offer, deliverables with due and acceptance dates, and a closeout. Paste it into your AI agent and it builds all of it in Customermates, and you approve the plan before anything is built.",
+        "routine": {
+          "title": "The Monday engagement review",
+          "steps": [
+            "Go through the pipeline by stage and give every engagement without a next step a dated one, or close it.",
+            "Check the proposals that are out: each needs a follow-up date agreed with the sponsor on the call, then a second follow-up at about 10 days and a request for the decision on the decision date.",
+            "Look at the deliverables due in the next 14 days and confirm the review slot with the client.",
+            "Get back in touch with strong or warm contacts you have not met for 60 days, and thank whoever referred your last win."
+          ]
+        },
+        "limits": [
+          "It is not time tracking or invoicing. Hours and invoices stay in your time-tracking and accounting tools; a milestone Action only reminds you to invoice.",
+          "It does not write proposals or collect signatures. A proposal and a signed contract are links to documents elsewhere.",
+          "It is not resource planning or project management beyond deliverables and dates. The tasks of the work itself belong in your project tool.",
+          "Keep confidential client material and interview data out of it. There are no field-level permissions, so store a neutral engagement title and a link.",
+          "It sends no sequences. Every follow-up is a dated Action and a draft you review and send yourself; Customermates has no drip or mass-outreach engine.",
+          "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+        ],
+        "faq": [
+          {
+            "question": "Which CRM do consultants use?",
+            "answer": "Many independent consultants start with a spreadsheet or a general sales CRM. What a consultant needs is small: a few contacts and engagements, one dated next step on each, the date a proposal is followed up, and the delivery gates after the sale. This template sets up exactly that in Customermates."
+          },
+          {
+            "question": "When should I follow up after sending a proposal?",
+            "answer": "Agree the date during the proposal call itself, as Alan Weiss describes: name a specific day and time, phone first and use email only if the buyer cannot be reached. The template defaults to a first follow-up after 3 days and a second at 10 days, and you can change both."
+          },
+          {
+            "question": "What is an acceptance check?",
+            "answer": "A short check before you write an offer: do you have capacity, are you independent of the client's other parties, can confidentiality be kept, and does the work fit? Guidance from a German consultants' association says to check whether a mandate can be accepted before you formulate the offer, and to decline if not."
+          },
+          {
+            "question": "How soon after signing should the kickoff happen?",
+            "answer": "One vendor guide targets a kickoff within 48 hours of closing, with a pre-read sent 24 hours before a 60-minute meeting; it notes that regulated and subcontracted engagements need longer. The template creates a kickoff step the day after an engagement is won."
+          },
+          {
+            "question": "What should I do after losing a proposal?",
+            "answer": "Record the reason, and two days later ask the sponsor what you could have done differently. Alan Weiss recommends asking exactly that when the answer is no. The template creates that step for you."
+          },
+          {
+            "question": "Does the agent contact my clients?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "I run my own consulting practice and lose deals in the silence after a proposal call. Set up consultant engagements in my Customermates workspace: engagements from introduction to won with an acceptance check and a follow-up date agreed on the proposal call, deliverables with due and acceptance dates, and a closeout that asks for feedback. Store no confidential client data.",
@@ -2309,6 +2407,55 @@
         "acceptance_checked_field": "Cada encargo registra cuándo se comprobó la aceptación.",
         "engagements_board_view": "Los encargos se abren como tablero por fase."
       },
+      "page": {
+        "metaTitle": "Encargos de consultoría: propuestas y seguimiento en tu CRM",
+        "metaDescription": "Encargos de consultoría que tu agente de IA crea en tu CRM: del contacto al ganado, con una fecha de seguimiento acordada en la llamada y entregables.",
+        "headline": "No pierdas una propuesta en el silencio tras la llamada: un CRM de consultoría que crea tu agente de IA",
+        "answer": "Un CRM de consultoría sigue unos pocos encargos de alto valor del contacto al ganado y, sobre todo, la fecha en que haces el seguimiento de una propuesta. Esta plantilla configura encargos con descubrimiento, alcance, propuesta y decisión, una comprobación de aceptación antes de la oferta, entregables con fechas de vencimiento y de aceptación, y un cierre. Pégala en tu agente de IA y él lo construye todo en Customermates; tú apruebas el plan antes de que se cree nada.",
+        "routine": {
+          "title": "La revisión del lunes de los encargos",
+          "steps": [
+            "Recorre el pipeline por etapas y añade un siguiente paso con fecha a cada encargo que no lo tenga, o ciérralo.",
+            "Revisa las propuestas enviadas: cada una necesita una fecha de seguimiento acordada con el decisor durante la llamada, luego un segundo seguimiento hacia el décimo día y la petición de decisión en la fecha prevista.",
+            "Mira los entregables que vencen en los próximos 14 días y confirma con el cliente la franja de revisión.",
+            "Retoma el contacto con las relaciones fuertes o cálidas a las que no ves desde hace 60 días y agradece a quien te recomendó en tu último encargo."
+          ]
+        },
+        "limits": [
+          "No es control de horas ni facturación. Horas y facturas se quedan en tus herramientas de tiempo y contabilidad; una tarea de hito solo te recuerda facturar.",
+          "No redacta propuestas ni recoge firmas. Una propuesta y un contrato firmado son enlaces a documentos en otro sitio.",
+          "No es planificación de recursos ni gestión de proyectos más allá de entregables y fechas. Las tareas del trabajo en sí van en tu herramienta de proyectos.",
+          "Deja fuera el material confidencial de clientes y los datos de entrevistas. No hay permisos a nivel de campo: guarda un título de encargo neutro y un enlace.",
+          "No envía secuencias. Cada seguimiento es una tarea con fecha y un borrador que revisas y envías tú; Customermates no tiene motor de envíos automáticos ni masivos.",
+          "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué CRM usan los consultores?",
+            "answer": "Muchos consultores independientes empiezan con una hoja de cálculo o un CRM comercial genérico. Lo que necesita un consultor es poco: unos pocos contactos y encargos, un siguiente paso con fecha en cada uno, la fecha de seguimiento de la propuesta y los pasos de aceptación tras la venta. Esta plantilla lo configura en Customermates."
+          },
+          {
+            "question": "¿Cuándo debo hacer el seguimiento de una propuesta?",
+            "answer": "Acuerda la fecha durante la llamada de la propuesta, como describe Alan Weiss: indica un día y una hora concretos, llama primero y escribe solo si el comprador no responde. La plantilla propone por defecto un primer seguimiento a los 3 días y un segundo a los 10; puedes cambiar ambos."
+          },
+          {
+            "question": "¿Qué es una comprobación de aceptación?",
+            "answer": "Una revisión breve antes de redactar una oferta: ¿tienes capacidad?, ¿eres independiente de las demás partes del cliente?, ¿se puede mantener la confidencialidad?, ¿encaja el encargo? Una asociación alemana de consultores recomienda comprobar si un encargo puede aceptarse antes de formular la oferta y, si no, rechazarlo."
+          },
+          {
+            "question": "¿Cuánto después de la firma debe celebrarse la reunión de arranque?",
+            "answer": "Una guía de un proveedor apunta a una reunión de arranque en las 48 horas siguientes al cierre, con material previo enviado 24 horas antes de una reunión de 60 minutos; advierte de que los encargos regulados o subcontratados necesitan más tiempo. La plantilla crea un paso de arranque el día después de ganar el encargo."
+          },
+          {
+            "question": "¿Qué hago después de perder una propuesta?",
+            "answer": "Anota el motivo y, dos días después, pregunta al decisor qué podrías haber hecho de otra manera. Alan Weiss recomienda justo esa pregunta cuando la respuesta es no. La plantilla crea ese paso por ti."
+          },
+          {
+            "question": "¿El agente escribe a mis clientes?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Tengo mi propia consultoría y pierdo encargos en el silencio que sigue a la llamada de la propuesta. Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
         "questions": [
@@ -2697,6 +2844,55 @@
         "follow_up_field": "Chaque proposition indique la date de relance convenue avec le sponsor.",
         "acceptance_checked_field": "Chaque mission indique quand l’acceptation a été contrôlée.",
         "engagements_board_view": "Les missions s’ouvrent en board par étape."
+      },
+      "page": {
+        "metaTitle": "Missions de conseil : suivi des propositions et relances",
+        "metaDescription": "Missions de conseil : votre agent IA construit dans votre CRM le suivi, de la prospection à la signature, avec une date de relance convenue à l’appel.",
+        "headline": "Ne perdez plus une proposition dans le silence après l’appel : un CRM de conseil construit par votre agent IA",
+        "answer": "Un CRM de conseil suit quelques missions à forte valeur de la prospection à la signature et, surtout, la date à laquelle vous relancez une proposition. Ce modèle met en place des missions avec qualification, cadrage, proposition et décision, un contrôle d’acceptation avant l’offre, des livrables avec dates d’échéance et de validation, et une clôture. Collez-le dans votre agent IA : il construit tout dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+        "routine": {
+          "title": "La revue du lundi des missions",
+          "steps": [
+            "Parcourez le pipeline par étape et ajoutez une prochaine étape datée à chaque mission qui n’en a pas, ou clôturez-la.",
+            "Vérifiez les propositions en cours : chacune demande une date de relance convenue avec le décideur pendant l’appel, puis une seconde relance vers le dixième jour et la demande de décision à la date prévue.",
+            "Regardez les livrables à remettre dans les 14 prochains jours et confirmez le créneau de relecture avec le client.",
+            "Reprenez contact avec les relations fortes ou chaudes que vous n’avez pas vues depuis 60 jours, et remerciez celui qui vous a recommandé pour votre dernière mission."
+          ]
+        },
+        "limits": [
+          "Ce n’est ni un outil de suivi du temps ni de facturation. Heures et factures restent dans vos outils de temps passé et de comptabilité ; une action sur jalon ne fait que vous rappeler de facturer.",
+          "Il ne rédige pas de propositions et ne recueille pas de signatures. Une proposition et un contrat signé sont des liens vers des documents ailleurs.",
+          "Ce n’est ni de la planification de ressources, ni de la gestion de projet au-delà des livrables et des dates. Les tâches du travail lui-même relèvent de votre outil de projet.",
+          "Gardez-en hors les documents confidentiels des clients et les données d’entretiens. Il n’y a pas de droits au niveau du champ : notez un titre de mission neutre et un lien.",
+          "Il n’envoie pas de séquences. Chaque relance est une action datée et un brouillon que vous relisez et envoyez vous-même ; Customermates n’a pas de moteur d’envoi automatique ou en masse.",
+          "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+        ],
+        "faq": [
+          {
+            "question": "Quel CRM utilisent les consultants ?",
+            "answer": "Beaucoup de consultants indépendants démarrent avec un tableur ou un CRM commercial généraliste. Ce dont un consultant a besoin est limité : quelques contacts et missions, une prochaine étape datée sur chacune, la date de relance d’une proposition et les étapes de validation après la vente. Ce modèle met cela en place dans Customermates."
+          },
+          {
+            "question": "Quand relancer après l’envoi d’une proposition ?",
+            "answer": "Convenez de la date pendant l’appel sur la proposition, comme le décrit Alan Weiss : donnez un jour et une heure précis, appelez d’abord et n’écrivez que si l’acheteur reste injoignable. Le modèle propose par défaut une première relance après 3 jours et une seconde après 10 jours ; vous pouvez changer les deux."
+          },
+          {
+            "question": "Qu’est-ce qu’un contrôle d’acceptation ?",
+            "answer": "Un court contrôle avant de rédiger une offre : avez-vous la capacité, êtes-vous indépendant des autres parties du client, la confidentialité peut-elle être tenue, la mission vous convient-elle ? Une association allemande de consultants recommande de vérifier si un mandat peut être accepté avant de formuler l’offre, et de refuser sinon."
+          },
+          {
+            "question": "Quand organiser la réunion de lancement après la signature ?",
+            "answer": "Un guide d’éditeur vise une réunion de lancement dans les 48 heures après la signature, avec un document préparatoire envoyé 24 heures avant une réunion de 60 minutes ; il note que les missions réglementées ou sous-traitées demandent plus de temps. Le modèle crée une étape de lancement le lendemain de la signature."
+          },
+          {
+            "question": "Que faire après avoir perdu une proposition ?",
+            "answer": "Notez le motif, puis demandez au décideur, deux jours plus tard, ce que vous auriez pu faire autrement. Alan Weiss recommande précisément cette question quand la réponse est non. Le modèle crée cette étape pour vous."
+          },
+          {
+            "question": "L’agent écrit-il à mes clients ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+          }
+        ]
       },
       "prompt": {
         "intro": "Je mène une activité de conseil en indépendant et je perds des affaires dans le silence qui suit l’appel sur une proposition. Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
@@ -3087,6 +3283,55 @@
         "acceptance_checked_field": "Ogni incarico indica quando è stata verificata l'accettazione.",
         "engagements_board_view": "Gli incarichi si aprono come board per fase."
       },
+      "page": {
+        "metaTitle": "Incarichi di consulenza: proposte, follow-up e consegne",
+        "metaDescription": "Incarichi di consulenza che il tuo agente IA costruisce nel CRM: dal contatto alla vittoria, con una data di follow-up fissata nella chiamata e deliverable.",
+        "headline": "Non perdere più una proposta nel silenzio dopo la chiamata: un CRM per consulenti costruito dal tuo agente IA",
+        "answer": "Un CRM per consulenti segue pochi incarichi di alto valore dal contatto alla vittoria e, soprattutto, la data in cui fai il follow-up di una proposta. Questo modello imposta incarichi con analisi, ambito, proposta e decisione, un controllo di accettazione prima dell'offerta, deliverable con date di scadenza e di approvazione e una chiusura. Incollalo nel tuo agente IA: costruisce tutto in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+        "routine": {
+          "title": "La revisione del lunedì sugli incarichi",
+          "steps": [
+            "Scorri la pipeline per fase e aggiungi un prossimo passo con data a ogni incarico che ne è privo, oppure chiudilo.",
+            "Controlla le proposte in corso: ognuna richiede una data di follow-up concordata con il referente durante la chiamata, poi un secondo follow-up verso il decimo giorno e la richiesta di decisione alla data prevista.",
+            "Guarda i deliverable in scadenza nei prossimi 14 giorni e conferma con il cliente lo slot di revisione.",
+            "Ricontatta i contatti forti o caldi che non vedi da 60 giorni e ringrazia chi ti ha segnalato nell'ultimo incarico."
+          ]
+        },
+        "limits": [
+          "Non è un sistema di tracciamento delle ore né di fatturazione. Ore e fatture restano nei tuoi strumenti di tempo e contabilità; un'attività su una milestone ti ricorda solo di fatturare.",
+          "Non scrive proposte e non raccoglie firme. Una proposta e un contratto firmato sono link a documenti altrove.",
+          "Non è pianificazione delle risorse né gestione di progetto oltre a deliverable e date. Le attività del lavoro vero e proprio stanno nel tuo strumento di progetto.",
+          "Tieni fuori materiali riservati dei clienti e dati di interviste. Non ci sono permessi a livello di campo: salva un titolo neutro dell'incarico e un link.",
+          "Non invia sequenze. Ogni follow-up è un'attività datata e una bozza che rivedi e invii tu; Customermates non ha un motore di invio automatico o di massa.",
+          "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+        ],
+        "faq": [
+          {
+            "question": "Quale CRM usano i consulenti?",
+            "answer": "Molti consulenti indipendenti partono da un foglio di calcolo o da un CRM commerciale generico. Ciò che serve a un consulente è poco: pochi contatti e incarichi, un prossimo passo datato su ciascuno, la data di follow-up della proposta e i passaggi di approvazione dopo la vendita. Questo modello imposta proprio questo in Customermates."
+          },
+          {
+            "question": "Quando fare follow-up dopo l'invio di una proposta?",
+            "answer": "Concorda la data durante la chiamata sulla proposta, come descrive Alan Weiss: indica un giorno e un'ora precisi, chiama prima e scrivi solo se il cliente non è raggiungibile. Il modello propone di default un primo follow-up dopo 3 giorni e un secondo dopo 10; puoi cambiare entrambi."
+          },
+          {
+            "question": "Che cos'è un controllo di accettazione?",
+            "answer": "Una verifica breve prima di scrivere un'offerta: hai capacità, sei indipendente dalle altre parti del cliente, si può mantenere la riservatezza, l'incarico fa per te? Un'associazione tedesca di consulenti consiglia di verificare se un incarico può essere accettato prima di formulare l'offerta e, altrimenti, di rifiutarlo."
+          },
+          {
+            "question": "Quanto presto dopo la firma va fatta la riunione di avvio?",
+            "answer": "Una guida di un fornitore punta a una riunione di avvio entro 48 ore dalla chiusura, con un documento preliminare inviato 24 ore prima di una riunione di 60 minuti; avverte che incarichi regolamentati o in subappalto richiedono più tempo. Il modello crea un passaggio di avvio il giorno dopo la vittoria."
+          },
+          {
+            "question": "Che cosa faccio dopo aver perso una proposta?",
+            "answer": "Registra il motivo e, due giorni dopo, chiedi al referente che cosa avresti potuto fare diversamente. Alan Weiss consiglia proprio questa domanda quando la risposta è no. Il modello crea questo passaggio per te."
+          },
+          {
+            "question": "L'agente scrive ai miei clienti?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Lavoro come consulente indipendente e perdo trattative nel silenzio dopo la chiamata sulla proposta. Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
         "questions": [
@@ -3475,6 +3720,55 @@
         "follow_up_field": "Elk voorstel legt de met de opdrachtgever afgesproken opvolgdatum vast.",
         "acceptance_checked_field": "Elke opdracht legt vast wanneer de acceptatie is gecontroleerd.",
         "engagements_board_view": "De opdrachten openen als bord per fase."
+      },
+      "page": {
+        "metaTitle": "Adviesopdrachten: voorstellen en opvolging in je CRM",
+        "metaDescription": "Adviesopdrachten die je AI-agent in je CRM bouwt: van kennismaking tot gewonnen, met een opvolgdatum die je in het voorstelgesprek afspreekt en resultaten.",
+        "headline": "Laat geen voorstel vallen in de stilte na het gesprek: een CRM voor adviseurs, gebouwd door je AI-agent",
+        "answer": "Een CRM voor adviseurs volgt een paar opdrachten met hoge waarde van kennismaking tot gewonnen en vooral de datum waarop je een voorstel opvolgt. Dit template richt opdrachten in met verkenning, scope, voorstel en beslissing, een acceptatiecheck vóór de offerte, resultaten met opleverdatum en acceptatiedatum en een afsluiting. Plak het in je AI-agent en die bouwt alles in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+        "routine": {
+          "title": "De maandagreview van je opdrachten",
+          "steps": [
+            "Loop de pipeline per fase langs en geef elke opdracht zonder volgende stap een stap met datum, of sluit hem af.",
+            "Controleer de verstuurde voorstellen: elk heeft een opvolgdatum nodig die je in het gesprek met de opdrachtgever hebt afgesproken, daarna een tweede opvolging rond dag 10 en de vraag om een beslissing op de verwachte beslisdatum.",
+            "Bekijk de resultaten die de komende 14 dagen opgeleverd moeten worden en bevestig met de klant het moment van beoordeling.",
+            "Neem contact op met sterke of warme relaties die je al 60 dagen niet hebt gesproken, en bedank wie je laatste opdracht heeft aangedragen."
+          ]
+        },
+        "limits": [
+          "Het is geen urenregistratie of facturatie. Uren en facturen blijven in je tijd- en boekhoudtools; een mijlpaalactie herinnert je er alleen aan te factureren.",
+          "Het schrijft geen voorstellen en haalt geen handtekeningen op. Een voorstel en een getekend contract zijn links naar documenten elders.",
+          "Het is geen resourceplanning of projectmanagement buiten resultaten en data. De taken van het werk zelf horen in je projecttool.",
+          "Houd vertrouwelijk klantmateriaal en interviewgegevens erbuiten. Er zijn geen rechten op veldniveau, bewaar dus een neutrale opdrachttitel en een link.",
+          "Het verstuurt geen sequenties. Elke opvolging is een actie met datum en een concept dat je nakijkt en zelf verstuurt; Customermates heeft geen motor voor automatische of massale verzending.",
+          "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+        ],
+        "faq": [
+          {
+            "question": "Welk CRM gebruiken adviseurs?",
+            "answer": "Veel zelfstandige adviseurs beginnen met een spreadsheet of een algemeen verkoop-CRM. Wat een adviseur nodig heeft, is weinig: een paar contactpersonen en opdrachten, een volgende stap met datum bij elk, de opvolgdatum van het voorstel en de acceptatiestappen na de verkoop. Dit template richt precies dat in Customermates in."
+          },
+          {
+            "question": "Wanneer moet ik een voorstel opvolgen?",
+            "answer": "Spreek de datum af tijdens het voorstelgesprek zelf, zoals Alan Weiss beschrijft: noem een concrete dag en tijd, bel eerst en mail alleen als de koper onbereikbaar is. Het template gaat standaard uit van een eerste opvolging na 3 dagen en een tweede na 10; beide kun je aanpassen."
+          },
+          {
+            "question": "Wat is een acceptatiecheck?",
+            "answer": "Een korte controle voordat je een offerte schrijft: heb je capaciteit, ben je onafhankelijk van de andere partijen van de klant, kan de vertrouwelijkheid bewaard blijven en past de opdracht bij je? Een Duitse brancheorganisatie van adviseurs adviseert te toetsen of een opdracht kan worden aangenomen voordat je de offerte opstelt, en anders af te wijzen."
+          },
+          {
+            "question": "Hoe snel na ondertekening moet de kickoff plaatsvinden?",
+            "answer": "Een gids van een aanbieder mikt op een kickoff binnen 48 uur na afsluiting, met voorbereidend materiaal 24 uur van tevoren en een afspraak van 60 minuten; hij merkt op dat gereguleerde of uitbestede opdrachten meer tijd vragen. Het template maakt de dag na het winnen van de opdracht een stap voor de kickoff."
+          },
+          {
+            "question": "Wat doe ik nadat ik een voorstel heb verloren?",
+            "answer": "Leg de reden vast en vraag twee dagen later aan de opdrachtgever wat je anders had kunnen doen. Alan Weiss raadt precies die vraag aan als het antwoord nee is. Het template maakt die stap voor je aan."
+          },
+          {
+            "question": "Schrijft de agent mijn klanten aan?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Ik heb mijn eigen adviespraktijk en verlies opdrachten in de stilte na een voorstelgesprek. Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
@@ -3865,6 +4159,55 @@
         "acceptance_checked_field": "Każde zlecenie zapisuje, kiedy sprawdzono przyjęcie.",
         "engagements_board_view": "Zlecenia otwierają się jako tablica według etapu."
       },
+      "page": {
+        "metaTitle": "Zlecenia konsultingowe: oferty i follow-up w Twoim CRM",
+        "metaDescription": "Zlecenia konsultingowe, które agent AI buduje w Twoim CRM: od kontaktu do wygranego, z terminem ponownego kontaktu ustalonym na rozmowie o ofercie.",
+        "headline": "Nie trać oferty w ciszy po rozmowie: CRM dla konsultanta, który buduje Twój agent AI",
+        "answer": "CRM dla konsultanta śledzi kilka zleceń o dużej wartości od kontaktu do wygranego i przede wszystkim termin, w którym wracasz do oferty. Ten szablon konfiguruje zlecenia z rozmową odkrywczą, zakresem, ofertą i decyzją, sprawdzenie przyjęcia zlecenia przed ofertą, rezultaty z terminami wykonania i odbioru oraz zamknięcie. Wklej go do swojego agenta AI, a on zbuduje wszystko w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Poniedziałkowy przegląd zleceń",
+          "steps": [
+            "Przejdź przez pipeline etapami i dodaj datowany następny krok do każdego zlecenia, które go nie ma, albo je zamknij.",
+            "Sprawdź wysłane oferty: każda wymaga terminu ponownego kontaktu ustalonego z decydentem na rozmowie, potem drugiego kontaktu około dziesiątego dnia i pytania o decyzję w planowanym terminie.",
+            "Zerknij na rezultaty z terminem w ciągu 14 dni i potwierdź z klientem termin przeglądu.",
+            "Odezwij się do silnych lub ciepłych kontaktów, z którymi nie spotykaliście się od 60 dni, i podziękuj osobie, która poleciła Cię przy ostatnim zleceniu."
+          ]
+        },
+        "limits": [
+          "To nie jest ewidencja czasu pracy ani fakturowanie. Godziny i faktury zostają w Twoich narzędziach do czasu i księgowości; zadanie przy kamieniu milowym tylko przypomina o fakturze.",
+          "Nie pisze ofert i nie zbiera podpisów. Oferta i podpisana umowa to linki do dokumentów w innym miejscu.",
+          "To nie jest planowanie zasobów ani zarządzanie projektem poza rezultatami i terminami. Zadania samej pracy należą do Twojego narzędzia projektowego.",
+          "Nie trzymaj w nim poufnych materiałów klientów ani danych z wywiadów. Nie ma uprawnień na poziomie pola, więc zapisuj neutralny tytuł zlecenia i link.",
+          "Nie wysyła sekwencji. Każdy kolejny kontakt to datowane zadanie i szkic, który sprawdzasz i wysyłasz Ty; Customermates nie ma silnika wysyłki automatycznej ani masowej.",
+          "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+        ],
+        "faq": [
+          {
+            "question": "Jakiego CRM używają konsultanci?",
+            "answer": "Wielu niezależnych konsultantów zaczyna od arkusza albo ogólnego CRM sprzedażowego. Konsultant potrzebuje niewiele: kilku kontaktów i zleceń, datowanego następnego kroku przy każdym, terminu powrotu do oferty i kroków odbioru po sprzedaży. Ten szablon konfiguruje to w Customermates."
+          },
+          {
+            "question": "Kiedy wrócić do oferty po jej wysłaniu?",
+            "answer": "Ustal termin w trakcie rozmowy o ofercie, tak jak opisuje to Alan Weiss: podaj konkretny dzień i godzinę, zadzwoń najpierw i napisz tylko wtedy, gdy kupujący jest nieosiągalny. Szablon domyślnie proponuje pierwszy kontakt po 3 dniach i drugi po 10; oba możesz zmienić."
+          },
+          {
+            "question": "Czym jest sprawdzenie przyjęcia zlecenia?",
+            "answer": "To krótka kontrola przed napisaniem oferty: czy masz moce, czy zachowasz niezależność wobec innych stron klienta, czy da się utrzymać poufność i czy zlecenie do Ciebie pasuje? Niemieckie stowarzyszenie konsultantów zaleca sprawdzić, czy zlecenie można przyjąć, zanim sformułujesz ofertę, a w przeciwnym razie odmówić."
+          },
+          {
+            "question": "Jak szybko po podpisaniu powinno odbyć się spotkanie startowe?",
+            "answer": "Przewodnik jednego z dostawców celuje w spotkanie startowe w ciągu 48 godzin od zamknięcia, z materiałem wstępnym wysłanym 24 godziny przed 60-minutowym spotkaniem; zaznacza, że zlecenia regulowane lub podzlecane wymagają więcej czasu. Szablon tworzy krok startowy dzień po wygraniu zlecenia."
+          },
+          {
+            "question": "Co zrobić po utracie oferty?",
+            "answer": "Zapisz powód, a dwa dni później zapytaj decydenta, co można było zrobić inaczej. Alan Weiss zaleca właśnie to pytanie, gdy odpowiedź brzmi nie. Szablon tworzy ten krok za Ciebie."
+          },
+          {
+            "question": "Czy agent pisze do moich klientów?",
+            "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Prowadzę własną firmę konsultingową i tracę zlecenia w ciszy po rozmowie o ofercie. Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
         "questions": [
@@ -4253,6 +4596,55 @@
         "follow_up_field": "Toda proposta registra a data de retorno combinada com o patrocinador.",
         "acceptance_checked_field": "Todo projeto registra quando a aceitação foi checada.",
         "engagements_board_view": "Os projetos abrem como quadro por etapa."
+      },
+      "page": {
+        "metaTitle": "Projetos de consultoria: propostas e retorno no seu CRM",
+        "metaDescription": "Projetos de consultoria que seu agente de IA monta no CRM: do contato ao ganho, com uma data de retorno combinada na conversa da proposta e entregáveis.",
+        "headline": "Não perca uma proposta no silêncio depois da conversa: um CRM de consultoria montado pelo seu agente de IA",
+        "answer": "Um CRM de consultoria acompanha poucos projetos de alto valor do contato ao ganho e, sobretudo, a data em que você retorna uma proposta. Este modelo configura projetos com diagnóstico, escopo, proposta e decisão, uma checagem de aceitação antes da oferta, entregáveis com datas de vencimento e de aceite, e um encerramento. Cole-o no seu agente de IA e ele monta tudo no Customermates; você aprova o plano antes de qualquer coisa ser criada.",
+        "routine": {
+          "title": "A revisão de segunda-feira dos projetos",
+          "steps": [
+            "Percorra o pipeline por etapa e acrescente um próximo passo com data a cada projeto que não tem um, ou encerre-o.",
+            "Confira as propostas enviadas: cada uma precisa de uma data de retorno combinada com o decisor durante a conversa, depois um segundo retorno por volta do décimo dia e o pedido de decisão na data prevista.",
+            "Olhe os entregáveis com vencimento nos próximos 14 dias e confirme com o cliente o horário de revisão.",
+            "Retome o contato com relações fortes ou mornas que você não encontra há 60 dias e agradeça a quem indicou seu último projeto."
+          ]
+        },
+        "limits": [
+          "Não é controle de horas nem faturamento. Horas e notas ficam nas suas ferramentas de tempo e de contabilidade; uma tarefa de marco só lembra você de faturar.",
+          "Não redige propostas nem coleta assinaturas. Uma proposta e um contrato assinado são links para documentos em outro lugar.",
+          "Não é planejamento de recursos nem gestão de projetos além de entregáveis e datas. As tarefas do trabalho em si ficam na sua ferramenta de projetos.",
+          "Deixe de fora material confidencial de clientes e dados de entrevistas. Não há permissões por campo: guarde um título de projeto neutro e um link.",
+          "Não envia sequências. Cada retorno é uma tarefa com data e um rascunho que você revisa e envia; o Customermates não tem motor de envio automático ou em massa.",
+          "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar."
+        ],
+        "faq": [
+          {
+            "question": "Que CRM os consultores usam?",
+            "answer": "Muitos consultores independentes começam com uma planilha ou um CRM comercial genérico. O que um consultor precisa é pouco: alguns contatos e projetos, um próximo passo com data em cada um, a data de retorno da proposta e os passos de aceite depois da venda. Este modelo configura isso no Customermates."
+          },
+          {
+            "question": "Quando devo retornar depois de enviar uma proposta?",
+            "answer": "Combine a data durante a conversa da proposta, como descreve Alan Weiss: diga um dia e uma hora precisos, ligue primeiro e escreva só se o comprador não atender. O modelo sugere por padrão um primeiro retorno após 3 dias e um segundo após 10; você pode mudar os dois."
+          },
+          {
+            "question": "O que é uma checagem de aceitação?",
+            "answer": "Uma verificação curta antes de escrever uma oferta: você tem capacidade, é independente das outras partes do cliente, dá para manter a confidencialidade, o trabalho combina com você? Uma associação alemã de consultores recomenda verificar se um projeto pode ser aceito antes de formular a oferta e, se não, recusá-lo."
+          },
+          {
+            "question": "Quanto tempo depois da assinatura deve acontecer o kickoff?",
+            "answer": "Um guia de fornecedor mira um kickoff em até 48 horas depois do fechamento, com um material prévio enviado 24 horas antes de uma reunião de 60 minutos; ele avisa que projetos regulados ou subcontratados pedem mais tempo. O modelo cria um passo de kickoff no dia seguinte ao ganho."
+          },
+          {
+            "question": "O que fazer depois de perder uma proposta?",
+            "answer": "Registre o motivo e, dois dias depois, pergunte ao decisor o que você poderia ter feito diferente. Alan Weiss recomenda exatamente essa pergunta quando a resposta é não. O modelo cria esse passo para você."
+          },
+          {
+            "question": "O agente escreve para os meus clientes?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu tenho a minha própria consultoria e perco negócios no silêncio depois da conversa da proposta. Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",

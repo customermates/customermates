@@ -400,7 +400,7 @@
     { "url": "https://www.b2bmarketeers.nl/relatiebeheer-wat-is-dat-eigenlijk/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
   "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "none", "pt": "own", "pl": "own", "nl": "own" },
   "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave1", "it": "wave1", "pt": "wave1", "pl": "wave1", "nl": "wave2" }
 }

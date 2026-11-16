@@ -209,7 +209,7 @@ describe("a template page", () => {
   });
 
   it("answers 404 for a locale without page text", async () => {
-    await expect(TemplateDetail({ locale: "pl", slug: "client-tracker", visibility: "own" })).rejects.toThrow(
+    await expect(TemplateDetail({ locale: "xx", slug: "client-tracker", visibility: "own" })).rejects.toThrow(
       "NEXT_HTTP_ERROR_FALLBACK;404",
     );
   });

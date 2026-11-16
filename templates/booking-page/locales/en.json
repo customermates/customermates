@@ -90,8 +90,56 @@
     "start_field": "Every appointment records when it starts.",
     "appointments_board_view": "The appointments open as a board by status."
   },
+  "page": {
+    "metaTitle": "Appointment Scheduling Software: Book, Remind, Follow Up",
+    "metaDescription": "Appointment scheduling software your AI agent builds in your CRM: appointment types, a status on every booking, reminders and an outcome after each call.",
+    "headline": "Appointment scheduling software that records what came of every call, built by your AI agent",
+    "answer": "Appointment scheduling software takes a call, consultation or viewing from request to a confirmed time, and records what came of it. This template sets up appointment types with a duration, buffer and minimum notice, a status on every booking, reminders before and an outcome after. Paste it into your AI agent and it builds all of it in Customermates, and you approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly booking review",
+      "steps": [
+        "Look at last week's appointments and record an outcome on every held one: qualified, second call, proposal needed or not a fit.",
+        "Offer a new slot, without blame, to everyone who did not show up or cancelled.",
+        "Answer requests that have waited longer than a day, then check the next 14 days for gaps and for reminders still to send. The default is one reminder 3 days and one 1 day before.",
+        "Change one thing: a buffer, a minimum notice or a cancellation window. At the start of each quarter, review availability and policies."
+      ]
+    },
+    "limits": [
+      "It books people's time only. Rooms, equipment, hotel stays, classes with waiting lists and ticketed events need a tool built for them.",
+      "It is not a medical appointment system. Keep diagnoses and the reason for a medical, therapeutic or legal appointment out of the booking form and ask what the person would like to discuss instead.",
+      "It takes no payments and hosts no calls. The calendar event carries the link of your video tool, and any deposit stays in your payment tool.",
+      "Public booking pages and writing appointments into your Google or Microsoft calendar need Customermates Cloud on the Pro plan or higher; they are not available self-hosted. Without them, a public form takes the requests and you enter the confirmed time here.",
+      "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on. Customermates sends no SMS."
+    ],
+    "faq": [
+      {
+        "question": "What should appointment scheduling software include?",
+        "answer": "Each type of appointment with its duration, buffer, minimum notice and how far ahead people can book; a short intake with a name, a contact and only the questions that change the appointment; a confirmation and reminders; and a place to record whether the appointment took place and what followed."
+      },
+      {
+        "question": "How many reminders reduce no-shows?",
+        "answer": "In one health-care trial, reminders at 3 days and 1 day before left 4.4 percent of appointments missed, against 5.8 percent with the 3-day reminder alone and 5.3 percent with the 1-day reminder alone. A review of randomised trials found no significant difference between reminders sent 24, 48 or 72 hours ahead. The evidence comes from health care, so treat 3 days and 1 day as a starting point."
+      },
+      {
+        "question": "What should a booking form never ask?",
+        "answer": "Keep to what the appointment needs: a name, an email, optionally a phone number and one or two questions that change the appointment. Do not ask for diagnoses, case details, payment card data, ID documents or anything that reveals health, religion or orientation. Free-text answers are stored as data in the record, so keep the form narrow."
+      },
+      {
+        "question": "Can I take bookings without a public booking page?",
+        "answer": "Yes. A public form works on every plan, with a monthly limit and a badge on Free: it takes the request and creates the appointment, linked to a person found or created by email. When someone asks by email or WhatsApp, your agent proposes free slots from your connected calendar and drafts the reply, and you review and send it. On Customermates Cloud with the Pro plan or higher, scheduling a meeting from a record writes the event into your Google or Microsoft calendar, and a public booking page lets people pick a free time themselves."
+      },
+      {
+        "question": "Should I charge a deposit or a no-show fee?",
+        "answer": "Payments stay in your payment tool. The template records the price of each appointment type and holds a cancellation policy page. We found no study showing that deposits or fees reduce no-shows, so the template makes no such claim."
+      },
+      {
+        "question": "Does the agent contact my clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "I take calls, consultations and viewings and lose track of who is booked, who confirmed and what came of it. Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
+    "intro":"I take calls, consultations and viewings and lose track of who is booked, who confirmed and what came of it. Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
     "questions": [
       "Which kinds of appointments do you offer, and how long is each?",
       "How much notice do you need, and how far ahead can people book?",

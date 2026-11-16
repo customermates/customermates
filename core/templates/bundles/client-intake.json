@@ -1374,14 +1374,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -1896,6 +1896,56 @@
         "chase_signature_rule": "Eine versendete Auftragsbestätigung erhält nach 7 Tagen eine Nachfrageaufgabe.",
         "process_page": "Die Wissensdatenbank enthält den Aufnahmeablauf."
       },
+      "page": {
+        "metaTitle": "Mandantenaufnahme und Onboarding: Vorlage fürs CRM",
+        "metaDescription": "Mandantenaufnahme und Onboarding: Ihr KI-Agent baut im CRM Unterlagenanforderungen, Termine je Phase und einen Ablehnungsgrund auf, nichts bleibt liegen.",
+        "headline": "Mandantenaufnahme ohne Hinterherlaufen: Ihr KI-Agent baut Unterlagen, Fristen und Absagegründe im CRM auf",
+        "answer": "Eine Mandantenaufnahme ist mehr als ein Fragebogen: Sie hält fest, welche Unterlagen fehlen, was als Nächstes ansteht und warum Sie ein Mandat ablehnen. Diese Vorlage richtet eine Aufnahme pro Mandat ein, mit neun Phasen von der Anfrage bis zum Kickoff, Unterlagenanforderungen und einem terminierten Schritt in jeder Phase. Fügen Sie sie in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die wöchentliche Aufnahmerunde",
+          "steps": [
+            "Beantworten Sie jede neue Anfrage. Standard ist eine Antwort innerhalb eines Tages, und jede Anfrage endet mit einem nächsten Schritt oder einer Absage.",
+            "Erinnern Sie an Fragebögen, die vor 3 Tagen hinausgingen, und an Unterlagen, deren Frist verstrichen ist.",
+            "Prüfen Sie die eingegangenen Unterlagen, listen Sie die Lücken auf und haken Sie bei Auftragsbestätigungen nach, die vor 7 Tagen verschickt wurden.",
+            "Prüfen Sie Aufnahmen, die sich seit 7 Tagen nicht bewegt haben: Setzen Sie einen Termin oder lehnen Sie mit Grund und einer kurzen schriftlichen Mitteilung ab, die jede Ihnen bekannte Frist nennt.",
+            "Fragen Sie bei Mandanten, die vor 14 Tagen aufgenommen wurden, nach, ob das erste Ergebnis angekommen ist."
+          ]
+        },
+        "limits": [
+          "Es holt keine Unterschriften ein. Die Unterschrift läuft in Ihrem E-Signatur- oder Buchhaltungswerkzeug; die Aufnahme hält die Termine und einen Link fest.",
+          "Es ist kein Werkzeug zur Identifizierung oder Geldwäscheprävention und führt kein Register für Interessenkonflikte. Regulierte Berufe erfassen, wer wann und wie identifiziert hat; die Unterlagen und das maßgebliche Register bleiben in Ihrer Fachsoftware oder Ihrem KYC-System.",
+          "Es nimmt keine Zahlungen an und stellt keine Rechnungen. Anzahlungen und Vorschüsse bleiben in Ihrer Bank- oder Buchhaltungssoftware.",
+          "Ein Mandantenportal oder ein öffentliches Upload-Formular gibt es in Customermates heute nicht. Der Fragebogen geht als Dokument hinaus oder über ein externes Formular, das per API oder n8n in Customermates schreibt.",
+          "Ausweisnummern und -kopien sowie Gesundheits-, Therapie-, Religions- und Bankdaten gehören nicht hinein. Für Kosmetik-, Klinik- oder Trainingsaufnahmen, die Gesundheitsdaten erheben, ist die Vorlage nicht gedacht.",
+          "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+        ],
+        "faq": [
+          {
+            "question": "Was gehört in einen Aufnahmebogen für neue Mandanten?",
+            "answer": "Kontakt- und Firmendaten, was der Mandant will, Umfang, Zeitrahmen und Budgethinweise, wer entscheidet, welchen Zugang Sie brauchen und rechtliche oder Compliance-Fragen. Praktiker verstehen den Bogen als Gedächtnisstütze für das erste Gespräch, nicht als Rechtsprüfung, und halten ihn für Privatpersonen kürzer."
+          },
+          {
+            "question": "Welche Schritte hat das Onboarding neuer Kunden?",
+            "answer": "Die Reihenfolge ist in den Berufen ähnlich: erste Antwort, Vorprüfung auf Passung, Fragebogen und Unterlagen, Prüfungen, soweit Ihr Beruf sie verlangt, die schriftliche Beauftragung, eine mögliche Anzahlung, dann der Kickoff. Fristen halten es in Bewegung: Anbieter-Leitfäden nennen eine Antwort innerhalb von 24 Stunden und ein Nachfassen zur Unterschrift nach 7 Tagen. Verstehen Sie diese Zahlen als Standardwerte, nicht als Norm."
+          },
+          {
+            "question": "Muss ich einen Mandanten schriftlich ablehnen?",
+            "answer": "Eine schriftliche Absage hilft beiden Seiten. Ein Leitfaden für Kanzleien empfiehlt, darin festzuhalten, dass kein Mandatsverhältnis besteht, und eine nahende Frist zu nennen. Die Vorlage hält den Ablehnungsgrund fest und legt eine terminierte Wiedervorlage zum Versand der Mitteilung an. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Welche Identifizierungspflichten gelten für Steuerberater nach dem GwG?",
+            "answer": "Steuerberater sind Verpflichtete nach dem Geldwäschegesetz: Sie identifizieren den Mandanten, die handelnde Person und den wirtschaftlich Berechtigten, risikobasiert. Auch ein bekannter Mandant wird einmal identifiziert. Die Vorlage speichert nur, wer wann und wie identifiziert hat; Ausweiskopien bleiben in Ihrer Fachsoftware. Das ist keine Rechtsberatung; maßgeblich sind das Gesetz und die Hinweise Ihrer Kammer."
+          },
+          {
+            "question": "Kann der Mandant den Fragebogen online ausfüllen?",
+            "answer": "Über ein öffentliches Formular in Customermates heute nicht. Der Fragebogen geht als Dokument hinaus, das Ihr Agent entwirft, oder über ein externes Formular, das per API oder n8n in Customermates schreibt. Versenden Sie ihn selbst."
+          },
+          {
+            "question": "Schreibt der Agent meine Mandanten an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Neue Mandanten springen zwischen der ersten Anfrage und dem ersten Arbeitstag ab, weil ich vergesse, den Fragebogen zu schicken oder Unterlagen nachzufordern. Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
         "questions": [
@@ -2398,6 +2448,56 @@
         "intakes_board_view": "The intake list can be seen as a board by stage.",
         "chase_signature_rule": "An agreement that is sent gets a chase Action after 7 days.",
         "process_page": "The Knowledge Base holds the intake process."
+      },
+      "page": {
+        "metaTitle": "Client Intake Form Template: Onboarding in Your CRM",
+        "metaDescription": "Client intake form and onboarding in one pipeline: documents, dated steps and a decline reason. Paste it into your AI agent and it builds it in your CRM.",
+        "headline": "A client intake form that tracks every document and next step, built by your AI agent in your CRM",
+        "answer": "A client intake form collects what you need to take on a client, but the real work is chasing the documents and the signed agreement. This template sets up one intake per engagement with nine stages from inquiry to kickoff, document requests and a dated step at every stage. Paste it into your AI agent and it builds the pipeline in Customermates, and you approve the plan before anything is built.",
+        "routine": {
+          "title": "The weekly intake round",
+          "steps": [
+            "Answer every new inquiry. The default is a reply within one day, and every inquiry ends in a next step or a decline.",
+            "Chase intake forms that went out 3 days ago and documents that are past their needed-by date.",
+            "Review the documents that arrived, list the gaps and chase agreements sent 7 days ago.",
+            "Check intakes that have not moved for 7 days: set a date, or decline with a reason and a short written notice that says no engagement exists and names any deadline you know of.",
+            "Ask clients who were onboarded 14 days ago whether the first result has landed."
+          ]
+        },
+        "limits": [
+          "It does not sign agreements. Signing happens in your e-signature or accounting tool; the intake keeps the dates and a link.",
+          "It is not an identity verification or anti-money-laundering tool, and it holds no conflict-check register. Regulated professions record who verified identity, when and how; the documents and the authoritative register stay in your practice or KYC system.",
+          "It takes no payments and issues no invoices. Deposits and retainers stay in your banking or accounting tool.",
+          "There is no client portal or public upload form in Customermates today. The questionnaire goes out as a document, or through an external form that writes into Customermates by API or n8n.",
+          "Keep identity document numbers and scans, health, therapy, religion and bank details out of it. It does not suit beauty, clinic or personal-training intake, which collects health data.",
+          "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+        ],
+        "faq": [
+          {
+            "question": "What belongs in a client intake form?",
+            "answer": "Contact and company details, what the client wants, scope, timeline and budget signals, who decides, the access you will need and any legal or compliance questions. Practitioners treat the form as a memory aid for the first conversation, not a legal test, and keep it shorter for individuals."
+          },
+          {
+            "question": "What are the steps of client onboarding?",
+            "answer": "The order is stable across professions: first reply, screening for fit, intake form and documents, checks where your profession requires them, the written agreement, any deposit, then a kickoff. Time boxes keep it moving: vendor guides suggest a reply within 24 hours and a signature follow-up after 7 days. Treat these numbers as defaults, not standards."
+          },
+          {
+            "question": "Do I have to decline a client in writing?",
+            "answer": "A written decline helps both sides. A guide for law firms says the notice should state that no relationship exists and name any deadline that is coming up. The template records a decline reason and creates a dated Action to send the notice. This is not legal advice."
+          },
+          {
+            "question": "Which client data should stay out of the CRM?",
+            "answer": "Identity document numbers and scans, personal tax IDs, dates of birth beyond what verification needs, health data, religion and bank credentials. For a regulated profession the template stores only that identity was verified, by whom and on which date."
+          },
+          {
+            "question": "Can the client fill in the form online?",
+            "answer": "Not through a public form in Customermates today. The questionnaire goes out as a document your agent drafts, or through an external form that writes into Customermates by API or n8n. You send it yourself."
+          },
+          {
+            "question": "Does the agent contact my clients?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "New clients drop out between the first inquiry and the first day of work because I forget to send the form or chase the documents. Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
@@ -2902,6 +3002,56 @@
         "chase_signature_rule": "Una hoja de encargo enviada recibe una tarea de reclamación a los 7 días.",
         "process_page": "La base de conocimiento contiene el proceso de alta."
       },
+      "page": {
+        "metaTitle": "Ficha de cliente: alta y onboarding en tu CRM",
+        "metaDescription": "Ficha de cliente y alta en un solo flujo: tu agente de IA crea en el CRM solicitudes de documentos, pasos con fecha y el motivo de cada rechazo.",
+        "headline": "Ficha de cliente y alta sin perseguir a nadie: el flujo que tu agente de IA crea en tu CRM",
+        "answer": "Una ficha de cliente recoge lo necesario para dar de alta a un cliente, pero el trabajo está en perseguir los documentos y la hoja de encargo firmada. Esta plantilla configura un alta por encargo con nueve etapas, de la solicitud a la reunión de arranque, solicitudes de documentos y un paso con fecha en cada etapa. Pégala en tu agente de IA y él construye el flujo en Customermates; tú apruebas el plan antes de que se cree nada.",
+        "routine": {
+          "title": "La ronda semanal de altas",
+          "steps": [
+            "Responde a cada nueva solicitud. Por defecto la respuesta sale en un día, y cada solicitud termina en un siguiente paso o en un rechazo.",
+            "Reclama los formularios enviados hace 3 días y los documentos cuya fecha límite ha pasado.",
+            "Revisa los documentos recibidos, anota lo que falta y reclama las hojas de encargo enviadas hace 7 días.",
+            "Mira las altas que no se han movido en 7 días: fija una fecha o rechaza anotando el motivo, con una breve comunicación escrita que diga que no existe relación e indique cualquier plazo que conozcas.",
+            "Pregunta a los clientes dados de alta hace 14 días si ya ha llegado el primer resultado."
+          ]
+        },
+        "limits": [
+          "No hace firmar. La firma se hace en tu herramienta de firma electrónica o de contabilidad; el alta guarda las fechas y un enlace.",
+          "No es una herramienta de verificación de identidad ni de prevención del blanqueo, ni un registro de conflictos de intereses. Las profesiones reguladas anotan quién verificó la identidad, cuándo y cómo; los documentos y el registro de referencia se quedan en tu software profesional o sistema KYC.",
+          "No cobra pagos ni emite facturas. Anticipos y provisiones se quedan en tu banco o en tu herramienta de contabilidad.",
+          "Hoy Customermates no tiene portal de clientes ni formulario público para subir documentos. El cuestionario sale como documento o pasa por un formulario externo que escribe en Customermates mediante la API o n8n.",
+          "Deja fuera números y copias de documentos de identidad, datos de salud, de terapia o de religión y datos bancarios. No sirve para fichas de estética, clínicas o entrenamiento personal, que recogen datos de salud.",
+          "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué debe incluir una ficha de cliente?",
+            "answer": "Datos de contacto y de la empresa, lo que quiere el cliente, alcance, plazos y presupuesto, quién decide, los accesos que necesitas y las cuestiones legales o de cumplimiento. En la práctica la ficha es una ayuda de memoria para la primera conversación, no una prueba legal; hazla más corta para particulares."
+          },
+          {
+            "question": "¿Cuáles son los pasos del alta de un cliente?",
+            "answer": "El orden es estable entre profesiones: primera respuesta, valoración de encaje, cuestionario y documentos, verificaciones donde tu profesión las exige, acuerdo por escrito, un posible anticipo y la reunión de arranque. Los plazos mantienen el ritmo: guías de proveedores citan una respuesta en 24 horas y un recordatorio de la firma a los 7 días. Toma esas cifras como valores por defecto, no como norma."
+          },
+          {
+            "question": "¿Debo rechazar a un cliente por escrito?",
+            "answer": "Un rechazo por escrito ayuda a ambas partes. Una guía para despachos de abogados recomienda indicar que no existe relación y citar cualquier plazo cercano. La plantilla anota el motivo del rechazo y crea una acción con fecha para enviar la comunicación. No es asesoramiento jurídico."
+          },
+          {
+            "question": "¿Qué datos del cliente deben quedar fuera del CRM?",
+            "answer": "Números y copias de documentos de identidad, identificadores fiscales personales, fecha de nacimiento más allá de lo que exige la verificación, datos de salud, religión y credenciales bancarias. Una guía española recuerda que el RGPD pide recoger solo lo necesario y llevar un registro de tratamientos. En una profesión regulada la plantilla guarda solo que la identidad fue verificada, por quién y en qué fecha."
+          },
+          {
+            "question": "¿Puede el cliente rellenar el cuestionario en línea?",
+            "answer": "Hoy no mediante un formulario público de Customermates. El cuestionario sale como documento que prepara tu agente o desde un formulario externo que escribe en Customermates mediante la API o n8n. Lo envías tú."
+          },
+          {
+            "question": "¿El agente escribe a mis clientes?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Pierdo clientes nuevos entre la primera consulta y el primer día de trabajo porque se me olvida enviar el cuestionario o reclamar los documentos. Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
         "questions": [
@@ -3404,6 +3554,56 @@
         "intakes_board_view": "La liste des intégrations peut s’afficher en board par étape.",
         "chase_signature_rule": "Une lettre de mission envoyée reçoit une action de relance au bout de 7 jours.",
         "process_page": "La base de connaissances contient le processus d’intégration."
+      },
+      "page": {
+        "metaTitle": "Onboarding client : modèle d’intégration dans votre CRM",
+        "metaDescription": "Onboarding client sans courir après les pièces : votre agent IA crée dans votre CRM une intégration par mission, des étapes datées et un motif de refus.",
+        "headline": "Onboarding client sans courir après les pièces : un pipeline que votre agent IA construit dans votre CRM",
+        "answer": "Un onboarding client ne s’arrête pas au questionnaire : il faut relancer les pièces et la lettre de mission signée. Ce modèle met en place une intégration par mission avec neuf étapes, de la demande à la réunion de lancement, des demandes de pièces et une étape datée à chaque phase. Collez-le dans votre agent IA : il construit le pipeline dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+        "routine": {
+          "title": "Le point hebdomadaire sur les intégrations",
+          "steps": [
+            "Répondez à chaque nouvelle demande. Par défaut, la réponse part sous un jour, et chaque demande aboutit à une prochaine étape ou à un refus.",
+            "Relancez les questionnaires partis il y a 3 jours et les pièces dont la date limite est passée.",
+            "Relisez les pièces reçues, listez ce qui manque et relancez les lettres de mission envoyées il y a 7 jours.",
+            "Regardez les intégrations qui n’ont pas bougé depuis 7 jours : fixez une date ou refusez en notant le motif, avec un court courrier qui indique qu’aucune relation n’existe et cite toute échéance connue.",
+            "Prenez des nouvelles des clients intégrés il y a 14 jours : le premier résultat est-il arrivé ?"
+          ]
+        },
+        "limits": [
+          "Il ne fait pas signer. La signature se fait dans votre outil de signature électronique ou de comptabilité ; l’intégration garde les dates et un lien.",
+          "Ce n’est ni un outil de vérification d’identité ou de lutte contre le blanchiment, ni un registre de conflits d’intérêts. Les professions réglementées notent qui a vérifié l’identité, quand et comment ; les pièces et le registre de référence restent dans votre logiciel métier ou votre système KYC.",
+          "Il n’encaisse rien et n’émet pas de factures. Acomptes et provisions restent dans votre banque ou votre outil de comptabilité.",
+          "Il n’y a aujourd’hui dans Customermates ni portail client ni formulaire public de dépôt de pièces. Le questionnaire part sous forme de document ou passe par un formulaire externe qui écrit dans Customermates via l’API ou n8n.",
+          "Gardez-en hors les numéros et copies de pièces d’identité, les données de santé, de thérapie ou de religion et les données bancaires. Il ne convient pas aux fiches de soins, de beauté ou de coaching sportif, qui recueillent des données de santé.",
+          "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+        ],
+        "faq": [
+          {
+            "question": "Que doit contenir un questionnaire d’onboarding client ?",
+            "answer": "Coordonnées du client et de l’entreprise, ce qu’il attend, périmètre, délais et budget, qui décide, les accès nécessaires et les questions juridiques ou de conformité. En pratique, le questionnaire sert d’aide-mémoire pour le premier échange, pas de test juridique ; gardez-le plus court pour un particulier."
+          },
+          {
+            "question": "Quelles sont les étapes de l’onboarding client ?",
+            "answer": "L’ordre est stable d’un métier à l’autre : première réponse, qualification, questionnaire et pièces, vérifications là où votre profession les impose, accord écrit, éventuel acompte, puis réunion de lancement. Des délais gardent le rythme : des guides d’éditeurs citent une réponse sous 24 heures et une relance de signature après 7 jours. Prenez ces chiffres comme des valeurs par défaut, pas comme une norme."
+          },
+          {
+            "question": "Dois-je refuser un client par écrit ?",
+            "answer": "Un refus écrit protège les deux parties. Un guide pour cabinets d’avocats recommande d’y indiquer qu’aucune relation n’existe et de citer toute échéance proche. Le modèle note le motif du refus et crée une action datée pour envoyer le courrier. Ce n’est pas un conseil juridique."
+          },
+          {
+            "question": "Quelles données client ne faut-il pas conserver dans le CRM ?",
+            "answer": "Numéros et copies de pièces d’identité, identifiants fiscaux personnels, date de naissance au-delà du nécessaire à la vérification, données de santé, religion, identifiants bancaires. Pour une profession réglementée, le modèle ne garde que le fait que l’identité a été vérifiée, par qui et à quelle date. La CNIL demande de ne collecter que ce dont la relation a besoin et d’en informer les personnes."
+          },
+          {
+            "question": "Le client peut-il remplir le questionnaire en ligne ?",
+            "answer": "Pas par un formulaire public dans Customermates aujourd’hui. Le questionnaire part sous forme de document rédigé par votre agent, ou via un formulaire externe qui écrit dans Customermates par l’API ou n8n. C’est vous qui l’envoyez."
+          },
+          {
+            "question": "L’agent écrit-il à mes clients ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+          }
+        ]
       },
       "prompt": {
         "intro": "De nouveaux clients abandonnent entre la première demande et le premier jour de travail, parce que j’oublie d’envoyer le questionnaire ou de relancer les pièces. Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
@@ -3908,6 +4108,56 @@
         "chase_signature_rule": "Una lettera d'incarico inviata riceve un'attività di sollecito dopo 7 giorni.",
         "process_page": "La base di conoscenza contiene il processo di accoglienza."
       },
+      "page": {
+        "metaTitle": "Scheda cliente: accoglienza e onboarding nel tuo CRM",
+        "metaDescription": "Scheda cliente e accoglienza in un'unica pipeline: il tuo agente IA crea nel CRM richieste di documenti, passaggi datati e il motivo di ogni rifiuto.",
+        "headline": "Scheda cliente e accoglienza senza rincorrere nessuno: la pipeline che il tuo agente IA costruisce nel CRM",
+        "answer": "Una scheda cliente raccoglie i dati per accogliere un cliente, ma il lavoro vero è rincorrere i documenti e la lettera d'incarico firmata. Questo modello imposta un'accoglienza per incarico con nove fasi, dalla richiesta alla riunione di avvio, richieste di documenti e un passaggio datato a ogni fase. Incollalo nel tuo agente IA: costruisce la pipeline in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+        "routine": {
+          "title": "Il giro settimanale delle accoglienze",
+          "steps": [
+            "Rispondi a ogni nuova richiesta. Per impostazione predefinita la risposta parte entro un giorno e ogni richiesta finisce con un prossimo passo o con un rifiuto.",
+            "Sollecita i questionari partiti 3 giorni fa e i documenti la cui scadenza è passata.",
+            "Controlla i documenti arrivati, elenca le lacune e sollecita le lettere d'incarico inviate 7 giorni fa.",
+            "Guarda le accoglienze ferme da 7 giorni: fissa una data oppure rifiuta annotando il motivo e inviando una breve comunicazione scritta che indichi che non esiste alcun rapporto e citi ogni scadenza nota.",
+            "Fai un controllo con i clienti accolti 14 giorni fa: il primo risultato è arrivato?"
+          ]
+        },
+        "limits": [
+          "Non fa firmare. La firma avviene nel tuo strumento di firma elettronica o di contabilità; l'accoglienza conserva le date e un link.",
+          "Non è uno strumento di verifica dell'identità o antiriciclaggio e non tiene un registro dei conflitti di interesse. Le professioni regolamentate registrano chi ha verificato l'identità, quando e come; i documenti e il registro di riferimento restano nel tuo gestionale o sistema KYC.",
+          "Non incassa pagamenti e non emette fatture. Acconti e anticipi restano nella banca o nel software di contabilità.",
+          "In Customermates oggi non esistono né un portale clienti né un modulo pubblico per caricare documenti. Il questionario parte come documento oppure passa da un modulo esterno che scrive in Customermates tramite API o n8n.",
+          "Tieni fuori numeri e copie di documenti d'identità, dati sanitari, di terapia o di religione e dati bancari. Non è adatto a schede di centri estetici, cliniche o personal trainer, che raccolgono dati sulla salute.",
+          "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+        ],
+        "faq": [
+          {
+            "question": "Che cosa deve contenere una scheda cliente?",
+            "answer": "Dati di contatto e dell'azienda, che cosa vuole il cliente, ambito, tempi e budget, chi decide, gli accessi che ti servono e le eventuali questioni legali o di conformità. Nella pratica la scheda è un promemoria per il primo colloquio, non un test legale; per i privati tienila più breve."
+          },
+          {
+            "question": "Quali sono le fasi dell'accoglienza di un nuovo cliente?",
+            "answer": "L'ordine è stabile da una professione all'altra: prima risposta, valutazione di idoneità, questionario e documenti, verifiche dove la professione le richiede, accordo scritto, eventuale acconto, poi la riunione di avvio. I tempi tengono il ritmo: guide di fornitori indicano una risposta entro 24 ore e un sollecito della firma dopo 7 giorni. Considera questi numeri valori predefiniti, non norme."
+          },
+          {
+            "question": "Devo rifiutare un cliente per iscritto?",
+            "answer": "Un rifiuto scritto tutela entrambe le parti. Una guida per studi legali consiglia di indicare che non esiste alcun rapporto e di citare ogni scadenza vicina. Il modello registra il motivo del rifiuto e crea un'azione datata per inviare la comunicazione. Non è consulenza legale."
+          },
+          {
+            "question": "Quali dati del cliente restano fuori dal CRM?",
+            "answer": "Numeri e copie di documenti d'identità, codice fiscale personale, data di nascita oltre il necessario per la verifica, dati sulla salute, religione e credenziali bancarie. Una guida italiana per piccole imprese tratta i dati sanitari come dati particolari ai sensi del GDPR e li tiene separati dalla scheda cliente. Per una professione regolamentata il modello conserva solo che l'identità è stata verificata, da chi e in quale data."
+          },
+          {
+            "question": "Il cliente può compilare il questionario online?",
+            "answer": "Non tramite un modulo pubblico in Customermates, oggi. Il questionario parte come documento preparato dal tuo agente oppure da un modulo esterno che scrive in Customermates tramite API o n8n. Lo invii tu."
+          },
+          {
+            "question": "L'agente scrive ai miei clienti?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "I nuovi clienti si perdono tra la prima richiesta e il primo giorno di lavoro, perché mi dimentico di mandare il modulo o di sollecitare i documenti. Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
         "questions": [
@@ -4410,6 +4660,56 @@
         "intakes_board_view": "De intakelijst is te zien als bord per fase.",
         "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een opvolgactie.",
         "process_page": "De kennisbank bevat het intakeproces."
+      },
+      "page": {
+        "metaTitle": "Intakeformulier: klantintake en onboarding in je CRM",
+        "metaDescription": "Intakeformulier en onboarding in één proces: je AI-agent bouwt in je CRM documentaanvragen, stappen met datum en een vastgelegde reden voor afwijzing.",
+        "headline": "Een intakeformulier dat elk document en elke volgende stap bijhoudt, gebouwd door je AI-agent",
+        "answer": "Een intakeformulier verzamelt wat je nodig hebt om een klant aan te nemen, maar het werk zit in het najagen van documenten en de getekende overeenkomst. Dit template richt één intake per opdracht in met negen fasen van aanvraag tot kickoff, documentaanvragen en een stap met datum in elke fase. Plak het in je AI-agent en die bouwt de pipeline in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+        "routine": {
+          "title": "De wekelijkse intakeronde",
+          "steps": [
+            "Beantwoord elke nieuwe aanvraag. Standaard gaat het antwoord binnen een dag de deur uit, en elke aanvraag eindigt in een volgende stap of een afwijzing.",
+            "Stuur een herinnering voor formulieren die 3 dagen geleden zijn verstuurd en voor documenten waarvan de uiterste datum voorbij is.",
+            "Bekijk de binnengekomen documenten, noteer wat ontbreekt en vraag na bij overeenkomsten die 7 dagen geleden zijn verstuurd.",
+            "Bekijk intakes die 7 dagen niet zijn opgeschoten: spreek een datum af of wijs af met een reden en een korte schriftelijke mededeling dat er geen relatie ontstaat, met vermelding van elke bekende termijn.",
+            "Vraag bij klanten die 14 dagen geleden zijn gestart of het eerste resultaat is aangekomen."
+          ]
+        },
+        "limits": [
+          "Het laat niet tekenen. Ondertekening gebeurt in je e-signature- of boekhoudtool; de intake bewaart de data en een link.",
+          "Het is geen hulpmiddel voor identiteitscontrole of witwaspreventie en geen register voor belangenconflicten. Gereguleerde beroepen leggen vast wie de identiteit wanneer en hoe controleerde; de documenten en het leidende register blijven in je vakpakket of KYC-systeem.",
+          "Het neemt geen betalingen aan en maakt geen facturen. Aanbetalingen en voorschotten blijven in je bank of boekhoudpakket.",
+          "Een klantportaal of openbaar uploadformulier bestaat vandaag niet in Customermates. De vragenlijst gaat als document de deur uit of loopt via een extern formulier dat via de API of n8n in Customermates schrijft.",
+          "Houd identiteitsnummers en -kopieën, het BSN, gezondheids-, therapie- en geloofsgegevens en bankgegevens erbuiten. Niet geschikt voor intakes in de zorg of voor schoonheids- en trainingspraktijken die gezondheidsgegevens verzamelen.",
+          "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+        ],
+        "faq": [
+          {
+            "question": "Wat hoort er in een intakeformulier voor klanten?",
+            "answer": "Contact- en bedrijfsgegevens, wat de klant wil, reikwijdte, planning en budget, wie beslist, de toegang die je nodig hebt en juridische of compliancevragen. In de praktijk is het formulier een geheugensteun voor het eerste gesprek, geen juridische toets; houd het voor particulieren korter."
+          },
+          {
+            "question": "Wat zijn de stappen van klantonboarding?",
+            "answer": "De volgorde is in veel beroepen gelijk: eerste antwoord, screening op geschiktheid, intakeformulier en documenten, controles waar je beroep ze vraagt, de schriftelijke overeenkomst, een eventuele aanbetaling en dan de kickoff. Termijnen houden het tempo erin: gidsen van aanbieders noemen een antwoord binnen 24 uur en een herinnering voor de handtekening na 7 dagen. Zie deze getallen als standaardwaarden, niet als norm."
+          },
+          {
+            "question": "Moet ik een klant schriftelijk afwijzen?",
+            "answer": "Een schriftelijke afwijzing helpt beide kanten. Een gids voor advocatenkantoren raadt aan erin te vermelden dat er geen relatie ontstaat en een naderende termijn te noemen. Het template legt de reden van afwijzing vast en maakt een actie met datum om de mededeling te sturen. Dit is geen juridisch advies."
+          },
+          {
+            "question": "Welke klantgegevens horen niet in het CRM?",
+            "answer": "Identiteitsnummers en -kopieën, het BSN, geboortedatum voor zover niet nodig voor de controle, gezondheidsgegevens, geloof en bankgegevens. Volgens berichtgeving mogen particuliere organisaties het BSN alleen verwerken als een wet dat vereist; controleer dat bij de Autoriteit Persoonsgegevens. Voor een gereguleerd beroep bewaart het template alleen dat de identiteit is gecontroleerd, door wie en wanneer."
+          },
+          {
+            "question": "Kan de klant het formulier online invullen?",
+            "answer": "Vandaag niet via een openbaar formulier in Customermates. De vragenlijst gaat als document de deur uit dat je agent opstelt, of via een extern formulier dat via de API of n8n in Customermates schrijft. Je verstuurt het zelf."
+          },
+          {
+            "question": "Schrijft de agent mijn klanten aan?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Nieuwe klanten haken af tussen de eerste aanvraag en de eerste werkdag, omdat ik vergeet het formulier te sturen of de documenten na te jagen. Richt de klantintake in mijn Customermates-werkruimte in: één intake per opdracht met negen fasen, documentverzoeken, een stap met datum in elke fase, een reden van afwijzing en optionele controles op identiteit, conflict en risico die vastleggen wie wanneer controleerde.",
@@ -4914,6 +5214,56 @@
         "chase_signature_rule": "Wysłana umowa dostaje zadanie ponaglenia po 7 dniach.",
         "process_page": "Baza wiedzy zawiera proces przyjęcia."
       },
+      "page": {
+        "metaTitle": "Karta klienta wzór: przyjęcie klienta i onboarding w CRM",
+        "metaDescription": "Karta klienta wzór i onboarding w jednym procesie: agent AI buduje w CRM prośby o dokumenty, datowane kroki i powód odmowy. Plan zatwierdzasz Ty.",
+        "headline": "Karta klienta wzór bez gonienia za dokumentami: proces, który agent AI buduje w Twoim CRM",
+        "answer": "Karta klienta zbiera dane potrzebne do przyjęcia klienta, ale prawdziwa praca to ściganie dokumentów i podpisanej umowy. Ten szablon konfiguruje jedno przyjęcie na zlecenie z dziewięcioma etapami od zapytania do spotkania startowego, prośby o dokumenty i datowany krok na każdym etapie. Wklej go do swojego agenta AI, a on zbuduje proces w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowa runda przyjęć klientów",
+          "steps": [
+            "Odpowiedz na każde nowe zapytanie. Domyślnie odpowiedź wychodzi w ciągu doby, a każde zapytanie kończy się następnym krokiem albo odmową.",
+            "Przypomnij o ankietach wysłanych 3 dni temu i o dokumentach po terminie.",
+            "Sprawdź dokumenty, które dotarły, spisz braki i ponaglij umowy wysłane 7 dni temu.",
+            "Zajrzyj do przyjęć, które od 7 dni stoją w miejscu: ustal termin albo odmów z podanym powodem i krótkim pisemnym zawiadomieniem, że nie powstaje żadna relacja, ze wskazaniem znanych terminów.",
+            "Zapytaj klientów przyjętych 14 dni temu, czy pierwszy rezultat już dotarł."
+          ]
+        },
+        "limits": [
+          "Nie zbiera podpisów. Podpisanie odbywa się w Twoim narzędziu do podpisu elektronicznego lub księgowości; przyjęcie zachowuje daty i link.",
+          "To nie jest narzędzie do weryfikacji tożsamości ani przeciwdziałania praniu pieniędzy, ani rejestr konfliktów interesów. Zawody regulowane zapisują, kto, kiedy i jak zweryfikował tożsamość; dokumenty i właściwy rejestr zostają w Twoim systemie branżowym lub KYC.",
+          "Nie przyjmuje płatności i nie wystawia faktur. Zaliczki i przedpłaty zostają w banku lub w programie księgowym.",
+          "W Customermates nie ma dziś portalu klienta ani publicznego formularza do przesyłania dokumentów. Ankieta wychodzi jako dokument albo przez zewnętrzny formularz, który zapisuje dane w Customermates przez API lub n8n.",
+          "Nie zapisuj w nim numerów ani skanów dokumentów tożsamości, danych o zdrowiu, terapii, religii ani danych bankowych. Nie nadaje się do kart klienta salonów kosmetycznych, klinik i trenerów personalnych, które zbierają dane o zdrowiu.",
+          "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+        ],
+        "faq": [
+          {
+            "question": "Co powinna zawierać karta klienta?",
+            "answer": "Dane kontaktowe i firmy, czego klient oczekuje, zakres, termin i budżet, kto decyduje, jakich dostępów potrzebujesz oraz kwestie prawne lub zgodności. W praktyce karta to pomoc pamięciowa przed pierwszą rozmową, a nie test prawny; dla osób prywatnych zrób ją krótszą."
+          },
+          {
+            "question": "Jakie są etapy onboardingu klienta?",
+            "answer": "Kolejność jest podobna w różnych zawodach: pierwsza odpowiedź, wstępna kwalifikacja, ankieta i dokumenty, weryfikacje tam, gdzie wymaga ich Twój zawód, umowa na piśmie, ewentualna zaliczka, potem spotkanie startowe. Terminy utrzymują tempo: przewodniki dostawców podają odpowiedź w 24 godziny i ponaglenie do podpisu po 7 dniach. Traktuj te liczby jako ustawienia domyślne, nie normę."
+          },
+          {
+            "question": "Czy muszę odmówić klientowi na piśmie?",
+            "answer": "Pisemna odmowa pomaga obu stronom. Przewodnik dla kancelarii zaleca wpisać w niej, że nie powstała żadna relacja, i wskazać zbliżający się termin. Szablon zapisuje powód odmowy i tworzy datowane zadanie wysłania zawiadomienia. To nie jest porada prawna."
+          },
+          {
+            "question": "Jakie dane klientów nie powinny trafiać do CRM?",
+            "answer": "Numery i skany dokumentów tożsamości, osobiste numery podatkowe, data urodzenia ponad to, czego wymaga weryfikacja, dane o zdrowiu, religii i dane dostępowe do banku. Dla zawodu regulowanego szablon zapisuje tylko, że tożsamość zweryfikowano, kto to zrobił i kiedy. RODO każe zbierać tylko te dane, których naprawdę potrzebujesz."
+          },
+          {
+            "question": "Czy klient może wypełnić ankietę online?",
+            "answer": "Nie przez publiczny formularz w Customermates, na dziś. Ankieta wychodzi jako dokument przygotowany przez Twojego agenta albo przez zewnętrzny formularz zapisujący dane w Customermates przez API lub n8n. Wysyłasz ją Ty."
+          },
+          {
+            "question": "Czy agent pisze do moich klientów?",
+            "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Nowi klienci odpadają między pierwszym zapytaniem a pierwszym dniem pracy, bo zapominam wysłać ankietę albo ponaglić o dokumenty. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
         "questions": [
@@ -5416,6 +5766,56 @@
         "intakes_board_view": "A lista de integrações pode ser vista como quadro por etapa.",
         "chase_signature_rule": "Um contrato enviado recebe uma tarefa de cobrança após 7 dias.",
         "process_page": "A base de conhecimento contém o processo de integração."
+      },
+      "page": {
+        "metaTitle": "Ficha cadastral de clientes: cadastro e integração no CRM",
+        "metaDescription": "Ficha cadastral de clientes e integração num só fluxo: seu agente de IA cria no CRM pedidos de documentos, passos com data e o motivo de cada recusa.",
+        "headline": "Ficha cadastral de clientes sem correr atrás de ninguém: o fluxo que seu agente de IA monta no CRM",
+        "answer": "Uma ficha cadastral reúne o que você precisa para receber um cliente, mas o trabalho está em cobrar os documentos e o contrato assinado. Este modelo configura uma integração por contrato com nove etapas, da solicitação à reunião de kickoff, pedidos de documentos e um passo com data em cada etapa. Cole-o no seu agente de IA e ele monta o fluxo no Customermates; você aprova o plano antes de qualquer coisa ser criada.",
+        "routine": {
+          "title": "A rodada semanal de integração de clientes",
+          "steps": [
+            "Responda a cada nova solicitação. O padrão é responder em um dia, e toda solicitação termina em um próximo passo ou numa recusa.",
+            "Cobre os questionários enviados há 3 dias e os documentos com o prazo vencido.",
+            "Confira os documentos recebidos, liste o que falta e cobre os contratos enviados há 7 dias.",
+            "Olhe as integrações paradas há 7 dias: marque uma data ou recuse registrando o motivo, com um aviso curto por escrito dizendo que não existe vínculo e citando qualquer prazo conhecido.",
+            "Pergunte aos clientes integrados há 14 dias se o primeiro resultado já chegou."
+          ]
+        },
+        "limits": [
+          "Ele não coleta assinaturas. A assinatura acontece na sua ferramenta de assinatura eletrônica ou de contabilidade; a integração guarda as datas e um link.",
+          "Não é uma ferramenta de verificação de identidade nem de prevenção à lavagem de dinheiro, e não mantém registro de conflitos de interesse. Profissões regulamentadas registram quem verificou a identidade, quando e como; documentos e registro de referência ficam no seu sistema profissional ou de KYC.",
+          "Ele não recebe pagamentos nem emite notas fiscais. Sinais e adiantamentos ficam no seu banco ou na sua ferramenta de contabilidade.",
+          "Hoje o Customermates não tem portal do cliente nem formulário público de envio de documentos. O questionário segue como documento ou passa por um formulário externo que grava no Customermates pela API ou pelo n8n.",
+          "Deixe de fora números e cópias de documentos de identidade, o CPF de pessoas físicas, dados de saúde, de terapia ou de religião e dados bancários. Não serve para fichas de estética, clínicas ou personal trainers, que coletam dados de saúde.",
+          "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar."
+        ],
+        "faq": [
+          {
+            "question": "O que deve ter uma ficha cadastral de clientes?",
+            "answer": "Guias brasileiros listam nome ou razão social, CNPJ ou CPF, endereço, telefone e e-mail; some a isso o que o cliente quer, escopo, prazo, quem decide e os acessos de que você precisa. O modelo usa um único campo de tipo (pessoa física, empresa, organização) e guarda apenas o CNPJ ou outro registro da empresa, não o CPF de pessoas físicas. A ficha é apoio para a primeira conversa, não um teste jurídico."
+          },
+          {
+            "question": "Quais são as etapas de integração de um cliente novo?",
+            "answer": "A ordem é estável entre profissões: primeira resposta, triagem, questionário e documentos, conferências onde sua profissão exige, contrato por escrito, eventual sinal e reunião de kickoff. Prazos mantêm o ritmo: guias de fornecedores citam resposta em 24 horas e cobrança da assinatura após 7 dias. Trate esses números como padrões, não como norma."
+          },
+          {
+            "question": "Preciso recusar um cliente por escrito?",
+            "answer": "Uma recusa por escrito ajuda os dois lados. Um guia para escritórios de advocacia recomenda dizer que não existe vínculo e citar qualquer prazo próximo. O modelo registra o motivo da recusa e cria uma ação com data para enviar o aviso. Não é aconselhamento jurídico."
+          },
+          {
+            "question": "Que dados de clientes devem ficar fora do CRM?",
+            "answer": "Números e cópias de documentos de identidade, CPF de pessoas físicas, data de nascimento além do necessário para a conferência, dados de saúde, religião e credenciais bancárias. Em profissões regulamentadas, o modelo guarda apenas que a identidade foi verificada, por quem e em que data. A LGPD pede consentimento por finalidade e garante o acesso e a eliminação dos dados."
+          },
+          {
+            "question": "O cliente pode preencher o questionário online?",
+            "answer": "Hoje não por um formulário público do Customermates. O questionário segue como documento redigido pelo seu agente ou por um formulário externo que grava no Customermates pela API ou pelo n8n. Quem envia é você."
+          },
+          {
+            "question": "O agente escreve para os meus clientes?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu perco clientes novos entre o primeiro contato e o primeiro dia de trabalho, porque esqueço de mandar o formulário ou de cobrar os documentos. Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",

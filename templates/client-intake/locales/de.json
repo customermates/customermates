@@ -199,8 +199,58 @@
     "chase_signature_rule": "Eine versendete Auftragsbestätigung erhält nach 7 Tagen eine Nachfrageaufgabe.",
     "process_page": "Die Wissensdatenbank enthält den Aufnahmeablauf."
   },
+  "page": {
+    "metaTitle": "Mandantenaufnahme und Onboarding: Vorlage fürs CRM",
+    "metaDescription": "Mandantenaufnahme und Onboarding: Ihr KI-Agent baut im CRM Unterlagenanforderungen, Termine je Phase und einen Ablehnungsgrund auf, nichts bleibt liegen.",
+    "headline": "Mandantenaufnahme ohne Hinterherlaufen: Ihr KI-Agent baut Unterlagen, Fristen und Absagegründe im CRM auf",
+    "answer": "Eine Mandantenaufnahme ist mehr als ein Fragebogen: Sie hält fest, welche Unterlagen fehlen, was als Nächstes ansteht und warum Sie ein Mandat ablehnen. Diese Vorlage richtet eine Aufnahme pro Mandat ein, mit neun Phasen von der Anfrage bis zum Kickoff, Unterlagenanforderungen und einem terminierten Schritt in jeder Phase. Fügen Sie sie in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Aufnahmerunde",
+      "steps": [
+        "Beantworten Sie jede neue Anfrage. Standard ist eine Antwort innerhalb eines Tages, und jede Anfrage endet mit einem nächsten Schritt oder einer Absage.",
+        "Erinnern Sie an Fragebögen, die vor 3 Tagen hinausgingen, und an Unterlagen, deren Frist verstrichen ist.",
+        "Prüfen Sie die eingegangenen Unterlagen, listen Sie die Lücken auf und haken Sie bei Auftragsbestätigungen nach, die vor 7 Tagen verschickt wurden.",
+        "Prüfen Sie Aufnahmen, die sich seit 7 Tagen nicht bewegt haben: Setzen Sie einen Termin oder lehnen Sie mit Grund und einer kurzen schriftlichen Mitteilung ab, die jede Ihnen bekannte Frist nennt.",
+        "Fragen Sie bei Mandanten, die vor 14 Tagen aufgenommen wurden, nach, ob das erste Ergebnis angekommen ist."
+      ]
+    },
+    "limits": [
+      "Es holt keine Unterschriften ein. Die Unterschrift läuft in Ihrem E-Signatur- oder Buchhaltungswerkzeug; die Aufnahme hält die Termine und einen Link fest.",
+      "Es ist kein Werkzeug zur Identifizierung oder Geldwäscheprävention und führt kein Register für Interessenkonflikte. Regulierte Berufe erfassen, wer wann und wie identifiziert hat; die Unterlagen und das maßgebliche Register bleiben in Ihrer Fachsoftware oder Ihrem KYC-System.",
+      "Es nimmt keine Zahlungen an und stellt keine Rechnungen. Anzahlungen und Vorschüsse bleiben in Ihrer Bank- oder Buchhaltungssoftware.",
+      "Ein Mandantenportal oder ein öffentliches Upload-Formular gibt es in Customermates heute nicht. Der Fragebogen geht als Dokument hinaus oder über ein externes Formular, das per API oder n8n in Customermates schreibt.",
+      "Ausweisnummern und -kopien sowie Gesundheits-, Therapie-, Religions- und Bankdaten gehören nicht hinein. Für Kosmetik-, Klinik- oder Trainingsaufnahmen, die Gesundheitsdaten erheben, ist die Vorlage nicht gedacht.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in einen Aufnahmebogen für neue Mandanten?",
+        "answer": "Kontakt- und Firmendaten, was der Mandant will, Umfang, Zeitrahmen und Budgethinweise, wer entscheidet, welchen Zugang Sie brauchen und rechtliche oder Compliance-Fragen. Praktiker verstehen den Bogen als Gedächtnisstütze für das erste Gespräch, nicht als Rechtsprüfung, und halten ihn für Privatpersonen kürzer."
+      },
+      {
+        "question": "Welche Schritte hat das Onboarding neuer Kunden?",
+        "answer": "Die Reihenfolge ist in den Berufen ähnlich: erste Antwort, Vorprüfung auf Passung, Fragebogen und Unterlagen, Prüfungen, soweit Ihr Beruf sie verlangt, die schriftliche Beauftragung, eine mögliche Anzahlung, dann der Kickoff. Fristen halten es in Bewegung: Anbieter-Leitfäden nennen eine Antwort innerhalb von 24 Stunden und ein Nachfassen zur Unterschrift nach 7 Tagen. Verstehen Sie diese Zahlen als Standardwerte, nicht als Norm."
+      },
+      {
+        "question": "Muss ich einen Mandanten schriftlich ablehnen?",
+        "answer": "Eine schriftliche Absage hilft beiden Seiten. Ein Leitfaden für Kanzleien empfiehlt, darin festzuhalten, dass kein Mandatsverhältnis besteht, und eine nahende Frist zu nennen. Die Vorlage hält den Ablehnungsgrund fest und legt eine terminierte Wiedervorlage zum Versand der Mitteilung an. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Welche Identifizierungspflichten gelten für Steuerberater nach dem GwG?",
+        "answer": "Steuerberater sind Verpflichtete nach dem Geldwäschegesetz: Sie identifizieren den Mandanten, die handelnde Person und den wirtschaftlich Berechtigten, risikobasiert. Auch ein bekannter Mandant wird einmal identifiziert. Die Vorlage speichert nur, wer wann und wie identifiziert hat; Ausweiskopien bleiben in Ihrer Fachsoftware. Das ist keine Rechtsberatung; maßgeblich sind das Gesetz und die Hinweise Ihrer Kammer."
+      },
+      {
+        "question": "Kann der Mandant den Fragebogen online ausfüllen?",
+        "answer": "Über ein öffentliches Formular in Customermates heute nicht. Der Fragebogen geht als Dokument hinaus, das Ihr Agent entwirft, oder über ein externes Formular, das per API oder n8n in Customermates schreibt. Versenden Sie ihn selbst."
+      },
+      {
+        "question": "Schreibt der Agent meine Mandanten an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Neue Mandanten springen zwischen der ersten Anfrage und dem ersten Arbeitstag ab, weil ich vergesse, den Fragebogen zu schicken oder Unterlagen nachzufordern. Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
+    "intro":"Neue Mandanten springen zwischen der ersten Anfrage und dem ersten Arbeitstag ab, weil ich vergesse, den Fragebogen zu schicken oder Unterlagen nachzufordern. Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
     "questions": [
       "Was verkaufst du, und wer sind deine Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
       "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchst du nicht?",

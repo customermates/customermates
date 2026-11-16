@@ -183,6 +183,51 @@
     "jobs_board_view": "Les missions s’ouvrent en board par étape.",
     "candidate_data_page": "La base de connaissances contient une page sur les données des candidats et leur durée de conservation."
   },
+  "page": {
+    "metaTitle": "Modèle CRM cabinet de recrutement : missions et candidats",
+    "metaDescription": "Suivez missions, candidats et placements au même endroit. Collez ce modèle dans Claude, ChatGPT ou Codex et votre agent IA construit le suivi du cabinet.",
+    "headline": "Savoir quel candidat est sur quelle mission : un cabinet de recrutement que votre agent IA construit dans votre CRM",
+    "answer": "Un cabinet de recrutement mène deux parcours liés : la mission, qui rapporte les honoraires, et, dans chaque mission, une présentation par candidat avec sa propre étape. Collez ce modèle dans votre agent IA et il construit les deux dans Customermates, avec les placements, la fin de la garantie, le suivi après l’embauche et une date de conservation pour chaque candidat. Vous validez le plan avant toute construction.",
+    "routine": {
+      "title": "La revue hebdomadaire du cabinet",
+      "steps": [
+        "Ouvrez les missions en tableau et repérez les recherches sans prochaine étape datée ou sans mouvement depuis 10 jours.",
+        "Relancez le client pour obtenir son retour sur chaque candidat présenté depuis plus de deux jours, et prévoyez le débrief de chaque entretien de la semaine.",
+        "Appelez les clients actifs dont la date de prochain contact est arrivée et demandez-leur quels recrutements arrivent.",
+        "Passez en revue les placements : les points à 30, 60 et 90 jours de la semaine et toute garantie qui se termine dans les 14 jours.",
+        "Videz les candidats dont la date de conservation est passée : supprimez-les ou consignez un nouveau consentement."
+      ]
+    },
+    "limits": [
+      "Ce n’est ni un jobboard ni un outil de multidiffusion, et il n’analyse pas les CV. Les fichiers ne sont consultables que s’ils ont une couche de texte : les CV scannés ne sont pas lus.",
+      "Il n’y a ni séquences ni envois en masse. Les messages sont rédigés un par un, et le prompt demande à l’agent de ne rien envoyer automatiquement.",
+      "Les entretiens se planifient dans votre agenda Google ou Microsoft depuis la fiche, sur Customermates Cloud en formule Pro ou supérieure ; en auto-hébergement, un entretien reste un champ daté et une action. Le lien va dans un seul sens : modifier l’événement ne change pas la fiche.",
+      "Ce n’est pas un outil de facturation, de suivi du temps ou de paie pour le travail temporaire. Les factures restent dans votre outil de comptabilité, le modèle ne garde qu’une référence. Le recrutement en gros volume ou l’intérim relève d’un ATS d’agence.",
+      "Ce n’est ni un portail de candidature ni un outil de vérification d’antécédents. Gardez les données de santé, la date de naissance et les informations semblables hors des notes sur les candidats."
+    ],
+    "faq": [
+      {
+        "question": "Faut-il séparer les candidats et les missions ?",
+        "answer": "Oui. Les logiciels de cabinet comme Bullhorn ou Recruiterflow rattachent un candidat à chaque mission : une même personne peut être à des étapes différentes sur plusieurs missions. Le modèle tient une liste de missions et une présentation par candidat et par mission, si bien que chaque candidat a son propre historique d’étapes pour chacune."
+      },
+      {
+        "question": "Combien de temps conserver les données des candidats non retenus ?",
+        "answer": "Cela dépend du pays, et informer les candidats compte autant que la durée. En France, la CNIL admet en principe de garder le CV d’un candidat non retenu dans un vivier pendant deux ans au plus après le dernier contact, à condition qu’il en ait été informé. Chaque candidat reçoit une date de conservation et une action de revue : supprimer ou consigner un nouveau consentement. Ce n’est pas un conseil juridique."
+      },
+      {
+        "question": "Quelles conditions d’honoraires et de garantie consigner ?",
+        "answer": "Les honoraires au succès ne sont dus que si l’embauche a lieu ; une recherche en retainer est souvent facturée en trois temps, par exemple un tiers au lancement, un tiers à la shortlist et un tiers à l’embauche, avec exclusivité. Une garantie de remplacement de trois à six mois est la durée la plus citée. Ce sont des clauses de contrat, pas des règles : le modèle enregistre le pourcentage d’honoraires, la durée de garantie et la fin de garantie de chaque placement, sans valeur par défaut."
+      },
+      {
+        "question": "Que ne faut-il pas noter sur un candidat ?",
+        "answer": "Seulement des faits utiles pour le poste. Pas de données de santé ou de handicap, de religion, d’appartenance syndicale, de numéro de sécurité sociale, de situation familiale ou de résultats de vérifications d’antécédents. La CNIL déconseille aussi de collecter les projets d’enfants ou les mesures physiques."
+      },
+      {
+        "question": "L’agent contacte-t-il les candidats ou les clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple. Des brouillons n’existent que si vous les demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Je place des candidats chez des clients et je perds le fil de qui est présenté où, de la fin des garanties et de la durée pendant laquelle je peux conserver les données des candidats. Mets en place dans mon espace de travail Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l’embauche, et une date de conservation pour chaque candidat.",
     "questions": [

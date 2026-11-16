@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Todo projeto registra quando a aceitação foi checada.",
     "engagements_board_view": "Os projetos abrem como quadro por etapa."
   },
+  "page": {
+    "metaTitle": "Projetos de consultoria: propostas e retorno no seu CRM",
+    "metaDescription": "Projetos de consultoria que seu agente de IA monta no CRM: do contato ao ganho, com uma data de retorno combinada na conversa da proposta e entregáveis.",
+    "headline": "Não perca uma proposta no silêncio depois da conversa: um CRM de consultoria montado pelo seu agente de IA",
+    "answer": "Um CRM de consultoria acompanha poucos projetos de alto valor do contato ao ganho e, sobretudo, a data em que você retorna uma proposta. Este modelo configura projetos com diagnóstico, escopo, proposta e decisão, uma checagem de aceitação antes da oferta, entregáveis com datas de vencimento e de aceite, e um encerramento. Cole-o no seu agente de IA e ele monta tudo no Customermates; você aprova o plano antes de qualquer coisa ser criada.",
+    "routine": {
+      "title": "A revisão de segunda-feira dos projetos",
+      "steps": [
+        "Percorra o pipeline por etapa e acrescente um próximo passo com data a cada projeto que não tem um, ou encerre-o.",
+        "Confira as propostas enviadas: cada uma precisa de uma data de retorno combinada com o decisor durante a conversa, depois um segundo retorno por volta do décimo dia e o pedido de decisão na data prevista.",
+        "Olhe os entregáveis com vencimento nos próximos 14 dias e confirme com o cliente o horário de revisão.",
+        "Retome o contato com relações fortes ou mornas que você não encontra há 60 dias e agradeça a quem indicou seu último projeto."
+      ]
+    },
+    "limits": [
+      "Não é controle de horas nem faturamento. Horas e notas ficam nas suas ferramentas de tempo e de contabilidade; uma tarefa de marco só lembra você de faturar.",
+      "Não redige propostas nem coleta assinaturas. Uma proposta e um contrato assinado são links para documentos em outro lugar.",
+      "Não é planejamento de recursos nem gestão de projetos além de entregáveis e datas. As tarefas do trabalho em si ficam na sua ferramenta de projetos.",
+      "Deixe de fora material confidencial de clientes e dados de entrevistas. Não há permissões por campo: guarde um título de projeto neutro e um link.",
+      "Não envia sequências. Cada retorno é uma tarefa com data e um rascunho que você revisa e envia; o Customermates não tem motor de envio automático ou em massa.",
+      "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar."
+    ],
+    "faq": [
+      {
+        "question": "Que CRM os consultores usam?",
+        "answer": "Muitos consultores independentes começam com uma planilha ou um CRM comercial genérico. O que um consultor precisa é pouco: alguns contatos e projetos, um próximo passo com data em cada um, a data de retorno da proposta e os passos de aceite depois da venda. Este modelo configura isso no Customermates."
+      },
+      {
+        "question": "Quando devo retornar depois de enviar uma proposta?",
+        "answer": "Combine a data durante a conversa da proposta, como descreve Alan Weiss: diga um dia e uma hora precisos, ligue primeiro e escreva só se o comprador não atender. O modelo sugere por padrão um primeiro retorno após 3 dias e um segundo após 10; você pode mudar os dois."
+      },
+      {
+        "question": "O que é uma checagem de aceitação?",
+        "answer": "Uma verificação curta antes de escrever uma oferta: você tem capacidade, é independente das outras partes do cliente, dá para manter a confidencialidade, o trabalho combina com você? Uma associação alemã de consultores recomenda verificar se um projeto pode ser aceito antes de formular a oferta e, se não, recusá-lo."
+      },
+      {
+        "question": "Quanto tempo depois da assinatura deve acontecer o kickoff?",
+        "answer": "Um guia de fornecedor mira um kickoff em até 48 horas depois do fechamento, com um material prévio enviado 24 horas antes de uma reunião de 60 minutos; ele avisa que projetos regulados ou subcontratados pedem mais tempo. O modelo cria um passo de kickoff no dia seguinte ao ganho."
+      },
+      {
+        "question": "O que fazer depois de perder uma proposta?",
+        "answer": "Registre o motivo e, dois dias depois, pergunte ao decisor o que você poderia ter feito diferente. Alan Weiss recomenda exatamente essa pergunta quando a resposta é não. O modelo cria esse passo para você."
+      },
+      {
+        "question": "O agente escreve para os meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Eu tenho a minha própria consultoria e perco negócios no silêncio depois da conversa da proposta. Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
+    "intro":"Eu tenho a minha própria consultoria e perco negócios no silêncio depois da conversa da proposta. Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
     "questions": [
       "Que tipos de projeto você vende e a qual valor de diária?",
       "Como você decide se aceita um trabalho?",

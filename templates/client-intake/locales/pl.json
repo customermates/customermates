@@ -199,8 +199,58 @@
     "chase_signature_rule": "Wysłana umowa dostaje zadanie ponaglenia po 7 dniach.",
     "process_page": "Baza wiedzy zawiera proces przyjęcia."
   },
+  "page": {
+    "metaTitle": "Karta klienta wzór: przyjęcie klienta i onboarding w CRM",
+    "metaDescription": "Karta klienta wzór i onboarding w jednym procesie: agent AI buduje w CRM prośby o dokumenty, datowane kroki i powód odmowy. Plan zatwierdzasz Ty.",
+    "headline": "Karta klienta wzór bez gonienia za dokumentami: proces, który agent AI buduje w Twoim CRM",
+    "answer": "Karta klienta zbiera dane potrzebne do przyjęcia klienta, ale prawdziwa praca to ściganie dokumentów i podpisanej umowy. Ten szablon konfiguruje jedno przyjęcie na zlecenie z dziewięcioma etapami od zapytania do spotkania startowego, prośby o dokumenty i datowany krok na każdym etapie. Wklej go do swojego agenta AI, a on zbuduje proces w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda przyjęć klientów",
+      "steps": [
+        "Odpowiedz na każde nowe zapytanie. Domyślnie odpowiedź wychodzi w ciągu doby, a każde zapytanie kończy się następnym krokiem albo odmową.",
+        "Przypomnij o ankietach wysłanych 3 dni temu i o dokumentach po terminie.",
+        "Sprawdź dokumenty, które dotarły, spisz braki i ponaglij umowy wysłane 7 dni temu.",
+        "Zajrzyj do przyjęć, które od 7 dni stoją w miejscu: ustal termin albo odmów z podanym powodem i krótkim pisemnym zawiadomieniem, że nie powstaje żadna relacja, ze wskazaniem znanych terminów.",
+        "Zapytaj klientów przyjętych 14 dni temu, czy pierwszy rezultat już dotarł."
+      ]
+    },
+    "limits": [
+      "Nie zbiera podpisów. Podpisanie odbywa się w Twoim narzędziu do podpisu elektronicznego lub księgowości; przyjęcie zachowuje daty i link.",
+      "To nie jest narzędzie do weryfikacji tożsamości ani przeciwdziałania praniu pieniędzy, ani rejestr konfliktów interesów. Zawody regulowane zapisują, kto, kiedy i jak zweryfikował tożsamość; dokumenty i właściwy rejestr zostają w Twoim systemie branżowym lub KYC.",
+      "Nie przyjmuje płatności i nie wystawia faktur. Zaliczki i przedpłaty zostają w banku lub w programie księgowym.",
+      "W Customermates nie ma dziś portalu klienta ani publicznego formularza do przesyłania dokumentów. Ankieta wychodzi jako dokument albo przez zewnętrzny formularz, który zapisuje dane w Customermates przez API lub n8n.",
+      "Nie zapisuj w nim numerów ani skanów dokumentów tożsamości, danych o zdrowiu, terapii, religii ani danych bankowych. Nie nadaje się do kart klienta salonów kosmetycznych, klinik i trenerów personalnych, które zbierają dane o zdrowiu.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+    ],
+    "faq": [
+      {
+        "question": "Co powinna zawierać karta klienta?",
+        "answer": "Dane kontaktowe i firmy, czego klient oczekuje, zakres, termin i budżet, kto decyduje, jakich dostępów potrzebujesz oraz kwestie prawne lub zgodności. W praktyce karta to pomoc pamięciowa przed pierwszą rozmową, a nie test prawny; dla osób prywatnych zrób ją krótszą."
+      },
+      {
+        "question": "Jakie są etapy onboardingu klienta?",
+        "answer": "Kolejność jest podobna w różnych zawodach: pierwsza odpowiedź, wstępna kwalifikacja, ankieta i dokumenty, weryfikacje tam, gdzie wymaga ich Twój zawód, umowa na piśmie, ewentualna zaliczka, potem spotkanie startowe. Terminy utrzymują tempo: przewodniki dostawców podają odpowiedź w 24 godziny i ponaglenie do podpisu po 7 dniach. Traktuj te liczby jako ustawienia domyślne, nie normę."
+      },
+      {
+        "question": "Czy muszę odmówić klientowi na piśmie?",
+        "answer": "Pisemna odmowa pomaga obu stronom. Przewodnik dla kancelarii zaleca wpisać w niej, że nie powstała żadna relacja, i wskazać zbliżający się termin. Szablon zapisuje powód odmowy i tworzy datowane zadanie wysłania zawiadomienia. To nie jest porada prawna."
+      },
+      {
+        "question": "Jakie dane klientów nie powinny trafiać do CRM?",
+        "answer": "Numery i skany dokumentów tożsamości, osobiste numery podatkowe, data urodzenia ponad to, czego wymaga weryfikacja, dane o zdrowiu, religii i dane dostępowe do banku. Dla zawodu regulowanego szablon zapisuje tylko, że tożsamość zweryfikowano, kto to zrobił i kiedy. RODO każe zbierać tylko te dane, których naprawdę potrzebujesz."
+      },
+      {
+        "question": "Czy klient może wypełnić ankietę online?",
+        "answer": "Nie przez publiczny formularz w Customermates, na dziś. Ankieta wychodzi jako dokument przygotowany przez Twojego agenta albo przez zewnętrzny formularz zapisujący dane w Customermates przez API lub n8n. Wysyłasz ją Ty."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Nowi klienci odpadają między pierwszym zapytaniem a pierwszym dniem pracy, bo zapominam wysłać ankietę albo ponaglić o dokumenty. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
+    "intro":"Nowi klienci odpadają między pierwszym zapytaniem a pierwszym dniem pracy, bo zapominam wysłać ankietę albo ponaglić o dokumenty. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
     "questions": [
       "Co sprzedajesz i jacy są Twoi klienci: firmy, jednoosobowe działalności czy osoby prywatne?",
       "Jakie kroki przechodzi dziś nowy klient i których z dziewięciu etapów nie potrzebujesz?",

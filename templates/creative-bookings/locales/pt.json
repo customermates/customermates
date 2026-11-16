@@ -137,8 +137,57 @@
     "event_date_field": "Cada reserva tem uma data do evento.",
     "bookings_board_view": "As reservas abrem como quadro por etapa."
   },
+  "page": {
+    "metaTitle": "CRM para fotógrafos e eventos: reservas, sinal e entrega",
+    "metaDescription": "CRM para fotógrafos, videomakers e organizadores de eventos: pedidos, datas reservadas, sinal e entrega, montados pelo seu agente de IA no seu CRM.",
+    "headline": "CRM para fotógrafos e organizadores de eventos: cada data, sinal e entrega sob controle",
+    "answer": "Gerenciar as reservas de um fotógrafo, videomaker ou organizador de eventos significa segurar uma data só até o contrato ser assinado e o sinal ser pago, e acompanhar o trabalho até a entrega. Este modelo dá a cada reserva uma linha com uma etapa de venda e outra de entrega, um vencimento para o saldo, um questionário antes do evento e um pedido de avaliação depois. Cole-o no seu agente de IA e ele monta tudo no Customermates; você aprova o plano antes de qualquer coisa ser criada.",
+    "routine": {
+      "title": "A rodada semanal de reservas",
+      "steps": [
+        "Responda a cada pedido que espera. O padrão é responder em 24 horas e perguntar data, local, tipo de trabalho e orçamento.",
+        "Confira as datas seguradas: cobre o contrato e o sinal ou libere a data.",
+        "Olhe os eventos dos próximos 14 dias: o questionário voltou, o roteiro do dia está confirmado, o saldo foi pago?",
+        "Veja as entregas a vencer e avise cedo o cliente se uma data mudar. Duas semanas depois da entrega, peça uma avaliação."
+      ]
+    },
+    "limits": [
+      "Não redige nem coleta assinatura de contratos, não envia notas fiscais nem recebe pagamentos. Isso fica nas suas ferramentas de contrato, cobrança e pagamento; a reserva guarda o status, as datas e um link.",
+      "Não é uma ferramenta de galeria, seleção de fotos ou venda de cópias, nem de diagramação de álbuns, edição ou gestão de arquivos. A reserva guarda o link.",
+      "Uma página pública de agendamento ou a venda de mini sessões não faz parte do Customermates hoje. Os pedidos chegam por e-mail, WhatsApp ou Instagram na caixa de entrada conectada, e seu agente redige a resposta.",
+      "Não é aconselhamento jurídico. As páginas de conhecimento são listas de conferência; peça a um advogado que revise seu contrato e o texto dos direitos de imagem e de uso.",
+      "Deixe de fora dados de saúde, alimentação ou religião, números de cartão, documentos de identidade, rostos como arquivos de imagem e listas de convidados. Registre só o status e a data do consentimento para uso em portfólio.",
+      "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar."
+    ],
+    "faq": [
+      {
+        "question": "O que um CRM precisa fazer por um fotógrafo?",
+        "answer": "Acompanhar um trabalho do pedido à reserva e à entrega: anotar data, tipo e orçamento, segurar a data, confirmá-la com contrato assinado e sinal, tocar questionário e roteiro do dia, entregar e pedir uma avaliação. Contratos, notas fiscais e galerias ficam nas suas próprias ferramentas."
+      },
+      {
+        "question": "Quando uma data está realmente reservada?",
+        "answer": "Na prática, sem sinal a data não está confirmada. O modelo só conta um trabalho como reservado quando o contrato está assinado e o sinal pago, em campos separados, com uma data segurada no meio. O valor do sinal vem do seu contrato: um guia de contratos de casamento diz que quase todos os fotógrafos pedem 50% na assinatura, outros modelos usam 30%, por isso o modelo não define valor padrão."
+      },
+      {
+        "question": "O que é segurar uma data?",
+        "answer": "Segurar uma data tira a data da sua disponibilidade por alguns dias sem comprometer o cliente. O modelo guarda até quando ela está segurada, cria um passo para enviar o contrato quando a data é segurada e outro para cobrar o sinal três dias depois da assinatura."
+      },
+      {
+        "question": "O que o CRM deve guardar sobre direitos de imagem e consentimento?",
+        "answer": "Só o status e a data do consentimento para uso em portfólio, não as imagens, nem categorias especiais como religião, orientação ou saúde, que casamentos e ensaios de família podem revelar. A LGPD também vale para o uso de imagem. Por padrão os direitos autorais ficam com o criador; os direitos de uso vão no contrato, e um advogado deve revisar o texto. Não é aconselhamento jurídico."
+      },
+      {
+        "question": "Quando o questionário deve ser enviado?",
+        "answer": "O modelo cria um passo para enviar o questionário 45 dias antes de um evento reservado, e você pode mudar isso. Fotógrafos e videomakers também costumam pedir o roteiro do dia umas duas semanas antes e fazem uma conferência na última semana sobre roteiro, locais e telefones."
+      },
+      {
+        "question": "O agente escreve para os meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Eu tenho um negócio de foto, vídeo ou eventos e perco o controle de quais datas estão reservadas, quais sinais foram pagos e o que ainda falta entregar. Configure as reservas para criativos no meu espaço de trabalho do Customermates: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo, um questionário antes do evento, um pedido de avaliação e mensagens de aniversário.",
+    "intro":"Eu tenho um negócio de foto, vídeo ou eventos e perco o controle de quais datas estão reservadas, quais sinais foram pagos e o que ainda falta entregar. Configure as reservas para criativos no meu espaço de trabalho do Customermates: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo, um questionário antes do evento, um pedido de avaliação e mensagens de aniversário.",
     "questions": [
       "O que você fotografa, filma ou organiza e quantas reservas tem por ano?",
       "Por quais passos um cliente passa da solicitação à reserva e quando você reserva a data?",

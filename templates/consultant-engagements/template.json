@@ -156,6 +156,6 @@
     { "url": "https://openclassrooms.com/fr/courses/5164356-construisez-votre-strategie-commerciale-d-independant/5367416-maitrisez-votre-cycle-de-vente", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
   "publicPage": { "en": "proof", "de": "none", "fr": "none", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" }
 }

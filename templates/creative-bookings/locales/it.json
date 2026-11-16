@@ -137,8 +137,57 @@
     "event_date_field": "Ogni prenotazione ha una data dell'evento.",
     "bookings_board_view": "Le prenotazioni si aprono come board per fase."
   },
+  "page": {
+    "metaTitle": "Gestionale eventi: prenotazioni per fotografi e planner",
+    "metaDescription": "Gestionale eventi per fotografi, videomaker e organizzatori: richieste, date bloccate, acconti e consegna, costruiti dal tuo agente IA nel CRM.",
+    "headline": "Un gestionale eventi per fotografi e organizzatori: ogni data, acconto e consegna sotto controllo",
+    "answer": "Gestire le prenotazioni di un fotografo, un videomaker o un organizzatore di eventi significa bloccare una data solo finché il contratto non è firmato e l'acconto non è pagato, poi seguire il lavoro fino alla consegna. Questo modello dà a ogni prenotazione una riga con una fase di vendita e una di consegna, una scadenza per il saldo, un questionario prima dell'evento e una richiesta di recensione dopo. Incollalo nel tuo agente IA: costruisce tutto in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale delle prenotazioni",
+      "steps": [
+        "Rispondi a ogni richiesta in attesa. Per impostazione predefinita la risposta parte entro 24 ore e chiede data, luogo, tipo di lavoro e budget.",
+        "Controlla le date bloccate: sollecita contratto e acconto oppure libera la data.",
+        "Guarda gli eventi dei prossimi 14 giorni: il questionario è tornato, il programma della giornata è confermato, il saldo è pagato?",
+        "Controlla le consegne in scadenza e avvisa presto il cliente se una data slitta. Due settimane dopo la consegna chiedi una recensione."
+      ]
+    },
+    "limits": [
+      "Non redige né fa firmare contratti, non invia fatture e non incassa pagamenti. Restano nei tuoi strumenti di contratti, fatturazione e pagamento; la prenotazione conserva stato, date e un link.",
+      "Non è uno strumento per gallerie, selezione foto o vendita di stampe, né per impaginare album, ritoccare o gestire media. La prenotazione conserva il link.",
+      "Una pagina di prenotazione pubblica o la vendita di mini sessioni oggi non fanno parte di Customermates. Le richieste arrivano come email, messaggi WhatsApp o Instagram nella casella di posta collegata e il tuo agente prepara la risposta.",
+      "Non è consulenza legale. Le pagine di conoscenza sono liste di controllo; fai rivedere a un avvocato il contratto e la formulazione dei diritti d'immagine e d'uso.",
+      "Tieni fuori dati sanitari, alimentari o religiosi, numeri di carte di pagamento, documenti d'identità, volti come file immagine ed elenchi di invitati. Registra solo stato e data del consenso per l'uso nel portfolio.",
+      "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve fare un gestionale eventi per un fotografo?",
+        "answer": "Seguire un lavoro dalla richiesta alla prenotazione e alla consegna: annotare data, tipo e budget, bloccare la data, confermarla con un contratto firmato e un acconto, gestire questionario e programma della giornata, consegnare e chiedere una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti."
+      },
+      {
+        "question": "Quando una data è davvero prenotata?",
+        "answer": "Nella pratica, senza acconto la data non è confermata. Il modello considera prenotato un lavoro solo quando il contratto è firmato e l'acconto è pagato, in campi separati, con una data bloccata nel mezzo. L'importo dell'acconto lo decide il tuo contratto: una guida sui contratti di matrimonio dice che quasi tutti i fotografi chiedono il 50% alla firma, altri modelli prevedono il 30%, quindi il modello non fissa importi predefiniti."
+      },
+      {
+        "question": "Che cos'è una data bloccata?",
+        "answer": "Una data bloccata toglie una data dalla tua disponibilità per qualche giorno senza vincolare il cliente. Il modello conserva la data fino a cui è bloccata, crea un passaggio per inviare il contratto quando la data viene bloccata e un altro per sollecitare l'acconto tre giorni dopo la firma."
+      },
+      {
+        "question": "Che cosa deve registrare il CRM su diritti d'immagine e consenso?",
+        "answer": "Solo stato e data del consenso per l'uso nel portfolio, non le immagini, né categorie particolari come religione, orientamento o salute, che matrimoni e servizi di famiglia possono rivelare. Il diritto d'autore resta di norma al creativo; i diritti d'uso vanno nel contratto e un avvocato dovrebbe rivederne la formulazione. Non è consulenza legale."
+      },
+      {
+        "question": "Quando va inviato il questionario?",
+        "answer": "Il modello crea un passaggio per inviare il questionario 45 giorni prima di un evento prenotato, modificabile. Fotografi e videomaker chiedono spesso anche il programma della giornata circa due settimane prima e fanno un controllo nell'ultima settimana su programma, luoghi e numeri di telefono."
+      },
+      {
+        "question": "L'agente scrive ai miei clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Gestisco un'attività di foto, video o eventi e perdo il conto di quali date sono bloccate, quali acconti sono pagati e che cosa resta da consegnare. Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e note di anniversario.",
+    "intro":"Gestisco un'attività di foto, video o eventi e perdo il conto di quali date sono bloccate, quali acconti sono pagati e che cosa resta da consegnare. Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e note di anniversario.",
     "questions": [
       "Che cosa fotografi, riprendi o organizzi e quante prenotazioni hai all'anno?",
       "Quali passaggi attraversa un cliente dalla richiesta alla prenotazione e quando blocchi la data?",

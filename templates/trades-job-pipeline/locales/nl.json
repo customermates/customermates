@@ -117,6 +117,51 @@
     "warranty_field": "Elke opdracht legt vast tot wanneer de garantie loopt.",
     "jobs_board_view": "De opdrachten openen als bord per fase."
   },
+  "page": {
+    "metaTitle": "Software bouwbedrijf: sjabloon voor offertes en opdrachten",
+    "metaDescription": "Software bouwbedrijf voor vakmensen: volg elke offerte op en begeleid elke opdracht van opname tot betaling. Plak het sjabloon in je AI-agent.",
+    "headline": "Software voor een bouwbedrijf die elke offerte opvolgt en garantiedata onthoudt, gebouwd door je AI-agent",
+    "answer": "Software voor een klein bouwbedrijf of vakbedrijf volgt elke opdracht van het eerste telefoontje tot de laatste factuur: de opname, de offerte en de opvolging, het werk van ingepland tot betaald en de data die ertoe doen, zoals de geldigheid van de offerte, de bedenktijd, de garantie en verlenging van onderhoud. Plak dit sjabloon in je AI-agent en hij bouwt de pijplijn in Customermates. Jij keurt het plan goed voordat er iets wordt gebouwd. Wettelijke data zijn velden die jij bevestigt, geen juridisch advies.",
+    "routine": {
+      "title": "De wekelijkse bespreking van offertes en opdrachten",
+      "steps": [
+        "Bel elke nieuwe aanvraag dezelfde dag terug en stuur binnen twee dagen na elke opname de offerte.",
+        "Volg offertes op die drie dagen geleden zijn verstuurd en die over drie dagen verlopen. Beslis na een tweede poging: de offerte openhouden of met een reden sluiten.",
+        "Controleer de opdrachten van deze week en bevestig de planning bij elke klant. Leg bij elke afgeronde opdracht de oplevering vast en vraag de factuur aan bij de administratie.",
+        "Bekijk gefactureerde opdrachten na de betaaldatum en controleer of ze zijn betaald.",
+        "Kijk 30 dagen vooruit: garanties die aflopen, onderhoudsbezoeken om te plannen en onderhoudscontracten om te verlengen."
+      ]
+    },
+    "limits": [
+      "Het is geen tool voor offertes, begrotingen of facturatie. Regels geven een opdrachtwaarde, geen document met btw-regels, nummering en wettelijke vermeldingen. Bewaar offertes en facturen in je offerte- of boekhoudpakket.",
+      "Het is geen tool voor elektronische handtekening of betaling en geen systeem voor planning van ploegen, routes, gps of urenregistratie.",
+      "Het is geen native mobiele app voor op de bouwplaats. De webapp werkt op een telefoon, maar een eigen app is er niet.",
+      "Het geeft geen certificaten uit. Opleveringsrapporten en processen-verbaal blijven in je documenttool, het CRM bewaart de datum en een verwijzing.",
+      "Sms is geen kanaal: WhatsApp, e-mail en LinkedIn zijn dat wel. En het is geen juridische autoriteit over bedenktijd, garantie of geldigheid van een offerte."
+    ],
+    "faq": [
+      {
+        "question": "Hoe snel moet een bouwbedrijf een offerte sturen?",
+        "answer": "Een gids voor dakdekkers adviseert een offerte binnen 24 tot 48 uur na de inspectie en binnen enkele minuten terugbellen bij een online aanvraag. Jobber raadt een eerste opvolging twee tot drie dagen na de offerte aan en een tweede enkele dagen later, daarna door te gaan. Het sjabloon plant dit als acties met een datum; de termijnen stel je zelf in."
+      },
+      {
+        "question": "Hoe lang moet een offerte geldig zijn?",
+        "answer": "Er is geen vaste regel. De Algemene Voorwaarden voor Aannemingen met Consumenten (AVA Consumenten 2023) gaan uit van 30 dagen, en een offerte is volgens die voorwaarden gratis tenzij anders afgesproken. Het sjabloon bewaart een geldigheidsdatum en maakt drie dagen eerder een opvolgactie aan. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Wat gebeurt er bij oplevering?",
+        "answer": "Volgens de consumentenvoorwaarden komt de overeenkomst tot stand wanneer de consument de offerte aanvaardt, en bij oplevering stelt men een proces-verbaal op. De oplevering is vaak het moment waarop de garantietermijn begint. Het sjabloon bewaart de datum tot wanneer de garantie loopt, die jij uit het getekende contract haalt, en berekent die nooit."
+      },
+      {
+        "question": "Kan een klant afzien van een overeenkomst die thuis is gesloten?",
+        "answer": "Het hangt van het land en de situatie af: in Duitsland heeft een consument bijvoorbeeld 14 dagen bij een overeenkomst buiten de verkoopruimte, en die termijn loopt pas na correcte informatie. Voor spoedreparaties waar de klant zelf om vraagt is er een uitzondering. Het sjabloon zet het einde van de 14 dagen zodra een opdracht binnen is; controleer de regels in Nederland en je informatie aan de klant."
+      },
+      {
+        "question": "Neemt de agent contact op met mijn klanten?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik heb een klein vakbedrijf en offertes gaan de deur uit zonder opvolging, terwijl opdrachten, opnames en garantiedata in mijn hoofd zitten. Richt in mijn Customermates-werkruimte een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
     "questions": [

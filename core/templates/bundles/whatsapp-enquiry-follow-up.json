@@ -955,14 +955,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "none",
@@ -1267,6 +1267,51 @@
         "quote_valid_field": "Jedes Angebot hält fest, wie lange es gültig ist.",
         "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
       },
+      "page": {
+        "metaTitle": "WhatsApp CRM Vorlage: Anfragen und Angebote nachfassen",
+        "metaDescription": "WhatsApp CRM: jeder Chat wird zur Anfrage mit Angebot und terminiertem nächstem Schritt. Vorlage im KI-Agenten einfügen. Nicht die offizielle WhatsApp-API.",
+        "headline": "Ein WhatsApp CRM, das jeden Chat zur Anfrage mit terminiertem nächstem Schritt macht, aufgebaut von Ihrem KI-Agenten",
+        "answer": "Wer auf WhatsApp nachfassen will, antwortet schnell, hält jeden Chat als Anfrage mit Angebot und Gültigkeit fest, gibt ihr einen terminierten nächsten Schritt und notiert, wann er wieder ansetzt. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Anfragenliste in Customermates auf, mit jedem Chat verknüpft zu seiner Anfrage. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Es arbeitet mit einzeln geprüften Antworten, ohne Massennachrichten, Bots oder die offizielle Business-API.",
+        "routine": {
+          "title": "Der tägliche WhatsApp-Check",
+          "steps": [
+            "Öffnen Sie das WhatsApp-Postfach und antworten Sie auf jeden neuen Chat. Als Richtwert: innerhalb etwa einer Stunde zu Geschäftszeiten bestätigen und am selben Tag vollständig antworten.",
+            "Stellen Sie sicher, dass jeder Chat des letzten Tages genau einen Zustand hat: beantwortet, mit terminiertem nächstem Schritt versehen oder mit Grund geschlossen.",
+            "Fassen Sie Angebote zwei Tage nach dem Versand nach und noch einmal einige Tage später. Senden Sie dann eine abschließende Nachricht und setzen Sie ein Datum zur Wiederansprache.",
+            "Fragen Sie am Tag nach der Phase Zahlung offen nach der Zahlung und bestätigen Sie Lieferung oder Termin am Vortag.",
+            "Sehen Sie sich fällige Wiederansprache- und Nachbestelltermine an und schreiben Sie diese Kunden einzeln an."
+          ]
+        },
+        "limits": [
+          "Es ist nicht die offizielle WhatsApp Business Platform. Das Konto wird per QR-Code verbunden, deshalb gibt es keine Nachrichtenvorlagen, Rundnachrichten, Kampagnen, Sequenzen, Chatbots oder Flows, keine Katalogsynchronisierung und keine Funktionen für verifizierte Unternehmen.",
+          "Das Kontorisiko liegt bei Ihnen. WhatsApp kann ein Konto einschränken oder entfernen, das auf eine von den Richtlinien verbotene Weise genutzt wird, etwa durch Nachrichten an viele Personen. Halten Sie das Volumen klein, mit Einwilligung und persönlich.",
+          "Ein Chat wird nicht automatisch mit einer Anfrage verknüpft. Sie oder Ihr Agent verknüpfen ihn, und Gruppenchats gehören nicht an einen Kunden.",
+          "Es gibt keine Angebote, Rechnungen, Zahlungslinks oder Bestellverwaltung. Diese bleiben in Ihrer Buchhaltung oder Ihrem Shop, die Vorlage hält Angebotssumme, Gültigkeit und Phase fest.",
+          "Für die WhatsApp-Verbindung braucht es einen Tarif mit Postfach. Ohne ihn können Sie Anfragen weiter von Hand verfolgen."
+        ],
+        "faq": [
+          {
+            "question": "Wie schnell sollte ich auf eine WhatsApp-Anfrage antworten?",
+            "answer": "Jede Quelle sagt schnell, keine nennt eine amtliche Zahl. Eine Studie zu Online-Anfragen fand, dass die meisten Unternehmen viel zu langsam antworten, und die oft zitierte Fünf-Minuten-Zahl ließ sich nicht bestätigen. Die Vorlage nutzt als Richtwert etwa eine Stunde zu Geschäftszeiten für eine erste Antwort und die vollständige Antwort am selben Tag. Passen Sie das an Ihren Betrieb an."
+          },
+          {
+            "question": "Reicht die WhatsApp-Business-App mit Labels?",
+            "answer": "Ratgeber für kleine Unternehmen empfehlen drei bis fünf Labels als Pipeline, etwa neuer Kunde, Auftrag bestätigt und Zahlung offen. Ihre Schwäche: kein Verlauf über Personen hinweg, keine Wiedervorlagen und nichts übersteht das Ausscheiden eines Mitarbeiters. Die Vorlage macht aus Labels Phasen und ergänzt Termine und Zuständige, der Chat bleibt der Beleg."
+          },
+          {
+            "question": "Wie oft sollte ich ein Angebot nachfassen?",
+            "answer": "Auf WhatsApp ist der Takt kürzer als bei E-Mail. Ein sinnvoller Richtwert sind zwei Tage nach dem Angebot und ein zweites Mal einige Tage später, danach eine abschließende Nachricht, dass der Zeitpunkt vielleicht nicht passt, und eine Wiederansprache nach etwa 90 Tagen. Die Vorlage legt das erste Nachfassen als terminierte Wiedervorlage an, die Abstände stellen Sie selbst ein."
+          },
+          {
+            "question": "Ist WhatsApp für Anfragen datenschutzrechtlich in Ordnung?",
+            "answer": "Das hängt von Ihrer Rechtsgrundlage ab. In deutschen Ratgebern gilt der Kontaktabgleich der WhatsApp-App als zentrales Problem, viele Betriebe nutzen deshalb die Business-API über einen Anbieter oder verzichten auf WhatsApp. Customermates verbindet das Konto per QR-Code, nicht über die offizielle API. Klären Sie Rechtsgrundlage und Datenschutzhinweis vor dem Start. Die Vorlage hält fest, ob ein Kontakt zugestimmt hat. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Schickt der Agent Nachrichten an meine Kunden?",
+            "answer": "Nein. Der Prompt verlangt Antworten, die einzeln zu Ihrer Prüfung geschrieben werden, nichts in Masse und keine Beispieldaten. Jede Antwort senden Sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Kunden fragen auf WhatsApp nach Preisen, und ich verliere den Chat, bevor ich nachfasse. Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
         "questions": [
@@ -1566,6 +1611,51 @@
         "opt_in_field": "Every contact records their WhatsApp permission.",
         "quote_valid_field": "Every quote records how long it is valid.",
         "enquiries_board_view": "The inquiries open as a board by stage."
+      },
+      "page": {
+        "metaTitle": "WhatsApp CRM Template: Follow Up Every Inquiry and Quote",
+        "metaDescription": "WhatsApp CRM template: every chat becomes an inquiry with a quote and a dated next step. Paste it into your AI agent. Not the official WhatsApp API.",
+        "headline": "A WhatsApp CRM that turns every chat into an inquiry with a dated next step, built by your AI agent",
+        "answer": "To follow up on WhatsApp, reply fast, record each chat as an inquiry with the quote and its validity, give it a dated next step and write down when to come back. Paste this template into your AI agent and it builds the inquiry list in Customermates, with each chat linked to its inquiry. You approve the plan before anything is built. It works one reviewed reply at a time, with no broadcasts, bots or official Business API.",
+        "routine": {
+          "title": "The daily WhatsApp check",
+          "steps": [
+            "Open the WhatsApp inbox and reply to every new chat. As a default, acknowledge within about an hour in business hours and answer fully the same day.",
+            "Make sure every chat of the last day is in exactly one state: answered, given a dated next step, or closed with a reason.",
+            "Follow up quotes two days after they were sent and once more a few days later. Then send a closing message and set a come-back date.",
+            "Ask for payment the day after an inquiry reaches awaiting payment, and confirm the delivery or appointment the day before.",
+            "Look at the come-back dates and reorder reminders that are due and write to those customers one by one."
+          ]
+        },
+        "limits": [
+          "It is not the official WhatsApp Business Platform. The account is linked by QR code, so there are no message templates, broadcasts, campaigns, sequences, chatbots or flows, no catalog sync and no verified-business features.",
+          "The account risk is yours. WhatsApp may limit or remove an account used in a way its policy forbids, for example messaging people at scale. Keep volume low, consented and human.",
+          "A chat is not linked to an inquiry automatically. You or your agent link it, and group chats should not be linked to a customer.",
+          "It has no quotes, invoices, payment links or order management. Those stay in your accounting or shop tool; the template records the quote amount, its validity and the stage.",
+          "Connecting WhatsApp needs a plan that includes the inbox. Without it you can still track inquiries by hand."
+        ],
+        "faq": [
+          {
+            "question": "How fast should I reply to a WhatsApp inquiry?",
+            "answer": "Every source says fast and none gives a regulator's number. A research paper on online leads found that most companies respond far too slowly, and the often-quoted five-minute figure could not be confirmed. The template uses a default of about an hour in business hours for a first answer and the full answer the same day. Change it to fit your business."
+          },
+          {
+            "question": "Is the WhatsApp Business app with labels enough?",
+            "answer": "Small-business guides recommend three to five labels as the pipeline, for example new customer, order confirmed and awaiting payment. Their weakness is that there is no history across people, no follow-up dates and nothing survives a departing employee. The template turns labels into stages and adds dates and an owner, while the chat stays as the evidence."
+          },
+          {
+            "question": "How often should I follow up on a quote?",
+            "answer": "On WhatsApp the rhythm is shorter than on email. A sensible default is two days after the quote and a second time a few days later, then a closing message saying the timing may not be right and a come-back date about 90 days out. The template schedules the first follow-up as a dated Action; the exact offsets are yours to tune."
+          },
+          {
+            "question": "May I message customers who did not write to me first?",
+            "answer": "WhatsApp's business policy says to contact people only if they gave you their number and permission, and to honour opt-outs. The template records for each contact whether the customer started the chat, gave permission, or asked you to stop. You also need a lawful basis and a privacy notice under GDPR or the data protection law that applies to you."
+          },
+          {
+            "question": "Does the agent send messages to my customers?",
+            "answer": "No. The prompt asks for replies written one by one for your review, nothing in bulk, and no sample records. You send each reply yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "Customers ask for prices on WhatsApp, and I lose the chat before I follow up. Set up WhatsApp inquiry follow-up in my Customermates workspace: an inquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
@@ -1867,6 +1957,51 @@
         "quote_valid_field": "Cada presupuesto registra cuánto tiempo es válido.",
         "enquiries_board_view": "Las consultas se abren como tablero por fase."
       },
+      "page": {
+        "metaTitle": "CRM WhatsApp: plantilla para consultas y presupuestos",
+        "metaDescription": "CRM WhatsApp: cada chat se convierte en una consulta con presupuesto y seguimiento con fecha. Pega la plantilla en tu agente de IA. No usa la API oficial.",
+        "headline": "Un CRM WhatsApp que convierte cada chat en una consulta con seguimiento con fecha, montado por tu agente de IA",
+        "answer": "Para hacer seguimiento por WhatsApp, responde rápido, anota cada chat como una consulta con el presupuesto y su validez, dale un seguimiento con fecha y apunta cuándo volver. Pega esta plantilla en tu agente de IA y él monta la lista de consultas en Customermates, con cada chat enlazado a su consulta. Tú apruebas el plan antes de que se construya nada. Funciona con respuestas revisadas una a una, sin envíos masivos, bots ni API oficial.",
+        "routine": {
+          "title": "La revisión diaria de WhatsApp",
+          "steps": [
+            "Abre la bandeja de WhatsApp y responde a cada chat nuevo. Como ajuste por defecto, acusa recibo en aproximadamente una hora en horario laboral y responde por completo el mismo día.",
+            "Comprueba que cada chat del último día esté en un único estado: respondido, con un siguiente paso con fecha o cerrado con un motivo.",
+            "Haz seguimiento de los presupuestos dos días después de enviarlos y otra vez unos días más tarde. Después envía un mensaje de cierre y fija una fecha para volver.",
+            "Pide el pago al día siguiente de que una consulta pase a pendiente de pago y confirma la entrega o la cita el día antes.",
+            "Mira las fechas para volver y los recordatorios de reposición que vencen y escribe a esos clientes uno a uno."
+          ]
+        },
+        "limits": [
+          "No es la plataforma oficial WhatsApp Business. La cuenta se vincula con un código QR, así que no hay plantillas de mensajes, difusiones, campañas, secuencias, chatbots ni flows, ni sincronización de catálogo ni funciones de empresa verificada.",
+          "El riesgo de la cuenta es tuyo. WhatsApp puede limitar o retirar una cuenta usada de una forma que sus normas prohíben, por ejemplo escribiendo a mucha gente. Mantén el volumen bajo, con consentimiento y humano.",
+          "Un chat no se enlaza automáticamente a una consulta. Lo enlazas tú o tu agente, y los chats de grupo no deben enlazarse a un cliente.",
+          "No hay presupuestos, facturas, enlaces de pago ni gestión de pedidos. Eso se queda en tu programa de contabilidad o tu tienda; la plantilla guarda el importe del presupuesto, su validez y la etapa.",
+          "Vincular WhatsApp requiere un plan que incluya la bandeja de entrada. Sin ella, aún puedes llevar las consultas a mano."
+        ],
+        "faq": [
+          {
+            "question": "¿Con qué rapidez debo responder a una consulta por WhatsApp?",
+            "answer": "Todas las fuentes dicen rápido y ninguna da una cifra oficial. Un estudio sobre consultas en línea encontró que la mayoría de las empresas responde demasiado despacio, y la cifra tan citada de cinco minutos no pudo confirmarse. La plantilla usa por defecto aproximadamente una hora en horario laboral para una primera respuesta y la respuesta completa el mismo día. Ajústalo a tu negocio."
+          },
+          {
+            "question": "¿Basta con la app WhatsApp Business y sus etiquetas?",
+            "answer": "Las guías para pequeñas empresas recomiendan de tres a cinco etiquetas como pipeline, por ejemplo cliente nuevo, pedido confirmado y pendiente de pago. Su punto débil: no hay historial entre personas, no hay fechas de seguimiento y nada sobrevive a la salida de un empleado. La plantilla convierte las etiquetas en etapas y añade fechas y responsable, y el chat sigue siendo la prueba."
+          },
+          {
+            "question": "¿Cada cuánto debo hacer seguimiento de un presupuesto?",
+            "answer": "En WhatsApp el ritmo es más corto que por correo. Un buen valor por defecto: dos días después del presupuesto, otra vez unos días más tarde, y luego un mensaje de cierre que diga que quizá no es el momento y una fecha para volver unos 90 días después. La plantilla programa el primer seguimiento como tarea con fecha; los plazos los ajustas tú."
+          },
+          {
+            "question": "¿Necesito el consentimiento del cliente para escribirle por WhatsApp?",
+            "answer": "La política de WhatsApp para empresas dice que solo se contacte a quien haya dado su número y su permiso, y que se respeten las bajas. La plantilla anota en cada contacto si el cliente inició el chat, dio su permiso o pidió que no le escribas más. Además necesitas una base jurídica y un aviso de privacidad conforme al RGPD y a la ley española de protección de datos."
+          },
+          {
+            "question": "¿El agente envía mensajes a mis clientes?",
+            "answer": "No. El prompt pide respuestas redactadas una a una para tu revisión, nada en masa y ningún dato de ejemplo. Cada respuesta la envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Los clientes me piden precio por WhatsApp y pierdo el chat antes de hacer seguimiento. Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
         "questions": [
@@ -2166,6 +2301,51 @@
         "opt_in_field": "Chaque contact indique son accord WhatsApp.",
         "quote_valid_field": "Chaque devis indique sa durée de validité.",
         "enquiries_board_view": "Les demandes s’ouvrent en board par étape."
+      },
+      "page": {
+        "metaTitle": "CRM WhatsApp : modèle pour suivre demandes et devis",
+        "metaDescription": "CRM WhatsApp : chaque conversation devient une demande avec devis et relance datée. Collez le modèle dans votre agent IA. Pas l’API officielle de WhatsApp.",
+        "headline": "Un CRM WhatsApp qui transforme chaque conversation en demande avec une relance datée, construit par votre agent IA",
+        "answer": "Pour suivre vos clients sur WhatsApp, répondez vite, notez chaque conversation comme une demande avec le devis et sa validité, donnez-lui une relance datée et notez quand revenir. Collez ce modèle dans votre agent IA et il construit la liste des demandes dans Customermates, chaque conversation étant reliée à sa demande. Vous validez le plan avant toute construction. Il fonctionne avec des réponses relues une à une, sans diffusion en masse, sans robot ni API officielle.",
+        "routine": {
+          "title": "Le point quotidien sur WhatsApp",
+          "steps": [
+            "Ouvrez la boîte WhatsApp et répondez à chaque nouvelle conversation. Par défaut, accusez réception en une heure environ pendant les heures ouvrées et répondez complètement le jour même.",
+            "Vérifiez que chaque conversation de la veille est dans un seul état : répondue, dotée d’une relance datée ou close avec un motif.",
+            "Relancez les devis deux jours après l’envoi, puis une fois encore quelques jours plus tard. Envoyez ensuite un message de clôture et fixez une date pour revenir.",
+            "Demandez le paiement le lendemain du passage d’une demande en attente de paiement, et confirmez la livraison ou le rendez-vous la veille.",
+            "Regardez les dates pour revenir et les rappels de réachat échus et écrivez à ces clients un par un."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas la plateforme officielle WhatsApp Business. Le compte est relié par QR code : il n’y a donc ni modèles de messages, ni diffusion, ni campagnes, ni séquences, ni chatbots ou flows, ni synchronisation de catalogue, ni fonctions d’entreprise vérifiée.",
+          "Le risque pour le compte est le vôtre. WhatsApp peut limiter ou retirer un compte utilisé d’une façon que sa politique interdit, par exemple en écrivant à beaucoup de monde. Gardez un volume faible, consenti et humain.",
+          "Une conversation n’est pas reliée automatiquement à une demande. Vous ou votre agent la reliez, et les groupes ne se rattachent pas à un client.",
+          "Il n’y a ni devis, ni factures, ni liens de paiement, ni gestion des commandes. Cela reste dans votre outil de comptabilité ou de boutique ; le modèle garde le montant du devis, sa validité et l’étape.",
+          "Relier WhatsApp demande un abonnement qui inclut la messagerie. Sans elle, vous pouvez quand même suivre les demandes à la main."
+        ],
+        "faq": [
+          {
+            "question": "En combien de temps répondre à une demande WhatsApp ?",
+            "answer": "Toutes les sources disent vite et aucune ne donne un chiffre officiel. Une étude sur les demandes en ligne a constaté que la plupart des entreprises répondent bien trop lentement, et le chiffre souvent cité de cinq minutes n’a pas pu être confirmé. Le modèle retient par défaut environ une heure pendant les heures ouvrées pour une première réponse et la réponse complète le jour même. Adaptez-le à votre activité."
+          },
+          {
+            "question": "L’application WhatsApp Business avec ses étiquettes suffit-elle ?",
+            "answer": "Les guides pour petites entreprises recommandent trois à cinq étiquettes comme pipeline, par exemple nouveau client, commande confirmée et en attente de paiement. Leur faiblesse : pas d’historique entre les personnes, pas de dates de relance et rien ne survit au départ d’un collaborateur. Le modèle transforme les étiquettes en étapes et ajoute des dates et un responsable, la conversation restant la preuve."
+          },
+          {
+            "question": "À quelle fréquence relancer un devis ?",
+            "answer": "Sur WhatsApp, le rythme est plus court que par e-mail. Un bon réglage par défaut : deux jours après le devis, une seconde fois quelques jours plus tard, puis un message de clôture disant que le moment ne convient peut-être pas et une date pour revenir environ 90 jours plus tard. Le modèle programme la première relance en action datée ; les délais sont à régler vous-même."
+          },
+          {
+            "question": "Faut-il le consentement du client pour lui écrire sur WhatsApp ?",
+            "answer": "La politique de WhatsApp pour les entreprises demande de ne contacter que les personnes qui ont donné leur numéro et leur accord, et de respecter les refus. Avec l’API, un guide du secteur exige un consentement explicite avant d’envoyer des messages. Le modèle note pour chaque contact si le client a lancé la conversation, a donné son accord ou a demandé l’arrêt. Il vous faut aussi une base légale et une information conforme au RGPD."
+          },
+          {
+            "question": "L’agent envoie-t-il des messages à mes clients ?",
+            "answer": "Non. Le prompt demande des réponses rédigées une à une pour votre relecture, rien en masse et aucun exemple. Vous envoyez chaque réponse vous-même."
+          }
+        ]
       },
       "prompt": {
         "intro": "Mes clients me demandent des prix sur WhatsApp et je perds la conversation avant de relancer. Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
@@ -2467,6 +2647,51 @@
         "quote_valid_field": "Ogni preventivo indica per quanto tempo è valido.",
         "enquiries_board_view": "Le richieste si aprono come board per fase."
       },
+      "page": {
+        "metaTitle": "CRM WhatsApp: modello per richieste e preventivi",
+        "metaDescription": "CRM WhatsApp: ogni chat diventa una richiesta con preventivo e prossimo passo con data. Incolla il modello nel tuo agente IA. Non è l’API ufficiale.",
+        "headline": "Un CRM WhatsApp che trasforma ogni chat in una richiesta con un prossimo passo con data, costruito dal tuo agente IA",
+        "answer": "Per fare follow-up su WhatsApp rispondi in fretta, registra ogni chat come richiesta con il preventivo e la sua validità, dalle un prossimo passo con data e annota quando tornare. Incolla questo modello nel tuo agente IA e lui costruisce l’elenco delle richieste in Customermates, con ogni chat collegata alla sua richiesta. Approvi tu il piano prima che venga costruito qualcosa. Funziona con risposte riviste una per una, senza invii di massa, bot né API ufficiale.",
+        "routine": {
+          "title": "Il controllo quotidiano di WhatsApp",
+          "steps": [
+            "Apri la casella WhatsApp e rispondi a ogni nuova chat. Come impostazione di base, conferma entro circa un’ora nell’orario di lavoro e rispondi per intero lo stesso giorno.",
+            "Verifica che ogni chat dell’ultimo giorno sia in un solo stato: risposta, con un prossimo passo con data oppure chiusa con un motivo.",
+            "Sollecita i preventivi due giorni dopo l’invio e ancora una volta qualche giorno dopo. Poi invia un messaggio di chiusura e fissa una data per tornare.",
+            "Chiedi il pagamento il giorno dopo che una richiesta arriva in attesa di pagamento e conferma la consegna o l’appuntamento il giorno prima.",
+            "Guarda le date per tornare e i promemoria di riordino in scadenza e scrivi a questi clienti uno per uno."
+          ]
+        },
+        "limits": [
+          "Non è la piattaforma ufficiale WhatsApp Business. L’account si collega con un codice QR, quindi non ci sono modelli di messaggio, liste di broadcast, campagne, sequenze, chatbot o flow, né sincronizzazione del catalogo né funzioni per le aziende verificate.",
+          "Il rischio per l’account è tuo. WhatsApp può limitare o rimuovere un account usato in un modo vietato dalle sue regole, per esempio scrivendo a molte persone. Tieni il volume basso, con consenso e umano.",
+          "Una chat non viene collegata automaticamente a una richiesta. La colleghi tu o il tuo agente, e le chat di gruppo non vanno collegate a un cliente.",
+          "Non ci sono preventivi, fatture, link di pagamento né gestione ordini. Restano nel tuo programma di contabilità o nel negozio online; il modello conserva importo, validità e fase.",
+          "Per collegare WhatsApp serve un piano che comprenda la casella di posta. Senza, puoi comunque seguire le richieste a mano."
+        ],
+        "faq": [
+          {
+            "question": "Con quale rapidità rispondere a una richiesta WhatsApp?",
+            "answer": "Tutte le fonti dicono in fretta e nessuna indica un numero ufficiale. Uno studio sulle richieste online ha rilevato che la maggior parte delle aziende risponde troppo lentamente, e la cifra spesso citata di cinque minuti non ha potuto essere confermata. Il modello usa come impostazione di base circa un’ora nell’orario di lavoro per la prima risposta e la risposta completa lo stesso giorno. Adattala alla tua attività."
+          },
+          {
+            "question": "Basta l’app WhatsApp Business con le etichette?",
+            "answer": "Le guide per le piccole imprese consigliano da tre a cinque etichette come pipeline, per esempio nuovo cliente, ordine confermato e in attesa di pagamento. Il limite: nessuna storia tra le persone, nessuna data di sollecito e niente sopravvive all’uscita di un collaboratore. Il modello trasforma le etichette in fasi e aggiunge date e responsabile, mentre la chat resta la prova."
+          },
+          {
+            "question": "Ogni quanto sollecitare un preventivo?",
+            "answer": "Su WhatsApp il ritmo è più breve che per e-mail. Un buon valore di base: due giorni dopo il preventivo, una seconda volta qualche giorno dopo, poi un messaggio di chiusura che dice che forse non è il momento giusto e una data per tornare dopo circa 90 giorni. Il modello programma il primo sollecito come attività con data; le scadenze le regoli tu."
+          },
+          {
+            "question": "Serve il consenso del cliente per scrivergli su WhatsApp?",
+            "answer": "La politica WhatsApp per le aziende dice di contattare solo chi ha dato il proprio numero e il proprio consenso e di rispettare i rifiuti. Il modello annota per ogni contatto se il cliente ha avviato la chat, ha dato il consenso o ha chiesto di smettere. Ti servono anche una base giuridica e un’informativa conformi al GDPR. Tieni fuori dal modello i dati sanitari: la scheda cliente di una clinica non va qui."
+          },
+          {
+            "question": "L’agente invia messaggi ai miei clienti?",
+            "answer": "No. Il prompt chiede risposte scritte una per una per la tua revisione, nulla in massa e nessun dato di esempio. Ogni risposta la invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "I clienti mi chiedono i prezzi su WhatsApp e perdo la chat prima di fare il sollecito. Imposta nel mio spazio di lavoro Customermates il follow-up delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
         "questions": [
@@ -2766,6 +2991,51 @@
         "opt_in_field": "Elk contact legt zijn WhatsApp-toestemming vast.",
         "quote_valid_field": "Elke offerte legt vast hoe lang ze geldig is.",
         "enquiries_board_view": "De aanvragen openen als bord per fase."
+      },
+      "page": {
+        "metaTitle": "WhatsApp CRM: sjabloon voor aanvragen en offertes",
+        "metaDescription": "WhatsApp CRM: elk gesprek wordt een aanvraag met offerte en een volgende stap met datum. Plak het sjabloon in je AI-agent. Niet de officiële WhatsApp-API.",
+        "headline": "Een WhatsApp CRM dat elk gesprek een aanvraag met een volgende stap met datum maakt, gebouwd door je AI-agent",
+        "answer": "Om op WhatsApp op te volgen, antwoord je snel, leg je elk gesprek vast als aanvraag met de offerte en de geldigheid, geef je het een volgende stap met datum en noteer je wanneer je terugkomt. Plak dit sjabloon in je AI-agent en hij bouwt de lijst met aanvragen in Customermates, met elk gesprek gekoppeld aan zijn aanvraag. Jij keurt het plan goed voordat er iets wordt gebouwd. Het werkt met antwoorden die je een voor een controleert, zonder massaberichten, bots of de officiële Business-API.",
+        "routine": {
+          "title": "De dagelijkse WhatsApp-check",
+          "steps": [
+            "Open de WhatsApp-inbox en antwoord op elk nieuw gesprek. Bevestig standaard binnen ongeveer een uur tijdens kantooruren en antwoord dezelfde dag volledig.",
+            "Zorg dat elk gesprek van de afgelopen dag in precies één toestand zit: beantwoord, voorzien van een volgende stap met datum of gesloten met een reden.",
+            "Volg offertes twee dagen na verzending op en nog eens enkele dagen later. Stuur daarna een afsluitend bericht en zet een terugkomdatum.",
+            "Vraag de dag nadat een aanvraag op wacht op betaling komt om betaling en bevestig de levering of afspraak de dag ervoor.",
+            "Bekijk de terugkomdata en herbestelherinneringen die aan de beurt zijn en schrijf die klanten een voor een."
+          ]
+        },
+        "limits": [
+          "Het is niet het officiële WhatsApp Business Platform. Het account wordt met een QR-code gekoppeld, dus er zijn geen berichtsjablonen, broadcasts, campagnes, sequenties, chatbots of flows, geen catalogussynchronisatie en geen functies voor geverifieerde bedrijven.",
+          "Het accountrisico is van jou. WhatsApp kan een account beperken of verwijderen dat wordt gebruikt op een manier die het beleid verbiedt, bijvoorbeeld door veel mensen te berichten. Houd het volume laag, met toestemming en menselijk.",
+          "Een gesprek wordt niet automatisch aan een aanvraag gekoppeld. Jij of je agent koppelt het, en groepsgesprekken horen niet bij een klant.",
+          "Er zijn geen offertes, facturen, betaallinks of orderbeheer. Die blijven in je boekhoudpakket of webshop, het sjabloon bewaart offertebedrag, geldigheid en fase.",
+          "Voor de WhatsApp-koppeling is een abonnement met inbox nodig. Zonder kun je aanvragen nog steeds met de hand bijhouden."
+        ],
+        "faq": [
+          {
+            "question": "Hoe snel moet ik op een WhatsApp-aanvraag antwoorden?",
+            "answer": "Elke bron zegt snel en geen enkele noemt een officieel getal. Onderzoek naar online aanvragen vond dat de meeste bedrijven veel te langzaam reageren, en het vaak aangehaalde getal van vijf minuten kon niet worden bevestigd. Het sjabloon gebruikt standaard ongeveer een uur tijdens kantooruren voor een eerste antwoord en het volledige antwoord dezelfde dag. Pas het aan je bedrijf aan."
+          },
+          {
+            "question": "Is de WhatsApp Business-app met labels genoeg?",
+            "answer": "Gidsen voor kleine bedrijven raden drie tot vijf labels aan als pijplijn, bijvoorbeeld nieuwe klant, bestelling bevestigd en wacht op betaling. De zwakte: geen geschiedenis over personen heen, geen opvolgdata en niets overleeft het vertrek van een medewerker. Het sjabloon maakt van labels fasen en voegt data en een eigenaar toe, terwijl het gesprek het bewijs blijft."
+          },
+          {
+            "question": "Hoe vaak moet ik een offerte opvolgen?",
+            "answer": "Op WhatsApp is het ritme korter dan bij e-mail. Een goede standaard: twee dagen na de offerte, een tweede keer enkele dagen later, daarna een afsluitend bericht dat het misschien niet het goede moment is en een terugkomdatum na ongeveer 90 dagen. Het sjabloon plant de eerste opvolging als actie met een datum; de termijnen stel je zelf in."
+          },
+          {
+            "question": "Heb ik toestemming van de klant nodig om hem op WhatsApp te berichten?",
+            "answer": "Het WhatsApp-beleid voor bedrijven zegt dat je alleen mensen benadert die hun nummer en toestemming hebben gegeven en dat je verzoeken om te stoppen respecteert. Het sjabloon noteert per contact of de klant het gesprek begon, toestemming gaf of vroeg om te stoppen. Je hebt daarnaast een grondslag en een privacyverklaring nodig volgens de AVG."
+          },
+          {
+            "question": "Stuurt de agent berichten naar mijn klanten?",
+            "answer": "Nee. De prompt vraagt om antwoorden die een voor een ter controle worden geschreven, niets in bulk en geen voorbeeldgegevens. Elk antwoord verstuur je zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Klanten vragen via WhatsApp om prijzen en ik raak het gesprek kwijt voordat ik opvolg. Richt in mijn Customermates-werkruimte het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een verwachte nabestelling per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
@@ -3067,6 +3337,51 @@
         "quote_valid_field": "Każda oferta zapisuje, jak długo jest ważna.",
         "enquiries_board_view": "Zapytania otwierają się jako tablica według etapu."
       },
+      "page": {
+        "metaTitle": "CRM do WhatsApp: szablon zapytań i ofert",
+        "metaDescription": "CRM do WhatsApp: każda rozmowa staje się zapytaniem z ofertą i terminem kolejnego kroku. Wklej szablon do agenta AI. To nie jest oficjalne API WhatsApp.",
+        "headline": "CRM do WhatsApp, który zamienia każdą rozmowę w zapytanie z terminem kolejnego kroku, zbudowany przez Twojego agenta AI",
+        "answer": "Żeby pilnować klientów na WhatsAppie, odpowiadaj szybko, zapisuj każdą rozmowę jako zapytanie z ofertą i jej ważnością, nadaj jej następny krok z terminem i zanotuj, kiedy wrócić. Wklej ten szablon do swojego agenta AI, a zbuduje listę zapytań w Customermates, z każdą rozmową powiązaną z jej zapytaniem. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Działa na odpowiedziach sprawdzanych pojedynczo, bez wysyłek masowych, botów i oficjalnego API.",
+        "routine": {
+          "title": "Codzienna kontrola WhatsAppa",
+          "steps": [
+            "Otwórz skrzynkę WhatsApp i odpowiedz na każdą nową rozmowę. Domyślnie potwierdź w ciągu około godziny w godzinach pracy i odpowiedz w pełni tego samego dnia.",
+            "Upewnij się, że każda rozmowa z ostatniego dnia jest w jednym stanie: z odpowiedzią, z następnym krokiem z terminem albo zamknięta z powodem.",
+            "Wróć do ofert dwa dni po wysłaniu i jeszcze raz kilka dni później. Potem wyślij wiadomość kończącą i ustaw datę powrotu.",
+            "Poproś o płatność dzień po tym, jak zapytanie trafi na etap oczekiwania na płatność, i potwierdź dostawę lub wizytę dzień wcześniej.",
+            "Zobacz daty powrotu i przypomnienia o ponownym zamówieniu, które nadeszły, i napisz do tych klientów pojedynczo."
+          ]
+        },
+        "limits": [
+          "To nie jest oficjalna platforma WhatsApp Business. Konto łączy się kodem QR, więc nie ma szablonów wiadomości, wysyłek zbiorczych, kampanii, sekwencji, chatbotów ani przepływów, synchronizacji katalogu ani funkcji zweryfikowanej firmy.",
+          "Ryzyko dla konta jest po Twojej stronie. WhatsApp może ograniczyć lub usunąć konto używane w sposób, którego zabrania jego regulamin, na przykład przez pisanie do wielu osób. Utrzymuj małą skalę, ze zgodą i po ludzku.",
+          "Rozmowa nie łączy się automatycznie z zapytaniem. Łączysz ją Ty lub Twój agent, a rozmów grupowych nie należy łączyć z klientem.",
+          "Nie ma ofert, faktur, linków do płatności ani obsługi zamówień. Zostają w Twoim programie księgowym lub sklepie; szablon zapisuje kwotę oferty, jej ważność i etap.",
+          "Połączenie z WhatsAppem wymaga planu ze skrzynką odbiorczą. Bez niej nadal możesz śledzić zapytania ręcznie."
+        ],
+        "faq": [
+          {
+            "question": "Jak szybko odpowiadać na zapytanie z WhatsAppa?",
+            "answer": "Wszystkie źródła mówią: szybko, a żadne nie podaje oficjalnej liczby. Badanie zapytań online wykazało, że większość firm odpowiada zdecydowanie za wolno, a często cytowanych pięciu minut nie udało się potwierdzić. Szablon przyjmuje domyślnie około godziny w godzinach pracy na pierwszą odpowiedź i pełną odpowiedź tego samego dnia. Dostosuj to do swojej firmy."
+          },
+          {
+            "question": "Czy wystarczy aplikacja WhatsApp Business z etykietami?",
+            "answer": "Poradniki dla małych firm zalecają od trzech do pięciu etykiet jako lejek, na przykład nowy klient, zamówienie potwierdzone i oczekuje na płatność. Słabość: brak historii między osobami, brak dat przypomnień i nic nie przetrwa odejścia pracownika. Szablon zamienia etykiety w etapy i dodaje terminy oraz osobę odpowiedzialną, a rozmowa pozostaje dowodem."
+          },
+          {
+            "question": "Jak często wracać do oferty?",
+            "answer": "Na WhatsAppie rytm jest krótszy niż w e-mailu. Dobra wartość domyślna: dwa dni po ofercie, drugi raz kilka dni później, potem wiadomość kończąca, że może to nie jest dobry moment, i data powrotu po około 90 dniach. Szablon planuje pierwsze przypomnienie jako zadanie z terminem; odstępy ustawiasz sam."
+          },
+          {
+            "question": "Czy potrzebuję zgody klienta, żeby pisać do niego na WhatsAppie?",
+            "answer": "Polityka WhatsApp dla firm mówi, by kontaktować się tylko z osobami, które podały numer i zgodę, i uszanować prośbę o zaprzestanie. Szablon zapisuje przy każdym kontakcie, czy klient sam zaczął rozmowę, wyraził zgodę, czy poprosił o zaprzestanie. Potrzebujesz też podstawy prawnej i informacji zgodnej z RODO."
+          },
+          {
+            "question": "Czy agent wysyła wiadomości do moich klientów?",
+            "answer": "Nie. Prompt prosi o odpowiedzi pisane pojedynczo do Twojego sprawdzenia, niczego masowo i bez przykładowych danych. Każdą odpowiedź wysyłasz sam."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Klienci pytają o ceny na WhatsAppie, a ja gubię rozmowę, zanim zdążę do niej wrócić. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
         "questions": [
@@ -3366,6 +3681,51 @@
         "opt_in_field": "Todo contato registra o consentimento do WhatsApp.",
         "quote_valid_field": "Todo orçamento registra por quanto tempo é válido.",
         "enquiries_board_view": "Os atendimentos abrem como quadro por etapa."
+      },
+      "page": {
+        "metaTitle": "CRM WhatsApp: modelo para atendimentos e orçamentos",
+        "metaDescription": "CRM WhatsApp: cada conversa vira um atendimento com orçamento e próximo contato com data. Cole o modelo no seu agente de IA. Não usa a API oficial.",
+        "headline": "Um CRM WhatsApp que transforma cada conversa em atendimento com próximo contato com data, montado pelo seu agente de IA",
+        "answer": "Para acompanhar clientes no WhatsApp, responda rápido, registre cada conversa como um atendimento com o orçamento e sua validade, dê a ele um próximo contato com data e anote quando voltar. Cole este modelo no seu agente de IA e ele monta a lista de atendimentos no Customermates, com cada conversa ligada ao seu atendimento. Você aprova o plano antes de qualquer coisa ser construída. Funciona com respostas revisadas uma a uma, sem disparos em massa, bots nem API oficial.",
+        "routine": {
+          "title": "A conferência diária do WhatsApp",
+          "steps": [
+            "Abra a caixa do WhatsApp e responda a cada conversa nova. Como padrão, confirme o recebimento em cerca de uma hora no horário comercial e responda por completo no mesmo dia.",
+            "Confira se cada conversa do último dia está em um único estado: respondida, com próximo contato com data ou encerrada com um motivo.",
+            "Faça o retorno dos orçamentos dois dias depois do envio e mais uma vez alguns dias depois. Em seguida envie uma mensagem de encerramento e defina uma data para voltar.",
+            "Peça o pagamento no dia seguinte a um atendimento chegar a aguardando pagamento e confirme a entrega ou o horário na véspera.",
+            "Olhe as datas para voltar e os lembretes de recompra que venceram e escreva a esses clientes um por um."
+          ]
+        },
+        "limits": [
+          "Não é a plataforma oficial WhatsApp Business. A conta é ligada por QR code, então não há modelos de mensagem, listas de transmissão, campanhas, sequências, chatbots ou flows, nem sincronização de catálogo nem recursos de empresa verificada.",
+          "O risco da conta é seu. O WhatsApp pode limitar ou remover uma conta usada de um modo que a política dele proíbe, por exemplo escrevendo para muita gente. Mantenha o volume baixo, com consentimento e humano.",
+          "Uma conversa não é ligada automaticamente a um atendimento. Você ou seu agente a ligam, e conversas em grupo não devem ser ligadas a um cliente.",
+          "Não há orçamentos, notas fiscais, links de pagamento, Pix nem gestão de pedidos. Isso fica no seu programa de contabilidade ou na sua loja; o modelo guarda o valor do orçamento, a validade e a etapa.",
+          "Ligar o WhatsApp exige um plano que inclua a caixa de entrada. Sem ela, você ainda pode acompanhar os atendimentos à mão."
+        ],
+        "faq": [
+          {
+            "question": "Em quanto tempo devo responder a um atendimento no WhatsApp?",
+            "answer": "Todas as fontes dizem rápido e nenhuma dá um número oficial. Um estudo sobre contatos online constatou que a maioria das empresas responde devagar demais, e o número tão citado de cinco minutos não pôde ser confirmado. O modelo usa como padrão cerca de uma hora no horário comercial para uma primeira resposta e a resposta completa no mesmo dia. Ajuste ao seu negócio."
+          },
+          {
+            "question": "Basta o WhatsApp Business com etiquetas e lista de transmissão?",
+            "answer": "Guias para pequenos negócios recomendam de três a cinco etiquetas como funil, por exemplo novo cliente, pedido confirmado e aguardando pagamento. O ponto fraco: não há histórico entre pessoas, não há datas de retorno e nada sobrevive à saída de um colaborador. O modelo transforma as etiquetas em etapas e acrescenta datas e responsável, e a conversa continua sendo a prova. Ele não faz listas de transmissão."
+          },
+          {
+            "question": "Com que frequência devo dar retorno a um orçamento?",
+            "answer": "No WhatsApp o ritmo é mais curto do que por e-mail. Um bom padrão: dois dias depois do orçamento, mais uma vez alguns dias depois, e então uma mensagem de encerramento dizendo que talvez não seja o momento e uma data para voltar cerca de 90 dias depois. O modelo agenda o primeiro retorno como tarefa com data; os intervalos você ajusta."
+          },
+          {
+            "question": "Preciso do consentimento do cliente para escrever no WhatsApp?",
+            "answer": "A política do WhatsApp para empresas diz para contatar só quem deu o número e a permissão e respeitar os pedidos de parar. O modelo anota em cada contato se o cliente iniciou a conversa, deu consentimento ou pediu para parar. Você também precisa de uma base legal e de um aviso de privacidade conforme a LGPD."
+          },
+          {
+            "question": "O agente envia mensagens para os meus clientes?",
+            "answer": "Não. O prompt pede respostas escritas uma a uma para a sua revisão, nada em massa e nenhum dado de exemplo. Cada resposta é enviada por você."
+          }
+        ]
       },
       "prompt": {
         "intro": "Meus clientes pedem preço no WhatsApp e eu perco a conversa antes de fazer o retorno. Configure no meu espaço de trabalho do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",

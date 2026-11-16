@@ -117,6 +117,51 @@
     "warranty_field": "Każde zlecenie zapisuje, do kiedy trwa rękojmia.",
     "jobs_board_view": "Zlecenia otwierają się jako tablica według etapu."
   },
+  "page": {
+    "metaTitle": "Program dla firm budowlanych: szablon ofert i zleceń",
+    "metaDescription": "Program dla firm budowlanych i usługowych: wracaj do każdej oferty, prowadź zlecenie od oględzin do zapłaty, pilnuj rękojmi. Wklej szablon do agenta AI.",
+    "headline": "Program dla firm budowlanych, który wraca do każdej oferty i pamięta o rękojmi, zbudowany przez Twojego agenta AI",
+    "answer": "Program dla małej firmy remontowej lub instalacyjnej prowadzi każde zlecenie od pierwszego telefonu do ostatniej faktury: oględziny, ofertę i wracanie do niej, prace od zaplanowanych do opłaconych oraz ważne terminy, takie jak ważność oferty, odstąpienie od umowy, rękojmia i odnowienie serwisu. Wklej ten szablon do swojego agenta AI, a zbuduje lejek w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Terminy prawne to pola, które potwierdzasz sam, a nie porada prawna.",
+    "routine": {
+      "title": "Cotygodniowy przegląd ofert i zleceń",
+      "steps": [
+        "Oddzwoń do każdego nowego zapytania tego samego dnia i wyślij ofertę w ciągu dwóch dni po oględzinach.",
+        "Wróć do ofert wysłanych trzy dni temu i do tych, które wygasają za trzy dni. Po drugiej próbie zdecyduj: zostawić ofertę otwartą albo zamknąć ją z powodem.",
+        "Sprawdź zlecenia z tego tygodnia i potwierdź termin z każdym klientem. Przy każdym zakończonym zleceniu zapisz odbiór i poproś księgowość o fakturę.",
+        "Zobacz zafakturowane zlecenia po terminie płatności i sprawdź, czy zostały opłacone.",
+        "Spójrz 30 dni do przodu: rękojmie, które się kończą, wizyty serwisowe do umówienia i umowy serwisowe do odnowienia."
+      ]
+    },
+    "limits": [
+      "To nie jest narzędzie do wycen, kosztorysów ani fakturowania. Pozycje dają wartość zlecenia, a nie dokument z wierszami VAT, numeracją i danymi wymaganymi prawem. Oferty i faktury trzymaj w swoim programie do wycen lub księgowości.",
+      "To nie jest narzędzie do podpisu elektronicznego ani płatności, ani system do dysponowania ekipami, tras, GPS czy rejestracji czasu pracy.",
+      "To nie jest natywna aplikacja mobilna dla ekipy w terenie. Aplikacja webowa działa na telefonie, ale osobnej aplikacji nie ma.",
+      "Nie wystawia dokumentów odbiorczych ani zaświadczeń. Protokoły odbioru zostają w Twoim narzędziu do dokumentów, a CRM przechowuje datę i numer.",
+      "SMS nie jest kanałem: kanałami są WhatsApp, e-mail i LinkedIn. I nie jest autorytetem prawnym w sprawie odstąpienia, rękojmi czy ważności oferty."
+    ],
+    "faq": [
+      {
+        "question": "Jak szybko firma remontowa powinna wysłać ofertę?",
+        "answer": "Jeden poradnik dla dekarzy sugeruje wycenę w ciągu 24-48 godzin od oględzin i oddzwonienie na zapytanie z internetu w kilka minut. Jobber zaleca pierwsze przypomnienie dwa do trzech dni po ofercie i drugie kilka dni później, a potem pójście dalej. Szablon planuje to jako zadania z terminem; odstępy ustawiasz sam."
+      },
+      {
+        "question": "Jak długo oferta powinna być ważna?",
+        "answer": "Nie ma jednej reguły. Holenderskie warunki dla konsumentów przewidują 30 dni, a we Francji często trzy miesiące. Ustaw ważność przy każdej ofercie: szablon zapisuje datę ważności i tworzy przypomnienie trzy dni przed jej końcem. To nie jest porada prawna."
+      },
+      {
+        "question": "Czym różni się rękojmia od gwarancji i jak je śledzić?",
+        "answer": "Rękojmia wynika z przepisów, a gwarancja z umowy lub oświadczenia wykonawcy, i źródła podają różne okresy, więc sprawdź je w swojej umowie. Odbiór (częściowy lub końcowy) zwykle rozpoczyna bieg tych terminów. Szablon przechowuje datę końca rękojmi, którą ustawiasz z podpisanej umowy, i nigdy jej nie wylicza."
+      },
+      {
+        "question": "Czy klient może odstąpić od umowy zawartej w jego domu?",
+        "answer": "Zależy od kraju i sytuacji: w Niemczech konsument ma na przykład 14 dni na umowę zawartą poza lokalem przedsiębiorstwa, a termin biegnie dopiero po prawidłowym pouczeniu. Wyjątek dotyczy pilnych napraw, o które klient sam prosi. Szablon wyznacza koniec 14 dni, gdy zlecenie zostaje przyjęte; potwierdź zasady obowiązujące w Polsce i swoje pouczenie klienta."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Prowadzę małą firmę remontową lub instalacyjną: oferty wychodzą bez przypomnienia, a zlecenia, wizyty i terminy rękojmi mam w głowie. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla firmy remontowej lub instalacyjnej: klienci, obiekty, zlecenia z etapem sprzedaży i statusem prac, ważność oferty, terminy oględzin i prac, koniec rękojmi i umowy serwisowe, z zaplanowanymi kolejnymi krokami.",
     "questions": [

@@ -90,8 +90,56 @@
     "start_field": "Cada cita indica cuándo comienza.",
     "appointments_board_view": "Las citas se abren como tablero por estado."
   },
+  "page": {
+    "metaTitle": "Sistema de reservas: citas con recordatorios y seguimiento",
+    "metaDescription": "Sistema de reservas de citas que tu agente de IA crea en tu CRM: tipos de cita, un estado por reserva, recordatorios y el resultado de cada llamada.",
+    "headline": "Un sistema de reservas que anota el resultado de cada cita, creado por tu agente de IA",
+    "answer": "Un sistema de reservas lleva una llamada, una consulta o una visita desde la solicitud hasta una hora confirmada y anota en qué quedó. Esta plantilla configura tipos de cita con duración, margen y antelación mínima, un estado por reserva, recordatorios antes y un resultado después. Pégala en tu agente de IA y él lo construye todo en Customermates; tú apruebas el plan antes de que se cree nada.",
+    "routine": {
+      "title": "La revisión semanal de citas",
+      "steps": [
+        "Repasa las citas de la semana pasada y anota un resultado en cada cita celebrada: cualificada, segunda llamada, falta una propuesta o no encaja.",
+        "Ofrece una nueva hora, sin reproches, a quienes no se presentaron o cancelaron.",
+        "Responde a las solicitudes que llevan más de un día esperando y revisa los próximos 14 días: huecos y recordatorios por enviar. Por defecto, un recordatorio 3 días antes y otro 1 día antes.",
+        "Cambia una sola cosa: un margen, una antelación mínima o un plazo de cancelación. Al inicio de cada trimestre, revisa disponibilidad y normas."
+      ]
+    },
+    "limits": [
+      "Reserva solo el tiempo de personas. Salas, equipos, estancias de hotel, clases con lista de espera y eventos con entradas necesitan una herramienta pensada para ello.",
+      "No es un sistema de citas médicas. Deja fuera del formulario los diagnósticos y el motivo de una cita médica, terapéutica o legal, y pregunta mejor de qué quiere hablar la persona.",
+      "No cobra pagos ni aloja llamadas. El evento del calendario lleva el enlace de tu herramienta de videollamada, y un posible anticipo se queda en tu herramienta de pago.",
+      "Las páginas de reserva públicas y la escritura de citas en tu calendario de Google o Microsoft necesitan Customermates Cloud con el plan Pro o superior, no instalaciones autoalojadas. Sin ellas, un formulario público recibe las solicitudes y tú introduces aquí la hora confirmada.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar. Customermates no envía SMS."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe incluir un sistema de reservas?",
+        "answer": "Cada tipo de cita con su duración, margen, antelación mínima y con cuánta antelación se puede reservar; un formulario breve con nombre, contacto y solo las preguntas que cambian la cita; una confirmación y recordatorios; y un sitio donde anotar si la cita se celebró y qué vino después."
+      },
+      {
+        "question": "¿Cuántos recordatorios reducen las ausencias?",
+        "answer": "En un ensayo del ámbito sanitario, los recordatorios 3 días y 1 día antes dejaron un 4,4 % de citas perdidas, frente al 5,8 % con solo el recordatorio de 3 días y el 5,3 % con solo el de 1 día. Una revisión de ensayos aleatorizados no halló diferencias significativas entre recordatorios enviados 24, 48 o 72 horas antes. Los datos proceden de la sanidad: toma 3 días y 1 día como punto de partida."
+      },
+      {
+        "question": "¿Qué no debe preguntar nunca un formulario de reserva?",
+        "answer": "Limítate a lo que necesita la cita: nombre, correo, opcionalmente teléfono y una o dos preguntas que cambien la cita. No pidas diagnósticos, detalles de un caso, datos de tarjetas de pago, documentos de identidad ni nada que revele salud, religión u orientación. Las respuestas de texto libre se guardan como datos en la ficha: mantén el formulario corto."
+      },
+      {
+        "question": "¿Puedo recibir reservas sin una página de reservas pública?",
+        "answer": "Sí. Un formulario público funciona en todos los planes, con un límite mensual y una insignia en Free: recibe la solicitud y crea la cita, vinculada a una persona encontrada o creada por su correo. Cuando alguien escribe por correo o WhatsApp, tu agente propone horas libres de tu calendario conectado y redacta la respuesta; tú la revisas y la envías. Con Customermates Cloud y el plan Pro o superior, programar una reunión desde un registro escribe el evento en tu calendario de Google o Microsoft, y una página de reservas pública deja que las personas elijan ellas mismas una hora libre."
+      },
+      {
+        "question": "¿Debo cobrar un anticipo o una penalización por no presentarse?",
+        "answer": "Los pagos se quedan en tu herramienta de pago. La plantilla registra el precio de cada tipo de cita y contiene una página con la política de cancelación. No hemos encontrado ningún estudio que demuestre que los anticipos o las penalizaciones reduzcan las ausencias, así que la plantilla no lo afirma."
+      },
+      {
+        "question": "¿El agente escribe a mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Atiendo llamadas, consultas y visitas y pierdo la cuenta de quién tiene cita, quién la ha confirmado y en qué quedó. Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
+    "intro":"Atiendo llamadas, consultas y visitas y pierdo la cuenta de quién tiene cita, quién la ha confirmado y en qué quedó. Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
     "questions": [
       "¿Qué tipos de cita ofreces y cuánto dura cada una?",
       "¿Cuánta antelación necesitas y con cuánto tiempo se puede reservar?",

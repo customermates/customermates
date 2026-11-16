@@ -136,6 +136,56 @@
     "renewal_field": "Elk lidmaatschap heeft een verlengdatum.",
     "receipt_field": "Elke gift toont of een donatiebewijs nodig is."
   },
+  "page": {
+    "metaTitle": "Ledenadministratie: leden, giften en verlengingen op orde",
+    "metaDescription": "Ledenadministratie zonder losse lijsten: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt één register voor leden, giften en verlengingen.",
+    "headline": "Een ledenadministratie die elke verlenging en elk bedankje onthoudt: het register dat je AI-agent voor je bouwt",
+    "answer": "Een ledenadministratie begint met één register in plaats van losse lijsten bij verschillende vrijwilligers: supporters, lidmaatschappen met contributie en een verlengdatum, giften met de status van bedankje en bewijs, en een pijplijn voor grote giften en subsidies. Plak dit sjabloon in je AI-agent en die bouwt het register in Customermates. Je keurt het plan goed voordat er iets wordt gebouwd. Het int geen contributie en geeft geen donatiebewijzen af, maar laat zien welke aan de beurt zijn.",
+    "routine": {
+      "title": "De wekelijkse routine voor leden en giften",
+      "steps": [
+        "Bedank elke nieuwe gift binnen twee dagen, met een telefoontje of een persoonlijk briefje.",
+        "Heet de leden welkom van wie de aanmelding deze week binnenkwam en stuur het verlengingsbericht naar lidmaatschappen die over ongeveer 60 dagen verlengen.",
+        "Herinner leden met open contributie 30 dagen voor de verlenging en maan de contributie aan van lidmaatschappen die onbetaald zijn verlopen.",
+        "Bekijk de giften waarvoor een donatiebewijs moet worden afgegeven en geef die af met je boekhoudprogramma, in het officiële formaat van je land.",
+        "Loop de pijplijn van grote giften en subsidies langs: de volgende stap per kans en de rapportagedata die subsidiegevers verwachten."
+      ]
+    },
+    "limits": [
+      "Het int geen contributie, voert geen incasso's uit en doet geen boekhouding. Je boekhoudprogramma of verenigingsprogramma houdt het grootboek bij; hier bewaar je de status van de contributie, niet het geld.",
+      "Het geeft geen donatiebewijzen af. Die maak je in het formaat dat je belastingdienst vraagt, met je boekhoudprogramma; het register houdt alleen bij dat er een moet komen.",
+      "Het is geen pagina voor online doneren. Giften worden binnengehaald via een betaalplatform en je legt de gift hier vast.",
+      "Voor kerken dekt het opvolging van bezoekers en lidmaatschap, niet inchecken, roosters, aanwezigheid of giftenoverzichten. Pastorale notities, biecht en meldingen over veiligheid horen hier nooit.",
+      "Houd gezondheidsgegevens, gegevens van kinderen, bankgegevens en alles wat het lidmaatschap niet nodig heeft buiten het register. Customermates heeft geen rechten op veldniveau.",
+      "Het doet geen vermogensscreening van donateurs, geen terugkerende giften met herhaalde incasso en geen massanieuwsbrieven. Het is het register van een kleine organisatie, geen platform voor donateursanalyse."
+    ],
+    "faq": [
+      {
+        "question": "Is contributie van een lid een gift voor de belasting?",
+        "answer": "Meestal niet. In Frankrijk geeft een bijdrage die toegang tot activiteiten geeft geen recht op een fiscaal bewijs, alleen een gift zonder tegenprestatie aan een erkende instelling. In Duitsland geven alleen fiscaal begunstigde organisaties een donatiebewijs in het officiële model af, en de bijdragen van de meeste sportclubs zijn niet aftrekbaar. Regels verschillen per land, dus vraag het je boekhouder of de belastingdienst. Het register houdt de status van het bewijs bij en geeft er zelf geen af."
+      },
+      {
+        "question": "Hoe snel moet ik een donateur bedanken?",
+        "answer": "Binnen 48 uur is het gebruikelijke advies in fondsenwervingsgidsen, het liefst met een telefoontje of een persoonlijk briefje. Het sjabloon maakt een bedanktaak aan zodra een gift is vastgelegd, zodat het bedankje niet afhangt van het geheugen van één vrijwilliger."
+      },
+      {
+        "question": "Wanneer moet ik leden herinneren aan de verlenging?",
+        "answer": "Gidsen voor verenigingen stellen meerdere contactmomenten voor vóór de datum, vaak vanaf ongeveer 90 dagen tot de dag zelf, en één erna. Het sjabloon maakt 60 dagen voor de verlenging van een actief lidmaatschap een taak om het verlengingsbericht te sturen, 30 dagen ervoor een taak om leden met open contributie te herinneren en op de dag dat een lidmaatschap onbetaald verloopt een taak om de contributie aan te manen."
+      },
+      {
+        "question": "Welke gegevens van leden en donateurs mag ik bewaren?",
+        "answer": "Alleen wat het lidmaatschap of de gift nodig heeft. Volgens de KVK mag informatie die niet nodig is voor het lidmaatschap niet worden vastgelegd, en voor foto's is toestemming nodig. Het aanmeldformulier moet laten zien welke velden verplicht en welke vrijwillig zijn. Gezondheidsgegevens, gegevens van kinderen en bankgegevens blijven buiten het register. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Is het geschikt voor een kerk of club?",
+        "answer": "Ja voor de registerkant: supporters, lidmaatschappen, giften en opvolging van leden en bezoekers op één plek. Het vervangt geen kerkbeheerprogramma voor inchecken, roosters of giftenoverzichten, en geen clubprogramma voor incasso en het innen van contributie."
+      },
+      {
+        "question": "Mailt de agent mijn leden en donateurs?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en jij verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Onze leden, donateurs en vrijwilligers staan verspreid over meerdere lijsten en verlengingen en bedankjes worden gemist. Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
     "questions": [

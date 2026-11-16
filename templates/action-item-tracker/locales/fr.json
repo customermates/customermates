@@ -103,6 +103,46 @@
     "due_field": "Chaque action a un pilote et une échéance.",
     "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
   },
+  "page": {
+    "metaTitle": "Tableau de suivi des actions : un pilote et une échéance",
+    "metaDescription": "Tableau de suivi des actions à coller dans Claude, ChatGPT ou Codex : un pilote, une échéance et une revue hebdomadaire pour chaque action décidée en réunion.",
+    "headline": "Ce qui est décidé est fait : un plan d’action que votre agent IA construit dans votre CRM",
+    "answer": "Un tableau de suivi des actions est une liste où chaque action a un pilote, une échéance et un statut, reliée à la réunion ou à la décision dont elle vient, pour que ce qui a été décidé soit réellement fait. Collez ce modèle dans votre agent IA : il construit la liste dans Customermates, avec les réunions, les décisions, les projets, un relevé de décisions et une revue hebdomadaire de ce qui est ouvert, en retard ou bloqué. Vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La revue hebdomadaire des actions en 15 minutes",
+      "steps": [
+        "Ne regardez que les exceptions : les actions bloquées, celles qui dépassent leur échéance et celles sans prochaine étape.",
+        "Pour chaque action bloquée, nommez qui peut la débloquer et fixez une date pour la reprendre.",
+        "Pour chaque action en retard, décidez avec son pilote : nouvelle échéance, passage à quelqu’un d’autre ou annulation.",
+        "Confirmez les changements de date en réunion, pas après, et ne fermez une action qu’avec une preuve : un lien, un fichier ou un message."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas une suite de gestion de projet. Il n’y a ni dépendances entre tâches, ni vue chronologique ou Gantt, ni sprints, ni suivi du temps. Ces besoins restent dans votre outil de projet.",
+      "Ce n’est pas un système qualité validé. Les actions correctives réglementées, par exemple pour les dispositifs médicaux ou l’aéronautique, exigent des signatures électroniques et une piste d’audit validée. Le modèle offre un suivi clair et une vérification d’efficacité, rien de plus.",
+      "Gardez-en à l’écart les plans de soins et toute donnée de santé.",
+      "Personne n’est rappelé automatiquement. La revue hebdomadaire et le tableau de bord montrent ce qui est dû ; les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers, et vous décidez lesquels activer.",
+      "Une vue ne peut pas afficher en même temps les actions en retard et les actions bloquées ; le modèle garde donc une vue pour chacune."
+    ],
+    "faq": [
+      {
+        "question": "Que doit contenir une action dans un tableau de suivi ?",
+        "answer": "Un titre qui commence par un verbe, de moins de dix mots, un pilote nommé, une date précise plutôt qu’une fenêtre comme la semaine prochaine et un statut. Les praticiens ajoutent une priorité et le lien avec la réunion ou la décision d’où vient l’action. Le modèle réunit tout cela dans une seule liste : une action sans pilote ni date se remarque tout de suite."
+      },
+      {
+        "question": "Quels statuts donner à une action ?",
+        "answer": "Les guides de praticiens proposent À faire, En cours, Bloqué, En revue et Fait, certains ajoutent Annulé. Ce modèle en compte six : À faire, En cours, Bloquée, En revue, Faite et Annulée. On escalade au blocage, pas à l’échéance : une action bloquée nomme qui peut la débloquer et reçoit une date de relance."
+      },
+      {
+        "question": "Quand une action est-elle vraiment fermée ?",
+        "answer": "Quand il y a une preuve, pas seulement le mot fait : un lien, un fichier ou un message, et la date réelle de fin. Une action corrective ou préventive n’est fermée qu’une fois son efficacité vérifiée ; le modèle crée cette vérification 30 jours après la fin de l’action, et vous pouvez changer le délai."
+      },
+      {
+        "question": "L’agent envoie-t-il les comptes rendus ou les rappels ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Les actions décidées en réunion nous échappent et je ne sais plus qui doit faire quoi pour quand. Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
     "questions": [

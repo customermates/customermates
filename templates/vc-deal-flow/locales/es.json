@@ -117,6 +117,52 @@
     "pass_reason_field": "Cada operación anota por qué se rechazó.",
     "board_view": "Las operaciones se abren como tablero por etapa."
   },
+  "page": {
+    "metaTitle": "CRM para inversores: plantilla de dealflow con rechazos",
+    "metaDescription": "Un CRM para tu dealflow: quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Pega la plantilla en tu agente de IA y la monta.",
+    "headline": "Un CRM para inversores que recuerda quién presentó una operación y cuándo volver a mirarla, montado por tu agente de IA",
+    "answer": "El dealflow es un embudo que descarta casi todo, así que el valor está en la relación que lo rodea: quién presentó una startup, por qué la rechazaste y cuándo volver a mirarla. Pega esta plantilla en tu agente de IA y él monta en Customermates una lista de operaciones en ocho etapas, de la detección al cierre o al rechazo, con startups, inversores y seguimientos con fecha. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión semanal del pipeline",
+      "steps": [
+        "Abre el tablero de operaciones y anota qué es nuevo esta semana y qué se ha movido.",
+        "Mira las operaciones que llevan 14 días en filtrado y decide: retomar el contacto o rechazar.",
+        "En cada rechazo anota el motivo y una fecha para retomar, y envía una nota de rechazo cuando convenga.",
+        "Tras una primera reunión envía un seguimiento con los próximos pasos y, cuando se acuerda un term sheet, inicia la lista de la due diligence.",
+        "Agradece a quienes presentaron las operaciones nuevas y reclama cualquier presentación pedida hace una semana que no se haya hecho.",
+        "Mira las operaciones rechazadas cuya fecha para retomar ha llegado y vuelve a revisarlas con el contexto anterior."
+      ]
+    },
+    "limits": [
+      "No hay puntuación de relaciones ni enriquecimiento de empresas. En Customermates Cloud con el plan Pro o superior, los correos con la dirección de los datos de contacto de un registro aparecen en ese registro y desde él se pueden programar reuniones en tu calendario; un agente trabaja por MCP.",
+      "No es un portal para los LP, una cap table ni una contabilidad de fondos. Herramientas como Carta o Dynamo hacen esos trabajos.",
+      "No es una base de datos de operaciones ni una fuente de datos de mercado como PitchBook, Dealroom o Crunchbase.",
+      "No es una data room ni una herramienta de firma electrónica. Enlaza en su lugar tu data room, por ejemplo DocSend o Papermark.",
+      "No redacta documentos legales ni decide sobre KYC, prevención del blanqueo o control de inversiones extranjeras. Eso corresponde a asesores y cumplimiento; la plantilla guarda fechas y enlaces."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué etapas tiene un dealflow?",
+        "answer": "Los profesionales coinciden en siete fases: sourcing, filtrado, primera reunión, due diligence, comité de inversión, term sheet y cierre. La plantilla usa ocho etapas: Detectada, Filtrado, Primera reunión, Comité de inversión, Due diligence, Term sheet, Cerrada y Rechazada. Los inversores financian menos del 1 % de las empresas que ven."
+      },
+      {
+        "question": "¿Por qué anotar el motivo de un rechazo?",
+        "answer": "Un rechazo con motivo permite volver a mirar la empresa más adelante con contexto. La plantilla guarda un motivo de rechazo y una fecha para retomar en cada operación y crea una tarea de revisión en esa fecha. Sin ese registro, la misma operación se estudia desde cero la próxima vez."
+      },
+      {
+        "question": "¿Puede usarla un fundador para seguir a sus inversores?",
+        "answer": "La estructura encaja: una operación por cada conversación con un inversor. Sigue a cada inversor como persona, no solo al fondo, y mantén al día a los interesados cada cuatro a seis semanas o cada mes. Los campos están escritos desde el punto de vista de un inversor: pide a tu agente que cambie el nombre de los que no encajen, como Nuestro papel y Encaje con la tesis."
+      },
+      {
+        "question": "¿Cuándo conviene pasar a Affinity o a Attio?",
+        "answer": "Cuando necesites puntuación de relaciones, clasificación de caminos de presentación, enriquecimiento o informes para los LP. Las conversaciones de correo ya aparecen en el registro cuya dirección coincide (Customermates Cloud, plan Pro o superior), pero nada puntúa relaciones ni clasifica caminos. Para un fondo pequeño o un business angel que trabaja con una lista y una revisión semanal, esta plantilla basta."
+      },
+      {
+        "question": "¿El agente escribe a startups o inversores?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Reviso muchas startups y se me olvida quién me las presentó, por qué las rechacé y cuándo quería volver a mirarlas. Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
     "questions": [

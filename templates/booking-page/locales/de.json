@@ -90,8 +90,56 @@
     "start_field": "Jeder Termin hält fest, wann er beginnt.",
     "appointments_board_view": "Die Termine öffnen sich als Board nach Status."
   },
+  "page": {
+    "metaTitle": "Calendly Alternative: Terminbuchung mit Nachfassen im CRM",
+    "metaDescription": "Calendly Alternative für Ihre Terminbuchung: Ihr KI-Agent baut im CRM Terminarten, Status je Buchung, Erinnerungen und das Ergebnis nach jedem Gespräch auf.",
+    "headline": "Calendly Alternative für die Terminbuchung: Ihr KI-Agent baut sie in Ihrem CRM auf",
+    "answer": "Eine Terminbuchung bringt ein Gespräch, eine Beratung oder eine Besichtigung von der Anfrage zu einem bestätigten Termin und hält fest, was daraus geworden ist. Diese Vorlage richtet Terminarten mit Dauer, Pufferzeit und Vorlaufzeit ein, dazu einen Status je Buchung, Erinnerungen davor und ein Ergebnis danach. Fügen Sie sie in Ihren KI-Agenten ein, und er baut alles in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Terminübersicht",
+      "steps": [
+        "Gehen Sie die Termine der Vorwoche durch und tragen Sie bei jedem stattgefundenen Termin ein Ergebnis ein: qualifiziert, zweites Gespräch, Angebot nötig oder passt nicht.",
+        "Bieten Sie allen, die nicht erschienen sind oder abgesagt haben, ohne Vorwurf einen neuen Termin an.",
+        "Beantworten Sie Anfragen, die länger als einen Tag warten, und prüfen Sie die nächsten 14 Tage auf Lücken und auf noch fehlende Erinnerungen. Standard ist eine Erinnerung 3 Tage und eine 1 Tag vorher.",
+        "Ändern Sie eine Sache: Pufferzeit, Vorlaufzeit oder Absagefrist. Zu Beginn jedes Quartals prüfen Sie Verfügbarkeit und Regeln."
+      ]
+    },
+    "limits": [
+      "Es bucht nur die Zeit von Personen. Räume, Geräte, Hotelübernachtungen, Kurse mit Warteliste und Ticketing für Veranstaltungen brauchen ein dafür gebautes Werkzeug.",
+      "Es ist kein Terminsystem für Arztpraxen. Diagnosen und der Grund eines medizinischen, therapeutischen oder rechtlichen Termins gehören nicht ins Buchungsformular; fragen Sie stattdessen, worüber die Person sprechen möchte.",
+      "Es nimmt keine Zahlungen an und hostet keine Gespräche. Der Kalendertermin trägt den Link Ihres Videowerkzeugs, eine Anzahlung bleibt in Ihrem Zahlungsdienst.",
+      "Öffentliche Buchungsseiten und das Schreiben von Terminen in Ihren Google- oder Microsoft-Kalender brauchen Customermates Cloud im Tarif Pro oder höher; selbst gehostet gibt es sie nicht. Ohne sie nimmt ein öffentliches Formular Anfragen entgegen, und Sie tragen die bestätigte Zeit hier ein.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten. Customermates versendet keine SMS."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in eine Terminbuchung?",
+        "answer": "Jede Terminart mit Dauer, Pufferzeit, Vorlaufzeit und der Frist, wie weit im Voraus gebucht werden kann; eine kurze Abfrage mit Name, Kontakt und nur den Fragen, die den Termin verändern; eine Bestätigung samt Erinnerungen; und ein Ort, an dem Sie festhalten, ob der Termin stattfand und was folgte."
+      },
+      {
+        "question": "Wie viele Erinnerungen verringern das Nichterscheinen?",
+        "answer": "In einer Studie aus dem Gesundheitswesen blieben bei Erinnerungen 3 Tage und 1 Tag vorher 4,4 Prozent der Termine ungenutzt, gegenüber 5,8 Prozent mit nur der Erinnerung nach 3 Tagen und 5,3 Prozent mit nur der Erinnerung nach 1 Tag. Eine Übersicht randomisierter Studien fand keinen signifikanten Unterschied zwischen Erinnerungen 24, 48 oder 72 Stunden vorher. Die Belege stammen aus dem Gesundheitswesen; verstehen Sie 3 Tage und 1 Tag deshalb als Ausgangspunkt."
+      },
+      {
+        "question": "Was darf ein Buchungsformular nie abfragen?",
+        "answer": "Beschränken Sie sich auf das, was der Termin braucht: Name, E-Mail, optional Telefon und ein bis zwei Fragen, die den Termin verändern. Fragen Sie nicht nach Diagnosen, Falldetails, Zahlungskartendaten, Ausweisdokumenten oder Angaben, die Gesundheit, Religion oder sexuelle Orientierung verraten. Freitextantworten werden als Daten am Datensatz gespeichert, halten Sie das Formular daher schlank."
+      },
+      {
+        "question": "Kann ich ohne öffentliche Buchungsseite Termine annehmen?",
+        "answer": "Ja. Ein öffentliches Formular funktioniert in jedem Tarif, in Free mit Monatsgrenze und Badge: Es nimmt die Anfrage entgegen und legt den Termin an, verknüpft mit einer Person, die über die E-Mail-Adresse gefunden oder neu angelegt wird. Fragt jemand per E-Mail oder WhatsApp an, schlägt Ihr Agent freie Termine aus Ihrem verbundenen Kalender vor und entwirft die Antwort; Sie prüfen und senden sie. Mit Customermates Cloud im Tarif Pro oder höher schreibt das Planen eines Termins an einem Datensatz das Ereignis in Ihren Google- oder Microsoft-Kalender, und über eine öffentliche Buchungsseite wählen Personen selbst eine freie Zeit."
+      },
+      {
+        "question": "Reicht ein Server in der EU, damit die Terminbuchung DSGVO-konform ist?",
+        "answer": "Der Serverstandort allein entscheidet das nicht. Deutsche Fachquellen nennen zusätzlich den Auftragsverarbeitungsvertrag, die Unterauftragsverarbeiter und den Sitz des Anbieters; bei Gesundheitsdaten ist die Hürde höher. Das ist keine Rechtsberatung. Fragen Sie Ihre Datenschutzbeauftragte oder Ihren Datenschutzbeauftragten."
+      },
+      {
+        "question": "Schreibt der Agent meine Kunden an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Ich nehme Gespräche, Beratungen und Besichtigungen an und verliere den Überblick, wer gebucht hat, wer bestätigt hat und was daraus geworden ist. Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
+    "intro":"Ich nehme Gespräche, Beratungen und Besichtigungen an und verliere den Überblick, wer gebucht hat, wer bestätigt hat und was daraus geworden ist. Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
     "questions": [
       "Welche Terminarten bietest du an, und wie lange dauert jede?",
       "Wie viel Vorlaufzeit brauchst du, und wie weit im Voraus kann man buchen?",

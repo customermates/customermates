@@ -82,6 +82,51 @@
     "quote_valid_field": "Cada presupuesto registra cuánto tiempo es válido.",
     "enquiries_board_view": "Las consultas se abren como tablero por fase."
   },
+  "page": {
+    "metaTitle": "CRM WhatsApp: plantilla para consultas y presupuestos",
+    "metaDescription": "CRM WhatsApp: cada chat se convierte en una consulta con presupuesto y seguimiento con fecha. Pega la plantilla en tu agente de IA. No usa la API oficial.",
+    "headline": "Un CRM WhatsApp que convierte cada chat en una consulta con seguimiento con fecha, montado por tu agente de IA",
+    "answer": "Para hacer seguimiento por WhatsApp, responde rápido, anota cada chat como una consulta con el presupuesto y su validez, dale un seguimiento con fecha y apunta cuándo volver. Pega esta plantilla en tu agente de IA y él monta la lista de consultas en Customermates, con cada chat enlazado a su consulta. Tú apruebas el plan antes de que se construya nada. Funciona con respuestas revisadas una a una, sin envíos masivos, bots ni API oficial.",
+    "routine": {
+      "title": "La revisión diaria de WhatsApp",
+      "steps": [
+        "Abre la bandeja de WhatsApp y responde a cada chat nuevo. Como ajuste por defecto, acusa recibo en aproximadamente una hora en horario laboral y responde por completo el mismo día.",
+        "Comprueba que cada chat del último día esté en un único estado: respondido, con un siguiente paso con fecha o cerrado con un motivo.",
+        "Haz seguimiento de los presupuestos dos días después de enviarlos y otra vez unos días más tarde. Después envía un mensaje de cierre y fija una fecha para volver.",
+        "Pide el pago al día siguiente de que una consulta pase a pendiente de pago y confirma la entrega o la cita el día antes.",
+        "Mira las fechas para volver y los recordatorios de reposición que vencen y escribe a esos clientes uno a uno."
+      ]
+    },
+    "limits": [
+      "No es la plataforma oficial WhatsApp Business. La cuenta se vincula con un código QR, así que no hay plantillas de mensajes, difusiones, campañas, secuencias, chatbots ni flows, ni sincronización de catálogo ni funciones de empresa verificada.",
+      "El riesgo de la cuenta es tuyo. WhatsApp puede limitar o retirar una cuenta usada de una forma que sus normas prohíben, por ejemplo escribiendo a mucha gente. Mantén el volumen bajo, con consentimiento y humano.",
+      "Un chat no se enlaza automáticamente a una consulta. Lo enlazas tú o tu agente, y los chats de grupo no deben enlazarse a un cliente.",
+      "No hay presupuestos, facturas, enlaces de pago ni gestión de pedidos. Eso se queda en tu programa de contabilidad o tu tienda; la plantilla guarda el importe del presupuesto, su validez y la etapa.",
+      "Vincular WhatsApp requiere un plan que incluya la bandeja de entrada. Sin ella, aún puedes llevar las consultas a mano."
+    ],
+    "faq": [
+      {
+        "question": "¿Con qué rapidez debo responder a una consulta por WhatsApp?",
+        "answer": "Todas las fuentes dicen rápido y ninguna da una cifra oficial. Un estudio sobre consultas en línea encontró que la mayoría de las empresas responde demasiado despacio, y la cifra tan citada de cinco minutos no pudo confirmarse. La plantilla usa por defecto aproximadamente una hora en horario laboral para una primera respuesta y la respuesta completa el mismo día. Ajústalo a tu negocio."
+      },
+      {
+        "question": "¿Basta con la app WhatsApp Business y sus etiquetas?",
+        "answer": "Las guías para pequeñas empresas recomiendan de tres a cinco etiquetas como pipeline, por ejemplo cliente nuevo, pedido confirmado y pendiente de pago. Su punto débil: no hay historial entre personas, no hay fechas de seguimiento y nada sobrevive a la salida de un empleado. La plantilla convierte las etiquetas en etapas y añade fechas y responsable, y el chat sigue siendo la prueba."
+      },
+      {
+        "question": "¿Cada cuánto debo hacer seguimiento de un presupuesto?",
+        "answer": "En WhatsApp el ritmo es más corto que por correo. Un buen valor por defecto: dos días después del presupuesto, otra vez unos días más tarde, y luego un mensaje de cierre que diga que quizá no es el momento y una fecha para volver unos 90 días después. La plantilla programa el primer seguimiento como tarea con fecha; los plazos los ajustas tú."
+      },
+      {
+        "question": "¿Necesito el consentimiento del cliente para escribirle por WhatsApp?",
+        "answer": "La política de WhatsApp para empresas dice que solo se contacte a quien haya dado su número y su permiso, y que se respeten las bajas. La plantilla anota en cada contacto si el cliente inició el chat, dio su permiso o pidió que no le escribas más. Además necesitas una base jurídica y un aviso de privacidad conforme al RGPD y a la ley española de protección de datos."
+      },
+      {
+        "question": "¿El agente envía mensajes a mis clientes?",
+        "answer": "No. El prompt pide respuestas redactadas una a una para tu revisión, nada en masa y ningún dato de ejemplo. Cada respuesta la envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Los clientes me piden precio por WhatsApp y pierdo el chat antes de hacer seguimiento. Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
     "questions": [

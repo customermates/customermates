@@ -182,6 +182,46 @@
     "chase_rule": "Un cliente que pasa a A la espera del cliente recibe una tarea de recordatorio.",
     "playbook_page": "La base de conocimiento contiene la guía de la ficha de clientes."
   },
+  "page": {
+    "metaTitle": "Ficha de cliente: plantilla para no perder seguimientos",
+    "metaDescription": "Ficha de cliente para Claude, ChatGPT o Codex: un responsable y una próxima acción con fecha por cada cliente, y una revisión semanal de lo que va tarde.",
+    "headline": "Sabe siempre a quién llamar: una ficha de clientes que tu agente de IA construye en tu CRM",
+    "answer": "Una ficha de clientes es una lista con una fila por cliente, un responsable y una próxima acción con fecha, para que ningún cliente se quede en silencio sin que lo notes. Pega esta plantilla en tu agente de IA y construye la lista en Customermates, con personas de contacto, tareas con fecha, conversaciones vinculadas y una revisión semanal. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión semanal de clientes en 15 minutos",
+      "steps": [
+        "Ordena la lista de clientes por la fecha de la próxima acción y por estado.",
+        "Resuelve primero todo lo que va con retraso y después los clientes activos que no tienen próxima acción.",
+        "Mira los clientes potenciales que han dejado de responder y decide: retomar el contacto o cerrar.",
+        "Termina con una fecha en cada fila, para que ningún cliente se quede sin próxima acción."
+      ]
+    },
+    "limits": [
+      "No es una herramienta de facturación, presupuestos ni control de horas. La facturación sigue en tu programa de contabilidad; la ficha guarda como mucho un enlace y un valor anual.",
+      "No guarda contratos firmados y no es un portal de clientes. Los clientes no pueden iniciar sesión para ver su estado.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con una periodicidad fija. La plantilla los propone y tú decides cuáles activar.",
+      "Deja fuera los expedientes sensibles, como historiales de salud, jurídicos o terapéuticos. Aquí va la relación con el cliente; el contenido del caso, en un sistema pensado para ello.",
+      "Está dimensionada para entre una y diez personas. Si hay columnas que tus compañeros no deben ver, pásalas a una lista aparte con sus propios permisos de acceso."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe tener una ficha de cliente?",
+        "answer": "Una fila por cliente, con un responsable, un estado de una lista corta, la fecha de la última interacción y una próxima acción con fecha. Esa fecha es la que mueve el trabajo: ordena por ella una vez a la semana y no se te escapa nada."
+      },
+      {
+        "question": "¿Cuándo se queda corta una hoja de cálculo para llevar clientes?",
+        "answer": "Las guías de profesionales sitúan el límite hacia los 25 o 50 clientes, cuando varias personas editan el archivo o cuando nadie recibe un aviso de un seguimiento pendiente. Entonces ayuda un CRM: las personas de contacto están vinculadas, las próximas acciones son tareas con fecha y las conversaciones están junto a cada cliente."
+      },
+      {
+        "question": "¿Cuánto tiempo puedo conservar los datos de los clientes dados de baja?",
+        "answer": "Depende del país y de los datos. Dos ejemplos: la autoridad francesa de protección de datos admite conservar los datos de clientes usados para prospección durante la relación comercial más tres años, y el derecho mercantil alemán exige conservar seis años las cartas comerciales y ocho los justificantes contables. En España se aplican el RGPD y la LOPDGDD, con minimización de datos y registro de actividades de tratamiento. La plantilla fija una fecha de revisión de datos para cada cliente dado de baja; ajusta el plazo a tu país y consúltalo con tu asesor. Esto no es asesoramiento legal."
+      },
+      {
+        "question": "¿El agente contacta con mis clientes?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Llevo personalmente la relación con mis clientes y se me escapan demasiados seguimientos: no sé con quién hablé por última vez ni qué toca ahora. Configura una ficha de clientes en mi espacio de trabajo de Customermates: una fila por cliente con un responsable, un estado, la fecha de la última interacción y una próxima acción con fecha, más las personas de contacto, tareas con fecha, una revisión semanal y una fecha de revisión de datos para los clientes dados de baja.",
     "questions": [

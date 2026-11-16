@@ -102,6 +102,51 @@
     "notice_days_field": "Jeder laufende Auftrag hält seine Kündigungsfrist fest.",
     "opportunities_board_view": "Die Chancen öffnen sich als Board nach Phase."
   },
+  "page": {
+    "metaTitle": "Agentur-Kundenpipeline: Pitch, Retainer und Verlängerung",
+    "metaDescription": "Agentur-Kundenpipeline für Claude, ChatGPT oder Codex: Pitch-Entscheidung, Fünf-Schritte-Onboarding, Retainer mit Verlängerungstermin und Quartalsgespräch.",
+    "headline": "Kunden gewinnen und jede Verlängerung kommen sehen: eine Agentur-Pipeline, die Ihr KI-Agent aufbaut",
+    "answer": "Eine Agentur-Kundenpipeline hält zwei Dinge an einem Ort fest: Neugeschäft vom ersten Gespräch bis zum Abschluss und die Retainer und Projekte danach, jeweils mit Verlängerungstermin und Quartalsgespräch. Sie ist die Pipeline- und Retainer-Ebene neben Ihrer Agentursoftware. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit Pitch-Entscheidung, Onboarding in fünf Schritten nach einem Gewinn und einer Kündigungsfrist je laufendem Auftrag. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Agenturrunde",
+      "steps": [
+        "Öffnen Sie jede Chance ohne nächsten Schritt und setzen Sie entweder einen Termin oder schließen Sie sie.",
+        "Entscheiden Sie bei jedem neuen Briefing oder jeder Pitch-Einladung über Go oder No-Go: was der Pitch kostet, wie viele Agenturen teilnehmen und wer pitcht und wer liefert.",
+        "Prüfen Sie die laufenden Aufträge, die in den nächsten 90 Tagen verlängert werden, und die Kündigungstermine der kommenden Wochen.",
+        "Sehen Sie sich Retainer ohne Kontakt seit 30 Tagen und laufende Aufträge mit roter Ampel an, und planen Sie das Nachfassen oder das Partnergespräch."
+      ]
+    },
+    "limits": [
+      "Es ist keine Agentursoftware für Projekte, Zeiterfassung, Ressourcenplanung oder Abrechnung. Das bleibt in Ihren eigenen Werkzeugen; hier liegt die Vertriebs- und Retainer-Ebene daneben.",
+      "Es ist kein Kundenportal und kein Freigabe-Workflow, und es berichtet nicht über Kampagnenergebnisse.",
+      "Speichern Sie niemals Kundenzugänge, Markenmaterial oder Zugriff auf Werbekonten im Workspace. Die gehören in einen Passwortmanager und in Ihre Asset-Ablage.",
+      "Es schreibt keine Angebote und holt keine elektronischen Unterschriften ein. Angebote und Verträge liegen in Ihrem Dokumentenwerkzeug und werden mit der Chance verknüpft.",
+      "Es ist kein Werkzeug für Ansprache in Sequenzen. Jedes Nachfassen ist eine terminierte Aufgabe und ein Entwurf, den Sie prüfen und selbst senden.",
+      "Ein Budget wird nur erfasst, wenn der Kunde es nennt, und eine Kündigungsfrist gibt es nicht vorab: Sie tragen die Frist aus dem jeweiligen Vertrag ein."
+    ],
+    "faq": [
+      {
+        "question": "Wie unterscheidet sich eine Agentur-Pipeline von einer normalen Vertriebspipeline?",
+        "answer": "Agenturen haben weniger, größere Chancen mit mehreren Beteiligten und langen Entscheidungen, und der meiste Umsatz kommt von Kunden, die bleiben und wachsen. Darum ergänzt diese Vorlage eine Pitch-Entscheidung, ein Onboarding in fünf Schritten nach dem Gewinn und laufende Aufträge mit Verlängerungstermin, statt bei Gewonnen aufzuhören."
+      },
+      {
+        "question": "Sollte eine Agentur an jedem Pitch teilnehmen?",
+        "answer": "Nein. Ein Pitch kostet viel Zeit und Geld, deshalb raten Berater, zuerst zu prüfen, ob er überhaupt nötig ist: Gibt es ein klares Briefing mit Budgetrahmen, wie viele Agenturen nehmen teil, gibt es ein Pitch-Honorar, und wer pitcht und wer liefert. Die Vorlage verlangt diese Entscheidung an dem Tag, an dem eine Chance die Phase Briefing oder Pitch erreicht."
+      },
+      {
+        "question": "Wie lang sollte die Kündigungsfrist eines Retainers sein?",
+        "answer": "Eine einheitliche gesetzliche Antwort gibt es nicht. Üblich sind 30 Tage schriftlich, und eine automatische Verlängerung mit 90 Tagen Frist begünstigt die Agentur. Die Vorlage speichert die Kündigungsfrist je laufendem Auftrag und nimmt keine an. Sie legt 90 Tage vor der Verlängerung eine Prüfung an und erinnert 45 Tage vorher daran, die Absicht des Kunden zu klären. Ein Agenturvertrag ist meist ein Geschäftsbesorgungsvertrag nach § 675 BGB; bei Vertragsfragen fragen Sie Ihre Anwältin oder Ihren Anwalt. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Was passiert nach einem gewonnenen Auftrag?",
+        "answer": "Ein Gewinn startet ein Onboarding in fünf Schritten: Begrüßung und Kickoff-Bestätigung, Materialien einsammeln, Zeitplan abstimmen, Kickoff halten und den Lieferablauf festlegen. Viele Agenturen koppeln den Kickoff an die Zahlung. Danach läuft der Kunde als laufender Auftrag mit Verlängerungstermin und Quartalsgespräch weiter."
+      },
+      {
+        "question": "Schreibt der Agent meine Kunden oder Interessenten an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Wir gewinnen neue Kunden, verlieren aber den Überblick über laufende Pitches und darüber, wann Retainer verlängert werden. Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
     "questions": [

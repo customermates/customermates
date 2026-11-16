@@ -142,6 +142,6 @@
     { "url": "https://www.cartelis.com/blog/comparatif-logiciels-crm-marketing/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
   "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" }
 }

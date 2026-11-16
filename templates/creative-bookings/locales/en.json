@@ -137,8 +137,57 @@
     "event_date_field": "Every booking has an event date.",
     "bookings_board_view": "The bookings open as a board by stage."
   },
+  "page": {
+    "metaTitle": "Studio Management Software: Booking Template for Creatives",
+    "metaDescription": "Studio management software for photographers and event planners: inquiries, held dates, deposits and delivery, built by your AI agent in your CRM.",
+    "headline": "Studio management software for photographers and planners: every date, deposit and delivery",
+    "answer": "Studio management for a photographer, videographer or event planner means holding a date only until the contract is signed and the deposit is paid, then carrying the job through to delivery. This template gives every booking one row with a sales stage and a delivery stage, a balance due date, a questionnaire before the event and a review request after. Paste it into your AI agent and it builds it in Customermates, and you approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly booking round",
+      "steps": [
+        "Reply to every inquiry that has waited. The default is a reply within 24 hours that asks for the date, the place, the type of job and the budget.",
+        "Check the dates on hold: chase the contract and the deposit, or release the date.",
+        "Look at the events in the next 14 days: is the questionnaire back, is the day-of timeline confirmed, is the balance paid?",
+        "Check the deliveries that are coming due and tell the client early if a date moves. Two weeks after delivery, ask for a review."
+      ]
+    },
+    "limits": [
+      "It does not draft or sign contracts, send invoices or take payments. Those stay in your contract, invoicing and payment tools; the booking keeps their status, their dates and a link.",
+      "It is not a gallery, proofing or print-sales tool, and not for album design, editing or asset management. The booking keeps the link.",
+      "A public booking page or mini-session sales is not part of Customermates today. Inquiries arrive as email, WhatsApp or Instagram messages in your connected inbox, and your agent drafts the reply.",
+      "It is not legal advice. The knowledge pages are checklists; have a lawyer review your contract and the wording of image and usage rights.",
+      "Keep health, diet and religion details, payment card data, ID documents, faces as image files and guest lists out of it. Record only the consent status and date for portfolio use.",
+      "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+    ],
+    "faq": [
+      {
+        "question": "What does studio management software need to do for a photographer?",
+        "answer": "Carry one job from inquiry to booked to delivered: capture the date, type and budget, hold the date, confirm it with a signed contract and a deposit, run the questionnaire and the timeline, deliver, and ask for a review. Contracts, invoices and galleries live in your own tools."
+      },
+      {
+        "question": "When is a date really booked?",
+        "answer": "Practice agrees that without a deposit the date is not confirmed. The template counts a job as booked only when the contract is signed and the deposit is paid, tracked in separate fields, with a date hold in between. One wedding-contract guide says almost all photographers ask for 50 percent at signing, other templates use 30 percent, so your contract decides and the template sets no default amount."
+      },
+      {
+        "question": "What is a date hold?",
+        "answer": "A hold takes a date out of your availability for a few days without committing the client. The template stores the hold date, creates a step to send the contract when a date is put on hold, and another to chase the deposit three days after signing."
+      },
+      {
+        "question": "What should the CRM store about image rights and consent?",
+        "answer": "Only the consent status and its date for portfolio use, not the images, and no special-category details such as religion, orientation or health that weddings and family shoots can reveal. Copyright stays with the creator by default; usage rights belong in the contract, and a lawyer should review the wording. This is not legal advice."
+      },
+      {
+        "question": "When should the questionnaire go out?",
+        "answer": "The template creates a step to send the questionnaire 45 days before a booked event, and you can change that. Photographers and videographers also commonly ask for the day-of timeline about two weeks out and run a final-week check-in on the timeline, the locations and phone numbers."
+      },
+      {
+        "question": "Does the agent contact my clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "I run a photo, video or event business and lose track of which dates are held, which deposits are paid and what still has to be delivered. Set up creative bookings in my Customermates workspace: a pipeline from inquiry to booked, a delivery stage after the date, deposit and balance tracking, a questionnaire before the event, a review request and anniversary notes.",
+    "intro":"I run a photo, video or event business and lose track of which dates are held, which deposits are paid and what still has to be delivered. Set up creative bookings in my Customermates workspace: a pipeline from inquiry to booked, a delivery stage after the date, deposit and balance tracking, a questionnaire before the event, a review request and anniversary notes.",
     "questions": [
       "What do you shoot or plan, and how many bookings a year?",
       "Which steps does a client go through from inquiry to booked, and when is the date held?",

@@ -80,6 +80,51 @@
     "due_field": "Every task has a due date.",
     "tasks_board_view": "The tasks open as a board by status."
   },
+  "page": {
+    "metaTitle": "Issue Tracker Template for Small Teams: Tasks and Bugs",
+    "metaDescription": "A simple issue tracker for two to fifteen people: one owner and one due date per task, bugs, recurring chores and a weekly review. Paste it into an AI agent.",
+    "headline": "A simple issue tracker for a small team: one owner and one date per task, built in your CRM by your AI agent",
+    "answer": "An issue tracker for a small team is one list of work items, each with one owner, a status, a priority and a due date, plus a board and a short weekly review of what is overdue or blocked. Paste this template into your AI agent and it builds the list in Customermates, with projects, recurring chores and requests from outside the team. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly team review in 30 minutes",
+      "steps": [
+        "Open last week's list and start with what was promised: what is done and what slipped.",
+        "Go through the overdue and blocked tasks and decide for each: recommit, de-scope or reassign. When a date slips, keep the original date and note the new one with a reason.",
+        "Look at tasks that have not moved for five days and ask whether the task is vague or too large. Close the ones nobody needs.",
+        "Triage new requests and bugs: give each a kind, a priority and an owner.",
+        "End by reading the list back, so that every task has one named owner and one date before the meeting closes."
+      ]
+    },
+    "limits": [
+      "It is not a sprint or velocity tool: there are no sprints, story points or burn-down charts. A team that needs them should stay on Linear or Jira.",
+      "It is not a Gantt, dependency or capacity planner, a time tracker or a release manager.",
+      "It is not a code host, a CI system or a service desk with response-time clocks. A pull request or ticket link is a plain link field.",
+      "There is no native Slack or Teams integration and no mobile app. n8n is the route to Slack.",
+      "It is not an HR or performance-management system, and it has no single sign-on or field-level permissions."
+    ],
+    "faq": [
+      {
+        "question": "Can a simple tracker replace Trello, Jira or a spreadsheet?",
+        "answer": "For two to fifteen people who want one owner and one date per item, a weekly review and requests from outside the team on the same list, yes. Export your board or sheet to CSV or Excel and import it through the column-mapping wizard, or let your agent map and import it. If you need sprints, velocity or dependencies, stay on Linear, Jira or ClickUp."
+      },
+      {
+        "question": "Which statuses should a small team use?",
+        "answer": "Fewer than you think. Trello's To Do, Doing and Done and Linear's Backlog, Todo, In Progress, Done and Canceled are typical. The template starts from seven (Backlog, To do, In progress, In review, Blocked, Done, Cancelled) and you rename or drop any of them. Blocked earns its place because a blocked task otherwise goes unnoticed until its due date."
+      },
+      {
+        "question": "Should a team work in sprints or on a board?",
+        "answer": "Kanban guides lean on flow and on limiting work in progress, while Linear and Jira lean on sprints. This template uses a board plus a due date and has no sprint object, so a team that needs velocity should stay on a sprint tool."
+      },
+      {
+        "question": "Should stale tasks close automatically?",
+        "answer": "No. A reminder after five days without movement is safer than an automatic close, and meeting guides agree that stale items should be closed explicitly. The template reminds the owner and the owner decides. A task that stays open week after week is usually vague or too big, so fix the definition, not the person."
+      },
+      {
+        "question": "Does the agent message my team?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Our team's work is spread over chat, a board and a spreadsheet, and I cannot see what is overdue or blocked. Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
     "questions": [

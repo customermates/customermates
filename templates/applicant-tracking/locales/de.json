@@ -104,6 +104,52 @@
     "retain_until_field": "Jede Bewerbung hält fest, wie lange sie aufbewahrt wird.",
     "applications_board_view": "Die Bewerbungen öffnen sich als Board nach Phase."
   },
+  "page": {
+    "metaTitle": "Bewerbermanagement Software: Vorlage für kleine Betriebe",
+    "metaDescription": "Applicant Tracking System für kleine Betriebe: Vorlage für Claude, ChatGPT oder Codex mit Stellen, neun Phasen, Interviewbögen und Löschdatum für Absagen.",
+    "headline": "Jede Bewerbung beantworten, alle Notizen an einem Ort: ein Bewerbermanagement, das Ihr KI-Agent aufbaut",
+    "answer": "Ein Bewerbermanagement für einen kleinen Betrieb ist eine Liste von Stellen mit je einer Bewerbung pro Bewerber und Stelle, die durch die Phasen von Eingang bis eingestellt oder Absage läuft, damit kein Bewerber ohne Antwort bleibt. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut sie in Customermates auf, mit Stellen, einem Interviewbogen je Interviewer, terminierten Folgeaufgaben und einem Löschdatum für abgelehnte Bewerbungen. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Bewerbungsrunde",
+      "steps": [
+        "Prüfen Sie, ob jede neue Bewerbung bestätigt wurde und ein nächstes Datum hat, und beantworten Sie die, die noch warten.",
+        "Gleichen Sie neue Bewerbungen mit den Muss-Kriterien der Stelle ab und entscheiden Sie, wer zum Gespräch eingeladen wird.",
+        "Holen Sie am Tag nach jedem Gespräch den Interviewbogen jedes Interviewers ein, solange die Notizen frisch sind.",
+        "Fassen Sie bei Angeboten nach, die auf eine Entscheidung warten, und senden Sie die Abschlussnachricht an Bewerber, die eine Absage erhalten haben oder deren Stelle besetzt wurde."
+      ]
+    },
+    "limits": [
+      "Es ist keine Jobbörse, kein Multiposting-Werkzeug und kein Karriereseiten-Baukasten. Es veröffentlicht Ihre Stellenanzeigen nicht.",
+      "Es liest und bewertet keine Lebensläufe automatisch und lehnt niemanden automatisch ab. Interviewbögen sind Bewertungen, die ein Mensch abgibt.",
+      "Es ist keine Test-, Assessment- oder Video-Interview-Plattform und kein Werkzeug für Vertragsangebote oder elektronische Unterschriften.",
+      "Es führt keine Hintergrund- oder Arbeitserlaubnisprüfungen durch und ist kein Onboarding-, Personalakten- oder Lohnabrechnungssystem. Nach der Einstellung wandert die Akte in Ihr Personalsystem.",
+      "Kopien von Ausweisen und Daten zur Chancengleichheit gehören nicht hinein. Erfassen Sie nur, was die Einstellungsentscheidung braucht.",
+      "Es gibt keine Rechtsberatung. Es speichert ein Löschdatum und einen Verantwortlichen; die Frist legen Sie mit Ihrer Beratung fest.",
+      "Ausgelegt ist es für wenige offene Stellen gleichzeitig. Für Massenrekrutierung oder mehrere Standorte passt ein eigenes Bewerbermanagementsystem besser."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in ein Bewerbermanagement?",
+        "answer": "Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber und je eine Bewerbung pro Bewerber und Stelle mit Phase, Gesprächstermin, Angebotsfrist und Absagegrund. Praktiker ergänzen einen Interviewbogen je Interviewer, damit Rückmeldungen strukturiert sind und nicht in E-Mails und Chats verstreut liegen."
+      },
+      {
+        "question": "Welche Phasen braucht ein Bewerbungsprozess?",
+        "answer": "Gängige Leitfäden nennen Eingang, Vorauswahl, Gespräch, Referenzprüfung und Angebot. Diese Vorlage hat neun: Eingang, Vorauswahl, Erstgespräch, Zweitgespräch, Referenzprüfung, Angebot, Eingestellt, Absage und Zurückgezogen, weil ein kleiner Betrieb selten mehr als zwei Gesprächsrunden braucht. Benennen Sie Phasen im Plan, den Ihr Agent vorschlägt, um oder lassen Sie welche weg."
+      },
+      {
+        "question": "Wie lange darf ich abgelehnte Bewerbungen aufbewahren?",
+        "answer": "Das hängt vom Land ab. In Deutschland werden Bewerbungen abgelehnter Bewerber meist etwa sechs Monate nach Ende des Verfahrens aufbewahrt, ein Talentpool nur mit Einwilligung; die französische Datenschutzbehörde erlaubt einen Pool nicht berücksichtigter Kandidaten für zwei Jahre ab dem letzten Kontakt, wenn die Betroffenen informiert wurden. Die Vorlage setzt das Löschdatum 180 Tage nach einer Absage, damit Sie die Bewerbung löschen oder eine Einwilligung einholen. Passen Sie die Frist an Ihr Land an und fragen Sie Ihre Beratung. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Darf ich einen Talentpool führen?",
+        "answer": "Nur mit Einwilligung des Bewerbers. Wenn das Löschdatum einer abgelehnten Bewerbung erreicht ist, löschen Sie sie oder halten die Einwilligung zum Verbleib im Pool fest. Deutsche Quellen verlangen für einen Talentpool eine Einwilligung, andere lassen für kurze Zeit ein berechtigtes Interesse genügen; prüfen Sie die Regel für Ihr Land."
+      },
+      {
+        "question": "Schreibt der Agent Bewerber an oder lehnt er jemanden ab?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Nachrichten wie eine Eingangsbestätigung oder eine Absage sind Entwürfe, die es nur auf Ihre Bitte gibt, und Sie senden sie selbst. Nichts wird automatisch abgelehnt."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ich stelle für mein kleines Unternehmen ein, Bewerber warten zu lange auf eine Antwort, und die Interviewnotizen liegen an verschiedenen Orten. Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
     "questions": [

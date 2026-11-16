@@ -115,6 +115,51 @@
     "valid_until_field": "Cada documento registra até quando é válido.",
     "suppliers_board_view": "Os fornecedores abrem como quadro por status."
   },
+  "page": {
+    "metaTitle": "Gestão de fornecedores: modelo de cadastro e homologação",
+    "metaDescription": "Gestão de fornecedores com questionário, certidões com validade e nível de risco. Cole o modelo no seu agente de IA e ele monta o cadastro no CRM.",
+    "headline": "Gestão de fornecedores que mostra qual certidão vence primeiro, montada pelo seu agente de IA no seu CRM",
+    "answer": "A gestão de fornecedores de uma equipe pequena reúne num cadastro o questionário de qualificação, as certidões com validade, o nível de risco e a decisão de cada fornecedor. Cole este modelo no seu agente de IA e ele monta o cadastro no Customermates, com acompanhamentos com data para questionários, renovações e reavaliações. Você aprova o plano antes de qualquer coisa ser construída. O cadastro registra pedidos e decisões, não decide a conformidade legal.",
+    "routine": {
+      "title": "A conferência semanal de fornecedores",
+      "steps": [
+        "Cobre os fornecedores cujo questionário passou do prazo.",
+        "Analise as respostas dos questionários recebidos nos últimos dias e anote quais ainda não têm comprovação atual.",
+        "Peça a renovação das certidões e documentos que vencem em até 30 dias e resolva os que já venceram: suspender o fornecedor ou aceitar o risco por escrito.",
+        "Registre a decisão dos fornecedores em análise (homologar, homologar com restrições, escalar ou reprovar) e defina a próxima avaliação conforme o nível de risco.",
+        "Inicie a reavaliação dos fornecedores cuja próxima avaliação cai nos próximos 14 dias."
+      ]
+    },
+    "limits": [
+      "Não decide que um fornecedor, produto ou cadeia de fornecimento cumpre uma lei e não protocola declaração de diligência nem relatório. Registra pedidos, comprovações e decisões.",
+      "Não é um serviço de triagem: sem checagem de sanções, mídia negativa ou risco financeiro, e sem enriquecimento de dados de empresas.",
+      "Não é um ERP nem um sistema de compras ou faturamento. Não há pedidos de compra, valores de gasto ou notas fiscais.",
+      "Não é um arquivo de documentos. Os arquivos só são pesquisáveis se tiverem camada de texto, certidões escaneadas não são lidas e não há trilha de auditoria imutável ou guardada de forma independente. Guarde os originais no seu sistema de documentos e coloque o link.",
+      "Os fornecedores não podem entrar para responder ou enviar arquivos, e não há assinatura eletrônica nem permissão por campo. O que é restrito vai para uma lista ou um espaço de trabalho à parte. Plataformas como EcoVadis, Sedex ou SAP Ariba fazem o que aqui falta."
+    ],
+    "faq": [
+      {
+        "question": "Como funciona a homologação de fornecedores?",
+        "answer": "Costuma seguir cinco etapas: levantar a necessidade, buscar e selecionar fornecedores, pedir propostas e documentos, avaliar e validar (auditorias, visitas, entrevistas, referências) e aprovar, incluindo o fornecedor na lista de fornecedores homologados. A qualificação é a avaliação inicial, e a homologação formaliza o fornecedor, com decisão de homologar, homologar com restrições ou reprovar."
+      },
+      {
+        "question": "Com que frequência devo reavaliar os fornecedores?",
+        "answer": "Os guias colocam o mínimo em uma vez por ano, e a renovação cadastral periódica mantém a homologação válida. Na prática, fornecedores críticos são revistos a cada seis ou doze meses e também depois de um fato como uma aquisição, um novo subcontratado ou um incidente, enquanto os de baixo risco podem passar um ano ou mais. O modelo define a próxima avaliação pelo nível de risco; depois de um fato, você inicia a reavaliação."
+      },
+      {
+        "question": "Quais documentos e certidões pedir?",
+        "answer": "Depende do setor. Na construção, por exemplo, costumam ser exigidas certidões trabalhistas, tributárias e fiscais. O modelo registra a data de validade de cada documento e cria uma tarefa para pedir a renovação 30 dias antes do vencimento. Confirme com seu contador ou advogado o que o seu setor exige e por quanto tempo vale cada certidão."
+      },
+      {
+        "question": "O modelo decide se estamos em conformidade com as regras da cadeia de fornecimento?",
+        "answer": "Não. Ele coordena os pedidos de comprovação e registra datas e decisões. Alcance e prazos de normas como o regulamento europeu contra o desmatamento ou leis de diligência continuam mudando: confirme com seu assessor. O modelo nunca diz que um fornecedor ou produto está em conformidade."
+      },
+      {
+        "question": "O agente entra em contato com meus fornecedores?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu trabalho com muitos fornecedores e não vejo de quais os certificados já venceram nem quais precisam ser reavaliados. Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
     "questions": [

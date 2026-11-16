@@ -136,6 +136,56 @@
     "renewal_field": "Chaque adhésion a une date d’échéance.",
     "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
   },
+  "page": {
+    "metaTitle": "Logiciel association : adhérents, dons et renouvellements",
+    "metaDescription": "Logiciel association : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit un registre des adhérents, des dons et des renouvellements.",
+    "headline": "Un logiciel d’association qui n’oublie ni renouvellement ni remerciement : le registre que votre agent IA construit",
+    "answer": "Un logiciel d’association commence par un seul registre au lieu de plusieurs listes tenues par des bénévoles : personnes, adhésions avec cotisation et date d’échéance, dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions. Collez ce modèle dans votre agent IA : il construit le registre dans Customermates. Vous validez le plan avant que rien ne soit créé. L’outil n’encaisse rien et n’émet pas de reçus fiscaux : il vous montre lesquels sont à faire.",
+    "routine": {
+      "title": "La routine hebdomadaire des adhésions et des dons",
+      "steps": [
+        "Remerciez chaque nouveau don dans les deux jours, par un appel ou un mot personnel.",
+        "Accueillez les adhérents dont la demande est arrivée cette semaine, et envoyez l’avis de renouvellement aux adhésions qui arrivent à échéance dans environ 60 jours.",
+        "Relancez les adhérents dont la cotisation reste à payer 30 jours avant l’échéance, et les cotisations des adhésions échues impayées.",
+        "Regardez les dons dont le reçu fiscal est à émettre et émettez-les dans votre logiciel de comptabilité, au format officiel de votre pays.",
+        "Passez en revue le suivi des grands dons et subventions : la prochaine étape de chaque piste et les dates de rapport attendues par les financeurs."
+      ]
+    },
+    "limits": [
+      "Il n’encaisse pas les cotisations, ne lance pas de prélèvements et ne tient pas la comptabilité. Votre logiciel de comptabilité ou de gestion d’association tient le grand livre ; ici vous gardez l’état de la cotisation, pas l’argent.",
+      "Il n’émet pas de reçus fiscaux. Ils se font au format exigé par l’administration fiscale, avec votre logiciel de comptabilité ; le registre suit seulement qu’un reçu est à faire.",
+      "Ce n’est pas une page de dons en ligne. Les dons se collectent sur une plateforme de paiement, et vous enregistrez le don ici.",
+      "Pour une paroisse, il couvre le suivi des visiteurs et des membres, pas les bornes d’accueil, les plannings de service, les présences ni les relevés de dons. Les notes pastorales, la confession et les dossiers de protection n’ont jamais leur place ici.",
+      "Gardez hors du registre les données de santé, les détails sur les enfants, les coordonnées bancaires et tout ce que l’adhésion n’exige pas. Customermates n’a pas de droits au niveau du champ.",
+      "Il ne fait ni analyse de patrimoine des donateurs, ni dons récurrents avec relance de paiement, ni newsletters en masse. C’est le registre d’une petite structure, pas une plateforme d’analyse des donateurs."
+    ],
+    "faq": [
+      {
+        "question": "Une cotisation d’adhérent est-elle un don déductible ?",
+        "answer": "En général non. En France, une cotisation qui donne accès aux activités n’ouvre pas droit à un reçu fiscal ; seul un don sans contrepartie à un organisme éligible le permet. En Allemagne, seuls les organismes à but non lucratif reconnus émettent un reçu de don au modèle officiel, et les cotisations de la plupart des clubs de sport ne sont pas déductibles. Les règles varient selon le pays : demandez à votre expert-comptable ou à l’administration fiscale. Le registre suit l’état du reçu fiscal et n’en émet aucun."
+      },
+      {
+        "question": "En combien de temps remercier un donateur ?",
+        "answer": "Dans les 48 heures, selon le conseil courant des guides de collecte de fonds, de préférence par un appel ou un mot personnel. Le modèle crée une action de remerciement dès qu’un don est enregistré, pour que le remerciement ne dépende pas de la mémoire d’un seul bénévole."
+      },
+      {
+        "question": "Quand rappeler aux adhérents de renouveler ?",
+        "answer": "Les guides pour associations suggèrent plusieurs relances avant l’échéance, souvent de 90 jours environ jusqu’au jour même, et une après. Le modèle crée une action pour envoyer un avis de renouvellement 60 jours avant l’échéance d’une adhésion active, une pour relancer l’adhérent dont la cotisation reste à payer 30 jours avant, et une pour relancer la cotisation impayée le jour de l’échéance."
+      },
+      {
+        "question": "Quelles données d’adhérents et de donateurs conserver ?",
+        "answer": "Seulement ce que l’adhésion ou le don exige. Les guides sur le RGPD indiquent que les informations inutiles à l’adhésion ne doivent pas être enregistrées, que le bulletin d’adhésion doit montrer quels champs sont obligatoires et lesquels facultatifs, et que les photos demandent un consentement. Les données de santé, les détails sur les enfants et les coordonnées bancaires restent hors du registre. Ce n’est pas un avis juridique."
+      },
+      {
+        "question": "Convient-il à une paroisse ou à un club ?",
+        "answer": "Oui pour la partie registre : personnes, adhésions, dons et suivi des membres et des visiteurs au même endroit. Il ne remplace ni un logiciel de gestion paroissiale pour l’accueil, les plannings ou les relevés de dons, ni un outil de club pour les prélèvements et l’encaissement des cotisations."
+      },
+      {
+        "question": "L’agent écrit-il à mes adhérents et donateurs ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Nos adhérents, donateurs et bénévoles sont répartis sur plusieurs listes, et des renouvellements et des remerciements nous échappent. Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
     "questions": [

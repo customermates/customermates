@@ -86,6 +86,52 @@
     "pilot_end_field": "Elke pilot heeft een einddatum.",
     "opportunities_board_view": "De deals openen als bord per fase."
   },
+  "page": {
+    "metaTitle": "Sales van de oprichter: elk gesprek met een volgende stap",
+    "metaDescription": "Verkopen als oprichter zonder de draad kwijt te raken: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt de pijplijn met pilots en pauze.",
+    "headline": "Verkopen als oprichter zonder de draad kwijt te raken: een pijplijn die je AI-agent in je CRM bouwt",
+    "answer": "Een pijplijn voor oprichters is een korte lijst open gesprekken, elk met het probleem in de woorden van de klant, een volgende stap met een datum en, als je er een draait, een pilot met een vaste einddatum. Plak dit sjabloon in je AI-agent en die bouwt de pijplijn in Customermates, met de status Gepauzeerd en een datum om terug te komen op stilgevallen deals. Je keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De maandagse oprichtersronde",
+      "steps": [
+        "Zet elk open gesprek op een rij en geef elk een volgende stap met een datum. Een gesprek zonder datum is het gesprek dat stilvalt.",
+        "Schrijf op wat je sinds vorige week hebt geleerd: het probleem in de woorden van de koper, urgentie, budget en wie beslist.",
+        "Controleer de pilots: staat de einddatum vast, zijn de succescriteria opgeschreven, is hij betaald? Plan het beslissingsgesprek enkele dagen voor het einde.",
+        "Beslis over de stilgevallen deals: één eerlijk afsluitend bericht en zet ze dan op pauze met een datum om terug te komen, in plaats van achter ze aan te zitten.",
+        "Kijk wie er heeft gekocht en wie nee zei, en waarom. Het patroon laat zien aan welk segment je moet verkopen en wanneer het tijd is voor je eerste verkoper."
+      ]
+    },
+    "limits": [
+      "Het is geen tool voor uitgaande reeksen. Customermates heeft geen reeksen of massaverzending, en elk bericht is individueel en door jou gecontroleerd. LinkedIn of e-mail in grote aantallen vraagt om een gespecialiseerde tool.",
+      "Het is geen CRM voor investeerders. Fondsenwerving heeft andere fases en andere gesprekspartners, gebruik daarvoor een apart sjabloon.",
+      "Het maakt geen offertes, facturen of contracten en heeft geen elektronische handtekening. Voorstellen en overeenkomsten maak je in andere tools; hier staan alleen de data en een link.",
+      "Er is geen leadscoring of gegevensverrijking. Hoe goed een lead past is een veld dat je zelf invult.",
+      "De gewogen waarde is geen prognose. De gewichten zijn grof, omdat een oprichter nog geen historie van afgesloten deals heeft, en je mag ze zelf aanpassen.",
+      "Het is bedoeld voor één verkoper. Meerdere verkopers met targets en een teamprognose hebben het sjabloon voor een salespijplijn of een zwaarder CRM nodig."
+    ],
+    "faq": [
+      {
+        "question": "Wanneer heeft een oprichter een CRM nodig?",
+        "answer": "Gidsen noemen het punt waarop je meer leads en klanten hebt dan in je hoofd of een spreadsheet passen, vaak tussen 50 en 200 contactpersonen, of wanneer een tweede persoon gaat verkopen. Tot dan volstaat een spreadsheet. Wachten kost iets: als je overstapt, staan notities en volgende stappen al overal verspreid."
+      },
+      {
+        "question": "Hoeveel klanten moet een oprichter zelf binnenhalen?",
+        "answer": "De adviezen lopen uiteen: Jason Lemkin noemt de eerste 10 klanten, misschien 20, andere gidsen 10 tot 50. Mercury raadt aan je eerste verkoper aan te nemen wanneer je kunt zeggen: “Ik weet dat ik mijn product kan verkopen aan mensen als X met probleem Y.” Het sjabloon laat zien hoeveel klanten je hebt gewonnen en dwingt geen getal af."
+      },
+      {
+        "question": "Hoe lang moet ik een stilgevallen deal najagen?",
+        "answer": "Praktijkmensen verschillen van mening over het aantal, maar zijn het erover eens dat je ergens stopt. Mercury raadt aan mensen die je negeren niet langer na te jagen; anderen stellen een paar herinneringen, een laatste e-mail en maanden later een nieuw contact voor. Het sjabloon doet allebei: één afsluitend bericht, daarna wordt de deal gepauzeerd met een datum om na 90 dagen terug te komen."
+      },
+      {
+        "question": "Moet ik een gratis pilot aanbieden?",
+        "answer": "Het advies, samengevat uit de Startup School van Y Combinator, is om open gratis pilots te vermijden en een korte, beoordeelde en liefst betaalde pilot te doen. Het sjabloon geeft een pilot een vaste einddatum en een markering betaald of niet, maakt 14 dagen na de start een controle aan en 3 dagen voor het einde een taak voor het beslissingsgesprek."
+      },
+      {
+        "question": "Stuurt de agent berichten naar mijn prospects?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en jij verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik verkoop mijn product zelf en verlies steeds de notities en volgende stappen uit mijn gesprekken. Richt in mijn Customermates-werkruimte een verkooppijplijn voor oprichters in: deals van eerste gesprek tot gewonnen met verkennende notities, een optionele pilot met vaste einddatum, een gepauzeerde status met terugkomdatum en opvolging met datum. Stuur niets automatisch.",
     "questions": [

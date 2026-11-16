@@ -80,6 +80,51 @@
     "due_field": "Elke taak heeft een deadline.",
     "tasks_board_view": "De taken openen als bord per status."
   },
+  "page": {
+    "metaTitle": "Kanban system voor kleine teams: sjabloon met taken",
+    "metaDescription": "Een eenvoudig kanbansysteem voor 2 tot 15 mensen: één eigenaar en één deadline per taak, bugs en terugkerende taken. Plak het sjabloon in je AI-agent.",
+    "headline": "Een eenvoudig kanbansysteem voor een klein team: één eigenaar en één deadline per taak, gebouwd door je AI-agent",
+    "answer": "Een kanbansysteem voor een klein team is één lijst met taken, elk met een eigenaar, een status, een prioriteit en een deadline, plus een bord en een korte wekelijkse bespreking van wat te laat of geblokkeerd is. Plak dit sjabloon in je AI-agent en hij bouwt de lijst in Customermates, met projecten, terugkerende taken en verzoeken van buiten het team. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse teambespreking in 30 minuten",
+      "steps": [
+        "Open de lijst van vorige week en begin bij wat is toegezegd: wat is klaar en wat is geschoven.",
+        "Loop de taken langs die te laat of geblokkeerd zijn en beslis per taak: opnieuw toezeggen, kleiner maken of herverdelen. Schuift een deadline, houd dan de oorspronkelijke datum aan en noteer de nieuwe met een reden.",
+        "Kijk naar taken die al vijf dagen niet zijn opgeschoten en vraag of de taak vaag of te groot is. Sluit wat niemand nodig heeft.",
+        "Sorteer nieuwe verzoeken en bugs: geef elk een soort, een prioriteit en een eigenaar.",
+        "Sluit af met het voorlezen van de lijst, zodat elke taak voor het einde van de bespreking een eigenaar met naam en een deadline heeft."
+      ]
+    },
+    "limits": [
+      "Het is geen tool voor sprints en velocity: er zijn geen sprints, storypoints of burn-downgrafieken. Een team dat ze nodig heeft, blijft bij Linear of Jira.",
+      "Het is geen Gantt-, afhankelijkheids- of capaciteitsplanner, geen urenregistratie en geen releasebeheer.",
+      "Het is geen codehost, geen CI-systeem en geen servicedesk met responstijden. De link naar een pull request of ticket is een gewoon linkveld.",
+      "Er is geen native koppeling met Slack of Teams en geen mobiele app. De route naar Slack loopt via n8n.",
+      "Het is geen hr- of prestatiebeoordelingssysteem en heeft geen single sign-on of rechten per veld."
+    ],
+    "faq": [
+      {
+        "question": "Kan een eenvoudig systeem Trello, Jira of een spreadsheet vervangen?",
+        "answer": "Voor twee tot vijftien mensen die één eigenaar en één deadline per taak willen, een wekelijkse bespreking en verzoeken van buiten het team op dezelfde lijst: ja. Exporteer je bord of sheet naar CSV of Excel en importeer die met de wizard voor kolomkoppeling, of laat je agent koppelen en importeren. Heb je sprints, velocity of afhankelijkheden nodig, blijf dan bij Linear, Jira of ClickUp."
+      },
+      {
+        "question": "Welke statussen moet een klein team gebruiken?",
+        "answer": "Minder dan je denkt. Nog te doen, In uitvoering en Klaar zijn gebruikelijk, net als Backlog, Todo, In Progress, Done en Canceled bij Linear. Het sjabloon begint met zeven statussen (Backlog, Te doen, In uitvoering, In review, Geblokkeerd, Klaar, Geannuleerd) die je hernoemt of schrapt. Geblokkeerd verdient zijn plek, want anders valt een geblokkeerde taak pas op op de dag van de deadline."
+      },
+      {
+        "question": "Werken in sprints of op een bord?",
+        "answer": "Kanbangidsen zetten in op flow en een limiet op lopend werk, Linear en Jira meer op sprints. Dit sjabloon gebruikt een bord en een deadline en kent geen sprintobject, dus een team dat velocity nodig heeft, blijft bij een sprinttool."
+      },
+      {
+        "question": "Moeten vastgelopen taken automatisch sluiten?",
+        "answer": "Nee. Een herinnering na vijf dagen zonder beweging is veiliger dan automatisch sluiten, en vergadergidsen raden aan vastgelopen punten expliciet te sluiten. Het sjabloon herinnert de eigenaar en die beslist. Een taak die week na week openstaat is meestal vaag of te groot: verbeter de definitie, niet de persoon."
+      },
+      {
+        "question": "Stuurt de agent berichten naar mijn team?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Het werk van ons team verspreidt zich over chat, een bord en een spreadsheet en ik kan niet zien wat te laat of geblokkeerd is. Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
     "questions": [

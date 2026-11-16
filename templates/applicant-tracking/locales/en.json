@@ -104,6 +104,52 @@
     "retain_until_field": "Every application records how long it is kept.",
     "applications_board_view": "The applications open as a board by stage."
   },
+  "page": {
+    "metaTitle": "Applicant Tracking System Template for Small Businesses",
+    "metaDescription": "Paste this applicant tracking template into Claude, ChatGPT or Codex: jobs, nine stages, interview scorecards and a retention date for rejections.",
+    "headline": "Answer every applicant and keep your notes in one place: an applicant tracker your AI agent builds",
+    "answer": "An applicant tracking system for a small business is a list of jobs plus one application per applicant and job, moving through stages from new to hired or rejected, so no applicant waits without an answer. Paste this template into your AI agent and it builds it in Customermates, with jobs, a scorecard for every interviewer, dated follow-ups and a retention date for rejected applications. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly hiring round",
+      "steps": [
+        "Check that every new application has been acknowledged and has a next date, and answer the ones that are still waiting.",
+        "Screen new applications against the must-haves of the job and decide who gets an interview.",
+        "Collect the scorecard from every interviewer the day after each interview, while the notes are fresh.",
+        "Chase offers that wait for a decision, and send the closing message to applicants who were rejected or whose job was filled."
+      ]
+    },
+    "limits": [
+      "It is not a job board, a multiposting tool or a career-site builder. It does not publish your job ads.",
+      "It does not parse or rank CVs and it rejects nobody automatically. Scorecards are ratings that a person gives.",
+      "It is not an assessment, video-interview or testing platform, and not an offer-letter or e-signature tool.",
+      "It does not run background or right-to-work checks and is not an onboarding, HR record or payroll system. After the hire, the file moves to your HR system.",
+      "Keep copies of identity documents and any equal-opportunity monitoring data out of it. Collect only what the hiring decision needs.",
+      "It gives no legal advice. It stores a retention date and an owner; the period is your decision, with your adviser.",
+      "It is sized for a few open jobs at a time. High-volume or multi-site hiring is better served by a dedicated applicant tracking system."
+    ],
+    "faq": [
+      {
+        "question": "What should an applicant tracker hold?",
+        "answer": "Jobs with a hiring manager and a pay range, applicants, and one application per applicant and job with its stage, interview time, offer deadline and rejection reason. Practitioners add a scorecard per interviewer, so feedback is structured instead of scattered across emails and chats."
+      },
+      {
+        "question": "Which stages should a hiring pipeline have?",
+        "answer": "Common guides list application received, screening, interview, reference check and offer. This template uses nine: new, screening, first and second interview, reference check, offer, hired, rejected and withdrawn, because a small employer rarely needs more than two interview rounds. Rename or drop stages in the plan your agent proposes."
+      },
+      {
+        "question": "How long can I keep rejected applications?",
+        "answer": "It depends on the country. In Germany, rejected applicants are usually kept for about six months after the process ends, and a talent pool only with consent; the French data protection authority allows a pool of unsuccessful candidates for two years from the last contact if they were informed. The template sets a retention date 180 days after a rejection, so you delete the application or ask for consent. Adjust the period to your country and ask your adviser. This is not legal advice."
+      },
+      {
+        "question": "Can I keep a talent pool?",
+        "answer": "Only with the applicant's consent. When the retention date of a rejected application arrives, you either delete it or record the applicant's consent to stay in your pool. German sources require consent for a talent pool, others allow a short period on a legitimate interest, so check the rule in your country."
+      },
+      {
+        "question": "Does the agent contact applicants or reject anyone?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Messages such as an acknowledgement or a rejection are drafts that exist only when you ask for them, and you send them yourself. Nothing is rejected automatically."
+      }
+    ]
+  },
   "prompt": {
     "intro": "I hire for my small business and applicants wait too long for an answer while interview notes sit in different places. Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
     "questions": [

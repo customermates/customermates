@@ -117,6 +117,52 @@
     "pass_reason_field": "Elke deal legt vast waarom hij is afgewezen.",
     "board_view": "De deals openen als bord per fase."
   },
+  "page": {
+    "metaTitle": "CRM voor investeerders: dealflow-sjabloon met afwijzingen",
+    "metaDescription": "Een CRM voor je dealflow: wie een deal aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Plak het sjabloon in je AI-agent en hij bouwt het voor je.",
+    "headline": "Een CRM voor investeerders dat onthoudt wie een deal aandroeg en wanneer je opnieuw kijkt, gebouwd door je AI-agent",
+    "answer": "Dealflow is een trechter die bijna alles afwijst, dus de waarde zit in de relatielaag eromheen: wie een startup aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Plak dit sjabloon in je AI-agent en hij bouwt in Customermates een lijst met deals in acht fasen, van gesignaleerd tot gesloten of afgewezen, met startups, investeerders en opvolgacties met datum. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse pijplijnbespreking",
+      "steps": [
+        "Open het dealbord en noteer wat deze week nieuw is en wat in beweging kwam.",
+        "Kijk naar deals die al 14 dagen in screening staan en beslis: opnieuw aanspreken of afwijzen.",
+        "Leg bij elke afwijzing de reden en een datum om terug te komen vast en stuur een afwijzing waar dat past.",
+        "Stuur na een eerste gesprek een opvolging met de volgende stappen en start bij een afgesproken term sheet de checklist voor de due diligence.",
+        "Bedank de introducers van nieuwe deals en vraag na bij elke introductie die een week geleden is gevraagd en niet is gebeurd.",
+        "Bekijk afgewezen deals waarvan de datum om terug te komen is aangebroken en beoordeel ze opnieuw met de eerdere context."
+      ]
+    },
+    "limits": [
+      "Er is geen relatiescore en geen verrijking van bedrijven. Op Customermates Cloud met het abonnement Pro of hoger verschijnen e-mails met het adres uit de contactgegevens van een record bij dat record en kun je vanaf daar afspraken in je agenda plannen; een agent werkt via MCP.",
+      "Het is geen portaal voor LP's, geen cap table en geen fondsboekhouding. Tools als Carta of Dynamo doen die klussen.",
+      "Het is geen dealdatabase en geen bron van marktdata zoals PitchBook, Dealroom of Crunchbase.",
+      "Het is geen data room en geen tool voor elektronische handtekening. Link in plaats daarvan je data room, bijvoorbeeld DocSend of Papermark.",
+      "Het stelt geen juridische documenten op en beslist niet over KYC, antiwitwascontrole of toetsing van buitenlandse investeringen. Dat is aan juristen en compliance, het sjabloon bewaart data en links."
+    ],
+    "faq": [
+      {
+        "question": "Welke fasen heeft een dealflow?",
+        "answer": "Beoefenaars zijn het eens over zeven fasen: sourcing, screening, eerste gesprek, due diligence, investeringscommissie, term sheet en closing. Het sjabloon gebruikt acht fasen: Gesignaleerd, Screening, Eerste gesprek, Investeringscommissie, Due diligence, Term sheet, Gesloten en Afgewezen. Investeerders financieren minder dan 1 procent van de bedrijven die ze zien."
+      },
+      {
+        "question": "Waarom de reden van een afwijzing vastleggen?",
+        "answer": "Met een afwijzing met reden kijk je later met context opnieuw naar het bedrijf. Het sjabloon legt bij elke deal een afwijzingsreden en een datum om terug te komen vast en maakt op die datum een actie voor herbeoordeling aan. Zonder die notitie wordt dezelfde deal de volgende keer van nul af beoordeeld."
+      },
+      {
+        "question": "Kan een oprichter het gebruiken om investeerders te volgen?",
+        "answer": "De structuur past: één deal per gesprek met een investeerder. Volg elke investeerder als persoon, niet alleen het fonds, en houd geïnteresseerden elke vier tot zes weken of maandelijks op de hoogte. De velden zijn geschreven vanuit het perspectief van een investeerder, dus vraag je agent de velden te hernoemen die niet passen, zoals Onze rol en Match met de these."
+      },
+      {
+        "question": "Wanneer moet een fonds overstappen op Affinity of Attio?",
+        "answer": "Wanneer je een relatiescore, ranking van introductiepaden, verrijking of rapportage aan LP's nodig hebt. E-mailgesprekken verschijnen al bij het record met het passende adres (Customermates Cloud, abonnement Pro of hoger), maar niets scoort relaties of rankt paden. Voor een klein fonds of business angel die met één lijst en een wekelijkse bespreking werkt, is dit sjabloon genoeg."
+      },
+      {
+        "question": "Neemt de agent contact op met startups of investeerders?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik bekijk veel startups en vergeet wie ze aandroeg, waarom ik nee zei en wanneer ik opnieuw wilde kijken. Richt een dealflow in mijn Customermates-werkruimte in: deals met acht fasen, de introducer, match met de these, de rol als lead, een reden van afwijzing en een datum om terug te komen, plus startups, investeerders en opvolgacties met datum.",
     "questions": [

@@ -1284,14 +1284,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "proof",
@@ -1733,6 +1733,52 @@
         "renewals_board_view": "Die Verlängerungen öffnen sich als Board nach Phase.",
         "advice_documentation_page": "Die Wissensdatenbank enthält eine Seite zur Beratungsdokumentation."
       },
+      "page": {
+        "metaTitle": "Versicherungsmakler Software: Neugeschäft und Verlängerungen",
+        "metaDescription": "Keine Hauptfälligkeit verpassen: Vorlage in Claude, ChatGPT oder Codex einfügen, Ihr KI-Agent baut Neugeschäft und Verlängerungen mit dokumentierter Beratung.",
+        "headline": "Keine Hauptfälligkeit verpassen: eine Maklersoftware, die Ihr KI-Agent für Neugeschäft und Verlängerungen aufbaut",
+        "answer": "Eine Software für Versicherungsmakler führt zwei Pipelines nebeneinander: Neugeschäft von der Anfrage bis zur Police und für jeden Vertrag einen Verlängerungsfall, der lange vor der Hauptfälligkeit eröffnet wird. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit der Beratung dokumentiert vor jedem Angebot. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Vertragsdaten bleiben in Ihrem Maklerverwaltungsprogramm.",
+        "routine": {
+          "title": "Die wöchentliche Routine am Maklerschreibtisch",
+          "steps": [
+            "Öffnen Sie die anstehenden Verlängerungen: Gewerbeverträge etwa ab 120 Tagen vor der Hauptfälligkeit, Privatverträge etwa ab 45 Tagen. Geben Sie jedem Fall einen Zuständigen und einen ersten Schritt.",
+            "Fassen Sie bei den Versicherern nach, wenn Angebote ausstehen, und bei den Kunden, die auf ein Verlängerungsangebot nach einer Woche nicht geantwortet haben.",
+            "Prüfen Sie, dass jedes Angebot das Datum der Beratungsdokumentation trägt, die Bedarfsanalyse also vor dem Angebot dokumentiert ist. Fassen Sie jedes Angebot am Tag nach der Vorstellung nach.",
+            "Lassen Sie sich die Entscheidung des Kunden etwa 30 Tage vor der Verlängerung bestätigen, vor dem Kündigungstermin des Vertrags.",
+            "Rufen Sie neue Kunden eine Woche nach Erhalt der Police an und schreiben Sie dem Kunden, wenn Ihr Maklerverwaltungsprogramm eine unbezahlte Prämie meldet."
+          ]
+        },
+        "limits": [
+          "Es ist kein Maklerverwaltungsprogramm und keine Vertragsverwaltung. Verträge, Prämien und Courtageabrechnungen bleiben in Ihrem Maklerverwaltungsprogramm; hier halten Sie einen Verweis und die Hauptfälligkeit.",
+          "Es ist kein Vergleichs- oder Tarifrechner. Angebote kommen aus Versicherungsportalen und Vergleichsprogrammen, und Sie tragen das Ergebnis ein.",
+          "Es bearbeitet keine Schäden, keine Anträge beim Risikoträger und keine Courtage-Abrechnung.",
+          "Es speichert keine Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien und auch nicht das Beratungsprotokoll selbst: nur dessen Datum und einen Link dorthin, wo Sie es ablegen.",
+          "Es erstellt oder bescheinigt keine Beratung. Es hält fest, dass die Beratung vor dem Angebot dokumentiert wurde; die Beratung ist Ihre, und welche Pflichten gelten, hängt von Ihrem Land ab.",
+          "Es gibt keinen Massenversand, keine Sequenzen, keine Telefonie und keine SMS. Nachrichten sind einzelne Entwürfe, die Sie prüfen und senden."
+        ],
+        "faq": [
+          {
+            "question": "Worin unterscheiden sich Maklerverwaltungsprogramm und CRM?",
+            "answer": "Das Maklerverwaltungsprogramm hält Verträge, Prämien, Dokumente und Courtageabrechnungen. Ein CRM hält die Beziehung und den nächsten Schritt: wer angefragt hat, welches Angebot offen ist, welche Verlängerung ansteht und wer bis wann wen anruft. Diese Vorlage ist die zweite Schicht und hält nur Verweise auf die erste."
+          },
+          {
+            "question": "Wie lange vor der Hauptfälligkeit sollte ich die Verlängerung beginnen?",
+            "answer": "Das hängt von Sparte und Land ab. Quellen nennen etwa 90 bis 120 Tage bei Gewerbeverträgen und 30 bis 45 Tage bei Privatverträgen. Die Vorlage eröffnet einen Verlängerungsfall 120 Tage vor der Hauptfälligkeit bei Gewerbeverträgen und 45 Tage davor bei Privatverträgen; beides können Sie ändern. Kündigungsfristen unterscheiden sich nach Vertrag, prüfen Sie also in der Police die tatsächliche Frist."
+          },
+          {
+            "question": "Muss ich die Beratung vor einem Angebot dokumentieren?",
+            "answer": "In der EU verlangt die Versicherungsvertriebsrichtlinie (IDD) eine Bedarfsanalyse vor Vertragsabschluss, und viele Länder erwarten, dass die Beratung dokumentiert wird. Die Einzelheiten hängen von Ihrem Land ab und davon, ob Sie als Makler oder Vertreter auftreten, prüfen Sie also Ihre eigenen Pflichten. Die Vorlage hält das Datum der Beratung und einen Link zum Ablageort fest und zeigt Angebote, bei denen beides fehlt. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Darf ich Vertrags- und Gesundheitsdaten im CRM speichern?",
+            "answer": "Speichern Sie so wenig wie möglich: einen Verweis oder Link auf den Vertrag, die Sparte, die Hauptfälligkeit und die Jahresprämie. Gesundheitsdaten, Schadendetails, Bankdaten und Ausweiskopien bleiben draußen, und Customermates hat keine Berechtigungen auf Feldebene, um einzelne Spalten zu verbergen. Legen Sie die Dokumente in Ihrem Maklerverwaltungsprogramm oder in einem Dokumentenspeicher mit Zugriffskontrolle ab."
+          },
+          {
+            "question": "Schreibt der Agent meine Kunden an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ich betreue einen Maklerbestand, die Verlängerungen kommen oft überraschend, und vor jedem Angebot muss ich die Beratung dokumentieren. Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
         "questions": [
@@ -2169,6 +2215,52 @@
         "renewal_date_field": "Every policy records its renewal date.",
         "renewals_board_view": "The renewals open as a board by stage.",
         "advice_documentation_page": "The knowledge base holds a page on advice documentation."
+      },
+      "page": {
+        "metaTitle": "Insurance Broker CRM: New Business and Renewals",
+        "metaDescription": "Never miss a renewal. Paste this template into Claude, ChatGPT or Codex: your agent builds an insurance broker CRM with advice records and renewal cases.",
+        "headline": "Never miss a renewal: an insurance broker CRM your AI agent builds for new business and renewals",
+        "answer": "An insurance broker CRM runs two pipelines side by side: new business from inquiry to bound policy, and a renewal case for every policy that opens well before it expires. Paste this template into your AI agent and it builds both in Customermates, with the advice documented before every offer. You approve the plan before anything is built. Policy data stays in your agency system.",
+        "routine": {
+          "title": "The broker's weekly desk routine",
+          "steps": [
+            "Open the renewals coming up: commercial policies from about 120 days before expiry, personal lines from about 45 days. Give each case an owner and a first step.",
+            "Chase the insurers for quotes that are late, and the clients who have not answered a renewal offer after a week.",
+            "Check that every offer carries the date of the advice record, so the needs analysis is documented before the offer goes out. Follow each offer up the day after you present it.",
+            "Confirm the client's decision about 30 days before renewal, ahead of the notice date of the contract.",
+            "Call new clients a week after the policy is bound, and write to the client when your agency system reports an unpaid premium."
+          ]
+        },
+        "limits": [
+          "It is not your agency management system or policy administration. Policies, premiums and commission statements stay in your agency system; here you keep a reference and the renewal date.",
+          "It is not a comparison or rating engine. Quotes come from carrier portals and comparison tools, and you record the result.",
+          "It does not handle claims, underwriting submissions or commission reconciliation.",
+          "It stores no health data, claims details, bank details or identity copies, and not the advice record itself: only its date and a link to where you keep it.",
+          "It does not produce or certify advice. It records that the advice was documented before the offer; the advice is yours, and the duties that apply depend on your country.",
+          "It has no mass mailing, sequences, telephony or SMS. Messages are individual drafts that you review and send."
+        ],
+        "faq": [
+          {
+            "question": "What is the difference between an agency system and a CRM for a broker?",
+            "answer": "The agency management system holds policies, premiums, documents and commission statements. A CRM holds the relationship and the next step: who asked, which quote is open, which renewal is coming and who calls whom by when. This template is the second layer and keeps only references to the first."
+          },
+          {
+            "question": "How long before expiry should I start a renewal?",
+            "answer": "It differs by line and country. Sources suggest about 90 to 120 days for commercial policies and 30 to 45 days for personal lines. The template opens a commercial renewal case 120 days before expiry and a personal one 45 days before, and you can change both. Notice periods differ by country and contract, so check the policy for the real deadline."
+          },
+          {
+            "question": "Do I have to document advice before an offer?",
+            "answer": "In the EU the Insurance Distribution Directive requires a needs analysis before a contract is concluded, and many countries expect the advice to be documented. The details depend on your country and on whether you act as broker or agent, so check your own duties. The template records the date of the advice and a link to where it is stored, and shows offers that have none. This is not legal advice."
+          },
+          {
+            "question": "Can I store policy and health data in the CRM?",
+            "answer": "Store as little as possible: a reference or link to the policy, the line, the renewal date and the annual premium. Health data, claims details, bank details and identity copies stay out, and Customermates has no field-level permissions to hide single columns. Keep the documents in your agency system or in a document store with access control."
+          },
+          {
+            "question": "Does the agent write to my clients?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "I run a broker book and renewals sneak up on me, while I also have to document the advice before every offer. Set up an insurance broker pipeline in my Customermates workspace: new business from lead to bound with the advice documented before the offer, policies with a renewal date and a renewal case for each, and dated follow-ups. Store no health data, claims details or identity copies.",
@@ -2607,6 +2699,52 @@
         "renewals_board_view": "Las renovaciones se abren como tablero por fase.",
         "advice_documentation_page": "La base de conocimiento contiene una página sobre la documentación del asesoramiento."
       },
+      "page": {
+        "metaTitle": "CRM de correduría de seguros: nuevo negocio y renovaciones",
+        "metaDescription": "Que ninguna renovación se te pase: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el CRM con asesoramiento documentado.",
+        "headline": "Que ninguna renovación se te pase: el CRM de correduría que tu agente de IA monta para nuevo negocio y renovaciones",
+        "answer": "Un CRM de correduría de seguros lleva dos pipelines a la vez: el nuevo negocio, de la consulta a la póliza activa, y un caso de renovación por cada póliza que se abre mucho antes de su vencimiento. Pega esta plantilla en tu agente de IA y él monta ambos en Customermates, con el asesoramiento documentado antes de cada propuesta. Tú apruebas el plan antes de que se construya nada. Los datos de las pólizas se quedan en tu programa de gestión.",
+        "routine": {
+          "title": "La rutina semanal de la mesa de la correduría",
+          "steps": [
+            "Abre las renovaciones que se acercan: pólizas de empresa desde unos 120 días antes del vencimiento, pólizas de particulares desde unos 45 días. Da a cada caso un responsable y un primer paso.",
+            "Reclama a las aseguradoras las ofertas que se retrasan y a los clientes que no han respondido a una propuesta de renovación pasada una semana.",
+            "Comprueba que cada propuesta lleve la fecha del registro del asesoramiento, es decir, que el análisis de necesidades esté documentado antes de enviarla. Haz seguimiento de cada propuesta al día siguiente de presentarla.",
+            "Pide al cliente que confirme su decisión unos 30 días antes de la renovación, antes de la fecha de preaviso del contrato.",
+            "Llama a los clientes nuevos una semana después de emitirse la póliza y escribe al cliente cuando tu programa de gestión avise de una prima impagada."
+          ]
+        },
+        "limits": [
+          "No es tu programa de gestión de la correduría ni la administración de pólizas. Las pólizas, las primas y los extractos de comisiones se quedan en tu programa de gestión; aquí guardas una referencia y la fecha de renovación.",
+          "No es un comparador ni un tarificador. Las ofertas vienen de los portales de las aseguradoras y de los comparadores, y tú registras el resultado.",
+          "No gestiona siniestros, solicitudes de suscripción ni la conciliación de comisiones.",
+          "No guarda datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad, y tampoco el registro del asesoramiento: solo su fecha y un enlace a donde lo guardas.",
+          "No elabora ni certifica el asesoramiento. Registra que el asesoramiento se documentó antes de la propuesta; el asesoramiento es tuyo, y las obligaciones aplicables dependen de tu país.",
+          "No hay envíos masivos, secuencias, telefonía ni SMS. Los mensajes son borradores individuales que revisas y envías tú."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué diferencia hay entre el programa de gestión y un CRM para un corredor?",
+            "answer": "El programa de gestión guarda pólizas, primas, documentos y extractos de comisiones. Un CRM guarda la relación y el próximo paso: quién ha preguntado, qué oferta está abierta, qué renovación se acerca y quién llama a quién y para cuándo. Esta plantilla es la segunda capa y solo guarda referencias a la primera."
+          },
+          {
+            "question": "¿Con cuánta antelación debo empezar una renovación?",
+            "answer": "Depende del ramo y del país. Las fuentes apuntan a entre 90 y 120 días en pólizas de empresa y entre 30 y 45 en las de particulares. La plantilla abre un caso de renovación 120 días antes del vencimiento en pólizas de empresa y 45 días antes en las de particulares, y puedes cambiar ambos. Los plazos de preaviso varían según el país y el contrato: comprueba en la póliza el plazo real."
+          },
+          {
+            "question": "¿Tengo que documentar el asesoramiento antes de una propuesta?",
+            "answer": "En la UE, la Directiva sobre la distribución de seguros exige un análisis de necesidades antes de celebrar el contrato, y muchos países esperan que el asesoramiento quede documentado. Los detalles dependen de tu país y de si actúas como corredor o como agente: comprueba tus propias obligaciones. La plantilla registra la fecha del asesoramiento y un enlace a donde se guarda, y muestra las propuestas que no lo tienen. No es asesoramiento jurídico."
+          },
+          {
+            "question": "¿Puedo guardar datos de pólizas o de salud en el CRM?",
+            "answer": "Guarda lo mínimo: una referencia o enlace a la póliza, el ramo, la fecha de renovación y la prima anual. Los datos de salud, los detalles de siniestros, los datos bancarios y las copias de documentos de identidad se quedan fuera, y Customermates no tiene permisos a nivel de campo para ocultar columnas sueltas. Guarda los documentos en tu programa de gestión o en un almacén documental con control de acceso."
+          },
+          {
+            "question": "¿El agente escribe a mis clientes?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Llevo una cartera de seguros y las renovaciones me pillan por sorpresa, además de tener que documentar el asesoramiento antes de cada propuesta. Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
         "questions": [
@@ -3043,6 +3181,52 @@
         "renewal_date_field": "Chaque contrat indique son échéance principale.",
         "renewals_board_view": "Les renouvellements s’ouvrent en board par étape.",
         "advice_documentation_page": "La base de connaissances contient une page sur la traçabilité du conseil."
+      },
+      "page": {
+        "metaTitle": "Logiciel courtage assurance : renouvellements maîtrisés",
+        "metaDescription": "Ne ratez plus un renouvellement : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit un CRM de courtier avec conseil documenté.",
+        "headline": "Ne ratez plus une échéance : le CRM de courtier en assurance que votre agent IA construit pour vous",
+        "answer": "Un CRM de courtier en assurance mène deux pipelines côte à côte : les affaires nouvelles de la demande au contrat émis, et un dossier de renouvellement pour chaque contrat, ouvert bien avant l’échéance. Collez ce modèle dans votre agent IA : il construit les deux dans Customermates, avec le conseil documenté avant chaque proposition. Vous validez le plan avant que rien ne soit créé. Les données des contrats restent dans votre logiciel de cabinet.",
+        "routine": {
+          "title": "La routine hebdomadaire du bureau de courtage",
+          "steps": [
+            "Ouvrez les renouvellements à venir : contrats professionnels à partir d’environ 120 jours avant l’échéance, contrats de particuliers à partir d’environ 45 jours. Donnez à chaque dossier un responsable et une première étape.",
+            "Relancez les assureurs dont les cotations tardent, et les clients qui n’ont pas répondu à une proposition de renouvellement au bout d’une semaine.",
+            "Vérifiez que chaque proposition porte la date de la trace du conseil, donc que l’analyse des besoins est documentée avant l’envoi. Relancez chaque proposition le lendemain de sa présentation.",
+            "Faites confirmer la décision du client environ 30 jours avant le renouvellement, avant la date limite de préavis du contrat.",
+            "Appelez les nouveaux clients une semaine après l’émission du contrat, et écrivez au client quand votre logiciel de cabinet signale une prime impayée."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas votre logiciel de gestion de cabinet ni de gestion de contrats. Contrats, primes et états de commissions restent dans votre logiciel de cabinet ; ici vous gardez un renvoi et l’échéance.",
+          "Ce n’est pas un comparateur ni un tarificateur. Les cotations viennent des portails des assureurs et des comparateurs, et vous consignez le résultat.",
+          "Il ne gère ni les sinistres, ni les dossiers de souscription auprès de l’assureur, ni le rapprochement des commissions.",
+          "Il ne conserve ni données de santé, ni détails de sinistres, ni coordonnées bancaires, ni copies de pièces d’identité, ni la trace du conseil elle-même : seulement sa date et un lien vers l’endroit où vous la gardez.",
+          "Il ne produit ni ne certifie le conseil. Il consigne que le conseil a été documenté avant la proposition ; le conseil est le vôtre, et les obligations applicables dépendent de votre pays.",
+          "Il n’a ni envoi en masse, ni séquences, ni téléphonie, ni SMS. Les messages sont des brouillons individuels que vous relisez et envoyez."
+        ],
+        "faq": [
+          {
+            "question": "Quelle différence entre un logiciel de cabinet et un CRM pour un courtier ?",
+            "answer": "Le logiciel de cabinet conserve les contrats, les primes, les documents et les états de commissions. Un CRM conserve la relation et la prochaine étape : qui a demandé, quelle cotation est ouverte, quel renouvellement approche et qui appelle qui, pour quand. Ce modèle est la seconde couche et ne garde que des renvois vers la première."
+          },
+          {
+            "question": "Combien de temps avant l’échéance faut-il lancer un renouvellement ?",
+            "answer": "Cela dépend de la branche et du pays. Les sources évoquent environ 90 à 120 jours pour les contrats professionnels et 30 à 45 jours pour les particuliers. Le modèle ouvre un dossier de renouvellement 120 jours avant l’échéance pour un contrat professionnel et 45 jours avant pour un particulier, et vous pouvez changer les deux. Les préavis varient selon le pays et le contrat : vérifiez dans la police le délai réel."
+          },
+          {
+            "question": "Dois-je documenter le conseil avant une proposition ?",
+            "answer": "Dans l’UE, la directive sur la distribution d’assurances impose une analyse des besoins avant la conclusion du contrat, et de nombreux pays attendent que le conseil soit documenté. Les détails dépendent de votre pays et de votre statut de courtier ou d’agent : vérifiez vos propres obligations. Le modèle consigne la date du conseil et un lien vers l’endroit où il est conservé, et montre les propositions qui n’en ont pas. Ce n’est pas un avis juridique."
+          },
+          {
+            "question": "Puis-je stocker dans le CRM des données de contrats ou de santé ?",
+            "answer": "Stockez le moins possible : un renvoi ou un lien vers le contrat, la branche, l’échéance et la prime annuelle. Les données de santé, les détails de sinistres, les coordonnées bancaires et les copies de pièces d’identité restent dehors, et Customermates n’a pas de droits au niveau du champ pour masquer une colonne. Gardez les documents dans votre logiciel de cabinet ou dans un espace documentaire à accès contrôlé."
+          },
+          {
+            "question": "L’agent écrit-il à mes clients ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
       },
       "prompt": {
         "intro": "Je gère un portefeuille de courtage : les renouvellements me prennent de court et je dois documenter le conseil avant chaque proposition. Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
@@ -3481,6 +3665,52 @@
         "renewals_board_view": "I rinnovi si aprono come board per fase.",
         "advice_documentation_page": "La base di conoscenza contiene una pagina sulla documentazione della consulenza."
       },
+      "page": {
+        "metaTitle": "CRM per broker assicurativo: nuovi affari e rinnovi",
+        "metaDescription": "Nessun rinnovo perso: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il CRM del broker con la consulenza documentata.",
+        "headline": "Nessun rinnovo dimenticato: il CRM del broker assicurativo che il tuo agente IA costruisce per nuovi affari e rinnovi",
+        "answer": "Un CRM per broker assicurativo gestisce due pipeline fianco a fianco: i nuovi affari dalla richiesta alla polizza attiva e una pratica di rinnovo per ogni polizza, aperta molto prima della scadenza. Incolla questo modello nel tuo agente IA e costruisce entrambe in Customermates, con la consulenza documentata prima di ogni proposta. Approvi il piano prima che venga costruito qualcosa. I dati delle polizze restano nel tuo gestionale assicurativo.",
+        "routine": {
+          "title": "La routine settimanale della scrivania del broker",
+          "steps": [
+            "Apri i rinnovi in arrivo: polizze aziende da circa 120 giorni prima della scadenza, polizze privati da circa 45 giorni. Dai a ogni pratica un responsabile e un primo passo.",
+            "Sollecita le compagnie per le quotazioni in ritardo e i clienti che non hanno risposto a una proposta di rinnovo dopo una settimana.",
+            "Verifica che ogni proposta riporti la data della consulenza documentata, così l'analisi delle esigenze è documentata prima dell'invio. Ricontatta ogni proposta il giorno dopo averla presentata.",
+            "Fai confermare la decisione del cliente circa 30 giorni prima del rinnovo, prima del termine di disdetta del contratto.",
+            "Chiama i nuovi clienti una settimana dopo l'emissione della polizza e scrivi al cliente quando il tuo gestionale segnala un premio non pagato."
+          ]
+        },
+        "limits": [
+          "Non è il tuo gestionale assicurativo né l'amministrazione delle polizze. Polizze, premi ed estratti provvigionali restano nel gestionale; qui tieni un rimando e la scadenza.",
+          "Non è un comparatore né un motore tariffario. Le quotazioni arrivano dai portali delle compagnie e dai comparatori, e tu registri il risultato.",
+          "Non gestisce sinistri, richieste di sottoscrizione né la riconciliazione delle provvigioni.",
+          "Non conserva dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità, e nemmeno la documentazione della consulenza: solo la sua data e un link a dove la tieni.",
+          "Non produce né certifica la consulenza. Registra che la consulenza è stata documentata prima della proposta; la consulenza è tua, e gli obblighi che valgono dipendono dal tuo paese.",
+          "Non ha invii di massa, sequenze, telefonia né SMS. I messaggi sono bozze singole che controlli e invii tu."
+        ],
+        "faq": [
+          {
+            "question": "Che differenza c'è tra il gestionale assicurativo e un CRM per un broker?",
+            "answer": "Il gestionale conserva polizze, premi, documenti ed estratti provvigionali. Un CRM conserva la relazione e il prossimo passo: chi ha chiesto, quale quotazione è aperta, quale rinnovo si avvicina e chi chiama chi, entro quando. Questo modello è il secondo livello e tiene solo rimandi al primo."
+          },
+          {
+            "question": "Quanto prima della scadenza devo iniziare un rinnovo?",
+            "answer": "Dipende dal ramo e dal paese. Le fonti indicano da circa 90 a 120 giorni per le polizze aziende e da 30 a 45 per i privati. Il modello apre una pratica di rinnovo 120 giorni prima della scadenza per le polizze aziende e 45 giorni prima per i privati, e puoi cambiare entrambi. I termini di disdetta variano da paese a paese e da contratto a contratto: controlla nella polizza il termine reale."
+          },
+          {
+            "question": "Devo documentare la consulenza prima di una proposta?",
+            "answer": "Nell'UE la direttiva sulla distribuzione assicurativa richiede un'analisi delle esigenze prima della conclusione del contratto, e molti paesi si aspettano che la consulenza sia documentata. I dettagli dipendono dal tuo paese e dal fatto che tu operi come broker o come agente: controlla i tuoi obblighi. Il modello registra la data della consulenza e un link a dove è conservata, e mostra le proposte che ne sono prive. Non è una consulenza legale."
+          },
+          {
+            "question": "Posso salvare nel CRM dati delle polizze o dati sanitari?",
+            "answer": "Salva il meno possibile: un rimando o un link alla polizza, il ramo, la scadenza e il premio annuo. Dati sanitari, dettagli dei sinistri, coordinate bancarie e copie dei documenti d'identità restano fuori, e Customermates non ha permessi a livello di campo per nascondere singole colonne. Tieni i documenti nel gestionale o in un archivio documentale con accesso controllato."
+          },
+          {
+            "question": "L'agente scrive ai miei clienti?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Gestisco un portafoglio assicurativo: i rinnovi mi colgono di sorpresa e devo anche documentare la consulenza prima di ogni proposta. Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
         "questions": [
@@ -3917,6 +4147,52 @@
         "renewal_date_field": "Elke polis legt haar hoofdvervaldatum vast.",
         "renewals_board_view": "De prolongaties openen als bord per fase.",
         "advice_documentation_page": "De kennisbank bevat een pagina over het vastleggen van het advies."
+      },
+      "page": {
+        "metaTitle": "CRM voor verzekeringsadviseurs: aanvragen en prolongaties",
+        "metaDescription": "Mis geen prolongatie meer: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt een CRM met vastgelegd advies en prolongatiezaken.",
+        "headline": "Mis geen prolongatie meer: een CRM voor verzekeringsadviseurs dat je AI-agent bouwt voor nieuwe zaken en prolongaties",
+        "answer": "Een CRM voor verzekeringsadviseurs laat twee pijplijnen naast elkaar lopen: nieuwe zaken van aanvraag tot ontvangen polis, en een prolongatiezaak voor elke polis die ruim voor de hoofdvervaldatum opent. Plak dit sjabloon in je AI-agent en die bouwt beide in Customermates, met het advies vastgelegd vóór elke offerte. Je keurt het plan goed voordat er iets wordt gebouwd. Polisgegevens blijven in je administratiesysteem.",
+        "routine": {
+          "title": "De wekelijkse routine aan het bureau van de adviseur",
+          "steps": [
+            "Open de aankomende prolongaties: zakelijke polissen vanaf ongeveer 120 dagen voor de hoofdvervaldatum, particuliere polissen vanaf ongeveer 45 dagen. Geef elke zaak een verantwoordelijke en een eerste stap.",
+            "Zet de verzekeraars aan met te late offertes, en de klanten die na een week niet hebben gereageerd op een prolongatieofferte.",
+            "Controleer dat elke offerte de datum van het vastgelegde advies draagt, dus dat de behoefteanalyse is vastgelegd voordat de offerte de deur uit gaat. Volg elke offerte de dag na de presentatie op.",
+            "Laat de klant ongeveer 30 dagen voor de prolongatie zijn beslissing bevestigen, voor de opzegdatum van het contract.",
+            "Bel nieuwe klanten een week nadat de polis is ontvangen en schrijf de klant als je administratiesysteem een onbetaalde premie meldt."
+          ]
+        },
+        "limits": [
+          "Het is niet je administratiesysteem of polisadministratie. Polissen, premies en provisie-afrekeningen blijven in je administratiesysteem; hier bewaar je een verwijzing en de hoofdvervaldatum.",
+          "Het is geen vergelijker of premieberekening. Offertes komen uit de portalen van verzekeraars en vergelijkers, en jij legt het resultaat vast.",
+          "Het behandelt geen schades, geen aanvragen voor acceptatie en geen provisie-afstemming.",
+          "Het bewaart geen gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen, en ook niet het adviesdossier zelf: alleen de datum en een link naar waar je het bewaart.",
+          "Het maakt of certificeert geen advies. Het legt vast dat het advies vóór de offerte is vastgelegd; het advies is van jou, en welke plichten gelden hangt af van je land.",
+          "Er is geen massaverzending, geen reeksen, geen telefonie en geen sms. Berichten zijn losse concepten die jij nakijkt en verstuurt."
+        ],
+        "faq": [
+          {
+            "question": "Wat is het verschil tussen een administratiesysteem en een CRM voor een adviseur?",
+            "answer": "Het administratiesysteem bewaart polissen, premies, documenten en provisie-afrekeningen. Een CRM bewaart de relatie en de volgende stap: wie er heeft gevraagd, welke offerte openstaat, welke prolongatie eraan komt en wie wie belt en voor wanneer. Dit sjabloon is de tweede laag en bewaart alleen verwijzingen naar de eerste."
+          },
+          {
+            "question": "Hoe lang voor de vervaldatum moet ik een prolongatie starten?",
+            "answer": "Dat hangt af van de branche en het land. Bronnen noemen ongeveer 90 tot 120 dagen voor zakelijke polissen en 30 tot 45 voor particuliere. Het sjabloon opent een prolongatiezaak 120 dagen voor de hoofdvervaldatum bij zakelijke polissen en 45 dagen ervoor bij particuliere, en je kunt beide aanpassen. Opzegtermijnen verschillen per land en contract, dus controleer in de polis de echte termijn."
+          },
+          {
+            "question": "Moet ik het advies vastleggen vóór een offerte?",
+            "answer": "In de EU eist de richtlijn voor verzekeringsdistributie een behoefteanalyse voordat een contract wordt gesloten, en veel landen verwachten dat het advies wordt vastgelegd. De details hangen af van je land en van de vraag of je als adviseur of als agent optreedt, dus controleer je eigen plichten. Het sjabloon legt de datum van het advies vast en een link naar waar het is opgeslagen, en toont offertes zonder. Dit is geen juridisch advies."
+          },
+          {
+            "question": "Mag ik polisgegevens en gezondheidsgegevens in het CRM bewaren?",
+            "answer": "Bewaar zo weinig mogelijk: een verwijzing of link naar de polis, de branche, de hoofdvervaldatum en de jaarpremie. Gezondheidsgegevens, schadedetails, bankgegevens en kopieën van identiteitsbewijzen blijven eruit, en Customermates heeft geen rechten op veldniveau om losse kolommen te verbergen. Bewaar de documenten in je administratiesysteem of in een documentenopslag met toegangscontrole."
+          },
+          {
+            "question": "Mailt de agent mijn klanten?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en jij verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Ik adviseer klanten over verzekeringen, prolongaties komen steeds onverwacht en het advies moet ik vóór elke offerte vastleggen. Richt in mijn Customermates-werkruimte een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
@@ -4355,6 +4631,52 @@
         "renewals_board_view": "Odnowienia otwierają się jako tablica według etapu.",
         "advice_documentation_page": "Baza wiedzy zawiera stronę o dokumentacji rekomendacji."
       },
+      "page": {
+        "metaTitle": "Program dla brokera ubezpieczeniowego: odnowienia",
+        "metaDescription": "Żadne odnowienie nie umknie: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje CRM brokera z udokumentowaną rekomendacją przed ofertą.",
+        "headline": "Żadne odnowienie nie umknie: CRM brokera ubezpieczeniowego, który Twój agent AI buduje dla nowej sprzedaży i odnowień",
+        "answer": "CRM dla brokera ubezpieczeniowego prowadzi dwa lejki obok siebie: nową sprzedaż od zapytania do wystawionej polisy oraz sprawę odnowienia dla każdej polisy, otwieraną na długo przed jej wygaśnięciem. Wklej ten szablon do swojego agenta AI, a zbuduje oba w Customermates, z rekomendacją udokumentowaną przed każdą ofertą. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Dane polis zostają w Twoim systemie.",
+        "routine": {
+          "title": "Cotygodniowa rutyna przy biurku brokera",
+          "steps": [
+            "Otwórz nadchodzące odnowienia: polisy firmowe od około 120 dni przed terminem, polisy indywidualne od około 45 dni. Przypisz do każdej sprawy opiekuna i pierwszy krok.",
+            "Ponagl towarzystwa w sprawie spóźnionych ofert oraz klientów, którzy po tygodniu nie odpowiedzieli na ofertę odnowienia.",
+            "Sprawdź, czy każda oferta ma datę udokumentowania rekomendacji, czyli czy analiza potrzeb jest udokumentowana przed jej wysłaniem. Wróć do każdej oferty dzień po jej przedstawieniu.",
+            "Poproś klienta o potwierdzenie decyzji około 30 dni przed odnowieniem, przed terminem wypowiedzenia umowy.",
+            "Zadzwoń do nowych klientów tydzień po wystawieniu polisy i napisz do klienta, gdy Twój system zgłosi niezapłaconą składkę."
+          ]
+        },
+        "limits": [
+          "To nie jest Twój system do obsługi biura brokerskiego ani do administrowania polisami. Polisy, składki i rozliczenia prowizji zostają w Twoim systemie; tu trzymasz odnośnik i termin odnowienia.",
+          "To nie jest porównywarka ani kalkulator składek. Oferty pochodzą z portali towarzystw i porównywarek, a Ty zapisujesz wynik.",
+          "Nie obsługuje szkód, wniosków do underwritingu ani rozliczania prowizji.",
+          "Nie przechowuje danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości, a także samej dokumentacji rekomendacji: tylko jej datę i link do miejsca, gdzie ją trzymasz.",
+          "Nie tworzy ani nie poświadcza rekomendacji. Zapisuje, że rekomendacja została udokumentowana przed ofertą; rekomendacja jest Twoja, a to, jakie obowiązki Cię dotyczą, zależy od Twojego kraju.",
+          "Nie ma wysyłek masowych, sekwencji, telefonii ani SMS. Wiadomości to pojedyncze szkice, które sprawdzasz i wysyłasz sam."
+        ],
+        "faq": [
+          {
+            "question": "Czym różni się system biura brokerskiego od CRM?",
+            "answer": "System biura brokerskiego przechowuje polisy, składki, dokumenty i rozliczenia prowizji. CRM przechowuje relację i następny krok: kto zapytał, która oferta jest otwarta, które odnowienie się zbliża i kto do kogo dzwoni, do kiedy. Ten szablon to druga warstwa i trzyma tylko odnośniki do pierwszej."
+          },
+          {
+            "question": "Ile czasu przed terminem zacząć odnowienie?",
+            "answer": "To zależy od rodzaju ubezpieczenia i kraju. Źródła podają od 90 do 120 dni dla polis firmowych i od 30 do 45 dla indywidualnych. Szablon otwiera sprawę odnowienia 120 dni przed terminem dla polis firmowych i 45 dni przed dla indywidualnych, a oba terminy możesz zmienić. Terminy wypowiedzenia różnią się w zależności od kraju i umowy, więc sprawdź w polisie rzeczywisty termin."
+          },
+          {
+            "question": "Czy muszę dokumentować rekomendację przed ofertą?",
+            "answer": "W UE dyrektywa o dystrybucji ubezpieczeń wymaga analizy potrzeb przed zawarciem umowy, a wiele krajów oczekuje udokumentowania rekomendacji. W Polsce wynika to z ustawy o dystrybucji ubezpieczeń (analiza wymagań i potrzeb), ale szczegóły zależą od Twojego statusu, więc sprawdź własne obowiązki. Szablon zapisuje datę rekomendacji i link do miejsca jej przechowywania oraz pokazuje oferty bez niej. To nie jest porada prawna."
+          },
+          {
+            "question": "Czy mogę przechowywać w CRM dane polis i dane o zdrowiu?",
+            "answer": "Przechowuj jak najmniej: odnośnik lub link do polisy, rodzaj ubezpieczenia, termin odnowienia i roczną składkę. Dane o zdrowiu, szczegóły szkód, dane bankowe i kopie dokumentów tożsamości zostają poza CRM, a Customermates nie ma uprawnień na poziomie pola, które ukrywałyby pojedyncze kolumny. Dokumenty trzymaj w swoim systemie albo w repozytorium dokumentów z kontrolą dostępu."
+          },
+          {
+            "question": "Czy agent pisze do moich klientów?",
+            "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Prowadzę portfel klientów jako broker ubezpieczeniowy: odnowienia zaskakują mnie w ostatniej chwili, a przed każdą ofertą muszę jeszcze udokumentować rekomendację. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
         "questions": [
@@ -4791,6 +5113,52 @@
         "renewal_date_field": "Toda apólice registra o fim da vigência.",
         "renewals_board_view": "As renovações abrem como quadro por etapa.",
         "advice_documentation_page": "A base de conhecimento tem uma página sobre a documentação da recomendação."
+      },
+      "page": {
+        "metaTitle": "CRM para corretora de seguros: vendas novas e renovações",
+        "metaDescription": "Nenhuma renovação passa batido: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta o CRM da corretora com a recomendação documentada.",
+        "headline": "Nenhuma renovação passa batido: o CRM de corretora que seu agente de IA monta para vendas novas e renovações",
+        "answer": "Um CRM para corretora de seguros conduz dois funis lado a lado: as vendas novas, do primeiro contato à apólice emitida, e um caso de renovação para cada apólice, aberto bem antes do fim da vigência. Cole este modelo no seu agente de IA e ele monta os dois no Customermates, com a recomendação documentada antes de cada proposta. Você aprova o plano antes de qualquer coisa ser construída. Os dados das apólices ficam no seu sistema.",
+        "routine": {
+          "title": "A rotina semanal da mesa da corretora",
+          "steps": [
+            "Abra as renovações que se aproximam: apólices empresariais a partir de cerca de 120 dias antes do fim da vigência, apólices de pessoa física a partir de cerca de 45 dias. Dê a cada caso um responsável e um primeiro passo.",
+            "Cobre das seguradoras as cotações atrasadas e dos clientes que não responderam a uma proposta de renovação depois de uma semana.",
+            "Confira se cada proposta traz a data do registro da recomendação, ou seja, se a análise de necessidades está documentada antes do envio. Faça o acompanhamento de cada proposta no dia seguinte à apresentação.",
+            "Peça ao cliente que confirme a decisão cerca de 30 dias antes da renovação, antes do prazo de aviso do contrato.",
+            "Ligue para os clientes novos uma semana depois da emissão da apólice e escreva ao cliente quando o seu sistema avisar de um prêmio em atraso."
+          ]
+        },
+        "limits": [
+          "Não é o seu sistema de gestão da corretora nem a administração de apólices. Apólices, prêmios e extratos de comissões ficam no seu sistema; aqui você guarda uma referência e a data da renovação.",
+          "Não é um comparador nem um motor de tarifação. As cotações vêm dos portais das seguradoras e de comparadores, e você registra o resultado.",
+          "Não cuida de sinistros, de propostas de subscrição nem da conciliação de comissões.",
+          "Não guarda dados de saúde, detalhes de sinistros, dados bancários nem cópias de documentos de identidade, e também não o registro da recomendação: só a data dele e um link para onde você o guarda.",
+          "Não produz nem certifica a recomendação. Registra que a recomendação foi documentada antes da proposta; a recomendação é sua, e as obrigações que valem dependem do seu país.",
+          "Não há disparos em massa, sequências, telefonia nem SMS. As mensagens são rascunhos individuais que você revisa e envia."
+        ],
+        "faq": [
+          {
+            "question": "Qual a diferença entre o sistema da corretora e um CRM?",
+            "answer": "O sistema da corretora guarda apólices, prêmios, documentos e extratos de comissões. Um CRM guarda o relacionamento e o próximo passo: quem pediu, qual cotação está aberta, qual renovação se aproxima e quem liga para quem e até quando. Este modelo é a segunda camada e guarda só referências à primeira."
+          },
+          {
+            "question": "Com quanta antecedência devo começar uma renovação?",
+            "answer": "Depende do ramo e do país. As fontes apontam de 90 a 120 dias para apólices empresariais e de 30 a 45 para pessoa física. O modelo abre um caso de renovação 120 dias antes do fim da vigência nas apólices empresariais e 45 dias antes nas de pessoa física, e você pode mudar os dois. Os prazos de aviso variam conforme o país e o contrato: confira na apólice o prazo real."
+          },
+          {
+            "question": "Preciso documentar a recomendação antes de uma proposta?",
+            "answer": "Na União Europeia, a Diretiva de Distribuição de Seguros exige uma análise de necessidades antes da celebração do contrato, e muitos países esperam que a recomendação fique documentada. Os detalhes dependem do seu país e do órgão regulador, como a Susep no Brasil, então confira as suas próprias obrigações. O modelo registra a data da recomendação e um link para onde ela está guardada, e mostra as propostas que não têm. Não é aconselhamento jurídico."
+          },
+          {
+            "question": "Posso guardar dados de apólices ou de saúde no CRM?",
+            "answer": "Guarde o mínimo: uma referência ou link da apólice, o ramo, a data da renovação e o prêmio anual. Dados de saúde, detalhes de sinistros, dados bancários e cópias de documentos de identidade ficam de fora, e o Customermates não tem permissões por campo para esconder colunas isoladas. Guarde os documentos no seu sistema ou em um repositório de documentos com controle de acesso."
+          },
+          {
+            "question": "O agente escreve para os meus clientes?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu cuido de uma carteira de seguros, e as renovações me pegam de surpresa, além de eu precisar documentar a recomendação antes de cada proposta. Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",

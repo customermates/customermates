@@ -80,6 +80,51 @@
     "due_field": "Chaque tâche a une échéance.",
     "tasks_board_view": "Les tâches s’ouvrent en board par statut."
   },
+  "page": {
+    "metaTitle": "Outil gestion de projet pour petite équipe : modèle de suivi",
+    "metaDescription": "Un outil de gestion de projet pour 2 à 15 personnes : un responsable et une échéance par tâche, tâches récurrentes. Collez le modèle dans votre agent IA.",
+    "headline": "Un outil de gestion de projet pour petite équipe : un responsable, une échéance, construit par votre agent IA",
+    "answer": "Un outil de gestion de projet pour une petite équipe, c’est une seule liste de tâches avec, pour chacune, un responsable, un statut, une priorité et une échéance, plus un tableau et une courte revue hebdomadaire de ce qui est en retard ou bloqué. Collez ce modèle dans votre agent IA et il construit la liste dans Customermates, avec les projets, les tâches récurrentes et les demandes venues de l’extérieur. Vous validez le plan avant toute construction.",
+    "routine": {
+      "title": "La revue d’équipe hebdomadaire en 30 minutes",
+      "steps": [
+        "Ouvrez la liste de la semaine dernière et commencez par ce qui était promis : ce qui est fait et ce qui a glissé.",
+        "Passez en revue les tâches en retard et bloquées et décidez pour chacune : s’engager à nouveau, réduire le périmètre ou réaffecter. Quand une date glisse, gardez la date d’origine et notez la nouvelle avec la raison.",
+        "Regardez les tâches qui n’ont pas bougé depuis cinq jours et demandez-vous si elles sont floues ou trop grosses. Fermez celles dont personne n’a besoin.",
+        "Triez les nouvelles demandes et les bugs : donnez à chacun un type, une priorité et un responsable.",
+        "Terminez par une relecture de la liste, pour que chaque tâche ait un responsable nommé et une échéance avant la fin de la réunion."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un outil de sprints ni de vélocité : il n’y a ni sprints, ni points d’effort, ni burn-down. Une équipe qui en a besoin reste sur Linear ou Jira.",
+      "Ce n’est ni un planificateur Gantt, de dépendances ou de capacité, ni un outil de suivi du temps, ni un gestionnaire de versions.",
+      "Ce n’est ni un hébergeur de code, ni un outil d’intégration continue, ni un service d’assistance avec des délais de réponse. Le lien vers une pull request ou un ticket est un simple champ de lien.",
+      "Il n’y a pas d’intégration native avec Slack ou Teams, ni d’application mobile. Pour Slack, la voie passe par n8n.",
+      "Ce n’est pas un système RH ou d’évaluation des performances, et il n’a ni authentification unique ni droits par champ."
+    ],
+    "faq": [
+      {
+        "question": "Un outil simple peut-il remplacer Trello, Jira ou un tableur ?",
+        "answer": "Pour deux à quinze personnes qui veulent un responsable et une échéance par tâche, une revue hebdomadaire et les demandes extérieures sur la même liste, oui. Exportez votre tableau ou votre feuille en CSV ou Excel et importez-les avec l’assistant de correspondance des colonnes, ou laissez votre agent faire la correspondance et l’import. Pour des sprints, de la vélocité ou des dépendances, restez sur Linear, Jira ou ClickUp."
+      },
+      {
+        "question": "Existe-t-il un outil de gestion de projet gratuit pour une petite équipe ?",
+        "answer": "Beaucoup d’outils proposent une offre gratuite limitée. Avec Customermates, vous créez un espace de travail et vous l’essayez avec votre équipe ; l’offre gratuite et ses limites, notamment le nombre de personnes actives, sont décrites sur la page des tarifs. Regardez-les avant de compter dessus pour toute l’équipe."
+      },
+      {
+        "question": "Quels statuts une petite équipe devrait-elle utiliser ?",
+        "answer": "Moins qu’on ne croit. À faire, En cours et Terminé de Trello, ou Backlog, Todo, In Progress, Done et Canceled de Linear, sont typiques. Le modèle part de sept statuts (Backlog, À faire, En cours, En revue, Bloquée, Terminée, Annulée) que vous renommez ou retirez. Bloquée a sa place, car sinon une tâche bloquée passe inaperçue jusqu’à son échéance."
+      },
+      {
+        "question": "Faut-il travailler par sprints ou sur un tableau ?",
+        "answer": "Les guides kanban misent sur le flux et sur la limite du travail en cours, Linear et Jira plutôt sur les sprints. Ce modèle utilise un tableau et une échéance, sans objet sprint : une équipe qui a besoin de vélocité reste sur un outil à sprints."
+      },
+      {
+        "question": "Faut-il fermer automatiquement les tâches qui n’avancent plus ?",
+        "answer": "Non. Un rappel après cinq jours sans mouvement est plus sûr qu’une fermeture automatique, et les guides de réunion conseillent de fermer explicitement les points qui traînent. Le modèle rappelle le responsable et c’est lui qui décide. Une tâche qui reste ouverte semaine après semaine est souvent floue ou trop grosse : corrigez la définition, pas la personne."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Le travail de notre équipe est éparpillé entre une messagerie, un tableau et un tableur, et je ne vois pas ce qui est en retard ou bloqué. Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
     "questions": [

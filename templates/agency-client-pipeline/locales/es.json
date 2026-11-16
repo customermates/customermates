@@ -102,6 +102,51 @@
     "notice_days_field": "Cada iguala registra su preaviso.",
     "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
   },
+  "page": {
+    "metaTitle": "Pipeline de clientes para agencias: concursos e igualas",
+    "metaDescription": "Pega este pipeline para agencias en Claude, ChatGPT o Codex: decisión sobre el concurso, onboarding en cinco pasos e igualas con renovación y revisión.",
+    "headline": "Gana clientes y ve venir cada renovación: un pipeline para agencias que tu agente de IA construye",
+    "answer": "Un pipeline de clientes para agencias sigue dos cosas en un mismo sitio: el negocio nuevo, de la primera conversación a la firma, y las igualas y proyectos que vienen después, cada uno con fecha de renovación y revisión trimestral. Pega esta plantilla en tu agente de IA y construye ambos en Customermates, con la decisión sobre el concurso, un onboarding de cinco pasos tras una victoria y un preaviso en cada iguala. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La ronda semanal de la agencia",
+      "steps": [
+        "Abre cada oportunidad sin siguiente paso y añade uno con fecha, o ciérrala.",
+        "Decide para cada nuevo briefing o invitación a un concurso si entras o no: lo que cuesta presentarse, cuántas agencias participan y quién presenta y quién ejecuta.",
+        "Revisa las igualas que se renuevan en los próximos 90 días y las fechas de preaviso que se cierran en las próximas semanas.",
+        "Mira las igualas sin contacto desde hace 30 días y las que tienen el indicador de salud en rojo, y planifica el seguimiento o la llamada del socio."
+      ]
+    },
+    "limits": [
+      "No es un software de agencia para proyectos, control de horas, planificación de recursos o facturación. Eso sigue en tus propias herramientas; aquí está la capa comercial y de igualas junto a ellas.",
+      "No es un portal de clientes ni un flujo de aprobaciones, y no informa de los resultados de las campañas.",
+      "No guardes nunca en el espacio de trabajo accesos de clientes, materiales de marca ni acceso a cuentas publicitarias. Guárdalos en un gestor de contraseñas y en tu biblioteca de recursos.",
+      "No redacta propuestas ni recoge firmas electrónicas. Las propuestas y los contratos viven en tu herramienta de documentos y se vinculan a la oportunidad.",
+      "No es una herramienta de secuencias ni de envíos masivos. Cada seguimiento es una tarea con fecha y un borrador que revisas y envías tú.",
+      "Un presupuesto solo se anota cuando lo indica el cliente y no hay un preaviso por defecto: introduces el de cada contrato."
+    ],
+    "faq": [
+      {
+        "question": "¿En qué se diferencia el pipeline de una agencia del de ventas normal?",
+        "answer": "Una agencia tiene menos oportunidades, más grandes, con varios interlocutores y decisiones largas, y la mayor parte de los ingresos viene de clientes que se quedan y crecen. Por eso esta plantilla añade la decisión sobre el concurso, un onboarding de cinco pasos tras una victoria e igualas con fecha de renovación, en lugar de quedarse en ganada."
+      },
+      {
+        "question": "¿Debe una agencia presentarse a todos los concursos?",
+        "answer": "No. Presentarse cuesta mucho tiempo y dinero, por eso los asesores recomiendan comprobar primero si hace falta: si hay un briefing claro con un rango de presupuesto, cuántas agencias participan, si se paga por presentar la propuesta y quién presenta y quién ejecuta. La plantilla pide esa decisión el día en que una oportunidad llega a la etapa de briefing o concurso."
+      },
+      {
+        "question": "¿Qué preaviso debe tener una iguala?",
+        "answer": "Ninguna ley da una respuesta única. Lo habitual es un preaviso por escrito de 30 días, y una renovación automática con 90 días de preaviso favorece a la agencia. La plantilla guarda el preaviso de cada iguala y no supone ninguno. Crea una revisión de la renovación 90 días antes y un aviso 45 días antes para confirmar la intención del cliente."
+      },
+      {
+        "question": "¿Qué pasa después de ganar una oportunidad?",
+        "answer": "Una victoria inicia un onboarding de cinco pasos: bienvenida y confirmación del kickoff, recogida de materiales, calendario, kickoff y flujo de entrega. Muchas agencias vinculan el kickoff al pago. Después el cliente sigue como iguala, con su fecha de renovación y su revisión trimestral."
+      },
+      {
+        "question": "¿El agente contacta con mis clientes o posibles clientes?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ganamos clientes nuevos, pero perdemos el hilo de los concursos en marcha y de cuándo se renuevan las igualas. Configura en mi espacio de trabajo de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
     "questions": [

@@ -124,6 +124,52 @@
     "deadline_verifier_field": "Cada plazo indica quién lo verificó.",
     "deadline_control_page": "La base de conocimiento contiene una página sobre el control de plazos."
   },
+  "page": {
+    "metaTitle": "CRM contable: plantilla para despachos fiscales y contables",
+    "metaDescription": "CRM contable para despachos: encargos, expedientes, documentación que reclamar y calendario de plazos verificado. Pega la plantilla en tu agente de IA.",
+    "headline": "Un CRM contable que sigue cada plazo y cada documento pendiente, montado por tu agente de IA",
+    "answer": "Un despacho fiscal y contable lleva dos flujos a la vez: conseguir un encargo con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente de cada cliente y periodo mientras se espera la documentación. Pega esta plantilla en tu agente de IA y él monta los dos en Customermates, con un calendario de plazos que guarda el aviso previo y a la persona que verificó cada fecha. Tú apruebas el plan antes de que se construya nada. Acompaña a tu software del despacho y no lo sustituye.",
+    "routine": {
+      "title": "La revisión semanal del despacho",
+      "steps": [
+        "Abre el tablero de expedientes y mira quién tiene la pelota: a la espera de documentación, a la espera de la conformidad del cliente o a la espera de la administración.",
+        "Reclama la documentación que vence en tres días y, para la que sigue sin llegar tras la fecha, decide: prorrogar, preparar en parte o escalar al socio.",
+        "Revisa el calendario de plazos: cada plazo abierto tiene una fuente, un aviso previo y una segunda persona que verificó la fecha.",
+        "Registra cada notificación de la administración recibida esta semana con su plazo de recurso y su fuente, y haz que una segunda persona verifique la fecha.",
+        "Da un siguiente paso a cada expediente activo sin tarea abierta, o anota por qué está parado.",
+        "Revisa los presupuestos enviados hace más de tres días y los encargos en fase de identificación, para que ningún trabajo empiece antes de identificar al cliente."
+      ]
+    },
+    "limits": [
+      "No es tu software de presentación ni de gestión del despacho. La presentación, la contabilidad, las nóminas y el cálculo de plazos legales se quedan en herramientas como a3, Holded o Karbon, y la plantilla nunca dice que una declaración está en plazo.",
+      "No calcula fechas legales. Un plazo es un registro con una fuente, un aviso previo y una persona concreta que lo verificó; la fecha la pones tú.",
+      "No es una herramienta de control de horas ni de facturación, y no tiene portal de clientes ni firma electrónica. Una hoja de encargo firmada es un enlace al archivo firmado.",
+      "Deja fuera copias de documentos de identidad, números fiscales y datos especialmente protegidos: no hay permisos por campo. Van en tu sistema de documentos con sus reglas de conservación.",
+      "Los justificantes escaneados se guardan, pero no se leen, porque no hay reconocimiento de texto."
+    ],
+    "faq": [
+      {
+        "question": "¿Cuál es el mejor software para un despacho fiscal y contable?",
+        "answer": "Depende de lo que necesites. Herramientas como a3, Holded o Karbon cubren presentación, contabilidad, facturación y un portal de clientes. Customermates es la capa de relación, prueba de plazos y seguimiento a su lado: encargos, expedientes a la espera de documentación y un calendario de plazos. Si quieres una sola herramienta para todo, no es esta."
+      },
+      {
+        "question": "¿Por qué llevar un calendario de plazos aparte?",
+        "answer": "La responsabilidad profesional exige poder demostrar que el control de plazos existía: afirmar que los plazos se comprobaron no es una prueba. Un calendario con fuente, aviso previo y verificador permite mostrarlo después. La plantilla registra el control y nunca calcula la fecha."
+      },
+      {
+        "question": "¿La identificación PBC/FT va antes de la hoja de encargo?",
+        "answer": "La práctica varía. La plantilla convierte la identificación en una fase propia antes de la hoja de encargo, porque no puede imponer un orden y lo prudente es no trabajar antes de identificar al cliente. La identificación abarca al cliente, a quien actúa en su nombre y al titular real, con una valoración del riesgo. No hay una fuente que fije un intervalo de revisión, así que lo decides tú. Guarda las copias de documentos en tu sistema de documentos."
+      },
+      {
+        "question": "¿Cómo dejo de reclamar la documentación a mano?",
+        "answer": "Pon una fecha límite en cada solicitud de documentación. La plantilla crea entonces una tarea de reclamación tres días antes y avisa al responsable cuando la documentación vence y sigue sin llegar. A la espera de documentación, a la espera de la conformidad del cliente y a la espera de la administración son tres estados distintos, así que el tablero muestra quién tiene la pelota."
+      },
+      {
+        "question": "¿El agente contacta con mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Llevo un despacho fiscal y contable y necesito ver qué encargos están abiertos, qué expedientes esperan documentación y qué plazos se han verificado. Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
     "questions": [

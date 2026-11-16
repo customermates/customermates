@@ -210,7 +210,7 @@
     { "url": "https://www.vertex42.com/ExcelTemplates/action-items-template.html", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
   "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "none", "es": "none", "pt": "own", "pl": "none", "nl": "own" },
   "publishWave": { "en": "hold", "de": "wave2", "fr": "wave2", "pt": "wave1", "nl": "wave1" }
 }

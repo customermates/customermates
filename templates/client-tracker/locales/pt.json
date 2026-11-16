@@ -182,6 +182,46 @@
     "chase_rule": "Um cliente movido para Aguardando cliente recebe uma tarefa de lembrete.",
     "playbook_page": "A base de conhecimento contém o guia do cadastro de clientes."
   },
+  "page": {
+    "metaTitle": "Cadastro de clientes: modelo para não perder retornos",
+    "metaDescription": "Cadastro de clientes para o Claude, ChatGPT ou Codex: um responsável e um próximo contato com data por cliente, mais uma revisão semanal do que atrasou.",
+    "headline": "Saiba quem ligar em seguida: um cadastro de clientes que o seu agente de IA monta no seu CRM",
+    "answer": "Um cadastro de clientes é uma lista com uma linha por cliente, um responsável e um próximo contato com data, para que nenhum cliente fique em silêncio sem você perceber. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com contatos, tarefas com data, conversas vinculadas e uma revisão semanal. Você aprova o plano antes que qualquer coisa seja criada.",
+    "routine": {
+      "title": "A revisão semanal de clientes em 15 minutos",
+      "steps": [
+        "Ordene a lista de clientes pela data do próximo contato e pelo status.",
+        "Resolva primeiro tudo o que está atrasado e depois os clientes ativos sem próximo contato.",
+        "Olhe os prospects que ficaram em silêncio e decida: retomar o contato ou encerrar.",
+        "Termine com uma data em cada linha, para que nenhum cliente fique sem próximo contato."
+      ]
+    },
+    "limits": [
+      "Não é uma ferramenta de faturamento, orçamentos nem controle de horas. A cobrança continua no seu sistema financeiro; o cadastro guarda no máximo um link e um valor anual.",
+      "Não guarda contratos assinados e não é um portal do cliente. Os clientes não conseguem entrar para ver o próprio status.",
+      "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em intervalos regulares. O modelo propõe, e você decide quais ativar.",
+      "Deixe de fora pastas sensíveis, como dados de saúde, jurídicos ou terapêuticos. Aqui fica o relacionamento; o conteúdo do caso fica em um sistema feito para isso.",
+      "Foi pensado para uma a dez pessoas. Se algumas colunas precisam ficar escondidas dos colegas, coloque-as em uma lista separada com acesso próprio."
+    ],
+    "faq": [
+      {
+        "question": "O que deve ter um cadastro de clientes?",
+        "answer": "Uma linha por cliente, com um responsável, um status de uma lista curta, a data do último contato e um próximo contato com data. É essa data que move o trabalho: ordene por ela uma vez por semana e nada se perde."
+      },
+      {
+        "question": "Quando a planilha deixa de bastar para controlar clientes?",
+        "answer": "Guias de quem trabalha na prática colocam o limite entre 25 e 50 clientes, quando mais de uma pessoa edita o arquivo ou quando ninguém é lembrado de um retorno. Aí um CRM ajuda: os contatos ficam vinculados, os próximos passos viram tarefas com data e as conversas ficam ao lado de cada cliente."
+      },
+      {
+        "question": "Por quanto tempo posso guardar os dados de clientes encerrados?",
+        "answer": "Depende do país e dos dados. Dois exemplos: a autoridade francesa de proteção de dados admite guardar dados de clientes usados em prospecção durante a relação comercial mais três anos, e o direito comercial alemão exige guardar cartas comerciais por seis anos e comprovantes contábeis por oito. No Brasil, a LGPD dá ao titular direito de acesso, correção e exclusão, e o envio de marketing pede consentimento próprio. O modelo define uma data de revisão dos dados para cada cliente encerrado; ajuste o prazo ao seu caso e consulte quem cuida da sua contabilidade ou do jurídico. Isto não é aconselhamento jurídico."
+      },
+      {
+        "question": "O agente entra em contato com os meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu cuido dos meus clientes pessoalmente e muitos retornos escapam: perco o fio de com quem falei por último e do que vem depois. Configure um cadastro de clientes no meu espaço de trabalho do Customermates: uma linha por cliente com responsável, status, data do último contato e um próximo contato com data, mais os contatos, tarefas com data, uma revisão semanal e uma data de revisão dos dados para clientes encerrados.",
     "questions": [

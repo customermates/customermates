@@ -773,14 +773,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -1065,6 +1065,55 @@
         "due_field": "Jede Aufgabe hat einen Fälligkeitstermin.",
         "tasks_board_view": "Die Aufgaben öffnen sich als Board nach Status."
       },
+      "page": {
+        "metaTitle": "Jira Alternative für kleine Teams: Aufgaben mit Termin",
+        "metaDescription": "Jira Alternative für 2 bis 15 Personen: ein Verantwortlicher und ein Termin je Aufgabe, Fehler, Routineaufgaben. Vorlage in Ihren KI-Agenten einfügen.",
+        "headline": "Eine einfache Jira Alternative für kleine Teams, aufgebaut von Ihrem KI-Agenten in Ihrem CRM",
+        "answer": "Eine einfache Aufgabenverwaltung für ein kleines Team ist eine Liste mit Arbeitspaketen, jedes mit einem Verantwortlichen, einem Status, einer Priorität und einem Termin, dazu ein Board und eine kurze wöchentliche Durchsicht von Überfälligem und Blockiertem. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Projekten, wiederkehrenden Aufgaben und Anfragen von außerhalb des Teams. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die wöchentliche Teambesprechung in 30 Minuten",
+          "steps": [
+            "Öffnen Sie die Liste der letzten Woche und beginnen Sie mit dem Zugesagten: Was ist erledigt, was ist gerutscht?",
+            "Gehen Sie die überfälligen und blockierten Aufgaben durch und entscheiden Sie je Aufgabe: neu zusagen, verkleinern oder neu zuweisen. Rutscht ein Termin, bleibt der ursprüngliche Termin stehen und der neue kommt mit Begründung dazu.",
+            "Sehen Sie sich Aufgaben an, die seit fünf Tagen nicht vorangekommen sind, und fragen Sie, ob die Aufgabe unklar oder zu groß ist. Schließen Sie, was niemand braucht.",
+            "Sichten Sie neue Anfragen und Fehler: Jede bekommt eine Art, eine Priorität und einen Verantwortlichen.",
+            "Lesen Sie die Liste zum Schluss vor, damit jede Aufgabe vor dem Ende der Besprechung einen benannten Verantwortlichen und einen Termin hat."
+          ]
+        },
+        "limits": [
+          "Es ist kein Werkzeug für Sprints und Velocity: Es gibt keine Sprints, Story Points oder Burn-down-Diagramme. Wer sie braucht, bleibt bei Linear oder Jira.",
+          "Es ist kein Gantt-, Abhängigkeits- oder Kapazitätsplaner, keine Zeiterfassung und kein Release-Management.",
+          "Es ist kein Code-Host, kein CI-System und kein Service Desk mit Reaktionszeiten. Der Link zu einem Pull Request oder Ticket ist ein einfaches Linkfeld.",
+          "Es gibt keine native Slack- oder Teams-Anbindung und keine mobile App. Der Weg zu Slack führt über n8n.",
+          "Es ist kein HR- oder Leistungsbeurteilungssystem und hat weder Single Sign-on noch Rechte auf Feldebene."
+        ],
+        "faq": [
+          {
+            "question": "Kann eine einfache Aufgabenverwaltung Trello, Jira oder eine Tabelle ersetzen?",
+            "answer": "Für zwei bis fünfzehn Personen, die je Aufgabe einen Verantwortlichen und einen Termin, eine wöchentliche Durchsicht und Anfragen von außerhalb auf derselben Liste wollen, ja. Exportieren Sie Ihr Board oder Ihre Tabelle als CSV oder Excel und importieren Sie sie über den Assistenten zur Spaltenzuordnung, oder lassen Sie Ihren Agenten zuordnen und importieren. Wer Sprints, Velocity oder Abhängigkeiten braucht, bleibt bei Linear, Jira oder ClickUp."
+          },
+          {
+            "question": "Welche Status sollte ein kleines Team verwenden?",
+            "answer": "Weniger, als man denkt. Typisch sind Trellos Zu erledigen, In Arbeit und Erledigt oder Linears Backlog, Todo, In Progress, Done und Canceled. Die Vorlage startet mit sieben (Backlog, Geplant, In Arbeit, In Prüfung, Blockiert, Erledigt, Abgebrochen), und Sie benennen um oder lassen weg. Blockiert hat seinen Platz, weil eine blockierte Aufgabe sonst bis zum Fälligkeitstag unbemerkt bleibt."
+          },
+          {
+            "question": "Sollte ein Team in Sprints oder auf einem Board arbeiten?",
+            "answer": "Kanban-Leitfäden setzen auf Fluss und begrenzte parallele Arbeit, Linear und Jira eher auf Sprints. Diese Vorlage arbeitet mit einem Board und einem Termin und kennt kein Sprint-Objekt. Wer Velocity braucht, bleibt bei einem Sprint-Werkzeug."
+          },
+          {
+            "question": "Sollen liegen gebliebene Aufgaben automatisch geschlossen werden?",
+            "answer": "Nein. Eine Erinnerung nach fünf Tagen ohne Bewegung ist sicherer als ein automatisches Schließen, und Besprechungsleitfäden raten dazu, liegen gebliebene Punkte ausdrücklich zu schließen. Die Vorlage erinnert den Verantwortlichen, und er entscheidet. Eine Aufgabe, die Woche für Woche offen bleibt, ist meist unklar oder zu groß: Verbessern Sie die Definition, nicht die Person."
+          },
+          {
+            "question": "Braucht es den Betriebsrat, wenn das Team Aufgaben so erfasst?",
+            "answer": "Ein Werkzeug, mit dem sich Zeiten oder Ergebnisse einzelner Beschäftigter auswerten lassen, kann nach § 87 Abs. 1 Nr. 6 BetrVG mitbestimmungspflichtig sein, und schon die objektive Eignung kann genügen. Die Vorlage hat keine Zeiterfassung und keine Leistungsauswertung, die Frage bleibt aber Ihre. Klären Sie sie vor dem Start mit Ihrer Rechtsberatung. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Schreibt der Agent meinem Team?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Die Arbeit in unserem Team verteilt sich auf Chat, Board und Tabelle, und ich sehe nicht, was überfällig oder blockiert ist. Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
         "questions": [
@@ -1335,6 +1384,51 @@
         "status_field": "Every task has a status.",
         "due_field": "Every task has a due date.",
         "tasks_board_view": "The tasks open as a board by status."
+      },
+      "page": {
+        "metaTitle": "Issue Tracker Template for Small Teams: Tasks and Bugs",
+        "metaDescription": "A simple issue tracker for two to fifteen people: one owner and one due date per task, bugs, recurring chores and a weekly review. Paste it into an AI agent.",
+        "headline": "A simple issue tracker for a small team: one owner and one date per task, built in your CRM by your AI agent",
+        "answer": "An issue tracker for a small team is one list of work items, each with one owner, a status, a priority and a due date, plus a board and a short weekly review of what is overdue or blocked. Paste this template into your AI agent and it builds the list in Customermates, with projects, recurring chores and requests from outside the team. You approve the plan before anything is built.",
+        "routine": {
+          "title": "The weekly team review in 30 minutes",
+          "steps": [
+            "Open last week's list and start with what was promised: what is done and what slipped.",
+            "Go through the overdue and blocked tasks and decide for each: recommit, de-scope or reassign. When a date slips, keep the original date and note the new one with a reason.",
+            "Look at tasks that have not moved for five days and ask whether the task is vague or too large. Close the ones nobody needs.",
+            "Triage new requests and bugs: give each a kind, a priority and an owner.",
+            "End by reading the list back, so that every task has one named owner and one date before the meeting closes."
+          ]
+        },
+        "limits": [
+          "It is not a sprint or velocity tool: there are no sprints, story points or burn-down charts. A team that needs them should stay on Linear or Jira.",
+          "It is not a Gantt, dependency or capacity planner, a time tracker or a release manager.",
+          "It is not a code host, a CI system or a service desk with response-time clocks. A pull request or ticket link is a plain link field.",
+          "There is no native Slack or Teams integration and no mobile app. n8n is the route to Slack.",
+          "It is not an HR or performance-management system, and it has no single sign-on or field-level permissions."
+        ],
+        "faq": [
+          {
+            "question": "Can a simple tracker replace Trello, Jira or a spreadsheet?",
+            "answer": "For two to fifteen people who want one owner and one date per item, a weekly review and requests from outside the team on the same list, yes. Export your board or sheet to CSV or Excel and import it through the column-mapping wizard, or let your agent map and import it. If you need sprints, velocity or dependencies, stay on Linear, Jira or ClickUp."
+          },
+          {
+            "question": "Which statuses should a small team use?",
+            "answer": "Fewer than you think. Trello's To Do, Doing and Done and Linear's Backlog, Todo, In Progress, Done and Canceled are typical. The template starts from seven (Backlog, To do, In progress, In review, Blocked, Done, Cancelled) and you rename or drop any of them. Blocked earns its place because a blocked task otherwise goes unnoticed until its due date."
+          },
+          {
+            "question": "Should a team work in sprints or on a board?",
+            "answer": "Kanban guides lean on flow and on limiting work in progress, while Linear and Jira lean on sprints. This template uses a board plus a due date and has no sprint object, so a team that needs velocity should stay on a sprint tool."
+          },
+          {
+            "question": "Should stale tasks close automatically?",
+            "answer": "No. A reminder after five days without movement is safer than an automatic close, and meeting guides agree that stale items should be closed explicitly. The template reminds the owner and the owner decides. A task that stays open week after week is usually vague or too big, so fix the definition, not the person."
+          },
+          {
+            "question": "Does the agent message my team?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "Our team's work is spread over chat, a board and a spreadsheet, and I cannot see what is overdue or blocked. Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
@@ -1607,6 +1701,51 @@
         "due_field": "Cada tarea tiene un vencimiento.",
         "tasks_board_view": "Las tareas se abren como tablero por estado."
       },
+      "page": {
+        "metaTitle": "Kanban online para equipos pequeños: plantilla de tareas",
+        "metaDescription": "Un kanban online sencillo para 2 a 15 personas: un responsable y un vencimiento por tarea, errores y tareas recurrentes. Pega la plantilla en tu agente de IA.",
+        "headline": "Un kanban online para equipos pequeños: un responsable y un vencimiento por tarea, montado por tu agente de IA",
+        "answer": "Un kanban online para un equipo pequeño es una sola lista de tareas, cada una con un responsable, un estado, una prioridad y un vencimiento, más un tablero y una revisión semanal corta de lo que va con retraso o está bloqueado. Pega esta plantilla en tu agente de IA y él monta la lista en Customermates, con proyectos, tareas recurrentes y solicitudes de fuera del equipo. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La reunión semanal del equipo en 30 minutos",
+          "steps": [
+            "Abre la lista de la semana pasada y empieza por lo prometido: qué está hecho y qué se ha retrasado.",
+            "Repasa las tareas atrasadas y bloqueadas y decide para cada una: volver a comprometerse, reducir el alcance o reasignar. Cuando una fecha se retrasa, conserva la original y anota la nueva con el motivo.",
+            "Mira las tareas que llevan cinco días sin moverse y pregúntate si son vagas o demasiado grandes. Cierra las que nadie necesita.",
+            "Clasifica las solicitudes y los errores nuevos: dale a cada uno un tipo, una prioridad y un responsable.",
+            "Termina releyendo la lista, para que cada tarea tenga un responsable con nombre y un vencimiento antes de cerrar la reunión."
+          ]
+        },
+        "limits": [
+          "No es una herramienta de sprints ni de velocidad: no hay sprints, puntos de historia ni gráficos burn-down. Un equipo que los necesite se queda con Linear o Jira.",
+          "No es un planificador Gantt, de dependencias o de capacidad, ni un control de horas ni un gestor de versiones.",
+          "No es un alojamiento de código, un sistema de integración continua ni un servicio de atención con tiempos de respuesta. El enlace a una pull request o a un ticket es un simple campo de enlace.",
+          "No hay integración nativa con Slack ni con Teams ni aplicación móvil. Para Slack, el camino es n8n.",
+          "No es un sistema de recursos humanos ni de evaluación del desempeño, y no tiene inicio de sesión único ni permisos por campo."
+        ],
+        "faq": [
+          {
+            "question": "¿Puede una herramienta sencilla sustituir a Trello, Jira o una hoja de cálculo?",
+            "answer": "Para entre dos y quince personas que quieren un responsable y un vencimiento por tarea, una revisión semanal y las solicitudes externas en la misma lista, sí. Exporta tu tablero u hoja a CSV o Excel e impórtalos con el asistente de asignación de columnas, o deja que tu agente asigne e importe. Si necesitas sprints, velocidad o dependencias, quédate con Linear, Jira o ClickUp."
+          },
+          {
+            "question": "¿Qué estados debería usar un equipo pequeño?",
+            "answer": "Menos de los que se cree. Por hacer, En curso y Hecho de Trello, o Backlog, Todo, In Progress, Done y Canceled de Linear, son típicos. La plantilla parte de siete estados (Backlog, Por hacer, En curso, En revisión, Bloqueada, Hecha, Cancelada) que puedes renombrar o quitar. Bloqueada tiene su sitio, porque si no una tarea bloqueada pasa desapercibida hasta su vencimiento."
+          },
+          {
+            "question": "¿Conviene trabajar por sprints o con un tablero?",
+            "answer": "Las guías de kanban apuestan por el flujo y por limitar el trabajo en curso; Linear y Jira, más bien por los sprints. Esta plantilla usa un tablero y un vencimiento y no tiene un objeto sprint, así que un equipo que necesite velocidad se queda con una herramienta de sprints."
+          },
+          {
+            "question": "¿Deben cerrarse solas las tareas estancadas?",
+            "answer": "No. Un aviso tras cinco días sin movimiento es más seguro que un cierre automático, y las guías de reuniones aconsejan cerrar de forma explícita lo que se estanca. La plantilla avisa al responsable y él decide. Una tarea que sigue abierta semana tras semana suele ser vaga o demasiado grande: corrige la definición, no a la persona."
+          },
+          {
+            "question": "¿El agente escribe a mi equipo?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "El trabajo de nuestro equipo está repartido entre el chat, un tablero y una hoja de cálculo, y no veo qué va con retraso ni qué está bloqueado. Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
         "questions": [
@@ -1877,6 +2016,51 @@
         "status_field": "Chaque tâche a un statut.",
         "due_field": "Chaque tâche a une échéance.",
         "tasks_board_view": "Les tâches s’ouvrent en board par statut."
+      },
+      "page": {
+        "metaTitle": "Outil gestion de projet pour petite équipe : modèle de suivi",
+        "metaDescription": "Un outil de gestion de projet pour 2 à 15 personnes : un responsable et une échéance par tâche, tâches récurrentes. Collez le modèle dans votre agent IA.",
+        "headline": "Un outil de gestion de projet pour petite équipe : un responsable, une échéance, construit par votre agent IA",
+        "answer": "Un outil de gestion de projet pour une petite équipe, c’est une seule liste de tâches avec, pour chacune, un responsable, un statut, une priorité et une échéance, plus un tableau et une courte revue hebdomadaire de ce qui est en retard ou bloqué. Collez ce modèle dans votre agent IA et il construit la liste dans Customermates, avec les projets, les tâches récurrentes et les demandes venues de l’extérieur. Vous validez le plan avant toute construction.",
+        "routine": {
+          "title": "La revue d’équipe hebdomadaire en 30 minutes",
+          "steps": [
+            "Ouvrez la liste de la semaine dernière et commencez par ce qui était promis : ce qui est fait et ce qui a glissé.",
+            "Passez en revue les tâches en retard et bloquées et décidez pour chacune : s’engager à nouveau, réduire le périmètre ou réaffecter. Quand une date glisse, gardez la date d’origine et notez la nouvelle avec la raison.",
+            "Regardez les tâches qui n’ont pas bougé depuis cinq jours et demandez-vous si elles sont floues ou trop grosses. Fermez celles dont personne n’a besoin.",
+            "Triez les nouvelles demandes et les bugs : donnez à chacun un type, une priorité et un responsable.",
+            "Terminez par une relecture de la liste, pour que chaque tâche ait un responsable nommé et une échéance avant la fin de la réunion."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas un outil de sprints ni de vélocité : il n’y a ni sprints, ni points d’effort, ni burn-down. Une équipe qui en a besoin reste sur Linear ou Jira.",
+          "Ce n’est ni un planificateur Gantt, de dépendances ou de capacité, ni un outil de suivi du temps, ni un gestionnaire de versions.",
+          "Ce n’est ni un hébergeur de code, ni un outil d’intégration continue, ni un service d’assistance avec des délais de réponse. Le lien vers une pull request ou un ticket est un simple champ de lien.",
+          "Il n’y a pas d’intégration native avec Slack ou Teams, ni d’application mobile. Pour Slack, la voie passe par n8n.",
+          "Ce n’est pas un système RH ou d’évaluation des performances, et il n’a ni authentification unique ni droits par champ."
+        ],
+        "faq": [
+          {
+            "question": "Un outil simple peut-il remplacer Trello, Jira ou un tableur ?",
+            "answer": "Pour deux à quinze personnes qui veulent un responsable et une échéance par tâche, une revue hebdomadaire et les demandes extérieures sur la même liste, oui. Exportez votre tableau ou votre feuille en CSV ou Excel et importez-les avec l’assistant de correspondance des colonnes, ou laissez votre agent faire la correspondance et l’import. Pour des sprints, de la vélocité ou des dépendances, restez sur Linear, Jira ou ClickUp."
+          },
+          {
+            "question": "Existe-t-il un outil de gestion de projet gratuit pour une petite équipe ?",
+            "answer": "Beaucoup d’outils proposent une offre gratuite limitée. Avec Customermates, vous créez un espace de travail et vous l’essayez avec votre équipe ; l’offre gratuite et ses limites, notamment le nombre de personnes actives, sont décrites sur la page des tarifs. Regardez-les avant de compter dessus pour toute l’équipe."
+          },
+          {
+            "question": "Quels statuts une petite équipe devrait-elle utiliser ?",
+            "answer": "Moins qu’on ne croit. À faire, En cours et Terminé de Trello, ou Backlog, Todo, In Progress, Done et Canceled de Linear, sont typiques. Le modèle part de sept statuts (Backlog, À faire, En cours, En revue, Bloquée, Terminée, Annulée) que vous renommez ou retirez. Bloquée a sa place, car sinon une tâche bloquée passe inaperçue jusqu’à son échéance."
+          },
+          {
+            "question": "Faut-il travailler par sprints ou sur un tableau ?",
+            "answer": "Les guides kanban misent sur le flux et sur la limite du travail en cours, Linear et Jira plutôt sur les sprints. Ce modèle utilise un tableau et une échéance, sans objet sprint : une équipe qui a besoin de vélocité reste sur un outil à sprints."
+          },
+          {
+            "question": "Faut-il fermer automatiquement les tâches qui n’avancent plus ?",
+            "answer": "Non. Un rappel après cinq jours sans mouvement est plus sûr qu’une fermeture automatique, et les guides de réunion conseillent de fermer explicitement les points qui traînent. Le modèle rappelle le responsable et c’est lui qui décide. Une tâche qui reste ouverte semaine après semaine est souvent floue ou trop grosse : corrigez la définition, pas la personne."
+          }
+        ]
       },
       "prompt": {
         "intro": "Le travail de notre équipe est éparpillé entre une messagerie, un tableau et un tableur, et je ne vois pas ce qui est en retard ou bloqué. Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
@@ -2149,6 +2333,51 @@
         "due_field": "Ogni attività ha una scadenza.",
         "tasks_board_view": "Le attività si aprono come board per stato."
       },
+      "page": {
+        "metaTitle": "Gestionale progetti per piccoli team: modello attività",
+        "metaDescription": "Un gestionale progetti semplice per 2-15 persone: un responsabile e una scadenza per attività, bug, attività ricorrenti. Incolla il modello nel tuo agente IA.",
+        "headline": "Un gestionale progetti semplice per piccoli team, costruito dal tuo agente IA nel tuo CRM",
+        "answer": "Un gestionale progetti per un piccolo team è un’unica lista di attività, ciascuna con un responsabile, uno stato, una priorità e una scadenza, più una bacheca e una breve revisione settimanale di ciò che è in ritardo o bloccato. Incolla questo modello nel tuo agente IA e lui costruisce la lista in Customermates, con progetti, attività ricorrenti e richieste dall’esterno del team. Approvi tu il piano prima che venga costruito qualcosa.",
+        "routine": {
+          "title": "La riunione settimanale del team in 30 minuti",
+          "steps": [
+            "Apri la lista della settimana scorsa e parti da ciò che era stato promesso: che cosa è fatto e che cosa è slittato.",
+            "Passa in rassegna le attività in ritardo e bloccate e decidi per ciascuna: riconfermare, ridurre l’ambito o riassegnare. Quando una data slitta, tieni la data originale e annota la nuova con il motivo.",
+            "Guarda le attività ferme da cinque giorni e chiediti se sono vaghe o troppo grandi. Chiudi quelle che a nessuno servono.",
+            "Smista le nuove richieste e i bug: dai a ciascuno un tipo, una priorità e un responsabile.",
+            "Chiudi rileggendo la lista, così ogni attività ha un responsabile con nome e una scadenza prima della fine della riunione."
+          ]
+        },
+        "limits": [
+          "Non è uno strumento per sprint e velocity: non ci sono sprint, story point o burn-down. Chi ne ha bisogno resta su Linear o Jira.",
+          "Non è un pianificatore Gantt, di dipendenze o di capacità, né uno strumento di rilevazione del tempo o di gestione dei rilasci.",
+          "Non è un host di codice, un sistema di integrazione continua né un service desk con tempi di risposta. Il link a una pull request o a un ticket è un semplice campo link.",
+          "Non c’è un’integrazione nativa con Slack o Teams né un’app mobile. Per Slack la strada passa da n8n.",
+          "Non è un sistema HR o di valutazione delle prestazioni e non ha né single sign-on né permessi per campo."
+        ],
+        "faq": [
+          {
+            "question": "Un gestionale semplice può sostituire Trello, Jira o un foglio di calcolo?",
+            "answer": "Per da due a quindici persone che vogliono un responsabile e una scadenza per attività, una revisione settimanale e le richieste esterne sulla stessa lista, sì. Esporta la bacheca o il foglio in CSV o Excel e importali con la procedura guidata di associazione delle colonne, oppure lascia che il tuo agente associ e importi. Se servono sprint, velocity o dipendenze, resta su Linear, Jira o ClickUp."
+          },
+          {
+            "question": "Quali stati dovrebbe usare un piccolo team?",
+            "answer": "Meno di quanti si pensi. Da fare, In corso e Fatto di Trello, oppure Backlog, Todo, In Progress, Done e Canceled di Linear, sono tipici. Il modello parte da sette stati (Backlog, Da fare, In corso, In revisione, Bloccata, Completata, Annullata) che puoi rinominare o togliere. Bloccata ha il suo posto, perché altrimenti un’attività bloccata passa inosservata fino alla scadenza."
+          },
+          {
+            "question": "Meglio lavorare a sprint o con una bacheca?",
+            "answer": "Le guide kanban puntano sul flusso e sul limite del lavoro in corso, Linear e Jira più sugli sprint. Questo modello usa una bacheca e una scadenza e non ha un oggetto sprint: un team che ha bisogno di velocity resta su uno strumento a sprint."
+          },
+          {
+            "question": "Le attività ferme vanno chiuse in automatico?",
+            "answer": "No. Un promemoria dopo cinque giorni senza movimento è più sicuro di una chiusura automatica, e le guide alle riunioni consigliano di chiudere esplicitamente ciò che resta fermo. Il modello ricorda al responsabile e decide lui. Un’attività che resta aperta settimana dopo settimana è di solito vaga o troppo grande: correggi la definizione, non la persona."
+          },
+          {
+            "question": "L’agente scrive al mio team?",
+            "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Il lavoro del nostro team è sparso tra chat, una bacheca e un foglio di calcolo e non riesco a vedere che cosa è in ritardo o bloccato. Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
         "questions": [
@@ -2419,6 +2648,51 @@
         "status_field": "Elke taak heeft een status.",
         "due_field": "Elke taak heeft een deadline.",
         "tasks_board_view": "De taken openen als bord per status."
+      },
+      "page": {
+        "metaTitle": "Kanban system voor kleine teams: sjabloon met taken",
+        "metaDescription": "Een eenvoudig kanbansysteem voor 2 tot 15 mensen: één eigenaar en één deadline per taak, bugs en terugkerende taken. Plak het sjabloon in je AI-agent.",
+        "headline": "Een eenvoudig kanbansysteem voor een klein team: één eigenaar en één deadline per taak, gebouwd door je AI-agent",
+        "answer": "Een kanbansysteem voor een klein team is één lijst met taken, elk met een eigenaar, een status, een prioriteit en een deadline, plus een bord en een korte wekelijkse bespreking van wat te laat of geblokkeerd is. Plak dit sjabloon in je AI-agent en hij bouwt de lijst in Customermates, met projecten, terugkerende taken en verzoeken van buiten het team. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De wekelijkse teambespreking in 30 minuten",
+          "steps": [
+            "Open de lijst van vorige week en begin bij wat is toegezegd: wat is klaar en wat is geschoven.",
+            "Loop de taken langs die te laat of geblokkeerd zijn en beslis per taak: opnieuw toezeggen, kleiner maken of herverdelen. Schuift een deadline, houd dan de oorspronkelijke datum aan en noteer de nieuwe met een reden.",
+            "Kijk naar taken die al vijf dagen niet zijn opgeschoten en vraag of de taak vaag of te groot is. Sluit wat niemand nodig heeft.",
+            "Sorteer nieuwe verzoeken en bugs: geef elk een soort, een prioriteit en een eigenaar.",
+            "Sluit af met het voorlezen van de lijst, zodat elke taak voor het einde van de bespreking een eigenaar met naam en een deadline heeft."
+          ]
+        },
+        "limits": [
+          "Het is geen tool voor sprints en velocity: er zijn geen sprints, storypoints of burn-downgrafieken. Een team dat ze nodig heeft, blijft bij Linear of Jira.",
+          "Het is geen Gantt-, afhankelijkheids- of capaciteitsplanner, geen urenregistratie en geen releasebeheer.",
+          "Het is geen codehost, geen CI-systeem en geen servicedesk met responstijden. De link naar een pull request of ticket is een gewoon linkveld.",
+          "Er is geen native koppeling met Slack of Teams en geen mobiele app. De route naar Slack loopt via n8n.",
+          "Het is geen hr- of prestatiebeoordelingssysteem en heeft geen single sign-on of rechten per veld."
+        ],
+        "faq": [
+          {
+            "question": "Kan een eenvoudig systeem Trello, Jira of een spreadsheet vervangen?",
+            "answer": "Voor twee tot vijftien mensen die één eigenaar en één deadline per taak willen, een wekelijkse bespreking en verzoeken van buiten het team op dezelfde lijst: ja. Exporteer je bord of sheet naar CSV of Excel en importeer die met de wizard voor kolomkoppeling, of laat je agent koppelen en importeren. Heb je sprints, velocity of afhankelijkheden nodig, blijf dan bij Linear, Jira of ClickUp."
+          },
+          {
+            "question": "Welke statussen moet een klein team gebruiken?",
+            "answer": "Minder dan je denkt. Nog te doen, In uitvoering en Klaar zijn gebruikelijk, net als Backlog, Todo, In Progress, Done en Canceled bij Linear. Het sjabloon begint met zeven statussen (Backlog, Te doen, In uitvoering, In review, Geblokkeerd, Klaar, Geannuleerd) die je hernoemt of schrapt. Geblokkeerd verdient zijn plek, want anders valt een geblokkeerde taak pas op op de dag van de deadline."
+          },
+          {
+            "question": "Werken in sprints of op een bord?",
+            "answer": "Kanbangidsen zetten in op flow en een limiet op lopend werk, Linear en Jira meer op sprints. Dit sjabloon gebruikt een bord en een deadline en kent geen sprintobject, dus een team dat velocity nodig heeft, blijft bij een sprinttool."
+          },
+          {
+            "question": "Moeten vastgelopen taken automatisch sluiten?",
+            "answer": "Nee. Een herinnering na vijf dagen zonder beweging is veiliger dan automatisch sluiten, en vergadergidsen raden aan vastgelopen punten expliciet te sluiten. Het sjabloon herinnert de eigenaar en die beslist. Een taak die week na week openstaat is meestal vaag of te groot: verbeter de definitie, niet de persoon."
+          },
+          {
+            "question": "Stuurt de agent berichten naar mijn team?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Het werk van ons team verspreidt zich over chat, een bord en een spreadsheet en ik kan niet zien wat te laat of geblokkeerd is. Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
@@ -2691,6 +2965,51 @@
         "due_field": "Każde zadanie ma termin.",
         "tasks_board_view": "Zadania otwierają się jako tablica według statusu."
       },
+      "page": {
+        "metaTitle": "Program do zarządzania projektami dla małych zespołów",
+        "metaDescription": "Prosty program do zarządzania projektami dla 2-15 osób: jedna osoba i jeden termin na zadanie, błędy, zadania cykliczne. Wklej szablon do agenta AI.",
+        "headline": "Prosty program do zarządzania projektami dla małego zespołu, który Twój agent AI buduje w CRM",
+        "answer": "Program do zarządzania projektami dla małego zespołu to jedna lista zadań, z których każde ma osobę odpowiedzialną, status, priorytet i termin, do tego tablica i krótki tygodniowy przegląd tego, co jest po terminie lub zablokowane. Wklej ten szablon do swojego agenta AI, a zbuduje listę w Customermates, z projektami, zadaniami cyklicznymi i prośbami spoza zespołu. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowe spotkanie zespołu w 30 minut",
+          "steps": [
+            "Otwórz listę z zeszłego tygodnia i zacznij od tego, co obiecano: co jest zrobione, a co się przesunęło.",
+            "Przejrzyj zadania po terminie i zablokowane i zdecyduj dla każdego: potwierdzić ponownie, zawęzić zakres albo przekazać komuś innemu. Gdy termin się przesuwa, zostaw pierwotny i dopisz nowy z powodem.",
+            "Zobacz zadania, które od pięciu dni nie ruszyły, i zapytaj, czy są niejasne lub zbyt duże. Zamknij te, których nikt nie potrzebuje.",
+            "Posortuj nowe prośby i błędy: nadaj każdemu rodzaj, priorytet i osobę odpowiedzialną.",
+            "Zakończ odczytaniem listy, żeby przed końcem spotkania każde zadanie miało wskazaną osobę odpowiedzialną i termin."
+          ]
+        },
+        "limits": [
+          "To nie jest narzędzie do sprintów ani do mierzenia prędkości: nie ma sprintów, punktów historii ani wykresów burn-down. Zespół, który ich potrzebuje, zostaje przy Linear lub Jirze.",
+          "To nie jest planer Gantta, zależności ani zdolności produkcyjnych, nie rejestruje czasu pracy i nie zarządza wydaniami.",
+          "To nie jest hosting kodu, system CI ani helpdesk z czasami odpowiedzi. Link do pull requesta lub zgłoszenia to zwykłe pole z linkiem.",
+          "Nie ma natywnej integracji ze Slackiem ani z Teams i nie ma aplikacji mobilnej. Do Slacka prowadzi droga przez n8n.",
+          "To nie jest system HR ani oceny pracowniczej i nie ma jednokrotnego logowania ani uprawnień na poziomie pola."
+        ],
+        "faq": [
+          {
+            "question": "Czy prosty program może zastąpić Trello, Jirę albo arkusz?",
+            "answer": "Dla dwóch do piętnastu osób, które chcą jednej osoby i jednego terminu na zadanie, tygodniowego przeglądu i próśb spoza zespołu na jednej liście, tak. Wyeksportuj tablicę lub arkusz do CSV albo Excela i zaimportuj je kreatorem dopasowania kolumn albo pozwól agentowi dopasować i zaimportować. Jeśli potrzebujesz sprintów, prędkości lub zależności, zostań przy Linear, Jirze lub ClickUp."
+          },
+          {
+            "question": "Jakich statusów powinien używać mały zespół?",
+            "answer": "Mniej, niż się wydaje. Typowe są Do zrobienia, W toku i Zrobione z Trello albo Backlog, Todo, In Progress, Done i Canceled z Linear. Szablon startuje od siedmiu statusów (Backlog, Do zrobienia, W toku, Do weryfikacji, Zablokowane, Zrobione, Anulowane), które możesz zmienić lub usunąć. Zablokowane ma swoje miejsce, bo inaczej zablokowane zadanie umyka do dnia terminu."
+          },
+          {
+            "question": "Pracować w sprintach czy na tablicy?",
+            "answer": "Poradniki kanban stawiają na przepływ i limit pracy w toku, Linear i Jira raczej na sprinty. Ten szablon używa tablicy i terminu i nie ma obiektu sprintu, więc zespół, który potrzebuje prędkości, zostaje przy narzędziu ze sprintami."
+          },
+          {
+            "question": "Czy zadania, które utknęły, zamykać automatycznie?",
+            "answer": "Nie. Przypomnienie po pięciu dniach bez ruchu jest bezpieczniejsze niż automatyczne zamknięcie, a poradniki o spotkaniach zalecają zamykać takie pozycje jawnie. Szablon przypomina osobie odpowiedzialnej, a ona decyduje. Zadanie otwarte tydzień po tygodniu jest zwykle niejasne lub zbyt duże: popraw definicję, nie człowieka."
+          },
+          {
+            "question": "Czy agent pisze do mojego zespołu?",
+            "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Praca naszego zespołu jest rozrzucona po czacie, tablicy i arkuszu, a ja nie widzę, co jest po terminie albo zablokowane. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
         "questions": [
@@ -2961,6 +3280,51 @@
         "status_field": "Toda tarefa tem um status.",
         "due_field": "Toda tarefa tem um prazo.",
         "tasks_board_view": "As tarefas abrem como quadro por status."
+      },
+      "page": {
+        "metaTitle": "Kanban online para equipes pequenas: modelo de tarefas",
+        "metaDescription": "Um kanban online simples para 2 a 15 pessoas: um responsável e um prazo por tarefa, bugs e tarefas recorrentes. Cole o modelo no seu agente de IA e use já.",
+        "headline": "Um kanban online para equipes pequenas: um responsável e um prazo por tarefa, montado pelo seu agente de IA",
+        "answer": "Um kanban online para uma equipe pequena é uma única lista de tarefas, cada uma com um responsável, um status, uma prioridade e um prazo, mais um quadro e uma revisão semanal curta do que está atrasado ou bloqueado. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com projetos, tarefas recorrentes e pedidos de fora da equipe. Você aprova o plano antes de qualquer coisa ser construída.",
+        "routine": {
+          "title": "A reunião semanal da equipe em 30 minutos",
+          "steps": [
+            "Abra a lista da semana passada e comece pelo que foi prometido: o que está feito e o que atrasou.",
+            "Passe pelas tarefas atrasadas e bloqueadas e decida para cada uma: reassumir, reduzir o escopo ou reatribuir. Quando um prazo atrasa, mantenha o original e anote o novo com o motivo.",
+            "Olhe as tarefas paradas há cinco dias e pergunte se estão vagas ou grandes demais. Feche as que ninguém precisa.",
+            "Faça a triagem dos pedidos e bugs novos: dê a cada um um tipo, uma prioridade e um responsável.",
+            "Termine relendo a lista, para que toda tarefa tenha um responsável com nome e um prazo antes de a reunião acabar."
+          ]
+        },
+        "limits": [
+          "Não é uma ferramenta de sprints nem de velocidade: não há sprints, pontos de história nem gráficos burn-down. Uma equipe que precise deles fica com Linear ou Jira.",
+          "Não é um planejador Gantt, de dependências ou de capacidade, nem um controle de horas ou um gestor de versões.",
+          "Não é um host de código, um sistema de integração contínua nem uma central de atendimento com tempos de resposta. O link de um pull request ou ticket é um simples campo de link.",
+          "Não há integração nativa com Slack ou Teams nem aplicativo móvel. Para o Slack, o caminho é o n8n.",
+          "Não é um sistema de RH nem de avaliação de desempenho, e não tem login único nem permissões por campo."
+        ],
+        "faq": [
+          {
+            "question": "Uma ferramenta simples pode substituir o Trello, o Jira ou uma planilha?",
+            "answer": "Para duas a quinze pessoas que querem um responsável e um prazo por tarefa, uma revisão semanal e os pedidos externos na mesma lista, sim. Exporte seu quadro ou planilha em CSV ou Excel e importe com o assistente de mapeamento de colunas, ou deixe seu agente mapear e importar. Se você precisa de sprints, velocidade ou dependências, fique com Linear, Jira ou ClickUp."
+          },
+          {
+            "question": "Quais status uma equipe pequena deve usar?",
+            "answer": "Menos do que se imagina. A fazer, Em andamento e Feito, como em guias de kanban, ou Backlog, Todo, In Progress, Done e Canceled do Linear, são típicos. O modelo parte de sete status (Backlog, A fazer, Em andamento, Em revisão, Bloqueada, Concluída, Cancelada) que você renomeia ou remove. Bloqueada tem seu lugar, porque senão uma tarefa bloqueada passa despercebida até o prazo."
+          },
+          {
+            "question": "Vale trabalhar em sprints ou em um quadro?",
+            "answer": "Os guias de kanban apostam no fluxo e no limite de trabalho em andamento; Linear e Jira, mais nos sprints. Este modelo usa um quadro e um prazo e não tem objeto de sprint, então uma equipe que precisa de velocidade fica com uma ferramenta de sprints."
+          },
+          {
+            "question": "Tarefas paradas devem ser fechadas automaticamente?",
+            "answer": "Não. Um lembrete depois de cinco dias sem movimento é mais seguro do que um fechamento automático, e os guias de reunião recomendam fechar de forma explícita o que ficou parado. O modelo lembra o responsável e ele decide. Uma tarefa que continua aberta semana após semana costuma estar vaga ou grande demais: corrija a definição, não a pessoa."
+          },
+          {
+            "question": "O agente escreve para a minha equipe?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+          }
+        ]
       },
       "prompt": {
         "intro": "O trabalho da nossa equipe está espalhado entre o chat, um quadro e uma planilha, e eu não consigo ver o que está atrasado ou bloqueado. Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",

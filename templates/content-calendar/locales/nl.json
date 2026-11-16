@@ -150,8 +150,57 @@
     "publish_field": "Elk contentstuk heeft een publicatiedatum met tijd.",
     "calendar_widget": "Het dashboard toont de publicatiekalender."
   },
+  "page": {
+    "metaTitle": "Contentplanning: contentkalender template voor je CRM",
+    "metaDescription": "Contentplanning met een contentkalender die je AI-agent in je CRM bouwt: eigenaar, reviewer en publicatiedatum per stuk, plus campagnes en belangrijke data.",
+    "headline": "Contentplanning die laat zien wie wat ophoudt: een contentkalender, gebouwd door je AI-agent",
+    "answer": "Een contentkalender zet elk bericht, elke nieuwsbrief en elke video met een status, een eigenaar, een reviewer en een publicatiedatum op een rij, zodat je ziet wat er deze week uitkomt. Plak dit template in je AI-agent en die bouwt de kalender in Customermates, met campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine. Het plant en volgt, maar publiceert niet. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+    "routine": {
+      "title": "De wekelijkse redactiebespreking van 15 minuten",
+      "steps": [
+        "Loop langs wat vorige week is uitgekomen en noteer de link naar de publicatie.",
+        "Bekijk wat de komende 7 dagen af moet zijn en nog niet is goedgekeurd of ingepland: verschuiven, schrappen of versnellen.",
+        "Noem bij elk geblokkeerd stuk wie het kan vrijmaken en uiterlijk wanneer. Een stuk dat 14 dagen niet is opgeschoten, wordt vrijgemaakt of geschrapt.",
+        "Plan aan het begin van de maand de volgende: vul de plekken tot ongeveer 70 à 85 procent van de capaciteit en houd twee of drie reservestukken achter de hand."
+      ]
+    },
+    "limits": [
+      "Het plant en volgt, maar publiceert of plant geen berichten in. Dat doet je publicatietool of CMS, dat ook de statistieken levert; het template plaatst nooit zelf iets.",
+      "Het verzamelt geen statistieken. Bereik, interacties en klikken worden ingetypt of geïmporteerd, en er is geen linkverkorter of UTM-generator.",
+      "Het is geen ontwerptool of mediabibliotheek. Beeld en video blijven in je ontwerptool, en de kalender bewaart de link.",
+      "Goedkeuring is een vastgelegde beslissing, geen juridische akkoordverklaring en geen auditspoor voor gereguleerde content. Gereguleerde sectoren houden hun eigen compliancesysteem.",
+      "Houd onuitgebrachte vertrouwelijke teksten, materiaal onder embargo, contactgegevens van het publiek en wachtwoorden van socialmedia-accounts erbuiten.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een contentkalender?",
+        "answer": "Tien kolommen doen het meeste werk: publicatiedatum, status, titel, kanaal, formaat, eigenaar, een link naar de briefing, de gepubliceerde URL, een pijler of campagne en het resultaat na 30 dagen. Voeg een reviewer en een reviewdatum toe zodra er meer dan één persoon bij betrokken is."
+      },
+      {
+        "question": "Hoe ver vooruit moet ik plannen?",
+        "answer": "Plan 2 tot 4 weken vooruit in detail, houd de maand en het kwartaal globaal en kom elke week 15 minuten bij elkaar. De Duitse gids van HubSpot noemt een voortschrijdende horizon van twee tot vier weken en een wekelijkse redactiebespreking voor de komende 7 tot 14 dagen."
+      },
+      {
+        "question": "Moet ik betaalde of cadeau gekregen content labelen?",
+        "answer": "Meestal wel. Regels verschillen per land; in Nederland bestaat een code voor het herkenbaar maken van reclame op social media, controleer de details voor jouw geval. Als voorbeeld verwacht de Amerikaanse toezichthouder FTC de melding bij de publicatie zelf, in duidelijke woorden zoals ad of gesponsord, niet verstopt tussen hashtags en bij video in beeld en geluid. Het template heeft een veld voor de melding en een controlestap. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Spreadsheet of CRM voor een contentkalender?",
+        "answer": "Een spreadsheet werkt voor één persoon met één kanaal. Zodra je personen, merken en campagnes wilt koppelen, een review een deadline heeft en een gepubliceerd stuk een vervolgtaak moet starten, bewaart een CRM dat als records in plaats van kolommen. Het template doet dat en laat het publiceren aan je publicatietool."
+      },
+      {
+        "question": "Hoeveel stukken mag één persoon tegelijk hebben lopen?",
+        "answer": "Rework stelt een plafond van zes per persoon voor (twee in concept, twee in review, twee ingepland) en een schrapregel voor alles wat 14 dagen niet is opgeschoten. Bitrix24 hanteert drie voor een schrijver, vijf voor een redacteur en zes voor een manager. Het template bewaart het plafond als regel voor de wekelijkse bespreking, niet als systeemgrens."
+      },
+      {
+        "question": "Kan de agent voor mij publiceren?",
+        "answer": "Nee. Het template plant en volgt; je publicatietool of CMS publiceert. De prompt zegt de agent geen voorbeeldgegevens aan te maken."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Onze posts, nieuwsbrieven en video’s lopen uit, omdat ik niet kan zien wie wat reviewt of wanneer het verschijnt. Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
+    "intro":"Onze posts, nieuwsbrieven en video’s lopen uit, omdat ik niet kan zien wie wat reviewt of wanneer het verschijnt. Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
     "questions": [
       "Wat publiceer je, op welke kanalen en hoe vaak?",
       "Wie schrijft, wie reviewt en wie keurt goed? Is er een klant bij betrokken?",

@@ -103,6 +103,46 @@
     "due_field": "Cada acción tiene un responsable y una fecha límite.",
     "overdue_widget": "El panel muestra cuántas acciones están vencidas."
   },
+  "page": {
+    "metaTitle": "Plan de acción: plantilla para que se cumpla lo acordado",
+    "metaDescription": "Pega este plan de acción en Claude, ChatGPT o Codex: cada acción acordada en una reunión tiene un responsable, una fecha límite y una revisión semanal.",
+    "headline": "Que se cumpla lo acordado: un plan de acción que tu agente de IA construye en tu CRM",
+    "answer": "Un plan de acción es una lista en la que cada acción tiene un responsable, una fecha límite y un estado, vinculada a la reunión o la decisión de donde sale, para que lo acordado se haga de verdad. Pega esta plantilla en tu agente de IA y construye la lista en Customermates, con reuniones, decisiones, proyectos, un registro de decisiones y una revisión semanal de lo que está abierto, vencido o bloqueado. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión semanal de acciones en 15 minutos",
+      "steps": [
+        "Mira solo las excepciones: las acciones bloqueadas, las que se pasan de fecha y las que no tienen un siguiente paso.",
+        "En cada acción bloqueada, indica quién puede desbloquearla y fija una fecha para retomarla.",
+        "En cada acción vencida, decide con su responsable: nueva fecha, pasarla a otra persona o cancelarla.",
+        "Confirma los cambios de fecha en la reunión, no después, y cierra una acción solo con una prueba, como un enlace, un archivo o un mensaje."
+      ]
+    },
+    "limits": [
+      "No es una suite de gestión de proyectos. No hay dependencias entre tareas, vista de cronograma o Gantt, sprints ni control de horas. Esas funciones se quedan en tu herramienta de proyectos.",
+      "No es un sistema de calidad validado. Las acciones correctivas reguladas, por ejemplo en productos sanitarios, farmacia o aviación, exigen firmas electrónicas y pistas de auditoría validadas. La plantilla ofrece a una organización pequeña un registro claro y una comprobación de eficacia, nada más.",
+      "Deja fuera los planes de cuidados y cualquier dato de salud.",
+      "Nadie recibe un aviso automático. La revisión semanal y el panel muestran lo que vence; los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con una periodicidad fija, y tú decides cuáles activar.",
+      "Una vista no puede mostrar a la vez las acciones vencidas y las bloqueadas, así que la plantilla tiene una vista para cada una."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe llevar una acción?",
+        "answer": "Un título que empiece por un verbo y tenga menos de diez palabras, un responsable con nombre, una fecha concreta y no un margen como la semana que viene, y un estado. Los profesionales añaden una prioridad y el vínculo con la reunión o la decisión de donde sale la acción. La plantilla lo reúne todo en una sola lista, así que una acción sin responsable ni fecha salta a la vista."
+      },
+      {
+        "question": "¿Qué estados debe tener una acción?",
+        "answer": "Las guías de profesionales usan Pendiente, En curso, Bloqueada, En revisión y Hecha, y algunas añaden Cancelada. Esta plantilla tiene seis: pendiente, en curso, bloqueada, en revisión, hecha y cancelada. Se escala al bloqueo, no a la fecha límite: una acción bloqueada indica quién puede desbloquearla y recibe una fecha de seguimiento."
+      },
+      {
+        "question": "¿Cuándo se da una acción por cerrada?",
+        "answer": "Cuando hay una prueba y no solo la palabra hecho: un enlace, un archivo o un mensaje, más la fecha real de cierre. Una acción correctiva o preventiva solo se cierra cuando se ha comprobado su eficacia; la plantilla crea esa comprobación a los 30 días de terminarla, y puedes cambiar el plazo."
+      },
+      {
+        "question": "¿El agente envía las actas o los recordatorios?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Lo que acordamos en las reuniones se queda por el camino y nadie sabe quién se encarga de qué ni para cuándo. Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
     "questions": [

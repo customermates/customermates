@@ -199,8 +199,58 @@
     "chase_signature_rule": "Une lettre de mission envoyée reçoit une action de relance au bout de 7 jours.",
     "process_page": "La base de connaissances contient le processus d’intégration."
   },
+  "page": {
+    "metaTitle": "Onboarding client : modèle d’intégration dans votre CRM",
+    "metaDescription": "Onboarding client sans courir après les pièces : votre agent IA crée dans votre CRM une intégration par mission, des étapes datées et un motif de refus.",
+    "headline": "Onboarding client sans courir après les pièces : un pipeline que votre agent IA construit dans votre CRM",
+    "answer": "Un onboarding client ne s’arrête pas au questionnaire : il faut relancer les pièces et la lettre de mission signée. Ce modèle met en place une intégration par mission avec neuf étapes, de la demande à la réunion de lancement, des demandes de pièces et une étape datée à chaque phase. Collez-le dans votre agent IA : il construit le pipeline dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+    "routine": {
+      "title": "Le point hebdomadaire sur les intégrations",
+      "steps": [
+        "Répondez à chaque nouvelle demande. Par défaut, la réponse part sous un jour, et chaque demande aboutit à une prochaine étape ou à un refus.",
+        "Relancez les questionnaires partis il y a 3 jours et les pièces dont la date limite est passée.",
+        "Relisez les pièces reçues, listez ce qui manque et relancez les lettres de mission envoyées il y a 7 jours.",
+        "Regardez les intégrations qui n’ont pas bougé depuis 7 jours : fixez une date ou refusez en notant le motif, avec un court courrier qui indique qu’aucune relation n’existe et cite toute échéance connue.",
+        "Prenez des nouvelles des clients intégrés il y a 14 jours : le premier résultat est-il arrivé ?"
+      ]
+    },
+    "limits": [
+      "Il ne fait pas signer. La signature se fait dans votre outil de signature électronique ou de comptabilité ; l’intégration garde les dates et un lien.",
+      "Ce n’est ni un outil de vérification d’identité ou de lutte contre le blanchiment, ni un registre de conflits d’intérêts. Les professions réglementées notent qui a vérifié l’identité, quand et comment ; les pièces et le registre de référence restent dans votre logiciel métier ou votre système KYC.",
+      "Il n’encaisse rien et n’émet pas de factures. Acomptes et provisions restent dans votre banque ou votre outil de comptabilité.",
+      "Il n’y a aujourd’hui dans Customermates ni portail client ni formulaire public de dépôt de pièces. Le questionnaire part sous forme de document ou passe par un formulaire externe qui écrit dans Customermates via l’API ou n8n.",
+      "Gardez-en hors les numéros et copies de pièces d’identité, les données de santé, de thérapie ou de religion et les données bancaires. Il ne convient pas aux fiches de soins, de beauté ou de coaching sportif, qui recueillent des données de santé.",
+      "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+    ],
+    "faq": [
+      {
+        "question": "Que doit contenir un questionnaire d’onboarding client ?",
+        "answer": "Coordonnées du client et de l’entreprise, ce qu’il attend, périmètre, délais et budget, qui décide, les accès nécessaires et les questions juridiques ou de conformité. En pratique, le questionnaire sert d’aide-mémoire pour le premier échange, pas de test juridique ; gardez-le plus court pour un particulier."
+      },
+      {
+        "question": "Quelles sont les étapes de l’onboarding client ?",
+        "answer": "L’ordre est stable d’un métier à l’autre : première réponse, qualification, questionnaire et pièces, vérifications là où votre profession les impose, accord écrit, éventuel acompte, puis réunion de lancement. Des délais gardent le rythme : des guides d’éditeurs citent une réponse sous 24 heures et une relance de signature après 7 jours. Prenez ces chiffres comme des valeurs par défaut, pas comme une norme."
+      },
+      {
+        "question": "Dois-je refuser un client par écrit ?",
+        "answer": "Un refus écrit protège les deux parties. Un guide pour cabinets d’avocats recommande d’y indiquer qu’aucune relation n’existe et de citer toute échéance proche. Le modèle note le motif du refus et crée une action datée pour envoyer le courrier. Ce n’est pas un conseil juridique."
+      },
+      {
+        "question": "Quelles données client ne faut-il pas conserver dans le CRM ?",
+        "answer": "Numéros et copies de pièces d’identité, identifiants fiscaux personnels, date de naissance au-delà du nécessaire à la vérification, données de santé, religion, identifiants bancaires. Pour une profession réglementée, le modèle ne garde que le fait que l’identité a été vérifiée, par qui et à quelle date. La CNIL demande de ne collecter que ce dont la relation a besoin et d’en informer les personnes."
+      },
+      {
+        "question": "Le client peut-il remplir le questionnaire en ligne ?",
+        "answer": "Pas par un formulaire public dans Customermates aujourd’hui. Le questionnaire part sous forme de document rédigé par votre agent, ou via un formulaire externe qui écrit dans Customermates par l’API ou n8n. C’est vous qui l’envoyez."
+      },
+      {
+        "question": "L’agent écrit-il à mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "De nouveaux clients abandonnent entre la première demande et le premier jour de travail, parce que j’oublie d’envoyer le questionnaire ou de relancer les pièces. Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
+    "intro":"De nouveaux clients abandonnent entre la première demande et le premier jour de travail, parce que j’oublie d’envoyer le questionnaire ou de relancer les pièces. Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
     "questions": [
       "Que vendez-vous, et qui sont vos clients : sociétés, indépendants ou particuliers ?",
       "Par quelles étapes passe un nouveau client aujourd’hui, et lesquelles des neuf étapes ne vous servent pas ?",

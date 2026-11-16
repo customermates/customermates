@@ -104,6 +104,52 @@
     "retain_until_field": "Cada candidatura indica hasta cuándo se conserva.",
     "applications_board_view": "Las candidaturas se abren como tablero por fase."
   },
+  "page": {
+    "metaTitle": "ATS software: plantilla de seguimiento de candidaturas",
+    "metaDescription": "ATS software para una pyme: pega esta plantilla en Claude, ChatGPT o Codex y gestiona vacantes, nueve fases, fichas de evaluación y fecha de eliminación.",
+    "headline": "Responde a cada candidato y guarda las notas juntas: un seguimiento de candidaturas que tu agente de IA construye",
+    "answer": "Un ATS para una pequeña empresa es una lista de vacantes con una candidatura por candidato y vacante, que avanza de recibida a incorporada o descartada, para que ningún candidato espere sin respuesta. Pega esta plantilla en tu agente de IA y lo construye en Customermates, con vacantes, una ficha de evaluación por entrevistador, seguimientos con fecha y una fecha de conservación para las candidaturas descartadas. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La ronda semanal de candidaturas",
+      "steps": [
+        "Comprueba que cada candidatura nueva tiene acuse de recibo y una fecha siguiente, y responde a las que aún esperan.",
+        "Contrasta las candidaturas nuevas con los requisitos imprescindibles de la vacante y decide a quién invitar a una entrevista.",
+        "Recoge la ficha de cada entrevistador al día siguiente de cada entrevista, mientras las notas están frescas.",
+        "Reclama las ofertas que esperan una decisión y envía el mensaje de cierre a los candidatos descartados o cuya vacante se ha cubierto."
+      ]
+    },
+    "limits": [
+      "No es un portal de empleo, una herramienta de multipublicación ni un creador de páginas de empleo. No publica tus ofertas.",
+      "No lee ni clasifica currículos y no descarta a nadie automáticamente. Las fichas de evaluación son valoraciones que da una persona.",
+      "No es una plataforma de pruebas, evaluación o entrevistas en vídeo, ni una herramienta de cartas de oferta y firma electrónica.",
+      "No hace comprobaciones de antecedentes ni del derecho a trabajar, y no es un sistema de incorporación, de expedientes de personal o de nóminas. Tras la contratación, el expediente pasa a tu sistema de recursos humanos.",
+      "Deja fuera copias de documentos de identidad y datos de seguimiento de igualdad de oportunidades. Recoge solo lo que necesita la decisión de contratación.",
+      "No da asesoramiento legal. Guarda una fecha de conservación y un responsable; el plazo lo decides tú con tu asesor.",
+      "Está dimensionada para pocas vacantes abiertas a la vez. Para una contratación de gran volumen o en varias sedes encaja mejor un ATS específico."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe contener un seguimiento de candidaturas?",
+        "answer": "Vacantes con un responsable y un rango salarial, candidatos y una candidatura por candidato y vacante con su fase, la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte. Los profesionales añaden una ficha de evaluación por entrevistador, para que las opiniones estén estructuradas y no repartidas entre correos y chats."
+      },
+      {
+        "question": "¿Qué fases debe tener un proceso de selección?",
+        "answer": "Las guías habituales citan candidatura recibida, preselección, entrevista, comprobación de referencias y oferta. Esta plantilla tiene nueve: recibida, preselección, entrevista inicial, entrevista con responsable, referencias, oferta, incorporado, descartado y retirado, porque una empresa pequeña rara vez necesita más de dos rondas de entrevistas. Renombra o quita fases en el plan que te proponga tu agente."
+      },
+      {
+        "question": "¿Cuánto tiempo puedo conservar las candidaturas descartadas?",
+        "answer": "Depende del país. En Francia, la autoridad de protección de datos admite en principio una bolsa de candidatos no seleccionados durante dos años desde el último contacto, si se les ha informado; en Alemania se suelen conservar unos seis meses tras el fin del proceso, y una bolsa de talento solo con consentimiento. En España el RGPD obliga a informar del plazo de conservación. La plantilla fija la fecha de conservación 180 días después de un descarte, para que elimines la candidatura o pidas consentimiento. Ajusta el plazo a tu país y consúltalo con tu asesor. Esto no es asesoramiento legal."
+      },
+      {
+        "question": "¿Puedo mantener una bolsa de talento?",
+        "answer": "Sí, si se informa a los candidatos y, según el país, con su consentimiento. Cuando llega la fecha de conservación de una candidatura descartada, la eliminas o anotas el consentimiento del candidato para seguir en tu bolsa. Las fuentes alemanas exigen consentimiento, otras admiten un periodo breve por interés legítimo; comprueba la regla de tu país."
+      },
+      {
+        "question": "¿El agente contacta con los candidatos o descarta a alguien?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Los mensajes, como un acuse de recibo o un rechazo, son borradores que solo existen si los pides, y los envías tú. Nada se descarta automáticamente."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Tengo una pequeña empresa y contrato personal: los candidatos esperan demasiado una respuesta y las notas de las entrevistas están en sitios distintos. Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para las candidaturas descartadas y seguimientos con fecha.",
     "questions": [

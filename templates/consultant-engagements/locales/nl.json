@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Elke opdracht legt vast wanneer de acceptatie is gecontroleerd.",
     "engagements_board_view": "De opdrachten openen als bord per fase."
   },
+  "page": {
+    "metaTitle": "Adviesopdrachten: voorstellen en opvolging in je CRM",
+    "metaDescription": "Adviesopdrachten die je AI-agent in je CRM bouwt: van kennismaking tot gewonnen, met een opvolgdatum die je in het voorstelgesprek afspreekt en resultaten.",
+    "headline": "Laat geen voorstel vallen in de stilte na het gesprek: een CRM voor adviseurs, gebouwd door je AI-agent",
+    "answer": "Een CRM voor adviseurs volgt een paar opdrachten met hoge waarde van kennismaking tot gewonnen en vooral de datum waarop je een voorstel opvolgt. Dit template richt opdrachten in met verkenning, scope, voorstel en beslissing, een acceptatiecheck vóór de offerte, resultaten met opleverdatum en acceptatiedatum en een afsluiting. Plak het in je AI-agent en die bouwt alles in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+    "routine": {
+      "title": "De maandagreview van je opdrachten",
+      "steps": [
+        "Loop de pipeline per fase langs en geef elke opdracht zonder volgende stap een stap met datum, of sluit hem af.",
+        "Controleer de verstuurde voorstellen: elk heeft een opvolgdatum nodig die je in het gesprek met de opdrachtgever hebt afgesproken, daarna een tweede opvolging rond dag 10 en de vraag om een beslissing op de verwachte beslisdatum.",
+        "Bekijk de resultaten die de komende 14 dagen opgeleverd moeten worden en bevestig met de klant het moment van beoordeling.",
+        "Neem contact op met sterke of warme relaties die je al 60 dagen niet hebt gesproken, en bedank wie je laatste opdracht heeft aangedragen."
+      ]
+    },
+    "limits": [
+      "Het is geen urenregistratie of facturatie. Uren en facturen blijven in je tijd- en boekhoudtools; een mijlpaalactie herinnert je er alleen aan te factureren.",
+      "Het schrijft geen voorstellen en haalt geen handtekeningen op. Een voorstel en een getekend contract zijn links naar documenten elders.",
+      "Het is geen resourceplanning of projectmanagement buiten resultaten en data. De taken van het werk zelf horen in je projecttool.",
+      "Houd vertrouwelijk klantmateriaal en interviewgegevens erbuiten. Er zijn geen rechten op veldniveau, bewaar dus een neutrale opdrachttitel en een link.",
+      "Het verstuurt geen sequenties. Elke opvolging is een actie met datum en een concept dat je nakijkt en zelf verstuurt; Customermates heeft geen motor voor automatische of massale verzending.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+    ],
+    "faq": [
+      {
+        "question": "Welk CRM gebruiken adviseurs?",
+        "answer": "Veel zelfstandige adviseurs beginnen met een spreadsheet of een algemeen verkoop-CRM. Wat een adviseur nodig heeft, is weinig: een paar contactpersonen en opdrachten, een volgende stap met datum bij elk, de opvolgdatum van het voorstel en de acceptatiestappen na de verkoop. Dit template richt precies dat in Customermates in."
+      },
+      {
+        "question": "Wanneer moet ik een voorstel opvolgen?",
+        "answer": "Spreek de datum af tijdens het voorstelgesprek zelf, zoals Alan Weiss beschrijft: noem een concrete dag en tijd, bel eerst en mail alleen als de koper onbereikbaar is. Het template gaat standaard uit van een eerste opvolging na 3 dagen en een tweede na 10; beide kun je aanpassen."
+      },
+      {
+        "question": "Wat is een acceptatiecheck?",
+        "answer": "Een korte controle voordat je een offerte schrijft: heb je capaciteit, ben je onafhankelijk van de andere partijen van de klant, kan de vertrouwelijkheid bewaard blijven en past de opdracht bij je? Een Duitse brancheorganisatie van adviseurs adviseert te toetsen of een opdracht kan worden aangenomen voordat je de offerte opstelt, en anders af te wijzen."
+      },
+      {
+        "question": "Hoe snel na ondertekening moet de kickoff plaatsvinden?",
+        "answer": "Een gids van een aanbieder mikt op een kickoff binnen 48 uur na afsluiting, met voorbereidend materiaal 24 uur van tevoren en een afspraak van 60 minuten; hij merkt op dat gereguleerde of uitbestede opdrachten meer tijd vragen. Het template maakt de dag na het winnen van de opdracht een stap voor de kickoff."
+      },
+      {
+        "question": "Wat doe ik nadat ik een voorstel heb verloren?",
+        "answer": "Leg de reden vast en vraag twee dagen later aan de opdrachtgever wat je anders had kunnen doen. Alan Weiss raadt precies die vraag aan als het antwoord nee is. Het template maakt die stap voor je aan."
+      },
+      {
+        "question": "Schrijft de agent mijn klanten aan?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Ik heb mijn eigen adviespraktijk en verlies opdrachten in de stilte na een voorstelgesprek. Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
+    "intro":"Ik heb mijn eigen adviespraktijk en verlies opdrachten in de stilte na een voorstelgesprek. Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
     "questions": [
       "Welke soorten opdrachten verkoop je en tegen welk dagtarief?",
       "Hoe beslis je of je een opdracht aanneemt?",

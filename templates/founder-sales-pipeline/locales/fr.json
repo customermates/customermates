@@ -86,6 +86,52 @@
     "pilot_end_field": "Chaque pilote a une date de fin.",
     "opportunities_board_view": "Les affaires s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "Pipeline commercial du fondateur : chaque échange suivi",
+    "metaDescription": "Vendre en fondateur sans perdre le fil : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit le pipeline, avec pilote et mise en pause.",
+    "headline": "Vendre en tant que fondateur sans perdre le fil : un pipeline que votre agent IA construit dans votre CRM",
+    "answer": "Un pipeline commercial de fondateur est une courte liste d’échanges ouverts, chacun avec le problème dans les mots du client, une prochaine action datée et, si vous en menez un, un pilote à date de fin fixe. Collez ce modèle dans votre agent IA : il construit le pipeline dans Customermates, avec un état « En pause » et une date de reprise pour les affaires silencieuses. Vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La revue du fondateur le lundi",
+      "steps": [
+        "Listez chaque échange ouvert et donnez à chacun une prochaine action datée. Un échange sans date est celui qui s’éteint.",
+        "Notez ce que vous avez appris depuis la semaine dernière : le problème dans les mots de l’acheteur, l’urgence, le budget et qui décide.",
+        "Vérifiez les pilotes : la date de fin est-elle fixée, les critères de réussite sont-ils écrits, le pilote est-il payant ? Placez l’appel de décision quelques jours avant la fin.",
+        "Tranchez pour les affaires silencieuses : un dernier message honnête, puis mise en pause avec une date de reprise plutôt que des relances sans fin.",
+        "Regardez qui a acheté et qui a refusé, et pourquoi. Le schéma montre à quel segment vendre, et quand il est temps d’embaucher votre premier commercial."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un outil de séquences de prospection. Customermates n’a ni séquences ni envoi en masse, et chaque message est individuel et relu par vous. LinkedIn ou l’email en volume demandent un outil spécialisé.",
+      "Ce n’est pas un CRM d’investisseurs. La levée de fonds a d’autres étapes et d’autres interlocuteurs : prenez un modèle à part.",
+      "Il ne produit ni devis, ni factures, ni contrats et n’a pas de signature électronique. Propositions et accords se font dans d’autres outils ; ici ne vivent que les dates et un lien.",
+      "Il n’y a ni scoring de leads ni enrichissement de données. L’adéquation d’un lead est un champ que vous renseignez vous-même.",
+      "La valeur pondérée n’est pas une prévision. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et elles sont à vous.",
+      "Il est dimensionné pour un seul vendeur. Plusieurs commerciaux avec des objectifs et une prévision d’équipe demandent le modèle de pipeline commercial ou un CRM plus lourd."
+    ],
+    "faq": [
+      {
+        "question": "À partir de quand un fondateur a-t-il besoin d’un CRM ?",
+        "answer": "Les guides le situent au moment où vous avez plus de prospects et de clients que votre tête ou un tableur n’en retient, souvent entre 50 et 200 contacts, ou quand une deuxième personne se met à vendre. Un tableur suffit jusque-là. Attendre a un coût : au moment de changer, notes et prochaines actions sont déjà éparpillées."
+      },
+      {
+        "question": "Combien de clients un fondateur doit-il conclure lui-même ?",
+        "answer": "Les avis divergent : Jason Lemkin parle des 10 premiers clients, peut-être 20, d’autres guides de 10 à 50. Mercury conseille d’embaucher le premier commercial quand vous pouvez dire : « Je sais que je peux vendre mon produit à des gens comme X qui ont le problème Y. » Le modèle montre combien de clients vous avez gagnés et n’impose aucun chiffre."
+      },
+      {
+        "question": "Combien de temps relancer une affaire silencieuse ?",
+        "answer": "Les praticiens ne s’accordent pas sur le nombre, mais tous s’arrêtent à un moment. Mercury conseille de ne plus relancer ceux qui ignorent vos messages ; d’autres suggèrent quelques relances, un dernier email et un nouveau contact des mois plus tard. Le modèle fait les deux : un message de clôture, puis l’affaire est mise en pause avec une date de reprise à 90 jours."
+      },
+      {
+        "question": "Faut-il proposer un pilote gratuit ?",
+        "answer": "Le conseil résumé de la Startup School de Y Combinator est d’éviter les pilotes gratuits sans limite et d’en mener un court, évalué et si possible payant. Le modèle donne au pilote une date de fin fixe et un indicateur payant ou non, crée un point de contrôle 14 jours après le début et une action pour l’appel de décision 3 jours avant la fin."
+      },
+      {
+        "question": "L’agent écrit-il à mes prospects ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Je vends mon produit moi-même et je perds sans cesse les notes et les prochaines étapes de mes conversations. Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
     "questions": [

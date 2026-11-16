@@ -85,6 +85,52 @@
     "board_view": "La pipeline si apre come board per fase, con i totali.",
     "how_we_use_page": "La base di conoscenza spiega come il team usa il CRM."
   },
+  "page": {
+    "metaTitle": "CRM su misura: un'alternativa a Excel e ai fogli di calcolo",
+    "metaDescription": "CRM su misura senza progetto di migrazione: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il CRM e importa i tuoi dati.",
+    "headline": "Un CRM su misura al posto del foglio di calcolo: il tuo agente IA lo costruisce e importa i tuoi dati",
+    "answer": "Se clienti e trattative vivono in un foglio di calcolo, in una pagina Notion o in un vecchio strumento, un CRM su misura li sostituisce senza progetto di migrazione: contatti, aziende, trattative e attività con scadenza, costruiti attorno al tuo modo di vendere. Incolla questo modello nel tuo agente IA. Ti chiede come lavori, costruisce il CRM in Customermates e importa i tuoi dati. Approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La revisione del CRM del venerdì",
+      "steps": [
+        "Apri la pipeline come bacheca e guarda ogni fase: cosa si è mosso questa settimana e cosa no.",
+        "Apri le trattative senza prossimo passo e dai a ciascuna un prossimo passo con scadenza, oppure chiudila.",
+        "Controlla le trattative con chiusura prevista nel prossimo mese e sposta le date superate.",
+        "Svuota le attività in ritardo: falle, spostale o lasciale cadere.",
+        "Sistema ciò che l'importazione ha lasciato: contatti doppi, un responsabile mancante, un record senza prossimo passo."
+      ]
+    },
+    "limits": [
+      "Non è un costruttore di app no-code. Niente schermate su misura, portali clienti o script: hai elenchi, collegamenti, viste tabella, bacheca e calendario, dashboard e il tuo agente. Se ti serve un costruttore di app, usane uno.",
+      "Non è uno spazio di lavoro libero. Notion e Airtable restano più adatti per pagine, wiki e dati che non c'entrano con i clienti.",
+      "Non c'è sincronizzazione nei due sensi con il tuo vecchio strumento né annullamento di un'importazione. L'importazione è una copia a senso unico, fatta dopo che hai controllato la mappatura; nella fonte non viene modificato né cancellato nulla.",
+      "Niente diagrammi di Gantt, pianificazione delle risorse o timeline. Quel compito resta agli strumenti di gestione dei progetti.",
+      "Non ci sono permessi a livello di campo. Se alcune colonne devono restare nascoste ai colleghi, mettile in un elenco separato con accessi propri.",
+      "I promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari. Il modello li propone, tu decidi quali attivare."
+    ],
+    "faq": [
+      {
+        "question": "Come passo da Google Sheets o Excel a un CRM?",
+        "answer": "Dì all'agente quali colonne usi davvero. Propone elenchi e campi, controlla un campione di righe per trovare doppioni e valori sconosciuti e importa dopo che hai approvato la mappatura. Customermates importa file Excel e CSV con una procedura guidata di mappatura delle colonne, e il tuo agente può importare record tramite MCP. L'importazione è una copia: il tuo foglio resta com'è finché non decidi di smettere di usarlo."
+      },
+      {
+        "question": "Quando un foglio di calcolo non basta più per clienti e trattative?",
+        "answer": "Le guide dei produttori di CRM indicano il limite tra 25 e 200 contatti circa, oppure il momento in cui più persone modificano lo stesso file o nessuno viene più avvisato di un follow-up. Allora un CRM aiuta: i contatti sono collegati ad aziende e trattative, i prossimi passi sono attività con scadenza e le conversazioni stanno accanto a ogni record."
+      },
+      {
+        "question": "Devo progettare il CRM da solo?",
+        "answer": "No. L'agente ti intervista prima: cosa vendi, le fasi reali dal primo contatto alla chiusura, cosa guardi ogni mattina e ogni venerdì, chi altro lo usa, dove sono oggi i tuoi dati e cosa resta in un altro strumento. Propone il modello e lo costruisce dopo la tua approvazione. Fasi, campi e viste puoi cambiarli poi semplicemente chiedendolo."
+      },
+      {
+        "question": "Cosa non arriva dal mio vecchio strumento?",
+        "answer": "L'importazione copia i record. Automazioni, moduli, viste, commenti e allegati non vengono trasferiti, e i collegamenti che il vecchio strumento ha esportato come semplice testo vanno ricostruiti. L'agente annota da dove viene ogni record importato, così puoi risalirci in seguito."
+      },
+      {
+        "question": "In che cosa è diverso da un CRM su misura sviluppato da un'agenzia?",
+        "answer": "Le agenzie che sviluppano un CRM su misura indicano diversi mesi di progetto. Qui il CRM esiste già, con ruoli e accessi per elenco, e solo il suo contenuto è tuo: le fasi, i campi e le viste. Una prima pipeline funzionante può nascere da una sola conversazione, e la rileggi tu stesso prima di affidartici."
+      }
+    ]
+  },
   "prompt": {
     "intro": "I miei clienti e le mie trattative stanno in un foglio di calcolo o in un vecchio strumento e voglio un CRM che si adatti al mio modo di lavorare. Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
     "questions": [

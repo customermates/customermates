@@ -104,6 +104,53 @@
     "inquiries_board_view": "Zapytania otwierają się jako tablica według etapu.",
     "conflict_check_page": "Baza wiedzy zawiera stronę o weryfikacji konfliktu interesów."
   },
+  "page": {
+    "metaTitle": "Przyjmowanie klientów w kancelarii: konflikt i terminy",
+    "metaDescription": "Przyjmowanie klientów bez pominiętej weryfikacji konfliktu i terminu: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje cały proces.",
+    "headline": "Przyjmowanie klientów bez pominiętego konfliktu i terminu: proces, który Twój agent AI buduje w Twoim CRM",
+    "answer": "Przyjęcie klienta prowadzi osobę zainteresowaną od pierwszego zapytania do podpisanej umowy w stałej kolejności: najbliższy znany termin, weryfikacja konfliktu interesów, konsultacja, oferta oraz umowa z pełnomocnictwem, a dla każdego, kto nie zostaje klientem, pismo o niepodjęciu sprawy. Wklej ten szablon do swojego agenta AI, a zbuduje proces w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie, a fakty ze sprawy zostają poza narzędziem.",
+    "routine": {
+      "title": "Rutyna przyjmowania klientów",
+      "steps": [
+        "Zapisz każde nowe zapytanie tego samego dnia: dziedzinę prawa, skąd osoba o Tobie wie, strony sprawy i najbliższy znany termin.",
+        "Najpierw zajmij się zapytaniami z terminem w ciągu 14 dni: przyjmij, skieruj gdzie indziej albo ostrzeż osobę tego samego dnia.",
+        "Zrób weryfikację konfliktu interesów przed jakąkolwiek poradą: przeszukaj strony, klientów i byłych klientów, zapisz wynik i to, kto go sprawdził.",
+        "Wyślij ofertę dzień po konsultacji, a po trzech dniach ponów kontakt, jeśli nie ma odpowiedzi.",
+        "Po podpisaniu umowy i pełnomocnictwa poproś o zaliczkę i przypomnij o niej po tygodniu. Otwórz sprawę w swoim systemie kancelaryjnym.",
+        "Wyślij pismo o niepodjęciu sprawy każdemu, komu odmawiasz albo kto milknie, żeby został ślad, że nie powstał żaden stosunek."
+      ]
+    },
+    "limits": [
+      "To nie jest Twój system do prowadzenia spraw. Dokumenty, ewidencja czasu, terminy procesowe i pisma procesowe zostają w oprogramowaniu kancelarii; sprawa jest tu tylko odnośnikiem.",
+      "To nie jest kalendarz terminów procesowych. Jedyna data trzymana przy przyjęciu to najbliższy znany termin, żeby zdecydować, na co spojrzeć najpierw. Terminy procesowe zostają w systemie, na którym polegasz.",
+      "Nie prowadzi rachunku powierniczego ani rozliczeń. Nie ma modelu faktury: zaliczka jest zapisana jako data, a księga zostaje w Twojej księgowości.",
+      "Weryfikacja konfliktu interesów jest pomocą dla człowieka. Sam przeszukujesz listę stron i zapisujesz wynik; Customermates nie może Cię powstrzymać przed otwarciem sprawy.",
+      "To nie jest portal dla klientów ani narzędzie do podpisu elektronicznego. Podpisana umowa to link do podpisanego pliku.",
+      "Zostaw poza narzędziem fakty ze sprawy, treści objęte tajemnicą, dane o zdrowiu i dane przeciwników. Customermates nie ma uprawnień na poziomie pola: to, co jest na liście, widzą wszyscy, którzy mają do niej dostęp."
+    ],
+    "faq": [
+      {
+        "question": "Co obejmuje proces przyjmowania klienta w kancelarii?",
+        "answer": "Listy kontrolne z praktyki idą tak: zapytanie, wstępna ocena z weryfikacją konfliktu i pilności, konsultacja, warunki wynagrodzenia i zlecenia, podpisana umowa z pełnomocnictwem i zaliczką, i dopiero potem sprawa w systemie kancelaryjnym. Kancelarie różnią się w szczegółach, na przykład co do zaliczki przed rozpoczęciem pracy. Szablon ustala kolejność, a resztę zostawia Tobie."
+      },
+      {
+        "question": "Czy weryfikacja konfliktu powinna być przed konsultacją?",
+        "answer": "Wskazówki młodych prawników z American Bar Association i niemieckie źródła z praktyki stawiają weryfikację konfliktu przed jakąkolwiek poradą i przed umową; jedna lista kontrolna robi ją nawet przed pierwszą konsultacją. Szablon ma etap oceny przed konsultacją i zapisuje wynik oraz osobę, która go sprawdziła. Zasady różnią się w zależności od kraju, więc sprawdź własne zasady etyki zawodowej."
+      },
+      {
+        "question": "Po co zapisywać termin już przy pierwszym kontakcie?",
+        "answer": "Termin może upłynąć, zanim przyjmiesz sprawę, a komentarze w niemieckich pismach branżowych wskazują, że możliwe do uniknięcia zaniedbanie może rodzić odpowiedzialność jeszcze przed przyjęciem. Zapisanie najbliższego znanego terminu i jego źródła pozwala tego samego dnia ustalić, co jest pilne. To data do wstępnej oceny, nie kalendarz terminów procesowych."
+      },
+      {
+        "question": "Czy potrzebuję pisma o niepodjęciu sprawy?",
+        "answer": "To dobra praktyka: wskazówki dla prawników zalecają pisemne pismo do osób, którym odmawiasz lub które nie powierzają Ci sprawy, żeby został ślad, że nie powstał żaden stosunek. Szablon tworzy zadanie jego napisania, gdy odmawiasz zapytania albo potencjalny klient nie powierza Ci sprawy. To, czy jest obowiązkowe, zależy od Twojego kraju."
+      },
+      {
+        "question": "Czy mogę trzymać w Customermates sprawy klientów?",
+        "answer": "Tylko jako odnośniki: odwołanie do sprawy w Twoim systemie kancelaryjnym. Fakty ze sprawy, treści objęte tajemnicą, dane o zdrowiu i dane przeciwników zostaw poza narzędziem, bo Customermates nie ma uprawnień na poziomie pola. Agent niczego nie wysyła i nie tworzy przykładowych danych; szkice powstają tylko na Twoją prośbę."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Potencjalni klienci dzwonią w sprawie, a ja muszę sprawdzić konflikt interesów, zanotować najbliższy termin i udokumentować każdy krok, zanim ich przyjmę. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
     "questions": [

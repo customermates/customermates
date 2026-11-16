@@ -104,6 +104,53 @@
     "inquiries_board_view": "Os atendimentos abrem como quadro por etapa.",
     "conflict_check_page": "A base de conhecimento tem uma página sobre a verificação de conflito."
   },
+  "page": {
+    "metaTitle": "Atendimento de clientes para advocacia: triagem a contrato",
+    "metaDescription": "Atendimento sem deixar passar conflito nem prazo: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta a triagem do escritório.",
+    "headline": "Atendimento de clientes sem deixar passar um conflito ou um prazo: seu agente de IA monta a triagem no seu CRM",
+    "answer": "O atendimento de um cliente leva o interessado do primeiro contato ao contrato assinado numa ordem fixa: o prazo mais próximo conhecido, a verificação de conflito, a consulta, a proposta de honorários e o contrato com a procuração, com uma carta de não contratação para quem não é aceito. Cole este modelo no seu agente de IA e ele monta a triagem no Customermates. Você aprova o plano antes de qualquer coisa ser construída, e os fatos do caso ficam de fora.",
+    "routine": {
+      "title": "A rotina da mesa de atendimento",
+      "steps": [
+        "Registre cada novo atendimento no mesmo dia: área do direito, como a pessoa chegou até você, as partes envolvidas e o prazo mais próximo conhecido.",
+        "Trate primeiro os atendimentos com prazo dentro de 14 dias: aceitar, encaminhar ou avisar a pessoa no mesmo dia.",
+        "Faça a verificação de conflito antes de qualquer orientação: busque entre as partes, os clientes e os ex-clientes e anote o resultado e quem o fez.",
+        "Envie a proposta de honorários no dia seguinte à consulta e cobre retorno depois de três dias se não houver resposta.",
+        "Com o contrato e a procuração assinados, peça o adiantamento e cobre depois de uma semana. Abra o caso no seu sistema.",
+        "Mande a carta de não contratação a quem você recusar ou a quem sumir, para ficar registrado que não se formou nenhuma relação."
+      ]
+    },
+    "limits": [
+      "Não é o seu sistema de gestão de casos. Documentos, controle de horas, prazos processuais e peticionamento ficam no seu sistema; aqui um caso é só uma referência.",
+      "Não é uma autoridade de prazos. A única data guardada no atendimento é o prazo mais próximo conhecido, para decidir o que olhar primeiro. Os prazos processuais ficam no sistema em que você confia.",
+      "Não faz contabilidade de valores de clientes nem faturamento. Não há modelo de nota ou fatura: o adiantamento é registrado como uma data, e o razão fica na sua contabilidade.",
+      "A verificação de conflito é um auxílio humano. Você mesmo busca na lista de partes e anota o resultado; o Customermates não impede você de abrir um caso.",
+      "Não é um portal do cliente nem uma ferramenta de assinatura eletrônica. Um contrato assinado é um link para o arquivo assinado.",
+      "Deixe de fora os fatos do caso, o conteúdo sigiloso, dados de saúde e detalhes da parte contrária. O Customermates não tem permissões por campo: o que está numa lista é visto por todos que têm acesso a essa lista."
+    ],
+    "faq": [
+      {
+        "question": "O que inclui o processo de atendimento de um cliente num escritório de advocacia?",
+        "answer": "As listas de verificação da prática seguem esta ordem: contato, triagem com verificação de conflito e urgência, consulta, proposta de honorários e condições da contratação, contrato e procuração assinados com adiantamento, e só depois o caso no sistema. Os escritórios divergem em detalhes, como pedir o adiantamento antes de começar o trabalho. O modelo fixa a ordem e deixa o resto com você."
+      },
+      {
+        "question": "A verificação de conflito deve vir antes da consulta?",
+        "answer": "As orientações dos jovens advogados da American Bar Association e fontes da prática alemã colocam a verificação de conflito antes de qualquer orientação e antes da carta de contratação; uma lista de verificação chega a fazê-la antes da primeira consulta. O modelo tem uma etapa de triagem antes da consulta e registra o resultado e quem o fez. As regras variam conforme o país: confira o seu código de ética, como o da OAB no Brasil."
+      },
+      {
+        "question": "Por que anotar um prazo já no primeiro contato?",
+        "answer": "Um prazo pode vencer antes de você aceitar o caso, e comentários de revistas profissionais alemãs apontam que uma falha evitável pode gerar responsabilidade mesmo antes da aceitação. Anotar o prazo mais próximo conhecido e de onde ele vem permite separar o urgente no mesmo dia. É uma data de triagem, não uma agenda de prazos processuais."
+      },
+      {
+        "question": "Preciso de uma carta de não contratação?",
+        "answer": "É boa prática: orientações para advogados recomendam uma carta escrita a quem você recusa ou a quem não contrata o escritório, para ficar registrado que não se formou nenhuma relação. O modelo cria uma tarefa para redigi-la quando você recusa um atendimento ou o interessado não contrata. Se é obrigatória depende do seu país."
+      },
+      {
+        "question": "Posso colocar casos de clientes no Customermates?",
+        "answer": "Só como referências: um ponteiro para o caso no seu sistema. Deixe de fora os fatos do caso, o conteúdo sigiloso, dados de saúde e detalhes da parte contrária, porque o Customermates não tem permissões por campo. O agente não envia nada e não cria dados de exemplo; rascunhos só existem se você pedir."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu atendo interessados que ligam por causa de um caso e preciso verificar conflitos, anotar o prazo mais próximo e documentar cada passo antes de aceitá-los como clientes. Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
     "questions": [

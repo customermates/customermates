@@ -95,8 +95,58 @@
     "first_response_field": "Ogni ticket indica entro quando è dovuta la prima risposta.",
     "tickets_board_view": "I ticket si aprono come board per stato."
   },
+  "page": {
+    "metaTitle": "Ticket software: assistenza clienti leggera nel tuo CRM",
+    "metaDescription": "Ticket software leggero che il tuo agente IA costruisce nel CRM: ticket con priorità e scadenze di risposta, problemi noti e valutazione di soddisfazione.",
+    "headline": "Ticket software per qualche decina di ticket a settimana, costruito dal tuo agente IA nel CRM",
+    "answer": "Un ticket software leggero dà a ogni messaggio dei clienti un ticket con un responsabile, una priorità e una scadenza entro cui devi rispondere. Questo modello imposta ticket, problemi noti che collegano molti ticket a un'unica causa e una valutazione di soddisfazione. Incollalo nel tuo agente IA: costruisce l'assistenza in Customermates e tu approvi il piano prima che venga creato qualcosa. È pensato per un'azienda o un'agenzia da una a otto persone, non per un grande team di supporto.",
+    "routine": {
+      "title": "La revisione settimanale dell'assistenza",
+      "steps": [
+        "Parti dai ticket con prima risposta o soluzione in ritardo, poi da quelli che aspettano te da più di due giorni.",
+        "Sollecita i clienti che non rispondono da 3 giorni e segna come risolti i ticket rimasti in silenzio per 7 giorni, con la nota che non è arrivata risposta.",
+        "Guarda i ticket riaperti e quelli risolti senza valutazione, e ricontatta chi ha dato 1 o 2.",
+        "Controlla i problemi noti aperti: quando uno è risolto, avvisa ogni cliente con un ticket collegato e annota le categorie più frequenti della settimana."
+      ]
+    },
+    "limits": [
+      "Non è un sistema telefonico o SMS e non è un widget di chat dal vivo. I ticket nascono da messaggi email, WhatsApp, LinkedIn, Instagram e Telegram nella casella di posta, oppure dal tuo agente.",
+      "In Customermates oggi non esistono né un portale clienti né un modulo pubblico per i ticket. I clienti non possono accedere per seguire un ticket.",
+      "Non calcola orari di lavoro né festività. Le scadenze vengono dalla tabella dei piani di supporto nella tua base di conoscenza, impostate da una regola o dal tuo agente.",
+      "Non è un gestionale ITIL di modifiche o asset, né una pagina di stato né uno strumento di invio massivo, e non ha SSO. Per grandi volumi e imprese strutturate vanno meglio Zendesk, Freshdesk o Zammad.",
+      "Le risposte sono bozze che rivedi e invii tu. I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti; il modello li propone e tu decidi quali attivare.",
+      "Tieni fuori dai ticket numeri di carta, password, copie di documenti d'identità e dati sanitari. Una richiesta di accesso conserva la verifica dell'identità come sì o no con una data, non come copie.",
+      "Collegare email o WhatsApp al CRM richiede un piano con la casella di posta, e una casella condivisa da tutto il team un piano con account condivisi. La pagina dei prezzi mostra cosa include ogni piano."
+    ],
+    "faq": [
+      {
+        "question": "Qual è il ticket software più semplice per una piccola azienda?",
+        "answer": "Un elenco di ticket con un responsabile ciascuno, uno stato, una priorità e due scadenze: prima risposta e soluzione. Aggiungi un elenco di problemi noti e una valutazione di soddisfazione e rivedilo ogni settimana. Basta per qualche decina di ticket a settimana; oltre, uno strumento dedicato si ripaga."
+      },
+      {
+        "question": "Quali stati deve avere un ticket di assistenza?",
+        "answer": "Gli insiemi più comuni sono nuovo, aperto, in attesa, risolto e chiuso. Questo modello usa Nuovo, Aperto, In attesa del cliente, In attesa di terzi, Risolto e Chiuso, più Spam o duplicato. I fornitori non concordano se uno stato di attesa fermi il cronometro; la regola della casa nel modello: l'attesa del cliente lo mette in pausa, quella di terzi no. Puoi cambiarla."
+      },
+      {
+        "question": "Quali tempi di risposta posso promettere?",
+        "answer": "Non esiste un riferimento generale. Alcuni fornitori portano come esempio i problemi critici entro 4 ore e le piccole richieste entro 72 ore, con 1 ora per la prima risposta e 4 ore per la soluzione in caso di blocco totale. Parti da valori simili nella tabella dei piani di supporto e sostituiscili con ciò che riesci a mantenere."
+      },
+      {
+        "question": "Come tratto una richiesta di accesso GDPR che arriva come ticket?",
+        "answer": "Una richiesta di accesso va evasa senza ritardo e al più tardi entro un mese; il termine può essere prorogato di altri due mesi se necessario, comunicando i motivi entro il primo mese. Il modello aggiunge un tipo richiesta di accesso con la scadenza di un mese ben visibile. Non è consulenza legale; coinvolgi il tuo referente per la protezione dei dati."
+      },
+      {
+        "question": "Può sostituire Zendesk o Freshdesk?",
+        "answer": "Per un team da qualche decina di ticket a settimana che vuole solleciti datati e una valutazione di soddisfazione, sì. Per grandi volumi, molti canali o esigenze aziendali restano più adatti Zendesk, Freshdesk, Zammad, Help Scout o Front, con motori SLA, macro, calendari degli orari di lavoro e portali che questo modello lascia fuori di proposito."
+      },
+      {
+        "question": "L'agente risponde ai miei clienti?",
+        "answer": "L'agente prepara le risposte dalla conversazione collegata e tu le rivedi e le invii. Il prompt gli dice di non inviare nulla e di non creare dati di esempio."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "I clienti mi scrivono per e-mail e in chat e non riesco a vedere quali aspettano ancora una risposta. Imposta nel mio spazio di lavoro Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
+    "intro":"I clienti mi scrivono per e-mail e in chat e non riesco a vedere quali aspettano ancora una risposta. Imposta nel mio spazio di lavoro Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
     "questions": [
       "Quanti ticket gestisci a settimana e da quali canali arrivano?",
       "Che tempi prometti per la prima risposta e la risoluzione, per priorità o piano di assistenza?",

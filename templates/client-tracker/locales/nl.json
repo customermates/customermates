@@ -182,6 +182,46 @@
     "chase_rule": "Een klant die naar Wacht op klant gaat, krijgt een herinneringsactie.",
     "playbook_page": "De kennisbank bevat de werkwijze van het klantenbestand."
   },
+  "page": {
+    "metaTitle": "Klantenbestand sjabloon: mis nooit meer een opvolging",
+    "metaDescription": "Klantenbestand voor Claude, ChatGPT of Codex: per klant één accountmanager en een volgende stap met datum, plus een wekelijkse controle op wat te laat is.",
+    "headline": "Weet wie je als volgende belt: een klantenbestand dat je AI-agent in je CRM opbouwt",
+    "answer": "Een klantenbestand is een lijst met één regel per klant, één accountmanager en een volgende stap met datum, zodat geen klant stil valt zonder dat je het merkt. Plak dit sjabloon in je AI-agent en die bouwt de lijst op in Customermates, met contactpersonen, acties met datum, gekoppelde gesprekken en een wekelijkse controle. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse klantcontrole van 15 minuten",
+      "steps": [
+        "Sorteer de klantenlijst op de datum van de volgende stap en op status.",
+        "Pak eerst alles aan wat te laat is, daarna de actieve klanten zonder volgende stap.",
+        "Kijk naar prospects die stil zijn geworden en beslis: opvolgen of afsluiten.",
+        "Sluit af met een datum op elke regel, zodat geen enkele klant zonder volgende stap blijft."
+      ]
+    },
+    "limits": [
+      "Het is geen hulpmiddel voor facturatie, offertes of tijdregistratie. Facturatie blijft in je boekhoudpakket; het klantenbestand bevat hooguit een link en een jaarwaarde.",
+      "Het bewaart geen getekende contracten en is geen klantenportaal. Klanten kunnen niet inloggen om hun status te zien.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het sjabloon stelt ze voor en jij bepaalt welke je aanzet.",
+      "Houd gevoelige klantdossiers, zoals medische, juridische of therapeutische gegevens, erbuiten. Hier staat de relatie, de inhoud van het dossier staat in een systeem dat daarvoor is gebouwd.",
+      "Het is bedoeld voor één tot tien personen. Moeten bepaalde kolommen verborgen blijven voor collega’s, zet ze dan in een aparte lijst met eigen toegang."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een klantenbestand?",
+        "answer": "Eén regel per klant met een accountmanager, een status uit een korte lijst, de datum van het laatste contact en een volgende stap met datum. Die datum bepaalt het werk: sorteer er één keer per week op en er valt niets tussendoor."
+      },
+      {
+        "question": "Wanneer is een spreadsheet niet meer genoeg voor klantenbeheer?",
+        "answer": "Praktijkgidsen leggen de grens bij ongeveer 25 tot 50 klanten, bij meerdere mensen die het bestand bewerken, of op het punt dat niemand meer aan een opvolging wordt herinnerd. Dan helpt een CRM: contactpersonen zijn gekoppeld, volgende stappen zijn acties met datum en de gesprekken staan naast elke klant."
+      },
+      {
+        "question": "Hoe lang mag ik de gegevens van beëindigde klanten bewaren?",
+        "answer": "Dat hangt af van het land en van de gegevens. Twee voorbeelden: de Franse privacytoezichthouder staat toe dat klantgegevens voor acquisitie worden bewaard zolang de relatie duurt plus drie jaar, en het Duitse handelsrecht eist dat zakelijke brieven zes jaar en boekingsstukken acht jaar worden bewaard. In Nederland geldt de AVG, met de Autoriteit Persoonsgegevens als toezichthouder. Het sjabloon zet voor elke beëindigde klant een controledatum; pas de termijn aan op je land en vraag je adviseur. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Neemt de agent contact op met mijn klanten?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik onderhoud mijn klantrelaties zelf en te veel opvolgingen glippen erdoorheen: ik weet niet meer met wie ik het laatst sprak en wat de volgende stap is. Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
     "questions": [

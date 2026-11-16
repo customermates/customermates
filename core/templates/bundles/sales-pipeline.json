@@ -1348,10 +1348,10 @@
       "de": "published",
       "fr": "published",
       "it": "published",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -2753,6 +2753,47 @@
         "proposal_follow_up_rule": "Una oportunidad que llega a Presupuesto enviado recibe una tarea de seguimiento.",
         "stages_page": "La base de conocimiento contiene las etapas y sus criterios de salida."
       },
+      "page": {
+        "metaTitle": "Pipeline de ventas: el siguiente paso de cada oportunidad",
+        "metaDescription": "Pega este pipeline de ventas en Claude, ChatGPT o Codex: siete etapas, un siguiente paso con fecha en cada oportunidad y los motivos de victoria y de pérdida.",
+        "headline": "Mira qué oportunidades avanzan: un pipeline de ventas que tu agente de IA construye en tu CRM",
+        "answer": "Un pipeline de ventas es una lista corta de etapas, cada una con un criterio de salida claro, que te dice qué oportunidades avanzan, cuáles están atascadas y qué pasa a continuación. Pega esta plantilla en tu agente de IA y construye el pipeline en Customermates: siete etapas, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, el comité de compra, los motivos de victoria y de pérdida y una tarea en cada cambio de etapa. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La revisión semanal del pipeline",
+          "steps": [
+            "Abre el tablero y mira cada oportunidad que lleva más de 14 días en su etapa.",
+            "Para cada una, decide: avanzarla porque cumple el criterio de salida, reactivarla con un nuevo siguiente paso o cerrarla como perdida con un motivo.",
+            "Comprueba que cada oportunidad abierta tiene un siguiente paso con fecha, fijado al terminar cada llamada.",
+            "Repasa las ganadas y las perdidas con sus motivos, y las oportunidades que han pasado su fecha de cierre prevista."
+          ]
+        },
+        "limits": [
+          "No genera presupuestos ni facturas. La propuesta se redacta en tu herramienta de documentos y se vincula a la oportunidad.",
+          "No es una herramienta de secuencias ni de envíos masivos. Los seguimientos son borradores para personas concretas, y los envías tú.",
+          "No hay puntuación de leads ni enriquecimiento de datos, ni categorías de previsión, ni gestión de cuotas o comisiones. El valor ponderado es una ponderación sencilla de tus importes por etapa, no una previsión.",
+          "No hay telefonía ni SMS.",
+          "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con una periodicidad fija. La plantilla los propone y tú decides cuáles activar.",
+          "Está dimensionada para entre uno y diez vendedores. Los equipos con un proceso formal de previsión están mejor servidos por una herramienta hecha para eso."
+        ],
+        "faq": [
+          {
+            "question": "¿Cuántas etapas debe tener un pipeline de ventas?",
+            "answer": "Los profesionales no se ponen de acuerdo: unos aconsejan cinco o menos, otros usan nueve. Esta plantilla tiene cinco etapas abiertas más ganada y perdida, porque cada etapa tiene un criterio de salida medible. Renombra o quita etapas en el plan que te proponga tu agente."
+          },
+          {
+            "question": "¿Qué es el valor ponderado de una oportunidad?",
+            "answer": "El importe de la oportunidad multiplicado por la ponderación de su etapa, por ejemplo 10, 25, 40, 60 y 80 por ciento de la primera a la quinta etapa. Es una ponderación que puedes ajustar a tus propias tasas de cierre, no una predicción."
+          },
+          {
+            "question": "¿Por qué anotar el motivo de una victoria y de una pérdida?",
+            "answer": "Los informes de un pipeline solo funcionan si existen los dos resultados, y los motivos muestran qué cambiar. La plantilla pide un motivo al cerrar y crea una tarea de seguimiento para retomar las oportunidades perdidas a los 90 días."
+          },
+          {
+            "question": "¿El agente envía mis seguimientos?",
+            "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Mi equipo vende a empresas y no sé cuáles son las oportunidades reales, cuáles se han parado ni por qué ganamos o perdemos. Configura un pipeline de ventas en mi espacio de trabajo de Customermates: oportunidades con siete etapas y ponderaciones, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria, el comité de compra en cada oportunidad y una tarea creada en cada cambio de etapa.",
         "questions": [
@@ -4146,6 +4187,47 @@
         "proposal_follow_up_rule": "Een deal die Offerte verstuurd bereikt, krijgt een opvolgactie.",
         "stages_page": "De kennisbank bevat de fasen en hun uitstapcriteria."
       },
+      "page": {
+        "metaTitle": "Sales pipeline sjabloon: de volgende stap bij elke deal",
+        "metaDescription": "Plak deze sales pipeline in Claude, ChatGPT of Codex: zeven fasen, een volgende stap met datum bij elke deal en de redenen waarom je wint of verliest.",
+        "headline": "Zie welke deals vooruitgaan: een sales pipeline die je AI-agent in je CRM opbouwt",
+        "answer": "Een sales pipeline is een korte lijst met fasen, elk met een duidelijk uitstapcriterium, zodat je ziet welke deals vooruitgaan, welke vastzitten en wat er daarna gebeurt. Plak dit sjabloon in je AI-agent en die bouwt de pipeline op in Customermates: zeven fasen, een gewogen waarde, een volgende stap met datum bij elke open deal, het besluitvormingsteam, redenen voor winst en verlies en een actie bij elke fasewijziging. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De wekelijkse pipelinecontrole",
+          "steps": [
+            "Open het bord en kijk naar elke deal die langer dan 14 dagen in zijn fase staat.",
+            "Beslis per deal: doorschuiven omdat het uitstapcriterium is gehaald, nieuw leven inblazen met een nieuwe volgende stap, of afsluiten als verloren met een reden.",
+            "Zorg dat elke open deal een volgende stap met datum heeft, vastgelegd aan het eind van elk gesprek.",
+            "Loop de gewonnen en verloren deals met hun redenen langs, en de deals die hun verwachte afsluitdatum voorbij zijn."
+          ]
+        },
+        "limits": [
+          "Het maakt geen offertes of facturen. De offerte schrijf je in je documenttool en koppel je aan de deal.",
+          "Het is geen tool voor sequenties of massamailing. Opvolging bestaat uit concepten voor individuele personen en jij verstuurt ze zelf.",
+          "Er is geen leadscoring of verrijking, geen forecastcategorieën en geen beheer van targets of commissies. De gewogen waarde is een eenvoudige weging van je dealbedragen per fase, geen prognose.",
+          "Er is geen telefonie of sms.",
+          "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het sjabloon stelt ze voor en jij bepaalt welke je aanzet.",
+          "Het is bedoeld voor één tot tien verkopers. Teams met een formeel forecastproces zijn beter af met een tool die daarvoor is gebouwd."
+        ],
+        "faq": [
+          {
+            "question": "Hoeveel fasen moet een sales pipeline hebben?",
+            "answer": "Praktijkmensen zijn het er niet over eens: sommigen raden vijf of minder aan, anderen gebruiken er negen. Dit sjabloon heeft vijf open fasen plus gewonnen en verloren, omdat elke fase één meetbaar uitstapcriterium heeft. Hernoem of schrap fasen in het plan dat je agent voorstelt."
+          },
+          {
+            "question": "Wat is de gewogen waarde van een deal?",
+            "answer": "Het dealbedrag vermenigvuldigd met de weging van de fase, bijvoorbeeld 10, 25, 40, 60 en 80 procent van de eerste tot de vijfde fase. Het is een weging die je kunt aanpassen aan je eigen slagingspercentages, geen voorspelling."
+          },
+          {
+            "question": "Waarom de reden van winst en verlies vastleggen?",
+            "answer": "Rapportages over een pipeline werken alleen als beide uitkomsten bestaan, en de redenen laten zien wat je moet veranderen. Het sjabloon vraagt bij het afsluiten om een reden en maakt een vervolgactie aan om verloren deals na 90 dagen opnieuw te bekijken."
+          },
+          {
+            "question": "Verstuurt de agent mijn opvolging?",
+            "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Mijn team verkoopt aan bedrijven en ik kan niet zien welke deals echt zijn, welke zijn blijven liggen en waarom we winnen of verliezen. Richt een sales pipeline in mijn Customermates-werkruimte in: deals met zeven fasen en wegingen, een gewogen waarde, een volgende stap met datum bij elke open deal, redenen voor verlies en winst, het besluitvormingsteam bij elke deal en een actie die bij elke fasewijziging wordt aangemaakt.",
         "questions": [
@@ -4583,6 +4665,51 @@
         "proposal_follow_up_rule": "Szansa, która trafia na etap Oferta wysłana, dostaje zadanie ponownego kontaktu.",
         "stages_page": "Baza wiedzy zawiera etapy i ich kryteria wyjścia."
       },
+      "page": {
+        "metaTitle": "Lejek sprzedaży: szablon z następnym krokiem przy szansie",
+        "metaDescription": "Wklej ten lejek sprzedaży w Claude, ChatGPT lub Codex: siedem etapów, następny krok z terminem przy każdej szansie i powody wygranej oraz przegranej.",
+        "headline": "Zobacz, które szanse się ruszają: lejek sprzedaży, który Twój agent AI buduje w Twoim CRM",
+        "answer": "Lejek sprzedaży to krótka lista etapów, z których każdy ma jasne kryterium wyjścia, dzięki czemu widzisz, które szanse się ruszają, które utknęły i co dzieje się dalej. Wklej ten szablon do swojego agenta AI, a zbuduje on lejek w Customermates: siedem etapów, wartość ważoną, następny krok z terminem przy każdej otwartej szansie, komitet zakupowy, powody wygranej i przegranej oraz zadanie przy każdej zmianie etapu. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowy przegląd lejka",
+          "steps": [
+            "Otwórz tablicę i przejrzyj każdą szansę, która tkwi w swoim etapie dłużej niż 14 dni.",
+            "Przy każdej zdecyduj: przesunąć dalej, bo kryterium wyjścia jest spełnione, ożywić z nowym następnym krokiem albo zamknąć jako przegraną z powodem.",
+            "Upewnij się, że każda otwarta szansa ma następny krok z terminem, ustalony na koniec każdej rozmowy.",
+            "Przejrzyj wygrane i przegrane z ich powodami oraz szanse, które minęły planowaną datę zamknięcia."
+          ]
+        },
+        "limits": [
+          "Nie tworzy ofert cenowych ani faktur. Ofertę przygotowujesz w narzędziu do dokumentów i podpinasz do szansy.",
+          "To nie jest narzędzie do sekwencji ani masowej wysyłki. Kolejne kontakty to szkice dla konkretnych osób, a wysyłasz je Ty.",
+          "Nie ma punktowania leadów ani wzbogacania danych, kategorii prognozy ani zarządzania kwotami i prowizjami. Wartość ważona to prosta waga kwot szans według etapu, a nie prognoza.",
+          "Nie ma telefonii ani SMS-ów.",
+          "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą Twój agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć.",
+          "Jest dobrany do zespołu od jednego do dziesięciu handlowców. Zespoły z formalnym procesem prognozowania lepiej obsłuży narzędzie stworzone do tego celu."
+        ],
+        "faq": [
+          {
+            "question": "Ile etapów powinien mieć lejek sprzedaży?",
+            "answer": "Praktycy się spierają: jedni radzą pięć lub mniej, inni używają dziewięciu. Ten szablon ma pięć etapów otwartych plus wygraną i przegraną, bo każdy etap ma mierzalne kryterium wyjścia. Zmień nazwy etapów lub usuń niektóre w planie, który zaproponuje Twój agent."
+          },
+          {
+            "question": "Czym jest wartość ważona szansy?",
+            "answer": "Kwota szansy pomnożona przez wagę jej etapu, na przykład 10, 25, 40, 60 i 80 procent od pierwszego do piątego etapu. To waga, którą możesz dopasować do własnych wskaźników zamknięcia, a nie przewidywanie."
+          },
+          {
+            "question": "Jak kwalifikować szanse sprzedaży?",
+            "answer": "Praktycy najczęściej stosują BANT: budżet, decydent, potrzeba i czas. Szablon nie narzuca metody, a kryterium wyjścia z etapu Nowa to potrzeba i zakres budżetu potwierdzone w jednej rozmowie."
+          },
+          {
+            "question": "Po co zapisywać powód wygranej i przegranej?",
+            "answer": "Raporty z lejka działają tylko wtedy, gdy istnieją oba wyniki, a powody pokazują, co zmienić. Szablon prosi o powód przy zamknięciu i tworzy zadanie, by wrócić do przegranych szans po 90 dniach."
+          },
+          {
+            "question": "Czy agent wysyła moje wiadomości do klientów?",
+            "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Mój zespół sprzedaje firmom i nie umiem ocenić, które szanse są realne, które utknęły i dlaczego wygrywamy albo przegrywamy. Skonfiguruj lejek sprzedaży w mojej przestrzeni roboczej Customermates: szanse sprzedaży z siedmioma etapami i wagami, wartość ważona, następny krok z terminem przy każdej otwartej szansie, powody przegranej i wygranej, komitet zakupowy przy każdej szansie i zadanie tworzone przy każdej zmianie etapu.",
         "questions": [
@@ -5019,6 +5146,51 @@
         "funnel_widget": "O painel mostra os negócios abertos por etapa como funil.",
         "proposal_follow_up_rule": "Um negócio que chega a Proposta enviada recebe uma tarefa de retorno.",
         "stages_page": "A base de conhecimento contém as etapas e seus critérios de saída."
+      },
+      "page": {
+        "metaTitle": "Controle de vendas: funil com próximo passo por negócio",
+        "metaDescription": "Em vez de uma planilha de controle de vendas, cole este funil no Claude, ChatGPT ou Codex: sete etapas, próximo passo com data e motivos de ganho e de perda.",
+        "headline": "Controle de vendas sem planilha: um funil que o seu agente de IA monta no seu CRM",
+        "answer": "Um funil de vendas é uma lista curta de etapas, cada uma com um critério de saída claro, que mostra quais negócios andam, quais travaram e o que acontece em seguida. Cole este modelo no seu agente de IA e ele monta o funil no Customermates: sete etapas, um valor ponderado, um próximo passo com data em cada negócio aberto, o comitê de compra, os motivos de ganho e de perda e uma tarefa a cada mudança de etapa. Você aprova o plano antes que qualquer coisa seja criada.",
+        "routine": {
+          "title": "A revisão semanal do funil",
+          "steps": [
+            "Abra o quadro e olhe cada negócio parado na mesma etapa há mais de 14 dias.",
+            "Para cada um, decida: avançar porque o critério de saída foi cumprido, reativar com um novo próximo passo ou encerrar como perdido, com um motivo.",
+            "Confirme que todo negócio aberto tem um próximo passo com data, definido no fim de cada ligação.",
+            "Revise os negócios ganhos e perdidos com seus motivos e os que passaram da previsão de fechamento."
+          ]
+        },
+        "limits": [
+          "Não gera orçamentos nem notas fiscais. A proposta é escrita na sua ferramenta de documentos e ligada ao negócio.",
+          "Não é uma ferramenta de sequências nem de disparo em massa. Os retornos são rascunhos para pessoas específicas, e quem envia é você.",
+          "Não há pontuação de leads nem enriquecimento de dados, nem categorias de previsão, nem gestão de metas ou comissões. O valor ponderado é uma ponderação simples dos valores dos negócios por etapa, não uma previsão.",
+          "Não há telefonia nem SMS.",
+          "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em intervalos regulares. O modelo propõe, e você decide quais ativar.",
+          "Foi pensado para uma a dez pessoas vendendo. Equipes com um processo formal de previsão ficam melhor servidas por uma ferramenta feita para isso."
+        ],
+        "faq": [
+          {
+            "question": "Quantas etapas um funil de vendas deve ter?",
+            "answer": "Os profissionais divergem: alguns recomendam cinco ou menos, outros usam nove. Este modelo tem cinco etapas abertas mais ganho e perdido, porque cada etapa tem um critério de saída mensurável. Renomeie ou retire etapas no plano que o seu agente propuser."
+          },
+          {
+            "question": "O que é o valor ponderado de um negócio?",
+            "answer": "O valor do negócio multiplicado pelo peso da sua etapa, por exemplo 10, 25, 40, 60 e 80 por cento da primeira à quinta etapa. É uma ponderação que você pode ajustar às suas próprias taxas de conversão, não uma previsão."
+          },
+          {
+            "question": "Uma planilha de controle de vendas ainda serve?",
+            "answer": "Serve para poucos negócios: um guia de um fornecedor de CRM aponta cerca de dez negócios abertos como o limite. A planilha não lembra ninguém de um retorno e não liga o negócio às conversas. Você pode importar a sua planilha em Excel ou CSV por um assistente de mapeamento de colunas, e cada negócio ganha um próximo passo com data."
+          },
+          {
+            "question": "Por que registrar o motivo de um ganho e de uma perda?",
+            "answer": "Os relatórios de um funil só funcionam quando os dois resultados existem, e os motivos mostram o que mudar. O modelo pede um motivo ao encerrar e cria uma tarefa de acompanhamento para retomar os negócios perdidos depois de 90 dias."
+          },
+          {
+            "question": "O agente envia os meus retornos?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+          }
+        ]
       },
       "prompt": {
         "intro": "Minha equipe vende para empresas e eu não consigo dizer quais negócios são reais, quais travaram e por que ganhamos ou perdemos. Configure um funil de vendas no meu espaço de trabalho do Customermates: negócios com sete etapas e pesos, um valor ponderado, um próximo passo com data em cada negócio aberto, motivos de perda e de ganho, o comitê de compra em cada negócio e uma tarefa criada a cada mudança de etapa.",

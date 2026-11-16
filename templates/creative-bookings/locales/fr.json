@@ -137,8 +137,57 @@
     "event_date_field": "Chaque réservation a une date d’événement.",
     "bookings_board_view": "Les réservations s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "CRM événementiel : réservations pour créatifs et planners",
+    "metaDescription": "CRM événementiel pour photographes, vidéastes et organisateurs : demandes, dates bloquées, acomptes et livraison, construits par votre agent IA.",
+    "headline": "Un CRM événementiel pour photographes et organisateurs : chaque date, chaque acompte, chaque livraison",
+    "answer": "Pour un photographe, un vidéaste ou un organisateur d’événements, gérer les réservations, c’est bloquer une date seulement jusqu’à la signature du contrat et au versement de l’acompte, puis suivre le travail jusqu’à la livraison. Ce modèle donne à chaque réservation une ligne avec une étape de vente et une étape de livraison, une échéance pour le solde, un questionnaire avant l’événement et une demande d’avis après. Collez-le dans votre agent IA : il construit tout dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+    "routine": {
+      "title": "Le point hebdomadaire des réservations",
+      "steps": [
+        "Répondez à chaque demande en attente. Par défaut, la réponse part sous 24 heures et demande la date, le lieu, le type de prestation et le budget.",
+        "Contrôlez les dates bloquées : relancez le contrat et l’acompte, ou libérez la date.",
+        "Regardez les événements des 14 prochains jours : le questionnaire est-il revenu, le déroulé de la journée est-il confirmé, le solde est-il payé ?",
+        "Vérifiez les livraisons à venir et prévenez tôt le client si une date glisse. Deux semaines après la livraison, demandez un avis."
+      ]
+    },
+    "limits": [
+      "Il ne rédige ni ne fait signer de contrats, n’envoie pas de factures et n’encaisse rien. Cela reste dans vos outils de contrat, de facturation et de paiement ; la réservation garde leur statut, leurs dates et un lien.",
+      "Ce n’est ni un outil de galerie, de sélection photo ou de vente de tirages, ni un outil de conception d’albums, de retouche ou de gestion de médias. La réservation garde le lien.",
+      "Une page de réservation publique ou la vente de mini-séances ne fait pas partie de Customermates aujourd’hui. Les demandes arrivent par e-mail, WhatsApp ou Instagram dans la boîte de réception connectée, et votre agent rédige la réponse.",
+      "Ce n’est pas un conseil juridique. Les pages de connaissances sont des listes de contrôle ; faites relire votre contrat et la formulation des droits d’image et d’usage par un avocat.",
+      "Gardez-en hors les données de santé, de régime ou de religion, les numéros de carte, les pièces d’identité, les visages en fichiers image et les listes d’invités. Notez seulement le statut et la date du consentement pour l’usage en portfolio.",
+      "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+    ],
+    "faq": [
+      {
+        "question": "Que doit faire un CRM événementiel pour un photographe ?",
+        "answer": "Suivre un travail de la demande à la réservation puis à la livraison : noter la date, le type et le budget, bloquer la date, la confirmer par un contrat signé et un acompte, gérer questionnaire et déroulé, livrer et demander un avis. Contrats, factures et galeries restent dans vos propres outils."
+      },
+      {
+        "question": "Quand une date est-elle vraiment réservée ?",
+        "answer": "En pratique, sans acompte, la date n’est pas confirmée. Le modèle ne compte une prestation comme réservée que lorsque le contrat est signé et l’acompte versé, dans des champs séparés, avec une date bloquée entre les deux. Le montant de l’acompte relève de votre contrat : un guide de contrats de mariage indique que presque tous les photographes demandent 50 % à la signature, d’autres modèles prévoient 30 %, donc le modèle ne fixe aucun montant par défaut."
+      },
+      {
+        "question": "Qu’est-ce qu’une date bloquée ?",
+        "answer": "Une date bloquée sort une date de vos disponibilités pendant quelques jours sans engager le client. Le modèle garde la date jusqu’à laquelle elle est bloquée, crée une étape d’envoi du contrat au moment du blocage et une autre pour relancer l’acompte trois jours après la signature."
+      },
+      {
+        "question": "Que doit enregistrer le CRM sur les droits d’image et le consentement ?",
+        "answer": "Seulement le statut et la date du consentement pour l’usage en portfolio, pas les images, ni de catégories particulières comme la religion, l’orientation ou la santé, que mariages et séances de famille peuvent révéler. Selon des modèles de contrats français, le droit d’auteur reste au photographe et la cession des droits patrimoniaux est limitée dans le temps, l’espace et le support, le droit à l’image étant un consentement distinct. Faites relire la formulation par un avocat. Ce n’est pas un conseil juridique."
+      },
+      {
+        "question": "Quand envoyer le questionnaire ?",
+        "answer": "Le modèle crée une étape d’envoi du questionnaire 45 jours avant un événement réservé, modifiable. Photographes et vidéastes demandent aussi souvent le déroulé de la journée environ deux semaines avant et font un point la dernière semaine sur le déroulé, les lieux et les numéros de téléphone."
+      },
+      {
+        "question": "L’agent écrit-il à mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Je gère une activité de photo, de vidéo ou d’événementiel et je ne sais plus quelles dates sont bloquées, quels acomptes sont payés ni ce qu’il reste à livrer. Mets en place les réservations pour créatifs dans mon espace de travail Customermates : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde, un questionnaire avant l’événement, une demande d’avis et des mots d’anniversaire.",
+    "intro":"Je gère une activité de photo, de vidéo ou d’événementiel et je ne sais plus quelles dates sont bloquées, quels acomptes sont payés ni ce qu’il reste à livrer. Mets en place les réservations pour créatifs dans mon espace de travail Customermates : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde, un questionnaire avant l’événement, une demande d’avis et des mots d’anniversaire.",
     "questions": [
       "Que photographiez-vous, filmez-vous ou organisez-vous, et combien de réservations par an ?",
       "Par quelles étapes passe un client de la demande à la réservation, et quand bloquez-vous la date ?",

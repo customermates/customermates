@@ -117,6 +117,52 @@
     "pass_reason_field": "Jeder Deal hält fest, warum er abgelehnt wurde.",
     "board_view": "Die Deals öffnen sich als Board nach Phase."
   },
+  "page": {
+    "metaTitle": "Investoren Liste: Dealflow-Vorlage mit Absagegrund",
+    "metaDescription": "Investoren Liste und Dealflow in einem CRM: wer vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Vorlage im KI-Agenten einfügen.",
+    "headline": "Dealflow mit Investorenliste: wer vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen",
+    "answer": "Dealflow ist ein Trichter, der fast alles aussortiert, deshalb liegt der Wert in der Beziehungsebene darum: wer ein Startup vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut in Customermates eine Deal-Liste mit acht Phasen von erkannt bis vollzogen oder abgelehnt auf, dazu Startups, Investoren und terminierte Nachfassaufgaben. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Durchsicht der Pipeline",
+      "steps": [
+        "Öffnen Sie das Deal-Board und notieren Sie, was diese Woche neu ist und was sich bewegt hat.",
+        "Sehen Sie sich Deals an, die seit 14 Tagen in der Prüfung stehen, und entscheiden Sie: erneut ansprechen oder absagen.",
+        "Halten Sie bei jeder Absage den Grund und einen Wiedervorlagetermin fest und senden Sie eine Absage, wo das angemessen ist.",
+        "Senden Sie nach einem Erstgespräch eine Nachricht mit den nächsten Schritten, und starten Sie bei vereinbartem Term Sheet die Checkliste für die Due Diligence.",
+        "Bedanken Sie sich bei den Vermittlern neuer Deals und haken Sie bei jeder vor einer Woche erbetenen Vermittlung nach, die nicht zustande kam.",
+        "Prüfen Sie abgelehnte Deals, deren Wiedervorlagetermin erreicht ist, und bewerten Sie sie mit dem früheren Wissen erneut."
+      ]
+    },
+    "limits": [
+      "Es gibt keine Beziehungsbewertung und keine Anreicherung von Unternehmensdaten. In Customermates Cloud mit dem Tarif Pro oder höher erscheinen E-Mails zur Adresse eines Datensatzes an diesem Datensatz, und Termine lassen sich von dort in Ihren Kalender eintragen; ein Agent arbeitet über MCP.",
+      "Es ist kein Portal für Limited Partners, keine Cap Table und keine Fondsbuchhaltung. Werkzeuge wie Carta oder Dynamo übernehmen diese Aufgaben.",
+      "Es ist keine Deal-Datenbank und keine Quelle für Marktdaten wie PitchBook, Dealroom oder Crunchbase.",
+      "Es ist kein Datenraum und kein Werkzeug für elektronische Signatur. Verlinken Sie stattdessen Ihren Datenraum, zum Beispiel DocSend oder Papermark.",
+      "Es entwirft keine Rechtsdokumente und entscheidet nicht über KYC, Geldwäscheprüfung oder Investitionsprüfungen. Das liegt bei Rechtsberatung und Compliance, die Vorlage hält Termine und Links fest."
+    ],
+    "faq": [
+      {
+        "question": "Welche Phasen hat ein Dealflow?",
+        "answer": "In der Praxis sind sieben Phasen üblich: Sourcing, Vorprüfung, Erstgespräch, Due Diligence, Gremium, Term Sheet und Abschluss. Die Vorlage verwendet acht Phasen: Erkannt, Prüfung, Erstgespräch, Partnerrunde, Due Diligence, Term Sheet, Vollzug und Abgelehnt. Investoren finanzieren weniger als 1 Prozent der Unternehmen, die sie sehen, und der Bundesverband BAI nennt 96 bis 99 Prozent, die vor der Transaktion ausscheiden."
+      },
+      {
+        "question": "Warum den Absagegrund festhalten?",
+        "answer": "Eine Absage mit Begründung lässt Sie das Unternehmen später mit Vorwissen erneut ansehen. Die Vorlage speichert bei jedem Deal einen Absagegrund und einen Wiedervorlagetermin und legt zum Termin eine Aufgabe zur erneuten Prüfung an. Ohne diese Notiz wird derselbe Deal beim nächsten Mal wieder von vorn geprüft."
+      },
+      {
+        "question": "Können Gründer sie nutzen, um Investoren für eine Runde zu verfolgen?",
+        "answer": "Die Struktur passt: ein Deal je Investorengespräch. Erfassen Sie jeden Investor als Person, nicht nur die Firma, und informieren Sie interessierte Investoren alle vier bis sechs Wochen oder monatlich. Die Felder sind aus der Sicht eines Investors benannt, bitten Sie Ihren Agenten also, unpassende wie Unsere Rolle und Passung zur Anlagethese umzubenennen."
+      },
+      {
+        "question": "Wann sollte ein Fonds zu Affinity oder Attio wechseln?",
+        "answer": "Wenn Sie Beziehungen bewerten, Wege zu warmen Kontakten ranken, Daten anreichern oder an Limited Partners berichten müssen. E-Mail-Verläufe erscheinen zwar schon am Datensatz mit passender Adresse (Customermates Cloud, Tarif Pro oder höher), aber nichts bewertet Beziehungen oder rankt Wege. Für einen kleinen Fonds oder Business Angel, der mit einer Liste und einer wöchentlichen Durchsicht arbeitet, reicht diese Vorlage."
+      },
+      {
+        "question": "Schreibt der Agent Startups oder Investoren an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ich sehe mir viele Startups an und vergesse, wer sie vermittelt hat, warum ich abgesagt habe und wann ich erneut hinsehen wollte. Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
     "questions": [

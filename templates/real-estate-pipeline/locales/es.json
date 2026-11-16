@@ -400,6 +400,51 @@
     "listings_board_view": "La lista de inmuebles se abre como tablero por etapa.",
     "operating_guide_page": "La base de conocimiento contiene la guía de trabajo."
   },
+  "page": {
+    "metaTitle": "Pipeline inmobiliario: inmuebles, compradores y fechas",
+    "metaDescription": "Pega este pipeline inmobiliario en Claude, ChatGPT o Codex: inmuebles, compradores, visitas con opinión y las fechas clave tras las arras, en tu CRM.",
+    "headline": "No pierdas una visita ni una fecha clave: un pipeline inmobiliario que tu agente de IA construye",
+    "answer": "Un pipeline inmobiliario son dos listas de trabajo que se encuentran en las arras: el inmueble del propietario, de la valoración a las ofertas, y la búsqueda del comprador, de la primera consulta a las visitas y la oferta. Pega esta plantilla en tu agente de IA y construye ambas en Customermates, con tipo de encargo y fecha de fin, visitas con opinión, fechas clave tras la firma y un seguimiento con fechas de clientes anteriores. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La ronda semanal de inmuebles y compradores",
+      "steps": [
+        "Envía a cada propietario de un inmueble publicado un breve informe con las visitas y las opiniones de la semana.",
+        "Revisa los inmuebles cuyo encargo termina pronto: renovar, prorrogar o ajustar el precio.",
+        "Retoma el contacto, con inmuebles que encajen, con los compradores en fase de visitas que llevan siete días sin moverse.",
+        "Confirma las próximas fechas clave tras las arras y mantén el contacto mensual con los clientes anteriores."
+      ]
+    },
+    "limits": [
+      "No es un sistema para publicar en portales. Tu propio software inmobiliario sigue publicando en los portales y llevando el registro de encargos; aquí guardas una referencia y el pipeline que la rodea.",
+      "No gestiona transacciones, depósitos en garantía ni firma electrónica. Los contratos y las firmas siguen con tu notaría y tu herramienta de firma.",
+      "No es administración de fincas: alquileres, mantenimiento y cuentas de inquilinos son otro trabajo.",
+      "No calcula el valor de un inmueble y no hace contabilidad ni reparto de honorarios.",
+      "No envía nada automáticamente. Las consultas por WhatsApp llegan a la bandeja de entrada y las respuestas son borradores que revisas tú.",
+      "Deja fuera copias de documentos de identidad, justificantes de ingresos y extractos bancarios. La plantilla solo guarda la fecha en que se verificó la identidad."
+    ],
+    "faq": [
+      {
+        "question": "¿Por qué dos pipelines para una inmobiliaria?",
+        "answer": "Propietarios y compradores siguen pasos distintos. El lado propietario va de la valoración y la propuesta de encargo a la hoja de encargo firmada y la publicación; el lado comprador, de la consulta a las visitas y la oferta. Se encuentran en las arras, donde las fechas clave son comunes."
+      },
+      {
+        "question": "¿Qué fechas sigue la plantilla?",
+        "answer": "El tipo y el fin de cada encargo, las visitas con la opinión que debes al propietario y, tras las arras, las fechas que cuentan en tu país, como el pago de las arras, el plazo de la financiación, la inspección y la cita en la notaría. Qué fechas valen es la primera pregunta que te hace tu agente."
+      },
+      {
+        "question": "¿Qué es una hoja de encargo y cuánto dura?",
+        "answer": "Es el documento por el que el propietario encarga la venta; puede ser exclusiva o no exclusiva y fija el precio de salida, los honorarios y la duración. Los encargos simples suelen durar unos tres meses, pero manda el contrato. La plantilla guarda el tipo de encargo y su fecha de fin; el documento en sí sigue en tu software y en tus archivos."
+      },
+      {
+        "question": "¿Puedo usarla con mi software inmobiliario o con un portal?",
+        "answer": "Sí. Los portales y tu propio software conservan los datos de los inmuebles y la publicación. La plantilla es la capa de pipeline, fechas clave y seguimiento junto a ellos; las consultas de los portales llegan por correo a tu bandeja conectada o mediante un webhook de entrada, y las de WhatsApp a la bandeja de entrada una vez conectada la cuenta."
+      },
+      {
+        "question": "¿El agente contacta con propietarios o compradores?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Trabajo con propietarios que encargan la venta y con compradores que buscan, y pierdo el hilo de las visitas, de las opiniones y de las fechas tras el contrato. Configura un pipeline inmobiliario en mi espacio de trabajo de Customermates: inmuebles con el tipo de encargo y su fecha de fin, demandas de compradores, visitas con la opinión del comprador, fechas clave tras la firma del contrato y una tarea con fecha para cada registro abierto.",
     "questions": [

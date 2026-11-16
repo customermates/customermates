@@ -183,6 +183,51 @@
     "jobs_board_view": "Los procesos se abren como tablero por etapa.",
     "candidate_data_page": "La base de conocimiento incluye una página sobre datos de candidatos y su conservación."
   },
+  "page": {
+    "metaTitle": "Plantilla CRM selección de personal: procesos y candidatos",
+    "metaDescription": "Procesos, candidatos y fechas de honorarios en un solo sitio. Pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta la consultora por ti.",
+    "headline": "Saber qué candidato está en qué proceso: una consultora de selección que tu agente de IA monta en tu CRM",
+    "answer": "Una consultora de selección lleva dos recorridos enlazados: el proceso, que genera los honorarios, y dentro de cada proceso una ficha por candidato presentado con su propia etapa. Pega esta plantilla en tu agente de IA y él monta los dos en Customermates, con incorporaciones, fin de la garantía, seguimiento posterior y una fecha de conservación en cada candidato. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión semanal de la mesa de selección",
+      "steps": [
+        "Abre los procesos como tablero y busca las búsquedas sin próximo paso con fecha o sin movimiento desde hace 10 días.",
+        "Reclama al cliente su valoración de cada candidato presentado hace más de dos días y prepara el debriefing de cada entrevista de la semana.",
+        "Llama a los clientes activos cuya fecha de próximo contacto ha llegado y pregunta por las contrataciones que se avecinan.",
+        "Revisa las incorporaciones: los seguimientos a 30, 60 y 90 días de esta semana y toda garantía que termine en menos de 14 días.",
+        "Limpia los candidatos cuya fecha de conservación ha pasado: bórralos o registra un nuevo consentimiento."
+      ]
+    },
+    "limits": [
+      "No es un portal de empleo ni una herramienta de multipublicación, y no lee currículos. Los archivos solo se pueden buscar si tienen capa de texto, así que los currículos escaneados no se leen.",
+      "No tiene secuencias ni envíos masivos. Los mensajes se redactan uno a uno y el prompt indica al agente que no envíe nada automáticamente.",
+      "Las entrevistas se programan en tu calendario de Google o Microsoft desde el registro, en Customermates Cloud con el plan Pro o superior; en instalaciones autoalojadas siguen siendo un campo con fecha y una tarea. El vínculo va en un solo sentido: cambiar el evento no modifica el registro.",
+      "No es un sistema de facturación, partes de horas o nóminas para trabajo temporal. Las facturas se quedan en tu programa de contabilidad y la plantilla guarda solo una referencia. Los grandes volúmenes o el trabajo temporal piden un ATS de agencia.",
+      "No es un portal de candidaturas ni una herramienta de comprobación de antecedentes. Deja fuera de las notas de candidatos los datos de salud, la fecha de nacimiento y similares."
+    ],
+    "faq": [
+      {
+        "question": "¿Conviene separar candidatos y procesos?",
+        "answer": "Sí. Los sistemas para agencias como Bullhorn y Recruiterflow asocian un candidato a cada proceso, de modo que una misma persona puede estar en etapas distintas en varios procesos. La plantilla lleva una lista de procesos y una ficha por candidato y proceso, así que cada candidato tiene su propio historial de etapas en cada uno."
+      },
+      {
+        "question": "¿Cuánto tiempo puedo conservar los datos de candidatos descartados?",
+        "answer": "No hay un plazo único: lo decisivo es la finalidad y haber informado al candidato. Para un banco de talento hace falta un consentimiento con un plazo concreto. Cada candidato tiene una fecha de conservación y una tarea de revisión: borrarlo o registrar un nuevo consentimiento. Consulta con tu asesor el plazo que aplica en tu país. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Qué condiciones de honorarios y garantía conviene registrar?",
+        "answer": "Los honorarios a éxito solo se cobran si hay contratación; una búsqueda en retainer suele facturarse en plazos, por ejemplo un tercio al empezar, otro a la presentación de la terna y otro al contratar, normalmente con exclusividad. Una garantía de reposición de tres a seis meses es la duración más citada. Son cláusulas de contrato, no normas: la plantilla guarda el porcentaje de honorarios, los días de garantía y el fin de la garantía de cada incorporación, sin valores por defecto."
+      },
+      {
+        "question": "¿Qué no debe ir en las notas de un candidato?",
+        "answer": "Solo hechos relevantes para el puesto. Nada de datos de salud o discapacidad, religión, afiliación sindical, fecha de nacimiento, situación familiar ni resultados de comprobaciones de antecedentes. Las notas en texto libre sobre edad, origen o familia pueden ser un riesgo si el candidato pide acceso a sus datos."
+      },
+      {
+        "question": "¿El agente contacta con candidatos o clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Coloco candidatos en empresas clientes y pierdo la cuenta de a quién he presentado dónde, cuándo termina una garantía y hasta cuándo puedo conservar los datos de un candidato. Configura en mi espacio de trabajo de Customermates una consultora de selección: clientes con sus condiciones, procesos con nueve etapas y unos honorarios previstos, una ficha de candidato presentado por candidato y proceso, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de conservación para cada candidato.",
     "questions": [

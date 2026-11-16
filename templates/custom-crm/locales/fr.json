@@ -85,6 +85,52 @@
     "board_view": "Le pipeline s’ouvre en board par étape, avec les totaux.",
     "how_we_use_page": "La base de connaissances explique comment l’équipe utilise le CRM."
   },
+  "page": {
+    "metaTitle": "CRM sur mesure : une alternative à Excel et aux tableurs",
+    "metaDescription": "CRM sur mesure sans projet de migration : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit le CRM et importe vos données.",
+    "headline": "Un CRM sur mesure à la place du tableur : votre agent IA le construit dans Customermates et y importe vos données",
+    "answer": "Si vos clients et vos affaires vivent dans un tableur, une page Notion ou un ancien outil, un CRM sur mesure les remplace sans projet de migration : contacts, entreprises, affaires et actions datées, façonnés autour de votre façon de vendre. Collez ce modèle dans votre agent IA. Il vous demande comment vous travaillez, construit le CRM dans Customermates et importe vos données. Vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La revue du CRM le vendredi",
+      "steps": [
+        "Ouvrez le pipeline en tableau et regardez chaque étape : ce qui a bougé cette semaine et ce qui n’a pas bougé.",
+        "Ouvrez les affaires sans prochaine action et donnez à chacune une prochaine action datée, ou clôturez-la.",
+        "Vérifiez les affaires dont la clôture est attendue le mois prochain et repoussez les dates dépassées.",
+        "Videz les actions en retard : faites-les, déplacez-les ou abandonnez-les.",
+        "Réparez ce que l’import a laissé : contacts en double, responsable manquant, fiche sans prochaine action."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un constructeur d’applications no-code. Pas d’écrans sur mesure, de portails clients ni de scripts : vous disposez de listes, de relations, de vues tableau, kanban et calendrier, de tableaux de bord et de votre agent. Si vous cherchez un constructeur d’applications, prenez-en un.",
+      "Ce n’est pas un espace de travail libre. Notion et Airtable restent préférables pour des pages, des wikis et des données sans rapport avec les clients.",
+      "Il n’y a pas de synchronisation dans les deux sens avec votre ancien outil ni d’annulation d’un import. L’import est une copie à sens unique, faite une fois le mappage vérifié ; rien n’est modifié ni supprimé dans la source.",
+      "Pas de diagramme de Gantt, de planification des ressources ni de frise chronologique. Les outils de gestion de projet gardent ce métier.",
+      "Il n’y a pas de droits au niveau du champ. Si certaines colonnes doivent rester cachées à vos collègues, placez-les dans une liste distincte avec ses propres accès.",
+      "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer."
+    ],
+    "faq": [
+      {
+        "question": "Comment passer de Google Sheets ou d’Excel à un CRM ?",
+        "answer": "Dites à l’agent quelles colonnes vous utilisez vraiment. Il propose des listes et des champs, vérifie un échantillon de lignes à la recherche de doublons et de valeurs inconnues, puis importe une fois le mappage validé. Customermates importe des fichiers Excel et CSV avec un assistant de correspondance des colonnes, et votre agent peut importer des fiches via MCP. L’import est une copie : votre tableur reste tel quel tant que vous ne décidez pas de l’abandonner."
+      },
+      {
+        "question": "Quand un tableur ne suffit-il plus pour les clients et les affaires ?",
+        "answer": "Les guides d’éditeurs de CRM placent la limite entre 25 et 200 contacts environ, ou au moment où plusieurs personnes modifient le même fichier ou où plus personne n’est rappelé à l’ordre pour une relance. Un CRM aide alors : les contacts sont liés aux entreprises et aux affaires, les prochaines actions sont des actions datées et les échanges se trouvent à côté de chaque fiche."
+      },
+      {
+        "question": "Dois-je concevoir moi-même le CRM ?",
+        "answer": "Non. L’agent commence par vous interroger : ce que vous vendez, les vraies étapes du premier contact à la clôture, ce que vous consultez chaque matin et chaque vendredi, qui d’autre l’utilise, où vos données se trouvent aujourd’hui et ce qui reste dans un autre outil. Il propose le modèle et le construit une fois que vous l’avez validé. Vous pouvez modifier étapes, champs et vues plus tard en le demandant."
+      },
+      {
+        "question": "Qu’est-ce qui ne suit pas avec l’import depuis mon ancien outil ?",
+        "answer": "L’import copie des fiches. Les automatisations, les formulaires, les vues, les commentaires et les pièces jointes ne suivent pas, et les relations que votre ancien outil a exportées en simple texte doivent être reconstruites. L’agent note l’origine de chaque fiche importée, pour que vous puissiez la retrouver ensuite."
+      },
+      {
+        "question": "En quoi est-ce différent d’un CRM sur mesure développé par une agence ?",
+        "answer": "Les agences qui développent un CRM sur mesure annoncent plusieurs mois de projet. Ici le CRM existe déjà, avec des rôles et des accès par liste, et seul son contenu est à vous : les étapes, les champs et les vues. Un premier pipeline opérationnel peut sortir d’une seule conversation, et vous le relisez vous-même avant de vous y fier."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mes clients et mes affaires sont dans un tableur ou un ancien outil, et je veux un CRM adapté à ma façon de travailler. Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
     "questions": [

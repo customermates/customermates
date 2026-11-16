@@ -124,6 +124,52 @@
     "deadline_verifier_field": "Ogni scadenza indica chi l'ha verificata.",
     "deadline_control_page": "La base di conoscenza contiene una pagina sul controllo delle scadenze."
   },
+  "page": {
+    "metaTitle": "Software commercialista: modello per incarichi e scadenze",
+    "metaDescription": "Software commercialista: incarichi, pratiche ricorrenti, documenti da sollecitare e scadenzario verificato. Incolla il modello nel tuo agente IA.",
+    "headline": "Un software per commercialisti che segue ogni scadenza e ogni documento mancante, costruito dal tuo agente IA",
+    "answer": "Uno studio di commercialisti porta avanti due flussi in parallelo: acquisire un incarico con adeguata verifica e lettera d’incarico, e svolgere il lavoro ricorrente per cliente e periodo mentre si attendono i documenti. Incolla questo modello nel tuo agente IA e lui costruisce entrambi in Customermates, con uno scadenzario che conserva la data di preavviso e la persona che ha verificato ogni scadenza. Approvi tu il piano prima che venga costruito qualcosa. Affianca il gestionale dello studio e non lo sostituisce.",
+    "routine": {
+      "title": "La revisione settimanale dello studio",
+      "steps": [
+        "Apri la bacheca delle pratiche e guarda chi ha la palla: in attesa di documenti, in attesa dell’approvazione del cliente o in attesa dell’amministrazione.",
+        "Sollecita i documenti attesi entro tre giorni e, per quelli ancora mancanti dopo la data, decidi: prorogare, preparare in parte o passare al titolare dello studio.",
+        "Controlla lo scadenzario: ogni scadenza aperta ha una fonte, una data di preavviso e una seconda persona che ha verificato la data.",
+        "Inserisci ogni avviso dell’amministrazione ricevuto questa settimana con il termine di ricorso e la fonte, e fai verificare la data da una seconda persona.",
+        "Dai un prossimo passo a ogni pratica attiva senza attività aperta, oppure annota perché è ferma.",
+        "Rivedi i preventivi inviati da più di tre giorni e gli incarichi in fase di adeguata verifica, così nessun lavoro parte prima di aver identificato il cliente."
+      ]
+    },
+    "limits": [
+      "Non è il gestionale dello studio né il software per gli invii. Invii, contabilità, paghe e calcolo delle scadenze di legge restano in strumenti come TeamSystem, Zucchetti o Karbon, e il modello non dice mai che una dichiarazione è nei termini.",
+      "Non calcola scadenze di legge. Una scadenza è un record con una fonte, una data di preavviso e una persona indicata che l’ha verificata; la data viene da te.",
+      "Non è uno strumento per rilevare il tempo o fatturare e non ha né portale clienti né firma elettronica. Una lettera d’incarico firmata è un link al file firmato.",
+      "Tieni fuori copie di documenti d’identità, codici fiscali e dati particolari: non ci sono permessi per campo. Vanno nel tuo sistema documentale con le sue regole di conservazione.",
+      "Le ricevute scansionate vengono archiviate ma non lette, perché non c’è riconoscimento del testo."
+    ],
+    "faq": [
+      {
+        "question": "Qual è il miglior software per uno studio di commercialisti?",
+        "answer": "Dipende da cosa ti serve. Strumenti come TeamSystem, Zucchetti o Karbon coprono dichiarazioni, contabilità, fatturazione e un portale clienti. Customermates è lo strato per relazione, prova delle scadenze e solleciti accanto a loro: incarichi, pratiche in attesa di documenti e scadenzario. Se vuoi un unico strumento per tutto, non è questo."
+      },
+      {
+        "question": "Perché tenere uno scadenzario a parte?",
+        "answer": "La responsabilità professionale chiede allo studio di poter dimostrare il proprio controllo delle scadenze: dire che le scadenze sono state controllate non è una prova. Uno scadenzario con fonte, data di preavviso e verificatore permette di mostrarlo dopo. Il modello registra il controllo e non calcola mai la data."
+      },
+      {
+        "question": "L’adeguata verifica va fatta prima della lettera d’incarico?",
+        "answer": "Le prassi differiscono. Il modello rende l’adeguata verifica una fase a sé prima della lettera d’incarico, perché non può imporre un ordine e la scelta prudente evita di lavorare prima di aver identificato il cliente. Le guide professionali indicano che per i soli servizi di invio di dichiarazioni e di paghe è prevista un’esenzione dall’adeguata verifica completa, ma anche quei clienti entrano nella mappa del rischio dello studio. Verifica con il tuo ordine professionale e tieni le copie dei documenti nel tuo sistema documentale."
+      },
+      {
+        "question": "Come smetto di sollecitare i documenti a mano?",
+        "answer": "Metti una data entro cui servono i documenti su ogni richiesta. Il modello crea poi un’attività di sollecito tre giorni prima e avvisa il responsabile quando i documenti sono dovuti e mancano ancora. In attesa di documenti, in attesa dell’approvazione del cliente e in attesa dell’amministrazione sono tre stati separati, così la bacheca mostra chi ha la palla."
+      },
+      {
+        "question": "L’agente scrive ai miei clienti?",
+        "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Gestisco uno studio di commercialisti e devo vedere quali incarichi sono aperti, quali pratiche aspettano documenti e quali scadenze sono state verificate. Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
     "questions": [

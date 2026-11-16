@@ -124,6 +124,52 @@
     "deadline_verifier_field": "Każdy termin zapisuje, kto go sprawdził.",
     "deadline_control_page": "Baza wiedzy zawiera stronę o kontroli terminów."
   },
+  "page": {
+    "metaTitle": "Program dla biur rachunkowych: szablon umów i terminów",
+    "metaDescription": "Program dla biur rachunkowych: umowy, powtarzalne rozliczenia, prośby o dokumenty i rejestr terminów sprawdzany przez drugą osobę. Wklej szablon do agenta AI.",
+    "headline": "Program dla biura rachunkowego, który pilnuje każdego terminu i brakującego dokumentu, zbudowany przez Twojego agenta AI",
+    "answer": "Biuro rachunkowe prowadzi dwa procesy obok siebie: pozyskanie klienta przez weryfikację AML i umowę oraz powtarzalne rozliczenia na klienta i okres, przy ciągłym czekaniu na dokumenty. Wklej ten szablon do swojego agenta AI, a zbuduje oba w Customermates, z rejestrem terminów, który zapisuje termin wstępny i osobę, która sprawdziła każdą datę. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Uzupełnia program księgowy biura i go nie zastępuje.",
+    "routine": {
+      "title": "Cotygodniowy przegląd biura",
+      "steps": [
+        "Otwórz tablicę rozliczeń i zobacz, kto ma piłkę: oczekuje na dokumenty, oczekuje na zgodę klienta albo oczekuje na urząd.",
+        "Ponagl o dokumenty wymagane w ciągu trzech dni, a w sprawach, w których po terminie nadal ich brak, zdecyduj: przedłużyć, przygotować częściowo albo przekazać wspólnikowi.",
+        "Sprawdź rejestr terminów: każdy otwarty termin ma źródło, termin wstępny i drugą osobę, która sprawdziła datę.",
+        "Wpisz każde pismo z urzędu otrzymane w tym tygodniu z terminem na odwołanie i źródłem, i poproś drugą osobę o sprawdzenie daty.",
+        "Nadaj następny krok każdemu aktywnemu rozliczeniu bez otwartego zadania albo zapisz, dlaczego stoi.",
+        "Przejrzyj oferty wysłane ponad trzy dni temu i umowy na etapie weryfikacji, żeby żadna praca nie ruszyła przed zidentyfikowaniem klienta."
+      ]
+    },
+    "limits": [
+      "To nie jest Twój program księgowy ani do składania deklaracji. Składanie deklaracji, księgi, płace i wyliczanie terminów ustawowych zostają w narzędziach takich jak wFirma, Comarch Optima czy Karbon, a szablon nigdy nie mówi, że deklaracja jest w terminie.",
+      "Nie wylicza terminów ustawowych. Termin to rekord ze źródłem, terminem wstępnym i wskazaną osobą, która go sprawdziła; samą datę podajesz Ty.",
+      "To nie jest narzędzie do rejestracji czasu ani do fakturowania, nie ma portalu klienta ani podpisu elektronicznego. Podpisana umowa to link do podpisanego pliku.",
+      "Nie wpisuj tu kopii dokumentów tożsamości, numerów podatkowych ani danych szczególnych kategorii: nie ma uprawnień na poziomie pola. Trzymaj je w systemie dokumentów z jego zasadami przechowywania.",
+      "Zeskanowane dokumenty są przechowywane, ale nie czytane, bo nie ma rozpoznawania tekstu."
+    ],
+    "faq": [
+      {
+        "question": "Jaki jest najlepszy program dla biura rachunkowego?",
+        "answer": "To zależy od potrzeb. Programy takie jak wFirma czy Comarch Optima obejmują księgowość, rozliczenia i deklaracje. Customermates to warstwa relacji, dowodu terminów i kolejnych kroków obok nich: umowy, rozliczenia czekające na dokumenty i rejestr terminów. Jeśli chcesz jednego narzędzia do wszystkiego, to nie to."
+      },
+      {
+        "question": "Po co osobny rejestr terminów?",
+        "answer": "Odpowiedzialność zawodowa wymaga, by biuro umiało wykazać, że kontrola terminów istniała: twierdzenie, że terminy były sprawdzane, niczego nie dowodzi. Rejestr ze źródłem, terminem wstępnym i osobą sprawdzającą pozwala to pokazać później. Szablon zapisuje kontrolę i nigdy nie wylicza daty."
+      },
+      {
+        "question": "Czy weryfikacja AML ma być przed podpisaniem umowy?",
+        "answer": "Praktyka bywa różna. Szablon czyni weryfikację osobnym etapem przed umową, bo nie może wymusić kolejności, a ostrożniej jest nie pracować, zanim klient zostanie zidentyfikowany. Weryfikacja obejmuje klienta, osobę działającą w jego imieniu i beneficjenta rzeczywistego oraz ocenę ryzyka. Żadne źródło nie ustala stałego odstępu przeglądów, więc decydujesz Ty. Kopie dokumentów trzymaj w systemie dokumentów."
+      },
+      {
+        "question": "Jak przestać ręcznie ponaglać o dokumenty?",
+        "answer": "Ustaw termin, do którego dokumenty są potrzebne, przy każdej prośbie o dokumenty. Szablon tworzy wtedy zadanie przypomnienia trzy dni wcześniej i powiadamia osobę prowadzącą, gdy dokumenty są należne, a nadal ich brak. Oczekuje na dokumenty, oczekuje na zgodę klienta i oczekuje na urząd to trzy osobne statusy, więc tablica pokazuje, kto ma piłkę. Przy corocznych zmianach, takich jak JPK czy KSeF, pomaga lista wymaganych dokumentów dla każdego klienta."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Prowadzę biuro rachunkowe i muszę widzieć, które umowy są w toku, które rozliczenia czekają na dokumenty i które terminy zostały sprawdzone. Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
     "questions": [

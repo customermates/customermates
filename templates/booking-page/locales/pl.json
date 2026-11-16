@@ -90,8 +90,56 @@
     "start_field": "Każda wizyta zapisuje, kiedy się zaczyna.",
     "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
   },
+  "page": {
+    "metaTitle": "System rezerwacji online: wizyty, przypomnienia, wyniki",
+    "metaDescription": "System rezerwacji online, który Twój agent AI buduje w CRM: typy wizyt, status każdej rezerwacji, przypomnienia oraz wynik po każdej rozmowie lub wizycie.",
+    "headline": "System rezerwacji online, który zapisuje wynik każdej wizyty, zbudowany przez Twojego agenta AI",
+    "answer": "System rezerwacji online prowadzi rozmowę, konsultację lub oglądanie od zgłoszenia do potwierdzonego terminu i zapisuje, co z tego wynikło. Ten szablon konfiguruje typy wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, status każdej rezerwacji, przypomnienia przed wizytą i wynik po niej. Wklej go do swojego agenta AI, a on zbuduje wszystko w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowy przegląd rezerwacji",
+      "steps": [
+        "Przejrzyj wizyty z zeszłego tygodnia i zapisz wynik przy każdej, która się odbyła: kwalifikacja, druga rozmowa, potrzebna oferta albo brak dopasowania.",
+        "Zaproponuj nowy termin, bez wyrzutów, każdemu, kto się nie pojawił lub odwołał wizytę.",
+        "Odpowiedz na zgłoszenia czekające dłużej niż dobę, potem sprawdź najbliższe 14 dni: luki w kalendarzu i przypomnienia do wysłania. Domyślnie jedno przypomnienie 3 dni i jedno 1 dzień przed wizytą.",
+        "Zmień jedną rzecz: przerwę, minimalne wyprzedzenie albo termin odwołania. Na początku każdego kwartału przejrzyj dostępność i zasady."
+      ]
+    },
+    "limits": [
+      "Rezerwuje wyłącznie czas ludzi. Sale, sprzęt, noclegi, zajęcia z listą oczekujących i wydarzenia z biletami wymagają narzędzia stworzonego do tego celu.",
+      "To nie jest system do wizyt lekarskich. Nie pytaj w formularzu o diagnozy ani o powód wizyty medycznej, terapeutycznej czy prawnej; zapytaj raczej, o czym osoba chciałaby porozmawiać.",
+      "Nie przyjmuje płatności i nie prowadzi rozmów wideo. Wydarzenie w kalendarzu zawiera link do Twojego narzędzia wideo, a ewentualna zaliczka zostaje w Twoim narzędziu płatności.",
+      "Publiczne strony rezerwacji i zapisywanie wizyt w Twoim kalendarzu Google lub Microsoft wymagają Customermates Cloud z planem Pro lub wyższym; przy samodzielnym hostowaniu nie są dostępne. Bez nich publiczny formularz przyjmuje zgłoszenia, a potwierdzony termin wpisujesz tutaj sam.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć. Customermates nie wysyła SMS-ów."
+    ],
+    "faq": [
+      {
+        "question": "Co powinien zawierać system rezerwacji online?",
+        "answer": "Każdy typ wizyty z czasem trwania, przerwą, minimalnym wyprzedzeniem i terminem, jak daleko naprzód można rezerwować; krótki formularz z imieniem, kontaktem i tylko tymi pytaniami, które zmieniają wizytę; potwierdzenie i przypomnienia; oraz miejsce, gdzie zapiszesz, czy wizyta się odbyła i co było dalej."
+      },
+      {
+        "question": "Ile przypomnień ogranicza nieobecności?",
+        "answer": "W jednym badaniu z ochrony zdrowia przypomnienia 3 dni i 1 dzień przed wizytą dały 4,4% wizyt, które się nie odbyły, wobec 5,8% przy samym przypomnieniu na 3 dni i 5,3% przy samym przypomnieniu na 1 dzień. Przegląd badań z randomizacją nie wykazał istotnej różnicy między przypomnieniami wysłanymi 24, 48 lub 72 godziny wcześniej. Dane pochodzą z ochrony zdrowia, więc traktuj 3 dni i 1 dzień jako punkt wyjścia."
+      },
+      {
+        "question": "O co formularz rezerwacji nigdy nie powinien pytać?",
+        "answer": "Ogranicz się do tego, czego wymaga wizyta: imię, e-mail, ewentualnie telefon i jedno lub dwa pytania, które zmieniają wizytę. Nie pytaj o diagnozy, szczegóły sprawy, dane kart płatniczych, dokumenty tożsamości ani o nic, co ujawnia stan zdrowia, religię lub orientację. Odpowiedzi w polach tekstowych są zapisywane jako dane w rekordzie, więc formularz niech będzie krótki."
+      },
+      {
+        "question": "Czy mogę przyjmować rezerwacje bez publicznej strony rezerwacji?",
+        "answer": "Tak. Publiczny formularz działa w każdym planie, w Free z miesięcznym limitem i plakietką: przyjmuje zgłoszenie i tworzy wizytę powiązaną z osobą znalezioną lub utworzoną po adresie e-mail. Gdy ktoś pisze e-mailem lub przez WhatsApp, agent proponuje wolne terminy z podłączonego kalendarza i przygotowuje odpowiedź, a Ty ją sprawdzasz i wysyłasz. W Customermates Cloud z planem Pro lub wyższym zaplanowanie spotkania z poziomu rekordu zapisuje wydarzenie w Twoim kalendarzu Google lub Microsoft, a publiczna strona rezerwacji pozwala osobom samodzielnie wybrać wolny termin."
+      },
+      {
+        "question": "Czy pobierać zaliczkę albo opłatę za nieobecność?",
+        "answer": "Płatności zostają w Twoim narzędziu płatności. Szablon zapisuje cenę każdego typu wizyty i zawiera stronę z zasadami odwoływania wizyt. Nie znaleźliśmy badania, które pokazałoby, że zaliczki lub opłaty zmniejszają liczbę nieobecności, więc szablon tego nie twierdzi."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Przyjmuję rezerwacje na rozmowy, konsultacje i oglądania, ale gubię się, kto jest zapisany, kto potwierdził i co z tego wynikło. Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
+    "intro":"Przyjmuję rezerwacje na rozmowy, konsultacje i oglądania, ale gubię się, kto jest zapisany, kto potwierdził i co z tego wynikło. Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
     "questions": [
       "Jakie typy wizyt oferujesz i ile trwa każdy z nich?",
       "Jakiego wyprzedzenia potrzebujesz i jak daleko naprzód można rezerwować?",

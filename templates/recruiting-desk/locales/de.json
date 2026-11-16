@@ -183,6 +183,51 @@
     "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase.",
     "candidate_data_page": "Die Wissensdatenbank enthält eine Seite zu Kandidatendaten und Löschfristen."
   },
+  "page": {
+    "metaTitle": "Personalvermittlung CRM Vorlage: Aufträge und Kandidaten",
+    "metaDescription": "Aufträge, Kandidaten und Provisionstermine an einem Ort. Vorlage in Claude, ChatGPT oder Codex einfügen, und Ihr KI-Agent baut die Vermittlung für Sie auf.",
+    "headline": "Wissen, welcher Kandidat auf welchem Auftrag steht: eine Personalvermittlung, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Personalvermittlung führt zwei verbundene Verläufe: den Auftrag, der die Provision einbringt, und darin je Kandidat einen Vorschlag mit eigener Phase. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit Vermittlungen, Garantieende, Nachbetreuungsterminen und einem Löschdatum bei jedem Kandidaten. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Durchsicht der Vermittlung",
+      "steps": [
+        "Öffnen Sie die Aufträge als Board und suchen Sie Suchen ohne Wiedervorlage oder ohne Bewegung seit 10 Tagen.",
+        "Holen Sie bei jedem Kandidaten, der vor mehr als zwei Tagen vorgestellt wurde, das Feedback des Kunden ein, und planen Sie die Nachbesprechung für jedes Gespräch dieser Woche.",
+        "Rufen Sie aktive Kunden an, deren nächster Kontakttermin erreicht ist, und fragen Sie nach anstehenden Einstellungen.",
+        "Prüfen Sie die Vermittlungen: die Nachfragen nach 30, 60 und 90 Tagen, die diese Woche anstehen, und jede Garantiezeit, die innerhalb von 14 Tagen endet.",
+        "Räumen Sie Kandidaten auf, deren Löschdatum erreicht ist: löschen oder eine neue Einwilligung festhalten."
+      ]
+    },
+    "limits": [
+      "Es ist keine Jobbörse und kein Werkzeug für Multiposting und liest keine Lebensläufe aus. Dateien sind nur durchsuchbar, wenn sie eine Textebene haben, eingescannte Lebensläufe werden nicht gelesen.",
+      "Es gibt keine Sequenzen und keine Massenansprache. Nachrichten werden einzeln verfasst, und der Prompt weist den Agenten an, nichts automatisch zu versenden.",
+      "Gespräche lassen sich in Customermates Cloud im Tarif Pro oder höher vom Datensatz aus in Ihren Google- oder Microsoft-Kalender eintragen; selbst gehostet bleibt es ein Datumsfeld und eine Wiedervorlage. Die Verbindung gilt nur in eine Richtung: Kalenderänderungen ändern den Datensatz nicht.",
+      "Es ist kein System für Rechnungen, Zeiterfassung oder Lohnabrechnung in der Zeitarbeit. Rechnungen bleiben in Ihrer Buchhaltungssoftware, die Vorlage speichert nur eine Referenz. Wer viele Stellen oder Zeitarbeit abwickelt, braucht ein auf Personaldienstleister ausgelegtes ATS.",
+      "Es ist kein Bewerberportal und keine Hintergrundprüfung. Gesundheitsdaten, Geburtsdatum und ähnliche Angaben gehören nicht in die Notizen zu Kandidaten."
+    ],
+    "faq": [
+      {
+        "question": "Sollten Kandidaten und Aufträge getrennte Datensätze sein?",
+        "answer": "Ja. Agentursysteme wie Bullhorn und Recruiterflow hängen einen Kandidaten an jeden Auftrag, sodass eine Person bei verschiedenen Aufträgen in verschiedenen Phasen stehen kann. Die Vorlage führt eine Liste der Aufträge und je Kandidat und Auftrag einen Vorschlag, damit jeder Kandidat je Auftrag seine eigene Phasenhistorie hat."
+      },
+      {
+        "question": "Wie lange darf ich die Daten abgelehnter Kandidaten speichern?",
+        "answer": "Das hängt vom Land ab, und die Information der Kandidaten zählt so viel wie die Zahl. Für Deutschland nennt die Fachliteratur etwa sechs Monate nach Abschluss des Verfahrens (zwei Monate für einen AGG-Anspruch, drei Monate für die Klage, ein Monat Bearbeitung); die Aufnahme in einen Talentpool setzt eine informierte Einwilligung voraus. Jeder Kandidat erhält ein Löschdatum und eine Wiedervorlage: löschen oder eine neue Einwilligung festhalten. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Welche Provisions- und Garantiebedingungen sollte ich festhalten?",
+        "answer": "Eine erfolgsabhängige Vermittlung wird nur bei einer Einstellung fällig, retained Suchen werden häufig in Raten abgerechnet, etwa in Dritteln. In Deutschland entsteht die Vermittlungsprovision mit dem Zustandekommen des Arbeitsvertrags (Maklerrecht, §§ 652 ff. BGB) und liegt meist bei 20 bis 30 Prozent des ersten Jahresbruttogehalts; eine kostenlose Ersatzbesetzung bei früher Kündigung ist üblich. Das sind Vertragsbedingungen, keine Vorschriften: Die Vorlage speichert Provision, Garantietage und Garantieende je Vermittlung ohne Voreinstellung."
+      },
+      {
+        "question": "Was gehört nicht in die Notizen zu Kandidaten?",
+        "answer": "Nur Tatsachen, die für die Stelle relevant sind. Gesundheits- oder Behinderungsdaten, Religion, Gewerkschaftszugehörigkeit, Geburtsdatum, Familienstand und Ergebnisse von Hintergrundprüfungen gehören nicht hinein. In Deutschland können Freitextnotizen zu Alter, Herkunft oder Familie nach dem AGG zum Risiko werden, wenn ein Kandidat Auskunft verlangt."
+      },
+      {
+        "question": "Schreibt der Agent Kandidaten oder Kunden an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ich vermittle Kandidaten an Kundenunternehmen und verliere den Überblick, wer wo vorgestellt ist, wann eine Garantie endet und wie lange ich Kandidatendaten behalten darf. Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
     "questions": [

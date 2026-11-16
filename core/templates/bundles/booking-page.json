@@ -843,14 +843,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -1161,6 +1161,54 @@
         "start_field": "Jeder Termin hält fest, wann er beginnt.",
         "appointments_board_view": "Die Termine öffnen sich als Board nach Status."
       },
+      "page": {
+        "metaTitle": "Calendly Alternative: Terminbuchung mit Nachfassen im CRM",
+        "metaDescription": "Calendly Alternative für Ihre Terminbuchung: Ihr KI-Agent baut im CRM Terminarten, Status je Buchung, Erinnerungen und das Ergebnis nach jedem Gespräch auf.",
+        "headline": "Calendly Alternative für die Terminbuchung: Ihr KI-Agent baut sie in Ihrem CRM auf",
+        "answer": "Eine Terminbuchung bringt ein Gespräch, eine Beratung oder eine Besichtigung von der Anfrage zu einem bestätigten Termin und hält fest, was daraus geworden ist. Diese Vorlage richtet Terminarten mit Dauer, Pufferzeit und Vorlaufzeit ein, dazu einen Status je Buchung, Erinnerungen davor und ein Ergebnis danach. Fügen Sie sie in Ihren KI-Agenten ein, und er baut alles in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die wöchentliche Terminübersicht",
+          "steps": [
+            "Gehen Sie die Termine der Vorwoche durch und tragen Sie bei jedem stattgefundenen Termin ein Ergebnis ein: qualifiziert, zweites Gespräch, Angebot nötig oder passt nicht.",
+            "Bieten Sie allen, die nicht erschienen sind oder abgesagt haben, ohne Vorwurf einen neuen Termin an.",
+            "Beantworten Sie Anfragen, die länger als einen Tag warten, und prüfen Sie die nächsten 14 Tage auf Lücken und auf noch fehlende Erinnerungen. Standard ist eine Erinnerung 3 Tage und eine 1 Tag vorher.",
+            "Ändern Sie eine Sache: Pufferzeit, Vorlaufzeit oder Absagefrist. Zu Beginn jedes Quartals prüfen Sie Verfügbarkeit und Regeln."
+          ]
+        },
+        "limits": [
+          "Es bucht nur die Zeit von Personen. Räume, Geräte, Hotelübernachtungen, Kurse mit Warteliste und Ticketing für Veranstaltungen brauchen ein dafür gebautes Werkzeug.",
+          "Es ist kein Terminsystem für Arztpraxen. Diagnosen und der Grund eines medizinischen, therapeutischen oder rechtlichen Termins gehören nicht ins Buchungsformular; fragen Sie stattdessen, worüber die Person sprechen möchte.",
+          "Es nimmt keine Zahlungen an und hostet keine Gespräche. Der Kalendertermin trägt den Link Ihres Videowerkzeugs, eine Anzahlung bleibt in Ihrem Zahlungsdienst.",
+          "Öffentliche Buchungsseiten und das Schreiben von Terminen in Ihren Google- oder Microsoft-Kalender brauchen Customermates Cloud im Tarif Pro oder höher; selbst gehostet gibt es sie nicht. Ohne sie nimmt ein öffentliches Formular Anfragen entgegen, und Sie tragen die bestätigte Zeit hier ein.",
+          "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten. Customermates versendet keine SMS."
+        ],
+        "faq": [
+          {
+            "question": "Was gehört in eine Terminbuchung?",
+            "answer": "Jede Terminart mit Dauer, Pufferzeit, Vorlaufzeit und der Frist, wie weit im Voraus gebucht werden kann; eine kurze Abfrage mit Name, Kontakt und nur den Fragen, die den Termin verändern; eine Bestätigung samt Erinnerungen; und ein Ort, an dem Sie festhalten, ob der Termin stattfand und was folgte."
+          },
+          {
+            "question": "Wie viele Erinnerungen verringern das Nichterscheinen?",
+            "answer": "In einer Studie aus dem Gesundheitswesen blieben bei Erinnerungen 3 Tage und 1 Tag vorher 4,4 Prozent der Termine ungenutzt, gegenüber 5,8 Prozent mit nur der Erinnerung nach 3 Tagen und 5,3 Prozent mit nur der Erinnerung nach 1 Tag. Eine Übersicht randomisierter Studien fand keinen signifikanten Unterschied zwischen Erinnerungen 24, 48 oder 72 Stunden vorher. Die Belege stammen aus dem Gesundheitswesen; verstehen Sie 3 Tage und 1 Tag deshalb als Ausgangspunkt."
+          },
+          {
+            "question": "Was darf ein Buchungsformular nie abfragen?",
+            "answer": "Beschränken Sie sich auf das, was der Termin braucht: Name, E-Mail, optional Telefon und ein bis zwei Fragen, die den Termin verändern. Fragen Sie nicht nach Diagnosen, Falldetails, Zahlungskartendaten, Ausweisdokumenten oder Angaben, die Gesundheit, Religion oder sexuelle Orientierung verraten. Freitextantworten werden als Daten am Datensatz gespeichert, halten Sie das Formular daher schlank."
+          },
+          {
+            "question": "Kann ich ohne öffentliche Buchungsseite Termine annehmen?",
+            "answer": "Ja. Ein öffentliches Formular funktioniert in jedem Tarif, in Free mit Monatsgrenze und Badge: Es nimmt die Anfrage entgegen und legt den Termin an, verknüpft mit einer Person, die über die E-Mail-Adresse gefunden oder neu angelegt wird. Fragt jemand per E-Mail oder WhatsApp an, schlägt Ihr Agent freie Termine aus Ihrem verbundenen Kalender vor und entwirft die Antwort; Sie prüfen und senden sie. Mit Customermates Cloud im Tarif Pro oder höher schreibt das Planen eines Termins an einem Datensatz das Ereignis in Ihren Google- oder Microsoft-Kalender, und über eine öffentliche Buchungsseite wählen Personen selbst eine freie Zeit."
+          },
+          {
+            "question": "Reicht ein Server in der EU, damit die Terminbuchung DSGVO-konform ist?",
+            "answer": "Der Serverstandort allein entscheidet das nicht. Deutsche Fachquellen nennen zusätzlich den Auftragsverarbeitungsvertrag, die Unterauftragsverarbeiter und den Sitz des Anbieters; bei Gesundheitsdaten ist die Hürde höher. Das ist keine Rechtsberatung. Fragen Sie Ihre Datenschutzbeauftragte oder Ihren Datenschutzbeauftragten."
+          },
+          {
+            "question": "Schreibt der Agent meine Kunden an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ich nehme Gespräche, Beratungen und Besichtigungen an und verliere den Überblick, wer gebucht hat, wer bestätigt hat und was daraus geworden ist. Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
         "questions": [
@@ -1457,6 +1505,54 @@
         "status_field": "Every appointment has a status.",
         "start_field": "Every appointment records when it starts.",
         "appointments_board_view": "The appointments open as a board by status."
+      },
+      "page": {
+        "metaTitle": "Appointment Scheduling Software: Book, Remind, Follow Up",
+        "metaDescription": "Appointment scheduling software your AI agent builds in your CRM: appointment types, a status on every booking, reminders and an outcome after each call.",
+        "headline": "Appointment scheduling software that records what came of every call, built by your AI agent",
+        "answer": "Appointment scheduling software takes a call, consultation or viewing from request to a confirmed time, and records what came of it. This template sets up appointment types with a duration, buffer and minimum notice, a status on every booking, reminders before and an outcome after. Paste it into your AI agent and it builds all of it in Customermates, and you approve the plan before anything is built.",
+        "routine": {
+          "title": "The weekly booking review",
+          "steps": [
+            "Look at last week's appointments and record an outcome on every held one: qualified, second call, proposal needed or not a fit.",
+            "Offer a new slot, without blame, to everyone who did not show up or cancelled.",
+            "Answer requests that have waited longer than a day, then check the next 14 days for gaps and for reminders still to send. The default is one reminder 3 days and one 1 day before.",
+            "Change one thing: a buffer, a minimum notice or a cancellation window. At the start of each quarter, review availability and policies."
+          ]
+        },
+        "limits": [
+          "It books people's time only. Rooms, equipment, hotel stays, classes with waiting lists and ticketed events need a tool built for them.",
+          "It is not a medical appointment system. Keep diagnoses and the reason for a medical, therapeutic or legal appointment out of the booking form and ask what the person would like to discuss instead.",
+          "It takes no payments and hosts no calls. The calendar event carries the link of your video tool, and any deposit stays in your payment tool.",
+          "Public booking pages and writing appointments into your Google or Microsoft calendar need Customermates Cloud on the Pro plan or higher; they are not available self-hosted. Without them, a public form takes the requests and you enter the confirmed time here.",
+          "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on. Customermates sends no SMS."
+        ],
+        "faq": [
+          {
+            "question": "What should appointment scheduling software include?",
+            "answer": "Each type of appointment with its duration, buffer, minimum notice and how far ahead people can book; a short intake with a name, a contact and only the questions that change the appointment; a confirmation and reminders; and a place to record whether the appointment took place and what followed."
+          },
+          {
+            "question": "How many reminders reduce no-shows?",
+            "answer": "In one health-care trial, reminders at 3 days and 1 day before left 4.4 percent of appointments missed, against 5.8 percent with the 3-day reminder alone and 5.3 percent with the 1-day reminder alone. A review of randomised trials found no significant difference between reminders sent 24, 48 or 72 hours ahead. The evidence comes from health care, so treat 3 days and 1 day as a starting point."
+          },
+          {
+            "question": "What should a booking form never ask?",
+            "answer": "Keep to what the appointment needs: a name, an email, optionally a phone number and one or two questions that change the appointment. Do not ask for diagnoses, case details, payment card data, ID documents or anything that reveals health, religion or orientation. Free-text answers are stored as data in the record, so keep the form narrow."
+          },
+          {
+            "question": "Can I take bookings without a public booking page?",
+            "answer": "Yes. A public form works on every plan, with a monthly limit and a badge on Free: it takes the request and creates the appointment, linked to a person found or created by email. When someone asks by email or WhatsApp, your agent proposes free slots from your connected calendar and drafts the reply, and you review and send it. On Customermates Cloud with the Pro plan or higher, scheduling a meeting from a record writes the event into your Google or Microsoft calendar, and a public booking page lets people pick a free time themselves."
+          },
+          {
+            "question": "Should I charge a deposit or a no-show fee?",
+            "answer": "Payments stay in your payment tool. The template records the price of each appointment type and holds a cancellation policy page. We found no study showing that deposits or fees reduce no-shows, so the template makes no such claim."
+          },
+          {
+            "question": "Does the agent contact my clients?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "I take calls, consultations and viewings and lose track of who is booked, who confirmed and what came of it. Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
@@ -1755,6 +1851,54 @@
         "start_field": "Cada cita indica cuándo comienza.",
         "appointments_board_view": "Las citas se abren como tablero por estado."
       },
+      "page": {
+        "metaTitle": "Sistema de reservas: citas con recordatorios y seguimiento",
+        "metaDescription": "Sistema de reservas de citas que tu agente de IA crea en tu CRM: tipos de cita, un estado por reserva, recordatorios y el resultado de cada llamada.",
+        "headline": "Un sistema de reservas que anota el resultado de cada cita, creado por tu agente de IA",
+        "answer": "Un sistema de reservas lleva una llamada, una consulta o una visita desde la solicitud hasta una hora confirmada y anota en qué quedó. Esta plantilla configura tipos de cita con duración, margen y antelación mínima, un estado por reserva, recordatorios antes y un resultado después. Pégala en tu agente de IA y él lo construye todo en Customermates; tú apruebas el plan antes de que se cree nada.",
+        "routine": {
+          "title": "La revisión semanal de citas",
+          "steps": [
+            "Repasa las citas de la semana pasada y anota un resultado en cada cita celebrada: cualificada, segunda llamada, falta una propuesta o no encaja.",
+            "Ofrece una nueva hora, sin reproches, a quienes no se presentaron o cancelaron.",
+            "Responde a las solicitudes que llevan más de un día esperando y revisa los próximos 14 días: huecos y recordatorios por enviar. Por defecto, un recordatorio 3 días antes y otro 1 día antes.",
+            "Cambia una sola cosa: un margen, una antelación mínima o un plazo de cancelación. Al inicio de cada trimestre, revisa disponibilidad y normas."
+          ]
+        },
+        "limits": [
+          "Reserva solo el tiempo de personas. Salas, equipos, estancias de hotel, clases con lista de espera y eventos con entradas necesitan una herramienta pensada para ello.",
+          "No es un sistema de citas médicas. Deja fuera del formulario los diagnósticos y el motivo de una cita médica, terapéutica o legal, y pregunta mejor de qué quiere hablar la persona.",
+          "No cobra pagos ni aloja llamadas. El evento del calendario lleva el enlace de tu herramienta de videollamada, y un posible anticipo se queda en tu herramienta de pago.",
+          "Las páginas de reserva públicas y la escritura de citas en tu calendario de Google o Microsoft necesitan Customermates Cloud con el plan Pro o superior, no instalaciones autoalojadas. Sin ellas, un formulario público recibe las solicitudes y tú introduces aquí la hora confirmada.",
+          "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar. Customermates no envía SMS."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué debe incluir un sistema de reservas?",
+            "answer": "Cada tipo de cita con su duración, margen, antelación mínima y con cuánta antelación se puede reservar; un formulario breve con nombre, contacto y solo las preguntas que cambian la cita; una confirmación y recordatorios; y un sitio donde anotar si la cita se celebró y qué vino después."
+          },
+          {
+            "question": "¿Cuántos recordatorios reducen las ausencias?",
+            "answer": "En un ensayo del ámbito sanitario, los recordatorios 3 días y 1 día antes dejaron un 4,4 % de citas perdidas, frente al 5,8 % con solo el recordatorio de 3 días y el 5,3 % con solo el de 1 día. Una revisión de ensayos aleatorizados no halló diferencias significativas entre recordatorios enviados 24, 48 o 72 horas antes. Los datos proceden de la sanidad: toma 3 días y 1 día como punto de partida."
+          },
+          {
+            "question": "¿Qué no debe preguntar nunca un formulario de reserva?",
+            "answer": "Limítate a lo que necesita la cita: nombre, correo, opcionalmente teléfono y una o dos preguntas que cambien la cita. No pidas diagnósticos, detalles de un caso, datos de tarjetas de pago, documentos de identidad ni nada que revele salud, religión u orientación. Las respuestas de texto libre se guardan como datos en la ficha: mantén el formulario corto."
+          },
+          {
+            "question": "¿Puedo recibir reservas sin una página de reservas pública?",
+            "answer": "Sí. Un formulario público funciona en todos los planes, con un límite mensual y una insignia en Free: recibe la solicitud y crea la cita, vinculada a una persona encontrada o creada por su correo. Cuando alguien escribe por correo o WhatsApp, tu agente propone horas libres de tu calendario conectado y redacta la respuesta; tú la revisas y la envías. Con Customermates Cloud y el plan Pro o superior, programar una reunión desde un registro escribe el evento en tu calendario de Google o Microsoft, y una página de reservas pública deja que las personas elijan ellas mismas una hora libre."
+          },
+          {
+            "question": "¿Debo cobrar un anticipo o una penalización por no presentarse?",
+            "answer": "Los pagos se quedan en tu herramienta de pago. La plantilla registra el precio de cada tipo de cita y contiene una página con la política de cancelación. No hemos encontrado ningún estudio que demuestre que los anticipos o las penalizaciones reduzcan las ausencias, así que la plantilla no lo afirma."
+          },
+          {
+            "question": "¿El agente escribe a mis clientes?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Atiendo llamadas, consultas y visitas y pierdo la cuenta de quién tiene cita, quién la ha confirmado y en qué quedó. Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
         "questions": [
@@ -2051,6 +2195,54 @@
         "status_field": "Chaque rendez-vous a un statut.",
         "start_field": "Chaque rendez-vous indique quand il commence.",
         "appointments_board_view": "Les rendez-vous s’ouvrent en board par statut."
+      },
+      "page": {
+        "metaTitle": "Logiciel de réservation en ligne : prise de rendez-vous",
+        "metaDescription": "Logiciel de réservation en ligne : votre agent IA crée dans votre CRM types de rendez-vous, statut par réservation, rappels et résultat de chaque appel.",
+        "headline": "Un logiciel de réservation en ligne qui garde trace de chaque rendez-vous, construit par votre agent IA",
+        "answer": "Un logiciel de réservation en ligne amène un appel, une consultation ou une visite de la demande à un créneau confirmé, puis garde trace de ce qu’il en est sorti. Ce modèle met en place des types de rendez-vous avec durée, temps de battement et délai de prévenance, un statut par réservation, des rappels avant et un résultat après. Collez-le dans votre agent IA : il construit tout dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+        "routine": {
+          "title": "La revue hebdomadaire des rendez-vous",
+          "steps": [
+            "Passez en revue les rendez-vous de la semaine passée et notez un résultat sur chaque rendez-vous tenu : qualifié, deuxième appel, proposition à faire ou pas adapté.",
+            "Proposez un nouveau créneau, sans reproche, à ceux qui ne sont pas venus ou qui ont annulé.",
+            "Répondez aux demandes qui attendent depuis plus d’un jour, puis vérifiez les 14 prochains jours : créneaux vides, rappels restant à envoyer. Par défaut : un rappel 3 jours et un autre 1 jour avant.",
+            "Changez une seule chose : un temps de battement, un délai de prévenance ou un délai d’annulation. Au début de chaque trimestre, relisez disponibilités et règles."
+          ]
+        },
+        "limits": [
+          "Il réserve uniquement le temps de personnes. Salles, matériel, nuits d’hôtel, cours avec liste d’attente et billetterie d’événements demandent un outil conçu pour cela.",
+          "Ce n’est pas un système de rendez-vous médicaux. Laissez diagnostics et motif d’un rendez-vous médical, thérapeutique ou juridique hors du formulaire, et demandez plutôt de quoi la personne souhaite parler.",
+          "Il n’encaisse aucun paiement et n’héberge pas d’appels. L’événement de l’agenda porte le lien de votre outil de visio, et un éventuel acompte reste dans votre outil de paiement.",
+          "Les pages de réservation publiques et l’écriture des rendez-vous dans votre agenda Google ou Microsoft demandent Customermates Cloud en formule Pro ou supérieure, pas l’auto-hébergement. Sans elles, un formulaire public reçoit les demandes et vous saisissez ici l’heure confirmée.",
+          "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer. Customermates n’envoie pas de SMS."
+        ],
+        "faq": [
+          {
+            "question": "Que doit contenir un logiciel de réservation en ligne ?",
+            "answer": "Chaque type de rendez-vous avec sa durée, son temps de battement, son délai de prévenance et la durée à l’avance pendant laquelle on peut réserver ; un court formulaire avec un nom, un contact et seulement les questions qui changent le rendez-vous ; une confirmation et des rappels ; et un endroit où noter si le rendez-vous a eu lieu et ce qui a suivi."
+          },
+          {
+            "question": "Combien de rappels réduisent les absences ?",
+            "answer": "Dans un essai mené dans le secteur de la santé, des rappels 3 jours et 1 jour avant ont laissé 4,4 % de rendez-vous manqués, contre 5,8 % avec le seul rappel à 3 jours et 5,3 % avec le seul rappel à 1 jour. Une synthèse d’essais randomisés n’a trouvé aucune différence significative entre des rappels envoyés 24, 48 ou 72 heures avant. Ces données viennent de la santé : prenez 3 jours et 1 jour comme point de départ."
+          },
+          {
+            "question": "Que ne faut-il jamais demander dans un formulaire de réservation ?",
+            "answer": "Limitez-vous à ce que le rendez-vous exige : un nom, un e-mail, éventuellement un téléphone et une ou deux questions qui changent le rendez-vous. Ne demandez ni diagnostic, ni détails d’un dossier, ni numéro de carte bancaire, ni pièce d’identité, ni rien qui révèle la santé, la religion ou l’orientation. Les réponses libres sont stockées comme données dans la fiche : gardez le formulaire court."
+          },
+          {
+            "question": "Peut-on prendre des rendez-vous sans page de réservation publique ?",
+            "answer": "Oui. Un formulaire public fonctionne avec toutes les formules, avec une limite mensuelle et un badge sur Free : il reçoit la demande et crée le rendez-vous, lié à une personne retrouvée ou créée grâce à son e-mail. Quand quelqu’un écrit par e-mail ou WhatsApp, votre agent propose des créneaux libres à partir de votre agenda connecté et rédige la réponse ; vous la relisez et l’envoyez. Avec Customermates Cloud et la formule Pro ou supérieure, planifier une réunion depuis une fiche inscrit l’événement dans votre agenda Google ou Microsoft, et une page de réservation publique laisse les personnes choisir elles-mêmes un créneau libre."
+          },
+          {
+            "question": "Faut-il demander un acompte ou des frais d’absence ?",
+            "answer": "Les paiements restent dans votre outil de paiement. Le modèle enregistre le prix de chaque type de rendez-vous et contient une page sur la politique d’annulation. Nous n’avons trouvé aucune étude montrant que les acomptes ou les frais réduisent les absences : le modèle n’affirme donc rien de tel."
+          },
+          {
+            "question": "L’agent écrit-il à mes clients ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+          }
+        ]
       },
       "prompt": {
         "intro": "Je prends des appels, des consultations et des visites, et je ne sais plus qui est réservé, qui a confirmé ni ce que chaque rendez-vous a donné. Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
@@ -2349,6 +2541,54 @@
         "start_field": "Ogni appuntamento indica quando inizia.",
         "appointments_board_view": "Gli appuntamenti si aprono come board per stato."
       },
+      "page": {
+        "metaTitle": "Sistema prenotazione online: appuntamenti con follow-up",
+        "metaDescription": "Sistema prenotazione online per consulenze e visite: il tuo agente IA crea nel CRM tipi di appuntamento, stato, promemoria e l'esito dopo ogni chiamata.",
+        "headline": "Un sistema di prenotazione online che registra l'esito di ogni appuntamento, costruito dal tuo agente IA",
+        "answer": "Un sistema di prenotazione online porta una chiamata, una consulenza o una visita dalla richiesta a un orario confermato e registra com'è andata. Questo modello imposta tipi di appuntamento con durata, pausa e preavviso, uno stato per ogni prenotazione, promemoria prima e un esito dopo. Incollalo nel tuo agente IA: costruisce tutto in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+        "routine": {
+          "title": "La revisione settimanale degli appuntamenti",
+          "steps": [
+            "Rivedi gli appuntamenti della settimana scorsa e registra un esito su ogni appuntamento tenuto: qualificato, seconda chiamata, serve una proposta o non è adatto.",
+            "Offri un nuovo orario, senza rimproveri, a chi non si è presentato o ha disdetto.",
+            "Rispondi alle richieste in attesa da più di un giorno, poi controlla i prossimi 14 giorni: buchi in agenda e promemoria ancora da inviare. Per impostazione predefinita, un promemoria 3 giorni e uno 1 giorno prima.",
+            "Cambia una sola cosa: una pausa, un preavviso o un termine di disdetta. All'inizio di ogni trimestre rivedi disponibilità e regole."
+          ]
+        },
+        "limits": [
+          "Prenota solo il tempo delle persone. Sale, attrezzature, soggiorni in hotel, corsi con lista d'attesa ed eventi con biglietti richiedono uno strumento adatto.",
+          "Non è un sistema di appuntamenti medici. Lascia fuori dal modulo diagnosi e motivo di un appuntamento medico, terapeutico o legale e chiedi piuttosto di che cosa la persona vorrebbe parlare.",
+          "Non incassa pagamenti e non ospita chiamate. L'evento del calendario porta il link del tuo strumento di videochiamata e un eventuale acconto resta nel tuo strumento di pagamento.",
+          "Le pagine di prenotazione pubbliche e la scrittura degli appuntamenti nel tuo calendario Google o Microsoft richiedono Customermates Cloud con il piano Pro o superiore, non il self-hosting. Senza di esse, un modulo pubblico raccoglie le richieste e tu inserisci qui l'orario confermato.",
+          "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare. Customermates non invia SMS."
+        ],
+        "faq": [
+          {
+            "question": "Che cosa deve includere un sistema di prenotazione online?",
+            "answer": "Ogni tipo di appuntamento con durata, pausa, preavviso e con quanto anticipo si può prenotare; un modulo breve con nome, contatto e solo le domande che cambiano l'appuntamento; una conferma e dei promemoria; e un posto dove annotare se l'appuntamento c'è stato e che cosa è seguito."
+          },
+          {
+            "question": "Quanti promemoria riducono le assenze?",
+            "answer": "In uno studio sanitario, promemoria 3 giorni e 1 giorno prima hanno lasciato il 4,4% degli appuntamenti saltati, contro il 5,8% con il solo promemoria a 3 giorni e il 5,3% con il solo promemoria a 1 giorno. Una revisione di studi randomizzati non ha trovato differenze significative tra promemoria inviati 24, 48 o 72 ore prima. I dati vengono dalla sanità: considera 3 giorni e 1 giorno un punto di partenza."
+          },
+          {
+            "question": "Che cosa non va mai chiesto in un modulo di prenotazione?",
+            "answer": "Limitati a ciò che serve all'appuntamento: nome, email, facoltativamente il telefono e una o due domande che cambiano l'appuntamento. Non chiedere diagnosi, dettagli di un caso, dati di carte di pagamento, documenti d'identità né nulla che riveli salute, religione od orientamento. Le risposte libere sono salvate come dati nella scheda: tieni il modulo essenziale."
+          },
+          {
+            "question": "Posso prendere appuntamenti senza una pagina di prenotazione pubblica?",
+            "answer": "Sì. Un modulo pubblico funziona con tutti i piani, con un limite mensile e un badge su Free: raccoglie la richiesta e crea l'appuntamento, collegato a una persona trovata o creata tramite l'email. Quando qualcuno scrive via email o WhatsApp, il tuo agente propone orari liberi dal calendario collegato e prepara la risposta; tu la rivedi e la invii. Con Customermates Cloud e il piano Pro o superiore, pianificare una riunione da un record scrive l'evento nel tuo calendario Google o Microsoft, e una pagina di prenotazione pubblica permette alle persone di scegliere da sole un orario libero."
+          },
+          {
+            "question": "Devo chiedere un acconto o una penale per le assenze?",
+            "answer": "I pagamenti restano nel tuo strumento di pagamento. Il modello registra il prezzo di ogni tipo di appuntamento e contiene una pagina sulla politica di disdetta. Non abbiamo trovato studi che dimostrino che acconti o penali riducano le assenze, quindi il modello non lo afferma."
+          },
+          {
+            "question": "L'agente scrive ai miei clienti?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ricevo chiamate, consulenze e visite e perdo il filo di chi è prenotato, chi ha confermato e com'è andata. Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
         "questions": [
@@ -2645,6 +2885,54 @@
         "status_field": "Elke afspraak heeft een status.",
         "start_field": "Elke afspraak legt vast wanneer ze begint.",
         "appointments_board_view": "De afspraken openen als bord per status."
+      },
+      "page": {
+        "metaTitle": "Online afspraken maken: boekingen met herinneringen",
+        "metaDescription": "Online afspraken maken met een systeem dat je AI-agent in je CRM bouwt: afspraaktypes, een status per boeking, herinneringen en de uitkomst van elk gesprek.",
+        "headline": "Online afspraken maken én vastleggen wat eruit kwam: een systeem dat je AI-agent in je CRM bouwt",
+        "answer": "Online afspraken maken betekent dat een gesprek, consult of bezichtiging van aanvraag naar een bevestigd tijdstip gaat, en dat je vastlegt wat eruit kwam. Dit template richt afspraaktypes in met duur, buffer en minimale termijn, een status per boeking, herinneringen vooraf en een uitkomst achteraf. Plak het in je AI-agent en die bouwt alles in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+        "routine": {
+          "title": "De wekelijkse afsprakenreview",
+          "steps": [
+            "Loop de afspraken van vorige week langs en leg bij elke afspraak die doorging een uitkomst vast: gekwalificeerd, tweede gesprek, voorstel nodig of geen match.",
+            "Bied zonder verwijt een nieuw tijdstip aan iedereen die niet kwam opdagen of afzegde.",
+            "Beantwoord aanvragen die langer dan een dag wachten en controleer de komende 14 dagen op lege plekken en nog te versturen herinneringen. Standaard is dat één herinnering 3 dagen en één 1 dag van tevoren.",
+            "Verander één ding: een buffer, een minimale termijn of een annuleringstermijn. Bekijk aan het begin van elk kwartaal beschikbaarheid en regels."
+          ]
+        },
+        "limits": [
+          "Het boekt alleen de tijd van mensen. Ruimtes, apparatuur, hotelovernachtingen, lessen met wachtlijst en evenementen met tickets vragen om een tool die daarvoor gebouwd is.",
+          "Het is geen afsprakensysteem voor zorg. Houd diagnoses en de reden van een medische, therapeutische of juridische afspraak buiten het formulier en vraag liever waarover iemand wil praten.",
+          "Het neemt geen betalingen aan en host geen gesprekken. De agenda-afspraak bevat de link van je videotool, en een eventuele aanbetaling blijft in je betaaltool.",
+          "Openbare boekingspagina's en het wegschrijven van afspraken in je Google- of Microsoft-agenda vragen Customermates Cloud met abonnement Pro of hoger, niet zelf hosten. Zonder die pagina's neemt een openbaar formulier aanvragen aan en voer je de bevestigde tijd hier in.",
+          "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet. Customermates verstuurt geen sms."
+        ],
+        "faq": [
+          {
+            "question": "Wat hoort er in een systeem voor online afspraken?",
+            "answer": "Elk afspraaktype met duur, buffer, minimale termijn en hoe ver vooruit mensen kunnen boeken; een kort formulier met naam, contactgegevens en alleen de vragen die de afspraak veranderen; een bevestiging en herinneringen; en een plek om vast te leggen of de afspraak doorging en wat erna kwam."
+          },
+          {
+            "question": "Hoeveel herinneringen verminderen no-shows?",
+            "answer": "In één onderzoek in de zorg bleef bij herinneringen 3 dagen en 1 dag van tevoren 4,4 procent van de afspraken onbenut, tegen 5,8 procent met alleen de herinnering na 3 dagen en 5,3 procent met alleen die van 1 dag. Een overzicht van gerandomiseerde onderzoeken vond geen significant verschil tussen herinneringen die 24, 48 of 72 uur van tevoren zijn verstuurd. De cijfers komen uit de zorg, dus zie 3 dagen en 1 dag als beginpunt."
+          },
+          {
+            "question": "Waar moet een boekingsformulier nooit naar vragen?",
+            "answer": "Beperk je tot wat de afspraak nodig heeft: naam, e-mail, eventueel telefoon en een of twee vragen die de afspraak veranderen. Vraag niet naar diagnoses, details van een zaak, betaalkaartgegevens, identiteitsbewijzen of iets wat gezondheid, geloof of geaardheid verraadt. Antwoorden in vrije tekst worden als gegevens bij het record opgeslagen, houd het formulier dus kort."
+          },
+          {
+            "question": "Kan ik afspraken aannemen zonder openbare boekingspagina?",
+            "answer": "Ja. Een openbaar formulier werkt in elk abonnement, in Free met een maandlimiet en een badge: het neemt de aanvraag aan en maakt de afspraak aan, gekoppeld aan een persoon die via het e-mailadres wordt gevonden of aangemaakt. Vraagt iemand per e-mail of WhatsApp om een afspraak, dan stelt je agent vrije tijdstippen voor uit je gekoppelde agenda en schrijft het antwoord, en jij leest het na en verstuurt het. In Customermates Cloud met het abonnement Pro of hoger zet het plannen van een afspraak vanaf een record die direct in je Google- of Microsoft-agenda, en met een openbare boekingspagina kiezen mensen zelf een vrij tijdstip."
+          },
+          {
+            "question": "Moet ik een aanbetaling of no-showvergoeding vragen?",
+            "answer": "Betalingen blijven in je betaaltool. Het template legt de prijs van elk afspraaktype vast en bevat een pagina met het annuleringsbeleid. We vonden geen onderzoek dat aantoont dat aanbetalingen of vergoedingen no-shows verminderen, dus het template beweert dat niet."
+          },
+          {
+            "question": "Schrijft de agent mijn klanten aan?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Klanten boeken gesprekken, consulten of bezichtigingen bij mij, en ik raak het overzicht kwijt van wie er geboekt heeft, wie heeft bevestigd en wat eruit kwam. Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
@@ -2943,6 +3231,54 @@
         "start_field": "Każda wizyta zapisuje, kiedy się zaczyna.",
         "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
       },
+      "page": {
+        "metaTitle": "System rezerwacji online: wizyty, przypomnienia, wyniki",
+        "metaDescription": "System rezerwacji online, który Twój agent AI buduje w CRM: typy wizyt, status każdej rezerwacji, przypomnienia oraz wynik po każdej rozmowie lub wizycie.",
+        "headline": "System rezerwacji online, który zapisuje wynik każdej wizyty, zbudowany przez Twojego agenta AI",
+        "answer": "System rezerwacji online prowadzi rozmowę, konsultację lub oglądanie od zgłoszenia do potwierdzonego terminu i zapisuje, co z tego wynikło. Ten szablon konfiguruje typy wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, status każdej rezerwacji, przypomnienia przed wizytą i wynik po niej. Wklej go do swojego agenta AI, a on zbuduje wszystko w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowy przegląd rezerwacji",
+          "steps": [
+            "Przejrzyj wizyty z zeszłego tygodnia i zapisz wynik przy każdej, która się odbyła: kwalifikacja, druga rozmowa, potrzebna oferta albo brak dopasowania.",
+            "Zaproponuj nowy termin, bez wyrzutów, każdemu, kto się nie pojawił lub odwołał wizytę.",
+            "Odpowiedz na zgłoszenia czekające dłużej niż dobę, potem sprawdź najbliższe 14 dni: luki w kalendarzu i przypomnienia do wysłania. Domyślnie jedno przypomnienie 3 dni i jedno 1 dzień przed wizytą.",
+            "Zmień jedną rzecz: przerwę, minimalne wyprzedzenie albo termin odwołania. Na początku każdego kwartału przejrzyj dostępność i zasady."
+          ]
+        },
+        "limits": [
+          "Rezerwuje wyłącznie czas ludzi. Sale, sprzęt, noclegi, zajęcia z listą oczekujących i wydarzenia z biletami wymagają narzędzia stworzonego do tego celu.",
+          "To nie jest system do wizyt lekarskich. Nie pytaj w formularzu o diagnozy ani o powód wizyty medycznej, terapeutycznej czy prawnej; zapytaj raczej, o czym osoba chciałaby porozmawiać.",
+          "Nie przyjmuje płatności i nie prowadzi rozmów wideo. Wydarzenie w kalendarzu zawiera link do Twojego narzędzia wideo, a ewentualna zaliczka zostaje w Twoim narzędziu płatności.",
+          "Publiczne strony rezerwacji i zapisywanie wizyt w Twoim kalendarzu Google lub Microsoft wymagają Customermates Cloud z planem Pro lub wyższym; przy samodzielnym hostowaniu nie są dostępne. Bez nich publiczny formularz przyjmuje zgłoszenia, a potwierdzony termin wpisujesz tutaj sam.",
+          "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć. Customermates nie wysyła SMS-ów."
+        ],
+        "faq": [
+          {
+            "question": "Co powinien zawierać system rezerwacji online?",
+            "answer": "Każdy typ wizyty z czasem trwania, przerwą, minimalnym wyprzedzeniem i terminem, jak daleko naprzód można rezerwować; krótki formularz z imieniem, kontaktem i tylko tymi pytaniami, które zmieniają wizytę; potwierdzenie i przypomnienia; oraz miejsce, gdzie zapiszesz, czy wizyta się odbyła i co było dalej."
+          },
+          {
+            "question": "Ile przypomnień ogranicza nieobecności?",
+            "answer": "W jednym badaniu z ochrony zdrowia przypomnienia 3 dni i 1 dzień przed wizytą dały 4,4% wizyt, które się nie odbyły, wobec 5,8% przy samym przypomnieniu na 3 dni i 5,3% przy samym przypomnieniu na 1 dzień. Przegląd badań z randomizacją nie wykazał istotnej różnicy między przypomnieniami wysłanymi 24, 48 lub 72 godziny wcześniej. Dane pochodzą z ochrony zdrowia, więc traktuj 3 dni i 1 dzień jako punkt wyjścia."
+          },
+          {
+            "question": "O co formularz rezerwacji nigdy nie powinien pytać?",
+            "answer": "Ogranicz się do tego, czego wymaga wizyta: imię, e-mail, ewentualnie telefon i jedno lub dwa pytania, które zmieniają wizytę. Nie pytaj o diagnozy, szczegóły sprawy, dane kart płatniczych, dokumenty tożsamości ani o nic, co ujawnia stan zdrowia, religię lub orientację. Odpowiedzi w polach tekstowych są zapisywane jako dane w rekordzie, więc formularz niech będzie krótki."
+          },
+          {
+            "question": "Czy mogę przyjmować rezerwacje bez publicznej strony rezerwacji?",
+            "answer": "Tak. Publiczny formularz działa w każdym planie, w Free z miesięcznym limitem i plakietką: przyjmuje zgłoszenie i tworzy wizytę powiązaną z osobą znalezioną lub utworzoną po adresie e-mail. Gdy ktoś pisze e-mailem lub przez WhatsApp, agent proponuje wolne terminy z podłączonego kalendarza i przygotowuje odpowiedź, a Ty ją sprawdzasz i wysyłasz. W Customermates Cloud z planem Pro lub wyższym zaplanowanie spotkania z poziomu rekordu zapisuje wydarzenie w Twoim kalendarzu Google lub Microsoft, a publiczna strona rezerwacji pozwala osobom samodzielnie wybrać wolny termin."
+          },
+          {
+            "question": "Czy pobierać zaliczkę albo opłatę za nieobecność?",
+            "answer": "Płatności zostają w Twoim narzędziu płatności. Szablon zapisuje cenę każdego typu wizyty i zawiera stronę z zasadami odwoływania wizyt. Nie znaleźliśmy badania, które pokazałoby, że zaliczki lub opłaty zmniejszają liczbę nieobecności, więc szablon tego nie twierdzi."
+          },
+          {
+            "question": "Czy agent pisze do moich klientów?",
+            "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Przyjmuję rezerwacje na rozmowy, konsultacje i oglądania, ale gubię się, kto jest zapisany, kto potwierdził i co z tego wynikło. Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
         "questions": [
@@ -3239,6 +3575,54 @@
         "status_field": "Todo atendimento tem um status.",
         "start_field": "Todo atendimento registra quando começa.",
         "appointments_board_view": "Os atendimentos abrem como quadro por status."
+      },
+      "page": {
+        "metaTitle": "Sistema de agendamento: atendimentos, lembretes e retorno",
+        "metaDescription": "Sistema de agendamento que seu agente de IA monta no seu CRM: tipos de atendimento, um status por agendamento, lembretes e o resultado de cada conversa.",
+        "headline": "Sistema de agendamento que registra o resultado de cada atendimento, montado pelo seu agente de IA",
+        "answer": "Um sistema de agendamento leva uma conversa, consulta ou visita do pedido até um horário confirmado e registra o que resultou dela. Este modelo configura tipos de atendimento com duração, intervalo e antecedência mínima, um status por agendamento, lembretes antes e um resultado depois. Cole-o no seu agente de IA e ele monta tudo no Customermates; você aprova o plano antes de qualquer coisa ser criada.",
+        "routine": {
+          "title": "A revisão semanal dos agendamentos",
+          "steps": [
+            "Revise os atendimentos da semana passada e registre um resultado em cada atendimento realizado: qualificado, segunda conversa, falta proposta ou não é um bom encaixe.",
+            "Ofereça um novo horário, sem cobrança, a quem faltou ou cancelou.",
+            "Responda aos pedidos que esperam há mais de um dia e confira os próximos 14 dias: horários vazios e lembretes ainda por enviar. O padrão é um lembrete 3 dias e outro 1 dia antes.",
+            "Mude uma única coisa: um intervalo, uma antecedência mínima ou um prazo de cancelamento. No início de cada trimestre, revise disponibilidade e regras."
+          ]
+        },
+        "limits": [
+          "Ele agenda somente o tempo de pessoas. Salas, equipamentos, hospedagem, aulas com lista de espera e eventos com ingressos pedem uma ferramenta feita para isso.",
+          "Não é um sistema de agendamento médico. Deixe fora do formulário diagnósticos e o motivo de um atendimento médico, terapêutico ou jurídico e pergunte, em vez disso, sobre o que a pessoa gostaria de conversar.",
+          "Ele não recebe pagamentos nem hospeda chamadas. O evento do calendário leva o link da sua ferramenta de vídeo, e um eventual sinal fica na sua ferramenta de pagamento.",
+          "Páginas públicas de agendamento e a gravação de atendimentos no seu calendário do Google ou da Microsoft exigem o Customermates Cloud no plano Pro ou superior; não estão disponíveis com hospedagem própria. Sem elas, um formulário público recebe os pedidos e você registra aqui o horário confirmado.",
+          "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar. O Customermates não envia SMS."
+        ],
+        "faq": [
+          {
+            "question": "O que um sistema de agendamento precisa ter?",
+            "answer": "Cada tipo de atendimento com duração, intervalo, antecedência mínima e até quantos dias à frente dá para agendar; um formulário curto com nome, contato e só as perguntas que mudam o atendimento; uma confirmação e lembretes; e um lugar para registrar se o atendimento aconteceu e o que veio depois."
+          },
+          {
+            "question": "Quantos lembretes reduzem as faltas?",
+            "answer": "Num ensaio da área da saúde, lembretes 3 dias e 1 dia antes deixaram 4,4% das consultas perdidas, contra 5,8% só com o lembrete de 3 dias e 5,3% só com o de 1 dia. Uma revisão de ensaios randomizados não achou diferença significativa entre lembretes enviados 24, 48 ou 72 horas antes. Os dados vêm da saúde: trate 3 dias e 1 dia como ponto de partida."
+          },
+          {
+            "question": "O que um formulário de agendamento nunca deve perguntar?",
+            "answer": "Fique no que o atendimento exige: nome, e-mail, opcionalmente telefone e uma ou duas perguntas que mudam o atendimento. Não peça diagnósticos, detalhes de um caso, dados de cartão, documentos de identidade nem nada que revele saúde, religião ou orientação. Respostas em texto livre são guardadas como dados no registro: mantenha o formulário enxuto."
+          },
+          {
+            "question": "Dá para agendar sem uma página pública de agendamento?",
+            "answer": "Dá. Um formulário público funciona em todos os planos, com limite mensal e um selo no Free: ele recebe o pedido e cria o atendimento, ligado a uma pessoa encontrada ou criada pelo e-mail. Quando alguém pede por e-mail ou WhatsApp, seu agente propõe horários livres do calendário conectado e redige a resposta, e você a revisa e envia. No Customermates Cloud com o plano Pro ou superior, agendar uma reunião a partir de um registro grava o evento no seu calendário do Google ou da Microsoft, e uma página pública de agendamento deixa as pessoas escolherem sozinhas um horário livre."
+          },
+          {
+            "question": "Posso mandar lembretes pelo WhatsApp?",
+            "answer": "Guias brasileiros tratam o WhatsApp como o canal normal de lembrete. Com sua conta de WhatsApp conectada, o agente redige o lembrete e você o envia, uma mensagem por vez; o Customermates não envia SMS nem campanhas em massa. Guias de fornecedores sugerem e-mail 48 horas antes e WhatsApp 24 horas antes, com a opção de reagendar em cada lembrete."
+          },
+          {
+            "question": "O agente escreve para os meus clientes?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu atendo chamadas, consultas e visitas e perco o controle de quem está agendado, quem confirmou e o que resultou de cada conversa. Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",

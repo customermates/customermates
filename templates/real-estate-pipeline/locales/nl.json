@@ -400,6 +400,51 @@
     "listings_board_view": "De woningenlijst opent als bord per fase.",
     "operating_guide_page": "De kennisbank bevat de werkwijze."
   },
+  "page": {
+    "metaTitle": "Makelaarspipeline: woningen, kopers, bezichtigingen, data",
+    "metaDescription": "Plak deze makelaarspipeline in Claude, ChatGPT of Codex: woningen, kopers, bezichtigingen met terugkoppeling en de sleutelmomenten na de koopovereenkomst.",
+    "headline": "Mis geen bezichtiging of sleutelmoment: een makelaarspipeline die je AI-agent opbouwt",
+    "answer": "Een makelaarspipeline bestaat uit twee werklijsten die samenkomen bij de koopovereenkomst: de woning van de verkoper, van waardebepaling tot bod, en de zoektocht van de koper, van eerste aanvraag via bezichtigingen tot bod. Plak dit sjabloon in je AI-agent en die bouwt beide op in Customermates, met type opdracht, bezichtigingen met terugkoppeling, sleutelmomenten na ondertekening en een routine met data voor oud-klanten. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse ronde langs woningen en kopers",
+      "steps": [
+        "Stuur elke verkoper van een woning in de verkoop een korte update met de bezichtigingen en terugkoppeling van de week.",
+        "Controleer woningen waarvan de opdracht binnenkort afloopt: verlengen of de prijs aanpassen.",
+        "Neem met passende woningen opnieuw contact op met kopers in de bezichtigingsfase die zeven dagen niets hebben gedaan.",
+        "Bevestig de komende sleutelmomenten na de koopovereenkomst en houd maandelijks contact met oud-klanten."
+      ]
+    },
+    "limits": [
+      "Het is geen systeem om op woningportalen te publiceren. Je eigen makelaarssoftware blijft publiceren op de portalen en houdt het opdrachtenregister bij; hier bewaar je een verwijzing en de pipeline eromheen.",
+      "Het beheert geen transacties, derdengelden of e-handtekeningen. Contracten en handtekeningen blijven bij je notaris en je ondertekentool.",
+      "Het is geen vastgoedbeheer: huur, onderhoud en huurdersadministratie zijn een apart vak.",
+      "Het waardeert geen woningen en doet geen boekhouding of verdeling van courtage.",
+      "Het verstuurt niets automatisch. WhatsApp-berichten komen binnen in de inbox en antwoorden zijn concepten die je zelf nakijkt.",
+      "Houd kopieën van identiteitsbewijzen, inkomensgegevens en bankafschriften erbuiten. Het sjabloon bewaart alleen de datum waarop de identiteit is gecontroleerd."
+    ],
+    "faq": [
+      {
+        "question": "Waarom twee pipelines voor een makelaar?",
+        "answer": "Verkopers en kopers doorlopen verschillende stappen. Aan de verkopende kant loopt het van waardebepaling en opdrachtvoorstel naar een getekende opdracht en de start van de verkoop; aan de kopende kant van aanvraag via bezichtigingen naar een bod. Ze komen samen bij de koopovereenkomst, waar de sleutelmomenten gedeeld zijn."
+      },
+      {
+        "question": "Welke data volgt het sjabloon?",
+        "answer": "Het type en de einddatum van elke opdracht, bezichtigingen met de terugkoppeling die je de verkoper schuldig bent en na de koopovereenkomst de data die in jouw geval tellen, zoals de waarborgsom, de financiering, de bouwkundige keuring en de afspraak bij de notaris. Welke data gelden is de eerste vraag van je agent."
+      },
+      {
+        "question": "Hoe lang duurt de bedenktijd en houdt het sjabloon die bij?",
+        "answer": "Na ondertekening van de koopovereenkomst heeft de koper in Nederland drie dagen bedenktijd, langer als die eindigt in een weekend of op een feestdag. Het sjabloon kent daarvoor het sleutelmoment einde bedenktijd, naast waarborgsom, financiering, keuring en notaris; de exacte data lees je af uit de overeenkomst."
+      },
+      {
+        "question": "Kan ik het gebruiken met mijn makelaarssoftware of een portaal?",
+        "answer": "Ja. De portalen en je eigen software houden de woninggegevens en de publicatie bij. Het sjabloon is de laag voor pipeline, sleutelmomenten en opvolging ernaast; aanvragen van portalen komen per e-mail binnen in je gekoppelde mailbox of via een inkomende webhook, en WhatsApp-berichten in de inbox zodra het account is gekoppeld."
+      },
+      {
+        "question": "Neemt de agent contact op met verkopers of kopers?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik werk met verkopers die hun woning aanbieden en met kopers die zoeken, en ik verlies het overzicht over bezichtigingen, terugkoppeling en de data na de koopovereenkomst. Richt een makelaarspipeline in mijn Customermates-werkruimte in: woningen met het type opdracht en de einddatum, zoekopdrachten van kopers, bezichtigingen met terugkoppeling, sleutelmomenten na ondertekening van de koopovereenkomst en een taak met datum bij elk open dossier.",
     "questions": [

@@ -1296,14 +1296,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "status": {
-      "en": "draft",
-      "de": "draft",
-      "fr": "draft",
-      "it": "draft",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "en": "published",
+      "de": "published",
+      "fr": "published",
+      "it": "published",
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "proof",
@@ -1743,6 +1743,52 @@
         "deadline_verifier_field": "Jede Frist hält fest, wer sie verifiziert hat.",
         "deadline_control_page": "Die Wissensdatenbank enthält eine Seite zur Fristenkontrolle."
       },
+      "page": {
+        "metaTitle": "Steuerberater Software Vorlage: Mandate und Fristenregister",
+        "metaDescription": "Steuerberater Software: Mandate, Vorgänge, Unterlagen und Fristenregister mit Vorfrist. Vorlage in Claude, ChatGPT oder Codex einfügen und aufbauen lassen.",
+        "headline": "Steuerberatersoftware, die jede Frist und jede fehlende Unterlage im Blick hält, aufgebaut von Ihrem KI-Agenten",
+        "answer": "Eine Steuerkanzlei führt zwei Abläufe nebeneinander: ein Mandat über Identifizierung und Mandatsvertrag gewinnen und die wiederkehrende Arbeit je Mandant und Zeitraum erledigen, während man auf Unterlagen wartet. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit einem Fristenregister, das Vorfrist und die Person festhält, die jede Frist verifiziert hat. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Es ergänzt Ihre Kanzleisoftware und ersetzt sie nicht.",
+        "routine": {
+          "title": "Die wöchentliche Durchsicht der Kanzlei",
+          "steps": [
+            "Öffnen Sie das Board der Vorgänge und sehen Sie, wer am Zug ist: Wartet auf Unterlagen, wartet auf Freigabe des Mandanten oder wartet auf das Finanzamt.",
+            "Fordern Sie Unterlagen nach, die in drei Tagen fällig sind, und entscheiden Sie bei den nach dem Termin noch fehlenden: verlängern, teilweise bearbeiten oder an den Partner eskalieren.",
+            "Prüfen Sie das Fristenregister: Jede offene Frist hat eine Quelle, eine Vorfrist und eine zweite Person, die das Datum verifiziert hat.",
+            "Tragen Sie jeden in dieser Woche eingegangenen Bescheid mit Einspruchsfrist und Quelle ein, und lassen Sie das Datum von einer zweiten Person verifizieren.",
+            "Geben Sie jedem aktiven Vorgang ohne offene Wiedervorlage einen nächsten Schritt, oder halten Sie fest, warum er ruht.",
+            "Prüfen Sie Angebote, die vor mehr als drei Tagen versendet wurden, und Mandate in der Identifizierungsphase, damit keine Arbeit vor der Identifizierung des Mandanten beginnt."
+          ]
+        },
+        "limits": [
+          "Es ist nicht Ihre Kanzlei- oder Abgabesoftware. Abgabe, Buchführung, Lohn und die Berechnung gesetzlicher Fristen bleiben in Werkzeugen wie DATEV, Karbon oder TaxDome, und die Vorlage sagt nie, dass eine Erklärung fristgerecht ist.",
+          "Es berechnet keine gesetzlichen Fristen. Eine Frist ist ein Datensatz mit Quelle, Vorfrist und einer benannten Person, die sie verifiziert hat; das Datum selbst kommt von Ihnen.",
+          "Es ist kein Werkzeug für Zeiterfassung oder Rechnungen und hat weder Mandantenportal noch elektronische Signatur. Ein unterschriebener Mandatsvertrag ist ein Link auf die unterschriebene Datei.",
+          "Ausweiskopien, Steuernummern und besonders schützenswerte Daten gehören nicht hinein, denn es gibt keine Rechte auf Feldebene. Sie gehören in Ihr Dokumentensystem mit seinen Aufbewahrungsregeln.",
+          "Eingescannte Belege werden gespeichert, aber nicht gelesen, denn es gibt keine Texterkennung."
+        ],
+        "faq": [
+          {
+            "question": "Was ist die beste Software für Steuerberater?",
+            "answer": "Das hängt davon ab, was Sie brauchen. Werkzeuge wie DATEV, Addison oder TaxDome decken Abgabe, Buchführung, Abrechnung und ein Mandantenportal ab. Customermates ist die Schicht für Beziehung, Fristennachweis und Wiedervorlage daneben: Mandate, Vorgänge, die auf Unterlagen warten, und ein Fristenregister. Wer ein einziges Werkzeug für alles will, findet es hier nicht."
+          },
+          {
+            "question": "Wozu ein eigenes Fristenregister?",
+            "answer": "Die Rechtsprechung zur Berufshaftung verlangt, dass eine Kanzlei die Fristenkontrolle belegen kann; für die Wiedereinsetzung nach einer versäumten Frist (§ 110 AO) genügt die Behauptung nicht, Fristen seien geprüft worden. Ein Register mit Quelle, Vorfrist und Verifizierung lässt Sie diese Kontrolle später zeigen. Die Vorlage hält die Kontrolle fest und berechnet das Datum nie."
+          },
+          {
+            "question": "Kommt die Identifizierung nach dem GwG vor dem Mandatsvertrag?",
+            "answer": "Die Praxis ist uneinheitlich. Die Vorlage macht die Identifizierung zu einer eigenen Phase vor dem Mandatsvertrag, weil sie eine Reihenfolge nicht erzwingen kann und der vorsichtige Standard Arbeit vor der Identifizierung vermeidet. Zur Identifizierung gehören der Mandant, die handelnde Person und der wirtschaftlich Berechtigte, dazu eine Risikoeinstufung. Ein festes Prüfintervall nennt keine Quelle, das legen Sie selbst fest. Ausweiskopien gehören in Ihr Dokumentensystem."
+          },
+          {
+            "question": "Wie höre ich auf, Unterlagen von Hand nachzufordern?",
+            "answer": "Setzen Sie bei jeder Unterlagenanforderung ein Datum, bis zu dem die Unterlagen da sein müssen. Die Vorlage legt dann drei Tage vorher eine Wiedervorlage zum Nachfordern an und informiert den Zuständigen, wenn die Unterlagen fällig und noch nicht da sind. Wartet auf Unterlagen, wartet auf Freigabe des Mandanten und wartet auf das Finanzamt sind drei getrennte Status, so zeigt das Board, wer am Zug ist."
+          },
+          {
+            "question": "Schreibt der Agent meine Mandanten an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ich führe eine Steuerkanzlei und muss sehen, welche Mandate offen sind, welche Vorgänge auf Unterlagen warten und welche Fristen geprüft wurden. Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
         "questions": [
@@ -2177,6 +2223,52 @@
         "deadline_due_field": "Every deadline records its due date.",
         "deadline_verifier_field": "Every deadline records who verified it.",
         "deadline_control_page": "The knowledge base holds a page on deadline control."
+      },
+      "page": {
+        "metaTitle": "Accounting Practice Management Software: Deadline Register",
+        "metaDescription": "Practice management for accountants: mandates, recurring jobs, document chasing and a deadline register a second person verifies. Paste it into your AI agent.",
+        "headline": "Accounting practice management software that tracks every deadline and missing document, built by your AI agent",
+        "answer": "Accounting practice management means two flows side by side: winning a mandate through identification and an engagement letter, and doing the recurring work per client and period while you wait for documents. Paste this template into your AI agent and it builds both in Customermates, with a deadline register that records a pre-deadline and the person who verified each date. You approve the plan before anything is built. It sits next to your practice software and does not replace it.",
+        "routine": {
+          "title": "The weekly practice review",
+          "steps": [
+            "Open the jobs board and see who holds the ball: waiting for documents, waiting for client approval or waiting for the authority.",
+            "Chase the documents due within three days, and for those still missing after their date decide: extend, prepare in part or escalate to the partner.",
+            "Check the deadline register: every open deadline has a source, a pre-deadline and a second person who verified the date.",
+            "Enter any authority notice received this week with its appeal deadline and source, and have a second person verify it.",
+            "Give every active job without an open Action a next step, or record why it is parked.",
+            "Review proposals sent more than three days ago and mandates in the identification stage, so no work starts before the client is identified."
+          ]
+        },
+        "limits": [
+          "It is not your filing or practice software. Filing, the ledger, payroll and the calculation of statutory deadlines stay in tools such as DATEV, Karbon or TaxDome, and the template never says that a return is on time.",
+          "It computes no legal dates. A deadline is a record with a source, a pre-deadline and a named person who verified it; the date itself comes from you.",
+          "It is not a time-tracking or invoicing tool, and it has no client portal or e-signature. A signed engagement letter is a link to the signed file.",
+          "Keep identity copies, tax IDs and special-category data out of it: there are no field-level permissions. They belong in your document system with its retention rules.",
+          "Scanned receipts are stored but not read, because there is no text recognition."
+        ],
+        "faq": [
+          {
+            "question": "What is the best accounting practice management software?",
+            "answer": "That depends on what you need. Tools such as DATEV, Karbon and TaxDome cover filing, the ledger, billing and a client portal. Customermates is the relationship, deadline-evidence and follow-up layer next to them: mandates, jobs waiting for documents and a deadline register. If you want one tool for everything, this template is not it."
+          },
+          {
+            "question": "Why keep a separate deadline register?",
+            "answer": "Practice-liability case law, for example in Germany around restoring a missed deadline under § 110 AO, asks a practice to show that its deadline control existed; saying that deadlines were checked is not proof. A register with a source, a pre-deadline and a verifier lets you show that control afterwards. The template records the control and never calculates the date."
+          },
+          {
+            "question": "Should the money-laundering check come before the engagement letter?",
+            "answer": "Practice differs. The template makes identification its own stage before the engagement letter, because it cannot enforce an order and the cautious default avoids doing work before the client is identified. Identification covers the client, the person acting and the beneficial owner, plus a risk rating. No source sets a fixed review interval, so that is your choice. Keep identity copies in your document system."
+          },
+          {
+            "question": "How do I stop chasing documents by hand?",
+            "answer": "Put a needed-by date on every document request. The template then creates a chase Action three days before that date and notifies the owner when the documents are due and still missing. Waiting for documents, waiting for client approval and waiting for the authority are three separate statuses, so the board shows who holds the ball."
+          },
+          {
+            "question": "Does the agent contact my clients?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
       },
       "prompt": {
         "intro": "I run a tax and bookkeeping practice and need to see which mandates are open, which jobs wait for documents and which deadlines have been checked. Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
@@ -2613,6 +2705,52 @@
         "deadline_verifier_field": "Cada plazo indica quién lo verificó.",
         "deadline_control_page": "La base de conocimiento contiene una página sobre el control de plazos."
       },
+      "page": {
+        "metaTitle": "CRM contable: plantilla para despachos fiscales y contables",
+        "metaDescription": "CRM contable para despachos: encargos, expedientes, documentación que reclamar y calendario de plazos verificado. Pega la plantilla en tu agente de IA.",
+        "headline": "Un CRM contable que sigue cada plazo y cada documento pendiente, montado por tu agente de IA",
+        "answer": "Un despacho fiscal y contable lleva dos flujos a la vez: conseguir un encargo con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente de cada cliente y periodo mientras se espera la documentación. Pega esta plantilla en tu agente de IA y él monta los dos en Customermates, con un calendario de plazos que guarda el aviso previo y a la persona que verificó cada fecha. Tú apruebas el plan antes de que se construya nada. Acompaña a tu software del despacho y no lo sustituye.",
+        "routine": {
+          "title": "La revisión semanal del despacho",
+          "steps": [
+            "Abre el tablero de expedientes y mira quién tiene la pelota: a la espera de documentación, a la espera de la conformidad del cliente o a la espera de la administración.",
+            "Reclama la documentación que vence en tres días y, para la que sigue sin llegar tras la fecha, decide: prorrogar, preparar en parte o escalar al socio.",
+            "Revisa el calendario de plazos: cada plazo abierto tiene una fuente, un aviso previo y una segunda persona que verificó la fecha.",
+            "Registra cada notificación de la administración recibida esta semana con su plazo de recurso y su fuente, y haz que una segunda persona verifique la fecha.",
+            "Da un siguiente paso a cada expediente activo sin tarea abierta, o anota por qué está parado.",
+            "Revisa los presupuestos enviados hace más de tres días y los encargos en fase de identificación, para que ningún trabajo empiece antes de identificar al cliente."
+          ]
+        },
+        "limits": [
+          "No es tu software de presentación ni de gestión del despacho. La presentación, la contabilidad, las nóminas y el cálculo de plazos legales se quedan en herramientas como a3, Holded o Karbon, y la plantilla nunca dice que una declaración está en plazo.",
+          "No calcula fechas legales. Un plazo es un registro con una fuente, un aviso previo y una persona concreta que lo verificó; la fecha la pones tú.",
+          "No es una herramienta de control de horas ni de facturación, y no tiene portal de clientes ni firma electrónica. Una hoja de encargo firmada es un enlace al archivo firmado.",
+          "Deja fuera copias de documentos de identidad, números fiscales y datos especialmente protegidos: no hay permisos por campo. Van en tu sistema de documentos con sus reglas de conservación.",
+          "Los justificantes escaneados se guardan, pero no se leen, porque no hay reconocimiento de texto."
+        ],
+        "faq": [
+          {
+            "question": "¿Cuál es el mejor software para un despacho fiscal y contable?",
+            "answer": "Depende de lo que necesites. Herramientas como a3, Holded o Karbon cubren presentación, contabilidad, facturación y un portal de clientes. Customermates es la capa de relación, prueba de plazos y seguimiento a su lado: encargos, expedientes a la espera de documentación y un calendario de plazos. Si quieres una sola herramienta para todo, no es esta."
+          },
+          {
+            "question": "¿Por qué llevar un calendario de plazos aparte?",
+            "answer": "La responsabilidad profesional exige poder demostrar que el control de plazos existía: afirmar que los plazos se comprobaron no es una prueba. Un calendario con fuente, aviso previo y verificador permite mostrarlo después. La plantilla registra el control y nunca calcula la fecha."
+          },
+          {
+            "question": "¿La identificación PBC/FT va antes de la hoja de encargo?",
+            "answer": "La práctica varía. La plantilla convierte la identificación en una fase propia antes de la hoja de encargo, porque no puede imponer un orden y lo prudente es no trabajar antes de identificar al cliente. La identificación abarca al cliente, a quien actúa en su nombre y al titular real, con una valoración del riesgo. No hay una fuente que fije un intervalo de revisión, así que lo decides tú. Guarda las copias de documentos en tu sistema de documentos."
+          },
+          {
+            "question": "¿Cómo dejo de reclamar la documentación a mano?",
+            "answer": "Pon una fecha límite en cada solicitud de documentación. La plantilla crea entonces una tarea de reclamación tres días antes y avisa al responsable cuando la documentación vence y sigue sin llegar. A la espera de documentación, a la espera de la conformidad del cliente y a la espera de la administración son tres estados distintos, así que el tablero muestra quién tiene la pelota."
+          },
+          {
+            "question": "¿El agente contacta con mis clientes?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Llevo un despacho fiscal y contable y necesito ver qué encargos están abiertos, qué expedientes esperan documentación y qué plazos se han verificado. Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
         "questions": [
@@ -3047,6 +3185,52 @@
         "deadline_due_field": "Chaque échéance indique sa date.",
         "deadline_verifier_field": "Chaque échéance indique qui l’a vérifiée.",
         "deadline_control_page": "La base de connaissances contient une page sur le contrôle des échéances."
+      },
+      "page": {
+        "metaTitle": "Logiciel expert-comptable : missions, dossiers et échéances",
+        "metaDescription": "Logiciel expert-comptable : missions, dossiers récurrents, pièces à relancer et registre d’échéances vérifié. Collez le modèle dans votre agent IA.",
+        "headline": "Un logiciel d’expert-comptable qui suit chaque échéance et chaque pièce manquante, construit par votre agent IA",
+        "answer": "Un cabinet d’expertise comptable mène deux flux côte à côte : obtenir une mission après la vigilance LCB-FT et la lettre de mission, puis faire le travail récurrent par client et par période en attendant les pièces. Collez ce modèle dans votre agent IA et il construit les deux dans Customermates, avec un registre d’échéances qui garde la pré-échéance et la personne qui a vérifié chaque date. Vous validez le plan avant toute construction. Il vient en complément de votre logiciel de cabinet et ne le remplace pas.",
+        "routine": {
+          "title": "La revue hebdomadaire du cabinet",
+          "steps": [
+            "Ouvrez le tableau des dossiers et voyez qui a la main : en attente de pièces, en attente de l’accord du client ou en attente de l’administration.",
+            "Relancez les pièces attendues d’ici trois jours et, pour celles qui manquent encore après la date, décidez : proroger, préparer en partie ou remonter à l’associé.",
+            "Contrôlez le registre d’échéances : chaque échéance ouverte a une source, une pré-échéance et une seconde personne qui a vérifié la date.",
+            "Saisissez chaque avis de l’administration reçu cette semaine avec son délai de recours et sa source, et faites vérifier la date par une seconde personne.",
+            "Donnez une prochaine étape à chaque dossier actif sans action ouverte, ou notez pourquoi il est en pause.",
+            "Revoyez les propositions envoyées depuis plus de trois jours et les missions à l’étape de vigilance, pour qu’aucun travail ne démarre avant l’identification du client."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas votre logiciel de cabinet ni de télédéclaration. La télédéclaration, la comptabilité, la paie et le calcul des échéances légales restent dans des outils comme Karbon ou TaxDome, et le modèle ne dit jamais qu’une déclaration est dans les délais.",
+          "Il ne calcule aucune date légale. Une échéance est un enregistrement avec une source, une pré-échéance et une personne nommée qui l’a vérifiée ; la date vient de vous.",
+          "Ce n’est ni un outil de suivi du temps ou de facturation, ni un portail client, ni une signature électronique. Une lettre de mission signée est un lien vers le fichier signé.",
+          "N’y mettez ni copies de pièces d’identité, ni numéros fiscaux, ni données sensibles : il n’y a pas de droits par champ. Elles vont dans votre système de documents, avec ses règles de conservation.",
+          "Les justificatifs scannés sont stockés mais pas lus, faute de reconnaissance de texte."
+        ],
+        "faq": [
+          {
+            "question": "Quel est le meilleur logiciel pour un cabinet d’expertise comptable ?",
+            "answer": "Cela dépend de vos besoins. Des outils comme Karbon ou TaxDome couvrent la production, la facturation et un portail client. Customermates est la couche relation, preuve des échéances et relances à côté : missions, dossiers en attente de pièces et registre d’échéances. Si vous voulez un seul outil pour tout, ce n’est pas celui-ci."
+          },
+          {
+            "question": "Pourquoi tenir un registre d’échéances à part ?",
+            "answer": "La jurisprudence sur la responsabilité professionnelle demande au cabinet de montrer que son contrôle des délais existait : affirmer que les délais ont été vérifiés ne prouve rien. Un registre avec une source, une pré-échéance et un vérificateur permet de le montrer après coup. Le modèle consigne le contrôle et ne calcule jamais la date."
+          },
+          {
+            "question": "La vigilance LCB-FT passe-t-elle avant la lettre de mission ?",
+            "answer": "Les pratiques diffèrent. Le modèle fait de l’identification une étape à part avant la lettre de mission, parce qu’il ne peut pas imposer un ordre et que la prudence évite de travailler avant d’avoir identifié le client. Les guides de la profession demandent un niveau de risque documenté (faible, standard, renforcé), une revue sans intervalle fixe, mise à jour lors d’un changement important, et cinq ans de conservation après la fin de la relation. Gardez les copies de pièces dans votre système de documents."
+          },
+          {
+            "question": "Comment arrêter de relancer les pièces à la main ?",
+            "answer": "Mettez une date limite sur chaque demande de pièces. Le modèle crée alors une action de relance trois jours avant et prévient le responsable quand les pièces sont dues et toujours absentes. En attente de pièces, en attente de l’accord du client et en attente de l’administration sont trois statuts distincts : le tableau montre qui a la main."
+          },
+          {
+            "question": "L’agent contacte-t-il mes clients ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple. Des brouillons n’existent que si vous les demandez, et c’est vous qui les envoyez."
+          }
+        ]
       },
       "prompt": {
         "intro": "Je dirige un cabinet d’expertise comptable et je dois voir quelles missions sont ouvertes, quels dossiers attendent des pièces et quelles échéances ont été vérifiées. Mets en place dans mon espace de travail Customermates un cabinet d’expertise comptable : missions de la demande à active avec une étape de vigilance, dossiers récurrents par client et période, registre d’échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d’identité.",
@@ -3483,6 +3667,52 @@
         "deadline_verifier_field": "Ogni scadenza indica chi l'ha verificata.",
         "deadline_control_page": "La base di conoscenza contiene una pagina sul controllo delle scadenze."
       },
+      "page": {
+        "metaTitle": "Software commercialista: modello per incarichi e scadenze",
+        "metaDescription": "Software commercialista: incarichi, pratiche ricorrenti, documenti da sollecitare e scadenzario verificato. Incolla il modello nel tuo agente IA.",
+        "headline": "Un software per commercialisti che segue ogni scadenza e ogni documento mancante, costruito dal tuo agente IA",
+        "answer": "Uno studio di commercialisti porta avanti due flussi in parallelo: acquisire un incarico con adeguata verifica e lettera d’incarico, e svolgere il lavoro ricorrente per cliente e periodo mentre si attendono i documenti. Incolla questo modello nel tuo agente IA e lui costruisce entrambi in Customermates, con uno scadenzario che conserva la data di preavviso e la persona che ha verificato ogni scadenza. Approvi tu il piano prima che venga costruito qualcosa. Affianca il gestionale dello studio e non lo sostituisce.",
+        "routine": {
+          "title": "La revisione settimanale dello studio",
+          "steps": [
+            "Apri la bacheca delle pratiche e guarda chi ha la palla: in attesa di documenti, in attesa dell’approvazione del cliente o in attesa dell’amministrazione.",
+            "Sollecita i documenti attesi entro tre giorni e, per quelli ancora mancanti dopo la data, decidi: prorogare, preparare in parte o passare al titolare dello studio.",
+            "Controlla lo scadenzario: ogni scadenza aperta ha una fonte, una data di preavviso e una seconda persona che ha verificato la data.",
+            "Inserisci ogni avviso dell’amministrazione ricevuto questa settimana con il termine di ricorso e la fonte, e fai verificare la data da una seconda persona.",
+            "Dai un prossimo passo a ogni pratica attiva senza attività aperta, oppure annota perché è ferma.",
+            "Rivedi i preventivi inviati da più di tre giorni e gli incarichi in fase di adeguata verifica, così nessun lavoro parte prima di aver identificato il cliente."
+          ]
+        },
+        "limits": [
+          "Non è il gestionale dello studio né il software per gli invii. Invii, contabilità, paghe e calcolo delle scadenze di legge restano in strumenti come TeamSystem, Zucchetti o Karbon, e il modello non dice mai che una dichiarazione è nei termini.",
+          "Non calcola scadenze di legge. Una scadenza è un record con una fonte, una data di preavviso e una persona indicata che l’ha verificata; la data viene da te.",
+          "Non è uno strumento per rilevare il tempo o fatturare e non ha né portale clienti né firma elettronica. Una lettera d’incarico firmata è un link al file firmato.",
+          "Tieni fuori copie di documenti d’identità, codici fiscali e dati particolari: non ci sono permessi per campo. Vanno nel tuo sistema documentale con le sue regole di conservazione.",
+          "Le ricevute scansionate vengono archiviate ma non lette, perché non c’è riconoscimento del testo."
+        ],
+        "faq": [
+          {
+            "question": "Qual è il miglior software per uno studio di commercialisti?",
+            "answer": "Dipende da cosa ti serve. Strumenti come TeamSystem, Zucchetti o Karbon coprono dichiarazioni, contabilità, fatturazione e un portale clienti. Customermates è lo strato per relazione, prova delle scadenze e solleciti accanto a loro: incarichi, pratiche in attesa di documenti e scadenzario. Se vuoi un unico strumento per tutto, non è questo."
+          },
+          {
+            "question": "Perché tenere uno scadenzario a parte?",
+            "answer": "La responsabilità professionale chiede allo studio di poter dimostrare il proprio controllo delle scadenze: dire che le scadenze sono state controllate non è una prova. Uno scadenzario con fonte, data di preavviso e verificatore permette di mostrarlo dopo. Il modello registra il controllo e non calcola mai la data."
+          },
+          {
+            "question": "L’adeguata verifica va fatta prima della lettera d’incarico?",
+            "answer": "Le prassi differiscono. Il modello rende l’adeguata verifica una fase a sé prima della lettera d’incarico, perché non può imporre un ordine e la scelta prudente evita di lavorare prima di aver identificato il cliente. Le guide professionali indicano che per i soli servizi di invio di dichiarazioni e di paghe è prevista un’esenzione dall’adeguata verifica completa, ma anche quei clienti entrano nella mappa del rischio dello studio. Verifica con il tuo ordine professionale e tieni le copie dei documenti nel tuo sistema documentale."
+          },
+          {
+            "question": "Come smetto di sollecitare i documenti a mano?",
+            "answer": "Metti una data entro cui servono i documenti su ogni richiesta. Il modello crea poi un’attività di sollecito tre giorni prima e avvisa il responsabile quando i documenti sono dovuti e mancano ancora. In attesa di documenti, in attesa dell’approvazione del cliente e in attesa dell’amministrazione sono tre stati separati, così la bacheca mostra chi ha la palla."
+          },
+          {
+            "question": "L’agente scrive ai miei clienti?",
+            "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Gestisco uno studio di commercialisti e devo vedere quali incarichi sono aperti, quali pratiche aspettano documenti e quali scadenze sono state verificate. Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
         "questions": [
@@ -3917,6 +4147,52 @@
         "deadline_due_field": "Elke termijn legt zijn datum vast.",
         "deadline_verifier_field": "Elke termijn legt vast wie hem controleerde.",
         "deadline_control_page": "De kennisbank bevat een pagina over termijnbewaking."
+      },
+      "page": {
+        "metaTitle": "Software voor accountantskantoren: sjabloon met termijnen",
+        "metaDescription": "Software voor accountantskantoren: opdrachten, dossiers, documenten opvragen en een termijnenregister met controle. Plak het sjabloon in je AI-agent.",
+        "headline": "Software voor accountantskantoren die elke termijn en elk ontbrekend document bewaakt, gebouwd door je AI-agent",
+        "answer": "Een boekhoud- en belastingkantoor draait twee stromen naast elkaar: een opdracht binnenhalen via cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant en periode doen terwijl je op documenten wacht. Plak dit sjabloon in je AI-agent en hij bouwt beide in Customermates, met een termijnenregister dat de voortermijn en de controleur van elke datum vastlegt. Jij keurt het plan goed voordat er iets wordt gebouwd. Het staat naast je kantoorsoftware en vervangt die niet.",
+        "routine": {
+          "title": "De wekelijkse kantoorbespreking",
+          "steps": [
+            "Open het bord met dossiers en zie wie aan zet is: wacht op documenten, wacht op akkoord van de klant of wacht op de Belastingdienst.",
+            "Vraag de documenten op die binnen drie dagen nodig zijn en beslis bij wat na de datum nog ontbreekt: uitstel, gedeeltelijk voorbereiden of opschalen naar de partner.",
+            "Controleer het termijnenregister: elke open termijn heeft een bron, een voortermijn en een tweede persoon die de datum heeft gecontroleerd.",
+            "Leg elke aanslag of beschikking van deze week vast met bezwaartermijn en bron, en laat een tweede persoon de datum controleren.",
+            "Geef elk actief dossier zonder open actie een volgende stap, of noteer waarom het stilligt.",
+            "Bekijk offertes die meer dan drie dagen geleden zijn verstuurd en opdrachten in de fase cliëntenonderzoek, zodat er geen werk begint voordat de klant is geïdentificeerd."
+          ]
+        },
+        "limits": [
+          "Het is niet je kantoor- of aangiftesoftware. Aangifte, boekhouding, loon en het berekenen van wettelijke termijnen blijven in tools als Exact, Moneybird of Karbon, en het sjabloon zegt nooit dat een aangifte op tijd is.",
+          "Het berekent geen wettelijke data. Een termijn is een record met een bron, een voortermijn en een genoemde persoon die hem heeft gecontroleerd; de datum zelf komt van jou.",
+          "Het is geen tool voor urenregistratie of facturatie en heeft geen klantenportaal of elektronische handtekening. Een getekende opdrachtbevestiging is een link naar het getekende bestand.",
+          "Houd kopieën van identiteitsbewijzen, fiscale nummers en bijzondere persoonsgegevens buiten het sjabloon: er zijn geen rechten per veld. Bewaar ze in je documentsysteem met de bijbehorende bewaarregels.",
+          "Gescande bonnen worden opgeslagen maar niet gelezen, omdat er geen tekstherkenning is."
+        ],
+        "faq": [
+          {
+            "question": "Wat is de beste software voor een accountantskantoor?",
+            "answer": "Dat hangt af van wat je nodig hebt. Tools als Exact, Moneybird of Karbon dekken boekhouding, facturatie en een klantenportaal. Customermates is de laag voor relatie, bewijs van termijnen en opvolging ernaast: opdrachten, dossiers die op documenten wachten en een termijnenregister. Wil je één tool voor alles, dan is dit het niet."
+          },
+          {
+            "question": "Waarom een apart termijnenregister?",
+            "answer": "Beroepsaansprakelijkheid vraagt dat een kantoor kan aantonen dat de termijnbewaking bestond: zeggen dat termijnen zijn gecontroleerd is geen bewijs. Een register met bron, voortermijn en controleur laat je dat achteraf zien. Het sjabloon legt de controle vast en berekent de datum nooit."
+          },
+          {
+            "question": "Komt het cliëntenonderzoek (Wwft) vóór de opdrachtbevestiging?",
+            "answer": "De praktijk verschilt. Het sjabloon maakt het cliëntenonderzoek een eigen fase vóór de opdrachtbevestiging, omdat het geen volgorde kan afdwingen en voorzichtigheid betekent dat je niet werkt voordat de klant is geïdentificeerd. Het onderzoek omvat de klant, wie namens hem optreedt en de uiteindelijk belanghebbende, plus een risicoclassificatie. Geen bron noemt een vast herzieningsinterval, dus dat bepaal je zelf. Bewaar kopieën van identiteitsbewijzen in je documentsysteem."
+          },
+          {
+            "question": "Hoe stop ik met documenten handmatig opvragen?",
+            "answer": "Zet bij elk documentverzoek een datum waarop de documenten er moeten zijn. Het sjabloon maakt dan drie dagen eerder een opvolgactie aan en waarschuwt de verantwoordelijke als de documenten er al moeten zijn en nog ontbreken. Wacht op documenten, wacht op akkoord van de klant en wacht op de Belastingdienst zijn drie aparte statussen, dus het bord toont wie aan zet is."
+          },
+          {
+            "question": "Neemt de agent contact op met mijn klanten?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+          }
+        ]
       },
       "prompt": {
         "intro": "Ik heb een boekhoud- en belastingkantoor en moet kunnen zien welke opdrachten openstaan, welke dossiers op documenten wachten en welke termijnen zijn gecontroleerd. Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
@@ -4353,6 +4629,52 @@
         "deadline_verifier_field": "Każdy termin zapisuje, kto go sprawdził.",
         "deadline_control_page": "Baza wiedzy zawiera stronę o kontroli terminów."
       },
+      "page": {
+        "metaTitle": "Program dla biur rachunkowych: szablon umów i terminów",
+        "metaDescription": "Program dla biur rachunkowych: umowy, powtarzalne rozliczenia, prośby o dokumenty i rejestr terminów sprawdzany przez drugą osobę. Wklej szablon do agenta AI.",
+        "headline": "Program dla biura rachunkowego, który pilnuje każdego terminu i brakującego dokumentu, zbudowany przez Twojego agenta AI",
+        "answer": "Biuro rachunkowe prowadzi dwa procesy obok siebie: pozyskanie klienta przez weryfikację AML i umowę oraz powtarzalne rozliczenia na klienta i okres, przy ciągłym czekaniu na dokumenty. Wklej ten szablon do swojego agenta AI, a zbuduje oba w Customermates, z rejestrem terminów, który zapisuje termin wstępny i osobę, która sprawdziła każdą datę. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Uzupełnia program księgowy biura i go nie zastępuje.",
+        "routine": {
+          "title": "Cotygodniowy przegląd biura",
+          "steps": [
+            "Otwórz tablicę rozliczeń i zobacz, kto ma piłkę: oczekuje na dokumenty, oczekuje na zgodę klienta albo oczekuje na urząd.",
+            "Ponagl o dokumenty wymagane w ciągu trzech dni, a w sprawach, w których po terminie nadal ich brak, zdecyduj: przedłużyć, przygotować częściowo albo przekazać wspólnikowi.",
+            "Sprawdź rejestr terminów: każdy otwarty termin ma źródło, termin wstępny i drugą osobę, która sprawdziła datę.",
+            "Wpisz każde pismo z urzędu otrzymane w tym tygodniu z terminem na odwołanie i źródłem, i poproś drugą osobę o sprawdzenie daty.",
+            "Nadaj następny krok każdemu aktywnemu rozliczeniu bez otwartego zadania albo zapisz, dlaczego stoi.",
+            "Przejrzyj oferty wysłane ponad trzy dni temu i umowy na etapie weryfikacji, żeby żadna praca nie ruszyła przed zidentyfikowaniem klienta."
+          ]
+        },
+        "limits": [
+          "To nie jest Twój program księgowy ani do składania deklaracji. Składanie deklaracji, księgi, płace i wyliczanie terminów ustawowych zostają w narzędziach takich jak wFirma, Comarch Optima czy Karbon, a szablon nigdy nie mówi, że deklaracja jest w terminie.",
+          "Nie wylicza terminów ustawowych. Termin to rekord ze źródłem, terminem wstępnym i wskazaną osobą, która go sprawdziła; samą datę podajesz Ty.",
+          "To nie jest narzędzie do rejestracji czasu ani do fakturowania, nie ma portalu klienta ani podpisu elektronicznego. Podpisana umowa to link do podpisanego pliku.",
+          "Nie wpisuj tu kopii dokumentów tożsamości, numerów podatkowych ani danych szczególnych kategorii: nie ma uprawnień na poziomie pola. Trzymaj je w systemie dokumentów z jego zasadami przechowywania.",
+          "Zeskanowane dokumenty są przechowywane, ale nie czytane, bo nie ma rozpoznawania tekstu."
+        ],
+        "faq": [
+          {
+            "question": "Jaki jest najlepszy program dla biura rachunkowego?",
+            "answer": "To zależy od potrzeb. Programy takie jak wFirma czy Comarch Optima obejmują księgowość, rozliczenia i deklaracje. Customermates to warstwa relacji, dowodu terminów i kolejnych kroków obok nich: umowy, rozliczenia czekające na dokumenty i rejestr terminów. Jeśli chcesz jednego narzędzia do wszystkiego, to nie to."
+          },
+          {
+            "question": "Po co osobny rejestr terminów?",
+            "answer": "Odpowiedzialność zawodowa wymaga, by biuro umiało wykazać, że kontrola terminów istniała: twierdzenie, że terminy były sprawdzane, niczego nie dowodzi. Rejestr ze źródłem, terminem wstępnym i osobą sprawdzającą pozwala to pokazać później. Szablon zapisuje kontrolę i nigdy nie wylicza daty."
+          },
+          {
+            "question": "Czy weryfikacja AML ma być przed podpisaniem umowy?",
+            "answer": "Praktyka bywa różna. Szablon czyni weryfikację osobnym etapem przed umową, bo nie może wymusić kolejności, a ostrożniej jest nie pracować, zanim klient zostanie zidentyfikowany. Weryfikacja obejmuje klienta, osobę działającą w jego imieniu i beneficjenta rzeczywistego oraz ocenę ryzyka. Żadne źródło nie ustala stałego odstępu przeglądów, więc decydujesz Ty. Kopie dokumentów trzymaj w systemie dokumentów."
+          },
+          {
+            "question": "Jak przestać ręcznie ponaglać o dokumenty?",
+            "answer": "Ustaw termin, do którego dokumenty są potrzebne, przy każdej prośbie o dokumenty. Szablon tworzy wtedy zadanie przypomnienia trzy dni wcześniej i powiadamia osobę prowadzącą, gdy dokumenty są należne, a nadal ich brak. Oczekuje na dokumenty, oczekuje na zgodę klienta i oczekuje na urząd to trzy osobne statusy, więc tablica pokazuje, kto ma piłkę. Przy corocznych zmianach, takich jak JPK czy KSeF, pomaga lista wymaganych dokumentów dla każdego klienta."
+          },
+          {
+            "question": "Czy agent pisze do moich klientów?",
+            "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Prowadzę biuro rachunkowe i muszę widzieć, które umowy są w toku, które rozliczenia czekają na dokumenty i które terminy zostały sprawdzone. Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
         "questions": [
@@ -4787,6 +5109,52 @@
         "deadline_due_field": "Todo prazo registra a data final.",
         "deadline_verifier_field": "Todo prazo registra quem o conferiu.",
         "deadline_control_page": "A base de conhecimento tem uma página sobre controle de prazos."
+      },
+      "page": {
+        "metaTitle": "CRM para contabilidade: modelo de escritório contábil",
+        "metaDescription": "CRM para contabilidade: contratos, entregas recorrentes, documentos a cobrar e prazos conferidos por uma segunda pessoa. Cole o modelo no seu agente de IA.",
+        "headline": "Um CRM para contabilidade que acompanha cada prazo e cada documento pendente, montado pelo seu agente de IA",
+        "answer": "Um escritório contábil toca dois fluxos ao mesmo tempo: conquistar um cliente com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente e competência enquanto espera os documentos. Cole este modelo no seu agente de IA e ele monta os dois no Customermates, com um calendário de prazos que guarda o aviso antecipado e quem conferiu cada data. Você aprova o plano antes de qualquer coisa ser construída. Ele acompanha o sistema contábil do escritório e não o substitui.",
+        "routine": {
+          "title": "A revisão semanal do escritório",
+          "steps": [
+            "Abra o quadro das entregas e veja quem está com a bola: aguardando documentos, aguardando aprovação do cliente ou aguardando o fisco.",
+            "Cobre os documentos que vencem em três dias e, para os que continuam faltando depois da data, decida: prorrogar, preparar em parte ou levar ao sócio.",
+            "Confira o calendário de prazos: cada prazo aberto tem uma fonte, um aviso antecipado e uma segunda pessoa que conferiu a data.",
+            "Registre cada notificação do fisco recebida nesta semana com o prazo de recurso e a fonte, e peça a uma segunda pessoa que confira a data.",
+            "Dê um próximo passo a cada entrega ativa sem tarefa aberta, ou anote por que ela está parada.",
+            "Revise as propostas enviadas há mais de três dias e os contratos na etapa de diligência, para que nenhum trabalho comece antes de identificar o cliente."
+          ]
+        },
+        "limits": [
+          "Não é o seu sistema contábil nem o de transmissão de obrigações. Transmissão, escrituração, folha e cálculo de prazos legais ficam em ferramentas como Domínio, Alterdata ou Karbon, e o modelo nunca diz que uma obrigação está no prazo.",
+          "Não calcula datas legais. Um prazo é um registro com uma fonte, um aviso antecipado e uma pessoa indicada que o conferiu; a data vem de você.",
+          "Não é uma ferramenta de controle de horas ou de faturamento, e não tem portal do cliente nem assinatura eletrônica. Um contrato assinado é um link para o arquivo assinado.",
+          "Deixe de fora cópias de documentos de identidade, CPF e CNPJ de terceiros e dados sensíveis: não há permissões por campo. Eles vão no seu sistema de documentos, com as regras de guarda dele.",
+          "Comprovantes escaneados são guardados, mas não lidos, porque não há reconhecimento de texto."
+        ],
+        "faq": [
+          {
+            "question": "Qual é o melhor CRM para um escritório contábil?",
+            "answer": "Depende do que você precisa. Sistemas como Domínio ou Alterdata cobrem escrituração, folha e obrigações. O Customermates é a camada de relacionamento, prova de prazos e acompanhamento ao lado deles: contratos, entregas aguardando documentos e um calendário de prazos. Se você quer uma única ferramenta para tudo, não é esta."
+          },
+          {
+            "question": "Por que manter um calendário de prazos separado?",
+            "answer": "A responsabilidade profissional exige poder demonstrar que o controle de prazos existia: afirmar que os prazos foram conferidos não é prova. Um calendário com fonte, aviso antecipado e conferência permite mostrar isso depois. O modelo registra o controle e nunca calcula a data."
+          },
+          {
+            "question": "A diligência de PLD vem antes do contrato de serviços?",
+            "answer": "A prática varia. O modelo trata a diligência como uma etapa própria antes do contrato, porque não consegue impor uma ordem e o mais prudente é não trabalhar antes de identificar o cliente. A identificação cobre o cliente, quem age em nome dele e o beneficiário final, com uma classificação de risco. Nenhuma fonte fixa um intervalo de revisão, então a escolha é sua. Guarde as cópias de documentos no seu sistema de documentos."
+          },
+          {
+            "question": "Como parar de cobrar documentos manualmente?",
+            "answer": "Coloque uma data limite em cada solicitação de documentos. O modelo cria então uma tarefa de cobrança três dias antes e avisa o responsável quando os documentos venceram e ainda faltam. Aguardando documentos, aguardando aprovação do cliente e aguardando o fisco são três status separados, e o quadro mostra quem está com a bola. Em muitos escritórios o regime tributário do cliente define o calendário de obrigações."
+          },
+          {
+            "question": "O agente entra em contato com meus clientes?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu tenho um escritório contábil e preciso ver quais contratos estão em aberto, quais entregas aguardam documentos e quais prazos já foram conferidos. Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",

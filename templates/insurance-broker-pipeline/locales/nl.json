@@ -113,6 +113,52 @@
     "renewals_board_view": "De prolongaties openen als bord per fase.",
     "advice_documentation_page": "De kennisbank bevat een pagina over het vastleggen van het advies."
   },
+  "page": {
+    "metaTitle": "CRM voor verzekeringsadviseurs: aanvragen en prolongaties",
+    "metaDescription": "Mis geen prolongatie meer: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt een CRM met vastgelegd advies en prolongatiezaken.",
+    "headline": "Mis geen prolongatie meer: een CRM voor verzekeringsadviseurs dat je AI-agent bouwt voor nieuwe zaken en prolongaties",
+    "answer": "Een CRM voor verzekeringsadviseurs laat twee pijplijnen naast elkaar lopen: nieuwe zaken van aanvraag tot ontvangen polis, en een prolongatiezaak voor elke polis die ruim voor de hoofdvervaldatum opent. Plak dit sjabloon in je AI-agent en die bouwt beide in Customermates, met het advies vastgelegd vóór elke offerte. Je keurt het plan goed voordat er iets wordt gebouwd. Polisgegevens blijven in je administratiesysteem.",
+    "routine": {
+      "title": "De wekelijkse routine aan het bureau van de adviseur",
+      "steps": [
+        "Open de aankomende prolongaties: zakelijke polissen vanaf ongeveer 120 dagen voor de hoofdvervaldatum, particuliere polissen vanaf ongeveer 45 dagen. Geef elke zaak een verantwoordelijke en een eerste stap.",
+        "Zet de verzekeraars aan met te late offertes, en de klanten die na een week niet hebben gereageerd op een prolongatieofferte.",
+        "Controleer dat elke offerte de datum van het vastgelegde advies draagt, dus dat de behoefteanalyse is vastgelegd voordat de offerte de deur uit gaat. Volg elke offerte de dag na de presentatie op.",
+        "Laat de klant ongeveer 30 dagen voor de prolongatie zijn beslissing bevestigen, voor de opzegdatum van het contract.",
+        "Bel nieuwe klanten een week nadat de polis is ontvangen en schrijf de klant als je administratiesysteem een onbetaalde premie meldt."
+      ]
+    },
+    "limits": [
+      "Het is niet je administratiesysteem of polisadministratie. Polissen, premies en provisie-afrekeningen blijven in je administratiesysteem; hier bewaar je een verwijzing en de hoofdvervaldatum.",
+      "Het is geen vergelijker of premieberekening. Offertes komen uit de portalen van verzekeraars en vergelijkers, en jij legt het resultaat vast.",
+      "Het behandelt geen schades, geen aanvragen voor acceptatie en geen provisie-afstemming.",
+      "Het bewaart geen gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen, en ook niet het adviesdossier zelf: alleen de datum en een link naar waar je het bewaart.",
+      "Het maakt of certificeert geen advies. Het legt vast dat het advies vóór de offerte is vastgelegd; het advies is van jou, en welke plichten gelden hangt af van je land.",
+      "Er is geen massaverzending, geen reeksen, geen telefonie en geen sms. Berichten zijn losse concepten die jij nakijkt en verstuurt."
+    ],
+    "faq": [
+      {
+        "question": "Wat is het verschil tussen een administratiesysteem en een CRM voor een adviseur?",
+        "answer": "Het administratiesysteem bewaart polissen, premies, documenten en provisie-afrekeningen. Een CRM bewaart de relatie en de volgende stap: wie er heeft gevraagd, welke offerte openstaat, welke prolongatie eraan komt en wie wie belt en voor wanneer. Dit sjabloon is de tweede laag en bewaart alleen verwijzingen naar de eerste."
+      },
+      {
+        "question": "Hoe lang voor de vervaldatum moet ik een prolongatie starten?",
+        "answer": "Dat hangt af van de branche en het land. Bronnen noemen ongeveer 90 tot 120 dagen voor zakelijke polissen en 30 tot 45 voor particuliere. Het sjabloon opent een prolongatiezaak 120 dagen voor de hoofdvervaldatum bij zakelijke polissen en 45 dagen ervoor bij particuliere, en je kunt beide aanpassen. Opzegtermijnen verschillen per land en contract, dus controleer in de polis de echte termijn."
+      },
+      {
+        "question": "Moet ik het advies vastleggen vóór een offerte?",
+        "answer": "In de EU eist de richtlijn voor verzekeringsdistributie een behoefteanalyse voordat een contract wordt gesloten, en veel landen verwachten dat het advies wordt vastgelegd. De details hangen af van je land en van de vraag of je als adviseur of als agent optreedt, dus controleer je eigen plichten. Het sjabloon legt de datum van het advies vast en een link naar waar het is opgeslagen, en toont offertes zonder. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Mag ik polisgegevens en gezondheidsgegevens in het CRM bewaren?",
+        "answer": "Bewaar zo weinig mogelijk: een verwijzing of link naar de polis, de branche, de hoofdvervaldatum en de jaarpremie. Gezondheidsgegevens, schadedetails, bankgegevens en kopieën van identiteitsbewijzen blijven eruit, en Customermates heeft geen rechten op veldniveau om losse kolommen te verbergen. Bewaar de documenten in je administratiesysteem of in een documentenopslag met toegangscontrole."
+      },
+      {
+        "question": "Mailt de agent mijn klanten?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en jij verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik adviseer klanten over verzekeringen, prolongaties komen steeds onverwacht en het advies moet ik vóór elke offerte vastleggen. Richt in mijn Customermates-werkruimte een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
     "questions": [

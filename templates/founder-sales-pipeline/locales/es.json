@@ -86,6 +86,52 @@
     "pilot_end_field": "Cada piloto tiene una fecha de fin.",
     "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
   },
+  "page": {
+    "metaTitle": "Ventas del fundador: cada conversación con próximo paso",
+    "metaDescription": "Vende como fundador sin perder el hilo: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el pipeline con piloto y estado en pausa.",
+    "headline": "Vender como fundador sin perder el hilo: un pipeline que tu agente de IA monta en tu CRM",
+    "answer": "Un pipeline de ventas del fundador es una lista corta de conversaciones abiertas, cada una con el problema en palabras del cliente, un próximo paso con fecha y, si haces uno, un piloto con fecha de fin fija. Pega esta plantilla en tu agente de IA y él monta el pipeline en Customermates, con un estado En pausa y una fecha para volver a las oportunidades que se enfrían. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión del fundador de los lunes",
+      "steps": [
+        "Lista cada conversación abierta y da a cada una un próximo paso con fecha. Una conversación sin fecha es la que se enfría.",
+        "Anota lo que has aprendido desde la semana pasada: el problema con las palabras del comprador, la urgencia, el presupuesto y quién decide.",
+        "Revisa los pilotos: ¿está puesta la fecha de fin, están escritos los criterios de éxito, es de pago? Fija la llamada de decisión unos días antes de que termine.",
+        "Decide sobre las oportunidades que se han enfriado: un último mensaje honesto y luego ponlas en pausa con una fecha para volver, en lugar de perseguirlas.",
+        "Mira quién compró y quién dijo que no, y por qué. El patrón muestra a qué segmento vender y cuándo toca contratar a tu primer vendedor."
+      ]
+    },
+    "limits": [
+      "No es una herramienta de secuencias de prospección. Customermates no tiene secuencias ni envíos masivos, y cada mensaje es individual y lo revisas tú. LinkedIn o el correo en volumen piden una herramienta especializada.",
+      "No es un CRM de inversores. La captación de fondos tiene otras etapas y otros interlocutores: usa otra plantilla.",
+      "No hace presupuestos, facturas ni contratos y no tiene firma electrónica. Las propuestas y los acuerdos se hacen en otras herramientas; aquí solo viven las fechas y un enlace.",
+      "No hay puntuación de leads ni enriquecimiento de datos. Cuánto encaja un lead es un campo que pones tú.",
+      "El valor ponderado no es una previsión. Los pesos son aproximados, porque un fundador aún no tiene historial de cierres, y son tuyos para cambiarlos.",
+      "Está pensado para un solo vendedor. Varios vendedores con objetivos y una previsión de equipo piden la plantilla de pipeline de ventas o un CRM más pesado."
+    ],
+    "faq": [
+      {
+        "question": "¿Cuándo necesita un fundador un CRM?",
+        "answer": "Las guías lo sitúan en el punto en que tienes más leads y clientes de los que caben en tu cabeza o en una hoja de cálculo, a menudo entre 50 y 200 contactos, o cuando una segunda persona empieza a vender. Hasta entonces basta una hoja. Esperar tiene un coste: cuando cambias, las notas y los próximos pasos ya están dispersos."
+      },
+      {
+        "question": "¿Cuántos clientes debe cerrar personalmente un fundador?",
+        "answer": "Los consejos difieren: Jason Lemkin habla de los 10 primeros clientes, quizá 20, otras guías de 10 a 50. Mercury aconseja contratar al primer vendedor cuando puedas decir: “Sé que puedo vender mi producto a gente como X que tiene el problema Y”. La plantilla muestra cuántos clientes has ganado y no impone ninguna cifra."
+      },
+      {
+        "question": "¿Cuánto tiempo debo perseguir una oportunidad que se ha enfriado?",
+        "answer": "Los profesionales no coinciden en el número, pero sí en que hay que parar en algún momento. Mercury aconseja dejar de perseguir a quien te ignora; otros sugieren unos cuantos seguimientos, un último correo y un nuevo contacto meses después. La plantilla hace las dos cosas: un mensaje de cierre y luego la oportunidad pasa a pausa, con una fecha para volver a los 90 días."
+      },
+      {
+        "question": "¿Debo ofrecer un piloto gratuito?",
+        "answer": "El consejo resumido de la Startup School de Y Combinator es evitar los pilotos gratuitos sin límite y hacer uno corto, evaluado y, si es posible, de pago. La plantilla da al piloto una fecha de fin fija y un indicador de pago o no, crea un control 14 días después del inicio y una tarea para la llamada de decisión 3 días antes del final."
+      },
+      {
+        "question": "¿El agente escribe a mis posibles clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Vendo mi producto en persona y no paro de perder las notas y los siguientes pasos de mis conversaciones. Configura en mi espacio de trabajo de Customermates un pipeline de ventas liderado por el fundador: oportunidades de la primera conversación a ganada con notas de diagnóstico, un piloto opcional con fecha de fin fija, un estado en pausa con fecha para retomar y seguimientos con fecha. No envíes nada automáticamente.",
     "questions": [

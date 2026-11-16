@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Jeder Beratungsauftrag hält fest, wann die Annahme geprüft wurde.",
     "engagements_board_view": "Die Beratungsaufträge öffnen sich als Board nach Phase."
   },
+  "page": {
+    "metaTitle": "Berater-CRM Vorlage: Angebote, Aufträge und Nachfassen",
+    "metaDescription": "Berater-CRM Vorlage für Ihren KI-Agenten: Beratungsaufträge vom Erstkontakt bis zur Erteilung, im Angebotsgespräch vereinbarter Nachfasstermin, Ergebnisse.",
+    "headline": "Kein Angebot verlieren in der Stille nach dem Gespräch: ein Berater-CRM, das Ihr KI-Agent aufbaut",
+    "answer": "Ein Berater-CRM verfolgt wenige hochwertige Aufträge vom Erstkontakt bis zur Erteilung und vor allem den Termin, an dem Sie ein Angebot nachfassen. Diese Vorlage richtet Aufträge mit Vorgespräch, Auftragsklärung, Angebot und Entscheidung ein, dazu eine Annahmeprüfung vor dem Angebot, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss. Fügen Sie sie in Ihren KI-Agenten ein, und er baut alles in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die Montagsdurchsicht der Beratungsaufträge",
+      "steps": [
+        "Gehen Sie die Pipeline nach Phase durch und tragen Sie bei jedem Auftrag ohne nächsten Schritt einen Schritt mit Datum ein, oder schließen Sie ihn.",
+        "Prüfen Sie die offenen Angebote: Jedes braucht einen im Gespräch mit dem Ansprechpartner vereinbarten Nachfasstermin, danach ein zweites Nachfassen nach etwa 10 Tagen und die Frage nach der Entscheidung zum Entscheidungstermin.",
+        "Sehen Sie sich die Ergebnisse an, die in den nächsten 14 Tagen fällig sind, und bestätigen Sie mit dem Kunden den Termin für die Durchsicht.",
+        "Melden Sie sich bei starken oder warmen Kontakten, die Sie seit 60 Tagen nicht getroffen haben, und bedanken Sie sich bei dem, der Ihren letzten Auftrag empfohlen hat."
+      ]
+    },
+    "limits": [
+      "Es ist keine Zeiterfassung und keine Rechnungsstellung. Stunden und Rechnungen bleiben in Ihren Zeiterfassungs- und Buchhaltungswerkzeugen; eine Meilenstein-Wiedervorlage erinnert Sie nur ans Fakturieren.",
+      "Es schreibt keine Angebote und holt keine Unterschriften ein. Angebot und unterschriebener Vertrag sind Links auf Dokumente an anderer Stelle.",
+      "Es ist keine Ressourcenplanung und kein Projektmanagement jenseits von Ergebnissen und Terminen. Die Aufgaben der Arbeit selbst gehören in Ihr Projektwerkzeug.",
+      "Vertrauliche Kundenunterlagen und Interviewdaten gehören nicht hinein. Es gibt keine Berechtigungen auf Feldebene, speichern Sie deshalb einen neutralen Auftragstitel und einen Link.",
+      "Es versendet keine Sequenzen. Jedes Nachfassen ist eine terminierte Wiedervorlage und ein Entwurf, den Sie prüfen und selbst senden; Customermates hat keine Drip- oder Massenversand-Funktion.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+    ],
+    "faq": [
+      {
+        "question": "Welches CRM nutzen Berater?",
+        "answer": "Viele selbstständige Berater beginnen mit einer Tabelle oder einem allgemeinen Vertriebs-CRM. Was ein Berater braucht, ist klein: wenige Ansprechpartner und Aufträge, ein terminierter nächster Schritt bei jedem, der Nachfasstermin für das Angebot und die Abnahmeschritte nach dem Verkauf. Genau das richtet diese Vorlage in Customermates ein."
+      },
+      {
+        "question": "Wann soll ich ein Angebot nachfassen?",
+        "answer": "Vereinbaren Sie den Termin im Angebotsgespräch selbst, so wie es Alan Weiss beschreibt: Nennen Sie einen konkreten Tag und eine Uhrzeit, rufen Sie zuerst an und schreiben Sie nur, wenn der Kunde nicht erreichbar ist. Die Vorlage nimmt als Standard ein erstes Nachfassen nach 3 Tagen und ein zweites nach 10 Tagen; beides lässt sich ändern."
+      },
+      {
+        "question": "Was ist eine Annahmeprüfung?",
+        "answer": "Eine kurze Prüfung, bevor Sie ein Angebot schreiben: Haben Sie Kapazität, sind Sie unabhängig von den übrigen Beteiligten des Kunden, lässt sich die Vertraulichkeit wahren, und passt der Auftrag zu Ihnen? Ein deutscher Beraterverband empfiehlt, vor der Angebotserstellung zu klären, ob ein Mandat angenommen werden kann, und sonst abzulehnen."
+      },
+      {
+        "question": "Wie schnell nach der Beauftragung sollte der Kickoff stattfinden?",
+        "answer": "Ein Anbieter-Leitfaden nennt als Ziel einen Kickoff innerhalb von 48 Stunden nach Abschluss, mit Vorab-Material 24 Stunden vor einem 60-minütigen Termin; für regulierte oder mit Subunternehmern besetzte Aufträge braucht es länger. Die Vorlage legt am Tag nach der Erteilung einen Schritt für den Kickoff an."
+      },
+      {
+        "question": "Was tue ich, wenn ich ein Angebot verliere?",
+        "answer": "Halten Sie den Grund fest und fragen Sie zwei Tage später beim Ansprechpartner nach, was Sie hätten anders machen können. Alan Weiss empfiehlt genau diese Frage, wenn die Antwort Nein lautet. Die Vorlage legt diesen Schritt für Sie an."
+      },
+      {
+        "question": "Schreibt der Agent meine Kunden an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Ich berate selbstständig und verliere Aufträge in der Stille nach dem Angebotsgespräch. Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
+    "intro":"Ich berate selbstständig und verliere Aufträge in der Stille nach dem Angebotsgespräch. Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
     "questions": [
       "Welche Arten von Aufträgen verkaufst du, und zu welchem Tagessatz?",
       "Wie entscheidest du, ob du einen Auftrag annimmst?",

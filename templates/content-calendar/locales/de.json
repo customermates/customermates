@@ -150,8 +150,57 @@
     "publish_field": "Jeder Beitrag hat ein Veröffentlichungsdatum mit Uhrzeit.",
     "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
   },
+  "page": {
+    "metaTitle": "Social Media Redaktionsplan: Vorlage für Ihr CRM",
+    "metaDescription": "Social Media Redaktionsplan, den Ihr KI-Agent im CRM aufbaut: Beiträge mit Verantwortlichem, Prüfer und Datum, dazu Kampagnen und eine Wochenroutine.",
+    "headline": "Social Media Redaktionsplan, der zeigt, wer was aufhält: Ihr KI-Agent baut ihn in Ihrem CRM auf",
+    "answer": "Ein Redaktionsplan listet jeden Beitrag, Newsletter und jedes Video mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, damit Sie sehen, was diese Woche rausgeht. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut den Plan in Customermates auf, mit Kampagnen, Anlässen, einer Kennzeichnungsprüfung und einer wöchentlichen Redaktionsroutine. Die Vorlage plant und verfolgt, sie veröffentlicht nichts. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Redaktionssitzung in 15 Minuten",
+      "steps": [
+        "Besprechen Sie, was in der Vorwoche erschienen ist, und tragen Sie den Link zur Veröffentlichung ein.",
+        "Prüfen Sie, was in den nächsten 7 Tagen fällig und noch nicht freigegeben oder geplant ist: verschieben, streichen oder vorziehen.",
+        "Nennen Sie zu jedem blockierten Beitrag, wer ihn lösen kann und bis wann. Ein Beitrag, der sich seit 14 Tagen nicht bewegt hat, wird freigegeben oder gestrichen.",
+        "Planen Sie zu Monatsbeginn den nächsten Monat: Füllen Sie die Plätze zu etwa 70 bis 85 Prozent der Kapazität und halten Sie zwei bis drei Ersatzbeiträge bereit."
+      ]
+    },
+    "limits": [
+      "Die Vorlage plant und verfolgt, sie veröffentlicht oder terminiert keine Beiträge. Das übernehmen Ihr Veröffentlichungswerkzeug oder Ihr CMS, die auch die Auswertung liefern; die Vorlage postet nie von selbst.",
+      "Sie sammelt keine Statistiken. Reichweite, Interaktionen und Klicks werden eingetragen oder importiert; einen Link-Kürzer oder UTM-Generator gibt es nicht.",
+      "Sie ist kein Designwerkzeug und keine Medienbibliothek. Bilder und Videos bleiben in Ihrem Designwerkzeug, der Plan hält den Link.",
+      "Eine Freigabe ist eine festgehaltene Entscheidung, keine rechtliche Abnahme und kein Prüfpfad für regulierte Inhalte. Regulierte Branchen führen ihr eigenes Compliance-System.",
+      "Unveröffentlichte vertrauliche Texte, Sperrfristmaterial, Kontaktdaten des Publikums und Passwörter von Social-Media-Konten gehören nicht hinein.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in einen Redaktionsplan?",
+        "answer": "Zehn Spalten leisten die meiste Arbeit: Veröffentlichungsdatum, Status, Titel, Kanal, Format, Verantwortlicher, Link zum Briefing, veröffentlichte URL, Content-Säule oder Kampagne und das Ergebnis nach 30 Tagen. Ergänzen Sie einen Prüfer und ein Prüfdatum, sobald mehr als eine Person beteiligt ist."
+      },
+      {
+        "question": "Wie weit im Voraus sollte ich planen?",
+        "answer": "Planen Sie 2 bis 4 Wochen im Detail, halten Sie Monat und Quartal grob fest und treffen Sie sich jede Woche 15 Minuten. Der deutsche HubSpot-Leitfaden nennt einen rollierenden Horizont von zwei bis vier Wochen und eine wöchentliche Redaktionssitzung für die nächsten 7 bis 14 Tage."
+      },
+      {
+        "question": "Muss ich bezahlte oder geschenkte Beiträge kennzeichnen?",
+        "answer": "In der Regel ja. Die Regeln unterscheiden sich je nach Land; in Deutschland gilt die Werbekennzeichnung für gesponserte Beiträge, prüfen Sie die Einzelheiten für Ihren Fall. Als Beispiel verlangt die US-Behörde FTC den Hinweis beim Beitrag selbst, in klaren Worten wie „Anzeige“, nicht zwischen Hashtags versteckt und bei Videos in Ton und Text. Die Vorlage hat ein Kennzeichnungsfeld und einen Prüfschritt. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Tabelle oder CRM für den Redaktionsplan?",
+        "answer": "Eine Tabelle genügt für eine Person mit einem Kanal. Sobald Personen, Marken und Kampagnen verknüpft sein sollen, eine Prüfung eine Frist hat und ein veröffentlichter Beitrag eine Folgeaufgabe auslösen soll, hält ein CRM das als Datensätze statt als Spalten fest. Die Vorlage tut das und überlässt das Veröffentlichen Ihrem Veröffentlichungswerkzeug."
+      },
+      {
+        "question": "Wie viele Beiträge darf eine Person gleichzeitig bearbeiten?",
+        "answer": "Rework empfiehlt höchstens sechs je Person (zwei im Entwurf, zwei in Prüfung, zwei geplant) und eine Streichregel für alles, was sich 14 Tage nicht bewegt hat. Bitrix24 nennt drei für Autoren, fünf für Redakteure und sechs für Manager. Die Vorlage hält die Obergrenze als Regel für die Wochensitzung fest, nicht als Systemgrenze."
+      },
+      {
+        "question": "Veröffentlicht der Agent für mich?",
+        "answer": "Nein. Die Vorlage plant und verfolgt; veröffentlicht wird in Ihrem Veröffentlichungswerkzeug oder CMS. Der Prompt weist den Agenten an, keine Beispieldaten anzulegen."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Unsere Beiträge, Newsletter und Videos kommen zu spät, weil ich nicht sehe, wer was prüft und wann es erscheint. Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
+    "intro":"Unsere Beiträge, Newsletter und Videos kommen zu spät, weil ich nicht sehe, wer was prüft und wann es erscheint. Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
     "questions": [
       "Was veröffentlichst du, auf welchen Kanälen und wie oft?",
       "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",

@@ -115,6 +115,51 @@
     "valid_until_field": "Jedes Dokument hält fest, bis wann es gültig ist.",
     "suppliers_board_view": "Die Lieferanten öffnen sich als Board nach Status."
   },
+  "page": {
+    "metaTitle": "Lieferantenbewertung Vorlage: Register mit Ablaufdaten",
+    "metaDescription": "Lieferantenbewertung mit Fragebogen, Zertifikaten und Ablaufdaten in einem Register. Vorlage in Claude, ChatGPT oder Codex einfügen und aufbauen lassen.",
+    "headline": "Lieferantenbewertung mit Ablaufdaten: ein Lieferantenregister, das Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Lieferantenbewertung hält für jeden Lieferanten Fragebogen, Zertifikate mit Gültig-bis-Datum, Risikoklasse und Entscheidung an einem Ort fest und zeigt, wann die nächste Bewertung fällig ist. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut das Lieferantenregister in Customermates auf, mit terminierten Folgeaufgaben für Fragebögen, Erneuerungen und Neubewertungen. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Das Register dokumentiert Anforderungen und Entscheidungen, es entscheidet nicht über Rechtskonformität.",
+    "routine": {
+      "title": "Der wöchentliche Lieferantencheck",
+      "steps": [
+        "Haken Sie bei jedem Lieferanten nach, dessen Fragebogen über die Frist hinaus ist.",
+        "Prüfen Sie die Antworten der zuletzt eingegangenen Fragebögen und vermerken Sie, welche Antworten noch keinen aktuellen Nachweis haben.",
+        "Fordern Sie erneuerte Zertifikate und Bescheinigungen an, die innerhalb von 30 Tagen ablaufen, und klären Sie die bereits abgelaufenen: Lieferant sperren oder das Risiko schriftlich akzeptieren.",
+        "Halten Sie bei Lieferanten in Prüfung die Entscheidung fest (freigeben, bedingt freigeben, eskalieren oder ablehnen) und setzen Sie den nächsten Bewertungstermin nach Risikoklasse.",
+        "Starten Sie die Neubewertung der Lieferanten, deren nächster Bewertungstermin innerhalb von 14 Tagen liegt."
+      ]
+    },
+    "limits": [
+      "Es entscheidet nicht, ob ein Lieferant, ein Produkt oder eine Lieferkette ein Gesetz einhält, und reicht keine Sorgfaltserklärung und keinen Bericht ein. Es hält Anforderungen, Nachweise und Entscheidungen fest.",
+      "Es ist kein Prüfdienst: keine Sanktionslisten-, Negativpresse- oder Bonitätsprüfung und keine Anreicherung von Firmendaten.",
+      "Es ist kein ERP-, Einkaufs- oder Rechnungssystem. Bestellungen, Umsätze und Rechnungen gibt es hier nicht.",
+      "Es ist kein Dokumentenarchiv. Dateien sind nur durchsuchbar, wenn sie eine Textebene haben, eingescannte Zertifikate werden nicht gelesen, und es gibt keinen unveränderlichen oder unabhängig aufbewahrten Prüfpfad. Die Originale bleiben in Ihrem Dokumentensystem, hier steht der Link.",
+      "Lieferanten können sich nicht anmelden, um zu antworten oder Dateien hochzuladen, und es gibt weder elektronische Signatur noch Rechte auf Feldebene. Vertrauliches gehört in eine eigene Liste oder einen eigenen Workspace. Plattformen wie EcoVadis, Sedex oder SAP Ariba übernehmen, was hier fehlt."
+    ],
+    "faq": [
+      {
+        "question": "Wie oft sollte ich Lieferanten neu bewerten?",
+        "answer": "Die Fachliteratur nennt mindestens einmal jährlich. In der Praxis werden kritische Lieferanten halbjährlich oder jährlich geprüft und zusätzlich nach einem Anlass wie einer Übernahme, einem neuen Unterlieferanten oder einem Vorfall, unkritische Lieferanten auch ein Jahr oder länger nicht. Die Vorlage setzt den nächsten Bewertungstermin nach Risikoklasse; bei einem Anlass lösen Sie die Neubewertung selbst aus."
+      },
+      {
+        "question": "Welche Kriterien gehören in eine Lieferantenbewertung?",
+        "answer": "Üblich sind sechs: Qualität, Preis-Leistung, Lieferzuverlässigkeit, Flexibilität, Kommunikation und Nachhaltigkeit. Ob Punktbewertung, Nutzwertanalyse oder ABC-Analyse: Die ISO 9001 schreibt keine Methode vor, verlangt aber dokumentierte, nachvollziehbare Kriterien. Zertifikate sind Hinweise und ersetzen die eigene Bewertung nicht."
+      },
+      {
+        "question": "Was gehört in eine Lieferantenselbstauskunft?",
+        "answer": "Firmendaten und Ansprechpartner, Zertifikate wie ISO 9001, ISO 14001 oder ISO 45001, Versicherungsnachweise und, wenn der Lieferant personenbezogene Daten verarbeitet, ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO. Zu jeder Antwort, die eine Entscheidung beeinflusst, gehören Nachweis und Datum; ein Ja ohne aktuellen Nachweis bleibt offen."
+      },
+      {
+        "question": "Entscheidet die Vorlage, ob wir das Lieferkettengesetz einhalten?",
+        "answer": "Nein. Sie sammelt Anforderungen und Nachweise und hält Termine und Entscheidungen fest. Geltungsbereich und Fristen von Regelungen wie dem Lieferkettengesetz oder der EU-Entwaldungsverordnung ändern sich weiter, klären Sie sie mit Ihrer Rechtsberatung. Die Vorlage sagt nie, dass ein Lieferant oder ein Produkt konform ist."
+      },
+      {
+        "question": "Schreibt der Agent meine Lieferanten an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ich arbeite mit vielen Lieferanten und sehe nicht, wessen Zertifikate abgelaufen sind und wer neu bewertet werden muss. Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
     "questions": [

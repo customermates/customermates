@@ -80,6 +80,52 @@
     "submitted_field": "Every request records when it was submitted.",
     "requests_board_view": "The requests open as a board by stage."
   },
+  "page": {
+    "metaTitle": "Quote Request Form That Feeds Your CRM",
+    "metaDescription": "A quote request form only helps if every inquiry is answered. Paste this template into Claude, ChatGPT or Codex: each one gets an owner and a reply due.",
+    "headline": "A quote request form that feeds your CRM: every inquiry gets a reply due and a stage",
+    "answer": "A quote request form only pays off if every submission is answered. This template turns each one into a request linked to a contact, with the form it came from, a reply due the next day and a stage from new to converted. Paste it into your AI agent: it builds the requests list in Customermates and the route from your form to it, and you approve the plan before anything is built.",
+    "routine": {
+      "title": "The first-response routine for every inquiry",
+      "steps": [
+        "Answer new requests the same day. The template creates a reply Action due the next day and flags a request that is still new after a day.",
+        "Send a short confirmation that repeats the request in the person's own words and says when the answer or the quote will come.",
+        "Ask the one or two questions that decide the price or who handles it, instead of a long form up front.",
+        "Chase a contacted request after 3 days. When the chases stay unanswered, mark it not a fit with the reason no response.",
+        "Mark spam and not-a-fit requests and let their data review date run, so old inquiries are reviewed or deleted on time.",
+        "Hand every converted request over to your sales pipeline and close it here."
+      ]
+    },
+    "limits": [
+      "The public form is simple, not a full form builder: no payments, quizzes, calculators, file uploads or e-signatures. Typeform, Tally or Jotform stay better for that, and an incoming webhook brings their answers here.",
+      "Keep sensitive documents out of the form. Ask for them through a channel with access control instead.",
+      "It sends nothing by itself. Confirmations and replies are drafts that you review and send.",
+      "It is not a mailing tool. It records a marketing opt-in, but sequences and newsletters need a mail tool, because Customermates has no sequences or mass outreach.",
+      "The privacy texts are starting points, not legal advice. Adapt the notice, the consent wording and the retention periods to your country with your adviser."
+    ],
+    "faq": [
+      {
+        "question": "What should a quote request form ask?",
+        "answer": "Only what changes the price or decides who answers: usually four to seven questions, such as what you need, by when and a rough budget band. Leave the details for the first call. The template keeps the form, the page and the source each request came from, so you can see where the good ones start."
+      },
+      {
+        "question": "How fast should I answer a web inquiry?",
+        "answer": "As fast as you can promise and keep: the same day at the latest, and tell people on the form when they will hear from you. Guides from form vendors recommend a first message that confirms the request and says when the quote arrives. The template creates a reply Action due the next day and flags a request nobody has touched after a day."
+      },
+      {
+        "question": "Do I need a consent checkbox on a quote request form?",
+        "answer": "Not automatically. Under the GDPR a quote request is usually processed to answer it, so what you owe people at the form is a notice: who you are, why you use the data, on which basis, how long you keep it and what rights they have. Advertising needs a separate, unticked opt-in that you can prove. Pre-ticked boxes do not count, and in Germany an inquiry does not allow later advertising mail. The template records consent and a data review date, and the form's optional consent checkbox stores your wording, its version and the time with each submission. This is not legal advice."
+      },
+      {
+        "question": "Does it work with Typeform, Tally or Jotform?",
+        "answer": "Yes, with any form tool that can send a webhook, such as Typeform, Tally or Jotform. An incoming webhook gives a list a secret address, and each submission posted to it creates or updates a record. The template includes a rule that creates the contact and the request when another form tool sends a submission, and your agent sets up the address and the field mapping during the interview. Incoming webhooks need the Starter plan or higher on Customermates Cloud and have no limit when self-hosted. A form on your own website works the same way, or you use the public form Customermates provides."
+      },
+      {
+        "question": "Does the agent contact the people who fill in my form?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Inquiries from my website forms get answered late or not at all, and I cannot see where the good ones come from. Set up form to CRM in my Customermates workspace: a request for every form submission with its source, a reply due, six stages, consent and a data review date, and dated follow-ups.",
     "questions": [

@@ -162,6 +162,6 @@
     { "url": "https://anwaltspraxis-magazin.de/kanzleimagazin/interessenkonflikte-vermeiden-so-schuetzen-sie-ihre-kanzlei-und-mandant-innen/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
   "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "none", "pt": "proof", "pl": "none", "nl": "none" }
 }

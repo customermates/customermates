@@ -124,6 +124,52 @@
     "deadline_verifier_field": "Elke termijn legt vast wie hem controleerde.",
     "deadline_control_page": "De kennisbank bevat een pagina over termijnbewaking."
   },
+  "page": {
+    "metaTitle": "Software voor accountantskantoren: sjabloon met termijnen",
+    "metaDescription": "Software voor accountantskantoren: opdrachten, dossiers, documenten opvragen en een termijnenregister met controle. Plak het sjabloon in je AI-agent.",
+    "headline": "Software voor accountantskantoren die elke termijn en elk ontbrekend document bewaakt, gebouwd door je AI-agent",
+    "answer": "Een boekhoud- en belastingkantoor draait twee stromen naast elkaar: een opdracht binnenhalen via cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant en periode doen terwijl je op documenten wacht. Plak dit sjabloon in je AI-agent en hij bouwt beide in Customermates, met een termijnenregister dat de voortermijn en de controleur van elke datum vastlegt. Jij keurt het plan goed voordat er iets wordt gebouwd. Het staat naast je kantoorsoftware en vervangt die niet.",
+    "routine": {
+      "title": "De wekelijkse kantoorbespreking",
+      "steps": [
+        "Open het bord met dossiers en zie wie aan zet is: wacht op documenten, wacht op akkoord van de klant of wacht op de Belastingdienst.",
+        "Vraag de documenten op die binnen drie dagen nodig zijn en beslis bij wat na de datum nog ontbreekt: uitstel, gedeeltelijk voorbereiden of opschalen naar de partner.",
+        "Controleer het termijnenregister: elke open termijn heeft een bron, een voortermijn en een tweede persoon die de datum heeft gecontroleerd.",
+        "Leg elke aanslag of beschikking van deze week vast met bezwaartermijn en bron, en laat een tweede persoon de datum controleren.",
+        "Geef elk actief dossier zonder open actie een volgende stap, of noteer waarom het stilligt.",
+        "Bekijk offertes die meer dan drie dagen geleden zijn verstuurd en opdrachten in de fase cliëntenonderzoek, zodat er geen werk begint voordat de klant is geïdentificeerd."
+      ]
+    },
+    "limits": [
+      "Het is niet je kantoor- of aangiftesoftware. Aangifte, boekhouding, loon en het berekenen van wettelijke termijnen blijven in tools als Exact, Moneybird of Karbon, en het sjabloon zegt nooit dat een aangifte op tijd is.",
+      "Het berekent geen wettelijke data. Een termijn is een record met een bron, een voortermijn en een genoemde persoon die hem heeft gecontroleerd; de datum zelf komt van jou.",
+      "Het is geen tool voor urenregistratie of facturatie en heeft geen klantenportaal of elektronische handtekening. Een getekende opdrachtbevestiging is een link naar het getekende bestand.",
+      "Houd kopieën van identiteitsbewijzen, fiscale nummers en bijzondere persoonsgegevens buiten het sjabloon: er zijn geen rechten per veld. Bewaar ze in je documentsysteem met de bijbehorende bewaarregels.",
+      "Gescande bonnen worden opgeslagen maar niet gelezen, omdat er geen tekstherkenning is."
+    ],
+    "faq": [
+      {
+        "question": "Wat is de beste software voor een accountantskantoor?",
+        "answer": "Dat hangt af van wat je nodig hebt. Tools als Exact, Moneybird of Karbon dekken boekhouding, facturatie en een klantenportaal. Customermates is de laag voor relatie, bewijs van termijnen en opvolging ernaast: opdrachten, dossiers die op documenten wachten en een termijnenregister. Wil je één tool voor alles, dan is dit het niet."
+      },
+      {
+        "question": "Waarom een apart termijnenregister?",
+        "answer": "Beroepsaansprakelijkheid vraagt dat een kantoor kan aantonen dat de termijnbewaking bestond: zeggen dat termijnen zijn gecontroleerd is geen bewijs. Een register met bron, voortermijn en controleur laat je dat achteraf zien. Het sjabloon legt de controle vast en berekent de datum nooit."
+      },
+      {
+        "question": "Komt het cliëntenonderzoek (Wwft) vóór de opdrachtbevestiging?",
+        "answer": "De praktijk verschilt. Het sjabloon maakt het cliëntenonderzoek een eigen fase vóór de opdrachtbevestiging, omdat het geen volgorde kan afdwingen en voorzichtigheid betekent dat je niet werkt voordat de klant is geïdentificeerd. Het onderzoek omvat de klant, wie namens hem optreedt en de uiteindelijk belanghebbende, plus een risicoclassificatie. Geen bron noemt een vast herzieningsinterval, dus dat bepaal je zelf. Bewaar kopieën van identiteitsbewijzen in je documentsysteem."
+      },
+      {
+        "question": "Hoe stop ik met documenten handmatig opvragen?",
+        "answer": "Zet bij elk documentverzoek een datum waarop de documenten er moeten zijn. Het sjabloon maakt dan drie dagen eerder een opvolgactie aan en waarschuwt de verantwoordelijke als de documenten er al moeten zijn en nog ontbreken. Wacht op documenten, wacht op akkoord van de klant en wacht op de Belastingdienst zijn drie aparte statussen, dus het bord toont wie aan zet is."
+      },
+      {
+        "question": "Neemt de agent contact op met mijn klanten?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ik heb een boekhoud- en belastingkantoor en moet kunnen zien welke opdrachten openstaan, welke dossiers op documenten wachten en welke termijnen zijn gecontroleerd. Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
     "questions": [

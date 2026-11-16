@@ -117,6 +117,51 @@
     "warranty_field": "Todo serviço registra até quando vai a garantia.",
     "jobs_board_view": "Os serviços abrem como quadro por etapa."
   },
+  "page": {
+    "metaTitle": "CRM para obras e serviços: modelo de orçamentos e garantia",
+    "metaDescription": "CRM para obras e serviços: dê retorno a cada orçamento e acompanhe cada serviço da visita ao pagamento, com garantias. Cole o modelo no seu agente de IA.",
+    "headline": "Um CRM para obras e serviços que dá retorno a cada orçamento e lembra as garantias, montado pelo seu agente de IA",
+    "answer": "Um CRM para uma pequena empresa de obras e serviços acompanha cada serviço da primeira ligação à última nota fiscal: a visita técnica, o orçamento e o retorno, a execução de agendada a paga e as datas que importam, como validade do orçamento, arrependimento, garantia e renovação da manutenção. Cole este modelo no seu agente de IA e ele monta o funil no Customermates. Você aprova o plano antes de qualquer coisa ser construída. As datas legais são campos que você confirma, não aconselhamento jurídico.",
+    "routine": {
+      "title": "A revisão semanal de orçamentos e serviços",
+      "steps": [
+        "Ligue de volta para cada solicitação nova no mesmo dia e envie o orçamento em até dois dias depois de cada visita.",
+        "Dê retorno aos orçamentos enviados há três dias e aos que vencem em três dias. Depois de uma segunda tentativa, decida: manter o orçamento aberto ou encerrá-lo com um motivo.",
+        "Confira os serviços da semana e confirme a agenda com cada cliente. Em cada serviço concluído, registre a entrega e o aceite e peça a nota fiscal à contabilidade.",
+        "Olhe os serviços faturados que passaram da data de pagamento e confira se foram pagos.",
+        "Olhe 30 dias à frente: garantias perto do fim, visitas de manutenção para marcar e contratos de manutenção para renovar."
+      ]
+    },
+    "limits": [
+      "Não é uma ferramenta de orçamento, levantamento de custos ou faturamento. Os itens dão um valor ao serviço, não um documento com linhas de impostos, numeração e menções legais. Guarde orçamentos e notas fiscais na sua ferramenta de orçamentos ou de contabilidade.",
+      "Não é uma ferramenta de assinatura eletrônica nem de pagamento, nem um sistema de despacho, rotas, GPS ou controle de horas.",
+      "Não é um aplicativo móvel nativo para o campo. O aplicativo web funciona no celular, mas não existe um app próprio.",
+      "Não emite certificados. Ordens de serviço assinadas e termos de entrega ficam na sua ferramenta de documentos; o CRM guarda a data e uma referência.",
+      "SMS não é um canal: WhatsApp, e-mail e LinkedIn são. E não é uma autoridade jurídica sobre arrependimento, garantia ou validade do orçamento."
+    ],
+    "faq": [
+      {
+        "question": "Em quanto tempo uma empresa de obras deve enviar um orçamento?",
+        "answer": "Um guia para telhadistas sugere um orçamento em 24 a 48 horas depois da inspeção e retornar em poucos minutos a uma solicitação online. A Jobber recomenda um primeiro retorno dois a três dias depois do orçamento e um segundo alguns dias mais tarde, e depois seguir em frente. O modelo agenda isso como tarefas com data; os intervalos você ajusta."
+      },
+      {
+        "question": "Por quanto tempo um orçamento deve valer?",
+        "answer": "Não há uma regra única. As condições holandesas para consumidores usam 30 dias e a prática francesa costuma usar três meses. Defina a validade em cada orçamento: o modelo guarda uma data de validade e cria um retorno três dias antes. Isso não é aconselhamento jurídico."
+      },
+      {
+        "question": "O cliente pode desistir de um contrato assinado em casa?",
+        "answer": "Depende do país e da situação: na Alemanha, por exemplo, o consumidor tem 14 dias para um contrato fechado fora do estabelecimento, prazo que só corre com uma informação correta. Há uma exceção para reparos urgentes pedidos pelo cliente. O modelo marca o fim dos 14 dias quando um serviço é aprovado; confirme a regra que vale no Brasil e a sua informação ao cliente."
+      },
+      {
+        "question": "Quais datas uma empresa de obras precisa acompanhar?",
+        "answer": "A validade do orçamento, o fim de qualquer prazo de arrependimento, a entrega da obra, o fim da garantia e as renovações de manutenção, que profissionais lembram 30 a 45 dias antes. Fontes de orientação citam, por exemplo, 90 dias para vício aparente no Código de Defesa do Consumidor e cinco anos de solidez e segurança da obra no Código Civil; confirme com seu advogado. O modelo guarda a data de fim que você define e nunca a calcula, e a ordem de serviço ajuda a provar quando os prazos começaram."
+      },
+      {
+        "question": "O agente entra em contato com meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu tenho uma pequena empresa de obras e serviços, e os orçamentos saem sem retorno enquanto serviços, visitas e datas de garantia ficam só na minha cabeça. Configure no meu espaço de trabalho do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e status da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
     "questions": [

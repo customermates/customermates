@@ -150,8 +150,57 @@
     "publish_field": "Każdy materiał ma datę i godzinę publikacji.",
     "calendar_widget": "Pulpit pokazuje kalendarz publikacji."
   },
+  "page": {
+    "metaTitle": "Kalendarz treści: szablon planu publikacji w Twoim CRM",
+    "metaDescription": "Kalendarz treści, który agent AI buduje w Twoim CRM: osoba odpowiedzialna, recenzent i data przy każdym materiale, do tego kampanie i ważne daty.",
+    "headline": "Kalendarz treści, który pokazuje, kto co wstrzymuje, zbudowany przez Twojego agenta AI w CRM",
+    "answer": "Kalendarz treści wymienia każdy post, newsletter i film ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, żeby było widać, co wychodzi w tym tygodniu. Wklej ten szablon do swojego agenta AI, a on zbuduje kalendarz w Customermates, z kampaniami, ważnymi datami, kontrolą oznaczenia reklamy i cotygodniową rutyną redakcyjną. Planuje i śledzi, ale nie publikuje. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowe 15-minutowe spotkanie redakcyjne",
+      "steps": [
+        "Omówcie, co wyszło w zeszłym tygodniu, i zapisz link do publikacji.",
+        "Sprawdź, co ma wyjść w ciągu 7 dni, a nie jest jeszcze zaakceptowane ani zaplanowane: przesuń, wytnij albo przyspiesz.",
+        "Przy każdym zablokowanym materiale wskaż, kto może go odblokować i do kiedy. Materiał, który od 14 dni stoi w miejscu, odblokowujesz albo porzucasz.",
+        "Na początku miesiąca zaplanuj następny: wypełnij sloty w około 70 do 85% mocy i miej gotowe dwa, trzy materiały zastępcze."
+      ]
+    },
+    "limits": [
+      "Planuje i śledzi, ale nie publikuje ani nie planuje postów w sieciach. Robi to Twoje narzędzie do publikacji lub CMS, które dostarcza też statystyki; szablon nigdy nie publikuje sam.",
+      "Nie zbiera statystyk. Zasięg, interakcje i kliknięcia wpisuje się ręcznie lub importuje, nie ma skracacza linków ani generatora UTM.",
+      "To nie jest narzędzie do projektowania ani biblioteka plików. Obrazy i wideo zostają w Twoim narzędziu graficznym, a kalendarz zachowuje link.",
+      "Akceptacja to zapisana decyzja, a nie prawne zatwierdzenie ani ścieżka audytu dla treści regulowanych. Branże regulowane prowadzą własny system zgodności.",
+      "Nie trzymaj w nim niepublikowanych poufnych tekstów, materiałów objętych embargiem, danych kontaktowych odbiorców ani haseł do kont społecznościowych.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+    ],
+    "faq": [
+      {
+        "question": "Co powinien zawierać kalendarz treści?",
+        "answer": "Dziesięć kolumn robi większość pracy: data publikacji, status, tytuł, kanał, format, osoba odpowiedzialna, link do briefu, opublikowany adres URL, filar lub kampania oraz wynik po 30 dniach. Dodaj recenzenta i datę recenzji, gdy w pracę zaangażowana jest więcej niż jedna osoba."
+      },
+      {
+        "question": "Z jakim wyprzedzeniem planować?",
+        "answer": "Planuj szczegółowo na 2 do 4 tygodni, miesiąc i kwartał trzymaj w zarysie i spotykajcie się co tydzień na 15 minut. Niemiecki przewodnik HubSpot podaje ruchomy horyzont dwóch do czterech tygodni i cotygodniowe spotkanie redakcyjne na najbliższe 7 do 14 dni."
+      },
+      {
+        "question": "Czy muszę oznaczać treści płatne lub otrzymane w prezencie?",
+        "answer": "Zwykle tak. Zasady różnią się w zależności od kraju, a oznaczanie reklamy przez influencerów jest oczekiwane także w Polsce, więc sprawdź szczegóły w swoim przypadku. Dla przykładu amerykański urząd FTC oczekuje informacji razem z publikacją, prostymi słowami, takimi jak ad lub sponsorowane, nie ukrytej wśród hashtagów, a w wideo zarówno w dźwięku, jak i w tekście. Szablon ma pole oznaczenia i krok kontroli. To nie jest porada prawna."
+      },
+      {
+        "question": "Arkusz czy CRM do kalendarza treści?",
+        "answer": "Arkusz wystarcza jednej osobie z jednym kanałem. Gdy trzeba powiązać osoby, marki i kampanie, recenzja ma termin, a opublikowany materiał ma uruchamiać zadanie, CRM przechowuje to jako rekordy zamiast kolumn. Szablon tak robi, a publikację zostawia Twojemu narzędziu do publikacji."
+      },
+      {
+        "question": "Ile materiałów może prowadzić jednocześnie jedna osoba?",
+        "answer": "Rework proponuje limit sześciu na osobę (dwa w pisaniu, dwa w recenzji, dwa zaplanowane) i zasadę porzucania tego, co nie ruszyło się od 14 dni. Bitrix24 przyjmuje trzy dla autora, pięć dla redaktora i sześć dla menedżera. Szablon zapisuje limit jako zasadę spotkania tygodniowego, a nie ograniczenie systemu."
+      },
+      {
+        "question": "Czy agent opublikuje coś za mnie?",
+        "answer": "Nie. Szablon planuje i śledzi; publikuje Twoje narzędzie do publikacji lub CMS. Prompt każe agentowi nie tworzyć przykładowych danych."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Nasze posty, newslettery i filmy się opóźniają, bo nie widzę, kto co recenzuje i kiedy materiał wychodzi. Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
+    "intro":"Nasze posty, newslettery i filmy się opóźniają, bo nie widzę, kto co recenzuje i kiedy materiał wychodzi. Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
     "questions": [
       "Co publikujesz, w jakich kanałach i jak często?",
       "Kto pisze, kto przegląda i kto akceptuje? Czy uczestniczy klient?",

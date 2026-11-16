@@ -117,6 +117,51 @@
     "warranty_field": "Every job records when its warranty ends.",
     "jobs_board_view": "The jobs open as a board by stage."
   },
+  "page": {
+    "metaTitle": "CRM for Contractors Template: Quotes, Jobs, Warranty Dates",
+    "metaDescription": "A CRM for contractors and trades: follow up every quote, track each job from visit to payment, keep warranty and service dates. Paste it into your AI agent.",
+    "headline": "A CRM for contractors that follows up every quote and remembers warranty dates, built by your AI agent",
+    "answer": "A CRM for a small trade business follows each job from the first call to the last invoice: the site visit, the quote and its follow-up, the work from scheduled to paid, and the dates that matter, such as quote validity, withdrawal, warranty and service renewals. Paste this template into your AI agent and it builds the pipeline in Customermates. You approve the plan before anything is built. Legal dates are fields you confirm, not legal advice.",
+    "routine": {
+      "title": "The weekly quote and job review",
+      "steps": [
+        "Call back every new inquiry the same day, and send a quote within two days of each site visit.",
+        "Follow up the quotes sent three days ago and those that expire in three days. After a second try, decide: keep the quote open or close it with a reason.",
+        "Check the jobs scheduled this week and confirm the schedule with each customer. For every completed job, record the handover and acceptance and ask accounting for the invoice.",
+        "Look at invoiced jobs past their payment date and check whether they were paid.",
+        "Look 30 days ahead: warranties about to end, service visits to book and service agreements to renew."
+      ]
+    },
+    "limits": [
+      "It is not a quoting, estimating or invoicing tool. Line items give a job value, not a document with VAT lines, numbering and legal footers. Keep quotes and invoices in your quoting or accounting tool.",
+      "It is not an e-signature or payment tool, and it is not a dispatch, route, GPS or time-tracking system.",
+      "It is not a native mobile field app. The web app works on a phone, but there is no app for it.",
+      "It issues no certificates. Installation certificates and acceptance protocols stay in your document tool, and the CRM stores the date and a reference.",
+      "SMS is not a channel: WhatsApp, email and LinkedIn are. And it is no legal authority on withdrawal, warranty or quote validity."
+    ],
+    "faq": [
+      {
+        "question": "How fast should a trade business send a quote?",
+        "answer": "One roofing guide suggests an estimate within 24 to 48 hours of the inspection and a call back to a digital inquiry within minutes. Jobber's guidance is a first follow-up two to three days after the quote and a second a few days later, then moving on. The template schedules these as dated Actions; the offsets are yours to tune."
+      },
+      {
+        "question": "How long should a quote be valid?",
+        "answer": "There is no single rule. Dutch consumer terms use 30 days and French practice commonly three months. Set the validity per quote: the template stores a valid-until date and creates a follow-up three days before it ends. This is not legal advice."
+      },
+      {
+        "question": "Can a customer withdraw from a contract signed at their home?",
+        "answer": "In Germany, for example, a consumer has a 14-day right of withdrawal for a contract concluded away from business premises, but the period starts only with a proper notice. Without it the right can last 12 months and 14 days. There is an exception for urgent repairs the customer asked for. The template sets the end of the 14-day period when a job is won; confirm the rule and your notice for your country."
+      },
+      {
+        "question": "Which dates does a trade business need to track?",
+        "answer": "Quote validity, the end of any withdrawal period, the handover or acceptance date (which starts the warranty in Germany, Poland and the Netherlands), the end of the warranty and service renewals, which practitioners prompt 30 to 45 days ahead. Warranty length differs by country and contract, so the template stores the end date you set from the signed contract and never computes it."
+      },
+      {
+        "question": "Does the agent contact my customers?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "I run a small trade business and quotes go out without a follow-up while jobs, visits and warranty dates sit in my head. Set up a trades job pipeline in my Customermates workspace: customers, sites, jobs with a sales stage and a work status, quote validity, visit and schedule dates, warranty end and service agreements, with dated follow-ups.",
     "questions": [

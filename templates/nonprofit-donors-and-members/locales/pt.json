@@ -136,6 +136,56 @@
     "renewal_field": "Cada vínculo tem uma data de renovação.",
     "receipt_field": "Cada doação mostra se há um recibo a emitir."
   },
+  "page": {
+    "metaTitle": "Sistema para igreja e associação: associados e doações",
+    "metaDescription": "Sistema para igreja e associação: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta um registro de associados, doações e renovações.",
+    "headline": "Um sistema para igreja ou associação que não esquece renovações nem agradecimentos, montado pelo seu agente de IA",
+    "answer": "Um sistema para igreja ou associação começa por um só registro, no lugar de várias listas na mão de voluntários diferentes: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais. Cole este modelo no seu agente de IA e ele monta o registro no Customermates. Você aprova o plano antes de qualquer coisa ser construída. Ele não cobra mensalidades nem emite recibos: mostra quais estão pendentes.",
+    "routine": {
+      "title": "A rotina semanal de associados e doações",
+      "steps": [
+        "Agradeça cada doação nova em até dois dias, com uma ligação ou um bilhete pessoal.",
+        "Dê as boas-vindas aos associados cuja solicitação chegou esta semana e envie o aviso de renovação aos vínculos que vencem em cerca de 60 dias.",
+        "Lembre os associados com pagamento em aberto 30 dias antes da renovação e cobre as mensalidades dos vínculos vencidos sem pagamento.",
+        "Veja as doações cujo recibo está para ser emitido e emita-os com a sua ferramenta de contabilidade, no formato oficial do seu país.",
+        "Revise o acompanhamento de grandes doações e editais: o próximo passo de cada uma e as datas de prestação de contas que os financiadores esperam."
+      ]
+    },
+    "limits": [
+      "Não cobra mensalidades, não faz débito automático nem contabilidade. A sua ferramenta de contabilidade ou de gestão da entidade guarda o razão; aqui você guarda o status do pagamento, não o dinheiro.",
+      "Não emite recibos de doação com validade fiscal. Eles são feitos no formato que o seu país exige, com a sua ferramenta de contabilidade; o registro só aponta que um recibo está pendente.",
+      "Não é uma página de doações online. As doações são recebidas numa plataforma de pagamento, e você registra a doação aqui.",
+      "Para igrejas cobre o acompanhamento de visitantes e membros, não o controle de presença, escalas, dízimos e ofertas por fundo nem extratos de contribuição. Anotações pastorais, confissão e registros de proteção nunca devem entrar aqui.",
+      "Deixe de fora do registro dados de saúde, dados de crianças, dados bancários e o que a associação não precisa. Dados sobre religião são sensíveis pela LGPD. O Customermates não tem permissões por campo.",
+      "Não faz análise de patrimônio de doadores, doações recorrentes com nova tentativa de cobrança nem newsletters em massa. É o registro de uma entidade pequena, não uma plataforma de inteligência de doadores."
+    ],
+    "faq": [
+      {
+        "question": "Mensalidade de associado conta como doação para fins fiscais?",
+        "answer": "Em geral não. Na França, uma mensalidade que dá acesso a atividades não dá direito a recibo fiscal, só uma doação sem contrapartida a uma entidade elegível. Na Alemanha, só entidades com benefício fiscal emitem comprovante de doação no modelo oficial, e as contribuições da maioria dos clubes esportivos não são dedutíveis. As regras variam por país e por tipo de entidade, então consulte o seu contador ou a autoridade fiscal. O registro acompanha o status do recibo e não emite nenhum."
+      },
+      {
+        "question": "Em quanto tempo devo agradecer uma doação?",
+        "answer": "Em até 48 horas, é o conselho comum dos guias de captação de recursos, de preferência com uma ligação ou um bilhete pessoal. O modelo cria uma tarefa de agradecimento assim que uma doação é registrada, para que o agradecimento não dependa da memória de um único voluntário."
+      },
+      {
+        "question": "Quando devo lembrar os associados de renovar?",
+        "answer": "Guias para associações sugerem vários contatos antes da data, muitas vezes de cerca de 90 dias até o próprio dia, e um depois. O modelo cria uma tarefa para enviar um aviso de renovação 60 dias antes do vencimento de um vínculo ativo, outra para lembrar quem está com pagamento em aberto 30 dias antes e outra para cobrar a mensalidade não paga no dia do vencimento."
+      },
+      {
+        "question": "Que dados de associados e doadores devo guardar?",
+        "answer": "Só o que a associação ou a doação exige. Guias sobre proteção de dados dizem que não se deve registrar o que não é necessário ao vínculo, que a ficha de inscrição deve mostrar quais campos são obrigatórios e quais são opcionais, e que fotos pedem consentimento. Dados sobre religião são sensíveis pela LGPD: registre só o necessário. Dados de saúde, de crianças e bancários ficam de fora do registro. Isso não é aconselhamento jurídico."
+      },
+      {
+        "question": "Serve para uma igreja ou um clube?",
+        "answer": "Sim, para o lado do registro: apoiadores, vínculos, doações e acompanhamento de membros e visitantes num só lugar. Não substitui um sistema de gestão de igreja para controle de presença, escalas, dízimos e ofertas por fundo, nem uma ferramenta de clube para débito automático e cobrança de mensalidades."
+      },
+      {
+        "question": "O agente escreve para meus associados e doadores?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Nossos associados, doadores e voluntários estão espalhados em várias listas, e as renovações e os agradecimentos ficam para trás. Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",
     "questions": [

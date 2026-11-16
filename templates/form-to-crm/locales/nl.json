@@ -80,6 +80,52 @@
     "submitted_field": "Elke aanvraag legt vast wanneer ze is ontvangen.",
     "requests_board_view": "De aanvragen openen als bord per fase."
   },
+  "page": {
+    "metaTitle": "Formulier maken en elke aanvraag opvolgen met CRM",
+    "metaDescription": "Formulier maken en elke aanvraag opvolgen met je CRM: plak het sjabloon in Claude, ChatGPT of Codex, en elke inzending krijgt een eigenaar en een deadline.",
+    "headline": "Een formulier maken en elke aanvraag opvolgen: je AI-agent bouwt de route naar je CRM",
+    "answer": "Een formulier heeft pas zin als elke inzending een antwoord krijgt. Dit sjabloon maakt van elke inzending een aanvraag, gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, een antwoord dat uiterlijk de volgende dag moet volgen en een fase van nieuw tot omgezet. Plak het in je AI-agent: die bouwt de lijst met aanvragen in Customermates en de route van je formulier ernaartoe, en jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De eerste reactie op elke aanvraag",
+      "steps": [
+        "Beantwoord nieuwe aanvragen dezelfde dag. Het sjabloon maakt een antwoordtaak die de volgende dag vervalt en meldt een aanvraag die na een dag nog nieuw is.",
+        "Stuur een korte bevestiging die de aanvraag in de woorden van de persoon herhaalt en zegt wanneer het antwoord of de offerte komt.",
+        "Stel de ene of twee vragen die over prijs of behandelaar beslissen, in plaats van vooraf een lang formulier te eisen.",
+        "Volg een gecontacteerde aanvraag na 3 dagen op. Blijven de herinneringen onbeantwoord, zet de aanvraag dan op Niet passend met de reden geen reactie.",
+        "Markeer spam en aanvragen die niet passen en laat hun datum voor de gegevenscontrole lopen, zodat oude aanvragen op tijd worden gecontroleerd of verwijderd.",
+        "Geef elke aanvraag die een opdracht wordt over aan je salespijplijn en zet haar hier op Omgezet."
+      ]
+    },
+    "limits": [
+      "Het openbare formulier is eenvoudig en geen volwaardige formulierenbouwer: geen betalingen, quizzen, rekentools, bestandsuploads of elektronische handtekeningen. Daarvoor blijven Typeform, Tally of Jotform beter, en een inkomende webhook brengt hun antwoorden hierheen.",
+      "Houd gevoelige documenten buiten het formulier. Vraag ze op via een kanaal met toegangscontrole.",
+      "Het verstuurt zelf niets. Bevestigingen en antwoorden zijn concepten die jij nakijkt en verstuurt.",
+      "Het is geen mailingtool. Het legt een marketingtoestemming vast, maar reeksen en nieuwsbrieven vragen om een mailtool, want Customermates heeft geen reeksen of massaverzending.",
+      "De privacyteksten zijn een startpunt, geen juridisch advies. Pas de informatie, de toestemmingstekst en de bewaartermijnen met je adviseur aan op jouw land."
+    ],
+    "faq": [
+      {
+        "question": "Wat moet een formulier voor offerteaanvragen vragen?",
+        "answer": "Alleen wat de prijs verandert of bepaalt wie antwoordt: meestal vier tot zeven vragen, zoals wat je nodig hebt, voor wanneer en een grof budget. Bewaar de details voor het eerste gesprek. Het sjabloon legt het formulier, de pagina en de bron van elke aanvraag vast, zodat je ziet waar de goede vandaan komen."
+      },
+      {
+        "question": "Hoe snel moet ik een aanvraag via de website beantwoorden?",
+        "answer": "Zo snel als je kunt beloven en waarmaken: uiterlijk dezelfde dag, en zeg op het formulier wanneer iemand van je hoort. Gidsen van formulierleveranciers raden een eerste bericht aan dat de aanvraag bevestigt en zegt wanneer de offerte komt. Het sjabloon maakt een antwoordtaak die de volgende dag vervalt en meldt een aanvraag die na een dag nog niemand heeft aangeraakt."
+      },
+      {
+        "question": "Heb ik een toestemmingsvakje nodig bij een offerteformulier?",
+        "answer": "Niet automatisch. Onder de AVG wordt een offerteaanvraag meestal verwerkt om haar te beantwoorden, dus wat je iemand bij het formulier verschuldigd bent is informatie: wie je bent, waarom je de gegevens gebruikt, op welke grondslag, hoe lang je ze bewaart en welke rechten de persoon heeft. Reclame vraagt om aparte toestemming, zonder vooraf aangevinkt vakje, die je kunt aantonen. Een vooraf aangevinkt vakje telt niet. Het sjabloon legt de toestemming en een datum voor de gegevenscontrole vast, en het optionele toestemmingsvakje van het formulier bewaart jouw tekst, de versie en het tijdstip bij elke inzending. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Werkt dit met Typeform, Tally of Jotform?",
+        "answer": "Ja, met elke formuliertool die een webhook kan sturen, zoals Typeform, Tally of Jotform. Een inkomende webhook geeft een lijst een geheim adres, en elke inzending die daarheen wordt gestuurd maakt een record aan of werkt het bij. Het sjabloon bevat een regel die de contactpersoon en de aanvraag aanmaakt wanneer een andere formuliertool een inzending stuurt, en je agent richt in het interview het adres en de veldkoppeling in. Inkomende webhooks vragen op Customermates Cloud het abonnement Starter of hoger en hebben bij zelf hosten geen limiet. Een formulier op je eigen website werkt op dezelfde manier, of je gebruikt het openbare formulier van Customermates."
+      },
+      {
+        "question": "Mailt de agent de mensen die mijn formulier invullen?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en jij verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Aanvragen uit mijn webformulieren worden te laat of helemaal niet beantwoord en ik zie niet waar de goede vandaan komen. Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
     "questions": [

@@ -102,6 +102,51 @@
     "notice_days_field": "Ogni contratto indica il preavviso.",
     "opportunities_board_view": "Le opportunità si aprono come board per fase."
   },
+  "page": {
+    "metaTitle": "Pipeline clienti per agenzie: gare, retainer e rinnovi",
+    "metaDescription": "Incolla questa pipeline clienti per agenzie in Claude, ChatGPT o Codex: decisione sulla gara, onboarding in cinque passaggi, retainer con rinnovo e revisione.",
+    "headline": "Conquista clienti e vedi arrivare ogni rinnovo: la pipeline per agenzie che il tuo agente IA costruisce",
+    "answer": "Una pipeline clienti per agenzie segue due cose nello stesso posto: i nuovi clienti, dalla prima conversazione alla firma, e i contratti e progetti che seguono, ciascuno con una data di rinnovo e una revisione trimestrale. Incolla questo modello nel tuo agente IA e costruisce entrambi in Customermates, con la decisione se partecipare alla gara, un onboarding in cinque passaggi dopo una vittoria e un preavviso su ogni contratto. Approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale dell'agenzia",
+      "steps": [
+        "Apri ogni opportunità senza un prossimo passo e aggiungine uno con una data, oppure chiudila.",
+        "Decidi per ogni nuovo brief o invito a una gara se partecipare o no: quanto costa la proposta, quante agenzie sono in gara e chi presenta e chi consegna.",
+        "Controlla i contratti che si rinnovano nei prossimi 90 giorni e le date di preavviso che scadono nelle prossime settimane.",
+        "Guarda i retainer senza contatti da 30 giorni e i contratti con l'indicatore di salute passato al rosso, e pianifica il check-in o la chiamata del partner."
+      ]
+    },
+    "limits": [
+      "Non è un software per agenzie per progetti, rilevazione dei tempi, pianificazione delle risorse o fatturazione. Queste funzioni restano nei tuoi strumenti; qui c'è lo strato commerciale e dei retainer accanto a loro.",
+      "Non è un portale clienti né un flusso di approvazione, e non fa report sui risultati delle campagne.",
+      "Non salvare mai nello spazio di lavoro credenziali dei clienti, materiali del marchio o accessi agli account pubblicitari. Tienili in un gestore di password e nella tua libreria di materiali.",
+      "Non scrive proposte e non raccoglie firme elettroniche. Proposte e contratti stanno nel tuo strumento per i documenti e si collegano all'opportunità.",
+      "Non è uno strumento per sequenze o invii di massa. Ogni follow-up è un'attività con data e una bozza che rivedi e invii tu.",
+      "Un budget si registra solo quando lo dichiara il cliente e non c'è un preavviso predefinito: inserisci quello di ogni contratto."
+    ],
+    "faq": [
+      {
+        "question": "In che cosa una pipeline per agenzie è diversa da una pipeline commerciale normale?",
+        "answer": "Un'agenzia ha meno opportunità, più grandi, con più interlocutori e decisioni lunghe, e la maggior parte del fatturato viene dai clienti che restano e crescono. Per questo il modello aggiunge la decisione sulla gara, un onboarding in cinque passaggi dopo una vittoria e contratti con una data di rinnovo, invece di fermarsi a vinto."
+      },
+      {
+        "question": "Un'agenzia deve partecipare a ogni gara?",
+        "answer": "No. Una gara costa molto tempo e denaro, quindi chi consiglia raccomanda di verificare prima se serve davvero: c'è un brief chiaro con una fascia di budget, quante agenzie partecipano, c'è un compenso per la presentazione, e chi presenta e chi consegna. Il modello chiede questa decisione il giorno in cui un'opportunità arriva alla fase brief o gara."
+      },
+      {
+        "question": "Quanto dovrebbe durare il preavviso di un retainer?",
+        "answer": "Nessuna legge dà una risposta unica. Trenta giorni per iscritto sono l'uso più comune, e un rinnovo automatico con preavviso di 90 giorni favorisce l'agenzia. Il modello registra il preavviso di ogni contratto e non ne presume nessuno. Crea una revisione del rinnovo 90 giorni prima della scadenza e un promemoria 45 giorni prima per confermare l'intenzione del cliente."
+      },
+      {
+        "question": "Che cosa succede dopo una vittoria?",
+        "answer": "Una vittoria avvia un onboarding in cinque passaggi: benvenuto e conferma del kickoff, raccolta dei materiali, calendario, kickoff e flusso di consegna. Molte agenzie legano il kickoff al pagamento. Poi il cliente prosegue come contratto, con la sua data di rinnovo e la revisione trimestrale."
+      },
+      {
+        "question": "L'agente contatta i miei clienti o i potenziali clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Conquisto nuovi clienti per la mia agenzia ma perdo il filo delle gare in corso e di quando scadono i retainer. Imposta nel mio spazio di lavoro Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai credenziali di accesso dei clienti né materiali del marchio.",
     "questions": [

@@ -95,8 +95,58 @@
     "first_response_field": "Every ticket records when the first reply is due.",
     "tickets_board_view": "The tickets open as a board by status."
   },
+  "page": {
+    "metaTitle": "Help Desk Software Template: Tickets and Due Times",
+    "metaDescription": "Light help desk software your AI agent builds in your CRM: tickets with priorities and reply due times, known issues and a satisfaction score.",
+    "headline": "Help desk software for a few dozen tickets a week, built by your AI agent in your CRM",
+    "answer": "A light help desk gives every customer message a ticket with an owner, a priority and a time by which you owe a reply. This template sets up tickets, known issues that link many tickets to one cause, and a satisfaction score. Paste it into your AI agent and it builds the desk in Customermates, and you approve the plan before anything is built. It is made for a business or agency of one to eight people, not for a large support team.",
+    "routine": {
+      "title": "The weekly support review",
+      "steps": [
+        "Start with the tickets whose first reply or solution is overdue, then those that have been waiting on you for more than two days.",
+        "Nudge customers who have not answered for 3 days, and set tickets that stayed silent for 7 days to solved with a note that no reply came.",
+        "Look at reopened tickets and solved tickets without a rating, and follow up on every rating of 1 or 2.",
+        "Check the open known issues: when one is fixed, tell each customer with a linked ticket, and note the top categories of the week."
+      ]
+    },
+    "limits": [
+      "It is not a phone or SMS system and not a live-chat widget. Tickets come from email, WhatsApp, LinkedIn, Instagram and Telegram messages in the inbox, or from your agent.",
+      "There is no customer portal and no public ticket form in Customermates today. Customers cannot sign in to follow a ticket.",
+      "It does not compute business hours or holidays. Due times come from the support plan table in your knowledge base, set by a rule or by your agent.",
+      "It is not an ITIL change or asset manager, a status page or a bulk messaging tool, and it has no SSO. Zendesk, Freshdesk or Zammad suit high-volume and enterprise support better.",
+      "Replies are drafts you review and send. Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule; the template proposes them and you decide which ones to switch on.",
+      "Keep card numbers, passwords, ID scans and health data out of tickets. A data request keeps its identity check as a yes or no with a date, not as copies of documents.",
+      "Connecting email or WhatsApp to the CRM needs a plan with the inbox, and a mailbox shared by the whole team needs a plan with shared accounts. The pricing page shows which plan has what."
+    ],
+    "faq": [
+      {
+        "question": "What is the simplest help desk for a small business?",
+        "answer": "A list of tickets with one owner each, a status, a priority and two due times: first reply and solution. Add a list of known issues and a satisfaction rating, and review it once a week. That is enough for a few dozen tickets a week; beyond that, a dedicated tool earns its cost."
+      },
+      {
+        "question": "What statuses should a support ticket have?",
+        "answer": "Common sets are new, open, pending, solved and closed. This template uses New, Open, Waiting on customer, On hold, Solved and Closed, plus Spam or duplicate. Vendors disagree on whether a waiting status stops the clock; the template's house rule is that waiting on the customer pauses it and waiting on a third party does not, and you can change that."
+      },
+      {
+        "question": "What response times should I promise?",
+        "answer": "There is no general benchmark. Vendor examples are critical problems answered within 4 hours and small requests within 72 hours, with an outage getting 1 hour to a first response and 4 hours to a solution. Start from values like these in the support plan table and replace them with what you can keep."
+      },
+      {
+        "question": "How do I handle a data request that arrives as a ticket?",
+        "answer": "Under the GDPR a request for access to personal data must be answered as soon as possible and within one month. Where necessary the period can be extended by two further months, with notice and reasons inside the first month. The template adds a data request type with the one-month due date visible. This is not legal advice; involve your data protection contact."
+      },
+      {
+        "question": "Can it replace Zendesk or Freshdesk?",
+        "answer": "For a team that answers a few dozen tickets a week and wants dated follow-ups and a satisfaction score, yes. For high-volume, multi-channel or enterprise support, Zendesk, Freshdesk, Zammad, Help Scout or Front keep the job: they carry SLA engines, macros, business-hours calendars and portals that this template deliberately leaves out."
+      },
+      {
+        "question": "Does the agent answer my customers?",
+        "answer": "The agent drafts replies from the linked conversation, and you review and send them. The prompt tells it to send nothing and to create no sample records."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Customer questions come in by email and chat and I cannot tell which ones are still waiting for an answer. Set up a client support desk in my Customermates workspace: tickets with a status, a priority, a first-reply time and a solution time, known issues linked to tickets, a satisfaction rating and dated follow-ups.",
+    "intro":"Customer questions come in by email and chat and I cannot tell which ones are still waiting for an answer. Set up a client support desk in my Customermates workspace: tickets with a status, a priority, a first-reply time and a solution time, known issues linked to tickets, a satisfaction rating and dated follow-ups.",
     "questions": [
       "How many tickets do you handle a week, and through which channels do they arrive?",
       "How fast do you promise a first reply and a solution, by priority or support plan?",

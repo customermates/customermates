@@ -90,8 +90,56 @@
     "start_field": "Elke afspraak legt vast wanneer ze begint.",
     "appointments_board_view": "De afspraken openen als bord per status."
   },
+  "page": {
+    "metaTitle": "Online afspraken maken: boekingen met herinneringen",
+    "metaDescription": "Online afspraken maken met een systeem dat je AI-agent in je CRM bouwt: afspraaktypes, een status per boeking, herinneringen en de uitkomst van elk gesprek.",
+    "headline": "Online afspraken maken én vastleggen wat eruit kwam: een systeem dat je AI-agent in je CRM bouwt",
+    "answer": "Online afspraken maken betekent dat een gesprek, consult of bezichtiging van aanvraag naar een bevestigd tijdstip gaat, en dat je vastlegt wat eruit kwam. Dit template richt afspraaktypes in met duur, buffer en minimale termijn, een status per boeking, herinneringen vooraf en een uitkomst achteraf. Plak het in je AI-agent en die bouwt alles in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+    "routine": {
+      "title": "De wekelijkse afsprakenreview",
+      "steps": [
+        "Loop de afspraken van vorige week langs en leg bij elke afspraak die doorging een uitkomst vast: gekwalificeerd, tweede gesprek, voorstel nodig of geen match.",
+        "Bied zonder verwijt een nieuw tijdstip aan iedereen die niet kwam opdagen of afzegde.",
+        "Beantwoord aanvragen die langer dan een dag wachten en controleer de komende 14 dagen op lege plekken en nog te versturen herinneringen. Standaard is dat één herinnering 3 dagen en één 1 dag van tevoren.",
+        "Verander één ding: een buffer, een minimale termijn of een annuleringstermijn. Bekijk aan het begin van elk kwartaal beschikbaarheid en regels."
+      ]
+    },
+    "limits": [
+      "Het boekt alleen de tijd van mensen. Ruimtes, apparatuur, hotelovernachtingen, lessen met wachtlijst en evenementen met tickets vragen om een tool die daarvoor gebouwd is.",
+      "Het is geen afsprakensysteem voor zorg. Houd diagnoses en de reden van een medische, therapeutische of juridische afspraak buiten het formulier en vraag liever waarover iemand wil praten.",
+      "Het neemt geen betalingen aan en host geen gesprekken. De agenda-afspraak bevat de link van je videotool, en een eventuele aanbetaling blijft in je betaaltool.",
+      "Openbare boekingspagina's en het wegschrijven van afspraken in je Google- of Microsoft-agenda vragen Customermates Cloud met abonnement Pro of hoger, niet zelf hosten. Zonder die pagina's neemt een openbaar formulier aanvragen aan en voer je de bevestigde tijd hier in.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet. Customermates verstuurt geen sms."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een systeem voor online afspraken?",
+        "answer": "Elk afspraaktype met duur, buffer, minimale termijn en hoe ver vooruit mensen kunnen boeken; een kort formulier met naam, contactgegevens en alleen de vragen die de afspraak veranderen; een bevestiging en herinneringen; en een plek om vast te leggen of de afspraak doorging en wat erna kwam."
+      },
+      {
+        "question": "Hoeveel herinneringen verminderen no-shows?",
+        "answer": "In één onderzoek in de zorg bleef bij herinneringen 3 dagen en 1 dag van tevoren 4,4 procent van de afspraken onbenut, tegen 5,8 procent met alleen de herinnering na 3 dagen en 5,3 procent met alleen die van 1 dag. Een overzicht van gerandomiseerde onderzoeken vond geen significant verschil tussen herinneringen die 24, 48 of 72 uur van tevoren zijn verstuurd. De cijfers komen uit de zorg, dus zie 3 dagen en 1 dag als beginpunt."
+      },
+      {
+        "question": "Waar moet een boekingsformulier nooit naar vragen?",
+        "answer": "Beperk je tot wat de afspraak nodig heeft: naam, e-mail, eventueel telefoon en een of twee vragen die de afspraak veranderen. Vraag niet naar diagnoses, details van een zaak, betaalkaartgegevens, identiteitsbewijzen of iets wat gezondheid, geloof of geaardheid verraadt. Antwoorden in vrije tekst worden als gegevens bij het record opgeslagen, houd het formulier dus kort."
+      },
+      {
+        "question": "Kan ik afspraken aannemen zonder openbare boekingspagina?",
+        "answer": "Ja. Een openbaar formulier werkt in elk abonnement, in Free met een maandlimiet en een badge: het neemt de aanvraag aan en maakt de afspraak aan, gekoppeld aan een persoon die via het e-mailadres wordt gevonden of aangemaakt. Vraagt iemand per e-mail of WhatsApp om een afspraak, dan stelt je agent vrije tijdstippen voor uit je gekoppelde agenda en schrijft het antwoord, en jij leest het na en verstuurt het. In Customermates Cloud met het abonnement Pro of hoger zet het plannen van een afspraak vanaf een record die direct in je Google- of Microsoft-agenda, en met een openbare boekingspagina kiezen mensen zelf een vrij tijdstip."
+      },
+      {
+        "question": "Moet ik een aanbetaling of no-showvergoeding vragen?",
+        "answer": "Betalingen blijven in je betaaltool. Het template legt de prijs van elk afspraaktype vast en bevat een pagina met het annuleringsbeleid. We vonden geen onderzoek dat aantoont dat aanbetalingen of vergoedingen no-shows verminderen, dus het template beweert dat niet."
+      },
+      {
+        "question": "Schrijft de agent mijn klanten aan?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Klanten boeken gesprekken, consulten of bezichtigingen bij mij, en ik raak het overzicht kwijt van wie er geboekt heeft, wie heeft bevestigd en wat eruit kwam. Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+    "intro":"Klanten boeken gesprekken, consulten of bezichtigingen bij mij, en ik raak het overzicht kwijt van wie er geboekt heeft, wie heeft bevestigd en wat eruit kwam. Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
     "questions": [
       "Welke soorten afspraken bied je aan en hoe lang duurt elke?",
       "Hoeveel tijd van tevoren moet iemand boeken en hoe ver vooruit kan men boeken?",

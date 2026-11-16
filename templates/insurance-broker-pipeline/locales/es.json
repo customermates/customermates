@@ -113,6 +113,52 @@
     "renewals_board_view": "Las renovaciones se abren como tablero por fase.",
     "advice_documentation_page": "La base de conocimiento contiene una página sobre la documentación del asesoramiento."
   },
+  "page": {
+    "metaTitle": "CRM de correduría de seguros: nuevo negocio y renovaciones",
+    "metaDescription": "Que ninguna renovación se te pase: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el CRM con asesoramiento documentado.",
+    "headline": "Que ninguna renovación se te pase: el CRM de correduría que tu agente de IA monta para nuevo negocio y renovaciones",
+    "answer": "Un CRM de correduría de seguros lleva dos pipelines a la vez: el nuevo negocio, de la consulta a la póliza activa, y un caso de renovación por cada póliza que se abre mucho antes de su vencimiento. Pega esta plantilla en tu agente de IA y él monta ambos en Customermates, con el asesoramiento documentado antes de cada propuesta. Tú apruebas el plan antes de que se construya nada. Los datos de las pólizas se quedan en tu programa de gestión.",
+    "routine": {
+      "title": "La rutina semanal de la mesa de la correduría",
+      "steps": [
+        "Abre las renovaciones que se acercan: pólizas de empresa desde unos 120 días antes del vencimiento, pólizas de particulares desde unos 45 días. Da a cada caso un responsable y un primer paso.",
+        "Reclama a las aseguradoras las ofertas que se retrasan y a los clientes que no han respondido a una propuesta de renovación pasada una semana.",
+        "Comprueba que cada propuesta lleve la fecha del registro del asesoramiento, es decir, que el análisis de necesidades esté documentado antes de enviarla. Haz seguimiento de cada propuesta al día siguiente de presentarla.",
+        "Pide al cliente que confirme su decisión unos 30 días antes de la renovación, antes de la fecha de preaviso del contrato.",
+        "Llama a los clientes nuevos una semana después de emitirse la póliza y escribe al cliente cuando tu programa de gestión avise de una prima impagada."
+      ]
+    },
+    "limits": [
+      "No es tu programa de gestión de la correduría ni la administración de pólizas. Las pólizas, las primas y los extractos de comisiones se quedan en tu programa de gestión; aquí guardas una referencia y la fecha de renovación.",
+      "No es un comparador ni un tarificador. Las ofertas vienen de los portales de las aseguradoras y de los comparadores, y tú registras el resultado.",
+      "No gestiona siniestros, solicitudes de suscripción ni la conciliación de comisiones.",
+      "No guarda datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad, y tampoco el registro del asesoramiento: solo su fecha y un enlace a donde lo guardas.",
+      "No elabora ni certifica el asesoramiento. Registra que el asesoramiento se documentó antes de la propuesta; el asesoramiento es tuyo, y las obligaciones aplicables dependen de tu país.",
+      "No hay envíos masivos, secuencias, telefonía ni SMS. Los mensajes son borradores individuales que revisas y envías tú."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué diferencia hay entre el programa de gestión y un CRM para un corredor?",
+        "answer": "El programa de gestión guarda pólizas, primas, documentos y extractos de comisiones. Un CRM guarda la relación y el próximo paso: quién ha preguntado, qué oferta está abierta, qué renovación se acerca y quién llama a quién y para cuándo. Esta plantilla es la segunda capa y solo guarda referencias a la primera."
+      },
+      {
+        "question": "¿Con cuánta antelación debo empezar una renovación?",
+        "answer": "Depende del ramo y del país. Las fuentes apuntan a entre 90 y 120 días en pólizas de empresa y entre 30 y 45 en las de particulares. La plantilla abre un caso de renovación 120 días antes del vencimiento en pólizas de empresa y 45 días antes en las de particulares, y puedes cambiar ambos. Los plazos de preaviso varían según el país y el contrato: comprueba en la póliza el plazo real."
+      },
+      {
+        "question": "¿Tengo que documentar el asesoramiento antes de una propuesta?",
+        "answer": "En la UE, la Directiva sobre la distribución de seguros exige un análisis de necesidades antes de celebrar el contrato, y muchos países esperan que el asesoramiento quede documentado. Los detalles dependen de tu país y de si actúas como corredor o como agente: comprueba tus propias obligaciones. La plantilla registra la fecha del asesoramiento y un enlace a donde se guarda, y muestra las propuestas que no lo tienen. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Puedo guardar datos de pólizas o de salud en el CRM?",
+        "answer": "Guarda lo mínimo: una referencia o enlace a la póliza, el ramo, la fecha de renovación y la prima anual. Los datos de salud, los detalles de siniestros, los datos bancarios y las copias de documentos de identidad se quedan fuera, y Customermates no tiene permisos a nivel de campo para ocultar columnas sueltas. Guarda los documentos en tu programa de gestión o en un almacén documental con control de acceso."
+      },
+      {
+        "question": "¿El agente escribe a mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Llevo una cartera de seguros y las renovaciones me pillan por sorpresa, además de tener que documentar el asesoramiento antes de cada propuesta. Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
     "questions": [

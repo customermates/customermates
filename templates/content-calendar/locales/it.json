@@ -150,8 +150,57 @@
     "publish_field": "Ogni contenuto ha una data e un'ora di pubblicazione.",
     "calendar_widget": "La dashboard mostra il calendario di pubblicazione."
   },
+  "page": {
+    "metaTitle": "Calendario editoriale e piano editoriale social nel CRM",
+    "metaDescription": "Calendario editoriale e piano editoriale che il tuo agente IA costruisce nel CRM: responsabile, revisore e data per contenuto, campagne e date chiave.",
+    "headline": "Calendario editoriale che mostra chi blocca cosa, costruito dal tuo agente IA nel CRM",
+    "answer": "Un calendario editoriale elenca ogni post, newsletter e video con stato, responsabile, revisore e data di pubblicazione, così vedi che cosa esce questa settimana. Incolla questo modello nel tuo agente IA: costruisce il calendario in Customermates, con campagne, date chiave, un controllo della dichiarazione di pubblicità e una routine editoriale settimanale. Pianifica e traccia, ma non pubblica. Tu approvi il piano prima che venga creato qualcosa.",
+    "routine": {
+      "title": "La riunione editoriale settimanale di 15 minuti",
+      "steps": [
+        "Rivedi che cosa è uscito la settimana scorsa e annota il link alla pubblicazione.",
+        "Controlla che cosa scade nei prossimi 7 giorni senza essere ancora approvato o programmato: sposta, taglia o accelera.",
+        "Per ogni contenuto bloccato indica chi può sbloccarlo e entro quando. Un contenuto fermo da 14 giorni si sblocca o si scarta.",
+        "A inizio mese pianifica il successivo: riempi gli slot al 70-85% circa della capacità e tieni pronti due o tre contenuti di riserva."
+      ]
+    },
+    "limits": [
+      "Pianifica e traccia, ma non pubblica né programma i post. Lo fanno il tuo strumento di pubblicazione o il tuo CMS, che forniscono anche le statistiche; il modello non pubblica mai da solo.",
+      "Non raccoglie statistiche. Copertura, interazioni e clic si inseriscono o si importano e non ci sono né un accorciatore di link né un generatore di UTM.",
+      "Non è uno strumento di design né una libreria di asset. Immagini e video restano nel tuo strumento di design, il calendario conserva il link.",
+      "L'approvazione è una decisione registrata, non un'autorizzazione legale né una traccia di audit per contenuti regolamentati. I settori regolamentati tengono il proprio sistema di conformità.",
+      "Tieni fuori testi riservati non pubblicati, materiali sotto embargo, dati di contatto del pubblico e password degli account social.",
+      "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve contenere un calendario editoriale?",
+        "answer": "Dieci colonne fanno gran parte del lavoro: data di pubblicazione, stato, titolo, canale, formato, responsabile, link al brief, URL pubblicato, pilastro o campagna e risultato a 30 giorni. Aggiungi un revisore e una data di revisione quando c'è più di una persona."
+      },
+      {
+        "question": "Che differenza c'è tra piano editoriale e calendario editoriale?",
+        "answer": "Il piano editoriale risponde a che cosa e perché: obiettivi, target, temi e tono di voce. Il calendario editoriale risponde a quando e come: date, cadenza e scadenze. Questo modello è il calendario, con righe, stati e responsabili; gli obiettivi e i temi del piano trovano posto nella base di conoscenza."
+      },
+      {
+        "question": "Quanto in anticipo conviene pianificare?",
+        "answer": "Pianifica 2-4 settimane nel dettaglio, tieni mese e trimestre a grandi linee e incontratevi 15 minuti ogni settimana. La guida tedesca di HubSpot parla di un orizzonte mobile di due-quattro settimane e di una riunione editoriale settimanale per i 7-14 giorni successivi."
+      },
+      {
+        "question": "Devo dichiarare i contenuti sponsorizzati o ricevuti in regalo?",
+        "answer": "In genere sì. Le regole cambiano da paese a paese; per gli influencer la pubblicità nei post è regolamentata, verifica i dettagli per il tuo caso. A titolo di esempio, l'autorità statunitense FTC vuole l'informazione insieme alla pubblicazione, con parole chiare come ad o sponsorizzato, non nascosta tra gli hashtag e, nei video, sia a voce sia nel testo. Il modello offre un campo di dichiarazione e un passaggio di controllo. Non è consulenza legale."
+      },
+      {
+        "question": "Foglio di calcolo o CRM per il calendario editoriale?",
+        "answer": "Un foglio di calcolo basta per una persona e un canale. Quando servono collegamenti tra persone, marchi e campagne, una revisione ha una scadenza e un contenuto pubblicato deve generare un'attività, un CRM tiene tutto questo come record invece che come colonne. Il modello lo fa e lascia la pubblicazione al tuo strumento di pubblicazione."
+      },
+      {
+        "question": "L'agente pubblica al posto mio?",
+        "answer": "No. Il modello pianifica e traccia; la pubblicazione avviene nel tuo strumento di pubblicazione o nel tuo CMS. Il prompt dice all'agente di non creare dati di esempio."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "I nostri post, newsletter e video escono in ritardo perché non vedo chi sta rivedendo che cosa né quando va online. Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
+    "intro":"I nostri post, newsletter e video escono in ritardo perché non vedo chi sta rivedendo che cosa né quando va online. Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
     "questions": [
       "Che cosa pubblichi, su quali canali e con quale frequenza?",
       "Chi scrive, chi rivede e chi approva? È coinvolto un cliente?",

@@ -104,6 +104,53 @@
     "inquiries_board_view": "Les demandes s’ouvrent en board par étape.",
     "conflict_check_page": "La base de connaissances contient une page sur la vérification des conflits."
   },
+  "page": {
+    "metaTitle": "Prise de dossier avocat : conflits et délais maîtrisés",
+    "metaDescription": "Prise de dossier sans conflit oublié ni délai manqué : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit l’accueil des clients.",
+    "headline": "Prise de dossier sans conflit oublié ni délai manqué : votre agent IA construit l’accueil de votre cabinet",
+    "answer": "Une prise de dossier mène un prospect de la première demande à la lettre de mission signée, dans un ordre fixe : le délai le plus proche connu, la vérification des conflits, le premier rendez-vous, la convention d’honoraires et la lettre de mission, avec un courrier de non-prise en charge pour tous ceux qui ne sont pas retenus. Collez ce modèle dans votre agent IA : il construit l’accueil dans Customermates. Vous validez le plan avant que rien ne soit créé, et les faits du dossier restent dehors.",
+    "routine": {
+      "title": "La routine du bureau d’accueil",
+      "steps": [
+        "Enregistrez chaque nouvelle demande le jour même : domaine du droit, comment la personne vous a trouvé, les parties concernées et le délai le plus proche connu.",
+        "Traitez d’abord les demandes dont le délai tombe dans les 14 jours : accepter, orienter ailleurs ou prévenir la personne le jour même.",
+        "Faites la vérification des conflits avant tout conseil : cherchez parmi les parties, les clients et les anciens clients, et notez le résultat et la personne qui l’a faite.",
+        "Envoyez la convention d’honoraires le lendemain du premier rendez-vous et relancez au bout de trois jours sans nouvelle.",
+        "Une fois la lettre de mission signée, demandez la provision et relancez-la au bout d’une semaine. Ouvrez le dossier dans votre logiciel de cabinet.",
+        "Envoyez un courrier de non-prise en charge à tous ceux que vous refusez ou qui se taisent, pour garder la trace qu’aucune relation n’est née."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas votre logiciel de gestion de dossiers. Documents, relevés de temps, délais de procédure et dépôts restent dans votre logiciel de cabinet ; un dossier est ici un simple renvoi.",
+      "Ce n’est pas un agenda des délais. La seule date conservée à l’accueil est le délai le plus proche connu, pour décider quoi regarder d’abord. Les délais de procédure restent dans le système sur lequel vous vous appuyez.",
+      "Il ne fait ni comptabilité de fonds de tiers ni facturation. Il n’y a pas de modèle de facture : la provision est consignée comme une date, le grand livre reste dans votre comptabilité.",
+      "La vérification des conflits est une aide humaine. Vous cherchez vous-même dans la liste des parties et notez le résultat ; Customermates ne peut pas vous empêcher d’ouvrir un dossier.",
+      "Ce n’est ni un portail client ni un outil de signature électronique. Une convention signée est un lien vers le fichier signé.",
+      "Gardez hors de l’outil les faits du dossier, les contenus couverts par le secret, les données de santé et les détails sur les adversaires. Customermates n’a pas de droits au niveau du champ : ce qui figure dans une liste est visible de tous ceux qui y ont accès."
+    ],
+    "faq": [
+      {
+        "question": "Que comprend un processus de prise de dossier ?",
+        "answer": "Les listes de contrôle de praticiens suivent cet ordre : demande, tri avec vérification des conflits et urgence, premier rendez-vous, convention d’honoraires et termes de la mission, convention signée avec pouvoir et provision, et seulement ensuite le dossier dans le logiciel de gestion. Les cabinets diffèrent sur des points comme la provision avant le début du travail. Le modèle fixe l’ordre et vous laisse le reste."
+      },
+      {
+        "question": "La vérification des conflits doit-elle précéder le premier rendez-vous ?",
+        "answer": "Les recommandations des jeunes avocats de l’American Bar Association et des sources de pratique allemandes placent la vérification des conflits avant tout conseil et avant la lettre de mission ; une liste de contrôle la place même avant le premier rendez-vous. Le modèle comporte une étape de vérification avant le premier rendez-vous et consigne le résultat et la personne qui l’a faite. Les règles varient selon le pays : vérifiez votre propre déontologie."
+      },
+      {
+        "question": "Pourquoi noter un délai dès le premier contact ?",
+        "answer": "Un délai peut expirer avant que vous acceptiez le dossier, et des commentaires de revues professionnelles allemandes notent qu’un manquement évitable peut engager la responsabilité avant même l’acceptation. Noter le délai le plus proche connu et son origine permet de trier l’urgent le jour même. C’est une date de tri, pas un agenda de procédure."
+      },
+      {
+        "question": "Ai-je besoin d’un courrier de non-prise en charge ?",
+        "answer": "C’est une bonne pratique : les recommandations pour avocats conseillent un courrier écrit aux prospects que vous refusez ou qui ne vous retiennent pas, pour garder la trace qu’aucune relation n’est née. Le modèle crée une action pour le rédiger quand vous refusez une demande ou qu’un prospect ne vous retient pas. Son caractère obligatoire dépend de votre pays."
+      },
+      {
+        "question": "Puis-je mettre des dossiers de clients dans Customermates ?",
+        "answer": "Seulement comme renvois : une référence au dossier dans votre logiciel de cabinet. Gardez dehors les faits du dossier, les contenus couverts par le secret, les données de santé et les détails sur les adversaires, car Customermates n’a pas de droits au niveau du champ. L’agent n’envoie rien et ne crée aucun exemple de données ; des brouillons n’existent que si vous en demandez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Des prospects m’appellent pour une affaire, et je dois vérifier les conflits, noter le délai le plus proche et documenter chaque étape avant de les prendre en charge. Mets en place dans mon espace de travail Customermates une prise de dossier pour un cabinet d’avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d’honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-prise en charge. Ne stocke aucun fait de l’affaire ni information couverte par le secret professionnel.",
     "questions": [

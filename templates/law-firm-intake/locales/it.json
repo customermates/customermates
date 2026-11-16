@@ -104,6 +104,53 @@
     "inquiries_board_view": "Le richieste si aprono come board per fase.",
     "conflict_check_page": "La base di conoscenza contiene una pagina sulla verifica dei conflitti."
   },
+  "page": {
+    "metaTitle": "Acquisizione clienti studio legale: conflitti e termini",
+    "metaDescription": "Acquisizione clienti senza saltare verifica dei conflitti o termini: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il processo.",
+    "headline": "Acquisizione clienti senza saltare un conflitto o un termine: il tuo agente IA la costruisce per il tuo studio",
+    "answer": "L'acquisizione di un cliente porta un potenziale cliente dalla prima richiesta all'incarico firmato in un ordine fisso: il termine più vicino noto, la verifica dei conflitti, il primo colloquio, il preventivo e l'incarico con la procura, con una lettera di mancato conferimento per chi non viene accolto. Incolla questo modello nel tuo agente IA e costruisce il processo in Customermates. Approvi il piano prima che venga costruito qualcosa, e i fatti della pratica restano fuori.",
+    "routine": {
+      "title": "La routine di acquisizione clienti",
+      "steps": [
+        "Registra ogni nuova richiesta lo stesso giorno: materia, come la persona ti ha trovato, le parti coinvolte e il termine più vicino noto.",
+        "Tratta per prime le richieste con un termine entro 14 giorni: accettare, indirizzare altrove o avvisare la persona lo stesso giorno.",
+        "Fai la verifica dei conflitti prima di qualsiasi consiglio: cerca tra le parti, i clienti e gli ex clienti e annota il risultato e chi l'ha fatta.",
+        "Invia il preventivo il giorno dopo il primo colloquio e sollecita dopo tre giorni se non senti nulla.",
+        "A incarico firmato, chiedi l'acconto e sollecitalo dopo una settimana. Apri la pratica nel tuo gestionale.",
+        "Manda la lettera di mancato conferimento a chi rifiuti o a chi tace, così resta traccia che non è nato alcun rapporto."
+      ]
+    },
+    "limits": [
+      "Non è il tuo gestionale di studio. Documenti, rilevazione del tempo, scadenze processuali e depositi restano nel tuo gestionale; qui una pratica è solo un rimando.",
+      "Non è un'autorità sulle scadenze. L'unica data tenuta all'acquisizione è il termine più vicino noto, per decidere cosa guardare per primo. Le scadenze processuali restano nel sistema su cui ti affidi.",
+      "Non fa contabilità dei fondi dei clienti né fatturazione. Non c'è un modello di fattura: l'acconto è registrato come data, il registro resta nella tua contabilità.",
+      "La verifica dei conflitti è un aiuto umano. Cerchi tu stesso nell'elenco delle controparti e annoti il risultato; Customermates non può impedirti di aprire una pratica.",
+      "Non è un portale clienti né uno strumento di firma elettronica. Un incarico firmato è un link al file firmato.",
+      "Tieni fuori i fatti della pratica, i contenuti riservati, i dati sanitari e i dettagli sulle controparti. Customermates non ha permessi a livello di campo: ciò che sta in un elenco lo vedono tutti quelli che hanno accesso a quell'elenco."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa comprende l'acquisizione di un cliente in uno studio legale?",
+        "answer": "Le liste di controllo dei professionisti seguono questo ordine: richiesta, screening con verifica dei conflitti e urgenza, primo colloquio, preventivo e condizioni dell'incarico, incarico firmato con procura e acconto, e solo dopo la pratica nel gestionale. Gli studi differiscono su dettagli come l'acconto prima dell'inizio del lavoro. Il modello fissa l'ordine e ti lascia il resto."
+      },
+      {
+        "question": "La verifica dei conflitti va fatta prima del primo colloquio?",
+        "answer": "Le indicazioni dei giovani avvocati dell'American Bar Association e fonti della pratica tedesca mettono la verifica dei conflitti prima di qualsiasi consiglio e prima della lettera di incarico; una lista di controllo la fa addirittura prima del primo colloquio. Il modello ha una fase di verifica prima del primo colloquio e registra il risultato e chi l'ha fatta. Le regole cambiano da paese a paese: controlla il tuo codice deontologico."
+      },
+      {
+        "question": "Perché annotare un termine già al primo contatto?",
+        "answer": "Un termine può scadere prima che tu accetti la pratica, e commenti di riviste professionali tedesche osservano che una mancanza evitabile può far sorgere responsabilità anche prima dell'accettazione. Annotare il termine più vicino noto e la sua origine permette di ordinare l'urgente lo stesso giorno. È una data di smistamento, non uno scadenzario processuale."
+      },
+      {
+        "question": "Mi serve una lettera di mancato conferimento?",
+        "answer": "È buona prassi: le indicazioni per gli avvocati consigliano una lettera scritta a chi rifiuti o a chi non ti conferisce l'incarico, così resta traccia che non è nato alcun rapporto. Il modello crea un'attività per scriverla quando rifiuti una richiesta o un potenziale cliente non ti conferisce l'incarico. Se sia obbligatoria dipende dal tuo paese."
+      },
+      {
+        "question": "Posso mettere le pratiche dei clienti in Customermates?",
+        "answer": "Solo come rimandi: un riferimento alla pratica nel tuo gestionale. Tieni fuori fatti della pratica, contenuti riservati, dati sanitari e dettagli sulle controparti, perché Customermates non ha permessi a livello di campo. L'agente non invia nulla e non crea dati di esempio; le bozze esistono solo se le chiedi."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mi chiamano potenziali clienti per una causa e prima di accettarli devo verificare i conflitti, annotare il termine più vicino e documentare ogni passaggio. Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
     "questions": [

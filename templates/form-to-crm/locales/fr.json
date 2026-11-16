@@ -80,6 +80,52 @@
     "submitted_field": "Chaque demande indique quand elle a été reçue.",
     "requests_board_view": "Les demandes s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "Formulaire en ligne relié au CRM : aucune demande oubliée",
+    "metaDescription": "Formulaire en ligne qui alimente votre CRM : collez ce modèle dans Claude, ChatGPT ou Codex, et chaque demande reçoit un responsable et une réponse due.",
+    "headline": "Un formulaire en ligne relié à votre CRM : chaque demande a un responsable et une réponse à donner",
+    "answer": "Un formulaire en ligne ne sert que si chaque envoi reçoit une réponse. Ce modèle transforme chaque envoi en demande liée à un contact, avec le formulaire d’origine, une réponse à donner dès le lendemain et une étape de nouveau à converti. Collez-le dans votre agent IA : il construit la liste des demandes dans Customermates et le chemin depuis votre formulaire, et vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La première réponse à chaque demande",
+      "steps": [
+        "Répondez aux nouvelles demandes le jour même. Le modèle crée une action de réponse due le lendemain et signale une demande encore nouvelle après un jour.",
+        "Envoyez une courte confirmation qui reprend la demande avec les mots de la personne et dit quand viendra la réponse ou le devis.",
+        "Posez la ou les deux questions qui décident du prix ou de la personne qui traite la demande, au lieu d’exiger un long formulaire d’emblée.",
+        "Relancez une demande contactée après 3 jours. Si les relances restent sans réponse, classez-la « Sans suite » en notant l’absence de réponse comme motif.",
+        "Marquez le spam et les demandes sans suite et laissez courir leur date de revue des données, pour que les anciennes demandes soient revues ou supprimées à temps.",
+        "Transmettez chaque demande qui devient une affaire à votre pipeline commercial et passez-la à « Converti » ici."
+      ]
+    },
+    "limits": [
+      "Le formulaire public reste simple, sans être un constructeur complet : ni paiements, ni quiz, ni calculateurs, ni envoi de fichiers, ni signature électronique. Typeform, Tally ou Jotform restent préférables pour cela, et un webhook entrant amène leurs réponses ici.",
+      "Gardez les documents sensibles hors du formulaire. Demandez-les par un canal à accès contrôlé.",
+      "Il n’envoie rien tout seul. Les confirmations et les réponses sont des brouillons que vous relisez et envoyez.",
+      "Ce n’est pas un outil d’emailing. Il enregistre un consentement marketing, mais les séquences et les newsletters demandent un outil d’emailing, car Customermates n’a ni séquences ni envoi en masse.",
+      "Les textes sur la vie privée sont des points de départ, pas un avis juridique. Adaptez la mention, la formule de consentement et les durées de conservation à votre pays avec votre conseil."
+    ],
+    "faq": [
+      {
+        "question": "Que doit demander un formulaire de demande de devis ?",
+        "answer": "Seulement ce qui change le prix ou décide qui répond : en général quatre à sept questions, comme ce dont vous avez besoin, pour quand et une fourchette de budget. Gardez les détails pour le premier échange. Le modèle conserve le formulaire, la page et la source de chaque demande, pour voir d’où viennent les bonnes."
+      },
+      {
+        "question": "En combien de temps répondre à une demande reçue par un formulaire web ?",
+        "answer": "Aussi vite que vous pouvez le promettre et le tenir : le jour même au plus tard, en indiquant sur le formulaire quand la personne aura de vos nouvelles. Les guides d’éditeurs de formulaires recommandent un premier message qui confirme la demande et annonce quand arrive le devis. Le modèle crée une action de réponse due le lendemain et signale une demande que personne n’a traitée après un jour."
+      },
+      {
+        "question": "Faut-il une case de consentement sur un formulaire de demande de devis ?",
+        "answer": "Pas automatiquement. Selon le RGPD, une demande de devis est en général traitée pour y répondre : ce que vous devez à la personne sur le formulaire, c’est une information sur qui vous êtes, pourquoi vous utilisez ses données, sur quelle base, combien de temps vous les gardez et quels sont ses droits. La prospection demande un consentement distinct, non pré-coché, que vous pouvez prouver ; une case pré-cochée ne compte pas. Le modèle enregistre le consentement et une date de revue des données, et la case de consentement facultative du formulaire conserve votre texte, sa version et l’heure à chaque soumission. Ce n’est pas un avis juridique."
+      },
+      {
+        "question": "Est-ce compatible avec Typeform, Tally ou Jotform ?",
+        "answer": "Oui, avec tout outil de formulaire capable d’envoyer un webhook, comme Typeform, Tally ou Jotform. Un webhook entrant donne à une liste une adresse secrète, et chaque soumission envoyée à cette adresse crée ou met à jour une fiche. Le modèle contient une règle qui crée le contact et la demande quand un autre outil de formulaire envoie une soumission, et votre agent met en place, pendant l’entretien, l’adresse et la correspondance des champs. Les webhooks entrants demandent la formule Starter ou supérieure sur Customermates Cloud et n’ont aucune limite en auto-hébergement. Un formulaire de votre propre site fonctionne de la même façon, ou vous utilisez le formulaire public de Customermates."
+      },
+      {
+        "question": "L’agent contacte-t-il les personnes qui remplissent mon formulaire ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Les demandes de mes formulaires web sont traitées tard ou pas du tout, et je ne vois pas d’où viennent les bonnes. Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
     "questions": [

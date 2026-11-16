@@ -140,7 +140,7 @@
     { "url": "https://support.atlassian.com/trello/docs/butler-quotas-and-limits/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
   "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
   "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "it": "wave2", "es": "wave2", "pt": "wave2", "pl": "wave2", "nl": "wave2" }
 }

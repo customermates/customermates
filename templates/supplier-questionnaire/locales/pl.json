@@ -115,6 +115,51 @@
     "valid_until_field": "Każdy dokument zapisuje, do kiedy jest ważny.",
     "suppliers_board_view": "Dostawcy otwierają się jako tablica według statusu."
   },
+  "page": {
+    "metaTitle": "Ocena dostawców: szablon rejestru z terminami ważności",
+    "metaDescription": "Ocena dostawców w jednym rejestrze: kwestionariusz, certyfikaty z datą ważności i poziom ryzyka. Wklej szablon do agenta AI, a zbuduje rejestr w Twoim CRM.",
+    "headline": "Ocena dostawców, która pokazuje, który certyfikat wygasa pierwszy: rejestr, który Twój agent AI buduje w CRM",
+    "answer": "Ocena dostawców zbiera w jednym rejestrze kwestionariusz, certyfikaty z datą ważności, poziom ryzyka i decyzję o każdym dostawcy. Wklej ten szablon do swojego agenta AI, a zbuduje rejestr w Customermates, z zadaniami z terminem dla kwestionariuszy, odnowień i ponownych ocen. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Rejestr zapisuje prośby i decyzje, nie rozstrzyga o zgodności z prawem.",
+    "routine": {
+      "title": "Cotygodniowy przegląd dostawców",
+      "steps": [
+        "Ponagl dostawców, którym minął termin na kwestionariusz.",
+        "Sprawdź odpowiedzi z kwestionariuszy otrzymanych w ostatnich dniach i zaznacz te, do których brakuje aktualnego potwierdzenia.",
+        "Poproś o odnowienie certyfikatów i zaświadczeń, które wygasają w ciągu 30 dni, i rozstrzygnij sprawy tych, które już wygasły: zawiesić dostawcę albo zaakceptować ryzyko na piśmie.",
+        "Zapisz decyzję o dostawcach w ocenie (zatwierdzić, zatwierdzić warunkowo, eskalować lub odrzucić) i ustaw następną ocenę według poziomu ryzyka.",
+        "Rozpocznij ponowną ocenę dostawców, których następna ocena przypada w ciągu 14 dni."
+      ]
+    },
+    "limits": [
+      "Nie rozstrzyga, że dostawca, produkt lub łańcuch dostaw spełnia jakiś przepis, i nie składa oświadczeń o należytej staranności ani raportów. Zapisuje prośby, dowody i decyzje.",
+      "To nie jest usługa weryfikacji: bez sprawdzania sankcji, negatywnych publikacji ani ryzyka finansowego i bez wzbogacania danych o firmach.",
+      "To nie jest system ERP, zakupowy ani fakturowy. Nie ma tu zamówień zakupu, kwot wydatków ani faktur.",
+      "To nie jest archiwum dokumentów. Pliki można przeszukiwać tylko wtedy, gdy mają warstwę tekstową, zeskanowane certyfikaty nie są odczytywane, a ścieżka audytu nie jest niezmienna ani przechowywana niezależnie. Oryginały trzymaj w swoim systemie dokumentów i dodaj link.",
+      "Dostawcy nie mogą się zalogować, by odpowiedzieć lub wgrać pliki, i nie ma podpisu elektronicznego ani uprawnień na poziomie pola. Materiały poufne trzymaj w osobnej liście lub przestrzeni roboczej. Platformy takie jak EcoVadis, Sedex czy SAP Ariba robią to, czego tu brakuje."
+    ],
+    "faq": [
+      {
+        "question": "Jak często oceniać dostawców ponownie?",
+        "answer": "Poradniki wskazują minimum raz w roku. W praktyce dostawców krytycznych przegląda się co sześć lub dwanaście miesięcy oraz po zdarzeniu, takim jak przejęcie, nowy podwykonawca czy incydent, a dostawcy o niskim ryzyku mogą czekać rok lub dłużej. Szablon ustawia następną ocenę według poziomu ryzyka; po zdarzeniu ponowną ocenę rozpoczynasz sam."
+      },
+      {
+        "question": "Jakie kryteria powinna mieć ocena dostawców?",
+        "answer": "Najczęściej sześć: jakość, stosunek ceny do jakości, terminowość dostaw, elastyczność, komunikację i zrównoważony rozwój. Punktowanie, analiza użyteczności czy analiza ABC: norma ISO 9001 nie narzuca metody, ale wymaga udokumentowanych, możliwych do prześledzenia kryteriów. Certyfikaty są wskazówką i nie zastępują własnej oceny."
+      },
+      {
+        "question": "Czy dostawców dzielić według wartości zakupów?",
+        "answer": "Nie. Głębokość kontroli powinna wynikać z ryzyka: danych, które dostawca przetwarza, jego dostępu, znaczenia dla firmy i łatwości zastąpienia go innym. Użyj czterech poziomów, od niskiego do krytycznego, z krótkim kwestionariuszem dla dostawców o niskim ryzyku i pełnym dla krytycznych. Wartość zakupów nie jest polem tego szablonu."
+      },
+      {
+        "question": "Czy szablon rozstrzyga, czy spełniamy przepisy o łańcuchu dostaw?",
+        "answer": "Nie. Koordynuje prośby o dowody i zapisuje terminy oraz decyzje. Zakres i terminy przepisów, takich jak unijne rozporządzenie w sprawie wylesiania czy prawo dotyczące należytej staranności, wciąż się zmieniają: potwierdź je u swojego doradcy. Szablon nigdy nie mówi, że dostawca lub produkt jest zgodny z prawem."
+      },
+      {
+        "question": "Czy agent pisze do moich dostawców?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Współpracuję z wieloma dostawcami i nie widzę, komu wygasły certyfikaty ani kogo trzeba ocenić ponownie. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
     "questions": [

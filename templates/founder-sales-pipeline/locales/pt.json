@@ -86,6 +86,52 @@
     "pilot_end_field": "Todo piloto tem uma data de término.",
     "opportunities_board_view": "Os negócios abrem como quadro por etapa."
   },
+  "page": {
+    "metaTitle": "Funil de vendas do fundador: nenhuma conversa solta",
+    "metaDescription": "Venda como fundador sem perder o fio: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta o funil com piloto e etapa de pausa.",
+    "headline": "Vender como fundador sem perder o fio: um funil que seu agente de IA monta no seu CRM",
+    "answer": "Um funil de vendas do fundador é uma lista curta de conversas abertas, cada uma com o problema nas palavras do cliente, um próximo passo com data e, se você tiver um, um piloto com data final fixa. Cole este modelo no seu agente de IA e ele monta o funil no Customermates, com a etapa Pausado e uma data para voltar às conversas que esfriam. Você aprova o plano antes de qualquer coisa ser construída.",
+    "routine": {
+      "title": "A revisão do fundador de segunda-feira",
+      "steps": [
+        "Liste cada conversa aberta e dê a cada uma um próximo passo com data. Conversa sem data é a que esfria.",
+        "Anote o que você aprendeu desde a semana passada: o problema nas palavras do comprador, a urgência, o orçamento e quem decide.",
+        "Confira os pilotos: a data final está definida, os critérios de sucesso estão escritos, é pago? Marque a conversa de decisão alguns dias antes do fim.",
+        "Decida sobre as conversas que esfriaram: uma última mensagem honesta e depois pause com uma data para voltar, em vez de insistir.",
+        "Olhe quem comprou e quem disse não, e por quê. O padrão mostra para qual segmento vender e quando é hora de contratar seu primeiro vendedor."
+      ]
+    },
+    "limits": [
+      "Não é uma ferramenta de cadências de prospecção. O Customermates não tem sequências nem disparos em massa, e cada mensagem é individual e revisada por você. LinkedIn ou e-mail em volume pedem uma ferramenta especializada.",
+      "Não é um CRM de investidores. A captação de recursos tem outras etapas e outros interlocutores: use outro modelo.",
+      "Não faz orçamentos, notas fiscais nem contratos e não tem assinatura eletrônica. Propostas e acordos são feitos em outras ferramentas; aqui ficam só as datas e um link.",
+      "Não há pontuação de leads nem enriquecimento de dados. O quanto um lead combina é um campo que você mesmo define.",
+      "O valor ponderado não é uma previsão. Os pesos são aproximados, porque o fundador ainda não tem histórico de fechamentos, e são seus para mudar.",
+      "Foi pensado para um vendedor só. Vários vendedores com metas e uma previsão de equipe pedem o modelo de funil de vendas ou um CRM mais pesado."
+    ],
+    "faq": [
+      {
+        "question": "Quando um fundador precisa de um CRM?",
+        "answer": "Guias apontam o momento em que você tem mais leads e clientes do que cabem na cabeça ou em uma planilha, muitas vezes entre 50 e 200 contatos, ou quando uma segunda pessoa começa a vender. Até lá, uma planilha basta. Esperar tem um custo: quando você troca, as anotações e os próximos passos já estão espalhados."
+      },
+      {
+        "question": "Quantos clientes um fundador deve fechar pessoalmente?",
+        "answer": "Os conselhos variam: Jason Lemkin fala nos 10 primeiros clientes, talvez 20, outros guias de 10 a 50. A Mercury aconselha contratar o primeiro vendedor quando você puder dizer: “Sei que consigo vender meu produto para gente como X que tem o problema Y”. O modelo mostra quantos clientes você ganhou e não impõe nenhum número."
+      },
+      {
+        "question": "Por quanto tempo devo insistir numa conversa que esfriou?",
+        "answer": "Quem trabalha com vendas não concorda sobre o número, mas concorda que em algum momento se para. A Mercury aconselha parar de insistir com quem ignora você; outros sugerem alguns acompanhamentos, um último e-mail e um novo contato meses depois. O modelo faz as duas coisas: uma mensagem de encerramento e depois o negócio fica pausado, com uma data para voltar em 90 dias."
+      },
+      {
+        "question": "Devo oferecer um piloto gratuito?",
+        "answer": "O conselho resumido da Startup School da Y Combinator é evitar pilotos gratuitos sem limite e fazer um curto, avaliado e, se possível, pago. O modelo dá ao piloto uma data final fixa e um indicador de pago ou não, cria uma checagem 14 dias depois do início e uma tarefa para a conversa de decisão 3 dias antes do fim."
+      },
+      {
+        "question": "O agente escreve para meus prospects?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu vendo o meu produto pessoalmente e vivo perdendo as anotações e os próximos passos das minhas conversas. Configure no meu espaço de trabalho do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
     "questions": [

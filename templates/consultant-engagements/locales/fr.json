@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Chaque mission indique quand l’acceptation a été contrôlée.",
     "engagements_board_view": "Les missions s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "Missions de conseil : suivi des propositions et relances",
+    "metaDescription": "Missions de conseil : votre agent IA construit dans votre CRM le suivi, de la prospection à la signature, avec une date de relance convenue à l’appel.",
+    "headline": "Ne perdez plus une proposition dans le silence après l’appel : un CRM de conseil construit par votre agent IA",
+    "answer": "Un CRM de conseil suit quelques missions à forte valeur de la prospection à la signature et, surtout, la date à laquelle vous relancez une proposition. Ce modèle met en place des missions avec qualification, cadrage, proposition et décision, un contrôle d’acceptation avant l’offre, des livrables avec dates d’échéance et de validation, et une clôture. Collez-le dans votre agent IA : il construit tout dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+    "routine": {
+      "title": "La revue du lundi des missions",
+      "steps": [
+        "Parcourez le pipeline par étape et ajoutez une prochaine étape datée à chaque mission qui n’en a pas, ou clôturez-la.",
+        "Vérifiez les propositions en cours : chacune demande une date de relance convenue avec le décideur pendant l’appel, puis une seconde relance vers le dixième jour et la demande de décision à la date prévue.",
+        "Regardez les livrables à remettre dans les 14 prochains jours et confirmez le créneau de relecture avec le client.",
+        "Reprenez contact avec les relations fortes ou chaudes que vous n’avez pas vues depuis 60 jours, et remerciez celui qui vous a recommandé pour votre dernière mission."
+      ]
+    },
+    "limits": [
+      "Ce n’est ni un outil de suivi du temps ni de facturation. Heures et factures restent dans vos outils de temps passé et de comptabilité ; une action sur jalon ne fait que vous rappeler de facturer.",
+      "Il ne rédige pas de propositions et ne recueille pas de signatures. Une proposition et un contrat signé sont des liens vers des documents ailleurs.",
+      "Ce n’est ni de la planification de ressources, ni de la gestion de projet au-delà des livrables et des dates. Les tâches du travail lui-même relèvent de votre outil de projet.",
+      "Gardez-en hors les documents confidentiels des clients et les données d’entretiens. Il n’y a pas de droits au niveau du champ : notez un titre de mission neutre et un lien.",
+      "Il n’envoie pas de séquences. Chaque relance est une action datée et un brouillon que vous relisez et envoyez vous-même ; Customermates n’a pas de moteur d’envoi automatique ou en masse.",
+      "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+    ],
+    "faq": [
+      {
+        "question": "Quel CRM utilisent les consultants ?",
+        "answer": "Beaucoup de consultants indépendants démarrent avec un tableur ou un CRM commercial généraliste. Ce dont un consultant a besoin est limité : quelques contacts et missions, une prochaine étape datée sur chacune, la date de relance d’une proposition et les étapes de validation après la vente. Ce modèle met cela en place dans Customermates."
+      },
+      {
+        "question": "Quand relancer après l’envoi d’une proposition ?",
+        "answer": "Convenez de la date pendant l’appel sur la proposition, comme le décrit Alan Weiss : donnez un jour et une heure précis, appelez d’abord et n’écrivez que si l’acheteur reste injoignable. Le modèle propose par défaut une première relance après 3 jours et une seconde après 10 jours ; vous pouvez changer les deux."
+      },
+      {
+        "question": "Qu’est-ce qu’un contrôle d’acceptation ?",
+        "answer": "Un court contrôle avant de rédiger une offre : avez-vous la capacité, êtes-vous indépendant des autres parties du client, la confidentialité peut-elle être tenue, la mission vous convient-elle ? Une association allemande de consultants recommande de vérifier si un mandat peut être accepté avant de formuler l’offre, et de refuser sinon."
+      },
+      {
+        "question": "Quand organiser la réunion de lancement après la signature ?",
+        "answer": "Un guide d’éditeur vise une réunion de lancement dans les 48 heures après la signature, avec un document préparatoire envoyé 24 heures avant une réunion de 60 minutes ; il note que les missions réglementées ou sous-traitées demandent plus de temps. Le modèle crée une étape de lancement le lendemain de la signature."
+      },
+      {
+        "question": "Que faire après avoir perdu une proposition ?",
+        "answer": "Notez le motif, puis demandez au décideur, deux jours plus tard, ce que vous auriez pu faire autrement. Alan Weiss recommande précisément cette question quand la réponse est non. Le modèle crée cette étape pour vous."
+      },
+      {
+        "question": "L’agent écrit-il à mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Je mène une activité de conseil en indépendant et je perds des affaires dans le silence qui suit l’appel sur une proposition. Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
+    "intro":"Je mène une activité de conseil en indépendant et je perds des affaires dans le silence qui suit l’appel sur une proposition. Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
     "questions": [
       "Quels types de missions vendez-vous, et à quel taux journalier ?",
       "Comment décidez-vous d’accepter ou non une mission ?",

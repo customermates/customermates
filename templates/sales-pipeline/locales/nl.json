@@ -235,6 +235,47 @@
     "proposal_follow_up_rule": "Een deal die Offerte verstuurd bereikt, krijgt een opvolgactie.",
     "stages_page": "De kennisbank bevat de fasen en hun uitstapcriteria."
   },
+  "page": {
+    "metaTitle": "Sales pipeline sjabloon: de volgende stap bij elke deal",
+    "metaDescription": "Plak deze sales pipeline in Claude, ChatGPT of Codex: zeven fasen, een volgende stap met datum bij elke deal en de redenen waarom je wint of verliest.",
+    "headline": "Zie welke deals vooruitgaan: een sales pipeline die je AI-agent in je CRM opbouwt",
+    "answer": "Een sales pipeline is een korte lijst met fasen, elk met een duidelijk uitstapcriterium, zodat je ziet welke deals vooruitgaan, welke vastzitten en wat er daarna gebeurt. Plak dit sjabloon in je AI-agent en die bouwt de pipeline op in Customermates: zeven fasen, een gewogen waarde, een volgende stap met datum bij elke open deal, het besluitvormingsteam, redenen voor winst en verlies en een actie bij elke fasewijziging. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse pipelinecontrole",
+      "steps": [
+        "Open het bord en kijk naar elke deal die langer dan 14 dagen in zijn fase staat.",
+        "Beslis per deal: doorschuiven omdat het uitstapcriterium is gehaald, nieuw leven inblazen met een nieuwe volgende stap, of afsluiten als verloren met een reden.",
+        "Zorg dat elke open deal een volgende stap met datum heeft, vastgelegd aan het eind van elk gesprek.",
+        "Loop de gewonnen en verloren deals met hun redenen langs, en de deals die hun verwachte afsluitdatum voorbij zijn."
+      ]
+    },
+    "limits": [
+      "Het maakt geen offertes of facturen. De offerte schrijf je in je documenttool en koppel je aan de deal.",
+      "Het is geen tool voor sequenties of massamailing. Opvolging bestaat uit concepten voor individuele personen en jij verstuurt ze zelf.",
+      "Er is geen leadscoring of verrijking, geen forecastcategorieën en geen beheer van targets of commissies. De gewogen waarde is een eenvoudige weging van je dealbedragen per fase, geen prognose.",
+      "Er is geen telefonie of sms.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het sjabloon stelt ze voor en jij bepaalt welke je aanzet.",
+      "Het is bedoeld voor één tot tien verkopers. Teams met een formeel forecastproces zijn beter af met een tool die daarvoor is gebouwd."
+    ],
+    "faq": [
+      {
+        "question": "Hoeveel fasen moet een sales pipeline hebben?",
+        "answer": "Praktijkmensen zijn het er niet over eens: sommigen raden vijf of minder aan, anderen gebruiken er negen. Dit sjabloon heeft vijf open fasen plus gewonnen en verloren, omdat elke fase één meetbaar uitstapcriterium heeft. Hernoem of schrap fasen in het plan dat je agent voorstelt."
+      },
+      {
+        "question": "Wat is de gewogen waarde van een deal?",
+        "answer": "Het dealbedrag vermenigvuldigd met de weging van de fase, bijvoorbeeld 10, 25, 40, 60 en 80 procent van de eerste tot de vijfde fase. Het is een weging die je kunt aanpassen aan je eigen slagingspercentages, geen voorspelling."
+      },
+      {
+        "question": "Waarom de reden van winst en verlies vastleggen?",
+        "answer": "Rapportages over een pipeline werken alleen als beide uitkomsten bestaan, en de redenen laten zien wat je moet veranderen. Het sjabloon vraagt bij het afsluiten om een reden en maakt een vervolgactie aan om verloren deals na 90 dagen opnieuw te bekijken."
+      },
+      {
+        "question": "Verstuurt de agent mijn opvolging?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mijn team verkoopt aan bedrijven en ik kan niet zien welke deals echt zijn, welke zijn blijven liggen en waarom we winnen of verliezen. Richt een sales pipeline in mijn Customermates-werkruimte in: deals met zeven fasen en wegingen, een gewogen waarde, een volgende stap met datum bij elke open deal, redenen voor verlies en winst, het besluitvormingsteam bij elke deal en een actie die bij elke fasewijziging wordt aangemaakt.",
     "questions": [

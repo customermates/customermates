@@ -183,6 +183,51 @@
     "jobs_board_view": "Gli incarichi si aprono come board per fase.",
     "candidate_data_page": "La base di conoscenza contiene una pagina sui dati dei candidati e sulla conservazione."
   },
+  "page": {
+    "metaTitle": "Modello CRM ricerca e selezione: incarichi e candidati",
+    "metaDescription": "Incarichi, candidati e scadenze delle fee in un unico posto. Incolla il modello in Claude, ChatGPT o Codex e il tuo agente IA costruisce il resto.",
+    "headline": "Sapere quale candidato è su quale incarico: una ricerca e selezione che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Una società di ricerca e selezione segue due percorsi collegati: l’incarico, che porta la fee, e dentro ogni incarico una candidatura per candidato con la sua fase. Incolla questo modello nel tuo agente IA e lui costruisce entrambi in Customermates, con inserimenti, fine della garanzia, ricontatti dopo l’ingresso e una data di conservazione su ogni candidato. Approvi tu il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La revisione settimanale degli incarichi",
+      "steps": [
+        "Apri gli incarichi come bacheca e cerca le ricerche senza un prossimo passo con data o ferme da 10 giorni.",
+        "Sollecita il cliente per il feedback su ogni candidato presentato da più di due giorni e pianifica il debriefing di ogni colloquio della settimana.",
+        "Chiama i clienti attivi la cui data di prossimo contatto è arrivata e chiedi delle assunzioni in arrivo.",
+        "Controlla gli inserimenti: i ricontatti a 30, 60 e 90 giorni di questa settimana e ogni garanzia che scade entro 14 giorni.",
+        "Svuota i candidati la cui data di conservazione è passata: cancellali o registra un nuovo consenso."
+      ]
+    },
+    "limits": [
+      "Non è un job board né uno strumento di multiposting e non legge i CV. I file sono ricercabili solo se hanno un livello di testo, quindi i CV scansionati non vengono letti.",
+      "Non ci sono sequenze né invii di massa. I messaggi si scrivono uno per uno e il prompt chiede all’agente di non inviare nulla in automatico.",
+      "I colloqui si pianificano nel tuo calendario Google o Microsoft dal record, su Customermates Cloud con il piano Pro o superiore; in self-hosting un colloquio resta un campo con data e un’attività. Il collegamento va in una sola direzione: modificare l’evento non cambia il record.",
+      "Non è un sistema di fatturazione, timesheet o paghe per la somministrazione. Le fatture restano nel tuo programma di contabilità e il modello conserva solo un riferimento. Per grandi volumi o per la somministrazione serve un ATS per agenzie.",
+      "Non è un portale di candidature né uno strumento di verifica dei precedenti. Tieni fuori dalle note sui candidati dati sulla salute, data di nascita e simili."
+    ],
+    "faq": [
+      {
+        "question": "Candidati e incarichi devono essere record separati?",
+        "answer": "Sì. I sistemi per agenzie come Bullhorn e Recruiterflow collegano un candidato a ogni incarico, così la stessa persona può trovarsi in fasi diverse su incarichi diversi. Il modello tiene un elenco di incarichi e una candidatura per candidato e incarico, e ogni candidato ha la propria storia di fasi per ciascun incarico."
+      },
+      {
+        "question": "Per quanto tempo posso conservare i dati dei candidati scartati?",
+        "answer": "Il GDPR non fissa un termine unico: conta lo scopo e conta aver informato il candidato. Per una banca dati di profili serve un consenso con una durata precisa. Per le agenzie per il lavoro esiste un codice di condotta approvato dal Garante, da leggere per i termini di conservazione. Ogni candidato ha una data di conservazione e un’attività di revisione: cancellare o registrare un nuovo consenso. Non è consulenza legale."
+      },
+      {
+        "question": "Quali condizioni di fee e garanzia conviene annotare?",
+        "answer": "La fee a successo è dovuta solo se l’assunzione avviene; una ricerca in retained si fattura spesso a rate, per esempio un terzo all’avvio, un terzo alla short list e un terzo all’assunzione, di solito con esclusiva. Una garanzia di sostituzione da tre a sei mesi è la durata più citata. Sono condizioni di contratto, non regole: il modello registra percentuale di fee, giorni di garanzia e fine della garanzia per ogni inserimento, senza valori predefiniti."
+      },
+      {
+        "question": "Che cosa non va scritto nelle note sui candidati?",
+        "answer": "Solo fatti utili per il ruolo. Niente dati sulla salute o sulla disabilità, religione, iscrizione a un sindacato, data di nascita, situazione familiare o esiti di verifiche sui precedenti. Le note in testo libero su età, origine o famiglia possono diventare un rischio se il candidato chiede di accedere ai propri dati."
+      },
+      {
+        "question": "L’agente contatta candidati o clienti?",
+        "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Faccio ricerca e selezione per aziende clienti e perdo il filo di chi ho presentato dove, di quando finisce una garanzia e per quanto posso conservare i dati dei candidati. Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
     "questions": [

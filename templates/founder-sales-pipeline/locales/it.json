@@ -86,6 +86,52 @@
     "pilot_end_field": "Ogni pilota ha una data di fine.",
     "opportunities_board_view": "Le trattative si aprono come board per fase."
   },
+  "page": {
+    "metaTitle": "Vendite del fondatore: una pipeline per ogni conversazione",
+    "metaDescription": "Vendere da fondatore senza perdere il filo: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce la pipeline con pilota e pausa.",
+    "headline": "Vendere da fondatore senza perdere il filo: una pipeline che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Una pipeline di vendita del fondatore è un breve elenco di conversazioni aperte, ognuna con il problema nelle parole del cliente, un prossimo passo con scadenza e, se ne fai uno, un pilota con data di fine fissa. Incolla questo modello nel tuo agente IA e costruisce la pipeline in Customermates, con uno stato In pausa e una data di ripresa per le trattative silenziose. Approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La revisione del fondatore il lunedì",
+      "steps": [
+        "Elenca ogni conversazione aperta e dai a ciascuna un prossimo passo con scadenza. Una conversazione senza data è quella che si spegne.",
+        "Annota ciò che hai imparato dalla settimana scorsa: il problema con le parole di chi compra, l'urgenza, il budget e chi decide.",
+        "Controlla i piloti: la data di fine è fissata, i criteri di successo sono scritti, è a pagamento? Fissa la chiamata di decisione pochi giorni prima della fine.",
+        "Decidi sulle trattative silenziose: un messaggio di chiusura onesto, poi mettile in pausa con una data di ripresa invece di inseguirle.",
+        "Guarda chi ha comprato e chi ha detto no, e perché. Lo schema mostra a quale segmento vendere e quando è il momento di assumere il tuo primo venditore."
+      ]
+    },
+    "limits": [
+      "Non è uno strumento di sequenze in uscita. Customermates non ha sequenze né invii di massa, e ogni messaggio è singolo e riletto da te. LinkedIn o email in grandi numeri richiedono uno strumento specializzato.",
+      "Non è un CRM per investitori. Il fundraising ha altre fasi e altri interlocutori: usa un modello a parte.",
+      "Non produce preventivi, fatture o contratti e non ha la firma elettronica. Offerte e accordi nascono in altri strumenti; qui restano solo le date e un link.",
+      "Non c'è lead scoring né arricchimento dei dati. Quanto un lead è adatto è un campo che imposti tu.",
+      "Il valore ponderato non è una previsione. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sono tuoi da modificare.",
+      "È pensato per un solo venditore. Più venditori con obiettivi e una previsione di team richiedono il modello di pipeline di vendita o un CRM più pesante."
+    ],
+    "faq": [
+      {
+        "question": "Quando serve un CRM a un fondatore?",
+        "answer": "Le guide lo indicano quando hai più lead e clienti di quanti ne stiano nella testa o in un foglio di calcolo, spesso tra 50 e 200 contatti, o quando una seconda persona comincia a vendere. Fino ad allora basta un foglio. Aspettare ha un costo: quando cambi, note e prossimi passi sono già sparsi ovunque."
+      },
+      {
+        "question": "Quanti clienti dovrebbe chiudere personalmente un fondatore?",
+        "answer": "I consigli divergono: Jason Lemkin parla dei primi 10 clienti, forse 20, altre guide da 10 a 50. Mercury consiglia di assumere il primo venditore quando puoi dire: “So di poter vendere il mio prodotto a persone come X che hanno il problema Y”. Il modello mostra quanti clienti hai conquistato e non impone alcun numero."
+      },
+      {
+        "question": "Per quanto tempo inseguire una trattativa silenziosa?",
+        "answer": "I professionisti non concordano sul numero, ma concordano che a un certo punto ci si ferma. Mercury consiglia di non inseguire più chi ignora i tuoi messaggi; altri suggeriscono qualche sollecito, un'ultima email e un nuovo contatto dopo mesi. Il modello fa entrambe le cose: un messaggio di chiusura, poi la trattativa va in pausa con una data di ripresa a 90 giorni."
+      },
+      {
+        "question": "Conviene fare un pilota gratuito?",
+        "answer": "Il consiglio riassunto dalla Startup School di Y Combinator è di evitare piloti gratuiti senza limite e di farne uno breve, valutato e possibilmente a pagamento. Il modello dà al pilota una data di fine fissa e un indicatore a pagamento o no, crea un controllo 14 giorni dopo l'inizio e un'attività per la chiamata di decisione 3 giorni prima della fine."
+      },
+      {
+        "question": "L'agente scrive ai miei potenziali clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Vendo il mio prodotto di persona e continuo a perdere gli appunti e i prossimi passi delle mie conversazioni. Imposta nel mio spazio di lavoro Customermates una pipeline commerciale del fondatore: trattative dalla prima conversazione a vinta con note di analisi, un pilota facoltativo con data di fine fissa, uno stato in pausa con data di ripresa e attività di follow-up con data. Non inviare nulla automaticamente.",
     "questions": [

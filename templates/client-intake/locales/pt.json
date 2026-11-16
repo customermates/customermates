@@ -199,8 +199,58 @@
     "chase_signature_rule": "Um contrato enviado recebe uma tarefa de cobrança após 7 dias.",
     "process_page": "A base de conhecimento contém o processo de integração."
   },
+  "page": {
+    "metaTitle": "Ficha cadastral de clientes: cadastro e integração no CRM",
+    "metaDescription": "Ficha cadastral de clientes e integração num só fluxo: seu agente de IA cria no CRM pedidos de documentos, passos com data e o motivo de cada recusa.",
+    "headline": "Ficha cadastral de clientes sem correr atrás de ninguém: o fluxo que seu agente de IA monta no CRM",
+    "answer": "Uma ficha cadastral reúne o que você precisa para receber um cliente, mas o trabalho está em cobrar os documentos e o contrato assinado. Este modelo configura uma integração por contrato com nove etapas, da solicitação à reunião de kickoff, pedidos de documentos e um passo com data em cada etapa. Cole-o no seu agente de IA e ele monta o fluxo no Customermates; você aprova o plano antes de qualquer coisa ser criada.",
+    "routine": {
+      "title": "A rodada semanal de integração de clientes",
+      "steps": [
+        "Responda a cada nova solicitação. O padrão é responder em um dia, e toda solicitação termina em um próximo passo ou numa recusa.",
+        "Cobre os questionários enviados há 3 dias e os documentos com o prazo vencido.",
+        "Confira os documentos recebidos, liste o que falta e cobre os contratos enviados há 7 dias.",
+        "Olhe as integrações paradas há 7 dias: marque uma data ou recuse registrando o motivo, com um aviso curto por escrito dizendo que não existe vínculo e citando qualquer prazo conhecido.",
+        "Pergunte aos clientes integrados há 14 dias se o primeiro resultado já chegou."
+      ]
+    },
+    "limits": [
+      "Ele não coleta assinaturas. A assinatura acontece na sua ferramenta de assinatura eletrônica ou de contabilidade; a integração guarda as datas e um link.",
+      "Não é uma ferramenta de verificação de identidade nem de prevenção à lavagem de dinheiro, e não mantém registro de conflitos de interesse. Profissões regulamentadas registram quem verificou a identidade, quando e como; documentos e registro de referência ficam no seu sistema profissional ou de KYC.",
+      "Ele não recebe pagamentos nem emite notas fiscais. Sinais e adiantamentos ficam no seu banco ou na sua ferramenta de contabilidade.",
+      "Hoje o Customermates não tem portal do cliente nem formulário público de envio de documentos. O questionário segue como documento ou passa por um formulário externo que grava no Customermates pela API ou pelo n8n.",
+      "Deixe de fora números e cópias de documentos de identidade, o CPF de pessoas físicas, dados de saúde, de terapia ou de religião e dados bancários. Não serve para fichas de estética, clínicas ou personal trainers, que coletam dados de saúde.",
+      "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar."
+    ],
+    "faq": [
+      {
+        "question": "O que deve ter uma ficha cadastral de clientes?",
+        "answer": "Guias brasileiros listam nome ou razão social, CNPJ ou CPF, endereço, telefone e e-mail; some a isso o que o cliente quer, escopo, prazo, quem decide e os acessos de que você precisa. O modelo usa um único campo de tipo (pessoa física, empresa, organização) e guarda apenas o CNPJ ou outro registro da empresa, não o CPF de pessoas físicas. A ficha é apoio para a primeira conversa, não um teste jurídico."
+      },
+      {
+        "question": "Quais são as etapas de integração de um cliente novo?",
+        "answer": "A ordem é estável entre profissões: primeira resposta, triagem, questionário e documentos, conferências onde sua profissão exige, contrato por escrito, eventual sinal e reunião de kickoff. Prazos mantêm o ritmo: guias de fornecedores citam resposta em 24 horas e cobrança da assinatura após 7 dias. Trate esses números como padrões, não como norma."
+      },
+      {
+        "question": "Preciso recusar um cliente por escrito?",
+        "answer": "Uma recusa por escrito ajuda os dois lados. Um guia para escritórios de advocacia recomenda dizer que não existe vínculo e citar qualquer prazo próximo. O modelo registra o motivo da recusa e cria uma ação com data para enviar o aviso. Não é aconselhamento jurídico."
+      },
+      {
+        "question": "Que dados de clientes devem ficar fora do CRM?",
+        "answer": "Números e cópias de documentos de identidade, CPF de pessoas físicas, data de nascimento além do necessário para a conferência, dados de saúde, religião e credenciais bancárias. Em profissões regulamentadas, o modelo guarda apenas que a identidade foi verificada, por quem e em que data. A LGPD pede consentimento por finalidade e garante o acesso e a eliminação dos dados."
+      },
+      {
+        "question": "O cliente pode preencher o questionário online?",
+        "answer": "Hoje não por um formulário público do Customermates. O questionário segue como documento redigido pelo seu agente ou por um formulário externo que grava no Customermates pela API ou pelo n8n. Quem envia é você."
+      },
+      {
+        "question": "O agente escreve para os meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Eu perco clientes novos entre o primeiro contato e o primeiro dia de trabalho, porque esqueço de mandar o formulário ou de cobrar os documentos. Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
+    "intro":"Eu perco clientes novos entre o primeiro contato e o primeiro dia de trabalho, porque esqueço de mandar o formulário ou de cobrar os documentos. Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
     "questions": [
       "O que você vende e quem são seus clientes: empresas, autônomos ou pessoas físicas?",
       "Por quais passos um novo cliente passa hoje e quais das nove etapas você não precisa?",

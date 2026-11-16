@@ -117,6 +117,51 @@
     "warranty_field": "Ogni commessa indica fino a quando dura la garanzia.",
     "jobs_board_view": "Le commesse si aprono come board per fase."
   },
+  "page": {
+    "metaTitle": "Gestionale impiantisti e artigiani: preventivi e commesse",
+    "metaDescription": "Gestionale per impiantisti: sollecita ogni preventivo e segui ogni commessa dal sopralluogo al pagamento. Incolla il modello nel tuo agente IA.",
+    "headline": "Un gestionale per impiantisti che sollecita ogni preventivo e ricorda le garanzie, costruito dal tuo agente IA",
+    "answer": "Un gestionale per una piccola impresa artigiana segue ogni commessa dalla prima chiamata all’ultima fattura: il sopralluogo, il preventivo e il suo sollecito, i lavori da programmati a pagati e le date che contano, come validità del preventivo, recesso, garanzia e rinnovo della manutenzione. Incolla questo modello nel tuo agente IA e lui costruisce la pipeline in Customermates. Approvi tu il piano prima che venga costruito qualcosa. Le date legali sono campi che confermi tu, non consulenza legale.",
+    "routine": {
+      "title": "La revisione settimanale di preventivi e commesse",
+      "steps": [
+        "Richiama ogni nuova richiesta lo stesso giorno e invia il preventivo entro due giorni da ogni sopralluogo.",
+        "Sollecita i preventivi inviati tre giorni fa e quelli che scadono tra tre giorni. Dopo un secondo tentativo decidi: tenere il preventivo aperto o chiuderlo con un motivo.",
+        "Controlla le commesse della settimana e conferma il calendario con ogni cliente. Per ogni lavoro completato registra la consegna e l’accettazione e chiedi la fattura alla contabilità.",
+        "Guarda le commesse fatturate oltre la scadenza di pagamento e verifica se sono state pagate.",
+        "Guarda 30 giorni avanti: garanzie che stanno per finire, visite di manutenzione da prenotare e contratti di manutenzione da rinnovare."
+      ]
+    },
+    "limits": [
+      "Non è uno strumento per preventivi, computi o fatturazione. Le voci danno un valore alla commessa, non un documento con righe IVA, numerazione e diciture di legge. Tieni preventivi e fatture nel tuo programma di preventivazione o di contabilità.",
+      "Non è uno strumento di firma elettronica o di pagamento, né un sistema di assegnazione squadre, percorsi, GPS o rilevazione del tempo.",
+      "Non è un’app mobile nativa da cantiere. L’app web funziona sul telefono, ma non esiste un’app dedicata.",
+      "Non emette certificati. La dichiarazione di conformità e i verbali di accettazione restano nel tuo strumento documentale; il CRM conserva la data e un riferimento.",
+      "L’SMS non è un canale: lo sono WhatsApp, e-mail e LinkedIn. E non è un’autorità legale su recesso, garanzia o validità del preventivo."
+    ],
+    "faq": [
+      {
+        "question": "Con quale rapidità un artigiano deve inviare un preventivo?",
+        "answer": "Una guida per tetti e coperture suggerisce un preventivo entro 24-48 ore dal sopralluogo e una richiamata entro pochi minuti a una richiesta online. Jobber consiglia un primo sollecito due o tre giorni dopo il preventivo e un secondo qualche giorno più tardi, poi di passare oltre. Il modello li programma come attività con data; le scadenze le regoli tu."
+      },
+      {
+        "question": "Per quanto tempo deve essere valido un preventivo?",
+        "answer": "Non esiste una regola unica. Le condizioni olandesi per i consumatori usano 30 giorni, la prassi francese spesso tre mesi. Imposta la validità per ogni preventivo: il modello conserva la data di validità e crea un sollecito tre giorni prima. Non è consulenza legale."
+      },
+      {
+        "question": "Il cliente può recedere da un contratto firmato a casa sua?",
+        "answer": "Dipende dal paese e dalla situazione: in Germania, per esempio, un consumatore ha 14 giorni per un contratto concluso fuori dai locali commerciali, ma il termine decorre solo con un’informativa corretta. C’è un’eccezione per le riparazioni urgenti richieste dal cliente. Il modello fissa la fine dei 14 giorni quando una commessa viene accettata; conferma la regola vigente in Italia e la tua informativa."
+      },
+      {
+        "question": "Quali date deve seguire un artigiano?",
+        "answer": "La validità del preventivo, la fine di un eventuale termine di recesso, l’accettazione dei lavori, la dichiarazione di conformità a fine lavori (DM 37/08 per gli impianti), la fine della garanzia e i rinnovi dei contratti di manutenzione, che i professionisti ricordano 30-45 giorni prima. Le durate dipendono da contratto e legge: il modello conserva la data di fine che imposti tu e non la calcola mai."
+      },
+      {
+        "question": "L’agente scrive ai miei clienti?",
+        "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Gestisco una piccola impresa artigiana: i preventivi partono senza un sollecito, mentre commesse, sopralluoghi e date di garanzia restano nella mia testa. Imposta nel mio spazio di lavoro Customermates una pipeline per un'impresa artigiana: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
     "questions": [

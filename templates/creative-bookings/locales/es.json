@@ -137,8 +137,57 @@
     "event_date_field": "Cada reserva tiene una fecha de evento.",
     "bookings_board_view": "Las reservas se abren como tablero por etapa."
   },
+  "page": {
+    "metaTitle": "Reservas para fotógrafos y wedding planners en tu CRM",
+    "metaDescription": "Reservas para fotógrafos, videógrafos y organizadores de eventos: solicitudes, fechas reservadas, señales y entrega, creadas por tu agente de IA en tu CRM.",
+    "headline": "Reservas para fotógrafos y organizadores de eventos: cada fecha, señal y entrega bajo control",
+    "answer": "Gestionar las reservas de un fotógrafo, videógrafo u organizador de eventos significa bloquear una fecha solo hasta que se firma el contrato y se paga la señal, y acompañar el trabajo hasta la entrega. Esta plantilla da a cada reserva una fila con una fase de venta y otra de entrega, un vencimiento para el resto del pago, un cuestionario antes del evento y una petición de reseña después. Pégala en tu agente de IA y él lo construye todo en Customermates; tú apruebas el plan antes de que se cree nada.",
+    "routine": {
+      "title": "La ronda semanal de reservas",
+      "steps": [
+        "Responde a cada solicitud que espera. Por defecto la respuesta sale en 24 horas y pregunta por fecha, lugar, tipo de trabajo y presupuesto.",
+        "Revisa las fechas bloqueadas: reclama el contrato y la señal o libera la fecha.",
+        "Mira los eventos de los próximos 14 días: ¿ha vuelto el cuestionario?, ¿está confirmado el programa del día?, ¿se ha pagado el resto?",
+        "Revisa las entregas que se acercan y avisa pronto al cliente si una fecha se mueve. Dos semanas después de la entrega, pide una reseña."
+      ]
+    },
+    "limits": [
+      "No redacta ni firma contratos, no envía facturas ni cobra pagos. Eso se queda en tus herramientas de contratos, facturación y pago; la reserva guarda su estado, sus fechas y un enlace.",
+      "No es una herramienta de galerías, selección de fotos o venta de copias, ni de diseño de álbumes, edición o gestión de medios. La reserva guarda el enlace.",
+      "Una página pública de reservas o la venta de minisesiones no forma parte hoy de Customermates. Las solicitudes llegan como correo, mensajes de WhatsApp o Instagram en la bandeja conectada y tu agente redacta la respuesta.",
+      "No es asesoramiento jurídico. Las páginas de conocimiento son listas de comprobación; haz revisar a un abogado tu contrato y la redacción de los derechos de imagen y uso.",
+      "Deja fuera datos de salud, dieta o religión, números de tarjeta, documentos de identidad, rostros como archivos de imagen y listas de invitados. Anota solo el estado y la fecha del consentimiento para el uso en portfolio.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe hacer una herramienta de reservas para un fotógrafo?",
+        "answer": "Llevar un trabajo de la solicitud a la reserva y a la entrega: anotar fecha, tipo y presupuesto, bloquear la fecha, confirmarla con un contrato firmado y una señal, gestionar cuestionario y programa del día, entregar y pedir una reseña. Contratos, facturas y galerías se quedan en tus propias herramientas."
+      },
+      {
+        "question": "¿Cuándo está realmente reservada una fecha?",
+        "answer": "En la práctica, sin señal la fecha no está confirmada. La plantilla cuenta un trabajo como reservado solo cuando el contrato está firmado y la señal pagada, en campos separados, con una fecha bloqueada entre medias. El importe de la señal lo decide tu contrato: una guía de contratos de boda dice que casi todos los fotógrafos piden el 50 % al firmar, otras plantillas usan el 30 %, así que la plantilla no fija importes por defecto."
+      },
+      {
+        "question": "¿Qué es una fecha bloqueada?",
+        "answer": "Una fecha bloqueada saca una fecha de tu disponibilidad durante unos días sin comprometer al cliente. La plantilla guarda hasta cuándo está bloqueada, crea un paso para enviar el contrato al bloquear la fecha y otro para reclamar la señal tres días después de la firma."
+      },
+      {
+        "question": "¿Qué debe guardar el CRM sobre derechos de imagen y consentimiento?",
+        "answer": "Solo el estado y la fecha del consentimiento para el uso en portfolio, no las imágenes, ni categorías especiales como religión, orientación o salud, que bodas y sesiones de familia pueden revelar. Por defecto, los derechos de autor son del creador; los derechos de uso van en el contrato y un abogado debería revisar la redacción. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Cuándo debe salir el cuestionario?",
+        "answer": "La plantilla crea un paso para enviar el cuestionario 45 días antes de un evento reservado, y puedes cambiarlo. Fotógrafos y videógrafos suelen pedir también el programa del día unas dos semanas antes y hacen una revisión la última semana de programa, lugares y teléfonos."
+      },
+      {
+        "question": "¿El agente escribe a mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Tengo un negocio de fotografía, vídeo o eventos y pierdo la cuenta de qué fechas están bloqueadas, qué señales están pagadas y qué falta por entregar. Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
+    "intro":"Tengo un negocio de fotografía, vídeo o eventos y pierdo la cuenta de qué fechas están bloqueadas, qué señales están pagadas y qué falta por entregar. Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
     "questions": [
       "¿A qué te dedicas: fotografía, vídeo u organización de eventos? ¿Cuántas reservas tienes al año?",
       "¿Por qué pasos pasa un cliente de la solicitud a la reserva y cuándo reservas la fecha?",

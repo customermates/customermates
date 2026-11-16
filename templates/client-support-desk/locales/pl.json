@@ -95,8 +95,58 @@
     "first_response_field": "Każde zgłoszenie zapisuje termin pierwszej odpowiedzi.",
     "tickets_board_view": "Zgłoszenia otwierają się jako tablica według statusu."
   },
+  "page": {
+    "metaTitle": "System ticketowy: obsługa klienta w Twoim CRM",
+    "metaDescription": "Lekki system ticketowy, który Twój agent AI buduje w CRM: zgłoszenia z priorytetem i terminami odpowiedzi, znane problemy oraz ocena zadowolenia klienta.",
+    "headline": "System ticketowy na kilkadziesiąt zgłoszeń tygodniowo, zbudowany przez Twojego agenta AI w CRM",
+    "answer": "Lekki system ticketowy nadaje każdej wiadomości klienta zgłoszenie z osobą odpowiedzialną, priorytetem i terminem, do którego musisz odpowiedzieć. Ten szablon konfiguruje zgłoszenia, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocenę zadowolenia. Wklej go do swojego agenta AI, a on zbuduje obsługę klienta w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Szablon jest dla firmy lub agencji z jedną do ośmiu osób, nie dla dużego zespołu wsparcia.",
+    "routine": {
+      "title": "Cotygodniowy przegląd obsługi klienta",
+      "steps": [
+        "Zacznij od zgłoszeń z przeterminowaną pierwszą odpowiedzią lub rozwiązaniem, potem od tych, które czekają na Ciebie dłużej niż dwa dni.",
+        "Przypomnij klientom, którzy nie odpowiadają od 3 dni, a zgłoszenia milczące od 7 dni oznacz jako rozwiązane z notatką, że odpowiedzi nie było.",
+        "Przejrzyj zgłoszenia otwarte ponownie oraz rozwiązane bez oceny i odezwij się do każdego, kto dał 1 lub 2.",
+        "Sprawdź otwarte znane problemy: gdy któryś naprawiono, powiadom każdego klienta z powiązanym zgłoszeniem i zapisz najczęstsze kategorie tygodnia."
+      ]
+    },
+    "limits": [
+      "To nie jest centrala telefoniczna ani system SMS, ani widżet czatu na żywo. Zgłoszenia powstają z wiadomości e-mail, WhatsApp, LinkedIn, Instagram i Telegram w skrzynce odbiorczej albo od Twojego agenta.",
+      "W Customermates nie ma dziś portalu klienta ani publicznego formularza zgłoszeń. Klienci nie mogą się zalogować, żeby śledzić zgłoszenie.",
+      "Nie liczy godzin pracy ani dni wolnych. Terminy pochodzą z tabeli planów wsparcia w Twojej bazie wiedzy i ustawia je reguła lub Twój agent.",
+      "To nie jest menedżer zmian i zasobów ITIL, strona statusu ani narzędzie do masowej wysyłki, i nie ma SSO. Przy dużym wolumenie i w dużych firmach lepiej sprawdzą się Zendesk, Freshdesk lub Zammad.",
+      "Odpowiedzi to szkice, które sprawdzasz i wysyłasz Ty. Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu; szablon je proponuje, a Ty decydujesz, które włączyć.",
+      "Nie trzymaj w zgłoszeniach numerów kart, haseł, kopii dokumentów tożsamości ani danych o zdrowiu. Żądanie dostępu do danych zapisuje weryfikację tożsamości jako tak lub nie z datą, bez kopii.",
+      "Podłączenie e-maila lub WhatsAppa do CRM wymaga planu ze skrzynką odbiorczą, a skrzynka wspólna dla całego zespołu planu ze wspólnymi kontami. Strona z cennikiem pokazuje, co zawiera każdy plan."
+    ],
+    "faq": [
+      {
+        "question": "Jaki jest najprostszy system ticketowy dla małej firmy?",
+        "answer": "Lista zgłoszeń z jedną osobą odpowiedzialną, statusem, priorytetem i dwoma terminami: pierwszej odpowiedzi i rozwiązania. Dodaj listę znanych problemów i ocenę zadowolenia i przeglądaj to raz w tygodniu. Wystarczy to na kilkadziesiąt zgłoszeń tygodniowo; powyżej warto sięgnąć po dedykowane narzędzie."
+      },
+      {
+        "question": "Jakie statusy powinno mieć zgłoszenie w obsłudze klienta?",
+        "answer": "Typowe zestawy to nowe, otwarte, oczekujące, rozwiązane i zamknięte. Ten szablon używa statusów Nowe, Otwarte, Oczekuje na klienta, Oczekuje na stronę trzecią, Rozwiązane i Zamknięte oraz Spam lub duplikat. Dostawcy nie są zgodni, czy status oczekiwania zatrzymuje zegar; domowa reguła szablonu: oczekiwanie na klienta go wstrzymuje, oczekiwanie na stronę trzecią nie. Możesz to zmienić."
+      },
+      {
+        "question": "Jakie czasy odpowiedzi obiecywać?",
+        "answer": "Nie ma ogólnego wzorca. Dostawcy podają jako przykład problemy krytyczne w 4 godziny i drobne prośby w 72 godziny, przy awarii 1 godzinę do pierwszej odpowiedzi i 4 godziny do rozwiązania. Zacznij od takich wartości w tabeli planów wsparcia i zastąp je tym, czego możesz dotrzymać."
+      },
+      {
+        "question": "Jak postąpić z żądaniem dostępu do danych z RODO, które przychodzi jako zgłoszenie?",
+        "answer": "Na żądanie dostępu odpowiada się bez zbędnej zwłoki, najpóźniej w ciągu miesiąca; w razie potrzeby termin można przedłużyć o kolejne dwa miesiące, informując o powodach w pierwszym miesiącu. Szablon dodaje typ żądanie dostępu z widocznym terminem miesiąca. To nie jest porada prawna; zaangażuj osobę odpowiedzialną za ochronę danych."
+      },
+      {
+        "question": "Czy to może zastąpić Zendesk lub Freshdesk?",
+        "answer": "Dla zespołu z kilkudziesięcioma zgłoszeniami tygodniowo, który chce datowanych ponagleń i oceny zadowolenia: tak. Przy dużym wolumenie, wielu kanałach i wymaganiach dużych firm lepiej zostać przy Zendesk, Freshdesk, Zammad, Help Scout lub Front, z silnikami SLA, makrami, kalendarzami godzin pracy i portalami, które ten szablon celowo pomija."
+      },
+      {
+        "question": "Czy agent odpowiada moim klientom?",
+        "answer": "Agent przygotowuje odpowiedzi na podstawie powiązanej rozmowy, a Ty je sprawdzasz i wysyłasz. Prompt każe mu niczego nie wysyłać i nie tworzyć przykładowych danych."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Pytania klientów przychodzą e-mailem i na czacie, a ja nie wiem, które nadal czekają na odpowiedź. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
+    "intro":"Pytania klientów przychodzą e-mailem i na czacie, a ja nie wiem, które nadal czekają na odpowiedź. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
     "questions": [
       "Ile zgłoszeń obsługujesz tygodniowo i jakimi kanałami do Ciebie docierają?",
       "Jakie terminy obiecujesz na pierwszą odpowiedź i rozwiązanie, według priorytetu lub planu wsparcia?",

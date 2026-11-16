@@ -113,6 +113,52 @@
     "renewals_board_view": "Die Verlängerungen öffnen sich als Board nach Phase.",
     "advice_documentation_page": "Die Wissensdatenbank enthält eine Seite zur Beratungsdokumentation."
   },
+  "page": {
+    "metaTitle": "Versicherungsmakler Software: Neugeschäft und Verlängerungen",
+    "metaDescription": "Keine Hauptfälligkeit verpassen: Vorlage in Claude, ChatGPT oder Codex einfügen, Ihr KI-Agent baut Neugeschäft und Verlängerungen mit dokumentierter Beratung.",
+    "headline": "Keine Hauptfälligkeit verpassen: eine Maklersoftware, die Ihr KI-Agent für Neugeschäft und Verlängerungen aufbaut",
+    "answer": "Eine Software für Versicherungsmakler führt zwei Pipelines nebeneinander: Neugeschäft von der Anfrage bis zur Police und für jeden Vertrag einen Verlängerungsfall, der lange vor der Hauptfälligkeit eröffnet wird. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit der Beratung dokumentiert vor jedem Angebot. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Vertragsdaten bleiben in Ihrem Maklerverwaltungsprogramm.",
+    "routine": {
+      "title": "Die wöchentliche Routine am Maklerschreibtisch",
+      "steps": [
+        "Öffnen Sie die anstehenden Verlängerungen: Gewerbeverträge etwa ab 120 Tagen vor der Hauptfälligkeit, Privatverträge etwa ab 45 Tagen. Geben Sie jedem Fall einen Zuständigen und einen ersten Schritt.",
+        "Fassen Sie bei den Versicherern nach, wenn Angebote ausstehen, und bei den Kunden, die auf ein Verlängerungsangebot nach einer Woche nicht geantwortet haben.",
+        "Prüfen Sie, dass jedes Angebot das Datum der Beratungsdokumentation trägt, die Bedarfsanalyse also vor dem Angebot dokumentiert ist. Fassen Sie jedes Angebot am Tag nach der Vorstellung nach.",
+        "Lassen Sie sich die Entscheidung des Kunden etwa 30 Tage vor der Verlängerung bestätigen, vor dem Kündigungstermin des Vertrags.",
+        "Rufen Sie neue Kunden eine Woche nach Erhalt der Police an und schreiben Sie dem Kunden, wenn Ihr Maklerverwaltungsprogramm eine unbezahlte Prämie meldet."
+      ]
+    },
+    "limits": [
+      "Es ist kein Maklerverwaltungsprogramm und keine Vertragsverwaltung. Verträge, Prämien und Courtageabrechnungen bleiben in Ihrem Maklerverwaltungsprogramm; hier halten Sie einen Verweis und die Hauptfälligkeit.",
+      "Es ist kein Vergleichs- oder Tarifrechner. Angebote kommen aus Versicherungsportalen und Vergleichsprogrammen, und Sie tragen das Ergebnis ein.",
+      "Es bearbeitet keine Schäden, keine Anträge beim Risikoträger und keine Courtage-Abrechnung.",
+      "Es speichert keine Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien und auch nicht das Beratungsprotokoll selbst: nur dessen Datum und einen Link dorthin, wo Sie es ablegen.",
+      "Es erstellt oder bescheinigt keine Beratung. Es hält fest, dass die Beratung vor dem Angebot dokumentiert wurde; die Beratung ist Ihre, und welche Pflichten gelten, hängt von Ihrem Land ab.",
+      "Es gibt keinen Massenversand, keine Sequenzen, keine Telefonie und keine SMS. Nachrichten sind einzelne Entwürfe, die Sie prüfen und senden."
+    ],
+    "faq": [
+      {
+        "question": "Worin unterscheiden sich Maklerverwaltungsprogramm und CRM?",
+        "answer": "Das Maklerverwaltungsprogramm hält Verträge, Prämien, Dokumente und Courtageabrechnungen. Ein CRM hält die Beziehung und den nächsten Schritt: wer angefragt hat, welches Angebot offen ist, welche Verlängerung ansteht und wer bis wann wen anruft. Diese Vorlage ist die zweite Schicht und hält nur Verweise auf die erste."
+      },
+      {
+        "question": "Wie lange vor der Hauptfälligkeit sollte ich die Verlängerung beginnen?",
+        "answer": "Das hängt von Sparte und Land ab. Quellen nennen etwa 90 bis 120 Tage bei Gewerbeverträgen und 30 bis 45 Tage bei Privatverträgen. Die Vorlage eröffnet einen Verlängerungsfall 120 Tage vor der Hauptfälligkeit bei Gewerbeverträgen und 45 Tage davor bei Privatverträgen; beides können Sie ändern. Kündigungsfristen unterscheiden sich nach Vertrag, prüfen Sie also in der Police die tatsächliche Frist."
+      },
+      {
+        "question": "Muss ich die Beratung vor einem Angebot dokumentieren?",
+        "answer": "In der EU verlangt die Versicherungsvertriebsrichtlinie (IDD) eine Bedarfsanalyse vor Vertragsabschluss, und viele Länder erwarten, dass die Beratung dokumentiert wird. Die Einzelheiten hängen von Ihrem Land ab und davon, ob Sie als Makler oder Vertreter auftreten, prüfen Sie also Ihre eigenen Pflichten. Die Vorlage hält das Datum der Beratung und einen Link zum Ablageort fest und zeigt Angebote, bei denen beides fehlt. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Darf ich Vertrags- und Gesundheitsdaten im CRM speichern?",
+        "answer": "Speichern Sie so wenig wie möglich: einen Verweis oder Link auf den Vertrag, die Sparte, die Hauptfälligkeit und die Jahresprämie. Gesundheitsdaten, Schadendetails, Bankdaten und Ausweiskopien bleiben draußen, und Customermates hat keine Berechtigungen auf Feldebene, um einzelne Spalten zu verbergen. Legen Sie die Dokumente in Ihrem Maklerverwaltungsprogramm oder in einem Dokumentenspeicher mit Zugriffskontrolle ab."
+      },
+      {
+        "question": "Schreibt der Agent meine Kunden an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Ich betreue einen Maklerbestand, die Verlängerungen kommen oft überraschend, und vor jedem Angebot muss ich die Beratung dokumentieren. Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
     "questions": [

@@ -102,6 +102,51 @@
     "notice_days_field": "Każda umowa zapisuje okres wypowiedzenia.",
     "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
   },
+  "page": {
+    "metaTitle": "Lejek klientów dla agencji: przetargi i abonamenty",
+    "metaDescription": "Wklej ten lejek dla agencji w Claude, ChatGPT lub Codex: decyzja o udziale w przetargu, onboarding w pięciu krokach i abonamenty z terminem odnowienia.",
+    "headline": "Zdobywaj klientów i widź każde odnowienie z wyprzedzeniem: lejek dla agencji, który buduje Twój agent AI",
+    "answer": "Lejek klientów dla agencji pokazuje w jednym miejscu dwie rzeczy: nowych klientów, od pierwszej rozmowy do podpisania umowy, oraz umowy abonamentowe i projekty, które po niej następują, każdą z terminem odnowienia i przeglądem kwartalnym. Wklej ten szablon do swojego agenta AI, a zbuduje on oba w Customermates, z decyzją o udziale w przetargu, onboardingiem w pięciu krokach po wygranej i okresem wypowiedzenia przy każdej umowie. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda w agencji",
+      "steps": [
+        "Otwórz każdą szansę bez następnego kroku i dodaj krok z terminem albo ją zamknij.",
+        "Przy każdym nowym briefie lub zaproszeniu do przetargu zdecyduj, czy startujesz: ile kosztuje udział, ile agencji w nim uczestniczy oraz kto prezentuje, a kto realizuje.",
+        "Sprawdź umowy, które odnawiają się w ciągu 90 dni, i terminy wypowiedzenia, które zamykają się w najbliższych tygodniach.",
+        "Przejrzyj umowy abonamentowe bez kontaktu od 30 dni i te, których wskaźnik kondycji zmienił się na czerwony, i zaplanuj kontakt lub rozmowę wspólnika."
+      ]
+    },
+    "limits": [
+      "To nie jest oprogramowanie dla agencji do projektów, rejestrowania czasu, planowania zasobów ani rozliczeń. Te zadania zostają w Twoich narzędziach; tutaj jest warstwa sprzedażowa i abonamentowa obok nich.",
+      "To nie jest portal klienta ani obieg akceptacji i nie raportuje wyników kampanii.",
+      "Nigdy nie zapisuj w przestrzeni roboczej danych dostępowych klientów, materiałów marki ani dostępu do kont reklamowych. Trzymaj je w menedżerze haseł i w swojej bibliotece plików.",
+      "Nie pisze ofert i nie zbiera podpisów elektronicznych. Oferty i umowy zostają w Twoim narzędziu do dokumentów i są powiązane z szansą sprzedaży.",
+      "To nie jest narzędzie do sekwencji ani masowej wysyłki. Każdy kolejny kontakt to zadanie z terminem i szkic, który sprawdzasz i wysyłasz samodzielnie.",
+      "Budżet zapisujesz tylko wtedy, gdy poda go klient, a okresu wypowiedzenia nie ma z góry: wpisujesz ten z każdej umowy."
+    ],
+    "faq": [
+      {
+        "question": "Czym lejek agencji różni się od zwykłego lejka sprzedaży?",
+        "answer": "Agencja ma mniej szans, ale większych, z kilkoma decydentami i długimi decyzjami, a większość przychodu pochodzi od klientów, którzy zostają i rosną. Dlatego ten szablon dodaje decyzję o udziale w przetargu, onboarding w pięciu krokach po wygranej i umowy z terminem odnowienia, zamiast kończyć się na wygranej."
+      },
+      {
+        "question": "Czy agencja powinna startować w każdym przetargu?",
+        "answer": "Nie. Udział w przetargu kosztuje dużo czasu i pieniędzy, więc doradcy zalecają najpierw sprawdzić, czy jest potrzebny: czy jest jasny brief z widełkami budżetu, ile agencji startuje, czy jest wynagrodzenie za udział i kto prezentuje, a kto realizuje. Szablon wymaga tej decyzji w dniu, w którym szansa trafia na etap brief lub przetarg."
+      },
+      {
+        "question": "Jaki okres wypowiedzenia ma mieć umowa abonamentowa?",
+        "answer": "Żaden przepis nie daje jednej odpowiedzi. Zwyczajowo jest to 30 dni na piśmie, a automatyczne odnowienie z 90-dniowym wypowiedzeniem sprzyja agencji. Szablon zapisuje okres wypowiedzenia przy każdej umowie i niczego nie zakłada. Tworzy przegląd odnowienia 90 dni przed terminem i przypomnienie 45 dni przed nim, by potwierdzić zamiar klienta."
+      },
+      {
+        "question": "Co dzieje się po wygranej?",
+        "answer": "Wygrana uruchamia onboarding w pięciu krokach: powitanie i potwierdzenie kickoffu, zebranie materiałów, harmonogram, kickoff i ustalenie obiegu realizacji. Wiele agencji wiąże kickoff z płatnością. Potem klient działa dalej jako umowa z terminem odnowienia i przeglądem kwartalnym."
+      },
+      {
+        "question": "Czy agent kontaktuje się z moimi klientami lub potencjalnymi klientami?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Prowadzę agencję: zdobywam nowych klientów, ale gubię się w trwających przetargach i w tym, kiedy odnawiają się umowy abonamentowe. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse sprzedaży z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
     "questions": [

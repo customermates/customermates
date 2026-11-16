@@ -117,6 +117,52 @@
     "pass_reason_field": "Every deal records why it was passed.",
     "board_view": "The deals open as a board by stage."
   },
+  "page": {
+    "metaTitle": "Fundraising Software Template: Deal Flow and Investor CRM",
+    "metaDescription": "Fundraising software for deal flow: remember who introduced each deal, why you passed and when to look again. Paste the template into your AI agent.",
+    "headline": "Fundraising software that remembers who introduced a deal and when to look again, built by your AI agent",
+    "answer": "Deal flow is a funnel that sheds almost everything, so the value sits in the relationship layer around it: who introduced a startup, why you passed and when to look again. Paste this template into your AI agent and it builds a deal list in Customermates with eight stages from sourced to closed or passed, plus startups, investors and dated follow-ups. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly pipeline review",
+      "steps": [
+        "Open the deal board and list what is new this week and what moved.",
+        "Look at deals that have sat in screening for 14 days and either re-engage or pass.",
+        "For every deal you pass, record the reason and a revisit date, and send a pass note where it is right to.",
+        "After a first meeting send a follow-up with next steps, and when a term sheet is agreed start the diligence checklist.",
+        "Thank the introducers of new deals and nudge any introduction requested a week ago that has not happened.",
+        "Look at passed deals whose revisit date has come and review them again with the earlier context."
+      ]
+    },
+    "limits": [
+      "It has no relationship scoring and no company enrichment. On Customermates Cloud with the Pro plan or higher, emails with the address in a record's contact details show on that record and meetings can be scheduled into your calendar from it; an agent works over MCP.",
+      "It is not an LP portal, a cap table or fund accounting. Tools such as Carta or Dynamo keep those jobs.",
+      "It is not a deal database or market data source such as PitchBook, Dealroom or Crunchbase.",
+      "It is not a data room or an e-signature tool. Link your data room, for example DocSend or Papermark, instead.",
+      "It does not draft legal documents or decide on KYC, AML or foreign investment screening. Counsel and compliance own those, and the template records dates and links."
+    ],
+    "faq": [
+      {
+        "question": "What stages does deal flow have?",
+        "answer": "Practitioners agree on seven phases: sourcing, screening, first meeting, due diligence, investment committee, term sheet and closing. The template uses eight stages: Sourced, Screening, First meeting, Partner meeting, Diligence, Term sheet, Closed and Passed. Investors fund fewer than 1 percent of the companies they see, and the German association BAI quotes 96 to 99 percent dropping out before the transaction."
+      },
+      {
+        "question": "Why record why you passed?",
+        "answer": "A pass with a reason lets you look at the company again with context. The template records a pass reason and a revisit date on every deal and creates a revisit Action when the date comes. Without that record the same deal gets screened from scratch next time."
+      },
+      {
+        "question": "Can founders use it to track investors for a round?",
+        "answer": "The structure fits: one deal per investor conversation. Track each investor as a person, not only the firm, and update engaged investors every four to six weeks or monthly. The fields are written from an investor's side, so ask your agent to rename the ones that do not fit, such as Our role and Thesis fit."
+      },
+      {
+        "question": "When should a fund move to Affinity or Attio?",
+        "answer": "When you need relationship scoring, warm-intro path ranking, company enrichment or reporting to limited partners. Email conversations already show on the record whose contact details match, on Customermates Cloud with the Pro plan or higher, but nothing scores relationships or ranks intro paths. For a small fund or an angel who works from one list and a weekly review, this template is enough."
+      },
+      {
+        "question": "Does the agent contact startups or investors?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "I look at many startups and forget who introduced them, why I passed and when I wanted to look again. Set up a VC deal flow in my Customermates workspace: deals with eight stages, the introducer, thesis fit, lead role, a pass reason and a date to revisit, plus startups, investors and dated follow-ups.",
     "questions": [

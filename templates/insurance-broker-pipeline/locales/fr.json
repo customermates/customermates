@@ -113,6 +113,52 @@
     "renewals_board_view": "Les renouvellements s’ouvrent en board par étape.",
     "advice_documentation_page": "La base de connaissances contient une page sur la traçabilité du conseil."
   },
+  "page": {
+    "metaTitle": "Logiciel courtage assurance : renouvellements maîtrisés",
+    "metaDescription": "Ne ratez plus un renouvellement : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit un CRM de courtier avec conseil documenté.",
+    "headline": "Ne ratez plus une échéance : le CRM de courtier en assurance que votre agent IA construit pour vous",
+    "answer": "Un CRM de courtier en assurance mène deux pipelines côte à côte : les affaires nouvelles de la demande au contrat émis, et un dossier de renouvellement pour chaque contrat, ouvert bien avant l’échéance. Collez ce modèle dans votre agent IA : il construit les deux dans Customermates, avec le conseil documenté avant chaque proposition. Vous validez le plan avant que rien ne soit créé. Les données des contrats restent dans votre logiciel de cabinet.",
+    "routine": {
+      "title": "La routine hebdomadaire du bureau de courtage",
+      "steps": [
+        "Ouvrez les renouvellements à venir : contrats professionnels à partir d’environ 120 jours avant l’échéance, contrats de particuliers à partir d’environ 45 jours. Donnez à chaque dossier un responsable et une première étape.",
+        "Relancez les assureurs dont les cotations tardent, et les clients qui n’ont pas répondu à une proposition de renouvellement au bout d’une semaine.",
+        "Vérifiez que chaque proposition porte la date de la trace du conseil, donc que l’analyse des besoins est documentée avant l’envoi. Relancez chaque proposition le lendemain de sa présentation.",
+        "Faites confirmer la décision du client environ 30 jours avant le renouvellement, avant la date limite de préavis du contrat.",
+        "Appelez les nouveaux clients une semaine après l’émission du contrat, et écrivez au client quand votre logiciel de cabinet signale une prime impayée."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas votre logiciel de gestion de cabinet ni de gestion de contrats. Contrats, primes et états de commissions restent dans votre logiciel de cabinet ; ici vous gardez un renvoi et l’échéance.",
+      "Ce n’est pas un comparateur ni un tarificateur. Les cotations viennent des portails des assureurs et des comparateurs, et vous consignez le résultat.",
+      "Il ne gère ni les sinistres, ni les dossiers de souscription auprès de l’assureur, ni le rapprochement des commissions.",
+      "Il ne conserve ni données de santé, ni détails de sinistres, ni coordonnées bancaires, ni copies de pièces d’identité, ni la trace du conseil elle-même : seulement sa date et un lien vers l’endroit où vous la gardez.",
+      "Il ne produit ni ne certifie le conseil. Il consigne que le conseil a été documenté avant la proposition ; le conseil est le vôtre, et les obligations applicables dépendent de votre pays.",
+      "Il n’a ni envoi en masse, ni séquences, ni téléphonie, ni SMS. Les messages sont des brouillons individuels que vous relisez et envoyez."
+    ],
+    "faq": [
+      {
+        "question": "Quelle différence entre un logiciel de cabinet et un CRM pour un courtier ?",
+        "answer": "Le logiciel de cabinet conserve les contrats, les primes, les documents et les états de commissions. Un CRM conserve la relation et la prochaine étape : qui a demandé, quelle cotation est ouverte, quel renouvellement approche et qui appelle qui, pour quand. Ce modèle est la seconde couche et ne garde que des renvois vers la première."
+      },
+      {
+        "question": "Combien de temps avant l’échéance faut-il lancer un renouvellement ?",
+        "answer": "Cela dépend de la branche et du pays. Les sources évoquent environ 90 à 120 jours pour les contrats professionnels et 30 à 45 jours pour les particuliers. Le modèle ouvre un dossier de renouvellement 120 jours avant l’échéance pour un contrat professionnel et 45 jours avant pour un particulier, et vous pouvez changer les deux. Les préavis varient selon le pays et le contrat : vérifiez dans la police le délai réel."
+      },
+      {
+        "question": "Dois-je documenter le conseil avant une proposition ?",
+        "answer": "Dans l’UE, la directive sur la distribution d’assurances impose une analyse des besoins avant la conclusion du contrat, et de nombreux pays attendent que le conseil soit documenté. Les détails dépendent de votre pays et de votre statut de courtier ou d’agent : vérifiez vos propres obligations. Le modèle consigne la date du conseil et un lien vers l’endroit où il est conservé, et montre les propositions qui n’en ont pas. Ce n’est pas un avis juridique."
+      },
+      {
+        "question": "Puis-je stocker dans le CRM des données de contrats ou de santé ?",
+        "answer": "Stockez le moins possible : un renvoi ou un lien vers le contrat, la branche, l’échéance et la prime annuelle. Les données de santé, les détails de sinistres, les coordonnées bancaires et les copies de pièces d’identité restent dehors, et Customermates n’a pas de droits au niveau du champ pour masquer une colonne. Gardez les documents dans votre logiciel de cabinet ou dans un espace documentaire à accès contrôlé."
+      },
+      {
+        "question": "L’agent écrit-il à mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Je gère un portefeuille de courtage : les renouvellements me prennent de court et je dois documenter le conseil avant chaque proposition. Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
     "questions": [

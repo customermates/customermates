@@ -80,6 +80,51 @@
     "due_field": "Każde zadanie ma termin.",
     "tasks_board_view": "Zadania otwierają się jako tablica według statusu."
   },
+  "page": {
+    "metaTitle": "Program do zarządzania projektami dla małych zespołów",
+    "metaDescription": "Prosty program do zarządzania projektami dla 2-15 osób: jedna osoba i jeden termin na zadanie, błędy, zadania cykliczne. Wklej szablon do agenta AI.",
+    "headline": "Prosty program do zarządzania projektami dla małego zespołu, który Twój agent AI buduje w CRM",
+    "answer": "Program do zarządzania projektami dla małego zespołu to jedna lista zadań, z których każde ma osobę odpowiedzialną, status, priorytet i termin, do tego tablica i krótki tygodniowy przegląd tego, co jest po terminie lub zablokowane. Wklej ten szablon do swojego agenta AI, a zbuduje listę w Customermates, z projektami, zadaniami cyklicznymi i prośbami spoza zespołu. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowe spotkanie zespołu w 30 minut",
+      "steps": [
+        "Otwórz listę z zeszłego tygodnia i zacznij od tego, co obiecano: co jest zrobione, a co się przesunęło.",
+        "Przejrzyj zadania po terminie i zablokowane i zdecyduj dla każdego: potwierdzić ponownie, zawęzić zakres albo przekazać komuś innemu. Gdy termin się przesuwa, zostaw pierwotny i dopisz nowy z powodem.",
+        "Zobacz zadania, które od pięciu dni nie ruszyły, i zapytaj, czy są niejasne lub zbyt duże. Zamknij te, których nikt nie potrzebuje.",
+        "Posortuj nowe prośby i błędy: nadaj każdemu rodzaj, priorytet i osobę odpowiedzialną.",
+        "Zakończ odczytaniem listy, żeby przed końcem spotkania każde zadanie miało wskazaną osobę odpowiedzialną i termin."
+      ]
+    },
+    "limits": [
+      "To nie jest narzędzie do sprintów ani do mierzenia prędkości: nie ma sprintów, punktów historii ani wykresów burn-down. Zespół, który ich potrzebuje, zostaje przy Linear lub Jirze.",
+      "To nie jest planer Gantta, zależności ani zdolności produkcyjnych, nie rejestruje czasu pracy i nie zarządza wydaniami.",
+      "To nie jest hosting kodu, system CI ani helpdesk z czasami odpowiedzi. Link do pull requesta lub zgłoszenia to zwykłe pole z linkiem.",
+      "Nie ma natywnej integracji ze Slackiem ani z Teams i nie ma aplikacji mobilnej. Do Slacka prowadzi droga przez n8n.",
+      "To nie jest system HR ani oceny pracowniczej i nie ma jednokrotnego logowania ani uprawnień na poziomie pola."
+    ],
+    "faq": [
+      {
+        "question": "Czy prosty program może zastąpić Trello, Jirę albo arkusz?",
+        "answer": "Dla dwóch do piętnastu osób, które chcą jednej osoby i jednego terminu na zadanie, tygodniowego przeglądu i próśb spoza zespołu na jednej liście, tak. Wyeksportuj tablicę lub arkusz do CSV albo Excela i zaimportuj je kreatorem dopasowania kolumn albo pozwól agentowi dopasować i zaimportować. Jeśli potrzebujesz sprintów, prędkości lub zależności, zostań przy Linear, Jirze lub ClickUp."
+      },
+      {
+        "question": "Jakich statusów powinien używać mały zespół?",
+        "answer": "Mniej, niż się wydaje. Typowe są Do zrobienia, W toku i Zrobione z Trello albo Backlog, Todo, In Progress, Done i Canceled z Linear. Szablon startuje od siedmiu statusów (Backlog, Do zrobienia, W toku, Do weryfikacji, Zablokowane, Zrobione, Anulowane), które możesz zmienić lub usunąć. Zablokowane ma swoje miejsce, bo inaczej zablokowane zadanie umyka do dnia terminu."
+      },
+      {
+        "question": "Pracować w sprintach czy na tablicy?",
+        "answer": "Poradniki kanban stawiają na przepływ i limit pracy w toku, Linear i Jira raczej na sprinty. Ten szablon używa tablicy i terminu i nie ma obiektu sprintu, więc zespół, który potrzebuje prędkości, zostaje przy narzędziu ze sprintami."
+      },
+      {
+        "question": "Czy zadania, które utknęły, zamykać automatycznie?",
+        "answer": "Nie. Przypomnienie po pięciu dniach bez ruchu jest bezpieczniejsze niż automatyczne zamknięcie, a poradniki o spotkaniach zalecają zamykać takie pozycje jawnie. Szablon przypomina osobie odpowiedzialnej, a ona decyduje. Zadanie otwarte tydzień po tygodniu jest zwykle niejasne lub zbyt duże: popraw definicję, nie człowieka."
+      },
+      {
+        "question": "Czy agent pisze do mojego zespołu?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Praca naszego zespołu jest rozrzucona po czacie, tablicy i arkuszu, a ja nie widzę, co jest po terminie albo zablokowane. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
     "questions": [

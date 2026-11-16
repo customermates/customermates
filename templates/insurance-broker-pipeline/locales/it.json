@@ -113,6 +113,52 @@
     "renewals_board_view": "I rinnovi si aprono come board per fase.",
     "advice_documentation_page": "La base di conoscenza contiene una pagina sulla documentazione della consulenza."
   },
+  "page": {
+    "metaTitle": "CRM per broker assicurativo: nuovi affari e rinnovi",
+    "metaDescription": "Nessun rinnovo perso: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il CRM del broker con la consulenza documentata.",
+    "headline": "Nessun rinnovo dimenticato: il CRM del broker assicurativo che il tuo agente IA costruisce per nuovi affari e rinnovi",
+    "answer": "Un CRM per broker assicurativo gestisce due pipeline fianco a fianco: i nuovi affari dalla richiesta alla polizza attiva e una pratica di rinnovo per ogni polizza, aperta molto prima della scadenza. Incolla questo modello nel tuo agente IA e costruisce entrambe in Customermates, con la consulenza documentata prima di ogni proposta. Approvi il piano prima che venga costruito qualcosa. I dati delle polizze restano nel tuo gestionale assicurativo.",
+    "routine": {
+      "title": "La routine settimanale della scrivania del broker",
+      "steps": [
+        "Apri i rinnovi in arrivo: polizze aziende da circa 120 giorni prima della scadenza, polizze privati da circa 45 giorni. Dai a ogni pratica un responsabile e un primo passo.",
+        "Sollecita le compagnie per le quotazioni in ritardo e i clienti che non hanno risposto a una proposta di rinnovo dopo una settimana.",
+        "Verifica che ogni proposta riporti la data della consulenza documentata, così l'analisi delle esigenze è documentata prima dell'invio. Ricontatta ogni proposta il giorno dopo averla presentata.",
+        "Fai confermare la decisione del cliente circa 30 giorni prima del rinnovo, prima del termine di disdetta del contratto.",
+        "Chiama i nuovi clienti una settimana dopo l'emissione della polizza e scrivi al cliente quando il tuo gestionale segnala un premio non pagato."
+      ]
+    },
+    "limits": [
+      "Non è il tuo gestionale assicurativo né l'amministrazione delle polizze. Polizze, premi ed estratti provvigionali restano nel gestionale; qui tieni un rimando e la scadenza.",
+      "Non è un comparatore né un motore tariffario. Le quotazioni arrivano dai portali delle compagnie e dai comparatori, e tu registri il risultato.",
+      "Non gestisce sinistri, richieste di sottoscrizione né la riconciliazione delle provvigioni.",
+      "Non conserva dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità, e nemmeno la documentazione della consulenza: solo la sua data e un link a dove la tieni.",
+      "Non produce né certifica la consulenza. Registra che la consulenza è stata documentata prima della proposta; la consulenza è tua, e gli obblighi che valgono dipendono dal tuo paese.",
+      "Non ha invii di massa, sequenze, telefonia né SMS. I messaggi sono bozze singole che controlli e invii tu."
+    ],
+    "faq": [
+      {
+        "question": "Che differenza c'è tra il gestionale assicurativo e un CRM per un broker?",
+        "answer": "Il gestionale conserva polizze, premi, documenti ed estratti provvigionali. Un CRM conserva la relazione e il prossimo passo: chi ha chiesto, quale quotazione è aperta, quale rinnovo si avvicina e chi chiama chi, entro quando. Questo modello è il secondo livello e tiene solo rimandi al primo."
+      },
+      {
+        "question": "Quanto prima della scadenza devo iniziare un rinnovo?",
+        "answer": "Dipende dal ramo e dal paese. Le fonti indicano da circa 90 a 120 giorni per le polizze aziende e da 30 a 45 per i privati. Il modello apre una pratica di rinnovo 120 giorni prima della scadenza per le polizze aziende e 45 giorni prima per i privati, e puoi cambiare entrambi. I termini di disdetta variano da paese a paese e da contratto a contratto: controlla nella polizza il termine reale."
+      },
+      {
+        "question": "Devo documentare la consulenza prima di una proposta?",
+        "answer": "Nell'UE la direttiva sulla distribuzione assicurativa richiede un'analisi delle esigenze prima della conclusione del contratto, e molti paesi si aspettano che la consulenza sia documentata. I dettagli dipendono dal tuo paese e dal fatto che tu operi come broker o come agente: controlla i tuoi obblighi. Il modello registra la data della consulenza e un link a dove è conservata, e mostra le proposte che ne sono prive. Non è una consulenza legale."
+      },
+      {
+        "question": "Posso salvare nel CRM dati delle polizze o dati sanitari?",
+        "answer": "Salva il meno possibile: un rimando o un link alla polizza, il ramo, la scadenza e il premio annuo. Dati sanitari, dettagli dei sinistri, coordinate bancarie e copie dei documenti d'identità restano fuori, e Customermates non ha permessi a livello di campo per nascondere singole colonne. Tieni i documenti nel gestionale o in un archivio documentale con accesso controllato."
+      },
+      {
+        "question": "L'agente scrive ai miei clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Gestisco un portafoglio assicurativo: i rinnovi mi colgono di sorpresa e devo anche documentare la consulenza prima di ogni proposta. Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
     "questions": [

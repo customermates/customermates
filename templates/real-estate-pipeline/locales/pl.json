@@ -400,6 +400,51 @@
     "listings_board_view": "Lista ofert otwiera się jako tablica według etapów.",
     "operating_guide_page": "Baza wiedzy zawiera instrukcję pracy."
   },
+  "page": {
+    "metaTitle": "Lejek nieruchomości: oferty, kupujący i terminy",
+    "metaDescription": "Wklej ten lejek nieruchomości w Claude, ChatGPT lub Codex: oferty, kupujących, prezentacje z opinią i terminy po podpisaniu umowy, wszystko w Twoim CRM.",
+    "headline": "Nie przegap prezentacji ani terminu: lejek nieruchomości, który buduje Twój agent AI",
+    "answer": "Lejek nieruchomości to dwie listy pracy, które spotykają się przy umowie: oferta właściciela, od wyceny do oferty kupna, i poszukiwanie kupującego, od pierwszego zapytania przez prezentacje do oferty. Wklej ten szablon do swojego agenta AI, a zbuduje on obie w Customermates, z rodzajem umowy pośrednictwa, prezentacjami z opinią, terminami po podpisaniu i rutyną z datami dla dawnych klientów. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda po ofertach i kupujących",
+      "steps": [
+        "Wyślij każdemu właścicielowi oferty aktywnej na rynku krótką informację o prezentacjach i opiniach z tygodnia.",
+        "Sprawdź oferty, którym wkrótce kończy się umowa pośrednictwa: odnowić, przedłużyć albo zmienić cenę.",
+        "Wróć z pasującymi ofertami do kupujących na etapie prezentacji, którzy od siedmiu dni nic nie zrobili.",
+        "Potwierdź najbliższe terminy po umowie przedwstępnej i co miesiąc odezwij się do dawnych klientów."
+      ]
+    },
+    "limits": [
+      "To nie jest system do publikowania na portalach. Twój własny program dla biura nieruchomości nadal publikuje na portalach i prowadzi rejestr umów; tutaj trzymasz identyfikator i lejek wokół niego.",
+      "Nie obsługuje transakcji, rachunków powierniczych ani podpisów elektronicznych. Umowy i podpisy zostają u notariusza i w Twoim narzędziu do podpisu.",
+      "To nie jest zarządzanie najmem: czynsze, konserwacja i rozliczenia najemców to osobna praca.",
+      "Nie wycenia nieruchomości i nie prowadzi księgowości ani podziału prowizji.",
+      "Niczego nie wysyła automatycznie. Zapytania z WhatsAppa trafiają do skrzynki odbiorczej, a odpowiedzi to szkice, które sprawdzasz.",
+      "Nie wrzucaj tu kopii dokumentów tożsamości, zaświadczeń o dochodach ani wyciągów bankowych. Szablon zapisuje tylko datę weryfikacji tożsamości."
+    ],
+    "faq": [
+      {
+        "question": "Dlaczego dwa lejki dla pośrednika w obrocie nieruchomościami?",
+        "answer": "Właściciele i kupujący przechodzą przez różne etapy. Po stronie właściciela jest droga od wyceny i propozycji umowy pośrednictwa do podpisanej umowy i oferty aktywnej na rynku; po stronie kupującego od zapytania przez prezentacje do oferty kupna. Obie spotykają się przy umowie przedwstępnej, gdzie terminy są wspólne."
+      },
+      {
+        "question": "Jakie terminy śledzi szablon?",
+        "answer": "Rodzaj i koniec każdej umowy pośrednictwa, prezentacje z opinią, którą jesteś winien właścicielowi, a po umowie przedwstępnej terminy ważne w Twoim kraju, takie jak zadatek, uzyskanie finansowania, kontrola stanu i termin u notariusza. To, które terminy obowiązują, jest pierwszym pytaniem Twojego agenta."
+      },
+      {
+        "question": "Jakie umowy pośrednictwa obsługuje szablon?",
+        "answer": "Otwartą, z ograniczoną wyłącznością i na wyłączność, razem z datą końca. Według poradników branżowych umowa pośrednictwa w Polsce wymaga formy pisemnej pod rygorem nieważności, więc szablon zapisuje jej rodzaj i koniec, a sam dokument zostaje w Twoich aktach. W szczegółach zapytaj prawnika; to nie jest porada prawna."
+      },
+      {
+        "question": "Czy mogę go używać z moim programem dla biura nieruchomości albo z portalem?",
+        "answer": "Tak. Portale i Twój program przechowują dane ofert i publikację. Szablon jest warstwą lejka, terminów i kontaktów obok nich; zapytania z portali docierają e-mailem do podłączonej skrzynki albo przez przychodzący webhook, a rozmowy z WhatsAppa do skrzynki odbiorczej po podłączeniu konta."
+      },
+      {
+        "question": "Czy agent kontaktuje się z właścicielami lub kupującymi?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Pracuję zarówno z właścicielami, którzy sprzedają nieruchomości, jak i z kupującymi, i gubię się w prezentacjach, opiniach po nich oraz terminach po podpisaniu umowy. Skonfiguruj lejek nieruchomości w mojej przestrzeni roboczej Customermates: oferty z rodzajem umowy pośrednictwa i jej końcem, poszukiwania kupujących, prezentacje z opinią, terminy po podpisaniu umowy i zadanie z terminem przy każdym otwartym wpisie.",
     "questions": [

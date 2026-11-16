@@ -1100,10 +1100,10 @@
       "de": "published",
       "fr": "published",
       "it": "published",
-      "es": "draft",
-      "pt": "draft",
-      "pl": "draft",
-      "nl": "draft"
+      "es": "published",
+      "pt": "published",
+      "pl": "published",
+      "nl": "published"
     },
     "publicPage": {
       "en": "own",
@@ -2308,6 +2308,46 @@
         "chase_rule": "Un cliente que pasa a A la espera del cliente recibe una tarea de recordatorio.",
         "playbook_page": "La base de conocimiento contiene la guía de la ficha de clientes."
       },
+      "page": {
+        "metaTitle": "Ficha de cliente: plantilla para no perder seguimientos",
+        "metaDescription": "Ficha de cliente para Claude, ChatGPT o Codex: un responsable y una próxima acción con fecha por cada cliente, y una revisión semanal de lo que va tarde.",
+        "headline": "Sabe siempre a quién llamar: una ficha de clientes que tu agente de IA construye en tu CRM",
+        "answer": "Una ficha de clientes es una lista con una fila por cliente, un responsable y una próxima acción con fecha, para que ningún cliente se quede en silencio sin que lo notes. Pega esta plantilla en tu agente de IA y construye la lista en Customermates, con personas de contacto, tareas con fecha, conversaciones vinculadas y una revisión semanal. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La revisión semanal de clientes en 15 minutos",
+          "steps": [
+            "Ordena la lista de clientes por la fecha de la próxima acción y por estado.",
+            "Resuelve primero todo lo que va con retraso y después los clientes activos que no tienen próxima acción.",
+            "Mira los clientes potenciales que han dejado de responder y decide: retomar el contacto o cerrar.",
+            "Termina con una fecha en cada fila, para que ningún cliente se quede sin próxima acción."
+          ]
+        },
+        "limits": [
+          "No es una herramienta de facturación, presupuestos ni control de horas. La facturación sigue en tu programa de contabilidad; la ficha guarda como mucho un enlace y un valor anual.",
+          "No guarda contratos firmados y no es un portal de clientes. Los clientes no pueden iniciar sesión para ver su estado.",
+          "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con una periodicidad fija. La plantilla los propone y tú decides cuáles activar.",
+          "Deja fuera los expedientes sensibles, como historiales de salud, jurídicos o terapéuticos. Aquí va la relación con el cliente; el contenido del caso, en un sistema pensado para ello.",
+          "Está dimensionada para entre una y diez personas. Si hay columnas que tus compañeros no deben ver, pásalas a una lista aparte con sus propios permisos de acceso."
+        ],
+        "faq": [
+          {
+            "question": "¿Qué debe tener una ficha de cliente?",
+            "answer": "Una fila por cliente, con un responsable, un estado de una lista corta, la fecha de la última interacción y una próxima acción con fecha. Esa fecha es la que mueve el trabajo: ordena por ella una vez a la semana y no se te escapa nada."
+          },
+          {
+            "question": "¿Cuándo se queda corta una hoja de cálculo para llevar clientes?",
+            "answer": "Las guías de profesionales sitúan el límite hacia los 25 o 50 clientes, cuando varias personas editan el archivo o cuando nadie recibe un aviso de un seguimiento pendiente. Entonces ayuda un CRM: las personas de contacto están vinculadas, las próximas acciones son tareas con fecha y las conversaciones están junto a cada cliente."
+          },
+          {
+            "question": "¿Cuánto tiempo puedo conservar los datos de los clientes dados de baja?",
+            "answer": "Depende del país y de los datos. Dos ejemplos: la autoridad francesa de protección de datos admite conservar los datos de clientes usados para prospección durante la relación comercial más tres años, y el derecho mercantil alemán exige conservar seis años las cartas comerciales y ocho los justificantes contables. En España se aplican el RGPD y la LOPDGDD, con minimización de datos y registro de actividades de tratamiento. La plantilla fija una fecha de revisión de datos para cada cliente dado de baja; ajusta el plazo a tu país y consúltalo con tu asesor. Esto no es asesoramiento legal."
+          },
+          {
+            "question": "¿El agente contacta con mis clientes?",
+            "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Llevo personalmente la relación con mis clientes y se me escapan demasiados seguimientos: no sé con quién hablé por última vez ni qué toca ahora. Configura una ficha de clientes en mi espacio de trabajo de Customermates: una fila por cliente con un responsable, un estado, la fecha de la última interacción y una próxima acción con fecha, más las personas de contacto, tareas con fecha, una revisión semanal y una fecha de revisión de datos para los clientes dados de baja.",
         "questions": [
@@ -3501,6 +3541,46 @@
         "chase_rule": "Een klant die naar Wacht op klant gaat, krijgt een herinneringsactie.",
         "playbook_page": "De kennisbank bevat de werkwijze van het klantenbestand."
       },
+      "page": {
+        "metaTitle": "Klantenbestand sjabloon: mis nooit meer een opvolging",
+        "metaDescription": "Klantenbestand voor Claude, ChatGPT of Codex: per klant één accountmanager en een volgende stap met datum, plus een wekelijkse controle op wat te laat is.",
+        "headline": "Weet wie je als volgende belt: een klantenbestand dat je AI-agent in je CRM opbouwt",
+        "answer": "Een klantenbestand is een lijst met één regel per klant, één accountmanager en een volgende stap met datum, zodat geen klant stil valt zonder dat je het merkt. Plak dit sjabloon in je AI-agent en die bouwt de lijst op in Customermates, met contactpersonen, acties met datum, gekoppelde gesprekken en een wekelijkse controle. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De wekelijkse klantcontrole van 15 minuten",
+          "steps": [
+            "Sorteer de klantenlijst op de datum van de volgende stap en op status.",
+            "Pak eerst alles aan wat te laat is, daarna de actieve klanten zonder volgende stap.",
+            "Kijk naar prospects die stil zijn geworden en beslis: opvolgen of afsluiten.",
+            "Sluit af met een datum op elke regel, zodat geen enkele klant zonder volgende stap blijft."
+          ]
+        },
+        "limits": [
+          "Het is geen hulpmiddel voor facturatie, offertes of tijdregistratie. Facturatie blijft in je boekhoudpakket; het klantenbestand bevat hooguit een link en een jaarwaarde.",
+          "Het bewaart geen getekende contracten en is geen klantenportaal. Klanten kunnen niet inloggen om hun status te zien.",
+          "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het sjabloon stelt ze voor en jij bepaalt welke je aanzet.",
+          "Houd gevoelige klantdossiers, zoals medische, juridische of therapeutische gegevens, erbuiten. Hier staat de relatie, de inhoud van het dossier staat in een systeem dat daarvoor is gebouwd.",
+          "Het is bedoeld voor één tot tien personen. Moeten bepaalde kolommen verborgen blijven voor collega’s, zet ze dan in een aparte lijst met eigen toegang."
+        ],
+        "faq": [
+          {
+            "question": "Wat hoort er in een klantenbestand?",
+            "answer": "Eén regel per klant met een accountmanager, een status uit een korte lijst, de datum van het laatste contact en een volgende stap met datum. Die datum bepaalt het werk: sorteer er één keer per week op en er valt niets tussendoor."
+          },
+          {
+            "question": "Wanneer is een spreadsheet niet meer genoeg voor klantenbeheer?",
+            "answer": "Praktijkgidsen leggen de grens bij ongeveer 25 tot 50 klanten, bij meerdere mensen die het bestand bewerken, of op het punt dat niemand meer aan een opvolging wordt herinnerd. Dan helpt een CRM: contactpersonen zijn gekoppeld, volgende stappen zijn acties met datum en de gesprekken staan naast elke klant."
+          },
+          {
+            "question": "Hoe lang mag ik de gegevens van beëindigde klanten bewaren?",
+            "answer": "Dat hangt af van het land en van de gegevens. Twee voorbeelden: de Franse privacytoezichthouder staat toe dat klantgegevens voor acquisitie worden bewaard zolang de relatie duurt plus drie jaar, en het Duitse handelsrecht eist dat zakelijke brieven zes jaar en boekingsstukken acht jaar worden bewaard. In Nederland geldt de AVG, met de Autoriteit Persoonsgegevens als toezichthouder. Het sjabloon zet voor elke beëindigde klant een controledatum; pas de termijn aan op je land en vraag je adviseur. Dit is geen juridisch advies."
+          },
+          {
+            "question": "Neemt de agent contact op met mijn klanten?",
+            "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Ik onderhoud mijn klantrelaties zelf en te veel opvolgingen glippen erdoorheen: ik weet niet meer met wie ik het laatst sprak en wat de volgende stap is. Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
         "questions": [
@@ -3872,6 +3952,46 @@
         "chase_rule": "Klient przeniesiony do statusu Oczekuje na klienta dostaje zadanie ponaglenia.",
         "playbook_page": "Baza wiedzy zawiera instrukcję bazy klientów."
       },
+      "page": {
+        "metaTitle": "Baza klientów: szablon, który pilnuje kolejnych kroków",
+        "metaDescription": "Baza klientów do wklejenia w Claude, ChatGPT lub Codex: jeden opiekun i następny krok z terminem przy każdym kliencie oraz cotygodniowy przegląd zaległości.",
+        "headline": "Wiedz, do kogo zadzwonić: baza klientów, którą Twój agent AI buduje w Twoim CRM",
+        "answer": "Baza klientów to lista z jednym wierszem na klienta, jednym opiekunem i następnym krokiem z terminem, dzięki czemu żaden klient nie zamilknie bez Twojej wiedzy. Wklej ten szablon do swojego agenta AI, a zbuduje on listę w Customermates, z osobami kontaktowymi, zadaniami z terminem, powiązanymi rozmowami i cotygodniowym przeglądem. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowy przegląd klientów w 15 minut",
+          "steps": [
+            "Posortuj listę klientów według terminu następnego kroku i według statusu.",
+            "Zajmij się najpierw tym, co jest po terminie, a potem aktywnymi klientami bez następnego kroku.",
+            "Przejrzyj potencjalnych klientów, którzy zamilkli, i zdecyduj: wrócić do rozmowy czy zamknąć.",
+            "Zakończ datą w każdym wierszu, żeby żaden klient nie został bez następnego kroku."
+          ]
+        },
+        "limits": [
+          "To nie jest narzędzie do fakturowania, ofert ani rejestrowania czasu pracy. Rozliczenia zostają w Twoim programie księgowym; baza przechowuje co najwyżej link i wartość roczną.",
+          "Nie przechowuje podpisanych umów i nie jest portalem klienta. Klienci nie mogą się zalogować, żeby zobaczyć swój status.",
+          "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą Twój agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć.",
+          "Nie wpisuj tu wrażliwych akt klientów, takich jak dokumentacja zdrowotna, prawna lub terapeutyczna. Relacja jest tutaj, a treść sprawy w systemie do tego stworzonym.",
+          "Jest dobrany do pracy od jednej do dziesięciu osób. Jeśli niektóre kolumny mają być ukryte przed współpracownikami, przenieś je do osobnej listy z własnym dostępem."
+        ],
+        "faq": [
+          {
+            "question": "Co powinna zawierać baza klientów?",
+            "answer": "Jeden wiersz na klienta z opiekunem, statusem z krótkiej listy, datą ostatniego kontaktu i następnym krokiem z terminem. To termin napędza pracę: raz w tygodniu posortuj według niego, a nic nie umknie."
+          },
+          {
+            "question": "Kiedy arkusz przestaje wystarczać do prowadzenia klientów?",
+            "answer": "Poradniki praktyków wskazują granicę około 25 do 50 klientów, moment, gdy plik edytuje kilka osób, albo gdy nikt nie przypomina o kolejnym kontakcie. Wtedy pomaga CRM: osoby kontaktowe są powiązane, następne kroki są zadaniami z terminem, a rozmowy leżą obok każdego klienta."
+          },
+          {
+            "question": "Jak długo mogę przechowywać dane klientów, z którymi zakończyłem współpracę?",
+            "answer": "To zależy od kraju i od danych. Dwa przykłady: francuski organ ochrony danych dopuszcza przechowywanie danych klientów wykorzystywanych do działań sprzedażowych przez czas trwania relacji plus trzy lata, a niemieckie prawo handlowe wymaga przechowywania listów handlowych przez sześć lat, a dokumentów księgowych przez osiem. W Polsce obowiązuje RODO, nad którym czuwa UODO. Szablon ustawia datę przeglądu danych dla każdego zakończonego klienta; dopasuj okres do swojego kraju i zapytaj doradcę. To nie jest porada prawna."
+          },
+          {
+            "question": "Czy agent kontaktuje się z moimi klientami?",
+            "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+          }
+        ]
+      },
       "prompt": {
         "intro": "Sam prowadzę swoich klientów i za często umykają mi kolejne kontakty: tracę z oczu, kiedy ostatnio był kontakt z danym klientem i co dalej. Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
         "questions": [
@@ -4242,6 +4362,46 @@
         "overdue_widget": "O painel mostra quantas tarefas estão atrasadas.",
         "chase_rule": "Um cliente movido para Aguardando cliente recebe uma tarefa de lembrete.",
         "playbook_page": "A base de conhecimento contém o guia do cadastro de clientes."
+      },
+      "page": {
+        "metaTitle": "Cadastro de clientes: modelo para não perder retornos",
+        "metaDescription": "Cadastro de clientes para o Claude, ChatGPT ou Codex: um responsável e um próximo contato com data por cliente, mais uma revisão semanal do que atrasou.",
+        "headline": "Saiba quem ligar em seguida: um cadastro de clientes que o seu agente de IA monta no seu CRM",
+        "answer": "Um cadastro de clientes é uma lista com uma linha por cliente, um responsável e um próximo contato com data, para que nenhum cliente fique em silêncio sem você perceber. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com contatos, tarefas com data, conversas vinculadas e uma revisão semanal. Você aprova o plano antes que qualquer coisa seja criada.",
+        "routine": {
+          "title": "A revisão semanal de clientes em 15 minutos",
+          "steps": [
+            "Ordene a lista de clientes pela data do próximo contato e pelo status.",
+            "Resolva primeiro tudo o que está atrasado e depois os clientes ativos sem próximo contato.",
+            "Olhe os prospects que ficaram em silêncio e decida: retomar o contato ou encerrar.",
+            "Termine com uma data em cada linha, para que nenhum cliente fique sem próximo contato."
+          ]
+        },
+        "limits": [
+          "Não é uma ferramenta de faturamento, orçamentos nem controle de horas. A cobrança continua no seu sistema financeiro; o cadastro guarda no máximo um link e um valor anual.",
+          "Não guarda contratos assinados e não é um portal do cliente. Os clientes não conseguem entrar para ver o próprio status.",
+          "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em intervalos regulares. O modelo propõe, e você decide quais ativar.",
+          "Deixe de fora pastas sensíveis, como dados de saúde, jurídicos ou terapêuticos. Aqui fica o relacionamento; o conteúdo do caso fica em um sistema feito para isso.",
+          "Foi pensado para uma a dez pessoas. Se algumas colunas precisam ficar escondidas dos colegas, coloque-as em uma lista separada com acesso próprio."
+        ],
+        "faq": [
+          {
+            "question": "O que deve ter um cadastro de clientes?",
+            "answer": "Uma linha por cliente, com um responsável, um status de uma lista curta, a data do último contato e um próximo contato com data. É essa data que move o trabalho: ordene por ela uma vez por semana e nada se perde."
+          },
+          {
+            "question": "Quando a planilha deixa de bastar para controlar clientes?",
+            "answer": "Guias de quem trabalha na prática colocam o limite entre 25 e 50 clientes, quando mais de uma pessoa edita o arquivo ou quando ninguém é lembrado de um retorno. Aí um CRM ajuda: os contatos ficam vinculados, os próximos passos viram tarefas com data e as conversas ficam ao lado de cada cliente."
+          },
+          {
+            "question": "Por quanto tempo posso guardar os dados de clientes encerrados?",
+            "answer": "Depende do país e dos dados. Dois exemplos: a autoridade francesa de proteção de dados admite guardar dados de clientes usados em prospecção durante a relação comercial mais três anos, e o direito comercial alemão exige guardar cartas comerciais por seis anos e comprovantes contábeis por oito. No Brasil, a LGPD dá ao titular direito de acesso, correção e exclusão, e o envio de marketing pede consentimento próprio. O modelo define uma data de revisão dos dados para cada cliente encerrado; ajuste o prazo ao seu caso e consulte quem cuida da sua contabilidade ou do jurídico. Isto não é aconselhamento jurídico."
+          },
+          {
+            "question": "O agente entra em contato com os meus clientes?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+          }
+        ]
       },
       "prompt": {
         "intro": "Eu cuido dos meus clientes pessoalmente e muitos retornos escapam: perco o fio de com quem falei por último e do que vem depois. Configure um cadastro de clientes no meu espaço de trabalho do Customermates: uma linha por cliente com responsável, status, data do último contato e um próximo contato com data, mais os contatos, tarefas com data, uma revisão semanal e uma data de revisão dos dados para clientes encerrados.",

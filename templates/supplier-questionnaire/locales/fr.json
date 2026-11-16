@@ -115,6 +115,51 @@
     "valid_until_field": "Chaque document indique jusqu’à quand il est valable.",
     "suppliers_board_view": "Les fournisseurs s’ouvrent en board par statut."
   },
+  "page": {
+    "metaTitle": "Logiciel gestion fournisseurs : modèle de registre",
+    "metaDescription": "Logiciel de gestion des fournisseurs : registre, questionnaire, certificats avec dates de validité et risque. Collez le modèle dans votre agent IA.",
+    "headline": "Un logiciel de gestion des fournisseurs qui montre quel certificat expire en premier, construit par votre agent IA",
+    "answer": "La gestion des fournisseurs d’une petite équipe repose sur un registre : questionnaire de qualification, certificats avec date de validité, niveau de risque et décision pour chaque fournisseur. Collez ce modèle dans votre agent IA et il construit le registre dans Customermates, avec des relances datées pour les questionnaires, les renouvellements et les réévaluations. Vous validez le plan avant toute construction. Le registre consigne les demandes et les décisions, il ne décide pas de la conformité.",
+    "routine": {
+      "title": "Le point hebdomadaire sur les fournisseurs",
+      "steps": [
+        "Relancez les fournisseurs dont le questionnaire a dépassé son échéance.",
+        "Examinez les réponses des questionnaires reçus ces derniers jours et notez celles qui n’ont pas encore de justificatif à jour.",
+        "Demandez le renouvellement des certificats et attestations qui expirent dans 30 jours, et tranchez pour ceux qui ont expiré : suspendre le fournisseur ou accepter le risque par écrit.",
+        "Consignez la décision pour les fournisseurs en revue (référencer, référencer sous conditions, escalader ou refuser) et fixez la prochaine évaluation selon le niveau de risque.",
+        "Lancez la réévaluation des fournisseurs dont la prochaine évaluation tombe dans les 14 jours."
+      ]
+    },
+    "limits": [
+      "Il ne décide pas qu’un fournisseur, un produit ou une chaîne d’approvisionnement respecte une loi, et il ne dépose ni déclaration de diligence ni rapport. Il consigne les demandes, les justificatifs et les décisions.",
+      "Ce n’est pas un service de contrôle : pas de vérification de sanctions, de presse défavorable ou de solvabilité, et pas d’enrichissement des données d’entreprise.",
+      "Ce n’est ni un ERP, ni un outil d’achats ou de facturation. Il n’y a ni bons de commande, ni montants d’achats, ni factures.",
+      "Ce n’est pas une archive. Les fichiers ne sont consultables que s’ils ont une couche de texte, les certificats scannés ne sont pas lus et la piste d’audit n’est ni inaltérable ni conservée à part. Gardez les originaux dans votre système de documents, avec un lien.",
+      "Les fournisseurs ne peuvent pas se connecter pour répondre ou déposer des fichiers, et il n’y a ni signature électronique ni droits par champ. Le confidentiel va dans une liste ou un espace à part. EcoVadis, Sedex ou SAP Ariba font ce qu’il ne fait pas."
+    ],
+    "faq": [
+      {
+        "question": "À quelle fréquence réévaluer les fournisseurs ?",
+        "answer": "Les guides placent le minimum à une fois par an. En pratique, les fournisseurs critiques sont revus tous les six ou douze mois et après un événement tel qu’un rachat, un nouveau sous-traitant ou un incident ; les fournisseurs à faible risque peuvent attendre un an ou plus. Le modèle fixe la prochaine évaluation selon le niveau de risque ; après un événement, vous lancez vous-même la réévaluation."
+      },
+      {
+        "question": "Faut-il classer les fournisseurs selon le montant des achats ?",
+        "answer": "Non. La profondeur du contrôle doit suivre le risque : les données que le fournisseur traite, ses accès, son caractère critique et la facilité à le remplacer. Utilisez quatre niveaux, de faible à critique, avec un questionnaire léger pour les fournisseurs à faible risque et un questionnaire complet pour les critiques. Envoyer 300 questions à chaque fournisseur fait perdre du temps à tout le monde. Le montant des achats n’est pas un champ du modèle."
+      },
+      {
+        "question": "Quels documents demander à un sous-traitant en France ?",
+        "answer": "Pour un contrat de plus de 5 000 euros hors taxes, le donneur d’ordre contrôle l’attestation de vigilance à la signature, puis tous les six mois jusqu’à la fin du contrat ; elle se vérifie en ligne avec son code de sécurité sur le site de l’Urssaf. On demande aussi un extrait Kbis. Sans ces contrôles, le donneur d’ordre risque d’être tenu solidairement des cotisations impayées. Les seuils varient selon les sources : vérifiez-les auprès de l’Urssaf. Le modèle ne fait que dater la prochaine vérification."
+      },
+      {
+        "question": "Le modèle décide-t-il de notre conformité au devoir de vigilance ?",
+        "answer": "Non. Il coordonne les demandes de justificatifs et consigne les dates et les décisions. Le champ et les échéances de règles comme le règlement européen sur la déforestation ou les lois sur le devoir de vigilance évoluent encore : confirmez-les avec votre conseil. Le modèle ne dit jamais qu’un fournisseur ou un produit est conforme."
+      },
+      {
+        "question": "L’agent contacte-t-il mes fournisseurs ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple. Des brouillons n’existent que si vous les demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Je travaille avec de nombreux fournisseurs et je ne vois pas quels certificats ont expiré ni qui doit être réévalué. Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
     "questions": [

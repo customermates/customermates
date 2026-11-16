@@ -103,6 +103,46 @@
     "due_field": "Ogni azione ha un responsabile e una scadenza.",
     "overdue_widget": "La dashboard mostra quante azioni sono scadute."
   },
+  "page": {
+    "metaTitle": "Piano d'azione: responsabile e scadenza per ogni azione",
+    "metaDescription": "Incolla questo piano d'azione in Claude, ChatGPT o Codex: ogni azione decisa in riunione ha un responsabile, una scadenza e una revisione settimanale.",
+    "headline": "Quello che si decide si fa: il piano d'azione che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Un piano d'azione è un elenco in cui ogni azione ha un responsabile, una scadenza e uno stato, collegata alla riunione o alla decisione da cui nasce, perché quello che si decide in riunione venga davvero fatto. Incolla questo modello nel tuo agente IA e costruisce l'elenco in Customermates, con riunioni, decisioni, progetti, un registro delle decisioni e una revisione settimanale di ciò che è aperto, scaduto o bloccato. Approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La revisione settimanale delle azioni in 15 minuti",
+      "steps": [
+        "Guarda solo le eccezioni: le azioni bloccate, quelle che superano la scadenza e quelle senza un prossimo passo.",
+        "Per ogni azione bloccata indica chi può sbloccarla e fissa una data per riprenderla.",
+        "Per ogni azione scaduta decidi insieme al responsabile: nuova scadenza, passarla a qualcun altro oppure annullarla.",
+        "Conferma i cambi di data durante la riunione, non dopo, e chiudi un'azione solo con una prova, come un link, un file o un messaggio."
+      ]
+    },
+    "limits": [
+      "Non è una suite di project management. Non ci sono dipendenze tra attività, vista cronologica o Gantt, sprint né rilevazione del tempo. Queste funzioni restano nel tuo strumento di progetto.",
+      "Non è un sistema qualità validato. Le azioni correttive regolamentate, per esempio nei dispositivi medici o nell'aviazione, richiedono firme elettroniche e audit trail validati. Il modello dà a una piccola organizzazione un registro chiaro e una verifica di efficacia, niente di più.",
+      "Tieni fuori i piani di cura e qualsiasi dato sanitario.",
+      "Nessuno viene avvisato in automatico. La revisione settimanale e la dashboard mostrano che cosa è in scadenza; i promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari, e decidi tu quali attivare.",
+      "Una vista non può mostrare insieme le azioni scadute e quelle bloccate, quindi il modello tiene una vista per ciascuna."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve contenere un'azione?",
+        "answer": "Un titolo che comincia con un verbo e ha meno di dieci parole, un responsabile indicato per nome, una data precisa invece di una finestra come la prossima settimana e uno stato. Chi lavora sul campo aggiunge una priorità e il collegamento alla riunione o alla decisione da cui nasce l'azione. Il modello tiene tutto in un unico elenco, così un'azione senza responsabile o senza data si nota subito."
+      },
+      {
+        "question": "Quali stati dare a un'azione?",
+        "answer": "Le guide di chi lavora sul campo usano Da fare, In corso, Bloccata, In verifica e Completata, e alcune aggiungono Annullata. Questo modello ne ha sei: da fare, in corso, bloccata, in verifica, completata e annullata. Si interviene quando l'azione si blocca, non alla scadenza: un'azione bloccata indica chi può sbloccarla e riceve una data di follow-up."
+      },
+      {
+        "question": "Quando un'azione è davvero chiusa?",
+        "answer": "Quando c'è una prova e non solo la parola fatto: un link, un file o un messaggio, più la data effettiva di chiusura. Un'azione correttiva o preventiva è chiusa solo quando se ne è verificata l'efficacia; il modello crea la verifica 30 giorni dopo il completamento dell'azione, e puoi cambiare il periodo."
+      },
+      {
+        "question": "L'agente invia i verbali o i promemoria?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Quello che decidiamo in riunione si perde per strada e nessuno sa dire chi se ne occupa e per quando. Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
     "questions": [

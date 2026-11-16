@@ -95,8 +95,58 @@
     "first_response_field": "Todo chamado registra o prazo da primeira resposta.",
     "tickets_board_view": "Os chamados abrem como quadro por status."
   },
+  "page": {
+    "metaTitle": "Sistema de chamados: atendimento ao cliente no seu CRM",
+    "metaDescription": "Sistema de chamados leve que seu agente de IA monta no seu CRM: chamados com prioridade e prazos de resposta, problemas conhecidos e nota de satisfação.",
+    "headline": "Um sistema de chamados para algumas dezenas de chamados por semana, montado pelo seu agente de IA no CRM",
+    "answer": "Um sistema de chamados leve dá a cada mensagem de cliente um chamado com responsável, prioridade e um prazo em que você deve responder. Este modelo configura chamados, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação. Cole-o no seu agente de IA e ele monta o atendimento no Customermates; você aprova o plano antes de qualquer coisa ser criada. Ele serve a uma empresa ou agência de uma a oito pessoas, não a uma grande equipe de suporte.",
+    "routine": {
+      "title": "A revisão semanal do atendimento",
+      "steps": [
+        "Comece pelos chamados com primeira resposta ou solução atrasada e siga com os que esperam por você há mais de dois dias.",
+        "Cobre os clientes que não respondem há 3 dias e marque como resolvidos os chamados em silêncio há 7 dias, anotando que não veio resposta.",
+        "Olhe os chamados reabertos e os resolvidos sem nota, e fale de novo com quem deu 1 ou 2.",
+        "Revise os problemas conhecidos abertos: quando um é corrigido, avise cada cliente com chamado ligado a ele e anote as categorias mais frequentes da semana."
+      ]
+    },
+    "limits": [
+      "Não é um sistema de telefonia ou SMS nem um widget de chat ao vivo. Os chamados nascem de mensagens de e-mail, WhatsApp, LinkedIn, Instagram e Telegram na caixa de entrada, ou do seu agente.",
+      "Hoje o Customermates não tem portal do cliente nem formulário público de chamados. Os clientes não podem entrar para acompanhar um chamado.",
+      "Ele não calcula horário comercial nem feriados. Os prazos vêm da tabela de planos de suporte na sua base de conhecimento, definidos por uma regra ou pelo seu agente.",
+      "Não é um gestor ITIL de mudanças ou ativos, nem uma página de status, nem uma ferramenta de envio em massa, e não tem SSO. Para alto volume ou grandes empresas, Zendesk, Freshdesk ou Zammad servem melhor.",
+      "As respostas são rascunhos que você revisa e envia. Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado; o modelo os propõe e você decide quais ligar.",
+      "Deixe fora dos chamados números de cartão, senhas, cópias de documentos de identidade e dados de saúde. Uma solicitação de acesso guarda a verificação de identidade como sim ou não com uma data, não como cópias.",
+      "Conectar o e-mail ou o WhatsApp ao CRM exige um plano com caixa de entrada, e uma caixa compartilhada por toda a equipe exige um plano com contas compartilhadas. A página de preços mostra o que cada plano inclui."
+    ],
+    "faq": [
+      {
+        "question": "Qual é o sistema de chamados mais simples para uma pequena empresa?",
+        "answer": "Uma lista de chamados com um responsável cada um, um status, uma prioridade e dois prazos: primeira resposta e solução. Some uma lista de problemas conhecidos e uma nota de satisfação e revise tudo toda semana. Basta para algumas dezenas de chamados por semana; acima disso, vale uma ferramenta dedicada."
+      },
+      {
+        "question": "Que status um chamado de suporte deve ter?",
+        "answer": "Os conjuntos comuns são novo, aberto, pendente, resolvido e fechado. Este modelo usa Novo, Aberto, Aguardando cliente, Aguardando terceiros, Resolvido e Fechado, mais Spam ou duplicado. Os fornecedores divergem sobre se um status de espera para o relógio; a regra da casa do modelo é que esperar o cliente o pausa e esperar terceiros não. Você pode mudar isso."
+      },
+      {
+        "question": "Que prazos de resposta devo prometer?",
+        "answer": "Não há referência geral. Fornecedores citam como exemplo problemas críticos em 4 horas e pedidos pequenos em 72 horas, com 1 hora até a primeira resposta e 4 horas até a solução numa queda total. Comece com valores assim na tabela de planos de suporte e troque-os pelo que você consegue cumprir."
+      },
+      {
+        "question": "Preciso seguir o prazo do SAC e guardar o protocolo?",
+        "answer": "Depende do setor. O Decreto 11.034/2022 manda tratar as demandas do SAC em até 7 dias corridos do registro e guardar o número de protocolo por pelo menos dois anos, mas vale para fornecedores de serviços regulados pelo governo federal, não para toda empresa. Não é aconselhamento jurídico; confirme o que vale para o seu setor."
+      },
+      {
+        "question": "Ele pode substituir o Zendesk ou o Freshdesk?",
+        "answer": "Para uma equipe de algumas dezenas de chamados por semana que quer retornos com data e uma nota de satisfação, sim. Para alto volume, muitos canais ou grandes empresas, Zendesk, Freshdesk, Zammad, Help Scout ou Front seguem mais adequados, com motores de SLA, macros, calendários de horário comercial e portais que este modelo deixa de fora de propósito."
+      },
+      {
+        "question": "O agente responde aos meus clientes?",
+        "answer": "O agente redige respostas a partir da conversa ligada, e você as revisa e envia. O prompt manda que ele não envie nada e não crie dados de exemplo."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Eu recebo perguntas de clientes por e-mail e chat e não sei quais ainda esperam uma resposta. Configure no meu espaço de trabalho do Customermates um atendimento ao cliente: chamados com status, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
+    "intro":"Eu recebo perguntas de clientes por e-mail e chat e não sei quais ainda esperam uma resposta. Configure no meu espaço de trabalho do Customermates um atendimento ao cliente: chamados com status, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
     "questions": [
       "Quantos chamados você atende por semana e por quais canais eles chegam?",
       "Que prazos você promete para a primeira resposta e a resolução, por prioridade ou plano de suporte?",

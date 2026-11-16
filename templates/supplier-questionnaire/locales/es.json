@@ -115,6 +115,51 @@
     "valid_until_field": "Cada documento indica hasta cuándo es válido.",
     "suppliers_board_view": "Los proveedores se abren como tablero por estado."
   },
+  "page": {
+    "metaTitle": "Homologación de proveedores: plantilla de registro y fechas",
+    "metaDescription": "Homologación de proveedores con cuestionario, documentos con fecha de vencimiento y nivel de riesgo. Pega la plantilla en tu agente de IA y monta el registro.",
+    "headline": "Homologación de proveedores que muestra qué certificado vence primero, montada por tu agente de IA en tu CRM",
+    "answer": "La homologación de proveedores reúne en un registro el cuestionario, los documentos con fecha de vencimiento, el nivel de riesgo y la decisión de cada proveedor. Pega esta plantilla en tu agente de IA y él monta el registro en Customermates, con seguimientos con fecha para cuestionarios, renovaciones y reevaluaciones. Tú apruebas el plan antes de que se construya nada. El registro anota solicitudes y decisiones, no decide el cumplimiento normativo.",
+    "routine": {
+      "title": "La revisión semanal de proveedores",
+      "steps": [
+        "Reclama a los proveedores cuyo cuestionario ha pasado de su fecha límite.",
+        "Revisa las respuestas de los cuestionarios recibidos estos días y anota cuáles aún no tienen una prueba vigente.",
+        "Pide la renovación de los certificados y documentos que vencen en 30 días y decide sobre los ya vencidos: suspender al proveedor o aceptar el riesgo por escrito.",
+        "Registra la decisión de los proveedores en revisión (homologar, homologar con condiciones, escalar o rechazar) y fija la próxima evaluación según el nivel de riesgo.",
+        "Inicia la reevaluación de los proveedores cuya próxima evaluación cae dentro de 14 días."
+      ]
+    },
+    "limits": [
+      "No decide que un proveedor, un producto o una cadena de suministro cumpla una ley, y no presenta declaraciones de diligencia debida ni informes. Registra solicitudes, pruebas y decisiones.",
+      "No es un servicio de cribado: no comprueba sanciones, prensa adversa ni riesgo financiero, y no enriquece datos de empresas.",
+      "No es un ERP ni un sistema de compras o facturación. No hay pedidos de compra, importes de gasto ni facturas.",
+      "No es un archivo de documentos. Los archivos solo se pueden buscar si tienen capa de texto, los certificados escaneados no se leen y no hay un registro de auditoría inalterable o conservado de forma independiente. Guarda los originales en tu sistema de documentos y enlázalos.",
+      "Los proveedores no pueden entrar para responder o subir archivos, y no hay firma electrónica ni permisos por campo. Lo reservado va en una lista o un espacio de trabajo aparte. Plataformas como EcoVadis, Sedex o SAP Ariba hacen lo que aquí falta."
+    ],
+    "faq": [
+      {
+        "question": "¿Cómo funciona la homologación de proveedores?",
+        "answer": "Los pasos son comunes en la práctica: definir la necesidad y los criterios, enviar un cuestionario de alta, recoger documentos y certificados, clasificar por nivel de riesgo, decidir (homologar, homologar con condiciones, escalar o rechazar) y reevaluar. La lista de proveedores homologados es el registro de proveedores aprobados que pide la ISO 9001:2015 en su apartado 8.4.1."
+      },
+      {
+        "question": "¿Cada cuánto debo reevaluar a los proveedores?",
+        "answer": "Las guías sitúan el mínimo en una vez al año. En la práctica los proveedores críticos se revisan cada seis o doce meses y también tras un hecho como una adquisición, un nuevo subcontratista o un incidente, mientras que los de bajo riesgo pueden pasar un año o más. La plantilla fija la próxima evaluación según el nivel de riesgo; tras un hecho, inicias tú la reevaluación."
+      },
+      {
+        "question": "¿Conviene clasificar a los proveedores por volumen de compra?",
+        "answer": "No. La profundidad debe seguir el riesgo: los datos que maneja el proveedor, el acceso que tiene, lo crítico que es y lo fácil que sea sustituirlo. Usa cuatro niveles, de bajo a crítico, con un cuestionario ligero para los de bajo riesgo y uno completo para los críticos. El importe de compra no es un campo de esta plantilla. Comprueba con tu asesor qué certificados exige tu sector y cuánto tiempo es válido cada uno."
+      },
+      {
+        "question": "¿Decide la plantilla si cumplimos las normas de la cadena de suministro?",
+        "answer": "No. Coordina las solicitudes de pruebas y registra fechas y decisiones. El alcance y los plazos de normas como el reglamento europeo contra la deforestación o las leyes de diligencia debida siguen cambiando: confírmalos con tu asesor. La plantilla nunca dice que un proveedor o un producto cumple."
+      },
+      {
+        "question": "¿El agente contacta con mis proveedores?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Trabajo con muchos proveedores y no veo a quién se le han caducado los certificados ni a quién le toca la reevaluación. Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
     "questions": [

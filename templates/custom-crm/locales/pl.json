@@ -85,6 +85,52 @@
     "board_view": "Lejek otwiera się jako tablica według etapów z sumami.",
     "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
   },
+  "page": {
+    "metaTitle": "Własny CRM: alternatywa dla Excela i arkuszy kalkulacyjnych",
+    "metaDescription": "Własny CRM bez projektu migracji: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje CRM i zaimportuje Twoje dane z arkusza.",
+    "headline": "Własny CRM zamiast arkusza: Twój agent AI buduje go w Customermates i importuje Twoje dane",
+    "answer": "Jeśli Twoi klienci i szanse sprzedaży znajdują się w arkuszu, na stronie Notion albo w starym narzędziu, własny CRM zastępuje je bez projektu migracji: kontakty, organizacje, szanse sprzedaży i zadania z terminem, dopasowane do tego, jak sprzedajesz. Wklej ten szablon do swojego agenta AI. Zapyta, jak pracujesz, zbuduje CRM w Customermates i zaimportuje Twoje dane. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Piątkowy przegląd CRM",
+      "steps": [
+        "Otwórz lejek jako tablicę i obejrzyj każdy etap: co ruszyło się w tym tygodniu, a co nie.",
+        "Otwórz szanse sprzedaży bez następnego kroku i dla każdej ustal następny krok z terminem albo ją zamknij.",
+        "Sprawdź szanse z planowanym zamknięciem w przyszłym miesiącu i przesuń terminy, które się przeterminowały.",
+        "Uporządkuj zadania po terminie: zrób je, przesuń albo odpuść.",
+        "Napraw to, co zostało po imporcie: zdublowane kontakty, brak opiekuna, rekord bez następnego kroku."
+      ]
+    },
+    "limits": [
+      "To nie jest kreator aplikacji no-code. Nie ma własnych ekranów, portali dla klientów ani skryptów: masz listy, powiązania, widoki tabeli, tablicy i kalendarza, pulpity i swojego agenta. Jeśli potrzebujesz kreatora aplikacji, użyj takiego.",
+      "To nie jest dowolna przestrzeń robocza. Do stron, wiki i danych niezwiązanych z klientami lepsze pozostają Notion i Airtable.",
+      "Nie ma synchronizacji w obie strony ze starym narzędziem ani cofania importu. Import to jednorazowa kopia, wykonywana po sprawdzeniu mapowania kolumn; w źródle nic nie jest zmieniane ani usuwane.",
+      "Nie ma wykresów Gantta, planowania zasobów ani osi czasu. To zadanie zostaje narzędziom do zarządzania projektami.",
+      "Nie ma uprawnień na poziomie pola. Jeśli niektóre kolumny mają być ukryte przed współpracownikami, umieść je na osobnej liście z własnym dostępem.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą Twój agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+    ],
+    "faq": [
+      {
+        "question": "Jak przejść z Arkuszy Google lub Excela do CRM?",
+        "answer": "Powiedz agentowi, których kolumn naprawdę używasz. Zaproponuje listy i pola, sprawdzi próbkę wierszy pod kątem duplikatów i nieznanych wartości, a zaimportuje dane, gdy zatwierdzisz mapowanie. Customermates importuje pliki Excel i CSV przez kreator mapowania kolumn, a Twój agent może importować rekordy przez MCP. Import to kopia: arkusz zostaje bez zmian, dopóki sam nie zdecydujesz, że go porzucasz."
+      },
+      {
+        "question": "Kiedy arkusz przestaje wystarczać do klientów i szans sprzedaży?",
+        "answer": "Poradniki dostawców CRM wskazują granicę między około 25 a 200 kontaktami albo moment, gdy ten sam plik edytuje kilka osób lub nikt nie jest już przypominany o kolejnym kroku. Wtedy pomaga CRM: kontakty są powiązane z organizacjami i szansami, kolejne kroki to zadania z terminem, a rozmowy leżą obok każdego rekordu."
+      },
+      {
+        "question": "Czy muszę sam zaprojektować CRM?",
+        "answer": "Nie. Agent zaczyna od wywiadu: co sprzedajesz, jakie są prawdziwe etapy od pierwszego kontaktu do zamknięcia, co sprawdzasz każdego ranka i w każdy piątek, kto jeszcze z niego korzysta, gdzie dziś leżą Twoje dane i co zostaje w innym narzędziu. Proponuje model i buduje go po Twojej akceptacji. Etapy, pola i widoki zmienisz później, po prostu o to prosząc."
+      },
+      {
+        "question": "Czego nie przeniosę ze starego narzędzia?",
+        "answer": "Import kopiuje rekordy. Automatyzacje, formularze, widoki, komentarze i załączniki nie są przenoszone, a powiązania, które stare narzędzie wyeksportowało jako zwykły tekst, trzeba odtworzyć. Agent zapisuje, skąd pochodzi każdy zaimportowany rekord, żebyś mógł to później prześledzić."
+      },
+      {
+        "question": "Czym to się różni od CRM na miarę budowanego przez agencję?",
+        "answer": "Agencje, które tworzą CRM na zamówienie, podają kilka miesięcy projektu. Tutaj CRM już istnieje, z rolami i dostępem na poziomie listy, a Twoja jest tylko jego zawartość: etapy, pola i widoki. Pierwszy działający lejek może powstać z jednej rozmowy, a Ty sam go sprawdzasz, zanim na nim polegasz."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Moi klienci i szanse sprzedaży leżą w arkuszu lub starym narzędziu, a ja chcę CRM dopasowanego do mojego sposobu pracy. Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
     "questions": [

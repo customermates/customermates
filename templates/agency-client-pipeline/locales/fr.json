@@ -102,6 +102,51 @@
     "notice_days_field": "Chaque contrat indique son préavis.",
     "opportunities_board_view": "Les opportunités s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "Pipeline clients d’agence : appels d’offres et contrats",
+    "metaDescription": "Collez ce pipeline d’agence dans Claude, ChatGPT ou Codex : décision sur les appels d’offres, onboarding en cinq étapes, contrats et renouvellements datés.",
+    "headline": "Gagnez des clients et voyez chaque renouvellement venir : un pipeline d’agence que votre agent IA construit",
+    "answer": "Un pipeline clients d’agence suit deux choses au même endroit : le nouveau business, du premier échange à la signature, et les contrats récurrents et projets qui suivent, chacun avec une date de renouvellement et une revue trimestrielle. Collez ce modèle dans votre agent IA : il construit les deux dans Customermates, avec la décision de répondre ou non à un appel d’offres, un onboarding en cinq étapes après un gain et un préavis sur chaque contrat. Vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La tournée hebdomadaire de l’agence",
+      "steps": [
+        "Ouvrez chaque opportunité sans prochaine action et ajoutez-en une avec une date, ou clôturez-la.",
+        "Décidez pour chaque nouveau brief ou appel d’offres : go ou no-go, selon ce que coûte la réponse, le nombre d’agences en lice et qui présente et qui livre.",
+        "Vérifiez les contrats qui se renouvellent dans les 90 prochains jours et les dates de préavis qui se ferment dans les semaines à venir.",
+        "Regardez les contrats récurrents sans contact depuis 30 jours et ceux dont l’indicateur de santé est passé au rouge, et planifiez le point ou l’appel du partenaire."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un logiciel d’agence pour les projets, le suivi du temps, la planification des ressources ou la facturation. Ces besoins restent dans vos propres outils ; ici, c’est la couche commerciale et des contrats récurrents à leurs côtés.",
+      "Ce n’est pas un portail client ni un circuit de validation, et il ne fait pas de reporting sur les résultats des campagnes.",
+      "Ne stockez jamais d’identifiants clients, d’éléments de marque ou d’accès aux comptes publicitaires dans l’espace de travail. Gardez-les dans un gestionnaire de mots de passe et votre bibliothèque de ressources.",
+      "Il ne rédige pas de propositions et ne recueille pas de signatures électroniques. Les propositions et les contrats restent dans votre outil documentaire et sont liés à l’opportunité.",
+      "Ce n’est pas un outil de prospection ou de séquences. Chaque relance est une action datée et un brouillon que vous relisez et envoyez vous-même.",
+      "Un budget n’est noté que lorsque le client l’annonce, et il n’y a pas de préavis par défaut : vous saisissez celui de chaque contrat."
+    ],
+    "faq": [
+      {
+        "question": "En quoi un pipeline d’agence diffère-t-il d’un pipeline commercial classique ?",
+        "answer": "Une agence a moins d’opportunités, plus grosses, avec plusieurs interlocuteurs et des décisions longues, et l’essentiel du chiffre d’affaires vient de clients qui restent et s’agrandissent. Ce modèle ajoute donc une décision sur l’appel d’offres, un onboarding en cinq étapes après un gain et des contrats avec une date de renouvellement, au lieu de s’arrêter à gagné."
+      },
+      {
+        "question": "Une agence doit-elle répondre à tous les appels d’offres ?",
+        "answer": "Non. Un pitch coûte beaucoup de temps et d’argent, donc les conseillers recommandent de vérifier d’abord s’il est nécessaire : y a-t-il un brief clair avec une fourchette de budget, combien d’agences sont en lice, y a-t-il une indemnité de pitch, et qui présente et qui livre. Le modèle demande cette décision le jour où une opportunité arrive à l’étape brief ou appel d’offres."
+      },
+      {
+        "question": "Quel préavis prévoir pour un contrat récurrent ?",
+        "answer": "Aucune loi ne donne une réponse unique. Trente jours par écrit est l’usage courant, et un renouvellement tacite avec un préavis de 90 jours avantage l’agence. Le modèle enregistre le préavis de chaque contrat et n’en suppose aucun. Il crée une revue du renouvellement 90 jours avant l’échéance et un rappel 45 jours avant pour confirmer l’intention du client."
+      },
+      {
+        "question": "Que se passe-t-il après un gain ?",
+        "answer": "Un gain lance un onboarding en cinq étapes : accueil et confirmation du kickoff, collecte des éléments, calendrier, kickoff, puis circuit de livraison. Beaucoup d’agences lient le kickoff au paiement. Ensuite, le client continue comme contrat avec sa date de renouvellement et sa revue trimestrielle."
+      },
+      {
+        "question": "L’agent contacte-t-il mes clients ou prospects ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mon agence gagne de nouveaux clients, mais je perds le fil des appels d’offres en cours et des dates de renouvellement des contrats. Mets en place dans mon espace de travail Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d’offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d’identifiants clients ni d’éléments de marque.",
     "questions": [

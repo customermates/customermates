@@ -117,6 +117,52 @@
     "pass_reason_field": "Każdy deal zapisuje, dlaczego został odrzucony.",
     "board_view": "Deale otwierają się jako tablica według etapów."
   },
+  "page": {
+    "metaTitle": "CRM dla inwestorów: szablon dealflow z datami powrotu",
+    "metaDescription": "CRM dla Twojego dealflow: kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Wklej szablon do agenta AI, a zbuduje listę w Twoim CRM.",
+    "headline": "CRM dla inwestora, który pamięta, kto polecił deal i kiedy do niego wrócić, zbudowany przez Twojego agenta AI",
+    "answer": "Dealflow to lejek, który odrzuca prawie wszystko, więc wartość leży w relacjach wokół niego: kto polecił startup, dlaczego go odrzucono i kiedy do niego wrócić. Wklej ten szablon do swojego agenta AI, a zbuduje w Customermates listę dealów w ośmiu etapach, od wyszukania do zamknięcia lub odrzucenia, ze startupami, inwestorami i zadaniami z terminem. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowy przegląd lejka",
+      "steps": [
+        "Otwórz tablicę dealów i zapisz, co jest nowe w tym tygodniu i co się ruszyło.",
+        "Zobacz deale, które od 14 dni stoją we wstępnej ocenie, i zdecyduj: wrócić do rozmowy albo odrzucić.",
+        "Przy każdym odrzuceniu zapisz powód i datę powrotu oraz wyślij wiadomość o odrzuceniu, gdy to właściwe.",
+        "Po pierwszym spotkaniu wyślij podsumowanie z kolejnymi krokami, a gdy uzgodniono term sheet, uruchom listę kontrolną due diligence.",
+        "Podziękuj osobom, które poleciły nowe deale, i ponagl każde polecenie poproszone tydzień temu, które nie doszło do skutku.",
+        "Zobacz odrzucone deale, u których nadeszła data powrotu, i oceń je ponownie z dawnym kontekstem."
+      ]
+    },
+    "limits": [
+      "Nie ma oceny relacji ani wzbogacania danych o firmach. W Customermates Cloud z planem Pro lub wyższym e-maile z adresem z danych kontaktowych rekordu pojawiają się przy tym rekordzie, a stamtąd można zaplanować spotkania w Twoim kalendarzu; agent działa przez MCP.",
+      "To nie jest portal dla LP, tabela kapitalizacji ani księgowość funduszu. Takie zadania wykonują narzędzia jak Carta czy Dynamo.",
+      "To nie jest baza dealów ani źródło danych rynkowych takich jak PitchBook, Dealroom czy Crunchbase.",
+      "To nie jest data room ani narzędzie do podpisu elektronicznego. Zamiast tego podlinkuj swój data room, na przykład DocSend lub Papermark.",
+      "Nie przygotowuje dokumentów prawnych i nie rozstrzyga o KYC, przeciwdziałaniu praniu pieniędzy ani kontroli inwestycji zagranicznych. To zadanie prawników i compliance; szablon zapisuje terminy i linki."
+    ],
+    "faq": [
+      {
+        "question": "Jakie etapy ma dealflow?",
+        "answer": "Praktycy zgadzają się co do siedmiu faz: sourcing, wstępna ocena, pierwsze spotkanie, due diligence, komitet inwestycyjny, term sheet i zamknięcie. Szablon używa ośmiu etapów: Wyszukany, Wstępna ocena, Pierwsze spotkanie, Komitet inwestycyjny, Due diligence, Term sheet, Zamknięty i Odrzucony. Inwestorzy finansują mniej niż 1 proc. firm, które widzą."
+      },
+      {
+        "question": "Po co zapisywać powód odrzucenia?",
+        "answer": "Odrzucenie z powodem pozwala później spojrzeć na firmę ponownie z kontekstem. Szablon zapisuje przy każdym dealu powód odrzucenia i datę powrotu oraz tworzy zadanie ponownej oceny w tym dniu. Bez tego zapisu ten sam deal jest następnym razem oceniany od zera."
+      },
+      {
+        "question": "Czy założyciel może go użyć do śledzenia inwestorów?",
+        "answer": "Struktura pasuje: jeden deal na rozmowę z inwestorem. Śledź każdego inwestora jako osobę, nie tylko fundusz, i informuj zainteresowanych co cztery do sześciu tygodni albo co miesiąc. Pola są opisane z punktu widzenia inwestora, więc poproś agenta o zmianę nazw tych, które nie pasują, jak Nasza rola i Dopasowanie do tezy."
+      },
+      {
+        "question": "Kiedy fundusz powinien przejść na Affinity lub Attio?",
+        "answer": "Gdy potrzebujesz oceny relacji, rankingu ścieżek polecenia, wzbogacania danych lub raportów dla LP. Rozmowy e-mailowe pojawiają się już przy rekordzie z pasującym adresem (Customermates Cloud, plan Pro lub wyższy), ale nic nie ocenia relacji ani nie szereguje ścieżek. Dla małego funduszu lub anioła biznesu, który pracuje z jedną listą i tygodniowym przeglądem, ten szablon wystarczy."
+      },
+      {
+        "question": "Czy agent pisze do startupów lub inwestorów?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Przeglądam wiele startupów i zapominam, kto je polecił, dlaczego zostały odrzucone i kiedy mam do nich wrócić. Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
     "questions": [

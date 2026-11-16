@@ -137,8 +137,57 @@
     "event_date_field": "Elke boeking heeft een datum van het evenement.",
     "bookings_board_view": "De boekingen openen als bord per fase."
   },
+  "page": {
+    "metaTitle": "Boekingen voor fotografen en weddingplanners in je CRM",
+    "metaDescription": "Boekingen voor fotografen, videografen en eventplanners: aanvragen, vastgehouden data, aanbetalingen en oplevering, gebouwd door je AI-agent in je CRM.",
+    "headline": "Boekingen voor fotografen en eventplanners: elke datum, aanbetaling en oplevering op orde",
+    "answer": "Boekingen beheren als fotograaf, videograaf of eventplanner betekent een datum maar vasthouden totdat het contract is getekend en de aanbetaling is voldaan, en de opdracht daarna begeleiden tot de oplevering. Dit template geeft elke boeking één regel met een verkoopfase en een opleverfase, een vervaldatum voor het restbedrag, een vragenlijst vóór het evenement en een verzoek om een review erna. Plak het in je AI-agent en die bouwt alles in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+    "routine": {
+      "title": "De wekelijkse boekingsronde",
+      "steps": [
+        "Beantwoord elke aanvraag die wacht. Standaard gaat het antwoord binnen 24 uur de deur uit en vraagt het naar datum, plaats, soort opdracht en budget.",
+        "Controleer vastgehouden data: vraag naar contract en aanbetaling of geef de datum vrij.",
+        "Bekijk de evenementen van de komende 14 dagen: is de vragenlijst terug, staat het draaiboek van de dag vast, is het restbedrag betaald?",
+        "Bekijk de opleveringen die eraan komen en laat de klant vroeg weten als een datum verschuift. Vraag twee weken na oplevering om een review."
+      ]
+    },
+    "limits": [
+      "Het stelt geen contracten op, laat ze niet tekenen, stuurt geen facturen en neemt geen betalingen aan. Dat blijft in je contract-, factuur- en betaaltools; de boeking bewaart status, data en een link.",
+      "Het is geen tool voor galerijen, fotoselectie of printverkoop, en niet voor albumontwerp, bewerking of mediabeheer. De boeking bewaart de link.",
+      "Een openbare boekingspagina of de verkoop van minisessies hoort vandaag niet bij Customermates. Aanvragen komen binnen als e-mail, WhatsApp- of Instagram-bericht in de gekoppelde inbox, en je agent schrijft het antwoord.",
+      "Het is geen juridisch advies. De kennispagina's zijn checklists; laat je contract en de formulering van beeld- en gebruiksrechten door een jurist nakijken.",
+      "Houd gezondheids-, dieet- en geloofsgegevens, betaalkaartnummers, identiteitsbewijzen, gezichten als beeldbestanden en gastenlijsten erbuiten. Leg alleen status en datum van de toestemming voor gebruik in je portfolio vast.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+    ],
+    "faq": [
+      {
+        "question": "Wat moet een boekingssysteem voor een fotograaf kunnen?",
+        "answer": "Een opdracht begeleiden van aanvraag via boeking naar oplevering: datum, soort en budget noteren, de datum vasthouden, bevestigen met een getekend contract en een aanbetaling, vragenlijst en draaiboek afhandelen, opleveren en om een review vragen. Contracten, facturen en galerijen blijven in je eigen tools."
+      },
+      {
+        "question": "Wanneer is een datum echt geboekt?",
+        "answer": "In de praktijk geldt: zonder aanbetaling is de datum niet bevestigd. Het template telt een opdracht pas als geboekt wanneer het contract is getekend en de aanbetaling is voldaan, in aparte velden, met een vastgehouden datum ertussen. De hoogte van de aanbetaling bepaalt je contract: een gids over huwelijkscontracten zegt dat bijna alle fotografen bij ondertekening 50 procent vragen, andere sjablonen gebruiken 30 procent, dus het template stelt geen standaardbedrag in."
+      },
+      {
+        "question": "Wat is een vastgehouden datum?",
+        "answer": "Een vastgehouden datum haalt een datum een paar dagen uit je beschikbaarheid zonder de klant te binden. Het template bewaart tot wanneer de datum vastgehouden wordt, maakt een stap om het contract te sturen zodra een datum wordt vastgehouden en een tweede om de aanbetaling na te vragen drie dagen na ondertekening."
+      },
+      {
+        "question": "Wat moet het CRM bewaren over beeldrechten en toestemming?",
+        "answer": "Alleen status en datum van de toestemming voor gebruik in je portfolio, niet de beelden, en geen bijzondere categorieën zoals geloof, geaardheid of gezondheid, die bruiloften en gezinsshoots kunnen onthullen. Het auteursrecht blijft standaard bij de maker; gebruiksrechten horen in het contract en een jurist moet de formulering nakijken. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Wanneer moet de vragenlijst de deur uit?",
+        "answer": "Het template maakt een stap om de vragenlijst 45 dagen voor een geboekt evenement te versturen, en dat kun je aanpassen. Fotografen en videografen vragen ook vaak ongeveer twee weken van tevoren om het draaiboek van de dag en doen in de laatste week een check op draaiboek, locaties en telefoonnummers."
+      },
+      {
+        "question": "Schrijft de agent mijn klanten aan?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Ik heb een foto-, video- of eventbedrijf en raak het overzicht kwijt van welke data gereserveerd zijn, welke aanbetalingen binnen zijn en wat er nog geleverd moet worden. Richt boekingen voor creatieve ondernemers in mijn Customermates-werkruimte in: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling, een vragenlijst voor het evenement, een reviewverzoek en jubileumberichten.",
+    "intro":"Ik heb een foto-, video- of eventbedrijf en raak het overzicht kwijt van welke data gereserveerd zijn, welke aanbetalingen binnen zijn en wat er nog geleverd moet worden. Richt boekingen voor creatieve ondernemers in mijn Customermates-werkruimte in: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling, een vragenlijst voor het evenement, een reviewverzoek en jubileumberichten.",
     "questions": [
       "Wat fotografeer, film of plan je en hoeveel boekingen heb je per jaar?",
       "Welke stappen doorloopt een klant van aanvraag tot boeking en wanneer reserveer je de datum?",

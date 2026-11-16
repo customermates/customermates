@@ -104,6 +104,53 @@
     "inquiries_board_view": "De aanvragen openen als bord per fase.",
     "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
   },
+  "page": {
+    "metaTitle": "Intake voor advocatenkantoren: conflictcheck en termijnen",
+    "metaDescription": "Intake zonder gemiste conflictcheck of termijn: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt de intake voor je advocatenkantoor.",
+    "headline": "Intake voor advocatenkantoren zonder gemiste conflictcheck of termijn: je AI-agent bouwt hem in je CRM",
+    "answer": "Een intake neemt een aanvrager in vaste volgorde mee van de eerste aanvraag tot een getekende opdrachtbevestiging: de vroegst bekende termijn, de conflictcheck, het intakegesprek, de offerte en de opdrachtbevestiging, met een afwijzingsbrief voor iedereen die geen cliënt wordt. Plak dit sjabloon in je AI-agent en die bouwt de intake in Customermates. Je keurt het plan goed voordat er iets wordt gebouwd, en de feiten van de zaak blijven erbuiten.",
+    "routine": {
+      "title": "De routine van de intakebalie",
+      "steps": [
+        "Leg elke nieuwe aanvraag dezelfde dag vast: rechtsgebied, hoe de persoon je heeft gevonden, de betrokken partijen en de vroegst bekende termijn.",
+        "Behandel eerst de aanvragen met een termijn binnen 14 dagen: aannemen, doorverwijzen of de persoon dezelfde dag waarschuwen.",
+        "Doe de conflictcheck vóór elk advies: zoek in de partijen, cliënten en voormalige cliënten en leg het resultaat vast en wie de check deed.",
+        "Stuur de offerte de dag na het intakegesprek en volg na drie dagen op als je niets hoort.",
+        "Vraag na de getekende opdrachtbevestiging het voorschot en zet het na een week opnieuw uit. Open de zaak in je dossiersysteem.",
+        "Stuur een afwijzingsbrief aan iedereen die je afwijst of die niets meer laat horen, zodat vastligt dat er geen relatie is ontstaan."
+      ]
+    },
+    "limits": [
+      "Het is niet je dossiersysteem. Documenten, urenregistratie, procestermijnen en indieningen blijven in je kantoorsoftware; een zaak is hier alleen een verwijzing.",
+      "Het is geen termijnenbewaking. De enige datum die bij de intake wordt bewaard is de vroegst bekende termijn, om te bepalen waar je eerst naar kijkt. Procestermijnen blijven in het systeem waarop je vertrouwt.",
+      "Het beheert geen derdengeldrekening en doet geen facturatie. Er is geen factuurmodel: het voorschot wordt vastgelegd als datum en het grootboek blijft in je boekhouding.",
+      "De conflictcheck is een hulpmiddel voor mensen. Je doorzoekt de lijst met partijen zelf en legt het resultaat vast; Customermates kan je niet tegenhouden een zaak te openen.",
+      "Het is geen cliëntenportaal of tool voor elektronische handtekeningen. Een getekende overeenkomst is een link naar het getekende bestand.",
+      "Houd de feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens en gegevens van wederpartijen erbuiten. Customermates heeft geen rechten op veldniveau: wat in een lijst staat, zien allen met toegang tot die lijst."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er bij een intakeproces van een advocatenkantoor?",
+        "answer": "Checklists uit de praktijk lopen zo: aanvraag, screening met conflictcheck en urgentie, intakegesprek, honorarium- en opdrachtvoorwaarden, getekende opdrachtbevestiging met volmacht en voorschot, en pas daarna de zaak in het dossiersysteem. Kantoren verschillen in details, bijvoorbeeld of het voorschot komt voordat het werk begint. Het sjabloon legt de volgorde vast en laat de rest aan jou."
+      },
+      {
+        "question": "Moet de conflictcheck vóór het intakegesprek komen?",
+        "answer": "Richtlijnen van de young lawyers van de American Bar Association en Duitse praktijkbronnen zetten de conflictcheck vóór elk advies en vóór de opdrachtbevestiging; een checklist doet hem zelfs vóór het eerste gesprek. Het sjabloon heeft een screeningstap vóór het intakegesprek en legt het resultaat vast en wie de check deed. Regels verschillen per land, dus controleer je eigen beroepsregels."
+      },
+      {
+        "question": "Waarom een termijn al bij het eerste contact vastleggen?",
+        "answer": "Een termijn kan verstrijken voordat je de zaak aanneemt, en commentaren in Duitse vakbladen wijzen erop dat een vermijdbare fout al vóór de aanname aansprakelijkheid kan opleveren. Door de vroegst bekende termijn en de bron vast te leggen zie je dezelfde dag wat urgent is. Het is een datum om te sorteren, geen termijnenagenda."
+      },
+      {
+        "question": "Heb ik een afwijzingsbrief nodig?",
+        "answer": "Het is goede praktijk: richtlijnen voor advocaten raden een schriftelijke brief aan voor aanvragers die je afwijst of die je niet inschakelen, zodat vastligt dat er geen relatie is ontstaan. Het sjabloon maakt een taak om hem te schrijven wanneer je een aanvraag afwijst of een aanvrager je niet inschakelt. Of het verplicht is, hangt af van je land."
+      },
+      {
+        "question": "Mag ik zaken van cliënten in Customermates zetten?",
+        "answer": "Alleen als verwijzingen: een verwijzing naar de zaak in je dossiersysteem. Houd de feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens en gegevens van wederpartijen erbuiten, want Customermates heeft geen rechten op veldniveau. De agent verstuurt niets en maakt geen voorbeeldgegevens aan; concepten bestaan alleen als je erom vraagt."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Potentiële cliënten bellen over een zaak en ik moet op conflicten controleren, de vroegst bekende termijn noteren en elke stap vastleggen voordat ik ze aanneem. Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
     "questions": [

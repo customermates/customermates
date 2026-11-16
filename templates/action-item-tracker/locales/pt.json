@@ -103,6 +103,50 @@
     "due_field": "Cada ação tem um responsável e um prazo.",
     "overdue_widget": "O painel mostra quantas ações estão atrasadas."
   },
+  "page": {
+    "metaTitle": "Planilha de tarefas: plano de ação com responsável e prazo",
+    "metaDescription": "Planilha de tarefas para reuniões: cole no Claude, ChatGPT ou Codex e tenha um plano de ação 5W2H com responsável, prazo e revisão semanal de cada ação.",
+    "headline": "Uma planilha de tarefas que cobra o prazo: um plano de ação que o seu agente de IA monta no CRM",
+    "answer": "Um plano de ação é uma lista em que cada ação tem um responsável, um prazo e um status, ligada à reunião ou à decisão de onde veio, para que o que foi combinado aconteça de verdade. Quem usa a planilha 5W2H encontra aqui responsável, prazo e origem de cada ação. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com reuniões, decisões, projetos e uma revisão semanal do que está aberto, atrasado ou bloqueado. Você aprova o plano antes que qualquer coisa seja criada.",
+    "routine": {
+      "title": "A revisão semanal das ações em 15 minutos",
+      "steps": [
+        "Olhe só as exceções: ações bloqueadas, ações que estouram o prazo e ações sem próximo passo.",
+        "Para cada ação bloqueada, indique quem pode desbloqueá-la e marque uma data para retomá-la.",
+        "Para cada ação atrasada, decida com o responsável: novo prazo, passar para outra pessoa ou cancelar.",
+        "Confirme as mudanças de prazo na reunião, não depois, e só conclua uma ação com prova, como um link, um arquivo ou uma mensagem."
+      ]
+    },
+    "limits": [
+      "Não é uma suíte de gestão de projetos. Não há dependências entre tarefas, linha do tempo ou Gantt, sprints nem controle de horas. Essas funções ficam na sua ferramenta de projetos.",
+      "Não é um sistema de qualidade validado. Ações corretivas regulamentadas, por exemplo em dispositivos médicos ou aviação, exigem assinaturas eletrônicas e trilhas de auditoria validadas. O modelo oferece a uma organização pequena um registro claro e uma verificação de eficácia, nada além disso.",
+      "Deixe de fora planos de cuidado e qualquer dado de saúde.",
+      "Ninguém é lembrado automaticamente. A revisão semanal e o painel mostram o que vence; os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em intervalos regulares, e você decide quais ativar.",
+      "Uma visão não consegue mostrar ao mesmo tempo as ações atrasadas e as bloqueadas, por isso o modelo tem uma visão para cada uma."
+    ],
+    "faq": [
+      {
+        "question": "O que deve ter uma ação num plano de ação?",
+        "answer": "Um título que começa com um verbo e tem menos de dez palavras, um responsável com nome, uma data concreta e não uma janela como semana que vem, e um status. Quem trabalha com 5W2H responde sete perguntas: o quê, por quê, quem, onde, quando, como e quanto. O modelo cobre o essencial, que é a ação, o responsável, o prazo e a origem; se quiser as outras perguntas como campos, peça ao seu agente no plano."
+      },
+      {
+        "question": "Quais status uma ação deve ter?",
+        "answer": "Os guias de quem trabalha na prática usam A fazer, Em andamento, Bloqueado, Em revisão e Concluído, e alguns acrescentam Cancelado. Este modelo tem seis: a fazer, em andamento, bloqueada, em revisão, concluída e cancelada. Escale no bloqueio, não no prazo: uma ação bloqueada indica quem pode desbloqueá-la e ganha uma data para ser retomada."
+      },
+      {
+        "question": "Quando uma ação está realmente concluída?",
+        "answer": "Quando há uma prova e não só a palavra feito: um link, um arquivo ou uma mensagem, mais a data real de conclusão. Uma ação corretiva ou preventiva só é concluída quando a sua eficácia foi verificada; o modelo cria essa verificação 30 dias depois de a ação ser concluída, e você pode mudar o prazo."
+      },
+      {
+        "question": "Planilha de tarefas ou CRM: qual escolher?",
+        "answer": "Uma planilha basta para uma lista curta de um grupo pequeno, mas não lembra ninguém do prazo nem liga a ação à reunião de onde ela veio. Aqui cada ação fica ligada à reunião, à decisão e ao projeto, e a revisão semanal mostra o que está atrasado ou bloqueado. Dá para importar uma planilha em Excel ou CSV por um assistente de mapeamento de colunas."
+      },
+      {
+        "question": "O agente envia as atas ou os lembretes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
   "prompt": {
     "intro": "As ações que combinamos nas reuniões ficam pelo caminho, e ninguém sabe quem é responsável por quê nem até quando. Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
     "questions": [

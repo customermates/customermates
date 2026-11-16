@@ -124,6 +124,52 @@
     "deadline_verifier_field": "Todo prazo registra quem o conferiu.",
     "deadline_control_page": "A base de conhecimento tem uma página sobre controle de prazos."
   },
+  "page": {
+    "metaTitle": "CRM para contabilidade: modelo de escritório contábil",
+    "metaDescription": "CRM para contabilidade: contratos, entregas recorrentes, documentos a cobrar e prazos conferidos por uma segunda pessoa. Cole o modelo no seu agente de IA.",
+    "headline": "Um CRM para contabilidade que acompanha cada prazo e cada documento pendente, montado pelo seu agente de IA",
+    "answer": "Um escritório contábil toca dois fluxos ao mesmo tempo: conquistar um cliente com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente e competência enquanto espera os documentos. Cole este modelo no seu agente de IA e ele monta os dois no Customermates, com um calendário de prazos que guarda o aviso antecipado e quem conferiu cada data. Você aprova o plano antes de qualquer coisa ser construída. Ele acompanha o sistema contábil do escritório e não o substitui.",
+    "routine": {
+      "title": "A revisão semanal do escritório",
+      "steps": [
+        "Abra o quadro das entregas e veja quem está com a bola: aguardando documentos, aguardando aprovação do cliente ou aguardando o fisco.",
+        "Cobre os documentos que vencem em três dias e, para os que continuam faltando depois da data, decida: prorrogar, preparar em parte ou levar ao sócio.",
+        "Confira o calendário de prazos: cada prazo aberto tem uma fonte, um aviso antecipado e uma segunda pessoa que conferiu a data.",
+        "Registre cada notificação do fisco recebida nesta semana com o prazo de recurso e a fonte, e peça a uma segunda pessoa que confira a data.",
+        "Dê um próximo passo a cada entrega ativa sem tarefa aberta, ou anote por que ela está parada.",
+        "Revise as propostas enviadas há mais de três dias e os contratos na etapa de diligência, para que nenhum trabalho comece antes de identificar o cliente."
+      ]
+    },
+    "limits": [
+      "Não é o seu sistema contábil nem o de transmissão de obrigações. Transmissão, escrituração, folha e cálculo de prazos legais ficam em ferramentas como Domínio, Alterdata ou Karbon, e o modelo nunca diz que uma obrigação está no prazo.",
+      "Não calcula datas legais. Um prazo é um registro com uma fonte, um aviso antecipado e uma pessoa indicada que o conferiu; a data vem de você.",
+      "Não é uma ferramenta de controle de horas ou de faturamento, e não tem portal do cliente nem assinatura eletrônica. Um contrato assinado é um link para o arquivo assinado.",
+      "Deixe de fora cópias de documentos de identidade, CPF e CNPJ de terceiros e dados sensíveis: não há permissões por campo. Eles vão no seu sistema de documentos, com as regras de guarda dele.",
+      "Comprovantes escaneados são guardados, mas não lidos, porque não há reconhecimento de texto."
+    ],
+    "faq": [
+      {
+        "question": "Qual é o melhor CRM para um escritório contábil?",
+        "answer": "Depende do que você precisa. Sistemas como Domínio ou Alterdata cobrem escrituração, folha e obrigações. O Customermates é a camada de relacionamento, prova de prazos e acompanhamento ao lado deles: contratos, entregas aguardando documentos e um calendário de prazos. Se você quer uma única ferramenta para tudo, não é esta."
+      },
+      {
+        "question": "Por que manter um calendário de prazos separado?",
+        "answer": "A responsabilidade profissional exige poder demonstrar que o controle de prazos existia: afirmar que os prazos foram conferidos não é prova. Um calendário com fonte, aviso antecipado e conferência permite mostrar isso depois. O modelo registra o controle e nunca calcula a data."
+      },
+      {
+        "question": "A diligência de PLD vem antes do contrato de serviços?",
+        "answer": "A prática varia. O modelo trata a diligência como uma etapa própria antes do contrato, porque não consegue impor uma ordem e o mais prudente é não trabalhar antes de identificar o cliente. A identificação cobre o cliente, quem age em nome dele e o beneficiário final, com uma classificação de risco. Nenhuma fonte fixa um intervalo de revisão, então a escolha é sua. Guarde as cópias de documentos no seu sistema de documentos."
+      },
+      {
+        "question": "Como parar de cobrar documentos manualmente?",
+        "answer": "Coloque uma data limite em cada solicitação de documentos. O modelo cria então uma tarefa de cobrança três dias antes e avisa o responsável quando os documentos venceram e ainda faltam. Aguardando documentos, aguardando aprovação do cliente e aguardando o fisco são três status separados, e o quadro mostra quem está com a bola. Em muitos escritórios o regime tributário do cliente define o calendário de obrigações."
+      },
+      {
+        "question": "O agente entra em contato com meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu tenho um escritório contábil e preciso ver quais contratos estão em aberto, quais entregas aguardam documentos e quais prazos já foram conferidos. Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
     "questions": [

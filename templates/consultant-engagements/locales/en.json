@@ -92,8 +92,57 @@
     "acceptance_checked_field": "Every engagement records when acceptance was checked.",
     "engagements_board_view": "The engagements open as a board by stage."
   },
+  "page": {
+    "metaTitle": "Consultant CRM Template: Proposals and Follow-up",
+    "metaDescription": "A consultant CRM template your AI agent builds: engagements from introduction to won, a follow-up date agreed on the proposal call and deliverables.",
+    "headline": "Never lose a proposal in the silence after the call: a consultant CRM your AI agent builds",
+    "answer": "A consultant CRM tracks a few high-value engagements from introduction to won, and above all the date on which you follow up a proposal. This template sets up engagements through discovery, scoping, proposal and decision, an acceptance check before the offer, deliverables with due and acceptance dates, and a closeout. Paste it into your AI agent and it builds all of it in Customermates, and you approve the plan before anything is built.",
+    "routine": {
+      "title": "The Monday engagement review",
+      "steps": [
+        "Go through the pipeline by stage and give every engagement without a next step a dated one, or close it.",
+        "Check the proposals that are out: each needs a follow-up date agreed with the sponsor on the call, then a second follow-up at about 10 days and a request for the decision on the decision date.",
+        "Look at the deliverables due in the next 14 days and confirm the review slot with the client.",
+        "Get back in touch with strong or warm contacts you have not met for 60 days, and thank whoever referred your last win."
+      ]
+    },
+    "limits": [
+      "It is not time tracking or invoicing. Hours and invoices stay in your time-tracking and accounting tools; a milestone Action only reminds you to invoice.",
+      "It does not write proposals or collect signatures. A proposal and a signed contract are links to documents elsewhere.",
+      "It is not resource planning or project management beyond deliverables and dates. The tasks of the work itself belong in your project tool.",
+      "Keep confidential client material and interview data out of it. There are no field-level permissions, so store a neutral engagement title and a link.",
+      "It sends no sequences. Every follow-up is a dated Action and a draft you review and send yourself; Customermates has no drip or mass-outreach engine.",
+      "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+    ],
+    "faq": [
+      {
+        "question": "Which CRM do consultants use?",
+        "answer": "Many independent consultants start with a spreadsheet or a general sales CRM. What a consultant needs is small: a few contacts and engagements, one dated next step on each, the date a proposal is followed up, and the delivery gates after the sale. This template sets up exactly that in Customermates."
+      },
+      {
+        "question": "When should I follow up after sending a proposal?",
+        "answer": "Agree the date during the proposal call itself, as Alan Weiss describes: name a specific day and time, phone first and use email only if the buyer cannot be reached. The template defaults to a first follow-up after 3 days and a second at 10 days, and you can change both."
+      },
+      {
+        "question": "What is an acceptance check?",
+        "answer": "A short check before you write an offer: do you have capacity, are you independent of the client's other parties, can confidentiality be kept, and does the work fit? Guidance from a German consultants' association says to check whether a mandate can be accepted before you formulate the offer, and to decline if not."
+      },
+      {
+        "question": "How soon after signing should the kickoff happen?",
+        "answer": "One vendor guide targets a kickoff within 48 hours of closing, with a pre-read sent 24 hours before a 60-minute meeting; it notes that regulated and subcontracted engagements need longer. The template creates a kickoff step the day after an engagement is won."
+      },
+      {
+        "question": "What should I do after losing a proposal?",
+        "answer": "Record the reason, and two days later ask the sponsor what you could have done differently. Alan Weiss recommends asking exactly that when the answer is no. The template creates that step for you."
+      },
+      {
+        "question": "Does the agent contact my clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "I run my own consulting practice and lose deals in the silence after a proposal call. Set up consultant engagements in my Customermates workspace: engagements from introduction to won with an acceptance check and a follow-up date agreed on the proposal call, deliverables with due and acceptance dates, and a closeout that asks for feedback. Store no confidential client data.",
+    "intro":"I run my own consulting practice and lose deals in the silence after a proposal call. Set up consultant engagements in my Customermates workspace: engagements from introduction to won with an acceptance check and a follow-up date agreed on the proposal call, deliverables with due and acceptance dates, and a closeout that asks for feedback. Store no confidential client data.",
     "questions": [
       "What kinds of engagements do you sell, and at which day rate?",
       "How do you decide whether to accept a piece of work?",

@@ -136,6 +136,56 @@
     "renewal_field": "Every membership has a renewal date.",
     "receipt_field": "Every gift shows whether a receipt is due."
   },
+  "page": {
+    "metaTitle": "Software for Nonprofits: Members, Donors, Renewals",
+    "metaDescription": "Software for nonprofits: paste this template into Claude, ChatGPT or Codex and your agent builds one register for members, gifts and renewals.",
+    "headline": "Software for nonprofits that remembers every renewal and thank-you, built by your AI agent in your CRM",
+    "answer": "Software for a nonprofit starts with one register instead of several volunteer lists: supporters, memberships with a fee and a renewal date, gifts with thank-you and receipt status, and a pipeline for major gifts and grants. Paste this template into your AI agent and it builds the register in Customermates. You approve the plan before anything is built. It does not collect payments or issue tax receipts; it tells you which are due.",
+    "routine": {
+      "title": "The weekly membership and gifts routine",
+      "steps": [
+        "Thank every new gift within two days, with a call or a personal note.",
+        "Welcome the members whose application came in this week, and send the renewal notice to memberships that renew in about 60 days.",
+        "Remind the members whose fee is still open 30 days before renewal, and chase the fees of memberships that expired unpaid.",
+        "Look at the gifts whose tax receipt is due and issue them in your accounting tool, in the official format of your country.",
+        "Review the pipeline of major gifts and grants: the next move for each and the report dates that funders expect."
+      ]
+    },
+    "limits": [
+      "It does not collect payments, run direct debits or do bookkeeping. Your accounting tool or club tool keeps the ledger; here you keep the fee status, not the money.",
+      "It does not issue tax receipts. They are made in the format your tax authority requires, with your accounting tool; the register only tracks that one is due.",
+      "It is not an online giving page. Donations are collected on a payment platform, and you record the gift here.",
+      "For churches it covers visitor follow-up and membership, not check-in kiosks, rotas, attendance or giving statements. Pastoral notes, confession and safeguarding records never belong here.",
+      "Keep health data, details of children, bank details and anything beyond what membership needs out of the register. Customermates has no field-level permissions.",
+      "It does no wealth screening, recurring-gift engines or bulk newsletters. It is the register of a small body, not a donor intelligence platform."
+    ],
+    "faq": [
+      {
+        "question": "Is a membership fee a donation for tax?",
+        "answer": "Usually not. In France a membership fee that gives access to activities does not qualify for a tax receipt, only a gift without counterpart to an eligible body does. In Germany only tax-privileged bodies issue a donation receipt in the official format, and the fees of most sports clubs are not deductible. Rules differ by country, so ask your accountant or tax authority. The register tracks the receipt status and does not issue receipts."
+      },
+      {
+        "question": "How quickly should I thank a donor?",
+        "answer": "Within 48 hours is the common advice in fundraising guides, ideally with a call or a personal note. The template creates a thank-you Action when a gift is recorded, so that the thank-you does not depend on one volunteer's memory."
+      },
+      {
+        "question": "When should I remind members to renew?",
+        "answer": "Association guides suggest several touches before the date, often from about 90 days down to the day itself, and one after it. The template creates an Action to send a renewal notice 60 days before an active membership renews, one to remind members whose fee is still open 30 days before, and one to chase the fee on the day a membership expires unpaid."
+      },
+      {
+        "question": "What member and donor data should I keep?",
+        "answer": "Only what membership or the gift needs. Under the GDPR, data that membership does not need should not be recorded, the application form should show which fields are mandatory and which are voluntary, and photos need consent. Health data, children's details and bank details stay out of the register. This is not legal advice."
+      },
+      {
+        "question": "Does it work for a church or a club?",
+        "answer": "Yes for the register side: supporters, memberships, gifts and the follow-up of members and visitors in one place. It does not replace a church management system for check-in, rotas or giving statements, or a club tool for direct debits and fee collection."
+      },
+      {
+        "question": "Does the agent write to my members and donors?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Our members, donors and volunteers are spread over several lists, and renewals and thank-yous get missed. Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
     "questions": [

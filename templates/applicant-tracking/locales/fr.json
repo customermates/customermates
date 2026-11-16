@@ -104,6 +104,52 @@
     "retain_until_field": "Chaque candidature indique jusqu’à quand elle est conservée.",
     "applications_board_view": "Les candidatures s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "ATS recrutement : un modèle de suivi des candidatures",
+    "metaDescription": "Un ATS pour petite entreprise à coller dans Claude, ChatGPT ou Codex : offres, candidatures en neuf étapes, fiches d’entretien et date de suppression.",
+    "headline": "Répondez à chaque candidat, gardez vos notes au même endroit : un suivi des candidatures construit par votre agent IA",
+    "answer": "Un ATS pour une petite entreprise est une liste d’offres d’emploi avec une candidature par candidat et par offre, qui avance de reçue à embauchée ou refusée, pour qu’aucun candidat n’attende sans réponse. Collez ce modèle dans votre agent IA : il le construit dans Customermates, avec les offres, une fiche d’entretien par recruteur, des relances datées et une date de conservation pour les candidatures refusées. Vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La tournée hebdomadaire des candidatures",
+      "steps": [
+        "Vérifiez que chaque nouvelle candidature a reçu un accusé de réception et une date suivante, et répondez à celles qui attendent encore.",
+        "Comparez les nouvelles candidatures aux critères indispensables de l’offre et décidez qui est invité à un entretien.",
+        "Récupérez, le lendemain de chaque entretien, la fiche de chaque recruteur, tant que les notes sont fraîches.",
+        "Relancez les propositions qui attendent une décision et envoyez le message de clôture aux candidats refusés ou dont l’offre est pourvue."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un job board, un outil de multidiffusion ni un créateur de site carrière. Il ne publie pas vos annonces.",
+      "Il n’analyse ni ne classe les CV et ne refuse personne automatiquement. Les fiches d’entretien sont des notes données par une personne.",
+      "Ce n’est pas une plateforme d’évaluation, de tests ou d’entretien vidéo, ni un outil de promesse d’embauche ou de signature électronique.",
+      "Il ne fait ni vérification d’antécédents ni contrôle du droit de travailler, et ce n’est pas un outil d’intégration, un dossier RH ou un système de paie. Après l’embauche, le dossier passe dans votre outil RH.",
+      "Gardez-en à l’écart les copies de pièces d’identité et les données de suivi de l’égalité des chances. Ne collectez que ce dont la décision d’embauche a besoin.",
+      "Il ne donne aucun conseil juridique. Il enregistre une date de conservation et un responsable ; la durée, c’est vous qui la décidez, avec votre conseil.",
+      "Il est dimensionné pour quelques offres ouvertes à la fois. Pour un recrutement en volume ou sur plusieurs sites, un ATS dédié convient mieux."
+    ],
+    "faq": [
+      {
+        "question": "Que doit contenir un outil de suivi des candidatures ?",
+        "answer": "Des offres avec un responsable du recrutement et une fourchette de salaire, des candidats, et une candidature par candidat et par offre avec son étape, la date d’entretien, le délai de réponse à la proposition et le motif de refus. Les praticiens ajoutent une fiche d’entretien par recruteur, pour que les retours soient structurés au lieu de traîner dans des e-mails et des messages."
+      },
+      {
+        "question": "Quelles étapes prévoir dans un processus de recrutement ?",
+        "answer": "Les guides courants citent candidature reçue, présélection, entretien, vérification des références et proposition. Ce modèle en compte neuf : reçue, présélection, entretien RH, entretien manager, vérification des références, proposition, embauché, refusé et retiré, parce qu’une petite entreprise a rarement besoin de plus de deux tours d’entretien. Renommez ou retirez des étapes dans le plan que propose votre agent."
+      },
+      {
+        "question": "Combien de temps garder les candidatures refusées ?",
+        "answer": "Cela dépend du pays. En France, la CNIL admet en principe un vivier de candidats non retenus pendant deux ans à compter du dernier contact, si les personnes en ont été informées ; en Allemagne, on garde en général les candidatures refusées environ six mois après la fin de la procédure, et un vivier seulement avec consentement. Le modèle fixe la date de conservation 180 jours après un refus, pour que vous supprimiez la candidature ou demandiez un consentement. Adaptez le délai à votre pays et demandez conseil. Ce n’est pas un avis juridique."
+      },
+      {
+        "question": "Puis-je constituer un vivier de candidats ?",
+        "answer": "Oui, si les candidats en sont informés et, selon le pays, avec leur consentement. Quand la date de conservation d’une candidature refusée arrive, vous la supprimez ou vous notez le consentement du candidat à rester dans votre vivier. Les sources allemandes exigent un consentement, d’autres admettent une courte durée sur la base d’un intérêt légitime ; vérifiez la règle de votre pays."
+      },
+      {
+        "question": "L’agent contacte-t-il les candidats ou en refuse-t-il ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Les messages, comme un accusé de réception ou un refus, sont des brouillons qui n’existent que si vous en demandez, et c’est vous qui les envoyez. Rien n’est refusé automatiquement."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Je recrute pour ma petite entreprise, mais les candidats attendent trop longtemps une réponse et mes notes d’entretien sont éparpillées. Mets en place dans mon espace de travail Customermates un suivi des candidatures : offres d’emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d’entretien, date de conservation des candidatures refusées et relances datées.",
     "questions": [

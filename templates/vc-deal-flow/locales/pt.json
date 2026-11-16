@@ -117,6 +117,52 @@
     "pass_reason_field": "Cada negócio registra por que foi recusado.",
     "board_view": "Os negócios abrem como quadro por etapa."
   },
+  "page": {
+    "metaTitle": "CRM para investidores: modelo de dealflow com recusas",
+    "metaDescription": "Um CRM para o seu dealflow: quem indicou cada negócio, por que você recusou e quando olhar de novo. Cole o modelo no seu agente de IA e ele monta.",
+    "headline": "Um CRM para investidores que lembra quem indicou um negócio e quando olhar de novo, montado pelo seu agente de IA",
+    "answer": "O dealflow é um funil que descarta quase tudo, então o valor está na relação ao redor: quem indicou uma startup, por que você recusou e quando olhar de novo. Cole este modelo no seu agente de IA e ele monta no Customermates uma lista de negócios em oito etapas, da identificação ao fechamento ou à recusa, com startups, investidores e retornos com data. Você aprova o plano antes de qualquer coisa ser construída.",
+    "routine": {
+      "title": "A revisão semanal do funil",
+      "steps": [
+        "Abra o quadro de negócios e liste o que é novo nesta semana e o que se moveu.",
+        "Olhe os negócios parados em triagem há 14 dias e decida: retomar o contato ou recusar.",
+        "A cada recusa, anote o motivo e uma data para retomar, e envie uma nota de recusa quando fizer sentido.",
+        "Depois de uma primeira reunião, envie um retorno com os próximos passos e, quando um term sheet for combinado, inicie a lista da due diligence.",
+        "Agradeça a quem indicou os negócios novos e cobre qualquer apresentação pedida há uma semana que não aconteceu.",
+        "Olhe os negócios recusados cuja data para retomar chegou e reveja-os com o contexto anterior."
+      ]
+    },
+    "limits": [
+      "Não há pontuação de relacionamento nem enriquecimento de empresas. No Customermates Cloud com o plano Pro ou superior, os e-mails com o endereço dos dados de contato de um registro aparecem nesse registro e dele dá para agendar reuniões no seu calendário; um agente trabalha por MCP.",
+      "Não é um portal para os cotistas, uma cap table nem uma contabilidade de fundo. Ferramentas como Carta ou Dynamo fazem esses trabalhos.",
+      "Não é uma base de negócios nem uma fonte de dados de mercado como PitchBook, Dealroom ou Crunchbase.",
+      "Não é uma data room nem uma ferramenta de assinatura eletrônica. Coloque no lugar um link para a sua data room, por exemplo DocSend ou Papermark.",
+      "Não redige documentos jurídicos e não decide sobre KYC, prevenção à lavagem de dinheiro ou controle de investimento estrangeiro. Isso cabe a advogados e ao compliance; o modelo guarda datas e links."
+    ],
+    "faq": [
+      {
+        "question": "Quais são as etapas de um dealflow?",
+        "answer": "Os profissionais concordam em sete fases: scouting, triagem, primeira reunião, due diligence, comitê de investimento, term sheet e fechamento. O modelo usa oito etapas: Identificado, Triagem, Primeira reunião, Comitê de investimento, Due diligence, Term sheet, Fechado e Recusado. Investidores financiam menos de 1% das empresas que veem."
+      },
+      {
+        "question": "Por que anotar o motivo de uma recusa?",
+        "answer": "Uma recusa com motivo permite olhar a empresa de novo mais tarde com contexto. O modelo guarda um motivo de recusa e uma data para retomar em cada negócio e cria uma tarefa de revisão na data. Sem esse registro, o mesmo negócio é analisado do zero da próxima vez."
+      },
+      {
+        "question": "Um fundador pode usar para acompanhar seus investidores?",
+        "answer": "A estrutura serve: um negócio para cada conversa com um investidor. Acompanhe cada investidor como pessoa, não só o fundo, e mantenha os interessados atualizados a cada quatro a seis semanas ou todo mês. Os campos são escritos do ponto de vista de um investidor: peça ao seu agente que renomeie os que não servem, como Nosso papel e Aderência à tese."
+      },
+      {
+        "question": "Quando passar para o Affinity ou o Attio?",
+        "answer": "Quando você precisa de pontuação de relacionamento, ranking de caminhos de apresentação, enriquecimento ou relatórios para cotistas. As conversas de e-mail já aparecem no registro com o endereço correspondente (Customermates Cloud, plano Pro ou superior), mas nada pontua relacionamentos nem ranqueia caminhos. Para um fundo pequeno ou um investidor-anjo que trabalha com uma lista e uma revisão semanal, este modelo basta."
+      },
+      {
+        "question": "O agente escreve para startups ou investidores?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu analiso muitas startups e esqueço quem as indicou, por que recusei e quando queria olhar de novo. Configure um dealflow no meu espaço de trabalho do Customermates: negócios com oito etapas, quem os indicou, aderência à tese, papel de lead, um motivo de recusa e uma data para retomar, além de startups, investidores e retornos com data.",
     "questions": [

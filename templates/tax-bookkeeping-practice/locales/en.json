@@ -124,6 +124,52 @@
     "deadline_verifier_field": "Every deadline records who verified it.",
     "deadline_control_page": "The knowledge base holds a page on deadline control."
   },
+  "page": {
+    "metaTitle": "Accounting Practice Management Software: Deadline Register",
+    "metaDescription": "Practice management for accountants: mandates, recurring jobs, document chasing and a deadline register a second person verifies. Paste it into your AI agent.",
+    "headline": "Accounting practice management software that tracks every deadline and missing document, built by your AI agent",
+    "answer": "Accounting practice management means two flows side by side: winning a mandate through identification and an engagement letter, and doing the recurring work per client and period while you wait for documents. Paste this template into your AI agent and it builds both in Customermates, with a deadline register that records a pre-deadline and the person who verified each date. You approve the plan before anything is built. It sits next to your practice software and does not replace it.",
+    "routine": {
+      "title": "The weekly practice review",
+      "steps": [
+        "Open the jobs board and see who holds the ball: waiting for documents, waiting for client approval or waiting for the authority.",
+        "Chase the documents due within three days, and for those still missing after their date decide: extend, prepare in part or escalate to the partner.",
+        "Check the deadline register: every open deadline has a source, a pre-deadline and a second person who verified the date.",
+        "Enter any authority notice received this week with its appeal deadline and source, and have a second person verify it.",
+        "Give every active job without an open Action a next step, or record why it is parked.",
+        "Review proposals sent more than three days ago and mandates in the identification stage, so no work starts before the client is identified."
+      ]
+    },
+    "limits": [
+      "It is not your filing or practice software. Filing, the ledger, payroll and the calculation of statutory deadlines stay in tools such as DATEV, Karbon or TaxDome, and the template never says that a return is on time.",
+      "It computes no legal dates. A deadline is a record with a source, a pre-deadline and a named person who verified it; the date itself comes from you.",
+      "It is not a time-tracking or invoicing tool, and it has no client portal or e-signature. A signed engagement letter is a link to the signed file.",
+      "Keep identity copies, tax IDs and special-category data out of it: there are no field-level permissions. They belong in your document system with its retention rules.",
+      "Scanned receipts are stored but not read, because there is no text recognition."
+    ],
+    "faq": [
+      {
+        "question": "What is the best accounting practice management software?",
+        "answer": "That depends on what you need. Tools such as DATEV, Karbon and TaxDome cover filing, the ledger, billing and a client portal. Customermates is the relationship, deadline-evidence and follow-up layer next to them: mandates, jobs waiting for documents and a deadline register. If you want one tool for everything, this template is not it."
+      },
+      {
+        "question": "Why keep a separate deadline register?",
+        "answer": "Practice-liability case law, for example in Germany around restoring a missed deadline under § 110 AO, asks a practice to show that its deadline control existed; saying that deadlines were checked is not proof. A register with a source, a pre-deadline and a verifier lets you show that control afterwards. The template records the control and never calculates the date."
+      },
+      {
+        "question": "Should the money-laundering check come before the engagement letter?",
+        "answer": "Practice differs. The template makes identification its own stage before the engagement letter, because it cannot enforce an order and the cautious default avoids doing work before the client is identified. Identification covers the client, the person acting and the beneficial owner, plus a risk rating. No source sets a fixed review interval, so that is your choice. Keep identity copies in your document system."
+      },
+      {
+        "question": "How do I stop chasing documents by hand?",
+        "answer": "Put a needed-by date on every document request. The template then creates a chase Action three days before that date and notifies the owner when the documents are due and still missing. Waiting for documents, waiting for client approval and waiting for the authority are three separate statuses, so the board shows who holds the ball."
+      },
+      {
+        "question": "Does the agent contact my clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "I run a tax and bookkeeping practice and need to see which mandates are open, which jobs wait for documents and which deadlines have been checked. Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
     "questions": [

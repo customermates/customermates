@@ -95,8 +95,58 @@
     "first_response_field": "Chaque ticket indique avant quand la première réponse est due.",
     "tickets_board_view": "Les tickets s’ouvrent en board par statut."
   },
+  "page": {
+    "metaTitle": "Outil ticketing : support client léger dans votre CRM",
+    "metaDescription": "Outil ticketing léger que votre agent IA construit dans votre CRM : tickets avec priorité et échéances de réponse, problèmes connus et note de satisfaction.",
+    "headline": "Un outil ticketing pour quelques dizaines de tickets par semaine, construit par votre agent IA dans votre CRM",
+    "answer": "Un outil de ticketing léger donne à chaque message client un ticket avec un responsable, une priorité et une échéance pour votre réponse. Ce modèle met en place des tickets, des problèmes connus qui relient plusieurs tickets à une même cause et une note de satisfaction. Collez-le dans votre agent IA : il construit le support dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé. Il est pensé pour une entreprise ou une agence de une à huit personnes, pas pour une grande équipe de support.",
+    "routine": {
+      "title": "La revue hebdomadaire du support",
+      "steps": [
+        "Commencez par les tickets dont la première réponse ou la résolution est en retard, puis par ceux qui attendent votre réponse depuis plus de deux jours.",
+        "Relancez les clients qui n’ont pas répondu depuis 3 jours, et passez en résolu les tickets restés silencieux 7 jours, avec la mention qu’aucune réponse n’est venue.",
+        "Regardez les tickets rouverts et les tickets résolus sans note, et reprenez contact après chaque note de 1 ou 2.",
+        "Passez en revue les problèmes connus ouverts : quand l’un est corrigé, prévenez chaque client dont le ticket y est lié, et notez les catégories les plus fréquentes de la semaine."
+      ]
+    },
+    "limits": [
+      "Ce n’est ni un système téléphonique ou SMS, ni un widget de chat en direct. Les tickets viennent de messages e-mail, WhatsApp, LinkedIn, Instagram et Telegram reçus dans la boîte de réception, ou de votre agent.",
+      "Il n’y a aujourd’hui dans Customermates ni portail client ni formulaire de ticket public. Les clients ne peuvent pas se connecter pour suivre un ticket.",
+      "Il ne calcule ni heures ouvrées ni jours fériés. Les échéances viennent du tableau des plans de support de votre base de connaissances, posées par une règle ou par votre agent.",
+      "Ce n’est ni un gestionnaire de changements ou d’actifs ITIL, ni une page de statut, ni un outil d’envoi en masse, et il n’a pas de SSO. Zendesk, Freshdesk ou Zammad conviennent mieux à un gros volume ou à une grande entreprise.",
+      "Les réponses sont des brouillons que vous relisez et envoyez. Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier ; le modèle les propose, vous choisissez lesquels activer.",
+      "Gardez hors des tickets numéros de carte, mots de passe, copies de pièces d’identité et données de santé. Une demande d’accès conserve la vérification d’identité sous forme de oui ou non avec une date, pas de copies.",
+      "Relier l’e-mail ou WhatsApp au CRM demande une offre avec la boîte de réception, et une boîte partagée par toute l’équipe une offre avec comptes partagés. La page des tarifs indique ce que contient chaque offre."
+    ],
+    "faq": [
+      {
+        "question": "Quel est l’outil de ticketing le plus simple pour une petite entreprise ?",
+        "answer": "Une liste de tickets avec un responsable chacun, un statut, une priorité et deux échéances : première réponse et résolution. Ajoutez une liste de problèmes connus et une note de satisfaction, puis passez-la en revue chaque semaine. C’est suffisant pour quelques dizaines de tickets par semaine ; au-delà, un outil dédié se justifie."
+      },
+      {
+        "question": "Quels statuts pour un ticket de support ?",
+        "answer": "Les jeux courants sont nouveau, ouvert, en attente, résolu et fermé. Ce modèle utilise Nouveau, Ouvert, En attente du client, En attente d’un tiers, Résolu et Fermé, plus Spam ou doublon. Les éditeurs ne s’accordent pas sur le fait qu’un statut d’attente arrête le chronomètre ; la règle maison du modèle : l’attente du client le met en pause, l’attente d’un tiers non. Vous pouvez la changer."
+      },
+      {
+        "question": "Quels délais de réponse promettre ?",
+        "answer": "Il n’existe pas de référence générale. Des éditeurs donnent en exemple les problèmes critiques sous 4 heures et les petites demandes sous 72 heures, avec pour une panne 1 heure avant la première réponse et 4 heures avant la résolution. Partez de valeurs de ce type dans le tableau des plans de support et remplacez-les par ce que vous pouvez tenir."
+      },
+      {
+        "question": "Comment traiter une demande d’accès RGPD reçue sous forme de ticket ?",
+        "answer": "Une demande d’accès doit recevoir une réponse dans les meilleurs délais et au plus tard dans un mois ; ce délai peut être prolongé de deux mois si nécessaire, à condition d’en informer la personne avec les motifs dans le premier mois. Le modèle ajoute un type demande d’accès avec l’échéance d’un mois visible. Ce n’est pas un conseil juridique ; associez votre contact en protection des données."
+      },
+      {
+        "question": "Peut-il remplacer Zendesk ou Freshdesk ?",
+        "answer": "Pour une équipe de quelques dizaines de tickets par semaine qui veut des relances datées et une note de satisfaction : oui. Pour un gros volume, de nombreux canaux ou une grande entreprise, Zendesk, Freshdesk, Zammad, Help Scout ou Front restent plus adaptés, avec des moteurs de SLA, des macros, des calendriers d’heures ouvrées et des portails que ce modèle laisse volontairement de côté."
+      },
+      {
+        "question": "L’agent répond-il à mes clients ?",
+        "answer": "L’agent rédige des réponses à partir de la conversation liée, et vous les relisez et les envoyez. Le prompt lui demande de ne rien envoyer et de ne créer aucune donnée d’exemple."
+      }
+    ]
+  },
   "prompt": {
-    "intro": "Les questions de mes clients arrivent par e-mail et par chat, et je ne vois pas lesquelles attendent encore une réponse. Mets en place dans mon espace de travail Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
+    "intro":"Les questions de mes clients arrivent par e-mail et par chat, et je ne vois pas lesquelles attendent encore une réponse. Mets en place dans mon espace de travail Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
     "questions": [
       "Combien de tickets traitez-vous par semaine, et par quels canaux arrivent-ils ?",
       "Quels délais promettez-vous pour la première réponse et la résolution, selon la priorité ou la formule de support ?",

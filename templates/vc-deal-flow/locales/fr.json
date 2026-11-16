@@ -117,6 +117,52 @@
     "pass_reason_field": "Chaque dossier note pourquoi il a été refusé.",
     "board_view": "Les dossiers s’ouvrent en board par étape."
   },
+  "page": {
+    "metaTitle": "CRM investisseur : modèle de dealflow et de refus datés",
+    "metaDescription": "Un CRM pour votre dealflow : qui a apporté un dossier, pourquoi vous avez refusé et quand le revoir. Collez le modèle dans votre agent IA, il le construit.",
+    "headline": "Un CRM d’investisseur qui retient qui a apporté un dossier et quand le revoir, construit par votre agent IA",
+    "answer": "Un dealflow est un entonnoir qui écarte presque tout : la valeur est dans la relation autour, c’est-à-dire qui a apporté une startup, pourquoi vous avez refusé et quand la revoir. Collez ce modèle dans votre agent IA et il construit dans Customermates une liste de dossiers en huit étapes, de la détection au closing ou au refus, avec les startups, les investisseurs et des relances datées. Vous validez le plan avant toute construction.",
+    "routine": {
+      "title": "La revue hebdomadaire du pipeline",
+      "steps": [
+        "Ouvrez le tableau des dossiers et listez ce qui est nouveau cette semaine et ce qui a bougé.",
+        "Regardez les dossiers qui stagnent en screening depuis 14 jours et décidez : relancer ou refuser.",
+        "Pour chaque refus, notez le motif et une date de reprise, et envoyez une note de refus quand c’est opportun.",
+        "Après une première réunion, envoyez un suivi avec les prochaines étapes et, quand un term sheet est convenu, lancez la liste de la due diligence.",
+        "Remerciez les apporteurs des nouveaux dossiers et relancez toute mise en relation demandée il y a une semaine qui n’a pas eu lieu.",
+        "Passez en revue les dossiers refusés dont la date de reprise est arrivée et réexaminez-les avec le contexte d’avant."
+      ]
+    },
+    "limits": [
+      "Il n’y a ni score de relation ni enrichissement des entreprises. Sur Customermates Cloud en formule Pro ou supérieure, les e-mails de l’adresse indiquée dans une fiche s’affichent sur cette fiche et des réunions se planifient depuis celle-ci dans votre agenda ; un agent travaille via MCP.",
+      "Ce n’est ni un portail pour les LP, ni une table de capitalisation, ni une comptabilité de fonds. Des outils comme Carta ou Dynamo font ces métiers.",
+      "Ce n’est pas une base de deals ni une source de données de marché comme PitchBook, Dealroom ou Crunchbase.",
+      "Ce n’est ni une data room ni un outil de signature électronique. Ajoutez plutôt un lien vers votre data room, par exemple DocSend ou Papermark.",
+      "Il ne rédige pas de documents juridiques et ne décide ni de la connaissance client, ni de la lutte contre le blanchiment, ni du contrôle des investissements étrangers. Cela relève des conseils et de la conformité ; le modèle garde dates et liens."
+    ],
+    "faq": [
+      {
+        "question": "Quelles sont les étapes d’un dealflow ?",
+        "answer": "Les professionnels s’accordent sur sept phases : sourcing, présélection, première réunion, due diligence, comité d’investissement, term sheet et closing. Le modèle utilise huit étapes : Détecté, Screening, Première réunion, Comité d’investissement, Due diligence, Term sheet, Closing et Refusé. Les investisseurs financent moins de 1 % des entreprises qu’ils voient."
+      },
+      {
+        "question": "Pourquoi noter le motif d’un refus ?",
+        "answer": "Un refus motivé permet de revoir l’entreprise plus tard avec du contexte. Le modèle enregistre un motif de refus et une date de reprise sur chaque dossier et crée une action de réexamen à la date prévue. Sans cette trace, le même dossier est étudié à zéro la fois suivante."
+      },
+      {
+        "question": "Un fondateur peut-il l’utiliser pour suivre ses investisseurs ?",
+        "answer": "La structure convient : un dossier par discussion avec un investisseur. Suivez chaque investisseur comme une personne, pas seulement le fonds, et tenez au courant les investisseurs engagés toutes les quatre à six semaines ou chaque mois. Les champs sont écrits du point de vue d’un investisseur : demandez à votre agent de renommer ceux qui ne conviennent pas, comme Notre rôle et Adéquation à la thèse."
+      },
+      {
+        "question": "Quand passer à Affinity ou à Attio ?",
+        "answer": "Quand il vous faut un score de relation, un classement des chemins d’introduction, de l’enrichissement ou un reporting aux LP. Les échanges d’e-mails s’affichent déjà sur la fiche dont l’adresse correspond (Customermates Cloud, formule Pro ou supérieure), mais rien ne note les relations ni ne classe les chemins. Pour un petit fonds ou un business angel qui travaille avec une liste et une revue hebdomadaire, ce modèle suffit."
+      },
+      {
+        "question": "L’agent contacte-t-il startups ou investisseurs ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple. Des brouillons n’existent que si vous les demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "J’examine beaucoup de startups et j’oublie qui me les a apportées, pourquoi j’ai refusé et quand je voulais les revoir. Mets en place un dealflow dans mon espace de travail Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
     "questions": [

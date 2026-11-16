@@ -400,6 +400,51 @@
     "listings_board_view": "A lista de imóveis abre como quadro por etapa.",
     "operating_guide_page": "A base de conhecimento contém o guia de operação."
   },
+  "page": {
+    "metaTitle": "Funil imobiliário: imóveis, compradores, visitas e prazos",
+    "metaDescription": "Cole este funil imobiliário no Claude, ChatGPT ou Codex: captação de imóveis, compradores, visitas com retorno e os prazos depois do contrato, no seu CRM.",
+    "headline": "Não perca uma visita nem um prazo: um funil imobiliário que o seu agente de IA monta",
+    "answer": "Um funil imobiliário são duas listas de trabalho que se encontram no contrato: o imóvel do proprietário, da avaliação às propostas, e a busca do comprador, do primeiro contato às visitas e à proposta. Cole este modelo no seu agente de IA e ele monta as duas no Customermates, com autorização de venda e fim dela, visitas com retorno, prazos depois da assinatura e um acompanhamento com datas para clientes antigos. Você aprova o plano antes que qualquer coisa seja criada.",
+    "routine": {
+      "title": "A rodada semanal de imóveis e compradores",
+      "steps": [
+        "Mande a cada proprietário de um imóvel ativo uma posição curta com as visitas e os retornos da semana.",
+        "Confira os imóveis cuja autorização termina em breve: renovar, prorrogar ou rever o preço.",
+        "Retome o contato, com imóveis que combinem, com compradores em fase de visita que não se mexem há sete dias.",
+        "Confirme os próximos prazos depois do contrato e mantenha o contato mensal com os clientes antigos."
+      ]
+    },
+    "limits": [
+      "Não é um sistema de publicação nos portais. O seu próprio software imobiliário continua publicando nos portais e guardando o registro das autorizações; aqui você guarda uma referência e o funil em volta dela.",
+      "Não gerencia transações, depósitos em garantia nem assinatura eletrônica. Contratos e assinaturas ficam com o cartório e com a sua ferramenta de assinatura.",
+      "Não é administração de imóveis: aluguel, manutenção e contas de locatários são outro trabalho.",
+      "Não avalia imóveis e não faz contabilidade nem divisão de comissões.",
+      "Não envia nada automaticamente. As mensagens de WhatsApp chegam na caixa de entrada e as respostas são rascunhos que você revisa.",
+      "Deixe de fora cópias de documentos de identidade, comprovantes de renda e extratos bancários. O modelo guarda só a data em que a identidade foi verificada."
+    ],
+    "faq": [
+      {
+        "question": "Por que dois funis para um corretor de imóveis?",
+        "answer": "Proprietários e compradores seguem etapas diferentes. O lado do proprietário vai do lead e da avaliação à captação com autorização assinada e ao imóvel ativo; o lado do comprador, do primeiro contato às visitas e à proposta. Os dois se encontram no contrato, onde os prazos são comuns."
+      },
+      {
+        "question": "Quais prazos o modelo acompanha?",
+        "answer": "O tipo e o fim de cada autorização de venda, as visitas com o retorno que você deve ao proprietário e, depois do contrato, os prazos que valem no seu caso, como o sinal, o financiamento, a vistoria e o agendamento no cartório. Quais prazos valem é a primeira pergunta que o seu agente faz."
+      },
+      {
+        "question": "Como entram os contatos do WhatsApp?",
+        "answer": "Com a conta do WhatsApp conectada, as conversas chegam na caixa de entrada do Customermates. A partir delas o seu agente pode preparar o registro do comprador e rascunhos de resposta, que você revisa antes de enviar."
+      },
+      {
+        "question": "Posso usar com o meu sistema imobiliário ou com um portal?",
+        "answer": "Sim. Os portais e o seu próprio software guardam os dados dos imóveis e a publicação. O modelo é a camada de funil, prazos e acompanhamento ao lado deles; os contatos vindos de portais chegam por e-mail na sua caixa conectada ou por um webhook de entrada, e os do WhatsApp chegam na caixa de entrada depois que a conta é conectada."
+      },
+      {
+        "question": "O agente entra em contato com proprietários ou compradores?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Eu trabalho com proprietários que anunciam e compradores que procuram, e perco o controle das visitas, dos retornos e dos prazos depois do contrato. Configure um funil imobiliário no meu espaço de trabalho do Customermates: imóveis com o tipo de autorização e o fim dela, buscas de compradores, visitas com retorno, prazos depois da assinatura do contrato e uma tarefa com data para cada registro aberto.",
     "questions": [

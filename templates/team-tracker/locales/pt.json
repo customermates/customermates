@@ -80,6 +80,51 @@
     "due_field": "Toda tarefa tem um prazo.",
     "tasks_board_view": "As tarefas abrem como quadro por status."
   },
+  "page": {
+    "metaTitle": "Kanban online para equipes pequenas: modelo de tarefas",
+    "metaDescription": "Um kanban online simples para 2 a 15 pessoas: um responsável e um prazo por tarefa, bugs e tarefas recorrentes. Cole o modelo no seu agente de IA e use já.",
+    "headline": "Um kanban online para equipes pequenas: um responsável e um prazo por tarefa, montado pelo seu agente de IA",
+    "answer": "Um kanban online para uma equipe pequena é uma única lista de tarefas, cada uma com um responsável, um status, uma prioridade e um prazo, mais um quadro e uma revisão semanal curta do que está atrasado ou bloqueado. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com projetos, tarefas recorrentes e pedidos de fora da equipe. Você aprova o plano antes de qualquer coisa ser construída.",
+    "routine": {
+      "title": "A reunião semanal da equipe em 30 minutos",
+      "steps": [
+        "Abra a lista da semana passada e comece pelo que foi prometido: o que está feito e o que atrasou.",
+        "Passe pelas tarefas atrasadas e bloqueadas e decida para cada uma: reassumir, reduzir o escopo ou reatribuir. Quando um prazo atrasa, mantenha o original e anote o novo com o motivo.",
+        "Olhe as tarefas paradas há cinco dias e pergunte se estão vagas ou grandes demais. Feche as que ninguém precisa.",
+        "Faça a triagem dos pedidos e bugs novos: dê a cada um um tipo, uma prioridade e um responsável.",
+        "Termine relendo a lista, para que toda tarefa tenha um responsável com nome e um prazo antes de a reunião acabar."
+      ]
+    },
+    "limits": [
+      "Não é uma ferramenta de sprints nem de velocidade: não há sprints, pontos de história nem gráficos burn-down. Uma equipe que precise deles fica com Linear ou Jira.",
+      "Não é um planejador Gantt, de dependências ou de capacidade, nem um controle de horas ou um gestor de versões.",
+      "Não é um host de código, um sistema de integração contínua nem uma central de atendimento com tempos de resposta. O link de um pull request ou ticket é um simples campo de link.",
+      "Não há integração nativa com Slack ou Teams nem aplicativo móvel. Para o Slack, o caminho é o n8n.",
+      "Não é um sistema de RH nem de avaliação de desempenho, e não tem login único nem permissões por campo."
+    ],
+    "faq": [
+      {
+        "question": "Uma ferramenta simples pode substituir o Trello, o Jira ou uma planilha?",
+        "answer": "Para duas a quinze pessoas que querem um responsável e um prazo por tarefa, uma revisão semanal e os pedidos externos na mesma lista, sim. Exporte seu quadro ou planilha em CSV ou Excel e importe com o assistente de mapeamento de colunas, ou deixe seu agente mapear e importar. Se você precisa de sprints, velocidade ou dependências, fique com Linear, Jira ou ClickUp."
+      },
+      {
+        "question": "Quais status uma equipe pequena deve usar?",
+        "answer": "Menos do que se imagina. A fazer, Em andamento e Feito, como em guias de kanban, ou Backlog, Todo, In Progress, Done e Canceled do Linear, são típicos. O modelo parte de sete status (Backlog, A fazer, Em andamento, Em revisão, Bloqueada, Concluída, Cancelada) que você renomeia ou remove. Bloqueada tem seu lugar, porque senão uma tarefa bloqueada passa despercebida até o prazo."
+      },
+      {
+        "question": "Vale trabalhar em sprints ou em um quadro?",
+        "answer": "Os guias de kanban apostam no fluxo e no limite de trabalho em andamento; Linear e Jira, mais nos sprints. Este modelo usa um quadro e um prazo e não tem objeto de sprint, então uma equipe que precisa de velocidade fica com uma ferramenta de sprints."
+      },
+      {
+        "question": "Tarefas paradas devem ser fechadas automaticamente?",
+        "answer": "Não. Um lembrete depois de cinco dias sem movimento é mais seguro do que um fechamento automático, e os guias de reunião recomendam fechar de forma explícita o que ficou parado. O modelo lembra o responsável e ele decide. Uma tarefa que continua aberta semana após semana costuma estar vaga ou grande demais: corrija a definição, não a pessoa."
+      },
+      {
+        "question": "O agente escreve para a minha equipe?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
   "prompt": {
     "intro": "O trabalho da nossa equipe está espalhado entre o chat, um quadro e uma planilha, e eu não consigo ver o que está atrasado ou bloqueado. Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
     "questions": [
