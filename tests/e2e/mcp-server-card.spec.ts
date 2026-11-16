@@ -22,7 +22,8 @@ test("public discovery matches the authenticated MCP definitions without grantin
     await anonymous.connect(new StreamableHTTPClientTransport(new URL("/api/v1/mcp", localE2eEnvironment().baseUrl)));
     expect(anonymous.getServerVersion()).toEqual(card.serverInfo);
     const { tools } = await anonymous.listTools();
-    expect(tools.map((tool) => tool.name).sort()).toEqual(card.tools.map((tool: { name: string }) => tool.name).sort());
+    expect(tools.length).toBeGreaterThan(0);
+    for (const tool of tools) expect(card.tools.find((definition: { name: string }) => definition.name === tool.name)).toEqual(tool);
   } finally {
     await anonymous.close();
   }
