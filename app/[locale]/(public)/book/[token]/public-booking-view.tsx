@@ -124,6 +124,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
         timeZone,
         answers,
         website,
+        renderToken: page.renderToken,
       });
       if (result.status === "booked") setConfirmed(result);
       else if (result.status === "invalid") setInvalid(result.fields);
