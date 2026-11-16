@@ -70,7 +70,7 @@ describe("LeaveWorkspaceInteractor", () => {
       { invoke: vi.fn().mockResolvedValue({ blocked: 0, disabled: 0 }) } as never,
       channels as never,
       channelRemoval as never,
-      new HandOverPublicEndpointsService(forms, webhooks),
+      new HandOverPublicEndpointsService(forms as never, webhooks as never),
     );
     return new LeaveWorkspaceInteractor(authService as never, repo as never, roleRepo as never, departure);
   }

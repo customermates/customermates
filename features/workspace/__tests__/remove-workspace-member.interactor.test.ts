@@ -90,7 +90,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
       routines as never,
       { findOwnedConnectedAccountIdsCompanyWide: vi.fn().mockResolvedValue(["mailbox-1"]) } as never,
       channelRemoval as never,
-      new HandOverPublicEndpointsService(forms, webhooks),
+      new HandOverPublicEndpointsService(forms as never, webhooks as never),
     );
     return new RemoveWorkspaceMemberInteractor(
       repo as never,
