@@ -1375,12 +1375,10 @@ describeDatabase("configuration Trash access and permanent deletion", () => {
       },
     });
     await f.configure([{ operation: "putField", field: doubled }]);
-    // One change deletes both, as an agent's configuration bundle does, so they expire at the same time.
     await f.configure([
       { operation: "delete", target: { kind: "field", id: doubled.id } },
       { operation: "delete", target: { kind: "field", id: f.gross.id } },
     ]);
-    // The expiry order puts the field the calculation reads before it.
     await runWithoutTenant(async () => {
       await prisma.$executeRaw`UPDATE "TrashItem" SET "expiresAt" = now() - interval '2 days' WHERE "companyId" = ${f.companyId} AND "targetId" = ${f.gross.id}`;
       await prisma.$executeRaw`UPDATE "TrashItem" SET "expiresAt" = now() - interval '1 day' WHERE "companyId" = ${f.companyId} AND "targetId" = ${doubled.id}`;

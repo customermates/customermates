@@ -13,12 +13,6 @@ const TRASH_ITEM_PURGE_TIMEOUT_MS = 15000;
 type TrashPurgeOutcome = Pick<TrashDeletionResult, "deletedItemIds" | "pendingItemIds" | "failedItemIds">;
 type TrashPurgeScope = { companyId: string; actorId: string | null };
 
-/**
- * Deletes each item permanently in its own transaction. An item can depend on another item of the same batch that is
- * still in Trash (a field read by a calculated field deleted in the same change expires at the same moment, in any
- * order), so an item that fails is tried again after the others as long as a round still deletes something. Only the
- * items that still fail are reported.
- */
 export async function purgeTrashItems(
   trash: Pick<TrashRepo, "find">,
   handlers: TrashKindHandler[],
