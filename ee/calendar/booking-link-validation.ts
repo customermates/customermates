@@ -1,13 +1,14 @@
 import type { RecordModelView } from "@/features/records/record-model.schema";
 
+import { linkDirection } from "@/features/records/person-lookup";
 import { recordChannelsEnabled } from "@/features/records/record-channels";
+import { isAnswerableField } from "@/features/records/record-value-coercion";
 
 import type { BookingQuestion } from "./booking.schema";
 
-import { isAnswerableField } from "./meeting-record.service";
-
 type ListChoice = {
   personTypeId: string | null;
+  personRelationshipId: string | null;
   recordTypeId: string | null;
   startFieldId: string | null;
   questions: BookingQuestion[];
@@ -23,6 +24,18 @@ export function invalidBookingList(model: RecordModelView, choice: ListChoice): 
 
   const recordType = choice.recordTypeId ? live(choice.recordTypeId) : null;
   if (choice.recordTypeId && !recordType?.primaryFieldId) return ["recordTypeId"];
+
+  if (choice.personRelationshipId) {
+    const joins =
+      choice.personTypeId &&
+      choice.recordTypeId &&
+      linkDirection(
+        model,
+        { typeId: choice.personTypeId, relationshipId: choice.personRelationshipId },
+        choice.recordTypeId,
+      );
+    if (!joins) return ["personRelationshipId"];
+  }
 
   if (choice.startFieldId) {
     const field = model.fields.find((item) => item.id === choice.startFieldId);

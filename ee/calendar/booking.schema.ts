@@ -1,3 +1,4 @@
+import type { AnswerQuestion } from "@/features/records/record-value-coercion";
 import { z } from "zod";
 
 import { TimeZoneSchema } from "@/core/utils/time-zone";
@@ -53,6 +54,12 @@ const LinkFieldsSchema = z.object({
     .uuid()
     .nullable()
     .describe("The list that receives one record per booking, for example the Actions list. Null stores no record."),
+  personRelationshipId: z
+    .uuid()
+    .nullable()
+    .describe(
+      "The relationship between the booking list and the person list that links each booking record to the visitor's person. Null links nothing.",
+    ),
   startFieldId: z
     .uuid()
     .nullable()
@@ -117,6 +124,7 @@ export type BookingLinkRow = {
   startFieldId: string | null;
   questions: unknown;
   successMessage: string | null;
+  personRelationshipId: string | null;
   enabled: boolean;
   createdAt: Date;
   upcomingBookings: number;
@@ -124,12 +132,12 @@ export type BookingLinkRow = {
 
 export const PublicAnswerValueSchema = z.union([
   z.string().max(BOOKING_ANSWER_MAX_CHARS),
-  z.number().finite(),
   z.boolean(),
 ]);
 
 export const PublicBookingQuerySchema = z
   .object({
+  z.array(z.string().max(200)).max(100),
     token: z
       .string()
       .min(16)
@@ -160,13 +168,7 @@ export const SubmitPublicBookingSchema = PublicBookingQuerySchema.extend({
 export type SubmitPublicBookingData = z.infer<typeof SubmitPublicBookingSchema>;
 export type SubmitPublicBookingInput = z.input<typeof SubmitPublicBookingSchema>;
 
-export type PublicQuestion = {
-  fieldId: string;
-  label: string;
-  kind: "text" | "url" | "select" | "number" | "boolean" | "date";
-  required: boolean;
-  options: Array<{ id: string; label: string }>;
-};
+export type PublicQuestion = AnswerQuestion;
 
 export type PublicBookingPage = {
   title: string;

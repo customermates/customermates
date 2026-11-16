@@ -8,7 +8,6 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { disablePublicFormAction, getPublicFormEditorAction, upsertPublicFormAction } from "@/app/actions";
-import { PublicFormView } from "@/app/[locale]/(public)/f/[token]/public-form-view";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { CopyableCode } from "@/components/shared/copyable-code";
@@ -21,6 +20,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { initialDraft, previewForm, validDraftConfig } from "./public-form-draft";
 import { PublicFormFieldList } from "./public-form-field-list";
 import { PublicFormSettings } from "./public-form-settings";
+import { PublicFormView } from "./public-form-view";
 
 type Props = { typeId: string; onClose: () => void };
 

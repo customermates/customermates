@@ -63,7 +63,19 @@ const MODEL = {
   capabilities: [],
 } as unknown as RecordModelView;
 
-const NONE = { personTypeId: null, recordTypeId: null, startFieldId: null, questions: [] };
+const PERSON_RELATION = "30000000-0000-4000-8000-000000000001";
+const MODEL_WITH_RELATION = {
+  ...MODEL,
+  relationships: [{ id: PERSON_RELATION, sourceTypeId: ACTIONS, targetTypeId: PEOPLE, archived: false }],
+} as unknown as RecordModelView;
+
+const NONE = {
+  personTypeId: null,
+  personRelationshipId: null,
+  recordTypeId: null,
+  startFieldId: null,
+  questions: [],
+};
 
 describe("invalidBookingList", () => {
   it("accepts an unconfigured link and a complete configuration", () => {
@@ -71,6 +83,7 @@ describe("invalidBookingList", () => {
     expect(
       invalidBookingList(MODEL, {
         personTypeId: PEOPLE,
+        personRelationshipId: null,
         recordTypeId: ACTIONS,
         startFieldId: DUE,
         questions: [{ fieldId: NOTE, required: true }],
@@ -80,6 +93,38 @@ describe("invalidBookingList", () => {
 
   it("requires a list with contact details for the visitor", () => {
     expect(invalidBookingList(MODEL, { ...NONE, personTypeId: ACTIONS })).toEqual(["personTypeId"]);
+  });
+
+  it("accepts a relationship that joins the person list and the booking list", () => {
+    expect(
+      invalidBookingList(MODEL_WITH_RELATION, {
+        ...NONE,
+        personTypeId: PEOPLE,
+        recordTypeId: ACTIONS,
+        personRelationshipId: PERSON_RELATION,
+      }),
+    ).toBeNull();
+  });
+
+  it("refuses a relationship that is unknown, archived, or without both lists", () => {
+    const both = { ...NONE, personTypeId: PEOPLE, recordTypeId: ACTIONS };
+    const archived = {
+      ...MODEL_WITH_RELATION,
+      relationships: [{ id: PERSON_RELATION, sourceTypeId: ACTIONS, targetTypeId: PEOPLE, archived: true }],
+    } as unknown as RecordModelView;
+
+    expect(invalidBookingList(MODEL_WITH_RELATION, { ...both, personRelationshipId: "missing" })).toEqual([
+      "personRelationshipId",
+    ]);
+    expect(invalidBookingList(archived, { ...both, personRelationshipId: PERSON_RELATION })).toEqual([
+      "personRelationshipId",
+    ]);
+    expect(
+      invalidBookingList(MODEL_WITH_RELATION, { ...NONE, recordTypeId: ACTIONS, personRelationshipId: PERSON_RELATION }),
+    ).toEqual(["personRelationshipId"]);
+    expect(
+      invalidBookingList(MODEL_WITH_RELATION, { ...NONE, personTypeId: PEOPLE, personRelationshipId: PERSON_RELATION }),
+    ).toEqual(["personRelationshipId"]);
   });
 
   it("refuses a start field or question outside the booking list, the title field and calculated fields", () => {
@@ -123,5 +168,19 @@ describe("bookingSetup", () => {
     expect(actions?.hasChannels).toBe(false);
     expect(actions?.dateFields.map((item) => item.id)).toEqual([DUE]);
     expect(actions?.questionFields.map((item) => item.id)).toEqual([NOTE]);
+    expect(setup.relationships).toEqual([]);
+  });
+
+  it("offers the live relationships to choose the link between the two lists", () => {
+    const setup = bookingSetup(MODEL_WITH_RELATION, {
+      calendars: [],
+      attendees: [],
+      actionLists: [],
+      blockedReason: "noCalendar",
+    });
+
+    expect(setup.relationships).toEqual([
+      expect.objectContaining({ id: PERSON_RELATION, sourceTypeId: ACTIONS, targetTypeId: PEOPLE }),
+    ]);
   });
 });

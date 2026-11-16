@@ -185,7 +185,7 @@ export const BookingLinkModal = observer(() => {
               ]}
               label={t("Booking.fields.personList")}
               value={form.personTypeId || NONE}
-              onValueChange={(value) => store.onChange("personTypeId", value === NONE ? "" : value)}
+              onValueChange={(value) => store.setPersonList(value === NONE ? "" : value)}
             />
 
             <FormSelect
@@ -200,6 +200,22 @@ export const BookingLinkModal = observer(() => {
               value={form.recordTypeId || NONE}
               onValueChange={(value) => store.setRecordList(value === NONE ? "" : value)}
             />
+
+            {store.personRelationships.length ? (
+              <FormSelect
+                id="personRelationshipId"
+                items={[
+                  noneItem,
+                  ...store.personRelationships.map((relation) => ({
+                    value: relation.id,
+                    label: `${relation.sourceLabel} / ${relation.targetLabel}`,
+                  })),
+                ]}
+                label={t("Booking.fields.personRelationship")}
+                value={form.personRelationshipId || NONE}
+                onValueChange={(value) => store.onChange("personRelationshipId", value === NONE ? "" : value)}
+              />
+            ) : null}
 
             {recordList ? (
               <>

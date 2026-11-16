@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
+import { publicSignupHref } from "@/core/utils/public-signup";
 
-import { publicSignupHref } from "../../p/[token]/public-signup";
 import { PublicFormFieldInput } from "./public-form-field-input";
 import { initialFormValues, missingFormValues } from "./public-form-state";
 

@@ -12,6 +12,7 @@ export type BookingLinkWrite = {
   workingHours: unknown;
   withVideo: boolean;
   personTypeId: string | null;
+  personRelationshipId: string | null;
   recordTypeId: string | null;
   startFieldId: string | null;
   questions: unknown;

@@ -37,6 +37,7 @@ function linkSelect(now: Date) {
     recordTypeId: true,
     startFieldId: true,
     questions: true,
+    personRelationshipId: true,
     successMessage: true,
     enabled: true,
     createdAt: true,

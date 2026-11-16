@@ -3,16 +3,18 @@ import { randomUUID } from "node:crypto";
 import type { GetRecordInteractor } from "@/features/records/get-record.interactor";
 import type { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
 import type { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
-import type { RecordIdentityReader } from "@/features/records/record-identity-reader";
+import type { PersonLookup, RecordLink } from "@/features/records/person-lookup";
+import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
 import type {
   CalculatedValue,
   RecordDto,
-  RecordFieldView,
   RecordModelView,
   RecordRef,
   RecordScalarInput,
 } from "@/features/records/record-model.schema";
+import type { AnswerAssignment } from "@/features/records/record-value-coercion";
 
+import { createPerson, findPersonByEmail, linkDirection } from "@/features/records/person-lookup";
 import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 
@@ -20,25 +22,13 @@ import type { MeetingActionList, MeetingActionTarget, MeetingAttendeeSuggestion 
 
 const EMAIL_PROVIDERS = new Set(["mail", "google", "outlook"]);
 const LINKED_RECORD_READ_LIMIT = 20;
-const SELECTABLE_ANSWER_TYPES = new Set(["text", "url", "select", "number", "boolean", "date"]);
 
 export type RecordPorts = {
   model: Pick<GetRecordModelInteractor, "invoke">;
   read: Pick<GetRecordInteractor, "invoke">;
   mutate: Pick<MutateRecordInteractor, "invoke">;
-  identities: Pick<RecordIdentityReader, "resolve">;
+  people: PersonLookup;
 };
-
-export type AnswerValue = string | number | boolean;
-
-export function isAnswerableField(field: RecordFieldView): boolean {
-  return (
-    !field.archived &&
-    field.behavior.kind === "input" &&
-    !field.multiple &&
-    SELECTABLE_ANSWER_TYPES.has(field.valueType)
-  );
-}
 
 function titleText(title: CalculatedValue | undefined): string | null {
   return title?.state === "value" && title.value.kind === "text" && title.value.value.trim()
@@ -50,29 +40,7 @@ function emailOf(identity: { provider: string; value: string }): string | null {
   return EMAIL_PROVIDERS.has(identity.provider) && identity.value.includes("@") ? identity.value.toLowerCase() : null;
 }
 
-export function answerScalar(field: RecordFieldView, answer: AnswerValue): RecordScalarInput | null {
-  switch (field.valueType) {
-    case "text":
-    case "url":
-      return typeof answer === "string" && answer.trim() ? { kind: "text", value: answer.trim() } : null;
-    case "select":
-      return typeof answer === "string" && field.options.some((option) => option.id === answer)
-        ? { kind: "select", value: answer }
-        : null;
-    case "number":
-      return typeof answer === "number" && Number.isFinite(answer)
-        ? { kind: "decimal", value: String(answer), currency: null }
-        : null;
-    case "boolean":
-      return typeof answer === "boolean" ? { kind: "boolean", value: answer } : null;
-    case "date":
-      return typeof answer === "string" && /^\d{4}-\d{2}-\d{2}$/.test(answer) ? { kind: "date", value: answer } : null;
-    default:
-      return null;
-  }
-}
-
-function linkBetween(model: RecordModelView, typeId: string, ref: RecordRef) {
+function linkBetween(model: RecordModelView, typeId: string, ref: RecordRef): RecordLink | null {
   for (const relationship of model.relationships) {
     if (relationship.archived) continue;
     if (relationship.sourceTypeId === typeId && relationship.targetTypeId === ref.typeId)
@@ -81,6 +49,16 @@ function linkBetween(model: RecordModelView, typeId: string, ref: RecordRef) {
       return { relationId: relationship.id, direction: "incoming" as const, record: ref };
   }
   return null;
+}
+
+function personLink(
+  model: RecordModelView,
+  typeId: string,
+  person: { ref: RecordRef; relationshipId: string | null } | null,
+): RecordLink[] {
+  if (!person?.relationshipId) return [];
+  const direction = linkDirection(model, { typeId: person.ref.typeId, relationshipId: person.relationshipId }, typeId);
+  return direction ? [{ relationId: person.relationshipId, direction, record: person.ref }] : [];
 }
 
 export class MeetingRecordService {
@@ -204,27 +182,28 @@ export class MeetingRecordService {
         { fieldId: type.primaryFieldId, value: { kind: "text", value: input.title } },
         { fieldId: date.id, value: dateValue },
       ],
-      input.links,
+      input.links.flatMap((ref) => linkBetween(model, input.target.typeId, ref) ?? []),
     );
   }
 
   async findOrCreatePerson(input: { typeId: string; email: string; name: string }): Promise<RecordRef | null> {
-    const existing = await this.findPerson(input.typeId, input.email);
+    const existing = await findPersonByEmail(this.ports.people, input.typeId, input.email);
     if (existing) return existing;
 
     const model = await this.loadModel();
     const type = model?.types.find((item) => item.id === input.typeId && !item.archived);
     if (!model || !type?.primaryFieldId || !recordChannelsEnabled(model, type.id)) return null;
 
-    const created = await this.create(
-      model,
-      type.id,
-      [{ fieldId: type.primaryFieldId, value: { kind: "text", value: input.name } }],
-      [],
-      [{ provider: "mail", value: input.email, displayName: input.name }],
+    const created = await createPerson(
+      this.ports.mutate,
+      model.revision,
+      { typeId: type.id, nameFieldId: type.primaryFieldId },
+      input.email,
+      input.name,
+      randomUUID(),
     );
 
-    return created ?? (await this.findPerson(input.typeId, input.email));
+    return created ?? (await findPersonByEmail(this.ports.people, input.typeId, input.email));
   }
 
   async createBookingRecord(input: {
@@ -233,8 +212,9 @@ export class MeetingRecordService {
     startFieldId: string | null;
     startsAt: Date;
     timeZone: string;
-    answers: Array<{ fieldId: string; value: AnswerValue }>;
-    links: RecordRef[];
+    answers: AnswerAssignment[];
+    identities: RecordIdentityInput[];
+    person: { ref: RecordRef; relationshipId: string | null } | null;
   }): Promise<RecordRef | null> {
     const model = await this.loadModel();
     const type = model?.types.find((item) => item.id === input.typeId && !item.archived);
@@ -254,32 +234,19 @@ export class MeetingRecordService {
         value: { kind: "date", value: zonedDate(input.startsAt, input.timeZone) },
       });
     }
-    for (const answer of input.answers) {
-      const field = model.fields.find((item) => item.id === answer.fieldId && item.typeId === type.id);
-      const value = field && isAnswerableField(field) ? answerScalar(field, answer.value) : null;
-      if (field && value && !fields.some((entry) => entry.fieldId === field.id))
-        fields.push({ fieldId: field.id, value });
-    }
+    for (const answer of input.answers)
+      if (!fields.some((entry) => entry.fieldId === answer.fieldId)) fields.push(answer);
 
-    return this.create(model, type.id, fields, input.links);
-  }
-
-  private async findPerson(typeId: string, email: string): Promise<RecordRef | null> {
-    const matches = await this.ports.identities.resolve([{ provider: "mail", value: email }], [typeId]);
-    return matches.flatMap((match) => match.records)[0]?.ref ?? null;
+    return this.create(model, type.id, fields, personLink(model, type.id, input.person), input.identities);
   }
 
   private async create(
     model: RecordModelView,
     typeId: string,
-    fields: Array<{ fieldId: string; value: RecordScalarInput }>,
-    linkTo: RecordRef[],
-    identities?: Array<{ provider: "mail"; value: string; displayName: string }>,
+    fields: AnswerAssignment[],
+    links: RecordLink[],
+    identities: RecordIdentityInput[] = [],
   ): Promise<RecordRef | null> {
-    const links = linkTo.flatMap((ref) => {
-      const link = linkBetween(model, typeId, ref);
-      return link ? [link] : [];
-    });
     const result = await this.ports.mutate.invoke({
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
@@ -288,7 +255,7 @@ export class MeetingRecordService {
         typeId,
         fields,
         ...(links.length ? { links } : {}),
-        ...(identities ? { identities } : {}),
+        ...(identities.length ? { identities } : {}),
       },
     });
     return result.ok && result.data.status === "completed" ? (result.data.refs[0] ?? null) : null;

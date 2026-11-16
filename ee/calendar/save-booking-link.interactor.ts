@@ -63,6 +63,10 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
       workingHours: changes.workingHours ?? current?.workingHours ?? DEFAULT_WORKING_HOURS,
       withVideo: changes.withVideo ?? current?.withVideo ?? false,
       personTypeId: changes.personTypeId !== undefined ? changes.personTypeId : (current?.personTypeId ?? null),
+      personRelationshipId:
+        changes.personRelationshipId !== undefined
+          ? changes.personRelationshipId
+          : (current?.personRelationshipId ?? null),
       recordTypeId: changes.recordTypeId !== undefined ? changes.recordTypeId : (current?.recordTypeId ?? null),
       startFieldId: changes.startFieldId !== undefined ? changes.startFieldId : (current?.startFieldId ?? null),
       questions: changes.questions ?? (current ? storedQuestions(current.questions) : []),
@@ -78,7 +82,10 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
     }
 
     const listsChanged =
-      !current || ["personTypeId", "recordTypeId", "startFieldId", "questions"].some((key) => key in changes);
+      !current ||
+      ["personTypeId", "personRelationshipId", "recordTypeId", "startFieldId", "questions"].some(
+        (key) => key in changes,
+      );
     if (listsChanged && (merged.personTypeId || merged.recordTypeId || merged.questions.length)) {
       const model = await this.records.loadModel();
       const invalid = model ? invalidBookingList(model, merged) : ["recordTypeId"];

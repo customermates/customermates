@@ -63,6 +63,7 @@ const ROW: BookingLinkRow = {
   workingHours: DEFAULT_WORKING_HOURS,
   withVideo: false,
   personTypeId: null,
+  personRelationshipId: null,
   recordTypeId: null,
   startFieldId: null,
   questions: [],

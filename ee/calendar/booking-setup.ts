@@ -1,10 +1,17 @@
 import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
+import { isAnswerableField } from "@/features/records/record-value-coercion";
 
 import type { MeetingOptions, WritableCalendar } from "./meeting.schema";
 
-import { isAnswerableField } from "./meeting-record.service";
+export type BookingSetupRelationship = {
+  id: string;
+  sourceTypeId: string;
+  targetTypeId: string;
+  sourceLabel: string;
+  targetLabel: string;
+};
 
 export type BookingSetupList = {
   id: string;
@@ -18,6 +25,7 @@ export type BookingSetupList = {
 export type BookingSetup = {
   calendars: WritableCalendar[];
   lists: BookingSetupList[];
+  relationships: BookingSetupRelationship[];
   blockedReason: MeetingOptions["blockedReason"];
 };
 
@@ -46,5 +54,15 @@ export function bookingSetup(model: RecordModelView | null, meeting: MeetingOpti
       };
     });
 
-  return { calendars: meeting.calendars, lists, blockedReason: meeting.blockedReason };
+  const relationships = (model?.relationships ?? [])
+    .filter((relation) => !relation.archived)
+    .map(({ id, sourceTypeId, targetTypeId, sourceLabel, targetLabel }) => ({
+      id,
+      sourceTypeId,
+      targetTypeId,
+      sourceLabel,
+      targetLabel,
+    }));
+
+  return { calendars: meeting.calendars, lists, relationships, blockedReason: meeting.blockedReason };
 }

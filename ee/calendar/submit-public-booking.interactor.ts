@@ -7,6 +7,7 @@ import * as ErrorReporter from "@/core/observability/server";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 
+import { coerceAnswers } from "@/features/records/record-value-coercion";
 import type { BookingAvailability } from "./booking-availability";
 import type { BookingReservationRepo } from "./booking-reservation.repo";
 import type { CalendarEventLinkRepo } from "./calendar-event-link.repo";
@@ -22,7 +23,6 @@ import {
   BOOKING_OPEN_PER_EMAIL,
   SubmitPublicBookingSchema,
 } from "./booking.schema";
-import { checkBookingAnswers, describeBookingAnswers } from "./booking-answers";
 import { publicQuestions } from "./public-booking-questions";
 
 const MINUTE_MS = 60_000;
@@ -71,9 +71,11 @@ export class SubmitPublicBookingInteractor {
     const startsAt = new Date(data.startsAt);
     if (!(await this.availability.isOpen(link, now, startsAt))) return { status: "slotTaken" };
 
-    const questions = publicQuestions(link.recordTypeId ? await this.records.loadModel() : null, link);
-    const checked = checkBookingAnswers(questions, data.answers);
-    if (checked.invalid.length) return { status: "invalid", fields: checked.invalid };
+    const model = link.recordTypeId ? await this.records.loadModel() : null;
+    const questions = publicQuestions(model, link);
+    const answers = coerceAnswers(questions, link.recordTypeId ?? "", model?.fields ?? [], data.answers);
+    const invalid = Object.keys(answers.errors);
+    if (invalid.length) return { status: "invalid", fields: invalid };
     if ((await this.reservations.countOpenForEmail(link.id, data.email, now)) >= BOOKING_OPEN_PER_EMAIL)
       return { status: "rateLimited", retryAfterSeconds: OPEN_BOOKINGS_RETRY_SECONDS };
 
@@ -85,7 +87,7 @@ export class SubmitPublicBookingInteractor {
       inviteeName: data.name,
       inviteeEmail: data.email,
       timeZone: data.timeZone,
-      answers: Object.fromEntries(checked.values.map(({ fieldId, value }) => [fieldId, value])),
+      answers: answers.display,
       ipHash: data.visitor ?? null,
     });
     if (!reservation) return { status: "slotTaken" };
@@ -103,7 +105,9 @@ export class SubmitPublicBookingInteractor {
     };
     const description = [
       `${data.name} <${data.email}>`,
-      ...describeBookingAnswers(questions, checked.values).map((answer) => `${answer.label}: ${answer.text}`),
+      ...questions.flatMap((question) =>
+        answers.display[question.fieldId] ? [`${question.label}: ${answers.display[question.fieldId]}`] : [],
+      ),
     ].join("\n");
     const written = await this.writer.create(link.companyId, calendar, {
       title: `${link.title} - ${data.name}`,
@@ -133,8 +137,9 @@ export class SubmitPublicBookingInteractor {
             startFieldId: link.startFieldId,
             startsAt,
             timeZone: link.timeZone,
-            answers: checked.values,
-            links: person ? [person] : [],
+            answers: answers.fields,
+            identities: answers.identities,
+            person: person ? { ref: person, relationshipId: link.personRelationshipId } : null,
           }),
         )
       : null;
@@ -166,7 +171,7 @@ export class SubmitPublicBookingInteractor {
           startsAt: startsAt.toISOString(),
           endsAt: endsAt.toISOString(),
           timeZone: data.timeZone,
-          ...Object.fromEntries(checked.values.map(({ fieldId, value }) => [fieldId, String(value)])),
+          ...answers.display,
         },
       };
       await safely("booking-form-submitted", () =>

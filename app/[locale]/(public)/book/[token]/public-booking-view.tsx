@@ -1,7 +1,8 @@
 "use client";
 
 import type { FormEvent } from "react";
-import type { PublicBookingPage, PublicBookingSubmitResult, PublicQuestion } from "@/ee/calendar/booking.schema";
+import type { PublicBookingPage, PublicBookingSubmitResult } from "@/ee/calendar/booking.schema";
+import type { FormValue } from "@/components/public-form/public-form-state";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -9,22 +10,19 @@ import { CalendarCheck, Clock, Video } from "lucide-react";
 
 import { readPublicBookingSlotsAction, submitPublicBookingAction } from "./actions";
 
+import { PublicFormFieldInput } from "@/components/public-form/public-form-field-input";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { calendarDateOf } from "@/features/record-calendar/calendar-date";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 
 type Slot = { startsAt: string; endsAt: string };
-type AnswerValue = string | number | boolean;
 type Confirmed = Extract<PublicBookingSubmitResult, { status: "booked" }>;
 
 const SLOT_DAYS = 31;
@@ -51,103 +49,6 @@ export function PublicBookingUnavailable({ rateLimited }: { rateLimited: boolean
   );
 }
 
-function QuestionField({
-  question,
-  value,
-  invalid,
-  onChange,
-}: {
-  question: PublicQuestion;
-  value: AnswerValue | undefined;
-  invalid: boolean;
-  onChange: (value: AnswerValue | undefined) => void;
-}) {
-  const id = `booking-question-${question.fieldId}`;
-  const label = (
-    <Label htmlFor={id}>
-      {question.label}
-
-      {question.required ? <span className="text-destructive"> *</span> : null}
-    </Label>
-  );
-
-  if (question.kind === "boolean") {
-    return (
-      <div className="flex items-center gap-2">
-        <Checkbox
-          aria-invalid={invalid}
-          checked={value === true}
-          id={id}
-          onCheckedChange={(checked) => onChange(checked === true)}
-        />
-
-        {label}
-      </div>
-    );
-  }
-
-  if (question.kind === "select") {
-    return (
-      <div className="space-y-1.5">
-        {label}
-
-        <Select value={typeof value === "string" ? value : ""} onValueChange={(next) => onChange(next)}>
-          <SelectTrigger aria-invalid={invalid} id={id}>
-            <SelectValue />
-          </SelectTrigger>
-
-          <SelectContent>
-            {question.options.map((option) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    );
-  }
-
-  if (question.kind === "text") {
-    return (
-      <div className="space-y-1.5">
-        {label}
-
-        <Textarea
-          aria-invalid={invalid}
-          id={id}
-          maxLength={2000}
-          rows={2}
-          value={typeof value === "string" ? value : ""}
-          onChange={(event) => onChange(event.target.value)}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-1.5">
-      {label}
-
-      <Input
-        aria-invalid={invalid}
-        id={id}
-        type={question.kind === "number" ? "number" : question.kind === "date" ? "date" : "url"}
-        value={value === undefined ? "" : String(value)}
-        onChange={(event) =>
-          onChange(
-            question.kind === "number"
-              ? event.target.value === ""
-                ? undefined
-                : Number(event.target.value)
-              : event.target.value,
-          )
-        }
-      />
-    </div>
-  );
-}
-
 export function PublicBookingView({ page, token }: { page: PublicBookingPage; token: string }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -159,7 +60,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
-  const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
+  const [answers, setAnswers] = useState<Record<string, FormValue>>({});
   const [invalid, setInvalid] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [problem, setProblem] = useState<"slotTaken" | "unavailable" | "rateLimited" | null>(null);
@@ -416,19 +317,13 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
           </div>
 
           {page.questions.map((question) => (
-            <QuestionField
+            <PublicFormFieldInput
               key={question.fieldId}
-              invalid={invalid.includes(question.fieldId)}
-              question={question}
+              disabled={submitting}
+              error={invalid.includes(question.fieldId) ? "invalid" : undefined}
+              field={question}
               value={answers[question.fieldId]}
-              onChange={(value) =>
-                setAnswers((current) => {
-                  const others = Object.fromEntries(
-                    Object.entries(current).filter(([fieldId]) => fieldId !== question.fieldId),
-                  );
-                  return value === undefined ? others : { ...others, [question.fieldId]: value };
-                })
-              }
+              onChange={(value) => setAnswers((current) => ({ ...current, [question.fieldId]: value }))}
             />
           ))}
 

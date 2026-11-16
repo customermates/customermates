@@ -73,7 +73,7 @@ function ports(overrides: Partial<Record<keyof RecordPorts, unknown>> = {}) {
     model: { invoke: vi.fn().mockResolvedValue({ ok: true, data: MODEL }) },
     read: { invoke: vi.fn().mockResolvedValue({ ok: false }) },
     mutate: { invoke: mutate },
-    identities: { resolve: vi.fn().mockResolvedValue([]) },
+    people: { getIdentityOwnersCompanyWide: vi.fn().mockResolvedValue([]) },
     ...overrides,
   };
   return { all: all as unknown as RecordPorts, mutate };
@@ -142,11 +142,8 @@ describe("MeetingRecordService.createAction", () => {
 
 describe("MeetingRecordService.findOrCreatePerson", () => {
   it("returns the existing Person of that email without writing", async () => {
-    const { all, mutate } = ports({
-      identities: {
-        resolve: vi.fn().mockResolvedValue([{ provider: "mail", value: "ada@example.com", records: [{ ref: ADA }] }]),
-      },
-    });
+    const getIdentityOwnersCompanyWide = vi.fn().mockResolvedValue([{ ref: ADA }]);
+    const { all, mutate } = ports({ people: { getIdentityOwnersCompanyWide } });
 
     const person = await new MeetingRecordService(all).findOrCreatePerson({
       typeId: PEOPLE,
@@ -155,6 +152,11 @@ describe("MeetingRecordService.findOrCreatePerson", () => {
     });
 
     expect(person).toEqual(ADA);
+    expect(getIdentityOwnersCompanyWide).toHaveBeenCalledWith(
+      [{ channelClass: "email", value: "ada@example.com" }],
+      [PEOPLE],
+      { limitPerKey: 1 },
+    );
     expect(mutate).not.toHaveBeenCalled();
   });
 
@@ -177,11 +179,8 @@ describe("MeetingRecordService.findOrCreatePerson", () => {
   });
 
   it("re-reads the Person when a concurrent booking created it first", async () => {
-    const resolve = vi
-      .fn()
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ provider: "mail", value: "ada@example.com", records: [{ ref: ADA }] }]);
-    const { all, mutate } = ports({ identities: { resolve } });
+    const getIdentityOwnersCompanyWide = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([{ ref: ADA }]);
+    const { all, mutate } = ports({ people: { getIdentityOwnersCompanyWide } });
     mutate.mockResolvedValueOnce({ ok: false });
 
     const person = await new MeetingRecordService(all).findOrCreatePerson({
@@ -204,30 +203,95 @@ describe("MeetingRecordService.findOrCreatePerson", () => {
 });
 
 describe("MeetingRecordService.createBookingRecord", () => {
-  it("stores the title, the start and the valid answers, and drops answers the field cannot take", async () => {
-    const NOTE = "20000000-0000-4000-8000-000000000009";
-    const model = { ...MODEL, fields: [...MODEL.fields, field(NOTE, ACTIONS, "text")] } as unknown as RecordModelView;
-    const { all, mutate } = ports({ model: { invoke: vi.fn().mockResolvedValue({ ok: true, data: model }) } });
+  const NOTE = "20000000-0000-4000-8000-000000000009";
+  const ACTION_PERSON = "30000000-0000-4000-8000-000000000003";
+  const OTHER_ACTION_PERSON = "30000000-0000-4000-8000-000000000004";
+  const model = {
+    ...MODEL,
+    fields: [...MODEL.fields, field(NOTE, ACTIONS, "text")],
+    relationships: [
+      relationship(OTHER_ACTION_PERSON, PEOPLE, ACTIONS),
+      relationship(ACTION_PERSON, ACTIONS, PEOPLE),
+    ],
+  } as unknown as RecordModelView;
+  const input = {
+    typeId: ACTIONS,
+    title: "Ada - Intro call",
+    startFieldId: DUE,
+    startsAt: new Date("2026-11-17T09:00:00.000Z"),
+    timeZone: "Europe/Berlin",
+    answers: [{ fieldId: NOTE, value: { kind: "text" as const, value: "Pricing" } }],
+    identities: [],
+    person: null,
+  };
+
+  function bookingPorts() {
+    return ports({ model: { invoke: vi.fn().mockResolvedValue({ ok: true, data: model }) } });
+  }
+
+  it("stores the title, the start and the coerced answers and never overwrites the title or start", async () => {
+    const { all, mutate } = bookingPorts();
 
     await new MeetingRecordService(all).createBookingRecord({
-      typeId: ACTIONS,
-      title: "Ada - Intro call",
-      startFieldId: DUE,
-      startsAt: new Date("2026-11-17T09:00:00.000Z"),
-      timeZone: "Europe/Berlin",
+      ...input,
       answers: [
-        { fieldId: NOTE, value: "Pricing" },
-        { fieldId: DUE, value: "ignored" },
-        { fieldId: "20000000-0000-4000-8000-0000000000ff", value: "unknown" },
+        ...input.answers,
+        { fieldId: DUE, value: { kind: "text", value: "ignored" } },
+        { fieldId: TITLE, value: { kind: "text", value: "ignored" } },
       ],
-      links: [],
     });
 
-    expect(mutate.mock.calls[0][0].mutation.fields).toEqual([
-      { fieldId: TITLE, value: { kind: "text", value: "Ada - Intro call" } },
-      { fieldId: DUE, value: { kind: "dateTime", value: "2026-11-17T09:00:00.000Z" } },
-      { fieldId: NOTE, value: { kind: "text", value: "Pricing" } },
+    expect(mutate.mock.calls[0][0].mutation).toEqual({
+      action: "create",
+      typeId: ACTIONS,
+      fields: [
+        { fieldId: TITLE, value: { kind: "text", value: "Ada - Intro call" } },
+        { fieldId: DUE, value: { kind: "dateTime", value: "2026-11-17T09:00:00.000Z" } },
+        { fieldId: NOTE, value: { kind: "text", value: "Pricing" } },
+      ],
+    });
+  });
+
+  it("links the person through the configured relationship, not the first one between the two lists", async () => {
+    const { all, mutate } = bookingPorts();
+
+    await new MeetingRecordService(all).createBookingRecord({
+      ...input,
+      person: { ref: ADA, relationshipId: ACTION_PERSON },
+    });
+    await new MeetingRecordService(all).createBookingRecord({
+      ...input,
+      person: { ref: ADA, relationshipId: OTHER_ACTION_PERSON },
+    });
+
+    expect(mutate.mock.calls[0][0].mutation.links).toEqual([
+      { relationId: ACTION_PERSON, direction: "outgoing", record: ADA },
     ]);
+    expect(mutate.mock.calls[1][0].mutation.links).toEqual([
+      { relationId: OTHER_ACTION_PERSON, direction: "incoming", record: ADA },
+    ]);
+  });
+
+  it("links nothing without a configured relationship or when it no longer joins the two lists", async () => {
+    const { all, mutate } = bookingPorts();
+    const service = new MeetingRecordService(all);
+
+    await service.createBookingRecord({ ...input, person: { ref: ADA, relationshipId: null } });
+    await service.createBookingRecord({ ...input, person: { ref: ADA, relationshipId: DEAL_PEOPLE } });
+
+    expect(mutate.mock.calls[0][0].mutation.links).toBeUndefined();
+    expect(mutate.mock.calls[1][0].mutation.links).toBeUndefined();
+  });
+
+  it("passes contact details answered by the visitor as identities of the record", async () => {
+    const { all, mutate } = bookingPorts();
+
+    await new MeetingRecordService(all).createBookingRecord({
+      ...input,
+      identities: [{ provider: "mail", value: "grace@example.com" }],
+    });
+
+    expect(mutate.mock.calls[0][0].mutation.identities).toEqual([{ provider: "mail", value: "grace@example.com" }]);
   });
 });
 

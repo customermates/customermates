@@ -90,6 +90,7 @@ function linkData(calendarId: string) {
     workingHours: DEFAULT_WORKING_HOURS,
     withVideo: false,
     personTypeId: null,
+    personRelationshipId: null,
     recordTypeId: null,
     startFieldId: null,
     questions: [],

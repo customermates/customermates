@@ -5,8 +5,8 @@ import { getTranslations } from "next-intl/server";
 
 import { submitPublicFormAction } from "./actions";
 import { PublicFormUnavailable } from "./public-form-unavailable";
-import { PublicFormView } from "./public-form-view";
 
+import { PublicFormView } from "@/components/public-form/public-form-view";
 import { getReadPublicFormInteractor } from "@/core/di";
 import { buildLocalePath } from "@/i18n/locale-registry";
 

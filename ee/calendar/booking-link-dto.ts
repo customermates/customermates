@@ -38,6 +38,7 @@ export function toBookingLinkDto(row: BookingLinkRow, baseUrl: string): BookingL
     workingHours: storedWorkingHours(row.workingHours),
     withVideo: row.withVideo,
     personTypeId: row.personTypeId,
+    personRelationshipId: row.personRelationshipId,
     recordTypeId: row.recordTypeId,
     startFieldId: row.startFieldId,
     questions: storedQuestions(row.questions),

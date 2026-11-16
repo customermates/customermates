@@ -8,8 +8,7 @@ import { useTranslations } from "next-intl";
 import { ErrorPageView } from "@/components/shared/error-page-view";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
-
-import { publicSignupHref } from "./public-signup";
+import { publicSignupHref } from "@/core/utils/public-signup";
 
 const HOME_URL = "https://customermates.com";
 

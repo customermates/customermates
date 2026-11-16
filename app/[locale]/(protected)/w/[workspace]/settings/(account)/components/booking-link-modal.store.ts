@@ -27,6 +27,7 @@ export type BookingLinkForm = {
   workingHours: WorkingHours;
   withVideo: boolean;
   personTypeId: string;
+  personRelationshipId: string;
   recordTypeId: string;
   startFieldId: string;
   questions: BookingQuestion[];
@@ -34,7 +35,7 @@ export type BookingLinkForm = {
   enabled: boolean;
 };
 
-const EMPTY_SETUP: BookingSetup = { calendars: [], lists: [], blockedReason: null };
+const EMPTY_SETUP: BookingSetup = { calendars: [], lists: [], relationships: [], blockedReason: null };
 
 function emptyForm(setup: BookingSetup): BookingLinkForm {
   return {
@@ -50,6 +51,7 @@ function emptyForm(setup: BookingSetup): BookingLinkForm {
     workingHours: structuredClone(DEFAULT_WORKING_HOURS),
     withVideo: false,
     personTypeId: "",
+    personRelationshipId: "",
     recordTypeId: "",
     startFieldId: "",
     questions: [],
@@ -81,6 +83,15 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
     return this.setup.lists.find((list) => list.id === this.form.recordTypeId) ?? null;
   }
 
+  get personRelationships() {
+    const { personTypeId, recordTypeId } = this.form;
+    return this.setup.relationships.filter(
+      (relation) =>
+        (relation.sourceTypeId === recordTypeId && relation.targetTypeId === personTypeId) ||
+        (relation.targetTypeId === recordTypeId && relation.sourceTypeId === personTypeId),
+    );
+  }
+
   get unusedQuestionFields() {
     const used = new Set(this.form.questions.map((question) => question.fieldId));
     return (this.selectedRecordList?.questionFields ?? []).filter((field) => !used.has(field.id));
@@ -102,6 +113,7 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
             workingHours: structuredClone(link.workingHours),
             withVideo: link.withVideo,
             personTypeId: link.personTypeId ?? "",
+            personRelationshipId: link.personRelationshipId ?? "",
             recordTypeId: link.recordTypeId ?? "",
             startFieldId: link.startFieldId ?? "",
             questions: structuredClone(link.questions),
@@ -114,10 +126,20 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
     else this.open();
   };
 
+  private chooseRelationship = () => {
+    this.onChange("personRelationshipId", this.personRelationships.length === 1 ? this.personRelationships[0].id : "");
+  };
+
+  setPersonList = (typeId: string) => {
+    this.onChange("personTypeId", typeId);
+    this.chooseRelationship();
+  };
+
   setRecordList = (typeId: string) => {
     this.onChange("recordTypeId", typeId);
     this.onChange("startFieldId", "");
     this.onChange("questions", []);
+    this.chooseRelationship();
   };
 
   setDay = (day: WorkingWeekday, patch: { open?: boolean; start?: string; end?: string }) => {
@@ -172,6 +194,7 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
         workingHours: form.workingHours,
         withVideo: form.withVideo,
         personTypeId: form.personTypeId || null,
+        personRelationshipId: form.personTypeId && form.recordTypeId ? form.personRelationshipId || null : null,
         recordTypeId: form.recordTypeId || null,
         startFieldId: form.recordTypeId ? form.startFieldId || null : null,
         questions: form.recordTypeId ? form.questions : [],

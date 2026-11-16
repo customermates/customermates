@@ -1060,6 +1060,7 @@
       "minNotice": "Antelación mínima",
       "none": "Ninguno",
       "personList": "Buscar o crear al visitante en",
+      "personRelationship": "Vincular registro y visitante mediante",
       "questions": "Preguntas para el visitante",
       "recordList": "Crear un registro por cada reserva en",
       "required": "Obligatorio",

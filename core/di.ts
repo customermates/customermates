@@ -1861,7 +1861,7 @@ const getMeetingRecordService = () =>
     model: getGetRecordModelInteractor(),
     read: getGetRecordInteractor(),
     mutate: getMutateRecordInteractor(),
-    identities: getRecordIdentityReader(),
+    people: getRecordRepo(),
   });
 export const getGetMeetingOptionsInteractor = () =>
   new GetMeetingOptionsInteractor(getCalendarWriteAccessRepo(), getMeetingRecordService(), getEntitlementService());

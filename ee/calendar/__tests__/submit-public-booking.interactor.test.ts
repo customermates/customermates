@@ -36,6 +36,11 @@ const NOTE = "20000000-0000-4000-8000-000000000003";
 const PERSON = { typeId: PEOPLE, recordId: "40000000-0000-4000-8000-000000000001" };
 const RECORD = { typeId: ACTIONS, recordId: "40000000-0000-4000-8000-000000000002" };
 const TOKEN = "tok_abcdefghijklmnop";
+const SOURCE = "20000000-0000-4000-8000-000000000004";
+const SIZE = "20000000-0000-4000-8000-000000000005";
+const DAY = "20000000-0000-4000-8000-000000000006";
+const CONTACT = "20000000-0000-4000-8000-000000000007";
+const PERSON_RELATION = "30000000-0000-4000-8000-000000000001";
 const STARTS_AT = "2026-11-17T09:00:00.000Z";
 
 const MODEL = {
@@ -74,6 +79,45 @@ const MODEL = {
 } as unknown as RecordModelView;
 
 function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
+    {
+      id: SOURCE,
+      typeId: ACTIONS,
+      label: "Source",
+      valueType: "select",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [
+        { id: "web", label: "Website" },
+        { id: "event", label: "Event" },
+      ],
+    },
+    {
+      id: SIZE,
+      typeId: ACTIONS,
+      label: "Team size",
+      valueType: "number",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
+    {
+      id: DAY,
+      typeId: ACTIONS,
+      label: "Preferred day",
+      valueType: "date",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
+    {
+      id: CONTACT,
+      typeId: ACTIONS,
+      label: "Contact details",
+      valueType: "channels",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
   return {
     id: "50000000-0000-4000-8000-000000000001",
     companyId: mockUser.companyId,
@@ -96,6 +140,7 @@ function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
     questions: [{ fieldId: NOTE, required: true }],
     successMessage: "See you soon",
     enabled: true,
+    personRelationshipId: PERSON_RELATION,
     createdAt: new Date(0),
     upcomingBookings: 0,
     hostName: "Ben",
@@ -214,8 +259,9 @@ describe("SubmitPublicBookingInteractor", () => {
       expect.objectContaining({
         typeId: ACTIONS,
         startFieldId: DUE,
-        answers: [{ fieldId: NOTE, value: "Pricing" }],
-        links: [PERSON],
+        answers: [{ fieldId: NOTE, value: { kind: "text", value: "Pricing" } }],
+        identities: [],
+        person: { ref: PERSON, relationshipId: PERSON_RELATION },
       }),
     );
     expect(links.linkRecords).toHaveBeenCalledWith("90000000-0000-4000-8000-000000000001", [PERSON, RECORD]);
@@ -325,6 +371,84 @@ describe("SubmitPublicBookingInteractor", () => {
     expect(await interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
     expect(reservations.release).toHaveBeenCalledWith("80000000-0000-4000-8000-000000000001");
     expect(reservations.confirm).not.toHaveBeenCalled();
+  it("coerces each answer by its field type and hands contact details to the record as an identity", async () => {
+    const { interactor, records, reservations, writer } = build({
+      link: link({
+        questions: [
+          { fieldId: NOTE, required: true },
+          { fieldId: SOURCE, required: false },
+          { fieldId: SIZE, required: false },
+          { fieldId: DAY, required: false },
+          { fieldId: CONTACT, required: false },
+        ],
+      }),
+    });
+
+    const result = await interactor.invoke({
+      ...INPUT,
+      answers: {
+        [NOTE]: "Pricing",
+        [SOURCE]: "event",
+        [SIZE]: "12,5",
+        [DAY]: "2026-11-20",
+        [CONTACT]: " Grace@Example.com ",
+      },
+    });
+
+    expect(result.status).toBe("booked");
+    expect(records.createBookingRecord).toHaveBeenCalledWith(
+      expect.objectContaining({
+        answers: [
+          { fieldId: NOTE, value: { kind: "text", value: "Pricing" } },
+          { fieldId: SOURCE, value: { kind: "select", value: "event" } },
+          { fieldId: SIZE, value: { kind: "decimal", value: "12.5", currency: null } },
+          { fieldId: DAY, value: { kind: "date", value: "2026-11-20" } },
+        ],
+        identities: [{ provider: "mail", value: "grace@example.com" }],
+      }),
+    );
+    expect(reservations.reserve).toHaveBeenCalledWith(
+      expect.objectContaining({
+        answers: {
+          [NOTE]: "Pricing",
+          [SOURCE]: "Event",
+          [SIZE]: "12.5",
+          [DAY]: "2026-11-20",
+          [CONTACT]: "grace@example.com",
+        },
+      }),
+      expect.any(Function),
+    );
+    expect(writer.create).toHaveBeenCalledWith(
+      mockUser.companyId,
+      expect.anything(),
+      expect.objectContaining({
+        description: expect.stringContaining("Source: Event\nTeam size: 12.5\nPreferred day: 2026-11-20"),
+      }),
+    );
+  });
+
+  it("names an answer that does not fit its field and reserves nothing", async () => {
+    const { interactor, reservations } = build({
+      link: link({
+        questions: [
+          { fieldId: SOURCE, required: false },
+          { fieldId: SIZE, required: false },
+          { fieldId: DAY, required: false },
+          { fieldId: CONTACT, required: false },
+        ],
+      }),
+    });
+
+    expect(
+      await interactor.invoke({
+        ...INPUT,
+        answers: { [SOURCE]: "nope", [SIZE]: "twelve", [DAY]: "2026-02-30", [CONTACT]: "not an email" },
+      }),
+    ).toEqual({ status: "invalid", fields: [SOURCE, SIZE, DAY, CONTACT] });
+    expect(reservations.reserve).not.toHaveBeenCalled();
+  });
+
     expect(records.findOrCreatePerson).not.toHaveBeenCalled();
   });
 

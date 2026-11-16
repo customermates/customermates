@@ -1060,6 +1060,7 @@
       "minNotice": "Minimum notice",
       "none": "None",
       "personList": "Find or create the visitor in",
+      "personRelationship": "Link record and visitor through",
       "questions": "Questions for the visitor",
       "recordList": "Create a record for each booking in",
       "required": "Required",
