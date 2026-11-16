@@ -1,5 +1,7 @@
 import type { NotificationEmailMode, NotificationKind } from "@/generated/prisma";
 import type {
+  DigestUserPage,
+  EmailedCount,
   NotificationInsert,
   NotificationPreferenceRow,
   NotificationRecipient,
@@ -69,7 +71,7 @@ export class FakeNotificationRepo extends NotificationRepo {
             row.companyId === insert.companyId && row.userId === insert.userId && row.dedupeKey === insert.dedupeKey,
         );
       if (duplicate) continue;
-      this.rows.push({ ...insert, readAt: null, emailedAt: null, createdAt: this.clock });
+      this.rows.push({ ...insert, readAt: null, emailedAt: insert.emailedAt ?? null, createdAt: this.clock });
       stored.push(insert.id);
     }
     return Promise.resolve(stored);
@@ -93,22 +95,28 @@ export class FakeNotificationRepo extends NotificationRepo {
   }
 
   countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date) {
-    const counts = new Map<string, number>();
+    const counts = new Map<string, EmailedCount>();
     for (const row of this.rows) {
       if (row.companyId !== companyId || !userIds.includes(row.userId) || !row.emailedAt || row.emailedAt < since)
         continue;
-      counts.set(row.userId, (counts.get(row.userId) ?? 0) + 1);
+      const key = `${row.userId}:${row.kind}`;
+      const entry = counts.get(key) ?? { userId: row.userId, kind: row.kind, count: 0 };
+      counts.set(key, { ...entry, count: entry.count + 1 });
     }
-    return Promise.resolve(counts);
+    return Promise.resolve([...counts.values()]);
   }
 
-  findDigestUsersUnscoped(since: Date, limit: number) {
-    const keys = new Map<string, { companyId: string; userId: string }>();
-    for (const row of this.rows) {
-      if (!row.emailedAt && !row.readAt && row.createdAt >= since)
-        keys.set(`${row.companyId}:${row.userId}`, { companyId: row.companyId, userId: row.userId });
-    }
-    return Promise.resolve([...keys.values()].slice(0, limit));
+  findDigestUsersUnscoped(args: { since: Date; limit: number; after: string | null }): Promise<DigestUserPage> {
+    const candidates = this.rows
+      .filter((row) => !row.emailedAt && !row.readAt && row.createdAt >= args.since)
+      .sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime() || (left.id < right.id ? -1 : 1));
+    const start = args.after ? candidates.findIndex((row) => row.id === args.after) + 1 : 0;
+    const page = candidates.slice(start, start + args.limit);
+    const users = new Map(page.map((row) => [`${row.companyId}:${row.userId}`, row]));
+    return Promise.resolve({
+      users: [...users.values()].map(({ companyId, userId }) => ({ companyId, userId })),
+      next: page.length === args.limit ? (page[page.length - 1]?.id ?? null) : null,
+    });
   }
 
   findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]> {

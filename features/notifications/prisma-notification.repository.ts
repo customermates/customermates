@@ -1,5 +1,7 @@
 import type { NotificationEmailMode, NotificationKind, Prisma } from "@/generated/prisma";
 import type {
+  DigestUserPage,
+  EmailedCount,
   NotificationInsert,
   NotificationPreferenceRow,
   NotificationRecipient,
@@ -138,25 +140,30 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
-  async countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date): Promise<Map<string, number>> {
-    if (userIds.length === 0) return new Map();
+  async countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date): Promise<EmailedCount[]> {
+    if (userIds.length === 0) return [];
     const groups = await this.prisma.notification.groupBy({
-      by: ["userId"],
+      by: ["userId", "kind"],
       where: { companyId, userId: { in: userIds }, emailedAt: { gte: since } },
       _count: { _all: true },
     });
-    return new Map(groups.map((group) => [group.userId, group._count._all]));
+    return groups.map((group) => ({ userId: group.userId, kind: group.kind, count: group._count._all }));
   }
 
   @BypassTenantGuard
-  async findDigestUsersUnscoped(since: Date, limit: number) {
-    const groups = await this.prisma.notification.groupBy({
-      by: ["companyId", "userId"],
-      where: { emailedAt: null, readAt: null, createdAt: { gte: since } },
-      orderBy: [{ companyId: "asc" }, { userId: "asc" }],
-      take: limit,
+  async findDigestUsersUnscoped(args: { since: Date; limit: number; after: string | null }): Promise<DigestUserPage> {
+    const rows = await this.prisma.notification.findMany({
+      where: { emailedAt: null, readAt: null, createdAt: { gte: args.since } },
+      select: { id: true, companyId: true, userId: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: args.limit,
+      ...(args.after ? { cursor: { id: args.after }, skip: 1 } : {}),
     });
-    return groups.map((group) => ({ companyId: group.companyId, userId: group.userId }));
+    const users = new Map(rows.map((row) => [`${row.companyId}:${row.userId}`, row]));
+    return {
+      users: [...users.values()].map(({ companyId, userId }) => ({ companyId, userId })),
+      next: rows.length === args.limit ? (rows[rows.length - 1]?.id ?? null) : null,
+    };
   }
 
   @BypassTenantGuard

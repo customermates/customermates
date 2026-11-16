@@ -20,7 +20,12 @@ export type NotificationInsert = {
   href: string | null;
   sourceRuleId: string | null;
   dedupeKey: string | null;
+  emailedAt?: Date | null;
 };
+
+export type EmailedCount = { userId: string; kind: NotificationKind; count: number };
+
+export type DigestUserPage = { users: { companyId: string; userId: string }[]; next: string | null };
 
 export type NotificationRecipient = {
   id: string;
@@ -50,8 +55,8 @@ export abstract class NotificationRepo {
   ): Promise<Map<string, Map<NotificationKind, NotificationEmailMode>>>;
   abstract findNotificationsUnscoped(companyId: string, ids: string[]): Promise<PendingEmailNotification[]>;
   abstract markEmailedUnscoped(ids: string[], now: Date): Promise<void>;
-  abstract countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date): Promise<Map<string, number>>;
-  abstract findDigestUsersUnscoped(since: Date, limit: number): Promise<{ companyId: string; userId: string }[]>;
+  abstract countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date): Promise<EmailedCount[]>;
+  abstract findDigestUsersUnscoped(args: { since: Date; limit: number; after: string | null }): Promise<DigestUserPage>;
   abstract findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]>;
   abstract pruneUnscoped(before: Date, limit: number): Promise<number>;
 }

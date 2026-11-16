@@ -96,7 +96,39 @@ describe("notifying members", () => {
     const service = new NotificationService(repo, mail, () => NOW);
     await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE] })).resolves.toEqual({ created: 2, emailed: 0 });
     expect(mail.sendInstant).not.toHaveBeenCalled();
-    expect(repo.rows.every((row) => row.emailedAt === null)).toBe(true);
+    expect(repo.rows.find((row) => row.userId === COLLEAGUE)?.emailedAt).toBeNull();
+  });
+
+  it("marks a notification of a switched-off kind as handled when it is created, so the digest skips it", async () => {
+    repo.preferences.set(
+      ME,
+      new Map([
+        ["ruleAlert", "off"],
+        ["dueToday", "digest"],
+      ]),
+    );
+    const service = new NotificationService(repo, mailer(), () => NOW);
+
+    await service.notify({ ...base, recipients: [ME, COLLEAGUE] });
+    await service.notify({ ...base, kind: "dueToday", recipients: [ME] });
+
+    const own = (kind: string) => repo.rows.find((row) => row.userId === ME && row.kind === kind);
+    expect(own("ruleAlert")?.emailedAt).toEqual(NOW);
+    expect(own("dueToday")?.emailedAt).toBeNull();
+    expect(repo.rows.find((row) => row.userId === COLLEAGUE)?.emailedAt).toEqual(NOW);
+    const page = await repo.findDigestUsersUnscoped({ since: new Date(0), limit: 10, after: null });
+    expect(page.users).toEqual([{ companyId: COMPANY, userId: ME }]);
+  });
+
+  it("does not count notifications of switched-off or digest kinds against the instant cap", async () => {
+    repo.preferences.set(ME, new Map([["dueToday", "off"]]));
+    const mail = mailer();
+    const service = new NotificationService(repo, mail, () => NOW);
+    for (let index = 0; index < 30; index += 1)
+      await service.notify({ ...base, kind: "dueToday", title: `Due ${index}`, recipients: [ME] });
+    expect(repo.rows.every((row) => row.emailedAt?.getTime() === NOW.getTime())).toBe(true);
+
+    await expect(service.notify({ ...base, recipients: [ME] })).resolves.toEqual({ created: 1, emailed: 1 });
   });
 
   it("emails at most twenty instant notifications per member per rolling hour and leaves the rest unemailed", async () => {
@@ -320,6 +352,67 @@ describe("the daily digest", () => {
 
     expect(mail.sendDigest.mock.calls[0]?.[1]).toHaveLength(1);
     expect(repo.rows.map((row) => row.emailedAt !== null)).toEqual([true, false]);
+  });
+
+  function unsentRow(userId: string, createdAt: Date, index: number) {
+    return {
+      id: `row-${userId}-${index}`,
+      companyId: COMPANY,
+      userId,
+      kind: "dueToday" as const,
+      title: "Due",
+      body: null,
+      href: null,
+      sourceRuleId: null,
+      dedupeKey: null,
+      readAt: null,
+      emailedAt: null,
+      createdAt,
+    };
+  }
+
+  it("still reaches a member beyond the first page of users who cannot be mailed", async () => {
+    const earlier = (minutes: number) => new Date(NOW.getTime() - (90 - minutes) * 60 * 1000);
+    const unmailable = Array.from(
+      { length: 501 },
+      (_, index) => `00000000-0000-4000-8001-${String(index).padStart(12, "0")}`,
+    );
+    repo.members = [member(ME), ...unmailable.map(member)];
+    repo.preferences = new Map(unmailable.map((userId) => [userId, new Map([["dueToday", "off"]])]));
+    repo.rows.push(...unmailable.map((userId, index) => unsentRow(userId, earlier(index / 10), 0)));
+    repo.rows.push(unsentRow(ME, earlier(80), 0));
+    const mail = mailer();
+
+    await expect(new SendNotificationDigestInteractor(repo, mail).invoke(NOW)).resolves.toEqual({
+      notificationDigests: 1,
+    });
+
+    expect(mail.sendDigest).toHaveBeenCalledTimes(1);
+    expect(mail.sendDigest.mock.calls[0]?.[0]).toMatchObject({ id: ME });
+    expect(repo.rows.find((row) => row.userId === ME)?.emailedAt).toEqual(NOW);
+  });
+
+  it("serves the member waiting longest first and stops near the time budget, leaving the rest for the next run", async () => {
+    repo.members = [member(ME), member(COLLEAGUE)];
+    repo.rows.push(
+      unsentRow(COLLEAGUE, new Date(NOW.getTime() - 3 * 3600 * 1000), 0),
+      unsentRow(ME, new Date(NOW.getTime() - 2 * 3600 * 1000), 0),
+    );
+    let elapsed = 0;
+    const mail = mailer();
+    mail.sendDigest.mockImplementation(() => {
+      elapsed += 250_000;
+      return Promise.resolve(true);
+    });
+    const digest = new SendNotificationDigestInteractor(repo, mail, () => elapsed);
+
+    await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 1 });
+    expect(mail.sendDigest.mock.calls.map((call) => call[0].id)).toEqual([COLLEAGUE]);
+    expect(repo.rows.find((row) => row.userId === ME)?.emailedAt).toBeNull();
+
+    elapsed = 0;
+    await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 1 });
+    expect(mail.sendDigest.mock.calls.map((call) => call[0].id)).toEqual([COLLEAGUE, ME]);
   });
 
   it("leaves notifications unsent when the mail cannot be delivered, and skips read ones", async () => {
