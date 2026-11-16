@@ -6,7 +6,6 @@ import {
   appendOlderPage,
   filterNotificationsByKind,
   groupNotificationsByDay,
-  isListedNotificationKind,
   markItemsRead,
   mergeNewestPage,
   resolveNotificationDayLabel,
@@ -86,11 +85,6 @@ describe("filterNotificationsByKind", () => {
 
   it("keeps only the chosen kind", () => {
     expect(filterNotificationsByKind(items, "ruleAlert").map((item) => item.id)).toEqual(["b"]);
-  });
-
-  it("knows which kinds the page lists", () => {
-    expect(isListedNotificationKind("replyReceived")).toBe(true);
-    expect(isListedNotificationKind("assigned")).toBe(false);
   });
 });
 

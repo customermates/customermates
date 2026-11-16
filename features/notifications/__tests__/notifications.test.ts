@@ -198,11 +198,10 @@ describe("notifying members", () => {
     expect(Object.keys(DEFAULT_NOTIFICATION_EMAIL_MODES).sort()).toEqual([...NOTIFICATION_KINDS].sort());
   });
 
-  it("never mails a kind that nothing produces and refuses to create one", async () => {
-    expect(effectiveEmailMode(undefined, "assigned")).toBe("off");
-    expect(effectiveEmailMode(undefined, "formSubmission")).toBe("off");
+  it("refuses to create a kind that nothing produces", async () => {
     const service = new NotificationService(repo, mailer(), () => NOW);
     await expect(service.notify({ ...base, kind: "assigned" } as never)).rejects.toThrow();
+    await expect(service.notify({ ...base, kind: "formSubmission" } as never)).rejects.toThrow();
   });
 
   it("creates a notification once for the same dedupe key and keeps going when the mail fails", async () => {

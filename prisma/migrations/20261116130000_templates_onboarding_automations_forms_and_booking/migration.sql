@@ -5,7 +5,7 @@ CREATE TYPE "AutomationTriggerKind" AS ENUM ('recordCreated', 'recordUpdated', '
 CREATE TYPE "AutomationRunStatus" AS ENUM ('queued', 'running', 'applied', 'skipped', 'failed');
 
 -- CreateEnum
-CREATE TYPE "NotificationKind" AS ENUM ('assigned', 'dueToday', 'formSubmission', 'ruleAlert', 'replyReceived');
+CREATE TYPE "NotificationKind" AS ENUM ('dueToday', 'ruleAlert', 'replyReceived');
 
 -- CreateEnum
 CREATE TYPE "NotificationEmailMode" AS ENUM ('instant', 'digest', 'off');

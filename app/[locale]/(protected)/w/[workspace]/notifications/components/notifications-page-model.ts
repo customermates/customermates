@@ -13,10 +13,6 @@ export const NOTIFICATION_KIND_FILTERS = [
 
 export type NotificationDayGroup = { key: string; date: Date; items: NotificationDto[] };
 
-export function isListedNotificationKind(kind: string): kind is (typeof NOTIFICATION_KINDS)[number] {
-  return (NOTIFICATION_KINDS as readonly string[]).includes(kind);
-}
-
 export function filterNotificationsByKind(items: readonly NotificationDto[], kind: NotificationKindFilter) {
   return kind === "all" ? [...items] : items.filter((item) => item.kind === kind);
 }

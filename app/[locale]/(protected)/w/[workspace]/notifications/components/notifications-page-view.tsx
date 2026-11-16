@@ -23,7 +23,6 @@ import { IntlLink } from "@/i18n/navigation";
 import {
   filterNotificationsByKind,
   groupNotificationsByDay,
-  isListedNotificationKind,
   NOTIFICATION_KIND_FILTERS,
   resolveNotificationDayLabel,
   type NotificationKindFilter,
@@ -61,9 +60,7 @@ function NotificationRow({ item, intlStore, store }: RowProps) {
 
         {item.body && <span className="line-clamp-2 text-xs text-muted-foreground">{item.body}</span>}
 
-        {isListedNotificationKind(item.kind) && (
-          <span className="text-xs text-muted-foreground">{t(`Notifications.kinds.${item.kind}`)}</span>
-        )}
+        <span className="text-xs text-muted-foreground">{t(`Notifications.kinds.${item.kind}`)}</span>
       </span>
     </>
   );

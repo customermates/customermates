@@ -2253,9 +2253,7 @@ model AutomationRuleRun {
 }
 
 enum NotificationKind {
-  assigned
   dueToday
-  formSubmission
   ruleAlert
   replyReceived
 }
