@@ -13,7 +13,7 @@ pricing:
   totalSuffixPlural: "/mês no total para {count} usuários"
   moreTitle: "Mais uso ou uma configuração sob medida"
   selfHost:
-    text: "Prefere rodar por conta própria? A edição de código aberto é gratuita para hospedar."
+    text: "Prefere rodar por conta própria? A edição Community, com o código-fonte disponível no GitHub, é gratuita para hospedar e usar internamente."
     linkLabel: "Guia de hospedagem própria"
     href: /docs/self-hosting
   pricingCards:
@@ -250,13 +250,13 @@ comparison:
         business: false
         max: false
         enterprise: "Sob consulta"
-      - label: White-label (ainda não desenvolvido, sob acordo)
+      - label: Incorporação e white-label (ainda não desenvolvidos, sob acordo)
         free: false
         starter: false
         pro: false
         business: false
         max: false
-        enterprise: "Sob consulta"
+        enterprise: "Sob acordo, a marca continua visível"
       - label: Fluxo de trabalho sob contrato com agentes personalizados (não nativo)
         free: false
         starter: false
@@ -328,6 +328,9 @@ faq:
   - id: pricing-faq-13
     title: "O que acontece com a minha equipe quando um espaço de trabalho passa para o Free?"
     content: "O Free mantém [[commercial.limit.free.maxMembers]] pessoa ativa por espaço de trabalho: a pessoa que criou o espaço de trabalho ou, na falta dela, o administrador mais antigo. Todos os outros ficam em pausa, não são removidos. As pessoas em pausa não conseguem abrir o espaço de trabalho, e os registros, as notas e o histórico delas permanecem. Os convites em aberto e os pedidos de entrada são cancelados, as rotinas são pausadas e os webhooks existentes deixam de enviar. Um administrador pode passar a licença ativa para outro administrador. Assim que o espaço de trabalho escolhe qualquer plano pago, todas as pessoas em pausa voltam automaticamente e voltam a contar como licença paga, e as rotinas e os webhooks são retomados."
+  - id: pricing-faq-14
+    title: "Como vocês monitoram o uso em uma instância com hospedagem própria?"
+    content: "Não monitoramos. Uma Community Edition com hospedagem própria não tem chave de licença e não informa o uso ao Customermates: a imagem publicada não tem ping de licença e desativa a telemetria do Next.js e do Prisma, e os erros do app ficam nos seus próprios logs. A licença vale pelos seus termos, não por telemetria: a Sustainable Use License limita o uso à sua própria empresa, e os recursos Enterprise, a incorporação e o white-label exigem um acordo. Um plano Cloud não desbloqueia nada em uma instância com hospedagem própria. Mais: https://customermates.com/docs/licence-faq"
 
 cta:
   action: "Pronto para fazer follow-up de cada cliente?"

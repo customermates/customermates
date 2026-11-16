@@ -13,7 +13,7 @@ pricing:
   totalSuffixPlural: "/Monat gesamt für {count} Nutzer"
   moreTitle: "Mehr Nutzung oder ein individuelles Setup"
   selfHost:
-    text: "Lieber selbst betreiben? Die Open-Source-Version können Sie kostenlos selbst hosten."
+    text: "Lieber selbst betreiben? Die selbst gehostete Community Edition liegt auf GitHub: Quellcode einsehbar, für Ihr eigenes Unternehmen kostenlos."
     linkLabel: "Anleitung zum Self-Hosting"
     href: /docs/self-hosting
   pricingCards:
@@ -250,13 +250,13 @@ comparison:
         business: false
         max: false
         enterprise: "Auf Anfrage"
-      - label: White-Label (noch nicht gebaut, nach Vereinbarung)
+      - label: Einbettung und White-Label (noch nicht gebaut, nach Vereinbarung)
         free: false
         starter: false
         pro: false
         business: false
         max: false
-        enterprise: "Auf Anfrage"
+        enterprise: "Nach Vereinbarung, Branding bleibt sichtbar"
       - label: Vertraglicher Agenten-Workflow (nicht eingebaut)
         free: false
         starter: false
@@ -328,6 +328,9 @@ faq:
   - id: pricing-faq-13
     title: "Was passiert mit meinem Team, wenn ein Workspace zu Free wechselt?"
     content: "Free behält [[commercial.limit.free.maxMembers]] aktive Person pro Workspace: die Person, die den Workspace angelegt hat, sonst den frühesten Admin. Alle anderen werden pausiert, nicht entfernt. Pausierte Personen können den Workspace nicht öffnen, ihre Datensätze, Notizen und ihr Verlauf bleiben erhalten. Offene Einladungen und Beitrittsanfragen werden storniert, Routinen werden pausiert und bestehende Webhooks senden nicht mehr. Ein Admin kann den aktiven Platz an einen anderen Admin übergeben. Sobald der Workspace einen bezahlten Tarif wählt, sind alle pausierten Personen automatisch zurück und zählen wieder als bezahlte Plätze, und Routinen und Webhooks laufen weiter."
+  - id: pricing-faq-14
+    title: "Wird die Nutzung einer selbst gehosteten Instanz überwacht?"
+    content: "Nein. Eine selbst gehostete Community Edition hat keinen Lizenzschlüssel und meldet keine Nutzung an Customermates: Das veröffentlichte Image hat keinen Lizenz-Ping und schaltet die Telemetrie von Next.js und Prisma ab, und Fehler der App bleiben in Ihren eigenen Logs. Die Lizenz gilt durch ihre Bedingungen, nicht durch Telemetrie: Die Sustainable Use License beschränkt die Nutzung auf Ihr eigenes Unternehmen, und Enterprise-Features, Einbettung und White-Label brauchen eine Vereinbarung. Ein Cloud-Tarif schaltet auf einer selbst gehosteten Instanz nichts frei. Mehr: https://customermates.com/docs/licence-faq"
 
 cta:
   action: "Bereit, jeden Kunden nachzufassen?"

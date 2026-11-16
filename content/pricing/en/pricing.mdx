@@ -13,7 +13,7 @@ pricing:
   totalSuffixPlural: "/month total for {count} users"
   moreTitle: "More usage or a custom setup"
   selfHost:
-    text: "Prefer to run it yourself? The open-source edition is free to self-host."
+    text: "Prefer to run it yourself? The self-hosted Community Edition is on GitHub: source-available and free for your own business."
     linkLabel: "Self-hosting guide"
     href: /docs/self-hosting
   pricingCards:
@@ -250,13 +250,13 @@ comparison:
         business: false
         max: false
         enterprise: "On request"
-      - label: White-label (not yet built, by agreement)
+      - label: Embedding and white-label (not yet built, by agreement)
         free: false
         starter: false
         pro: false
         business: false
         max: false
-        enterprise: "On request"
+        enterprise: "By agreement, branding stays visible"
       - label: Contracted custom-agent workflow (not built in)
         free: false
         starter: false
@@ -328,6 +328,9 @@ faq:
   - id: pricing-faq-13
     title: "What happens to my team when a workspace moves to Free?"
     content: "Free keeps [[commercial.limit.free.maxMembers]] active person per workspace: the person who created the workspace, or else the earliest admin. Everyone else is paused, not removed. Paused people cannot open the workspace, and their records, notes and history stay. Open invitations and join requests are cancelled, routines are paused and existing webhooks stop sending. An admin can hand the active seat to another admin. As soon as the workspace chooses any paid plan, every paused person is back automatically and counts as a paid seat again, and routines and webhooks resume."
+  - id: pricing-faq-14
+    title: "How do you monitor usage on a self-hosted instance?"
+    content: "We do not. A self-hosted Community Edition has no licence key and does not report usage to Customermates: the published image has no licence ping and turns off Next.js and Prisma telemetry, and the app's errors stay in your own logs. The licence is kept by its terms, not by telemetry: the Sustainable Use License limits use to your own business, and Enterprise Features, embedding and white-label need an agreement. A Cloud plan unlocks nothing on a self-hosted instance. More: https://customermates.com/docs/licence-faq"
 
 cta:
   action: "Ready to follow up on every client?"
