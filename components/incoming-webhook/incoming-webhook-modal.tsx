@@ -216,12 +216,7 @@ export const IncomingWebhookModal = observer(() => {
             <FormSwitch id="enabled" inputId="incoming-webhook-enabled" label={t("IncomingWebhooks.enabled")} />
           </AppCardBody>
 
-          <UnsavedChangesBar
-            anchorScope="incoming-webhook"
-            creating={!form.id}
-            store={store}
-            onSave={store.onSubmit}
-          />
+          <UnsavedChangesBar anchorScope="incoming-webhook" creating={!form.id} store={store} onSave={store.onSubmit} />
         </AppCard>
       </AppForm>
     </AppModal>

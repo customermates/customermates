@@ -364,14 +364,7 @@ export abstract class QueryRepository<
   }
 }
 
-type ListableModel =
-  | "messagingThread"
-  | "routine"
-  | "calendar"
-  | "user"
-  | "userRole"
-  | "webhook"
-  | "incomingWebhook";
+type ListableModel = "messagingThread" | "routine" | "calendar" | "user" | "userRole" | "webhook" | "incomingWebhook";
 
 type SortCandidate = Record<string, unknown>;
 

@@ -120,7 +120,11 @@ describe("invalidBookingList", () => {
       "personRelationshipId",
     ]);
     expect(
-      invalidBookingList(MODEL_WITH_RELATION, { ...NONE, recordTypeId: ACTIONS, personRelationshipId: PERSON_RELATION }),
+      invalidBookingList(MODEL_WITH_RELATION, {
+        ...NONE,
+        recordTypeId: ACTIONS,
+        personRelationshipId: PERSON_RELATION,
+      }),
     ).toEqual(["personRelationshipId"]);
     expect(
       invalidBookingList(MODEL_WITH_RELATION, { ...NONE, personTypeId: PEOPLE, personRelationshipId: PERSON_RELATION }),

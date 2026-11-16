@@ -194,7 +194,11 @@ describe("IncomingWebhookModalStore", () => {
 
     expect(actions.manageIncomingWebhookAction).toHaveBeenNthCalledWith(
       2,
-      expect.objectContaining({ action: "test", id: WEBHOOK_ID, payload: { data: { email: "ada@example.com", name: "Ada" } } }),
+      expect.objectContaining({
+        action: "test",
+        id: WEBHOOK_ID,
+        payload: { data: { email: "ada@example.com", name: "Ada" } },
+      }),
     );
     expect(store.preview).toEqual(preview);
   });

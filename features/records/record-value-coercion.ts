@@ -67,7 +67,9 @@ export function isAnswerableValueType(value: string): value is AnswerableValueTy
   return (ANSWERABLE_VALUE_TYPES as readonly string[]).includes(value);
 }
 
-export function isAnswerableField(field: Pick<AnswerField, "archived" | "behavior" | "valueType" | "multiple">): boolean {
+export function isAnswerableField(
+  field: Pick<AnswerField, "archived" | "behavior" | "valueType" | "multiple">,
+): boolean {
   if (field.archived || field.behavior.kind !== "input") return false;
   if (!isAnswerableValueType(field.valueType)) return false;
   return !field.multiple || field.valueType === "select";

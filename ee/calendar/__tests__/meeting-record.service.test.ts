@@ -179,7 +179,10 @@ describe("MeetingRecordService.findOrCreatePerson", () => {
   });
 
   it("re-reads the Person when a concurrent booking created it first", async () => {
-    const getIdentityOwnersCompanyWide = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([{ ref: ADA }]);
+    const getIdentityOwnersCompanyWide = vi
+      .fn()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ ref: ADA }]);
     const { all, mutate } = ports({ people: { getIdentityOwnersCompanyWide } });
     mutate.mockResolvedValueOnce({ ok: false });
 
@@ -209,10 +212,7 @@ describe("MeetingRecordService.createBookingRecord", () => {
   const model = {
     ...MODEL,
     fields: [...MODEL.fields, field(NOTE, ACTIONS, "text")],
-    relationships: [
-      relationship(OTHER_ACTION_PERSON, PEOPLE, ACTIONS),
-      relationship(ACTION_PERSON, ACTIONS, PEOPLE),
-    ],
+    relationships: [relationship(OTHER_ACTION_PERSON, PEOPLE, ACTIONS), relationship(ACTION_PERSON, ACTIONS, PEOPLE)],
   } as unknown as RecordModelView;
   const input = {
     typeId: ACTIONS,

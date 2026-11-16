@@ -57,7 +57,11 @@ function webhook(): IncomingWebhookDto {
     url: "https://app.example.test/api/hooks/secret",
     hasSigningSecret: false,
     signatureHeader: "x-signature",
-    mapping: { mode: "create", matchFieldId: null, fields: [{ path: "a", fieldId: "20000000-0000-4000-8000-000000000001" }] },
+    mapping: {
+      mode: "create",
+      matchFieldId: null,
+      fields: [{ path: "a", fieldId: "20000000-0000-4000-8000-000000000001" }],
+    },
     samplePayload: null,
     lastReceivedAt: null,
     createdAt: "2026-11-01T08:00:00.000Z",

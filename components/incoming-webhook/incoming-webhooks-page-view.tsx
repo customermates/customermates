@@ -34,10 +34,7 @@ type Props = {
   lists: ReadonlyArray<{ id: string; label: string }>;
 };
 
-const IncomingWebhooksPageViewContent = observer(function IncomingWebhooksPageView({
-  initialWebhooks,
-  lists,
-}: Props) {
+const IncomingWebhooksPageViewContent = observer(function IncomingWebhooksPageView({ initialWebhooks, lists }: Props) {
   const { incomingWebhookModalStore, incomingWebhooksStore } = useRootStore();
 
   useDataViewSync(incomingWebhooksStore, initialWebhooks);

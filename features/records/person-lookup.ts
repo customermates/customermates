@@ -12,7 +12,9 @@ export type PersonLink = { typeId: string; relationshipId: string; nameFieldId: 
 export type RecordLink = { relationId: string; direction: "outgoing" | "incoming"; record: RecordRef };
 
 export function linkDirection(
-  model: { relationships: ReadonlyArray<Pick<RecordRelationship, "id" | "sourceTypeId" | "targetTypeId" | "archived">> },
+  model: {
+    relationships: ReadonlyArray<Pick<RecordRelationship, "id" | "sourceTypeId" | "targetTypeId" | "archived">>;
+  },
   person: Pick<PersonLink, "typeId" | "relationshipId">,
   typeId: string,
 ): RecordLink["direction"] | null {

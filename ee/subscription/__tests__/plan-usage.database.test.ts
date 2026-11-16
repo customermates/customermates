@@ -191,7 +191,14 @@ describeDatabase("plan usage reads", () => {
           { companyId: id, name: "On", enabled: true, triggerKind: "recordCreated", trigger: {}, effects: [] },
           { companyId: id, name: "Also on", enabled: true, triggerKind: "recordCreated", trigger: {}, effects: [] },
           { companyId: id, name: "Off", enabled: false, triggerKind: "recordCreated", trigger: {}, effects: [] },
-          { companyId: other, name: "Elsewhere", enabled: true, triggerKind: "recordCreated", trigger: {}, effects: [] },
+          {
+            companyId: other,
+            name: "Elsewhere",
+            enabled: true,
+            triggerKind: "recordCreated",
+            trigger: {},
+            effects: [],
+          },
         ],
       });
       const period = { periodStart: new Date(Date.now() - DAY_MS), periodEnd: new Date(Date.now() + DAY_MS) };
