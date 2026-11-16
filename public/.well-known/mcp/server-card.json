@@ -12025,6 +12025,7 @@
                                 "field",
                                 "relationship",
                                 "routine",
+                                "rule",
                                 "webhook",
                                 "widget",
                                 "view",
@@ -12061,6 +12062,7 @@
                                 "field",
                                 "relationship",
                                 "routine",
+                                "rule",
                                 "webhook",
                                 "widget",
                                 "view",
@@ -12100,6 +12102,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -12336,6 +12339,7 @@
                                 "field",
                                 "relationship",
                                 "routine",
+                                "rule",
                                 "webhook",
                                 "widget",
                                 "view",
@@ -12372,6 +12376,7 @@
                                 "field",
                                 "relationship",
                                 "routine",
+                                "rule",
                                 "webhook",
                                 "widget",
                                 "view",
@@ -12411,6 +12416,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -16674,6 +16680,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -16710,6 +16717,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -16749,6 +16757,7 @@
                                         "field",
                                         "relationship",
                                         "routine",
+                                        "rule",
                                         "webhook",
                                         "widget",
                                         "view",
@@ -16985,6 +16994,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -17021,6 +17031,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -17060,6 +17071,7 @@
                                         "field",
                                         "relationship",
                                         "routine",
+                                        "rule",
                                         "webhook",
                                         "widget",
                                         "view",
@@ -28248,6 +28260,7 @@
                                 "snapshotTrigger",
                                 "parentAccess",
                                 "routine",
+                                "rule",
                                 "webhook",
                                 "widget",
                                 "requiresRestore"
@@ -28263,6 +28276,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -28299,6 +28313,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -28349,6 +28364,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -28385,6 +28401,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -28424,6 +28441,7 @@
                                         "field",
                                         "relationship",
                                         "routine",
+                                        "rule",
                                         "webhook",
                                         "widget",
                                         "view",
@@ -28676,6 +28694,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -28712,6 +28731,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -28751,6 +28771,7 @@
                                         "field",
                                         "relationship",
                                         "routine",
+                                        "rule",
                                         "webhook",
                                         "widget",
                                         "view",
@@ -28987,6 +29008,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -29023,6 +29045,7 @@
                                     "field",
                                     "relationship",
                                     "routine",
+                                    "rule",
                                     "webhook",
                                     "widget",
                                     "view",
@@ -29062,6 +29085,7 @@
                                         "field",
                                         "relationship",
                                         "routine",
+                                        "rule",
                                         "webhook",
                                         "widget",
                                         "view",
@@ -29694,6 +29718,7 @@
                   "roles-card-store",
                   "webhooks-card-store",
                   "webhook-deliveries-card-store",
+                  "incoming-webhooks-card-store",
                   "messaging-threads-card-store",
                   "entity-timeline",
                   "activity",
@@ -30289,6 +30314,7 @@
                   "roles-card-store",
                   "webhooks-card-store",
                   "webhook-deliveries-card-store",
+                  "incoming-webhooks-card-store",
                   "messaging-threads-card-store",
                   "entity-timeline",
                   "activity",
@@ -30362,6 +30388,7 @@
                         "roles-card-store",
                         "webhooks-card-store",
                         "webhook-deliveries-card-store",
+                        "incoming-webhooks-card-store",
                         "messaging-threads-card-store",
                         "entity-timeline",
                         "activity",
@@ -37973,6 +38000,19 @@
                   ],
                   "description": "The list whose record is found or created for the visitor, one per email. It needs a contact details field."
                 },
+                "personRelationshipId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "The relationship between the booking list and the person list that links each booking record to the visitor's person. Null links nothing."
+                },
                 "recordTypeId": {
                   "anyOf": [
                     {
@@ -38088,6 +38128,7 @@
                 "workingHours",
                 "withVideo",
                 "personTypeId",
+                "personRelationshipId",
                 "recordTypeId",
                 "startFieldId",
                 "questions",
@@ -38344,6 +38385,19 @@
                 ],
                 "description": "The list whose record is found or created for the visitor, one per email. It needs a contact details field."
               },
+              "personRelationshipId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "The relationship between the booking list and the person list that links each booking record to the visitor's person. Null links nothing."
+              },
               "recordTypeId": {
                 "anyOf": [
                   {
@@ -38459,6 +38513,7 @@
               "workingHours",
               "withVideo",
               "personTypeId",
+              "personRelationshipId",
               "recordTypeId",
               "startFieldId",
               "questions",
@@ -47416,7 +47471,7 @@
               "delete",
               "preview"
             ],
-            "description": "Rule operation. Keys per action: list = optional typeId, owner, page, pageSize; get, enable, disable and delete = id; runs = id, optional page, pageSize; create = name, trigger, effects, then optional conditions, enabled; update = id plus any of name, trigger, conditions, effects, enabled; preview = id, or trigger with optional conditions (date-reached rules only)."
+            "description": "Rule operation. Keys per action: list = optional typeId, owner, page, pageSize; get, enable, disable and delete = id; runs = id, optional cursor; create = name, trigger, effects, then optional conditions, enabled; update = id plus any of name, trigger, conditions, effects, enabled; preview = id, or trigger with optional conditions (date-reached rules only)."
           },
           "id": {
             "description": "Rule id. Required for get, runs, update, enable, disable and delete; optional for preview.",
@@ -48695,9 +48750,9 @@
                       "default": "ruleAlert",
                       "type": "string",
                       "enum": [
-                        "ruleAlert",
                         "dueToday",
-                        "replyReceived"
+                        "replyReceived",
+                        "ruleAlert"
                       ]
                     },
                     "title": {
@@ -48766,10 +48821,15 @@
           },
           "pageSize": {
             "default": 25,
-            "description": "list and runs only. Results per page, any whole number from 1 to 100, served exactly: page 2 of pageSize 50 holds records 51 to 100. When a result was truncated, ask again with about half the size. Default 25.",
+            "description": "list only. Results per page, any whole number from 1 to 100, served exactly: page 2 of pageSize 50 holds records 51 to 100. When a result was truncated, ask again with about half the size. Default 25.",
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "cursor": {
+            "description": "runs only. The nextCursor of the previous page. Omit it for the newest runs.",
+            "type": "string",
+            "maxLength": 500
           }
         },
         "required": [
@@ -48805,6 +48865,31 @@
           "pageSize": {
             "type": "number"
           },
+          "runs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "type": "string"
           },
@@ -48832,7 +48917,7 @@
           }
         },
         "additionalProperties": {},
-        "description": "list and runs return items, total, page and pageSize; get, create, update, enable and disable return the rule with its trigger, conditions and effects; delete returns deleted and id; preview returns supported, total, recordIds (at most 50) and alreadyFired."
+        "description": "list returns items, total, page and pageSize; runs returns runs and nextCursor (null on the last page); get, create, update, enable and disable return the rule with its trigger, conditions and effects; delete returns deleted and id; preview returns supported, total, recordIds (at most 50) and alreadyFired."
       },
       "annotations": {
         "readOnlyHint": false,
@@ -50857,7 +50942,10 @@
                 "messaging.chat.deleted",
                 "messaging.calendar.changed",
                 "messaging.calendar_event.changed",
-                "messaging.relation.created"
+                "messaging.relation.created",
+                "form.submitted",
+                "webhook.received",
+                "automation.rule.fired"
               ]
             }
           },

@@ -44631,6 +44631,7 @@
                                   "snapshotTrigger",
                                   "parentAccess",
                                   "routine",
+                                  "rule",
                                   "webhook",
                                   "widget",
                                   "requiresRestore"
@@ -44646,6 +44647,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -44682,6 +44684,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -44732,6 +44735,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -44768,6 +44772,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -44807,6 +44812,7 @@
                                           "field",
                                           "relationship",
                                           "routine",
+                                          "rule",
                                           "webhook",
                                           "widget",
                                           "view",
@@ -46496,6 +46502,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -46532,6 +46539,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -46571,6 +46579,7 @@
                                           "field",
                                           "relationship",
                                           "routine",
+                                          "rule",
                                           "webhook",
                                           "widget",
                                           "view",
@@ -46807,6 +46816,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -46843,6 +46853,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -46882,6 +46893,7 @@
                                           "field",
                                           "relationship",
                                           "routine",
+                                          "rule",
                                           "webhook",
                                           "widget",
                                           "view",
@@ -53439,6 +53451,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -53475,6 +53488,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -53514,6 +53528,7 @@
                                           "field",
                                           "relationship",
                                           "routine",
+                                          "rule",
                                           "webhook",
                                           "widget",
                                           "view",
@@ -53750,6 +53765,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -53786,6 +53802,7 @@
                                       "field",
                                       "relationship",
                                       "routine",
+                                      "rule",
                                       "webhook",
                                       "widget",
                                       "view",
@@ -53825,6 +53842,7 @@
                                           "field",
                                           "relationship",
                                           "routine",
+                                          "rule",
                                           "webhook",
                                           "widget",
                                           "view",
@@ -57681,6 +57699,7 @@
                                               "field",
                                               "relationship",
                                               "routine",
+                                              "rule",
                                               "webhook",
                                               "widget",
                                               "view",
@@ -57717,6 +57736,7 @@
                                               "field",
                                               "relationship",
                                               "routine",
+                                              "rule",
                                               "webhook",
                                               "widget",
                                               "view",
@@ -57756,6 +57776,7 @@
                                                   "field",
                                                   "relationship",
                                                   "routine",
+                                                  "rule",
                                                   "webhook",
                                                   "widget",
                                                   "view",
@@ -57992,6 +58013,7 @@
                                               "field",
                                               "relationship",
                                               "routine",
+                                              "rule",
                                               "webhook",
                                               "widget",
                                               "view",
@@ -58028,6 +58050,7 @@
                                               "field",
                                               "relationship",
                                               "routine",
+                                              "rule",
                                               "webhook",
                                               "widget",
                                               "view",
@@ -58067,6 +58090,7 @@
                                                   "field",
                                                   "relationship",
                                                   "routine",
+                                                  "rule",
                                                   "webhook",
                                                   "widget",
                                                   "view",
@@ -62797,6 +62821,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -62870,6 +62895,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -64524,6 +64550,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -64604,6 +64631,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -64677,6 +64705,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -66330,6 +66359,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -66400,6 +66430,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -66473,6 +66504,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -68125,6 +68157,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -68194,6 +68227,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -68267,6 +68301,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -69926,6 +69961,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -70428,6 +70464,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -70501,6 +70538,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -72158,6 +72196,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -72672,6 +72711,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -72745,6 +72785,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -74397,6 +74438,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -74466,6 +74508,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -74539,6 +74582,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -76267,6 +76311,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -76340,6 +76385,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -77992,6 +78038,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -78058,6 +78105,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -78131,6 +78179,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -79784,6 +79833,7 @@
                           "roles-card-store",
                           "webhooks-card-store",
                           "webhook-deliveries-card-store",
+                          "incoming-webhooks-card-store",
                           "messaging-threads-card-store",
                           "entity-timeline",
                           "activity",
@@ -79866,6 +79916,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -79939,6 +79990,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -81663,6 +81715,7 @@
                             "roles-card-store",
                             "webhooks-card-store",
                             "webhook-deliveries-card-store",
+                            "incoming-webhooks-card-store",
                             "messaging-threads-card-store",
                             "entity-timeline",
                             "activity",
@@ -81736,6 +81789,7 @@
                                   "roles-card-store",
                                   "webhooks-card-store",
                                   "webhook-deliveries-card-store",
+                                  "incoming-webhooks-card-store",
                                   "messaging-threads-card-store",
                                   "entity-timeline",
                                   "activity",
@@ -123309,9 +123363,9 @@
                                       "default": "ruleAlert",
                                       "type": "string",
                                       "enum": [
-                                        "ruleAlert",
                                         "dueToday",
-                                        "replyReceived"
+                                        "replyReceived",
+                                        "ruleAlert"
                                       ]
                                     },
                                     "title": {
@@ -125698,9 +125752,9 @@
                                 "default": "ruleAlert",
                                 "type": "string",
                                 "enum": [
-                                  "ruleAlert",
                                   "dueToday",
-                                  "replyReceived"
+                                  "replyReceived",
+                                  "ruleAlert"
                                 ]
                               },
                               "title": {
@@ -125914,9 +125968,7 @@
           "content": {
             "application/json": {
               "example": {
-                "id": "7d1c2b3a-9e8f-4a6b-8c5d-0f1e2d3c4b5a",
-                "page": 1,
-                "pageSize": 25
+                "id": "7d1c2b3a-9e8f-4a6b-8c5d-0f1e2d3c4b5a"
               },
               "schema": {
                 "type": "object",
@@ -125926,17 +125978,17 @@
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
-                  "page": {
-                    "default": 1,
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 9007199254740991
-                  },
-                  "pageSize": {
-                    "default": 25,
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 100
+                  "cursor": {
+                    "description": "The nextCursor of the previous page. Omit it for the newest runs.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -125949,11 +126001,11 @@
         },
         "responses": {
           "200": {
-            "description": "One page of runs.",
+            "description": "One page of runs, with the cursor of the next page or null.",
             "content": {
               "application/json": {
                 "example": {
-                  "items": [
+                  "runs": [
                     {
                       "id": "5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c1d",
                       "ruleId": "7d1c2b3a-9e8f-4a6b-8c5d-0f1e2d3c4b5a",
@@ -125976,12 +126028,12 @@
                       "createdAt": "2026-11-12T07:05:01.000Z"
                     }
                   ],
-                  "total": 1
+                  "nextCursor": null
                 },
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "items": {
+                    "runs": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -126154,15 +126206,20 @@
                         "additionalProperties": false
                       }
                     },
-                    "total": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 9007199254740991
+                    "nextCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
-                    "items",
-                    "total"
+                    "runs",
+                    "nextCursor"
                   ],
                   "additionalProperties": false
                 }
@@ -127249,9 +127306,9 @@
                               "default": "ruleAlert",
                               "type": "string",
                               "enum": [
-                                "ruleAlert",
                                 "dueToday",
-                                "replyReceived"
+                                "replyReceived",
+                                "ruleAlert"
                               ]
                             },
                             "title": {
@@ -129444,9 +129501,9 @@
                                 "default": "ruleAlert",
                                 "type": "string",
                                 "enum": [
-                                  "ruleAlert",
                                   "dueToday",
-                                  "replyReceived"
+                                  "replyReceived",
+                                  "ruleAlert"
                                 ]
                               },
                               "title": {
@@ -130631,9 +130688,9 @@
                               "default": "ruleAlert",
                               "type": "string",
                               "enum": [
-                                "ruleAlert",
                                 "dueToday",
-                                "replyReceived"
+                                "replyReceived",
+                                "ruleAlert"
                               ]
                             },
                             "title": {
@@ -132829,9 +132886,9 @@
                                 "default": "ruleAlert",
                                 "type": "string",
                                 "enum": [
-                                  "ruleAlert",
                                   "dueToday",
-                                  "replyReceived"
+                                  "replyReceived",
+                                  "ruleAlert"
                                 ]
                               },
                               "title": {
@@ -135205,9 +135262,9 @@
                                 "default": "ruleAlert",
                                 "type": "string",
                                 "enum": [
-                                  "ruleAlert",
                                   "dueToday",
-                                  "replyReceived"
+                                  "replyReceived",
+                                  "ruleAlert"
                                 ]
                               },
                               "title": {
@@ -137581,9 +137638,9 @@
                                 "default": "ruleAlert",
                                 "type": "string",
                                 "enum": [
-                                  "ruleAlert",
                                   "dueToday",
-                                  "replyReceived"
+                                  "replyReceived",
+                                  "ruleAlert"
                                 ]
                               },
                               "title": {
@@ -138917,9 +138974,9 @@
                                   "default": "ruleAlert",
                                   "type": "string",
                                   "enum": [
-                                    "ruleAlert",
                                     "dueToday",
-                                    "replyReceived"
+                                    "replyReceived",
+                                    "ruleAlert"
                                   ]
                                 },
                                 "title": {
@@ -139486,7 +139543,10 @@
                         "messaging.chat.deleted",
                         "messaging.calendar.changed",
                         "messaging.calendar_event.changed",
-                        "messaging.relation.created"
+                        "messaging.relation.created",
+                        "form.submitted",
+                        "webhook.received",
+                        "automation.rule.fired"
                       ]
                     },
                     "minItems": 1
@@ -141630,7 +141690,10 @@
                         "messaging.chat.deleted",
                         "messaging.calendar.changed",
                         "messaging.calendar_event.changed",
-                        "messaging.relation.created"
+                        "messaging.relation.created",
+                        "form.submitted",
+                        "webhook.received",
+                        "automation.rule.fired"
                       ]
                     },
                     "minItems": 1
@@ -166197,6 +166260,78 @@
           }
         }
       }
+    },
+    "formSubmitted": {
+      "post": {
+        "operationId": "webhookFormSubmitted",
+        "summary": "Form Submitted",
+        "description": "Sent when a public form or booking page receives a submission. `data.outcome` is `duplicate` when the same submission arrived twice; `data.recordId` is the record the submission created, `data.answers` the submitted answers by field label.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookFormSubmittedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "webhookReceived": {
+      "post": {
+        "operationId": "webhookWebhookReceived",
+        "summary": "Webhook Received",
+        "description": "Sent when an incoming webhook endpoint accepted a request and created or updated a record. `data.outcome` says which, `data.recordId` is the record.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookWebhookReceivedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "automationRuleFired": {
+      "post": {
+        "operationId": "webhookAutomationRuleFired",
+        "summary": "Automation Rule Fired",
+        "description": "Sent to the webhook an automation rule names in its Call webhook effect, when the rule fires. The webhook must have selected this event. `actorId` is the owner of the rule; `data.entityId` and `data.ruleId` are the rule, `data.record` the record that started it when there is one.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookAutomationRuleFiredSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -168310,6 +168445,340 @@
         ],
         "additionalProperties": false
       },
+      "WebhookFormSubmittedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "form.submitted"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "actorId": {
+            "type": "null"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": [
+                  "form",
+                  "booking"
+                ]
+              },
+              "formId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "formName": {
+                "type": "string"
+              },
+              "typeId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "submissionId": {
+                "type": "string"
+              },
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "created",
+                  "duplicate"
+                ]
+              },
+              "recordId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "personRecordId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "answers": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "entityId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "formId",
+              "formName",
+              "typeId",
+              "submissionId",
+              "outcome",
+              "recordId",
+              "personRecordId",
+              "answers",
+              "entityId"
+            ]
+          }
+        },
+        "required": [
+          "event",
+          "id",
+          "timestamp",
+          "companyId",
+          "actorId",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "WebhookWebhookReceivedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "webhook.received"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "actorId": {
+            "type": "null"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "webhookId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "webhookName": {
+                "type": "string"
+              },
+              "typeId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "deliveryId": {
+                "type": "string"
+              },
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "created",
+                  "updated"
+                ]
+              },
+              "recordId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "entityId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "webhookId",
+              "webhookName",
+              "typeId",
+              "deliveryId",
+              "outcome",
+              "recordId",
+              "entityId"
+            ]
+          }
+        },
+        "required": [
+          "event",
+          "id",
+          "timestamp",
+          "companyId",
+          "actorId",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "WebhookAutomationRuleFiredSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "automation.rule.fired"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "actorId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "webhookId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "ruleId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "ruleName": {
+                "type": "string"
+              },
+              "runId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "trigger": {
+                "type": "string",
+                "enum": [
+                  "recordCreated",
+                  "recordUpdated",
+                  "fieldChanged",
+                  "dateReached",
+                  "messageReceived",
+                  "formSubmitted",
+                  "webhookReceived"
+                ]
+              },
+              "firedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              },
+              "record": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "typeId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "recordId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    },
+                    "required": [
+                      "typeId",
+                      "recordId"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "webhookId",
+              "ruleId",
+              "ruleName",
+              "runId",
+              "trigger",
+              "firedAt",
+              "record",
+              "entityId"
+            ]
+          }
+        },
+        "required": [
+          "event",
+          "id",
+          "timestamp",
+          "companyId",
+          "actorId",
+          "data"
+        ],
+        "additionalProperties": false
+      },
       "MessagingThreadSchema": {
         "type": "object",
         "properties": {
@@ -169413,7 +169882,7 @@
                         "automationRuleEditNotOwner",
                         "automationRuleOwnerIneligible",
                         "automationRuleAdminRequired",
-                        "notificationNotFound",
+                        "automationRuleRunCursorInvalid",
                         "planMemberLimitReached",
                         "planRecordLimitReached",
                         "planWebhooksNotIncluded",
@@ -169735,7 +170204,10 @@
                 "messaging.chat.deleted",
                 "messaging.calendar.changed",
                 "messaging.calendar_event.changed",
-                "messaging.relation.created"
+                "messaging.relation.created",
+                "form.submitted",
+                "webhook.received",
+                "automation.rule.fired"
               ]
             }
           },
@@ -173242,7 +173714,10 @@
                 "messaging.chat.deleted",
                 "messaging.calendar.changed",
                 "messaging.calendar_event.changed",
-                "messaging.relation.created"
+                "messaging.relation.created",
+                "form.submitted",
+                "webhook.received",
+                "automation.rule.fired"
               ]
             }
           },
