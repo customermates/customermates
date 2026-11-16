@@ -1,9 +1,9 @@
 ---
 title: "Automatizaciones: reglas sin IA, recordatorios y avisos"
-description: "Las automatizaciones se ejecutan sin IA cuando ocurre algo y coincide: se crean con Cuando, Si y Entonces, con recordatorios, campana y correos."
+description: "Las automatizaciones se ejecutan sin IA cuando ocurre algo y coincide: se crean con Cuando, Si y Entonces, con recordatorios, página Notificaciones y correos."
 ---
 
-Una automatización es una regla que se ejecuta sin IA: cuando ocurre algo y coincide, Customermates hace lo que configuraste. Puede crear una tarea de seguimiento, fijar un campo, avisarte a ti o a tu equipo en la campana de notificaciones y por correo, o llamar a un webhook. Las automatizaciones funcionan en todos los planes y en instancias autoalojadas. No son [Rutinas](app:routines): una rutina deja que Mate trabaje por su cuenta, una automatización hace exactamente lo que dicen sus tres tarjetas y nada más.
+Una automatización es una regla que se ejecuta sin IA: cuando ocurre algo y coincide, Customermates hace lo que configuraste. Puede crear una tarea de seguimiento, fijar un campo, avisarte a ti o a tu equipo en la página Notificaciones y por correo, o llamar a un webhook. Las automatizaciones funcionan en todos los planes y en instancias autoalojadas. No son [Rutinas](app:routines): una rutina deja que Mate trabaje por su cuenta, una automatización hace exactamente lo que dicen sus tres tarjetas y nada más.
 
 La página **Automatizaciones** está en la barra lateral junto a **Rutinas**. Quién la ve depende de la fila **Rutinas** de su rol en [Roles](app:settings/roles): **Acceso de lectura** **Todos** muestra todas las automatizaciones del espacio de trabajo, **Asignados** solo las propias y **Ninguno** oculta la página. Para crear se necesita **Crear**.
 
@@ -19,7 +19,7 @@ También existen reglas para los envíos de formularios, los webhooks entrantes 
 
 ## ¿Cómo recibo un recordatorio antes de una fecha? [#how-do-i-get-a-reminder-before-a-date]
 
-Abre una lista que tenga un campo de fecha o de fecha y hora, abre **Más acciones** en la barra de herramientas y elige **Recordarme** seguido del nombre del campo. El generador se abre con un disparador **Se alcanza una fecha** para ese campo, así que solo eliges **Días**, **Antes o después**, **A la hora (0 a 23)** y **Zona horaria**, y añades una acción **Notificar** que te avise. El recordatorio te llega en la campana de notificaciones y, según tu preferencia, por correo.
+Abre una lista que tenga un campo de fecha o de fecha y hora, abre **Más acciones** en la barra de herramientas y elige **Recordarme** seguido del nombre del campo. El generador se abre con un disparador **Se alcanza una fecha** para ese campo, así que solo eliges **Días**, **Antes o después**, **A la hora (0 a 23)** y **Zona horaria**, y añades una acción **Notificar** que te avise. El recordatorio te llega en la página Notificaciones y, según tu preferencia, por correo.
 
 Una regla de fecha se dispara una vez por registro, cuando se alcanza la fecha desplazada por tu margen. Se comprueba cada pocos minutos. Una regla que creas o activas más tarde aún recoge las fechas alcanzadas en los últimos 7 días, y un registro cuya fecha cambias a otro día se dispara de nuevo para la nueva fecha. **Preview** por MCP o REST lista los registros que una regla de fecha afectaría a continuación.
 
@@ -35,7 +35,7 @@ Eliminar una automatización la borra para siempre junto con su historial; desac
 
 ## ¿Cómo funcionan las notificaciones y las preferencias de correo? [#how-do-notifications-work]
 
-La campana de la barra superior muestra cuántas notificaciones están sin leer. Ábrela para ver las más recientes, abrir el registro correspondiente o elegir **Marcar todo como leído**. Las notificaciones proceden de cinco tipos de eventos: **Asignados a ti**, **Vencen hoy**, **Envíos de formularios**, **Respuestas recibidas** y **Alertas de automatización**. La campana siempre muestra todo y conserva las notificaciones 90 días.
+**Notificaciones**, en el grupo Resumen de la barra lateral, muestra cuántas notificaciones están sin leer. Abre la página para ver las más recientes, abrir el registro correspondiente o elegir **Marcar todo como leído**. Las notificaciones proceden de cinco tipos de eventos: **Asignados a ti**, **Vencen hoy**, **Envíos de formularios**, **Respuestas recibidas** y **Alertas de automatización**. La página siempre muestra todo y conserva las notificaciones 90 días.
 
 Si un tipo también te llega por correo lo decides tú, tipo por tipo, en la tarjeta **Correos de notificación** de [Perfil y preferencias](app:settings/profile): **Correo inmediato**, **Resumen diario** o **Sin correo**. Mientras no cambies nada, las asignaciones, los envíos de formularios y las alertas de automatización llegan enseguida, y los vencimientos y las respuestas en el resumen diario. El resumen es un correo al día con lo que aún no se ha enviado por correo.
 
@@ -64,6 +64,6 @@ Abre el **Historial** de la automatización. Una ejecución omitida indica el mo
 No directamente. Una automatización no envía correos ni mensajes por sí misma. Puede notificar a miembros de tu espacio de trabajo, lo que puede llegarles por correo, y puede llamar a uno de tus webhooks, por ejemplo para iniciar un flujo de [n8n](/docs/n8n) que envíe algo. La llamada es el evento `automation.rule.fired`, que se entrega como cualquier otro evento de webhook con reintentos e historial, así que el webhook debe haberlo seleccionado en [¿Qué eventos existen?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="¿Quién recibe la notificación cuando una automatización avisa a alguien?">
-Lo decide la acción: **Avisarme** llega al propietario de la automatización, **Avisar a las personas asignadas** llega a los miembros a quienes está asignado el registro que la disparó. La notificación aparece en su campana y sigue su preferencia de correo para **Alertas de automatización**.
+Lo decide la acción: **Avisarme** llega al propietario de la automatización, **Avisar a las personas asignadas** llega a los miembros a quienes está asignado el registro que la disparó. La notificación aparece en su página Notificaciones y sigue su preferencia de correo para **Alertas de automatización**.
 </FaqItem>
 </Faq>

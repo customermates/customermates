@@ -1,9 +1,9 @@
 ---
 title: "Automations: Rules Without AI, Reminders and Notifications"
-description: "Automations run when something happens and it matches, without AI: build one with When, If and Then, get reminders, the notification bell and emails."
+description: "Automations run when something happens and it matches, without AI: build one with When, If and Then, get reminders, the Notifications page and emails."
 ---
 
-An automation is a rule that runs without AI: when something happens and it matches, Customermates does what you set up. It can create a follow-up task, set a field, tell you or your team in the notification bell and by email, or call a webhook. Automations work on every plan and on self-hosted instances. They are not [Routines](app:routines): a routine lets Mate work on its own, an automation does exactly what its three cards say and nothing else.
+An automation is a rule that runs without AI: when something happens and it matches, Customermates does what you set up. It can create a follow-up task, set a field, tell you or your team on the Notifications page and by email, or call a webhook. Automations work on every plan and on self-hosted instances. They are not [Routines](app:routines): a routine lets Mate work on its own, an automation does exactly what its three cards say and nothing else.
 
 The **Automations** page sits next to **Routines** in the sidebar. Who sees it follows the **Routines** row of their role in [Roles](app:settings/roles): **Read access** **All** shows every automation in the workspace, **Assigned** only your own, and **None** hides the page. Creating needs **Create**.
 
@@ -19,7 +19,7 @@ Rules for form submissions, incoming webhooks and arriving messages exist too. Y
 
 ## How do I get a reminder before a date? [#how-do-i-get-a-reminder-before-a-date]
 
-Open a list that has a date or date and time field, open **More actions** in the toolbar and choose **Remind me about** followed by the field name. The builder opens with a **A date is reached** trigger for that field, so you only choose **Days**, **Before or after**, the **At hour (0 to 23)** and the **Time zone**, then add a **Notify** action that tells you. The reminder reaches you in the notification bell and, by your preference, by email.
+Open a list that has a date or date and time field, open **More actions** in the toolbar and choose **Remind me about** followed by the field name. The builder opens with a **A date is reached** trigger for that field, so you only choose **Days**, **Before or after**, the **At hour (0 to 23)** and the **Time zone**, then add a **Notify** action that tells you. The reminder reaches you on the Notifications page and, by your preference, by email.
 
 A date rule fires once per record, when the date shifted by your offset is reached. It is checked every few minutes. A rule you create or switch on later still catches dates that were reached within the last 7 days, and a record whose date you change to another day fires again for the new date. **Preview** over MCP or REST lists the records a date rule would hit next.
 
@@ -35,7 +35,7 @@ Deleting an automation removes it and its run history for good, so switch it off
 
 ## How do notifications and email preferences work? [#how-do-notifications-work]
 
-The bell in the top bar shows how many notifications are unread. Open it to see the latest ones, open the record behind each, or choose **Mark all as read**. Notifications come from five kinds of events: **Assigned to you**, **Due today**, **Form submissions**, **Replies received** and **Automation alerts**. The bell always shows everything and keeps notifications for 90 days.
+**Notifications** in the sidebar's Overview group shows how many are unread. Open the page to see the latest ones, open the record behind each, or choose **Mark all as read**. Notifications come from five kinds of events: **Assigned to you**, **Due today**, **Form submissions**, **Replies received** and **Automation alerts**. The page always shows everything and keeps notifications for 90 days.
 
 Whether a kind also reaches you by email is your choice, per kind, in the **Notification emails** card on [Profile & preferences](app:settings/profile): **Email right away**, **Daily digest** or **No email**. Until you change it, assignments, form submissions and automation alerts arrive right away, and due dates and replies arrive in the daily digest. The digest is one email a day with what has not been emailed yet.
 
@@ -64,6 +64,6 @@ Open **History** on the automation. A skipped run names the reason, such as unme
 Not directly. An automation does not send emails or messages itself. It can notify members of your workspace, which may reach them by email, and it can call one of your webhooks, for example to start an [n8n](/docs/n8n) workflow that sends something. The call is the event `automation.rule.fired`, delivered like any other webhook event with retries and history, so the webhook must have selected it under [Which events exist?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Who gets the notification when an automation tells someone?">
-The action chooses: **Tell me** reaches the owner of the automation, **Tell the people it is assigned to** reaches the members the triggering record is assigned to. The notification appears in their bell and follows their email preference for **Automation alerts**.
+The action chooses: **Tell me** reaches the owner of the automation, **Tell the people it is assigned to** reaches the members the triggering record is assigned to. The notification appears on their Notifications page and follows their email preference for **Automation alerts**.
 </FaqItem>
 </Faq>

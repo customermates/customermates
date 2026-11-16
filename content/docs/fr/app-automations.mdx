@@ -1,9 +1,9 @@
 ---
 title: "Automatisations : règles sans IA, rappels, notifications"
-description: "Les automatisations s’exécutent sans IA quand un événement correspond : créez-les avec Quand, Si et Alors, avec rappels, cloche de notifications et e-mails."
+description: "Les automatisations s’exécutent sans IA quand un événement correspond : créez-les avec Quand, Si et Alors, avec rappels, page Notifications et e-mails."
 ---
 
-Une automatisation est une règle qui s’exécute sans IA : quand quelque chose se produit et correspond, Customermates fait ce que vous avez configuré. Elle peut créer une tâche de suivi, définir un champ, vous prévenir ou prévenir votre équipe dans la cloche de notifications et par e-mail, ou appeler un webhook. Les automatisations fonctionnent sur tous les forfaits et sur les instances auto-hébergées. Ce ne sont pas des [Routines](app:routines) : une routine laisse Mate travailler seul, une automatisation fait exactement ce que disent ses trois cartes, et rien d’autre.
+Une automatisation est une règle qui s’exécute sans IA : quand quelque chose se produit et correspond, Customermates fait ce que vous avez configuré. Elle peut créer une tâche de suivi, définir un champ, vous prévenir ou prévenir votre équipe sur la page Notifications et par e-mail, ou appeler un webhook. Les automatisations fonctionnent sur tous les forfaits et sur les instances auto-hébergées. Ce ne sont pas des [Routines](app:routines) : une routine laisse Mate travailler seul, une automatisation fait exactement ce que disent ses trois cartes, et rien d’autre.
 
 La page **Automatisations** se trouve dans la barre latérale, à côté de **Routines**. Qui la voit dépend de la ligne **Routines** du rôle de chacun dans [Rôles](app:settings/roles) : l’**Accès en lecture** **Tous** affiche toutes les automatisations de l’espace de travail, **Assignés** uniquement les siennes, et **Aucun** masque la page. La création exige **Créer**.
 
@@ -19,7 +19,7 @@ Des règles existent aussi pour les envois de formulaires, les webhooks entrants
 
 ## Comment recevoir un rappel avant une date ? [#how-do-i-get-a-reminder-before-a-date]
 
-Ouvrez une liste qui a un champ de date ou de date et heure, ouvrez **Plus d’actions** dans la barre d’outils et choisissez **Me rappeler** suivi du nom du champ. Le générateur s’ouvre avec un déclencheur **Une date est atteinte** pour ce champ : il ne reste qu’à choisir **Jours**, **Avant ou après**, **À l’heure (0 à 23)** et **Fuseau horaire**, puis à ajouter une action **Notifier** qui vous prévient. Le rappel vous parvient dans la cloche de notifications et, selon votre préférence, par e-mail.
+Ouvrez une liste qui a un champ de date ou de date et heure, ouvrez **Plus d’actions** dans la barre d’outils et choisissez **Me rappeler** suivi du nom du champ. Le générateur s’ouvre avec un déclencheur **Une date est atteinte** pour ce champ : il ne reste qu’à choisir **Jours**, **Avant ou après**, **À l’heure (0 à 23)** et **Fuseau horaire**, puis à ajouter une action **Notifier** qui vous prévient. Le rappel vous parvient sur la page Notifications et, selon votre préférence, par e-mail.
 
 Une règle de date se déclenche une fois par enregistrement, quand la date décalée de votre écart est atteinte. Elle est vérifiée toutes les quelques minutes. Une règle que vous créez ou activez plus tard rattrape quand même les dates atteintes dans les 7 derniers jours, et un enregistrement dont vous changez la date pour un autre jour se déclenche de nouveau pour la nouvelle date. **Preview** via MCP ou REST liste les enregistrements qu’une règle de date toucherait ensuite.
 
@@ -35,7 +35,7 @@ Supprimer une automatisation la retire définitivement avec son historique ; dé
 
 ## Comment fonctionnent les notifications et les préférences d’e-mail ? [#how-do-notifications-work]
 
-La cloche de la barre supérieure indique combien de notifications ne sont pas lues. Ouvrez-la pour voir les plus récentes, ouvrir l’enregistrement concerné ou choisir **Tout marquer comme lu**. Les notifications viennent de cinq types d’événements : **Assigné à vous**, **À faire aujourd’hui**, **Réponses aux formulaires**, **Réponses reçues** et **Alertes d’automatisation**. La cloche montre toujours tout et garde les notifications 90 jours.
+**Vos notifications**, dans le groupe Aperçu de la barre latérale, indique combien de notifications ne sont pas lues. Ouvrez la page pour voir les plus récentes, ouvrir l’enregistrement concerné ou choisir **Tout marquer comme lu**. Les notifications viennent de cinq types d’événements : **Assigné à vous**, **À faire aujourd’hui**, **Réponses aux formulaires**, **Réponses reçues** et **Alertes d’automatisation**. La page montre toujours tout et garde les notifications 90 jours.
 
 Que chaque type vous parvienne aussi par e-mail, c’est votre choix, type par type, dans la carte **E-mails de notification** de [Profil et préférences](app:settings/profile) : **E-mail immédiat**, **Résumé quotidien** ou **Pas d’e-mail**. Tant que vous ne changez rien, les assignations, les réponses aux formulaires et les alertes d’automatisation arrivent tout de suite, les échéances et les réponses dans le résumé quotidien. Le résumé est un e-mail par jour avec ce qui n’a pas encore été envoyé par e-mail.
 
@@ -64,6 +64,6 @@ Ouvrez l’**Historique** de l’automatisation. Une exécution ignorée donne l
 Pas directement. Une automatisation n’envoie elle-même ni e-mails ni messages. Elle peut notifier des membres de votre espace de travail, ce qui peut les atteindre par e-mail, et appeler l’un de vos webhooks, par exemple pour lancer un workflow [n8n](/docs/n8n) qui envoie quelque chose. L’appel est l’évènement `automation.rule.fired`, livré comme tout autre évènement de webhook avec nouvelles tentatives et historique ; le webhook doit donc l’avoir sélectionné sous [Quels évènements existent ?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Qui reçoit la notification quand une automatisation prévient quelqu’un ?">
-L’action en décide : **Me prévenir** atteint le propriétaire de l’automatisation, **Prévenir les personnes assignées** atteint les membres auxquels l’enregistrement déclencheur est assigné. La notification apparaît dans leur cloche et suit leur préférence d’e-mail pour **Alertes d’automatisation**.
+L’action en décide : **Me prévenir** atteint le propriétaire de l’automatisation, **Prévenir les personnes assignées** atteint les membres auxquels l’enregistrement déclencheur est assigné. La notification apparaît sur leur page Notifications et suit leur préférence d’e-mail pour **Alertes d’automatisation**.
 </FaqItem>
 </Faq>

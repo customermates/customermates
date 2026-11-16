@@ -1,9 +1,9 @@
 ---
 title: "Automazioni: regole senza IA, promemoria e notifiche"
-description: "Le automazioni girano senza IA quando succede qualcosa e corrisponde: si costruiscono con Quando, Se e Allora, con promemoria, campanella e e-mail."
+description: "Le automazioni girano senza IA quando succede qualcosa e corrisponde: si costruiscono con Quando, Se e Allora, con promemoria, pagina Notifiche e e-mail."
 ---
 
-Un’automazione è una regola che gira senza IA: quando succede qualcosa e corrisponde, Customermates fa ciò che hai impostato. Può creare un’attività di seguito, impostare un campo, avvisare te o il tuo team nella campanella delle notifiche e per e-mail, oppure chiamare un webhook. Le automazioni funzionano su ogni piano e sulle istanze self-hosted. Non sono [Routine](app:routines): una routine lascia lavorare Mate in autonomia, un’automazione fa esattamente ciò che dicono le sue tre schede e nient’altro.
+Un’automazione è una regola che gira senza IA: quando succede qualcosa e corrisponde, Customermates fa ciò che hai impostato. Può creare un’attività di seguito, impostare un campo, avvisare te o il tuo team nella pagina Notifiche e per e-mail, oppure chiamare un webhook. Le automazioni funzionano su ogni piano e sulle istanze self-hosted. Non sono [Routine](app:routines): una routine lascia lavorare Mate in autonomia, un’automazione fa esattamente ciò che dicono le sue tre schede e nient’altro.
 
 La pagina **Automazioni** si trova nella barra laterale accanto a **Routine**. Chi la vede dipende dalla riga **Routine** del suo ruolo in [Ruoli](app:settings/roles): **Accesso in lettura** **Tutti** mostra ogni automazione dello spazio di lavoro, **Assegnati** solo le proprie e **Nessuno** nasconde la pagina. Per creare serve **Crea**.
 
@@ -19,7 +19,7 @@ Esistono anche regole per gli invii di moduli, i webhook in ingresso e i messagg
 
 ## Come ricevo un promemoria prima di una data? [#how-do-i-get-a-reminder-before-a-date]
 
-Apri un elenco che ha un campo data o data e ora, apri **Altre azioni** nella barra degli strumenti e scegli **Ricordami** seguito dal nome del campo. Il builder si apre con un trigger **Si raggiunge una data** per quel campo: ti restano da scegliere **Giorni**, **Prima o dopo**, **All’ora (da 0 a 23)** e **Fuso orario**, poi aggiungi un’azione **Notifica** che avvisa te. Il promemoria ti arriva nella campanella delle notifiche e, secondo la tua preferenza, per e-mail.
+Apri un elenco che ha un campo data o data e ora, apri **Altre azioni** nella barra degli strumenti e scegli **Ricordami** seguito dal nome del campo. Il builder si apre con un trigger **Si raggiunge una data** per quel campo: ti restano da scegliere **Giorni**, **Prima o dopo**, **All’ora (da 0 a 23)** e **Fuso orario**, poi aggiungi un’azione **Notifica** che avvisa te. Il promemoria ti arriva nella pagina Notifiche e, secondo la tua preferenza, per e-mail.
 
 Una regola di data scatta una volta per record, quando la data spostata del tuo scarto viene raggiunta. Viene controllata ogni pochi minuti. Una regola che crei o attivi più tardi recupera comunque le date raggiunte negli ultimi 7 giorni, e un record di cui cambi la data in un altro giorno scatta di nuovo per la nuova data. **Preview** tramite MCP o REST elenca i record che una regola di data colpirebbe subito dopo.
 
@@ -35,7 +35,7 @@ Eliminare un’automazione la rimuove definitivamente insieme alla cronologia; d
 
 ## Come funzionano le notifiche e le preferenze e-mail? [#how-do-notifications-work]
 
-La campanella nella barra superiore mostra quante notifiche non sono lette. Aprila per vedere le più recenti, aprire il record collegato o scegliere **Segna tutte come lette**. Le notifiche nascono da cinque tipi di eventi: **Assegnati a te**, **In scadenza oggi**, **Invii di moduli**, **Risposte ricevute** e **Avvisi di automazione**. La campanella mostra sempre tutto e conserva le notifiche per 90 giorni.
+**Notifiche**, nel gruppo Panoramica della barra laterale, mostra quante notifiche non sono lette. Apri la pagina per vedere le più recenti, aprire il record collegato o scegliere **Segna tutte come lette**. Le notifiche nascono da cinque tipi di eventi: **Assegnati a te**, **In scadenza oggi**, **Invii di moduli**, **Risposte ricevute** e **Avvisi di automazione**. La pagina mostra sempre tutto e conserva le notifiche per 90 giorni.
 
 Se un tipo ti raggiunge anche per e-mail lo decidi tu, tipo per tipo, nella scheda **E-mail di notifica** di [Profilo e preferenze](app:settings/profile): **E-mail immediata**, **Riepilogo giornaliero** o **Nessuna e-mail**. Finché non cambi nulla, assegnazioni, invii di moduli e avvisi di automazione arrivano subito, scadenze e risposte nel riepilogo giornaliero. Il riepilogo è un’e-mail al giorno con ciò che non è ancora stato inviato per e-mail.
 
@@ -64,6 +64,6 @@ Apri la **Cronologia** dell’automazione. Un’esecuzione saltata ne indica il 
 Non direttamente. Un’automazione non invia e-mail né messaggi da sola. Può notificare i membri del tuo spazio di lavoro, cosa che può raggiungerli anche per e-mail, e può chiamare uno dei tuoi webhook, per esempio per avviare un workflow [n8n](/docs/n8n) che invia qualcosa. La chiamata è l’evento `automation.rule.fired`, consegnato come ogni altro evento webhook con nuovi tentativi e cronologia, quindi il webhook deve averlo selezionato in [Quali eventi esistono?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Chi riceve la notifica quando un’automazione avvisa qualcuno?">
-Lo decide l’azione: **Avvisami** raggiunge il proprietario dell’automazione, **Avvisa le persone assegnate** raggiunge i membri a cui è assegnato il record che l’ha attivata. La notifica compare nella loro campanella e segue la loro preferenza e-mail per **Avvisi di automazione**.
+Lo decide l’azione: **Avvisami** raggiunge il proprietario dell’automazione, **Avvisa le persone assegnate** raggiunge i membri a cui è assegnato il record che l’ha attivata. La notifica compare nella loro pagina Notifiche e segue la loro preferenza e-mail per **Avvisi di automazione**.
 </FaqItem>
 </Faq>

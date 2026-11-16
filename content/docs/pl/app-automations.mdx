@@ -1,9 +1,9 @@
 ---
 title: "Automatyzacje: reguły bez AI, przypomnienia i powiadomienia"
-description: "Automatyzacje działają bez AI, gdy coś się wydarzy i pasuje: buduj je z Gdy, Jeśli i Wtedy, z przypomnieniami, dzwonkiem powiadomień i e-mailami."
+description: "Automatyzacje działają bez AI, gdy coś się wydarzy i pasuje: buduj je z Gdy, Jeśli i Wtedy, z przypomnieniami, stroną Powiadomienia i e-mailami."
 ---
 
-Automatyzacja to reguła działająca bez AI: gdy coś się wydarzy i pasuje, Customermates robi to, co skonfigurowano. Może utworzyć zadanie następcze, ustawić pole, powiadomić Ciebie lub Twój zespół w dzwonku powiadomień i e-mailem albo wywołać webhook. Automatyzacje działają w każdym planie i na instancjach self-hosted. To nie są [Rutyny](app:routines): rutyna pozwala Mate pracować samodzielnie, a automatyzacja robi dokładnie to, co mówią jej trzy karty, i nic więcej.
+Automatyzacja to reguła działająca bez AI: gdy coś się wydarzy i pasuje, Customermates robi to, co skonfigurowano. Może utworzyć zadanie następcze, ustawić pole, powiadomić Ciebie lub Twój zespół na stronie Powiadomienia i e-mailem albo wywołać webhook. Automatyzacje działają w każdym planie i na instancjach self-hosted. To nie są [Rutyny](app:routines): rutyna pozwala Mate pracować samodzielnie, a automatyzacja robi dokładnie to, co mówią jej trzy karty, i nic więcej.
 
 Strona **Automatyzacje** znajduje się na pasku bocznym obok **Rutyn**. To, kto ją widzi, wynika z wiersza **Rutyny** w roli danej osoby w sekcji [Role](app:settings/roles): **Dostęp do odczytu** ustawiony na **Wszystkie** pokazuje wszystkie automatyzacje w przestrzeni roboczej, **Przypisane** tylko własne, a **Brak** ukrywa stronę. Tworzenie wymaga uprawnienia **Tworzenie**.
 
@@ -19,7 +19,7 @@ Istnieją też reguły dla wysłanych formularzy, przychodzących webhooków i n
 
 ## Jak dostać przypomnienie przed datą? [#how-do-i-get-a-reminder-before-a-date]
 
-Otwórz listę, która ma pole daty lub daty i godziny, otwórz **Więcej działań** na pasku narzędzi i wybierz **Przypomnij mi o** z nazwą pola. Kreator otwiera się z wyzwalaczem **Nadchodzi data** dla tego pola, więc wybierasz tylko **Dni**, **Przed czy po**, **O godzinie (0 do 23)** i **Strefa czasowa** oraz dodajesz działanie **Powiadom**, które powiadamia Ciebie. Przypomnienie dociera do Ciebie w dzwonku powiadomień i, zgodnie z Twoją preferencją, e-mailem.
+Otwórz listę, która ma pole daty lub daty i godziny, otwórz **Więcej działań** na pasku narzędzi i wybierz **Przypomnij mi o** z nazwą pola. Kreator otwiera się z wyzwalaczem **Nadchodzi data** dla tego pola, więc wybierasz tylko **Dni**, **Przed czy po**, **O godzinie (0 do 23)** i **Strefa czasowa** oraz dodajesz działanie **Powiadom**, które powiadamia Ciebie. Przypomnienie dociera do Ciebie na stronie Powiadomienia i, zgodnie z Twoją preferencją, e-mailem.
 
 Reguła daty uruchamia się raz na rekord, gdy nadejdzie data przesunięta o Twoją różnicę. Jest sprawdzana co kilka minut. Reguła utworzona lub włączona później nadal obejmuje daty, które nadeszły w ciągu ostatnich 7 dni, a rekord, któremu zmienisz datę na inny dzień, uruchamia się ponownie dla nowej daty. **Preview** przez MCP lub REST wylicza rekordy, które reguła daty objęłaby następnie.
 
@@ -35,7 +35,7 @@ Usunięcie automatyzacji kasuje ją razem z historią bezpowrotnie; zamiast tego
 
 ## Jak działają powiadomienia i preferencje e-mail? [#how-do-notifications-work]
 
-Dzwonek na górnym pasku pokazuje, ile powiadomień jest nieprzeczytanych. Otwórz go, aby zobaczyć najnowsze, otworzyć rekord, którego dotyczą, lub wybrać **Oznacz wszystkie jako przeczytane**. Powiadomienia pochodzą z pięciu rodzajów zdarzeń: **Przypisane do Ciebie**, **Termin dziś**, **Wysłane formularze**, **Otrzymane odpowiedzi** i **Alerty automatyzacji**. Dzwonek zawsze pokazuje wszystko i przechowuje powiadomienia przez 90 dni.
+**Powiadomienia** w grupie Przegląd na pasku bocznym pokazują, ile powiadomień jest nieprzeczytanych. Otwórz stronę, aby zobaczyć najnowsze, otworzyć rekord, którego dotyczą, lub wybrać **Oznacz wszystkie jako przeczytane**. Powiadomienia pochodzą z pięciu rodzajów zdarzeń: **Przypisane do Ciebie**, **Termin dziś**, **Wysłane formularze**, **Otrzymane odpowiedzi** i **Alerty automatyzacji**. Strona zawsze pokazuje wszystko i przechowuje powiadomienia przez 90 dni.
 
 To, czy dany rodzaj dociera do Ciebie także e-mailem, zależy od Ciebie, osobno dla każdego rodzaju, w karcie **E-maile z powiadomieniami** w sekcji [Profil i preferencje](app:settings/profile): **E-mail od razu**, **Dzienne podsumowanie** lub **Bez e-maila**. Dopóki nic nie zmienisz, przypisania, wysłane formularze i alerty automatyzacji przychodzą od razu, a terminy i odpowiedzi w dziennym podsumowaniu. Podsumowanie to jeden e-mail dziennie z tym, o czym nie wysłano jeszcze e-maila.
 
@@ -64,6 +64,6 @@ Otwórz **Historię** automatyzacji. Pominięte uruchomienie podaje powód, na p
 Nie bezpośrednio. Automatyzacja sama nie wysyła e-maili ani wiadomości. Może powiadamiać członków Twojej przestrzeni roboczej, co może do nich dotrzeć także e-mailem, i może wywołać jeden z Twoich webhooków, na przykład aby uruchomić przepływ [n8n](/docs/n8n), który coś wyśle. Wywołanie to zdarzenie `automation.rule.fired`, dostarczane jak każde inne zdarzenie webhooka z ponowieniami i historią, więc webhook musi je mieć wybrane w sekcji [Jakie zdarzenia istnieją?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Kto dostaje powiadomienie, gdy automatyzacja kogoś powiadamia?">
-Decyduje działanie: **Powiadom mnie** trafia do właściciela automatyzacji, **Powiadom przypisane osoby** trafia do członków, którym przypisano rekord wyzwalający. Powiadomienie pojawia się w ich dzwonku i podlega ich preferencji e-mail dla **Alerty automatyzacji**.
+Decyduje działanie: **Powiadom mnie** trafia do właściciela automatyzacji, **Powiadom przypisane osoby** trafia do członków, którym przypisano rekord wyzwalający. Powiadomienie pojawia się na ich stronie Powiadomienia i podlega ich preferencji e-mail dla **Alerty automatyzacji**.
 </FaqItem>
 </Faq>

@@ -1,9 +1,9 @@
 ---
 title: "Automatiseringen: regels zonder AI en herinneringen"
-description: "Automatiseringen draaien zonder AI als er iets gebeurt en het past: bouw ze met Wanneer, Als en Dan, met herinneringen, belletje en e-mails."
+description: "Automatiseringen draaien zonder AI als er iets gebeurt en het past: bouw ze met Wanneer, Als en Dan, met herinneringen, de pagina Meldingen en e-mails."
 ---
 
-Een automatisering is een regel die zonder AI draait: als er iets gebeurt en het past, doet Customermates wat je hebt ingesteld. Ze kan een opvolgtaak aanmaken, een veld instellen, jou of je team op de hoogte stellen in het meldingenbelletje en per e-mail, of een webhook aanroepen. Automatiseringen werken op elk pakket en op zelfgehoste instanties. Het zijn geen [Routines](app:routines): een routine laat Mate zelfstandig werken, een automatisering doet precies wat haar drie kaarten zeggen en niets anders.
+Een automatisering is een regel die zonder AI draait: als er iets gebeurt en het past, doet Customermates wat je hebt ingesteld. Ze kan een opvolgtaak aanmaken, een veld instellen, jou of je team op de hoogte stellen op de pagina Meldingen en per e-mail, of een webhook aanroepen. Automatiseringen werken op elk pakket en op zelfgehoste instanties. Het zijn geen [Routines](app:routines): een routine laat Mate zelfstandig werken, een automatisering doet precies wat haar drie kaarten zeggen en niets anders.
 
 De pagina **Automatiseringen** staat in de zijbalk naast **Routines**. Wie haar ziet, hangt af van de rij **Routines** van hun rol in [Rollen](app:settings/roles): **Leestoegang** **Alle** toont elke automatisering in de werkruimte, **Toegewezen** alleen je eigen, en **Geen** verbergt de pagina. Aanmaken vraagt **Aanmaken**.
 
@@ -19,7 +19,7 @@ Er bestaan ook regels voor ingevulde formulieren, binnenkomende webhooks en beri
 
 ## Hoe krijg ik een herinnering vóór een datum? [#how-do-i-get-a-reminder-before-a-date]
 
-Open een lijst met een datumveld of een veld voor datum en tijd, open **Meer acties** in de werkbalk en kies **Herinner me aan** gevolgd door de veldnaam. De builder opent met een trigger **Een datum is bereikt** voor dat veld, dus je kiest alleen nog **Dagen**, **Voor of na**, **Om uur (0 tot 23)** en **Tijdzone** en voegt een actie **Melden** toe die jou op de hoogte stelt. De herinnering bereikt je in het meldingenbelletje en, naar je voorkeur, per e-mail.
+Open een lijst met een datumveld of een veld voor datum en tijd, open **Meer acties** in de werkbalk en kies **Herinner me aan** gevolgd door de veldnaam. De builder opent met een trigger **Een datum is bereikt** voor dat veld, dus je kiest alleen nog **Dagen**, **Voor of na**, **Om uur (0 tot 23)** en **Tijdzone** en voegt een actie **Melden** toe die jou op de hoogte stelt. De herinnering bereikt je op de pagina Meldingen en, naar je voorkeur, per e-mail.
 
 Een datumregel gaat één keer per record af, zodra de datum, verschoven met jouw afstand, is bereikt. Ze wordt om de paar minuten gecontroleerd. Een regel die je later aanmaakt of aanzet, vangt toch datums die in de afgelopen 7 dagen zijn bereikt, en een record waarvan je de datum naar een andere dag verandert, gaat opnieuw af voor de nieuwe datum. **Preview** via MCP of REST toont de records die een datumregel hierna zou raken.
 
@@ -35,7 +35,7 @@ Een automatisering verwijderen haalt haar met haar geschiedenis definitief weg; 
 
 ## Hoe werken meldingen en e-mailvoorkeuren? [#how-do-notifications-work]
 
-Het belletje in de bovenbalk toont hoeveel meldingen ongelezen zijn. Open het om de nieuwste te zien, het bijbehorende record te openen of **Alles als gelezen markeren** te kiezen. Meldingen komen uit vijf soorten gebeurtenissen: **Aan jou toegewezen**, **Vandaag aan de beurt**, **Ingevulde formulieren**, **Ontvangen antwoorden** en **Meldingen van automatiseringen**. Het belletje toont altijd alles en bewaart meldingen 90 dagen.
+**Meldingen** in de groep Overzicht van de zijbalk toont hoeveel meldingen ongelezen zijn. Open de pagina om de nieuwste te zien, het bijbehorende record te openen of **Alles als gelezen markeren** te kiezen. Meldingen komen uit vijf soorten gebeurtenissen: **Aan jou toegewezen**, **Vandaag aan de beurt**, **Ingevulde formulieren**, **Ontvangen antwoorden** en **Meldingen van automatiseringen**. De pagina toont altijd alles en bewaart meldingen 90 dagen.
 
 Of een soort je ook per e-mail bereikt, bepaal je zelf, per soort, in de kaart **E-mails over meldingen** op [Profiel & voorkeuren](app:settings/profile): **Direct per e-mail**, **Dagelijkse samenvatting** of **Geen e-mail**. Zolang je niets wijzigt, komen toewijzingen, ingevulde formulieren en meldingen van automatiseringen direct, en deadlines en antwoorden in de dagelijkse samenvatting. De samenvatting is één e-mail per dag met wat nog niet per e-mail is gemeld.
 
@@ -64,6 +64,6 @@ Open de **Geschiedenis** van de automatisering. Een overgeslagen uitvoering noem
 Niet rechtstreeks. Een automatisering verstuurt zelf geen e-mails of berichten. Ze kan leden van je werkruimte melden, wat hen ook per e-mail kan bereiken, en een van je webhooks aanroepen, bijvoorbeeld om een [n8n](/docs/n8n)-workflow te starten die iets verstuurt. De aanroep is de gebeurtenis `automation.rule.fired`, die net als elke andere webhookgebeurtenis wordt afgeleverd met nieuwe pogingen en geschiedenis; de webhook moet haar dus hebben geselecteerd onder [Welke gebeurtenissen bestaan er?](/docs/webhooks#other-events).
 </FaqItem>
 <FaqItem question="Wie krijgt de melding als een automatisering iemand op de hoogte stelt?">
-De actie bepaalt het: **Mij op de hoogte stellen** bereikt de eigenaar van de automatisering, **De toegewezen personen op de hoogte stellen** bereikt de leden aan wie het startende record is toegewezen. De melding verschijnt in hun belletje en volgt hun e-mailvoorkeur voor **Meldingen van automatiseringen**.
+De actie bepaalt het: **Mij op de hoogte stellen** bereikt de eigenaar van de automatisering, **De toegewezen personen op de hoogte stellen** bereikt de leden aan wie het startende record is toegewezen. De melding verschijnt op hun pagina Meldingen en volgt hun e-mailvoorkeur voor **Meldingen van automatiseringen**.
 </FaqItem>
 </Faq>
