@@ -2,6 +2,7 @@ import type { TemplateBundle, TemplateLocale, TemplateSpec } from "@/core/templa
 import type { TemplateSlug } from "@/core/templates/template-registry";
 
 import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
+import { getTemplateIndexEntry } from "@/core/templates/template-index";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 import { TemplateSpecSchema } from "@/core/templates/template-spec.schema";
 import { templateSpecIssues } from "@/core/templates/template-validation";
@@ -32,6 +33,12 @@ export function getTemplateText(slug: TemplateSlug, locale: string): TemplateLoc
   const found = text[locale] ?? text[DEFAULT_LOCALE];
   if (!found) throw new Error(`Template ${slug} has no ${DEFAULT_LOCALE} text`);
   return found;
+}
+
+export function hasTemplateText(slug: TemplateSlug, locale: string): boolean {
+  const entry = getTemplateIndexEntry(slug);
+  if (!entry) throw new Error(`Template ${slug} is not in the template index`);
+  return entry.locales[locale] !== undefined;
 }
 
 export function cloneSpec(slug: TemplateSlug = "client-tracker"): TemplateSpec {

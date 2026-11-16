@@ -1,15 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { isTemplateOffered } from "@/core/templates/template-publication";
-import {
-  TEMPLATE_SLUGS,
-  getTemplate,
-  getTemplateText,
-  hasTemplateText,
-  isTemplateSlug,
-  listOfferedTemplates,
-  loadTemplate,
-} from "@/core/templates/template-registry";
+import { TEMPLATE_SLUGS, isTemplateSlug, listOfferedTemplates, loadTemplate } from "@/core/templates/template-registry";
+
+import { hasTemplateText } from "./template-fixtures";
 
 describe("template registry", () => {
   it("lists the slugs and validates them", () => {
@@ -20,21 +14,16 @@ describe("template registry", () => {
     expect(isTemplateSlug(undefined)).toBe(false);
   });
 
-  it("returns the spec and the text of a locale", async () => {
-    expect((await getTemplate("client-tracker")).slug).toBe("client-tracker");
-    expect((await getTemplateText("client-tracker", "de")).name).toBe("Kundenverwaltung");
-    expect(hasTemplateText("client-tracker", "de")).toBe(true);
-  });
-
   it("loads the spec and the text of a locale together", async () => {
     const { spec, text } = await loadTemplate("client-tracker", "de");
     expect(spec.slug).toBe("client-tracker");
     expect(text.locale).toBe("de");
+    expect(text.name).toBe("Kundenverwaltung");
+    expect(hasTemplateText("client-tracker", "de")).toBe(true);
   });
 
   it("falls back to the English text for a locale without a file", async () => {
     expect(hasTemplateText("client-tracker", "xx")).toBe(false);
-    expect((await getTemplateText("client-tracker", "xx")).locale).toBe("en");
     expect((await loadTemplate("client-tracker", "xx")).text.locale).toBe("en");
   });
 

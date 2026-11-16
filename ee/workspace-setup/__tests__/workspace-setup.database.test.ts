@@ -467,7 +467,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
   });
 
   it("plans from the chosen template without the model and builds its record model", async () => {
-    const { getTemplateText } = await import("@/core/templates/template-registry");
+    const { loadTemplate } = await import("@/core/templates/template-registry");
     const ws = await workspace();
     const started = await ws.run(() =>
       di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
@@ -501,7 +501,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(state.generate).not.toHaveBeenCalled();
     const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
     expect(setup?.plan?.recordModel.lists.map((list) => list.label)).toContain(
-      (await getTemplateText("sales-pipeline", "en")).lists.opportunities.label,
+      (await loadTemplate("sales-pipeline", "en")).text.lists.opportunities.label,
     );
 
     const confirmed = await ws.run(() =>
@@ -511,7 +511,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     await build(ws, setupId);
     const model = await ws.run(() => createTestRecordRepo().getModel());
     expect(model.types.map((type) => type.label)).toContain(
-      (await getTemplateText("sales-pipeline", "en")).lists.opportunities.label,
+      (await loadTemplate("sales-pipeline", "en")).text.lists.opportunities.label,
     );
   });
 

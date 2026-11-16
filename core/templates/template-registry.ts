@@ -31,24 +31,12 @@ function textOf(text: TemplateBundle["text"], slug: TemplateSlug, locale: string
   return found;
 }
 
-export async function getTemplate(slug: TemplateSlug): Promise<TemplateSpec> {
-  return (await bundleOf(slug)).spec;
-}
-
-export async function getTemplateText(slug: TemplateSlug, locale: string): Promise<TemplateLocale> {
-  return textOf((await bundleOf(slug)).text, slug, locale);
-}
-
 export async function loadTemplate(
   slug: TemplateSlug,
   locale: string,
 ): Promise<{ spec: TemplateSpec; text: TemplateLocale }> {
   const { spec, text } = await bundleOf(slug);
   return { spec, text: textOf(text, slug, locale) };
-}
-
-export function hasTemplateText(slug: TemplateSlug, locale: string): boolean {
-  return indexEntryOf(slug).locales[locale] !== undefined;
 }
 
 export type TemplateListing = {

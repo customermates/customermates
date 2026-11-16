@@ -22,10 +22,10 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { MEETING_DURATION_MINUTES } from "@/ee/calendar/meeting-durations";
 import { WORKING_WEEKDAYS } from "@/ee/calendar/working-hours";
 
 const NONE = "none";
-const DURATIONS = [15, 30, 45, 60, 90, 120];
 const BUFFERS = [0, 5, 10, 15, 30, 60];
 const NOTICE_MINUTES = [0, 60, 240, 720, 1440, 2880, 10080];
 const HORIZONS = [7, 14, 30, 60, 90];
@@ -78,7 +78,7 @@ export const BookingLinkModal = observer(() => {
             <div className="grid gap-3 sm:grid-cols-2">
               <FormSelect
                 id="durationMinutes"
-                items={DURATIONS.map((minutes) => ({
+                items={MEETING_DURATION_MINUTES.map((minutes) => ({
                   value: String(minutes),
                   label: t("Booking.minutes", { minutes }),
                 }))}

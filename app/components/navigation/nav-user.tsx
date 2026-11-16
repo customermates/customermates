@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { navUserTriggerLabel } from "./nav-user-label";
 
 export type AccountMenuUser = Pick<TenantUser, "firstName" | "lastName" | "email" | "avatarUrl">;
 
@@ -110,7 +111,13 @@ export const NavUser = observer(
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 ref={triggerRef}
-                aria-label={`${name || email}, ${labels.menu}`}
+                aria-label={navUserTriggerLabel({
+                  name,
+                  email,
+                  menu: labels.menu,
+                  notVerified: labels.notVerified,
+                  emailVerified,
+                })}
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 id="nav-personal-menu"
                 size="lg"

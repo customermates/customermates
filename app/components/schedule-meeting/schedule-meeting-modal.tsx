@@ -21,9 +21,8 @@ import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { MEETING_DURATION_MINUTES } from "@/ee/calendar/meeting-durations";
 import { effectivePlanId, getEntitlements } from "@/ee/subscription/entitlements";
-
-const DURATIONS = [15, 30, 45, 60, 90, 120];
 
 export const ScheduleMeetingModal = observer(() => {
   const t = useTranslations();
@@ -97,7 +96,7 @@ export const ScheduleMeetingModal = observer(() => {
 
                 <FormSelect
                   id="durationMinutes"
-                  items={DURATIONS.map((minutes) => ({
+                  items={MEETING_DURATION_MINUTES.map((minutes) => ({
                     value: String(minutes),
                     label: t("ScheduleMeeting.duration", { minutes }),
                   }))}

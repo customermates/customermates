@@ -10,7 +10,8 @@ import type { SetupPlanInput } from "../workspace-setup-planner";
 import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "../workspace-setup.schema";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { TEMPLATE_SLUGS, hasTemplateText } from "@/core/templates/template-registry";
+import { hasTemplateText } from "@/core/templates/__tests__/template-fixtures";
+import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 import { templateSetupPlan } from "@/core/templates/template-setup-plan";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";

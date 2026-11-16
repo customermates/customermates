@@ -12,7 +12,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { compileTemplate } from "@/core/templates/compile-template";
-import { TEMPLATE_SLUGS, hasTemplateText } from "@/core/templates/template-registry";
+import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 import {
   SETUP_COMPANY_ID,
   SETUP_ID,
@@ -23,7 +23,7 @@ import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-import { getTemplate, getTemplateText } from "./template-fixtures";
+import { getTemplate, getTemplateText, hasTemplateText } from "./template-fixtures";
 
 const owner = createMockUser({ companyId: SETUP_COMPANY_ID });
 
