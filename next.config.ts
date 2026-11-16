@@ -10,6 +10,7 @@ import { createMDX } from "fumadocs-mdx/next";
 import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
+import { PRODUCT_FILM_PUBLIC_PATHS } from "@/components/marketing/product-film-assets";
 import { frameAncestorsPolicy } from "@/core/config/environment";
 import { permanentAliasRedirects, retiredAppRouteRedirects } from "@/core/seo/route-aliases";
 import { recordFileParserPackages } from "@/features/record-file-index/record-file-parser-packages";
@@ -88,7 +89,7 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    // 90 is the film poster's quality (components/marketing/product-film-poster-blur.ts); 75 is the default.
+    // 90 is the film posters' quality (components/marketing/product-film-poster-blur.ts); 75 is the default.
     qualities: [75, 90],
   },
 
@@ -162,13 +163,7 @@ const nextConfig: NextConfig = {
         source: "/maps/v1/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
-      ...[
-        "/customermates-film.mp4",
-        "/customermates-film-poster-inbox.jpg",
-        "/customermates-film-poster-inbox-dark.jpg",
-        "/images/:path*",
-        "/icons/:path*",
-      ].map((source) => ({
+      ...[...PRODUCT_FILM_PUBLIC_PATHS, "/images/:path*", "/icons/:path*"].map((source) => ({
         source,
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       })),

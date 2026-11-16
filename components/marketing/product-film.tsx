@@ -1,22 +1,19 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { HomepageViewportVideo } from "@/app/[locale]/(static)/components/homepage-viewport-video";
 
+import { productFilmFor } from "./product-film-assets";
 import { filmPosterImageProps } from "./product-film-poster-blur";
 
-export const PRODUCT_FILM_SRC = "/customermates-film.mp4";
-export const PRODUCT_FILM_POSTER = "/customermates-film-poster-inbox.jpg";
-export const PRODUCT_FILM_SECONDS = 70;
-export const PRODUCT_FILM_POSTER_DARK = "/customermates-film-poster-inbox-dark.jpg";
-
 export async function ProductFilm() {
-  const t = await getTranslations("ProductFilm");
+  const [t, locale] = await Promise.all([getTranslations("ProductFilm"), getLocale()]);
+  const film = productFilmFor(locale);
   const posters = [
-    { className: "dark:hidden", src: PRODUCT_FILM_POSTER, theme: "light" as const },
-    { className: "not-dark:hidden", src: PRODUCT_FILM_POSTER_DARK, theme: "dark" as const },
+    { className: "dark:hidden", src: film.posters.light, theme: "light" as const },
+    { className: "not-dark:hidden", src: film.posters.dark, theme: "dark" as const },
   ].map((poster) => ({
     ...poster,
-    props: filmPosterImageProps(poster.src, poster.theme),
+    props: filmPosterImageProps(poster.src),
   }));
 
   return (
@@ -42,9 +39,9 @@ export async function ProductFilm() {
             <HomepageViewportVideo
               ariaLabel={t("title")}
               className="absolute inset-0 size-full object-cover"
-              durationLabel={`${PRODUCT_FILM_SECONDS} s`}
+              durationLabel={`${film.seconds} s`}
               playLabel={t("play")}
-              src={PRODUCT_FILM_SRC}
+              src={film.src}
             />
           </div>
         </div>

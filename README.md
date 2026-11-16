@@ -33,9 +33,9 @@ You can use the managed cloud version or run Customermates yourself in your own 
 
 ## Product film
 
-The 70 second product film shows the workspace: client conversations from email, LinkedIn and WhatsApp in one inbox, Mate drafting the reply and the next step, and the same records open to Claude, ChatGPT or any agent that speaks MCP.
+The 73 second product film shows the workspace: client conversations from email, LinkedIn and WhatsApp in one inbox, Mate drafting the reply and the next step, and the same records open to Claude, ChatGPT or any agent that speaks MCP.
 
-[Watch the film](https://customermates.com/customermates-film.mp4) or find it in this repository at [`public/customermates-film.mp4`](public/customermates-film.mp4).
+[Watch the film](https://customermates.com/customermates-film.mp4) or find it in this repository at [`public/customermates-film.mp4`](public/customermates-film.mp4). The German pages of customermates.com show the German version (81 seconds): [`public/customermates-film-de.mp4`](public/customermates-film-de.mp4).
 
 ## 🚀 Getting Started
 
