@@ -64,8 +64,10 @@ export class ReceiveIncomingWebhookInteractor {
   async invoke(request: IncomingWebhookRequest): Promise<IncomingWebhookReceiveResult> {
     const id = incomingWebhookIdFromToken(request.token);
     if (!id) return NOT_FOUND;
-    const blocked = this.admit(id, request.visitor);
-    if (blocked) return blocked;
+    const visitorBlocked = this.rateLimited([
+      [this.limiters.visitor, request.visitor ? `visitor:${request.visitor}` : null],
+    ]);
+    if (visitorBlocked) return visitorBlocked;
 
     const webhook = await this.lookup.findWebhookUnscoped(id);
     if (
@@ -75,6 +77,8 @@ export class ReceiveIncomingWebhookInteractor {
       !incomingWebhookTokenValid(request.token, id, webhook.tokenVersion, this.settings.authSecret)
     )
       return NOT_FOUND;
+    const webhookBlocked = this.rateLimited([[this.limiters.webhook, `webhook:${id}`]]);
+    if (webhookBlocked) return webhookBlocked;
 
     return this.tenant.run(
       webhook.createdById,
@@ -84,11 +88,8 @@ export class ReceiveIncomingWebhookInteractor {
     );
   }
 
-  private admit(id: string, visitor: string | null | undefined): IncomingWebhookReceiveResult | null {
-    const limited = admitAll([
-      [this.limiters.visitor, visitor ? `visitor:${visitor}` : null],
-      [this.limiters.webhook, `webhook:${id}`],
-    ]);
+  private rateLimited(limiters: Parameters<typeof admitAll>[0]): IncomingWebhookReceiveResult | null {
+    const limited = admitAll(limiters);
     return limited
       ? { status: 429, body: { ok: false, error: "rate_limited" }, retryAfterSeconds: limited.retryAfterSeconds }
       : null;

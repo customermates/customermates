@@ -50,6 +50,8 @@ type Setup = {
   planAllows?: boolean;
   creatorActive?: boolean;
   burst?: number;
+  visitorBurst?: number;
+  limiters?: { webhook: TokenBucketRateLimiter; visitor: TokenBucketRateLimiter };
   queryMatch?: { ref: { typeId: string; recordId: string }; version: number } | null;
   queryResult?: unknown;
   identityOwner?: { ref: { typeId: string; recordId: string } } | null;
@@ -116,9 +118,9 @@ function setup(options: Setup = {}) {
   };
   const events = { publish: vi.fn(() => Promise.resolve()) };
   const plans = { deliversWebhooks: vi.fn(() => Promise.resolve(options.planAllows ?? true)) };
-  const limiters = {
+  const limiters = options.limiters ?? {
     webhook: new TokenBucketRateLimiter(options.burst ?? 1_000, 60_000),
-    visitor: new TokenBucketRateLimiter(1_000, 60_000),
+    visitor: new TokenBucketRateLimiter(options.visitorBurst ?? 1_000, 60_000),
   };
   const engine = new IncomingWebhookEngine(records as never, query as never, writer as never);
   const interactor = new ReceiveIncomingWebhookInteractor(
@@ -378,6 +380,37 @@ describe("ReceiveIncomingWebhookInteractor", () => {
       body: { error: "rate_limited" },
       retryAfterSeconds: expect.any(Number),
     });
+  });
+
+  it.each([
+    ["a rotated url", { webhook: { tokenVersion: 2 } }, {}],
+    ["a token signed with another secret", {}, { token: incomingWebhookToken(HOOK_ID, 1, "other") }],
+  ])("does not spend the endpoint's allowance on requests with %s", async (_name, options, overrides) => {
+    const limiters = {
+      webhook: new TokenBucketRateLimiter(2, 60_000),
+      visitor: new TokenBucketRateLimiter(1_000, 60_000),
+    };
+    const refused = setup({ ...(options as Setup), limiters });
+    const sender = setup({ limiters });
+    for (let attempt = 0; attempt < 5; attempt += 1)
+      expect((await refused.interactor.invoke(request(PAYLOAD, {}, overrides))).status).toBe(404);
+
+    const statuses = [];
+    for (let attempt = 0; attempt < 3; attempt += 1)
+      statuses.push((await sender.interactor.invoke(request(PAYLOAD))).status);
+
+    expect(statuses).toEqual([201, 201, 429]);
+  });
+
+  it("still limits the requests of one visitor before the token is checked", async () => {
+    const { interactor } = setup({ visitorBurst: 2 });
+    const unknown = { token: incomingWebhookToken("00000000-0000-4000-8000-0000000000ff", 1, SECRET) };
+
+    const statuses = [];
+    for (let attempt = 0; attempt < 3; attempt += 1)
+      statuses.push((await interactor.invoke(request(PAYLOAD, {}, unknown))).status);
+
+    expect(statuses).toEqual([404, 404, 429]);
   });
 
   it("lists the paths that failed when the body does not fit the mapping", async () => {
