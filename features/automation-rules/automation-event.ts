@@ -3,10 +3,14 @@ import { z } from "zod";
 import type { AutomationTriggerKind } from "@/generated/prisma";
 import type { AutomationTrigger } from "./automation-rule.schema";
 
+import { EXTERNAL_TRIGGER_EVENTS } from "@/features/event/external-trigger-events";
+import type { WEBHOOK_MESSAGING_EVENTS } from "@/features/webhook/webhook-event-registry";
 import { eventOccurrenceKey } from "./automation-occurrence";
 
-export const MESSAGE_RULE_EVENTS = ["messaging.email.received", "messaging.message.received"] as const;
-export const EXTERNAL_RULE_EVENTS = ["form.submitted", "webhook.received"] as const;
+export const MESSAGE_RULE_EVENTS = [
+  "messaging.email.received",
+  "messaging.message.received",
+] as const satisfies readonly (typeof WEBHOOK_MESSAGING_EVENTS)[number][];
 
 const ExternalPayloadSchema = z.looseObject({
   typeId: z.uuid().optional(),
@@ -46,7 +50,7 @@ function describeMessageEvent(event: EventInput): AutomationEventDescriptor | nu
 }
 
 function describeExternalEvent(event: EventInput): AutomationEventDescriptor | null {
-  if (!(EXTERNAL_RULE_EVENTS as readonly string[]).includes(event.kind)) return null;
+  if (!(EXTERNAL_TRIGGER_EVENTS as readonly string[]).includes(event.kind)) return null;
   const payload = ExternalPayloadSchema.safeParse(event.payload);
   if (!payload.success || !payload.data.typeId || !payload.data.recordId) return null;
   if (payload.data.outcome === "duplicate") return null;
