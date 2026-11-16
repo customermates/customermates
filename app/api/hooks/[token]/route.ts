@@ -10,12 +10,12 @@ export const dynamic = "force-dynamic";
 
 type Context = { params: Promise<{ token: string }> };
 
-async function readBody(request: NextRequest): Promise<string | null> {
+async function readBody(request: NextRequest): Promise<Uint8Array | null> {
   const limit = INCOMING_WEBHOOK_LIMITS.maxBodyBytes;
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (Number.isFinite(declared) && declared > limit) return null;
   const reader = request.body?.getReader();
-  if (!reader) return "";
+  if (!reader) return new Uint8Array(0);
   const merged = new Uint8Array(limit);
   let size = 0;
   for (;;) {
@@ -28,7 +28,7 @@ async function readBody(request: NextRequest): Promise<string | null> {
     merged.set(value, size);
     size += value.byteLength;
   }
-  return new TextDecoder().decode(merged.subarray(0, size));
+  return merged.slice(0, size);
 }
 
 export async function POST(request: NextRequest, { params }: Context) {

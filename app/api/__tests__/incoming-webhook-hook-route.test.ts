@@ -12,7 +12,7 @@ import { POST } from "../hooks/[token]/route";
 
 const TOKEN = "a".repeat(64);
 
-function post(body: string | null, headers: Record<string, string> = {}) {
+function post(body: string | Uint8Array | null, headers: Record<string, string> = {}) {
   return new NextRequest(`http://localhost:4105/api/hooks/${TOKEN}`, {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
@@ -22,7 +22,8 @@ function post(body: string | null, headers: Record<string, string> = {}) {
 
 const context = { params: Promise.resolve({ token: TOKEN }) };
 
-const bodyOf = () => receive.mock.calls[0][0].readBody() as Promise<string | null>;
+const bodyOf = () => receive.mock.calls[0][0].readBody() as Promise<Uint8Array | null>;
+const textOf = (bytes: Uint8Array | null) => new TextDecoder().decode(bytes ?? new Uint8Array(0));
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -37,9 +38,19 @@ describe("POST /api/hooks/[token]", () => {
     expect(await response.json()).toEqual({ ok: true, outcome: "created", recordId: "r1" });
     const input = receive.mock.calls[0][0];
     expect(input.token).toBe(TOKEN);
-    expect(await input.readBody()).toBe('{"a":1}');
+    expect(textOf(await input.readBody())).toBe('{"a":1}');
     expect(input.header("x-signature")).toBe("abc");
     expect(input.header("x-missing")).toBeNull();
+  });
+
+  it("hands over the bytes of the body exactly as sent, so a signature can be checked over them", async () => {
+    const raw = new Uint8Array([0xef, 0xbb, 0xbf, 0x7b, 0x22, 0x61, 0x22, 0x3a, 0xff, 0x7d]);
+
+    await POST(post(raw), context);
+
+    const received = await bodyOf();
+    expect(received).toBeInstanceOf(Uint8Array);
+    expect(Array.from(received ?? [])).toEqual(Array.from(raw));
   });
 
   it("does not buffer the body until the interactor asks for it", async () => {
@@ -56,7 +67,7 @@ describe("POST /api/hooks/[token]", () => {
   it("passes an empty body through so the interactor can refuse it", async () => {
     await POST(post(null), context);
 
-    expect(await bodyOf()).toBe("");
+    expect(textOf(await bodyOf())).toBe("");
   });
 
   it("reads no body when the declared length is over the limit", async () => {

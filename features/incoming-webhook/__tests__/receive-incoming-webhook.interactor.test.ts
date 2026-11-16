@@ -135,10 +135,13 @@ function setup(options: Setup = {}) {
 }
 
 function request(body: unknown, headers: Record<string, string> = {}, overrides: Record<string, unknown> = {}) {
-  const text = typeof body === "string" ? body : JSON.stringify(body);
+  const bytes =
+    body instanceof Uint8Array
+      ? body
+      : new TextEncoder().encode(typeof body === "string" ? body : JSON.stringify(body));
   return {
     token,
-    readBody: () => Promise.resolve<string | null>(text),
+    readBody: () => Promise.resolve<Uint8Array | null>(bytes),
     header: (name: string) => headers[name.toLowerCase()] ?? null,
     visitor: "visitor-1",
     ...overrides,
@@ -228,6 +231,36 @@ describe("ReceiveIncomingWebhookInteractor", () => {
 
       expect(result.status).toBe(201);
     });
+
+    const json = JSON.stringify({ data: { name: "Ada" } });
+    it.each([
+      ["a byte order mark", Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(json)])],
+      [
+        "a byte that is not valid UTF-8",
+        Buffer.concat([Buffer.from('{"data":{"name":"Ada '), Buffer.from([0xff]), Buffer.from('"}}')]),
+      ],
+    ])("verifies the signature over the raw bytes of a body with %s", async (_name, raw) => {
+      const signature = (value: string | Uint8Array) => ({
+        "x-hub-signature-256": `sha256=${incomingWebhookSignature("shared-secret", value)}`,
+      });
+      const accepted = setup(signed);
+      const refused = setup(signed);
+
+      expect((await accepted.interactor.invoke(request(raw, signature(raw)))).status).toBe(201);
+      expect((await refused.interactor.invoke(request(raw, signature(new TextDecoder().decode(raw))))).status).toBe(
+        401,
+      );
+      expect(refused.writer.invoke).not.toHaveBeenCalled();
+    });
+  });
+
+  it("logs the byte size of the raw body, not of its decoded text", async () => {
+    const { interactor, repo } = setup();
+    const raw = Buffer.from([...Buffer.from('{"data":{"name":"Ada '), 0xff, ...Buffer.from('"}}')]);
+
+    await interactor.invoke(request(raw));
+
+    expect(repo.recordDelivery).toHaveBeenCalledWith(expect.objectContaining({ payloadBytes: raw.byteLength }));
   });
 
   it.each([
@@ -277,7 +310,7 @@ describe("ReceiveIncomingWebhookInteractor", () => {
     ["a token signed with another secret", { token: incomingWebhookToken(HOOK_ID, 1, "other") }],
   ])("does not read the body for %s", async (_name, overrides) => {
     const { interactor } = setup();
-    const readBody = vi.fn(() => Promise.resolve<string | null>("{}"));
+    const readBody = vi.fn(() => Promise.resolve<Uint8Array | null>(new TextEncoder().encode("{}")));
 
     await interactor.invoke({ ...request(PAYLOAD, {}, overrides), readBody });
 
@@ -287,7 +320,7 @@ describe("ReceiveIncomingWebhookInteractor", () => {
   it("does not read the body once the endpoint is rate limited", async () => {
     const { interactor } = setup({ burst: 1 });
     await interactor.invoke(request(PAYLOAD));
-    const readBody = vi.fn(() => Promise.resolve<string | null>("{}"));
+    const readBody = vi.fn(() => Promise.resolve<Uint8Array | null>(new TextEncoder().encode("{}")));
 
     const result = await interactor.invoke({ ...request(PAYLOAD), readBody });
 

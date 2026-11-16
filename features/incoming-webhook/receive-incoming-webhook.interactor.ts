@@ -22,7 +22,7 @@ import { INCOMING_WEBHOOK_LIMITS } from "./incoming-webhook.schema";
 
 export type IncomingWebhookRequest = {
   token: string;
-  readBody: () => Promise<string | null>;
+  readBody: () => Promise<Uint8Array | null>;
   header: (name: string) => string | null;
   visitor?: string | null;
 };
@@ -99,11 +99,10 @@ export class ReceiveIncomingWebhookInteractor {
     outcome: IncomingWebhookOutcome,
     statusCode: number,
     message: string | null,
-    body: string,
+    bytes: number,
     payload: unknown,
     recordId: string | null = null,
   ): Promise<string> {
-    const bytes = Buffer.byteLength(body, "utf8");
     const { id } = await this.repo.recordDelivery({
       webhookId: webhook.id,
       outcome,
@@ -121,10 +120,10 @@ export class ReceiveIncomingWebhookInteractor {
     outcome: IncomingWebhookOutcome,
     status: number,
     error: string,
-    body: string,
+    bytes: number,
     payload: unknown = null,
   ): Promise<IncomingWebhookReceiveResult> {
-    await this.log(webhook, outcome, status, error, body, payload);
+    await this.log(webhook, outcome, status, error, bytes, payload);
     return { status, body: { ok: false, error } };
   }
 
@@ -132,37 +131,38 @@ export class ReceiveIncomingWebhookInteractor {
     webhook: IncomingWebhookLookup,
     request: IncomingWebhookRequest,
   ): Promise<IncomingWebhookReceiveResult> {
-    const body = await request.readBody();
-    if (body === null) return PAYLOAD_TOO_LARGE;
+    const raw = await request.readBody();
+    if (raw === null) return PAYLOAD_TOO_LARGE;
+    const bytes = raw.byteLength;
     if (!(await this.plans.deliversWebhooks(webhook.companyId)))
-      return this.rejected(webhook, "rejected_plan", 403, "plan", body);
-    if (Buffer.byteLength(body, "utf8") > INCOMING_WEBHOOK_LIMITS.maxBodyBytes)
-      return this.rejected(webhook, "rejected_limit", 413, "payload_too_large", body);
+      return this.rejected(webhook, "rejected_plan", 403, "plan", bytes);
+    if (bytes > INCOMING_WEBHOOK_LIMITS.maxBodyBytes)
+      return this.rejected(webhook, "rejected_limit", 413, "payload_too_large", bytes);
     if (webhook.signingSecret) {
       const header = request.header(webhook.signatureHeader);
-      if (!incomingWebhookSignatureValid(webhook.signingSecret, body, header))
-        return this.rejected(webhook, "rejected_signature", 401, "signature", body);
+      if (!incomingWebhookSignatureValid(webhook.signingSecret, raw, header))
+        return this.rejected(webhook, "rejected_signature", 401, "signature", bytes);
     }
-    const parsed = parseBody(body);
+    const parsed = parseBody(new TextDecoder().decode(raw));
     const mapping = parseIncomingMapping(webhook.mapping);
-    if (!parsed.ok || !mapping) return this.rejected(webhook, "rejected_payload", 400, "payload_invalid", body);
+    if (!parsed.ok || !mapping) return this.rejected(webhook, "rejected_payload", 400, "payload_invalid", bytes);
 
     const plan = await this.engine.plan({ typeId: webhook.typeId, mapping }, parsed.value);
-    if (!plan.ok && plan.reason === "unavailable") return this.rejected(webhook, "failed", 404, "list", body);
+    if (!plan.ok && plan.reason === "unavailable") return this.rejected(webhook, "failed", 404, "list", bytes);
     if (!plan.ok && plan.reason === "lookup") {
-      await this.log(webhook, "failed", 422, plan.message, body, parsed.value);
+      await this.log(webhook, "failed", 422, plan.message, bytes, parsed.value);
       return { status: 422, body: { ok: false, error: "lookup_failed" } };
     }
     if (!plan.ok) {
       const bad = plan.values.filter((value) => value.error).map((value) => `${value.path}:${value.error}`);
-      await this.log(webhook, "rejected_payload", 422, bad.join(", ").slice(0, 500), body, parsed.value);
+      await this.log(webhook, "rejected_payload", 422, bad.join(", ").slice(0, 500), bytes, parsed.value);
       return { status: 422, body: { ok: false, error: "payload_invalid" } };
     }
 
     const sent = request.header("idempotency-key")?.trim();
     const key = sent && sent.length >= 8 ? `webhook:${webhook.id}:${sent.slice(0, 100)}` : `webhook:${randomUUID()}`;
     const applied = await this.engine.apply(plan, key);
-    if (!applied.ok) return this.failed(webhook, applied, body, parsed.value);
+    if (!applied.ok) return this.failed(webhook, applied, bytes, parsed.value);
 
     const outcome = applied.operation === "update" ? "updated" : "created";
     const deliveryId = await this.log(
@@ -170,7 +170,7 @@ export class ReceiveIncomingWebhookInteractor {
       outcome,
       outcome === "created" ? 201 : 200,
       null,
-      body,
+      bytes,
       parsed.value,
       applied.recordId,
     );
@@ -204,12 +204,12 @@ export class ReceiveIncomingWebhookInteractor {
   private async failed(
     webhook: IncomingWebhookLookup,
     applied: { reason: "conflict" | "invalid" | "failed"; message: string },
-    body: string,
+    bytes: number,
     payload: unknown,
   ): Promise<IncomingWebhookReceiveResult> {
     const status = applied.reason === "conflict" ? 409 : applied.reason === "invalid" ? 422 : 500;
     const outcome = applied.reason === "failed" ? "failed" : "rejected_payload";
-    await this.log(webhook, outcome, status, applied.message, body, payload);
+    await this.log(webhook, outcome, status, applied.message, bytes, payload);
     return { status, body: { ok: false, error: applied.reason === "invalid" ? "payload_invalid" : applied.reason } };
   }
 }

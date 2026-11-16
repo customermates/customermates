@@ -4,13 +4,14 @@ function digestsEqual(left: Buffer, right: Buffer): boolean {
   return left.length === right.length && timingSafeEqual(new Uint8Array(left), new Uint8Array(right));
 }
 
-export function incomingWebhookSignature(secret: string, body: string): string {
-  return createHmac("sha256", secret).update(body, "utf8").digest("hex");
+export function incomingWebhookSignature(secret: string, body: string | Uint8Array): string {
+  const hmac = createHmac("sha256", secret);
+  return (typeof body === "string" ? hmac.update(body, "utf8") : hmac.update(body)).digest("hex");
 }
 
 export function incomingWebhookSignatureValid(
   secret: string,
-  body: string,
+  body: string | Uint8Array,
   header: string | null | undefined,
 ): boolean {
   if (!header) return false;

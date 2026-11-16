@@ -74,6 +74,16 @@ describe("incoming webhook signature", () => {
     expect(incomingWebhookSignatureValid("other", body, signature)).toBe(false);
     expect(incomingWebhookSignatureValid("shared", `${body} `, signature)).toBe(false);
   });
+
+  it("signs the same bytes whether they arrive as text or as bytes, and not their lossy decoding", () => {
+    const raw = new Uint8Array([0x7b, 0xff, 0x7d]);
+
+    expect(incomingWebhookSignature("shared", new TextEncoder().encode(body))).toBe(signature);
+    expect(incomingWebhookSignatureValid("shared", raw, incomingWebhookSignature("shared", raw))).toBe(true);
+    expect(
+      incomingWebhookSignatureValid("shared", raw, incomingWebhookSignature("shared", new TextDecoder().decode(raw))),
+    ).toBe(false);
+  });
 });
 
 describe("readJsonPath", () => {
