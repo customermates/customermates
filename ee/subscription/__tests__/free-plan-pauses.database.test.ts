@@ -231,6 +231,8 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
       resumed: 0,
       routinesPaused: 1,
       routinesResumed: 0,
+      rulesPaused: 0,
+      rulesResumed: 0,
     });
 
     const after = new Map((await users(w.companyId)).map((user) => [user.id, user]));
@@ -374,6 +376,8 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
       resumed: 2,
       routinesPaused: 0,
       routinesResumed: 1,
+      rulesPaused: 0,
+      rulesResumed: 0,
     });
 
     const after = new Map((await users(w.companyId)).map((user) => [user.id, user]));

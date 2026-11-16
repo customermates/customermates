@@ -222,6 +222,7 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     });
   }
 
+  @BypassTenantGuard
   async cancelForCalendarEventUnscoped(args: {
     companyId: string;
     calendarEventId: string;
