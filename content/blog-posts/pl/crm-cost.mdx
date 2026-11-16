@@ -63,7 +63,7 @@ Dwa wzorce wyjaśniają większość rozrzutu. Najwyższe edycje kosztują wielo
 | Jednorazowe wdrożenie | HubSpot Professional i Enterprise | Pierwszy rok kosztuje więcej, niż sugeruje cena stanowiska |
 | Kredyty za użycie | HubSpot Credits, Salesforce Flex Credits w Max, Dynamics 365 Copilot Credits w Premium | Użycie AI i automatyzacji może przekroczyć to, co zawiera plan |
 | Stała cena, jeden plan | Less Annoying CRM | Każdy użytkownik płaci tyle samo; nie ma wyższego poziomu, do którego można przejść |
-| Self-hosting open source | CRM-y open source | Brak opłaty licencyjnej, ale serwer, kopie zapasowe i aktualizacje to Twoja sprawa |
+| Self-hosting open source albo source-available | CRM-y open source i source-available | Brak opłaty licencyjnej, ale serwer, kopie zapasowe i aktualizacje to Twoja sprawa |
 
 ## Abonament czy licencja jednorazowa? [#abonament-czy-licencja]
 
@@ -77,7 +77,7 @@ Większość cenników z tej strony to abonament: płacisz co miesiąc lub co ro
 | Elastyczność | Dodajesz i odejmujesz użytkowników, ale umowa roczna ogranicza | Licencja zwykle obejmuje ustaloną liczbę stanowisk |
 | Wyjście | Eksport danych z systemu | Dane są u Ciebie, ale system trzeba utrzymać |
 
-Zanim porównasz oba modele, policz pełny koszt na trzy lata, także dla licencji: serwer, kopie zapasowe, aktualizacje, wsparcie i godziny administracji. Tańszą alternatywą dla dużego wydatku na starcie bywa samodzielnie hostowany CRM open source, który nie ma opłaty licencyjnej, o czym piszemy niżej.
+Zanim porównasz oba modele, policz pełny koszt na trzy lata, także dla licencji: serwer, kopie zapasowe, aktualizacje, wsparcie i godziny administracji. Tańszą alternatywą dla dużego wydatku na starcie bywa samodzielnie hostowany CRM open source albo source-available, który nie ma opłaty licencyjnej, o czym piszemy niżej.
 
 ## Koszty wdrożenia CRM i inne pozycje ponad licencją
 
@@ -123,7 +123,7 @@ Najtańszy wiersz nie musi być właściwy. Salesforce Starter Suite i HubSpot P
 
 ## Budowa własnego CRM
 
-Własna realizacja nie ma opłaty licencyjnej i wymaga dużego nakładu na starcie. Weźmy przykład poglądowy: jeśli programista za 90 USD za godzinę potrzebuje 400 godzin na kontakty, szanse sprzedaży, uprawnienia, synchronizację e-maili i eksport, to jest 36 000 USD przed hostingiem. Potem system wymaga aktualizacji, poprawek bezpieczeństwa i kogoś, kto za dwa lata nadal rozumie kod. Dla większości małych zespołów tańszym sposobem na kontrolę nad kodem i danymi jest samodzielnie hostowany CRM open source. [Poradnik o CRM open source](/blog/open-source-crm) porównuje te opcje.
+Własna realizacja nie ma opłaty licencyjnej i wymaga dużego nakładu na starcie. Weźmy przykład poglądowy: jeśli programista za 90 USD za godzinę potrzebuje 400 godzin na kontakty, szanse sprzedaży, uprawnienia, synchronizację e-maili i eksport, to jest 36 000 USD przed hostingiem. Potem system wymaga aktualizacji, poprawek bezpieczeństwa i kogoś, kto za dwa lata nadal rozumie kod. Dla większości małych zespołów tańszym sposobem na kontrolę nad kodem i danymi jest samodzielnie hostowany CRM open source albo source-available. [Poradnik o CRM open source](/blog/open-source-crm) porównuje te opcje.
 
 ## Jak obliczyć ROI z CRM
 
@@ -164,7 +164,7 @@ Mierz, zanim kupisz. Zanotuj liczbę otwartych szans sprzedaży, ile z nich cich
 
 ## Gdzie pasuje Customermates
 
-*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to CRM open source, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami, takich jak firmy doradcze, agencje i założyciele. Cena jest za aktywnego użytkownika i rozliczana wyłącznie miesięcznie: [[commercial.price.starter.monthly]] w planie Starter, [[commercial.price.pro.monthly]] w planie Pro i [[commercial.price.business.monthly]] w planie Business. Nie ma planu rocznego ani opłaty wdrożeniowej, a darmowy plan hostowany ma limit użytkowników: [[commercial.limit.free.maxMembers]]. Twoja pierwsza przestrzeń robocza startuje z planem Pro za darmo na [[commercial.trial.days]] dni, bez karty kredytowej, a szczegóły są na [stronie z cennikiem](/pricing).
+*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to CRM source-available, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami, takich jak firmy doradcze, agencje i założyciele. Cena jest za aktywnego użytkownika i rozliczana wyłącznie miesięcznie: [[commercial.price.starter.monthly]] w planie Starter, [[commercial.price.pro.monthly]] w planie Pro i [[commercial.price.business.monthly]] w planie Business. Nie ma planu rocznego ani opłaty wdrożeniowej, a darmowy plan hostowany ma limit użytkowników: [[commercial.limit.free.maxMembers]]. Twoja pierwsza przestrzeń robocza startuje z planem Pro za darmo na [[commercial.trial.days]] dni, bez karty kredytowej, a szczegóły są na [stronie z cennikiem](/pricing).
 
 - **Starter** obejmuje kontakty, organizacje, szanse sprzedaży, usługi i zadania z polami niestandardowymi, rolami i uprawnieniami, REST, webhookami i [MCP](/docs/mcp). Nie ma skrzynki odbiorczej.
 - **Pro** dodaje [ujednoliconą skrzynkę odbiorczą](/features/unified-inbox) dla e-maila, LinkedIn, WhatsApp, Instagrama i Telegrama, z [[commercial.entitlement.pro.includedAccountsPerUser]] połączonym kontem na użytkownika.
@@ -178,7 +178,7 @@ Trzy sposoby na niski rachunek:
 
 - **Starter z własnym klientem AI.** Claude, ChatGPT lub inny klient MCP czyta i aktualizuje rekordy, a wywołania modelu idą na Twoje własne konto u dostawcy AI.
 - **Liczą się tylko aktywni członkowie.** Gdy administrator ustawi członka jako Nieaktywny, liczba w subskrypcji podąża za liczbą aktywnych członków.
-- **Hostuj samodzielnie rdzeń open source.** Działa z Docker Compose i PostgreSQL, bez opłaty licencyjnej. Przy self-hostingu nie ma skrzynki, Mate ani hostowanych kredytów; REST, webhooki i MCP zostają. [Poradnik o self-hostingu](/docs/self-hosting) opisuje konfigurację.
+- **Hostuj samodzielnie Community Edition.** Działa z Docker Compose i PostgreSQL, bez opłaty licencyjnej (do użytku wewnętrznego). Przy self-hostingu nie ma skrzynki, Mate ani hostowanych kredytów; REST, webhooki i MCP zostają. [Poradnik o self-hostingu](/docs/self-hosting) opisuje konfigurację.
 
 <AcquisitionCallout title="Kiedy Customermates to zły wybór" variant="boundary">
   Jeśli potrzebujesz hostowanego CRM za 0 USD, zacznij od darmowych narzędzi HubSpot lub darmowej edycji Zoho CRM. Customermates nie ma telefonii, sekwencji e-mail, formularzy internetowych ani natywnej aplikacji mobilnej i nie tworzy ofert ani faktur. Zespół, który opiera się na dzwonieniu lub zautomatyzowanej wysyłce, powinien rozejrzeć się za CRM, który ma to wbudowane.
@@ -196,7 +196,7 @@ Dla jednego użytkownika od 0 do około 550 USD według ceny katalogowej. Pozio
 </FaqItem>
 
 <FaqItem question="Czy istnieje w 100% darmowy CRM?">
-Tak, w granicach limitów użytkowników. Darmowe narzędzia HubSpot obejmują do 2 użytkowników, darmowa edycja Zoho CRM do 3 użytkowników, a Salesforce wymienia Free Suite. CRM-y open source w self-hostingu nie mają opłaty licencyjnej, ale serwer i utrzymanie kosztują pieniądze lub czas. [Poradnik o darmowym CRM](/blog/free-crm) porównuje darmowe opcje.
+Tak, w granicach limitów użytkowników. Darmowe narzędzia HubSpot obejmują do 2 użytkowników, darmowa edycja Zoho CRM do 3 użytkowników, a Salesforce wymienia Free Suite. CRM-y open source i source-available w self-hostingu nie mają opłaty licencyjnej, ale serwer i utrzymanie kosztują pieniądze lub czas. [Poradnik o darmowym CRM](/blog/free-crm) porównuje darmowe opcje.
 </FaqItem>
 
 <FaqItem question="Ile kosztuje Salesforce CRM?">
@@ -224,11 +224,11 @@ ROI = (zysk minus koszt) / koszt × 100. Jako zysk użyj marży brutto z dodatko
 </FaqItem>
 
 <FaqItem question="Jak zrobić własny CRM?">
-Są trzy drogi: napisać go od zera z programistą, wdrożyć samodzielnie hostowany CRM open source albo skonfigurować elastyczny CRM z własnymi listami i polami. Pierwsza opcja kosztuje najwięcej na starcie i w utrzymaniu, pozostałe zwykle znacznie mniej. Porównanie opcji znajdziesz w sekcji o budowie własnego CRM wyżej.
+Są trzy drogi: napisać go od zera z programistą, wdrożyć samodzielnie hostowany CRM open source lub source-available albo skonfigurować elastyczny CRM z własnymi listami i polami. Pierwsza opcja kosztuje najwięcej na starcie i w utrzymaniu, pozostałe zwykle znacznie mniej. Porównanie opcji znajdziesz w sekcji o budowie własnego CRM wyżej.
 </FaqItem>
 
 <FaqItem question="Ile kosztuje zbudowanie własnego CRM?">
-To zależy od zakresu i stawki programisty. Dla ilustracji 400 godzin po 90 USD to 36 000 USD przed hostingiem, a utrzymanie trwa co roku potem. Samodzielnie hostowany CRM open source daje kontrolę nad kodem i danymi za znacznie mniej, a [konfigurowalny CRM](/blog/customizable-crm) pokrywa wiele potrzeb, które skłaniają zespoły do rozważenia własnej budowy.
+To zależy od zakresu i stawki programisty. Dla ilustracji 400 godzin po 90 USD to 36 000 USD przed hostingiem, a utrzymanie trwa co roku potem. Samodzielnie hostowany CRM open source lub source-available daje kontrolę nad kodem i danymi za znacznie mniej, a [konfigurowalny CRM](/blog/customizable-crm) pokrywa wiele potrzeb, które skłaniają zespoły do rozważenia własnej budowy.
 </FaqItem>
 </Faq>
 

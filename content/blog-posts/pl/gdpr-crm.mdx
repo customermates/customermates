@@ -35,7 +35,7 @@ Ten poradnik wylicza obowiązki istotne dla CRM wraz z numerami artykułów, pok
   <SummaryItem label="Zasada">Jesteś administratorem danych osobowych w swoim CRM, a dostawca CRM jest Twoim podmiotem przetwarzającym. RODO czyni odpowiedzialnym Ciebie za podstawę prawną, umowę i wnioski, a nie oprogramowanie.</SummaryItem>
   <SummaryItem label="Przed podpisaniem">Umowa powierzenia przetwarzania danych z treścią z art. 28 ust. 3, lista podmiotów podprzetwarzających dostawcy, gdzie dane są przetwarzane i jaki mechanizm transferu obejmuje każdego dostawcę spoza UE.</SummaryItem>
   <SummaryItem label="W codziennym użyciu">Wąski dostęp, mało pól, sposób na znalezienie, poprawienie, wyeksportowanie i usunięcie danych jednej osoby oraz przegląd retencji, który naprawdę przeprowadzasz.</SummaryItem>
-  <SummaryItem label="Customermates">Umowa powierzenia dla zarządzanej chmury, publiczna lista podmiotów podprzetwarzających obejmująca dostawców z USA, główna baza danych skonfigurowana w AWS Frankfurt (wybrane ustawienie, nie gwarancja), brak certyfikatu zgodności i rdzeń open source, który możesz hostować samodzielnie.</SummaryItem>
+  <SummaryItem label="Customermates">Umowa powierzenia dla zarządzanej chmury, publiczna lista podmiotów podprzetwarzających obejmująca dostawców z USA, główna baza danych skonfigurowana w AWS Frankfurt (wybrane ustawienie, nie gwarancja), brak certyfikatu zgodności i Community Edition (source-available), którą możesz hostować samodzielnie.</SummaryItem>
   <SummaryItem label="Transparentność">Ten poradnik publikuje Customermates. Prawo stron trzecich cytujemy według EUR-Lex i Komisji Europejskiej.</SummaryItem>
 </ArticleSummary>
 
@@ -164,7 +164,7 @@ Zapewnia, według dokumentacji produktu i stron prawnych:
 - role dla każdej listy, przełącznik dezaktywacji członków i rozdzielenie najemców według konta firmowego;
 - wyszukiwanie globalne po adresie e-mail lub numerze telefonu, poprawianie w miejscu, eksport do Excela i JSON dla każdej listy oraz Kosz z trwałym usuwaniem;
 - Dziennik aktywności zmian w rekordach CRM i konfiguracji przestrzeni roboczej, dostępny dla ról z dostępem; oraz
-- rdzeń open source na licencji AGPL, który możesz [hostować samodzielnie](/features/self-hosted).
+- Community Edition na licencji Sustainable Use License (source-available), którą możesz [hostować samodzielnie](/features/self-hosted).
 
 Nie zapewnia, więc szukaj tego gdzie indziej, jeśli potrzebujesz:
 
@@ -172,7 +172,7 @@ Nie zapewnia, więc szukaj tego gdzie indziej, jeśli potrzebujesz:
 - nie ma uprawnień na poziomie pól ani eksportu całego konta jednym krokiem;
 - jego Dziennik aktywności nie obejmuje logowań, kluczy API ani treści skrzynki odbiorczej i nie ma przycisku eksportu.
 
-Self-hosting zmienia to, kto jest odpowiedzialny. Rdzeń AGPL działa z Dockerem i PostgreSQL na Twojej infrastrukturze, a umowa powierzenia obejmuje tylko usługę zarządzaną: wybierasz hosting i dostawców, a własne umowy z art. 28 i zabezpieczenia transferów trzymasz sam. TLS i szyfrowanie w spoczynku musisz skonfigurować sam. Self-hosting używa zestawu funkcji Starter, bez skrzynki odbiorczej i bez Mate, i nie jest odizolowany od sieci: pierwszy wpis adresu dla danego kraju pobiera publiczny plik kodów pocztowych tego kraju z GeoNames, chyba że ustawisz `POSTAL_CODE_DATA_URL` na `off` albo na mirror. [Poradnik self-hostingu](/docs/self-hosting) zawiera szczegóły, a [strona o CRM open source](/features/open-source-crm) wyjaśnia granicę licencji.
+Self-hosting zmienia to, kto jest odpowiedzialny. Community Edition działa z Dockerem i PostgreSQL na Twojej infrastrukturze, a umowa powierzenia obejmuje tylko usługę zarządzaną: wybierasz hosting i dostawców, a własne umowy z art. 28 i zabezpieczenia transferów trzymasz sam. TLS i szyfrowanie w spoczynku musisz skonfigurować sam. Self-hosting używa zestawu funkcji Starter, bez skrzynki odbiorczej i bez Mate, i nie jest odizolowany od sieci: pierwszy wpis adresu dla danego kraju pobiera publiczny plik kodów pocztowych tego kraju z GeoNames, chyba że ustawisz `POSTAL_CODE_DATA_URL` na `off` albo na mirror. [Poradnik self-hostingu](/docs/self-hosting) zawiera szczegóły, a [strona o licencji i open source CRM](/features/open-source-crm) wyjaśnia granicę licencji.
 
 <AcquisitionCallout title="Gdzie Customermates nie pasuje" variant="boundary">
   Jeśli kwestionariusz zakupowy wymaga uznanego certyfikatu, umownej gwarancji przetwarzania wyłącznie w UE albo uprawnień na poziomie pól, Customermates nie może dziś zaznaczyć tych pól. Poproś o to na piśmie każdego porównywanego dostawcę i czytaj odpowiedzi na tle list podmiotów podprzetwarzających. [Porównanie najlepszego oprogramowania CRM](/blog/best-crm-software) i [poradnik wyboru CRM](/blog/how-to-choose-crm) omawiają pozostałe kryteria.
@@ -211,7 +211,7 @@ RODO nie ustala stałego okresu. Art. 5 ust. 1 lit. e wymaga, by dane były prze
 Zasadniczo tak. Art. 13 i 14 wymagają klauzuli informacyjnej. Gdy nie zebrano danych od osoby, na przykład z zaimportowanej listy, musisz ją poinformować w rozsądnym terminie, najpóźniej w ciągu miesiąca.
 </FaqItem>
 <FaqItem question="Czy mogę trzymać wszystkie dane CRM na własnym serwerze?">
-Z rdzeniem open source tak: uruchamiasz go z Dockerem i PostgreSQL na infrastrukturze, którą wybierzesz. Używa zestawu funkcji Starter, bez skrzynki odbiorczej i bez Mate, a za własne umowy hostingowe i bezpieczeństwo odpowiadasz Ty.
+Z Community Edition tak: uruchamiasz ją z Dockerem i PostgreSQL na infrastrukturze, którą wybierzesz. Używa zestawu funkcji Starter, bez skrzynki odbiorczej i bez Mate, a za własne umowy hostingowe i bezpieczeństwo odpowiadasz Ty.
 </FaqItem>
 <FaqItem question="Co się dzieje z moimi danymi po rezygnacji?">
 Zgodnie z umową powierzenia Customermates masz 30 dni po zakończeniu usługi na wybór usunięcia lub zwrotu. Potem dane są usuwane z własnych systemów Customermates, z kopii zapasowych najpóźniej w ciągu 90 dni, a podmioty podprzetwarzające usuwają je zgodnie z własnymi umowami.

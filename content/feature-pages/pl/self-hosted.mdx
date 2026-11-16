@@ -1,6 +1,6 @@
 ---
-title: "CRM self hosted: Docker, PostgreSQL 16 i licencja AGPL"
-description: "CRM self hosted: uruchom Customermates z PostgreSQL 16 na własnym serwerze przez Docker Compose. Sprawdź licencję AGPL, zakres funkcji, REST, webhooki i MCP."
+title: "CRM self hosted: Docker, PostgreSQL 16, source-available"
+description: "CRM self hosted: uruchom Customermates z PostgreSQL 16 przez Docker Compose. Sprawdź licencję source-available, zakres funkcji, REST, webhooki i MCP."
 featureName: CRM self hosted
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: hub
   primaryIntent: Wdrożenie CRM self hosted
   metadata:
-    title: "CRM self hosted: Docker, PostgreSQL 16 i licencja AGPL"
-    description: "CRM self hosted: uruchom Customermates z PostgreSQL 16 na własnym serwerze przez Docker Compose. Sprawdź licencję AGPL, zakres funkcji, REST, webhooki i MCP."
+    title: "CRM self hosted: Docker, PostgreSQL 16, source-available"
+    description: "CRM self hosted: uruchom Customermates z PostgreSQL 16 przez Docker Compose. Sprawdź licencję source-available, zakres funkcji, REST, webhooki i MCP."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -120,7 +120,7 @@ hero:
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Przeczytaj instrukcję instalacji"
   buttonRightHref: /docs/self-hosting
-  hint: "Rdzeń AGPL • Docker Compose • PostgreSQL 16"
+  hint: "Source-available • Docker Compose • PostgreSQL 16"
 
 cta:
   action: "Potrzebujesz też follow-upu na LinkedIn i w e-mailu? Najpierw wypróbuj chmurę"
@@ -132,9 +132,9 @@ cta:
   hint: "Za infrastrukturę, aktualizacje, kopie zapasowe i podłączonych dostawców odpowiada operator."
 ---
 
-Customermates to **CRM self hosted**, który uruchomisz jako dwie usługi Docker Compose: aplikację i PostgreSQL 16. Pasuje do zespołów, które chcą same prowadzić infrastrukturę swojego CRM i korzystać z rdzenia open source. To nie jest wersja self-hosted wszystkich funkcji Customermates Cloud.
+Customermates to **CRM self hosted**, który uruchomisz jako dwie usługi Docker Compose: aplikację i PostgreSQL 16. Pasuje do zespołów, które chcą same prowadzić infrastrukturę swojego CRM i korzystać z bezpłatnej Community Edition (source-available, do użytku wewnętrznego). To nie jest wersja self-hosted wszystkich funkcji Customermates Cloud.
 
-CRM na własnym serwerze działa na maszynach, które kontrolujesz, a nie w chmurze dostawcy: sam decydujesz, gdzie stoją aplikacja i baza danych, i bierzesz na siebie aktualizacje, kopie zapasowe oraz bezpieczeństwo. To, czy kod jest open source, to osobne pytanie o prawa licencyjne, które omawia [przewodnik po CRM open source](/blog/open-source-crm). Ta strona opisuje stronę operacyjną w przypadku Customermates.
+CRM na własnym serwerze działa na maszynach, które kontrolujesz, a nie w chmurze dostawcy: sam decydujesz, gdzie stoją aplikacja i baza danych, i bierzesz na siebie aktualizacje, kopie zapasowe oraz bezpieczeństwo. To, czy kod jest open source, to osobne pytanie o prawa licencyjne (Customermates jest source-available, a nie open source), które omawia [przewodnik po CRM open source](/blog/open-source-crm). Ta strona opisuje stronę operacyjną w przypadku Customermates.
 
 **Gdzie mieści się follow-up.** Self-hosting trzyma rekordy klientów, terminy kolejnych kroków, pulpity i MCP na Twoich własnych serwerach, więc Twój klient AI może je czytać i aktualizować. Nie ma tu skrzynki odbiorczej, która kładzie rozmowy z LinkedIn i e-maila przy kliencie, ani Mate, który pisze szkice odpowiedzi. Jeśli chcesz mieć CRM głównie po to, by follow-up na rozmowach dostawać w postaci szkiców, zacznij od Customermates Cloud; self-hosting pasuje lepiej, gdy ważniejsza jest kontrola nad tym, gdzie działają dane.
 
@@ -207,7 +207,7 @@ Kopie zapasowe mają sens dopiero wtedy, gdy raz sprawdzisz, że da się z nich 
 
 Te pytania warto zadać każdemu projektowi, który rozważasz, także Customermates:
 
-- **Licencja i edycje.** Które części kodu są open source, a które komercyjne? Wersje Community i Enterprise potrafią różnić się zarówno funkcjami, jak i prawem do ich używania.
+- **Licencja i edycje.** Które części kodu są open source albo source-available, a które komercyjne? Wersje Community i Enterprise potrafią różnić się zarówno funkcjami, jak i prawem do ich używania.
 - **Zakres wersji self-hosted.** Co z funkcji chmury działa na Twoim serwerze, a co zostaje tylko w chmurze?
 - **Wymagania i utrzymanie.** Jakie usługi musisz postawić obok aplikacji, kto robi kopie zapasowe i kto sprawdza ich odtwarzanie?
 - **Dostosowanie i integracje.** Czy pola, listy i widoki ustawisz bez programisty i czy system ma REST API oraz webhooki?
@@ -215,9 +215,9 @@ Te pytania warto zadać każdemu projektowi, który rozważasz, także Customerm
 
 Odpowiedzi na te pytania są ważniejsze niż długość listy funkcji, bo to one decydują, ile pracy dołożysz po wdrożeniu.
 
-## Granice między kodem open source a komercyjnym
+## Granice między kodem source-available a komercyjnym
 
-Materiał własny Customermates poza katalogiem `ee/` jest objęty licencją AGPL-3.0-only. W `ee/` materiał ma licencję komercyjną, z wyjątkiem obrazów, czcionek, CSS i JavaScriptu po stronie klienta, wskazanych jako AGPL Client Material w sekcji 6 pliku `ee/LICENSE.md`. Przed modyfikowaniem, dalszym rozpowszechnianiem lub uruchamianiem oprogramowania do własnych celów przeczytaj obie licencje.
+Materiał własny Customermates poza katalogiem `ee/` jest objęty licencją Sustainable Use License: wolno go używać i zmieniać na własne potrzeby firmy albo do celów niekomercyjnych i osobistych, a rozpowszechniać tylko bezpłatnie i niekomercyjnie. W `ee/` materiał ma licencję komercyjną (Customermates Commercial License). Przed modyfikowaniem, dalszym rozpowszechnianiem lub uruchamianiem oprogramowania do własnych celów przeczytaj obie licencje.
 
 To rozróżnienie ma znaczenie, gdy porównujesz [CRM open source](/blog/open-source-crm): samo publiczne repozytorium nie mówi, jakiego kodu wolno Ci używać na jakich warunkach. Jeśli rozważasz inne projekty, które da się hostować samodzielnie, porównania z [EspoCRM](/compare/espocrm-alternative) i [Twenty](/compare/twenty-alternative) pokazują, czym różnią się ich wdrożenie i granice licencji.
 
@@ -236,7 +236,7 @@ Podłączone usługi pozostają osobnymi granicami przetwarzania. Dostawcy OAuth
 | chcesz, by zewnętrzni klienci AI korzystali z MCP | chcesz uprawnień planów chmurowych i zarządzanych połączonych kont |
 | sam zajmiesz się aktualizacjami, kopiami i odtwarzaniem | wolisz subskrypcję z zarządzanym utrzymaniem                |
 
-Jeśli chcesz wypróbować Customermates, zanim postawisz własny serwer, strona [CRM open source w chmurze albo self-hosted](/features/open-source-crm) zestawia obie drogi obok siebie, a bezpłatny okres próbny w chmurze to najszybszy start.
+Jeśli chcesz wypróbować Customermates, zanim postawisz własny serwer, strona [open source CRM czy source-available: chmura albo self-hosted](/features/open-source-crm) zestawia obie drogi obok siebie, a bezpłatny okres próbny w chmurze to najszybszy start.
 
 Rekordy przenosisz między instalacjami lub z innego CRM jako skoroszyty XLSX, po jednym typie rekordu naraz i w granicach limitów wierszy, albo przez REST API, które potrafi też wgrywać pliki do pól typu Plik. Import XLSX nie przenosi załączników, a pełnego transferu konta nie ma, więc większą przeprowadzkę zaplanuj jako projekt migracji, który sam sprawdzisz.
 
@@ -244,7 +244,7 @@ Rekordy przenosisz między instalacjami lub z innego CRM jako skoroszyty XLSX, p
 
 <Faq>
 <FaqItem question="Czy Customermates jest w całości open source?">
-Materiał własny poza katalogiem `ee/` jest objęty licencją AGPL-3.0-only. W `ee/` także materiał po stronie klienta, wskazany w sekcji 6 pliku `ee/LICENSE.md`, podlega AGPL-3.0-only; reszta materiału własnego korzysta z licencji komercyjnej. Dokładną granicę znajdziesz w obu plikach licencji.
+Nie. Customermates jest source-available (fair-code), a nie open source. Materiał własny poza katalogiem `ee/` jest objęty licencją Sustainable Use License; materiał w `ee/` korzysta z licencji komercyjnej. Dokładną granicę znajdziesz w obu plikach licencji.
 </FaqItem>
 
 <FaqItem question="Czy self-hosting obejmuje wspólną skrzynkę odbiorczą?">

@@ -47,7 +47,7 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "CRM online, dzięki któremu wracasz do każdego klienta"
-      body: "W Customermates Cloud od planu Pro rozmowy z LinkedIna i e-maile leżą przy rekordzie każdego klienta, a Mate przygotowuje szkice odpowiedzi, które sprawdzasz przed wysłaniem. Baza danych w chmurze we Frankfurcie, rdzeń AGPL, który możesz hostować samodzielnie."
+      body: "W Customermates Cloud od planu Pro rozmowy z LinkedIna i e-maile leżą przy rekordzie każdego klienta, a Mate przygotowuje szkice odpowiedzi, które sprawdzasz przed wysłaniem. Baza danych w chmurze we Frankfurcie, kod source-available, który możesz hostować samodzielnie."
       checksum: fnv1a-525d2df5
     kind: none
     reason: "Wczesne demo pulpitu, pokazane z ujawnieniem, daje bezpośredni dowód działania produktu, więc dodatkowa ilustracja w nagłówku jest zbędna."
@@ -85,13 +85,13 @@ sections:
       - title: "Chmura czy self-hosting"
         description: "Chmura zdejmuje z Ciebie pracę administracyjną i oddaje część kontroli. Self-hosting zostawia serwery i dane w Twoich rękach, ale dokłada pracę administracyjną."
       - title: "Customermates"
-        description: "Zarządzana chmura w miesięcznych planach za użytkownika albo rdzeń open source na Twoich serwerach z zestawem funkcji Starter: bez skrzynki odbiorczej, bez podłączonego kalendarza i bez hostowanego Mate."
+        description: "Zarządzana chmura w miesięcznych planach za użytkownika albo Community Edition (source-available) na Twoich serwerach z zestawem funkcji Starter: bez skrzynki odbiorczej, bez podłączonego kalendarza i bez hostowanego Mate."
       - title: "Zanim kupisz"
         description: "Sprawdź lokalizację danych i umowę powierzenia przetwarzania danych, formaty eksportu, API, cenę za użytkownika i zobowiązanie co do dostępności, a potem przetestuj eksport na prawdziwych rekordach."
 
 hero:
   title: "CRM online, dzięki któremu wracasz do każdego klienta"
-  description: "W Customermates Cloud od planu Pro rozmowy z LinkedIna i e-maile leżą przy rekordzie każdego klienta, a Mate przygotowuje szkice odpowiedzi, które sprawdzasz przed wysłaniem. Baza danych w chmurze we Frankfurcie, rdzeń AGPL, który możesz hostować samodzielnie."
+  description: "W Customermates Cloud od planu Pro rozmowy z LinkedIna i e-maile leżą przy rekordzie każdego klienta, a Mate przygotowuje szkice odpowiedzi, które sprawdzasz przed wysłaniem. Baza danych w chmurze we Frankfurcie, kod source-available, który możesz hostować samodzielnie."
   buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Porównaj plany
@@ -108,7 +108,7 @@ cta:
   hint: "Bez karty kredytowej. Self-hosting oceniasz osobno, a obejmuje on zestaw funkcji Starter."
 ---
 
-**CRM online**, czyli CRM w chmurze (cloud CRM), to oprogramowanie do obsługi relacji z klientami, które dostawca hostuje i prowadzi, więc Twój zespół korzysta z niego w przeglądarce i niczego sam nie instaluje, nie aktualizuje ani nie archiwizuje. Mówi się też o CRM hostowanym. Customermates jest takim systemem: zarządzanym CRM-em, którego główna baza danych jest skonfigurowana we Frankfurcie, zbudowanym na rdzeniu open source, który możesz też hostować samodzielnie w Dockerze.
+**CRM online**, czyli CRM w chmurze (cloud CRM), to oprogramowanie do obsługi relacji z klientami, które dostawca hostuje i prowadzi, więc Twój zespół korzysta z niego w przeglądarce i niczego sam nie instaluje, nie aktualizuje ani nie archiwizuje. Mówi się też o CRM hostowanym. Customermates jest takim systemem: zarządzanym CRM-em, którego główna baza danych jest skonfigurowana we Frankfurcie, zbudowanym na kodzie source-available, który możesz też hostować samodzielnie w Dockerze.
 
 **Co chmura zmienia w follow-upie.** Gdy CRM działa w chmurze, Twoje rozmowy z LinkedIna i e-maile mogą leżeć przy rekordzie klienta, a Mate może stamtąd przygotować odpowiedź. W Customermates Cloud zaczyna się to od planu Pro, a bezpłatny okres próbny trwa [[commercial.trial.days]] dni w planie Pro. Rdzeń self-hosted zachowuje rekordy klientów i MCP, ale nie ma skrzynki odbiorczej ani Mate, więc przygotowywany follow-up jest funkcją chmury.
 
@@ -228,7 +228,7 @@ Przykład: pięć osób płaci w Customermates Cloud [[commercial.price.starter.
 
 ## Gdzie pasuje Customermates? (nasz produkt)
 
-*Ujawnienie: tę stronę publikuje Customermates.* Customermates to CRM open source zbudowany wokół AI, tworzony w Niemczech. Występuje w dwóch postaciach, które mają wspólny rdzeń CRM, ale nie mają identycznych funkcji: Customermates Cloud, który prowadzi Customermates, oraz rdzeń open source, który prowadzisz we własnym zakresie z Docker Compose i PostgreSQL.
+*Ujawnienie: tę stronę publikuje Customermates.* Customermates to CRM source-available (fair-code) zbudowany wokół AI, tworzony w Niemczech. Występuje w dwóch postaciach, które mają wspólny rdzeń CRM, ale nie mają identycznych funkcji: Customermates Cloud, który prowadzi Customermates, oraz Community Edition (source-available), którą prowadzisz we własnym zakresie z Docker Compose i PostgreSQL.
 
 ### Customermates Cloud czy self-hosted?
 
@@ -311,7 +311,7 @@ Customermates jest celowo wąski. Wybierz inny produkt albo dołóż go obok, gd
 - **Prognoz predykcyjnych, lead scoringu ani analityki konwersji.** Pulpity, historia aktywności, prawdopodobieństwa etapów oraz ważone wartości szans sprzedaży lub pipeline'u opisują bieżący stan przestrzeni roboczej. To nie są prognozy.
 - **Kompletnego pakietu ERP, księgowości, magazynu, helpdesku czy call center ani migracji pod klucz.** Do tego potrzeba innych produktów albo starannie zaprojektowanej integracji.
 
-Customermates Cloud pasuje do zespołów, które chcą zarządzanego CRM w przeglądarce dla elastycznych rekordów i pipeline'ów sprzedaży, wolą jawne interfejsy od zamkniętej obietnicy integracji i cenią osobno dostępny rdzeń open source, który można hostować samodzielnie.
+Customermates Cloud pasuje do zespołów, które chcą zarządzanego CRM w przeglądarce dla elastycznych rekordów i pipeline'ów sprzedaży, wolą jawne interfejsy od zamkniętej obietnicy integracji i cenią osobno dostępną Community Edition (source-available), którą można hostować samodzielnie.
 
 ## Najczęściej zadawane pytania
 
@@ -344,7 +344,7 @@ Customermates Cloud pasuje do zespołów, które chcą zarządzanego CRM w przeg
   wybierasz CRM. Customermates ma plan Free dla jednej osoby z
   [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i
   rutyn: tam przechodzi przestrzeń robocza, gdy okres próbny kończy się bez
-  wyboru planu. Rdzeń open source możesz też hostować samodzielnie bez opłaty
+  wyboru planu. Community Edition (source-available) możesz też hostować samodzielnie bez opłaty
   licencyjnej. Opcje obok siebie porównuje [poradnik o darmowym CRM](/blog/free-crm).
 </FaqItem>
 
@@ -398,7 +398,7 @@ Customermates Cloud pasuje do zespołów, które chcą zarządzanego CRM w przeg
 </FaqItem>
 
 <FaqItem question="Czy mogę hostować ten sam CRM samodzielnie?">
-  Możesz prowadzić rdzeń open source z Docker Compose i PostgreSQL. Self-hosting
+  Możesz prowadzić Community Edition (source-available) z Docker Compose i PostgreSQL. Self-hosting
   korzysta z zestawu funkcji Starter i nie obejmuje wspólnej skrzynki odbiorczej,
   podłączonego kalendarza, hostowanego Mate ani hostowanych kredytów.
 </FaqItem>

@@ -28,7 +28,7 @@ relatedHrefs:
 
 Co to jest MCP server (serwer MCP)? To program, który przez Model Context Protocol (MCP), otwarty standard, oferuje aplikacji AI zestaw narzędzi, danych i szablonów promptów, dzięki czemu Claude, ChatGPT, Cursor lub inny klient MCP może wyszukiwać informacje i wykonywać działania w systemie, do którego inaczej by nie dotarł. Serwer stoi przed tym systemem, czy to folderem z plikami, bazą danych czy CRM, i decyduje, co AI może tam zobaczyć i zrobić.
 
-Co znaczy MCP? Skrót rozwija się jako Model Context Protocol, czyli „protokół kontekstu modelu”: wspólny język, w którym aplikacja AI i zewnętrzny system uzgadniają, co można wyszukać i co zrobić. Anthropic przedstawił go 25 listopada 2024 jako otwarty standard łączenia asystentów AI z systemami, w których leżą dane. Od tego czasu główni klienci AI dodali jego obsługę, a wielu dostawców oprogramowania prowadzi własne serwery. Poniżej wyjaśniamy to prostymi słowami, a potem pokazujemy jeden prawdziwy serwer do danych biznesowych: serwer MCP wbudowany w Customermates, CRM open source, który publikuje ten artykuł.
+Co znaczy MCP? Skrót rozwija się jako Model Context Protocol, czyli „protokół kontekstu modelu”: wspólny język, w którym aplikacja AI i zewnętrzny system uzgadniają, co można wyszukać i co zrobić. Anthropic przedstawił go 25 listopada 2024 jako otwarty standard łączenia asystentów AI z systemami, w których leżą dane. Od tego czasu główni klienci AI dodali jego obsługę, a wielu dostawców oprogramowania prowadzi własne serwery. Poniżej wyjaśniamy to prostymi słowami, a potem pokazujemy jeden prawdziwy serwer do danych biznesowych: serwer MCP wbudowany w Customermates, CRM source-available, który publikuje ten artykuł.
 
 Jeśli masz stałą integrację i klienta AI, zobacz [MCP i API na tym samym zadaniu z rekordem klienta](/blog/mcp-vs-api). Wykrywanie narzędzi zmienia to, jak klient znajduje operację, a uwierzytelnianie i uprawnienia nadal obowiązują.
 
@@ -149,7 +149,7 @@ Gdy serwer ma tylko udostępnić dane istniejącej aplikacji, zwykle wystarczy c
 
 Większość wyjaśnień kończy się na narzędziu pogodowym. Tak wygląda produkcyjny serwer do danych klientów, na przykładzie Customermates. Wszystkie poniższe szczegóły pochodzą z publicznej [dokumentacji MCP](/docs/mcp).
 
-**Punkt dostępu.** Customermates prowadzi zdalny serwer pod adresem `/api/v1/mcp` w adresie, którego używasz do aplikacji, oraz adres specyficzny dla przestrzeni roboczej z tymi samymi narzędziami zamkniętymi w tej przestrzeni. Obsługuje Streamable HTTP. Punkt dostępu jest częścią każdego planu Cloud i instalacji self-hosting; gdy uruchamiasz wersję open source samodzielnie, nadal jest to serwer zdalny, tylko na Twojej własnej infrastrukturze.
+**Punkt dostępu.** Customermates prowadzi zdalny serwer pod adresem `/api/v1/mcp` w adresie, którego używasz do aplikacji, oraz adres specyficzny dla przestrzeni roboczej z tymi samymi narzędziami zamkniętymi w tej przestrzeni. Obsługuje Streamable HTTP. Punkt dostępu jest częścią każdego planu Cloud i instalacji self-hosting; gdy uruchamiasz Community Edition samodzielnie, nadal jest to serwer zdalny, tylko na Twojej własnej infrastrukturze.
 
 **Łączenie.** W Claude i ChatGPT dodajesz adres URL jako własny konektor, logujesz się i zatwierdzasz ([konfiguracja własnego konektora](/docs/connect-custom-connector)). Claude Code, Codex, Cursor i Gemini CLI łączą się kluczem API w nagłówku `x-api-key` ([konfiguracja CLI](/docs/connect-cli)). Tak czy inaczej klient działa jako dokładnie jeden użytkownik w dokładnie jednej przestrzeni roboczej, a połączenie wymaga dostępu do odczytu do zasobu API i webhooki w roli tego użytkownika.
 
@@ -167,7 +167,7 @@ Większość wyjaśnień kończy się na narzędziu pogodowym. Tak wygląda prod
 
 **Do czego służy.** Dla zespołu pracującego z klientami przydatna praca to follow-up: gdy LinkedIn i poczta są podłączone w Customermates Cloud od planu Pro, Twój własny Claude lub ChatGPT czyta rozmowę przy rekordzie klienta i przygotowuje odpowiedź oraz kolejny krok, które sam sprawdzasz i wysyłasz. Aby to wypróbować, [rozpocznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
 
-Customermates jest złym wyborem, jeśli chcesz tylko podłączyć AI do CRM, którego już używasz; wtedy użyj serwera tego CRM. Pasuje, gdy wybierasz CRM i chcesz mieć serwer MCP, dane i [kod open source](/features/open-source-crm) w jednym produkcie.
+Customermates jest złym wyborem, jeśli chcesz tylko podłączyć AI do CRM, którego już używasz; wtedy użyj serwera tego CRM. Pasuje, gdy wybierasz CRM i chcesz mieć serwer MCP, dane i [kod source-available](/features/open-source-crm) w jednym produkcie.
 
 ## Jakie są zagrożenia bezpieczeństwa serwerów MCP?
 

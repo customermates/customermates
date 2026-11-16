@@ -51,7 +51,7 @@ Każda komórka podaje pierwszy plan, w którym cennik dostawcy wymienia daną f
 | Pipedrive | 14-dniowy okres próbny, bez planu darmowego | Growth (kroki if/else) | Growth | Nie porównano tutaj | Growth | Premium podaje 150 000 tokenów API |
 | Salesforce Sales Cloud | Free Suite | Starter Suite (przepływy sprzedaży, kierowanie leadów) | Nie porównano tutaj | Nie porównano tutaj | Pro Suite | Nie porównano tutaj |
 | Zoho CRM | Darmowa edycja, 3 użytkowników | Darmowa edycja podaje automatyzację workflow | Nie porównano tutaj | Standard (wbudowane połączenia) | Darmowa edycja i wyższe | Darmowa edycja, 5000 wywołań dziennie |
-| Customermates | [[commercial.trial.days]]-dniowy okres próbny; darmowy plan hostowany z limitem użytkowników: [[commercial.limit.free.maxMembers]]; rdzeń AGPL do bezpłatnego self-hostingu | Brak silnika reguł; Rutyny w Customermates Cloud oraz webhooki do własnego n8n | Brak | Brak | Ważony pipeline z prawdopodobieństw etapów, bez prognozowania | REST, webhooki i MCP w każdym planie płatnym |
+| Customermates | [[commercial.trial.days]]-dniowy okres próbny; darmowy plan hostowany z limitem użytkowników: [[commercial.limit.free.maxMembers]]; Community Edition do bezpłatnego self-hostingu | Brak silnika reguł; Rutyny w Customermates Cloud oraz webhooki do własnego n8n | Brak | Brak | Ważony pipeline z prawdopodobieństw etapów, bez prognozowania | REST, webhooki i MCP w każdym planie płatnym |
 
 Dwóch rzeczy ta tabela nie pokaże. Funkcja w planie nie znaczy, że dobrze sprawdzi się w Twojej pracy, a limity są różne: workflow w HubSpot Starter mają ograniczone wyzwalacze i akcje, a plan Standard w monday ogranicza automatyzacje do 250 miesięcznie. Sprawdź limit, a nie tylko nazwę planu, i otwarte komórki potwierdź w okresie próbnym.
 
@@ -172,13 +172,13 @@ A i B to symbole zastępcze. Wpisz własne systemy i oceny. Pełny proces wyboru
 
 ## Gdzie pasuje Customermates
 
-*Ujawnienie: to porównanie publikuje Customermates.* Customermates to CRM open source, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami: doradców, agencji, innych firm usługowych opartych na relacjach i założycieli. Kontakty, organizacje, szanse sprzedaży, usługi i zadania leżą obok rozmów z połączonych kont e-mail, LinkedIn, WhatsApp, Instagram i Telegram, które w planie Pro i wyższych schodzą się w [ujednoliconej skrzynce odbiorczej](/features/unified-inbox).
+*Ujawnienie: to porównanie publikuje Customermates.* Customermates to CRM source-available, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami: doradców, agencji, innych firm usługowych opartych na relacjach i założycieli. Kontakty, organizacje, szanse sprzedaży, usługi i zadania leżą obok rozmów z połączonych kont e-mail, LinkedIn, WhatsApp, Instagram i Telegram, które w planie Pro i wyższych schodzą się w [ujednoliconej skrzynce odbiorczej](/features/unified-inbox).
 
 Trzy wiersze powyższych tabel warto przeczytać uważnie:
 
 - **AI.** W Customermates Cloud asystent Mate przygotowuje podsumowania i szkice odpowiedzi oraz korzysta z hostowanych kredytów AI; każdy plan płatny zawiera miesięczne hostowane kredyty AI na aktywnego użytkownika, szczegóły w cenniku. Rutyny uruchamiają zapisane instrukcje według harmonogramu lub gdy rekord się zmieni. Jeśli wolisz Claude, ChatGPT lub innego klienta, działa on z CRM przez [MCP](/docs/mcp) w każdym planie, a rozlicza go Twój własny dostawca AI.
 - **Automatyzacja.** Nie ma silnika reguł. Webhooki i REST API łączą się z instancją n8n, którą prowadzisz sam.
-- **Hosting.** Rdzeń AGPL można [hostować samodzielnie](/features/self-hosted) w Dockerze, z REST, webhookami i MCP. Self-hosting nie ma skrzynki, Mate ani hostowanych kredytów.
+- **Hosting.** Community Edition można [hostować samodzielnie](/features/self-hosted) w Dockerze, z REST, webhookami i MCP. Self-hosting nie ma skrzynki, Mate ani hostowanych kredytów.
 
 Wartość szansy sprzedaży wynika z jej pozycji, a każda pozycja to usługa razy ilość, zaś każdy etap, konfigurowalne pole typu Pojedynczy wybór, ma prawdopodobieństwo. Ważony pipeline to ta arytmetyka, a nie przewidywanie. Rekordy importuje się i eksportuje jako skoroszyty Excel lub JSON, po jednej liście naraz.
 
@@ -222,7 +222,7 @@ Operacyjny, analityczny i współdzielony to trzy typy, które wymienia większo
 </FaqItem>
 
 <FaqItem question="Który CRM jest darmowy?">
-HubSpot Free Tools obejmują do 2 użytkowników, darmowa edycja Zoho CRM 3 użytkowników, a Salesforce wymienia Free Suite. Pipedrive i monday CRM nie mają planu darmowego. Customermates Cloud ma plan darmowy z limitem użytkowników równym [[commercial.limit.free.maxMembers]] i limitem rekordów równym [[commercial.limit.free.maxRecords]], bez skrzynki, Mate i rutyn; jego rdzeń AGPL można hostować samodzielnie bez opłaty licencyjnej, bez skrzynki i Mate. Zobacz [poradnik o darmowym CRM](/blog/free-crm).
+HubSpot Free Tools obejmują do 2 użytkowników, darmowa edycja Zoho CRM 3 użytkowników, a Salesforce wymienia Free Suite. Pipedrive i monday CRM nie mają planu darmowego. Customermates Cloud ma plan darmowy z limitem użytkowników równym [[commercial.limit.free.maxMembers]] i limitem rekordów równym [[commercial.limit.free.maxRecords]], bez skrzynki, Mate i rutyn; jego Community Edition można hostować samodzielnie bez opłaty licencyjnej (do użytku wewnętrznego), bez skrzynki i Mate. Zobacz [poradnik o darmowym CRM](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="Czy mogę później zmienić CRM?">

@@ -24,8 +24,8 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    action: Oceń Customermates jako CRM open source
-    description: Wracaj do każdej rozmowy z klientem w zarządzanym CRM w chmurze albo sprawdź edycję self-hosted z rdzeniem AGPL, Dockerem i PostgreSQL. Self-hosting oferuje zestaw funkcji Starter i nie obejmuje ani hostowanej skrzynki odbiorczej, ani Mate.
+    action: "Oceń Customermates: CRM source-available"
+    description: Wracaj do każdej rozmowy z klientem w zarządzanym CRM w chmurze albo sprawdź Community Edition self-hosted (source-available) z Dockerem i PostgreSQL. Self-hosting oferuje zestaw funkcji Starter i nie obejmuje ani hostowanej skrzynki odbiorczej, ani Mate.
     buttonLeftText: "Zacznij okres próbny: [[commercial.trial.days]] dni"
     buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Sprawdź self-hosting
@@ -64,7 +64,7 @@ acquisition:
       text: Aplikacja self-hosted
     semanticLabels:
       - locale: pl
-        text: Rdzeń AGPL
+        text: Source-available
       - locale: pl
         text: PostgreSQL
     focalSubject:
@@ -104,7 +104,7 @@ blogPost:
 
 **Najlepsze CRM open source** to takie, którego licencja, ścieżka self-hostingu, nakład pracy operacyjnej i zakres CRM odpowiadają Twojemu zespołowi. „Source available”, „open core” i „open source” nie są wymienne, a długa lista funkcji mało mówi o tym, co możesz legalnie uruchomić i realnie utrzymać.
 
-Ten przewodnik opiera się na trwałym schemacie oceny, a nie na rankingu projektów według zmiennych cen, liczby gwiazdek czy funkcji bez źródła. Ujawnienie: Customermates publikuje to porównanie i jest jednym z produktów omawianych niżej.
+Ten przewodnik opiera się na trwałym schemacie oceny, a nie na rankingu projektów według zmiennych cen, liczby gwiazdek czy funkcji bez źródła. Ujawnienie: Customermates publikuje to porównanie i jest jednym z produktów omawianych niżej. Customermates nie jest open source w rozumieniu OSI: jest source-available (fair-code), więc opisujemy go tu jako taki, a obok niego prawdziwe projekty open source.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Zacznij od">
@@ -132,6 +132,12 @@ Ten przewodnik opiera się na trwałym schemacie oceny, a nie na rankingu projek
   <ProofItem label="Utrzymanie">Kopie zapasowe, aktualizacje i odtwarzanie</ProofItem>
   <ProofItem label="Dopasowanie produktu">Rekordy, procesy i interfejsy</ProofItem>
 </ProofRail>
+
+## Czy Customermates to CRM open source? [#czy-customermates-to-open-source-crm]
+
+Nie w rozumieniu OSI. Open Source Initiative nie dopuszcza ograniczeń użycia, a licencja Customermates, Sustainable Use License, je ma: wolno używać i zmieniać kod na własne potrzeby firmy albo do celów niekomercyjnych i osobistych, a rozpowszechniać go tylko bezpłatnie i niekomercyjnie. Dlatego Customermates jest source-available (fair-code), z bezpłatną Community Edition do samodzielnego hostowania.
+
+Co to znaczy w praktyce: użytek wewnętrzny we własnej firmie, także agencji do prowadzenia własnych klientów, jest bezpłatny, a warsztaty i doradztwo wokół Customermates są dozwolone. Odsprzedaż, hostowanie dla osób trzecich, osadzanie w cudzym produkcie i white-label wymagają osobnej umowy (z widocznym brandingiem Customermates), a wdrożenie instancji z pobieraniem za nią opłaty od klienta wymaga licencji Enterprise. Jeśli potrzebujesz pełnej swobody licencji OSI, wybierz jeden z prawdziwych projektów open source z listy niżej. Warunki wyjaśniają strony [Licencja](/docs/licence) i [FAQ licencji](/docs/licence-faq) oraz plik [`LICENSING.md`](https://github.com/customermates/customermates/blob/main/LICENSING.md) (sprawdzono 16 listopada 2026).
 
 ## Zacznij od licencji, a nie od strony głównej
 
@@ -161,7 +167,7 @@ Funkcję niesprawdzoną albo nieudokumentowaną traktuj jako nieznaną, a nie ja
 
 ## Lista CRM open source bez udawanego rankingu
 
-Wyszukiwania CRM open source pokazują projekty o bardzo różnym zakresie. Customermates, SuiteCRM, EspoCRM i Twenty to dobre punkty startu dla listy opartej na źródłach. Odoo Community i CiviCRM mogą być istotne, gdy w wymaganiach pojawia się szerszy pakiet biznesowy albo kontekst członkostwa. Zanim zdecydujesz, sprawdź aktualną oficjalną licencję, granicę edycji, dokumentację wdrożenia i stan utrzymania. Porównania obok siebie: [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) i [Twenty](/compare/twenty-alternative).
+Wyszukiwania CRM open source pokazują projekty o bardzo różnym zakresie. SuiteCRM, EspoCRM i Twenty (open source) oraz Customermates (source-available, a nie open source) to dobre punkty startu dla listy opartej na źródłach. Odoo Community i CiviCRM mogą być istotne, gdy w wymaganiach pojawia się szerszy pakiet biznesowy albo kontekst członkostwa. Zanim zdecydujesz, sprawdź aktualną oficjalną licencję, granicę edycji, dokumentację wdrożenia i stan utrzymania. Porównania obok siebie: [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) i [Twenty](/compare/twenty-alternative).
 
 Szczegóły dla dwóch z nich znajdziesz w porównaniach [alternatywa dla EspoCRM](/compare/espocrm-alternative) i [alternatywa dla Twenty](/compare/twenty-alternative), które zestawiają licencję, stos technologiczny, ceny, kanały i obsługę MCP na podstawie oficjalnych stron każdego projektu.
 
@@ -171,7 +177,7 @@ Zamierzony zakres tych projektów jest różny. Niektóre skupiają się na CRM,
 
 | Projekt | Aktualne oficjalne dowody do sprawdzenia | Co potwierdza to źródło |
 | --- | --- | --- |
-| Customermates | [Licencja rdzenia AGPL](https://github.com/customermates/customermates/blob/main/LICENSE), [granica materiałów komercyjnych i klienckich na AGPL](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) oraz [wdrożenie przez Compose](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Dokładne licencje repozytorium oraz śledzone wdrożenie aplikacji z PostgreSQL |
+| Customermates | [Licencja Sustainable Use License](https://github.com/customermates/customermates/blob/main/LICENSE.md), [licencja komercyjna katalogu `ee/`](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) oraz [wdrożenie przez Compose](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Dokładne licencje repozytorium oraz śledzone wdrożenie aplikacji z PostgreSQL |
 | SuiteCRM | [Licencjonowanie AGPL](https://docs.suitecrm.com/admin/licensing/) i [instrukcja instalacji](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/) | Dokumentacja podaje AGPLv3 i udostępnia utrzymywaną ścieżkę instalacji dla administratora |
 | EspoCRM | [Repozytorium i licencja](https://github.com/espocrm/espocrm) oraz [instalacja w Dockerze](https://docs.espocrm.com/administration/docker/installation/) | Publiczna licencja źródeł i oficjalna ścieżka wdrożenia w Dockerze |
 | Twenty | [Licencja](https://github.com/twentyhq/twenty/blob/main/LICENSE) i [przewodnik po Docker Compose](https://docs.twenty.com/developers/self-host/capabilities/docker-compose) | Publiczna licencja źródeł i oficjalna ścieżka self-hostingu przez Docker Compose |
@@ -189,7 +195,7 @@ Ta tabela to mapa źródeł, a nie ranking produktów ani twierdzenie, że proje
 
 ## Gdzie pasuje Customermates
 
-Customermates to CRM open core do relacji z klientami i pipeline'ów, stworzony w Niemczech. Własne materiały spoza `ee/` są na licencji AGPL-3.0-only. W `ee/` materiały są licencjonowane komercyjnie, z wyjątkiem materiałów klienckich wskazanych jako AGPL-3.0-only w sekcji 6 pliku `ee/LICENSE.md`.
+Customermates to CRM source-available (fair-code) do relacji z klientami i pipeline'ów, stworzony w Niemczech; nie jest to open source w rozumieniu OSI. Własne materiały spoza `ee/` są na licencji Sustainable Use License: wolno ich używać i zmieniać na własne potrzeby firmy albo do celów niekomercyjnych, a rozpowszechniać tylko bezpłatnie i niekomercyjnie, bez odsprzedaży i hostowania dla innych. W `ee/` materiały są licencjonowane komercyjnie (licencja Enterprise).
 
 Oficjalne wdrożenie [CRM self-hosted](/features/self-hosted) zawiera aplikację i PostgreSQL 16. Edycja self-hosted ma zestaw funkcji Starter.
 
@@ -208,7 +214,7 @@ Dzięki temu Customermates pasuje, gdy chcesz mieć skupiony CRM, wdrożenie w D
 
 Jeśli zadaniem jest wracanie do rozmów z klientami, chmura zarządzana dodaje to, czego brakuje w self-hostingu: od planu Pro wątki z LinkedIn i e-maila leżą na rekordzie klienta, a Mate albo Twój własny agent AI przygotowuje odpowiedź i następny krok do przejrzenia i wysłania przez Ciebie. Self-hosting zostawia CRM i MCP dla Twojego własnego klienta AI.
 
-Żeby wypróbować Customermates samemu, [zacznij okres próbny](/auth/signup?job=followup) w chmurze zarządzanej ([[commercial.trial.days]] dni planu Pro, bez karty kredytowej) albo postaw własną instancję w Dockerze; zobacz stronę produktu [CRM open source: chmura lub self-hosted](/features/open-source-crm).
+Żeby wypróbować Customermates samemu, [zacznij okres próbny](/auth/signup?job=followup) w chmurze zarządzanej ([[commercial.trial.days]] dni planu Pro, bez karty kredytowej) albo postaw własną instancję w Dockerze; zobacz stronę produktu [open source CRM czy source-available: chmura lub self-hosted](/features/open-source-crm).
 
 <ProductDemo hostedBoundary path="/dashboard" />
 
@@ -286,11 +292,12 @@ Oznacza, że kod CRM jest udostępniony na licencji open source, która przyznaj
   dostawców, umów, polityk i operacji.
 </FaqItem>
 
-<FaqItem question="Czy cały kod Customermates jest na licencji AGPL-3.0?">
-  Nie. Własne materiały spoza `ee/` są na licencji AGPL-3.0-only. W `ee/`
-  materiały klienckie wskazane w sekcji 6 pliku `ee/LICENSE.md` również są
-  AGPL-3.0-only; pozostałe własne materiały podlegają licencji komercyjnej.
-  Przeczytaj oba pliki licencji, żeby poznać dokładną granicę.
+<FaqItem question="Czy Customermates to CRM open source?">
+  Nie w rozumieniu OSI. Customermates jest source-available (fair-code):
+  własne materiały spoza `ee/` są na licencji Sustainable Use License, a w `ee/`
+  obowiązuje licencja komercyjna. Użytek wewnętrzny jest bezpłatny; odsprzedaż
+  i hostowanie dla innych wymagają umowy. Przeczytaj oba pliki licencji, żeby
+  poznać dokładną granicę.
 </FaqItem>
 
 <FaqItem question="Czy mogę importować i eksportować rekordy CRM w Customermates self-hosted?">

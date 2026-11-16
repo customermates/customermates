@@ -38,7 +38,7 @@ Rzadko budujesz taką bazę od zera. Wybierasz CRM, decydujesz, jakich typów re
   <SummaryItem label="Jak ją zbudować">Najpierw ustal typy rekordów, potem pola, po których filtrujesz, a potem jeden unikalny klucz na osobę. Czyść przed importem i importuj firmy przed osobami.</SummaryItem>
   <SummaryItem label="Co ją psuje">Duplikaty, pola z wolnym tekstem, które powinny być wyborami, i brak kogoś, kto odpowiada za porządki.</SummaryItem>
   <SummaryItem label="Wyprowadzanie danych">Zaplanuj eksport, zanim będzie potrzebny. Customermates eksportuje po jednej liście jako Excel lub JSON; eksportu całego konta nie ma.</SummaryItem>
-  <SummaryItem label="Customermates">Startuje bez list: tworzysz te, których potrzebujesz (kontakty, organizacje, szanse sprzedaży lub własne), z typowanymi polami i relacjami, od [[commercial.price.starter.monthly]] za użytkownika miesięcznie w chmurze albo self-hosted na licencji AGPL.</SummaryItem>
+  <SummaryItem label="Customermates">Startuje bez list: tworzysz te, których potrzebujesz (kontakty, organizacje, szanse sprzedaży lub własne), z typowanymi polami i relacjami, od [[commercial.price.starter.monthly]] za użytkownika miesięcznie w chmurze albo self-hosted (Community Edition, source-available).</SummaryItem>
 </ArticleSummary>
 
 Baza danych to tylko część wyboru: sprawdź, jak ludzie znajdują i aktualizują te rekordy, korzystając z listy kontrolnej dla przeglądarki i telefonu w [poradniku o aplikacji CRM](/blog/crm-app).
@@ -135,7 +135,7 @@ Bazę danych CRM możesz uruchomić w chmurze dostawcy albo na własnym serwerze
 | Kontrola nad danymi | Zależy od umowy i regionu hostingu; poproś o umowę powierzenia przetwarzania danych | Pełna: dane są na Twoim serwerze |
 | Start | Konto i konfiguracja | Instalacja i utrzymanie |
 
-W Customermates Cloud baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a umowa powierzenia i lista podmiotów podprzetwarzających są publiczne (szczegóły w sekcji o danych osobowych niżej). Rdzeń open source możesz hostować samodzielnie na licencji AGPL, z Docker Compose i PostgreSQL. Self-hosting zachowuje REST, webhooki i MCP, ale nie ma ujednoliconej skrzynki odbiorczej, Mate ani hostowanych kredytów AI. Dla małego zespołu bez administratora chmura jest zwykle prostsza; własny serwer ma sens, gdy dane muszą zostać u Ciebie.
+W Customermates Cloud baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a umowa powierzenia i lista podmiotów podprzetwarzających są publiczne (szczegóły w sekcji o danych osobowych niżej). Community Edition możesz hostować samodzielnie na licencji Sustainable Use License (source-available), z Docker Compose i PostgreSQL. Self-hosting zachowuje REST, webhooki i MCP, ale nie ma ujednoliconej skrzynki odbiorczej, Mate ani hostowanych kredytów AI. Dla małego zespołu bez administratora chmura jest zwykle prostsza; własny serwer ma sens, gdy dane muszą zostać u Ciebie.
 
 ## Jak zbudować bazę danych CRM
 
@@ -176,7 +176,7 @@ To najczęstszy problem projektowy i są na niego cztery uczciwe odpowiedzi.
 
 ## Przykład praktyczny: baza danych CRM dla czteroosobowej firmy doradczej
 
-Oto ten sam projekt w Customermates, ustawiony tak, jak produkt działa dziś. Customermates to CRM open source, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami, takich jak doradcy, agencje i założyciele. Nowa przestrzeń robocza startuje bez list: w Customermates Cloud opisujesz swoją firmę jednym zdaniem, a Mate buduje listy, pipeline i pulpit, a poniższe kroki działają też ręcznie w sekcji Model danych.
+Oto ten sam projekt w Customermates, ustawiony tak, jak produkt działa dziś. Customermates to CRM source-available, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami, takich jak doradcy, agencje i założyciele. Nowa przestrzeń robocza startuje bez list: w Customermates Cloud opisujesz swoją firmę jednym zdaniem, a Mate buduje listy, pipeline i pulpit, a poniższe kroki działają też ręcznie w sekcji Model danych.
 
 **Listy.** W sekcji Model danych otwórz Kontakty i zmień **Nazwa** oraz **Nazwa w liczbie mnogiej** w grupie **Ogólne** na Klient i Klienci, a potem w ten sam sposób przemianuj Szanse sprzedaży na Projekty. Zadziała dowolna nazwa. Organizacje, Usługi i Zadania zachowują swoje nazwy.
 
@@ -201,7 +201,7 @@ Oto ten sam projekt w Customermates, ustawiony tak, jak produkt działa dziś. C
 
 **Widoki.** Zapisz „Bez kontaktu od 90 dni”, filtrując Zaktualizowano według Starsze niż… 90 dni, oraz „Klienci bez organizacji”. Udostępnij „Bez kontaktu od 90 dni” całemu zespołowi lub wybranym rolom, żeby wszyscy pracowali z tej samej listy.
 
-**Koszt.** Cztery osoby w planie Starter płacą [[commercial.price.starter.monthly.seats.4]] miesięcznie. W planie Pro, który dodaje [ujednoliconą skrzynkę odbiorczą](/features/unified-inbox), dzięki czemu połączone konto e-mail, LinkedIn lub WhatsApp każdego użytkownika pokazuje rozmowy obok klienta, to [[commercial.price.pro.monthly.seats.4]] miesięcznie. Rozliczenie jest miesięczne, a Twoja pierwsza przestrzeń robocza startuje z planem Pro za darmo na [[commercial.trial.days]] dni, bez karty kredytowej. Self-hosting rdzenia open source nie ma opłaty licencyjnej, ale nie ma skrzynki ani Mate.
+**Koszt.** Cztery osoby w planie Starter płacą [[commercial.price.starter.monthly.seats.4]] miesięcznie. W planie Pro, który dodaje [ujednoliconą skrzynkę odbiorczą](/features/unified-inbox), dzięki czemu połączone konto e-mail, LinkedIn lub WhatsApp każdego użytkownika pokazuje rozmowy obok klienta, to [[commercial.price.pro.monthly.seats.4]] miesięcznie. Rozliczenie jest miesięczne, a Twoja pierwsza przestrzeń robocza startuje z planem Pro za darmo na [[commercial.trial.days]] dni, bez karty kredytowej. Self-hosting Community Edition nie ma opłaty licencyjnej (do użytku wewnętrznego), ale nie ma skrzynki ani Mate.
 
 **Rutyna do jakości danych (Customermates Cloud).** Mate, asystent w Customermates Cloud, korzysta z hostowanych kredytów AI. Rutyna uruchamia zapisane instrukcje według harmonogramu lub przy zdarzeniu na rekordzie, jako osoba, która ją posiada; liczba rutyn na użytkownika w planie Pro: [[commercial.entitlement.pro.includedRoutinesPerUser]]. Cotygodniowa rutyna mogłaby mieć taką instrukcję:
 
@@ -242,7 +242,7 @@ Planuj drogę wyjścia, kiedy projektujesz drogę wejścia. Eksport jest potrzeb
 
 W UE baza danych CRM z osobami to dane osobowe w rozumieniu [RODO](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Trzy zasady z art. 5 przekładają się wprost na projekt bazy: przechowuj tylko dane „ograniczone do tego, co niezbędne” (mniej pól), dbaj o ich prawidłowość (rutyna porządkowa) i ogranicz czas ich przechowywania (kwartalne usuwanie). Art. 17 daje ludziom prawo do usunięcia ich danych, więc musisz umieć znaleźć i w całości usunąć jedną osobę. Art. 28 wymaga umowy z każdym dostawcą, który przechowuje dane za Ciebie.
 
-W przypadku Customermates Cloud [umowa powierzenia przetwarzania danych](/dpa) jest publiczna, baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a [podmioty podprzetwarzające](/subprocessors), w tym dostawcy z USA, są wymienione. Customermates nie posiada żadnej certyfikacji zgodności. Jeśli potrzebujesz danych na własnym serwerze, [hostuj samodzielnie rdzeń open source](/features/self-hosted).
+W przypadku Customermates Cloud [umowa powierzenia przetwarzania danych](/dpa) jest publiczna, baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a [podmioty podprzetwarzające](/subprocessors), w tym dostawcy z USA, są wymienione. Customermates nie posiada żadnej certyfikacji zgodności. Jeśli potrzebujesz danych na własnym serwerze, [hostuj samodzielnie Community Edition](/features/self-hosted).
 
 ## Kiedy Customermates to zła baza danych
 
@@ -294,7 +294,7 @@ Najczęściej wymieniane to HubSpot, Salesforce, Pipedrive, Microsoft Dynamics 3
 </FaqItem>
 
 <FaqItem question="Ile kosztuje baza danych CRM?">
-Arkusz lub samodzielnie hostowany CRM open source nie ma opłaty licencyjnej, ale płacisz czasem konfiguracji i utrzymania. CRM-y w chmurze zwykle liczą opłatę za użytkownika i miesiąc. W Customermates Cloud to [[commercial.price.starter.monthly]] za użytkownika w planie Starter i [[commercial.price.pro.monthly]] w planie Pro z ujednoliconą skrzynką odbiorczą; zobacz [cennik](/pricing).
+Arkusz lub samodzielnie hostowany CRM open source albo source-available nie ma opłaty licencyjnej, ale płacisz czasem konfiguracji i utrzymania. CRM-y w chmurze zwykle liczą opłatę za użytkownika i miesiąc. W Customermates Cloud to [[commercial.price.starter.monthly]] za użytkownika w planie Starter i [[commercial.price.pro.monthly]] w planie Pro z ujednoliconą skrzynką odbiorczą; zobacz [cennik](/pricing).
 </FaqItem>
 </Faq>
 

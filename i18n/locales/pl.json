@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Open source"
+    "label": "Source available"
   },
   "ApiKeyModal": {
     "addDescription": "Utwórz klucz do własnej integracji lub wybierz klienta AI, aby przejść przez konfigurację krok po kroku.",
@@ -2786,7 +2786,7 @@
     "invalid": "Zawiera błędy"
   },
   "EmailLayout": {
-    "tagline": "CRM open source do pilnowania kontaktu z klientami"
+    "tagline": "CRM source-available do pilnowania kontaktu z klientami"
   },
   "EmailVerification": {
     "notVerified": "Adres e-mail niezweryfikowany",
@@ -2991,7 +2991,7 @@
       "cancelAnytime": "Rezygnacja w dowolnym momencie",
       "gdpr": "Baza danych w regionie UE; bez deklaracji certyfikacji",
       "noLimits": "Przejrzyste plany",
-      "openSource": "Open core"
+      "openSource": "Source available"
     },
     "eyebrow": "Cennik",
     "selfHosted": {
@@ -3001,12 +3001,12 @@
       "featureN8n": "Interfejsy dla osobnej instancji n8n",
       "featureRecords": "Podstawowe rekordy CRM",
       "featureUsers": "Użytkownicy przestrzeni roboczej",
-      "period": "na licencji AGPL",
-      "price": "Darmowy rdzeń",
-      "tag": "Uruchom podstawową aplikację AGPL i PostgreSQL na własnym serwerze przez Docker Compose w zakresie planu Starter, bez skrzynki odbiorczej i hostowanego AI. Usługi zewnętrzne pozostają osobno.",
+      "period": "Community Edition",
+      "price": "Za darmo",
+      "tag": "Uruchom Community Edition (source-available) i PostgreSQL na własnym serwerze przez Docker Compose w zakresie planu Starter, bezpłatnie do użytku wewnętrznego, bez skrzynki odbiorczej i hostowanego AI. Usługi zewnętrzne pozostają osobno.",
       "title": "Samodzielny hosting"
     },
-    "subtitle": "Przejrzyste plany, bez ukrytych kosztów. Hostuj rdzeń AGPL samodzielnie za darmo; usługi zewnętrzne pozostają osobno. Albo zacznij bezpłatny okres próbny w Cloud, bez karty kredytowej.",
+    "subtitle": "Przejrzyste plany, bez ukrytych kosztów. Hostuj bezpłatną Community Edition samodzielnie na własne potrzeby firmy; usługi zewnętrzne pozostają osobno. Albo zacznij bezpłatny okres próbny w Cloud, bez karty kredytowej.",
     "title": "Prosto, uczciwie, po europejsku"
   },
   "HomepageWorkspacePrompt": {
@@ -3482,7 +3482,7 @@
       "mcpDocs": "Dokumentacja MCP",
       "n8n": "Automatyzacja n8n",
       "openExampleWorkspace": "Otwórz tę przykładową przestrzeń roboczą",
-      "openSourceCrm": "CRM open source",
+      "openSourceCrm": "CRM source-available",
       "pillarData": "Dane",
       "pillarDataDescription": "Klienci, szanse sprzedaży i listy, które układasz po swojemu",
       "pillarInbox": "Skrzynka odbiorcza",

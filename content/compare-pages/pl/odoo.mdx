@@ -34,10 +34,10 @@ comparison:
   sections:
   - title: Licencja i hosting
     features:
-      - name: Licencja open source
-        source: Rdzeń AGPL-3.0; większość katalogu ee/ na osobnej licencji komercyjnej
+      - name: Licencja
+        source: Sustainable Use License (source-available, fair-code, nie open source); większość katalogu ee/ na osobnej licencji komercyjnej
         competitor: Community na LGPLv3; Enterprise na licencji Odoo Enterprise Edition License
-      - name: CRM w darmowej edycji open source
+      - name: CRM w darmowej edycji do samodzielnego hostowania
         source: true
         competitor: true
       - name: Self-hosting
@@ -146,7 +146,7 @@ cta:
 | Klienci piszą na WhatsApp, LinkedIn, Instagramie lub Telegramie, a nie tylko e-mailem | Customermates Pro lub Business | Wszystko trafia do jednej skrzynki odbiorczej, przypisane do powiązanego kontaktu |
 | Asystent ma przygotowywać follow-upy i aktualizować rekordy według harmonogramu | Customermates Cloud | Mate i Rutyny działają tam na hostowanych kredytach AI |
 | n8n, skrypty lub klient AI mają pracować z CRM w planie podstawowym | Customermates, dowolny plan płatny lub self-hosted | REST, webhooki i MCP są w każdym planie płatnym; Odoo wymienia zewnętrzne API w planie Custom |
-| Chcesz sam hostować CRM open source, a nie pakiet | Customermates, Frappe CRM lub Twenty | Odoo Community też zawiera CRM, ale w szerszym pakiecie |
+| Chcesz sam hostować CRM (open source albo source-available), a nie pakiet | Customermates, Frappe CRM lub Twenty | Odoo Community też zawiera CRM, ale w szerszym pakiecie |
 
 ## Dla kogo Odoo CRM jest dobrym wyborem
 
@@ -200,7 +200,7 @@ Jeśli Odoo służy Ci tylko jako pipeline, Customermates jest skupionym wyborem
 
 **Twój własny klient AI przez MCP.** [Serwer MCP](/docs/mcp) oferuje [[derived.mcp.tools.total]] narzędzi w każdym planie i w instalacjach self-hosted. Claude, ChatGPT i inni klienci łączą się przez OAuth lub klucz API, działają z uprawnieniami podłączonego użytkownika i korzystają z Twojego własnego dostawcy AI.
 
-**Self-hosting i hosting.** [Wersja self-hosted](/features/self-hosted) to rdzeń AGPL-3.0 z REST, webhookami i MCP, uruchamiany z Docker Compose jako dwa kontenery, aplikacja i PostgreSQL 16. Nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów. Customermates Cloud ma główną bazę danych skonfigurowaną w regionie AWS Frankfurt, oferuje [umowę powierzenia przetwarzania danych](/dpa) i wymienia swoje podmioty podprzetwarzające, w tym dostawców z USA, na stronach prawnych. Customermates nie ma żadnej certyfikacji zgodności.
+**Self-hosting i hosting.** Customermates jest source-available (fair-code), a nie open source: kod jest publiczny, a bezpłatną Community Edition możesz hostować do użytku wewnętrznego, ale nie wolno jej odsprzedawać ani hostować dla innych. [Wersja self-hosted](/features/self-hosted) to Community Edition na licencji Sustainable Use License z REST, webhookami i MCP, uruchamiana z Docker Compose jako dwa kontenery, aplikacja i PostgreSQL 16. Nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów. Customermates Cloud ma główną bazę danych skonfigurowaną w regionie AWS Frankfurt, oferuje [umowę powierzenia przetwarzania danych](/dpa) i wymienia swoje podmioty podprzetwarzające, w tym dostawców z USA, na stronach prawnych. Customermates nie ma żadnej certyfikacji zgodności.
 
 ## Gdzie Customermates jest złym wyborem
 
@@ -251,7 +251,7 @@ Customermates publikuje tę listę. Szczegóły pochodzą ze stron poszczególny
 
 <Faq>
 <FaqItem question="Czy Odoo CRM jest darmowe?">
-Dla jednej aplikacji tak. One App Free daje CRM bez limitu użytkowników w Odoo Online, a edycję Community z CRM można hostować samodzielnie za darmo na LGPLv3. Druga aplikacja w Odoo Online oznacza płacenie za Standard: od 19,90 € za użytkownika miesięcznie w pierwszym roku i od 24,90 € potem, plus wdrożenie i kredyty In-App Purchase tam, gdzie ich potrzebujesz. Customermates Cloud ma plan darmowy dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn, oraz [[commercial.trial.days]]-dniowy okres próbny, a jego rdzeń self-hosted jest darmowy na AGPL-3.0.
+Dla jednej aplikacji tak. One App Free daje CRM bez limitu użytkowników w Odoo Online, a edycję Community z CRM można hostować samodzielnie za darmo na LGPLv3. Druga aplikacja w Odoo Online oznacza płacenie za Standard: od 19,90 € za użytkownika miesięcznie w pierwszym roku i od 24,90 € potem, plus wdrożenie i kredyty In-App Purchase tam, gdzie ich potrzebujesz. Customermates Cloud ma plan darmowy dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn, oraz [[commercial.trial.days]]-dniowy okres próbny, a jego Community Edition self-hosted jest bezpłatna do użytku wewnętrznego na licencji Sustainable Use License.
 </FaqItem>
 
 <FaqItem question="Czy Odoo CRM ma API?">
@@ -263,7 +263,7 @@ To zależy od tego, jak chcesz płacić i ile chcesz uruchamiać samodzielnie. O
 </FaqItem>
 
 <FaqItem question="Czy istnieje alternatywa open source dla Odoo CRM?">
-Tak, kilka. Odoo Community samo jest open source i zawiera CRM. Jeśli chcesz skupionego CRM open source, a nie pakietu, Customermates (AGPL-3.0), Frappe CRM i Twenty można hostować samodzielnie. ERPNext to wybór open source, gdy chcesz całego pakietu.
+Tak, kilka. Odoo Community samo jest open source i zawiera CRM. Jeśli chcesz skupionego CRM, a nie pakietu, Frappe CRM i Twenty (open source) oraz Customermates (source-available, Sustainable Use License, nie open source) można hostować samodzielnie. ERPNext to wybór open source, gdy chcesz całego pakietu.
 </FaqItem>
 
 <FaqItem question="Czy mogę zostawić Odoo do księgowości i używać Customermates jako CRM?">
