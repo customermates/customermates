@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Cabinet d’expertise comptable",
-  "summary": "Un outil de cabinet avec deux flux : obtenir une mission, avec vigilance LCB-FT et lettre de mission, et faire le travail récurrent par client, avec un registre d’échéances vérifié par une seconde personne.",
-  "description": "Pilotez un cabinet d’expertise comptable au même endroit : missions de la demande à la mission active avec une étape de vigilance LCB-FT entre les deux, dossiers récurrents par client et période avec le statut en attente de pièces, et registre d’échéances avec une pré-échéance et la personne qui a vérifié chaque date. C’est la couche relation, preuve des échéances et relances, à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d’identité.",
+  "summary": "Gardez la main sur missions, dossiers et échéances. Obtenez une mission avec vigilance LCB-FT et lettre de mission, suivez le travail récurrent par client et tenez un registre d’échéances vérifié par une seconde personne.",
+  "description": "Dans un cabinet d’expertise comptable, l’agenda se remplit d’attentes de pièces clients, et chaque échéance demande un second regard. Ce modèle conduit deux flux : les missions de la demande à la mission active, avec une étape de vigilance LCB-FT entre les deux, et les dossiers récurrents par client et période, avec le statut en attente de pièces. Un registre d’échéances porte une pré-échéance et la personne qui a vérifié chaque date. C’est la couche relation, preuve des échéances et relances, à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d’identité.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes chez vos clients qui envoient les pièces et signent." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Particuliers, entrepreneurs individuels, sociétés et associations pour lesquels vous intervenez." },
@@ -125,7 +125,7 @@
     "deadline_control_page": "La base de connaissances contient une page sur le contrôle des échéances."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un cabinet d’expertise comptable : missions de la demande à active avec une étape de vigilance, dossiers récurrents par client et période, registre d’échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d’identité.",
+    "intro": "Je dirige un cabinet d’expertise comptable et je dois voir quelles missions sont ouvertes, quels dossiers attendent des pièces et quelles échéances ont été vérifiées. Mets en place dans mon espace de travail Customermates un cabinet d’expertise comptable : missions de la demande à active avec une étape de vigilance, dossiers récurrents par client et période, registre d’échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d’identité.",
     "questions": [
       "Quelles prestations proposez-vous, et quels dossiers récurrents tenez-vous par client ?",
       "Dans quel pays exercez-vous, et quelles échéances suivez-vous ?",

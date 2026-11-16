@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Follow-up delle richieste WhatsApp",
-  "summary": "Una pipeline per una piccola impresa i cui clienti scrivono su WhatsApp: registrare la richiesta, rispondere in fretta, inviare un preventivo, sollecitare dopo qualche giorno, confermare l'ordine e ricordare il riacquisto.",
-  "description": "Trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
+  "summary": "Smetti di perdere i clienti che ti scrivono su WhatsApp. Ogni chat diventa una richiesta con preventivo e un prossimo passo con data, così rispondi in fretta, solleciti dopo pochi giorni e ricordi il riacquisto.",
+  "description": "Quando i clienti chiedono un prezzo su WhatsApp, la chat scorre via e il preventivo non viene mai sollecitato. Questo modello trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
   "lists": {
     "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che ti scrivono, con il loro consenso WhatsApp e la data di riordino." },
     "enquiries": { "label": "Richiesta", "pluralLabel": "Richieste (trattative)", "description": "Una richiesta da una chat, dal primo messaggio a ordine confermato, perso o più avanti." }
@@ -83,7 +83,7 @@
     "enquiries_board_view": "Le richieste si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates il follow-up delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
+    "intro": "I clienti mi chiedono i prezzi su WhatsApp e perdo la chat prima di fare il sollecito. Imposta nel mio spazio di lavoro Customermates il follow-up delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
     "questions": [
       "Che cosa ti chiedono i clienti su WhatsApp e come fai i preventivi?",
       "In quanto tempo vuoi rispondere a una nuova chat?",

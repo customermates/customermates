@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Obras e serviços",
-  "summary": "Um funil para uma empresa de serviços e obras: solicitação, visita técnica, orçamento e retorno, e depois a execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
-  "description": "Acompanhe um serviço da primeira ligação à última nota: clientes e obras onde você atua, serviços com uma etapa comercial e um status da obra separado, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarde o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
+  "summary": "Retorne cada orçamento e mantenha cada serviço no prazo, da primeira ligação ao pagamento. Visita técnica, orçamento e execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
+  "description": "Em uma empresa de obras e serviços, o dinheiro se perde quando um orçamento sai e ninguém liga de volta, e quando as datas de garantia e de manutenção não estão anotadas em lugar nenhum. Este modelo acompanha um serviço da primeira ligação à última nota: clientes e as obras onde você atua, serviços com uma etapa comercial e um status da obra separado, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarda o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Moradores, proprietários, administradoras de condomínio e empresas para quem você trabalha." },
     "sites": { "label": "Obra", "pluralLabel": "Obras", "description": "O endereço onde o trabalho acontece, que pode ser diferente do cliente." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "Os serviços abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e status da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
+    "intro": "Eu tenho uma pequena empresa de obras e serviços, e os orçamentos saem sem retorno enquanto serviços, visitas e datas de garantia ficam só na minha cabeça. Configure no meu espaço de trabalho do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e status da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
     "questions": [
       "Quais serviços você executa e para quem: pessoas físicas, proprietários ou empresas?",
       "Em quanto tempo você responde a uma solicitação e envia o orçamento depois da visita?",

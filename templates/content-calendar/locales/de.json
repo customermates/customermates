@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Redaktionsplan",
-  "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
-  "description": "Ein Redaktionsplan für Blog, Newsletter, Social Media und Video: sieben Status von Idee bis veröffentlicht, ein Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Er plant und verfolgt, er veröffentlicht nicht.",
+  "summary": "Wissen, was diese Woche rausgeht und wer es aufhält. Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
+  "description": "Beiträge, Newsletter und Videos verspäten sich, wenn die Pläne in verschiedenen Dokumenten stehen und niemand weiß, wer was prüft. Diese Vorlage richtet einen Redaktionsplan für Blog, Newsletter, Social Media und Video ein: sieben Status von Idee bis veröffentlicht, einen Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Sie passt zu Kreativen mit eigenem Kanal, Marketing-Teams im Unternehmen und Agenturen. Hier wird geplant und verfolgt, nicht veröffentlicht.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Autoren, Redakteure, Prüfer, Freigebende und Gäste." },
     "pieces": { "label": "Beitrag", "pluralLabel": "Beiträge", "description": "Ein Inhalt von der Idee bis zur Veröffentlichung." },
@@ -151,7 +151,7 @@
     "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
   },
   "prompt": {
-    "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
+    "intro": "Unsere Beiträge, Newsletter und Videos kommen zu spät, weil ich nicht sehe, wer was prüft und wann es erscheint. Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
     "questions": [
       "Was veröffentlichst du, auf welchen Kanälen und wie oft?",
       "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",

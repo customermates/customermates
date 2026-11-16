@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Terminbuchung",
-  "summary": "Ein Terminregister für Dienstleister: Terminarten mit Dauer und Vorlaufzeit, jede Buchung mit Status, Erinnerungen und Ergebnis, und zu jeder ein nächster Schritt.",
-  "description": "Buchungen für Gespräche, Beratungen oder Besichtigungen annehmen und im CRM halten: wenige Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, eine Buchung legt Person und Termin an, nach der Bestätigung entsteht ein Kalendereintrag, zwei Erinnerungen gehen raus, und nach jedem Termin wird das Ergebnis festgehalten. Gebucht wird nur Zeit von Personen. Kein System für Räume oder Ressourcen, kein Ticketverkauf, keine Praxissoftware und kein Zahlungsdienst.",
+  "summary": "Gespräche, Beratungen und Besichtigungen nicht mehr aus Kalender und Postfach zusammensuchen. Terminarten mit Dauer und Vorlaufzeit, Status und Erinnerungen je Buchung, nach jedem Termin ein nächster Schritt.",
+  "description": "Buchungen, die nur im Kalender und im Postfach stehen, gehen unter: Kunden bleiben ohne Erinnerung einfach weg, und niemand hält fest, was aus dem Gespräch geworden ist. Diese Vorlage richtet wenige Terminarten ein mit Dauer, Pufferzeit und Vorlaufzeit, eine Buchung, die Person und Termin anlegt, einen Kalendereintrag nach Ihrer Bestätigung, zwei Erinnerungen und ein Ergebnis, das nach jedem Termin festgehalten wird. Sie passt zu Dienstleistern, die Gespräche, Beratungen, Sitzungen oder Besichtigungen anbieten, und bucht nur die Zeit von Personen. Kein System für Räume oder Ressourcen, kein Ticketverkauf, keine Praxissoftware und kein Zahlungsdienst.",
   "lists": {
     "people": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die bei dir buchen." },
     "appointment_types": { "label": "Terminart", "pluralLabel": "Terminarten", "description": "Eine Art von Termin mit Dauer, Pufferzeit, Vorlaufzeit und Preis." },
@@ -91,7 +91,7 @@
     "appointments_board_view": "Die Termine öffnen sich als Board nach Status."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
+    "intro": "Ich nehme Gespräche, Beratungen und Besichtigungen an und verliere den Überblick, wer gebucht hat, wer bestätigt hat und was daraus geworden ist. Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
     "questions": [
       "Welche Terminarten bietest du an, und wie lange dauert jede?",
       "Wie viel Vorlaufzeit brauchst du, und wie weit im Voraus kann man buchen?",

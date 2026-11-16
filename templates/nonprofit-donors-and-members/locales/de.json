@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Mitglieder- und Spendenverwaltung",
-  "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
-  "description": "Für Vereine, gemeinnützige Organisationen und Kirchengemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
+  "summary": "Wissen, wer Mitglied ist, wer noch einen Dank braucht und wessen Mitgliedschaft als Nächstes fällig ist. Ein Register für Mitgliedschaften, Spenden mit Zuwendungsbestätigung, Großspenden und Förderanträge.",
+  "description": "Vereine, gemeinnützige Organisationen und Kirchengemeinden verlieren Mitglieder und Wohlwollen, wenn Verlängerungen verpasst werden und Spenden ohne Dank bleiben, weil die Listen bei verschiedenen Ehrenamtlichen liegen. Diese Vorlage richtet Unterstützer ein, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen. Sie passt zu Vereinen, gemeinnützigen Organisationen und Kirchengemeinden, die ein Register statt mehrerer wollen. Das Register stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
   "lists": {
     "supporters": { "label": "Unterstützer", "pluralLabel": "Unterstützer", "description": "Mitglieder, Spender, Ehrenamtliche, Gäste und Vorstand." },
     "memberships": { "label": "Mitgliedschaft", "pluralLabel": "Mitgliedschaften", "description": "Eine Mitgliedschaft mit Beitrag und Fälligkeit." },
@@ -137,7 +137,7 @@
     "receipt_field": "Jede Spende zeigt, ob eine Zuwendungsbestätigung fällig ist."
   },
   "prompt": {
-    "intro": "Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
+    "intro": "Unsere Mitglieder, Spender und Ehrenamtlichen stehen in mehreren Listen, und Verlängerungen und Dankesschreiben gehen unter. Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
     "questions": [
       "Führst du einen Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen hast du?",
       "Welche Beitragsarten und Beiträge nutzt du, und wie werden sie eingezogen?",

@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Corretora de seguros",
-  "summary": "Dois funis para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, e um caso de renovação para cada apólice que começa de 120 a 45 dias antes do vencimento.",
-  "description": "Conduza vendas novas e renovações lado a lado: negociações do primeiro contato à qualificação, à cotação, à proposta e à decisão até a apólice emitida, uma data de recomendação documentada em cada proposta, e apólices com a data de vigência que abrem sozinhas um caso de renovação. Guarde uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários ou cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
+  "summary": "Veja cada renovação chegando e mantenha as vendas novas andando. Do lead à apólice emitida, com a recomendação documentada antes da proposta, e um caso de renovação por apólice, aberto de 120 a 45 dias antes do vencimento.",
+  "description": "As renovações passam batido e a recomendação fica sem registro quando as vendas novas e as renovações estão em listas separadas ou só na sua cabeça. Este modelo conduz as duas lado a lado: negociações do primeiro contato, passando por qualificação, cotação, proposta e decisão do cliente, até a apólice emitida, com a data da recomendação documentada em cada proposta, e apólices com data de vigência que abrem sozinhas um caso de renovação. Guarda uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários nem cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Segurados, interessados, decisores e quem indica." },
     "opportunities": { "label": "Negociação", "pluralLabel": "Negociações", "description": "Uma venda nova do primeiro contato à apólice emitida ou à perda." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "A base de conhecimento tem uma página sobre a documentação da recomendação."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
+    "intro": "Eu cuido de uma carteira de seguros, e as renovações me pegam de surpresa, além de eu precisar documentar a recomendação antes de cada proposta. Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
     "questions": [
       "Quais ramos você trabalha e atende empresas, pessoas físicas ou os dois?",
       "Com quanta antecedência do vencimento você começa uma renovação e qual é o aviso prévio habitual?",

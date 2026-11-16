@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Rejestr zadań i działań",
-  "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamykaniem z dowodem wykonania.",
-  "description": "Lista zadań wynikających ze spotkań, projektów, audytów i próśb klientów: sześć statusów, priorytet, osoba odpowiedzialna, termin, termin kontrolny, rejestr decyzji i sprawdzenie skuteczności po działaniach korygujących. Przypomnienia pochodzą z reguł automatyzacji i powiadomień.",
+  "summary": "Dopilnuj, żeby to, co ustalono na spotkaniu, naprawdę się wydarzyło. Każde zadanie ma jedną osobę odpowiedzialną i termin, wiadomo też, z jakiej decyzji lub jakiego projektu wynika, a raz w tygodniu robisz przegląd.",
+  "description": "Ustalenia ze spotkań, audytów i rozmów z klientami giną w notatkach i na czatach, a ta sama sprawa wraca na kolejnym spotkaniu. Szablon zakłada jedną listę zadań z sześcioma statusami, priorytetem, jedną osobą odpowiedzialną, terminem i terminem kontrolnym, powiązanych ze spotkaniem, decyzją lub projektem, z których wynikają, a do tego rejestr decyzji i sprawdzenie, czy działanie korygujące zadziałało. Pasuje do zespołów, kierowników projektów i osób odpowiedzialnych za jakość, które chcą raz w tygodniu przejrzeć, co jest otwarte, po terminie lub zablokowane. Przypomnienia pochodzą z reguł automatyzacji i powiadomień, które włączysz.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Zespół, partnerzy, klienci i dostawcy." },
     "meetings": { "label": "Spotkanie", "pluralLabel": "Spotkania", "description": "Skąd biorą się zadania i decyzje." },
@@ -104,7 +104,7 @@
     "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych."
   },
   "prompt": {
-    "intro": "Skonfiguruj rejestr zadań i działań w mojej przestrzeni roboczej Customermates: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
+    "intro": "Ustalenia ze spotkań przepadają i nikt nie wie, kto za co odpowiada i do kiedy. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr zadań i działań: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
     "questions": [
       "Skąd biorą się Twoje zadania: spotkania, projekty, audyty, klienci?",
       "Kto odpowiada za zadania i kto decyduje o zmianie terminu lub anulowaniu zadania?",

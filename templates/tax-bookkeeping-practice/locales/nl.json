@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Boekhoud- en belastingkantoor",
-  "summary": "Een kantoorwerkplek met twee stromen: een opdracht binnenhalen, met cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant doen, met een termijnenregister dat een tweede persoon controleert.",
-  "description": "Beheer een boekhoud- of belastingkantoor op één plek: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, terugkerende dossiers per klant en periode met de status wacht op documenten, en een termijnenregister met een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast je kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
+  "summary": "Houd elke opdracht, elk dossier en elke termijn onder controle. Opdrachten via cliëntenonderzoek en opdrachtbevestiging, terugkerend werk per klant en een termijnenregister dat een tweede persoon controleert.",
+  "description": "In een boekhoud- of belastingkantoor raakt de agenda vol met wachten op documenten van klanten, en elke termijn heeft een tweede paar ogen nodig. Dit sjabloon laat twee stromen lopen: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, en terugkerende dossiers per klant en periode met de status wacht op documenten. Een termijnenregister bevat een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast je kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen bij je klanten die documenten sturen en tekenen." },
     "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Particulieren, eenmanszaken, bedrijven en verenigingen voor wie je werkt." },
@@ -125,7 +125,7 @@
     "deadline_control_page": "De kennisbank bevat een pagina over termijnbewaking."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
+    "intro": "Ik heb een boekhoud- en belastingkantoor en moet kunnen zien welke opdrachten openstaan, welke dossiers op documenten wachten en welke termijnen zijn gecontroleerd. Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
     "questions": [
       "Welke diensten bied je aan en welke terugkerende dossiers voer je per klant?",
       "In welk land werk je en welke termijnen bewaak je?",

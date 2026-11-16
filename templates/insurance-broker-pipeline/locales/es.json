@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Correduría de seguros",
-  "summary": "Dos pipelines para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación para cada póliza que empieza de 120 a 45 días antes del vencimiento.",
-  "description": "Lleva el nuevo negocio y las renovaciones a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en tu programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
+  "summary": "Ve venir cada renovación y mantén el nuevo negocio en marcha. De la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación por póliza, de 120 a 45 días antes del vencimiento.",
+  "description": "Las renovaciones se te pasan y el asesoramiento queda sin documentar cuando el nuevo negocio y las renovaciones viven en listas distintas o en tu cabeza. Esta plantilla lleva ambos a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en tu programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Tomadores, posibles clientes, decisores y quienes recomiendan." },
     "opportunities": { "label": "Oportunidad", "pluralLabel": "Oportunidades", "description": "Nuevo negocio de la primera consulta a la póliza activa o a la pérdida." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "La base de conocimiento contiene una página sobre la documentación del asesoramiento."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
+    "intro": "Llevo una cartera de seguros y las renovaciones me pillan por sorpresa, además de tener que documentar el asesoramiento antes de cada propuesta. Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
     "questions": [
       "¿Qué ramos colocas y atiendes a empresas, a particulares o a ambos?",
       "¿Con cuánta antelación al vencimiento empieza una renovación y cuál es el preaviso habitual?",

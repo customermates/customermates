@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Cuestionario de proveedores",
-  "summary": "Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo, decisión de homologación y fecha de la próxima evaluación.",
-  "description": "Homologa proveedores y subcontratistas en un solo lugar: envía un cuestionario, reúne certificados y documentación con su fecha de validez, clasifica cada proveedor por nivel de riesgo, registra la decisión (homologar, homologar con condiciones, escalar, rechazar) y consulta qué vence primero. La plantilla coordina las evidencias. No decide el cumplimiento legal, no consulta sanciones ni riesgo financiero y no sustituye tu sistema de calidad, tu ERP ni tu archivo de documentos.",
+  "summary": "Ten claro qué proveedores están homologados y qué certificado vence primero. Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo y decisión de homologación para cada uno.",
+  "description": "Los certificados de los proveedores caducan y las reevaluaciones se saltan cuando las respuestas están repartidas entre correos y carpetas. Esta plantilla homologa proveedores y subcontratistas en un solo lugar: envía un cuestionario, reúne certificados y documentación con su fecha de validez, clasifica cada proveedor por nivel de riesgo, registra la decisión (homologar, homologar con condiciones, escalar, rechazar) y consulta qué vence primero. La plantilla coordina las evidencias. No decide el cumplimiento legal, no consulta sanciones ni riesgo financiero y no sustituye tu sistema de calidad, tu ERP ni tu archivo de documentos.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas de tus proveedores que responden los cuestionarios y envían documentos." },
     "suppliers": { "label": "Proveedor", "pluralLabel": "Proveedores", "description": "Cada proveedor o subcontratista, de candidato a homologado o bloqueado." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "Los proveedores se abren como tablero por estado."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
+    "intro": "Trabajo con muchos proveedores y no veo a quién se le han caducado los certificados ni a quién le toca la reevaluación. Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
     "questions": [
       "¿Cuántos proveedores tienes y cómo los divides por nivel de riesgo?",
       "¿Qué certificados o documentos pides y cuánto tiempo es válido cada uno?",

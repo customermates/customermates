@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Fiche client et intégration",
-  "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
-  "description": "Un court pipeline pour accueillir un nouveau client : répondre sous un jour, vérifier l’adéquation, envoyer le questionnaire, réunir les pièces, envoyer la lettre de mission, démarrer. Les professions réglementées notent qui a vérifié l’identité et quand, jamais la pièce elle-même. Ce n’est pas un outil de signature électronique, de LCB-FT ou de paiement.",
+  "summary": "Accueillez de nouveaux clients sans courir après les formulaires, les pièces et les lettres de mission. Une intégration par mission, avec une étape datée à chaque phase et un motif noté quand vous refusez.",
+  "description": "Les nouveaux clients disparaissent entre la première demande et le premier jour de travail : le questionnaire n’est pas revenu, une pièce manque, la lettre de mission attend toujours. Ce modèle met en place une intégration par mission en neuf étapes, de la demande à la réunion de lancement, avec les pièces demandées, une étape datée à chaque phase, une réponse sous un jour et un motif de refus quand vous déclinez une demande. Les professions réglementées peuvent noter qui a vérifié l’identité, les conflits et le risque, et quand, jamais la pièce elle-même. Ce n’est pas un outil de signature électronique, de vérification d’identité, de LCB-FT ou de paiement.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes chez chaque client : interlocuteur principal, facturation, signataire." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Entreprises, indépendants et particuliers que vous accueillez." },
@@ -200,7 +200,7 @@
     "process_page": "La base de connaissances contient le processus d’intégration."
   },
   "prompt": {
-    "intro": "Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
+    "intro": "De nouveaux clients abandonnent entre la première demande et le premier jour de travail, parce que j’oublie d’envoyer le questionnaire ou de relancer les pièces. Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
     "questions": [
       "Que vendez-vous, et qui sont vos clients : sociétés, indépendants ou particuliers ?",
       "Par quelles étapes passe un nouveau client aujourd’hui, et lesquelles des neuf étapes ne vous servent pas ?",

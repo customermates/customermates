@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Dealflow inwestora",
-  "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data ponownej oceny.",
-  "description": "Prowadź startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone, a ich ustawienie należy do Ciebie.",
+  "summary": "Pamiętaj, kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia.",
+  "description": "Większość dealów kończy się odmową, a bez zapisu, kto polecił startup i z jakiego powodu go odrzucono, ten sam deal trzeba przy następnej okazji oceniać od nowa. Szablon prowadzi startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone, a ich ustawienie należy do Ciebie.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Założyciele, inwestorzy, współinwestorzy i osoby polecające." },
     "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Startupy, fundusze, syndykaty i akceleratory." },
@@ -118,7 +118,7 @@
     "board_view": "Deale otwierają się jako tablica według etapów."
   },
   "prompt": {
-    "intro": "Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
+    "intro": "Przeglądam wiele startupów i zapominam, kto je polecił, dlaczego zostały odrzucone i kiedy mam do nich wrócić. Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
     "questions": [
       "W jakie etapy i branże inwestujesz i jaka jest Twoja typowa wielkość biletu?",
       "Jak deale do Ciebie docierają i kto je poleca?",

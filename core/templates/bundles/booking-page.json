@@ -877,8 +877,8 @@
     "de": {
       "locale": "de",
       "name": "Terminbuchung",
-      "summary": "Ein Terminregister für Dienstleister: Terminarten mit Dauer und Vorlaufzeit, jede Buchung mit Status, Erinnerungen und Ergebnis, und zu jeder ein nächster Schritt.",
-      "description": "Buchungen für Gespräche, Beratungen oder Besichtigungen annehmen und im CRM halten: wenige Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, eine Buchung legt Person und Termin an, nach der Bestätigung entsteht ein Kalendereintrag, zwei Erinnerungen gehen raus, und nach jedem Termin wird das Ergebnis festgehalten. Gebucht wird nur Zeit von Personen. Kein System für Räume oder Ressourcen, kein Ticketverkauf, keine Praxissoftware und kein Zahlungsdienst.",
+      "summary": "Gespräche, Beratungen und Besichtigungen nicht mehr aus Kalender und Postfach zusammensuchen. Terminarten mit Dauer und Vorlaufzeit, Status und Erinnerungen je Buchung, nach jedem Termin ein nächster Schritt.",
+      "description": "Buchungen, die nur im Kalender und im Postfach stehen, gehen unter: Kunden bleiben ohne Erinnerung einfach weg, und niemand hält fest, was aus dem Gespräch geworden ist. Diese Vorlage richtet wenige Terminarten ein mit Dauer, Pufferzeit und Vorlaufzeit, eine Buchung, die Person und Termin anlegt, einen Kalendereintrag nach Ihrer Bestätigung, zwei Erinnerungen und ein Ergebnis, das nach jedem Termin festgehalten wird. Sie passt zu Dienstleistern, die Gespräche, Beratungen, Sitzungen oder Besichtigungen anbieten, und bucht nur die Zeit von Personen. Kein System für Räume oder Ressourcen, kein Ticketverkauf, keine Praxissoftware und kein Zahlungsdienst.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1162,7 +1162,7 @@
         "appointments_board_view": "Die Termine öffnen sich als Board nach Status."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
+        "intro": "Ich nehme Gespräche, Beratungen und Besichtigungen an und verliere den Überblick, wer gebucht hat, wer bestätigt hat und was daraus geworden ist. Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
         "questions": [
           "Welche Terminarten bietest du an, und wie lange dauert jede?",
           "Wie viel Vorlaufzeit brauchst du, und wie weit im Voraus kann man buchen?",
@@ -1174,8 +1174,8 @@
     "en": {
       "locale": "en",
       "name": "Booking page",
-      "summary": "An appointment register for a service professional: appointment types with duration and notice, every booking with its status, reminders and outcome, and a next step on each.",
-      "description": "Take bookings for calls, consultations or viewings and keep them in the CRM: a few appointment types with a duration, a buffer and a minimum notice, a booking that creates the person and the appointment, a calendar event once you confirm, two reminders and an outcome recorded after every appointment. It books people's time only. It is not a room or resource booking system, a ticketing tool, a medical appointment system or a payment processor.",
+      "summary": "Keep every call, consultation and viewing in one place, from request to outcome. Appointment types with duration and notice, a status and reminders on every booking, and a next step after each one.",
+      "description": "Bookings that live only in a calendar and an inbox get forgotten: clients no-show without a reminder and nobody records what came of the call. This template sets up a few appointment types with a duration, a buffer and a minimum notice, a booking that creates the person and the appointment, a calendar event once you confirm, two reminders and an outcome recorded after every appointment. It fits service professionals who take calls, consultations, sessions or viewings, and it books people's time only. It is not a room or resource booking system, a ticketing tool, a medical appointment system or a payment processor.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1459,7 +1459,7 @@
         "appointments_board_view": "The appointments open as a board by status."
       },
       "prompt": {
-        "intro": "Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
+        "intro": "I take calls, consultations and viewings and lose track of who is booked, who confirmed and what came of it. Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
         "questions": [
           "Which kinds of appointments do you offer, and how long is each?",
           "How much notice do you need, and how far ahead can people book?",
@@ -1471,8 +1471,8 @@
     "es": {
       "locale": "es",
       "name": "Reservas de citas",
-      "summary": "Un registro de citas para quien presta servicios: tipos de cita con duración y antelación, cada reserva con su estado, recordatorios y resultado, y un siguiente paso en cada una.",
-      "description": "Recibe reservas para llamadas, consultas o visitas y guárdalas en el CRM: pocos tipos de cita con duración, margen y antelación mínima, una reserva que crea la persona y la cita, un evento de calendario al confirmar, dos recordatorios y un resultado anotado tras cada cita. Solo gestiona el tiempo de las personas. No es un sistema de reserva de salas o recursos, una herramienta de entradas, un programa de citas médicas ni una pasarela de pago.",
+      "summary": "Ten cada llamada, consulta y visita en un solo sitio, de la solicitud al resultado. Tipos de cita con duración y antelación, un estado y recordatorios en cada reserva, y un siguiente paso después de cada una.",
+      "description": "Las reservas que solo viven en un calendario y en una bandeja de entrada se olvidan: el cliente no se presenta porque nadie se lo recordó y nadie anota en qué quedó la llamada. Esta plantilla prepara unos pocos tipos de cita con duración, margen y antelación mínima, una reserva que crea la persona y la cita, un evento de calendario cuando la confirmas, dos recordatorios y un resultado anotado tras cada cita. Encaja con quienes prestan servicios y atienden llamadas, consultas, sesiones o visitas, y solo gestiona el tiempo de las personas. No es un sistema de reserva de salas o recursos, una herramienta de entradas, un programa de citas médicas ni una pasarela de pago.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1756,7 +1756,7 @@
         "appointments_board_view": "Las citas se abren como tablero por estado."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
+        "intro": "Atiendo llamadas, consultas y visitas y pierdo la cuenta de quién tiene cita, quién la ha confirmado y en qué quedó. Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
         "questions": [
           "¿Qué tipos de cita ofreces y cuánto dura cada una?",
           "¿Cuánta antelación necesitas y con cuánto tiempo se puede reservar?",
@@ -1768,8 +1768,8 @@
     "fr": {
       "locale": "fr",
       "name": "Prise de rendez-vous",
-      "summary": "Un registre de rendez-vous pour un prestataire de services : types de rendez-vous avec durée et délai de prévenance, chaque réservation avec son statut, ses rappels et son résultat, et une prochaine étape pour chacune.",
-      "description": "Prenez des réservations pour des appels, des consultations ou des visites et gardez-les dans le CRM : quelques types de rendez-vous avec durée, temps de battement et délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois confirmé, deux rappels et un résultat noté après chaque rendez-vous. Il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
+      "summary": "Gardez chaque appel, consultation ou visite au même endroit, de la demande au résultat. Des types de rendez-vous avec durée et délai de prévenance, un statut et des rappels sur chaque réservation, et une prochaine étape après chacun.",
+      "description": "Les réservations qui n’existent que dans un agenda et une boîte mail finissent par être oubliées : un client ne vient pas faute de rappel et personne ne note ce qu’a donné l’appel. Ce modèle met en place quelques types de rendez-vous avec une durée, un temps de battement et un délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois que vous confirmez, deux rappels et un résultat noté après chaque rendez-vous. Il convient aux prestataires de services qui prennent des appels, des consultations, des séances ou des visites, et il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2053,7 +2053,7 @@
         "appointments_board_view": "Les rendez-vous s’ouvrent en board par statut."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
+        "intro": "Je prends des appels, des consultations et des visites, et je ne sais plus qui est réservé, qui a confirmé ni ce que chaque rendez-vous a donné. Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
         "questions": [
           "Quels types de rendez-vous proposez-vous, et combien de temps dure chacun ?",
           "De quel délai de prévenance avez-vous besoin, et jusqu’à combien de temps à l’avance peut-on réserver ?",
@@ -2065,8 +2065,8 @@
     "it": {
       "locale": "it",
       "name": "Prenotazione online",
-      "summary": "Un registro di appuntamenti per chi offre servizi: tipi di appuntamento con durata e preavviso, ogni prenotazione con stato, promemoria ed esito, e un prossimo passo per ciascuna.",
-      "description": "Ricevi prenotazioni per chiamate, consulenze o visite e tienile nel CRM: pochi tipi di appuntamento con durata, pausa e preavviso minimo, una prenotazione che crea la persona e l'appuntamento, un evento in agenda una volta confermato, due promemoria e un esito registrato dopo ogni appuntamento. Prenota solo il tempo delle persone. Non è un sistema per prenotare sale o risorse, uno strumento per biglietti, un gestionale per appuntamenti medici né un servizio di pagamento.",
+      "summary": "Tieni ogni chiamata, consulenza e visita in un unico posto, dalla richiesta all'esito. Tipi di appuntamento con durata e preavviso, uno stato e promemoria su ogni prenotazione e un prossimo passo dopo ciascuna.",
+      "description": "Le prenotazioni che esistono solo in un calendario e in una casella di posta si dimenticano: il cliente non si presenta perché nessuno gli ha ricordato l'appuntamento e nessuno annota com'è andata la chiamata. Questo modello imposta pochi tipi di appuntamento con durata, pausa e preavviso minimo, una prenotazione che crea la persona e l'appuntamento, un evento in agenda una volta confermato, due promemoria e un esito registrato dopo ogni appuntamento. Adatto a chi offre servizi e riceve chiamate, consulenze, sedute o visite: prenota solo il tempo delle persone. Non è un sistema per prenotare sale o risorse, uno strumento per biglietti, un gestionale per appuntamenti medici né un servizio di pagamento.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2350,7 +2350,7 @@
         "appointments_board_view": "Gli appuntamenti si aprono come board per stato."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
+        "intro": "Ricevo chiamate, consulenze e visite e perdo il filo di chi è prenotato, chi ha confermato e com'è andata. Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
         "questions": [
           "Quali tipi di appuntamento offri e quanto dura ciascuno?",
           "Quanto preavviso ti serve e con quanto anticipo si può prenotare?",
@@ -2362,8 +2362,8 @@
     "nl": {
       "locale": "nl",
       "name": "Online afspraken maken",
-      "summary": "Een afsprakenregister voor dienstverleners: afspraaktypes met duur en minimale termijn, elke boeking met status, herinneringen en uitkomst, en bij elk een volgende stap.",
-      "description": "Boekingen aannemen voor gesprekken, consulten of bezichtigingen en ze bewaren in het CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
+      "summary": "Houd elk gesprek, consult en elke bezichtiging op één plek bij, van aanvraag tot uitkomst. Afspraaktypes met duur en minimale termijn, een status en herinneringen bij elke boeking en een volgende stap na elke afspraak.",
+      "description": "Boekingen die alleen in een agenda en een inbox staan, raken zoek: klanten komen niet opdagen zonder herinnering en niemand legt vast wat een gesprek heeft opgeleverd. Dit sjabloon zet een paar afspraaktypes op met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Voor dienstverleners met gesprekken, consulten, sessies of bezichtigingen; het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2647,7 +2647,7 @@
         "appointments_board_view": "De afspraken openen als bord per status."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+        "intro": "Klanten boeken gesprekken, consulten of bezichtigingen bij mij, en ik raak het overzicht kwijt van wie er geboekt heeft, wie heeft bevestigd en wat eruit kwam. Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
         "questions": [
           "Welke soorten afspraken bied je aan en hoe lang duurt elke?",
           "Hoeveel tijd van tevoren moet iemand boeken en hoe ver vooruit kan men boeken?",
@@ -2659,8 +2659,8 @@
     "pl": {
       "locale": "pl",
       "name": "Rezerwacja wizyt online",
-      "summary": "Rejestr wizyt dla osoby świadczącej usługi: typy wizyt z czasem trwania i wyprzedzeniem, każda rezerwacja ze statusem, przypomnieniami i wynikiem oraz następnym krokiem.",
-      "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania nieruchomości i prowadź je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
+      "summary": "Nie trać z oczu żadnej rozmowy, konsultacji ani oglądania, od zgłoszenia do wyniku. Typy wizyt z czasem trwania i wyprzedzeniem, status i przypomnienia przy każdej rezerwacji oraz następny krok po każdej wizycie.",
+      "description": "Rezerwacje, które istnieją tylko w kalendarzu i skrzynce, łatwo zgubić: klienci nie pojawiają się, bo nikt im nie przypomniał, a po rozmowie nikt nie zapisuje, co z niej wynikło. Szablon zakłada kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwację, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Pasuje do osób świadczących usługi, które umawiają rozmowy, konsultacje, sesje lub oglądania nieruchomości. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2944,7 +2944,7 @@
         "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
+        "intro": "Przyjmuję rezerwacje na rozmowy, konsultacje i oglądania, ale gubię się, kto jest zapisany, kto potwierdził i co z tego wynikło. Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
         "questions": [
           "Jakie typy wizyt oferujesz i ile trwa każdy z nich?",
           "Jakiego wyprzedzenia potrzebujesz i jak daleko naprzód można rezerwować?",
@@ -2956,8 +2956,8 @@
     "pt": {
       "locale": "pt",
       "name": "Agendamento online",
-      "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com status, lembretes e resultado, e um próximo passo em cada um.",
-      "description": "Receba agendamentos de chamadas, consultas ou visitas e guarde tudo no CRM: poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Gerencia apenas o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
+      "summary": "Saiba quem está agendado, quem confirmou e no que deu cada conversa. Tipos de atendimento com duração e antecedência mínima, status e lembretes em cada agendamento e um próximo passo depois de cada atendimento.",
+      "description": "Agendamentos que ficam só na agenda e na caixa de entrada acabam esquecidos: o cliente falta porque ninguém lembrou e ninguém registra o que resultou da conversa. Este modelo monta poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Serve para quem presta serviços e atende chamadas, consultas, sessões ou visitas, e reserva apenas o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3241,7 +3241,7 @@
         "appointments_board_view": "Os atendimentos abrem como quadro por status."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
+        "intro": "Eu atendo chamadas, consultas e visitas e perco o controle de quem está agendado, quem confirmou e o que resultou de cada conversa. Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
         "questions": [
           "Quais tipos de atendimento você oferece e quanto dura cada um?",
           "De quanta antecedência você precisa e com quanto tempo de antecedência dá para agendar?",

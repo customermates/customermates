@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Acompanhamento de candidaturas",
-  "summary": "Um acompanhamento de seleção para uma pequena empresa: vagas, candidatos, uma candidatura por vaga em nove etapas, uma avaliação por entrevistador e uma data para excluir os reprovados.",
-  "description": "Conduza a seleção em um só lugar: cada vaga tem status, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
+  "summary": "Não deixe nenhum candidato sem resposta. Cada candidatura passa por nove etapas, cada entrevistador preenche uma avaliação e as candidaturas reprovadas ganham uma data para serem excluídas.",
+  "description": "Em uma empresa pequena, a seleção corre por e-mail e de memória: o candidato espera demais por uma resposta, as anotações das entrevistas ficam espalhadas e as candidaturas reprovadas continuam na caixa de entrada muito além do prazo. Este modelo organiza vagas com gestor e faixa salarial, candidatos e candidaturas que avançam de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação. Cada entrevistador preenche uma avaliação, e as candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou de pedir consentimento. Serve para quem tem poucas vagas abertas ao mesmo tempo. Não é um site de vagas, um leitor de currículos, uma plataforma de testes nem uma ferramenta de assinatura eletrônica, e não dá aconselhamento jurídico sobre prazos de guarda.",
   "lists": {
     "applicants": { "label": "Candidato", "pluralLabel": "Candidatos", "description": "As pessoas que se candidatam, com a origem e o consentimento para o banco de talentos." },
     "jobs": { "label": "Vaga", "pluralLabel": "Vagas", "description": "Cada vaga aberta com o gestor e a faixa salarial." },
@@ -105,7 +105,7 @@
     "applications_board_view": "As candidaturas abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
+    "intro": "Eu faço a seleção da minha pequena empresa e os candidatos esperam demais por uma resposta, enquanto as anotações das entrevistas ficam em lugares diferentes. Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para as candidaturas reprovadas e acompanhamentos com data.",
     "questions": [
       "Quantas vagas ficam abertas ao mesmo tempo e quem contrata para cada uma?",
       "De onde vêm os candidatos e você usa um formulário de candidatura?",

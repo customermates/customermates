@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Cadastro de clientes",
-  "summary": "Uma linha por cliente, um responsável, um próximo contato com data, mais uma revisão semanal e uma data de revisão dos dados para cada cliente encerrado.",
-  "description": "Um cadastro de clientes enxuto e disciplinado: sete status, a data do último contato, uma data do próximo contato que conduz o trabalho, um ritmo de revisão por segmento e uma data de revisão dos dados para clientes encerrados. Contatos, tarefas com data e conversas vinculadas ficam ao lado de cada cliente.",
+  "summary": "Saiba sempre a que cliente você deve uma ligação, uma resposta ou um orçamento. Cada cliente tem um responsável e um próximo contato com data, e uma revisão semanal mostra o que está atrasado.",
+  "description": "Quando os dados dos clientes estão em uma planilha, na caixa de entrada e na sua cabeça, os retornos escapam e ninguém percebe até o cliente sumir. Este modelo cria uma linha por cliente, com sete status, a data do último contato, um próximo contato com data e um ritmo de revisão por segmento. Contatos, tarefas com data e conversas vinculadas ficam ao lado de cada cliente, e um cliente encerrado ganha uma data de revisão dos dados. Serve para autônomos, agências e equipes de até cerca de dez pessoas que cuidam do relacionamento com os próprios clientes.",
   "lists": {
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Uma linha por cliente, um responsável, um próximo contato com data." },
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas com quem você trabalha em cada cliente." }
@@ -183,7 +183,7 @@
     "playbook_page": "A base de conhecimento contém o guia do cadastro de clientes."
   },
   "prompt": {
-    "intro": "Configure um cadastro de clientes no meu espaço de trabalho do Customermates: uma linha por cliente com responsável, status, data do último contato e um próximo contato com data, mais os contatos, tarefas com data, uma revisão semanal e uma data de revisão dos dados para clientes encerrados.",
+    "intro": "Eu cuido dos meus clientes pessoalmente e muitos retornos escapam: perco o fio de com quem falei por último e do que vem depois. Configure um cadastro de clientes no meu espaço de trabalho do Customermates: uma linha por cliente com responsável, status, data do último contato e um próximo contato com data, mais os contatos, tarefas com data, uma revisão semanal e uma data de revisão dos dados para clientes encerrados.",
     "questions": [
       "Quantos clientes você atende hoje e quem mais trabalha no cadastro?",
       "Quais status de cliente você já usa? Algum dos sete deve ser renomeado ou retirado?",

@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Handwerker-Aufträge",
-  "summary": "Eine Pipeline für den Handwerksbetrieb: Anfrage, Besichtigung, Angebot und Nachfassen, danach die Ausführung von geplant bis bezahlt, mit Widerrufs-, Gewährleistungs- und Wartungsterminen an jedem Auftrag.",
-  "description": "Einen Auftrag von der ersten Anfrage bis zur Schlussrechnung begleiten: Kunden und Objekte, an denen Sie arbeiten, Aufträge mit einer Vertriebsphase und einem eigenen Ausführungsstatus, Bindefrist des Angebots, Besichtigung und Termin, Widerrufsfrist bei Verbraucherverträgen, Gewährleistungsende und Wartungsverträge, die Folgeaufträge bringen. Die Vorlage hält Auftrag, Termine und Nachfassen fest. Kein Werkzeug für Angebote und Rechnungen, keine Einsatzplanung und keine Zeiterfassung. Rechtliche Fristen sind Felder, die Sie selbst bestätigen, keine Rechtsberatung.",
+  "summary": "Jedes Angebot nachfassen, jeden Auftrag im Blick behalten, vom ersten Anruf bis zur Zahlung. Besichtigung, Angebot, Ausführung von geplant bis bezahlt, dazu Widerrufs-, Gewährleistungs- und Wartungstermine.",
+  "description": "In einem Handwerksbetrieb geht Geld verloren, wenn ein Angebot rausgeht und niemand nachfragt, und wenn Gewährleistungs- und Wartungstermine nirgends stehen. Diese Vorlage begleitet einen Auftrag vom ersten Anruf bis zur Schlussrechnung: Kunden und die Objekte, an denen Sie arbeiten, Aufträge mit einer Vertriebsphase und einem eigenen Ausführungsstatus, Bindefrist des Angebots, Besichtigung und Termin, Widerrufsfrist bei Verbraucherverträgen, Gewährleistungsende und Wartungsverträge, die Folgeaufträge bringen. Sie hält Auftrag, Termine und Nachfassen fest. Kein Werkzeug für Angebote und Rechnungen, keine Einsatzplanung und keine Zeiterfassung. Rechtliche Fristen sind Felder, die Sie selbst bestätigen, keine Rechtsberatung.",
   "lists": {
     "customers": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Eigentümer, Vermieter, Hausverwaltungen und Firmen, für die du arbeitest." },
     "sites": { "label": "Objekt", "pluralLabel": "Objekte", "description": "Die Adresse der Baustelle, die vom Kunden abweichen kann." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Auftragspipeline für den Handwerksbetrieb ein: Kunden, Objekte, Aufträge mit Vertriebsphase und Ausführungsstatus, Bindefrist, Besichtigungs- und Bautermine, Gewährleistungsende und Wartungsverträge, mit terminierten Folgeaufgaben.",
+    "intro": "Ich führe einen kleinen Handwerksbetrieb, Angebote gehen ohne Nachfassen raus, und Aufträge, Besichtigungen und Gewährleistungstermine stehen nur in meinem Kopf. Richte in meinem Customermates-Workspace eine Auftragspipeline für den Handwerksbetrieb ein: Kunden, Objekte, Aufträge mit Vertriebsphase und Ausführungsstatus, Bindefrist, Besichtigungs- und Bautermine, Gewährleistungsende und Wartungsverträge, mit terminierten Folgeaufgaben.",
     "questions": [
       "Welche Arbeiten führst du aus, und für wen: Eigentümer, Vermieter oder Firmen?",
       "Wie schnell beantwortest du eine Anfrage und sendest nach der Besichtigung ein Angebot?",

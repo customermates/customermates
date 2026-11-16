@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Team tracker",
-  "summary": "A work tracker for a small team: projects, tasks with one owner and one due date, recurring chores and requests from outside the team on the same list.",
-  "description": "Keep a team of two to fifteen on one list: every task has a status, a priority, an owner and a due date, and you can see what is overdue or blocked at a glance. Recurring chores create their own tasks, requests from colleagues or customers arrive through a form, and a blocked or stale task nudges its owner. It is not a sprint tool, a Gantt planner, a time tracker or an HR system.",
+  "summary": "See who is doing what by when, without a heavy project tool. Projects and tasks with one owner and one due date, recurring chores and requests from outside the team on one list.",
+  "description": "In a small team tasks hide in chat, boards and heads, and a blocked task goes unnoticed until the day it is due. This template keeps a team of two to fifteen on one list: every task has a status, a priority, an owner and a due date, and you see what is overdue or blocked at a glance. Recurring chores create their own tasks, requests from colleagues or customers arrive through a form, and a blocked or stale task nudges its owner. It is not a sprint tool, a Gantt planner, a time tracker or an HR system.",
   "lists": {
     "requesters": { "label": "Requester", "pluralLabel": "Requesters", "description": "The people outside the team who ask for work." },
     "projects": { "label": "Project", "pluralLabel": "Projects", "description": "A bundle of tasks with an owner, a health and a due date." },
@@ -81,7 +81,7 @@
     "tasks_board_view": "The tasks open as a board by status."
   },
   "prompt": {
-    "intro": "Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
+    "intro": "Our team's work is spread over chat, a board and a spreadsheet, and I cannot see what is overdue or blocked. Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
     "questions": [
       "How many people are on the team, and what do they work on?",
       "Which statuses do you use today in Trello, Jira, Asana or a spreadsheet?",

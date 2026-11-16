@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Maßnahmenplan",
-  "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Deadline, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
-  "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Deadline, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
+  "summary": "Was in Besprechungen beschlossen wird, soll auch erledigt werden. Jede Maßnahme hat einen Verantwortlichen und eine Deadline, verknüpft mit Beschluss oder Projekt, dazu eine wöchentliche Durchsicht.",
+  "description": "Was in Besprechungen, Audits und Kundengesprächen vereinbart wird, versinkt in Notizen und Chatverläufen, und nächste Woche kommt dasselbe Thema noch einmal auf den Tisch. Diese Vorlage richtet eine Maßnahmenliste ein mit sechs Status, Priorität, einem Verantwortlichen, Deadline und Wiedervorlage, verknüpft mit der Besprechung, dem Beschluss oder dem Projekt, aus dem sie stammt, dazu ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Sie passt zu Teams, Projektleitungen und Qualitätsmanagement, die einmal pro Woche sehen wollen, was offen, überfällig oder blockiert ist. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen, die Sie einschalten.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Teammitglieder, Partner, Kunden und Lieferanten." },
     "meetings": { "label": "Besprechung", "pluralLabel": "Besprechungen", "description": "Woher Maßnahmen und Beschlüsse kommen." },
@@ -104,7 +104,7 @@
     "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
   },
   "prompt": {
-    "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
+    "intro": "Was wir in Besprechungen vereinbaren, bleibt liegen, und ich sehe nicht, wer was bis wann erledigt. Richte in meinem Customermates-Workspace einen Maßnahmenplan ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
     "questions": [
       "Woher kommen deine Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
       "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",

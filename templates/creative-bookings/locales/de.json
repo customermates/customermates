@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Buchungen für Kreative",
-  "summary": "Für Fotografen, Videografen und Eventplaner: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung im Blick und eine Notiz zu jedem Jahrestag.",
-  "description": "Eine Zeile pro Buchung mit zwei Phasen: Vertrieb (Anfrage bis gebucht) und Lieferung (Shooting erledigt bis geliefert). Termine werden gesichert, bis Vertrag und Anzahlung da sind, die Restzahlung hat eine eigene Fälligkeit, und nach jeder Lieferung wird um eine Bewertung gebeten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen, hier stehen die Links.",
+  "summary": "Für Fotografen, Videografen und Eventplaner: jede Anfrage, jeden Termin und jede Anzahlung im Griff, von der ersten Nachricht bis zu Buchung, Lieferung und Jahrestagsgruß.",
+  "description": "Termine werden zugesagt, ohne dass eine Anzahlung da ist, und Lieferungen werden vergessen, wenn Anfragen in Chats und im Kalender stehen. Diese Vorlage gibt jeder Buchung eine Zeile mit zwei Phasen: Vertrieb von der Anfrage bis gebucht und Lieferung vom erledigten Shooting bis geliefert. Ein Termin wird gesichert, bis Vertrag und Anzahlung da sind, die Restzahlung hat eine eigene Fälligkeit, und nach jeder Lieferung wird um eine Bewertung gebeten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen, hier stehen die Links.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Kunden, Partner der Kunden, Planer und Ansprechpartner der Location." },
     "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Locations, Planer, Caterer und andere Dienstleister, mit denen du arbeitest." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "Die Buchungen öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte Buchungen für Kreative in meinem Customermates-Workspace ein: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung, einen Fragebogen vor dem Event, eine Bitte um Bewertung und Jahrestags-Grüße.",
+    "intro": "Ich betreibe ein Foto-, Video- oder Eventgeschäft und verliere den Überblick, welche Termine gesichert, welche Anzahlungen bezahlt und was noch zu liefern ist. Richte Buchungen für Kreative in meinem Customermates-Workspace ein: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung, einen Fragebogen vor dem Event, eine Bitte um Bewertung und Jahrestags-Grüße.",
     "questions": [
       "Was fotografierst, filmst oder planst du, und wie viele Buchungen hast du im Jahr?",
       "Welche Schritte durchläuft ein Kunde von der Anfrage bis zur Buchung, und wann reservierst du den Termin?",

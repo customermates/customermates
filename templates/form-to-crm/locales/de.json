@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Kontaktformular mit CRM",
-  "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und „Kein Bedarf“ getrennt.",
-  "description": "Jede Anfrage aus einem Kontakt-, Angebots- oder Anfrageformular wird zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, und eine unbeantwortete Anfrage wird gemeldet. Einwilligung und ein Prüftermin gehören zu den erhobenen Daten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
+  "summary": "Keine Anfrage aus dem Webformular bleibt unbeantwortet. Jede Einsendung wird zur Anfrage mit Quelle und fälliger Antwort, läuft von neu bis übergeben und hält Spam und „Kein Bedarf“ getrennt.",
+  "description": "Anfragen aus Ihrem Kontakt-, Angebots- oder Anfrageformular landen in einem Postfach, wo sie spät oder gar nicht beantwortet werden, und Sie sehen nicht, woher die guten kommen. Diese Vorlage macht jede Einsendung zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, eine unbeantwortete Anfrage wird gemeldet, und zu den erhobenen Daten werden Einwilligung und ein Prüftermin festgehalten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die dir über ein Formular schreiben." },
     "requests": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Formulareinsendung, von neu bis übergeben, kein Bedarf oder Spam." }
@@ -81,7 +81,7 @@
     "requests_board_view": "Die Anfragen öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
+    "intro": "Anfragen aus den Formularen meiner Website werden spät oder gar nicht beantwortet, und ich sehe nicht, woher die guten kommen. Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
     "questions": [
       "Welche Formulare betreibst du, und was musst du wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
       "Wer antwortet, und wie schnell versprichst du eine Antwort?",

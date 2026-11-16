@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Associados e doadores",
-  "summary": "Um registro único de associados, doadores e voluntários: mensalidades com data de renovação, doações com agradecimento e recibo, e um acompanhamento de grandes doações e editais.",
-  "description": "Para associações, igrejas, ONGs e clubes: quem apoia você e como, qual vínculo dura até quando, qual doação ainda espera agradecimento ou recibo e qual grande doação ou edital está em andamento. Não emite recibos nem cobra mensalidades: mostra quais estão pendentes. Dados sobre religião são sensíveis pela LGPD: registre só o necessário.",
+  "summary": "Saiba quem são seus associados e apoiadores, quem ainda espera um agradecimento e quem renova em seguida. Um só registro com vínculos e data de renovação, doações com recibo e grandes doações e editais.",
+  "description": "Associações, ONGs, clubes e igrejas perdem associados e boa vontade quando as renovações passam batido e as doações ficam sem agradecimento, porque as listas estão com voluntários diferentes. Este modelo reúne apoiadores, vínculos com mensalidade e data de renovação, doações com o status do agradecimento e do recibo e um acompanhamento de grandes doações e editais. Serve para quem quer um só registro em vez de várias listas. Não emite recibos nem cobra mensalidades: mostra quais estão pendentes. Dados sobre religião são sensíveis pela LGPD: registre só o necessário.",
   "lists": {
     "supporters": { "label": "Apoiador", "pluralLabel": "Apoiadores", "description": "Associados, doadores, voluntários, visitantes e diretoria." },
     "memberships": { "label": "Vínculo", "pluralLabel": "Vínculos", "description": "Um vínculo com mensalidade e data de renovação." },
@@ -137,7 +137,7 @@
     "receipt_field": "Cada doação mostra se há um recibo a emitir."
   },
   "prompt": {
-    "intro": "Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",
+    "intro": "Nossos associados, doadores e voluntários estão espalhados em várias listas, e as renovações e os agradecimentos ficam para trás. Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",
     "questions": [
       "Vocês são uma associação, uma ONG ou uma igreja? Têm associados, doadores, voluntários?",
       "Quais categorias e valores de mensalidade vocês usam e como são cobrados?",

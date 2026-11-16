@@ -903,8 +903,8 @@
     "de": {
       "locale": "de",
       "name": "Eigenes CRM",
-      "summary": "Ein CRM nach der eigenen Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus der eigenen Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
-      "description": "Starten Sie mit den vier Listen, die jedes CRM braucht, und passen Sie sie an: Phasen, Felder und Ansichten gehören Ihnen. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen und ihre Daten ohne Projekt in ein CRM bringen wollen. Es merkt sich, woher jeder Datensatz importiert wurde.",
+      "summary": "Von der Tabelle oder dem alten Werkzeug umziehen, ohne ein großes Migrationsprojekt. Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben nach Ihrer Arbeitsweise, mit Import Ihrer Daten und wöchentlicher Durchsicht.",
+      "description": "Ihre Kundendaten verteilen sich auf eine Tabelle, eine Notion-Seite oder ein altes Werkzeug, und niemand möchte dafür ein Migrationsprojekt starten. Diese Vorlage beginnt mit den vier Listen, die jedes CRM braucht, Kontakte, Firmen, Verkaufschancen und Aufgaben, und Ihr Agent passt Phasen, Felder und Ansichten an Ihre Arbeitsweise an. Danach importiert er Ihre Daten und notiert, woher jeder Datensatz stammt. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1186,7 +1186,7 @@
         "how_we_use_page": "Die Wissensdatenbank erklärt, wie das Team das CRM nutzt."
       },
       "prompt": {
-        "intro": "Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
+        "intro": "Meine Kunden und Geschäfte stehen in einer Tabelle oder einem alten Werkzeug, und ich möchte ein CRM, das zu meiner Arbeitsweise passt. Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
         "questions": [
           "Aus welchem Werkzeug oder welcher Tabelle stammen deine Datensätze, und lässt sie sich exportieren?",
           "Welche Phasen durchläuft eine Chance in deinem Geschäft?",
@@ -1198,8 +1198,8 @@
     "en": {
       "locale": "en",
       "name": "Custom CRM",
-      "summary": "A CRM built around how you work: contacts, organizations, opportunities and dated actions, with an import from your spreadsheet or old tool and a weekly review.",
-      "description": "Start from the four lists every CRM needs and change them to fit: stages, fields and views are yours. Meant for people leaving a spreadsheet, Notion, Airtable or Trello who want their data in a CRM without a project. It keeps a note of where each record was imported from.",
+      "summary": "Move off your spreadsheet or old tool without a big migration project. Contacts, organizations, opportunities and dated actions shaped around how you work, with an import of your data and a weekly review.",
+      "description": "Your customer data is spread over a spreadsheet, a Notion page or an old tool, and nobody wants to start a migration project. This template starts from the four lists every CRM needs, contacts, organizations, opportunities and actions, and your agent changes the stages, fields and views to fit how you work. It then imports your data and keeps a note of where each record came from. It is meant for people leaving a spreadsheet, Notion, Airtable or Trello.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1481,7 +1481,7 @@
         "how_we_use_page": "The Knowledge Base explains how the team uses the CRM."
       },
       "prompt": {
-        "intro": "Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
+        "intro": "My customers and deals live in a spreadsheet or an old tool, and I want a CRM that fits how I work. Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
         "questions": [
           "Which tool or spreadsheet do your records come from, and can you export it?",
           "What stages does a deal go through in your business?",
@@ -1493,8 +1493,8 @@
     "es": {
       "locale": "es",
       "name": "CRM a medida",
-      "summary": "Un CRM construido en torno a tu forma de trabajar: contactos, empresas, oportunidades y tareas con fecha, con una importación desde tu hoja de cálculo o tu herramienta anterior y una revisión semanal.",
-      "description": "Parte de las cuatro listas que necesita todo CRM y adáptalas: etapas, campos y vistas son tuyos. Pensado para quien deja una hoja de Excel, Notion, Airtable o Trello y quiere sus datos en un CRM sin montar un proyecto. Anota de dónde se importó cada registro.",
+      "summary": "Deja tu hoja de cálculo o tu herramienta anterior sin un gran proyecto de migración. Contactos, empresas, oportunidades y tareas con fecha a tu medida, con una importación de tus datos y una revisión semanal.",
+      "description": "Tus datos de clientes están repartidos entre una hoja de cálculo, una página de Notion o una herramienta antigua, y nadie quiere empezar un proyecto de migración. Esta plantilla parte de las cuatro listas que necesita todo CRM, contactos, empresas, oportunidades y tareas, y tu agente adapta las etapas, los campos y las vistas a tu forma de trabajar. Después importa tus datos y anota de dónde viene cada registro. Está pensada para quien deja una hoja de cálculo, Notion, Airtable o Trello.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1776,7 +1776,7 @@
         "how_we_use_page": "La base de conocimiento explica cómo usa el equipo el CRM."
       },
       "prompt": {
-        "intro": "Configura un CRM a medida en mi espacio de trabajo de Customermates: contactos, empresas, oportunidades con etapas y tareas con fecha, una importación desde mi hoja de cálculo o mi herramienta anterior y una revisión semanal.",
+        "intro": "Mis clientes y mis oportunidades viven en una hoja de cálculo o en una herramienta antigua, y quiero un CRM que se ajuste a mi forma de trabajar. Configura un CRM a medida en mi espacio de trabajo de Customermates: contactos, empresas, oportunidades con etapas y tareas con fecha, una importación desde mi hoja de cálculo o mi herramienta anterior y una revisión semanal.",
         "questions": [
           "¿De qué herramienta u hoja de cálculo vienen tus registros y se puede exportar?",
           "¿Por qué etapas pasa una oportunidad en tu negocio?",
@@ -1788,8 +1788,8 @@
     "fr": {
       "locale": "fr",
       "name": "CRM sur mesure",
-      "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
-      "description": "Partez des quatre listes dont tout CRM a besoin et adaptez-les : étapes, champs et vues sont à vous. Pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello et veulent leurs données dans un CRM sans projet. Il garde la trace de l’origine de chaque fiche importée.",
+      "summary": "Quittez votre tableur ou votre ancien outil sans gros projet de migration. Contacts, entreprises, affaires et actions datées adaptés à votre façon de travailler, avec l’import de vos données et une revue hebdomadaire.",
+      "description": "Vos données clients sont éparpillées entre un tableur, une page Notion ou un ancien outil, et personne n’a envie de lancer un projet de migration. Ce modèle part des quatre listes dont tout CRM a besoin, contacts, entreprises, affaires et actions, et votre agent adapte les étapes, les champs et les vues à votre façon de travailler. Il importe ensuite vos données et garde la trace de l’origine de chaque fiche importée. Il est pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2071,7 +2071,7 @@
         "how_we_use_page": "La base de connaissances explique comment l’équipe utilise le CRM."
       },
       "prompt": {
-        "intro": "Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
+        "intro": "Mes clients et mes affaires sont dans un tableur ou un ancien outil, et je veux un CRM adapté à ma façon de travailler. Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
         "questions": [
           "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
           "Par quelles étapes passe une affaire dans votre activité ?",
@@ -2083,8 +2083,8 @@
     "it": {
       "locale": "it",
       "name": "CRM su misura",
-      "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un'importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
-      "description": "Parti dalle quattro liste di cui ogni CRM ha bisogno e adattale: fasi, campi e viste sono tuoi. Pensato per chi lascia un foglio Excel, Notion, Airtable o Trello e vuole i propri dati in un CRM senza un progetto. Tiene nota di dove è stato importato ogni record.",
+      "summary": "Lascia il foglio di calcolo o il vecchio strumento senza un progetto di migrazione. Contatti, aziende, trattative e attività con scadenza costruiti sul tuo modo di lavorare, con l'importazione dei tuoi dati e una revisione settimanale.",
+      "description": "I dati dei tuoi clienti sono sparsi tra un foglio di calcolo, una pagina di Notion o un vecchio strumento e nessuno vuole iniziare un progetto di migrazione. Questo modello parte dalle quattro liste di cui ogni CRM ha bisogno, contatti, aziende, trattative e attività, e il tuo agente adatta fasi, campi e viste al tuo modo di lavorare. Poi importa i tuoi dati e annota da dove viene ogni record. Pensato per chi lascia un foglio di calcolo, Notion, Airtable o Trello.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2366,7 +2366,7 @@
         "how_we_use_page": "La base di conoscenza spiega come il team usa il CRM."
       },
       "prompt": {
-        "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+        "intro": "I miei clienti e le mie trattative stanno in un foglio di calcolo o in un vecchio strumento e voglio un CRM che si adatti al mio modo di lavorare. Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
         "questions": [
           "Da quale strumento o foglio di calcolo vengono i tuoi record e si può esportare?",
           "Quali fasi attraversa una trattativa nella tua attività?",
@@ -2378,8 +2378,8 @@
     "nl": {
       "locale": "nl",
       "name": "CRM op maat",
-      "summary": "Een CRM rond jouw manier van werken: contactpersonen, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
-      "description": "Begin met de vier lijsten die elk CRM nodig heeft en pas ze aan: fasen, velden en weergaven zijn van jou. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat en zijn gegevens zonder project in een CRM wil. Het onthoudt waar elk record vandaan is geïmporteerd.",
+      "summary": "Stap over van je spreadsheet of oude tool zonder groot migratieproject. Contactpersonen, bedrijven, deals en acties met datum, afgestemd op hoe jij werkt, met een import van je gegevens en een wekelijkse controle.",
+      "description": "Je klantgegevens staan verspreid over een spreadsheet, een Notion-pagina of een oude tool, en niemand wil een migratieproject starten. Dit sjabloon begint bij de vier lijsten die elk CRM nodig heeft: contactpersonen, bedrijven, deals en acties. Je agent past de fasen, velden en weergaven aan op hoe je werkt, importeert daarna je gegevens en onthoudt waar elk record vandaan is geïmporteerd. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2661,7 +2661,7 @@
         "how_we_use_page": "De kennisbank legt uit hoe het team het CRM gebruikt."
       },
       "prompt": {
-        "intro": "Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
+        "intro": "Mijn klanten en deals staan in een spreadsheet of een oude tool en ik wil een CRM dat past bij hoe ik werk. Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
         "questions": [
           "Uit welke tool of spreadsheet komen je records en kun je die exporteren?",
           "Welke fasen doorloopt een deal in jouw bedrijf?",
@@ -2673,8 +2673,8 @@
     "pl": {
       "locale": "pl",
       "name": "Własny CRM",
-      "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, organizacje, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
-      "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez osobnego projektu wdrożeniowego. Zapisuje, skąd zaimportowano każdy rekord.",
+      "summary": "Przejdź z arkusza lub starego narzędzia bez dużego projektu wdrożeniowego. Kontakty, organizacje, szanse sprzedaży i zadania z terminem dopasowane do Twojego sposobu pracy, z importem danych i cotygodniowym przeglądem.",
+      "description": "Dane klientów są rozrzucone po arkuszu, stronie w Notion i starym narzędziu, a nikt nie chce zaczynać projektu migracji. Szablon zaczyna od czterech list, których potrzebuje każdy CRM: kontaktów, organizacji, szans sprzedaży i zadań, a agent dopasowuje etapy, pola i widoki do Twojego sposobu pracy. Potem importuje dane i zapisuje, skąd pochodzi każdy rekord. Dla osób, które odchodzą od arkusza, Notion, Airtable lub Trello.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2956,7 +2956,7 @@
         "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
       },
       "prompt": {
-        "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
+        "intro": "Moi klienci i szanse sprzedaży leżą w arkuszu lub starym narzędziu, a ja chcę CRM dopasowanego do mojego sposobu pracy. Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
         "questions": [
           "Z jakiego narzędzia lub arkusza pochodzą Twoje rekordy i czy da się je wyeksportować?",
           "Przez jakie etapy przechodzi szansa w Twojej firmie?",
@@ -2968,8 +2968,8 @@
     "pt": {
       "locale": "pt",
       "name": "CRM personalizado",
-      "summary": "Um CRM construído em torno do seu jeito de trabalhar: contatos, empresas, negócios e tarefas com data, com importação da sua planilha ou da ferramenta antiga e uma revisão semanal.",
-      "description": "Comece pelas quatro listas de que todo CRM precisa e adapte: etapas, campos e visualizações são seus. Pensado para quem deixa uma planilha, o Notion, o Airtable ou o Trello e quer seus dados em um CRM sem montar um projeto. Anote de onde cada registro foi importado.",
+      "summary": "Troque a planilha ou a ferramenta antiga por um CRM sem montar um projeto de migração. Contatos, empresas, negócios e tarefas com data do seu jeito, com importação dos seus dados e uma revisão semanal.",
+      "description": "Seus dados de clientes estão espalhados por uma planilha, uma página do Notion ou uma ferramenta antiga, e ninguém quer começar um projeto de migração. Este modelo parte das quatro listas de que todo CRM precisa, contatos, empresas, negócios e tarefas, e o seu agente ajusta etapas, campos e visualizações ao jeito como você trabalha. Depois importa os seus dados e anota de onde cada registro veio. Pensado para quem está saindo de uma planilha, do Notion, do Airtable ou do Trello.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3251,7 +3251,7 @@
         "how_we_use_page": "A base de conhecimento explica como a equipe usa o CRM."
       },
       "prompt": {
-        "intro": "Configure um CRM personalizado no meu espaço de trabalho do Customermates: contatos, empresas, negócios com etapas e tarefas com data, uma importação da minha planilha ou da ferramenta antiga e uma revisão semanal.",
+        "intro": "Meus clientes e negócios estão em uma planilha ou em uma ferramenta antiga, e eu quero um CRM que funcione do meu jeito. Configure um CRM personalizado no meu espaço de trabalho do Customermates: contatos, empresas, negócios com etapas e tarefas com data, uma importação da minha planilha ou da ferramenta antiga e uma revisão semanal.",
         "questions": [
           "De qual ferramenta ou planilha vêm os seus registros e dá para exportar?",
           "Por quais etapas um negócio passa no seu trabalho?",

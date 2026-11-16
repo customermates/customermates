@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "CRM sur mesure",
-  "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
-  "description": "Partez des quatre listes dont tout CRM a besoin et adaptez-les : étapes, champs et vues sont à vous. Pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello et veulent leurs données dans un CRM sans projet. Il garde la trace de l’origine de chaque fiche importée.",
+  "summary": "Quittez votre tableur ou votre ancien outil sans gros projet de migration. Contacts, entreprises, affaires et actions datées adaptés à votre façon de travailler, avec l’import de vos données et une revue hebdomadaire.",
+  "description": "Vos données clients sont éparpillées entre un tableur, une page Notion ou un ancien outil, et personne n’a envie de lancer un projet de migration. Ce modèle part des quatre listes dont tout CRM a besoin, contacts, entreprises, affaires et actions, et votre agent adapte les étapes, les champs et les vues à votre façon de travailler. Il importe ensuite vos données et garde la trace de l’origine de chaque fiche importée. Il est pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes avec lesquelles vous travaillez." },
     "organizations": { "label": "Entreprise", "pluralLabel": "Entreprises", "description": "Sociétés et autres organismes." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "La base de connaissances explique comment l’équipe utilise le CRM."
   },
   "prompt": {
-    "intro": "Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
+    "intro": "Mes clients et mes affaires sont dans un tableur ou un ancien outil, et je veux un CRM adapté à ma façon de travailler. Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
     "questions": [
       "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
       "Par quelles étapes passe une affaire dans votre activité ?",

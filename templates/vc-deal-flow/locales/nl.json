@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Dealflow voor investeerders",
-  "summary": "Een dealflow voor een klein fonds of business angel: acht fasen van gesignaleerd tot gesloten of afgewezen, wie elke deal aandroeg, een reden van afwijzing en een datum om terug te komen.",
-  "description": "Volg startups en investeerders van sourcing, screening en gesprekken via due diligence tot de term sheet. Elke deal legt vast wie hem aandroeg, hoe goed hij past bij de thesis, de rol als lead, een link naar de data room, de reden van afwijzing en wanneer je opnieuw kijkt. Een relatietool, geen aandeelhoudersregister, geen juridische data room en geen scoremodel. De wegingen zijn globaal en van jou.",
+  "summary": "Onthoud wie een deal aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Een dealflow voor een klein fonds of business angel, met acht fasen van gesignaleerd tot gesloten of afgewezen.",
+  "description": "Dealflow bestaat vooral uit afwijzingen, en zonder vastlegging van wie een startup aandroeg en waarom je nee zei, wordt dezelfde deal de volgende keer weer van nul af aan bekeken. Dit sjabloon volgt startups en investeerders van sourcing, screening en gesprekken via due diligence tot de term sheet. Elke deal legt vast wie hem aandroeg, hoe goed hij past bij de these, de rol als lead, een link naar de data room, de reden van afwijzing en wanneer je opnieuw kijkt. Een relatietool, geen aandeelhoudersregister, geen juridische data room en geen scoremodel. De wegingen zijn globaal en van jou.",
   "lists": {
     "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Oprichters, investeerders, co-investeerders en introducers." },
     "organizations": { "label": "Organisatie", "pluralLabel": "Organisaties", "description": "Startups, fondsen, syndicaten en accelerators." },
@@ -118,7 +118,7 @@
     "board_view": "De deals openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt een dealflow in mijn Customermates-werkruimte in: deals met acht fasen, de introducer, match met de these, de rol als lead, een reden van afwijzing en een datum om terug te komen, plus startups, investeerders en opvolgacties met datum.",
+    "intro": "Ik bekijk veel startups en vergeet wie ze aandroeg, waarom ik nee zei en wanneer ik opnieuw wilde kijken. Richt een dealflow in mijn Customermates-werkruimte in: deals met acht fasen, de introducer, match met de these, de rol als lead, een reden van afwijzing en een datum om terug te komen, plus startups, investeerders en opvolgacties met datum.",
     "questions": [
       "In welke fasen en sectoren investeer je en hoe groot is je gebruikelijke ticket?",
       "Hoe komen deals bij je binnen en wie draagt ze aan?",

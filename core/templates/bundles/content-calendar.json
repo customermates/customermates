@@ -1113,8 +1113,8 @@
     "de": {
       "locale": "de",
       "name": "Redaktionsplan",
-      "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
-      "description": "Ein Redaktionsplan für Blog, Newsletter, Social Media und Video: sieben Status von Idee bis veröffentlicht, ein Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Er plant und verfolgt, er veröffentlicht nicht.",
+      "summary": "Wissen, was diese Woche rausgeht und wer es aufhält. Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
+      "description": "Beiträge, Newsletter und Videos verspäten sich, wenn die Pläne in verschiedenen Dokumenten stehen und niemand weiß, wer was prüft. Diese Vorlage richtet einen Redaktionsplan für Blog, Newsletter, Social Media und Video ein: sieben Status von Idee bis veröffentlicht, einen Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Sie passt zu Kreativen mit eigenem Kanal, Marketing-Teams im Unternehmen und Agenturen. Hier wird geplant und verfolgt, nicht veröffentlicht.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1516,7 +1516,7 @@
         "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
       },
       "prompt": {
-        "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
+        "intro": "Unsere Beiträge, Newsletter und Videos kommen zu spät, weil ich nicht sehe, wer was prüft und wann es erscheint. Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
         "questions": [
           "Was veröffentlichst du, auf welchen Kanälen und wie oft?",
           "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",
@@ -1528,8 +1528,8 @@
     "en": {
       "locale": "en",
       "name": "Content calendar",
-      "summary": "One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
-      "description": "An editorial calendar for blog, newsletter, social and video: seven statuses from idea to published, a publishing calendar, a content pillar per piece, a disclosure check for paid or gifted content and a results check after 30 days. It plans and tracks; it does not publish.",
+      "summary": "Know what goes out this week and who is holding it up. One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
+      "description": "Posts, newsletters and videos slip when plans live in different documents and nobody knows who is reviewing what. This template sets up an editorial calendar for blog, newsletter, social and video: seven statuses from idea to published, a publishing calendar, a content pillar per piece, a disclosure check for paid or gifted content and a results check after 30 days. It fits creators, in-house marketers and agencies. It plans and tracks; it does not publish.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1931,7 +1931,7 @@
         "calendar_widget": "The dashboard shows the publishing calendar."
       },
       "prompt": {
-        "intro": "Set up a content calendar in my Customermates workspace: pieces with seven statuses, an owner, a reviewer and a publish date, campaigns, key dates, a disclosure check and a weekly editorial routine.",
+        "intro": "Our posts, newsletters and videos run late because I cannot see who is reviewing what or when it goes out. Set up a content calendar in my Customermates workspace: pieces with seven statuses, an owner, a reviewer and a publish date, campaigns, key dates, a disclosure check and a weekly editorial routine.",
         "questions": [
           "What do you publish, on which channels, and how often?",
           "Who writes, who reviews and who approves? Is a client involved?",
@@ -1943,8 +1943,8 @@
     "es": {
       "locale": "es",
       "name": "Calendario editorial",
-      "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
-      "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, pero no publica.",
+      "summary": "Ten claro qué se publica esta semana y quién lo está frenando. Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+      "description": "Las publicaciones, las newsletters y los vídeos se retrasan cuando los planes están en documentos distintos y nadie sabe quién revisa qué. Esta plantilla prepara un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Encaja con creadores de contenido, responsables de marketing en empresas y agencias. Planifica y hace seguimiento, pero no publica.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2346,7 +2346,7 @@
         "calendar_widget": "El panel muestra el calendario de publicación."
       },
       "prompt": {
-        "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
+        "intro": "Nuestras publicaciones, newsletters y vídeos salen tarde porque no veo quién revisa qué ni cuándo sale cada cosa. Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
         "questions": [
           "¿Qué publicas, en qué canales y con qué frecuencia?",
           "¿Quién escribe, quién revisa y quién aprueba? ¿Interviene un cliente?",
@@ -2358,8 +2358,8 @@
     "fr": {
       "locale": "fr",
       "name": "Calendrier éditorial",
-      "summary": "Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
-      "description": "Un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il planifie et suit, il ne publie pas.",
+      "summary": "Sachez ce qui sort cette semaine et qui bloque. Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
+      "description": "Les articles, les newsletters et les vidéos prennent du retard quand les plans vivent dans plusieurs documents et que personne ne sait qui relit quoi. Ce modèle met en place un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il convient aux créateurs, aux responsables marketing en entreprise et aux agences. Il planifie et suit, il ne publie pas.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2761,7 +2761,7 @@
         "calendar_widget": "Le tableau de bord montre le calendrier de publication."
       },
       "prompt": {
-        "intro": "Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
+        "intro": "Nos publications, newsletters et vidéos sortent en retard, car je ne vois pas qui relit quoi ni quand tout part. Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
         "questions": [
           "Que publiez-vous, sur quels canaux, et à quel rythme ?",
           "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",
@@ -2773,8 +2773,8 @@
     "it": {
       "locale": "it",
       "name": "Calendario editoriale",
-      "summary": "Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
-      "description": "Un calendario editoriale per blog, newsletter, social e video: sette stati dall'idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della segnalazione pubblicitaria per i contenuti sponsorizzati o con prodotti ricevuti in omaggio e una verifica dei risultati dopo 30 giorni. Pianifica e tiene traccia, non pubblica.",
+      "summary": "Vedi subito che cosa esce questa settimana e chi lo sta bloccando. Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
+      "description": "Post, newsletter e video slittano quando i piani stanno in documenti diversi e nessuno sa chi sta rivedendo che cosa. Questo modello imposta un calendario editoriale per blog, newsletter, social e video: sette stati dall'idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della segnalazione pubblicitaria per i contenuti sponsorizzati o con prodotti ricevuti in omaggio e una verifica dei risultati dopo 30 giorni. Adatto a creator, responsabili marketing interni e agenzie. Pianifica e tiene traccia, non pubblica.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3176,7 +3176,7 @@
         "calendar_widget": "La dashboard mostra il calendario di pubblicazione."
       },
       "prompt": {
-        "intro": "Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
+        "intro": "I nostri post, newsletter e video escono in ritardo perché non vedo chi sta rivedendo che cosa né quando va online. Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
         "questions": [
           "Che cosa pubblichi, su quali canali e con quale frequenza?",
           "Chi scrive, chi rivede e chi approva? È coinvolto un cliente?",
@@ -3188,8 +3188,8 @@
     "nl": {
       "locale": "nl",
       "name": "Contentkalender",
-      "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
-      "description": "Een redactiekalender voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Hij plant en volgt, hij publiceert niet.",
+      "summary": "Weet wat er deze week uitkomt en wie het ophoudt. Eén regel per stuk met een status, een eigenaar, een reviewer en een publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
+      "description": "Posts, nieuwsbrieven en video’s lopen uit als plannen in verschillende documenten staan en niemand weet wie wat reviewt. Dit sjabloon zet een redactiekalender op voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Voor creators, in-house marketeers en bureaus. Hij plant en volgt, hij publiceert niet.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3591,7 +3591,7 @@
         "calendar_widget": "Het dashboard toont de publicatiekalender."
       },
       "prompt": {
-        "intro": "Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
+        "intro": "Onze posts, nieuwsbrieven en video’s lopen uit, omdat ik niet kan zien wie wat reviewt of wanneer het verschijnt. Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
         "questions": [
           "Wat publiceer je, op welke kanalen en hoe vaak?",
           "Wie schrijft, wie reviewt en wie keurt goed? Is er een klant bij betrokken?",
@@ -3603,8 +3603,8 @@
     "pl": {
       "locale": "pl",
       "name": "Kalendarz treści",
-      "summary": "Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
-      "description": "Kalendarz redakcyjny dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrola oznaczenia reklamy dla treści płatnych lub powstałych w zamian za produkt i sprawdzenie wyników po 30 dniach. Planuje i śledzi, nie publikuje.",
+      "summary": "Wiedz, co wychodzi w tym tygodniu i na kogo czekasz. Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
+      "description": "Posty, newslettery i filmy się opóźniają, gdy plany leżą w różnych dokumentach i nikt nie wie, kto co recenzuje. Szablon zakłada kalendarz redakcyjny dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrolę oznaczenia reklamy dla treści płatnych lub powstałych w zamian za produkt i sprawdzenie wyników po 30 dniach. Pasuje do twórców, działów marketingu w firmach i agencji. Planuje i śledzi, nie publikuje.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4006,7 +4006,7 @@
         "calendar_widget": "Pulpit pokazuje kalendarz publikacji."
       },
       "prompt": {
-        "intro": "Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
+        "intro": "Nasze posty, newslettery i filmy się opóźniają, bo nie widzę, kto co recenzuje i kiedy materiał wychodzi. Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
         "questions": [
           "Co publikujesz, w jakich kanałach i jak często?",
           "Kto pisze, kto przegląda i kto akceptuje? Czy uczestniczy klient?",
@@ -4018,8 +4018,8 @@
     "pt": {
       "locale": "pt",
       "name": "Calendário editorial",
-      "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma reunião editorial semanal.",
-      "description": "Um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar por conteúdo, uma conferência da identificação de publicidade para conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Planeja e acompanha, não publica.",
+      "summary": "Saiba o que vai ao ar esta semana e quem está segurando cada conteúdo. Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma rotina editorial semanal.",
+      "description": "Posts, newsletters e vídeos atrasam quando os planos ficam em documentos diferentes e ninguém sabe quem está revisando o quê. Este modelo monta um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar por conteúdo, uma conferência da identificação de publicidade em conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Serve para criadores de conteúdo, profissionais de marketing e agências. Planeja e acompanha, não publica.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4421,7 +4421,7 @@
         "calendar_widget": "O painel mostra o calendário de postagens."
       },
       "prompt": {
-        "intro": "Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma reunião editorial semanal.",
+        "intro": "Nossos posts, newsletters e vídeos saem atrasados porque eu não sei quem está revisando o quê nem quando cada conteúdo vai ao ar. Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma rotina editorial semanal.",
         "questions": [
           "O que você publica, em quais canais e com que frequência?",
           "Quem escreve, quem revisa e quem aprova? Há um cliente envolvido?",

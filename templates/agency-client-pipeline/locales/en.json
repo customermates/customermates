@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Agency client pipeline",
-  "summary": "A pipeline for a marketing or creative agency: opportunities from the first conversation to a signed deal with a pitch go/no-go, and live retainers with a renewal date, a notice period, a quarterly review and a health flag.",
-  "description": "Win and keep clients in one place: opportunities through conversation, qualification, brief or pitch, proposal and negotiation, a win that starts a five-step onboarding, and engagements for the retainers and projects that follow, with monthly fee, renewal date, notice period and the next quarterly review. Budgets are recorded when the client states them, never guessed. Logins, brand assets and ad-account access never go in the workspace. It is not project management, time tracking, retainer billing or reporting.",
+  "summary": "Win agency clients and keep them past the first project. Opportunities run from first conversation to signed deal with a pitch go/no-go, and live retainers carry a renewal date and a quarterly review.",
+  "description": "Agencies win a client and then get surprised when the retainer comes up for renewal, because pitches and live work are tracked in different places. This template sets up opportunities through conversation, qualification, brief or pitch, proposal and negotiation, a win that starts a five-step onboarding, and engagements for the retainers and projects that follow, with monthly fee, renewal date, notice period and the next quarterly review. Budgets are recorded when the client states them, never guessed, and logins, brand assets and ad-account access never go in the workspace. It fits marketing, communication, creative and digital agencies; project management, time tracking and billing stay in your own tools.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Decision makers, marketing leads, procurement and day-to-day contacts." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, former clients and partners." },
@@ -103,7 +103,7 @@
     "opportunities_board_view": "The opportunities open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up an agency client pipeline in my Customermates workspace: opportunities with a pitch go/no-go, engagements for retainers and projects with renewal date, notice period, quarterly review and a health flag, and dated follow-ups. Never store client logins or brand assets.",
+    "intro": "We win new clients but lose track of pitches in progress and of when retainers renew. Set up an agency client pipeline in my Customermates workspace: opportunities with a pitch go/no-go, engagements for retainers and projects with renewal date, notice period, quarterly review and a health flag, and dated follow-ups. Never store client logins or brand assets.",
     "questions": [
       "Which services do you sell, and do you work on retainers, projects or both?",
       "How do you decide whether to join a competitive pitch?",

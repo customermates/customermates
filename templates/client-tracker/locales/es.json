@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Ficha de clientes",
-  "summary": "Una fila por cliente, un responsable, una próxima acción con fecha, más una revisión semanal y una fecha de revisión de datos para cada cliente dado de baja.",
-  "description": "Una base de datos de clientes breve y disciplinada: siete estados, la fecha de la última interacción, una fecha de próxima acción que marca el trabajo, un ritmo de revisión por segmento y una fecha de revisión de datos para los clientes dados de baja. Personas de contacto, tareas con fecha y conversaciones vinculadas están junto a cada cliente.",
+  "summary": "Ten siempre claro a qué cliente le debes una llamada, una respuesta o un presupuesto. Cada cliente tiene un responsable y una próxima acción con fecha, y la revisión semanal muestra lo que va con retraso.",
+  "description": "Cuando los datos de los clientes están repartidos entre una hoja de cálculo, el correo y tu cabeza, los seguimientos se escapan y nadie se entera hasta que un cliente deja de dar señales. Esta plantilla prepara una fila por cliente con un estado, la fecha de la última interacción, una próxima acción con fecha y un ritmo de revisión por segmento, con las personas de contacto, las tareas con fecha y las conversaciones vinculadas junto a cada cliente, y una fecha de revisión de datos cuando das de baja a un cliente. Encaja con autónomos, agencias y equipos pequeños de hasta unas diez personas que cuidan ellos mismos la relación con sus clientes.",
   "lists": {
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Una fila por cliente, un responsable, una próxima acción con fecha." },
     "contacts": { "label": "Persona de contacto", "pluralLabel": "Personas de contacto", "description": "Las personas con las que trabajas en cada cliente." }
@@ -183,7 +183,7 @@
     "playbook_page": "La base de conocimiento contiene la guía de la ficha de clientes."
   },
   "prompt": {
-    "intro": "Configura una ficha de clientes en mi espacio de trabajo de Customermates: una fila por cliente con un responsable, un estado, la fecha de la última interacción y una próxima acción con fecha, más las personas de contacto, tareas con fecha, una revisión semanal y una fecha de revisión de datos para los clientes dados de baja.",
+    "intro": "Llevo personalmente la relación con mis clientes y se me escapan demasiados seguimientos: no sé con quién hablé por última vez ni qué toca ahora. Configura una ficha de clientes en mi espacio de trabajo de Customermates: una fila por cliente con un responsable, un estado, la fecha de la última interacción y una próxima acción con fecha, más las personas de contacto, tareas con fecha, una revisión semanal y una fecha de revisión de datos para los clientes dados de baja.",
     "questions": [
       "¿Cuántos clientes llevas hoy y quién más trabaja con la ficha?",
       "¿Qué estados de cliente usas ya? ¿Hay que renombrar o quitar alguno de los siete?",

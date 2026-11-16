@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Plan d’action",
-  "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle est issue, avec une revue hebdomadaire et une clôture sur preuve.",
-  "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
+  "summary": "Faites que ce qui est décidé en réunion soit réellement fait. Chaque action a un pilote, une échéance et un lien vers la décision ou le projet dont elle vient, avec une revue chaque semaine.",
+  "description": "Les actions décidées en réunion, en audit ou au téléphone avec un client se perdent dans les comptes rendus et les messages, et le même point revient la semaine suivante. Ce modèle met en place une seule liste d’actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, reliées à la réunion, à la décision ou au projet dont elles viennent, avec un relevé de décisions et une vérification que l’action corrective a été efficace. Il convient aux équipes, aux chefs de projet et aux responsables qualité qui veulent une revue hebdomadaire de ce qui est ouvert, en retard ou bloqué. Les rappels viennent des règles d’automatisation et des notifications que vous activez.",
   "lists": {
     "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Équipe, partenaires, clients et fournisseurs." },
     "meetings": { "label": "Réunion", "pluralLabel": "Réunions", "description": "D’où viennent les actions et les décisions." },
@@ -104,7 +104,7 @@
     "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
   },
   "prompt": {
-    "intro": "Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
+    "intro": "Les actions décidées en réunion nous échappent et je ne sais plus qui doit faire quoi pour quand. Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
     "questions": [
       "D’où viennent vos actions : réunions, projets, audits, clients ?",
       "Qui pilote les actions, et qui décide quand l’une est reportée ou annulée ?",

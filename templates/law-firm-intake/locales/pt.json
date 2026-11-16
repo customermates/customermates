@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Atendimento de clientes para advocacia",
-  "summary": "Um atendimento em etapas fixas: contato, triagem de conflito e urgência, consulta, proposta de honorários, contrato e procuração assinados e uma carta escrita para quem não vira cliente.",
-  "description": "Receba clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a verificação de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a verificação de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarde uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde ou dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
+  "summary": "Receba clientes novos sem deixar passar uma verificação de conflito nem um prazo. Contato, conflito, consulta, proposta de honorários e contrato assinado, e uma carta escrita de não contratação para quem não vira cliente.",
+  "description": "Um prazo pode já estar correndo quando o interessado liga pela primeira vez, e um conflito de interesses não verificado é difícil de desfazer. Este modelo recebe clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a verificação de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a verificação de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarda só uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde nem dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Interessados, clientes, ex-clientes e quem indica." },
     "inquiries": { "label": "Atendimento", "pluralLabel": "Atendimentos", "description": "Um pedido de ajuda jurídica, do primeiro contato a um caso ou uma recusa." },
@@ -105,7 +105,7 @@
     "conflict_check_page": "A base de conhecimento tem uma página sobre a verificação de conflito."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
+    "intro": "Eu atendo interessados que ligam por causa de um caso e preciso verificar conflitos, anotar o prazo mais próximo e documentar cada passo antes de aceitá-los como clientes. Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
     "questions": [
       "Quais áreas do direito você atende e quais encaminha a outros?",
       "Como você faz a verificação de conflito e quem a aprova?",

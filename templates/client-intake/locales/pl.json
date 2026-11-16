@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Przyjęcie klienta i onboarding",
-  "summary": "Jedno przyjęcie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
-  "description": "Krótki lejek przyjęcia nowego klienta: odpowiedź w ciągu doby, ocena dopasowania, wysłanie ankiety, zebranie dokumentów, wysłanie umowy, start. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, nigdy samego dokumentu. To nie jest narzędzie do podpisu elektronicznego, weryfikacji KYC/AML ani płatności.",
+  "summary": "Przyjmuj nowych klientów bez ręcznego gonienia za ankietami, dokumentami i umowami. Jedno przyjęcie na zlecenie, z datowanym krokiem na każdym etapie i zapisanym powodem, gdy odmawiasz.",
+  "description": "Nowi klienci milkną między pierwszym zapytaniem a pierwszym dniem pracy: ankieta nie wróciła, brakuje dokumentu, umowa wciąż czeka na podpis. Szablon zakłada jedno przyjęcie na zlecenie z dziewięcioma etapami od zapytania do spotkania startowego, dokumenty od klienta, datowany krok na każdym etapie, odpowiedź w ciągu doby i powód odmowy, gdy rezygnujesz z klienta. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, sprawdził konflikt interesów i ocenił ryzyko, nigdy samego dokumentu. To nie jest narzędzie do podpisu elektronicznego, weryfikacji tożsamości KYC/AML ani płatności.",
   "lists": {
     "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby u każdego klienta: główny kontakt, rozliczenia, osoba podpisująca." },
     "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Firmy, jednoosobowe działalności i osoby prywatne, które przyjmujesz." },
@@ -200,7 +200,7 @@
     "process_page": "Baza wiedzy zawiera proces przyjęcia."
   },
   "prompt": {
-    "intro": "Skonfiguruj przyjmowanie klientów w mojej przestrzeni roboczej Customermates: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
+    "intro": "Nowi klienci odpadają między pierwszym zapytaniem a pierwszym dniem pracy, bo zapominam wysłać ankietę albo ponaglić o dokumenty. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
     "questions": [
       "Co sprzedajesz i jacy są Twoi klienci: firmy, jednoosobowe działalności czy osoby prywatne?",
       "Jakie kroki przechodzi dziś nowy klient i których z dziewięciu etapów nie potrzebujesz?",

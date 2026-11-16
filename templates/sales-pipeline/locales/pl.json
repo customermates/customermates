@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Lejek sprzedaży",
-  "summary": "Siedem etapów z kryteriami wyjścia i wagami, następny krok z terminem przy każdej otwartej szansie, powody wygranej i przegranej oraz zmiana etapu, która tworzy kolejne zadanie.",
-  "description": "Lejek dla małego zespołu sprzedaży: pięć etapów otwartych, Wygrana i Przegrana, wartość ważona każdej szansy, komitet zakupowy przy szansie, powód przegranej i powód wygranej oraz cotygodniowy przegląd. Wagi służą do ważenia lejka, a nie do prognozowania: po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
+  "summary": "Zobacz, które szanse się ruszają, które utknęły i co dzieje się dalej. Siedem etapów z następnym krokiem z terminem przy każdej otwartej szansie oraz powody wygranej i przegranej.",
+  "description": "Bez czytelnego lejka szanse po cichu utykają, nikt nie pamięta, dlaczego któraś przepadła, a cotygodniowa rozmowa o lejku zamienia się w zgadywanie. Szablon zakłada pięć etapów otwartych oraz Wygraną i Przegraną, z kryterium wyjścia dla każdego etapu, wartość ważoną każdej szansy, następny krok z terminem przy każdej otwartej szansie, komitet zakupowy przy szansie, powód wygranej i przegranej oraz nowe zadanie przy każdej zmianie etapu. Pasuje do małego zespołu sprzedaży, od jednego do dziesięciu handlowców. Wagi są punktem wyjścia, więc po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
   "lists": {
     "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby po stronie kupującego wraz z ich rolą w decyzji." },
     "accounts": { "label": "Firma", "pluralLabel": "Firmy", "description": "Firmy, którym sprzedajesz." },
@@ -236,7 +236,7 @@
     "stages_page": "Baza wiedzy zawiera etapy i ich kryteria wyjścia."
   },
   "prompt": {
-    "intro": "Skonfiguruj lejek sprzedaży w mojej przestrzeni roboczej Customermates: szanse sprzedaży z siedmioma etapami i wagami, wartość ważona, następny krok z terminem przy każdej otwartej szansie, powody przegranej i wygranej, komitet zakupowy przy każdej szansie i zadanie tworzone przy każdej zmianie etapu.",
+    "intro": "Mój zespół sprzedaje firmom i nie umiem ocenić, które szanse są realne, które utknęły i dlaczego wygrywamy albo przegrywamy. Skonfiguruj lejek sprzedaży w mojej przestrzeni roboczej Customermates: szanse sprzedaży z siedmioma etapami i wagami, wartość ważona, następny krok z terminem przy każdej otwartej szansie, powody przegranej i wygranej, komitet zakupowy przy każdej szansie i zadanie tworzone przy każdej zmianie etapu.",
     "questions": [
       "Co sprzedajesz i ile osób to sprzedaje?",
       "Przez jakie kroki przechodzi szansa od pierwszego kontaktu do podpisu? Które z siedmiu etapów pasują, a które wymagają innej nazwy?",

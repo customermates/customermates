@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Klantenpijplijn voor bureaus",
-  "summary": "Een pijplijn voor een marketing- of creatief bureau: kansen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende opdrachten met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht.",
-  "description": "Klanten winnen en behouden op één plek: kansen via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en retainers en projecten die volgen, met maandelijkse fee, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten worden vastgelegd als de klant ze noemt, nooit geraden. Inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de werkruimte. Geen projectmanagement, geen urenregistratie, geen facturering van retainers en geen rapportage.",
+  "summary": "Win klanten voor je bureau en houd ze langer dan het eerste project. Kansen lopen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers krijgen een verlengingsdatum en een kwartaalgesprek.",
+  "description": "Bureaus winnen een klant en worden later overvallen door de verlengingsdatum of opzegtermijn van de retainer, omdat pitches en lopend werk op verschillende plekken staan. Dit sjabloon zet kansen op via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en lopende opdrachten voor de retainers en projecten die volgen, met maandelijkse fee, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten leg je vast als de klant ze noemt, nooit geraden, en inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de werkruimte. Voor marketing-, communicatie-, creatieve en digitale bureaus; projectmanagement, urenregistratie, facturering en rapportage blijven in je eigen tools.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Beslissers, marketingleiders, inkoop en dagelijkse contactpersonen." },
     "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Prospects, klanten, voormalige klanten en partners." },
@@ -103,7 +103,7 @@
     "opportunities_board_view": "De kansen openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, lopende opdrachten (retainers en projecten) met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
+    "intro": "We winnen nieuwe klanten, maar verliezen het overzicht over lopende pitches en over de datum waarop retainers worden verlengd. Richt in mijn Customermates-werkruimte een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, lopende opdrachten (retainers en projecten) met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
     "questions": [
       "Welke diensten verkoop je en werk je met retainers, projecten of beide?",
       "Hoe beslis je of je meedoet aan een pitch tegen andere bureaus?",

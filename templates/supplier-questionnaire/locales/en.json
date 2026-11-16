@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Supplier questionnaire",
-  "summary": "A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier, an approval decision and a date for the next review.",
-  "description": "Qualify suppliers and contractors in one place: send a questionnaire, collect certificates and clearances with their valid-until dates, tier each supplier by risk, record the decision (approve, approve with conditions, escalate, reject) and see what expires next. It coordinates evidence. It does not decide legal compliance, screen sanctions or financial risk, or replace your quality system, ERP or document archive.",
+  "summary": "Know which suppliers are approved and which certificate expires next. A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier and a decision for each supplier.",
+  "description": "Supplier certificates expire and re-evaluations get skipped when the answers live in emails and folders. This template qualifies suppliers and contractors in one place: send a questionnaire, collect certificates and clearances with their valid-until dates, tier each supplier by risk, record the decision (approve, approve with conditions, escalate, reject) and see what expires next. It coordinates evidence. It does not decide legal compliance, screen sanctions or financial risk, or replace your quality system, ERP or document archive.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "People at your suppliers who answer questionnaires and send documents." },
     "suppliers": { "label": "Supplier", "pluralLabel": "Suppliers", "description": "Every supplier or contractor, from candidate to approved or blocked." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "The suppliers open as a board by status."
   },
   "prompt": {
-    "intro": "Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
+    "intro": "I work with many suppliers and cannot see whose certificates have expired or who is due for re-evaluation. Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
     "questions": [
       "How many suppliers do you have, and how do you split them by risk?",
       "Which certificates or clearances do you ask for, and how long is each valid?",

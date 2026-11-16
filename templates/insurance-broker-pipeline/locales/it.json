@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Broker assicurativo",
-  "summary": "Due pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, e una pratica di rinnovo per ogni polizza che si apre da 120 a 45 giorni prima della scadenza.",
-  "description": "Gestisci nuovi affari e rinnovi fianco a fianco: trattative dalla prima richiesta all'analisi delle esigenze, alla richiesta di quotazioni, alla proposta e alla decisione fino alla polizza attiva, una data di consulenza documentata su ogni proposta, e polizze con la loro scadenza che aprono da sole una pratica di rinnovo. Conserva un rimando alla documentazione della consulenza e alla polizza nel gestionale assicurativo, mai dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità. Non è amministrazione delle polizze, un comparatore o un motore tariffario, gestione dei sinistri né riconciliazione delle provvigioni.",
+  "summary": "Vedi ogni rinnovo in arrivo e tieni in movimento i nuovi affari. Dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, più una pratica di rinnovo per ogni polizza.",
+  "description": "I rinnovi sfuggono e la consulenza resta senza documentazione quando nuovi affari e rinnovi stanno in elenchi separati o nella tua testa. Questo modello li gestisce fianco a fianco: trattative dalla prima richiesta, passando per analisi delle esigenze, richiesta di quotazioni, proposta e decisione, fino alla polizza attiva, con una data di consulenza documentata su ogni proposta; e polizze con la loro scadenza che aprono da sole una pratica di rinnovo, da 120 a 45 giorni prima. Conserva un rimando alla documentazione della consulenza e alla polizza nel gestionale assicurativo, mai dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità. Non è amministrazione delle polizze, un comparatore o un motore tariffario, gestione dei sinistri né riconciliazione delle provvigioni.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Contraenti, potenziali clienti, decisori e segnalatori." },
     "opportunities": { "label": "Trattativa", "pluralLabel": "Trattative", "description": "Un nuovo affare dalla prima richiesta alla polizza attiva o alla perdita." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "La base di conoscenza contiene una pagina sulla documentazione della consulenza."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
+    "intro": "Gestisco un portafoglio assicurativo: i rinnovi mi colgono di sorpresa e devo anche documentare la consulenza prima di ogni proposta. Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
     "questions": [
       "Quali rami collochi e segui aziende, privati o entrambi?",
       "Quanto tempo prima della scadenza avvii un rinnovo e qual è il preavviso di disdetta abituale?",

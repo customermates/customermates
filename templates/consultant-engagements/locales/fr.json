@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Missions de conseil",
-  "summary": "Un pipeline pour un consultant indépendant : missions de la prospection à la mission signée avec contrôle d’acceptation avant la proposition, une date de relance convenue lors de l’appel sur la proposition, et des livrables qui encadrent l’exécution et la clôture.",
-  "description": "Pilotez une activité de conseil au même endroit : missions à travers la qualification, le cadrage, la proposition commerciale et la décision, la date de relance convenue avec le sponsor, un contrôle d’acceptation (capacité, indépendance, confidentialité) avant la proposition, des livrables avec leur échéance et leur validation, et une clôture qui demande un retour et un témoignage. Il conserve le pipeline, les relations et les jalons de livraison. Ce n’est ni du suivi du temps, ni de la facturation, ni de la signature électronique de propositions, ni de la planification de ressources, et il ne contient aucune donnée confidentielle du client.",
+  "summary": "Sachez où en est chaque proposition et ne laissez plus un prospect sans suite après l’appel. Missions de la prospection à la signature, date de relance convenue lors de l’appel, livrables qui encadrent l’exécution et la clôture.",
+  "description": "Quand vous êtes consultant indépendant, vous menez quelques conversations et une proposition à la fois, et les affaires se perdent dans le silence qui suit l’appel sur la proposition ou entre la signature et le lancement. Ce modèle met en place les missions à travers la qualification, le cadrage, la proposition commerciale et la décision, avec la date de relance convenue avec le sponsor, un contrôle d’acceptation (capacité, indépendance, confidentialité) avant la proposition, des livrables avec leur échéance et leur validation, et une clôture qui demande un retour et un témoignage. Il conserve le pipeline, les relations et les jalons de livraison. Ce n’est ni du suivi du temps, ni de la facturation, ni de la signature électronique de propositions, ni de la planification de ressources, et il ne contient aucune donnée confidentielle du client.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Sponsors, interlocuteurs du quotidien, signataires et prescripteurs." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, anciens clients et partenaires apporteurs." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "Les missions s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
+    "intro": "Je mène une activité de conseil en indépendant et je perds des affaires dans le silence qui suit l’appel sur une proposition. Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
     "questions": [
       "Quels types de missions vendez-vous, et à quel taux journalier ?",
       "Comment décidez-vous d’accepter ou non une mission ?",

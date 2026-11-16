@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Soci e donatori",
-  "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
-  "description": "Per associazioni, enti del terzo settore e parrocchie: chi ti sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
+  "summary": "Vedi subito chi sono i tuoi soci e sostenitori, chi aspetta ancora un ringraziamento e chi deve rinnovare. Un unico registro per tesseramenti con scadenza, donazioni con ricevuta, grandi donazioni e bandi.",
+  "description": "Associazioni, enti benefici e parrocchie perdono soci e sostenitori quando i rinnovi saltano e le donazioni restano senza ringraziamento, perché gli elenchi stanno in mano a volontari diversi. Questo modello imposta sostenitori, tesseramenti con quota e scadenza, erogazioni liberali con stato del ringraziamento e della ricevuta e una pipeline per grandi donazioni e bandi. Adatto ad associazioni, enti del terzo settore e parrocchie che vogliono un unico registro invece di tanti elenchi. Non emette ricevute fiscali né incassa quote: ti dice quali sono da emettere.",
   "lists": {
     "supporters": { "label": "Sostenitore", "pluralLabel": "Sostenitori", "description": "Soci, donatori, volontari, ospiti e consiglieri." },
     "memberships": { "label": "Tesseramento", "pluralLabel": "Tesseramenti", "description": "Un'iscrizione con quota e scadenza." },
@@ -137,7 +137,7 @@
     "receipt_field": "Ogni erogazione indica se una ricevuta è da emettere."
   },
   "prompt": {
-    "intro": "Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
+    "intro": "I nostri soci, donatori e volontari sono sparsi in più elenchi e rinnovi e ringraziamenti ci sfuggono. Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
     "questions": [
       "Sei un'associazione, un ente benefico o una parrocchia? Hai soci, donatori, volontari?",
       "Quali tipi di quota e quali importi usi e come vengono incassati?",

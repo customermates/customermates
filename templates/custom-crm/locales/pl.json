@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Własny CRM",
-  "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, organizacje, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
-  "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez osobnego projektu wdrożeniowego. Zapisuje, skąd zaimportowano każdy rekord.",
+  "summary": "Przejdź z arkusza lub starego narzędzia bez dużego projektu wdrożeniowego. Kontakty, organizacje, szanse sprzedaży i zadania z terminem dopasowane do Twojego sposobu pracy, z importem danych i cotygodniowym przeglądem.",
+  "description": "Dane klientów są rozrzucone po arkuszu, stronie w Notion i starym narzędziu, a nikt nie chce zaczynać projektu migracji. Szablon zaczyna od czterech list, których potrzebuje każdy CRM: kontaktów, organizacji, szans sprzedaży i zadań, a agent dopasowuje etapy, pola i widoki do Twojego sposobu pracy. Potem importuje dane i zapisuje, skąd pochodzi każdy rekord. Dla osób, które odchodzą od arkusza, Notion, Airtable lub Trello.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, z którymi masz do czynienia." },
     "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Firmy i inne podmioty." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
   },
   "prompt": {
-    "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
+    "intro": "Moi klienci i szanse sprzedaży leżą w arkuszu lub starym narzędziu, a ja chcę CRM dopasowanego do mojego sposobu pracy. Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
     "questions": [
       "Z jakiego narzędzia lub arkusza pochodzą Twoje rekordy i czy da się je wyeksportować?",
       "Przez jakie etapy przechodzi szansa w Twojej firmie?",

@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Lieferantenfragebogen",
-  "summary": "Ein Lieferantenregister mit Selbstauskunft, Zertifikaten mit Ablaufdatum, Risikoklasse, Freigabeentscheidung und Termin für die nächste Bewertung.",
-  "description": "Lieferanten und Auftragnehmer an einem Ort qualifizieren: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Die Vorlage koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
+  "summary": "Wissen, welche Lieferanten freigegeben sind und welches Zertifikat als Nächstes abläuft. Ein Lieferantenregister mit Fragebogen, Zertifikaten mit Ablaufdatum, Risikoklasse und einer Entscheidung je Lieferant.",
+  "description": "Zertifikate von Lieferanten laufen ab und Neubewertungen fallen aus, wenn die Antworten in E-Mails und Ordnern liegen. Diese Vorlage qualifiziert Lieferanten und Auftragnehmer an einem Ort: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Sie koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei deinen Lieferanten, die Fragebögen beantworten und Dokumente schicken." },
     "suppliers": { "label": "Lieferant", "pluralLabel": "Lieferanten", "description": "Jeder Lieferant und Auftragnehmer, vom Kandidaten bis freigegeben oder gesperrt." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "Die Lieferanten öffnen sich als Board nach Status."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
+    "intro": "Ich arbeite mit vielen Lieferanten und sehe nicht, wessen Zertifikate abgelaufen sind und wer neu bewertet werden muss. Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
     "questions": [
       "Wie viele Lieferanten hast du, und wie teilst du sie nach Risiko ein?",
       "Welche Zertifikate oder Bescheinigungen verlangst du, und wie lange ist jedes gültig?",

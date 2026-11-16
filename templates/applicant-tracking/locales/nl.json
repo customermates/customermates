@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Sollicitatiebeheer",
-  "summary": "Een wervingsoverzicht voor een klein bedrijf: vacatures, sollicitanten, één sollicitatie per vacature in negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
-  "description": "Beheer de werving op één plek: elke vacature heeft een status, een leidinggevende en een salarisrange; elke sollicitatie loopt van ontvangen tot aangenomen of afgewezen, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing; elke interviewer vult een beoordelingsformulier in. Afgewezen sollicitaties krijgen een bewaardatum zodat je ze op tijd verwijdert of om toestemming vraagt. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
+  "summary": "Zorg dat elke sollicitant antwoord krijgt en geen sollicitatie blijft liggen. Eén sollicitatie per vacature door negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
+  "description": "In een klein bedrijf loopt werving op e-mail en geheugen: sollicitanten wachten te lang op antwoord, aantekeningen van gesprekken liggen verspreid en afgewezen sollicitaties blijven veel langer in de inbox staan dan zou moeten. Dit sjabloon zet vacatures op met een leidinggevende en salarisrange, sollicitanten en sollicitaties die van ontvangen naar aangenomen of afgewezen gaan, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing. Elke interviewer vult een beoordelingsformulier in en afgewezen sollicitaties krijgen een bewaardatum, zodat je ze op tijd verwijdert of om toestemming vraagt. Past bij een bedrijf met een paar open vacatures tegelijk. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
   "lists": {
     "applicants": { "label": "Sollicitant", "pluralLabel": "Sollicitanten", "description": "De mensen die solliciteren, met bron en toestemming voor de talentpool." },
     "jobs": { "label": "Vacature", "pluralLabel": "Vacatures", "description": "Elke open functie met leidinggevende en salarisrange." },
@@ -105,7 +105,7 @@
     "applications_board_view": "De sollicitaties openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
+    "intro": "Ik werf voor mijn kleine bedrijf en sollicitanten wachten te lang op antwoord, terwijl de aantekeningen van gesprekken overal verspreid liggen. Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
     "questions": [
       "Hoeveel vacatures staan er tegelijk open en wie neemt voor elke vacature aan?",
       "Waar komen sollicitanten vandaan en gebruik je een sollicitatieformulier?",

@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Dal modulo al CRM",
-  "summary": "Trasforma le richieste dei moduli web in contatti seguiti: una richiesta per ogni invio con la sua origine, una scadenza di risposta, una fase da nuova a convertita, con spam e richieste non idonee tenuti a parte.",
-  "description": "Ogni messaggio inviato da un modulo di contatto, preventivo o accoglienza diventa una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve e una risposta da dare entro il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam e una richiesta rimasta senza risposta viene segnalata. Consenso e una data di revisione accompagnano i dati raccolti. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
+  "summary": "Fai in modo che nessuna richiesta dal modulo web resti senza risposta. Ogni invio diventa una richiesta con la sua origine e una scadenza di risposta, passa da nuova a convertita e tiene separati spam e richieste non idonee.",
+  "description": "Le richieste dei moduli di contatto, preventivo o accoglienza finiscono in una casella di posta dove ricevono risposta tardi o mai, e non capisci da dove arrivino quelle buone. Questo modello trasforma ogni invio in una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve al cliente e una risposta da dare entro il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam, una richiesta rimasta senza risposta viene segnalata e per i dati raccolti si conservano il consenso e una data di revisione. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
   "lists": {
     "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che ti scrivono tramite un modulo." },
     "requests": { "label": "Richiesta", "pluralLabel": "Richieste", "description": "Un invio di modulo, da nuova a convertita, non idonea o spam." }
@@ -81,7 +81,7 @@
     "requests_board_view": "Le richieste si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
+    "intro": "Le richieste dai moduli del mio sito ricevono risposta tardi o mai e non vedo da dove arrivino quelle buone. Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
     "questions": [
       "Quali moduli usi e che cosa devi sapere per fare un preventivo o smistare una richiesta?",
       "Chi risponde e in quanto tempo ti impegni a farlo?",

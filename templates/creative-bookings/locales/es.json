@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Reservas para creativos",
-  "summary": "Para fotógrafos, videógrafos y organizadores de eventos: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto y una nota para cada aniversario.",
-  "description": "Una fila por reserva con dos fases: venta (de solicitud a reservado) y entrega (sesión hecha a entregado). La fecha se bloquea hasta firmar el contrato y pagar la señal, el resto tiene su propio vencimiento y cada entrega pide una reseña. Contratos, facturas y galerías se quedan en tus herramientas, aquí se guardan los enlaces.",
+  "summary": "Para fotógrafos, videógrafos y organizadores de eventos: ten a mano cada solicitud, cada fecha y cada señal, del primer mensaje a la reserva, la entrega y la nota de aniversario.",
+  "description": "Se promete una fecha sin haber cobrado la señal y se olvidan entregas cuando las solicitudes viven entre chats y un calendario. Esta plantilla da a cada reserva una fila con dos fases: venta, de la solicitud a reservado, y entrega, de sesión hecha a entregado. La fecha queda bloqueada hasta que se firma el contrato y se paga la señal, el resto tiene su propio vencimiento y cada trabajo entregado pide una reseña. Los contratos, las facturas y las galerías se quedan en tus herramientas; aquí se guardan los enlaces.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Clientes, parejas de clientes, organizadores y contactos de espacios." },
     "partners": { "label": "Colaborador", "pluralLabel": "Colaboradores", "description": "Espacios, wedding planners, caterings y otros proveedores con los que trabajas." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "Las reservas se abren como tablero por etapa."
   },
   "prompt": {
-    "intro": "Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
+    "intro": "Tengo un negocio de fotografía, vídeo o eventos y pierdo la cuenta de qué fechas están bloqueadas, qué señales están pagadas y qué falta por entregar. Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
     "questions": [
       "¿A qué te dedicas: fotografía, vídeo u organización de eventos? ¿Cuántas reservas tienes al año?",
       "¿Por qué pasos pasa un cliente de la solicitud a la reserva y cuándo reservas la fecha?",

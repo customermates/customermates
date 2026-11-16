@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Baza klientów",
-  "summary": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem, do tego cotygodniowy przegląd i data przeglądu danych dla każdego zakończonego klienta.",
-  "description": "Zwięzła, zdyscyplinowana baza klientów: siedem statusów, data ostatniego kontaktu, termin następnego kroku, który napędza pracę, rytm przeglądów dla każdego segmentu i data przeglądu danych dla klientów zakończonych. Osoby kontaktowe, zadania z terminem i powiązane rozmowy są obok każdego klienta.",
+  "summary": "Koniec z zastanawianiem się, któremu klientowi jesteś winien telefon, odpowiedź albo wycenę. Każdy klient ma jednego opiekuna i jeden następny krok z terminem, a cotygodniowy przegląd pokazuje, co jest po terminie.",
+  "description": "Gdy dane o klientach rozchodzą się między arkuszem, skrzynką i głową, kolejne kontakty umykają i nikt tego nie zauważa, dopóki klient nie zamilknie. Szablon zakłada jeden wiersz na klienta ze statusem, datą ostatniego kontaktu, następnym krokiem z terminem i rytmem przeglądów dla każdego segmentu, a obok każdego klienta osoby kontaktowe, zadania z terminem i powiązane rozmowy oraz datę przeglądu danych po zakończeniu współpracy. Pasuje do freelancerów, agencji i małych zespołów do około dziesięciu osób, które same prowadzą relacje z klientami.",
   "lists": {
     "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem." },
     "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Ludzie, z którymi pracujesz u każdego klienta." }
@@ -183,7 +183,7 @@
     "playbook_page": "Baza wiedzy zawiera instrukcję bazy klientów."
   },
   "prompt": {
-    "intro": "Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
+    "intro": "Sam prowadzę swoich klientów i za często umykają mi kolejne kontakty: tracę z oczu, kiedy ostatnio był kontakt z danym klientem i co dalej. Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
     "questions": [
       "Ilu klientów obsługujesz dziś i kto jeszcze pracuje w bazie?",
       "Jakich statusów klientów już używasz? Czy któryś z siedmiu zmienić lub pominąć?",

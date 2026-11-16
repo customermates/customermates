@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Agentur-Kundenpipeline",
-  "summary": "Eine Pipeline für Marketing- und Kreativagenturen: Neugeschäft vom ersten Gespräch bis zum Abschluss mit Pitch-Entscheidung, und laufende Retainer mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel.",
-  "description": "Kunden gewinnen und halten an einem Ort: Neugeschäft über Gespräch, Qualifizierung, Briefing oder Pitch, Angebot und Verhandlung, ein gewonnener Auftrag, der ein Onboarding in fünf Schritten startet, und Retainer und Projekte, die folgen, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Kein Projektmanagement, keine Zeiterfassung, keine Retainer-Abrechnung und kein Reporting.",
+  "summary": "Neue Kunden gewinnen und über das erste Projekt hinaus halten. Chancen laufen vom ersten Gespräch bis zum Abschluss, mit Pitch-Entscheidung; laufende Retainer haben Verlängerungstermin und Quartalsgespräch.",
+  "description": "Agenturen gewinnen einen Kunden und werden dann von der Retainer-Verlängerung überrascht, weil Pitches und laufende Arbeit an verschiedenen Orten stehen. Diese Vorlage richtet Chancen ein, von Gespräch, Qualifizierung, Briefing oder Pitch über Angebot bis Verhandlung, einen gewonnenen Auftrag, der ein Onboarding in fünf Schritten startet, und laufende Aufträge für die Retainer und Projekte danach, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Sie passt zu Marketing-, Kommunikations-, Kreativ- und Digitalagenturen; Projektmanagement, Zeiterfassung und Abrechnung bleiben in Ihren eigenen Werkzeugen.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Entscheider, Marketingleitung, Einkauf und Ansprechpartner im Tagesgeschäft." },
     "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Interessenten, Kunden, frühere Kunden und Partner." },
@@ -103,7 +103,7 @@
     "opportunities_board_view": "Die Chancen öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
+    "intro": "Wir gewinnen neue Kunden, verlieren aber den Überblick über laufende Pitches und darüber, wann Retainer verlängert werden. Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
     "questions": [
       "Welche Leistungen verkaufst du, und arbeitest du mit Retainern, Projekten oder beidem?",
       "Wie entscheidest du, ob du an einem Wettbewerbspitch teilnimmst?",

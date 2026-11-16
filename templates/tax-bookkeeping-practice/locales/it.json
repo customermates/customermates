@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Studio commercialista",
-  "summary": "Uno strumento per lo studio con due flussi: acquisire un incarico, con adeguata verifica e lettera di incarico, e svolgere il lavoro ricorrente per cliente, con uno scadenzario verificato da una seconda persona.",
-  "description": "Gestisci uno studio di commercialisti in un unico posto: incarichi dalla richiesta all'incarico attivo con un passaggio di adeguata verifica antiriciclaggio in mezzo, pratiche ricorrenti per cliente e periodo con lo stato in attesa di documenti, e uno scadenzario con una data di preavviso e la persona che ha verificato ogni data. È il livello di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
+  "summary": "Tieni sotto controllo incarichi, pratiche e scadenze dello studio. Acquisisci l'incarico con adeguata verifica e lettera d'incarico, segui il lavoro ricorrente per cliente e tieni uno scadenzario verificato da una seconda persona.",
+  "description": "In uno studio di commercialisti il calendario si riempie di attese dei documenti dei clienti e ogni scadenza richiede un secondo paio d'occhi. Questo modello gestisce due flussi: incarichi dalla richiesta all'incarico attivo, con un passaggio di adeguata verifica antiriciclaggio in mezzo, e pratiche ricorrenti per cliente e periodo, con lo stato in attesa di documenti. Uno scadenzario riporta una data di preavviso e la persona che ha verificato ogni data. È il livello di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone presso i clienti che inviano i documenti e firmano." },
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Privati, ditte individuali, società e associazioni per cui operi." },
@@ -125,7 +125,7 @@
     "deadline_control_page": "La base di conoscenza contiene una pagina sul controllo delle scadenze."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
+    "intro": "Gestisco uno studio di commercialisti e devo vedere quali incarichi sono aperti, quali pratiche aspettano documenti e quali scadenze sono state verificate. Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
     "questions": [
       "Quali servizi offri e quali pratiche ricorrenti segui per cliente?",
       "In quale Paese operi e quali scadenze monitori?",

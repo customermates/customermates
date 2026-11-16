@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Team-Aufgaben",
-  "summary": "Ein Arbeitstracker für ein kleines Team: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf derselben Liste.",
-  "description": "Ein Team von zwei bis fünfzehn Personen auf einer Liste führen: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
+  "summary": "Sehen, wer was bis wann erledigt, ohne schweres Projektwerkzeug. Projekte und Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf einer Liste.",
+  "description": "In einem kleinen Team verstecken sich Aufgaben in Chat, Boards und Köpfen, und eine blockierte Aufgabe fällt erst am Fälligkeitstag auf. Diese Vorlage führt ein Team von zwei bis fünfzehn Personen auf einer Liste: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
   "lists": {
     "requesters": { "label": "Anfragender", "pluralLabel": "Anfragende", "description": "Die Personen außerhalb des Teams, die Arbeit anfragen." },
     "projects": { "label": "Projekt", "pluralLabel": "Projekte", "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Ampel und Termin." },
@@ -81,7 +81,7 @@
     "tasks_board_view": "Die Aufgaben öffnen sich als Board nach Status."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
+    "intro": "Die Arbeit in unserem Team verteilt sich auf Chat, Board und Tabelle, und ich sehe nicht, was überfällig oder blockiert ist. Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
     "questions": [
       "Wie viele Personen hat das Team, und woran arbeiten sie?",
       "Welche Status nutzt du heute in Trello, Jira, Asana oder einer Tabelle?",

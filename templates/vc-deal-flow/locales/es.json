@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Dealflow para inversores",
-  "summary": "Un dealflow para un fondo pequeño o un business angel: ocho etapas de la detección al cierre o al rechazo, quién presentó cada operación, un motivo de rechazo y una fecha para retomar.",
-  "description": "Sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
+  "summary": "Recuerda quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Un dealflow para un fondo pequeño o un business angel, con ocho etapas de la detección al cierre o al rechazo.",
+  "description": "En el dealflow la mayoría son rechazos, y sin un registro de quién presentó una startup y por qué dijiste que no, la misma operación se vuelve a filtrar desde cero la próxima vez. Esta plantilla sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Fundadores, inversores, coinversores y quienes presentan operaciones." },
     "organizations": { "label": "Organización", "pluralLabel": "Organizaciones", "description": "Startups, fondos, sindicatos y aceleradoras." },
@@ -118,7 +118,7 @@
     "board_view": "Las operaciones se abren como tablero por etapa."
   },
   "prompt": {
-    "intro": "Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
+    "intro": "Reviso muchas startups y se me olvida quién me las presentó, por qué las rechacé y cuándo quería volver a mirarlas. Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
     "questions": [
       "¿En qué etapas y sectores inviertes y cuál es el tamaño habitual de tu ticket?",
       "¿Cómo te llegan las operaciones y quién las presenta?",

@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Pipeline immobiliare",
-  "summary": "Due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile, e seguire l'acquirente, con visite, scadenze e una routine per gli ex clienti.",
-  "description": "Un'agenzia immobiliare gestisce un lato proprietario (valutazione, incarico, promozione, proposte) e un lato acquirente (contatto, qualificazione, visite, proposta), poi una fase comune dopo il compromesso con scadenze vincolanti. Questo modello segue entrambi, il tipo di incarico e la sua scadenza, ogni visita con il suo riscontro, le scadenze dopo la firma e una routine con date per gli ex clienti. Il valore di un immobile contiene la provvigione attesa.",
+  "summary": "Acquisisci incarichi e vendi senza perdere una visita, un aggiornamento al proprietario o una scadenza. Due pipeline che si incontrano al compromesso, immobile e acquirente, con visite, scadenze e una routine per gli ex clienti.",
+  "description": "Un'agenzia immobiliare lavora i due lati di una vendita, il proprietario che affida l'immobile e l'acquirente che cerca, e le scadenze dopo il compromesso si dimenticano facilmente tra l'uno e l'altro. Questo modello segue il lato proprietario (valutazione, incarico, promozione, proposte) e il lato acquirente (contatto, qualificazione, visite, proposta), poi una fase comune dopo il compromesso con scadenze vincolanti. Vedi il tipo di incarico e la sua scadenza, ogni visita con il suo riscontro, le scadenze dopo la firma e una routine con date per gli ex clienti. Il valore di un immobile contiene la provvigione attesa.",
   "lists": {
     "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Proprietari, locatori, acquirenti, inquilini e segnalatori." },
     "organizations": { "label": "Organizzazione", "pluralLabel": "Organizzazioni", "description": "Costruttori, banche, notai e partner segnalatori." },
@@ -401,10 +401,10 @@
     "operating_guide_page": "La base di conoscenza contiene la guida operativa."
   },
   "page": {
-    "metaTitle": "Pipeline immobiliare: modello per il tuo agente IA",
-    "metaDescription": "Copia la pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e le scadenze dopo il compromesso, nel tuo CRM.",
-    "headline": "Una pipeline immobiliare che il tuo agente IA costruisce nel tuo CRM",
-    "answer": "Un'agenzia immobiliare porta avanti due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile per il proprietario, e seguire l'acquirente dalle visite fino alla proposta. Incolla questo modello nel tuo agente IA e lui costruisce entrambe in Customermates, con incarichi, visite, scadenze e una routine con date per gli ex clienti. Approvi il piano prima che venga scritto qualcosa.",
+    "metaTitle": "Pipeline immobiliare: immobili, acquirenti e scadenze",
+    "metaDescription": "Incolla questa pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e scadenze dopo il compromesso, nel tuo CRM.",
+    "headline": "Nessuna visita o scadenza persa: la pipeline immobiliare che il tuo agente IA costruisce",
+    "answer": "Una pipeline immobiliare è fatta di due percorsi che si incontrano al compromesso: l'immobile del proprietario, dalla valutazione alle proposte, e la ricerca dell'acquirente, dal primo contatto alle visite e alla proposta. Incolla questo modello nel tuo agente IA e costruisce entrambi in Customermates, con incarichi, visite con riscontro, scadenze dopo la firma e una routine con date per gli ex clienti. Approvi il piano prima che venga costruito qualcosa.",
     "routine": {
       "title": "Il giro settimanale tra immobili e acquirenti",
       "steps": [
@@ -442,7 +442,7 @@
     ]
   },
   "prompt": {
-    "intro": "Configura una pipeline immobiliare nel mio spazio di lavoro Customermates: immobili con il tipo di incarico e la sua scadenza, richieste di acquirenti, visite con riscontro, le scadenze dopo la firma del compromesso e un'attività con data per ogni pratica aperta.",
+    "intro": "Lavoro con proprietari che affidano un immobile e acquirenti che lo cercano, e perdo il filo di visite, riscontri e scadenze dopo il compromesso. Configura una pipeline immobiliare nel mio spazio di lavoro Customermates: immobili con il tipo di incarico e la sua scadenza, richieste di acquirenti, visite con riscontro, le scadenze dopo la firma del compromesso e un'attività con data per ogni pratica aperta.",
     "questions": [
       "Lavori per i proprietari, per gli acquirenti o per entrambi? Vendi, affitti o fai entrambe le cose?",
       "In quale paese lavori e quali tipi di incarico usi?",

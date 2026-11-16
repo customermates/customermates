@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Courtier en assurance",
-  "summary": "Deux pipelines pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement pour chaque contrat qui s’ouvre de 120 à 45 jours avant l’échéance.",
-  "description": "Menez les affaires nouvelles et les renouvellements côte à côte : affaires de la première demande à l’analyse des besoins, à la consultation des assureurs, à la proposition et à la décision jusqu’au contrat émis, une date de conseil documenté sur chaque proposition, et des contrats avec leur échéance principale qui ouvrent d’eux-mêmes un dossier de renouvellement. Il conserve un renvoi vers la trace du conseil et vers le contrat dans votre logiciel de cabinet, jamais de données de santé, de détails de sinistres, de coordonnées bancaires ni de copies de pièces d’identité. Ce n’est ni de la gestion de contrats, ni un comparateur ou un tarificateur, ni de la gestion de sinistres, ni un rapprochement de commissions.",
+  "summary": "Ne laissez plus un renouvellement vous surprendre. De la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement par contrat, ouvert de 120 à 45 jours avant l’échéance.",
+  "description": "Les renouvellements passent inaperçus et le conseil n’est pas documenté quand les affaires nouvelles et les renouvellements vivent dans des listes séparées ou dans votre tête. Ce modèle mène les deux côte à côte : affaires de la première demande à l’analyse des besoins, à la consultation des assureurs, à la proposition et à la décision jusqu’au contrat émis, une date de conseil documenté sur chaque proposition, et des contrats avec leur échéance principale qui ouvrent d’eux-mêmes un dossier de renouvellement. Il conserve un renvoi vers la trace du conseil et vers le contrat dans votre logiciel de cabinet, jamais de données de santé, de détails de sinistres, de coordonnées bancaires ni de copies de pièces d’identité. Ce n’est ni de la gestion de contrats, ni un comparateur ou un tarificateur, ni de la gestion de sinistres, ni un rapprochement de commissions.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Souscripteurs, prospects, décideurs et prescripteurs." },
     "opportunities": { "label": "Affaire nouvelle", "pluralLabel": "Affaires nouvelles", "description": "Une affaire nouvelle de la première demande à l’émission ou à la perte." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "La base de connaissances contient une page sur la traçabilité du conseil."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
+    "intro": "Je gère un portefeuille de courtage : les renouvellements me prennent de court et je dois documenter le conseil avant chaque proposition. Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
     "questions": [
       "Quelles branches placez-vous, et servez-vous des professionnels, des particuliers ou les deux ?",
       "Combien de temps avant l’échéance démarrez-vous un renouvellement, et quel est le préavis habituel ?",

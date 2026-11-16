@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Consultoria de recrutamento",
-  "summary": "Um espaço de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
-  "description": "Conduza a consultoria em um só lugar: clientes e suas condições, vagas com uma etapa e honorários previstos, candidatos indicados por vaga com etapa própria, contratações com o fim do período de garantia e o acompanhamento pós-contratação, e uma data de revisão de retenção em cada candidato. Serve para uma equipe de uma a cinco pessoas. Não é um portal de vagas, nem um leitor de currículos, nem uma ferramenta de disparos em massa, nem um sistema de ponto e folha de pagamento. Nada é enviado automaticamente a candidatos ou clientes.",
+  "summary": "Tenha cada vaga, candidato e data de honorários em um só lugar. Vagas da solicitação à contratação, uma indicação por candidato e vaga, fim da garantia e acompanhamento pós-contratação e data de retenção de cada candidato.",
+  "description": "Quem recruta lida com clientes, vagas e candidatos que estão em várias vagas ao mesmo tempo, e as datas que importam, a contratação, o fim da garantia e o momento de apagar os dados do candidato, se perdem com facilidade. Este modelo reúne clientes e suas condições, vagas com uma etapa e honorários previstos, candidatos indicados por vaga com etapa própria, contratações com o fim do período de garantia e o acompanhamento pós-contratação, e uma data de revisão de retenção em cada candidato. Serve para uma equipe de uma a cinco pessoas. Não é um portal de vagas, nem um leitor de currículos, nem uma ferramenta de disparos em massa, nem um sistema de ponto e folha de pagamento, e nada é enviado automaticamente a candidatos ou clientes.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Candidatos e contatos", "description": "Candidatos, contatos no cliente e quem indica." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "As empresas para as quais você recruta, com honorários e garantia." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "A base de conhecimento tem uma página sobre dados de candidatos e retenção."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates uma consultoria de recrutamento: clientes com suas condições, vagas com nove etapas e honorários previstos, um candidato indicado por candidato e vaga, contratações com o fim da garantia e o acompanhamento, e uma data de retenção para cada candidato.",
+    "intro": "Eu indico candidatos a empresas clientes e perco o controle de quem foi indicado para onde, de quando uma garantia termina e de por quanto tempo posso guardar os dados dos candidatos. Configure no meu espaço de trabalho do Customermates uma consultoria de recrutamento: clientes com suas condições, vagas com nove etapas e honorários previstos, uma indicação por candidato e vaga, contratações com o fim da garantia e o acompanhamento, e uma data de retenção para cada candidato.",
     "questions": [
       "Você trabalha por êxito, em retainer ou dos dois jeitos, e quais honorários e garantia costuma combinar?",
       "Quantas vagas e candidatos você acompanha ao mesmo tempo e quem cuida de cada etapa?",

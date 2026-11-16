@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Bewerbermanagement",
-  "summary": "Ein Bewerbertracker für kleine Unternehmen: Stellen, Bewerber, eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschtermin für Absagen.",
-  "description": "Das Recruiting an einem Ort steuern: Jede Stelle hat Status, Fachvorgesetzten und Gehaltsspanne; jede Bewerbung läuft vom Eingang bis zur Einstellung oder Absage, mit Gesprächstermin, Angebotsfrist und Absagegrund; jeder Interviewer legt einen Interviewbogen ab. Abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
+  "summary": "Kein Bewerber soll auf eine Antwort warten müssen. Eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschdatum für abgelehnte Bewerbungen.",
+  "description": "In einem kleinen Betrieb läuft die Personalsuche über das Postfach und das Gedächtnis: Bewerber warten zu lange auf eine Antwort, Interviewnotizen liegen an verschiedenen Orten, und abgelehnte Bewerbungen bleiben viel länger im Postfach, als sie sollten. Diese Vorlage richtet Stellen mit Fachvorgesetztem und Gehaltsspanne ein, dazu Bewerber und Bewerbungen, die von neu bis eingestellt oder abgelehnt laufen, mit Gesprächstermin, Angebotsfrist und Absagegrund. Jeder Interviewer legt einen Interviewbogen ab, und abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Sie passt zu einem Unternehmen mit wenigen offenen Stellen gleichzeitig. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
   "lists": {
     "applicants": { "label": "Bewerber", "pluralLabel": "Bewerber", "description": "Die Personen, die sich bewerben, mit Quelle und Einwilligung zum Talentpool." },
     "jobs": { "label": "Stelle", "pluralLabel": "Stellen", "description": "Jede offene Position mit Fachvorgesetztem und Gehaltsspanne." },
@@ -105,7 +105,7 @@
     "applications_board_view": "Die Bewerbungen öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
+    "intro": "Ich stelle für mein kleines Unternehmen ein, Bewerber warten zu lange auf eine Antwort, und die Interviewnotizen liegen an verschiedenen Orten. Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
     "questions": [
       "Wie viele Stellen sind gleichzeitig offen, und wer stellt jeweils ein?",
       "Woher kommen die Bewerber, und nutzt du ein Bewerbungsformular?",

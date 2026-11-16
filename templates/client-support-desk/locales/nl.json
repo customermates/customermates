@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Klantenservice",
-  "summary": "Een lichte servicedesk: tickets met prioriteit, tijd voor een eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
-  "description": "Help je klanten vanaf één plek: elk ticket heeft een status, een prioriteit, een type, een eigenaar en de uiterste datum voor een eerste reactie en een oplossing. Koppel tickets aan een bekend probleem om iedereen te laten weten wanneer het is opgelost en houd de termijn van één maand van een AVG-verzoek in beeld. Bedoeld voor enkele tientallen tickets per week. Geen telefooncentrale, geen livechat, geen klantportaal en geen kalender met kantooruren.",
+  "summary": "Beantwoord elke klant op tijd, zonder zwaar helpdesksysteem. Tickets met een prioriteit, een tijd voor de eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
+  "description": "Als klanten via meerdere kanalen schrijven, raken vragen zoek en weet niemand welke te laat zijn. Dit sjabloon zet tickets op met een status, een prioriteit, een type en een eigenaar, de uiterste datum voor een eerste reactie en een oplossing, en bekende problemen die meerdere tickets aan één oorzaak koppelen, zodat je iedereen kunt laten weten wanneer het is opgelost. De termijn van één maand van een AVG-verzoek blijft in beeld. Bedoeld voor enkele tientallen tickets per week in een bedrijf of bureau van één tot acht personen. Geen telefooncentrale, geen livechat, geen klantportaal en geen kalender met kantooruren.",
   "lists": {
     "customers": { "label": "Klant", "pluralLabel": "Klanten", "description": "De mensen die je om hulp vragen." },
     "accounts": { "label": "Account", "pluralLabel": "Accounts", "description": "De bedrijven achter je klanten, met hun supportplan." },
@@ -96,7 +96,7 @@
     "tickets_board_view": "De tickets openen als bord per status."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een klantenservice in: tickets met status, prioriteit, tijd voor de eerste reactie en oplostermijn, bekende problemen gekoppeld aan tickets, een tevredenheidsscore en opvolging met datum.",
+    "intro": "Klantvragen komen binnen via e-mail en chat en ik kan niet zien welke nog op antwoord wachten. Richt in mijn Customermates-werkruimte een klantenservice in: tickets met status, prioriteit, tijd voor de eerste reactie en oplostermijn, bekende problemen gekoppeld aan tickets, een tevredenheidsscore en opvolging met datum.",
     "questions": [
       "Hoeveel tickets behandel je per week en via welke kanalen komen ze binnen?",
       "Welke termijnen beloof je voor de eerste reactie en de oplossing, per prioriteit of supportplan?",

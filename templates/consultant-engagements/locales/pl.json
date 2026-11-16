@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Zlecenia konsultingowe",
-  "summary": "Lejek dla niezależnego konsultanta: zlecenia od kontaktu do wygranego z kontrolą przyjęcia zlecenia przed ofertą, terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie i rezultatami, od których zależą realizacja i zamknięcie.",
-  "description": "Prowadź działalność konsultingową w jednym miejscu: zlecenia przez rozmowę odkrywczą, zakres, ofertę i decyzję, termin ponownego kontaktu ustalony ze sponsorem, kontrolę przyjęcia zlecenia (moce przerobowe, niezależność, poufność) przed ofertą, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię i referencje. Narzędzie zapisuje lejek, relacje i punkty kontrolne realizacji. To nie jest rejestr czasu pracy, system do fakturowania, podpisu elektronicznego ofert ani planowania zasobów i nie przechowuje poufnych danych klienta.",
+  "summary": "Wiedz, na jakim etapie jest każda oferta, i nie gub kontaktów po rozmowie. Zlecenia od kontaktu do wygranego, termin ponownego kontaktu ustalony na rozmowie oraz rezultaty, od których zależą realizacja i zamknięcie.",
+  "description": "Jako niezależny konsultant prowadzisz kilka rozmów i jedną ofertę naraz, a zlecenia przepadają w ciszy po rozmowie o ofercie albo w przerwie między podpisem a startem. Szablon zakłada zlecenia przez rozmowę odkrywczą, zakres, ofertę i decyzję, z terminem ponownego kontaktu ustalonym ze sponsorem, kontrolą przyjęcia zlecenia (moce przerobowe, niezależność, poufność) przed ofertą, rezultatami z terminem i odbiorem oraz zamknięciem, w którym prosisz o opinię i referencje. Zapisuje lejek, relacje i punkty kontrolne realizacji. To nie jest rejestr czasu pracy, system do fakturowania, podpisu elektronicznego ofert ani planowania zasobów i nie przechowuje poufnych danych klienta.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Sponsorzy, osoby kontaktowe na co dzień, osoby akceptujące i polecający." },
     "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Potencjalni klienci, klienci, byli klienci i partnerzy polecający." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "Zlecenia otwierają się jako tablica według etapu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
+    "intro": "Prowadzę własną firmę konsultingową i tracę zlecenia w ciszy po rozmowie o ofercie. Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
     "questions": [
       "Jakie rodzaje zleceń sprzedajesz i w jakiej stawce dziennej?",
       "Jak decydujesz, czy przyjąć zlecenie?",

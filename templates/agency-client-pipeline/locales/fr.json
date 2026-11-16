@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Pipeline clients d’agence",
-  "summary": "Un pipeline pour une agence de communication ou de création : opportunités de la première conversation à la signature, avec la décision de répondre ou non à un appel d’offres, et retainers en cours avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé.",
-  "description": "Gagnez et gardez vos clients au même endroit : opportunités de la conversation à la qualification, au brief ou appel d’offres, à la proposition et à la négociation, un gain qui lance un onboarding en cinq étapes, et des contrats récurrents et projets qui suivent, avec honoraires mensuels, date de renouvellement, préavis et prochaine revue trimestrielle. Les budgets sont notés quand le client les annonce, jamais devinés. Les identifiants de connexion, les éléments de marque et les accès aux comptes publicitaires ne vont jamais dans l’espace de travail. Ce n’est ni de la gestion de projet, ni du suivi du temps, ni de la facturation de retainers, ni du reporting.",
+  "summary": "Gagnez des clients et gardez-les après le premier projet. Du premier échange à la signature, avec la décision de répondre ou non à un appel d’offres, puis un renouvellement daté et une revue trimestrielle par contrat récurrent.",
+  "description": "Une agence gagne un client, puis le renouvellement du contrat récurrent la surprend, parce que les appels d’offres et le travail en cours sont suivis à des endroits différents. Ce modèle met en place les opportunités de la conversation à la qualification, au brief ou appel d’offres, à la proposition et à la négociation, un gain qui lance un onboarding en cinq étapes, puis les contrats récurrents et projets qui suivent, avec honoraires mensuels, date de renouvellement, préavis et prochaine revue trimestrielle. Les budgets sont notés quand le client les annonce, jamais devinés, et les identifiants de connexion, les éléments de marque et les accès aux comptes publicitaires ne vont jamais dans l’espace de travail. Il convient aux agences de communication, de création, de marketing et digitales. La gestion de projet, le suivi du temps et la facturation restent dans vos propres outils.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Décideurs, responsables marketing, achats et interlocuteurs du quotidien." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, anciens clients et partenaires." },
@@ -103,7 +103,7 @@
     "opportunities_board_view": "Les opportunités s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d’offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d’identifiants clients ni d’éléments de marque.",
+    "intro": "Mon agence gagne de nouveaux clients, mais je perds le fil des appels d’offres en cours et des dates de renouvellement des contrats. Mets en place dans mon espace de travail Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d’offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d’identifiants clients ni d’éléments de marque.",
     "questions": [
       "Quelles prestations vendez-vous, et travaillez-vous en retainer, en projet ou les deux ?",
       "Comment décidez-vous de participer ou non à une mise en concurrence ?",

@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Consultora de selección de personal",
-  "summary": "Un espacio de trabajo para una consultora de selección o un reclutador independiente: procesos desde el briefing hasta la incorporación, una ficha por candidato y proceso, fechas de honorarios y garantía, seguimiento posterior y una fecha de conservación de cada candidato.",
-  "description": "Lleva tu consultora en un solo sitio: clientes y sus condiciones, procesos de selección con una etapa y unos honorarios previstos, candidatos presentados por proceso con su propia etapa, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de revisión de conservación en cada candidato. Encaja con un equipo de una a cinco personas. No es un portal de empleo, ni un lector de CV, ni una herramienta de envíos masivos, ni un sistema de partes de horas y nóminas. No se envía nada automáticamente a candidatos ni a clientes.",
+  "summary": "Ten cada proceso, candidato y fecha de honorarios en un solo sitio: procesos de la solicitud a la incorporación, una ficha por candidato y proceso, garantía y seguimiento posterior, y una fecha de conservación por candidato.",
+  "description": "En una consultora de selección se llevan a la vez clientes, procesos y candidatos que están en varios procesos, y las fechas que importan, la incorporación, el fin de la garantía y cuándo eliminar los datos de un candidato, se pierden con facilidad. Esta plantilla prepara los clientes y sus condiciones, los procesos de selección con una etapa y unos honorarios previstos, los candidatos presentados por proceso con su propia etapa, las incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de revisión de conservación en cada candidato. Encaja con un equipo de una a cinco personas. No es un portal de empleo, ni un lector de CV, ni una herramienta de envíos masivos, ni un sistema de partes de horas y nóminas. No se envía nada automáticamente a candidatos ni a clientes.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Candidatos y contactos", "description": "Candidatos, contactos en el cliente y prescriptores." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Las empresas para las que buscas, con sus honorarios y su garantía." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "La base de conocimiento incluye una página sobre datos de candidatos y su conservación."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates una consultora de selección: clientes con sus condiciones, procesos con nueve etapas y unos honorarios previstos, un candidato presentado por candidato y proceso, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de conservación para cada candidato.",
+    "intro": "Coloco candidatos en empresas clientes y pierdo la cuenta de a quién he presentado dónde, cuándo termina una garantía y hasta cuándo puedo conservar los datos de un candidato. Configura en mi espacio de trabajo de Customermates una consultora de selección: clientes con sus condiciones, procesos con nueve etapas y unos honorarios previstos, una ficha de candidato presentado por candidato y proceso, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de conservación para cada candidato.",
     "questions": [
       "¿Trabajas a éxito, en retainer o de ambas formas, y qué honorarios y garantía acuerdas normalmente?",
       "¿Cuántos procesos y candidatos llevas a la vez y quién se ocupa de cada etapa?",

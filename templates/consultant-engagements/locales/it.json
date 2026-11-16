@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Incarichi di consulenza",
-  "summary": "Una pipeline per un consulente indipendente: incarichi dal contatto all'incarico vinto con verifica di accettazione prima dell'offerta, una data di follow-up concordata nella chiamata sulla proposta e deliverable che regolano esecuzione e chiusura.",
-  "description": "Gestisci un'attività di consulenza in un unico posto: incarichi attraverso analisi, definizione dell'ambito, proposta e decisione, la data di follow-up concordata con lo sponsor, una verifica di accettazione (capacità, indipendenza, riservatezza) prima dell'offerta, deliverable con scadenza e accettazione, e una chiusura che chiede un riscontro e una testimonianza. Conserva pipeline, relazioni e punti di controllo della consegna. Non è rilevazione dei tempi, fatturazione, firma elettronica delle proposte né pianificazione delle risorse e non contiene dati riservati del cliente.",
+  "summary": "Tieni d'occhio ogni proposta e non perdere nessun contatto dopo la chiamata. Incarichi dal contatto alla vittoria, una data di follow-up fissata nella chiamata sulla proposta e deliverable che regolano consegna e chiusura.",
+  "description": "Un consulente indipendente ha poche conversazioni aperte e una proposta alla volta, e le trattative si perdono nel silenzio dopo la chiamata sulla proposta o nel vuoto tra la firma e il kickoff. Questo modello imposta gli incarichi attraverso analisi, definizione dell'ambito, proposta e decisione, con la data di follow-up concordata con lo sponsor, una verifica di accettazione (capacità, indipendenza, riservatezza) prima dell'offerta, deliverable con scadenza e data di accettazione e una chiusura che chiede un riscontro e una testimonianza. Conserva pipeline, relazioni e punti di controllo della consegna. Non è rilevazione dei tempi, fatturazione, firma elettronica delle proposte né pianificazione delle risorse e non contiene dati riservati dei clienti.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Sponsor, referenti operativi, chi firma e segnalatori." },
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Potenziali clienti, clienti, ex clienti e partner segnalatori." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "Gli incarichi si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
+    "intro": "Lavoro come consulente indipendente e perdo trattative nel silenzio dopo la chiamata sulla proposta. Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
     "questions": [
       "Che tipi di incarico vendi e a quale tariffa giornaliera?",
       "Come decidi se accettare un lavoro?",

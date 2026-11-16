@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Acquisizione clienti per studi legali",
-  "summary": "Un'acquisizione in passaggi fissi: richiesta, verifica dei conflitti, primo colloquio, preventivo, incarico e procura firmati con acconto, e una lettera scritta per chi non diventa cliente.",
-  "description": "Acquisisci i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la verifica dei conflitti, le pratiche portano la data della procura e una data di conservazione, e i potenziali clienti rifiutati o silenziosi ricevono una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, informazioni coperte dal segreto professionale, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
+  "summary": "Accogli nuovi clienti senza saltare una verifica dei conflitti o un termine. Richiesta, verifica dei conflitti, colloquio, preventivo e incarico firmato, e una lettera scritta di mancato conferimento per tutti gli altri.",
+  "description": "Un termine può già decorrere quando un potenziale cliente telefona la prima volta, e un conflitto non verificato è difficile da rimediare. Questo modello acquisisce i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la ricerca dei conflitti, le pratiche portano la data della procura e una data di conservazione, e chi viene rifiutato o tace riceve una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, informazioni coperte dal segreto professionale, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Potenziali clienti, clienti, ex clienti e segnalatori." },
     "inquiries": { "label": "Richiesta", "pluralLabel": "Richieste", "description": "Una richiesta di assistenza legale, dal primo contatto a una pratica o a un rifiuto." },
@@ -105,7 +105,7 @@
     "conflict_check_page": "La base di conoscenza contiene una pagina sulla verifica dei conflitti."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
+    "intro": "Mi chiamano potenziali clienti per una causa e prima di accettarli devo verificare i conflitti, annotare il termine più vicino e documentare ogni passaggio. Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
     "questions": [
       "Quali materie tratti e quali indirizzi ad altri?",
       "Come fai la verifica dei conflitti e chi la approva?",

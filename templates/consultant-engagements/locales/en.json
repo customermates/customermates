@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Consultant engagements",
-  "summary": "A pipeline for an independent consultant: engagements from introduction to won with an acceptance check before the offer, a follow-up date agreed on the proposal call, and deliverables that gate delivery and closeout.",
-  "description": "Run a consulting practice in one place: engagements through discovery, scoping, proposal and decision, the date of the follow-up agreed with the sponsor, an acceptance check (capacity, independence, confidentiality) before the offer, deliverables with their due and acceptance dates, and a closeout that asks for feedback and a testimonial. It stores the pipeline, the relationships and the delivery gates. It is not time tracking, invoicing, proposal e-signature or resource planning, and it holds no confidential client data.",
+  "summary": "Know where every proposal stands and never drop a lead after the call. Engagements from introduction to won, a follow-up date agreed on the proposal call, and deliverables that gate delivery and closeout.",
+  "description": "As an independent consultant you hold a few conversations and one proposal at a time, and deals slip in the silence after the proposal call or in the gap between signature and kickoff. This template sets up engagements through discovery, scoping, proposal and decision, with the follow-up date agreed with the sponsor, an acceptance check (capacity, independence, confidentiality) before the offer, deliverables with their due and acceptance dates, and a closeout that asks for feedback and a testimonial. It stores the pipeline, the relationships and the delivery gates. It is not time tracking, invoicing, proposal e-signature or resource planning, and it holds no confidential client data.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Sponsors, day-to-day contacts, people who sign off and referrers." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, former clients and referral partners." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "The engagements open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up consultant engagements in my Customermates workspace: engagements from introduction to won with an acceptance check and a follow-up date agreed on the proposal call, deliverables with due and acceptance dates, and a closeout that asks for feedback. Store no confidential client data.",
+    "intro": "I run my own consulting practice and lose deals in the silence after a proposal call. Set up consultant engagements in my Customermates workspace: engagements from introduction to won with an acceptance check and a follow-up date agreed on the proposal call, deliverables with due and acceptance dates, and a closeout that asks for feedback. Store no confidential client data.",
     "questions": [
       "What kinds of engagements do you sell, and at which day rate?",
       "How do you decide whether to accept a piece of work?",

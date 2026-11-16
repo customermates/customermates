@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Opdrachten voor vakmensen",
-  "summary": "Een pijplijn voor een vakbedrijf: aanvraag, opname, offerte en opvolging, daarna het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
-  "description": "Volg een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar je werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die je zelf bevestigt, geen juridisch advies.",
+  "summary": "Volg elke offerte op en houd elke opdracht op koers, van het eerste telefoontje tot betaling. Opname, offerte en het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
+  "description": "In een vakbedrijf gaat geld verloren als een offerte de deur uit gaat en niemand terugbelt, en als garantie- en onderhoudsdata nergens zijn opgeschreven. Dit sjabloon volgt een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar je werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die je zelf bevestigt, geen juridisch advies.",
   "lists": {
     "customers": { "label": "Klant", "pluralLabel": "Klanten", "description": "Huiseigenaren, verhuurders, vastgoedbeheerders en bedrijven voor wie je werkt." },
     "sites": { "label": "Locatie", "pluralLabel": "Locaties", "description": "Het adres waar het werk gebeurt, dat kan afwijken van dat van de klant." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "De opdrachten openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
+    "intro": "Ik heb een klein vakbedrijf en offertes gaan de deur uit zonder opvolging, terwijl opdrachten, opnames en garantiedata in mijn hoofd zitten. Richt in mijn Customermates-werkruimte een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
     "questions": [
       "Welk werk voer je uit en voor wie: particulieren, verhuurders of bedrijven?",
       "Hoe snel beantwoord je een aanvraag en stuur je na de opname een offerte?",

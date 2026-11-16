@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Mandantenaufnahme und Onboarding",
-  "summary": "Eine Aufnahme pro Mandat: Anfrage, Vorprüfung, Fragebogen, Unterlagenanforderung, Auftragsbestätigung und Kickoff, mit einem Termin je Phase und einem Grund bei Ablehnung.",
-  "description": "Eine kurze Pipeline für die Aufnahme neuer Kunden und Mandanten: binnen eines Tages antworten, auf Passung prüfen, Fragebogen senden, Unterlagen einholen, Auftragsbestätigung senden, starten. Regulierte Berufe halten fest, wer wann identifiziert hat, nie das Dokument selbst. Kein Werkzeug für elektronische Signatur, Geldwäscheprüfung oder Zahlungen.",
+  "summary": "Neue Mandanten aufnehmen, ohne Fragebögen, Unterlagen und Auftragsbestätigungen hinterherzulaufen. Eine Aufnahme pro Mandat, ein Termin je Phase und ein festgehaltener Grund, wenn Sie ablehnen.",
+  "description": "Neue Mandanten werden zwischen der ersten Anfrage und dem ersten Arbeitstag still: Der Fragebogen ist nicht zurück, eine Unterlage fehlt, die Auftragsbestätigung liegt unbeantwortet da. Diese Vorlage richtet eine Aufnahme pro Mandat ein, mit neun Phasen von der Anfrage bis zum Kickoff, Unterlagenanforderungen, einem Termin in jeder Phase, einer Antwort binnen eines Tages und einem Ablehnungsgrund, wenn Sie ein Mandat ablehnen. Regulierte Berufe halten fest, wer wann Identität, Interessenkonflikte und Risiko geprüft hat, nie das Dokument selbst. Kein Werkzeug für elektronische Signatur, Identitätsprüfung oder Zahlungen.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen beim Mandanten: Hauptkontakt, Buchhaltung, Unterzeichner." },
     "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Unternehmen, Einzelunternehmer und Privatpersonen, die du aufnimmst." },
@@ -200,7 +200,7 @@
     "process_page": "Die Wissensdatenbank enthält den Aufnahmeablauf."
   },
   "prompt": {
-    "intro": "Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
+    "intro": "Neue Mandanten springen zwischen der ersten Anfrage und dem ersten Arbeitstag ab, weil ich vergesse, den Fragebogen zu schicken oder Unterlagen nachzufordern. Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
     "questions": [
       "Was verkaufst du, und wer sind deine Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
       "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchst du nicht?",

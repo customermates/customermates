@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Lejek dla brokera ubezpieczeniowego",
-  "summary": "Dwa lejki dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą oraz sprawa odnowienia dla każdej polisy, która startuje od 120 do 45 dni przed końcem ochrony.",
-  "description": "Prowadź nową sprzedaż i odnowienia obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Szablon przechowuje link do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie jest system do administrowania polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
+  "summary": "Miej na oku nadchodzące odnowienia i nie zatrzymuj nowej sprzedaży. Od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, a do tego sprawa odnowienia otwierana od 120 do 45 dni przed końcem ochrony.",
+  "description": "Odnowienia umykają, a rekomendacje zostają bez dokumentacji, gdy nowa sprzedaż i odnowienia leżą na osobnych listach albo w głowie. Szablon prowadzi oba obiegi obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Przechowuje link do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie jest system do administrowania polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Ubezpieczający, potencjalni klienci, decydenci i polecający." },
     "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Nowa sprzedaż od pierwszego zapytania do wystawionej polisy lub utraty." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "Baza wiedzy zawiera stronę o dokumentacji rekomendacji."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
+    "intro": "Prowadzę portfel klientów jako broker ubezpieczeniowy: odnowienia zaskakują mnie w ostatniej chwili, a przed każdą ofertą muszę jeszcze udokumentować rekomendację. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
     "questions": [
       "W jakich rodzajach ubezpieczeń pośredniczysz i czy obsługujesz firmy, klientów indywidualnych, czy obu?",
       "Ile czasu przed terminem zaczynasz odnowienie i jaki jest zwykły okres wypowiedzenia?",

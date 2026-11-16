@@ -1184,8 +1184,8 @@
     "de": {
       "locale": "de",
       "name": "Buchungen für Kreative",
-      "summary": "Für Fotografen, Videografen und Eventplaner: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung im Blick und eine Notiz zu jedem Jahrestag.",
-      "description": "Eine Zeile pro Buchung mit zwei Phasen: Vertrieb (Anfrage bis gebucht) und Lieferung (Shooting erledigt bis geliefert). Termine werden gesichert, bis Vertrag und Anzahlung da sind, die Restzahlung hat eine eigene Fälligkeit, und nach jeder Lieferung wird um eine Bewertung gebeten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen, hier stehen die Links.",
+      "summary": "Für Fotografen, Videografen und Eventplaner: jede Anfrage, jeden Termin und jede Anzahlung im Griff, von der ersten Nachricht bis zu Buchung, Lieferung und Jahrestagsgruß.",
+      "description": "Termine werden zugesagt, ohne dass eine Anzahlung da ist, und Lieferungen werden vergessen, wenn Anfragen in Chats und im Kalender stehen. Diese Vorlage gibt jeder Buchung eine Zeile mit zwei Phasen: Vertrieb von der Anfrage bis gebucht und Lieferung vom erledigten Shooting bis geliefert. Ein Termin wird gesichert, bis Vertrag und Anzahlung da sind, die Restzahlung hat eine eigene Fälligkeit, und nach jeder Lieferung wird um eine Bewertung gebeten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen, hier stehen die Links.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1582,7 +1582,7 @@
         "bookings_board_view": "Die Buchungen öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte Buchungen für Kreative in meinem Customermates-Workspace ein: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung, einen Fragebogen vor dem Event, eine Bitte um Bewertung und Jahrestags-Grüße.",
+        "intro": "Ich betreibe ein Foto-, Video- oder Eventgeschäft und verliere den Überblick, welche Termine gesichert, welche Anzahlungen bezahlt und was noch zu liefern ist. Richte Buchungen für Kreative in meinem Customermates-Workspace ein: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung, einen Fragebogen vor dem Event, eine Bitte um Bewertung und Jahrestags-Grüße.",
         "questions": [
           "Was fotografierst, filmst oder planst du, und wie viele Buchungen hast du im Jahr?",
           "Welche Schritte durchläuft ein Kunde von der Anfrage bis zur Buchung, und wann reservierst du den Termin?",
@@ -1594,8 +1594,8 @@
     "en": {
       "locale": "en",
       "name": "Creative bookings",
-      "summary": "For photographers, videographers and event planners: an inquiry-to-booking pipeline, a delivery stage after the date, deposit and balance tracking, and a note for every anniversary.",
-      "description": "One row per booking with two stages: sales (inquiry to booked) and delivery (shoot done to delivered). Dates are held until a contract is signed and a deposit paid, the balance has its own due date, and every delivered job asks for a review. Contracts, invoices and galleries stay in your own tools; links are kept here.",
+      "summary": "For photographers, videographers and event planners: keep every inquiry, date and deposit straight, from the first message to booked, delivered and an anniversary note.",
+      "description": "Dates get promised without a deposit and deliveries get forgotten when inquiries live in chats and a calendar. This template gives every booking one row with two stages: sales from inquiry to booked, and delivery from shoot done to delivered. A date is held until the contract is signed and the deposit paid, the balance has its own due date, and every delivered job asks for a review. Contracts, invoices and galleries stay in your own tools; links are kept here.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1992,7 +1992,7 @@
         "bookings_board_view": "The bookings open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up creative bookings in my Customermates workspace: a pipeline from inquiry to booked, a delivery stage after the date, deposit and balance tracking, a questionnaire before the event, a review request and anniversary notes.",
+        "intro": "I run a photo, video or event business and lose track of which dates are held, which deposits are paid and what still has to be delivered. Set up creative bookings in my Customermates workspace: a pipeline from inquiry to booked, a delivery stage after the date, deposit and balance tracking, a questionnaire before the event, a review request and anniversary notes.",
         "questions": [
           "What do you shoot or plan, and how many bookings a year?",
           "Which steps does a client go through from inquiry to booked, and when is the date held?",
@@ -2004,8 +2004,8 @@
     "es": {
       "locale": "es",
       "name": "Reservas para creativos",
-      "summary": "Para fotógrafos, videógrafos y organizadores de eventos: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto y una nota para cada aniversario.",
-      "description": "Una fila por reserva con dos fases: venta (de solicitud a reservado) y entrega (sesión hecha a entregado). La fecha se bloquea hasta firmar el contrato y pagar la señal, el resto tiene su propio vencimiento y cada entrega pide una reseña. Contratos, facturas y galerías se quedan en tus herramientas, aquí se guardan los enlaces.",
+      "summary": "Para fotógrafos, videógrafos y organizadores de eventos: ten a mano cada solicitud, cada fecha y cada señal, del primer mensaje a la reserva, la entrega y la nota de aniversario.",
+      "description": "Se promete una fecha sin haber cobrado la señal y se olvidan entregas cuando las solicitudes viven entre chats y un calendario. Esta plantilla da a cada reserva una fila con dos fases: venta, de la solicitud a reservado, y entrega, de sesión hecha a entregado. La fecha queda bloqueada hasta que se firma el contrato y se paga la señal, el resto tiene su propio vencimiento y cada trabajo entregado pide una reseña. Los contratos, las facturas y las galerías se quedan en tus herramientas; aquí se guardan los enlaces.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2402,7 +2402,7 @@
         "bookings_board_view": "Las reservas se abren como tablero por etapa."
       },
       "prompt": {
-        "intro": "Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
+        "intro": "Tengo un negocio de fotografía, vídeo o eventos y pierdo la cuenta de qué fechas están bloqueadas, qué señales están pagadas y qué falta por entregar. Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
         "questions": [
           "¿A qué te dedicas: fotografía, vídeo u organización de eventos? ¿Cuántas reservas tienes al año?",
           "¿Por qué pasos pasa un cliente de la solicitud a la reserva y cuándo reservas la fecha?",
@@ -2414,8 +2414,8 @@
     "fr": {
       "locale": "fr",
       "name": "Réservations pour créatifs",
-      "summary": "Pour photographes, vidéastes et organisateurs d’événements : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde et une note pour chaque anniversaire.",
-      "description": "Une ligne par réservation avec deux étapes : vente (de la demande à la réservation) et livraison (de la prestation réalisée à la remise des fichiers). La date est bloquée jusqu’à la signature du contrat et au paiement de l’acompte, le solde a sa propre échéance et chaque livraison déclenche une demande d’avis. Contrats, factures et galeries restent dans vos propres outils, seuls les liens sont gardés ici.",
+      "summary": "Photographes, vidéastes, organisateurs d’événements : gardez chaque demande, chaque date et chaque acompte en ordre, du premier message à la réservation, à la livraison et au mot d’anniversaire.",
+      "description": "Des dates sont promises sans acompte et des livraisons oubliées quand les demandes vivent dans des discussions et un agenda. Ce modèle donne à chaque réservation une ligne avec deux étapes : la vente, de la demande à la réservation, et la livraison, de la prestation réalisée à la remise des fichiers. La date est bloquée jusqu’à la signature du contrat et au paiement de l’acompte, le solde a sa propre échéance et chaque livraison déclenche une demande d’avis. Contrats, factures et galeries restent dans vos propres outils, seuls les liens sont gardés ici.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2812,7 +2812,7 @@
         "bookings_board_view": "Les réservations s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place les réservations pour créatifs dans mon espace de travail Customermates : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde, un questionnaire avant l’événement, une demande d’avis et des mots d’anniversaire.",
+        "intro": "Je gère une activité de photo, de vidéo ou d’événementiel et je ne sais plus quelles dates sont bloquées, quels acomptes sont payés ni ce qu’il reste à livrer. Mets en place les réservations pour créatifs dans mon espace de travail Customermates : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde, un questionnaire avant l’événement, une demande d’avis et des mots d’anniversaire.",
         "questions": [
           "Que photographiez-vous, filmez-vous ou organisez-vous, et combien de réservations par an ?",
           "Par quelles étapes passe un client de la demande à la réservation, et quand bloquez-vous la date ?",
@@ -2824,8 +2824,8 @@
     "it": {
       "locale": "it",
       "name": "Prenotazioni per creativi",
-      "summary": "Per fotografi, videomaker e organizzatori di eventi: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, acconto e saldo sotto controllo e una nota per ogni anniversario.",
-      "description": "Una riga per prenotazione con due fasi: vendita (dalla richiesta alla prenotazione) e consegna (dal servizio svolto alla consegna). La data resta bloccata finché il contratto non è firmato e l'acconto versato, il saldo ha una propria scadenza e a ogni consegna si chiede una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti, qui si tengono i link.",
+      "summary": "Per fotografi, videomaker e organizzatori di eventi: tieni in ordine ogni richiesta, data e acconto, dal primo messaggio alla prenotazione, alla consegna e alla nota di anniversario.",
+      "description": "Le date vengono promesse senza acconto e le consegne dimenticate quando le richieste vivono nelle chat e in un calendario. Questo modello dà a ogni prenotazione una riga con due fasi: la vendita, dalla richiesta alla prenotazione, e la consegna, dal servizio svolto alla consegna. La data resta bloccata finché il contratto non è firmato e l'acconto versato, il saldo ha una propria scadenza e a ogni lavoro consegnato si chiede una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti: qui si tengono i link.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3222,7 +3222,7 @@
         "bookings_board_view": "Le prenotazioni si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e messaggi di anniversario.",
+        "intro": "Gestisco un'attività di foto, video o eventi e perdo il conto di quali date sono bloccate, quali acconti sono pagati e che cosa resta da consegnare. Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e note di anniversario.",
         "questions": [
           "Che cosa fotografi, riprendi o organizzi e quante prenotazioni hai all'anno?",
           "Quali passaggi attraversa un cliente dalla richiesta alla prenotazione e quando blocchi la data?",
@@ -3234,8 +3234,8 @@
     "nl": {
       "locale": "nl",
       "name": "Boekingen voor creatieve ondernemers",
-      "summary": "Voor fotografen, videografen en eventplanners: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling in beeld en een notitie voor elk jubileum.",
-      "description": "Eén regel per boeking met twee fasen: verkoop (aanvraag tot geboekt) en levering (shoot gedaan tot geleverd). De datum blijft gereserveerd tot het contract is getekend en de aanbetaling is voldaan, de restbetaling heeft een eigen datum en na elke levering vraag je om een review. Contracten, facturen en galerijen blijven in je eigen tools, hier staan de links.",
+      "summary": "Houd elke aanvraag, datum en aanbetaling op orde, van het eerste bericht tot geboekt, geleverd en een jubileumbericht. Voor fotografen, videografen en eventplanners.",
+      "description": "Data worden beloofd zonder aanbetaling en leveringen worden vergeten als aanvragen in chats en een agenda staan. Dit sjabloon geeft elke boeking één regel met twee fasen: verkoop van aanvraag tot geboekt, en levering van shoot gedaan tot geleverd. De datum blijft gereserveerd tot het contract is getekend en de aanbetaling is voldaan, de restbetaling heeft een eigen datum en na elke levering vraag je om een review. Contracten, facturen en galerijen blijven in je eigen tools, hier staan de links.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3632,7 +3632,7 @@
         "bookings_board_view": "De boekingen openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt boekingen voor creatieve ondernemers in mijn Customermates-werkruimte in: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling, een vragenlijst voor het evenement, een reviewverzoek en jubileumberichten.",
+        "intro": "Ik heb een foto-, video- of eventbedrijf en raak het overzicht kwijt van welke data gereserveerd zijn, welke aanbetalingen binnen zijn en wat er nog geleverd moet worden. Richt boekingen voor creatieve ondernemers in mijn Customermates-werkruimte in: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling, een vragenlijst voor het evenement, een reviewverzoek en jubileumberichten.",
         "questions": [
           "Wat fotografeer, film of plan je en hoeveel boekingen heb je per jaar?",
           "Welke stappen doorloopt een klant van aanvraag tot boeking en wanneer reserveer je de datum?",
@@ -3644,8 +3644,8 @@
     "pl": {
       "locale": "pl",
       "name": "Rezerwacje dla twórców",
-      "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty oraz notatka na każdą rocznicę.",
-      "description": "Jeden wiersz na rezerwację z dwoma etapami: sprzedaż (od zapytania do zarezerwowanego) i przekazanie materiałów (od zrobionej sesji do przekazanych zdjęć lub filmu). Termin jest blokowany do podpisania umowy i wpłaty zaliczki, dopłata ma własny termin, a po każdym przekazaniu materiałów prosisz o opinię. Umowy, faktury i galerie zostają w Twoich narzędziach, tutaj zapisujemy tylko linki.",
+      "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: miej pod kontrolą każde zapytanie, termin i zaliczkę, od pierwszej wiadomości po rezerwację, przekazanie materiałów i życzenia w rocznicę.",
+      "description": "Termin zostaje obiecany bez zaliczki, a o przekazaniu materiałów łatwo zapomnieć, gdy zapytania toną w czatach i kalendarzu. Szablon daje każdej rezerwacji jeden wiersz z dwoma etapami: sprzedaż, od zapytania do zarezerwowanego, i przekazanie materiałów, od zrobionej sesji do przekazanych zdjęć lub filmu. Termin jest blokowany do podpisania umowy i wpłaty zaliczki, dopłata ma własny termin, a po każdym przekazaniu materiałów prosisz o opinię. Umowy, faktury i galerie zostają w Twoich narzędziach, tutaj zapisujemy tylko linki.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4042,7 +4042,7 @@
         "bookings_board_view": "Rezerwacje otwierają się jako tablica według etapów."
       },
       "prompt": {
-        "intro": "Skonfiguruj rezerwacje dla twórców w mojej przestrzeni roboczej Customermates: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty, ankieta przed wydarzeniem, prośba o opinię i życzenia rocznicowe.",
+        "intro": "Prowadzę firmę fotograficzną, filmową lub eventową i gubię się, które terminy są zablokowane, które zaliczki zostały wpłacone i co jeszcze trzeba przekazać. Skonfiguruj rezerwacje dla twórców w mojej przestrzeni roboczej Customermates: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty, ankieta przed wydarzeniem, prośba o opinię i życzenia rocznicowe.",
         "questions": [
           "Co fotografujesz, filmujesz lub organizujesz i ile rezerwacji masz w roku?",
           "Przez jakie kroki przechodzi klient od zapytania do rezerwacji i kiedy blokujesz termin?",
@@ -4054,8 +4054,8 @@
     "pt": {
       "locale": "pt",
       "name": "Reservas para criativos",
-      "summary": "Para fotógrafos, videomakers e cerimonialistas: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo e uma nota para cada aniversário.",
-      "description": "Uma linha por reserva com duas etapas: venda (da solicitação a reservado) e entrega (sessão feita a entregue). A data fica reservada até o contrato ser assinado e o sinal pago, o saldo tem um vencimento próprio e cada entrega pede uma avaliação. Contratos, notas fiscais e galerias ficam nas suas ferramentas, aqui ficam os links.",
+      "summary": "Para fotógrafos, videomakers e organizadores de eventos: mantenha em ordem cada solicitação, data e sinal, da primeira mensagem à reserva, à entrega e à mensagem de aniversário.",
+      "description": "Datas são prometidas sem sinal e entregas são esquecidas quando as solicitações ficam em conversas e na agenda. Este modelo dá a cada reserva uma linha com duas etapas: venda, da solicitação à reserva, e entrega, da sessão feita à entrega concluída. A data fica reservada até o contrato ser assinado e o sinal pago, o saldo tem um vencimento próprio e cada trabalho entregue pede uma avaliação. Contratos, notas fiscais e galerias ficam nas suas ferramentas, aqui ficam os links.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4452,7 +4452,7 @@
         "bookings_board_view": "As reservas abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure as reservas para criativos no meu espaço de trabalho do Customermates: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo, um questionário antes do evento, um pedido de avaliação e mensagens de aniversário.",
+        "intro": "Eu tenho um negócio de foto, vídeo ou eventos e perco o controle de quais datas estão reservadas, quais sinais foram pagos e o que ainda falta entregar. Configure as reservas para criativos no meu espaço de trabalho do Customermates: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo, um questionário antes do evento, um pedido de avaliação e mensagens de aniversário.",
         "questions": [
           "O que você fotografa, filma ou organiza e quantas reservas tem por ano?",
           "Por quais passos um cliente passa da solicitação à reserva e quando você reserva a data?",

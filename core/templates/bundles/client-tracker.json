@@ -1129,8 +1129,8 @@
     "de": {
       "locale": "de",
       "name": "Kundenverwaltung",
-      "summary": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt, dazu eine wöchentliche Durchsicht und ein Prüfdatum für jeden beendeten Kunden.",
-      "description": "Eine schlanke Kundenkartei mit sieben Status, dem Datum des letzten Kontakts, einer Wiedervorlage, die die Arbeit steuert, einem Prüfrhythmus je Segment und einem Löschprüfdatum für beendete Kunden. Ansprechpartner, terminierte Wiedervorlagen und verknüpfte Unterhaltungen stehen direkt am Kunden.",
+      "summary": "Nie mehr rätseln, welchem Kunden Sie noch einen Anruf, eine Antwort oder ein Angebot schulden. Jeder Kunde hat einen Betreuer und einen terminierten nächsten Schritt, eine wöchentliche Durchsicht zeigt, was überfällig ist.",
+      "description": "Wenn Kundendaten in einer Tabelle, im Postfach und im Kopf stecken, rutschen Wiedervorlagen durch, und niemand merkt es, bis ein Kunde sich nicht mehr meldet. Diese Vorlage richtet eine Zeile pro Kunde ein, mit sieben Status, dem Datum des letzten Kontakts, einem terminierten nächsten Schritt und einem Prüfrhythmus je Segment. Ansprechpartner, terminierte Wiedervorlagen und verknüpfte Unterhaltungen stehen direkt am Kunden, und für beendete Kunden gibt es ein Prüfdatum für die Löschung. Sie passt zu Selbstständigen, Agenturen und kleinen Teams mit bis zu etwa zehn Personen, die ihre Kundenbeziehungen selbst pflegen.",
       "lists": {
         "actions": {
           "label": "Wiedervorlage",
@@ -1487,10 +1487,10 @@
         "playbook_page": "Die Wissensdatenbank enthält den Leitfaden zur Kundenverwaltung."
       },
       "page": {
-        "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
-        "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht.",
-        "headline": "Eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
-        "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Wiedervorlagen und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+        "metaTitle": "Kundenverwaltung Vorlage: keine Wiedervorlage verpassen",
+        "metaDescription": "Kein Kunde geht mehr verloren: Vorlage in Claude, ChatGPT oder Codex einfügen und für jeden Kunden Betreuer und nächsten Schritt mit Datum anlegen lassen.",
+        "headline": "Wissen, wen Sie als Nächstes anrufen: eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
+        "answer": "Eine Kundenverwaltung ist eine Liste mit einer Zeile pro Kunde, einem Betreuer und einem terminierten nächsten Schritt, damit kein Kunde still wird, ohne dass Sie es merken. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Wiedervorlagen, verknüpften Unterhaltungen und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
         "routine": {
           "title": "Die wöchentliche Kundendurchsicht in 15 Minuten",
           "steps": [
@@ -1527,7 +1527,7 @@
         ]
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
+        "intro": "Ich betreue meine Kunden selbst, und zu viele Wiedervorlagen rutschen durch: Ich verliere den Überblick, mit wem ich zuletzt gesprochen habe und was als Nächstes ansteht. Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
         "questions": [
           "Wie viele Kunden betreust du heute, und wer arbeitet noch an der Kartei mit?",
           "Welche Kundenstatus nutzt du schon? Soll einer der sieben umbenannt oder weggelassen werden?",
@@ -1540,8 +1540,8 @@
     "en": {
       "locale": "en",
       "name": "Client tracker",
-      "summary": "One row per client, one owner, one dated next step, plus a weekly review and a retention date for every closed client.",
-      "description": "A short, disciplined client list: a status from seven values, a last-contact date, a next-step date that drives the work, a review rhythm per segment and a data-retention date for closed clients. Contacts, dated Actions and linked conversations sit next to every client.",
+      "summary": "Never wonder which client you owe a call, a reply or a quote. Every client gets one owner and one dated next step, and a weekly review shows what is overdue.",
+      "description": "When client details sit in a spreadsheet, an inbox and your head, follow-ups slip and nobody notices until a client goes quiet. This template sets up one row per client with a status, the date of the last contact, a dated next step and a review rhythm per segment, with contacts, dated Actions and linked conversations next to each client and a data-retention date once a client is closed. It fits freelancers, agencies and small teams of up to about ten people who look after their own client relationships.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1898,10 +1898,10 @@
         "playbook_page": "The Knowledge Base holds the client tracker playbook."
       },
       "page": {
-        "metaTitle": "Client Tracker Template for Your AI Agent",
-        "metaDescription": "Copy a client tracker into Claude, ChatGPT or Codex: one row per client, one owner, a dated next step and a weekly review, built in your CRM.",
-        "headline": "A client tracker your AI agent builds in your CRM",
-        "answer": "A client tracker is a short list with one row per client, one owner, a status, the date of the last contact and a next step with a date. Paste this template into your AI agent and it builds that list in Customermates, with contacts, dated Actions and a weekly review. You approve the plan before anything is written.",
+        "metaTitle": "Client Tracker Template: Never Miss a Follow-up",
+        "metaDescription": "Never lose track of a client again. Paste this client tracker template into Claude, ChatGPT or Codex and get one owner and a dated next step for every client.",
+        "headline": "Know who to call next: a client tracker your AI agent builds in your CRM",
+        "answer": "A client tracker is a list with one row per client, one owner and a dated next step, so no client goes quiet without you noticing. Paste this template into your AI agent and it builds the list in Customermates, with contacts, dated Actions, linked conversations and a weekly review. You approve the plan before anything is built.",
         "routine": {
           "title": "The weekly 15-minute client review",
           "steps": [
@@ -1938,7 +1938,7 @@
         ]
       },
       "prompt": {
-        "intro": "Set up a client tracker in my Customermates workspace: one row per client with one owner, a status, a last-contact date and a dated next step, plus contacts, dated Actions, a weekly review and a retention date for closed clients.",
+        "intro": "I look after my clients myself and too many follow-ups slip: I lose track of who I last spoke to and what comes next. Set up a client tracker in my Customermates workspace: one row per client with one owner, a status, a last-contact date and a dated next step, plus contacts, dated Actions, a weekly review and a retention date for closed clients.",
         "questions": [
           "How many clients do you look after today, and who else works on the file?",
           "Which client statuses do you already use? Should any of the seven be renamed or left out?",
@@ -1951,8 +1951,8 @@
     "es": {
       "locale": "es",
       "name": "Ficha de clientes",
-      "summary": "Una fila por cliente, un responsable, una próxima acción con fecha, más una revisión semanal y una fecha de revisión de datos para cada cliente dado de baja.",
-      "description": "Una base de datos de clientes breve y disciplinada: siete estados, la fecha de la última interacción, una fecha de próxima acción que marca el trabajo, un ritmo de revisión por segmento y una fecha de revisión de datos para los clientes dados de baja. Personas de contacto, tareas con fecha y conversaciones vinculadas están junto a cada cliente.",
+      "summary": "Ten siempre claro a qué cliente le debes una llamada, una respuesta o un presupuesto. Cada cliente tiene un responsable y una próxima acción con fecha, y la revisión semanal muestra lo que va con retraso.",
+      "description": "Cuando los datos de los clientes están repartidos entre una hoja de cálculo, el correo y tu cabeza, los seguimientos se escapan y nadie se entera hasta que un cliente deja de dar señales. Esta plantilla prepara una fila por cliente con un estado, la fecha de la última interacción, una próxima acción con fecha y un ritmo de revisión por segmento, con las personas de contacto, las tareas con fecha y las conversaciones vinculadas junto a cada cliente, y una fecha de revisión de datos cuando das de baja a un cliente. Encaja con autónomos, agencias y equipos pequeños de hasta unas diez personas que cuidan ellos mismos la relación con sus clientes.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2309,7 +2309,7 @@
         "playbook_page": "La base de conocimiento contiene la guía de la ficha de clientes."
       },
       "prompt": {
-        "intro": "Configura una ficha de clientes en mi espacio de trabajo de Customermates: una fila por cliente con un responsable, un estado, la fecha de la última interacción y una próxima acción con fecha, más las personas de contacto, tareas con fecha, una revisión semanal y una fecha de revisión de datos para los clientes dados de baja.",
+        "intro": "Llevo personalmente la relación con mis clientes y se me escapan demasiados seguimientos: no sé con quién hablé por última vez ni qué toca ahora. Configura una ficha de clientes en mi espacio de trabajo de Customermates: una fila por cliente con un responsable, un estado, la fecha de la última interacción y una próxima acción con fecha, más las personas de contacto, tareas con fecha, una revisión semanal y una fecha de revisión de datos para los clientes dados de baja.",
         "questions": [
           "¿Cuántos clientes llevas hoy y quién más trabaja con la ficha?",
           "¿Qué estados de cliente usas ya? ¿Hay que renombrar o quitar alguno de los siete?",
@@ -2322,8 +2322,8 @@
     "fr": {
       "locale": "fr",
       "name": "Fichier client",
-      "summary": "Une ligne par client, un responsable, une prochaine action datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
-      "description": "Un fichier client court et rigoureux : sept statuts, la date du dernier contact, une échéance de prochaine action qui pilote le travail, un rythme de revue par segment et une date de revue des données pour les clients clos. Les contacts, les actions datées et les conversations liées se trouvent à côté de chaque client.",
+      "summary": "Ne vous demandez plus à quel client vous devez un appel, une réponse ou un devis. Chaque client a un responsable et une prochaine action datée, et une revue hebdomadaire montre ce qui est en retard.",
+      "description": "Quand les informations clients sont dans un tableur, une boîte mail et votre tête, les relances glissent et personne ne s’en aperçoit avant qu’un client ne disparaisse. Ce modèle met en place une ligne par client avec sept statuts, la date du dernier contact, une prochaine action datée et un rythme de revue par segment, avec les contacts, les actions datées et les conversations liées à côté de chaque client, et une date de revue des données une fois le client clos. Il convient aux indépendants, aux agences et aux petites équipes d’une dizaine de personnes au plus qui suivent elles-mêmes leurs relations clients.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2680,10 +2680,10 @@
         "playbook_page": "La base de connaissances contient le mode d’emploi du fichier client."
       },
       "page": {
-        "metaTitle": "Modèle de fichier client pour votre agent IA",
-        "metaDescription": "Copiez le fichier client dans Claude, ChatGPT ou Codex : une ligne par client, un responsable, une relance datée et une revue chaque semaine.",
-        "headline": "Un fichier client que votre agent IA construit dans votre CRM",
-        "answer": "Un fichier client est une liste courte : une ligne par client, un responsable, un statut, la date du dernier contact et une prochaine action avec une date de relance. Collez ce modèle dans votre agent IA et il construit cette liste dans Customermates, avec les contacts, des actions datées et une revue hebdomadaire. Vous validez le plan avant toute écriture.",
+        "metaTitle": "Modèle de fichier client : plus aucune relance oubliée",
+        "metaDescription": "Ne perdez plus aucun client de vue. Collez ce fichier client dans Claude, ChatGPT ou Codex : un responsable et une prochaine action datée pour chacun.",
+        "headline": "Sachez qui appeler ensuite : un fichier client que votre agent IA construit dans votre CRM",
+        "answer": "Un fichier client est une liste avec une ligne par client, un responsable et une prochaine action datée, pour qu’aucun client ne disparaisse sans que vous le remarquiez. Collez ce modèle dans votre agent IA : il construit la liste dans Customermates, avec les contacts, des actions datées, les conversations liées et une revue hebdomadaire. Vous validez le plan avant que rien ne soit créé.",
         "routine": {
           "title": "La revue client hebdomadaire de 15 minutes",
           "steps": [
@@ -2720,7 +2720,7 @@
         ]
       },
       "prompt": {
-        "intro": "Mets en place un fichier client dans mon espace de travail Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
+        "intro": "Je suis mes clients moi-même et trop de relances m’échappent : je ne sais plus à qui j’ai parlé en dernier ni ce qui vient ensuite. Mets en place un fichier client dans mon espace de travail Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
         "questions": [
           "Combien de clients suivez-vous aujourd’hui, et qui d’autre travaille sur le fichier ?",
           "Quels statuts clients utilisez-vous déjà ? Faut-il renommer ou retirer certains des sept ?",
@@ -2733,8 +2733,8 @@
     "it": {
       "locale": "it",
       "name": "Anagrafica clienti",
-      "summary": "Una riga per cliente, un responsabile, un prossimo passo con scadenza, più una revisione settimanale e una data di verifica dei dati per ogni cliente chiuso.",
-      "description": "Un'anagrafica clienti snella e disciplinata: sette stati, la data dell'ultimo contatto, una scadenza del prossimo passo che guida il lavoro, un ritmo di revisione per segmento e una data di verifica dei dati per i clienti chiusi. Referenti, attività con scadenza e conversazioni collegate stanno accanto a ogni cliente.",
+      "summary": "Smetti di chiederti a quale cliente devi una telefonata, una risposta o un preventivo. Ogni cliente ha un responsabile e un prossimo passo con scadenza, e una revisione settimanale mostra che cosa è in ritardo.",
+      "description": "Quando i dati dei clienti stanno in un foglio di calcolo, nella posta e nella tua testa, i follow-up saltano e te ne accorgi solo quando un cliente smette di farsi sentire. Questo modello imposta una riga per cliente con uno stato, la data dell'ultimo contatto, un prossimo passo con scadenza e un ritmo di revisione per segmento, con referenti, attività con scadenza e conversazioni collegate accanto a ogni cliente e una data di verifica dei dati quando il cliente è chiuso. Adatto a freelance, agenzie e piccoli team fino a circa dieci persone che curano da sé le relazioni con i clienti.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3091,10 +3091,10 @@
         "playbook_page": "La base di conoscenza contiene la guida all'anagrafica clienti."
       },
       "page": {
-        "metaTitle": "Anagrafica clienti: modello per il tuo agente IA",
-        "metaDescription": "Copia l'anagrafica clienti in Claude, ChatGPT o Codex: una riga per cliente, un responsabile, un prossimo passo con scadenza e una revisione settimanale.",
-        "headline": "Un'anagrafica clienti che il tuo agente IA costruisce nel tuo CRM",
-        "answer": "Un'anagrafica clienti è un elenco breve: una riga per cliente, un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza. Incolla questo modello nel tuo agente IA e lui costruisce l'elenco in Customermates, con referenti, attività con scadenza e una revisione settimanale. Approvi il piano prima che venga scritto qualcosa.",
+        "metaTitle": "Anagrafica clienti: modello per non perdere un follow-up",
+        "metaDescription": "Non perdere più il filo di un cliente. Incolla questo modello in Claude, ChatGPT o Codex: un responsabile e un prossimo passo con scadenza per ogni cliente.",
+        "headline": "Sai sempre chi richiamare: l'anagrafica clienti che il tuo agente IA costruisce nel tuo CRM",
+        "answer": "Un'anagrafica clienti è un elenco con una riga per cliente, un responsabile e un prossimo passo con scadenza, così nessun cliente resta in silenzio senza che te ne accorga. Incolla questo modello nel tuo agente IA e costruisce l'elenco in Customermates, con referenti, attività con scadenza, conversazioni collegate e una revisione settimanale. Approvi il piano prima che venga costruito qualcosa.",
         "routine": {
           "title": "La revisione settimanale dei clienti in 15 minuti",
           "steps": [
@@ -3131,7 +3131,7 @@
         ]
       },
       "prompt": {
-        "intro": "Configura un'anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
+        "intro": "Seguo io i miei clienti e troppi follow-up mi sfuggono: perdo il filo di chi ho sentito per ultimo e di che cosa viene dopo. Configura un'anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
         "questions": [
           "Quanti clienti segui oggi e chi altro lavora sull'anagrafica?",
           "Quali stati dei clienti usi già? Vanno rinominati o tolti alcuni dei sette?",
@@ -3144,8 +3144,8 @@
     "nl": {
       "locale": "nl",
       "name": "Klantenbestand",
-      "summary": "Eén regel per klant, één accountmanager, één volgende stap met datum, plus een wekelijkse controle en een controledatum voor elke beëindigde klant.",
-      "description": "Een compact, strak klantenbestand: zeven statussen, de datum van het laatste contact, een datum voor de volgende stap die het werk stuurt, een controleritme per segment en een controledatum voor de gegevens van beëindigde klanten. Contactpersonen, acties met datum en gekoppelde gesprekken staan bij elke klant.",
+      "summary": "Weet altijd aan welke klant je nog een telefoontje, antwoord of offerte schuldig bent. Elke klant krijgt één accountmanager en één volgende stap met datum, en een wekelijkse controle laat zien wat te laat is.",
+      "description": "Als klantgegevens in een spreadsheet, een inbox en je hoofd zitten, glippen opvolgingen door en merkt niemand het tot een klant stil wordt. Dit sjabloon zet één regel per klant op met een status, de datum van het laatste contact, een volgende stap met datum en een controleritme per segment, met contactpersonen, acties met datum en gekoppelde gesprekken bij elke klant en een controledatum voor de gegevens zodra een klant is beëindigd. Voor zzp’ers, bureaus en kleine teams tot ongeveer tien personen die zelf hun klantrelaties onderhouden.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3502,7 +3502,7 @@
         "playbook_page": "De kennisbank bevat de werkwijze van het klantenbestand."
       },
       "prompt": {
-        "intro": "Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
+        "intro": "Ik onderhoud mijn klantrelaties zelf en te veel opvolgingen glippen erdoorheen: ik weet niet meer met wie ik het laatst sprak en wat de volgende stap is. Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
         "questions": [
           "Hoeveel klanten heb je nu en wie werkt er nog meer met het bestand?",
           "Welke klantstatussen gebruik je al? Moet een van de zeven worden hernoemd of weggelaten?",
@@ -3515,8 +3515,8 @@
     "pl": {
       "locale": "pl",
       "name": "Baza klientów",
-      "summary": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem, do tego cotygodniowy przegląd i data przeglądu danych dla każdego zakończonego klienta.",
-      "description": "Zwięzła, zdyscyplinowana baza klientów: siedem statusów, data ostatniego kontaktu, termin następnego kroku, który napędza pracę, rytm przeglądów dla każdego segmentu i data przeglądu danych dla klientów zakończonych. Osoby kontaktowe, zadania z terminem i powiązane rozmowy są obok każdego klienta.",
+      "summary": "Koniec z zastanawianiem się, któremu klientowi jesteś winien telefon, odpowiedź albo wycenę. Każdy klient ma jednego opiekuna i jeden następny krok z terminem, a cotygodniowy przegląd pokazuje, co jest po terminie.",
+      "description": "Gdy dane o klientach rozchodzą się między arkuszem, skrzynką i głową, kolejne kontakty umykają i nikt tego nie zauważa, dopóki klient nie zamilknie. Szablon zakłada jeden wiersz na klienta ze statusem, datą ostatniego kontaktu, następnym krokiem z terminem i rytmem przeglądów dla każdego segmentu, a obok każdego klienta osoby kontaktowe, zadania z terminem i powiązane rozmowy oraz datę przeglądu danych po zakończeniu współpracy. Pasuje do freelancerów, agencji i małych zespołów do około dziesięciu osób, które same prowadzą relacje z klientami.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3873,7 +3873,7 @@
         "playbook_page": "Baza wiedzy zawiera instrukcję bazy klientów."
       },
       "prompt": {
-        "intro": "Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
+        "intro": "Sam prowadzę swoich klientów i za często umykają mi kolejne kontakty: tracę z oczu, kiedy ostatnio był kontakt z danym klientem i co dalej. Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
         "questions": [
           "Ilu klientów obsługujesz dziś i kto jeszcze pracuje w bazie?",
           "Jakich statusów klientów już używasz? Czy któryś z siedmiu zmienić lub pominąć?",
@@ -3886,8 +3886,8 @@
     "pt": {
       "locale": "pt",
       "name": "Cadastro de clientes",
-      "summary": "Uma linha por cliente, um responsável, um próximo contato com data, mais uma revisão semanal e uma data de revisão dos dados para cada cliente encerrado.",
-      "description": "Um cadastro de clientes enxuto e disciplinado: sete status, a data do último contato, uma data do próximo contato que conduz o trabalho, um ritmo de revisão por segmento e uma data de revisão dos dados para clientes encerrados. Contatos, tarefas com data e conversas vinculadas ficam ao lado de cada cliente.",
+      "summary": "Saiba sempre a que cliente você deve uma ligação, uma resposta ou um orçamento. Cada cliente tem um responsável e um próximo contato com data, e uma revisão semanal mostra o que está atrasado.",
+      "description": "Quando os dados dos clientes estão em uma planilha, na caixa de entrada e na sua cabeça, os retornos escapam e ninguém percebe até o cliente sumir. Este modelo cria uma linha por cliente, com sete status, a data do último contato, um próximo contato com data e um ritmo de revisão por segmento. Contatos, tarefas com data e conversas vinculadas ficam ao lado de cada cliente, e um cliente encerrado ganha uma data de revisão dos dados. Serve para autônomos, agências e equipes de até cerca de dez pessoas que cuidam do relacionamento com os próprios clientes.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4244,7 +4244,7 @@
         "playbook_page": "A base de conhecimento contém o guia do cadastro de clientes."
       },
       "prompt": {
-        "intro": "Configure um cadastro de clientes no meu espaço de trabalho do Customermates: uma linha por cliente com responsável, status, data do último contato e um próximo contato com data, mais os contatos, tarefas com data, uma revisão semanal e uma data de revisão dos dados para clientes encerrados.",
+        "intro": "Eu cuido dos meus clientes pessoalmente e muitos retornos escapam: perco o fio de com quem falei por último e do que vem depois. Configure um cadastro de clientes no meu espaço de trabalho do Customermates: uma linha por cliente com responsável, status, data do último contato e um próximo contato com data, mais os contatos, tarefas com data, uma revisão semanal e uma data de revisão dos dados para clientes encerrados.",
         "questions": [
           "Quantos clientes você atende hoje e quem mais trabalha no cadastro?",
           "Quais status de cliente você já usa? Algum dos sete deve ser renomeado ou retirado?",

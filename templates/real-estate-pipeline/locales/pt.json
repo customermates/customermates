@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Funil imobiliário",
-  "summary": "Dois funis que se encontram no contrato: captar e divulgar o imóvel, e atender o comprador, com visitas, prazos e um acompanhamento periódico de clientes antigos.",
-  "description": "Uma imobiliária trabalha um lado proprietário (avaliação, autorização de venda, divulgação, propostas) e um lado comprador (lead, qualificação, visitas, proposta), depois uma fase comum com o contrato assinado e prazos firmes. Este modelo acompanha os dois, o tipo de autorização e o seu fim, cada visita com o retorno, os prazos depois da assinatura e um acompanhamento com datas para clientes antigos. O valor de um imóvel guarda a comissão esperada.",
+  "summary": "Capte imóveis e venda sem perder uma visita, um retorno ao proprietário ou um prazo. Dois funis que se encontram no contrato, o do imóvel e o do comprador, com visitas, prazos e acompanhamento de clientes antigos.",
+  "description": "Uma imobiliária trabalha os dois lados de uma venda, o proprietário que entrega o imóvel e o comprador que procura, e os prazos depois do contrato escapam com facilidade entre os dois. Este modelo acompanha o lado do proprietário (avaliação, autorização de venda, divulgação, propostas) e o do comprador (lead, qualificação, visitas, proposta), depois uma fase comum após o contrato, com prazos firmes. Você vê o tipo de autorização e o seu fim, cada visita com o retorno, os prazos depois da assinatura e um acompanhamento com datas para clientes antigos. O valor do imóvel guarda a comissão esperada.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Proprietários, locadores, compradores, locatários e quem indica." },
     "organizations": { "label": "Organização", "pluralLabel": "Organizações", "description": "Construtoras, bancos, cartórios e parceiros indicadores." },
@@ -401,7 +401,7 @@
     "operating_guide_page": "A base de conhecimento contém o guia de operação."
   },
   "prompt": {
-    "intro": "Configure um funil imobiliário no meu espaço de trabalho do Customermates: imóveis com o tipo de autorização e o fim dela, buscas de compradores, visitas com retorno, prazos depois da assinatura do contrato e uma tarefa com data para cada registro aberto.",
+    "intro": "Eu trabalho com proprietários que anunciam e compradores que procuram, e perco o controle das visitas, dos retornos e dos prazos depois do contrato. Configure um funil imobiliário no meu espaço de trabalho do Customermates: imóveis com o tipo de autorização e o fim dela, buscas de compradores, visitas com retorno, prazos depois da assinatura do contrato e uma tarefa com data para cada registro aberto.",
     "questions": [
       "Você trabalha para proprietários, para compradores ou para os dois? Vende, aluga ou ambos?",
       "Em que país você trabalha e quais tipos de autorização usa lá?",

@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Custom CRM",
-  "summary": "A CRM built around how you work: contacts, organizations, opportunities and dated actions, with an import from your spreadsheet or old tool and a weekly review.",
-  "description": "Start from the four lists every CRM needs and change them to fit: stages, fields and views are yours. Meant for people leaving a spreadsheet, Notion, Airtable or Trello who want their data in a CRM without a project. It keeps a note of where each record was imported from.",
+  "summary": "Move off your spreadsheet or old tool without a big migration project. Contacts, organizations, opportunities and dated actions shaped around how you work, with an import of your data and a weekly review.",
+  "description": "Your customer data is spread over a spreadsheet, a Notion page or an old tool, and nobody wants to start a migration project. This template starts from the four lists every CRM needs, contacts, organizations, opportunities and actions, and your agent changes the stages, fields and views to fit how you work. It then imports your data and keeps a note of where each record came from. It is meant for people leaving a spreadsheet, Notion, Airtable or Trello.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people you deal with." },
     "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Companies and other bodies." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "The Knowledge Base explains how the team uses the CRM."
   },
   "prompt": {
-    "intro": "Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
+    "intro": "My customers and deals live in a spreadsheet or an old tool, and I want a CRM that fits how I work. Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
     "questions": [
       "Which tool or spreadsheet do your records come from, and can you export it?",
       "What stages does a deal go through in your business?",

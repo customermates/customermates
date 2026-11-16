@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Eigenes CRM",
-  "summary": "Ein CRM nach der eigenen Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus der eigenen Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
-  "description": "Starten Sie mit den vier Listen, die jedes CRM braucht, und passen Sie sie an: Phasen, Felder und Ansichten gehören Ihnen. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen und ihre Daten ohne Projekt in ein CRM bringen wollen. Es merkt sich, woher jeder Datensatz importiert wurde.",
+  "summary": "Von der Tabelle oder dem alten Werkzeug umziehen, ohne ein großes Migrationsprojekt. Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben nach Ihrer Arbeitsweise, mit Import Ihrer Daten und wöchentlicher Durchsicht.",
+  "description": "Ihre Kundendaten verteilen sich auf eine Tabelle, eine Notion-Seite oder ein altes Werkzeug, und niemand möchte dafür ein Migrationsprojekt starten. Diese Vorlage beginnt mit den vier Listen, die jedes CRM braucht, Kontakte, Firmen, Verkaufschancen und Aufgaben, und Ihr Agent passt Phasen, Felder und Ansichten an Ihre Arbeitsweise an. Danach importiert er Ihre Daten und notiert, woher jeder Datensatz stammt. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, mit denen du zu tun hast." },
     "organizations": { "label": "Firma", "pluralLabel": "Firmen", "description": "Unternehmen und andere Einrichtungen." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "Die Wissensdatenbank erklärt, wie das Team das CRM nutzt."
   },
   "prompt": {
-    "intro": "Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
+    "intro": "Meine Kunden und Geschäfte stehen in einer Tabelle oder einem alten Werkzeug, und ich möchte ein CRM, das zu meiner Arbeitsweise passt. Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
     "questions": [
       "Aus welchem Werkzeug oder welcher Tabelle stammen deine Datensätze, und lässt sie sich exportieren?",
       "Welche Phasen durchläuft eine Chance in deinem Geschäft?",

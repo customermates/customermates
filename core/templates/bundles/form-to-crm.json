@@ -882,8 +882,8 @@
     "de": {
       "locale": "de",
       "name": "Kontaktformular mit CRM",
-      "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und „Kein Bedarf“ getrennt.",
-      "description": "Jede Anfrage aus einem Kontakt-, Angebots- oder Anfrageformular wird zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, und eine unbeantwortete Anfrage wird gemeldet. Einwilligung und ein Prüftermin gehören zu den erhobenen Daten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
+      "summary": "Keine Anfrage aus dem Webformular bleibt unbeantwortet. Jede Einsendung wird zur Anfrage mit Quelle und fälliger Antwort, läuft von neu bis übergeben und hält Spam und „Kein Bedarf“ getrennt.",
+      "description": "Anfragen aus Ihrem Kontakt-, Angebots- oder Anfrageformular landen in einem Postfach, wo sie spät oder gar nicht beantwortet werden, und Sie sehen nicht, woher die guten kommen. Diese Vorlage macht jede Einsendung zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, eine unbeantwortete Anfrage wird gemeldet, und zu den erhobenen Daten werden Einwilligung und ein Prüftermin festgehalten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1165,7 +1165,7 @@
         "requests_board_view": "Die Anfragen öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
+        "intro": "Anfragen aus den Formularen meiner Website werden spät oder gar nicht beantwortet, und ich sehe nicht, woher die guten kommen. Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
         "questions": [
           "Welche Formulare betreibst du, und was musst du wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
           "Wer antwortet, und wie schnell versprichst du eine Antwort?",
@@ -1177,8 +1177,8 @@
     "en": {
       "locale": "en",
       "name": "Form to CRM",
-      "summary": "Turn web form inquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
-      "description": "Every inquiry from a contact, quote or intake form becomes a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, and a request nobody answered is flagged. Consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
+      "summary": "Make sure no web form inquiry goes unanswered. Every submission becomes a request with its source and a reply due, moves from new to converted, and keeps spam and not-a-fit apart.",
+      "description": "Inquiries from your contact, quote or intake form land in an inbox where they get answered late or not at all, and you cannot tell where the good ones come from. This template turns every submission into a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, a request nobody answered is flagged, and consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1460,7 +1460,7 @@
         "requests_board_view": "The requests open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up form to CRM in my Customermates workspace: a request for every form submission with its source, a reply due, six stages, consent and a data review date, and dated follow-ups.",
+        "intro": "Inquiries from my website forms get answered late or not at all, and I cannot see where the good ones come from. Set up form to CRM in my Customermates workspace: a request for every form submission with its source, a reply due, six stages, consent and a data review date, and dated follow-ups.",
         "questions": [
           "Which forms do you run, and what do you need to know to price or route an inquiry?",
           "Who answers, and how fast do you promise to reply?",
@@ -1472,8 +1472,8 @@
     "es": {
       "locale": "es",
       "name": "Formulario a CRM",
-      "summary": "Convertir las consultas de los formularios web en oportunidades trabajadas: una solicitud por envío con su origen, una respuesta pendiente, una fase de nueva a convertida y el spam y las que no encajan aparte.",
-      "description": "Cada consulta de un formulario de contacto, de presupuesto o de admisión se convierte en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta para el día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, y una solicitud sin respuesta se señala. El consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
+      "summary": "Que ninguna consulta de tus formularios web se quede sin respuesta. Cada envío se convierte en una solicitud con su origen y una respuesta pendiente, avanza de nueva a convertida y deja aparte el spam y lo que no encaja.",
+      "description": "Las consultas de tus formularios de contacto, de presupuesto o de admisión llegan a una bandeja donde se contestan tarde o nunca, y no sabes de dónde vienen las buenas. Esta plantilla convierte cada envío en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta para el día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, una solicitud sin respuesta se señala, y el consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1755,7 +1755,7 @@
         "requests_board_view": "Las solicitudes se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
+        "intro": "Las consultas de los formularios de mi web se contestan tarde o nunca, y no veo de dónde vienen las buenas. Configura en mi espacio de trabajo de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
         "questions": [
           "¿Qué formularios usas y qué necesitas saber para presupuestar o derivar una consulta?",
           "¿Quién responde y en cuánto tiempo te comprometes a hacerlo?",
@@ -1767,8 +1767,8 @@
     "fr": {
       "locale": "fr",
       "name": "Du formulaire au CRM",
-      "summary": "Transformez les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et les demandes sans suite et le spam mis à part.",
-      "description": "Chaque message reçu par un formulaire de contact, de devis ou d’accueil devient une demande reliée à un contact, avec le formulaire d’origine, la provenance du visiteur, le délai souhaité et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, et une demande restée sans réponse est signalée. Le consentement et une date de revue accompagnent les données collectées. Ce n’est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
+      "summary": "Faites en sorte qu’aucune demande de formulaire web ne reste sans réponse. Chaque envoi devient une demande avec sa source et une réponse à donner, passe de nouveau à converti, et les demandes sans suite et le spam restent à part.",
+      "description": "Les demandes de votre formulaire de contact, de devis ou d’accueil arrivent dans une boîte où elles sont traitées tard ou pas du tout, et vous ne savez pas d’où viennent les bonnes. Ce modèle transforme chaque envoi en demande reliée à un contact, avec le formulaire d’origine, la provenance du visiteur, le délai souhaité et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, une demande restée sans réponse est signalée, et le consentement et une date de revue accompagnent les données collectées. Ce n’est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2050,7 +2050,7 @@
         "requests_board_view": "Les demandes s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
+        "intro": "Les demandes de mes formulaires web sont traitées tard ou pas du tout, et je ne vois pas d’où viennent les bonnes. Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
         "questions": [
           "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
           "Qui répond, et sous quel délai vous engagez-vous à répondre ?",
@@ -2062,8 +2062,8 @@
     "it": {
       "locale": "it",
       "name": "Dal modulo al CRM",
-      "summary": "Trasforma le richieste dei moduli web in contatti seguiti: una richiesta per ogni invio con la sua origine, una scadenza di risposta, una fase da nuova a convertita, con spam e richieste non idonee tenuti a parte.",
-      "description": "Ogni messaggio inviato da un modulo di contatto, preventivo o accoglienza diventa una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve e una risposta da dare entro il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam e una richiesta rimasta senza risposta viene segnalata. Consenso e una data di revisione accompagnano i dati raccolti. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
+      "summary": "Fai in modo che nessuna richiesta dal modulo web resti senza risposta. Ogni invio diventa una richiesta con la sua origine e una scadenza di risposta, passa da nuova a convertita e tiene separati spam e richieste non idonee.",
+      "description": "Le richieste dei moduli di contatto, preventivo o accoglienza finiscono in una casella di posta dove ricevono risposta tardi o mai, e non capisci da dove arrivino quelle buone. Questo modello trasforma ogni invio in una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve al cliente e una risposta da dare entro il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam, una richiesta rimasta senza risposta viene segnalata e per i dati raccolti si conservano il consenso e una data di revisione. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2345,7 +2345,7 @@
         "requests_board_view": "Le richieste si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
+        "intro": "Le richieste dai moduli del mio sito ricevono risposta tardi o mai e non vedo da dove arrivino quelle buone. Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
         "questions": [
           "Quali moduli usi e che cosa devi sapere per fare un preventivo o smistare una richiesta?",
           "Chi risponde e in quanto tempo ti impegni a farlo?",
@@ -2357,8 +2357,8 @@
     "nl": {
       "locale": "nl",
       "name": "Formulier naar CRM",
-      "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een uiterste antwoorddatum, een fase van nieuw tot omgezet, en spam en niet passend apart.",
-      "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een uiterste antwoorddatum de volgende dag. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gesignaleerd. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
+      "summary": "Zorg dat geen aanvraag uit een webformulier onbeantwoord blijft. Elke inzending wordt een aanvraag met bron en uiterste antwoorddatum, loopt van nieuw tot omgezet en houdt spam en niet passende aanvragen apart.",
+      "description": "Aanvragen uit je contact-, offerte- of intakeformulier belanden in een inbox, waar ze te laat of helemaal niet worden beantwoord, en je ziet niet waar de goede vandaan komen. Dit sjabloon maakt van elke inzending een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer de bezoeker het nodig heeft en een uiterste antwoorddatum de volgende dag. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, een aanvraag zonder antwoord wordt gesignaleerd en toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2640,7 +2640,7 @@
         "requests_board_view": "De aanvragen openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
+        "intro": "Aanvragen uit mijn webformulieren worden te laat of helemaal niet beantwoord en ik zie niet waar de goede vandaan komen. Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
         "questions": [
           "Welke formulieren gebruik je en wat moet je weten om een aanvraag te prijzen of door te sturen?",
           "Wie antwoordt en binnen welke tijd beloof je te reageren?",
@@ -2652,8 +2652,8 @@
     "pl": {
       "locale": "pl",
       "name": "Od formularza do CRM",
-      "summary": "Zamień zapytania z formularzy internetowych w obsłużone kontakty: jedno zapytanie na każde zgłoszenie ze źródłem, terminem odpowiedzi i etapem od nowego do przekazanego do lejka oraz osobno spam i zapytania nietrafione.",
-      "description": "Każde zgłoszenie z formularza kontaktowego, wyceny lub zgłoszeniowego staje się zapytaniem powiązanym z kontaktem, z formularzem, z którego przyszło, informacją, skąd trafił odwiedzający, na kiedy jest potrzebne, i terminem odpowiedzi na następny dzień. Zapytania przechodzą od nowego do przekazanego do lejka, nietrafionego lub spamu, a zapytanie bez odpowiedzi zostaje oznaczone. Dla zbieranych danych zapisujemy zgodę i termin przeglądu. To nie jest kreator formularzy do płatności, quizów ani przesyłania wrażliwych dokumentów.",
+      "summary": "Dopilnuj, żeby żadne zapytanie z formularza nie zostało bez odpowiedzi. Każde zgłoszenie staje się zapytaniem ze źródłem i terminem odpowiedzi, a spam i zapytania nietrafione są trzymane osobno.",
+      "description": "Zapytania z formularza kontaktowego, wyceny lub zgłoszeniowego lądują w skrzynce, gdzie dostają odpowiedź za późno albo wcale, a nie wiadomo, skąd przychodzą te dobre. Szablon zamienia każde zgłoszenie w zapytanie powiązane z kontaktem, z formularzem, z którego przyszło, informacją, skąd trafił odwiedzający, na kiedy jest potrzebne, i terminem odpowiedzi na następny dzień. Zapytania przechodzą od nowego do przekazanego do lejka, nietrafionego lub spamu, zapytanie bez odpowiedzi zostaje oznaczone, a dla zbieranych danych zapisywane są zgoda i termin przeglądu. To nie jest kreator formularzy do płatności, quizów ani przesyłania wrażliwych dokumentów.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2935,7 +2935,7 @@
         "requests_board_view": "Zapytania otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obieg od formularza do CRM: jedno zapytanie na każde zgłoszenie ze źródłem, terminem odpowiedzi, sześcioma etapami, zgodą i terminem przeglądu danych oraz zaplanowane kolejne kroki.",
+        "intro": "Zapytania z formularzy na mojej stronie dostają odpowiedź za późno albo wcale i nie widzę, skąd przychodzą te dobre. Skonfiguruj w mojej przestrzeni roboczej Customermates obieg od formularza do CRM: jedno zapytanie na każde zgłoszenie ze źródłem, terminem odpowiedzi, sześcioma etapami, zgodą i terminem przeglądu danych oraz zaplanowane kolejne kroki.",
         "questions": [
           "Jakich formularzy używasz i co musisz wiedzieć, żeby wycenić lub przypisać zapytanie?",
           "Kto odpowiada i w jakim czasie obiecujesz odpowiedź?",
@@ -2947,8 +2947,8 @@
     "pt": {
       "locale": "pt",
       "name": "Formulário para CRM",
-      "summary": "Transformar as mensagens dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta pendente, uma etapa de nova a convertida, e spam e sem fit à parte.",
-      "description": "Cada mensagem vinda de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta a dar no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
+      "summary": "Não deixe nenhuma mensagem do formulário do site sem resposta. Cada envio vira uma solicitação com a origem e uma resposta devida, avança de nova a convertida e mantém spam e contatos sem fit à parte.",
+      "description": "As mensagens dos formulários de contato, de orçamento ou de triagem caem em uma caixa de entrada onde são respondidas tarde ou nunca, e você não sabe de onde vêm as boas. Este modelo transforma cada envio em uma solicitação ligada a um contato, com o formulário de origem, de onde o visitante chegou, para quando ele precisa e uma resposta a dar no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, uma solicitação sem resposta é sinalizada, e o consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3230,7 +3230,7 @@
         "requests_board_view": "As solicitações abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
+        "intro": "As mensagens dos formulários do meu site são respondidas tarde ou nunca, e eu não sei de onde vêm as boas. Configure no meu espaço de trabalho do Customermates a ligação do formulário ao CRM: uma solicitação para cada envio, com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
         "questions": [
           "Quais formulários você usa e o que precisa saber para orçar ou encaminhar um contato?",
           "Quem responde e em quanto tempo você se compromete a responder?",

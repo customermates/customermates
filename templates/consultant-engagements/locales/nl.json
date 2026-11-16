@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Adviesopdrachten",
-  "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór het voorstel, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
-  "description": "Beheer een adviespraktijk op één plek: opdrachten via verkenning, afbakening, voorstel en beslissing, de met de opdrachtgever afgesproken opvolgdatum, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór het voorstel, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
+  "summary": "Weet waar elk voorstel staat en laat geen lead vallen na het gesprek. Opdrachten van kennismaking tot gewonnen, een opvolgdatum die je in het voorstelgesprek afspreekt en resultaten die uitvoering en afsluiting bewaken.",
+  "description": "Als zelfstandig adviseur voer je een paar gesprekken en heb je één voorstel tegelijk open, en opdrachten glippen weg in de stilte na het voorstelgesprek of in de tijd tussen ondertekening en start. Dit sjabloon zet opdrachten op via verkenning, afbakening, voorstel en beslissing, met de opvolgdatum die je met de opdrachtgever afspreekt, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór het voorstel, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Opdrachtgevers, dagelijkse contactpersonen, mensen die goedkeuren en doorverwijzers." },
     "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Prospects, klanten, voormalige klanten en doorverwijspartners." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "De opdrachten openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
+    "intro": "Ik heb mijn eigen adviespraktijk en verlies opdrachten in de stilte na een voorstelgesprek. Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
     "questions": [
       "Welke soorten opdrachten verkoop je en tegen welk dagtarief?",
       "Hoe beslis je of je een opdracht aanneemt?",

@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "CRM personalizado",
-  "summary": "Um CRM construído em torno do seu jeito de trabalhar: contatos, empresas, negócios e tarefas com data, com importação da sua planilha ou da ferramenta antiga e uma revisão semanal.",
-  "description": "Comece pelas quatro listas de que todo CRM precisa e adapte: etapas, campos e visualizações são seus. Pensado para quem deixa uma planilha, o Notion, o Airtable ou o Trello e quer seus dados em um CRM sem montar um projeto. Anote de onde cada registro foi importado.",
+  "summary": "Troque a planilha ou a ferramenta antiga por um CRM sem montar um projeto de migração. Contatos, empresas, negócios e tarefas com data do seu jeito, com importação dos seus dados e uma revisão semanal.",
+  "description": "Seus dados de clientes estão espalhados por uma planilha, uma página do Notion ou uma ferramenta antiga, e ninguém quer começar um projeto de migração. Este modelo parte das quatro listas de que todo CRM precisa, contatos, empresas, negócios e tarefas, e o seu agente ajusta etapas, campos e visualizações ao jeito como você trabalha. Depois importa os seus dados e anota de onde cada registro veio. Pensado para quem está saindo de uma planilha, do Notion, do Airtable ou do Trello.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas com quem você lida." },
     "organizations": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Empresas e outras entidades." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "A base de conhecimento explica como a equipe usa o CRM."
   },
   "prompt": {
-    "intro": "Configure um CRM personalizado no meu espaço de trabalho do Customermates: contatos, empresas, negócios com etapas e tarefas com data, uma importação da minha planilha ou da ferramenta antiga e uma revisão semanal.",
+    "intro": "Meus clientes e negócios estão em uma planilha ou em uma ferramenta antiga, e eu quero um CRM que funcione do meu jeito. Configure um CRM personalizado no meu espaço de trabalho do Customermates: contatos, empresas, negócios com etapas e tarefas com data, uma importação da minha planilha ou da ferramenta antiga e uma revisão semanal.",
     "questions": [
       "De qual ferramenta ou planilha vêm os seus registros e dá para exportar?",
       "Por quais etapas um negócio passa no seu trabalho?",

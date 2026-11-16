@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Vertriebspipeline",
-  "summary": "Sieben Phasen mit Abschlusskriterien und Gewichtung, ein terminierter nächster Schritt bei jeder offenen Chance, Verlust- und Gewinngründe und bei jedem Phasenwechsel die nächste Aufgabe.",
-  "description": "Eine Pipeline für ein kleines Vertriebsteam: fünf offene Phasen, Gewonnen und Verloren, ein gewichteter Wert je Verkaufschance, das Entscheidergremium an der Chance, Verlust- und Gewinngrund und die wöchentliche Durchsicht. Die Gewichtung ist eine Pipeline-Gewichtung und keine Prognose: Ersetzen Sie sie nach 20 bis 30 abgeschlossenen Chancen durch Ihre eigenen Abschlussquoten.",
+  "summary": "Sehen, welche Chancen vorankommen, welche stocken und was als Nächstes passiert. Sieben Phasen mit terminiertem nächstem Schritt bei jeder offenen Chance, dazu die Gründe, warum Sie gewinnen oder verlieren.",
+  "description": "Ohne klare Pipeline stocken Chancen unbemerkt, niemand weiß mehr, warum ein Abschluss verloren ging, und die wöchentliche Pipeline-Runde wird zum Raten. Diese Vorlage richtet fünf offene Phasen plus Gewonnen und Verloren ein, jede mit Abschlusskriterium, dazu einen gewichteten Wert je Verkaufschance, einen terminierten nächsten Schritt bei jeder offenen Chance, das Entscheidergremium an der Chance, Gewinn- und Verlustgründe und bei jedem Phasenwechsel eine neue Aufgabe. Sie passt zu einem kleinen Vertriebsteam mit ein bis zehn Verkäufern; die Gewichtung ist ein Startpunkt, ersetzen Sie sie nach 20 bis 30 abgeschlossenen Chancen durch Ihre eigenen Abschlussquoten.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen auf der Kundenseite mit ihrer Rolle in der Entscheidung." },
     "accounts": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Die Firmen, an die du verkaufst." },
@@ -236,10 +236,10 @@
     "stages_page": "Die Wissensdatenbank enthält die Phasen und ihre Abschlusskriterien."
   },
   "page": {
-    "metaTitle": "Vertriebspipeline als Vorlage für Ihren KI-Agenten",
-    "metaDescription": "Kopieren Sie die Vertriebspipeline in Claude, ChatGPT oder Codex: sieben Phasen mit Gewichtung und ein nächster Schritt mit Datum je Chance.",
-    "headline": "Eine Vertriebspipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
-    "answer": "Die Pipeline eines kleinen Teams braucht wenige Phasen, für jede ein Abschlusskriterium, einen gewichteten Wert und bei jeder offenen Chance einen nächsten Schritt mit Datum. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf: sieben Phasen, die Entscheider auf jeder Chance, Gründe für gewonnen und verloren und eine Aufgabe bei jedem Phasenwechsel. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "metaTitle": "Vertriebspipeline Vorlage: der nächste Schritt je Chance",
+    "metaDescription": "Vertriebspipeline in Claude, ChatGPT oder Codex einfügen: sieben Phasen, ein nächster Schritt mit Datum je Chance und die Gründe für Gewinn oder Verlust.",
+    "headline": "Sehen, welche Chancen vorankommen: eine Vertriebspipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Vertriebspipeline ist eine kurze Liste von Phasen, jede mit einem klaren Abschlusskriterium, damit Sie sehen, welche Chancen vorankommen, welche stocken und was als Nächstes passiert. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf: sieben Phasen, einen gewichteten Wert, einen terminierten nächsten Schritt bei jeder offenen Chance, das Entscheidergremium an jeder Chance, Gründe für gewonnen und verloren und eine Aufgabe bei jedem Phasenwechsel. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
     "routine": {
       "title": "Die wöchentliche Pipeline-Durchsicht",
       "steps": [
@@ -277,7 +277,7 @@
     ]
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline ein: Verkaufschancen mit sieben Phasen und Gewichtung, einem gewichteten Wert, einem terminierten nächsten Schritt bei jeder offenen Chance, Verlust- und Gewinngründen, dem Entscheidergremium an jeder Chance und einer Aufgabe bei jedem Phasenwechsel.",
+    "intro": "Mein Team verkauft an Unternehmen, und ich kann nicht sagen, welche Chancen echt sind, welche stocken und warum wir gewinnen oder verlieren. Richte in meinem Customermates-Workspace eine Vertriebspipeline ein: Verkaufschancen mit sieben Phasen und Gewichtung, einem gewichteten Wert, einem terminierten nächsten Schritt bei jeder offenen Chance, Verlust- und Gewinngründen, dem Entscheidergremium an jeder Chance und einer Aufgabe bei jedem Phasenwechsel.",
     "questions": [
       "Was verkaufst du, und wie viele Personen verkaufen es?",
       "Welche Schritte durchläuft eine Chance vom Erstkontakt bis zur Unterschrift? Welche der sieben Phasen passen, und welche brauchen andere Namen?",

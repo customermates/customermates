@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Makelaarspipeline",
-  "summary": "Twee pipelines die samenkomen bij de koopovereenkomst: de woning binnenhalen en op de markt brengen, en de koper begeleiden, met bezichtigingen, sleutelmomenten en een routine voor oud-klanten.",
-  "description": "Een makelaarskantoor werkt aan een verkopersdeel (waardebepaling, opdracht, verkoop starten, biedingen) en een kopersdeel (aanvraag, kwalificatie, bezichtigingen, bod), daarna aan één gedeelde fase na de koopovereenkomst met harde data. Dit sjabloon volgt beide, het type opdracht en de einddatum, elke bezichtiging met terugkoppeling, de sleutelmomenten na ondertekening en een routine met data voor oud-klanten. De waarde bij een woning is de verwachte courtage.",
+  "summary": "Haal woningen binnen en verkoop ze zonder een bezichtiging, terugkoppeling aan de verkoper of sleutelmoment te missen. Twee pipelines die samenkomen bij de koopovereenkomst, plus een routine voor oud-klanten.",
+  "description": "Een makelaarskantoor werkt aan twee kanten van één verkoop, de verkoper die zijn woning aanbiedt en de koper die zoekt, en de sleutelmomenten na de koopovereenkomst raken makkelijk zoek tussen die twee. Dit sjabloon volgt het verkopersdeel (waardebepaling, opdracht, verkoop starten, biedingen) en het kopersdeel (aanvraag, kwalificatie, bezichtigingen, bod), en daarna één gedeelde fase na de koopovereenkomst met harde data. Je ziet het type opdracht en de einddatum, elke bezichtiging met terugkoppeling, de sleutelmomenten na ondertekening en een routine met data voor oud-klanten. De waarde bij een woning is de verwachte courtage.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacten", "description": "Eigenaren, verhuurders, kopers, huurders en verwijzers." },
     "organizations": { "label": "Organisatie", "pluralLabel": "Organisaties", "description": "Ontwikkelaars, banken, notarissen en verwijzende partners." },
@@ -401,7 +401,7 @@
     "operating_guide_page": "De kennisbank bevat de werkwijze."
   },
   "prompt": {
-    "intro": "Richt een makelaarspipeline in mijn Customermates-werkruimte in: woningen met het type opdracht en de einddatum, zoekopdrachten van kopers, bezichtigingen met terugkoppeling, sleutelmomenten na ondertekening van de koopovereenkomst en een taak met datum bij elk open dossier.",
+    "intro": "Ik werk met verkopers die hun woning aanbieden en met kopers die zoeken, en ik verlies het overzicht over bezichtigingen, terugkoppeling en de data na de koopovereenkomst. Richt een makelaarspipeline in mijn Customermates-werkruimte in: woningen met het type opdracht en de einddatum, zoekopdrachten van kopers, bezichtigingen met terugkoppeling, sleutelmomenten na ondertekening van de koopovereenkomst en een taak met datum bij elk open dossier.",
     "questions": [
       "Werk je voor verkopers, voor kopers of voor beide? Verkoop je, verhuur je of allebei?",
       "In welk land werk je en welke soorten opdracht gebruik je daar?",

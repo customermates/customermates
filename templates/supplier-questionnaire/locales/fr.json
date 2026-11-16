@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Questionnaire fournisseurs",
-  "summary": "Un registre de fournisseurs avec questionnaire de qualification, documents et date de validité, niveau de risque, décision de référencement et date de la prochaine évaluation.",
-  "description": "Qualifiez fournisseurs et sous-traitants au même endroit : envoyez un questionnaire, collectez certificats et attestations avec leur date de validité, classez chaque fournisseur par niveau de risque, consignez la décision (référencer, référencer sous conditions, escalader, refuser) et voyez ce qui expire en premier. Il coordonne les justificatifs. Il ne décide pas de la conformité juridique, ne filtre ni les sanctions ni le risque financier et ne remplace ni votre système qualité, ni votre ERP, ni votre archive de documents.",
+  "summary": "Sachez quels fournisseurs sont référencés et quel certificat expire en premier. Un registre de fournisseurs avec questionnaire de qualification, certificats avec date de validité, niveau de risque et décision pour chacun.",
+  "description": "Les certificats des fournisseurs expirent et les réévaluations sautent quand les réponses sont dans des e-mails et des dossiers. Ce modèle qualifie fournisseurs et sous-traitants au même endroit : envoyez un questionnaire, collectez certificats et attestations avec leur date de validité, classez chaque fournisseur par niveau de risque, consignez la décision (référencer, référencer sous conditions, escalader, refuser) et voyez ce qui expire en premier. Il coordonne les justificatifs. Il ne décide pas de la conformité juridique, ne filtre ni les sanctions ni le risque financier et ne remplace ni votre système qualité, ni votre ERP, ni votre archive de documents.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes chez vos fournisseurs qui répondent aux questionnaires et envoient les documents." },
     "suppliers": { "label": "Fournisseur", "pluralLabel": "Fournisseurs", "description": "Chaque fournisseur ou sous-traitant, de candidat à référencé ou bloqué." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "Les fournisseurs s’ouvrent en board par statut."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
+    "intro": "Je travaille avec de nombreux fournisseurs et je ne vois pas quels certificats ont expiré ni qui doit être réévalué. Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
     "questions": [
       "Combien de fournisseurs avez-vous, et comment les répartissez-vous par niveau de risque ?",
       "Quels certificats ou attestations demandez-vous, et quelle est la durée de validité de chacun ?",

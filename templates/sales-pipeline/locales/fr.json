@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Pipeline commercial",
-  "summary": "Sept étapes avec critères de sortie et pondération, une prochaine action datée sur chaque affaire ouverte, les motifs de gain et de perte, et un changement d’étape qui crée la prochaine action.",
-  "description": "Un pipeline pour une petite équipe commerciale : cinq étapes ouvertes, Signé et Perdu, une valeur pondérée par affaire, le comité d’achat sur l’affaire, un motif de perte et un motif de gain, et la revue hebdomadaire. Les pondérations sont une pondération du pipeline, pas une prévision : remplacez-les par vos propres taux de transformation après 20 à 30 affaires closes.",
+  "summary": "Voyez quelles affaires avancent, lesquelles sont bloquées et ce qui se passe ensuite. Sept étapes avec une prochaine action datée sur chaque affaire ouverte, et les motifs de gain et de perte.",
+  "description": "Sans pipeline clair, les affaires s’enlisent en silence, personne ne se rappelle pourquoi une affaire a été perdue et le point hebdomadaire sur le pipeline tourne à la devinette. Ce modèle met en place cinq étapes ouvertes, Signé et Perdu, avec un critère de sortie pour chacune, une valeur pondérée par affaire, une prochaine action datée sur chaque affaire ouverte, le comité d’achat sur l’affaire, les motifs de gain et de perte et une nouvelle action à chaque changement d’étape. Il convient à une petite équipe commerciale d’un à dix commerciaux. Les pondérations sont un point de départ, pas une prévision : remplacez-les par vos propres taux de transformation après 20 à 30 affaires closes.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes côté acheteur, avec leur rôle dans la décision." },
     "accounts": { "label": "Compte", "pluralLabel": "Comptes", "description": "Les entreprises auxquelles vous vendez." },
@@ -236,10 +236,10 @@
     "stages_page": "La base de connaissances contient les étapes et leurs critères de sortie."
   },
   "page": {
-    "metaTitle": "Modèle de pipeline commercial pour votre agent IA",
-    "metaDescription": "Copiez le pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes pondérées, une action datée par affaire et les motifs de gain et de perte.",
-    "headline": "Un pipeline commercial que votre agent IA construit dans votre CRM",
-    "answer": "Le pipeline d’une petite équipe demande peu d’étapes, un critère de sortie pour chacune, une valeur pondérée et une prochaine action datée sur chaque affaire ouverte. Collez ce modèle dans votre agent IA et il construit ce pipeline dans Customermates : sept étapes, le comité d’achat sur chaque affaire, les motifs de gain et de perte, et une action créée à chaque changement d’étape. Vous validez le plan avant toute écriture.",
+    "metaTitle": "Modèle de pipeline commercial : une action par affaire",
+    "metaDescription": "Collez ce pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes, une prochaine action datée par affaire et les motifs de gain et de perte.",
+    "headline": "Voyez quelles affaires avancent : un pipeline commercial que votre agent IA construit dans votre CRM",
+    "answer": "Un pipeline commercial est une courte liste d’étapes, chacune avec un critère de sortie clair, qui montre quelles affaires avancent, lesquelles sont bloquées et ce qui se passe ensuite. Collez ce modèle dans votre agent IA : il construit le pipeline dans Customermates, avec sept étapes, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, le comité d’achat, les motifs de gain et de perte et une action créée à chaque changement d’étape. Vous validez le plan avant que rien ne soit créé.",
     "routine": {
       "title": "La revue hebdomadaire du pipeline",
       "steps": [
@@ -277,7 +277,7 @@
     ]
   },
   "prompt": {
-    "intro": "Mets en place un pipeline commercial dans mon espace de travail Customermates : des affaires avec sept étapes et leur pondération, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, les motifs de perte et de gain, le comité d’achat sur chaque affaire et une action créée à chaque changement d’étape.",
+    "intro": "Mon équipe vend à des entreprises et je ne vois pas quelles affaires sont réelles, lesquelles sont à l’arrêt ni pourquoi nous gagnons ou perdons. Mets en place un pipeline commercial dans mon espace de travail Customermates : des affaires avec sept étapes et leur pondération, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, les motifs de perte et de gain, le comité d’achat sur chaque affaire et une action créée à chaque changement d’étape.",
     "questions": [
       "Que vendez-vous, et combien de personnes le vendent ?",
       "Par quelles étapes passe une affaire entre le premier contact et la signature ? Lesquelles des sept conviennent, lesquelles doivent changer de nom ?",

@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Alta de clientes para despachos de abogados",
-  "summary": "Un alta de clientes en pasos fijos: consulta, conflicto de intereses, primera reunión, presupuesto, hoja de encargo y poder firmados con provisión de fondos, y una carta escrita para quien no llega a ser cliente.",
-  "description": "Da de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
+  "summary": "Acepta clientes sin saltarte la comprobación de conflicto de intereses ni un plazo. Consulta, conflicto, primera reunión, presupuesto y hoja de encargo firmada, y una carta escrita de no contratación para quien no llega a cliente.",
+  "description": "Cuando un posible cliente llama por primera vez, puede que ya haya un plazo corriendo, y un conflicto de intereses que se pasa por alto es difícil de deshacer. Esta plantilla da de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Posibles clientes, clientes, antiguos clientes y quienes recomiendan." },
     "inquiries": { "label": "Consulta", "pluralLabel": "Consultas", "description": "Una petición de ayuda jurídica, del primer contacto a un expediente o un rechazo." },
@@ -105,7 +105,7 @@
     "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
+    "intro": "Me llaman posibles clientes por un asunto y, antes de aceptarlos, tengo que comprobar conflictos, anotar el plazo más próximo y documentar cada paso. Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
     "questions": [
       "¿Qué áreas llevas y cuáles derivas a otros despachos?",
       "¿Cómo haces la comprobación de conflictos y quién la da por buena?",

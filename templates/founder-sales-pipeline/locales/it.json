@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Pipeline commerciale del fondatore",
-  "summary": "Una pipeline breve per un fondatore che vende di persona: conversazioni, analisi delle esigenze, un pilota facoltativo con data di fine fissa, un'offerta e uno stato in pausa con una data per riprendere.",
-  "description": "Vendi come fondatore con un numero di conversazioni aperte che va da una manciata a qualche decina: ogni trattativa registra il problema con le parole del cliente, l'urgenza, lo stato del budget e se il decisore è coinvolto; un pilota ha una data di fine e dice se è a pagamento; una trattativa silenziosa viene messa in pausa con una data per riprenderla invece di inseguirla. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sta a te impostarli. Non è invio di sequenze in volume, raccolta di capitali né previsione per un team con più venditori.",
+  "summary": "Vendi da fondatore senza perdere il filo delle tue conversazioni. Una pipeline breve dalla prima conversazione alla vittoria, con un pilota facoltativo con data di fine e uno stato in pausa con una data per riprendere.",
+  "description": "Quando vendi di persona, ogni conversazione ti insegna chi compra e perché, ma gli appunti e il prossimo passo restano nella tua testa e in una pila di schede aperte. Questo modello tiene da una manciata a qualche decina di conversazioni aperte: ogni trattativa registra il problema con le parole del cliente, l'urgenza, lo stato del budget e se il decisore è coinvolto. Un pilota ha una data di fine e dice se è a pagamento, e una trattativa silenziosa va in pausa con una data per riprenderla invece di essere inseguita. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sta a te impostarli. Non è invio di sequenze in volume, raccolta di capitali né previsione per un team con più venditori.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone con cui parli, con il loro ruolo nella decisione d'acquisto." },
     "companies": { "label": "Azienda", "pluralLabel": "Aziende", "description": "Potenziali clienti, piloti, clienti e partner." },
@@ -87,7 +87,7 @@
     "opportunities_board_view": "Le trattative si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline commerciale del fondatore: trattative dalla prima conversazione a vinta con note di analisi, un pilota facoltativo con data di fine fissa, uno stato in pausa con data di ripresa e attività di follow-up con data. Non inviare nulla automaticamente.",
+    "intro": "Vendo il mio prodotto di persona e continuo a perdere gli appunti e i prossimi passi delle mie conversazioni. Imposta nel mio spazio di lavoro Customermates una pipeline commerciale del fondatore: trattative dalla prima conversazione a vinta con note di analisi, un pilota facoltativo con data di fine fissa, uno stato in pausa con data di ripresa e attività di follow-up con data. Non inviare nulla automaticamente.",
     "questions": [
       "Che cosa vendi e chi ha già comprato da te?",
       "Fai piloti o prove e sono a pagamento?",

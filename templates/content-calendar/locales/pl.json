@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Kalendarz treści",
-  "summary": "Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
-  "description": "Kalendarz redakcyjny dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrola oznaczenia reklamy dla treści płatnych lub powstałych w zamian za produkt i sprawdzenie wyników po 30 dniach. Planuje i śledzi, nie publikuje.",
+  "summary": "Wiedz, co wychodzi w tym tygodniu i na kogo czekasz. Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
+  "description": "Posty, newslettery i filmy się opóźniają, gdy plany leżą w różnych dokumentach i nikt nie wie, kto co recenzuje. Szablon zakłada kalendarz redakcyjny dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrolę oznaczenia reklamy dla treści płatnych lub powstałych w zamian za produkt i sprawdzenie wyników po 30 dniach. Pasuje do twórców, działów marketingu w firmach i agencji. Planuje i śledzi, nie publikuje.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Autorzy, redaktorzy, recenzenci, osoby akceptujące i goście." },
     "pieces": { "label": "Materiał", "pluralLabel": "Materiały", "description": "Jeden materiał od pomysłu do publikacji." },
@@ -151,7 +151,7 @@
     "calendar_widget": "Pulpit pokazuje kalendarz publikacji."
   },
   "prompt": {
-    "intro": "Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
+    "intro": "Nasze posty, newslettery i filmy się opóźniają, bo nie widzę, kto co recenzuje i kiedy materiał wychodzi. Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
     "questions": [
       "Co publikujesz, w jakich kanałach i jak często?",
       "Kto pisze, kto przegląda i kto akceptuje? Czy uczestniczy klient?",

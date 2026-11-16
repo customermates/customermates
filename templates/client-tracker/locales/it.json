@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Anagrafica clienti",
-  "summary": "Una riga per cliente, un responsabile, un prossimo passo con scadenza, più una revisione settimanale e una data di verifica dei dati per ogni cliente chiuso.",
-  "description": "Un'anagrafica clienti snella e disciplinata: sette stati, la data dell'ultimo contatto, una scadenza del prossimo passo che guida il lavoro, un ritmo di revisione per segmento e una data di verifica dei dati per i clienti chiusi. Referenti, attività con scadenza e conversazioni collegate stanno accanto a ogni cliente.",
+  "summary": "Smetti di chiederti a quale cliente devi una telefonata, una risposta o un preventivo. Ogni cliente ha un responsabile e un prossimo passo con scadenza, e una revisione settimanale mostra che cosa è in ritardo.",
+  "description": "Quando i dati dei clienti stanno in un foglio di calcolo, nella posta e nella tua testa, i follow-up saltano e te ne accorgi solo quando un cliente smette di farsi sentire. Questo modello imposta una riga per cliente con uno stato, la data dell'ultimo contatto, un prossimo passo con scadenza e un ritmo di revisione per segmento, con referenti, attività con scadenza e conversazioni collegate accanto a ogni cliente e una data di verifica dei dati quando il cliente è chiuso. Adatto a freelance, agenzie e piccoli team fino a circa dieci persone che curano da sé le relazioni con i clienti.",
   "lists": {
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Una riga per cliente, un responsabile, un prossimo passo con scadenza." },
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone con cui lavori presso ogni cliente." }
@@ -183,10 +183,10 @@
     "playbook_page": "La base di conoscenza contiene la guida all'anagrafica clienti."
   },
   "page": {
-    "metaTitle": "Anagrafica clienti: modello per il tuo agente IA",
-    "metaDescription": "Copia l'anagrafica clienti in Claude, ChatGPT o Codex: una riga per cliente, un responsabile, un prossimo passo con scadenza e una revisione settimanale.",
-    "headline": "Un'anagrafica clienti che il tuo agente IA costruisce nel tuo CRM",
-    "answer": "Un'anagrafica clienti è un elenco breve: una riga per cliente, un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza. Incolla questo modello nel tuo agente IA e lui costruisce l'elenco in Customermates, con referenti, attività con scadenza e una revisione settimanale. Approvi il piano prima che venga scritto qualcosa.",
+    "metaTitle": "Anagrafica clienti: modello per non perdere un follow-up",
+    "metaDescription": "Non perdere più il filo di un cliente. Incolla questo modello in Claude, ChatGPT o Codex: un responsabile e un prossimo passo con scadenza per ogni cliente.",
+    "headline": "Sai sempre chi richiamare: l'anagrafica clienti che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Un'anagrafica clienti è un elenco con una riga per cliente, un responsabile e un prossimo passo con scadenza, così nessun cliente resta in silenzio senza che te ne accorga. Incolla questo modello nel tuo agente IA e costruisce l'elenco in Customermates, con referenti, attività con scadenza, conversazioni collegate e una revisione settimanale. Approvi il piano prima che venga costruito qualcosa.",
     "routine": {
       "title": "La revisione settimanale dei clienti in 15 minuti",
       "steps": [
@@ -223,7 +223,7 @@
     ]
   },
   "prompt": {
-    "intro": "Configura un'anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
+    "intro": "Seguo io i miei clienti e troppi follow-up mi sfuggono: perdo il filo di chi ho sentito per ultimo e di che cosa viene dopo. Configura un'anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
     "questions": [
       "Quanti clienti segui oggi e chi altro lavora sull'anagrafica?",
       "Quali stati dei clienti usi già? Vanno rinominati o tolti alcuni dei sette?",

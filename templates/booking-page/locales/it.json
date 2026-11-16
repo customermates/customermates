@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Prenotazione online",
-  "summary": "Un registro di appuntamenti per chi offre servizi: tipi di appuntamento con durata e preavviso, ogni prenotazione con stato, promemoria ed esito, e un prossimo passo per ciascuna.",
-  "description": "Ricevi prenotazioni per chiamate, consulenze o visite e tienile nel CRM: pochi tipi di appuntamento con durata, pausa e preavviso minimo, una prenotazione che crea la persona e l'appuntamento, un evento in agenda una volta confermato, due promemoria e un esito registrato dopo ogni appuntamento. Prenota solo il tempo delle persone. Non è un sistema per prenotare sale o risorse, uno strumento per biglietti, un gestionale per appuntamenti medici né un servizio di pagamento.",
+  "summary": "Tieni ogni chiamata, consulenza e visita in un unico posto, dalla richiesta all'esito. Tipi di appuntamento con durata e preavviso, uno stato e promemoria su ogni prenotazione e un prossimo passo dopo ciascuna.",
+  "description": "Le prenotazioni che esistono solo in un calendario e in una casella di posta si dimenticano: il cliente non si presenta perché nessuno gli ha ricordato l'appuntamento e nessuno annota com'è andata la chiamata. Questo modello imposta pochi tipi di appuntamento con durata, pausa e preavviso minimo, una prenotazione che crea la persona e l'appuntamento, un evento in agenda una volta confermato, due promemoria e un esito registrato dopo ogni appuntamento. Adatto a chi offre servizi e riceve chiamate, consulenze, sedute o visite: prenota solo il tempo delle persone. Non è un sistema per prenotare sale o risorse, uno strumento per biglietti, un gestionale per appuntamenti medici né un servizio di pagamento.",
   "lists": {
     "people": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che prenotano con te." },
     "appointment_types": { "label": "Tipo di appuntamento", "pluralLabel": "Tipi di appuntamento", "description": "Un tipo di appuntamento con durata, pausa, preavviso e prezzo." },
@@ -91,7 +91,7 @@
     "appointments_board_view": "Gli appuntamenti si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
+    "intro": "Ricevo chiamate, consulenze e visite e perdo il filo di chi è prenotato, chi ha confermato e com'è andata. Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
     "questions": [
       "Quali tipi di appuntamento offri e quanto dura ciascuno?",
       "Quanto preavviso ti serve e con quanto anticipo si può prenotare?",

@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Versicherungsmakler",
-  "summary": "Zwei Pipelines für den Versicherungsmakler: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, und ein Verlängerungsfall für jeden Vertrag, der 120 bis 45 Tage vor der Hauptfälligkeit startet.",
-  "description": "Neugeschäft und Verlängerungen nebeneinander führen: Anfragen von der ersten Anfrage über Bedarfsanalyse, Angebotsanfrage, Beratung und Entscheidung bis zur erhaltenen Police, ein Datum der Beratungsdokumentation an jedem Angebot und Verträge mit ihrer Hauptfälligkeit, die selbst einen Verlängerungsfall eröffnen. Die Vorlage hält einen Verweis auf das Beratungsprotokoll und auf den Vertrag in Ihrem Maklerverwaltungsprogramm, niemals Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien. Keine Vertragsverwaltung, keine Vergleichs- oder Tarifrechner, keine Schadenbearbeitung und keine Courtage-Abrechnung.",
+  "summary": "Keine Verlängerung verpassen und das Neugeschäft in Bewegung halten. Von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, dazu je Vertrag ein Verlängerungsfall 120 bis 45 Tage vor der Hauptfälligkeit.",
+  "description": "Verlängerungen rutschen durch und die Beratung bleibt undokumentiert, wenn Neugeschäft und Verlängerungen in getrennten Listen oder im Kopf stehen. Diese Vorlage führt beides nebeneinander: Anfragen von der ersten Anfrage über Bedarfsanalyse, Angebotsanfrage, Beratung und Entscheidung bis zur erhaltenen Police, ein Datum der Beratungsdokumentation an jedem Angebot und Verträge mit ihrer Hauptfälligkeit, die selbst einen Verlängerungsfall eröffnen. Sie hält einen Verweis auf das Beratungsprotokoll und auf den Vertrag in Ihrem Maklerverwaltungsprogramm, niemals Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien. Keine Vertragsverwaltung, keine Vergleichs- oder Tarifrechner, keine Schadenbearbeitung und keine Courtage-Abrechnung.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Versicherungsnehmer, Interessenten, Entscheider und Empfehler." },
     "opportunities": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Neugeschäft von der ersten Anfrage bis zur Police oder zum Verlust." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "Die Wissensdatenbank enthält eine Seite zur Beratungsdokumentation."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
+    "intro": "Ich betreue einen Maklerbestand, die Verlängerungen kommen oft überraschend, und vor jedem Angebot muss ich die Beratung dokumentieren. Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
     "questions": [
       "Welche Sparten vermittelst du, und betreust du Gewerbekunden, Privatkunden oder beide?",
       "Wie lange vor der Hauptfälligkeit beginnst du die Verlängerung, und wie lang ist die übliche Kündigungsfrist?",

@@ -1190,8 +1190,8 @@
     "de": {
       "locale": "de",
       "name": "Mitglieder- und Spendenverwaltung",
-      "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
-      "description": "Für Vereine, gemeinnützige Organisationen und Kirchengemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
+      "summary": "Wissen, wer Mitglied ist, wer noch einen Dank braucht und wessen Mitgliedschaft als Nächstes fällig ist. Ein Register für Mitgliedschaften, Spenden mit Zuwendungsbestätigung, Großspenden und Förderanträge.",
+      "description": "Vereine, gemeinnützige Organisationen und Kirchengemeinden verlieren Mitglieder und Wohlwollen, wenn Verlängerungen verpasst werden und Spenden ohne Dank bleiben, weil die Listen bei verschiedenen Ehrenamtlichen liegen. Diese Vorlage richtet Unterstützer ein, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen. Sie passt zu Vereinen, gemeinnützigen Organisationen und Kirchengemeinden, die ein Register statt mehrerer wollen. Das Register stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1592,7 +1592,7 @@
         "receipt_field": "Jede Spende zeigt, ob eine Zuwendungsbestätigung fällig ist."
       },
       "prompt": {
-        "intro": "Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
+        "intro": "Unsere Mitglieder, Spender und Ehrenamtlichen stehen in mehreren Listen, und Verlängerungen und Dankesschreiben gehen unter. Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
         "questions": [
           "Führst du einen Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen hast du?",
           "Welche Beitragsarten und Beiträge nutzt du, und wie werden sie eingezogen?",
@@ -1604,8 +1604,8 @@
     "en": {
       "locale": "en",
       "name": "Donors and members",
-      "summary": "One register for members, donors and volunteers: memberships with a renewal date, gifts with thanks and receipts, and a pipeline for major gifts and grants.",
-      "description": "For associations, clubs, charities and congregations: who supports you and how, which membership runs until when, which gift still needs a thank-you or a receipt, and which large gift or grant is in progress. It does not issue tax receipts or collect payments; it tells you which ones are due.",
+      "summary": "Know who your members and supporters are, who still needs a thank-you and who renews next. One register for memberships with renewal dates, gifts with receipts, and major gifts and grants.",
+      "description": "Clubs, charities and congregations lose members and goodwill when renewals are missed and gifts go unthanked, because the lists live with different volunteers. This template sets up supporters, memberships with a fee and a renewal date, gifts with thank-you and receipt status, and a pipeline for major gifts and grants. It fits associations, clubs, charities and congregations that want one register instead of several. It does not issue tax receipts or collect payments; it tells you which ones are due.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2006,7 +2006,7 @@
         "receipt_field": "Every gift shows whether a receipt is due."
       },
       "prompt": {
-        "intro": "Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
+        "intro": "Our members, donors and volunteers are spread over several lists, and renewals and thank-yous get missed. Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
         "questions": [
           "Are you an association or club, a charity or a congregation? Which of members, donors and volunteers do you have?",
           "Which membership levels and fees do you use, and how are fees collected?",
@@ -2018,8 +2018,8 @@
     "es": {
       "locale": "es",
       "name": "Socios y donantes",
-      "summary": "Un registro único de socios, donantes y voluntarios: membresías con fecha de renovación, donativos con agradecimiento y certificado, y un seguimiento de grandes donaciones y subvenciones.",
-      "description": "Para asociaciones, clubes, entidades sin ánimo de lucro y parroquias: quién os apoya y cómo, qué membresía dura hasta cuándo, qué donativo espera aún un agradecimiento o un certificado y qué gran donación o subvención está en marcha. No emite certificados de donación ni cobra cuotas: indica cuáles toca hacer.",
+      "summary": "Un solo registro para saber quiénes son vuestros socios y colaboradores, a quién falta agradecer y quién renueva pronto: membresías con fecha de renovación, donativos con certificado, y grandes donaciones y subvenciones.",
+      "description": "Las asociaciones, los clubes y las parroquias pierden socios y buena voluntad cuando se olvidan las renovaciones y los donativos se quedan sin agradecer, porque las listas están en manos de voluntarios distintos. Esta plantilla prepara colaboradores, membresías con cuota y fecha de renovación, donativos con estado del agradecimiento y del certificado, y un seguimiento de grandes donaciones y subvenciones. Encaja con asociaciones, clubes, entidades sin ánimo de lucro y parroquias que quieren un solo registro en lugar de varios. No emite certificados de donación ni cobra cuotas: os indica cuáles toca hacer.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2420,7 +2420,7 @@
         "receipt_field": "Cada donativo muestra si hay que emitir un certificado."
       },
       "prompt": {
-        "intro": "Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
+        "intro": "Nuestros socios, donantes y voluntarios están repartidos en varias listas y se nos escapan renovaciones y agradecimientos. Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
         "questions": [
           "¿Sois una asociación, una entidad benéfica o una parroquia? ¿Tenéis socios, donantes, voluntarios?",
           "¿Qué modalidades de cuota y qué importes usáis y cómo se cobran?",
@@ -2432,8 +2432,8 @@
     "fr": {
       "locale": "fr",
       "name": "Adhérents et donateurs",
-      "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
-      "description": "Pour associations, clubs, organismes caritatifs et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
+      "summary": "Sachez qui sont vos adhérents et vos soutiens, qui attend encore un remerciement et qui doit renouveler. Un registre unique pour les adhésions avec leur échéance, les dons avec le reçu fiscal, et les grands dons et subventions.",
+      "description": "Les clubs, les associations caritatives et les paroisses perdent des adhérents et de la bonne volonté quand des renouvellements sont manqués et des dons jamais remerciés, parce que les listes sont tenues par des bénévoles différents. Ce modèle met en place les personnes, les adhésions avec cotisation et date d’échéance, les dons avec le remerciement et l’état du reçu fiscal, et un suivi des grands dons et subventions. Il convient aux associations, aux clubs, aux organismes caritatifs et aux paroisses qui veulent un seul registre au lieu de plusieurs. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2834,7 +2834,7 @@
         "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
       },
       "prompt": {
-        "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
+        "intro": "Nos adhérents, donateurs et bénévoles sont répartis sur plusieurs listes, et des renouvellements et des remerciements nous échappent. Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
         "questions": [
           "Êtes-vous une association ou un club, un organisme caritatif ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
           "Quelles catégories d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
@@ -2846,8 +2846,8 @@
     "it": {
       "locale": "it",
       "name": "Soci e donatori",
-      "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
-      "description": "Per associazioni, enti del terzo settore e parrocchie: chi ti sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
+      "summary": "Vedi subito chi sono i tuoi soci e sostenitori, chi aspetta ancora un ringraziamento e chi deve rinnovare. Un unico registro per tesseramenti con scadenza, donazioni con ricevuta, grandi donazioni e bandi.",
+      "description": "Associazioni, enti benefici e parrocchie perdono soci e sostenitori quando i rinnovi saltano e le donazioni restano senza ringraziamento, perché gli elenchi stanno in mano a volontari diversi. Questo modello imposta sostenitori, tesseramenti con quota e scadenza, erogazioni liberali con stato del ringraziamento e della ricevuta e una pipeline per grandi donazioni e bandi. Adatto ad associazioni, enti del terzo settore e parrocchie che vogliono un unico registro invece di tanti elenchi. Non emette ricevute fiscali né incassa quote: ti dice quali sono da emettere.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3248,7 +3248,7 @@
         "receipt_field": "Ogni erogazione indica se una ricevuta è da emettere."
       },
       "prompt": {
-        "intro": "Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
+        "intro": "I nostri soci, donatori e volontari sono sparsi in più elenchi e rinnovi e ringraziamenti ci sfuggono. Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
         "questions": [
           "Sei un'associazione, un ente benefico o una parrocchia? Hai soci, donatori, volontari?",
           "Quali tipi di quota e quali importi usi e come vengono incassati?",
@@ -3260,8 +3260,8 @@
     "nl": {
       "locale": "nl",
       "name": "Leden en donateurs",
-      "summary": "Eén register voor leden, donateurs en vrijwilligers: lidmaatschappen met contributiedatum, giften met bedankje en bewijs, en een pijplijn voor grote giften en subsidies.",
-      "description": "Voor verenigingen, stichtingen en kerken: wie jullie steunt en hoe, welk lidmaatschap tot wanneer loopt, welke gift nog een bedankje of bewijs nodig heeft en welke grote gift of subsidie loopt. Het geeft geen donatiebewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
+      "summary": "Weet wie jullie leden en supporters zijn, wie nog een bedankje krijgt en wie als volgende verlengt. Eén register voor lidmaatschappen met verlengdatum, giften met bewijs en grote giften en subsidies.",
+      "description": "Verenigingen, stichtingen en kerken verliezen leden en goodwill als verlengingen worden gemist en giften geen bedankje krijgen, omdat de lijsten bij verschillende vrijwilligers staan. Dit sjabloon zet supporters op, lidmaatschappen met contributie en een verlengdatum, giften met de status van bedankje en bewijs, en een pijplijn voor grote giften en subsidies. Voor verenigingen, clubs, stichtingen en kerken die één register willen in plaats van meerdere. Het geeft geen donatiebewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3662,7 +3662,7 @@
         "receipt_field": "Elke gift toont of een donatiebewijs nodig is."
       },
       "prompt": {
-        "intro": "Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
+        "intro": "Onze leden, donateurs en vrijwilligers staan verspreid over meerdere lijsten en verlengingen en bedankjes worden gemist. Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
         "questions": [
           "Zijn jullie een vereniging, een stichting of een kerk? Hebben jullie leden, donateurs, vrijwilligers?",
           "Welke soorten lidmaatschap en welke contributie gebruiken jullie en hoe wordt die geïnd?",
@@ -3674,8 +3674,8 @@
     "pl": {
       "locale": "pl",
       "name": "Członkowie i darczyńcy",
-      "summary": "Jeden rejestr członków, darczyńców i wolontariuszy: członkostwa z terminem składki, darowizny z podziękowaniem i potwierdzeniem oraz lejek dużych darowizn i grantów.",
-      "description": "Dla stowarzyszeń, klubów, fundacji i parafii: kto Cię wspiera i jak, które członkostwo trwa do kiedy, która darowizna czeka jeszcze na podziękowanie lub potwierdzenie i która duża darowizna lub grant jest w toku. Narzędzie nie wystawia potwierdzeń ani nie pobiera składek, pokazuje tylko, które są do zrobienia.",
+      "summary": "Wiedz, kim są Twoi członkowie i sympatycy, kto czeka na podziękowanie i komu niedługo kończy się członkostwo. Jeden rejestr: członkostwa z terminem składki, darowizny z potwierdzeniem oraz duże darowizny i granty.",
+      "description": "Kluby, fundacje i parafie tracą członków i dobrą wolę, gdy terminy składek umykają, a darowizny zostają bez podziękowania, bo listy prowadzą różni wolontariusze. Szablon zakłada sympatyków, członkostwa ze składką i terminem, darowizny ze stanem podziękowania i potwierdzenia oraz lejek dużych darowizn i grantów. Pasuje do stowarzyszeń, klubów, fundacji i parafii, które chcą jednego rejestru zamiast kilku. Nie wystawia potwierdzeń darowizn ani nie pobiera składek, pokazuje tylko, co jest do zrobienia.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4076,7 +4076,7 @@
         "receipt_field": "Każda darowizna pokazuje, czy trzeba wystawić potwierdzenie."
       },
       "prompt": {
-        "intro": "Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
+        "intro": "Nasi członkowie, darczyńcy i wolontariusze są rozrzuceni po kilku listach, a przez to umykają nam składki i podziękowania. Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
         "questions": [
           "Czy prowadzisz stowarzyszenie, klub, fundację czy parafię? Masz członków, darczyńców, wolontariuszy?",
           "Jakich rodzajów członkostwa i jakich składek używasz i jak są pobierane?",
@@ -4088,8 +4088,8 @@
     "pt": {
       "locale": "pt",
       "name": "Associados e doadores",
-      "summary": "Um registro único de associados, doadores e voluntários: mensalidades com data de renovação, doações com agradecimento e recibo, e um acompanhamento de grandes doações e editais.",
-      "description": "Para associações, igrejas, ONGs e clubes: quem apoia você e como, qual vínculo dura até quando, qual doação ainda espera agradecimento ou recibo e qual grande doação ou edital está em andamento. Não emite recibos nem cobra mensalidades: mostra quais estão pendentes. Dados sobre religião são sensíveis pela LGPD: registre só o necessário.",
+      "summary": "Saiba quem são seus associados e apoiadores, quem ainda espera um agradecimento e quem renova em seguida. Um só registro com vínculos e data de renovação, doações com recibo e grandes doações e editais.",
+      "description": "Associações, ONGs, clubes e igrejas perdem associados e boa vontade quando as renovações passam batido e as doações ficam sem agradecimento, porque as listas estão com voluntários diferentes. Este modelo reúne apoiadores, vínculos com mensalidade e data de renovação, doações com o status do agradecimento e do recibo e um acompanhamento de grandes doações e editais. Serve para quem quer um só registro em vez de várias listas. Não emite recibos nem cobra mensalidades: mostra quais estão pendentes. Dados sobre religião são sensíveis pela LGPD: registre só o necessário.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4490,7 +4490,7 @@
         "receipt_field": "Cada doação mostra se há um recibo a emitir."
       },
       "prompt": {
-        "intro": "Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",
+        "intro": "Nossos associados, doadores e voluntários estão espalhados em várias listas, e as renovações e os agradecimentos ficam para trás. Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",
         "questions": [
           "Vocês são uma associação, uma ONG ou uma igreja? Têm associados, doadores, voluntários?",
           "Quais categorias e valores de mensalidade vocês usam e como são cobrados?",

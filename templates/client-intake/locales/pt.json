@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Ficha cadastral de clientes e integração",
-  "summary": "Uma integração por contrato: solicitação, triagem, questionário, documentos solicitados, contrato e reunião de kickoff, com um passo datado em cada etapa e um motivo quando você recusa.",
-  "description": "Um funil curto para receber um novo cliente: responder em um dia, triar a aderência, enviar o questionário, reunir os documentos, enviar o contrato, começar. Profissões regulamentadas registram quem conferiu a identidade e quando, nunca o documento. Não é uma ferramenta de assinatura eletrônica, de prevenção à lavagem de dinheiro nem de pagamentos.",
+  "summary": "Receba clientes novos sem correr atrás de formulários, documentos e contratos. Uma integração por contrato, com um passo datado em cada etapa e o motivo registrado quando você recusa um cliente.",
+  "description": "O cliente novo some entre o primeiro contato e o primeiro dia de trabalho: o formulário não voltou, falta um documento, o contrato ainda espera assinatura. Este modelo cria uma integração por contrato, com nove etapas da solicitação à reunião de kickoff, documentos solicitados, um passo datado em cada etapa, resposta em até um dia e um motivo quando você recusa. Profissões regulamentadas registram quem conferiu identidade, conflitos e risco, e quando, nunca o documento em si. Não é uma ferramenta de assinatura eletrônica, de verificação de identidade nem de pagamentos.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas de cada cliente: contato principal, financeiro, signatário." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Empresas, autônomos e pessoas físicas que você recebe." },
@@ -200,7 +200,7 @@
     "process_page": "A base de conhecimento contém o processo de integração."
   },
   "prompt": {
-    "intro": "Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
+    "intro": "Eu perco clientes novos entre o primeiro contato e o primeiro dia de trabalho, porque esqueço de mandar o formulário ou de cobrar os documentos. Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
     "questions": [
       "O que você vende e quem são seus clientes: empresas, autônomos ou pessoas físicas?",
       "Por quais passos um novo cliente passa hoje e quais das nove etapas você não precisa?",

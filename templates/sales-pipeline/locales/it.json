@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Pipeline commerciale",
-  "summary": "Sette fasi con criteri di uscita e pesi, un prossimo passo con scadenza su ogni trattativa aperta, motivi di vittoria e di perdita e un cambio di fase che crea la prossima attività.",
-  "description": "Una pipeline per un piccolo team di vendita: cinque fasi aperte, Vinta e Persa, un valore ponderato per trattativa, il comitato d'acquisto sulla trattativa, un motivo della perdita e un motivo della vittoria, e la revisione settimanale. I pesi sono una ponderazione della pipeline, non una previsione: sostituiscili con i tuoi tassi di chiusura dopo 20 o 30 trattative chiuse.",
+  "summary": "Vedi quali trattative avanzano, quali sono ferme e che cosa succede dopo. Sette fasi con un prossimo passo con scadenza su ogni trattativa aperta, più i motivi per cui hai vinto o perso.",
+  "description": "Senza una pipeline chiara le trattative si fermano in silenzio, nessuno ricorda perché ne è stata persa una e la riunione settimanale sulla pipeline diventa un tirare a indovinare. Questo modello imposta cinque fasi aperte più Vinta e Persa, ciascuna con un criterio di uscita, un valore ponderato per trattativa, un prossimo passo con scadenza su ogni trattativa aperta, il comitato d'acquisto sulla trattativa, i motivi di vittoria e di perdita e una nuova attività a ogni cambio di fase. Adatto a un piccolo team commerciale da uno a dieci venditori. I pesi sono un punto di partenza: sostituiscili con i tuoi tassi di chiusura dopo 20 o 30 trattative chiuse.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone lato acquirente, con il loro ruolo nella decisione." },
     "accounts": { "label": "Azienda", "pluralLabel": "Aziende", "description": "Le aziende a cui vendi." },
@@ -236,10 +236,10 @@
     "stages_page": "La base di conoscenza contiene le fasi e i loro criteri di uscita."
   },
   "page": {
-    "metaTitle": "Pipeline commerciale: modello per il tuo agente IA",
-    "metaDescription": "Copia la pipeline commerciale in Claude, ChatGPT o Codex: sette fasi con pesi, un prossimo passo datato per trattativa e i motivi di vittoria e perdita.",
-    "headline": "Una pipeline commerciale che il tuo agente IA costruisce nel tuo CRM",
-    "answer": "La pipeline di un piccolo team ha poche fasi, un criterio di uscita per ciascuna, un valore ponderato e un prossimo passo con scadenza su ogni trattativa aperta. Incolla questo modello nel tuo agente IA e lui costruisce la pipeline in Customermates: sette fasi, il comitato d'acquisto su ogni trattativa, i motivi di vittoria e di perdita e un'attività creata a ogni cambio di fase. Approvi il piano prima che venga scritto qualcosa.",
+    "metaTitle": "Pipeline commerciale: il prossimo passo di ogni trattativa",
+    "metaDescription": "Incolla questa pipeline commerciale in Claude, ChatGPT o Codex: sette fasi, un prossimo passo datato su ogni trattativa e i motivi di vittoria e di perdita.",
+    "headline": "Vedi quali trattative avanzano: la pipeline commerciale che il tuo agente IA costruisce nel CRM",
+    "answer": "Una pipeline commerciale è un breve elenco di fasi, ciascuna con un criterio di uscita chiaro, che ti fa vedere quali trattative avanzano, quali sono ferme e che cosa succede dopo. Incolla questo modello nel tuo agente IA e costruisce la pipeline in Customermates: sette fasi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, il comitato d'acquisto su ogni trattativa, i motivi di vittoria e di perdita e un'attività creata a ogni cambio di fase. Approvi il piano prima che venga costruito qualcosa.",
     "routine": {
       "title": "Il controllo settimanale della pipeline",
       "steps": [
@@ -277,7 +277,7 @@
     ]
   },
   "prompt": {
-    "intro": "Configura una pipeline commerciale nel mio spazio di lavoro Customermates: trattative con sette fasi e pesi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, motivi della perdita e della vittoria, il comitato d'acquisto su ogni trattativa e un'attività creata a ogni cambio di fase.",
+    "intro": "Il mio team vende alle aziende e non riesco a capire quali trattative siano concrete, quali si siano fermate e perché vinciamo o perdiamo. Configura una pipeline commerciale nel mio spazio di lavoro Customermates: trattative con sette fasi e pesi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, motivi della perdita e della vittoria, il comitato d'acquisto su ogni trattativa e un'attività creata a ogni cambio di fase.",
     "questions": [
       "Che cosa vendi e quante persone lo vendono?",
       "Quali passaggi attraversa una trattativa dal primo contatto alla firma? Quali delle sette fasi vanno bene e quali vanno rinominate?",

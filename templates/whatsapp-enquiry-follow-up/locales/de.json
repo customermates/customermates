@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "WhatsApp-Anfragen nachfassen",
-  "summary": "Eine Pipeline für kleine Unternehmen, deren Kunden per WhatsApp schreiben: Anfrage festhalten, schnell antworten, Angebot senden, nach Tagen nachfassen, Auftrag bestätigen und an den Wiederkauf denken.",
-  "description": "WhatsApp-Chats zu bearbeiteten Anfragen machen: Jeder Chat wird zu einer Anfrage mit dem, was der Kunde möchte, dem Angebot und seiner Gültigkeit, einem terminierten nächsten Schritt, einer Zahlungsphase und einem Termin zur Wiedervorlage, wenn die Antwort später kam. Jeder Kontakt hält fest, ob er Nachrichten zugestimmt hat und wann eine Nachbestellung fällig ist. Antworten werden einzeln geschrieben und geprüft. Es gibt keine Rundsendungen, Kampagnen oder Chatbot-Menüs, und die offizielle WhatsApp Business Platform wird nicht genutzt. WhatsApp kann ein Konto einschränken, das gegen die Richtlinien genutzt wird.",
+  "summary": "Keine Kunden mehr verlieren, die per WhatsApp schreiben. Jeder Chat wird zur Anfrage mit Angebot, terminiertem nächstem Schritt und Wiedervorlage, damit Sie schnell antworten, nachfassen und den Wiederkauf nicht vergessen.",
+  "description": "Wenn Kunden auf WhatsApp nach einem Preis fragen, rutscht der Chat weg, und dem Angebot läuft niemand hinterher. Diese Vorlage macht aus WhatsApp-Chats bearbeitete Anfragen: Jeder Chat wird zu einer Anfrage mit dem, was der Kunde möchte, dem Angebot und seiner Gültigkeit, einem terminierten nächsten Schritt, einer Zahlungsphase und einem Termin zur Wiedervorlage, falls der Kunde erst später antwortet. Jeder Kontakt hält fest, ob er Nachrichten zugestimmt hat und wann eine Nachbestellung fällig ist. Antworten werden einzeln geschrieben und geprüft. Es gibt keine Rundsendungen, Kampagnen oder Chatbot-Menüs, und die offizielle WhatsApp Business Platform wird nicht genutzt. WhatsApp kann ein Konto einschränken, das gegen die Richtlinien genutzt wird.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die dir schreiben, mit ihrer WhatsApp-Einwilligung und dem Nachbestelltermin." },
     "enquiries": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Anfrage aus einem Chat, von der ersten Nachricht bis bestätigt, verloren oder später." }
@@ -83,7 +83,7 @@
     "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
+    "intro": "Kunden fragen auf WhatsApp nach Preisen, und ich verliere den Chat, bevor ich nachfasse. Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
     "questions": [
       "Wonach fragen dich Kunden auf WhatsApp, und wie erstellst du Angebote?",
       "Wie schnell möchtest du auf eine neue Nachricht antworten?",

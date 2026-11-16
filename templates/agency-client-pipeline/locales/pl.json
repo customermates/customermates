@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Lejek klientów dla agencji",
-  "summary": "Lejek dla agencji marketingowej lub kreatywnej: szanse od pierwszej rozmowy do podpisania umowy z decyzją o udziale w przetargu oraz trwające umowy abonamentowe z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji.",
-  "description": "Zdobywaj i utrzymuj klientów w jednym miejscu: szanse przez rozmowę, kwalifikację, brief lub przetarg, ofertę i negocjacje, wygraną, która uruchamia onboarding w pięciu krokach, oraz umowy abonamentowe i projekty, które po niej następują, z abonamentem miesięcznym, terminem odnowienia, okresem wypowiedzenia i następnym przeglądem kwartalnym. Budżety zapisujemy, gdy klient je poda, nigdy nie zgadujemy. Dane dostępowe, materiały marki i dostęp do kont reklamowych nigdy nie trafiają do przestrzeni roboczej. To nie jest zarządzanie projektami, rejestr czasu pracy, rozliczanie abonamentów ani raportowanie.",
+  "summary": "Zdobywaj klientów agencji i zatrzymuj ich po pierwszym projekcie. Szanse prowadzisz od pierwszej rozmowy do podpisanej umowy, z decyzją o udziale w przetargu, a trwające umowy abonamentowe mają termin odnowienia i przegląd kwartalny.",
+  "description": "Agencja zdobywa klienta, a potem odnowienie umowy abonamentowej ją zaskakuje, bo przetargi i bieżące zlecenia są prowadzone w różnych miejscach. Szablon zakłada szanse sprzedaży od rozmowy przez kwalifikację, brief lub przetarg, ofertę i negocjacje po wygraną, która uruchamia onboarding w pięciu krokach, oraz umowy abonamentowe i projekty, które po niej następują, z abonamentem miesięcznym, terminem odnowienia, okresem wypowiedzenia i następnym przeglądem kwartalnym. Budżety zapisujesz, gdy klient je poda, nigdy nie zgadujesz, a dane dostępowe, materiały marki i dostęp do kont reklamowych nigdy nie trafiają do przestrzeni roboczej. Pasuje do agencji marketingowych, komunikacyjnych, kreatywnych i cyfrowych; zarządzanie projektami, rejestr czasu pracy i rozliczenia zostają w Twoich narzędziach.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Decydenci, szefowie marketingu, zakupy i osoby kontaktowe na co dzień." },
     "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Potencjalni klienci, klienci, byli klienci i partnerzy." },
@@ -103,7 +103,7 @@
     "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
+    "intro": "Prowadzę agencję: zdobywam nowych klientów, ale gubię się w trwających przetargach i w tym, kiedy odnawiają się umowy abonamentowe. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse sprzedaży z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
     "questions": [
       "Jakie usługi sprzedajesz i czy pracujesz w abonamencie, w projektach, czy w obu modelach?",
       "Jak decydujesz, czy startować w przetargu z udziałem innych agencji?",

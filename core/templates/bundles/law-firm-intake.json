@@ -1247,8 +1247,8 @@
     "de": {
       "locale": "de",
       "name": "Mandatsaufnahme für Kanzleien",
-      "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein Absageschreiben an alle, die nicht Mandant werden.",
-      "description": "Mandanten in fester Reihenfolge aufnehmen: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Absageschreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
+      "summary": "Neue Mandanten aufnehmen, ohne eine Kollisionsprüfung oder eine Frist zu verpassen. Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot und unterschriebene Vereinbarung, für alle anderen ein Absageschreiben.",
+      "description": "Wenn ein Interessent zum ersten Mal anruft, kann eine Frist schon laufen, und eine übersehene Kollision lässt sich kaum noch ausräumen. Diese Vorlage nimmt Mandanten in fester Reihenfolge auf: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Absageschreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1650,7 +1650,7 @@
         "conflict_check_page": "Die Wissensdatenbank enthält eine Seite zur Kollisionsprüfung."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
+        "intro": "Interessenten rufen wegen eines Falls an, und ich muss Kollisionen prüfen, die früheste Frist festhalten und jeden Schritt dokumentieren, bevor ich ein Mandat annehme. Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
         "questions": [
           "Welche Rechtsgebiete nimmst du an, und welche vermittelst du weiter?",
           "Wie führst du die Kollisionsprüfung durch, und wer zeichnet sie ab?",
@@ -1662,8 +1662,8 @@
     "en": {
       "locale": "en",
       "name": "Law firm intake",
-      "summary": "A gated intake for a law firm: inquiry, conflict check, consultation, fee proposal, signed engagement with power of attorney and advance, and a written non-engagement letter for everyone who does not become a client.",
-      "description": "Take clients on in a fixed order: every inquiry records its practice area, the earliest known time limit, the conflict check and who made it, then the consultation, the fee proposal and the signed engagement. A list of parties supports the conflict search, matters carry the power of attorney date and a retention date, and declined or silent prospects get a written non-engagement letter. It holds a pointer to the case, never case facts, privileged content, health data or opponents' details. It is not matter management, trust accounting, a procedural deadline authority or billing.",
+      "summary": "Take on new clients without missing a conflict check or a time limit. Inquiry, conflict check, consultation, fee proposal and signed engagement, and a written non-engagement letter for everyone else.",
+      "description": "A time limit may already be running when a prospect first calls, and a missed conflict is hard to undo. This template takes clients on in a fixed order: every inquiry records its practice area, the earliest known time limit, the conflict check and who made it, then the consultation, the fee proposal and the signed engagement. A list of parties supports the conflict search, matters carry the power of attorney date and a retention date, and declined or silent prospects get a written non-engagement letter. It holds a pointer to the case, never case facts, privileged content, health data or opponents' details. It is not matter management, trust accounting, a procedural deadline authority or billing.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2065,7 +2065,7 @@
         "conflict_check_page": "The knowledge base holds a page on the conflict check."
       },
       "prompt": {
-        "intro": "Set up a law firm intake in my Customermates workspace: inquiries with a conflict check, the earliest known time limit, consultation, fee proposal and signed engagement, matters as pointers to the case system, parties for the conflict search and written non-engagement letters. Store no case facts or privileged content.",
+        "intro": "Prospects call about a case and I must check for conflicts, note the earliest time limit and document every step before I take them on. Set up a law firm intake in my Customermates workspace: inquiries with a conflict check, the earliest known time limit, consultation, fee proposal and signed engagement, matters as pointers to the case system, parties for the conflict search and written non-engagement letters. Store no case facts or privileged content.",
         "questions": [
           "Which practice areas do you take, and which do you refer out?",
           "How do you run the conflict check, and who signs it off?",
@@ -2077,8 +2077,8 @@
     "es": {
       "locale": "es",
       "name": "Alta de clientes para despachos de abogados",
-      "summary": "Un alta de clientes en pasos fijos: consulta, conflicto de intereses, primera reunión, presupuesto, hoja de encargo y poder firmados con provisión de fondos, y una carta escrita para quien no llega a ser cliente.",
-      "description": "Da de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
+      "summary": "Acepta clientes sin saltarte la comprobación de conflicto de intereses ni un plazo. Consulta, conflicto, primera reunión, presupuesto y hoja de encargo firmada, y una carta escrita de no contratación para quien no llega a cliente.",
+      "description": "Cuando un posible cliente llama por primera vez, puede que ya haya un plazo corriendo, y un conflicto de intereses que se pasa por alto es difícil de deshacer. Esta plantilla da de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2480,7 +2480,7 @@
         "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
+        "intro": "Me llaman posibles clientes por un asunto y, antes de aceptarlos, tengo que comprobar conflictos, anotar el plazo más próximo y documentar cada paso. Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
         "questions": [
           "¿Qué áreas llevas y cuáles derivas a otros despachos?",
           "¿Cómo haces la comprobación de conflictos y quién la da por buena?",
@@ -2492,8 +2492,8 @@
     "fr": {
       "locale": "fr",
       "name": "Prise de dossier pour avocats",
-      "summary": "Une prise de dossier en étapes fixes : demande, vérification des conflits, premier rendez-vous, convention d’honoraires, lettre de mission et pouvoir signés avec provision, et un courrier de non-prise en charge pour chaque personne qui ne devient pas cliente.",
-      "description": "Prenez les clients en charge dans un ordre fixe : chaque demande consigne le domaine du droit, le délai le plus proche connu, la vérification des conflits et qui l’a faite, puis le rendez-vous, la convention d’honoraires et la lettre de mission signée. Une liste de parties soutient la recherche de conflits, les dossiers portent la date du pouvoir et une date de conservation, et les prospects refusés ou silencieux reçoivent un courrier écrit de non-prise en charge. Il conserve un renvoi vers le dossier, jamais les faits de l’affaire, les informations couvertes par le secret professionnel, les données de santé ni les informations sur la partie adverse. Ce n’est ni de la gestion de dossiers, ni de la comptabilité des fonds de tiers, ni une source de délais de procédure, ni de la facturation.",
+      "summary": "Prenez de nouveaux clients sans oublier la vérification des conflits ni un délai. De la demande à la lettre de mission signée en passant par la convention d’honoraires, et un courrier de non-prise en charge pour les autres.",
+      "description": "Un délai peut déjà courir quand un prospect appelle pour la première fois, et un conflit oublié est difficile à rattraper. Ce modèle prend les clients en charge dans un ordre fixe : chaque demande consigne le domaine du droit, le délai le plus proche connu, la vérification des conflits et qui l’a faite, puis le rendez-vous, la convention d’honoraires et la lettre de mission signée. Une liste de parties soutient la recherche de conflits, les dossiers portent la date du pouvoir et une date de conservation, et les prospects refusés ou silencieux reçoivent un courrier écrit de non-prise en charge. Il conserve un renvoi vers le dossier, jamais les faits de l’affaire, les informations couvertes par le secret professionnel, les données de santé ni les informations sur la partie adverse. Ce n’est ni de la gestion de dossiers, ni de la comptabilité des fonds de tiers, ni une source de délais de procédure, ni de la facturation.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2895,7 +2895,7 @@
         "conflict_check_page": "La base de connaissances contient une page sur la vérification des conflits."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates une prise de dossier pour un cabinet d’avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d’honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-prise en charge. Ne stocke aucun fait de l’affaire ni information couverte par le secret professionnel.",
+        "intro": "Des prospects m’appellent pour une affaire, et je dois vérifier les conflits, noter le délai le plus proche et documenter chaque étape avant de les prendre en charge. Mets en place dans mon espace de travail Customermates une prise de dossier pour un cabinet d’avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d’honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-prise en charge. Ne stocke aucun fait de l’affaire ni information couverte par le secret professionnel.",
         "questions": [
           "Quels domaines du droit acceptez-vous, et lesquels orientez-vous ailleurs ?",
           "Comment faites-vous la vérification des conflits, et qui la valide ?",
@@ -2907,8 +2907,8 @@
     "it": {
       "locale": "it",
       "name": "Acquisizione clienti per studi legali",
-      "summary": "Un'acquisizione in passaggi fissi: richiesta, verifica dei conflitti, primo colloquio, preventivo, incarico e procura firmati con acconto, e una lettera scritta per chi non diventa cliente.",
-      "description": "Acquisisci i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la verifica dei conflitti, le pratiche portano la data della procura e una data di conservazione, e i potenziali clienti rifiutati o silenziosi ricevono una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, informazioni coperte dal segreto professionale, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
+      "summary": "Accogli nuovi clienti senza saltare una verifica dei conflitti o un termine. Richiesta, verifica dei conflitti, colloquio, preventivo e incarico firmato, e una lettera scritta di mancato conferimento per tutti gli altri.",
+      "description": "Un termine può già decorrere quando un potenziale cliente telefona la prima volta, e un conflitto non verificato è difficile da rimediare. Questo modello acquisisce i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la ricerca dei conflitti, le pratiche portano la data della procura e una data di conservazione, e chi viene rifiutato o tace riceve una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, informazioni coperte dal segreto professionale, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3310,7 +3310,7 @@
         "conflict_check_page": "La base di conoscenza contiene una pagina sulla verifica dei conflitti."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
+        "intro": "Mi chiamano potenziali clienti per una causa e prima di accettarli devo verificare i conflitti, annotare il termine più vicino e documentare ogni passaggio. Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
         "questions": [
           "Quali materie tratti e quali indirizzi ad altri?",
           "Come fai la verifica dei conflitti e chi la approva?",
@@ -3322,8 +3322,8 @@
     "nl": {
       "locale": "nl",
       "name": "Intake voor advocatenkantoren",
-      "summary": "Een intake in vaste stappen: aanvraag, conflictcheck, intake, offerte, getekende opdrachtbevestiging met volmacht en voorschot, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
-      "description": "Cliënten in een vaste volgorde aannemen: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
+      "summary": "Neem nieuwe cliënten aan zonder een conflictcheck of termijn te missen. Aanvraag, conflictcheck, intake, offerte en getekende opdrachtbevestiging, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
+      "description": "Op het moment dat iemand voor het eerst belt, kan er al een termijn lopen, en een gemiste conflictcheck is moeilijk terug te draaien. Dit sjabloon neemt cliënten aan in een vaste volgorde: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3725,7 +3725,7 @@
         "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
+        "intro": "Potentiële cliënten bellen over een zaak en ik moet op conflicten controleren, de vroegst bekende termijn noteren en elke stap vastleggen voordat ik ze aanneem. Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
         "questions": [
           "Welke rechtsgebieden neem je aan en welke verwijs je door?",
           "Hoe voer je de conflictcheck uit en wie tekent die af?",
@@ -3737,8 +3737,8 @@
     "pl": {
       "locale": "pl",
       "name": "Przyjmowanie klientów w kancelarii",
-      "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
-      "description": "Przyjmuj klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pismo o niepodjęciu sprawy. Narzędzie zapisuje odnośnik do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą zawodową, danych o zdrowiu ani danych drugiej strony. To nie jest system do zarządzania sprawami, rozliczania środków klientów, śledzenia terminów procesowych ani fakturowania.",
+      "summary": "Przyjmuj nowych klientów, nie pomijając weryfikacji konfliktu interesów ani biegnącego terminu. Zapytanie, konsultacja, oferta, umowa i pełnomocnictwo oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
+      "description": "Gdy potencjalny klient dzwoni po raz pierwszy, jakiś termin może już biec, a przeoczony konflikt interesów trudno później naprawić. Szablon prowadzi przyjmowanie klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pismo o niepodjęciu sprawy. Szablon zapisuje odnośnik do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą zawodową, danych o zdrowiu ani danych drugiej strony. To nie jest system do zarządzania sprawami, rozliczania środków klientów, śledzenia terminów procesowych ani fakturowania.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4140,7 +4140,7 @@
         "conflict_check_page": "Baza wiedzy zawiera stronę o weryfikacji konfliktu interesów."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
+        "intro": "Potencjalni klienci dzwonią w sprawie, a ja muszę sprawdzić konflikt interesów, zanotować najbliższy termin i udokumentować każdy krok, zanim ich przyjmę. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
         "questions": [
           "Jakie dziedziny prawa przyjmujesz, a jakie kierujesz do innych?",
           "Jak wykonujesz weryfikację konfliktu interesów i kto ją zatwierdza?",
@@ -4152,8 +4152,8 @@
     "pt": {
       "locale": "pt",
       "name": "Atendimento de clientes para advocacia",
-      "summary": "Um atendimento em etapas fixas: contato, triagem de conflito e urgência, consulta, proposta de honorários, contrato e procuração assinados e uma carta escrita para quem não vira cliente.",
-      "description": "Receba clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a verificação de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a verificação de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarde uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde ou dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
+      "summary": "Receba clientes novos sem deixar passar uma verificação de conflito nem um prazo. Contato, conflito, consulta, proposta de honorários e contrato assinado, e uma carta escrita de não contratação para quem não vira cliente.",
+      "description": "Um prazo pode já estar correndo quando o interessado liga pela primeira vez, e um conflito de interesses não verificado é difícil de desfazer. Este modelo recebe clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a verificação de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a verificação de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarda só uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde nem dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4555,7 +4555,7 @@
         "conflict_check_page": "A base de conhecimento tem uma página sobre a verificação de conflito."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
+        "intro": "Eu atendo interessados que ligam por causa de um caso e preciso verificar conflitos, anotar o prazo mais próximo e documentar cada passo antes de aceitá-los como clientes. Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
         "questions": [
           "Quais áreas do direito você atende e quais encaminha a outros?",
           "Como você faz a verificação de conflito e quem a aprova?",

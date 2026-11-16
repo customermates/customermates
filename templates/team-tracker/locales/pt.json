@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Acompanhamento da equipe",
-  "summary": "Um acompanhamento de trabalho para uma equipe pequena: projetos, tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
-  "description": "Mantenha uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem status, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes são criadas sozinhas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
+  "summary": "Veja quem está fazendo o quê e até quando, sem uma ferramenta pesada de projetos. Projetos e tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
+  "description": "Em uma equipe pequena, as tarefas se escondem no chat, em quadros e na cabeça de cada um, e uma tarefa bloqueada passa despercebida até o dia do prazo. Este modelo mantém uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem status, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes criam as próprias tarefas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
   "lists": {
     "requesters": { "label": "Solicitante", "pluralLabel": "Solicitantes", "description": "As pessoas de fora da equipe que pedem trabalho." },
     "projects": { "label": "Projeto", "pluralLabel": "Projetos", "description": "Um conjunto de tarefas com responsável, saúde e prazo." },
@@ -81,7 +81,7 @@
     "tasks_board_view": "As tarefas abrem como quadro por status."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
+    "intro": "O trabalho da nossa equipe está espalhado entre o chat, um quadro e uma planilha, e eu não consigo ver o que está atrasado ou bloqueado. Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
     "questions": [
       "Quantas pessoas tem a equipe e no que elas trabalham?",
       "Quais status você usa hoje no Trello, Jira, Asana ou em uma planilha?",

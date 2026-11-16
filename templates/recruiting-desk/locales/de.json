@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Personalvermittlung",
-  "summary": "Ein Arbeitsplatz für Personalberatung und selbstständige Recruiter: Aufträge von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Provisions- und Garantietermine, Nachbetreuung und ein Löschdatum für jeden Kandidaten.",
-  "description": "Führen Sie Ihre Personalvermittlung an einem Ort: Kunden mit Vermittlungsvertrag, Aufträge mit Phase und erwarteter Provision, vorgestellte Kandidaten je Auftrag mit eigener Phase, Vermittlungen mit Ende der Garantiezeit und Nachbetreuung sowie ein Datum für die Löschprüfung bei jedem Kandidaten. Passend für ein Team aus einer bis fünf Personen. Es ist keine Jobbörse, kein Lebenslauf-Parser, kein Tool für Massenansprache und keine Zeiterfassung mit Lohnabrechnung. Nichts geht automatisch an Kandidaten oder Kunden.",
+  "summary": "Kein Auftrag, kein Kandidat und kein Provisionstermin geht unter. Von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Garantie- und Nachbetreuungstermine, ein Löschdatum je Kandidat.",
+  "description": "Wer Personal vermittelt, jongliert mit Kunden, Aufträgen und Kandidaten, die auf mehreren Aufträgen zugleich stehen, und die Termine, auf die es ankommt, Besetzung, Garantieende und Löschung von Kandidatendaten, gehen leicht unter. Diese Vorlage richtet Kunden mit Vermittlungsvertrag ein, Aufträge mit Phase und erwarteter Provision, vorgestellte Kandidaten je Auftrag mit eigener Phase, Vermittlungen mit Ende der Garantiezeit und Nachbetreuung sowie ein Datum für die Löschprüfung bei jedem Kandidaten. Sie passt zu einem Team aus einer bis fünf Personen. Keine Jobbörse, kein Lebenslauf-Parser, kein Werkzeug für Massenansprache und keine Zeiterfassung mit Lohnabrechnung. Nichts geht automatisch an Kandidaten oder Kunden.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Kandidaten, Ansprechpartner beim Kunden und Empfehler." },
     "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Unternehmen, für die du suchst, mit Provisions- und Garantiebedingungen." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "Die Wissensdatenbank enthält eine Seite zu Kandidatendaten und Löschfristen."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
+    "intro": "Ich vermittle Kandidaten an Kundenunternehmen und verliere den Überblick, wer wo vorgestellt ist, wann eine Garantie endet und wie lange ich Kandidatendaten behalten darf. Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
     "questions": [
       "Arbeitest du erfolgsabhängig, retained oder beides, und welche Provision und Garantiezeit vereinbarst du üblicherweise?",
       "Wie viele Aufträge und Kandidaten betreust du gleichzeitig, und wer verantwortet welche Phase?",

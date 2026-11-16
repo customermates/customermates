@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Verzekeringsadviseur",
-  "summary": "Twee pijplijnen voor een verzekeringsadviseur: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, en een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
-  "description": "Beheer nieuwe zaken en prolongaties naast elkaar: aanvragen van eerste vraag via behoefteanalyse, offertes opvragen, advies en beslissing tot een ontvangen polis, een datum van vastgelegd advies bij elke offerte, en polissen met hun hoofdvervaldatum die zelf een prolongatiezaak openen. Het bewaart een verwijzing naar het adviesdossier en naar de polis in je administratiesysteem, nooit gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen. Geen polisadministratie, geen vergelijker of premieberekening, geen schadebehandeling en geen provisie-afstemming.",
+  "summary": "Zie elke prolongatie aankomen en houd nieuwe zaken in beweging. Van aanvraag tot polis met het advies vastgelegd vóór de offerte, plus een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
+  "description": "Prolongaties worden gemist en het advies wordt niet vastgelegd als nieuwe zaken en prolongaties in aparte lijsten of in je hoofd zitten. Dit sjabloon laat beide naast elkaar lopen: aanvragen van eerste vraag via behoefteanalyse, offertes opvragen, advies en beslissing tot een ontvangen polis, een datum van vastgelegd advies bij elke offerte, en polissen met hun hoofdvervaldatum die zelf een prolongatiezaak openen. Het bewaart een verwijzing naar het adviesdossier en naar de polis in je administratiesysteem, nooit gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen. Geen polisadministratie, geen vergelijker of premieberekening, geen schadebehandeling en geen provisie-afstemming.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Verzekeringnemers, prospects, beslissers en doorverwijzers." },
     "opportunities": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Een nieuwe zaak van eerste vraag tot polis of verlies." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "De kennisbank bevat een pagina over het vastleggen van het advies."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
+    "intro": "Ik adviseer klanten over verzekeringen, prolongaties komen steeds onverwacht en het advies moet ik vóór elke offerte vastleggen. Richt in mijn Customermates-werkruimte een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
     "questions": [
       "Welke branches bemiddel je en bedien je zakelijke klanten, particulieren of beide?",
       "Hoe lang voor de hoofdvervaldatum begin je een prolongatie en wat is de gebruikelijke opzegtermijn?",

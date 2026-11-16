@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Online afspraken maken",
-  "summary": "Een afsprakenregister voor dienstverleners: afspraaktypes met duur en minimale termijn, elke boeking met status, herinneringen en uitkomst, en bij elk een volgende stap.",
-  "description": "Boekingen aannemen voor gesprekken, consulten of bezichtigingen en ze bewaren in het CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
+  "summary": "Houd elk gesprek, consult en elke bezichtiging op één plek bij, van aanvraag tot uitkomst. Afspraaktypes met duur en minimale termijn, een status en herinneringen bij elke boeking en een volgende stap na elke afspraak.",
+  "description": "Boekingen die alleen in een agenda en een inbox staan, raken zoek: klanten komen niet opdagen zonder herinnering en niemand legt vast wat een gesprek heeft opgeleverd. Dit sjabloon zet een paar afspraaktypes op met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Voor dienstverleners met gesprekken, consulten, sessies of bezichtigingen; het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
   "lists": {
     "people": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die bij jou boeken." },
     "appointment_types": { "label": "Afspraaktype", "pluralLabel": "Afspraaktypes", "description": "Een soort afspraak met duur, buffer, minimale termijn en prijs." },
@@ -91,7 +91,7 @@
     "appointments_board_view": "De afspraken openen als bord per status."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+    "intro": "Klanten boeken gesprekken, consulten of bezichtigingen bij mij, en ik raak het overzicht kwijt van wie er geboekt heeft, wie heeft bevestigd en wat eruit kwam. Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
     "questions": [
       "Welke soorten afspraken bied je aan en hoe lang duurt elke?",
       "Hoeveel tijd van tevoren moet iemand boeken en hoe ver vooruit kan men boeken?",

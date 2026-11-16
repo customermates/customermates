@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Scheda cliente e accoglienza",
-  "summary": "Un'accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d'incarico e riunione di avvio, con un passaggio datato a ogni fase e un motivo quando rifiuti.",
-  "description": "Una breve pipeline per accogliere un nuovo cliente: rispondere entro un giorno, valutare l'adeguatezza, inviare il questionario, raccogliere i documenti, inviare la lettera d'incarico, partire. Le professioni regolamentate annotano chi ha verificato l'identità e quando, mai il documento. Non è uno strumento di firma elettronica, di antiriciclaggio o di pagamento.",
+  "summary": "Accogli i nuovi clienti senza rincorrere moduli, documenti e lettere d'incarico a mano. Un'accoglienza per incarico, con un passaggio datato a ogni fase e il motivo registrato quando rifiuti.",
+  "description": "I nuovi clienti si fanno silenziosi tra la prima richiesta e il primo giorno di lavoro: il modulo non è tornato, manca un documento, la lettera d'incarico aspetta ancora. Questo modello imposta un'accoglienza per ogni incarico con nove fasi dalla richiesta alla riunione di avvio, i documenti richiesti, un passaggio datato a ogni fase, una risposta entro un giorno e il motivo del rifiuto quando declini. Le professioni regolamentate possono annotare chi ha verificato identità, conflitti e rischio e quando, mai il documento stesso. Non è uno strumento di firma elettronica, di verifica dell'identità né di pagamento.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone presso ogni cliente: referente principale, amministrazione, firmatario." },
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Aziende, ditte individuali e privati che accogli." },
@@ -200,7 +200,7 @@
     "process_page": "La base di conoscenza contiene il processo di accoglienza."
   },
   "prompt": {
-    "intro": "Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
+    "intro": "I nuovi clienti si perdono tra la prima richiesta e il primo giorno di lavoro, perché mi dimentico di mandare il modulo o di sollecitare i documenti. Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
     "questions": [
       "Che cosa vendi e chi sono i tuoi clienti: società, ditte individuali o privati?",
       "Quali passaggi attraversa oggi un nuovo cliente e quali delle nove fasi non ti servono?",

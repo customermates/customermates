@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "CRM su misura",
-  "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un'importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
-  "description": "Parti dalle quattro liste di cui ogni CRM ha bisogno e adattale: fasi, campi e viste sono tuoi. Pensato per chi lascia un foglio Excel, Notion, Airtable o Trello e vuole i propri dati in un CRM senza un progetto. Tiene nota di dove è stato importato ogni record.",
+  "summary": "Lascia il foglio di calcolo o il vecchio strumento senza un progetto di migrazione. Contatti, aziende, trattative e attività con scadenza costruiti sul tuo modo di lavorare, con l'importazione dei tuoi dati e una revisione settimanale.",
+  "description": "I dati dei tuoi clienti sono sparsi tra un foglio di calcolo, una pagina di Notion o un vecchio strumento e nessuno vuole iniziare un progetto di migrazione. Questo modello parte dalle quattro liste di cui ogni CRM ha bisogno, contatti, aziende, trattative e attività, e il tuo agente adatta fasi, campi e viste al tuo modo di lavorare. Poi importa i tuoi dati e annota da dove viene ogni record. Pensato per chi lascia un foglio di calcolo, Notion, Airtable o Trello.",
   "lists": {
     "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone con cui hai a che fare." },
     "organizations": { "label": "Azienda", "pluralLabel": "Aziende", "description": "Società e altri enti." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "La base di conoscenza spiega come il team usa il CRM."
   },
   "prompt": {
-    "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+    "intro": "I miei clienti e le mie trattative stanno in un foglio di calcolo o in un vecchio strumento e voglio un CRM che si adatti al mio modo di lavorare. Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
     "questions": [
       "Da quale strumento o foglio di calcolo vengono i tuoi record e si può esportare?",
       "Quali fasi attraversa una trattativa nella tua attività?",

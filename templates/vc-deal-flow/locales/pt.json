@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Dealflow para investidores",
-  "summary": "Um dealflow para um fundo pequeno ou um investidor-anjo: oito etapas da identificação ao fechamento ou à recusa, quem indicou cada negócio, um motivo de recusa e uma data para retomar.",
-  "description": "Acompanhe startups e investidores da prospecção, triagem, reuniões e due diligence até o term sheet. Cada negócio registra quem o indicou, o quanto se encaixa na tese, o papel de lead, um link da data room, o motivo da recusa e quando olhar de novo. É uma ferramenta de relacionamento, não uma cap table, nem uma data room jurídica, nem um modelo de pontuação. Os pesos são aproximados e são seus.",
+  "summary": "Lembre quem indicou cada negócio, por que você recusou e quando olhar de novo. Um dealflow para um fundo pequeno ou um investidor-anjo, com oito etapas da identificação ao fechamento ou à recusa.",
+  "description": "O dealflow é feito em sua maior parte de recusas, e sem o registro de quem indicou a startup e por que você disse não, o mesmo negócio é analisado do zero na próxima vez. Este modelo acompanha startups e investidores da prospecção e da triagem até as reuniões, a due diligence e o term sheet. Cada negócio registra quem o indicou, o quanto se encaixa na tese, o papel de lead, um link da data room, o motivo da recusa e quando olhar de novo. É uma ferramenta de relacionamento, não uma cap table, nem uma data room jurídica, nem um modelo de pontuação. Os pesos são aproximados e são seus.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Fundadores, investidores, coinvestidores e quem indica." },
     "organizations": { "label": "Organização", "pluralLabel": "Organizações", "description": "Startups, fundos, sindicatos e aceleradoras." },
@@ -118,7 +118,7 @@
     "board_view": "Os negócios abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure um dealflow no meu espaço de trabalho do Customermates: negócios com oito etapas, quem os indicou, aderência à tese, papel de lead, um motivo de recusa e uma data para retomar, além de startups, investidores e retornos com data.",
+    "intro": "Eu analiso muitas startups e esqueço quem as indicou, por que recusei e quando queria olhar de novo. Configure um dealflow no meu espaço de trabalho do Customermates: negócios com oito etapas, quem os indicou, aderência à tese, papel de lead, um motivo de recusa e uma data para retomar, além de startups, investidores e retornos com data.",
     "questions": [
       "Em quais estágios e setores você investe e qual é o tamanho habitual do cheque?",
       "Como os negócios chegam até você e quem os indica?",

@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Booking page",
-  "summary": "An appointment register for a service professional: appointment types with duration and notice, every booking with its status, reminders and outcome, and a next step on each.",
-  "description": "Take bookings for calls, consultations or viewings and keep them in the CRM: a few appointment types with a duration, a buffer and a minimum notice, a booking that creates the person and the appointment, a calendar event once you confirm, two reminders and an outcome recorded after every appointment. It books people's time only. It is not a room or resource booking system, a ticketing tool, a medical appointment system or a payment processor.",
+  "summary": "Keep every call, consultation and viewing in one place, from request to outcome. Appointment types with duration and notice, a status and reminders on every booking, and a next step after each one.",
+  "description": "Bookings that live only in a calendar and an inbox get forgotten: clients no-show without a reminder and nobody records what came of the call. This template sets up a few appointment types with a duration, a buffer and a minimum notice, a booking that creates the person and the appointment, a calendar event once you confirm, two reminders and an outcome recorded after every appointment. It fits service professionals who take calls, consultations, sessions or viewings, and it books people's time only. It is not a room or resource booking system, a ticketing tool, a medical appointment system or a payment processor.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "People", "description": "The people who book with you." },
     "appointment_types": { "label": "Appointment type", "pluralLabel": "Appointment types", "description": "A kind of appointment with its duration, buffer, notice and price." },
@@ -91,7 +91,7 @@
     "appointments_board_view": "The appointments open as a board by status."
   },
   "prompt": {
-    "intro": "Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
+    "intro": "I take calls, consultations and viewings and lose track of who is booked, who confirmed and what came of it. Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
     "questions": [
       "Which kinds of appointments do you offer, and how long is each?",
       "How much notice do you need, and how far ahead can people book?",

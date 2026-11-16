@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Trades job pipeline",
-  "summary": "A pipeline for a trade business: inquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
-  "description": "Follow a job from the first call to the last invoice: customers and the sites you work at, jobs with a sales stage and a separate work status, quote validity, the visit and the schedule, a withdrawal date for consumer contracts, warranty end and service agreements that bring repeat work. It stores the job, the dates and the follow-up. It is not a quoting or invoicing tool, a dispatch system or a timesheet. Legal dates are fields you confirm, not legal advice.",
+  "summary": "Follow up every quote and keep every job on track, from the first call to payment. Site visit, quote and the work itself from scheduled to paid, with withdrawal, warranty and service dates on each job.",
+  "description": "In a trade business money is lost when a quote goes out and nobody calls back, and when warranty and service dates are written down nowhere. This template follows a job from the first call to the last invoice: customers and the sites you work at, jobs with a sales stage and a separate work status, quote validity, the visit and the schedule, a withdrawal date for consumer contracts, warranty end and service agreements that bring repeat work. It stores the job, the dates and the follow-up. It is not a quoting or invoicing tool, a dispatch system or a timesheet. Legal dates are fields you confirm, not legal advice.",
   "lists": {
     "customers": { "label": "Customer", "pluralLabel": "Customers", "description": "Homeowners, landlords, property managers and companies you work for." },
     "sites": { "label": "Site", "pluralLabel": "Sites", "description": "The address where the work happens, which can differ from the customer." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "The jobs open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up a trades job pipeline in my Customermates workspace: customers, sites, jobs with a sales stage and a work status, quote validity, visit and schedule dates, warranty end and service agreements, with dated follow-ups.",
+    "intro": "I run a small trade business and quotes go out without a follow-up while jobs, visits and warranty dates sit in my head. Set up a trades job pipeline in my Customermates workspace: customers, sites, jobs with a sales stage and a work status, quote validity, visit and schedule dates, warranty end and service agreements, with dated follow-ups.",
     "questions": [
       "Which kinds of work do you do, and for whom: homeowners, landlords or companies?",
       "How quickly do you answer an inquiry and send a quote after the visit?",

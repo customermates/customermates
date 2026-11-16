@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Vertrieb im Gründerteam",
-  "summary": "Eine kurze Pipeline für Gründer, die selbst verkaufen: Gespräche, Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Angebot und ein Zurückgestellt-Status mit Wiedervorlage.",
-  "description": "Als Gründer verkaufen, mit einer Handvoll bis einigen Dutzend offenen Gesprächen: Jede Verkaufschance hält das Problem in den Worten des Kunden, die Dringlichkeit und den Budgetstand fest und vermerkt, ob der Entscheider eingebunden ist; ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird; ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
+  "summary": "Selbst verkaufen, ohne den Faden der Gespräche zu verlieren. Eine kurze Pipeline vom ersten Gespräch bis gewonnen, mit optionalem Pilot mit Enddatum und einem Zurückgestellt-Status mit Wiedervorlage.",
+  "description": "Wer selbst verkauft, lernt in jedem Gespräch, wer kauft und warum, aber die Notizen und der nächste Schritt stecken im Kopf und in einem Stapel Tabs. Diese Vorlage führt eine Handvoll bis einige Dutzend offene Gespräche: Jede Verkaufschance hält das Problem in den Worten des Kunden fest, die Dringlichkeit, den Budgetstand und ob der Entscheider eingebunden ist. Ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird, und ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen du sprichst, mit ihrer Rolle in der Kaufentscheidung." },
     "companies": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Interessenten, Pilotkunden, Kunden und Partner." },
@@ -87,7 +87,7 @@
     "opportunities_board_view": "Die Verkaufschancen öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
+    "intro": "Ich verkaufe mein Produkt selbst und verliere ständig die Notizen und nächsten Schritte aus meinen Gesprächen. Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
     "questions": [
       "Was verkaufst du, und wer hat bisher bei dir gekauft?",
       "Führst du Piloten oder Testphasen durch, und sind sie bezahlt?",

@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Calendrier éditorial",
-  "summary": "Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
-  "description": "Un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il planifie et suit, il ne publie pas.",
+  "summary": "Sachez ce qui sort cette semaine et qui bloque. Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
+  "description": "Les articles, les newsletters et les vidéos prennent du retard quand les plans vivent dans plusieurs documents et que personne ne sait qui relit quoi. Ce modèle met en place un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il convient aux créateurs, aux responsables marketing en entreprise et aux agences. Il planifie et suit, il ne publie pas.",
   "lists": {
     "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Auteurs, rédacteurs en chef, relecteurs, validateurs et invités." },
     "pieces": { "label": "Contenu", "pluralLabel": "Contenus", "description": "Un contenu de l’idée à la publication." },
@@ -151,7 +151,7 @@
     "calendar_widget": "Le tableau de bord montre le calendrier de publication."
   },
   "prompt": {
-    "intro": "Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
+    "intro": "Nos publications, newsletters et vidéos sortent en retard, car je ne vois pas qui relit quoi ni quand tout part. Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
     "questions": [
       "Que publiez-vous, sur quels canaux, et à quel rythme ?",
       "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",

@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Piano d'azione",
-  "summary": "Ogni azione con un responsabile e una scadenza, collegata alla riunione, alla decisione o al progetto da cui nasce, con una revisione settimanale e la chiusura con una prova a supporto.",
-  "description": "Un elenco delle azioni che nascono da riunioni, progetti, audit e richieste dei clienti: sei stati, una priorità, un responsabile, una scadenza, una data di follow-up, un registro delle decisioni e una verifica di efficacia dopo le azioni correttive. I promemoria vengono dalle regole di automazione e dalle notifiche.",
+  "summary": "Fai in modo che quello che si decide in riunione venga davvero fatto. Ogni azione ha un responsabile e una scadenza, è collegata alla riunione, alla decisione o al progetto da cui nasce e passa da una revisione settimanale.",
+  "description": "Le azioni decise in riunioni, audit e chiamate con i clienti si perdono tra appunti e chat, e la settimana dopo si discute di nuovo la stessa cosa. Questo modello imposta un unico elenco di azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate alla riunione, alla decisione o al progetto da cui nascono, più un registro delle decisioni e una verifica di efficacia per le azioni correttive. Adatto a team, responsabili di progetto e responsabili qualità che vogliono una revisione settimanale di ciò che è aperto, scaduto o bloccato. I promemoria vengono dalle regole di automazione e dalle notifiche che attivi tu.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Team, partner, clienti e fornitori." },
     "meetings": { "label": "Riunione", "pluralLabel": "Riunioni", "description": "Da dove nascono azioni e decisioni." },
@@ -104,7 +104,7 @@
     "overdue_widget": "La dashboard mostra quante azioni sono scadute."
   },
   "prompt": {
-    "intro": "Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
+    "intro": "Quello che decidiamo in riunione si perde per strada e nessuno sa dire chi se ne occupa e per quando. Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
     "questions": [
       "Da dove nascono le tue azioni: riunioni, progetti, audit, clienti?",
       "Chi è responsabile delle azioni e chi decide quando una viene rinviata o annullata?",

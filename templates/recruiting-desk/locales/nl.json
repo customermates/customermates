@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Wervingsbureau",
-  "summary": "Een werkplek voor een wervingsbureau of zelfstandige recruiter: vacatures van aanvraag tot plaatsing, één regel in het proces per kandidaat, fee- en garantiedata, nazorg en een bewaardatum bij elke kandidaat.",
-  "description": "Beheer het bureau op één plek: opdrachtgevers en hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
+  "summary": "Houd elke vacature, kandidaat en feedatum op één plek bij. Vacatures van aanvraag tot plaatsing, één voordracht per kandidaat, garantie- en nazorgdata en een bewaardatum bij elke kandidaat.",
+  "description": "Recruiters jongleren met opdrachtgevers, vacatures en kandidaten die voor meerdere vacatures tegelijk in beeld zijn, en de data die ertoe doen, de plaatsing, het einde van de garantie en het moment om kandidaatgegevens te verwijderen, raken makkelijk zoek. Dit sjabloon zet opdrachtgevers op met hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
   "lists": {
     "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Kandidaten, contactpersonen bij opdrachtgevers en verwijzers." },
     "clients": { "label": "Opdrachtgever", "pluralLabel": "Opdrachtgevers", "description": "Bedrijven waarvoor je werft, met fee en garantievoorwaarden." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "De kennisbank bevat een pagina over kandidaatgegevens en bewaartermijnen."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voordracht per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
+    "intro": "Ik plaats kandidaten bij opdrachtgevers en raak het overzicht kwijt van wie waar is voorgesteld, wanneer een garantie afloopt en hoe lang ik kandidaatgegevens mag bewaren. Richt in mijn Customermates-werkruimte een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voordracht per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
     "questions": [
       "Werk je op basis van succes, met voorschot of allebei, en welke fee en garantie spreek je meestal af?",
       "Hoeveel vacatures en kandidaten behandel je tegelijk en wie is verantwoordelijk voor welke fase?",

@@ -807,8 +807,8 @@
     "de": {
       "locale": "de",
       "name": "Team-Aufgaben",
-      "summary": "Ein Arbeitstracker für ein kleines Team: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf derselben Liste.",
-      "description": "Ein Team von zwei bis fünfzehn Personen auf einer Liste führen: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
+      "summary": "Sehen, wer was bis wann erledigt, ohne schweres Projektwerkzeug. Projekte und Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf einer Liste.",
+      "description": "In einem kleinen Team verstecken sich Aufgaben in Chat, Boards und Köpfen, und eine blockierte Aufgabe fällt erst am Fälligkeitstag auf. Diese Vorlage führt ein Team von zwei bis fünfzehn Personen auf einer Liste: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
       "lists": {
         "requesters": {
           "label": "Anfragender",
@@ -1066,7 +1066,7 @@
         "tasks_board_view": "Die Aufgaben öffnen sich als Board nach Status."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
+        "intro": "Die Arbeit in unserem Team verteilt sich auf Chat, Board und Tabelle, und ich sehe nicht, was überfällig oder blockiert ist. Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
         "questions": [
           "Wie viele Personen hat das Team, und woran arbeiten sie?",
           "Welche Status nutzt du heute in Trello, Jira, Asana oder einer Tabelle?",
@@ -1078,8 +1078,8 @@
     "en": {
       "locale": "en",
       "name": "Team tracker",
-      "summary": "A work tracker for a small team: projects, tasks with one owner and one due date, recurring chores and requests from outside the team on the same list.",
-      "description": "Keep a team of two to fifteen on one list: every task has a status, a priority, an owner and a due date, and you can see what is overdue or blocked at a glance. Recurring chores create their own tasks, requests from colleagues or customers arrive through a form, and a blocked or stale task nudges its owner. It is not a sprint tool, a Gantt planner, a time tracker or an HR system.",
+      "summary": "See who is doing what by when, without a heavy project tool. Projects and tasks with one owner and one due date, recurring chores and requests from outside the team on one list.",
+      "description": "In a small team tasks hide in chat, boards and heads, and a blocked task goes unnoticed until the day it is due. This template keeps a team of two to fifteen on one list: every task has a status, a priority, an owner and a due date, and you see what is overdue or blocked at a glance. Recurring chores create their own tasks, requests from colleagues or customers arrive through a form, and a blocked or stale task nudges its owner. It is not a sprint tool, a Gantt planner, a time tracker or an HR system.",
       "lists": {
         "requesters": {
           "label": "Requester",
@@ -1337,7 +1337,7 @@
         "tasks_board_view": "The tasks open as a board by status."
       },
       "prompt": {
-        "intro": "Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
+        "intro": "Our team's work is spread over chat, a board and a spreadsheet, and I cannot see what is overdue or blocked. Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
         "questions": [
           "How many people are on the team, and what do they work on?",
           "Which statuses do you use today in Trello, Jira, Asana or a spreadsheet?",
@@ -1349,8 +1349,8 @@
     "es": {
       "locale": "es",
       "name": "Seguimiento del equipo",
-      "summary": "Un seguimiento del trabajo para un equipo pequeño: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes externas en la misma lista.",
-      "description": "Mantén a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
+      "summary": "Ve quién hace qué y para cuándo, sin una herramienta de proyectos pesada. Proyectos y tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes de fuera del equipo en la misma lista.",
+      "description": "En un equipo pequeño las tareas se esconden en el chat, en tableros y en la cabeza de cada uno, y una tarea bloqueada pasa desapercibida hasta el día de su vencimiento. Esta plantilla mantiene a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
       "lists": {
         "requesters": {
           "label": "Solicitante",
@@ -1608,7 +1608,7 @@
         "tasks_board_view": "Las tareas se abren como tablero por estado."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
+        "intro": "El trabajo de nuestro equipo está repartido entre el chat, un tablero y una hoja de cálculo, y no veo qué va con retraso ni qué está bloqueado. Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
         "questions": [
           "¿Cuántas personas tiene el equipo y en qué trabajan?",
           "¿Qué estados usas hoy en Trello, Jira, Asana o una hoja de cálculo?",
@@ -1620,8 +1620,8 @@
     "fr": {
       "locale": "fr",
       "name": "Suivi d’équipe",
-      "summary": "Un suivi du travail pour une petite équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes et demandes venues de l’extérieur sur la même liste.",
-      "description": "Gardez une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
+      "summary": "Voyez qui fait quoi pour quand, sans outil de projet lourd. Des projets et des tâches avec un responsable et une échéance, les tâches récurrentes et les demandes venues de l’extérieur sur la même liste.",
+      "description": "Dans une petite équipe, les tâches se cachent dans les messages, les tableaux et les têtes, et une tâche bloquée passe inaperçue jusqu’au jour de l’échéance. Ce modèle garde une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
       "lists": {
         "requesters": {
           "label": "Demandeur",
@@ -1879,7 +1879,7 @@
         "tasks_board_view": "Les tâches s’ouvrent en board par statut."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
+        "intro": "Le travail de notre équipe est éparpillé entre une messagerie, un tableau et un tableur, et je ne vois pas ce qui est en retard ou bloqué. Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
         "questions": [
           "Combien de personnes compte l’équipe, et sur quoi travaillent-elles ?",
           "Quels statuts utilisez-vous aujourd’hui dans Trello, Jira, Asana ou un tableur ?",
@@ -1891,8 +1891,8 @@
     "it": {
       "locale": "it",
       "name": "Gestione attività del team",
-      "summary": "Un tracker di lavoro per un piccolo team: progetti, attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno sulla stessa lista.",
-      "description": "Tieni un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
+      "summary": "Vedi chi fa che cosa e per quando, senza uno strumento di project management pesante. Progetti e attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno del team sulla stessa lista.",
+      "description": "In un piccolo team le attività si nascondono in chat, bacheche e teste, e un'attività bloccata passa inosservata fino al giorno della scadenza. Questo modello tiene un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
       "lists": {
         "requesters": {
           "label": "Richiedente",
@@ -2150,7 +2150,7 @@
         "tasks_board_view": "Le attività si aprono come board per stato."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
+        "intro": "Il lavoro del nostro team è sparso tra chat, una bacheca e un foglio di calcolo e non riesco a vedere che cosa è in ritardo o bloccato. Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
         "questions": [
           "Quante persone ha il team e di cosa si occupano?",
           "Quali stati usi oggi in Trello, Jira, Asana o in un foglio di calcolo?",
@@ -2162,8 +2162,8 @@
     "nl": {
       "locale": "nl",
       "name": "Teamtaken",
-      "summary": "Een werkoverzicht voor een klein team: projecten, taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
-      "description": "Houd een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
+      "summary": "Zie wie wat wanneer doet, zonder zware projecttool. Projecten en taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
+      "description": "In een klein team verdwijnen taken in chats, borden en hoofden, en een geblokkeerde taak valt pas op op de dag dat hij af moet zijn. Dit sjabloon houdt een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
       "lists": {
         "requesters": {
           "label": "Aanvrager",
@@ -2421,7 +2421,7 @@
         "tasks_board_view": "De taken openen als bord per status."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
+        "intro": "Het werk van ons team verspreidt zich over chat, een bord en een spreadsheet en ik kan niet zien wat te laat of geblokkeerd is. Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
         "questions": [
           "Hoeveel mensen telt het team en waar werken ze aan?",
           "Welke statussen gebruik je nu in Trello, Jira, Asana of een spreadsheet?",
@@ -2433,8 +2433,8 @@
     "pl": {
       "locale": "pl",
       "name": "Śledzenie zadań zespołu",
-      "summary": "Narzędzie do śledzenia pracy małego zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby z zewnątrz na jednej liście.",
-      "description": "Prowadź zespół od dwóch do piętnastu osób na jednej liście: każde zadanie ma status, priorytet, osobę odpowiedzialną i termin, a to, co się spóźnia lub jest zablokowane, widać od razu. Zadania cykliczne tworzą się same, prośby od współpracowników i klientów przychodzą przez formularz, a zadanie zablokowane lub stojące przypomina o sobie osobie odpowiedzialnej. To nie jest narzędzie do sprintów, wykres Gantta, rejestr czasu pracy ani system kadrowy.",
+      "summary": "Zobacz, kto co robi i do kiedy, bez ciężkiego narzędzia do projektów. Projekty i zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby spoza zespołu na jednej liście.",
+      "description": "W małym zespole zadania chowają się w czacie, na tablicach i w głowach, a zablokowane zadanie zostaje niezauważone aż do dnia terminu. Szablon prowadzi zespół od dwóch do piętnastu osób na jednej liście: każde zadanie ma status, priorytet, osobę odpowiedzialną i termin, a to, co się spóźnia lub jest zablokowane, widać od razu. Zadania cykliczne tworzą się same, prośby od współpracowników i klientów przychodzą przez formularz, a zadanie zablokowane lub stojące przypomina o sobie osobie odpowiedzialnej. To nie jest narzędzie do sprintów, wykres Gantta, rejestr czasu pracy ani system kadrowy.",
       "lists": {
         "requesters": {
           "label": "Osoba zgłaszająca",
@@ -2692,7 +2692,7 @@
         "tasks_board_view": "Zadania otwierają się jako tablica według statusu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
+        "intro": "Praca naszego zespołu jest rozrzucona po czacie, tablicy i arkuszu, a ja nie widzę, co jest po terminie albo zablokowane. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
         "questions": [
           "Ile osób liczy zespół i nad czym pracują?",
           "Jakich statusów używasz dziś w Trello, Jirze, Asanie lub arkuszu?",
@@ -2704,8 +2704,8 @@
     "pt": {
       "locale": "pt",
       "name": "Acompanhamento da equipe",
-      "summary": "Um acompanhamento de trabalho para uma equipe pequena: projetos, tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
-      "description": "Mantenha uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem status, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes são criadas sozinhas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
+      "summary": "Veja quem está fazendo o quê e até quando, sem uma ferramenta pesada de projetos. Projetos e tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
+      "description": "Em uma equipe pequena, as tarefas se escondem no chat, em quadros e na cabeça de cada um, e uma tarefa bloqueada passa despercebida até o dia do prazo. Este modelo mantém uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem status, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes criam as próprias tarefas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
       "lists": {
         "requesters": {
           "label": "Solicitante",
@@ -2963,7 +2963,7 @@
         "tasks_board_view": "As tarefas abrem como quadro por status."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
+        "intro": "O trabalho da nossa equipe está espalhado entre o chat, um quadro e uma planilha, e eu não consigo ver o que está atrasado ou bloqueado. Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
         "questions": [
           "Quantas pessoas tem a equipe e no que elas trabalham?",
           "Quais status você usa hoje no Trello, Jira, Asana ou em uma planilha?",

@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Assistenza clienti",
-  "summary": "Un'assistenza leggera: ticket con priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti che collegano più ticket a una causa e una valutazione di soddisfazione.",
-  "description": "Rispondi ai clienti da un unico posto: ogni ticket ha uno stato, una priorità, un tipo, un responsabile e le scadenze per la prima risposta e per la soluzione. Collega i ticket a un problema noto per avvisare tutti quando è risolto e tieni sempre visibile il termine di un mese per una richiesta GDPR. Pensato per qualche decina di ticket a settimana. Non è un centralino, una chat dal vivo, un portale clienti né un calendario con orari lavorativi.",
+  "summary": "Rispondi a ogni cliente in tempo, senza un helpdesk pesante. Ticket con priorità, tempo di prima risposta e scadenza, problemi noti che collegano molti ticket a un'unica causa e una valutazione di soddisfazione.",
+  "description": "Quando i clienti scrivono da più canali, le domande si perdono e nessuno sa quali sono in ritardo. Questo modello imposta ticket con stato, priorità, tipo e responsabile, la scadenza entro cui devi una prima risposta e una soluzione, e problemi noti che collegano molti ticket a un'unica causa, così puoi avvisare tutti quando il problema è risolto. Il termine di un mese per una richiesta GDPR resta sempre visibile. Pensato per qualche decina di ticket a settimana in un'azienda o un'agenzia da una a otto persone. Non è un centralino, una chat dal vivo, un portale clienti né un calendario con orari lavorativi.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Le persone che ti scrivono per chiedere aiuto." },
     "accounts": { "label": "Account", "pluralLabel": "Account", "description": "Le aziende dietro i tuoi clienti, con il loro piano di assistenza." },
@@ -96,7 +96,7 @@
     "tickets_board_view": "I ticket si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
+    "intro": "I clienti mi scrivono per e-mail e in chat e non riesco a vedere quali aspettano ancora una risposta. Imposta nel mio spazio di lavoro Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
     "questions": [
       "Quanti ticket gestisci a settimana e da quali canali arrivano?",
       "Che tempi prometti per la prima risposta e la risoluzione, per priorità o piano di assistenza?",

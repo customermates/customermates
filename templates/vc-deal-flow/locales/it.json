@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Dealflow per investitori",
-  "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall'individuazione al closing o al rifiuto, chi ha fatto l'introduzione per ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
-  "description": "Segui startup e investitori dal sourcing alla valutazione, agli incontri e alla due diligence, fino al term sheet. Ogni operazione registra chi l'ha introdotta, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
+  "summary": "Ricorda chi ti ha presentato un'operazione, perché hai detto no e quando riguardarla. Un dealflow per un piccolo fondo o un business angel, con otto fasi dall'individuazione al closing o al rifiuto.",
+  "description": "Il dealflow è fatto soprattutto di rifiuti e, senza una traccia di chi ha introdotto una startup e del perché hai detto no, la stessa operazione viene valutata da zero la volta dopo. Questo modello segue startup e investitori dal sourcing alla valutazione, agli incontri e alla due diligence, fino al term sheet. Ogni operazione registra chi l'ha introdotta, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Fondatori, investitori, co-investitori e introduttori." },
     "organizations": { "label": "Organizzazione", "pluralLabel": "Organizzazioni", "description": "Startup, fondi, sindacati e acceleratori." },
@@ -118,7 +118,7 @@
     "board_view": "Le operazioni si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha introdotte, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
+    "intro": "Valuto molte startup e dimentico chi me le ha presentate, perché le ho scartate e quando volevo riguardarle. Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha introdotte, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
     "questions": [
       "In quali fasi e settori investi e qual è la dimensione abituale del ticket?",
       "Come ti arrivano le operazioni e chi le introduce?",

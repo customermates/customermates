@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Applicant tracking",
-  "summary": "A hiring tracker for a small business: jobs, applicants, one application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
-  "description": "Run hiring from one place: each job has a status, a hiring manager and a pay range; each application moves from new to hired or rejected with its interview time, offer deadline and rejection reason; every interviewer files a scorecard. Rejected applications get a retention date so you remember to delete them or ask for consent. It is not a job board, a CV parser, an assessment platform, an offer-letter or e-signature tool, or a legal authority on retention periods.",
+  "summary": "Keep every applicant moving and every candidate answered. One application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
+  "description": "In a small business hiring runs on email and memory: applicants wait too long for an answer, interview notes are scattered and rejected applications stay in the inbox far longer than they should. This template sets up jobs with a hiring manager and pay range, applicants, and applications that move from new to hired or rejected with interview time, offer deadline and rejection reason. Every interviewer files a scorecard, and rejected applications get a retention date so you remember to delete them or ask for consent. It fits a business with a few open jobs at a time. It is not a job board, CV parser, assessment platform or e-signature tool, and it gives no legal advice on retention periods.",
   "lists": {
     "applicants": { "label": "Applicant", "pluralLabel": "Applicants", "description": "The people who apply, with their source and talent pool consent." },
     "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "Each open position with its hiring manager and pay range." },
@@ -105,7 +105,7 @@
     "applications_board_view": "The applications open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
+    "intro": "I hire for my small business and applicants wait too long for an answer while interview notes sit in different places. Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
     "questions": [
       "How many jobs are open at a time, and who hires for each?",
       "Where do applicants come from, and do you use an application form?",

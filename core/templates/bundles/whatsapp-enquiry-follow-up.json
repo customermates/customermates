@@ -980,8 +980,8 @@
     "de": {
       "locale": "de",
       "name": "WhatsApp-Anfragen nachfassen",
-      "summary": "Eine Pipeline für kleine Unternehmen, deren Kunden per WhatsApp schreiben: Anfrage festhalten, schnell antworten, Angebot senden, nach Tagen nachfassen, Auftrag bestätigen und an den Wiederkauf denken.",
-      "description": "WhatsApp-Chats zu bearbeiteten Anfragen machen: Jeder Chat wird zu einer Anfrage mit dem, was der Kunde möchte, dem Angebot und seiner Gültigkeit, einem terminierten nächsten Schritt, einer Zahlungsphase und einem Termin zur Wiedervorlage, wenn die Antwort später kam. Jeder Kontakt hält fest, ob er Nachrichten zugestimmt hat und wann eine Nachbestellung fällig ist. Antworten werden einzeln geschrieben und geprüft. Es gibt keine Rundsendungen, Kampagnen oder Chatbot-Menüs, und die offizielle WhatsApp Business Platform wird nicht genutzt. WhatsApp kann ein Konto einschränken, das gegen die Richtlinien genutzt wird.",
+      "summary": "Keine Kunden mehr verlieren, die per WhatsApp schreiben. Jeder Chat wird zur Anfrage mit Angebot, terminiertem nächstem Schritt und Wiedervorlage, damit Sie schnell antworten, nachfassen und den Wiederkauf nicht vergessen.",
+      "description": "Wenn Kunden auf WhatsApp nach einem Preis fragen, rutscht der Chat weg, und dem Angebot läuft niemand hinterher. Diese Vorlage macht aus WhatsApp-Chats bearbeitete Anfragen: Jeder Chat wird zu einer Anfrage mit dem, was der Kunde möchte, dem Angebot und seiner Gültigkeit, einem terminierten nächsten Schritt, einer Zahlungsphase und einem Termin zur Wiedervorlage, falls der Kunde erst später antwortet. Jeder Kontakt hält fest, ob er Nachrichten zugestimmt hat und wann eine Nachbestellung fällig ist. Antworten werden einzeln geschrieben und geprüft. Es gibt keine Rundsendungen, Kampagnen oder Chatbot-Menüs, und die offizielle WhatsApp Business Platform wird nicht genutzt. WhatsApp kann ein Konto einschränken, das gegen die Richtlinien genutzt wird.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1268,7 +1268,7 @@
         "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
+        "intro": "Kunden fragen auf WhatsApp nach Preisen, und ich verliere den Chat, bevor ich nachfasse. Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
         "questions": [
           "Wonach fragen dich Kunden auf WhatsApp, und wie erstellst du Angebote?",
           "Wie schnell möchtest du auf eine neue Nachricht antworten?",
@@ -1280,8 +1280,8 @@
     "en": {
       "locale": "en",
       "name": "WhatsApp inquiry follow-up",
-      "summary": "A pipeline for a small business whose customers write on WhatsApp: record the inquiry, reply fast, send a quote, follow up in days, confirm the order and remember the repeat purchase.",
-      "description": "Turn WhatsApp chats into worked inquiries: every chat becomes an inquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
+      "summary": "Stop losing customers who write to you on WhatsApp. Every chat becomes an inquiry with a quote, a dated next step and a come-back date, so you reply fast, follow up in days and remember the repeat purchase.",
+      "description": "When customers ask for a price on WhatsApp, the chat scrolls away and the quote is never chased. This template turns WhatsApp chats into worked inquiries: every chat becomes an inquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1568,7 +1568,7 @@
         "enquiries_board_view": "The inquiries open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up WhatsApp inquiry follow-up in my Customermates workspace: an inquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
+        "intro": "Customers ask for prices on WhatsApp, and I lose the chat before I follow up. Set up WhatsApp inquiry follow-up in my Customermates workspace: an inquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
         "questions": [
           "What do customers ask you about on WhatsApp, and how do you quote?",
           "How fast do you want to answer a new chat?",
@@ -1580,8 +1580,8 @@
     "es": {
       "locale": "es",
       "name": "Seguimiento de consultas por WhatsApp",
-      "summary": "Un pipeline para una pequeña empresa cuyos clientes escriben por WhatsApp: anotar la consulta, responder rápido, enviar un presupuesto, hacer seguimiento en días, confirmar el pedido y recordar la recompra.",
-      "description": "Convierte los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
+      "summary": "Deja de perder a los clientes que te escriben por WhatsApp. Cada chat pasa a ser una consulta con presupuesto, seguimiento con fecha y fecha para volver, así respondes rápido y te acuerdas de la recompra.",
+      "description": "Cuando un cliente pide precio por WhatsApp, el chat se pierde entre los demás y nadie da seguimiento al presupuesto. Esta plantilla convierte los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1868,7 +1868,7 @@
         "enquiries_board_view": "Las consultas se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
+        "intro": "Los clientes me piden precio por WhatsApp y pierdo el chat antes de hacer seguimiento. Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
         "questions": [
           "¿Qué te preguntan los clientes por WhatsApp y cómo presupuestas?",
           "¿En cuánto tiempo quieres responder a un chat nuevo?",
@@ -1880,8 +1880,8 @@
     "fr": {
       "locale": "fr",
       "name": "Suivi des demandes WhatsApp",
-      "summary": "Un pipeline pour une petite entreprise dont les clients écrivent sur WhatsApp : noter la demande, répondre vite, envoyer un devis, relancer en quelques jours, confirmer la commande et penser au réachat.",
-      "description": "Transformez les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s’il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n’envoie ni diffusions, ni campagnes, ni menus de chatbot, et n’utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d’une façon que sa politique interdit.",
+      "summary": "Ne perdez plus les clients qui vous écrivent sur WhatsApp. Chaque conversation devient une demande avec un devis, une relance datée et une date pour revenir : vous répondez vite, relancez en quelques jours et pensez au réachat.",
+      "description": "Quand un client demande un prix sur WhatsApp, la conversation défile et le devis n’est jamais relancé. Ce modèle transforme les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s’il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n’envoie ni diffusions, ni campagnes, ni menus de chatbot, et n’utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d’une façon que sa politique interdit.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2168,7 +2168,7 @@
         "enquiries_board_view": "Les demandes s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
+        "intro": "Mes clients me demandent des prix sur WhatsApp et je perds la conversation avant de relancer. Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
         "questions": [
           "Que vous demandent les clients sur WhatsApp, et comment chiffrez-vous ?",
           "En combien de temps voulez-vous répondre à un nouveau message ?",
@@ -2180,8 +2180,8 @@
     "it": {
       "locale": "it",
       "name": "Follow-up delle richieste WhatsApp",
-      "summary": "Una pipeline per una piccola impresa i cui clienti scrivono su WhatsApp: registrare la richiesta, rispondere in fretta, inviare un preventivo, sollecitare dopo qualche giorno, confermare l'ordine e ricordare il riacquisto.",
-      "description": "Trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
+      "summary": "Smetti di perdere i clienti che ti scrivono su WhatsApp. Ogni chat diventa una richiesta con preventivo e un prossimo passo con data, così rispondi in fretta, solleciti dopo pochi giorni e ricordi il riacquisto.",
+      "description": "Quando i clienti chiedono un prezzo su WhatsApp, la chat scorre via e il preventivo non viene mai sollecitato. Questo modello trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2468,7 +2468,7 @@
         "enquiries_board_view": "Le richieste si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates il follow-up delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
+        "intro": "I clienti mi chiedono i prezzi su WhatsApp e perdo la chat prima di fare il sollecito. Imposta nel mio spazio di lavoro Customermates il follow-up delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
         "questions": [
           "Che cosa ti chiedono i clienti su WhatsApp e come fai i preventivi?",
           "In quanto tempo vuoi rispondere a una nuova chat?",
@@ -2480,8 +2480,8 @@
     "nl": {
       "locale": "nl",
       "name": "WhatsApp-aanvragen opvolgen",
-      "summary": "Een pijplijn voor een klein bedrijf waarvan de klanten via WhatsApp schrijven: de aanvraag vastleggen, snel antwoorden, een offerte sturen, binnen dagen opvolgen, de bestelling bevestigen en aan de herhaalaankoop denken.",
-      "description": "Maak van WhatsApp-gesprekken opgevolgde aanvragen: elk gesprek wordt een aanvraag met wat de klant wil, de offerte en de geldigheid, een volgende stap met datum, een betalingsfase en een datum om terug te komen als het antwoord later was. Elk contact legt vast of het berichten heeft toegestaan en wanneer een nabestelling wordt verwacht. Antwoorden worden stuk voor stuk geschreven en gecontroleerd. Geen massaberichten, campagnes of chatbotmenu's, en het gebruikt het officiële WhatsApp Business Platform niet. WhatsApp kan een account beperken dat wordt gebruikt op een manier die het beleid verbiedt.",
+      "summary": "Verlies geen klanten meer die je via WhatsApp schrijven. Elk gesprek wordt een aanvraag met offerte, een volgende stap met datum en een terugkomdatum, zodat je snel antwoordt, binnen dagen opvolgt en aan de herhaalaankoop denkt.",
+      "description": "Als klanten via WhatsApp om een prijs vragen, scrolt het gesprek weg en wordt de offerte nooit opgevolgd. Dit sjabloon maakt van WhatsApp-gesprekken opgevolgde aanvragen: elk gesprek wordt een aanvraag met wat de klant wil, de offerte en de geldigheid, een volgende stap met datum, een betalingsfase en een datum om terug te komen als de klant later wil beslissen. Elk contact legt vast of het berichten heeft toegestaan en wanneer een nabestelling wordt verwacht. Antwoorden worden stuk voor stuk geschreven en gecontroleerd. Geen massaberichten, campagnes of chatbotmenu's, en het gebruikt het officiële WhatsApp Business Platform niet. WhatsApp kan een account beperken dat wordt gebruikt op een manier die het beleid verbiedt.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2768,7 +2768,7 @@
         "enquiries_board_view": "De aanvragen openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een verwachte nabestelling per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
+        "intro": "Klanten vragen via WhatsApp om prijzen en ik raak het gesprek kwijt voordat ik opvolg. Richt in mijn Customermates-werkruimte het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een verwachte nabestelling per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
         "questions": [
           "Waar vragen klanten je op WhatsApp naar en hoe maak je een offerte?",
           "Hoe snel wil je op een nieuw bericht antwoorden?",
@@ -2780,8 +2780,8 @@
     "pl": {
       "locale": "pl",
       "name": "Obsługa zapytań z WhatsAppa",
-      "summary": "Lejek dla małej firmy, której klienci piszą na WhatsAppie: zapisać zapytanie, szybko odpowiedzieć, wysłać ofertę, przypomnieć po kilku dniach, potwierdzić zamówienie i pamiętać o ponownym zakupie.",
-      "description": "Zamieniaj rozmowy z WhatsAppa w obsłużone zapytania: każda rozmowa staje się zapytaniem z tym, czego chce klient, ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności i datą powrotu, gdy odpowiedź brzmiała „później”. Każdy kontakt zapisuje, czy zgodził się na wiadomości i kiedy spodziewane jest ponowne zamówienie. Odpowiedzi pisze się pojedynczo i sprawdza. Narzędzie nie wysyła wiadomości masowych, kampanii ani menu chatbota i nie korzysta z oficjalnej platformy WhatsApp Business. WhatsApp może ograniczyć konto używane w sposób sprzeczny z jego regulaminem.",
+      "summary": "Nie trać klientów, którzy piszą na WhatsAppie. Każda rozmowa staje się zapytaniem z ofertą, następnym krokiem z terminem i datą powrotu, więc odpowiadasz szybko, przypominasz się po kilku dniach i pamiętasz o ponownym zakupie.",
+      "description": "Gdy klient pyta o cenę na WhatsAppie, rozmowa ucieka w dół listy, a nikt nie wraca do oferty. Szablon zamienia rozmowy z WhatsAppa w obsłużone zapytania: każda rozmowa staje się zapytaniem z tym, czego chce klient, ofertą i jej ważnością, następnym krokiem z terminem, etapem płatności i datą powrotu, gdy odpowiedź brzmiała „później”. Każdy kontakt zapisuje, czy zgodził się na wiadomości i kiedy spodziewane jest ponowne zamówienie. Odpowiedzi są pisane pojedynczo i sprawdzane przez Ciebie. Szablon nie wysyła wiadomości masowych, kampanii ani menu chatbota i nie korzysta z oficjalnej platformy WhatsApp Business. WhatsApp może ograniczyć konto używane w sposób sprzeczny z jego regulaminem.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3068,7 +3068,7 @@
         "enquiries_board_view": "Zapytania otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
+        "intro": "Klienci pytają o ceny na WhatsAppie, a ja gubię rozmowę, zanim zdążę do niej wrócić. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
         "questions": [
           "O co klienci pytają Cię na WhatsAppie i jak wyceniasz?",
           "W jakim czasie chcesz odpowiadać na nową wiadomość?",
@@ -3080,8 +3080,8 @@
     "pt": {
       "locale": "pt",
       "name": "Acompanhamento de atendimentos no WhatsApp",
-      "summary": "Um funil para uma pequena empresa cujos clientes escrevem no WhatsApp: registrar o atendimento, responder rápido, enviar o orçamento, fazer o retorno em dias, confirmar o pedido e lembrar da recompra.",
-      "description": "Transforme conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi “para depois”. Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
+      "summary": "Pare de perder clientes que escrevem no WhatsApp. Cada conversa vira um atendimento com orçamento, próximo contato com data e data para voltar, para você responder rápido, fazer o retorno em dias e lembrar da recompra.",
+      "description": "Quando o cliente pede um preço no WhatsApp, a conversa desce na lista e o orçamento nunca é cobrado. Este modelo transforma as conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi “para depois”. Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas por você. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3368,7 +3368,7 @@
         "enquiries_board_view": "Os atendimentos abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
+        "intro": "Meus clientes pedem preço no WhatsApp e eu perco a conversa antes de fazer o retorno. Configure no meu espaço de trabalho do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
         "questions": [
           "O que os clientes perguntam no WhatsApp e como você faz o orçamento?",
           "Em quanto tempo você quer responder a um novo contato?",

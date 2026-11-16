@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Suivi des candidatures",
-  "summary": "Un suivi de recrutement pour une petite entreprise : offres d’emploi, candidats, une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
-  "description": "Pilotez le recrutement au même endroit : chaque offre a un statut, un responsable du recrutement et une fourchette de salaire ; chaque candidature avance de reçue à embauchée ou refusée, avec la date d’entretien, le délai de réponse à la proposition et le motif de refus ; chaque recruteur remplit une fiche d’entretien. Les candidatures refusées reçoivent une date de conservation pour penser à les supprimer ou à demander un consentement. Ce n’est ni un job board, ni un analyseur de CV, ni une plateforme de tests, ni un outil de promesse d’embauche ou de signature électronique, ni un conseil juridique sur les durées de conservation.",
+  "summary": "Faites avancer chaque candidature et répondez à chaque candidat. Une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
+  "description": "Dans une petite entreprise, le recrutement se fait par e-mail et de mémoire : les candidats attendent trop longtemps une réponse, les notes d’entretien sont dispersées et les candidatures refusées traînent dans la boîte de réception. Ce modèle met en place les offres d’emploi avec un responsable du recrutement et une fourchette de salaire, les candidats, et les candidatures qui avancent de reçue à embauchée ou refusée, avec la date d’entretien, le délai de réponse à la proposition et le motif de refus. Chaque recruteur remplit une fiche d’entretien, et les candidatures refusées reçoivent une date de conservation pour penser à les supprimer ou à demander un consentement. Il convient à une entreprise qui a quelques offres ouvertes à la fois. Ce n’est ni un job board, ni un analyseur de CV, ni une plateforme de tests, ni un outil de promesse d’embauche ou de signature électronique, et il ne donne aucun conseil juridique sur les durées de conservation.",
   "lists": {
     "applicants": { "label": "Candidat", "pluralLabel": "Candidats", "description": "Les personnes qui postulent, avec leur source et leur consentement au vivier." },
     "jobs": { "label": "Offre d’emploi", "pluralLabel": "Offres d’emploi", "description": "Chaque poste ouvert avec son responsable du recrutement et sa fourchette de salaire." },
@@ -105,7 +105,7 @@
     "applications_board_view": "Les candidatures s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un suivi des candidatures : offres d’emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d’entretien, date de conservation des candidatures refusées et relances datées.",
+    "intro": "Je recrute pour ma petite entreprise, mais les candidats attendent trop longtemps une réponse et mes notes d’entretien sont éparpillées. Mets en place dans mon espace de travail Customermates un suivi des candidatures : offres d’emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d’entretien, date de conservation des candidatures refusées et relances datées.",
     "questions": [
       "Combien d’offres sont ouvertes en même temps, et qui recrute pour chacune ?",
       "D’où viennent les candidats, et utilisez-vous un formulaire de candidature ?",

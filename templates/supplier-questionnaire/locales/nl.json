@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Leveranciersvragenlijst",
-  "summary": "Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau, goedkeuringsbeslissing en de datum van de volgende beoordeling.",
-  "description": "Kwalificeer leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. De sjabloon coördineert bewijs. Het oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt je kwaliteitssysteem, ERP of documentarchief niet.",
+  "summary": "Weet welke leveranciers zijn goedgekeurd en welk certificaat als eerste verloopt. Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier.",
+  "description": "Certificaten van leveranciers verlopen en herbeoordelingen worden overgeslagen als de antwoorden in e-mails en mappen staan. Dit sjabloon kwalificeert leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. Het sjabloon coördineert bewijs. Het oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt je kwaliteitssysteem, ERP of documentarchief niet.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Mensen bij je leveranciers die vragenlijsten invullen en documenten sturen." },
     "suppliers": { "label": "Leverancier", "pluralLabel": "Leveranciers", "description": "Elke leverancier of onderaannemer, van kandidaat tot goedgekeurd of geblokkeerd." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "De leveranciers openen als bord per status."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
+    "intro": "Ik werk met veel leveranciers en kan niet zien van wie de certificaten zijn verlopen of wie aan een herbeoordeling toe is. Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
     "questions": [
       "Hoeveel leveranciers heb je en hoe deel je ze in naar risico?",
       "Welke certificaten of verklaringen vraag je op en hoe lang is elk geldig?",

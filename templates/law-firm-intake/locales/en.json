@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Law firm intake",
-  "summary": "A gated intake for a law firm: inquiry, conflict check, consultation, fee proposal, signed engagement with power of attorney and advance, and a written non-engagement letter for everyone who does not become a client.",
-  "description": "Take clients on in a fixed order: every inquiry records its practice area, the earliest known time limit, the conflict check and who made it, then the consultation, the fee proposal and the signed engagement. A list of parties supports the conflict search, matters carry the power of attorney date and a retention date, and declined or silent prospects get a written non-engagement letter. It holds a pointer to the case, never case facts, privileged content, health data or opponents' details. It is not matter management, trust accounting, a procedural deadline authority or billing.",
+  "summary": "Take on new clients without missing a conflict check or a time limit. Inquiry, conflict check, consultation, fee proposal and signed engagement, and a written non-engagement letter for everyone else.",
+  "description": "A time limit may already be running when a prospect first calls, and a missed conflict is hard to undo. This template takes clients on in a fixed order: every inquiry records its practice area, the earliest known time limit, the conflict check and who made it, then the consultation, the fee proposal and the signed engagement. A list of parties supports the conflict search, matters carry the power of attorney date and a retention date, and declined or silent prospects get a written non-engagement letter. It holds a pointer to the case, never case facts, privileged content, health data or opponents' details. It is not matter management, trust accounting, a procedural deadline authority or billing.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Prospects, clients, former clients and referrers." },
     "inquiries": { "label": "Inquiry", "pluralLabel": "Inquiries", "description": "One request for legal help, from the first contact to a matter or a decline." },
@@ -105,7 +105,7 @@
     "conflict_check_page": "The knowledge base holds a page on the conflict check."
   },
   "prompt": {
-    "intro": "Set up a law firm intake in my Customermates workspace: inquiries with a conflict check, the earliest known time limit, consultation, fee proposal and signed engagement, matters as pointers to the case system, parties for the conflict search and written non-engagement letters. Store no case facts or privileged content.",
+    "intro": "Prospects call about a case and I must check for conflicts, note the earliest time limit and document every step before I take them on. Set up a law firm intake in my Customermates workspace: inquiries with a conflict check, the earliest known time limit, consultation, fee proposal and signed engagement, matters as pointers to the case system, parties for the conflict search and written non-engagement letters. Store no case facts or privileged content.",
     "questions": [
       "Which practice areas do you take, and which do you refer out?",
       "How do you run the conflict check, and who signs it off?",

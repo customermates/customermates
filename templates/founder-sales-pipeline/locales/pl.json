@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Sprzedaż prowadzona przez założyciela",
-  "summary": "Krótki lejek dla założyciela, który sprzedaje osobiście: rozmowy, analiza potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, oferta i status wstrzymane z datą powrotu.",
-  "description": "Sprzedawaj jako założyciel, mając od kilku do kilkudziesięciu otwartych rozmów: każda szansa zapisuje problem słowami klienta, pilność, stan budżetu i to, czy decydent jest zaangażowany; pilotaż ma termin zakończenia i informację, czy jest płatny; szansa, która ucichła, jest wstrzymywana z datą powrotu zamiast być ponaglana. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i to Ty je ustawiasz. To nie jest masowa wysyłka sekwencji wiadomości, pozyskiwanie finansowania ani prognoza dla zespołu z kilkoma handlowcami.",
+  "summary": "Sprzedawaj osobiście jako założyciel i nie gub wątku rozmów. Krótki lejek od pierwszej rozmowy do wygranej, z opcjonalnym pilotażem ze stałym terminem zakończenia i statusem wstrzymane z datą powrotu.",
+  "description": "Gdy sprzedajesz osobiście, każda rozmowa uczy Cię, kto kupuje i dlaczego, ale notatki i następny krok siedzą w głowie i w stosie otwartych kart w przeglądarce. Szablon pomaga prowadzić od kilku do kilkudziesięciu otwartych rozmów: każda szansa zapisuje problem słowami klienta, pilność, stan budżetu i to, czy decydent jest zaangażowany. Pilotaż ma termin zakończenia i informację, czy jest płatny, a szansa, która ucichła, jest wstrzymywana z datą powrotu zamiast być ponaglana. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i to Ty je ustawiasz. To nie jest masowa wysyłka sekwencji wiadomości, pozyskiwanie finansowania ani prognoza dla zespołu z kilkoma handlowcami.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, z którymi rozmawiasz, z ich rolą w decyzji zakupowej." },
     "companies": { "label": "Firma", "pluralLabel": "Firmy", "description": "Potencjalni klienci, pilotaże, klienci i partnerzy." },
@@ -87,7 +87,7 @@
     "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek sprzedaży prowadzonej przez założyciela: szanse od pierwszej rozmowy do wygranej z notatkami z analizy potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, status wstrzymane z datą powrotu i zaplanowane kolejne kroki. Niczego nie wysyłaj automatycznie.",
+    "intro": "Sam sprzedaję swój produkt i ciągle gubię notatki oraz następne kroki z rozmów. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek sprzedaży prowadzonej przez założyciela: szanse od pierwszej rozmowy do wygranej z notatkami z analizy potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, status wstrzymane z datą powrotu i zaplanowane kolejne kroki. Niczego nie wysyłaj automatycznie.",
     "questions": [
       "Co sprzedajesz i kto już od Ciebie kupił?",
       "Czy prowadzisz pilotaże lub testy i czy są płatne?",

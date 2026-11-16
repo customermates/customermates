@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Obsługa zapytań z WhatsAppa",
-  "summary": "Lejek dla małej firmy, której klienci piszą na WhatsAppie: zapisać zapytanie, szybko odpowiedzieć, wysłać ofertę, przypomnieć po kilku dniach, potwierdzić zamówienie i pamiętać o ponownym zakupie.",
-  "description": "Zamieniaj rozmowy z WhatsAppa w obsłużone zapytania: każda rozmowa staje się zapytaniem z tym, czego chce klient, ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności i datą powrotu, gdy odpowiedź brzmiała „później”. Każdy kontakt zapisuje, czy zgodził się na wiadomości i kiedy spodziewane jest ponowne zamówienie. Odpowiedzi pisze się pojedynczo i sprawdza. Narzędzie nie wysyła wiadomości masowych, kampanii ani menu chatbota i nie korzysta z oficjalnej platformy WhatsApp Business. WhatsApp może ograniczyć konto używane w sposób sprzeczny z jego regulaminem.",
+  "summary": "Nie trać klientów, którzy piszą na WhatsAppie. Każda rozmowa staje się zapytaniem z ofertą, następnym krokiem z terminem i datą powrotu, więc odpowiadasz szybko, przypominasz się po kilku dniach i pamiętasz o ponownym zakupie.",
+  "description": "Gdy klient pyta o cenę na WhatsAppie, rozmowa ucieka w dół listy, a nikt nie wraca do oferty. Szablon zamienia rozmowy z WhatsAppa w obsłużone zapytania: każda rozmowa staje się zapytaniem z tym, czego chce klient, ofertą i jej ważnością, następnym krokiem z terminem, etapem płatności i datą powrotu, gdy odpowiedź brzmiała „później”. Każdy kontakt zapisuje, czy zgodził się na wiadomości i kiedy spodziewane jest ponowne zamówienie. Odpowiedzi są pisane pojedynczo i sprawdzane przez Ciebie. Szablon nie wysyła wiadomości masowych, kampanii ani menu chatbota i nie korzysta z oficjalnej platformy WhatsApp Business. WhatsApp może ograniczyć konto używane w sposób sprzeczny z jego regulaminem.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, które do Ciebie piszą, ze zgodą na WhatsApp i terminem ponownego zamówienia." },
     "enquiries": { "label": "Zapytanie", "pluralLabel": "Zapytania", "description": "Jedna prośba z rozmowy, od pierwszej wiadomości do zamówienia, utraty lub później." }
@@ -83,7 +83,7 @@
     "enquiries_board_view": "Zapytania otwierają się jako tablica według etapu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
+    "intro": "Klienci pytają o ceny na WhatsAppie, a ja gubię rozmowę, zanim zdążę do niej wrócić. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
     "questions": [
       "O co klienci pytają Cię na WhatsAppie i jak wyceniasz?",
       "W jakim czasie chcesz odpowiadać na nową wiadomość?",

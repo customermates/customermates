@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "VC deal flow",
-  "summary": "A deal flow for a small fund or angel: eight stages from sourced to closed or passed, the introducer on every deal, a pass reason and a date to revisit.",
-  "description": "Track startups and investors through sourcing, screening, meetings, diligence and term sheet. Each deal records who introduced it, how well it fits the thesis, the lead role, a data room link, the pass reason and when to look again. It is a relationship tool, not a cap table, a legal data room or a scoring model. Weights are rough and yours to set.",
+  "summary": "Remember who introduced a deal, why you passed and when to look again. A deal flow for a small fund or angel, with eight stages from sourced to closed or passed.",
+  "description": "Deal flow is mostly passes, and without a record of who introduced a startup and why you said no, the same deal gets screened from scratch next time. This template tracks startups and investors through sourcing, screening, meetings, diligence and term sheet. Each deal records who introduced it, how well it fits the thesis, the lead role, a data room link, the pass reason and when to look again. It is a relationship tool, not a cap table, a legal data room or a scoring model. Weights are rough and yours to set.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "People", "description": "Founders, investors, co-investors and introducers." },
     "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Startups, funds, syndicates and accelerators." },
@@ -118,7 +118,7 @@
     "board_view": "The deals open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up a VC deal flow in my Customermates workspace: deals with eight stages, the introducer, thesis fit, lead role, a pass reason and a date to revisit, plus startups, investors and dated follow-ups.",
+    "intro": "I look at many startups and forget who introduced them, why I passed and when I wanted to look again. Set up a VC deal flow in my Customermates workspace: deals with eight stages, the introducer, thesis fit, lead role, a pass reason and a date to revisit, plus startups, investors and dated follow-ups.",
     "questions": [
       "Which stages and sectors do you invest in, and what is your usual check size?",
       "How do deals reach you, and who introduces them?",

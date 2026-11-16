@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Obsługa klienta",
-  "summary": "Prosty system obsługi zgłoszeń: zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
-  "description": "Obsługuj klientów w jednym miejscu: każde zgłoszenie ma status, priorytet, typ, osobę odpowiedzialną i termin, do którego musisz udzielić pierwszej odpowiedzi i rozwiązać sprawę. Połącz zgłoszenia ze znanym problemem, by poinformować wszystkich o naprawie, i miej na oku miesięczny termin wniosku RODO. Sprawdzi się przy kilkudziesięciu zgłoszeniach tygodniowo. To nie jest centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
+  "summary": "Odpowiadaj każdemu klientowi na czas, bez ciężkiego helpdesku. Zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
+  "description": "Gdy klienci piszą z kilku miejsc, pytania giną i nikt nie wie, które są po terminie. Szablon zakłada zgłoszenia ze statusem, priorytetem, typem i osobą odpowiedzialną, z terminem pierwszej odpowiedzi i terminem rozwiązania, oraz znane problemy, które łączą wiele zgłoszeń z jedną przyczyną, żeby można było poinformować wszystkich o naprawie. Miesięczny termin na odpowiedź na wniosek RODO jest cały czas widoczny. Sprawdzi się przy kilkudziesięciu zgłoszeniach tygodniowo w firmie lub agencji liczącej od jednej do ośmiu osób. To nie jest centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
   "lists": {
     "customers": { "label": "Klient", "pluralLabel": "Klienci", "description": "Osoby, które piszą do Ciebie z prośbą o pomoc." },
     "accounts": { "label": "Konto", "pluralLabel": "Konta", "description": "Firmy stojące za klientami, z ich planem wsparcia." },
@@ -96,7 +96,7 @@
     "tickets_board_view": "Zgłoszenia otwierają się jako tablica według statusu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
+    "intro": "Pytania klientów przychodzą e-mailem i na czacie, a ja nie wiem, które nadal czekają na odpowiedź. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
     "questions": [
       "Ile zgłoszeń obsługujesz tygodniowo i jakimi kanałami do Ciebie docierają?",
       "Jakie terminy obiecujesz na pierwszą odpowiedź i rozwiązanie, według priorytetu lub planu wsparcia?",

@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Intake voor advocatenkantoren",
-  "summary": "Een intake in vaste stappen: aanvraag, conflictcheck, intake, offerte, getekende opdrachtbevestiging met volmacht en voorschot, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
-  "description": "Cliënten in een vaste volgorde aannemen: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
+  "summary": "Neem nieuwe cliënten aan zonder een conflictcheck of termijn te missen. Aanvraag, conflictcheck, intake, offerte en getekende opdrachtbevestiging, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
+  "description": "Op het moment dat iemand voor het eerst belt, kan er al een termijn lopen, en een gemiste conflictcheck is moeilijk terug te draaien. Dit sjabloon neemt cliënten aan in een vaste volgorde: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Aanvragers, cliënten, voormalige cliënten en doorverwijzers." },
     "inquiries": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Eén verzoek om juridische hulp, van eerste contact tot een zaak of een afwijzing." },
@@ -105,7 +105,7 @@
     "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
+    "intro": "Potentiële cliënten bellen over een zaak en ik moet op conflicten controleren, de vroegst bekende termijn noteren en elke stap vastleggen voordat ik ze aanneem. Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
     "questions": [
       "Welke rechtsgebieden neem je aan en welke verwijs je door?",
       "Hoe voer je de conflictcheck uit en wie tekent die af?",

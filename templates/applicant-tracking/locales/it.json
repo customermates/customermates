@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Gestione candidature",
-  "summary": "Un tracker per la selezione del personale in una piccola azienda: posizioni, candidati, una candidatura per posizione in nove fasi, una scheda di valutazione per ogni intervistatore e una data di cancellazione per le candidature scartate.",
-  "description": "Gestisci la selezione in un unico posto: ogni posizione ha uno stato, un responsabile e una fascia retributiva; ogni candidatura avanza da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto; ogni intervistatore compila una scheda di valutazione. Le candidature scartate ricevono una data di conservazione per ricordarti di cancellarle o di chiedere il consenso. Non è un job board, un parser di CV, una piattaforma di test, uno strumento per lettere d'offerta e firma elettronica né una consulenza legale sui tempi di conservazione.",
+  "summary": "Fai avanzare ogni candidatura e dai una risposta a ogni candidato. Una candidatura per posizione attraverso nove fasi, una scheda di valutazione per ogni intervistatore e una data per cancellare quelle scartate.",
+  "description": "In una piccola azienda la selezione corre su e-mail e memoria: i candidati aspettano troppo una risposta, gli appunti dei colloqui sono sparsi e le candidature scartate restano nella posta molto più a lungo del dovuto. Questo modello imposta posizioni con responsabile e fascia retributiva, candidati e candidature che avanzano da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto. Ogni intervistatore compila una scheda di valutazione e le candidature scartate ricevono una data di conservazione, per ricordarti di cancellarle o di chiedere il consenso. Adatto a un'azienda con poche posizioni aperte alla volta. Non è un job board, un parser di CV, una piattaforma di test né uno strumento per la firma elettronica, e non dà consulenza legale sui tempi di conservazione.",
   "lists": {
     "applicants": { "label": "Candidato", "pluralLabel": "Candidati", "description": "Le persone che si candidano, con la fonte e il consenso per future selezioni." },
     "jobs": { "label": "Posizione", "pluralLabel": "Posizioni", "description": "Ogni posizione con il suo responsabile e la fascia retributiva." },
@@ -105,7 +105,7 @@
     "applications_board_view": "Le candidature si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates la gestione delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per le candidature scartate e attività di follow-up con data.",
+    "intro": "Assumo per la mia piccola azienda: i candidati aspettano troppo una risposta e gli appunti dei colloqui restano sparsi in posti diversi. Imposta nel mio spazio di lavoro Customermates la gestione delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per le candidature scartate e attività di follow-up con data.",
     "questions": [
       "Quante posizioni hai aperte contemporaneamente e chi seleziona per ciascuna?",
       "Da dove arrivano i candidati e usi un modulo di candidatura?",

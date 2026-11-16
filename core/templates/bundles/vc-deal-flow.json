@@ -1070,8 +1070,8 @@
     "de": {
       "locale": "de",
       "name": "Dealflow für Investoren",
-      "summary": "Ein Dealflow für einen kleinen Fonds oder Business Angel: acht Phasen von erkannt bis vollzogen oder abgelehnt, der Vermittler bei jedem Deal, ein Absagegrund und ein Termin zur Wiedervorlage.",
-      "description": "Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet begleiten. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, die eigene Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann man erneut hinsieht. Ein Beziehungswerkzeug, keine Cap Table, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob, und Sie legen sie selbst fest.",
+      "summary": "Nie vergessen, wer einen Deal vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Ein Dealflow für einen kleinen Fonds oder Business Angel, mit acht Phasen von erkannt bis vollzogen oder abgelehnt.",
+      "description": "Im Dealflow sind die meisten Deals Absagen, und ohne Aufzeichnung, wer ein Startup vermittelt hat und warum Sie abgesagt haben, wird derselbe Deal beim nächsten Mal wieder von vorn geprüft. Diese Vorlage begleitet Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, Ihre Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann Sie erneut hinsehen. Ein Beziehungswerkzeug, keine Cap Table, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob, und Sie legen sie selbst fest.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1442,7 +1442,7 @@
         "board_view": "Die Deals öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
+        "intro": "Ich sehe mir viele Startups an und vergesse, wer sie vermittelt hat, warum ich abgesagt habe und wann ich erneut hinsehen wollte. Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
         "questions": [
           "In welche Phasen und Branchen investierst du, und wie groß ist deine übliche Ticketgröße?",
           "Wie erreichst du die Deals, und wer vermittelt sie?",
@@ -1454,8 +1454,8 @@
     "en": {
       "locale": "en",
       "name": "VC deal flow",
-      "summary": "A deal flow for a small fund or angel: eight stages from sourced to closed or passed, the introducer on every deal, a pass reason and a date to revisit.",
-      "description": "Track startups and investors through sourcing, screening, meetings, diligence and term sheet. Each deal records who introduced it, how well it fits the thesis, the lead role, a data room link, the pass reason and when to look again. It is a relationship tool, not a cap table, a legal data room or a scoring model. Weights are rough and yours to set.",
+      "summary": "Remember who introduced a deal, why you passed and when to look again. A deal flow for a small fund or angel, with eight stages from sourced to closed or passed.",
+      "description": "Deal flow is mostly passes, and without a record of who introduced a startup and why you said no, the same deal gets screened from scratch next time. This template tracks startups and investors through sourcing, screening, meetings, diligence and term sheet. Each deal records who introduced it, how well it fits the thesis, the lead role, a data room link, the pass reason and when to look again. It is a relationship tool, not a cap table, a legal data room or a scoring model. Weights are rough and yours to set.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1826,7 +1826,7 @@
         "board_view": "The deals open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up a VC deal flow in my Customermates workspace: deals with eight stages, the introducer, thesis fit, lead role, a pass reason and a date to revisit, plus startups, investors and dated follow-ups.",
+        "intro": "I look at many startups and forget who introduced them, why I passed and when I wanted to look again. Set up a VC deal flow in my Customermates workspace: deals with eight stages, the introducer, thesis fit, lead role, a pass reason and a date to revisit, plus startups, investors and dated follow-ups.",
         "questions": [
           "Which stages and sectors do you invest in, and what is your usual check size?",
           "How do deals reach you, and who introduces them?",
@@ -1838,8 +1838,8 @@
     "es": {
       "locale": "es",
       "name": "Dealflow para inversores",
-      "summary": "Un dealflow para un fondo pequeño o un business angel: ocho etapas de la detección al cierre o al rechazo, quién presentó cada operación, un motivo de rechazo y una fecha para retomar.",
-      "description": "Sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
+      "summary": "Recuerda quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Un dealflow para un fondo pequeño o un business angel, con ocho etapas de la detección al cierre o al rechazo.",
+      "description": "En el dealflow la mayoría son rechazos, y sin un registro de quién presentó una startup y por qué dijiste que no, la misma operación se vuelve a filtrar desde cero la próxima vez. Esta plantilla sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2210,7 +2210,7 @@
         "board_view": "Las operaciones se abren como tablero por etapa."
       },
       "prompt": {
-        "intro": "Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
+        "intro": "Reviso muchas startups y se me olvida quién me las presentó, por qué las rechacé y cuándo quería volver a mirarlas. Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
         "questions": [
           "¿En qué etapas y sectores inviertes y cuál es el tamaño habitual de tu ticket?",
           "¿Cómo te llegan las operaciones y quién las presenta?",
@@ -2222,8 +2222,8 @@
     "fr": {
       "locale": "fr",
       "name": "Dealflow d’investisseur",
-      "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
-      "description": "Suivez startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
+      "summary": "Retrouvez qui vous a apporté un dossier, pourquoi vous avez refusé et quand le revoir. Un dealflow pour un petit fonds ou un business angel, avec huit étapes de la détection au closing ou au refus.",
+      "description": "Le dealflow est surtout fait de refus, et sans trace de qui vous a apporté une startup ni de la raison de votre non, le même dossier est repris de zéro la fois suivante. Ce modèle suit startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2594,7 +2594,7 @@
         "board_view": "Les dossiers s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place un dealflow dans mon espace de travail Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
+        "intro": "J’examine beaucoup de startups et j’oublie qui me les a apportées, pourquoi j’ai refusé et quand je voulais les revoir. Mets en place un dealflow dans mon espace de travail Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
         "questions": [
           "Dans quels stades et secteurs investissez-vous, et quelle est votre taille de ticket habituelle ?",
           "Comment les dossiers vous parviennent-ils, et qui les apporte ?",
@@ -2606,8 +2606,8 @@
     "it": {
       "locale": "it",
       "name": "Dealflow per investitori",
-      "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall'individuazione al closing o al rifiuto, chi ha fatto l'introduzione per ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
-      "description": "Segui startup e investitori dal sourcing alla valutazione, agli incontri e alla due diligence, fino al term sheet. Ogni operazione registra chi l'ha introdotta, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
+      "summary": "Ricorda chi ti ha presentato un'operazione, perché hai detto no e quando riguardarla. Un dealflow per un piccolo fondo o un business angel, con otto fasi dall'individuazione al closing o al rifiuto.",
+      "description": "Il dealflow è fatto soprattutto di rifiuti e, senza una traccia di chi ha introdotto una startup e del perché hai detto no, la stessa operazione viene valutata da zero la volta dopo. Questo modello segue startup e investitori dal sourcing alla valutazione, agli incontri e alla due diligence, fino al term sheet. Ogni operazione registra chi l'ha introdotta, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2978,7 +2978,7 @@
         "board_view": "Le operazioni si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha introdotte, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
+        "intro": "Valuto molte startup e dimentico chi me le ha presentate, perché le ho scartate e quando volevo riguardarle. Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha introdotte, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
         "questions": [
           "In quali fasi e settori investi e qual è la dimensione abituale del ticket?",
           "Come ti arrivano le operazioni e chi le introduce?",
@@ -2990,8 +2990,8 @@
     "nl": {
       "locale": "nl",
       "name": "Dealflow voor investeerders",
-      "summary": "Een dealflow voor een klein fonds of business angel: acht fasen van gesignaleerd tot gesloten of afgewezen, wie elke deal aandroeg, een reden van afwijzing en een datum om terug te komen.",
-      "description": "Volg startups en investeerders van sourcing, screening en gesprekken via due diligence tot de term sheet. Elke deal legt vast wie hem aandroeg, hoe goed hij past bij de thesis, de rol als lead, een link naar de data room, de reden van afwijzing en wanneer je opnieuw kijkt. Een relatietool, geen aandeelhoudersregister, geen juridische data room en geen scoremodel. De wegingen zijn globaal en van jou.",
+      "summary": "Onthoud wie een deal aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Een dealflow voor een klein fonds of business angel, met acht fasen van gesignaleerd tot gesloten of afgewezen.",
+      "description": "Dealflow bestaat vooral uit afwijzingen, en zonder vastlegging van wie een startup aandroeg en waarom je nee zei, wordt dezelfde deal de volgende keer weer van nul af aan bekeken. Dit sjabloon volgt startups en investeerders van sourcing, screening en gesprekken via due diligence tot de term sheet. Elke deal legt vast wie hem aandroeg, hoe goed hij past bij de these, de rol als lead, een link naar de data room, de reden van afwijzing en wanneer je opnieuw kijkt. Een relatietool, geen aandeelhoudersregister, geen juridische data room en geen scoremodel. De wegingen zijn globaal en van jou.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3362,7 +3362,7 @@
         "board_view": "De deals openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt een dealflow in mijn Customermates-werkruimte in: deals met acht fasen, de introducer, match met de these, de rol als lead, een reden van afwijzing en een datum om terug te komen, plus startups, investeerders en opvolgacties met datum.",
+        "intro": "Ik bekijk veel startups en vergeet wie ze aandroeg, waarom ik nee zei en wanneer ik opnieuw wilde kijken. Richt een dealflow in mijn Customermates-werkruimte in: deals met acht fasen, de introducer, match met de these, de rol als lead, een reden van afwijzing en een datum om terug te komen, plus startups, investeerders en opvolgacties met datum.",
         "questions": [
           "In welke fasen en sectoren investeer je en hoe groot is je gebruikelijke ticket?",
           "Hoe komen deals bij je binnen en wie draagt ze aan?",
@@ -3374,8 +3374,8 @@
     "pl": {
       "locale": "pl",
       "name": "Dealflow inwestora",
-      "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data ponownej oceny.",
-      "description": "Prowadź startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone, a ich ustawienie należy do Ciebie.",
+      "summary": "Pamiętaj, kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia.",
+      "description": "Większość dealów kończy się odmową, a bez zapisu, kto polecił startup i z jakiego powodu go odrzucono, ten sam deal trzeba przy następnej okazji oceniać od nowa. Szablon prowadzi startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone, a ich ustawienie należy do Ciebie.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3746,7 +3746,7 @@
         "board_view": "Deale otwierają się jako tablica według etapów."
       },
       "prompt": {
-        "intro": "Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
+        "intro": "Przeglądam wiele startupów i zapominam, kto je polecił, dlaczego zostały odrzucone i kiedy mam do nich wrócić. Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
         "questions": [
           "W jakie etapy i branże inwestujesz i jaka jest Twoja typowa wielkość biletu?",
           "Jak deale do Ciebie docierają i kto je poleca?",
@@ -3758,8 +3758,8 @@
     "pt": {
       "locale": "pt",
       "name": "Dealflow para investidores",
-      "summary": "Um dealflow para um fundo pequeno ou um investidor-anjo: oito etapas da identificação ao fechamento ou à recusa, quem indicou cada negócio, um motivo de recusa e uma data para retomar.",
-      "description": "Acompanhe startups e investidores da prospecção, triagem, reuniões e due diligence até o term sheet. Cada negócio registra quem o indicou, o quanto se encaixa na tese, o papel de lead, um link da data room, o motivo da recusa e quando olhar de novo. É uma ferramenta de relacionamento, não uma cap table, nem uma data room jurídica, nem um modelo de pontuação. Os pesos são aproximados e são seus.",
+      "summary": "Lembre quem indicou cada negócio, por que você recusou e quando olhar de novo. Um dealflow para um fundo pequeno ou um investidor-anjo, com oito etapas da identificação ao fechamento ou à recusa.",
+      "description": "O dealflow é feito em sua maior parte de recusas, e sem o registro de quem indicou a startup e por que você disse não, o mesmo negócio é analisado do zero na próxima vez. Este modelo acompanha startups e investidores da prospecção e da triagem até as reuniões, a due diligence e o term sheet. Cada negócio registra quem o indicou, o quanto se encaixa na tese, o papel de lead, um link da data room, o motivo da recusa e quando olhar de novo. É uma ferramenta de relacionamento, não uma cap table, nem uma data room jurídica, nem um modelo de pontuação. Os pesos são aproximados e são seus.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4130,7 +4130,7 @@
         "board_view": "Os negócios abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure um dealflow no meu espaço de trabalho do Customermates: negócios com oito etapas, quem os indicou, aderência à tese, papel de lead, um motivo de recusa e uma data para retomar, além de startups, investidores e retornos com data.",
+        "intro": "Eu analiso muitas startups e esqueço quem as indicou, por que recusei e quando queria olhar de novo. Configure um dealflow no meu espaço de trabalho do Customermates: negócios com oito etapas, quem os indicou, aderência à tese, papel de lead, um motivo de recusa e uma data para retomar, além de startups, investidores e retornos com data.",
         "questions": [
           "Em quais estágios e setores você investe e qual é o tamanho habitual do cheque?",
           "Como os negócios chegam até você e quem os indica?",

@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Venda consultiva do fundador",
-  "summary": "Um funil curto para um fundador que vende pessoalmente: conversas, diagnóstico, um piloto opcional com data de término fixa, uma proposta e um estado pausado com data para retomar.",
-  "description": "Venda como fundador com entre um punhado e algumas dezenas de conversas abertas: cada negócio registra o problema nas palavras do cliente, a urgência, a situação do orçamento e se o decisor está envolvido; um piloto tem data de término e diz se é pago; um negócio silencioso é pausado com uma data para retomar em vez de ser perseguido. Os pesos são aproximados, porque um fundador ainda não tem histórico de fechamentos, e cabem a você. Não serve para disparar sequências em volume, captar investimento nem prever as vendas de uma equipe com vários vendedores.",
+  "summary": "Venda como fundador sem perder o fio das suas conversas. Um funil curto da primeira conversa ao ganho, com um piloto opcional com data de término e um estado pausado com data para retomar.",
+  "description": "Quando você mesmo vende, cada conversa ensina quem compra e por quê, mas as anotações e o próximo passo ficam na sua cabeça e numa pilha de abas. Este modelo acompanha de um punhado a algumas dezenas de conversas abertas: cada negócio registra o problema nas palavras do cliente, a urgência, a situação do orçamento e se o decisor está envolvido. Um piloto tem data de término e diz se é pago, e um negócio que ficou em silêncio é pausado com uma data para retomar, em vez de ser perseguido. Os pesos são aproximados, porque um fundador ainda não tem histórico de fechamentos, e cabem a você. Não serve para disparar sequências em volume, captar investimento nem prever as vendas de uma equipe com vários vendedores.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas com quem você conversa, com o papel delas na decisão de compra." },
     "companies": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Prospects, pilotos, clientes e parceiros." },
@@ -87,7 +87,7 @@
     "opportunities_board_view": "Os negócios abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
+    "intro": "Eu vendo o meu produto pessoalmente e vivo perdendo as anotações e os próximos passos das minhas conversas. Configure no meu espaço de trabalho do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
     "questions": [
       "O que você vende e quem já comprou de você?",
       "Você faz pilotos ou testes e eles são pagos?",

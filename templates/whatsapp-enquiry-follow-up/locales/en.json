@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "WhatsApp inquiry follow-up",
-  "summary": "A pipeline for a small business whose customers write on WhatsApp: record the inquiry, reply fast, send a quote, follow up in days, confirm the order and remember the repeat purchase.",
-  "description": "Turn WhatsApp chats into worked inquiries: every chat becomes an inquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
+  "summary": "Stop losing customers who write to you on WhatsApp. Every chat becomes an inquiry with a quote, a dated next step and a come-back date, so you reply fast, follow up in days and remember the repeat purchase.",
+  "description": "When customers ask for a price on WhatsApp, the chat scrolls away and the quote is never chased. This template turns WhatsApp chats into worked inquiries: every chat becomes an inquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people who write to you, with their WhatsApp permission and reorder date." },
     "enquiries": { "label": "Inquiry", "pluralLabel": "Inquiries", "description": "One request from a chat, from the first message to ordered, lost or later." }
@@ -83,7 +83,7 @@
     "enquiries_board_view": "The inquiries open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up WhatsApp inquiry follow-up in my Customermates workspace: an inquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
+    "intro": "Customers ask for prices on WhatsApp, and I lose the chat before I follow up. Set up WhatsApp inquiry follow-up in my Customermates workspace: an inquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
     "questions": [
       "What do customers ask you about on WhatsApp, and how do you quote?",
       "How fast do you want to answer a new chat?",

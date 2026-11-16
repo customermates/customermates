@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Projetos de consultoria",
-  "summary": "Um funil para um consultor independente: projetos do contato ao projeto ganho com checagem de aceitação antes da proposta, uma data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
-  "description": "Conduza uma consultoria em um só lugar: projetos por diagnóstico, escopo, proposta e decisão, a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas fiscais, assinatura eletrônica de propostas nem planejamento de recursos, e não contém dados confidenciais do cliente.",
+  "summary": "Saiba em que pé está cada proposta e não deixe um contato esfriar depois da conversa. Projetos do contato ao ganho, data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
+  "description": "Como consultor independente, você conduz poucas conversas e uma proposta por vez, e os negócios se perdem no silêncio depois da conversa da proposta ou no intervalo entre a assinatura e o kickoff. Este modelo monta projetos por diagnóstico, escopo, proposta e decisão, com a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e data de aceite e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas fiscais, assinatura eletrônica de propostas nem planejamento de recursos, e não guarda dados confidenciais do cliente.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Patrocinadores, contatos do dia a dia, quem assina e quem indica." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Prospects, clientes, ex-clientes e parceiros que indicam." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "Os projetos abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
+    "intro": "Eu tenho a minha própria consultoria e perco negócios no silêncio depois da conversa da proposta. Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
     "questions": [
       "Que tipos de projeto você vende e a qual valor de diária?",
       "Como você decide se aceita um trabalho?",

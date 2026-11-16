@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Plan de acción",
-  "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con evidencia.",
-  "description": "Un seguimiento de las acciones que salen de reuniones, proyectos, auditorías y peticiones de clientes: seis estados, una prioridad, un responsable, una fecha límite, una fecha de seguimiento, un registro de decisiones y una verificación de eficacia tras las acciones correctivas. Los recordatorios vienen de las reglas de automatización y las notificaciones.",
+  "summary": "Haz que lo acordado en las reuniones se haga de verdad. Cada acción, vinculada a la decisión o al proyecto de donde sale, tiene un responsable y una fecha límite, y se repasa en una revisión semanal.",
+  "description": "Las acciones que se acuerdan en reuniones, auditorías y llamadas con clientes se pierden entre notas y chats, y a la semana siguiente se vuelve a discutir lo mismo. Esta plantilla prepara una lista única de acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a la reunión, la decisión o el proyecto de donde salen, más un registro de decisiones y una comprobación de que una acción correctiva funcionó. Encaja con equipos, responsables de proyecto y responsables de calidad que quieren una revisión semanal de lo que está abierto, vencido o bloqueado. Los recordatorios vienen de las reglas de automatización y de las notificaciones que tú actives.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Equipo, socios, clientes y proveedores." },
     "meetings": { "label": "Reunión", "pluralLabel": "Reuniones", "description": "De dónde salen las acciones y las decisiones." },
@@ -104,7 +104,7 @@
     "overdue_widget": "El panel muestra cuántas acciones están vencidas."
   },
   "prompt": {
-    "intro": "Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
+    "intro": "Lo que acordamos en las reuniones se queda por el camino y nadie sabe quién se encarga de qué ni para cuándo. Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
     "questions": [
       "¿De dónde salen tus acciones: reuniones, proyectos, auditorías, clientes?",
       "¿Quién es responsable de las acciones y quién decide cuándo una cambia de fecha o se cancela?",

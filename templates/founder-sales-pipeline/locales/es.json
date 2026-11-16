@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Ventas lideradas por el fundador",
-  "summary": "Un pipeline corto para un fundador que vende en persona: conversaciones, diagnóstico, un piloto opcional con fecha de fin fija, una propuesta y un estado en pausa con fecha para retomar.",
-  "description": "Vende como fundador con entre un puñado y unas decenas de conversaciones abiertas: cada oportunidad registra el problema con las palabras del cliente, la urgencia, el estado del presupuesto y si el decisor está implicado; un piloto tiene fecha de fin e indica si es de pago; una operación silenciosa se pone en pausa con una fecha para retomarla en lugar de perseguirla. Las ponderaciones son aproximadas, porque un fundador aún no tiene historial de cierres, y las fijas tú. No sirve para enviar secuencias en volumen, captar inversión ni prever las ventas de un equipo con varios vendedores.",
+  "summary": "Vende como fundador sin perder el hilo de tus conversaciones. Un pipeline corto de la primera conversación a ganada, con un piloto opcional con fecha de fin y un estado en pausa con fecha para retomar.",
+  "description": "Cuando vendes tú en persona, cada conversación te enseña quién compra y por qué, pero las notas y el siguiente paso viven en tu cabeza y en una pila de pestañas. Esta plantilla lleva entre un puñado y unas decenas de conversaciones abiertas: cada oportunidad registra el problema con las palabras del cliente, la urgencia, el estado del presupuesto y si el decisor está implicado. Un piloto tiene fecha de fin e indica si es de pago, y una operación silenciosa se pone en pausa con una fecha para retomarla en lugar de perseguirla. Las ponderaciones son aproximadas, porque un fundador aún no tiene historial de cierres, y las fijas tú. No sirve para enviar secuencias en volumen, captar inversión ni prever las ventas de un equipo con varios vendedores.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas con las que hablas, con su papel en la decisión de compra." },
     "companies": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Clientes potenciales, pilotos, clientes y socios." },
@@ -87,7 +87,7 @@
     "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un pipeline de ventas liderado por el fundador: oportunidades de la primera conversación a ganada con notas de diagnóstico, un piloto opcional con fecha de fin fija, un estado en pausa con fecha para retomar y seguimientos con fecha. No envíes nada automáticamente.",
+    "intro": "Vendo mi producto en persona y no paro de perder las notas y los siguientes pasos de mis conversaciones. Configura en mi espacio de trabajo de Customermates un pipeline de ventas liderado por el fundador: oportunidades de la primera conversación a ganada con notas de diagnóstico, un piloto opcional con fecha de fin fija, un estado en pausa con fecha para retomar y seguimientos con fecha. No envíes nada automáticamente.",
     "questions": [
       "¿Qué vendes y quién te ha comprado hasta ahora?",
       "¿Haces pilotos o pruebas y son de pago?",

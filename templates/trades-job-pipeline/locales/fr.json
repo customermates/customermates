@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Dossiers d’artisan",
-  "summary": "Un pipeline pour une entreprise de travaux : demande, visite, devis et relance, puis le chantier de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
-  "description": "Suivez un dossier de la première demande à la dernière facture : clients et chantiers où vous intervenez, dossiers avec une étape commerciale et un statut de travaux distinct, validité du devis, visite et planning, date de rétractation pour les contrats de consommateurs, fin de garantie et contrats d’entretien qui ramènent du travail. Il conserve le dossier, les dates et la relance. Ce n’est ni un outil de devis et de facturation, ni un système de planification d’équipes, ni un suivi des heures. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
+  "summary": "Relancez chaque devis et gardez chaque chantier sous contrôle, du premier appel au paiement. Visite, devis, puis les travaux de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
+  "description": "Dans une entreprise de travaux, on perd de l’argent quand un devis part sans que personne rappelle, et quand les dates de garantie et d’entretien ne sont notées nulle part. Ce modèle suit un dossier du premier appel à la dernière facture : clients et chantiers où vous intervenez, dossiers avec une étape commerciale et un statut de travaux distinct, validité du devis, visite et planning, date de rétractation pour les contrats de consommateurs, fin de garantie et contrats d’entretien qui ramènent du travail. Il conserve le dossier, les dates et la relance. Ce n’est ni un outil de devis et de facturation, ni un système de planification d’équipes, ni un suivi des heures. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
   "lists": {
     "customers": { "label": "Client", "pluralLabel": "Clients", "description": "Particuliers, bailleurs, syndics et entreprises pour lesquels vous travaillez." },
     "sites": { "label": "Chantier", "pluralLabel": "Chantiers", "description": "L’adresse où le travail a lieu, qui peut différer de celle du client." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "Les dossiers s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour une entreprise de travaux : clients, chantiers, dossiers avec étape commerciale et statut des travaux, validité du devis, dates de visite et de chantier, fin de garantie et contrats d’entretien, avec des relances datées.",
+    "intro": "Je dirige une petite entreprise de travaux : des devis partent sans relance et les chantiers, les visites et les dates de garantie restent dans ma tête. Mets en place dans mon espace de travail Customermates un pipeline pour une entreprise de travaux : clients, chantiers, dossiers avec étape commerciale et statut des travaux, validité du devis, dates de visite et de chantier, fin de garantie et contrats d’entretien, avec des relances datées.",
     "questions": [
       "Quels travaux réalisez-vous, et pour qui : particuliers, bailleurs ou entreprises ?",
       "En combien de temps répondez-vous à une demande et envoyez-vous un devis après la visite ?",

@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Leden en donateurs",
-  "summary": "Eén register voor leden, donateurs en vrijwilligers: lidmaatschappen met contributiedatum, giften met bedankje en bewijs, en een pijplijn voor grote giften en subsidies.",
-  "description": "Voor verenigingen, stichtingen en kerken: wie jullie steunt en hoe, welk lidmaatschap tot wanneer loopt, welke gift nog een bedankje of bewijs nodig heeft en welke grote gift of subsidie loopt. Het geeft geen donatiebewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
+  "summary": "Weet wie jullie leden en supporters zijn, wie nog een bedankje krijgt en wie als volgende verlengt. Eén register voor lidmaatschappen met verlengdatum, giften met bewijs en grote giften en subsidies.",
+  "description": "Verenigingen, stichtingen en kerken verliezen leden en goodwill als verlengingen worden gemist en giften geen bedankje krijgen, omdat de lijsten bij verschillende vrijwilligers staan. Dit sjabloon zet supporters op, lidmaatschappen met contributie en een verlengdatum, giften met de status van bedankje en bewijs, en een pijplijn voor grote giften en subsidies. Voor verenigingen, clubs, stichtingen en kerken die één register willen in plaats van meerdere. Het geeft geen donatiebewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
   "lists": {
     "supporters": { "label": "Supporter", "pluralLabel": "Supporters", "description": "Leden, donateurs, vrijwilligers, gasten en bestuursleden." },
     "memberships": { "label": "Lidmaatschap", "pluralLabel": "Lidmaatschappen", "description": "Eén lidmaatschap met contributie en verlengdatum." },
@@ -137,7 +137,7 @@
     "receipt_field": "Elke gift toont of een donatiebewijs nodig is."
   },
   "prompt": {
-    "intro": "Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
+    "intro": "Onze leden, donateurs en vrijwilligers staan verspreid over meerdere lijsten en verlengingen en bedankjes worden gemist. Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
     "questions": [
       "Zijn jullie een vereniging, een stichting of een kerk? Hebben jullie leden, donateurs, vrijwilligers?",
       "Welke soorten lidmaatschap en welke contributie gebruiken jullie en hoe wordt die geïnd?",

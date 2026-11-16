@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Recruiting desk",
-  "summary": "A desk for a recruitment agency or independent recruiter: job orders from lead to placed, one pipeline entry per candidate, fee and guarantee dates, aftercare check-ins and a retention date on every candidate.",
-  "description": "Run an agency desk in one place: clients and their terms of business, job orders with a stage and an expected fee, candidates submitted per job with their own stages, placements with the guarantee end date and aftercare check-ins, and a retention review date on every candidate. It fits a desk of one to five recruiters. It is not a job board, a CV parser, a bulk outreach tool or a timesheet and payroll system, and nothing is sent to candidates or clients automatically.",
+  "summary": "Keep every job order, candidate and fee date in one place. Job orders from lead to placed, one pipeline entry per candidate, guarantee and aftercare dates, and a retention date on every candidate.",
+  "description": "Recruiters juggle clients, jobs and candidates who sit on several jobs at once, and the dates that matter, the placement, the guarantee end and when to delete candidate data, are easy to lose. This template sets up clients and their terms of business, job orders with a stage and an expected fee, candidates submitted per job with their own stages, placements with the guarantee end date and aftercare check-ins, and a retention review date on every candidate. It fits a desk of one to five recruiters. It is not a job board, a CV parser, a bulk outreach tool or a timesheet and payroll system, and nothing is sent to candidates or clients automatically.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "People", "description": "Candidates, client contacts and referrers." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Companies you recruit for, with fee and guarantee terms." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "The knowledge base holds a page on candidate data and retention."
   },
   "prompt": {
-    "intro": "Set up a recruiting desk in my Customermates workspace: clients with their terms, job orders with nine stages and an expected fee, one submission per candidate and job, placements with the guarantee end and aftercare check-ins, and a keep-until date on every candidate.",
+    "intro": "I place candidates with client companies and lose track of who is submitted where, when a guarantee ends and how long I may keep candidate data. Set up a recruiting desk in my Customermates workspace: clients with their terms, job orders with nine stages and an expected fee, one submission per candidate and job, placements with the guarantee end and aftercare check-ins, and a keep-until date on every candidate.",
     "questions": [
       "Do you work on contingency, retained or both, and what fee and guarantee do you usually agree?",
       "How many job orders and candidates do you handle at once, and who owns which stage?",

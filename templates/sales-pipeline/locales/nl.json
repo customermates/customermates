@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Sales pipeline",
-  "summary": "Zeven fasen met uitstapcriteria en weging, een volgende stap met datum bij elke open deal, redenen voor gewonnen en verloren en een fasewijziging die de volgende actie aanmaakt.",
-  "description": "Een pipeline voor een klein salesteam: vijf open fasen, Gewonnen en Verloren, een gewogen waarde per deal, het besluitvormingsteam bij de deal, een reden voor verlies en een reden voor winst, en de wekelijkse controle. De weging is een indicatie voor de pipeline, geen prognose: vervang haar door je eigen slagingspercentages na 20 tot 30 gesloten deals.",
+  "summary": "Zie welke deals vooruitgaan, welke vastzitten en wat er daarna gebeurt. Zeven fasen met een volgende stap met datum bij elke open deal, plus de redenen waarom je een deal wint of verliest.",
+  "description": "Zonder duidelijke pipeline blijven deals ongemerkt liggen, weet niemand meer waarom een deal verloren ging en wordt het wekelijkse pipelineoverleg gokken. Dit sjabloon zet vijf open fasen op plus Gewonnen en Verloren met een uitstapcriterium per fase, een gewogen waarde per deal, een volgende stap met datum bij elke open deal, het besluitvormingsteam bij de deal, redenen voor winst en verlies en een nieuwe actie bij elke fasewijziging. Voor een klein salesteam van één tot tien verkopers. De weging is een indicatie voor de pipeline, geen prognose: vervang haar door je eigen slagingspercentages na 20 tot 30 gesloten deals.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen aan de kant van de koper, met hun rol in de beslissing." },
     "accounts": { "label": "Bedrijf", "pluralLabel": "Bedrijven", "description": "De bedrijven waaraan je verkoopt." },
@@ -236,7 +236,7 @@
     "stages_page": "De kennisbank bevat de fasen en hun uitstapcriteria."
   },
   "prompt": {
-    "intro": "Richt een sales pipeline in mijn Customermates-werkruimte in: deals met zeven fasen en wegingen, een gewogen waarde, een volgende stap met datum bij elke open deal, redenen voor verlies en winst, het besluitvormingsteam bij elke deal en een actie die bij elke fasewijziging wordt aangemaakt.",
+    "intro": "Mijn team verkoopt aan bedrijven en ik kan niet zien welke deals echt zijn, welke zijn blijven liggen en waarom we winnen of verliezen. Richt een sales pipeline in mijn Customermates-werkruimte in: deals met zeven fasen en wegingen, een gewogen waarde, een volgende stap met datum bij elke open deal, redenen voor verlies en winst, het besluitvormingsteam bij elke deal en een actie die bij elke fasewijziging wordt aangemaakt.",
     "questions": [
       "Wat verkoop je en hoeveel mensen verkopen het?",
       "Welke stappen doorloopt een deal van eerste contact tot handtekening? Welke van de zeven fasen passen en welke hebben een andere naam nodig?",

@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Insurance broker pipeline",
-  "summary": "Two pipelines for an insurance broker: new business from lead to bound with the advice documented before the offer, and a renewal case for every policy that starts 120 to 45 days before expiry.",
-  "description": "Run new business and renewals side by side: opportunities from the first inquiry through needs analysis, quotes, offer and decision to a bound policy, an advice-documented date on every offer, and policies with their renewal date that open a renewal case on their own. It holds a reference to the advice record and to the policy in your agency system, never health data, claims details, bank details or identity copies. It is not policy administration, a comparison or rating engine, claims handling or commission reconciliation.",
+  "summary": "See every renewal coming and keep new business moving. Lead to bound with the advice documented before the offer, plus a renewal case for each policy that opens 120 to 45 days before expiry.",
+  "description": "Renewals slip past and advice goes undocumented when new business and renewals live in separate lists or in your head. This template runs both side by side: opportunities from the first inquiry through needs analysis, quotes, offer and decision to a bound policy, an advice-documented date on every offer, and policies with their renewal date that open a renewal case on their own. It holds a reference to the advice record and to the policy in your agency system, never health data, claims details, bank details or identity copies. It is not policy administration, a comparison or rating engine, claims handling or commission reconciliation.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Policyholders, prospects, decision makers and referrers." },
     "opportunities": { "label": "Opportunity", "pluralLabel": "Opportunities", "description": "New business from the first inquiry to a bound policy or a loss." },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "The knowledge base holds a page on advice documentation."
   },
   "prompt": {
-    "intro": "Set up an insurance broker pipeline in my Customermates workspace: new business from lead to bound with the advice documented before the offer, policies with a renewal date and a renewal case for each, and dated follow-ups. Store no health data, claims details or identity copies.",
+    "intro": "I run a broker book and renewals sneak up on me, while I also have to document the advice before every offer. Set up an insurance broker pipeline in my Customermates workspace: new business from lead to bound with the advice documented before the offer, policies with a renewal date and a renewal case for each, and dated follow-ups. Store no health data, claims details or identity copies.",
     "questions": [
       "Which lines do you place, and do you serve commercial clients, private clients or both?",
       "How long before expiry do you start a renewal, and how long is the usual notice period?",

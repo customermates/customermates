@@ -29,56 +29,56 @@
     "locales": {
       "de": {
         "name": "Maßnahmenplan",
-        "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Deadline, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
+        "summary": "Was in Besprechungen beschlossen wird, soll auch erledigt werden. Jede Maßnahme hat einen Verantwortlichen und eine Deadline, verknüpft mit Beschluss oder Projekt, dazu eine wöchentliche Durchsicht.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Action item tracker",
-        "summary": "Every action with one owner and a due date, linked to the meeting, decision or project it came from, with a weekly review and a way to close it with proof.",
+        "summary": "Make sure what was agreed in a meeting actually happens. Every action gets one owner and a due date, linked to the decision or project it came from, with a weekly review.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Plan de acción",
-        "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con evidencia.",
+        "summary": "Haz que lo acordado en las reuniones se haga de verdad. Cada acción, vinculada a la decisión o al proyecto de donde sale, tiene un responsable y una fecha límite, y se repasa en una revisión semanal.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Plan d’action",
-        "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle est issue, avec une revue hebdomadaire et une clôture sur preuve.",
+        "summary": "Faites que ce qui est décidé en réunion soit réellement fait. Chaque action a un pilote, une échéance et un lien vers la décision ou le projet dont elle vient, avec une revue chaque semaine.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Piano d'azione",
-        "summary": "Ogni azione con un responsabile e una scadenza, collegata alla riunione, alla decisione o al progetto da cui nasce, con una revisione settimanale e la chiusura con una prova a supporto.",
+        "summary": "Fai in modo che quello che si decide in riunione venga davvero fatto. Ogni azione ha un responsabile e una scadenza, è collegata alla riunione, alla decisione o al progetto da cui nasce e passa da una revisione settimanale.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "Actielijst",
-        "summary": "Elke actie met één eigenaar en een deadline, gekoppeld aan het overleg, het besluit of het project waaruit ze komt, met een wekelijkse controle en afsluiting met bewijs.",
+        "summary": "Zorg dat wat in een overleg is afgesproken ook echt gebeurt. Elke actie krijgt één eigenaar en een deadline, gekoppeld aan het besluit of project waaruit ze komt, met een wekelijkse controle.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Rejestr zadań i działań",
-        "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamykaniem z dowodem wykonania.",
+        "summary": "Dopilnuj, żeby to, co ustalono na spotkaniu, naprawdę się wydarzyło. Każde zadanie ma jedną osobę odpowiedzialną i termin, wiadomo też, z jakiej decyzji lub jakiego projektu wynika, a raz w tygodniu robisz przegląd.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Plano de ação",
-        "summary": "Cada ação com um responsável e um prazo, vinculada à reunião, à decisão ou ao projeto de onde vem, com revisão semanal e encerramento com comprovação.",
+        "summary": "Garanta que o que foi combinado na reunião realmente aconteça. Cada ação tem um responsável e um prazo e fica ligada à decisão ou ao projeto de onde veio, com uma revisão semanal.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -115,56 +115,56 @@
     "locales": {
       "de": {
         "name": "Agentur-Kundenpipeline",
-        "summary": "Eine Pipeline für Marketing- und Kreativagenturen: Neugeschäft vom ersten Gespräch bis zum Abschluss mit Pitch-Entscheidung, und laufende Retainer mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel.",
+        "summary": "Neue Kunden gewinnen und über das erste Projekt hinaus halten. Chancen laufen vom ersten Gespräch bis zum Abschluss, mit Pitch-Entscheidung; laufende Retainer haben Verlängerungstermin und Quartalsgespräch.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "en": {
         "name": "Agency client pipeline",
-        "summary": "A pipeline for a marketing or creative agency: opportunities from the first conversation to a signed deal with a pitch go/no-go, and live retainers with a renewal date, a notice period, a quarterly review and a health flag.",
+        "summary": "Win agency clients and keep them past the first project. Opportunities run from first conversation to signed deal with a pitch go/no-go, and live retainers carry a renewal date and a quarterly review.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Pipeline de clientes para agencias",
-        "summary": "Un pipeline para una agencia de marketing o creativa: oportunidades de la primera conversación a la firma con decisión sobre el concurso, e igualas en curso con fecha de renovación, preaviso, revisión trimestral e indicador de salud.",
+        "summary": "Gana clientes y conserva las igualas más allá del primer proyecto. Las oportunidades van de la primera conversación a la firma, con decisión sobre el concurso, y cada iguala lleva fecha de renovación y revisión trimestral.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Pipeline clients d’agence",
-        "summary": "Un pipeline pour une agence de communication ou de création : opportunités de la première conversation à la signature, avec la décision de répondre ou non à un appel d’offres, et retainers en cours avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé.",
+        "summary": "Gagnez des clients et gardez-les après le premier projet. Du premier échange à la signature, avec la décision de répondre ou non à un appel d’offres, puis un renouvellement daté et une revue trimestrielle par contrat récurrent.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "it": {
         "name": "Pipeline clienti per agenzie",
-        "summary": "Una pipeline per un'agenzia di marketing o creativa: opportunità dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e retainer in corso con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute.",
+        "summary": "Conquista nuovi clienti e tienili oltre il primo progetto. Le opportunità vanno dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e ogni retainer ha la sua data di rinnovo e una revisione trimestrale.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "Klantenpijplijn voor bureaus",
-        "summary": "Een pijplijn voor een marketing- of creatief bureau: kansen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende opdrachten met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht.",
+        "summary": "Win klanten voor je bureau en houd ze langer dan het eerste project. Kansen lopen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers krijgen een verlengingsdatum en een kwartaalgesprek.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Lejek klientów dla agencji",
-        "summary": "Lejek dla agencji marketingowej lub kreatywnej: szanse od pierwszej rozmowy do podpisania umowy z decyzją o udziale w przetargu oraz trwające umowy abonamentowe z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji.",
+        "summary": "Zdobywaj klientów agencji i zatrzymuj ich po pierwszym projekcie. Szanse prowadzisz od pierwszej rozmowy do podpisanej umowy, z decyzją o udziale w przetargu, a trwające umowy abonamentowe mają termin odnowienia i przegląd kwartalny.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Funil de clientes para agências",
-        "summary": "Um funil para uma agência de marketing ou criativa: oportunidades da primeira conversa ao fechamento com decisão sobre a concorrência, e contratos mensais em andamento com data de renovação, aviso prévio, revisão trimestral e indicador de saúde.",
+        "summary": "Conquiste clientes para a agência e fique com eles depois do primeiro projeto. Oportunidades da primeira conversa ao fechamento, com decisão de entrar ou não na concorrência, e contratos mensais com data de renovação.",
         "status": "draft",
         "publicPage": "none",
         "page": null
@@ -192,56 +192,56 @@
     "locales": {
       "de": {
         "name": "Bewerbermanagement",
-        "summary": "Ein Bewerbertracker für kleine Unternehmen: Stellen, Bewerber, eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschtermin für Absagen.",
+        "summary": "Kein Bewerber soll auf eine Antwort warten müssen. Eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschdatum für abgelehnte Bewerbungen.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Applicant tracking",
-        "summary": "A hiring tracker for a small business: jobs, applicants, one application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
+        "summary": "Keep every applicant moving and every candidate answered. One application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Seguimiento de candidaturas",
-        "summary": "Un seguimiento de selección para una pequeña empresa: vacantes, candidatos, una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar los descartes.",
+        "summary": "Mantén cada proceso en marcha y responde a todos los candidatos. Una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar las candidaturas descartadas.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Suivi des candidatures",
-        "summary": "Un suivi de recrutement pour une petite entreprise : offres d’emploi, candidats, une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
+        "summary": "Faites avancer chaque candidature et répondez à chaque candidat. Une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Gestione candidature",
-        "summary": "Un tracker per la selezione del personale in una piccola azienda: posizioni, candidati, una candidatura per posizione in nove fasi, una scheda di valutazione per ogni intervistatore e una data di cancellazione per le candidature scartate.",
+        "summary": "Fai avanzare ogni candidatura e dai una risposta a ogni candidato. Una candidatura per posizione attraverso nove fasi, una scheda di valutazione per ogni intervistatore e una data per cancellare quelle scartate.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "Sollicitatiebeheer",
-        "summary": "Een wervingsoverzicht voor een klein bedrijf: vacatures, sollicitanten, één sollicitatie per vacature in negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
+        "summary": "Zorg dat elke sollicitant antwoord krijgt en geen sollicitatie blijft liggen. Eén sollicitatie per vacature door negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Śledzenie kandydatów",
-        "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+        "summary": "Dopilnuj, żeby żaden kandydat nie czekał na odpowiedź bez końca. Jedna aplikacja na ofertę pracy w dziewięciu etapach, karta oceny od każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pt": {
         "name": "Acompanhamento de candidaturas",
-        "summary": "Um acompanhamento de seleção para uma pequena empresa: vagas, candidatos, uma candidatura por vaga em nove etapas, uma avaliação por entrevistador e uma data para excluir os reprovados.",
+        "summary": "Não deixe nenhum candidato sem resposta. Cada candidatura passa por nove etapas, cada entrevistador preenche uma avaliação e as candidaturas reprovadas ganham uma data para serem excluídas.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -270,56 +270,56 @@
     "locales": {
       "de": {
         "name": "Terminbuchung",
-        "summary": "Ein Terminregister für Dienstleister: Terminarten mit Dauer und Vorlaufzeit, jede Buchung mit Status, Erinnerungen und Ergebnis, und zu jeder ein nächster Schritt.",
+        "summary": "Gespräche, Beratungen und Besichtigungen nicht mehr aus Kalender und Postfach zusammensuchen. Terminarten mit Dauer und Vorlaufzeit, Status und Erinnerungen je Buchung, nach jedem Termin ein nächster Schritt.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Booking page",
-        "summary": "An appointment register for a service professional: appointment types with duration and notice, every booking with its status, reminders and outcome, and a next step on each.",
+        "summary": "Keep every call, consultation and viewing in one place, from request to outcome. Appointment types with duration and notice, a status and reminders on every booking, and a next step after each one.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Reservas de citas",
-        "summary": "Un registro de citas para quien presta servicios: tipos de cita con duración y antelación, cada reserva con su estado, recordatorios y resultado, y un siguiente paso en cada una.",
+        "summary": "Ten cada llamada, consulta y visita en un solo sitio, de la solicitud al resultado. Tipos de cita con duración y antelación, un estado y recordatorios en cada reserva, y un siguiente paso después de cada una.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Prise de rendez-vous",
-        "summary": "Un registre de rendez-vous pour un prestataire de services : types de rendez-vous avec durée et délai de prévenance, chaque réservation avec son statut, ses rappels et son résultat, et une prochaine étape pour chacune.",
+        "summary": "Gardez chaque appel, consultation ou visite au même endroit, de la demande au résultat. Des types de rendez-vous avec durée et délai de prévenance, un statut et des rappels sur chaque réservation, et une prochaine étape après chacun.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Prenotazione online",
-        "summary": "Un registro di appuntamenti per chi offre servizi: tipi di appuntamento con durata e preavviso, ogni prenotazione con stato, promemoria ed esito, e un prossimo passo per ciascuna.",
+        "summary": "Tieni ogni chiamata, consulenza e visita in un unico posto, dalla richiesta all'esito. Tipi di appuntamento con durata e preavviso, uno stato e promemoria su ogni prenotazione e un prossimo passo dopo ciascuna.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Online afspraken maken",
-        "summary": "Een afsprakenregister voor dienstverleners: afspraaktypes met duur en minimale termijn, elke boeking met status, herinneringen en uitkomst, en bij elk een volgende stap.",
+        "summary": "Houd elk gesprek, consult en elke bezichtiging op één plek bij, van aanvraag tot uitkomst. Afspraaktypes met duur en minimale termijn, een status en herinneringen bij elke boeking en een volgende stap na elke afspraak.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Rezerwacja wizyt online",
-        "summary": "Rejestr wizyt dla osoby świadczącej usługi: typy wizyt z czasem trwania i wyprzedzeniem, każda rezerwacja ze statusem, przypomnieniami i wynikiem oraz następnym krokiem.",
+        "summary": "Nie trać z oczu żadnej rozmowy, konsultacji ani oglądania, od zgłoszenia do wyniku. Typy wizyt z czasem trwania i wyprzedzeniem, status i przypomnienia przy każdej rezerwacji oraz następny krok po każdej wizycie.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pt": {
         "name": "Agendamento online",
-        "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com status, lembretes e resultado, e um próximo passo em cada um.",
+        "summary": "Saiba quem está agendado, quem confirmou e no que deu cada conversa. Tipos de atendimento com duração e antecedência mínima, status e lembretes em cada agendamento e um próximo passo depois de cada atendimento.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -357,56 +357,56 @@
     "locales": {
       "de": {
         "name": "Mandantenaufnahme und Onboarding",
-        "summary": "Eine Aufnahme pro Mandat: Anfrage, Vorprüfung, Fragebogen, Unterlagenanforderung, Auftragsbestätigung und Kickoff, mit einem Termin je Phase und einem Grund bei Ablehnung.",
+        "summary": "Neue Mandanten aufnehmen, ohne Fragebögen, Unterlagen und Auftragsbestätigungen hinterherzulaufen. Eine Aufnahme pro Mandat, ein Termin je Phase und ein festgehaltener Grund, wenn Sie ablehnen.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "en": {
         "name": "Client intake and onboarding",
-        "summary": "One intake per engagement: inquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
+        "summary": "Take on new clients without chasing forms, documents and agreements by hand. One intake per engagement, with a dated step at every stage and a reason on record when you decline.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Ficha de cliente y alta",
-        "summary": "Un alta por encargo: solicitud, valoración, cuestionario, documentación solicitada, hoja de encargo y reunión de arranque, con un paso fechado en cada etapa y un motivo cuando rechazas.",
+        "summary": "Da de alta a tus clientes nuevos sin perseguir a mano formularios, documentos y hojas de encargo. Un alta por encargo, con un paso fechado en cada etapa y el motivo anotado cuando rechazas.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Fiche client et intégration",
-        "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
+        "summary": "Accueillez de nouveaux clients sans courir après les formulaires, les pièces et les lettres de mission. Une intégration par mission, avec une étape datée à chaque phase et un motif noté quand vous refusez.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Scheda cliente e accoglienza",
-        "summary": "Un'accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d'incarico e riunione di avvio, con un passaggio datato a ogni fase e un motivo quando rifiuti.",
+        "summary": "Accogli i nuovi clienti senza rincorrere moduli, documenti e lettere d'incarico a mano. Un'accoglienza per incarico, con un passaggio datato a ogni fase e il motivo registrato quando rifiuti.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Klantintake en onboarding",
-        "summary": "Eén intake per opdracht: aanvraag, eerste screening, intakeformulier, documenten, overeenkomst en kickoff, met een stap met datum in elke fase en een reden als je afwijst.",
+        "summary": "Neem nieuwe klanten aan zonder zelf achter formulieren, documenten en overeenkomsten aan te zitten. Eén intake per opdracht, met een stap met datum in elke fase en een vastgelegde reden als je iemand afwijst.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Przyjęcie klienta i onboarding",
-        "summary": "Jedno przyjęcie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
+        "summary": "Przyjmuj nowych klientów bez ręcznego gonienia za ankietami, dokumentami i umowami. Jedno przyjęcie na zlecenie, z datowanym krokiem na każdym etapie i zapisanym powodem, gdy odmawiasz.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pt": {
         "name": "Ficha cadastral de clientes e integração",
-        "summary": "Uma integração por contrato: solicitação, triagem, questionário, documentos solicitados, contrato e reunião de kickoff, com um passo datado em cada etapa e um motivo quando você recusa.",
+        "summary": "Receba clientes novos sem correr atrás de formulários, documentos e contratos. Uma integração por contrato, com um passo datado em cada etapa e o motivo registrado quando você recusa um cliente.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -435,56 +435,56 @@
     "locales": {
       "de": {
         "name": "Kundensupport",
-        "summary": "Ein schlanker Support-Desk: Tickets mit Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung.",
+        "summary": "Jeden Kunden rechtzeitig beantworten, ohne großes Helpdesk-System. Tickets mit Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Client support desk",
-        "summary": "A light support desk: tickets with a priority, a first-response time and a due time, known issues that link many tickets to one cause, and a satisfaction score.",
+        "summary": "Answer every customer on time without a heavy helpdesk. Tickets with a priority, a first-reply time and a due time, known issues that link many tickets to one cause, and a satisfaction score.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Soporte al cliente",
-        "summary": "Un soporte ligero: tickets con prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y una valoración de satisfacción.",
+        "summary": "Responde a cada cliente a tiempo sin un helpdesk pesado. Tickets con prioridad, primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y valoración de satisfacción.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Support client",
-        "summary": "Un support léger : tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
+        "summary": "Répondez à chaque client à temps sans outil de support lourd. Tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Assistenza clienti",
-        "summary": "Un'assistenza leggera: ticket con priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti che collegano più ticket a una causa e una valutazione di soddisfazione.",
+        "summary": "Rispondi a ogni cliente in tempo, senza un helpdesk pesante. Ticket con priorità, tempo di prima risposta e scadenza, problemi noti che collegano molti ticket a un'unica causa e una valutazione di soddisfazione.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Klantenservice",
-        "summary": "Een lichte servicedesk: tickets met prioriteit, tijd voor een eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
+        "summary": "Beantwoord elke klant op tijd, zonder zwaar helpdesksysteem. Tickets met een prioriteit, een tijd voor de eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Obsługa klienta",
-        "summary": "Prosty system obsługi zgłoszeń: zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
+        "summary": "Odpowiadaj każdemu klientowi na czas, bez ciężkiego helpdesku. Zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pt": {
         "name": "Atendimento ao cliente",
-        "summary": "Um atendimento enxuto: chamados com prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação.",
+        "summary": "Responda a cada cliente no prazo, sem um helpdesk pesado. Chamados com prioridade, prazo de primeira resposta e de resolução, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -521,68 +521,68 @@
     "locales": {
       "de": {
         "name": "Kundenverwaltung",
-        "summary": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt, dazu eine wöchentliche Durchsicht und ein Prüfdatum für jeden beendeten Kunden.",
+        "summary": "Nie mehr rätseln, welchem Kunden Sie noch einen Anruf, eine Antwort oder ein Angebot schulden. Jeder Kunde hat einen Betreuer und einen terminierten nächsten Schritt, eine wöchentliche Durchsicht zeigt, was überfällig ist.",
         "status": "draft",
         "publicPage": "own",
         "page": {
-          "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
-          "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht."
+          "metaTitle": "Kundenverwaltung Vorlage: keine Wiedervorlage verpassen",
+          "metaDescription": "Kein Kunde geht mehr verloren: Vorlage in Claude, ChatGPT oder Codex einfügen und für jeden Kunden Betreuer und nächsten Schritt mit Datum anlegen lassen."
         }
       },
       "en": {
         "name": "Client tracker",
-        "summary": "One row per client, one owner, one dated next step, plus a weekly review and a retention date for every closed client.",
+        "summary": "Never wonder which client you owe a call, a reply or a quote. Every client gets one owner and one dated next step, and a weekly review shows what is overdue.",
         "status": "draft",
         "publicPage": "own",
         "page": {
-          "metaTitle": "Client Tracker Template for Your AI Agent",
-          "metaDescription": "Copy a client tracker into Claude, ChatGPT or Codex: one row per client, one owner, a dated next step and a weekly review, built in your CRM."
+          "metaTitle": "Client Tracker Template: Never Miss a Follow-up",
+          "metaDescription": "Never lose track of a client again. Paste this client tracker template into Claude, ChatGPT or Codex and get one owner and a dated next step for every client."
         }
       },
       "es": {
         "name": "Ficha de clientes",
-        "summary": "Una fila por cliente, un responsable, una próxima acción con fecha, más una revisión semanal y una fecha de revisión de datos para cada cliente dado de baja.",
+        "summary": "Ten siempre claro a qué cliente le debes una llamada, una respuesta o un presupuesto. Cada cliente tiene un responsable y una próxima acción con fecha, y la revisión semanal muestra lo que va con retraso.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Fichier client",
-        "summary": "Une ligne par client, un responsable, une prochaine action datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
+        "summary": "Ne vous demandez plus à quel client vous devez un appel, une réponse ou un devis. Chaque client a un responsable et une prochaine action datée, et une revue hebdomadaire montre ce qui est en retard.",
         "status": "draft",
         "publicPage": "own",
         "page": {
-          "metaTitle": "Modèle de fichier client pour votre agent IA",
-          "metaDescription": "Copiez le fichier client dans Claude, ChatGPT ou Codex : une ligne par client, un responsable, une relance datée et une revue chaque semaine."
+          "metaTitle": "Modèle de fichier client : plus aucune relance oubliée",
+          "metaDescription": "Ne perdez plus aucun client de vue. Collez ce fichier client dans Claude, ChatGPT ou Codex : un responsable et une prochaine action datée pour chacun."
         }
       },
       "it": {
         "name": "Anagrafica clienti",
-        "summary": "Una riga per cliente, un responsabile, un prossimo passo con scadenza, più una revisione settimanale e una data di verifica dei dati per ogni cliente chiuso.",
+        "summary": "Smetti di chiederti a quale cliente devi una telefonata, una risposta o un preventivo. Ogni cliente ha un responsabile e un prossimo passo con scadenza, e una revisione settimanale mostra che cosa è in ritardo.",
         "status": "draft",
         "publicPage": "own",
         "page": {
-          "metaTitle": "Anagrafica clienti: modello per il tuo agente IA",
-          "metaDescription": "Copia l'anagrafica clienti in Claude, ChatGPT o Codex: una riga per cliente, un responsabile, un prossimo passo con scadenza e una revisione settimanale."
+          "metaTitle": "Anagrafica clienti: modello per non perdere un follow-up",
+          "metaDescription": "Non perdere più il filo di un cliente. Incolla questo modello in Claude, ChatGPT o Codex: un responsabile e un prossimo passo con scadenza per ogni cliente."
         }
       },
       "nl": {
         "name": "Klantenbestand",
-        "summary": "Eén regel per klant, één accountmanager, één volgende stap met datum, plus een wekelijkse controle en een controledatum voor elke beëindigde klant.",
+        "summary": "Weet altijd aan welke klant je nog een telefoontje, antwoord of offerte schuldig bent. Elke klant krijgt één accountmanager en één volgende stap met datum, en een wekelijkse controle laat zien wat te laat is.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Baza klientów",
-        "summary": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem, do tego cotygodniowy przegląd i data przeglądu danych dla każdego zakończonego klienta.",
+        "summary": "Koniec z zastanawianiem się, któremu klientowi jesteś winien telefon, odpowiedź albo wycenę. Każdy klient ma jednego opiekuna i jeden następny krok z terminem, a cotygodniowy przegląd pokazuje, co jest po terminie.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pt": {
         "name": "Cadastro de clientes",
-        "summary": "Uma linha por cliente, um responsável, um próximo contato com data, mais uma revisão semanal e uma data de revisão dos dados para cada cliente encerrado.",
+        "summary": "Saiba sempre a que cliente você deve uma ligação, uma resposta ou um orçamento. Cada cliente tem um responsável e um próximo contato com data, e uma revisão semanal mostra o que está atrasado.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -618,56 +618,56 @@
     "locales": {
       "de": {
         "name": "Beratungsaufträge",
-        "summary": "Eine Pipeline für selbstständige Berater: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Auftragsklärung vor dem Angebot, einem beim Angebotsgespräch vereinbarten Nachfasstermin und Ergebnissen, die Durchführung und Abschluss steuern.",
+        "summary": "Wissen, wo jedes Angebot steht, und nach dem Gespräch keinen Interessenten verlieren. Aufträge vom Erstkontakt bis zur Erteilung, ein im Angebotsgespräch vereinbarter Nachfasstermin, Ergebnisse mit Abnahmedatum.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "en": {
         "name": "Consultant engagements",
-        "summary": "A pipeline for an independent consultant: engagements from introduction to won with an acceptance check before the offer, a follow-up date agreed on the proposal call, and deliverables that gate delivery and closeout.",
+        "summary": "Know where every proposal stands and never drop a lead after the call. Engagements from introduction to won, a follow-up date agreed on the proposal call, and deliverables that gate delivery and closeout.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Encargos de consultoría",
-        "summary": "Un pipeline para un consultor independiente: encargos del contacto al encargo ganado con comprobación de aceptación antes de la oferta, una fecha de seguimiento acordada en la llamada de la propuesta y entregables que regulan la ejecución y el cierre.",
+        "summary": "Ten claro en qué punto está cada propuesta y no pierdas ningún contacto tras la llamada. Encargos del contacto al ganado, una fecha de seguimiento acordada en la llamada y entregables que controlan la ejecución y el cierre.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Missions de conseil",
-        "summary": "Un pipeline pour un consultant indépendant : missions de la prospection à la mission signée avec contrôle d’acceptation avant la proposition, une date de relance convenue lors de l’appel sur la proposition, et des livrables qui encadrent l’exécution et la clôture.",
+        "summary": "Sachez où en est chaque proposition et ne laissez plus un prospect sans suite après l’appel. Missions de la prospection à la signature, date de relance convenue lors de l’appel, livrables qui encadrent l’exécution et la clôture.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "it": {
         "name": "Incarichi di consulenza",
-        "summary": "Una pipeline per un consulente indipendente: incarichi dal contatto all'incarico vinto con verifica di accettazione prima dell'offerta, una data di follow-up concordata nella chiamata sulla proposta e deliverable che regolano esecuzione e chiusura.",
+        "summary": "Tieni d'occhio ogni proposta e non perdere nessun contatto dopo la chiamata. Incarichi dal contatto alla vittoria, una data di follow-up fissata nella chiamata sulla proposta e deliverable che regolano consegna e chiusura.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "Adviesopdrachten",
-        "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór het voorstel, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
+        "summary": "Weet waar elk voorstel staat en laat geen lead vallen na het gesprek. Opdrachten van kennismaking tot gewonnen, een opvolgdatum die je in het voorstelgesprek afspreekt en resultaten die uitvoering en afsluiting bewaken.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Zlecenia konsultingowe",
-        "summary": "Lejek dla niezależnego konsultanta: zlecenia od kontaktu do wygranego z kontrolą przyjęcia zlecenia przed ofertą, terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie i rezultatami, od których zależą realizacja i zamknięcie.",
+        "summary": "Wiedz, na jakim etapie jest każda oferta, i nie gub kontaktów po rozmowie. Zlecenia od kontaktu do wygranego, termin ponownego kontaktu ustalony na rozmowie oraz rezultaty, od których zależą realizacja i zamknięcie.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Projetos de consultoria",
-        "summary": "Um funil para um consultor independente: projetos do contato ao projeto ganho com checagem de aceitação antes da proposta, uma data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
+        "summary": "Saiba em que pé está cada proposta e não deixe um contato esfriar depois da conversa. Projetos do contato ao ganho, data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
         "status": "draft",
         "publicPage": "none",
         "page": null
@@ -694,56 +694,56 @@
     "locales": {
       "de": {
         "name": "Redaktionsplan",
-        "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
+        "summary": "Wissen, was diese Woche rausgeht und wer es aufhält. Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Content calendar",
-        "summary": "One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
+        "summary": "Know what goes out this week and who is holding it up. One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Calendario editorial",
-        "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+        "summary": "Ten claro qué se publica esta semana y quién lo está frenando. Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Calendrier éditorial",
-        "summary": "Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
+        "summary": "Sachez ce qui sort cette semaine et qui bloque. Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Calendario editoriale",
-        "summary": "Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
+        "summary": "Vedi subito che cosa esce questa settimana e chi lo sta bloccando. Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Contentkalender",
-        "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
+        "summary": "Weet wat er deze week uitkomt en wie het ophoudt. Eén regel per stuk met een status, een eigenaar, een reviewer en een publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Kalendarz treści",
-        "summary": "Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
+        "summary": "Wiedz, co wychodzi w tym tygodniu i na kogo czekasz. Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Calendário editorial",
-        "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma reunião editorial semanal.",
+        "summary": "Saiba o que vai ao ar esta semana e quem está segurando cada conteúdo. Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma rotina editorial semanal.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -770,56 +770,56 @@
     "locales": {
       "de": {
         "name": "Buchungen für Kreative",
-        "summary": "Für Fotografen, Videografen und Eventplaner: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung im Blick und eine Notiz zu jedem Jahrestag.",
+        "summary": "Für Fotografen, Videografen und Eventplaner: jede Anfrage, jeden Termin und jede Anzahlung im Griff, von der ersten Nachricht bis zu Buchung, Lieferung und Jahrestagsgruß.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Creative bookings",
-        "summary": "For photographers, videographers and event planners: an inquiry-to-booking pipeline, a delivery stage after the date, deposit and balance tracking, and a note for every anniversary.",
+        "summary": "For photographers, videographers and event planners: keep every inquiry, date and deposit straight, from the first message to booked, delivered and an anniversary note.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Reservas para creativos",
-        "summary": "Para fotógrafos, videógrafos y organizadores de eventos: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto y una nota para cada aniversario.",
+        "summary": "Para fotógrafos, videógrafos y organizadores de eventos: ten a mano cada solicitud, cada fecha y cada señal, del primer mensaje a la reserva, la entrega y la nota de aniversario.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Réservations pour créatifs",
-        "summary": "Pour photographes, vidéastes et organisateurs d’événements : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde et une note pour chaque anniversaire.",
+        "summary": "Photographes, vidéastes, organisateurs d’événements : gardez chaque demande, chaque date et chaque acompte en ordre, du premier message à la réservation, à la livraison et au mot d’anniversaire.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Prenotazioni per creativi",
-        "summary": "Per fotografi, videomaker e organizzatori di eventi: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, acconto e saldo sotto controllo e una nota per ogni anniversario.",
+        "summary": "Per fotografi, videomaker e organizzatori di eventi: tieni in ordine ogni richiesta, data e acconto, dal primo messaggio alla prenotazione, alla consegna e alla nota di anniversario.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Boekingen voor creatieve ondernemers",
-        "summary": "Voor fotografen, videografen en eventplanners: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling in beeld en een notitie voor elk jubileum.",
+        "summary": "Houd elke aanvraag, datum en aanbetaling op orde, van het eerste bericht tot geboekt, geleverd en een jubileumbericht. Voor fotografen, videografen en eventplanners.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Rezerwacje dla twórców",
-        "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty oraz notatka na każdą rocznicę.",
+        "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: miej pod kontrolą każde zapytanie, termin i zaliczkę, od pierwszej wiadomości po rezerwację, przekazanie materiałów i życzenia w rocznicę.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Reservas para criativos",
-        "summary": "Para fotógrafos, videomakers e cerimonialistas: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo e uma nota para cada aniversário.",
+        "summary": "Para fotógrafos, videomakers e organizadores de eventos: mantenha em ordem cada solicitação, data e sinal, da primeira mensagem à reserva, à entrega e à mensagem de aniversário.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -848,56 +848,56 @@
     "locales": {
       "de": {
         "name": "Eigenes CRM",
-        "summary": "Ein CRM nach der eigenen Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus der eigenen Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
+        "summary": "Von der Tabelle oder dem alten Werkzeug umziehen, ohne ein großes Migrationsprojekt. Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben nach Ihrer Arbeitsweise, mit Import Ihrer Daten und wöchentlicher Durchsicht.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Custom CRM",
-        "summary": "A CRM built around how you work: contacts, organizations, opportunities and dated actions, with an import from your spreadsheet or old tool and a weekly review.",
+        "summary": "Move off your spreadsheet or old tool without a big migration project. Contacts, organizations, opportunities and dated actions shaped around how you work, with an import of your data and a weekly review.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "CRM a medida",
-        "summary": "Un CRM construido en torno a tu forma de trabajar: contactos, empresas, oportunidades y tareas con fecha, con una importación desde tu hoja de cálculo o tu herramienta anterior y una revisión semanal.",
+        "summary": "Deja tu hoja de cálculo o tu herramienta anterior sin un gran proyecto de migración. Contactos, empresas, oportunidades y tareas con fecha a tu medida, con una importación de tus datos y una revisión semanal.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "CRM sur mesure",
-        "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
+        "summary": "Quittez votre tableur ou votre ancien outil sans gros projet de migration. Contacts, entreprises, affaires et actions datées adaptés à votre façon de travailler, avec l’import de vos données et une revue hebdomadaire.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "CRM su misura",
-        "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un'importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+        "summary": "Lascia il foglio di calcolo o il vecchio strumento senza un progetto di migrazione. Contatti, aziende, trattative e attività con scadenza costruiti sul tuo modo di lavorare, con l'importazione dei tuoi dati e una revisione settimanale.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "CRM op maat",
-        "summary": "Een CRM rond jouw manier van werken: contactpersonen, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
+        "summary": "Stap over van je spreadsheet of oude tool zonder groot migratieproject. Contactpersonen, bedrijven, deals en acties met datum, afgestemd op hoe jij werkt, met een import van je gegevens en een wekelijkse controle.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Własny CRM",
-        "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, organizacje, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
+        "summary": "Przejdź z arkusza lub starego narzędzia bez dużego projektu wdrożeniowego. Kontakty, organizacje, szanse sprzedaży i zadania z terminem dopasowane do Twojego sposobu pracy, z importem danych i cotygodniowym przeglądem.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "CRM personalizado",
-        "summary": "Um CRM construído em torno do seu jeito de trabalhar: contatos, empresas, negócios e tarefas com data, com importação da sua planilha ou da ferramenta antiga e uma revisão semanal.",
+        "summary": "Troque a planilha ou a ferramenta antiga por um CRM sem montar um projeto de migração. Contatos, empresas, negócios e tarefas com data do seu jeito, com importação dos seus dados e uma revisão semanal.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -926,56 +926,56 @@
     "locales": {
       "de": {
         "name": "Kontaktformular mit CRM",
-        "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und „Kein Bedarf“ getrennt.",
+        "summary": "Keine Anfrage aus dem Webformular bleibt unbeantwortet. Jede Einsendung wird zur Anfrage mit Quelle und fälliger Antwort, läuft von neu bis übergeben und hält Spam und „Kein Bedarf“ getrennt.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Form to CRM",
-        "summary": "Turn web form inquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
+        "summary": "Make sure no web form inquiry goes unanswered. Every submission becomes a request with its source and a reply due, moves from new to converted, and keeps spam and not-a-fit apart.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Formulario a CRM",
-        "summary": "Convertir las consultas de los formularios web en oportunidades trabajadas: una solicitud por envío con su origen, una respuesta pendiente, una fase de nueva a convertida y el spam y las que no encajan aparte.",
+        "summary": "Que ninguna consulta de tus formularios web se quede sin respuesta. Cada envío se convierte en una solicitud con su origen y una respuesta pendiente, avanza de nueva a convertida y deja aparte el spam y lo que no encaja.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Du formulaire au CRM",
-        "summary": "Transformez les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et les demandes sans suite et le spam mis à part.",
+        "summary": "Faites en sorte qu’aucune demande de formulaire web ne reste sans réponse. Chaque envoi devient une demande avec sa source et une réponse à donner, passe de nouveau à converti, et les demandes sans suite et le spam restent à part.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Dal modulo al CRM",
-        "summary": "Trasforma le richieste dei moduli web in contatti seguiti: una richiesta per ogni invio con la sua origine, una scadenza di risposta, una fase da nuova a convertita, con spam e richieste non idonee tenuti a parte.",
+        "summary": "Fai in modo che nessuna richiesta dal modulo web resti senza risposta. Ogni invio diventa una richiesta con la sua origine e una scadenza di risposta, passa da nuova a convertita e tiene separati spam e richieste non idonee.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Formulier naar CRM",
-        "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een uiterste antwoorddatum, een fase van nieuw tot omgezet, en spam en niet passend apart.",
+        "summary": "Zorg dat geen aanvraag uit een webformulier onbeantwoord blijft. Elke inzending wordt een aanvraag met bron en uiterste antwoorddatum, loopt van nieuw tot omgezet en houdt spam en niet passende aanvragen apart.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Od formularza do CRM",
-        "summary": "Zamień zapytania z formularzy internetowych w obsłużone kontakty: jedno zapytanie na każde zgłoszenie ze źródłem, terminem odpowiedzi i etapem od nowego do przekazanego do lejka oraz osobno spam i zapytania nietrafione.",
+        "summary": "Dopilnuj, żeby żadne zapytanie z formularza nie zostało bez odpowiedzi. Każde zgłoszenie staje się zapytaniem ze źródłem i terminem odpowiedzi, a spam i zapytania nietrafione są trzymane osobno.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Formulário para CRM",
-        "summary": "Transformar as mensagens dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta pendente, uma etapa de nova a convertida, e spam e sem fit à parte.",
+        "summary": "Não deixe nenhuma mensagem do formulário do site sem resposta. Cada envio vira uma solicitação com a origem e uma resposta devida, avança de nova a convertida e mantém spam e contatos sem fit à parte.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -1011,56 +1011,56 @@
     "locales": {
       "de": {
         "name": "Vertrieb im Gründerteam",
-        "summary": "Eine kurze Pipeline für Gründer, die selbst verkaufen: Gespräche, Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Angebot und ein Zurückgestellt-Status mit Wiedervorlage.",
+        "summary": "Selbst verkaufen, ohne den Faden der Gespräche zu verlieren. Eine kurze Pipeline vom ersten Gespräch bis gewonnen, mit optionalem Pilot mit Enddatum und einem Zurückgestellt-Status mit Wiedervorlage.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "en": {
         "name": "Founder sales pipeline",
-        "summary": "A short pipeline for a founder who sells personally: conversations, discovery, an optional pilot with a fixed end date, a proposal, and a parked state with a date to come back.",
+        "summary": "Sell as the founder without losing the thread of your conversations. A short pipeline from first conversation to won, with an optional pilot that has an end date and a parked state with a date to come back.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Ventas lideradas por el fundador",
-        "summary": "Un pipeline corto para un fundador que vende en persona: conversaciones, diagnóstico, un piloto opcional con fecha de fin fija, una propuesta y un estado en pausa con fecha para retomar.",
+        "summary": "Vende como fundador sin perder el hilo de tus conversaciones. Un pipeline corto de la primera conversación a ganada, con un piloto opcional con fecha de fin y un estado en pausa con fecha para retomar.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Pipeline commercial du fondateur",
-        "summary": "Un pipeline court pour un fondateur qui vend lui-même : échanges, rendez-vous découverte, un pilote facultatif avec date de fin fixe, une proposition et un état en pause avec une date de relance.",
+        "summary": "Vendez en tant que fondateur sans perdre le fil de vos conversations. Un pipeline court du premier échange à la signature, avec un pilote facultatif à date de fin fixe et un état en pause avec une date de relance.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "it": {
         "name": "Pipeline commerciale del fondatore",
-        "summary": "Una pipeline breve per un fondatore che vende di persona: conversazioni, analisi delle esigenze, un pilota facoltativo con data di fine fissa, un'offerta e uno stato in pausa con una data per riprendere.",
+        "summary": "Vendi da fondatore senza perdere il filo delle tue conversazioni. Una pipeline breve dalla prima conversazione alla vittoria, con un pilota facoltativo con data di fine e uno stato in pausa con una data per riprendere.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "Sales van de oprichter",
-        "summary": "Een korte pijplijn voor een oprichter die zelf verkoopt: gesprekken, verkenning, een optionele pilot met vaste einddatum, een offerte en een gepauzeerde status met een datum om terug te komen.",
+        "summary": "Verkoop zelf als oprichter zonder de draad van je gesprekken kwijt te raken. Een korte pijplijn van eerste gesprek tot gewonnen, met een optionele pilot met einddatum en een gepauzeerde status met een datum om terug te komen.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Sprzedaż prowadzona przez założyciela",
-        "summary": "Krótki lejek dla założyciela, który sprzedaje osobiście: rozmowy, analiza potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, oferta i status wstrzymane z datą powrotu.",
+        "summary": "Sprzedawaj osobiście jako założyciel i nie gub wątku rozmów. Krótki lejek od pierwszej rozmowy do wygranej, z opcjonalnym pilotażem ze stałym terminem zakończenia i statusem wstrzymane z datą powrotu.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Venda consultiva do fundador",
-        "summary": "Um funil curto para um fundador que vende pessoalmente: conversas, diagnóstico, um piloto opcional com data de término fixa, uma proposta e um estado pausado com data para retomar.",
+        "summary": "Venda como fundador sem perder o fio das suas conversas. Um funil curto da primeira conversa ao ganho, com um piloto opcional com data de término e um estado pausado com data para retomar.",
         "status": "draft",
         "publicPage": "none",
         "page": null
@@ -1098,56 +1098,56 @@
     "locales": {
       "de": {
         "name": "Versicherungsmakler",
-        "summary": "Zwei Pipelines für den Versicherungsmakler: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, und ein Verlängerungsfall für jeden Vertrag, der 120 bis 45 Tage vor der Hauptfälligkeit startet.",
+        "summary": "Keine Verlängerung verpassen und das Neugeschäft in Bewegung halten. Von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, dazu je Vertrag ein Verlängerungsfall 120 bis 45 Tage vor der Hauptfälligkeit.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "en": {
         "name": "Insurance broker pipeline",
-        "summary": "Two pipelines for an insurance broker: new business from lead to bound with the advice documented before the offer, and a renewal case for every policy that starts 120 to 45 days before expiry.",
+        "summary": "See every renewal coming and keep new business moving. Lead to bound with the advice documented before the offer, plus a renewal case for each policy that opens 120 to 45 days before expiry.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Correduría de seguros",
-        "summary": "Dos pipelines para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación para cada póliza que empieza de 120 a 45 días antes del vencimiento.",
+        "summary": "Ve venir cada renovación y mantén el nuevo negocio en marcha. De la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación por póliza, de 120 a 45 días antes del vencimiento.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Courtier en assurance",
-        "summary": "Deux pipelines pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement pour chaque contrat qui s’ouvre de 120 à 45 jours avant l’échéance.",
+        "summary": "Ne laissez plus un renouvellement vous surprendre. De la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement par contrat, ouvert de 120 à 45 jours avant l’échéance.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "it": {
         "name": "Broker assicurativo",
-        "summary": "Due pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, e una pratica di rinnovo per ogni polizza che si apre da 120 a 45 giorni prima della scadenza.",
+        "summary": "Vedi ogni rinnovo in arrivo e tieni in movimento i nuovi affari. Dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, più una pratica di rinnovo per ogni polizza.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "Verzekeringsadviseur",
-        "summary": "Twee pijplijnen voor een verzekeringsadviseur: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, en een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
+        "summary": "Zie elke prolongatie aankomen en houd nieuwe zaken in beweging. Van aanvraag tot polis met het advies vastgelegd vóór de offerte, plus een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Lejek dla brokera ubezpieczeniowego",
-        "summary": "Dwa lejki dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą oraz sprawa odnowienia dla każdej polisy, która startuje od 120 do 45 dni przed końcem ochrony.",
+        "summary": "Miej na oku nadchodzące odnowienia i nie zatrzymuj nowej sprzedaży. Od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, a do tego sprawa odnowienia otwierana od 120 do 45 dni przed końcem ochrony.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "pt": {
         "name": "Corretora de seguros",
-        "summary": "Dois funis para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, e um caso de renovação para cada apólice que começa de 120 a 45 dias antes do vencimento.",
+        "summary": "Veja cada renovação chegando e mantenha as vendas novas andando. Do lead à apólice emitida, com a recomendação documentada antes da proposta, e um caso de renovação por apólice, aberto de 120 a 45 dias antes do vencimento.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
@@ -1184,56 +1184,56 @@
     "locales": {
       "de": {
         "name": "Mandatsaufnahme für Kanzleien",
-        "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein Absageschreiben an alle, die nicht Mandant werden.",
+        "summary": "Neue Mandanten aufnehmen, ohne eine Kollisionsprüfung oder eine Frist zu verpassen. Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot und unterschriebene Vereinbarung, für alle anderen ein Absageschreiben.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "en": {
         "name": "Law firm intake",
-        "summary": "A gated intake for a law firm: inquiry, conflict check, consultation, fee proposal, signed engagement with power of attorney and advance, and a written non-engagement letter for everyone who does not become a client.",
+        "summary": "Take on new clients without missing a conflict check or a time limit. Inquiry, conflict check, consultation, fee proposal and signed engagement, and a written non-engagement letter for everyone else.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Alta de clientes para despachos de abogados",
-        "summary": "Un alta de clientes en pasos fijos: consulta, conflicto de intereses, primera reunión, presupuesto, hoja de encargo y poder firmados con provisión de fondos, y una carta escrita para quien no llega a ser cliente.",
+        "summary": "Acepta clientes sin saltarte la comprobación de conflicto de intereses ni un plazo. Consulta, conflicto, primera reunión, presupuesto y hoja de encargo firmada, y una carta escrita de no contratación para quien no llega a cliente.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Prise de dossier pour avocats",
-        "summary": "Une prise de dossier en étapes fixes : demande, vérification des conflits, premier rendez-vous, convention d’honoraires, lettre de mission et pouvoir signés avec provision, et un courrier de non-prise en charge pour chaque personne qui ne devient pas cliente.",
+        "summary": "Prenez de nouveaux clients sans oublier la vérification des conflits ni un délai. De la demande à la lettre de mission signée en passant par la convention d’honoraires, et un courrier de non-prise en charge pour les autres.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "it": {
         "name": "Acquisizione clienti per studi legali",
-        "summary": "Un'acquisizione in passaggi fissi: richiesta, verifica dei conflitti, primo colloquio, preventivo, incarico e procura firmati con acconto, e una lettera scritta per chi non diventa cliente.",
+        "summary": "Accogli nuovi clienti senza saltare una verifica dei conflitti o un termine. Richiesta, verifica dei conflitti, colloquio, preventivo e incarico firmato, e una lettera scritta di mancato conferimento per tutti gli altri.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "nl": {
         "name": "Intake voor advocatenkantoren",
-        "summary": "Een intake in vaste stappen: aanvraag, conflictcheck, intake, offerte, getekende opdrachtbevestiging met volmacht en voorschot, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
+        "summary": "Neem nieuwe cliënten aan zonder een conflictcheck of termijn te missen. Aanvraag, conflictcheck, intake, offerte en getekende opdrachtbevestiging, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Przyjmowanie klientów w kancelarii",
-        "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
+        "summary": "Przyjmuj nowych klientów, nie pomijając weryfikacji konfliktu interesów ani biegnącego terminu. Zapytanie, konsultacja, oferta, umowa i pełnomocnictwo oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Atendimento de clientes para advocacia",
-        "summary": "Um atendimento em etapas fixas: contato, triagem de conflito e urgência, consulta, proposta de honorários, contrato e procuração assinados e uma carta escrita para quem não vira cliente.",
+        "summary": "Receba clientes novos sem deixar passar uma verificação de conflito nem um prazo. Contato, conflito, consulta, proposta de honorários e contrato assinado, e uma carta escrita de não contratação para quem não vira cliente.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
@@ -1260,56 +1260,56 @@
     "locales": {
       "de": {
         "name": "Mitglieder- und Spendenverwaltung",
-        "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
+        "summary": "Wissen, wer Mitglied ist, wer noch einen Dank braucht und wessen Mitgliedschaft als Nächstes fällig ist. Ein Register für Mitgliedschaften, Spenden mit Zuwendungsbestätigung, Großspenden und Förderanträge.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Donors and members",
-        "summary": "One register for members, donors and volunteers: memberships with a renewal date, gifts with thanks and receipts, and a pipeline for major gifts and grants.",
+        "summary": "Know who your members and supporters are, who still needs a thank-you and who renews next. One register for memberships with renewal dates, gifts with receipts, and major gifts and grants.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Socios y donantes",
-        "summary": "Un registro único de socios, donantes y voluntarios: membresías con fecha de renovación, donativos con agradecimiento y certificado, y un seguimiento de grandes donaciones y subvenciones.",
+        "summary": "Un solo registro para saber quiénes son vuestros socios y colaboradores, a quién falta agradecer y quién renueva pronto: membresías con fecha de renovación, donativos con certificado, y grandes donaciones y subvenciones.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Adhérents et donateurs",
-        "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
+        "summary": "Sachez qui sont vos adhérents et vos soutiens, qui attend encore un remerciement et qui doit renouveler. Un registre unique pour les adhésions avec leur échéance, les dons avec le reçu fiscal, et les grands dons et subventions.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Soci e donatori",
-        "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
+        "summary": "Vedi subito chi sono i tuoi soci e sostenitori, chi aspetta ancora un ringraziamento e chi deve rinnovare. Un unico registro per tesseramenti con scadenza, donazioni con ricevuta, grandi donazioni e bandi.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Leden en donateurs",
-        "summary": "Eén register voor leden, donateurs en vrijwilligers: lidmaatschappen met contributiedatum, giften met bedankje en bewijs, en een pijplijn voor grote giften en subsidies.",
+        "summary": "Weet wie jullie leden en supporters zijn, wie nog een bedankje krijgt en wie als volgende verlengt. Eén register voor lidmaatschappen met verlengdatum, giften met bewijs en grote giften en subsidies.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Członkowie i darczyńcy",
-        "summary": "Jeden rejestr członków, darczyńców i wolontariuszy: członkostwa z terminem składki, darowizny z podziękowaniem i potwierdzeniem oraz lejek dużych darowizn i grantów.",
+        "summary": "Wiedz, kim są Twoi członkowie i sympatycy, kto czeka na podziękowanie i komu niedługo kończy się członkostwo. Jeden rejestr: członkostwa z terminem składki, darowizny z potwierdzeniem oraz duże darowizny i granty.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Associados e doadores",
-        "summary": "Um registro único de associados, doadores e voluntários: mensalidades com data de renovação, doações com agradecimento e recibo, e um acompanhamento de grandes doações e editais.",
+        "summary": "Saiba quem são seus associados e apoiadores, quem ainda espera um agradecimento e quem renova em seguida. Um só registro com vínculos e data de renovação, doações com recibo e grandes doações e editais.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -1347,68 +1347,68 @@
     "locales": {
       "de": {
         "name": "Immobilien-Pipeline",
-        "summary": "Zwei Pipelines, die sich beim Kaufvertrag treffen: Objekt hereinholen und vermarkten, Interessenten betreuen, mit Besichtigungen, Fristen und einer Routine für frühere Kunden.",
+        "summary": "Objekte hereinholen und verkaufen, ohne eine Besichtigung, eine Rückmeldung an den Eigentümer oder eine Frist zu verpassen. Zwei Pipelines, die sich beim Kaufvertrag treffen, dazu eine Routine für frühere Kunden.",
         "status": "draft",
         "publicPage": "proof",
         "page": {
-          "metaTitle": "Immobilien-Pipeline als Vorlage für Ihren KI-Agenten",
-          "metaDescription": "Kopieren Sie die Immobilien-Pipeline in Claude, ChatGPT oder Codex: Objekte, Interessenten, Besichtigungen mit Rückmeldung und die Fristen nach dem Vertrag."
+          "metaTitle": "Immobilien-Pipeline Vorlage: Objekte, Interessenten, Fristen",
+          "metaDescription": "Immobilien-Pipeline in Claude, ChatGPT oder Codex einfügen: Objekte, Interessenten, Besichtigungen mit Rückmeldung und Fristen nach dem Kaufvertrag."
         }
       },
       "en": {
         "name": "Real estate pipeline",
-        "summary": "Two pipelines that meet at the contract: win and market the listing, and work the buyer, with viewings, key dates and a routine for past clients.",
+        "summary": "Win listings and sell them without losing a viewing, an owner update or a key date. Two pipelines that meet at the contract, the listing and the buyer, with viewings, key dates and a routine for past clients.",
         "status": "draft",
         "publicPage": "proof",
         "page": {
-          "metaTitle": "Real Estate Pipeline Template for Your AI Agent",
-          "metaDescription": "Copy a real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, built in your CRM."
+          "metaTitle": "Real Estate Pipeline Template: Listings, Buyers, Dates",
+          "metaDescription": "Paste this real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, in your CRM."
         }
       },
       "es": {
         "name": "Pipeline inmobiliario",
-        "summary": "Dos pipelines que se encuentran en las arras: captar y comercializar el inmueble, y atender al comprador, con visitas, fechas clave y un seguimiento periódico de clientes anteriores.",
+        "summary": "Capta y vende inmuebles sin perder una visita, un aviso al propietario ni una fecha clave. Dos pipelines, el del inmueble y el del comprador, que se encuentran en las arras, con visitas y seguimiento de clientes anteriores.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "fr": {
         "name": "Pipeline immobilier",
-        "summary": "Deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien, et suivre l’acquéreur, avec les visites, les dates clés et une routine pour les anciens clients.",
+        "summary": "Décrochez des mandats et vendez sans oublier une visite, un point avec le propriétaire ou une date clé. Deux pipelines qui se rejoignent au compromis, avec les visites, les dates clés et une routine pour les anciens clients.",
         "status": "draft",
         "publicPage": "proof",
         "page": {
-          "metaTitle": "Modèle de pipeline immobilier pour votre agent IA",
-          "metaDescription": "Copiez le pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM."
+          "metaTitle": "Modèle de pipeline immobilier : biens, acquéreurs, dates",
+          "metaDescription": "Collez ce pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM."
         }
       },
       "it": {
         "name": "Pipeline immobiliare",
-        "summary": "Due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile, e seguire l'acquirente, con visite, scadenze e una routine per gli ex clienti.",
+        "summary": "Acquisisci incarichi e vendi senza perdere una visita, un aggiornamento al proprietario o una scadenza. Due pipeline che si incontrano al compromesso, immobile e acquirente, con visite, scadenze e una routine per gli ex clienti.",
         "status": "draft",
         "publicPage": "proof",
         "page": {
-          "metaTitle": "Pipeline immobiliare: modello per il tuo agente IA",
-          "metaDescription": "Copia la pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e le scadenze dopo il compromesso, nel tuo CRM."
+          "metaTitle": "Pipeline immobiliare: immobili, acquirenti e scadenze",
+          "metaDescription": "Incolla questa pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e scadenze dopo il compromesso, nel tuo CRM."
         }
       },
       "nl": {
         "name": "Makelaarspipeline",
-        "summary": "Twee pipelines die samenkomen bij de koopovereenkomst: de woning binnenhalen en op de markt brengen, en de koper begeleiden, met bezichtigingen, sleutelmomenten en een routine voor oud-klanten.",
+        "summary": "Haal woningen binnen en verkoop ze zonder een bezichtiging, terugkoppeling aan de verkoper of sleutelmoment te missen. Twee pipelines die samenkomen bij de koopovereenkomst, plus een routine voor oud-klanten.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Lejek nieruchomości",
-        "summary": "Dwa lejki, które spotykają się przy umowie: pozyskanie i promocja oferty oraz obsługa kupującego, z prezentacjami, terminami i rutyną dla dawnych klientów.",
+        "summary": "Zdobywaj oferty i sprzedawaj je, nie tracąc z oczu prezentacji ani ważnych terminów. Dwa lejki, oferta właściciela i poszukiwanie kupującego, spotykają się przy umowie, a dla dawnych klientów jest osobna rutyna z datami.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "pt": {
         "name": "Funil imobiliário",
-        "summary": "Dois funis que se encontram no contrato: captar e divulgar o imóvel, e atender o comprador, com visitas, prazos e um acompanhamento periódico de clientes antigos.",
+        "summary": "Capte imóveis e venda sem perder uma visita, um retorno ao proprietário ou um prazo. Dois funis que se encontram no contrato, o do imóvel e o do comprador, com visitas, prazos e acompanhamento de clientes antigos.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
@@ -1446,56 +1446,56 @@
     "locales": {
       "de": {
         "name": "Personalvermittlung",
-        "summary": "Ein Arbeitsplatz für Personalberatung und selbstständige Recruiter: Aufträge von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Provisions- und Garantietermine, Nachbetreuung und ein Löschdatum für jeden Kandidaten.",
+        "summary": "Kein Auftrag, kein Kandidat und kein Provisionstermin geht unter. Von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Garantie- und Nachbetreuungstermine, ein Löschdatum je Kandidat.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "en": {
         "name": "Recruiting desk",
-        "summary": "A desk for a recruitment agency or independent recruiter: job orders from lead to placed, one pipeline entry per candidate, fee and guarantee dates, aftercare check-ins and a retention date on every candidate.",
+        "summary": "Keep every job order, candidate and fee date in one place. Job orders from lead to placed, one pipeline entry per candidate, guarantee and aftercare dates, and a retention date on every candidate.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Consultora de selección de personal",
-        "summary": "Un espacio de trabajo para una consultora de selección o un reclutador independiente: procesos desde el briefing hasta la incorporación, una ficha por candidato y proceso, fechas de honorarios y garantía, seguimiento posterior y una fecha de conservación de cada candidato.",
+        "summary": "Ten cada proceso, candidato y fecha de honorarios en un solo sitio: procesos de la solicitud a la incorporación, una ficha por candidato y proceso, garantía y seguimiento posterior, y una fecha de conservación por candidato.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "fr": {
         "name": "Cabinet de recrutement",
-        "summary": "Un outil pour un cabinet de recrutement ou un recruteur indépendant : missions du brief au placement, une fiche par candidat et par mission, dates d’honoraires et de garantie, suivi après l’embauche et date de conservation de chaque candidat.",
+        "summary": "Gardez missions, candidats et dates d’honoraires au même endroit. Missions du brief au placement, une présentation par candidat et par mission, garantie et suivi après l’embauche, et une date de conservation par candidat.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "it": {
         "name": "Ricerca e selezione del personale",
-        "summary": "Uno strumento per agenzie di ricerca e selezione o recruiter indipendenti: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
+        "summary": "Tieni in un unico posto ogni incarico, candidato e scadenza di fee. Incarichi dalla richiesta all'inserimento, una scheda per candidato e incarico, date di garanzia e di ricontatto e una data di conservazione su ogni candidato.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "nl": {
         "name": "Wervingsbureau",
-        "summary": "Een werkplek voor een wervingsbureau of zelfstandige recruiter: vacatures van aanvraag tot plaatsing, één regel in het proces per kandidaat, fee- en garantiedata, nazorg en een bewaardatum bij elke kandidaat.",
+        "summary": "Houd elke vacature, kandidaat en feedatum op één plek bij. Vacatures van aanvraag tot plaatsing, één voordracht per kandidaat, garantie- en nazorgdata en een bewaardatum bij elke kandidaat.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "pl": {
         "name": "Biuro rekrutacyjne",
-        "summary": "Narzędzie dla agencji rekrutacyjnej lub niezależnego rekrutera: zlecenia od zapytania do zatrudnienia, jeden wpis w procesie na kandydata, terminy prowizji i gwarancji, kontakty po zatrudnieniu i data przechowywania danych każdego kandydata.",
+        "summary": "Trzymaj w jednym miejscu zlecenie, kandydata i termin prowizji. Zlecenia od zapytania do obsadzenia, jedna prezentacja na kandydata, terminy gwarancji i kontaktów po zatrudnieniu oraz data przechowywania danych.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "pt": {
         "name": "Consultoria de recrutamento",
-        "summary": "Um espaço de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
+        "summary": "Tenha cada vaga, candidato e data de honorários em um só lugar. Vagas da solicitação à contratação, uma indicação por candidato e vaga, fim da garantia e acompanhamento pós-contratação e data de retenção de cada candidato.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
@@ -1532,68 +1532,68 @@
     "locales": {
       "de": {
         "name": "Vertriebspipeline",
-        "summary": "Sieben Phasen mit Abschlusskriterien und Gewichtung, ein terminierter nächster Schritt bei jeder offenen Chance, Verlust- und Gewinngründe und bei jedem Phasenwechsel die nächste Aufgabe.",
+        "summary": "Sehen, welche Chancen vorankommen, welche stocken und was als Nächstes passiert. Sieben Phasen mit terminiertem nächstem Schritt bei jeder offenen Chance, dazu die Gründe, warum Sie gewinnen oder verlieren.",
         "status": "draft",
         "publicPage": "own",
         "page": {
-          "metaTitle": "Vertriebspipeline als Vorlage für Ihren KI-Agenten",
-          "metaDescription": "Kopieren Sie die Vertriebspipeline in Claude, ChatGPT oder Codex: sieben Phasen mit Gewichtung und ein nächster Schritt mit Datum je Chance."
+          "metaTitle": "Vertriebspipeline Vorlage: der nächste Schritt je Chance",
+          "metaDescription": "Vertriebspipeline in Claude, ChatGPT oder Codex einfügen: sieben Phasen, ein nächster Schritt mit Datum je Chance und die Gründe für Gewinn oder Verlust."
         }
       },
       "en": {
         "name": "Sales pipeline",
-        "summary": "Seven stages with exit criteria and weights, a dated next step on every open deal, lost and won reasons, and a stage change that creates the next Action.",
+        "summary": "See which deals are moving, which are stuck and what happens next. Seven stages with a dated next step on every open deal, plus the reasons you won or lost.",
         "status": "draft",
         "publicPage": "own",
         "page": {
-          "metaTitle": "Sales Pipeline Template for Your AI Agent",
-          "metaDescription": "Copy a sales pipeline into Claude, ChatGPT or Codex: seven stages with weights, a dated next step on every deal and reasons for won and lost."
+          "metaTitle": "Sales Pipeline Template: Know Every Deal's Next Step",
+          "metaDescription": "Paste this sales pipeline template into Claude, ChatGPT or Codex: seven stages, a dated next step on every deal and the reasons you won or lost, in your CRM."
         }
       },
       "es": {
         "name": "Pipeline de ventas",
-        "summary": "Siete etapas con criterios de salida y ponderación, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria y un cambio de etapa que crea la siguiente tarea.",
+        "summary": "Mira qué oportunidades avanzan, cuáles están atascadas y qué pasa a continuación. Siete etapas con un siguiente paso con fecha en cada oportunidad abierta, y los motivos por los que ganas o pierdes.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Pipeline commercial",
-        "summary": "Sept étapes avec critères de sortie et pondération, une prochaine action datée sur chaque affaire ouverte, les motifs de gain et de perte, et un changement d’étape qui crée la prochaine action.",
+        "summary": "Voyez quelles affaires avancent, lesquelles sont bloquées et ce qui se passe ensuite. Sept étapes avec une prochaine action datée sur chaque affaire ouverte, et les motifs de gain et de perte.",
         "status": "draft",
         "publicPage": "own",
         "page": {
-          "metaTitle": "Modèle de pipeline commercial pour votre agent IA",
-          "metaDescription": "Copiez le pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes pondérées, une action datée par affaire et les motifs de gain et de perte."
+          "metaTitle": "Modèle de pipeline commercial : une action par affaire",
+          "metaDescription": "Collez ce pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes, une prochaine action datée par affaire et les motifs de gain et de perte."
         }
       },
       "it": {
         "name": "Pipeline commerciale",
-        "summary": "Sette fasi con criteri di uscita e pesi, un prossimo passo con scadenza su ogni trattativa aperta, motivi di vittoria e di perdita e un cambio di fase che crea la prossima attività.",
+        "summary": "Vedi quali trattative avanzano, quali sono ferme e che cosa succede dopo. Sette fasi con un prossimo passo con scadenza su ogni trattativa aperta, più i motivi per cui hai vinto o perso.",
         "status": "draft",
         "publicPage": "none",
         "page": {
-          "metaTitle": "Pipeline commerciale: modello per il tuo agente IA",
-          "metaDescription": "Copia la pipeline commerciale in Claude, ChatGPT o Codex: sette fasi con pesi, un prossimo passo datato per trattativa e i motivi di vittoria e perdita."
+          "metaTitle": "Pipeline commerciale: il prossimo passo di ogni trattativa",
+          "metaDescription": "Incolla questa pipeline commerciale in Claude, ChatGPT o Codex: sette fasi, un prossimo passo datato su ogni trattativa e i motivi di vittoria e di perdita."
         }
       },
       "nl": {
         "name": "Sales pipeline",
-        "summary": "Zeven fasen met uitstapcriteria en weging, een volgende stap met datum bij elke open deal, redenen voor gewonnen en verloren en een fasewijziging die de volgende actie aanmaakt.",
+        "summary": "Zie welke deals vooruitgaan, welke vastzitten en wat er daarna gebeurt. Zeven fasen met een volgende stap met datum bij elke open deal, plus de redenen waarom je een deal wint of verliest.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Lejek sprzedaży",
-        "summary": "Siedem etapów z kryteriami wyjścia i wagami, następny krok z terminem przy każdej otwartej szansie, powody wygranej i przegranej oraz zmiana etapu, która tworzy kolejne zadanie.",
+        "summary": "Zobacz, które szanse się ruszają, które utknęły i co dzieje się dalej. Siedem etapów z następnym krokiem z terminem przy każdej otwartej szansie oraz powody wygranej i przegranej.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Funil de vendas",
-        "summary": "Sete etapas com critérios de saída e pesos, um próximo passo com data em cada negócio aberto, motivos de ganho e de perda e uma mudança de etapa que cria a próxima tarefa.",
+        "summary": "Veja quais negócios estão andando, quais travaram e o que acontece em seguida. Sete etapas com um próximo passo com data em cada negócio aberto e os motivos de ganho e de perda.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -1621,56 +1621,56 @@
     "locales": {
       "de": {
         "name": "Lieferantenfragebogen",
-        "summary": "Ein Lieferantenregister mit Selbstauskunft, Zertifikaten mit Ablaufdatum, Risikoklasse, Freigabeentscheidung und Termin für die nächste Bewertung.",
+        "summary": "Wissen, welche Lieferanten freigegeben sind und welches Zertifikat als Nächstes abläuft. Ein Lieferantenregister mit Fragebogen, Zertifikaten mit Ablaufdatum, Risikoklasse und einer Entscheidung je Lieferant.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Supplier questionnaire",
-        "summary": "A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier, an approval decision and a date for the next review.",
+        "summary": "Know which suppliers are approved and which certificate expires next. A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier and a decision for each supplier.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Cuestionario de proveedores",
-        "summary": "Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo, decisión de homologación y fecha de la próxima evaluación.",
+        "summary": "Ten claro qué proveedores están homologados y qué certificado vence primero. Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo y decisión de homologación para cada uno.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Questionnaire fournisseurs",
-        "summary": "Un registre de fournisseurs avec questionnaire de qualification, documents et date de validité, niveau de risque, décision de référencement et date de la prochaine évaluation.",
+        "summary": "Sachez quels fournisseurs sont référencés et quel certificat expire en premier. Un registre de fournisseurs avec questionnaire de qualification, certificats avec date de validité, niveau de risque et décision pour chacun.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Questionario fornitori",
-        "summary": "Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio, decisione di qualifica e data della prossima rivalutazione.",
+        "summary": "Vedi quali fornitori sono qualificati e quale certificato scade per primo. Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio e una decisione per ogni fornitore.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Leveranciersvragenlijst",
-        "summary": "Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau, goedkeuringsbeslissing en de datum van de volgende beoordeling.",
+        "summary": "Weet welke leveranciers zijn goedgekeurd en welk certificaat als eerste verloopt. Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Kwestionariusz dostawcy",
-        "summary": "Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka, decyzją o zatwierdzeniu i terminem następnej oceny.",
+        "summary": "Wiedz, którzy dostawcy są zatwierdzeni i który certyfikat wygasa jako następny. Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka i decyzją o zatwierdzeniu dla każdego dostawcy.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pt": {
         "name": "Questionário de fornecedores",
-        "summary": "Um cadastro de fornecedores com questionário de qualificação, certidões com validade, nível de risco, decisão de homologação e data da próxima avaliação.",
+        "summary": "Saiba quais fornecedores estão homologados e qual certidão vence primeiro. Um cadastro com questionário de qualificação, certidões com validade, nível de risco e uma decisão para cada fornecedor.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -1706,56 +1706,56 @@
     "locales": {
       "de": {
         "name": "Steuerkanzlei",
-        "summary": "Ein Kanzleiarbeitsplatz mit zwei Abläufen: ein Mandat gewinnen, mit Identifizierung und Mandatsvertrag, und die laufende Arbeit je Mandant erledigen, mit einem Fristenregister, das eine zweite Person verifiziert.",
+        "summary": "Mandate, laufende Arbeiten und Fristen im Griff behalten. Ein Mandat über Identifizierung und Mandatsvertrag gewinnen, wiederkehrende Vorgänge je Mandant führen und ein Fristenregister, das eine zweite Person verifiziert.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "en": {
         "name": "Tax and bookkeeping practice",
-        "summary": "A practice desk with two flows: winning a mandate through an identification step and engagement letter, and doing the recurring work per client, with a deadline register that a second person verifies.",
+        "summary": "Keep every mandate, client job and deadline under control. Win a mandate through identification and engagement letter, run recurring jobs per client, and keep a deadline register that a second person verifies.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Despacho fiscal y contable",
-        "summary": "Un espacio de trabajo para un despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
+        "summary": "Ten bajo control cada encargo, expediente y plazo. Consigue encargos con identificación PBC/FT y hoja de encargo, lleva el trabajo recurrente de cada cliente y mantén un calendario de plazos que verifica una segunda persona.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Cabinet d’expertise comptable",
-        "summary": "Un outil de cabinet avec deux flux : obtenir une mission, avec vigilance LCB-FT et lettre de mission, et faire le travail récurrent par client, avec un registre d’échéances vérifié par une seconde personne.",
+        "summary": "Gardez la main sur missions, dossiers et échéances. Obtenez une mission avec vigilance LCB-FT et lettre de mission, suivez le travail récurrent par client et tenez un registre d’échéances vérifié par une seconde personne.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "it": {
         "name": "Studio commercialista",
-        "summary": "Uno strumento per lo studio con due flussi: acquisire un incarico, con adeguata verifica e lettera di incarico, e svolgere il lavoro ricorrente per cliente, con uno scadenzario verificato da una seconda persona.",
+        "summary": "Tieni sotto controllo incarichi, pratiche e scadenze dello studio. Acquisisci l'incarico con adeguata verifica e lettera d'incarico, segui il lavoro ricorrente per cliente e tieni uno scadenzario verificato da una seconda persona.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "nl": {
         "name": "Boekhoud- en belastingkantoor",
-        "summary": "Een kantoorwerkplek met twee stromen: een opdracht binnenhalen, met cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant doen, met een termijnenregister dat een tweede persoon controleert.",
+        "summary": "Houd elke opdracht, elk dossier en elke termijn onder controle. Opdrachten via cliëntenonderzoek en opdrachtbevestiging, terugkerend werk per klant en een termijnenregister dat een tweede persoon controleert.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Biuro rachunkowe",
-        "summary": "Narzędzie dla biura rachunkowego z dwoma obiegami: pozyskanie klienta, z weryfikacją AML i umową, oraz stała obsługa klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
+        "summary": "Miej pod kontrolą każdą umowę, każde rozliczenie klienta i każdy termin. Pozyskaj klienta przez weryfikację AML i umowę, prowadź powtarzalne rozliczenia na klienta i rejestr terminów sprawdzany przez drugą osobę.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "pt": {
         "name": "Escritório contábil",
-        "summary": "Um espaço de trabalho de escritório com dois fluxos: conquistar um cliente, com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente, com um calendário de prazos conferido por uma segunda pessoa.",
+        "summary": "Mantenha cada contrato, entrega e prazo sob controle. Conquiste clientes com diligência de PLD e contrato de prestação de serviços, faça o trabalho recorrente por cliente e deixe cada prazo conferido por uma segunda pessoa.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
@@ -1784,56 +1784,56 @@
     "locales": {
       "de": {
         "name": "Team-Aufgaben",
-        "summary": "Ein Arbeitstracker für ein kleines Team: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf derselben Liste.",
+        "summary": "Sehen, wer was bis wann erledigt, ohne schweres Projektwerkzeug. Projekte und Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf einer Liste.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "Team tracker",
-        "summary": "A work tracker for a small team: projects, tasks with one owner and one due date, recurring chores and requests from outside the team on the same list.",
+        "summary": "See who is doing what by when, without a heavy project tool. Projects and tasks with one owner and one due date, recurring chores and requests from outside the team on one list.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Seguimiento del equipo",
-        "summary": "Un seguimiento del trabajo para un equipo pequeño: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes externas en la misma lista.",
+        "summary": "Ve quién hace qué y para cuándo, sin una herramienta de proyectos pesada. Proyectos y tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes de fuera del equipo en la misma lista.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "fr": {
         "name": "Suivi d’équipe",
-        "summary": "Un suivi du travail pour une petite équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes et demandes venues de l’extérieur sur la même liste.",
+        "summary": "Voyez qui fait quoi pour quand, sans outil de projet lourd. Des projets et des tâches avec un responsable et une échéance, les tâches récurrentes et les demandes venues de l’extérieur sur la même liste.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "it": {
         "name": "Gestione attività del team",
-        "summary": "Un tracker di lavoro per un piccolo team: progetti, attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno sulla stessa lista.",
+        "summary": "Vedi chi fa che cosa e per quando, senza uno strumento di project management pesante. Progetti e attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno del team sulla stessa lista.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "nl": {
         "name": "Teamtaken",
-        "summary": "Een werkoverzicht voor een klein team: projecten, taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
+        "summary": "Zie wie wat wanneer doet, zonder zware projecttool. Projecten en taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pl": {
         "name": "Śledzenie zadań zespołu",
-        "summary": "Narzędzie do śledzenia pracy małego zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby z zewnątrz na jednej liście.",
+        "summary": "Zobacz, kto co robi i do kiedy, bez ciężkiego narzędzia do projektów. Projekty i zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby spoza zespołu na jednej liście.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "pt": {
         "name": "Acompanhamento da equipe",
-        "summary": "Um acompanhamento de trabalho para uma equipe pequena: projetos, tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
+        "summary": "Veja quem está fazendo o quê e até quando, sem uma ferramenta pesada de projetos. Projetos e tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -1870,56 +1870,56 @@
     "locales": {
       "de": {
         "name": "Handwerker-Aufträge",
-        "summary": "Eine Pipeline für den Handwerksbetrieb: Anfrage, Besichtigung, Angebot und Nachfassen, danach die Ausführung von geplant bis bezahlt, mit Widerrufs-, Gewährleistungs- und Wartungsterminen an jedem Auftrag.",
+        "summary": "Jedes Angebot nachfassen, jeden Auftrag im Blick behalten, vom ersten Anruf bis zur Zahlung. Besichtigung, Angebot, Ausführung von geplant bis bezahlt, dazu Widerrufs-, Gewährleistungs- und Wartungstermine.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "en": {
         "name": "Trades job pipeline",
-        "summary": "A pipeline for a trade business: inquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
+        "summary": "Follow up every quote and keep every job on track, from the first call to payment. Site visit, quote and the work itself from scheduled to paid, with withdrawal, warranty and service dates on each job.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "es": {
         "name": "Trabajos para oficios",
-        "summary": "Un pipeline para una empresa de oficios: solicitud, visita técnica, presupuesto y seguimiento, y luego el trabajo de programado a pagado, con fechas de desistimiento, garantía y mantenimiento en cada trabajo.",
+        "summary": "Haz seguimiento de cada presupuesto y mantén cada trabajo al día, de la primera llamada al cobro: visita técnica, presupuesto y obra de programado a pagado, con fechas de desistimiento, garantía y mantenimiento.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Dossiers d’artisan",
-        "summary": "Un pipeline pour une entreprise de travaux : demande, visite, devis et relance, puis le chantier de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
+        "summary": "Relancez chaque devis et gardez chaque chantier sous contrôle, du premier appel au paiement. Visite, devis, puis les travaux de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "it": {
         "name": "Commesse per artigiani",
-        "summary": "Una pipeline per un'impresa artigiana: richiesta, sopralluogo, preventivo e sollecito, poi il lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
+        "summary": "Sollecita ogni preventivo e tieni ogni lavoro sotto controllo, dalla prima chiamata al pagamento. Sopralluogo, preventivo e lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "nl": {
         "name": "Opdrachten voor vakmensen",
-        "summary": "Een pijplijn voor een vakbedrijf: aanvraag, opname, offerte en opvolging, daarna het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
+        "summary": "Volg elke offerte op en houd elke opdracht op koers, van het eerste telefoontje tot betaling. Opname, offerte en het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "pl": {
         "name": "Zlecenia dla firm usługowych",
-        "summary": "Lejek dla firmy remontowej lub instalacyjnej: zapytanie, oględziny, wycena i przypomnienie, potem praca od zaplanowanej do opłaconej, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
+        "summary": "Wracaj do każdej oferty i pilnuj każdego zlecenia, od pierwszego telefonu do zapłaty. Oględziny, wycena i same prace od zaplanowanych do opłaconych, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Obras e serviços",
-        "summary": "Um funil para uma empresa de serviços e obras: solicitação, visita técnica, orçamento e retorno, e depois a execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
+        "summary": "Retorne cada orçamento e mantenha cada serviço no prazo, da primeira ligação ao pagamento. Visita técnica, orçamento e execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
@@ -1945,56 +1945,56 @@
     "locales": {
       "de": {
         "name": "Dealflow für Investoren",
-        "summary": "Ein Dealflow für einen kleinen Fonds oder Business Angel: acht Phasen von erkannt bis vollzogen oder abgelehnt, der Vermittler bei jedem Deal, ein Absagegrund und ein Termin zur Wiedervorlage.",
+        "summary": "Nie vergessen, wer einen Deal vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Ein Dealflow für einen kleinen Fonds oder Business Angel, mit acht Phasen von erkannt bis vollzogen oder abgelehnt.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "en": {
         "name": "VC deal flow",
-        "summary": "A deal flow for a small fund or angel: eight stages from sourced to closed or passed, the introducer on every deal, a pass reason and a date to revisit.",
+        "summary": "Remember who introduced a deal, why you passed and when to look again. A deal flow for a small fund or angel, with eight stages from sourced to closed or passed.",
         "status": "draft",
         "publicPage": "own",
         "page": null
       },
       "es": {
         "name": "Dealflow para inversores",
-        "summary": "Un dealflow para un fondo pequeño o un business angel: ocho etapas de la detección al cierre o al rechazo, quién presentó cada operación, un motivo de rechazo y una fecha para retomar.",
+        "summary": "Recuerda quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Un dealflow para un fondo pequeño o un business angel, con ocho etapas de la detección al cierre o al rechazo.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "fr": {
         "name": "Dealflow d’investisseur",
-        "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
+        "summary": "Retrouvez qui vous a apporté un dossier, pourquoi vous avez refusé et quand le revoir. Un dealflow pour un petit fonds ou un business angel, avec huit étapes de la détection au closing ou au refus.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "it": {
         "name": "Dealflow per investitori",
-        "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall'individuazione al closing o al rifiuto, chi ha fatto l'introduzione per ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
+        "summary": "Ricorda chi ti ha presentato un'operazione, perché hai detto no e quando riguardarla. Un dealflow per un piccolo fondo o un business angel, con otto fasi dall'individuazione al closing o al rifiuto.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "Dealflow voor investeerders",
-        "summary": "Een dealflow voor een klein fonds of business angel: acht fasen van gesignaleerd tot gesloten of afgewezen, wie elke deal aandroeg, een reden van afwijzing en een datum om terug te komen.",
+        "summary": "Onthoud wie een deal aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Een dealflow voor een klein fonds of business angel, met acht fasen van gesignaleerd tot gesloten of afgewezen.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Dealflow inwestora",
-        "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data ponownej oceny.",
+        "summary": "Pamiętaj, kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Dealflow para investidores",
-        "summary": "Um dealflow para um fundo pequeno ou um investidor-anjo: oito etapas da identificação ao fechamento ou à recusa, quem indicou cada negócio, um motivo de recusa e uma data para retomar.",
+        "summary": "Lembre quem indicou cada negócio, por que você recusou e quando olhar de novo. Um dealflow para um fundo pequeno ou um investidor-anjo, com oito etapas da identificação ao fechamento ou à recusa.",
         "status": "draft",
         "publicPage": "none",
         "page": null
@@ -2032,56 +2032,56 @@
     "locales": {
       "de": {
         "name": "WhatsApp-Anfragen nachfassen",
-        "summary": "Eine Pipeline für kleine Unternehmen, deren Kunden per WhatsApp schreiben: Anfrage festhalten, schnell antworten, Angebot senden, nach Tagen nachfassen, Auftrag bestätigen und an den Wiederkauf denken.",
+        "summary": "Keine Kunden mehr verlieren, die per WhatsApp schreiben. Jeder Chat wird zur Anfrage mit Angebot, terminiertem nächstem Schritt und Wiedervorlage, damit Sie schnell antworten, nachfassen und den Wiederkauf nicht vergessen.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "en": {
         "name": "WhatsApp inquiry follow-up",
-        "summary": "A pipeline for a small business whose customers write on WhatsApp: record the inquiry, reply fast, send a quote, follow up in days, confirm the order and remember the repeat purchase.",
+        "summary": "Stop losing customers who write to you on WhatsApp. Every chat becomes an inquiry with a quote, a dated next step and a come-back date, so you reply fast, follow up in days and remember the repeat purchase.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "es": {
         "name": "Seguimiento de consultas por WhatsApp",
-        "summary": "Un pipeline para una pequeña empresa cuyos clientes escriben por WhatsApp: anotar la consulta, responder rápido, enviar un presupuesto, hacer seguimiento en días, confirmar el pedido y recordar la recompra.",
+        "summary": "Deja de perder a los clientes que te escriben por WhatsApp. Cada chat pasa a ser una consulta con presupuesto, seguimiento con fecha y fecha para volver, así respondes rápido y te acuerdas de la recompra.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
       },
       "fr": {
         "name": "Suivi des demandes WhatsApp",
-        "summary": "Un pipeline pour une petite entreprise dont les clients écrivent sur WhatsApp : noter la demande, répondre vite, envoyer un devis, relancer en quelques jours, confirmer la commande et penser au réachat.",
+        "summary": "Ne perdez plus les clients qui vous écrivent sur WhatsApp. Chaque conversation devient une demande avec un devis, une relance datée et une date pour revenir : vous répondez vite, relancez en quelques jours et pensez au réachat.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "it": {
         "name": "Follow-up delle richieste WhatsApp",
-        "summary": "Una pipeline per una piccola impresa i cui clienti scrivono su WhatsApp: registrare la richiesta, rispondere in fretta, inviare un preventivo, sollecitare dopo qualche giorno, confermare l'ordine e ricordare il riacquisto.",
+        "summary": "Smetti di perdere i clienti che ti scrivono su WhatsApp. Ogni chat diventa una richiesta con preventivo e un prossimo passo con data, così rispondi in fretta, solleciti dopo pochi giorni e ricordi il riacquisto.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "nl": {
         "name": "WhatsApp-aanvragen opvolgen",
-        "summary": "Een pijplijn voor een klein bedrijf waarvan de klanten via WhatsApp schrijven: de aanvraag vastleggen, snel antwoorden, een offerte sturen, binnen dagen opvolgen, de bestelling bevestigen en aan de herhaalaankoop denken.",
+        "summary": "Verlies geen klanten meer die je via WhatsApp schrijven. Elk gesprek wordt een aanvraag met offerte, een volgende stap met datum en een terugkomdatum, zodat je snel antwoordt, binnen dagen opvolgt en aan de herhaalaankoop denkt.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pl": {
         "name": "Obsługa zapytań z WhatsAppa",
-        "summary": "Lejek dla małej firmy, której klienci piszą na WhatsAppie: zapisać zapytanie, szybko odpowiedzieć, wysłać ofertę, przypomnieć po kilku dniach, potwierdzić zamówienie i pamiętać o ponownym zakupie.",
+        "summary": "Nie trać klientów, którzy piszą na WhatsAppie. Każda rozmowa staje się zapytaniem z ofertą, następnym krokiem z terminem i datą powrotu, więc odpowiadasz szybko, przypominasz się po kilku dniach i pamiętasz o ponownym zakupie.",
         "status": "draft",
         "publicPage": "none",
         "page": null
       },
       "pt": {
         "name": "Acompanhamento de atendimentos no WhatsApp",
-        "summary": "Um funil para uma pequena empresa cujos clientes escrevem no WhatsApp: registrar o atendimento, responder rápido, enviar o orçamento, fazer o retorno em dias, confirmar o pedido e lembrar da recompra.",
+        "summary": "Pare de perder clientes que escrevem no WhatsApp. Cada conversa vira um atendimento com orçamento, próximo contato com data e data para voltar, para você responder rápido, fazer o retorno em dias e lembrar da recompra.",
         "status": "draft",
         "publicPage": "proof",
         "page": null

@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Questionário de fornecedores",
-  "summary": "Um cadastro de fornecedores com questionário de qualificação, certidões com validade, nível de risco, decisão de homologação e data da próxima avaliação.",
-  "description": "Qualifique fornecedores e prestadores em um só lugar: envie um questionário, reúna certificados e certidões com a data de validade, classifique cada fornecedor por nível de risco, registre a decisão (homologar, homologar com restrições, escalar, reprovar) e veja o que vence primeiro. O modelo coordena as evidências. Ele não decide a conformidade legal, não consulta sanções nem risco financeiro e não substitui o sistema de qualidade, o ERP ou o arquivo de documentos.",
+  "summary": "Saiba quais fornecedores estão homologados e qual certidão vence primeiro. Um cadastro com questionário de qualificação, certidões com validade, nível de risco e uma decisão para cada fornecedor.",
+  "description": "Os certificados dos fornecedores vencem e as reavaliações ficam para trás quando as respostas estão em e-mails e pastas. Este modelo qualifica fornecedores e prestadores em um só lugar: você envia um questionário, reúne certificados e certidões com a data de validade, classifica cada fornecedor por nível de risco, registra a decisão (homologar, homologar com restrições, escalar, reprovar) e vê o que vence primeiro. Ele coordena as evidências. Não decide a conformidade legal, não consulta sanções nem risco financeiro e não substitui o sistema de qualidade, o ERP ou o arquivo de documentos.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas dos fornecedores que respondem aos questionários e enviam documentos." },
     "suppliers": { "label": "Fornecedor", "pluralLabel": "Fornecedores", "description": "Cada fornecedor ou prestador, de candidato a homologado ou reprovado." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "Os fornecedores abrem como quadro por status."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
+    "intro": "Eu trabalho com muitos fornecedores e não vejo de quais os certificados já venceram nem quais precisam ser reavaliados. Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
     "questions": [
       "Quantos fornecedores você tem e como os divide por nível de risco?",
       "Quais certificados ou certidões você pede e quanto tempo vale cada um?",

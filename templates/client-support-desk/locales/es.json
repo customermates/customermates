@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Soporte al cliente",
-  "summary": "Un soporte ligero: tickets con prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y una valoración de satisfacción.",
-  "description": "Atiende a tus clientes desde un solo lugar: cada ticket tiene un estado, una prioridad, un tipo, un responsable y la fecha límite de la primera respuesta y de la solución. Vincula los tickets a una incidencia conocida para avisar a todos cuando se resuelva y mantén a la vista el plazo de un mes de una solicitud de datos. Pensado para unas decenas de tickets por semana. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
+  "summary": "Responde a cada cliente a tiempo sin un helpdesk pesado. Tickets con prioridad, primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y valoración de satisfacción.",
+  "description": "Cuando los clientes escriben desde varios sitios, las consultas se pierden y nadie sabe cuáles van con retraso. Esta plantilla prepara tickets con un estado, una prioridad, un tipo y un responsable, la fecha límite de la primera respuesta y de la solución, e incidencias conocidas que unen varios tickets a una causa para avisar a todos cuando se resuelva. El plazo de un mes de una solicitud de datos queda siempre a la vista. Está pensada para unas decenas de tickets por semana en una empresa o agencia de una a ocho personas. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Las personas que te escriben para pedir ayuda." },
     "accounts": { "label": "Cuenta", "pluralLabel": "Cuentas", "description": "Las empresas detrás de tus clientes, con su plan de soporte." },
@@ -96,7 +96,7 @@
     "tickets_board_view": "Los tickets se abren como tablero por estado."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
+    "intro": "Las consultas de los clientes llegan por correo y por chat y no sé cuáles siguen esperando respuesta. Configura en mi espacio de trabajo de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
     "questions": [
       "¿Cuántos tickets gestionas por semana y por qué canales llegan?",
       "¿Qué plazos prometes para la primera respuesta y la resolución, según la prioridad o el plan de soporte?",

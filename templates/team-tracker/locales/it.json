@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Gestione attività del team",
-  "summary": "Un tracker di lavoro per un piccolo team: progetti, attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno sulla stessa lista.",
-  "description": "Tieni un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
+  "summary": "Vedi chi fa che cosa e per quando, senza uno strumento di project management pesante. Progetti e attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno del team sulla stessa lista.",
+  "description": "In un piccolo team le attività si nascondono in chat, bacheche e teste, e un'attività bloccata passa inosservata fino al giorno della scadenza. Questo modello tiene un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
   "lists": {
     "requesters": { "label": "Richiedente", "pluralLabel": "Richiedenti", "description": "Le persone esterne al team che chiedono lavoro." },
     "projects": { "label": "Progetto", "pluralLabel": "Progetti", "description": "Un insieme di attività con responsabile, andamento e scadenza." },
@@ -81,7 +81,7 @@
     "tasks_board_view": "Le attività si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
+    "intro": "Il lavoro del nostro team è sparso tra chat, una bacheca e un foglio di calcolo e non riesco a vedere che cosa è in ritardo o bloccato. Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
     "questions": [
       "Quante persone ha il team e di cosa si occupano?",
       "Quali stati usi oggi in Trello, Jira, Asana o in un foglio di calcolo?",

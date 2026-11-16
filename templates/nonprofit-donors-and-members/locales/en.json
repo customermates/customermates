@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Donors and members",
-  "summary": "One register for members, donors and volunteers: memberships with a renewal date, gifts with thanks and receipts, and a pipeline for major gifts and grants.",
-  "description": "For associations, clubs, charities and congregations: who supports you and how, which membership runs until when, which gift still needs a thank-you or a receipt, and which large gift or grant is in progress. It does not issue tax receipts or collect payments; it tells you which ones are due.",
+  "summary": "Know who your members and supporters are, who still needs a thank-you and who renews next. One register for memberships with renewal dates, gifts with receipts, and major gifts and grants.",
+  "description": "Clubs, charities and congregations lose members and goodwill when renewals are missed and gifts go unthanked, because the lists live with different volunteers. This template sets up supporters, memberships with a fee and a renewal date, gifts with thank-you and receipt status, and a pipeline for major gifts and grants. It fits associations, clubs, charities and congregations that want one register instead of several. It does not issue tax receipts or collect payments; it tells you which ones are due.",
   "lists": {
     "supporters": { "label": "Supporter", "pluralLabel": "Supporters", "description": "Members, donors, volunteers, guests and board members." },
     "memberships": { "label": "Membership", "pluralLabel": "Memberships", "description": "One membership with its fee and renewal date." },
@@ -137,7 +137,7 @@
     "receipt_field": "Every gift shows whether a receipt is due."
   },
   "prompt": {
-    "intro": "Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
+    "intro": "Our members, donors and volunteers are spread over several lists, and renewals and thank-yous get missed. Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
     "questions": [
       "Are you an association or club, a charity or a congregation? Which of members, donors and volunteers do you have?",
       "Which membership levels and fees do you use, and how are fees collected?",

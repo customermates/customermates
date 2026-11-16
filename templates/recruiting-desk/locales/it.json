@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Ricerca e selezione del personale",
-  "summary": "Uno strumento per agenzie di ricerca e selezione o recruiter indipendenti: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
-  "description": "Gestisci l'agenzia in un unico posto: clienti e condizioni di incarico, incarichi con una fase e una fee prevista, candidati presentati per incarico con la propria fase, inserimenti con la fine del periodo di garanzia e i ricontatti dopo l'ingresso, e una data di revisione della conservazione su ogni candidato. Adatto a un team da una a cinque persone. Non è un job board, né un parser di CV, né uno strumento di invii di massa, né un sistema di timesheet e paghe. Nulla viene inviato automaticamente a candidati o clienti.",
+  "summary": "Tieni in un unico posto ogni incarico, candidato e scadenza di fee. Incarichi dalla richiesta all'inserimento, una scheda per candidato e incarico, date di garanzia e di ricontatto e una data di conservazione su ogni candidato.",
+  "description": "Chi fa ricerca e selezione segue clienti, incarichi e candidati presentati su più incarichi insieme, e le date che contano, l'inserimento, la fine della garanzia e il momento di cancellare i dati dei candidati, si perdono facilmente. Questo modello imposta clienti con le loro condizioni, incarichi con una fase e una fee prevista, candidati presentati per incarico con la propria fase, inserimenti con la fine del periodo di garanzia e i ricontatti dopo l'ingresso, e una data di revisione della conservazione su ogni candidato. Adatto a un team da una a cinque persone. Non è un job board, né un parser di CV, né uno strumento di invii di massa, né un sistema di timesheet e paghe, e nulla viene inviato automaticamente a candidati o clienti.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Candidati e referenti", "description": "Candidati, referenti presso il cliente e segnalatori." },
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Le aziende per cui ricerchi, con fee e condizioni di garanzia." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "La base di conoscenza contiene una pagina sui dati dei candidati e sulla conservazione."
   },
   "prompt": {
-    "intro": "Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
+    "intro": "Faccio ricerca e selezione per aziende clienti e perdo il filo di chi ho presentato dove, di quando finisce una garanzia e per quanto posso conservare i dati dei candidati. Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
     "questions": [
       "Lavori a successo, in retained o in entrambi i modi, e che fee e garanzia concordi di solito?",
       "Quanti incarichi e candidati gestisci in parallelo e chi segue quale fase?",

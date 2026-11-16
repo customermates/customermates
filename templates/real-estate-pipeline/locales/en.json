@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Real estate pipeline",
-  "summary": "Two pipelines that meet at the contract: win and market the listing, and work the buyer, with viewings, key dates and a routine for past clients.",
-  "description": "A real estate practice runs an owner side (valuation, listing agreement, marketing, offers) and a buyer side (lead, qualification, viewings, offer), then one shared under-contract phase with hard dates. This template tracks both, the agreement type and its end date, every viewing with its feedback, the key dates after signature and a dated routine for past clients. Value on a listing holds the expected commission.",
+  "summary": "Win listings and sell them without losing a viewing, an owner update or a key date. Two pipelines that meet at the contract, the listing and the buyer, with viewings, key dates and a routine for past clients.",
+  "description": "A real estate practice works two sides of one sale, the owner who lists and the buyer who searches, and the key dates after the contract are easy to miss between the two. This template tracks the owner side (valuation, listing agreement, marketing, offers) and the buyer side (lead, qualification, viewings, offer), then one shared phase after the contract with hard dates. You see the agreement type and its end date, every viewing with its feedback, the key dates after signature and a dated routine for past clients. Value on a listing holds the expected commission.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Owners, landlords, buyers, tenants and referrers." },
     "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Developers, lenders, notaries and referral partners." },
@@ -401,10 +401,10 @@
     "operating_guide_page": "The Knowledge Base holds the operating guide."
   },
   "page": {
-    "metaTitle": "Real Estate Pipeline Template for Your AI Agent",
-    "metaDescription": "Copy a real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, built in your CRM.",
-    "headline": "A real estate pipeline your AI agent builds in your CRM",
-    "answer": "A real estate practice runs two pipelines that meet at the contract: winning and marketing the listing for the owner, and working the buyer through viewings to an offer. Paste this template into your AI agent and it builds both in Customermates, with listing agreements, viewings, key dates and a dated routine for past clients. You approve the plan before anything is written.",
+    "metaTitle": "Real Estate Pipeline Template: Listings, Buyers, Dates",
+    "metaDescription": "Paste this real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, in your CRM.",
+    "headline": "Never miss a viewing or key date: a real estate pipeline your AI agent builds",
+    "answer": "A real estate pipeline is two lists of work that meet at the contract: the owner's listing, from valuation to offers, and the buyer's search, from lead to viewings and an offer. Paste this template into your AI agent and it builds both in Customermates, with listing agreements, viewings with feedback, key dates after signature and a dated routine for past clients. You approve the plan before anything is built.",
     "routine": {
       "title": "The weekly listing and buyer round",
       "steps": [
@@ -442,7 +442,7 @@
     ]
   },
   "prompt": {
-    "intro": "Set up a real estate pipeline in my Customermates workspace: listings with the agreement type and end date, buyer searches, viewings with feedback, key dates after the contract is signed, and a dated task for every open record.",
+    "intro": "I work with owners who list and buyers who search, and I lose track of viewings, feedback and the dates after the contract. Set up a real estate pipeline in my Customermates workspace: listings with the agreement type and end date, buyer searches, viewings with feedback, key dates after the contract is signed, and a dated task for every open record.",
     "questions": [
       "Do you work for owners, for buyers or for both? Do you sell, let or both?",
       "In which country do you work, and which agreement types do you use there?",

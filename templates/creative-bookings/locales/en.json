@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Creative bookings",
-  "summary": "For photographers, videographers and event planners: an inquiry-to-booking pipeline, a delivery stage after the date, deposit and balance tracking, and a note for every anniversary.",
-  "description": "One row per booking with two stages: sales (inquiry to booked) and delivery (shoot done to delivered). Dates are held until a contract is signed and a deposit paid, the balance has its own due date, and every delivered job asks for a review. Contracts, invoices and galleries stay in your own tools; links are kept here.",
+  "summary": "For photographers, videographers and event planners: keep every inquiry, date and deposit straight, from the first message to booked, delivered and an anniversary note.",
+  "description": "Dates get promised without a deposit and deliveries get forgotten when inquiries live in chats and a calendar. This template gives every booking one row with two stages: sales from inquiry to booked, and delivery from shoot done to delivered. A date is held until the contract is signed and the deposit paid, the balance has its own due date, and every delivered job asks for a review. Contracts, invoices and galleries stay in your own tools; links are kept here.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "People", "description": "Clients, partners of clients, planners and venue contacts." },
     "partners": { "label": "Partner", "pluralLabel": "Partners", "description": "Venues, planners, caterers and other vendors you work with." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "The bookings open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up creative bookings in my Customermates workspace: a pipeline from inquiry to booked, a delivery stage after the date, deposit and balance tracking, a questionnaire before the event, a review request and anniversary notes.",
+    "intro": "I run a photo, video or event business and lose track of which dates are held, which deposits are paid and what still has to be delivered. Set up creative bookings in my Customermates workspace: a pipeline from inquiry to booked, a delivery stage after the date, deposit and balance tracking, a questionnaire before the event, a review request and anniversary notes.",
     "questions": [
       "What do you shoot or plan, and how many bookings a year?",
       "Which steps does a client go through from inquiry to booked, and when is the date held?",

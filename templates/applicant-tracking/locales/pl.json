@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Śledzenie kandydatów",
-  "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
-  "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, przyszłego przełożonego i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każda osoba prowadząca rozmowę wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji, narzędzie do ofert zatrudnienia i podpisów elektronicznych ani doradca prawny w sprawie okresów przechowywania danych.",
+  "summary": "Dopilnuj, żeby żaden kandydat nie czekał na odpowiedź bez końca. Jedna aplikacja na ofertę pracy w dziewięciu etapach, karta oceny od każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+  "description": "W małej firmie rekrutacja opiera się na e-mailach i pamięci: kandydaci za długo czekają na odpowiedź, notatki z rozmów są rozrzucone, a odrzucone aplikacje zalegają w skrzynce znacznie dłużej, niż powinny. Szablon zakłada oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydatów oraz aplikacje, które przechodzą od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia. Każda osoba prowadząca rozmowę wypełnia kartę oceny, a odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. Pasuje do firmy z kilkoma otwartymi ofertami naraz. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji ani narzędzie do podpisów elektronicznych i nie zastępuje porady prawnej w sprawie okresów przechowywania danych.",
   "lists": {
     "applicants": { "label": "Kandydat", "pluralLabel": "Kandydaci", "description": "Osoby, które aplikują, ze źródłem i zgodą na przyszłe rekrutacje." },
     "jobs": { "label": "Oferta pracy", "pluralLabel": "Oferty pracy", "description": "Każde otwarte stanowisko z przyszłym przełożonym i widełkami wynagrodzenia." },
@@ -105,7 +105,7 @@
     "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
+    "intro": "Rekrutuję do swojej małej firmy: kandydaci za długo czekają na odpowiedź, a notatki z rozmów leżą w różnych miejscach. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
     "questions": [
       "Ile ofert jest otwartych jednocześnie i kto rekrutuje na każdą z nich?",
       "Skąd przychodzą kandydaci i czy używasz formularza aplikacyjnego?",

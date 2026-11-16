@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Encargos de consultoría",
-  "summary": "Un pipeline para un consultor independiente: encargos del contacto al encargo ganado con comprobación de aceptación antes de la oferta, una fecha de seguimiento acordada en la llamada de la propuesta y entregables que regulan la ejecución y el cierre.",
-  "description": "Lleva tu consultoría en un solo lugar: encargos a través de exploración, alcance, propuesta y decisión, la fecha de seguimiento acordada con el patrocinador, una comprobación de aceptación (capacidad, independencia, confidencialidad) antes de la oferta, entregables con su fecha límite y su aceptación, y un cierre que pide opinión y un testimonio. Guarda el pipeline, las relaciones y los hitos de entrega. No sirve para controlar horas, facturar, firmar propuestas electrónicamente ni planificar recursos, y no contiene datos confidenciales del cliente.",
+  "summary": "Ten claro en qué punto está cada propuesta y no pierdas ningún contacto tras la llamada. Encargos del contacto al ganado, una fecha de seguimiento acordada en la llamada y entregables que controlan la ejecución y el cierre.",
+  "description": "En una consultoría independiente llevas pocas conversaciones y una propuesta a la vez, y los encargos se enfrían en el silencio tras la llamada de la propuesta o en el hueco entre la firma y el arranque. Esta plantilla prepara los encargos a través de exploración, alcance, propuesta y decisión, con la fecha de seguimiento acordada con el patrocinador, una comprobación de aceptación (capacidad, independencia, confidencialidad) antes de la oferta, entregables con su fecha límite y su aceptación, y un cierre que pide opinión y un testimonio. Guarda el pipeline, las relaciones y los hitos de entrega. No sirve para controlar horas, facturar, firmar propuestas electrónicamente ni planificar recursos, y no contiene datos confidenciales del cliente.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Patrocinadores, contactos del día a día, quienes firman y quienes recomiendan." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Clientes potenciales, clientes, antiguos clientes y socios que recomiendan." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "Los encargos se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
+    "intro": "Tengo mi propia consultoría y pierdo encargos en el silencio que sigue a la llamada de la propuesta. Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
     "questions": [
       "¿Qué tipos de encargos vendes y a qué tarifa diaria?",
       "¿Cómo decides si aceptas un trabajo?",

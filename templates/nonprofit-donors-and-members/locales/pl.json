@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Członkowie i darczyńcy",
-  "summary": "Jeden rejestr członków, darczyńców i wolontariuszy: członkostwa z terminem składki, darowizny z podziękowaniem i potwierdzeniem oraz lejek dużych darowizn i grantów.",
-  "description": "Dla stowarzyszeń, klubów, fundacji i parafii: kto Cię wspiera i jak, które członkostwo trwa do kiedy, która darowizna czeka jeszcze na podziękowanie lub potwierdzenie i która duża darowizna lub grant jest w toku. Narzędzie nie wystawia potwierdzeń ani nie pobiera składek, pokazuje tylko, które są do zrobienia.",
+  "summary": "Wiedz, kim są Twoi członkowie i sympatycy, kto czeka na podziękowanie i komu niedługo kończy się członkostwo. Jeden rejestr: członkostwa z terminem składki, darowizny z potwierdzeniem oraz duże darowizny i granty.",
+  "description": "Kluby, fundacje i parafie tracą członków i dobrą wolę, gdy terminy składek umykają, a darowizny zostają bez podziękowania, bo listy prowadzą różni wolontariusze. Szablon zakłada sympatyków, członkostwa ze składką i terminem, darowizny ze stanem podziękowania i potwierdzenia oraz lejek dużych darowizn i grantów. Pasuje do stowarzyszeń, klubów, fundacji i parafii, które chcą jednego rejestru zamiast kilku. Nie wystawia potwierdzeń darowizn ani nie pobiera składek, pokazuje tylko, co jest do zrobienia.",
   "lists": {
     "supporters": { "label": "Sympatyk", "pluralLabel": "Sympatycy", "description": "Członkowie, darczyńcy, wolontariusze, goście i zarząd." },
     "memberships": { "label": "Członkostwo", "pluralLabel": "Członkostwa", "description": "Jedno członkostwo ze składką i terminem odnowienia." },
@@ -137,7 +137,7 @@
     "receipt_field": "Każda darowizna pokazuje, czy trzeba wystawić potwierdzenie."
   },
   "prompt": {
-    "intro": "Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
+    "intro": "Nasi członkowie, darczyńcy i wolontariusze są rozrzuceni po kilku listach, a przez to umykają nam składki i podziękowania. Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
     "questions": [
       "Czy prowadzisz stowarzyszenie, klub, fundację czy parafię? Masz członków, darczyńców, wolontariuszy?",
       "Jakich rodzajów członkostwa i jakich składek używasz i jak są pobierane?",

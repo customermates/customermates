@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Pipeline de clientes para agencias",
-  "summary": "Un pipeline para una agencia de marketing o creativa: oportunidades de la primera conversación a la firma con decisión sobre el concurso, e igualas en curso con fecha de renovación, preaviso, revisión trimestral e indicador de salud.",
-  "description": "Gana y conserva clientes en un solo lugar: oportunidades a través de conversación, cualificación, briefing o concurso, propuesta y negociación, una victoria que inicia un onboarding de cinco pasos, e igualas y proyectos que siguen, con cuota mensual, fecha de renovación, preaviso y próxima revisión trimestral. Los presupuestos se anotan cuando el cliente los indica, nunca se suponen. Los accesos, los materiales de marca y el acceso a cuentas publicitarias no van nunca al espacio de trabajo. No sirve para gestionar proyectos, controlar horas, facturar igualas ni elaborar informes.",
+  "summary": "Gana clientes y conserva las igualas más allá del primer proyecto. Las oportunidades van de la primera conversación a la firma, con decisión sobre el concurso, y cada iguala lleva fecha de renovación y revisión trimestral.",
+  "description": "Las agencias ganan un cliente y después se les escapa la fecha de renovación de la iguala, porque los concursos y el trabajo en curso se apuntan en sitios distintos. Esta plantilla prepara las oportunidades a través de conversación, cualificación, briefing o concurso, propuesta y negociación, una victoria que inicia un onboarding de cinco pasos, y las igualas y proyectos que siguen, con cuota mensual, fecha de renovación, preaviso y próxima revisión trimestral. Los presupuestos se anotan cuando el cliente los indica, nunca se suponen, y los accesos, los materiales de marca y el acceso a cuentas publicitarias no van nunca al espacio de trabajo. Encaja con agencias de marketing, comunicación, creatividad y digital; la gestión de proyectos, el control de horas y la facturación siguen en tus propias herramientas.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Decisores, responsables de marketing, compras y contactos del día a día." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Clientes potenciales, clientes, antiguos clientes y socios." },
@@ -103,7 +103,7 @@
     "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
+    "intro": "Ganamos clientes nuevos, pero perdemos el hilo de los concursos en marcha y de cuándo se renuevan las igualas. Configura en mi espacio de trabajo de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
     "questions": [
       "¿Qué servicios vendes y trabajas con igualas, proyectos o ambos?",
       "¿Cómo decides si participas en un concurso entre agencias?",

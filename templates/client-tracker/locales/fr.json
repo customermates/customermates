@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Fichier client",
-  "summary": "Une ligne par client, un responsable, une prochaine action datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
-  "description": "Un fichier client court et rigoureux : sept statuts, la date du dernier contact, une échéance de prochaine action qui pilote le travail, un rythme de revue par segment et une date de revue des données pour les clients clos. Les contacts, les actions datées et les conversations liées se trouvent à côté de chaque client.",
+  "summary": "Ne vous demandez plus à quel client vous devez un appel, une réponse ou un devis. Chaque client a un responsable et une prochaine action datée, et une revue hebdomadaire montre ce qui est en retard.",
+  "description": "Quand les informations clients sont dans un tableur, une boîte mail et votre tête, les relances glissent et personne ne s’en aperçoit avant qu’un client ne disparaisse. Ce modèle met en place une ligne par client avec sept statuts, la date du dernier contact, une prochaine action datée et un rythme de revue par segment, avec les contacts, les actions datées et les conversations liées à côté de chaque client, et une date de revue des données une fois le client clos. Il convient aux indépendants, aux agences et aux petites équipes d’une dizaine de personnes au plus qui suivent elles-mêmes leurs relations clients.",
   "lists": {
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Une ligne par client, un responsable, une prochaine action datée." },
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes avec lesquelles vous travaillez chez chaque client." }
@@ -183,10 +183,10 @@
     "playbook_page": "La base de connaissances contient le mode d’emploi du fichier client."
   },
   "page": {
-    "metaTitle": "Modèle de fichier client pour votre agent IA",
-    "metaDescription": "Copiez le fichier client dans Claude, ChatGPT ou Codex : une ligne par client, un responsable, une relance datée et une revue chaque semaine.",
-    "headline": "Un fichier client que votre agent IA construit dans votre CRM",
-    "answer": "Un fichier client est une liste courte : une ligne par client, un responsable, un statut, la date du dernier contact et une prochaine action avec une date de relance. Collez ce modèle dans votre agent IA et il construit cette liste dans Customermates, avec les contacts, des actions datées et une revue hebdomadaire. Vous validez le plan avant toute écriture.",
+    "metaTitle": "Modèle de fichier client : plus aucune relance oubliée",
+    "metaDescription": "Ne perdez plus aucun client de vue. Collez ce fichier client dans Claude, ChatGPT ou Codex : un responsable et une prochaine action datée pour chacun.",
+    "headline": "Sachez qui appeler ensuite : un fichier client que votre agent IA construit dans votre CRM",
+    "answer": "Un fichier client est une liste avec une ligne par client, un responsable et une prochaine action datée, pour qu’aucun client ne disparaisse sans que vous le remarquiez. Collez ce modèle dans votre agent IA : il construit la liste dans Customermates, avec les contacts, des actions datées, les conversations liées et une revue hebdomadaire. Vous validez le plan avant que rien ne soit créé.",
     "routine": {
       "title": "La revue client hebdomadaire de 15 minutes",
       "steps": [
@@ -223,7 +223,7 @@
     ]
   },
   "prompt": {
-    "intro": "Mets en place un fichier client dans mon espace de travail Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
+    "intro": "Je suis mes clients moi-même et trop de relances m’échappent : je ne sais plus à qui j’ai parlé en dernier ni ce qui vient ensuite. Mets en place un fichier client dans mon espace de travail Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
     "questions": [
       "Combien de clients suivez-vous aujourd’hui, et qui d’autre travaille sur le fichier ?",
       "Quels statuts clients utilisez-vous déjà ? Faut-il renommer ou retirer certains des sept ?",

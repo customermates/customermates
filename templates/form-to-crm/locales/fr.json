@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Du formulaire au CRM",
-  "summary": "Transformez les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et les demandes sans suite et le spam mis à part.",
-  "description": "Chaque message reçu par un formulaire de contact, de devis ou d’accueil devient une demande reliée à un contact, avec le formulaire d’origine, la provenance du visiteur, le délai souhaité et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, et une demande restée sans réponse est signalée. Le consentement et une date de revue accompagnent les données collectées. Ce n’est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
+  "summary": "Faites en sorte qu’aucune demande de formulaire web ne reste sans réponse. Chaque envoi devient une demande avec sa source et une réponse à donner, passe de nouveau à converti, et les demandes sans suite et le spam restent à part.",
+  "description": "Les demandes de votre formulaire de contact, de devis ou d’accueil arrivent dans une boîte où elles sont traitées tard ou pas du tout, et vous ne savez pas d’où viennent les bonnes. Ce modèle transforme chaque envoi en demande reliée à un contact, avec le formulaire d’origine, la provenance du visiteur, le délai souhaité et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, une demande restée sans réponse est signalée, et le consentement et une date de revue accompagnent les données collectées. Ce n’est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui vous écrivent par un formulaire." },
     "requests": { "label": "Demande", "pluralLabel": "Demandes", "description": "Un envoi de formulaire, de nouveau à converti, sans suite ou spam." }
@@ -81,7 +81,7 @@
     "requests_board_view": "Les demandes s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
+    "intro": "Les demandes de mes formulaires web sont traitées tard ou pas du tout, et je ne vois pas d’où viennent les bonnes. Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
     "questions": [
       "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
       "Qui répond, et sous quel délai vous engagez-vous à répondre ?",

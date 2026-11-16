@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Content calendar",
-  "summary": "One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
-  "description": "An editorial calendar for blog, newsletter, social and video: seven statuses from idea to published, a publishing calendar, a content pillar per piece, a disclosure check for paid or gifted content and a results check after 30 days. It plans and tracks; it does not publish.",
+  "summary": "Know what goes out this week and who is holding it up. One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
+  "description": "Posts, newsletters and videos slip when plans live in different documents and nobody knows who is reviewing what. This template sets up an editorial calendar for blog, newsletter, social and video: seven statuses from idea to published, a publishing calendar, a content pillar per piece, a disclosure check for paid or gifted content and a results check after 30 days. It fits creators, in-house marketers and agencies. It plans and tracks; it does not publish.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "People", "description": "Authors, editors, reviewers, approvers and guests." },
     "pieces": { "label": "Piece", "pluralLabel": "Pieces", "description": "One piece of content from idea to published." },
@@ -151,7 +151,7 @@
     "calendar_widget": "The dashboard shows the publishing calendar."
   },
   "prompt": {
-    "intro": "Set up a content calendar in my Customermates workspace: pieces with seven statuses, an owner, a reviewer and a publish date, campaigns, key dates, a disclosure check and a weekly editorial routine.",
+    "intro": "Our posts, newsletters and videos run late because I cannot see who is reviewing what or when it goes out. Set up a content calendar in my Customermates workspace: pieces with seven statuses, an owner, a reviewer and a publish date, campaigns, key dates, a disclosure check and a weekly editorial routine.",
     "questions": [
       "What do you publish, on which channels, and how often?",
       "Who writes, who reviews and who approves? Is a client involved?",

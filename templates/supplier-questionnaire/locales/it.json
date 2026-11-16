@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Questionario fornitori",
-  "summary": "Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio, decisione di qualifica e data della prossima rivalutazione.",
-  "description": "Qualifica fornitori e appaltatori in un unico posto: invia un questionario, raccogli certificati e documentazione con la loro scadenza, classifica ogni fornitore per livello di rischio, registra la decisione (qualificare, qualificare con riserva, escalation, respingere) e vedi che cosa scade per primo. Il modello coordina le evidenze. Non decide la conformità normativa, non verifica sanzioni o rischio finanziario e non sostituisce il sistema qualità, il gestionale o l'archivio documentale.",
+  "summary": "Vedi quali fornitori sono qualificati e quale certificato scade per primo. Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio e una decisione per ogni fornitore.",
+  "description": "I certificati dei fornitori scadono e le rivalutazioni saltano quando le risposte stanno in e-mail e cartelle. Questo modello qualifica fornitori e appaltatori in un unico posto: invii un questionario, raccogli certificati e documentazione con la loro scadenza, classifichi ogni fornitore per livello di rischio, registri la decisione (qualificare, qualificare con riserva, escalation, respingere) e vedi che cosa scade per primo. Coordina le evidenze: non decide la conformità normativa, non verifica sanzioni o rischio finanziario e non sostituisce il sistema qualità, il gestionale o l'archivio documentale.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone presso i fornitori che rispondono ai questionari e inviano i documenti." },
     "suppliers": { "label": "Fornitore", "pluralLabel": "Fornitori", "description": "Ogni fornitore o appaltatore, da candidato a qualificato o sospeso." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "I fornitori si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
+    "intro": "Lavoro con molti fornitori e non riesco a vedere di chi sono scaduti i certificati o chi è da rivalutare. Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
     "questions": [
       "Quanti fornitori hai e come li dividi per livello di rischio?",
       "Quali certificati o documenti richiedi e quanto dura la validità di ciascuno?",

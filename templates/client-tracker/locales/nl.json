@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Klantenbestand",
-  "summary": "Eén regel per klant, één accountmanager, één volgende stap met datum, plus een wekelijkse controle en een controledatum voor elke beëindigde klant.",
-  "description": "Een compact, strak klantenbestand: zeven statussen, de datum van het laatste contact, een datum voor de volgende stap die het werk stuurt, een controleritme per segment en een controledatum voor de gegevens van beëindigde klanten. Contactpersonen, acties met datum en gekoppelde gesprekken staan bij elke klant.",
+  "summary": "Weet altijd aan welke klant je nog een telefoontje, antwoord of offerte schuldig bent. Elke klant krijgt één accountmanager en één volgende stap met datum, en een wekelijkse controle laat zien wat te laat is.",
+  "description": "Als klantgegevens in een spreadsheet, een inbox en je hoofd zitten, glippen opvolgingen door en merkt niemand het tot een klant stil wordt. Dit sjabloon zet één regel per klant op met een status, de datum van het laatste contact, een volgende stap met datum en een controleritme per segment, met contactpersonen, acties met datum en gekoppelde gesprekken bij elke klant en een controledatum voor de gegevens zodra een klant is beëindigd. Voor zzp’ers, bureaus en kleine teams tot ongeveer tien personen die zelf hun klantrelaties onderhouden.",
   "lists": {
     "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Eén regel per klant, één accountmanager, één volgende stap met datum." },
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie je werkt bij elke klant." }
@@ -183,7 +183,7 @@
     "playbook_page": "De kennisbank bevat de werkwijze van het klantenbestand."
   },
   "prompt": {
-    "intro": "Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
+    "intro": "Ik onderhoud mijn klantrelaties zelf en te veel opvolgingen glippen erdoorheen: ik weet niet meer met wie ik het laatst sprak en wat de volgende stap is. Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
     "questions": [
       "Hoeveel klanten heb je nu en wie werkt er nog meer met het bestand?",
       "Welke klantstatussen gebruik je al? Moet een van de zeven worden hernoemd of weggelaten?",

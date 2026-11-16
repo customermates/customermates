@@ -1707,8 +1707,8 @@
     "de": {
       "locale": "de",
       "name": "Personalvermittlung",
-      "summary": "Ein Arbeitsplatz für Personalberatung und selbstständige Recruiter: Aufträge von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Provisions- und Garantietermine, Nachbetreuung und ein Löschdatum für jeden Kandidaten.",
-      "description": "Führen Sie Ihre Personalvermittlung an einem Ort: Kunden mit Vermittlungsvertrag, Aufträge mit Phase und erwarteter Provision, vorgestellte Kandidaten je Auftrag mit eigener Phase, Vermittlungen mit Ende der Garantiezeit und Nachbetreuung sowie ein Datum für die Löschprüfung bei jedem Kandidaten. Passend für ein Team aus einer bis fünf Personen. Es ist keine Jobbörse, kein Lebenslauf-Parser, kein Tool für Massenansprache und keine Zeiterfassung mit Lohnabrechnung. Nichts geht automatisch an Kandidaten oder Kunden.",
+      "summary": "Kein Auftrag, kein Kandidat und kein Provisionstermin geht unter. Von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Garantie- und Nachbetreuungstermine, ein Löschdatum je Kandidat.",
+      "description": "Wer Personal vermittelt, jongliert mit Kunden, Aufträgen und Kandidaten, die auf mehreren Aufträgen zugleich stehen, und die Termine, auf die es ankommt, Besetzung, Garantieende und Löschung von Kandidatendaten, gehen leicht unter. Diese Vorlage richtet Kunden mit Vermittlungsvertrag ein, Aufträge mit Phase und erwarteter Provision, vorgestellte Kandidaten je Auftrag mit eigener Phase, Vermittlungen mit Ende der Garantiezeit und Nachbetreuung sowie ein Datum für die Löschprüfung bei jedem Kandidaten. Sie passt zu einem Team aus einer bis fünf Personen. Keine Jobbörse, kein Lebenslauf-Parser, kein Werkzeug für Massenansprache und keine Zeiterfassung mit Lohnabrechnung. Nichts geht automatisch an Kandidaten oder Kunden.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -2308,7 +2308,7 @@
         "candidate_data_page": "Die Wissensdatenbank enthält eine Seite zu Kandidatendaten und Löschfristen."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
+        "intro": "Ich vermittle Kandidaten an Kundenunternehmen und verliere den Überblick, wer wo vorgestellt ist, wann eine Garantie endet und wie lange ich Kandidatendaten behalten darf. Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
         "questions": [
           "Arbeitest du erfolgsabhängig, retained oder beides, und welche Provision und Garantiezeit vereinbarst du üblicherweise?",
           "Wie viele Aufträge und Kandidaten betreust du gleichzeitig, und wer verantwortet welche Phase?",
@@ -2320,8 +2320,8 @@
     "en": {
       "locale": "en",
       "name": "Recruiting desk",
-      "summary": "A desk for a recruitment agency or independent recruiter: job orders from lead to placed, one pipeline entry per candidate, fee and guarantee dates, aftercare check-ins and a retention date on every candidate.",
-      "description": "Run an agency desk in one place: clients and their terms of business, job orders with a stage and an expected fee, candidates submitted per job with their own stages, placements with the guarantee end date and aftercare check-ins, and a retention review date on every candidate. It fits a desk of one to five recruiters. It is not a job board, a CV parser, a bulk outreach tool or a timesheet and payroll system, and nothing is sent to candidates or clients automatically.",
+      "summary": "Keep every job order, candidate and fee date in one place. Job orders from lead to placed, one pipeline entry per candidate, guarantee and aftercare dates, and a retention date on every candidate.",
+      "description": "Recruiters juggle clients, jobs and candidates who sit on several jobs at once, and the dates that matter, the placement, the guarantee end and when to delete candidate data, are easy to lose. This template sets up clients and their terms of business, job orders with a stage and an expected fee, candidates submitted per job with their own stages, placements with the guarantee end date and aftercare check-ins, and a retention review date on every candidate. It fits a desk of one to five recruiters. It is not a job board, a CV parser, a bulk outreach tool or a timesheet and payroll system, and nothing is sent to candidates or clients automatically.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2921,7 +2921,7 @@
         "candidate_data_page": "The knowledge base holds a page on candidate data and retention."
       },
       "prompt": {
-        "intro": "Set up a recruiting desk in my Customermates workspace: clients with their terms, job orders with nine stages and an expected fee, one submission per candidate and job, placements with the guarantee end and aftercare check-ins, and a keep-until date on every candidate.",
+        "intro": "I place candidates with client companies and lose track of who is submitted where, when a guarantee ends and how long I may keep candidate data. Set up a recruiting desk in my Customermates workspace: clients with their terms, job orders with nine stages and an expected fee, one submission per candidate and job, placements with the guarantee end and aftercare check-ins, and a keep-until date on every candidate.",
         "questions": [
           "Do you work on contingency, retained or both, and what fee and guarantee do you usually agree?",
           "How many job orders and candidates do you handle at once, and who owns which stage?",
@@ -2933,8 +2933,8 @@
     "es": {
       "locale": "es",
       "name": "Consultora de selección de personal",
-      "summary": "Un espacio de trabajo para una consultora de selección o un reclutador independiente: procesos desde el briefing hasta la incorporación, una ficha por candidato y proceso, fechas de honorarios y garantía, seguimiento posterior y una fecha de conservación de cada candidato.",
-      "description": "Lleva tu consultora en un solo sitio: clientes y sus condiciones, procesos de selección con una etapa y unos honorarios previstos, candidatos presentados por proceso con su propia etapa, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de revisión de conservación en cada candidato. Encaja con un equipo de una a cinco personas. No es un portal de empleo, ni un lector de CV, ni una herramienta de envíos masivos, ni un sistema de partes de horas y nóminas. No se envía nada automáticamente a candidatos ni a clientes.",
+      "summary": "Ten cada proceso, candidato y fecha de honorarios en un solo sitio: procesos de la solicitud a la incorporación, una ficha por candidato y proceso, garantía y seguimiento posterior, y una fecha de conservación por candidato.",
+      "description": "En una consultora de selección se llevan a la vez clientes, procesos y candidatos que están en varios procesos, y las fechas que importan, la incorporación, el fin de la garantía y cuándo eliminar los datos de un candidato, se pierden con facilidad. Esta plantilla prepara los clientes y sus condiciones, los procesos de selección con una etapa y unos honorarios previstos, los candidatos presentados por proceso con su propia etapa, las incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de revisión de conservación en cada candidato. Encaja con un equipo de una a cinco personas. No es un portal de empleo, ni un lector de CV, ni una herramienta de envíos masivos, ni un sistema de partes de horas y nóminas. No se envía nada automáticamente a candidatos ni a clientes.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -3534,7 +3534,7 @@
         "candidate_data_page": "La base de conocimiento incluye una página sobre datos de candidatos y su conservación."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates una consultora de selección: clientes con sus condiciones, procesos con nueve etapas y unos honorarios previstos, un candidato presentado por candidato y proceso, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de conservación para cada candidato.",
+        "intro": "Coloco candidatos en empresas clientes y pierdo la cuenta de a quién he presentado dónde, cuándo termina una garantía y hasta cuándo puedo conservar los datos de un candidato. Configura en mi espacio de trabajo de Customermates una consultora de selección: clientes con sus condiciones, procesos con nueve etapas y unos honorarios previstos, una ficha de candidato presentado por candidato y proceso, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de conservación para cada candidato.",
         "questions": [
           "¿Trabajas a éxito, en retainer o de ambas formas, y qué honorarios y garantía acuerdas normalmente?",
           "¿Cuántos procesos y candidatos llevas a la vez y quién se ocupa de cada etapa?",
@@ -3546,8 +3546,8 @@
     "fr": {
       "locale": "fr",
       "name": "Cabinet de recrutement",
-      "summary": "Un outil pour un cabinet de recrutement ou un recruteur indépendant : missions du brief au placement, une fiche par candidat et par mission, dates d’honoraires et de garantie, suivi après l’embauche et date de conservation de chaque candidat.",
-      "description": "Gérez votre cabinet en un seul endroit : clients et leurs conditions, missions avec une étape et des honoraires attendus, candidats présentés par mission avec leur propre étape, placements avec la fin de la garantie et le suivi après l’embauche, et une date de revue de conservation sur chaque candidat. Convient à une équipe d’une à cinq personnes. Ce n’est ni un jobboard, ni un outil d’analyse de CV, ni un outil d’envoi en masse, ni un logiciel de gestion du temps et de la paie. Rien n’est envoyé automatiquement aux candidats ni aux clients.",
+      "summary": "Gardez missions, candidats et dates d’honoraires au même endroit. Missions du brief au placement, une présentation par candidat et par mission, garantie et suivi après l’embauche, et une date de conservation par candidat.",
+      "description": "Un recruteur jongle avec des clients, des missions et des candidats présentés sur plusieurs missions à la fois, et les dates qui comptent, le placement, la fin de la garantie et le moment de supprimer les données d’un candidat, se perdent facilement. Ce modèle met en place les clients et leurs conditions, les missions avec une étape et des honoraires attendus, les candidats présentés par mission avec leur propre étape, les placements avec la fin de la garantie et le suivi après l’embauche, et une date de revue de conservation sur chaque candidat. Il convient à un cabinet d’une à cinq personnes. Ce n’est ni un jobboard, ni un outil d’analyse de CV, ni un outil d’envoi en masse, ni un logiciel de gestion du temps et de la paie, et rien n’est envoyé automatiquement aux candidats ni aux clients.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -4147,7 +4147,7 @@
         "candidate_data_page": "La base de connaissances contient une page sur les données des candidats et leur durée de conservation."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l’embauche, et une date de conservation pour chaque candidat.",
+        "intro": "Je place des candidats chez des clients et je perds le fil de qui est présenté où, de la fin des garanties et de la durée pendant laquelle je peux conserver les données des candidats. Mets en place dans mon espace de travail Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l’embauche, et une date de conservation pour chaque candidat.",
         "questions": [
           "Travaillez-vous au succès, en retainer ou les deux, et quels honoraires et quelle garantie convenez-vous d’habitude ?",
           "Combien de missions et de candidats gérez-vous en même temps, et qui porte quelle étape ?",
@@ -4159,8 +4159,8 @@
     "it": {
       "locale": "it",
       "name": "Ricerca e selezione del personale",
-      "summary": "Uno strumento per agenzie di ricerca e selezione o recruiter indipendenti: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
-      "description": "Gestisci l'agenzia in un unico posto: clienti e condizioni di incarico, incarichi con una fase e una fee prevista, candidati presentati per incarico con la propria fase, inserimenti con la fine del periodo di garanzia e i ricontatti dopo l'ingresso, e una data di revisione della conservazione su ogni candidato. Adatto a un team da una a cinque persone. Non è un job board, né un parser di CV, né uno strumento di invii di massa, né un sistema di timesheet e paghe. Nulla viene inviato automaticamente a candidati o clienti.",
+      "summary": "Tieni in un unico posto ogni incarico, candidato e scadenza di fee. Incarichi dalla richiesta all'inserimento, una scheda per candidato e incarico, date di garanzia e di ricontatto e una data di conservazione su ogni candidato.",
+      "description": "Chi fa ricerca e selezione segue clienti, incarichi e candidati presentati su più incarichi insieme, e le date che contano, l'inserimento, la fine della garanzia e il momento di cancellare i dati dei candidati, si perdono facilmente. Questo modello imposta clienti con le loro condizioni, incarichi con una fase e una fee prevista, candidati presentati per incarico con la propria fase, inserimenti con la fine del periodo di garanzia e i ricontatti dopo l'ingresso, e una data di revisione della conservazione su ogni candidato. Adatto a un team da una a cinque persone. Non è un job board, né un parser di CV, né uno strumento di invii di massa, né un sistema di timesheet e paghe, e nulla viene inviato automaticamente a candidati o clienti.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -4760,7 +4760,7 @@
         "candidate_data_page": "La base di conoscenza contiene una pagina sui dati dei candidati e sulla conservazione."
       },
       "prompt": {
-        "intro": "Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
+        "intro": "Faccio ricerca e selezione per aziende clienti e perdo il filo di chi ho presentato dove, di quando finisce una garanzia e per quanto posso conservare i dati dei candidati. Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
         "questions": [
           "Lavori a successo, in retained o in entrambi i modi, e che fee e garanzia concordi di solito?",
           "Quanti incarichi e candidati gestisci in parallelo e chi segue quale fase?",
@@ -4772,8 +4772,8 @@
     "nl": {
       "locale": "nl",
       "name": "Wervingsbureau",
-      "summary": "Een werkplek voor een wervingsbureau of zelfstandige recruiter: vacatures van aanvraag tot plaatsing, één regel in het proces per kandidaat, fee- en garantiedata, nazorg en een bewaardatum bij elke kandidaat.",
-      "description": "Beheer het bureau op één plek: opdrachtgevers en hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
+      "summary": "Houd elke vacature, kandidaat en feedatum op één plek bij. Vacatures van aanvraag tot plaatsing, één voordracht per kandidaat, garantie- en nazorgdata en een bewaardatum bij elke kandidaat.",
+      "description": "Recruiters jongleren met opdrachtgevers, vacatures en kandidaten die voor meerdere vacatures tegelijk in beeld zijn, en de data die ertoe doen, de plaatsing, het einde van de garantie en het moment om kandidaatgegevens te verwijderen, raken makkelijk zoek. Dit sjabloon zet opdrachtgevers op met hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -5373,7 +5373,7 @@
         "candidate_data_page": "De kennisbank bevat een pagina over kandidaatgegevens en bewaartermijnen."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voordracht per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
+        "intro": "Ik plaats kandidaten bij opdrachtgevers en raak het overzicht kwijt van wie waar is voorgesteld, wanneer een garantie afloopt en hoe lang ik kandidaatgegevens mag bewaren. Richt in mijn Customermates-werkruimte een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voordracht per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
         "questions": [
           "Werk je op basis van succes, met voorschot of allebei, en welke fee en garantie spreek je meestal af?",
           "Hoeveel vacatures en kandidaten behandel je tegelijk en wie is verantwoordelijk voor welke fase?",
@@ -5385,8 +5385,8 @@
     "pl": {
       "locale": "pl",
       "name": "Biuro rekrutacyjne",
-      "summary": "Narzędzie dla agencji rekrutacyjnej lub niezależnego rekrutera: zlecenia od zapytania do zatrudnienia, jeden wpis w procesie na kandydata, terminy prowizji i gwarancji, kontakty po zatrudnieniu i data przechowywania danych każdego kandydata.",
-      "description": "Prowadź biuro agencji w jednym miejscu: klienci i ich warunki współpracy, zlecenia rekrutacyjne z etapem i spodziewaną prowizją, kandydaci prezentowani na zlecenie z własnymi etapami, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przeglądu danych przy każdym kandydacie. Pasuje do biura jednego do pięciu rekruterów. To nie jest portal z ogłoszeniami, parser CV, narzędzie do masowych wysyłek ani system rozliczania czasu pracy i płac, a do kandydatów i klientów nic nie jest wysyłane automatycznie.",
+      "summary": "Trzymaj w jednym miejscu zlecenie, kandydata i termin prowizji. Zlecenia od zapytania do obsadzenia, jedna prezentacja na kandydata, terminy gwarancji i kontaktów po zatrudnieniu oraz data przechowywania danych.",
+      "description": "Rekruterzy żonglują klientami, zleceniami i kandydatami, którzy są w kilku procesach naraz, a ważne terminy, czyli zatrudnienie, koniec gwarancji i moment usunięcia danych kandydata, łatwo zgubić. Szablon zakłada klientów z warunkami współpracy, zlecenia rekrutacyjne z etapem i spodziewaną prowizją, kandydatów prezentowanych na zlecenie z własnymi etapami, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz datę przeglądu danych przy każdym kandydacie. Pasuje do biura jednego do pięciu rekruterów. To nie jest portal z ogłoszeniami, parser CV, narzędzie do masowych wysyłek ani system rozliczania czasu pracy i płac, a do kandydatów i klientów nic nie jest wysyłane automatycznie.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -5986,7 +5986,7 @@
         "candidate_data_page": "Baza wiedzy zawiera stronę o danych kandydatów i ich przechowywaniu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rekrutacyjne: klienci z warunkami, zlecenia w dziewięciu etapach ze spodziewaną prowizją, jedna prezentacja na kandydata i zlecenie, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przechowywania danych każdego kandydata.",
+        "intro": "Rekrutuję dla swoich klientów i gubię się w tym, który kandydat jest zaprezentowany gdzie, kiedy kończy się gwarancja i jak długo wolno mi przechowywać dane kandydatów. Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rekrutacyjne: klienci z warunkami, zlecenia w dziewięciu etapach ze spodziewaną prowizją, jedna prezentacja na kandydata i zlecenie, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przechowywania danych każdego kandydata.",
         "questions": [
           "Pracujesz za sukces, z zaliczką, czy w obu modelach i jaką prowizję oraz gwarancję zwykle uzgadniasz?",
           "Ile zleceń i kandydatów obsługujesz naraz i kto odpowiada za który etap?",
@@ -5998,8 +5998,8 @@
     "pt": {
       "locale": "pt",
       "name": "Consultoria de recrutamento",
-      "summary": "Um espaço de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
-      "description": "Conduza a consultoria em um só lugar: clientes e suas condições, vagas com uma etapa e honorários previstos, candidatos indicados por vaga com etapa própria, contratações com o fim do período de garantia e o acompanhamento pós-contratação, e uma data de revisão de retenção em cada candidato. Serve para uma equipe de uma a cinco pessoas. Não é um portal de vagas, nem um leitor de currículos, nem uma ferramenta de disparos em massa, nem um sistema de ponto e folha de pagamento. Nada é enviado automaticamente a candidatos ou clientes.",
+      "summary": "Tenha cada vaga, candidato e data de honorários em um só lugar. Vagas da solicitação à contratação, uma indicação por candidato e vaga, fim da garantia e acompanhamento pós-contratação e data de retenção de cada candidato.",
+      "description": "Quem recruta lida com clientes, vagas e candidatos que estão em várias vagas ao mesmo tempo, e as datas que importam, a contratação, o fim da garantia e o momento de apagar os dados do candidato, se perdem com facilidade. Este modelo reúne clientes e suas condições, vagas com uma etapa e honorários previstos, candidatos indicados por vaga com etapa própria, contratações com o fim do período de garantia e o acompanhamento pós-contratação, e uma data de revisão de retenção em cada candidato. Serve para uma equipe de uma a cinco pessoas. Não é um portal de vagas, nem um leitor de currículos, nem uma ferramenta de disparos em massa, nem um sistema de ponto e folha de pagamento, e nada é enviado automaticamente a candidatos ou clientes.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -6599,7 +6599,7 @@
         "candidate_data_page": "A base de conhecimento tem uma página sobre dados de candidatos e retenção."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates uma consultoria de recrutamento: clientes com suas condições, vagas com nove etapas e honorários previstos, um candidato indicado por candidato e vaga, contratações com o fim da garantia e o acompanhamento, e uma data de retenção para cada candidato.",
+        "intro": "Eu indico candidatos a empresas clientes e perco o controle de quem foi indicado para onde, de quando uma garantia termina e de por quanto tempo posso guardar os dados dos candidatos. Configure no meu espaço de trabalho do Customermates uma consultoria de recrutamento: clientes com suas condições, vagas com nove etapas e honorários previstos, uma indicação por candidato e vaga, contratações com o fim da garantia e o acompanhamento, e uma data de retenção para cada candidato.",
         "questions": [
           "Você trabalha por êxito, em retainer ou dos dois jeitos, e quais honorários e garantia costuma combinar?",
           "Quantas vagas e candidatos você acompanha ao mesmo tempo e quem cuida de cada etapa?",

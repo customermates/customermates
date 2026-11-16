@@ -1309,8 +1309,8 @@
     "de": {
       "locale": "de",
       "name": "Versicherungsmakler",
-      "summary": "Zwei Pipelines für den Versicherungsmakler: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, und ein Verlängerungsfall für jeden Vertrag, der 120 bis 45 Tage vor der Hauptfälligkeit startet.",
-      "description": "Neugeschäft und Verlängerungen nebeneinander führen: Anfragen von der ersten Anfrage über Bedarfsanalyse, Angebotsanfrage, Beratung und Entscheidung bis zur erhaltenen Police, ein Datum der Beratungsdokumentation an jedem Angebot und Verträge mit ihrer Hauptfälligkeit, die selbst einen Verlängerungsfall eröffnen. Die Vorlage hält einen Verweis auf das Beratungsprotokoll und auf den Vertrag in Ihrem Maklerverwaltungsprogramm, niemals Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien. Keine Vertragsverwaltung, keine Vergleichs- oder Tarifrechner, keine Schadenbearbeitung und keine Courtage-Abrechnung.",
+      "summary": "Keine Verlängerung verpassen und das Neugeschäft in Bewegung halten. Von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, dazu je Vertrag ein Verlängerungsfall 120 bis 45 Tage vor der Hauptfälligkeit.",
+      "description": "Verlängerungen rutschen durch und die Beratung bleibt undokumentiert, wenn Neugeschäft und Verlängerungen in getrennten Listen oder im Kopf stehen. Diese Vorlage führt beides nebeneinander: Anfragen von der ersten Anfrage über Bedarfsanalyse, Angebotsanfrage, Beratung und Entscheidung bis zur erhaltenen Police, ein Datum der Beratungsdokumentation an jedem Angebot und Verträge mit ihrer Hauptfälligkeit, die selbst einen Verlängerungsfall eröffnen. Sie hält einen Verweis auf das Beratungsprotokoll und auf den Vertrag in Ihrem Maklerverwaltungsprogramm, niemals Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien. Keine Vertragsverwaltung, keine Vergleichs- oder Tarifrechner, keine Schadenbearbeitung und keine Courtage-Abrechnung.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1734,7 +1734,7 @@
         "advice_documentation_page": "Die Wissensdatenbank enthält eine Seite zur Beratungsdokumentation."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
+        "intro": "Ich betreue einen Maklerbestand, die Verlängerungen kommen oft überraschend, und vor jedem Angebot muss ich die Beratung dokumentieren. Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
         "questions": [
           "Welche Sparten vermittelst du, und betreust du Gewerbekunden, Privatkunden oder beide?",
           "Wie lange vor der Hauptfälligkeit beginnst du die Verlängerung, und wie lang ist die übliche Kündigungsfrist?",
@@ -1746,8 +1746,8 @@
     "en": {
       "locale": "en",
       "name": "Insurance broker pipeline",
-      "summary": "Two pipelines for an insurance broker: new business from lead to bound with the advice documented before the offer, and a renewal case for every policy that starts 120 to 45 days before expiry.",
-      "description": "Run new business and renewals side by side: opportunities from the first inquiry through needs analysis, quotes, offer and decision to a bound policy, an advice-documented date on every offer, and policies with their renewal date that open a renewal case on their own. It holds a reference to the advice record and to the policy in your agency system, never health data, claims details, bank details or identity copies. It is not policy administration, a comparison or rating engine, claims handling or commission reconciliation.",
+      "summary": "See every renewal coming and keep new business moving. Lead to bound with the advice documented before the offer, plus a renewal case for each policy that opens 120 to 45 days before expiry.",
+      "description": "Renewals slip past and advice goes undocumented when new business and renewals live in separate lists or in your head. This template runs both side by side: opportunities from the first inquiry through needs analysis, quotes, offer and decision to a bound policy, an advice-documented date on every offer, and policies with their renewal date that open a renewal case on their own. It holds a reference to the advice record and to the policy in your agency system, never health data, claims details, bank details or identity copies. It is not policy administration, a comparison or rating engine, claims handling or commission reconciliation.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2171,7 +2171,7 @@
         "advice_documentation_page": "The knowledge base holds a page on advice documentation."
       },
       "prompt": {
-        "intro": "Set up an insurance broker pipeline in my Customermates workspace: new business from lead to bound with the advice documented before the offer, policies with a renewal date and a renewal case for each, and dated follow-ups. Store no health data, claims details or identity copies.",
+        "intro": "I run a broker book and renewals sneak up on me, while I also have to document the advice before every offer. Set up an insurance broker pipeline in my Customermates workspace: new business from lead to bound with the advice documented before the offer, policies with a renewal date and a renewal case for each, and dated follow-ups. Store no health data, claims details or identity copies.",
         "questions": [
           "Which lines do you place, and do you serve commercial clients, private clients or both?",
           "How long before expiry do you start a renewal, and how long is the usual notice period?",
@@ -2183,8 +2183,8 @@
     "es": {
       "locale": "es",
       "name": "Correduría de seguros",
-      "summary": "Dos pipelines para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación para cada póliza que empieza de 120 a 45 días antes del vencimiento.",
-      "description": "Lleva el nuevo negocio y las renovaciones a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en tu programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
+      "summary": "Ve venir cada renovación y mantén el nuevo negocio en marcha. De la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación por póliza, de 120 a 45 días antes del vencimiento.",
+      "description": "Las renovaciones se te pasan y el asesoramiento queda sin documentar cuando el nuevo negocio y las renovaciones viven en listas distintas o en tu cabeza. Esta plantilla lleva ambos a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en tu programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2608,7 +2608,7 @@
         "advice_documentation_page": "La base de conocimiento contiene una página sobre la documentación del asesoramiento."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
+        "intro": "Llevo una cartera de seguros y las renovaciones me pillan por sorpresa, además de tener que documentar el asesoramiento antes de cada propuesta. Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
         "questions": [
           "¿Qué ramos colocas y atiendes a empresas, a particulares o a ambos?",
           "¿Con cuánta antelación al vencimiento empieza una renovación y cuál es el preaviso habitual?",
@@ -2620,8 +2620,8 @@
     "fr": {
       "locale": "fr",
       "name": "Courtier en assurance",
-      "summary": "Deux pipelines pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement pour chaque contrat qui s’ouvre de 120 à 45 jours avant l’échéance.",
-      "description": "Menez les affaires nouvelles et les renouvellements côte à côte : affaires de la première demande à l’analyse des besoins, à la consultation des assureurs, à la proposition et à la décision jusqu’au contrat émis, une date de conseil documenté sur chaque proposition, et des contrats avec leur échéance principale qui ouvrent d’eux-mêmes un dossier de renouvellement. Il conserve un renvoi vers la trace du conseil et vers le contrat dans votre logiciel de cabinet, jamais de données de santé, de détails de sinistres, de coordonnées bancaires ni de copies de pièces d’identité. Ce n’est ni de la gestion de contrats, ni un comparateur ou un tarificateur, ni de la gestion de sinistres, ni un rapprochement de commissions.",
+      "summary": "Ne laissez plus un renouvellement vous surprendre. De la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement par contrat, ouvert de 120 à 45 jours avant l’échéance.",
+      "description": "Les renouvellements passent inaperçus et le conseil n’est pas documenté quand les affaires nouvelles et les renouvellements vivent dans des listes séparées ou dans votre tête. Ce modèle mène les deux côte à côte : affaires de la première demande à l’analyse des besoins, à la consultation des assureurs, à la proposition et à la décision jusqu’au contrat émis, une date de conseil documenté sur chaque proposition, et des contrats avec leur échéance principale qui ouvrent d’eux-mêmes un dossier de renouvellement. Il conserve un renvoi vers la trace du conseil et vers le contrat dans votre logiciel de cabinet, jamais de données de santé, de détails de sinistres, de coordonnées bancaires ni de copies de pièces d’identité. Ce n’est ni de la gestion de contrats, ni un comparateur ou un tarificateur, ni de la gestion de sinistres, ni un rapprochement de commissions.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -3045,7 +3045,7 @@
         "advice_documentation_page": "La base de connaissances contient une page sur la traçabilité du conseil."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
+        "intro": "Je gère un portefeuille de courtage : les renouvellements me prennent de court et je dois documenter le conseil avant chaque proposition. Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
         "questions": [
           "Quelles branches placez-vous, et servez-vous des professionnels, des particuliers ou les deux ?",
           "Combien de temps avant l’échéance démarrez-vous un renouvellement, et quel est le préavis habituel ?",
@@ -3057,8 +3057,8 @@
     "it": {
       "locale": "it",
       "name": "Broker assicurativo",
-      "summary": "Due pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, e una pratica di rinnovo per ogni polizza che si apre da 120 a 45 giorni prima della scadenza.",
-      "description": "Gestisci nuovi affari e rinnovi fianco a fianco: trattative dalla prima richiesta all'analisi delle esigenze, alla richiesta di quotazioni, alla proposta e alla decisione fino alla polizza attiva, una data di consulenza documentata su ogni proposta, e polizze con la loro scadenza che aprono da sole una pratica di rinnovo. Conserva un rimando alla documentazione della consulenza e alla polizza nel gestionale assicurativo, mai dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità. Non è amministrazione delle polizze, un comparatore o un motore tariffario, gestione dei sinistri né riconciliazione delle provvigioni.",
+      "summary": "Vedi ogni rinnovo in arrivo e tieni in movimento i nuovi affari. Dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, più una pratica di rinnovo per ogni polizza.",
+      "description": "I rinnovi sfuggono e la consulenza resta senza documentazione quando nuovi affari e rinnovi stanno in elenchi separati o nella tua testa. Questo modello li gestisce fianco a fianco: trattative dalla prima richiesta, passando per analisi delle esigenze, richiesta di quotazioni, proposta e decisione, fino alla polizza attiva, con una data di consulenza documentata su ogni proposta; e polizze con la loro scadenza che aprono da sole una pratica di rinnovo, da 120 a 45 giorni prima. Conserva un rimando alla documentazione della consulenza e alla polizza nel gestionale assicurativo, mai dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità. Non è amministrazione delle polizze, un comparatore o un motore tariffario, gestione dei sinistri né riconciliazione delle provvigioni.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3482,7 +3482,7 @@
         "advice_documentation_page": "La base di conoscenza contiene una pagina sulla documentazione della consulenza."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
+        "intro": "Gestisco un portafoglio assicurativo: i rinnovi mi colgono di sorpresa e devo anche documentare la consulenza prima di ogni proposta. Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
         "questions": [
           "Quali rami collochi e segui aziende, privati o entrambi?",
           "Quanto tempo prima della scadenza avvii un rinnovo e qual è il preavviso di disdetta abituale?",
@@ -3494,8 +3494,8 @@
     "nl": {
       "locale": "nl",
       "name": "Verzekeringsadviseur",
-      "summary": "Twee pijplijnen voor een verzekeringsadviseur: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, en een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
-      "description": "Beheer nieuwe zaken en prolongaties naast elkaar: aanvragen van eerste vraag via behoefteanalyse, offertes opvragen, advies en beslissing tot een ontvangen polis, een datum van vastgelegd advies bij elke offerte, en polissen met hun hoofdvervaldatum die zelf een prolongatiezaak openen. Het bewaart een verwijzing naar het adviesdossier en naar de polis in je administratiesysteem, nooit gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen. Geen polisadministratie, geen vergelijker of premieberekening, geen schadebehandeling en geen provisie-afstemming.",
+      "summary": "Zie elke prolongatie aankomen en houd nieuwe zaken in beweging. Van aanvraag tot polis met het advies vastgelegd vóór de offerte, plus een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
+      "description": "Prolongaties worden gemist en het advies wordt niet vastgelegd als nieuwe zaken en prolongaties in aparte lijsten of in je hoofd zitten. Dit sjabloon laat beide naast elkaar lopen: aanvragen van eerste vraag via behoefteanalyse, offertes opvragen, advies en beslissing tot een ontvangen polis, een datum van vastgelegd advies bij elke offerte, en polissen met hun hoofdvervaldatum die zelf een prolongatiezaak openen. Het bewaart een verwijzing naar het adviesdossier en naar de polis in je administratiesysteem, nooit gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen. Geen polisadministratie, geen vergelijker of premieberekening, geen schadebehandeling en geen provisie-afstemming.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3919,7 +3919,7 @@
         "advice_documentation_page": "De kennisbank bevat een pagina over het vastleggen van het advies."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
+        "intro": "Ik adviseer klanten over verzekeringen, prolongaties komen steeds onverwacht en het advies moet ik vóór elke offerte vastleggen. Richt in mijn Customermates-werkruimte een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
         "questions": [
           "Welke branches bemiddel je en bedien je zakelijke klanten, particulieren of beide?",
           "Hoe lang voor de hoofdvervaldatum begin je een prolongatie en wat is de gebruikelijke opzegtermijn?",
@@ -3931,8 +3931,8 @@
     "pl": {
       "locale": "pl",
       "name": "Lejek dla brokera ubezpieczeniowego",
-      "summary": "Dwa lejki dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą oraz sprawa odnowienia dla każdej polisy, która startuje od 120 do 45 dni przed końcem ochrony.",
-      "description": "Prowadź nową sprzedaż i odnowienia obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Szablon przechowuje link do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie jest system do administrowania polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
+      "summary": "Miej na oku nadchodzące odnowienia i nie zatrzymuj nowej sprzedaży. Od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, a do tego sprawa odnowienia otwierana od 120 do 45 dni przed końcem ochrony.",
+      "description": "Odnowienia umykają, a rekomendacje zostają bez dokumentacji, gdy nowa sprzedaż i odnowienia leżą na osobnych listach albo w głowie. Szablon prowadzi oba obiegi obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Przechowuje link do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie jest system do administrowania polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4356,7 +4356,7 @@
         "advice_documentation_page": "Baza wiedzy zawiera stronę o dokumentacji rekomendacji."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
+        "intro": "Prowadzę portfel klientów jako broker ubezpieczeniowy: odnowienia zaskakują mnie w ostatniej chwili, a przed każdą ofertą muszę jeszcze udokumentować rekomendację. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
         "questions": [
           "W jakich rodzajach ubezpieczeń pośredniczysz i czy obsługujesz firmy, klientów indywidualnych, czy obu?",
           "Ile czasu przed terminem zaczynasz odnowienie i jaki jest zwykły okres wypowiedzenia?",
@@ -4368,8 +4368,8 @@
     "pt": {
       "locale": "pt",
       "name": "Corretora de seguros",
-      "summary": "Dois funis para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, e um caso de renovação para cada apólice que começa de 120 a 45 dias antes do vencimento.",
-      "description": "Conduza vendas novas e renovações lado a lado: negociações do primeiro contato à qualificação, à cotação, à proposta e à decisão até a apólice emitida, uma data de recomendação documentada em cada proposta, e apólices com a data de vigência que abrem sozinhas um caso de renovação. Guarde uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários ou cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
+      "summary": "Veja cada renovação chegando e mantenha as vendas novas andando. Do lead à apólice emitida, com a recomendação documentada antes da proposta, e um caso de renovação por apólice, aberto de 120 a 45 dias antes do vencimento.",
+      "description": "As renovações passam batido e a recomendação fica sem registro quando as vendas novas e as renovações estão em listas separadas ou só na sua cabeça. Este modelo conduz as duas lado a lado: negociações do primeiro contato, passando por qualificação, cotação, proposta e decisão do cliente, até a apólice emitida, com a data da recomendação documentada em cada proposta, e apólices com data de vigência que abrem sozinhas um caso de renovação. Guarda uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários nem cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4793,7 +4793,7 @@
         "advice_documentation_page": "A base de conhecimento tem uma página sobre a documentação da recomendação."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
+        "intro": "Eu cuido de uma carteira de seguros, e as renovações me pegam de surpresa, além de eu precisar documentar a recomendação antes de cada proposta. Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
         "questions": [
           "Quais ramos você trabalha e atende empresas, pessoas físicas ou os dois?",
           "Com quanta antecedência do vencimento você começa uma renovação e qual é o aviso prévio habitual?",

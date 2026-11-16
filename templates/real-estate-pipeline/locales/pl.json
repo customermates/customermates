@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Lejek nieruchomości",
-  "summary": "Dwa lejki, które spotykają się przy umowie: pozyskanie i promocja oferty oraz obsługa kupującego, z prezentacjami, terminami i rutyną dla dawnych klientów.",
-  "description": "Biuro nieruchomości prowadzi stronę właściciela (wycena, umowa pośrednictwa, promocja, oferty) i stronę kupującego (kontakt, kwalifikacja, prezentacje, oferta), a potem wspólną fazę po podpisaniu umowy z twardymi terminami. Szablon obsługuje obie strony, rodzaj umowy pośrednictwa i jej koniec, każdą prezentację z opinią, terminy po podpisaniu i rutynę z datami dla dawnych klientów. Wartość oferty to oczekiwana prowizja.",
+  "summary": "Zdobywaj oferty i sprzedawaj je, nie tracąc z oczu prezentacji ani ważnych terminów. Dwa lejki, oferta właściciela i poszukiwanie kupującego, spotykają się przy umowie, a dla dawnych klientów jest osobna rutyna z datami.",
+  "description": "Biuro nieruchomości obsługuje dwie strony jednej sprzedaży, właściciela, który wystawia ofertę, i kupującego, który szuka, a terminy po podpisaniu umowy łatwo przeoczyć. Szablon prowadzi stronę właściciela (wycena, umowa pośrednictwa, promocja, oferty) i stronę kupującego (kontakt, kwalifikacja, prezentacje, oferta), a potem wspólną fazę po podpisaniu umowy z twardymi terminami. Widzisz rodzaj umowy pośrednictwa i jej koniec, każdą prezentację z opinią, terminy po podpisaniu i rutynę z datami dla dawnych klientów. Wartość oferty to oczekiwana prowizja.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Właściciele, wynajmujący, kupujący, najemcy i polecający." },
     "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Deweloperzy, banki, notariusze i partnerzy polecający." },
@@ -401,7 +401,7 @@
     "operating_guide_page": "Baza wiedzy zawiera instrukcję pracy."
   },
   "prompt": {
-    "intro": "Skonfiguruj lejek nieruchomości w mojej przestrzeni roboczej Customermates: oferty z rodzajem umowy pośrednictwa i jej końcem, poszukiwania kupujących, prezentacje z opinią, terminy po podpisaniu umowy i zadanie z terminem przy każdym otwartym wpisie.",
+    "intro": "Pracuję zarówno z właścicielami, którzy sprzedają nieruchomości, jak i z kupującymi, i gubię się w prezentacjach, opiniach po nich oraz terminach po podpisaniu umowy. Skonfiguruj lejek nieruchomości w mojej przestrzeni roboczej Customermates: oferty z rodzajem umowy pośrednictwa i jej końcem, poszukiwania kupujących, prezentacje z opinią, terminy po podpisaniu umowy i zadanie z terminem przy każdym otwartym wpisie.",
     "questions": [
       "Pracujesz dla właścicieli, dla kupujących czy dla obu stron? Sprzedajesz, wynajmujesz czy jedno i drugie?",
       "W jakim kraju pracujesz i jakich rodzajów umów pośrednictwa tam używasz?",

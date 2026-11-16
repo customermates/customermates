@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Przyjmowanie klientów w kancelarii",
-  "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
-  "description": "Przyjmuj klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pismo o niepodjęciu sprawy. Narzędzie zapisuje odnośnik do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą zawodową, danych o zdrowiu ani danych drugiej strony. To nie jest system do zarządzania sprawami, rozliczania środków klientów, śledzenia terminów procesowych ani fakturowania.",
+  "summary": "Przyjmuj nowych klientów, nie pomijając weryfikacji konfliktu interesów ani biegnącego terminu. Zapytanie, konsultacja, oferta, umowa i pełnomocnictwo oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
+  "description": "Gdy potencjalny klient dzwoni po raz pierwszy, jakiś termin może już biec, a przeoczony konflikt interesów trudno później naprawić. Szablon prowadzi przyjmowanie klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pismo o niepodjęciu sprawy. Szablon zapisuje odnośnik do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą zawodową, danych o zdrowiu ani danych drugiej strony. To nie jest system do zarządzania sprawami, rozliczania środków klientów, śledzenia terminów procesowych ani fakturowania.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Potencjalni klienci, klienci, byli klienci i polecający." },
     "inquiries": { "label": "Zapytanie", "pluralLabel": "Zapytania", "description": "Jedna prośba o pomoc prawną, od pierwszego kontaktu do sprawy lub odmowy." },
@@ -105,7 +105,7 @@
     "conflict_check_page": "Baza wiedzy zawiera stronę o weryfikacji konfliktu interesów."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
+    "intro": "Potencjalni klienci dzwonią w sprawie, a ja muszę sprawdzić konflikt interesów, zanotować najbliższy termin i udokumentować każdy krok, zanim ich przyjmę. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
     "questions": [
       "Jakie dziedziny prawa przyjmujesz, a jakie kierujesz do innych?",
       "Jak wykonujesz weryfikację konfliktu interesów i kto ją zatwierdza?",

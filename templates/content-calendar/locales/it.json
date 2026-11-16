@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Calendario editoriale",
-  "summary": "Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
-  "description": "Un calendario editoriale per blog, newsletter, social e video: sette stati dall'idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della segnalazione pubblicitaria per i contenuti sponsorizzati o con prodotti ricevuti in omaggio e una verifica dei risultati dopo 30 giorni. Pianifica e tiene traccia, non pubblica.",
+  "summary": "Vedi subito che cosa esce questa settimana e chi lo sta bloccando. Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
+  "description": "Post, newsletter e video slittano quando i piani stanno in documenti diversi e nessuno sa chi sta rivedendo che cosa. Questo modello imposta un calendario editoriale per blog, newsletter, social e video: sette stati dall'idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della segnalazione pubblicitaria per i contenuti sponsorizzati o con prodotti ricevuti in omaggio e una verifica dei risultati dopo 30 giorni. Adatto a creator, responsabili marketing interni e agenzie. Pianifica e tiene traccia, non pubblica.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Autori, redattori, revisori, approvatori e ospiti." },
     "pieces": { "label": "Contenuto", "pluralLabel": "Contenuti", "description": "Un contenuto dall'idea alla pubblicazione." },
@@ -151,7 +151,7 @@
     "calendar_widget": "La dashboard mostra il calendario di pubblicazione."
   },
   "prompt": {
-    "intro": "Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
+    "intro": "I nostri post, newsletter e video escono in ritardo perché non vedo chi sta rivedendo che cosa né quando va online. Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
     "questions": [
       "Che cosa pubblichi, su quali canali e con quale frequenza?",
       "Chi scrive, chi rivede e chi approva? È coinvolto un cliente?",

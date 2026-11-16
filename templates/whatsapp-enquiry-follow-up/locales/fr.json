@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Suivi des demandes WhatsApp",
-  "summary": "Un pipeline pour une petite entreprise dont les clients écrivent sur WhatsApp : noter la demande, répondre vite, envoyer un devis, relancer en quelques jours, confirmer la commande et penser au réachat.",
-  "description": "Transformez les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s’il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n’envoie ni diffusions, ni campagnes, ni menus de chatbot, et n’utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d’une façon que sa politique interdit.",
+  "summary": "Ne perdez plus les clients qui vous écrivent sur WhatsApp. Chaque conversation devient une demande avec un devis, une relance datée et une date pour revenir : vous répondez vite, relancez en quelques jours et pensez au réachat.",
+  "description": "Quand un client demande un prix sur WhatsApp, la conversation défile et le devis n’est jamais relancé. Ce modèle transforme les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s’il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n’envoie ni diffusions, ni campagnes, ni menus de chatbot, et n’utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d’une façon que sa politique interdit.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui vous écrivent, avec leur accord WhatsApp et leur date de réachat." },
     "enquiries": { "label": "Demande", "pluralLabel": "Demandes (affaires)", "description": "Une demande venue d’une conversation, du premier message à commande confirmée, perdue ou plus tard." }
@@ -83,7 +83,7 @@
     "enquiries_board_view": "Les demandes s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
+    "intro": "Mes clients me demandent des prix sur WhatsApp et je perds la conversation avant de relancer. Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
     "questions": [
       "Que vous demandent les clients sur WhatsApp, et comment chiffrez-vous ?",
       "En combien de temps voulez-vous répondre à un nouveau message ?",

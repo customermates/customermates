@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Actielijst",
-  "summary": "Elke actie met één eigenaar en een deadline, gekoppeld aan het overleg, het besluit of het project waaruit ze komt, met een wekelijkse controle en afsluiting met bewijs.",
-  "description": "Een actiepuntenlijst voor wat uit overleggen, projecten, audits en klantverzoeken volgt: zes statussen, een prioriteit, een eigenaar, een deadline, een opvolgdatum, een besluitenlijst en een effectiviteitscontrole na corrigerende acties. Herinneringen komen uit automatiseringsregels en meldingen.",
+  "summary": "Zorg dat wat in een overleg is afgesproken ook echt gebeurt. Elke actie krijgt één eigenaar en een deadline, gekoppeld aan het besluit of project waaruit ze komt, met een wekelijkse controle.",
+  "description": "Afspraken uit overleggen, audits en klantgesprekken verdwijnen in notulen en chatberichten, en volgende week bespreek je hetzelfde punt opnieuw. Dit sjabloon zet één lijst met acties op: zes statussen, een prioriteit, één eigenaar, een deadline en een opvolgdatum, gekoppeld aan het overleg, besluit of project waaruit ze komen, plus een besluitenlijst en een effectiviteitscontrole na een corrigerende actie. Voor teams, projectleiders en kwaliteitsmanagers die één keer per week willen zien wat openstaat, te laat is of vastloopt. Herinneringen komen uit automatiseringsregels en meldingen die je zelf aanzet.",
   "lists": {
     "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Teamleden, partners, klanten en leveranciers." },
     "meetings": { "label": "Overleg", "pluralLabel": "Overleggen", "description": "Waar acties en besluiten vandaan komen." },
@@ -104,7 +104,7 @@
     "overdue_widget": "Het dashboard toont hoeveel acties achterstallig zijn."
   },
   "prompt": {
-    "intro": "Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
+    "intro": "Wat we in overleggen afspreken blijft liggen, en niemand kan zeggen wie wat wanneer oppakt. Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
     "questions": [
       "Waar komen je acties vandaan: overleggen, projecten, audits, klanten?",
       "Wie is eigenaar van acties en wie beslist wanneer er een wordt verzet of geannuleerd?",

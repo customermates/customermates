@@ -2004,8 +2004,8 @@
     "de": {
       "locale": "de",
       "name": "Immobilien-Pipeline",
-      "summary": "Zwei Pipelines, die sich beim Kaufvertrag treffen: Objekt hereinholen und vermarkten, Interessenten betreuen, mit Besichtigungen, Fristen und einer Routine für frühere Kunden.",
-      "description": "Ein Maklerbüro arbeitet auf der Eigentümerseite (Bewertung, Maklerauftrag, Vermarktung, Angebote) und auf der Interessentenseite (Anfrage, Qualifizierung, Besichtigungen, Angebot) und danach in einer gemeinsamen Phase nach dem Kaufvertrag mit festen Terminen. Diese Vorlage hält beide Seiten fest, dazu die Art des Maklerauftrags mit Laufzeitende, jede Besichtigung mit Rückmeldung, die Fristen nach Vertragsabschluss und eine terminierte Routine für frühere Kunden. Der Wert eines Objekts steht für die erwartete Provision.",
+      "summary": "Objekte hereinholen und verkaufen, ohne eine Besichtigung, eine Rückmeldung an den Eigentümer oder eine Frist zu verpassen. Zwei Pipelines, die sich beim Kaufvertrag treffen, dazu eine Routine für frühere Kunden.",
+      "description": "Ein Maklerbüro arbeitet an zwei Seiten eines Verkaufs, dem Eigentümer, der sein Objekt anbietet, und dem Interessenten, der sucht, und die Fristen nach dem Kaufvertrag gehen zwischen beiden leicht unter. Diese Vorlage hält die Eigentümerseite fest (Bewertung, Maklerauftrag, Vermarktung, Angebote) und die Interessentenseite (Anfrage, Qualifizierung, Besichtigungen, Angebot), danach eine gemeinsame Phase nach dem Kaufvertrag mit festen Terminen. Sie sehen die Art des Maklerauftrags mit Laufzeitende, jede Besichtigung mit Rückmeldung, die Fristen nach der Unterschrift und eine terminierte Routine für frühere Kunden. Der Wert eines Objekts steht für die erwartete Provision.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -2756,10 +2756,10 @@
         "operating_guide_page": "Die Wissensdatenbank enthält die Arbeitsanleitung."
       },
       "page": {
-        "metaTitle": "Immobilien-Pipeline als Vorlage für Ihren KI-Agenten",
-        "metaDescription": "Kopieren Sie die Immobilien-Pipeline in Claude, ChatGPT oder Codex: Objekte, Interessenten, Besichtigungen mit Rückmeldung und die Fristen nach dem Vertrag.",
-        "headline": "Eine Immobilien-Pipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
-        "answer": "Ein Maklerbüro führt zwei Pipelines, die sich beim Kaufvertrag treffen: für den Eigentümer das Objekt hereinholen und vermarkten, für den Interessenten die Betreuung über Besichtigungen bis zum Angebot. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beide in Customermates auf, mit Maklerauftrag, Besichtigungen, Fristen und einer terminierten Routine für frühere Kunden. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+        "metaTitle": "Immobilien-Pipeline Vorlage: Objekte, Interessenten, Fristen",
+        "metaDescription": "Immobilien-Pipeline in Claude, ChatGPT oder Codex einfügen: Objekte, Interessenten, Besichtigungen mit Rückmeldung und Fristen nach dem Kaufvertrag.",
+        "headline": "Keine Besichtigung und keine Frist verpassen: eine Immobilien-Pipeline, die Ihr KI-Agent aufbaut",
+        "answer": "Eine Immobilien-Pipeline besteht aus zwei Arbeitslisten, die sich beim Kaufvertrag treffen: das Objekt des Eigentümers, von der Bewertung bis zu den Angeboten, und die Suche des Interessenten, von der Anfrage über Besichtigungen bis zum Angebot. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beide in Customermates auf, mit Maklerauftrag, Besichtigungen mit Rückmeldung, Fristen nach der Unterschrift und einer terminierten Routine für frühere Kunden. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
         "routine": {
           "title": "Die wöchentliche Runde über Objekte und Interessenten",
           "steps": [
@@ -2797,7 +2797,7 @@
         ]
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Immobilien-Pipeline ein: Objekte mit Art und Ende des Maklerauftrags, Suchaufträge, Besichtigungen mit Rückmeldung, Fristen nach dem Kaufvertrag und eine terminierte Aufgabe für jeden offenen Datensatz.",
+        "intro": "Ich arbeite mit Eigentümern, die ihr Objekt anbieten, und Interessenten, die suchen, und verliere den Überblick über Besichtigungen, Rückmeldungen und die Fristen nach dem Vertrag. Richte in meinem Customermates-Workspace eine Immobilien-Pipeline ein: Objekte mit Art und Ende des Maklerauftrags, Suchaufträge, Besichtigungen mit Rückmeldung, Fristen nach dem Kaufvertrag und eine terminierte Aufgabe für jeden offenen Datensatz.",
         "questions": [
           "Arbeitest du für Eigentümer, für Käufer oder für beide? Verkaufen, vermieten oder beides?",
           "In welchem Land arbeitest du, und welche Arten von Maklerauftrag nutzt du dort?",
@@ -2810,8 +2810,8 @@
     "en": {
       "locale": "en",
       "name": "Real estate pipeline",
-      "summary": "Two pipelines that meet at the contract: win and market the listing, and work the buyer, with viewings, key dates and a routine for past clients.",
-      "description": "A real estate practice runs an owner side (valuation, listing agreement, marketing, offers) and a buyer side (lead, qualification, viewings, offer), then one shared under-contract phase with hard dates. This template tracks both, the agreement type and its end date, every viewing with its feedback, the key dates after signature and a dated routine for past clients. Value on a listing holds the expected commission.",
+      "summary": "Win listings and sell them without losing a viewing, an owner update or a key date. Two pipelines that meet at the contract, the listing and the buyer, with viewings, key dates and a routine for past clients.",
+      "description": "A real estate practice works two sides of one sale, the owner who lists and the buyer who searches, and the key dates after the contract are easy to miss between the two. This template tracks the owner side (valuation, listing agreement, marketing, offers) and the buyer side (lead, qualification, viewings, offer), then one shared phase after the contract with hard dates. You see the agreement type and its end date, every viewing with its feedback, the key dates after signature and a dated routine for past clients. Value on a listing holds the expected commission.",
       "lists": {
         "actions": {
           "label": "Task",
@@ -3562,10 +3562,10 @@
         "operating_guide_page": "The Knowledge Base holds the operating guide."
       },
       "page": {
-        "metaTitle": "Real Estate Pipeline Template for Your AI Agent",
-        "metaDescription": "Copy a real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, built in your CRM.",
-        "headline": "A real estate pipeline your AI agent builds in your CRM",
-        "answer": "A real estate practice runs two pipelines that meet at the contract: winning and marketing the listing for the owner, and working the buyer through viewings to an offer. Paste this template into your AI agent and it builds both in Customermates, with listing agreements, viewings, key dates and a dated routine for past clients. You approve the plan before anything is written.",
+        "metaTitle": "Real Estate Pipeline Template: Listings, Buyers, Dates",
+        "metaDescription": "Paste this real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, in your CRM.",
+        "headline": "Never miss a viewing or key date: a real estate pipeline your AI agent builds",
+        "answer": "A real estate pipeline is two lists of work that meet at the contract: the owner's listing, from valuation to offers, and the buyer's search, from lead to viewings and an offer. Paste this template into your AI agent and it builds both in Customermates, with listing agreements, viewings with feedback, key dates after signature and a dated routine for past clients. You approve the plan before anything is built.",
         "routine": {
           "title": "The weekly listing and buyer round",
           "steps": [
@@ -3603,7 +3603,7 @@
         ]
       },
       "prompt": {
-        "intro": "Set up a real estate pipeline in my Customermates workspace: listings with the agreement type and end date, buyer searches, viewings with feedback, key dates after the contract is signed, and a dated task for every open record.",
+        "intro": "I work with owners who list and buyers who search, and I lose track of viewings, feedback and the dates after the contract. Set up a real estate pipeline in my Customermates workspace: listings with the agreement type and end date, buyer searches, viewings with feedback, key dates after the contract is signed, and a dated task for every open record.",
         "questions": [
           "Do you work for owners, for buyers or for both? Do you sell, let or both?",
           "In which country do you work, and which agreement types do you use there?",
@@ -3616,8 +3616,8 @@
     "es": {
       "locale": "es",
       "name": "Pipeline inmobiliario",
-      "summary": "Dos pipelines que se encuentran en las arras: captar y comercializar el inmueble, y atender al comprador, con visitas, fechas clave y un seguimiento periódico de clientes anteriores.",
-      "description": "Una inmobiliaria trabaja un lado propietario (valoración, encargo, comercialización, ofertas) y un lado comprador (contacto, cualificación, visitas, oferta), y después una fase común con las arras firmadas y fechas improrrogables. Esta plantilla sigue ambos, el tipo de encargo y su fecha de fin, cada visita con la opinión del comprador, las fechas clave tras la firma y un seguimiento con fechas de clientes anteriores. El valor de un inmueble recoge los honorarios esperados.",
+      "summary": "Capta y vende inmuebles sin perder una visita, un aviso al propietario ni una fecha clave. Dos pipelines, el del inmueble y el del comprador, que se encuentran en las arras, con visitas y seguimiento de clientes anteriores.",
+      "description": "Una inmobiliaria trabaja dos lados de una misma venta, el propietario que encarga y el comprador que busca, y entre uno y otro es fácil que se pasen por alto las fechas clave tras las arras. Esta plantilla sigue el lado propietario (valoración, encargo, comercialización, ofertas) y el lado comprador (contacto, cualificación, visitas, oferta), y después una fase común con las arras firmadas y fechas improrrogables. Ves el tipo de encargo y su fecha de fin, cada visita con la opinión del comprador, las fechas clave tras la firma y un seguimiento con fechas de clientes anteriores. El valor de un inmueble recoge los honorarios esperados.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -4368,7 +4368,7 @@
         "operating_guide_page": "La base de conocimiento contiene la guía de trabajo."
       },
       "prompt": {
-        "intro": "Configura un pipeline inmobiliario en mi espacio de trabajo de Customermates: inmuebles con el tipo de encargo y su fecha de fin, demandas de compradores, visitas con la opinión del comprador, fechas clave tras la firma del contrato y una tarea con fecha para cada registro abierto.",
+        "intro": "Trabajo con propietarios que encargan la venta y con compradores que buscan, y pierdo el hilo de las visitas, de las opiniones y de las fechas tras el contrato. Configura un pipeline inmobiliario en mi espacio de trabajo de Customermates: inmuebles con el tipo de encargo y su fecha de fin, demandas de compradores, visitas con la opinión del comprador, fechas clave tras la firma del contrato y una tarea con fecha para cada registro abierto.",
         "questions": [
           "¿Trabajas para propietarios, para compradores o para ambos? ¿Vendes, alquilas o ambas cosas?",
           "¿En qué país trabajas y qué tipos de encargo usas allí?",
@@ -4381,8 +4381,8 @@
     "fr": {
       "locale": "fr",
       "name": "Pipeline immobilier",
-      "summary": "Deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien, et suivre l’acquéreur, avec les visites, les dates clés et une routine pour les anciens clients.",
-      "description": "Une agence immobilière mène un côté propriétaire (estimation, mandat, commercialisation, offres) et un côté acquéreur (prospect, qualification, visites, offre), puis une phase commune sous compromis avec des dates impératives. Ce modèle suit les deux, le type de mandat et sa date de fin, chaque visite avec son retour, les dates clés après la signature et une routine datée pour les anciens clients. La valeur d’un bien correspond aux honoraires attendus.",
+      "summary": "Décrochez des mandats et vendez sans oublier une visite, un point avec le propriétaire ou une date clé. Deux pipelines qui se rejoignent au compromis, avec les visites, les dates clés et une routine pour les anciens clients.",
+      "description": "Une agence immobilière travaille les deux côtés d’une même vente, le propriétaire qui confie son bien et l’acquéreur qui cherche, et les dates clés après le compromis se perdent facilement entre les deux. Ce modèle suit le côté propriétaire (estimation, mandat, commercialisation, offres) et le côté acquéreur (prospect, qualification, visites, offre), puis une phase commune sous compromis avec des dates impératives. Vous voyez le type de mandat et sa date de fin, chaque visite avec son retour, les dates clés après la signature et une routine datée pour les anciens clients. La valeur d’un bien correspond aux honoraires attendus.",
       "lists": {
         "actions": {
           "label": "Tâche",
@@ -5133,10 +5133,10 @@
         "operating_guide_page": "La base de connaissances contient le mode d’emploi."
       },
       "page": {
-        "metaTitle": "Modèle de pipeline immobilier pour votre agent IA",
-        "metaDescription": "Copiez le pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM.",
-        "headline": "Un pipeline immobilier que votre agent IA construit dans votre CRM",
-        "answer": "Une agence immobilière mène deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien pour le propriétaire, et suivre l’acquéreur de la visite jusqu’à l’offre. Collez ce modèle dans votre agent IA et il construit les deux dans Customermates, avec les mandats, les visites, les dates clés et une routine datée pour les anciens clients. Vous validez le plan avant toute écriture.",
+        "metaTitle": "Modèle de pipeline immobilier : biens, acquéreurs, dates",
+        "metaDescription": "Collez ce pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM.",
+        "headline": "Ne ratez plus une visite ni une date clé : un pipeline immobilier que votre agent IA construit",
+        "answer": "Un pipeline immobilier est fait de deux listes de travail qui se rejoignent au compromis : le bien du propriétaire, de l’estimation aux offres, et la recherche de l’acquéreur, du premier contact aux visites et à l’offre. Collez ce modèle dans votre agent IA : il construit les deux dans Customermates, avec les mandats, les visites avec retour, les dates clés après la signature et une routine datée pour les anciens clients. Vous validez le plan avant que rien ne soit créé.",
         "routine": {
           "title": "La tournée hebdomadaire des biens et des acquéreurs",
           "steps": [
@@ -5174,7 +5174,7 @@
         ]
       },
       "prompt": {
-        "intro": "Mets en place un pipeline immobilier dans mon espace de travail Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
+        "intro": "Je travaille avec des propriétaires qui confient leur bien et des acquéreurs qui cherchent, et je perds le fil des visites, des retours et des dates après le compromis. Mets en place un pipeline immobilier dans mon espace de travail Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
         "questions": [
           "Travaillez-vous pour des propriétaires, pour des acquéreurs ou pour les deux ? Vendez-vous, louez-vous ou les deux ?",
           "Dans quel pays travaillez-vous, et quels types de mandat y utilisez-vous ?",
@@ -5187,8 +5187,8 @@
     "it": {
       "locale": "it",
       "name": "Pipeline immobiliare",
-      "summary": "Due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile, e seguire l'acquirente, con visite, scadenze e una routine per gli ex clienti.",
-      "description": "Un'agenzia immobiliare gestisce un lato proprietario (valutazione, incarico, promozione, proposte) e un lato acquirente (contatto, qualificazione, visite, proposta), poi una fase comune dopo il compromesso con scadenze vincolanti. Questo modello segue entrambi, il tipo di incarico e la sua scadenza, ogni visita con il suo riscontro, le scadenze dopo la firma e una routine con date per gli ex clienti. Il valore di un immobile contiene la provvigione attesa.",
+      "summary": "Acquisisci incarichi e vendi senza perdere una visita, un aggiornamento al proprietario o una scadenza. Due pipeline che si incontrano al compromesso, immobile e acquirente, con visite, scadenze e una routine per gli ex clienti.",
+      "description": "Un'agenzia immobiliare lavora i due lati di una vendita, il proprietario che affida l'immobile e l'acquirente che cerca, e le scadenze dopo il compromesso si dimenticano facilmente tra l'uno e l'altro. Questo modello segue il lato proprietario (valutazione, incarico, promozione, proposte) e il lato acquirente (contatto, qualificazione, visite, proposta), poi una fase comune dopo il compromesso con scadenze vincolanti. Vedi il tipo di incarico e la sua scadenza, ogni visita con il suo riscontro, le scadenze dopo la firma e una routine con date per gli ex clienti. Il valore di un immobile contiene la provvigione attesa.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -5939,10 +5939,10 @@
         "operating_guide_page": "La base di conoscenza contiene la guida operativa."
       },
       "page": {
-        "metaTitle": "Pipeline immobiliare: modello per il tuo agente IA",
-        "metaDescription": "Copia la pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e le scadenze dopo il compromesso, nel tuo CRM.",
-        "headline": "Una pipeline immobiliare che il tuo agente IA costruisce nel tuo CRM",
-        "answer": "Un'agenzia immobiliare porta avanti due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile per il proprietario, e seguire l'acquirente dalle visite fino alla proposta. Incolla questo modello nel tuo agente IA e lui costruisce entrambe in Customermates, con incarichi, visite, scadenze e una routine con date per gli ex clienti. Approvi il piano prima che venga scritto qualcosa.",
+        "metaTitle": "Pipeline immobiliare: immobili, acquirenti e scadenze",
+        "metaDescription": "Incolla questa pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e scadenze dopo il compromesso, nel tuo CRM.",
+        "headline": "Nessuna visita o scadenza persa: la pipeline immobiliare che il tuo agente IA costruisce",
+        "answer": "Una pipeline immobiliare è fatta di due percorsi che si incontrano al compromesso: l'immobile del proprietario, dalla valutazione alle proposte, e la ricerca dell'acquirente, dal primo contatto alle visite e alla proposta. Incolla questo modello nel tuo agente IA e costruisce entrambi in Customermates, con incarichi, visite con riscontro, scadenze dopo la firma e una routine con date per gli ex clienti. Approvi il piano prima che venga costruito qualcosa.",
         "routine": {
           "title": "Il giro settimanale tra immobili e acquirenti",
           "steps": [
@@ -5980,7 +5980,7 @@
         ]
       },
       "prompt": {
-        "intro": "Configura una pipeline immobiliare nel mio spazio di lavoro Customermates: immobili con il tipo di incarico e la sua scadenza, richieste di acquirenti, visite con riscontro, le scadenze dopo la firma del compromesso e un'attività con data per ogni pratica aperta.",
+        "intro": "Lavoro con proprietari che affidano un immobile e acquirenti che lo cercano, e perdo il filo di visite, riscontri e scadenze dopo il compromesso. Configura una pipeline immobiliare nel mio spazio di lavoro Customermates: immobili con il tipo di incarico e la sua scadenza, richieste di acquirenti, visite con riscontro, le scadenze dopo la firma del compromesso e un'attività con data per ogni pratica aperta.",
         "questions": [
           "Lavori per i proprietari, per gli acquirenti o per entrambi? Vendi, affitti o fai entrambe le cose?",
           "In quale paese lavori e quali tipi di incarico usi?",
@@ -5993,8 +5993,8 @@
     "nl": {
       "locale": "nl",
       "name": "Makelaarspipeline",
-      "summary": "Twee pipelines die samenkomen bij de koopovereenkomst: de woning binnenhalen en op de markt brengen, en de koper begeleiden, met bezichtigingen, sleutelmomenten en een routine voor oud-klanten.",
-      "description": "Een makelaarskantoor werkt aan een verkopersdeel (waardebepaling, opdracht, verkoop starten, biedingen) en een kopersdeel (aanvraag, kwalificatie, bezichtigingen, bod), daarna aan één gedeelde fase na de koopovereenkomst met harde data. Dit sjabloon volgt beide, het type opdracht en de einddatum, elke bezichtiging met terugkoppeling, de sleutelmomenten na ondertekening en een routine met data voor oud-klanten. De waarde bij een woning is de verwachte courtage.",
+      "summary": "Haal woningen binnen en verkoop ze zonder een bezichtiging, terugkoppeling aan de verkoper of sleutelmoment te missen. Twee pipelines die samenkomen bij de koopovereenkomst, plus een routine voor oud-klanten.",
+      "description": "Een makelaarskantoor werkt aan twee kanten van één verkoop, de verkoper die zijn woning aanbiedt en de koper die zoekt, en de sleutelmomenten na de koopovereenkomst raken makkelijk zoek tussen die twee. Dit sjabloon volgt het verkopersdeel (waardebepaling, opdracht, verkoop starten, biedingen) en het kopersdeel (aanvraag, kwalificatie, bezichtigingen, bod), en daarna één gedeelde fase na de koopovereenkomst met harde data. Je ziet het type opdracht en de einddatum, elke bezichtiging met terugkoppeling, de sleutelmomenten na ondertekening en een routine met data voor oud-klanten. De waarde bij een woning is de verwachte courtage.",
       "lists": {
         "actions": {
           "label": "Taak",
@@ -6745,7 +6745,7 @@
         "operating_guide_page": "De kennisbank bevat de werkwijze."
       },
       "prompt": {
-        "intro": "Richt een makelaarspipeline in mijn Customermates-werkruimte in: woningen met het type opdracht en de einddatum, zoekopdrachten van kopers, bezichtigingen met terugkoppeling, sleutelmomenten na ondertekening van de koopovereenkomst en een taak met datum bij elk open dossier.",
+        "intro": "Ik werk met verkopers die hun woning aanbieden en met kopers die zoeken, en ik verlies het overzicht over bezichtigingen, terugkoppeling en de data na de koopovereenkomst. Richt een makelaarspipeline in mijn Customermates-werkruimte in: woningen met het type opdracht en de einddatum, zoekopdrachten van kopers, bezichtigingen met terugkoppeling, sleutelmomenten na ondertekening van de koopovereenkomst en een taak met datum bij elk open dossier.",
         "questions": [
           "Werk je voor verkopers, voor kopers of voor beide? Verkoop je, verhuur je of allebei?",
           "In welk land werk je en welke soorten opdracht gebruik je daar?",
@@ -6758,8 +6758,8 @@
     "pl": {
       "locale": "pl",
       "name": "Lejek nieruchomości",
-      "summary": "Dwa lejki, które spotykają się przy umowie: pozyskanie i promocja oferty oraz obsługa kupującego, z prezentacjami, terminami i rutyną dla dawnych klientów.",
-      "description": "Biuro nieruchomości prowadzi stronę właściciela (wycena, umowa pośrednictwa, promocja, oferty) i stronę kupującego (kontakt, kwalifikacja, prezentacje, oferta), a potem wspólną fazę po podpisaniu umowy z twardymi terminami. Szablon obsługuje obie strony, rodzaj umowy pośrednictwa i jej koniec, każdą prezentację z opinią, terminy po podpisaniu i rutynę z datami dla dawnych klientów. Wartość oferty to oczekiwana prowizja.",
+      "summary": "Zdobywaj oferty i sprzedawaj je, nie tracąc z oczu prezentacji ani ważnych terminów. Dwa lejki, oferta właściciela i poszukiwanie kupującego, spotykają się przy umowie, a dla dawnych klientów jest osobna rutyna z datami.",
+      "description": "Biuro nieruchomości obsługuje dwie strony jednej sprzedaży, właściciela, który wystawia ofertę, i kupującego, który szuka, a terminy po podpisaniu umowy łatwo przeoczyć. Szablon prowadzi stronę właściciela (wycena, umowa pośrednictwa, promocja, oferty) i stronę kupującego (kontakt, kwalifikacja, prezentacje, oferta), a potem wspólną fazę po podpisaniu umowy z twardymi terminami. Widzisz rodzaj umowy pośrednictwa i jej koniec, każdą prezentację z opinią, terminy po podpisaniu i rutynę z datami dla dawnych klientów. Wartość oferty to oczekiwana prowizja.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -7510,7 +7510,7 @@
         "operating_guide_page": "Baza wiedzy zawiera instrukcję pracy."
       },
       "prompt": {
-        "intro": "Skonfiguruj lejek nieruchomości w mojej przestrzeni roboczej Customermates: oferty z rodzajem umowy pośrednictwa i jej końcem, poszukiwania kupujących, prezentacje z opinią, terminy po podpisaniu umowy i zadanie z terminem przy każdym otwartym wpisie.",
+        "intro": "Pracuję zarówno z właścicielami, którzy sprzedają nieruchomości, jak i z kupującymi, i gubię się w prezentacjach, opiniach po nich oraz terminach po podpisaniu umowy. Skonfiguruj lejek nieruchomości w mojej przestrzeni roboczej Customermates: oferty z rodzajem umowy pośrednictwa i jej końcem, poszukiwania kupujących, prezentacje z opinią, terminy po podpisaniu umowy i zadanie z terminem przy każdym otwartym wpisie.",
         "questions": [
           "Pracujesz dla właścicieli, dla kupujących czy dla obu stron? Sprzedajesz, wynajmujesz czy jedno i drugie?",
           "W jakim kraju pracujesz i jakich rodzajów umów pośrednictwa tam używasz?",
@@ -7523,8 +7523,8 @@
     "pt": {
       "locale": "pt",
       "name": "Funil imobiliário",
-      "summary": "Dois funis que se encontram no contrato: captar e divulgar o imóvel, e atender o comprador, com visitas, prazos e um acompanhamento periódico de clientes antigos.",
-      "description": "Uma imobiliária trabalha um lado proprietário (avaliação, autorização de venda, divulgação, propostas) e um lado comprador (lead, qualificação, visitas, proposta), depois uma fase comum com o contrato assinado e prazos firmes. Este modelo acompanha os dois, o tipo de autorização e o seu fim, cada visita com o retorno, os prazos depois da assinatura e um acompanhamento com datas para clientes antigos. O valor de um imóvel guarda a comissão esperada.",
+      "summary": "Capte imóveis e venda sem perder uma visita, um retorno ao proprietário ou um prazo. Dois funis que se encontram no contrato, o do imóvel e o do comprador, com visitas, prazos e acompanhamento de clientes antigos.",
+      "description": "Uma imobiliária trabalha os dois lados de uma venda, o proprietário que entrega o imóvel e o comprador que procura, e os prazos depois do contrato escapam com facilidade entre os dois. Este modelo acompanha o lado do proprietário (avaliação, autorização de venda, divulgação, propostas) e o do comprador (lead, qualificação, visitas, proposta), depois uma fase comum após o contrato, com prazos firmes. Você vê o tipo de autorização e o seu fim, cada visita com o retorno, os prazos depois da assinatura e um acompanhamento com datas para clientes antigos. O valor do imóvel guarda a comissão esperada.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -8275,7 +8275,7 @@
         "operating_guide_page": "A base de conhecimento contém o guia de operação."
       },
       "prompt": {
-        "intro": "Configure um funil imobiliário no meu espaço de trabalho do Customermates: imóveis com o tipo de autorização e o fim dela, buscas de compradores, visitas com retorno, prazos depois da assinatura do contrato e uma tarefa com data para cada registro aberto.",
+        "intro": "Eu trabalho com proprietários que anunciam e compradores que procuram, e perco o controle das visitas, dos retornos e dos prazos depois do contrato. Configure um funil imobiliário no meu espaço de trabalho do Customermates: imóveis com o tipo de autorização e o fim dela, buscas de compradores, visitas com retorno, prazos depois da assinatura do contrato e uma tarefa com data para cada registro aberto.",
         "questions": [
           "Você trabalha para proprietários, para compradores ou para os dois? Vende, aluga ou ambos?",
           "Em que país você trabalha e quais tipos de autorização usa lá?",

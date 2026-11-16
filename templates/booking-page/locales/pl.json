@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Rezerwacja wizyt online",
-  "summary": "Rejestr wizyt dla osoby świadczącej usługi: typy wizyt z czasem trwania i wyprzedzeniem, każda rezerwacja ze statusem, przypomnieniami i wynikiem oraz następnym krokiem.",
-  "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania nieruchomości i prowadź je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
+  "summary": "Nie trać z oczu żadnej rozmowy, konsultacji ani oglądania, od zgłoszenia do wyniku. Typy wizyt z czasem trwania i wyprzedzeniem, status i przypomnienia przy każdej rezerwacji oraz następny krok po każdej wizycie.",
+  "description": "Rezerwacje, które istnieją tylko w kalendarzu i skrzynce, łatwo zgubić: klienci nie pojawiają się, bo nikt im nie przypomniał, a po rozmowie nikt nie zapisuje, co z niej wynikło. Szablon zakłada kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwację, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Pasuje do osób świadczących usługi, które umawiają rozmowy, konsultacje, sesje lub oglądania nieruchomości. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
   "lists": {
     "people": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, które rezerwują wizyty u Ciebie." },
     "appointment_types": { "label": "Typ wizyty", "pluralLabel": "Typy wizyt", "description": "Rodzaj wizyty z czasem trwania, przerwą, wyprzedzeniem i ceną." },
@@ -91,7 +91,7 @@
     "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
+    "intro": "Przyjmuję rezerwacje na rozmowy, konsultacje i oglądania, ale gubię się, kto jest zapisany, kto potwierdził i co z tego wynikło. Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
     "questions": [
       "Jakie typy wizyt oferujesz i ile trwa każdy z nich?",
       "Jakiego wyprzedzenia potrzebujesz i jak daleko naprzód można rezerwować?",

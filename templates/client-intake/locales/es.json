@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Ficha de cliente y alta",
-  "summary": "Un alta por encargo: solicitud, valoración, cuestionario, documentación solicitada, hoja de encargo y reunión de arranque, con un paso fechado en cada etapa y un motivo cuando rechazas.",
-  "description": "Un pipeline breve para dar de alta a un cliente nuevo: responder en un día, valorar si encaja, enviar el cuestionario, reunir la documentación, enviar la hoja de encargo, empezar. Las profesiones reguladas anotan quién verificó la identidad y cuándo, nunca el documento. No es una herramienta de firma electrónica, de prevención del blanqueo ni de pagos.",
+  "summary": "Da de alta a tus clientes nuevos sin perseguir a mano formularios, documentos y hojas de encargo. Un alta por encargo, con un paso fechado en cada etapa y el motivo anotado cuando rechazas.",
+  "description": "Los clientes nuevos dejan de contestar entre la primera consulta y el primer día de trabajo: el cuestionario no vuelve, falta un documento, la hoja de encargo sigue pendiente. Esta plantilla prepara un alta por encargo con nueve etapas, de la solicitud a la reunión de arranque, los documentos solicitados, un paso fechado en cada etapa, una respuesta en un día y un motivo de rechazo cuando dices que no. Las profesiones reguladas pueden anotar quién comprobó la identidad, los conflictos y el riesgo, y cuándo, nunca el documento en sí. No es una herramienta de firma electrónica, de verificación de identidad ni de pagos.",
   "lists": {
     "contacts": { "label": "Persona de contacto", "pluralLabel": "Personas de contacto", "description": "Las personas de cada cliente: contacto principal, facturación, firmante." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Empresas, autónomos y particulares a los que das de alta." },
@@ -200,7 +200,7 @@
     "process_page": "La base de conocimiento contiene el proceso de alta."
   },
   "prompt": {
-    "intro": "Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
+    "intro": "Pierdo clientes nuevos entre la primera consulta y el primer día de trabajo porque se me olvida enviar el cuestionario o reclamar los documentos. Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
     "questions": [
       "¿Qué vendes y quiénes son tus clientes: empresas, autónomos o particulares?",
       "¿Por qué pasos pasa hoy un cliente nuevo y cuáles de las nueve etapas no necesitas?",

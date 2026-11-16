@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Plano de ação",
-  "summary": "Cada ação com um responsável e um prazo, vinculada à reunião, à decisão ou ao projeto de onde vem, com revisão semanal e encerramento com comprovação.",
-  "description": "Um controle das ações que saem de reuniões, projetos, auditorias e pedidos de clientes: seis status, uma prioridade, um responsável, um prazo, uma data de retorno, um registro de decisões e uma verificação de eficácia depois de ações corretivas. Os lembretes vêm de regras de automação e notificações. O modelo 5W2H cabe aqui com os campos de responsável, prazo e origem.",
+  "summary": "Garanta que o que foi combinado na reunião realmente aconteça. Cada ação tem um responsável e um prazo e fica ligada à decisão ou ao projeto de onde veio, com uma revisão semanal.",
+  "description": "As ações combinadas em reuniões, auditorias e conversas com clientes se perdem em atas e mensagens, e o mesmo assunto volta à pauta na semana seguinte. Este modelo monta uma lista de ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, ligadas à reunião, à decisão ou ao projeto de onde vieram, além de um registro de decisões e uma verificação de eficácia depois de uma ação corretiva. Serve para equipes, gerentes de projeto e responsáveis pela qualidade que querem uma revisão semanal do que está aberto, atrasado ou bloqueado, e quem usa 5W2H encontra aqui responsável, prazo e origem. Os lembretes vêm de regras de automação e notificações que você ativa.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Equipe, parceiros, clientes e fornecedores." },
     "meetings": { "label": "Reunião", "pluralLabel": "Reuniões", "description": "De onde vêm as ações e as decisões." },
@@ -104,7 +104,7 @@
     "overdue_widget": "O painel mostra quantas ações estão atrasadas."
   },
   "prompt": {
-    "intro": "Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data de retorno, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
+    "intro": "As ações que combinamos nas reuniões ficam pelo caminho, e ninguém sabe quem é responsável por quê nem até quando. Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
     "questions": [
       "De onde vêm as suas ações: reuniões, projetos, auditorias, clientes?",
       "Quem é responsável pelas ações e quem decide quando o prazo de uma muda ou ela é cancelada?",

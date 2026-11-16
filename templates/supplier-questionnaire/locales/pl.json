@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Kwestionariusz dostawcy",
-  "summary": "Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka, decyzją o zatwierdzeniu i terminem następnej oceny.",
-  "description": "Kwalifikuj dostawców i podwykonawców w jednym miejscu: wyślij kwestionariusz, zbieraj certyfikaty i zaświadczenia z datą ważności, przypisz każdemu dostawcy poziom ryzyka, zapisz decyzję (zatwierdzić, zatwierdzić warunkowo, eskalować, odrzucić) i zobacz, co wygasa jako następne. Szablon porządkuje dowody. Nie rozstrzyga o zgodności z prawem, nie sprawdza list sankcyjnych ani kondycji finansowej i nie zastępuje systemu jakości, ERP ani archiwum dokumentów.",
+  "summary": "Wiedz, którzy dostawcy są zatwierdzeni i który certyfikat wygasa jako następny. Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka i decyzją o zatwierdzeniu dla każdego dostawcy.",
+  "description": "Certyfikaty dostawców wygasają, a ponowne oceny są pomijane, gdy odpowiedzi leżą w e-mailach i folderach. Szablon pozwala kwalifikować dostawców i podwykonawców w jednym miejscu: wyślij kwestionariusz, zbieraj certyfikaty i zaświadczenia z datą ważności, przypisz każdemu dostawcy poziom ryzyka, zapisz decyzję (zatwierdzić, zatwierdzić warunkowo, eskalować, odrzucić) i zobacz, co wygasa jako następne. Szablon porządkuje dowody. Nie rozstrzyga o zgodności z prawem, nie sprawdza list sankcyjnych ani kondycji finansowej i nie zastępuje systemu jakości, ERP ani archiwum dokumentów.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby u dostawców, które wypełniają kwestionariusze i przesyłają dokumenty." },
     "suppliers": { "label": "Dostawca", "pluralLabel": "Dostawcy", "description": "Każdy dostawca i podwykonawca, od kandydata do zatwierdzonego lub zablokowanego." },
@@ -116,7 +116,7 @@
     "suppliers_board_view": "Dostawcy otwierają się jako tablica według statusu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
+    "intro": "Współpracuję z wieloma dostawcami i nie widzę, komu wygasły certyfikaty ani kogo trzeba ocenić ponownie. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
     "questions": [
       "Ilu masz dostawców i jak dzielisz ich według ryzyka?",
       "O jakie certyfikaty lub zaświadczenia prosisz i jak długo ważny jest każdy z nich?",

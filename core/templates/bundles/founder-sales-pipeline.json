@@ -1108,8 +1108,8 @@
     "de": {
       "locale": "de",
       "name": "Vertrieb im Gründerteam",
-      "summary": "Eine kurze Pipeline für Gründer, die selbst verkaufen: Gespräche, Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Angebot und ein Zurückgestellt-Status mit Wiedervorlage.",
-      "description": "Als Gründer verkaufen, mit einer Handvoll bis einigen Dutzend offenen Gesprächen: Jede Verkaufschance hält das Problem in den Worten des Kunden, die Dringlichkeit und den Budgetstand fest und vermerkt, ob der Entscheider eingebunden ist; ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird; ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
+      "summary": "Selbst verkaufen, ohne den Faden der Gespräche zu verlieren. Eine kurze Pipeline vom ersten Gespräch bis gewonnen, mit optionalem Pilot mit Enddatum und einem Zurückgestellt-Status mit Wiedervorlage.",
+      "description": "Wer selbst verkauft, lernt in jedem Gespräch, wer kauft und warum, aber die Notizen und der nächste Schritt stecken im Kopf und in einem Stapel Tabs. Diese Vorlage führt eine Handvoll bis einige Dutzend offene Gespräche: Jede Verkaufschance hält das Problem in den Worten des Kunden fest, die Dringlichkeit, den Budgetstand und ob der Entscheider eingebunden ist. Ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird, und ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1445,7 +1445,7 @@
         "opportunities_board_view": "Die Verkaufschancen öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
+        "intro": "Ich verkaufe mein Produkt selbst und verliere ständig die Notizen und nächsten Schritte aus meinen Gesprächen. Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
         "questions": [
           "Was verkaufst du, und wer hat bisher bei dir gekauft?",
           "Führst du Piloten oder Testphasen durch, und sind sie bezahlt?",
@@ -1457,8 +1457,8 @@
     "en": {
       "locale": "en",
       "name": "Founder sales pipeline",
-      "summary": "A short pipeline for a founder who sells personally: conversations, discovery, an optional pilot with a fixed end date, a proposal, and a parked state with a date to come back.",
-      "description": "Sell as the founder with a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged; a pilot has an end date and says whether it is paid; a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and they are yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
+      "summary": "Sell as the founder without losing the thread of your conversations. A short pipeline from first conversation to won, with an optional pilot that has an end date and a parked state with a date to come back.",
+      "description": "When you sell personally, every conversation teaches you who buys and why, but the notes and the next step live in your head and a stack of tabs. This template keeps a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged. A pilot has an end date and says whether it is paid, and a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and they are yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1794,7 +1794,7 @@
         "opportunities_board_view": "The opportunities open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up a founder sales pipeline in my Customermates workspace: opportunities from the first conversation to won with discovery notes, an optional pilot with a fixed end date, a parked state with a revisit date, and dated follow-ups. Send nothing automatically.",
+        "intro": "I sell my product myself and keep losing the notes and next steps from my conversations. Set up a founder sales pipeline in my Customermates workspace: opportunities from the first conversation to won with discovery notes, an optional pilot with a fixed end date, a parked state with a revisit date, and dated follow-ups. Send nothing automatically.",
         "questions": [
           "What do you sell, and who has bought from you so far?",
           "Do you run pilots or trials, and are they paid?",
@@ -1806,8 +1806,8 @@
     "es": {
       "locale": "es",
       "name": "Ventas lideradas por el fundador",
-      "summary": "Un pipeline corto para un fundador que vende en persona: conversaciones, diagnóstico, un piloto opcional con fecha de fin fija, una propuesta y un estado en pausa con fecha para retomar.",
-      "description": "Vende como fundador con entre un puñado y unas decenas de conversaciones abiertas: cada oportunidad registra el problema con las palabras del cliente, la urgencia, el estado del presupuesto y si el decisor está implicado; un piloto tiene fecha de fin e indica si es de pago; una operación silenciosa se pone en pausa con una fecha para retomarla en lugar de perseguirla. Las ponderaciones son aproximadas, porque un fundador aún no tiene historial de cierres, y las fijas tú. No sirve para enviar secuencias en volumen, captar inversión ni prever las ventas de un equipo con varios vendedores.",
+      "summary": "Vende como fundador sin perder el hilo de tus conversaciones. Un pipeline corto de la primera conversación a ganada, con un piloto opcional con fecha de fin y un estado en pausa con fecha para retomar.",
+      "description": "Cuando vendes tú en persona, cada conversación te enseña quién compra y por qué, pero las notas y el siguiente paso viven en tu cabeza y en una pila de pestañas. Esta plantilla lleva entre un puñado y unas decenas de conversaciones abiertas: cada oportunidad registra el problema con las palabras del cliente, la urgencia, el estado del presupuesto y si el decisor está implicado. Un piloto tiene fecha de fin e indica si es de pago, y una operación silenciosa se pone en pausa con una fecha para retomarla en lugar de perseguirla. Las ponderaciones son aproximadas, porque un fundador aún no tiene historial de cierres, y las fijas tú. No sirve para enviar secuencias en volumen, captar inversión ni prever las ventas de un equipo con varios vendedores.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2143,7 +2143,7 @@
         "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un pipeline de ventas liderado por el fundador: oportunidades de la primera conversación a ganada con notas de diagnóstico, un piloto opcional con fecha de fin fija, un estado en pausa con fecha para retomar y seguimientos con fecha. No envíes nada automáticamente.",
+        "intro": "Vendo mi producto en persona y no paro de perder las notas y los siguientes pasos de mis conversaciones. Configura en mi espacio de trabajo de Customermates un pipeline de ventas liderado por el fundador: oportunidades de la primera conversación a ganada con notas de diagnóstico, un piloto opcional con fecha de fin fija, un estado en pausa con fecha para retomar y seguimientos con fecha. No envíes nada automáticamente.",
         "questions": [
           "¿Qué vendes y quién te ha comprado hasta ahora?",
           "¿Haces pilotos o pruebas y son de pago?",
@@ -2155,8 +2155,8 @@
     "fr": {
       "locale": "fr",
       "name": "Pipeline commercial du fondateur",
-      "summary": "Un pipeline court pour un fondateur qui vend lui-même : échanges, rendez-vous découverte, un pilote facultatif avec date de fin fixe, une proposition et un état en pause avec une date de relance.",
-      "description": "Vendez en tant que fondateur avec de quelques-unes à quelques dizaines de conversations ouvertes : chaque affaire consigne le problème dans les mots du client, l’urgence, l’état du budget et si le décideur est impliqué ; un pilote a une date de fin et indique s’il est payant ; une affaire silencieuse est mise en pause avec une date de relance au lieu d’être relancée sans cesse. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et c’est à vous de les fixer. Ce n’est ni de la prospection en séquences à grande échelle, ni une levée de fonds, ni une prévision pour une équipe de plusieurs commerciaux.",
+      "summary": "Vendez en tant que fondateur sans perdre le fil de vos conversations. Un pipeline court du premier échange à la signature, avec un pilote facultatif à date de fin fixe et un état en pause avec une date de relance.",
+      "description": "Quand vous vendez vous-même, chaque conversation vous apprend qui achète et pourquoi, mais les notes et la prochaine étape restent dans votre tête et dans une pile d’onglets. Ce modèle suit de quelques-unes à quelques dizaines de conversations ouvertes. Chaque affaire consigne le problème dans les mots du client, l’urgence, l’état du budget et si le décideur est impliqué. Un pilote a une date de fin et indique s’il est payant, et une affaire silencieuse est mise en pause avec une date de relance au lieu d’être relancée sans cesse. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et c’est à vous de les fixer. Ce n’est ni de la prospection en séquences à grande échelle, ni une levée de fonds, ni une prévision pour une équipe de plusieurs commerciaux.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2492,7 +2492,7 @@
         "opportunities_board_view": "Les affaires s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
+        "intro": "Je vends mon produit moi-même et je perds sans cesse les notes et les prochaines étapes de mes conversations. Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
         "questions": [
           "Que vendez-vous, et qui a déjà acheté chez vous ?",
           "Faites-vous des pilotes ou des essais, et sont-ils payants ?",
@@ -2504,8 +2504,8 @@
     "it": {
       "locale": "it",
       "name": "Pipeline commerciale del fondatore",
-      "summary": "Una pipeline breve per un fondatore che vende di persona: conversazioni, analisi delle esigenze, un pilota facoltativo con data di fine fissa, un'offerta e uno stato in pausa con una data per riprendere.",
-      "description": "Vendi come fondatore con un numero di conversazioni aperte che va da una manciata a qualche decina: ogni trattativa registra il problema con le parole del cliente, l'urgenza, lo stato del budget e se il decisore è coinvolto; un pilota ha una data di fine e dice se è a pagamento; una trattativa silenziosa viene messa in pausa con una data per riprenderla invece di inseguirla. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sta a te impostarli. Non è invio di sequenze in volume, raccolta di capitali né previsione per un team con più venditori.",
+      "summary": "Vendi da fondatore senza perdere il filo delle tue conversazioni. Una pipeline breve dalla prima conversazione alla vittoria, con un pilota facoltativo con data di fine e uno stato in pausa con una data per riprendere.",
+      "description": "Quando vendi di persona, ogni conversazione ti insegna chi compra e perché, ma gli appunti e il prossimo passo restano nella tua testa e in una pila di schede aperte. Questo modello tiene da una manciata a qualche decina di conversazioni aperte: ogni trattativa registra il problema con le parole del cliente, l'urgenza, lo stato del budget e se il decisore è coinvolto. Un pilota ha una data di fine e dice se è a pagamento, e una trattativa silenziosa va in pausa con una data per riprenderla invece di essere inseguita. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sta a te impostarli. Non è invio di sequenze in volume, raccolta di capitali né previsione per un team con più venditori.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2841,7 +2841,7 @@
         "opportunities_board_view": "Le trattative si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline commerciale del fondatore: trattative dalla prima conversazione a vinta con note di analisi, un pilota facoltativo con data di fine fissa, uno stato in pausa con data di ripresa e attività di follow-up con data. Non inviare nulla automaticamente.",
+        "intro": "Vendo il mio prodotto di persona e continuo a perdere gli appunti e i prossimi passi delle mie conversazioni. Imposta nel mio spazio di lavoro Customermates una pipeline commerciale del fondatore: trattative dalla prima conversazione a vinta con note di analisi, un pilota facoltativo con data di fine fissa, uno stato in pausa con data di ripresa e attività di follow-up con data. Non inviare nulla automaticamente.",
         "questions": [
           "Che cosa vendi e chi ha già comprato da te?",
           "Fai piloti o prove e sono a pagamento?",
@@ -2853,8 +2853,8 @@
     "nl": {
       "locale": "nl",
       "name": "Sales van de oprichter",
-      "summary": "Een korte pijplijn voor een oprichter die zelf verkoopt: gesprekken, verkenning, een optionele pilot met vaste einddatum, een offerte en een gepauzeerde status met een datum om terug te komen.",
-      "description": "Verkopen als oprichter met een handvol tot enkele tientallen open gesprekken: elke deal legt het probleem in de woorden van de klant vast, de urgentie, de budgetstatus en of de beslisser betrokken is; een pilot heeft een einddatum en zegt of hij betaald is; een stille deal wordt gepauzeerd met een datum om terug te komen in plaats van achterna te worden gelopen. De gewichten zijn grof, want een oprichter heeft nog geen slagingspercentage, en jij stelt ze zelf in. Geen geautomatiseerde mailsequenties op volume, geen kapitaalronde en geen forecast voor een team met meerdere verkopers.",
+      "summary": "Verkoop zelf als oprichter zonder de draad van je gesprekken kwijt te raken. Een korte pijplijn van eerste gesprek tot gewonnen, met een optionele pilot met einddatum en een gepauzeerde status met een datum om terug te komen.",
+      "description": "Als je zelf verkoopt, leert elk gesprek je wie koopt en waarom, maar de notities en de volgende stap zitten in je hoofd en in een stapel tabbladen. Dit sjabloon houdt een handvol tot enkele tientallen open gesprekken bij: elke deal legt het probleem in de woorden van de klant vast, de urgentie, de budgetstatus en of de beslisser betrokken is. Een pilot heeft een einddatum en zegt of hij betaald is, en een stille deal wordt gepauzeerd met een datum om terug te komen in plaats van achterna te worden gelopen. De gewichten zijn grof, want een oprichter heeft nog geen slagingspercentage, en jij stelt ze zelf in. Geen geautomatiseerde mailsequenties op volume, geen kapitaalronde en geen forecast voor een team met meerdere verkopers.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3190,7 +3190,7 @@
         "opportunities_board_view": "De deals openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een verkooppijplijn voor oprichters in: deals van eerste gesprek tot gewonnen met verkennende notities, een optionele pilot met vaste einddatum, een gepauzeerde status met terugkomdatum en opvolging met datum. Stuur niets automatisch.",
+        "intro": "Ik verkoop mijn product zelf en verlies steeds de notities en volgende stappen uit mijn gesprekken. Richt in mijn Customermates-werkruimte een verkooppijplijn voor oprichters in: deals van eerste gesprek tot gewonnen met verkennende notities, een optionele pilot met vaste einddatum, een gepauzeerde status met terugkomdatum en opvolging met datum. Stuur niets automatisch.",
         "questions": [
           "Wat verkoop je en wie heeft er tot nu toe bij je gekocht?",
           "Doe je pilots of proeven en zijn die betaald?",
@@ -3202,8 +3202,8 @@
     "pl": {
       "locale": "pl",
       "name": "Sprzedaż prowadzona przez założyciela",
-      "summary": "Krótki lejek dla założyciela, który sprzedaje osobiście: rozmowy, analiza potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, oferta i status wstrzymane z datą powrotu.",
-      "description": "Sprzedawaj jako założyciel, mając od kilku do kilkudziesięciu otwartych rozmów: każda szansa zapisuje problem słowami klienta, pilność, stan budżetu i to, czy decydent jest zaangażowany; pilotaż ma termin zakończenia i informację, czy jest płatny; szansa, która ucichła, jest wstrzymywana z datą powrotu zamiast być ponaglana. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i to Ty je ustawiasz. To nie jest masowa wysyłka sekwencji wiadomości, pozyskiwanie finansowania ani prognoza dla zespołu z kilkoma handlowcami.",
+      "summary": "Sprzedawaj osobiście jako założyciel i nie gub wątku rozmów. Krótki lejek od pierwszej rozmowy do wygranej, z opcjonalnym pilotażem ze stałym terminem zakończenia i statusem wstrzymane z datą powrotu.",
+      "description": "Gdy sprzedajesz osobiście, każda rozmowa uczy Cię, kto kupuje i dlaczego, ale notatki i następny krok siedzą w głowie i w stosie otwartych kart w przeglądarce. Szablon pomaga prowadzić od kilku do kilkudziesięciu otwartych rozmów: każda szansa zapisuje problem słowami klienta, pilność, stan budżetu i to, czy decydent jest zaangażowany. Pilotaż ma termin zakończenia i informację, czy jest płatny, a szansa, która ucichła, jest wstrzymywana z datą powrotu zamiast być ponaglana. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i to Ty je ustawiasz. To nie jest masowa wysyłka sekwencji wiadomości, pozyskiwanie finansowania ani prognoza dla zespołu z kilkoma handlowcami.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3539,7 +3539,7 @@
         "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek sprzedaży prowadzonej przez założyciela: szanse od pierwszej rozmowy do wygranej z notatkami z analizy potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, status wstrzymane z datą powrotu i zaplanowane kolejne kroki. Niczego nie wysyłaj automatycznie.",
+        "intro": "Sam sprzedaję swój produkt i ciągle gubię notatki oraz następne kroki z rozmów. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek sprzedaży prowadzonej przez założyciela: szanse od pierwszej rozmowy do wygranej z notatkami z analizy potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, status wstrzymane z datą powrotu i zaplanowane kolejne kroki. Niczego nie wysyłaj automatycznie.",
         "questions": [
           "Co sprzedajesz i kto już od Ciebie kupił?",
           "Czy prowadzisz pilotaże lub testy i czy są płatne?",
@@ -3551,8 +3551,8 @@
     "pt": {
       "locale": "pt",
       "name": "Venda consultiva do fundador",
-      "summary": "Um funil curto para um fundador que vende pessoalmente: conversas, diagnóstico, um piloto opcional com data de término fixa, uma proposta e um estado pausado com data para retomar.",
-      "description": "Venda como fundador com entre um punhado e algumas dezenas de conversas abertas: cada negócio registra o problema nas palavras do cliente, a urgência, a situação do orçamento e se o decisor está envolvido; um piloto tem data de término e diz se é pago; um negócio silencioso é pausado com uma data para retomar em vez de ser perseguido. Os pesos são aproximados, porque um fundador ainda não tem histórico de fechamentos, e cabem a você. Não serve para disparar sequências em volume, captar investimento nem prever as vendas de uma equipe com vários vendedores.",
+      "summary": "Venda como fundador sem perder o fio das suas conversas. Um funil curto da primeira conversa ao ganho, com um piloto opcional com data de término e um estado pausado com data para retomar.",
+      "description": "Quando você mesmo vende, cada conversa ensina quem compra e por quê, mas as anotações e o próximo passo ficam na sua cabeça e numa pilha de abas. Este modelo acompanha de um punhado a algumas dezenas de conversas abertas: cada negócio registra o problema nas palavras do cliente, a urgência, a situação do orçamento e se o decisor está envolvido. Um piloto tem data de término e diz se é pago, e um negócio que ficou em silêncio é pausado com uma data para retomar, em vez de ser perseguido. Os pesos são aproximados, porque um fundador ainda não tem histórico de fechamentos, e cabem a você. Não serve para disparar sequências em volume, captar investimento nem prever as vendas de uma equipe com vários vendedores.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3888,7 +3888,7 @@
         "opportunities_board_view": "Os negócios abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
+        "intro": "Eu vendo o meu produto pessoalmente e vivo perdendo as anotações e os próximos passos das minhas conversas. Configure no meu espaço de trabalho do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
         "questions": [
           "O que você vende e quem já comprou de você?",
           "Você faz pilotos ou testes e eles são pagos?",

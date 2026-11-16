@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Boekingen voor creatieve ondernemers",
-  "summary": "Voor fotografen, videografen en eventplanners: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling in beeld en een notitie voor elk jubileum.",
-  "description": "Eén regel per boeking met twee fasen: verkoop (aanvraag tot geboekt) en levering (shoot gedaan tot geleverd). De datum blijft gereserveerd tot het contract is getekend en de aanbetaling is voldaan, de restbetaling heeft een eigen datum en na elke levering vraag je om een review. Contracten, facturen en galerijen blijven in je eigen tools, hier staan de links.",
+  "summary": "Houd elke aanvraag, datum en aanbetaling op orde, van het eerste bericht tot geboekt, geleverd en een jubileumbericht. Voor fotografen, videografen en eventplanners.",
+  "description": "Data worden beloofd zonder aanbetaling en leveringen worden vergeten als aanvragen in chats en een agenda staan. Dit sjabloon geeft elke boeking één regel met twee fasen: verkoop van aanvraag tot geboekt, en levering van shoot gedaan tot geleverd. De datum blijft gereserveerd tot het contract is getekend en de aanbetaling is voldaan, de restbetaling heeft een eigen datum en na elke levering vraag je om een review. Contracten, facturen en galerijen blijven in je eigen tools, hier staan de links.",
   "lists": {
     "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Klanten, partners van klanten, planners en contactpersonen van locaties." },
     "partners": { "label": "Partner", "pluralLabel": "Partners", "description": "Locaties, planners, cateraars en andere leveranciers met wie je werkt." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "De boekingen openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt boekingen voor creatieve ondernemers in mijn Customermates-werkruimte in: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling, een vragenlijst voor het evenement, een reviewverzoek en jubileumberichten.",
+    "intro": "Ik heb een foto-, video- of eventbedrijf en raak het overzicht kwijt van welke data gereserveerd zijn, welke aanbetalingen binnen zijn en wat er nog geleverd moet worden. Richt boekingen voor creatieve ondernemers in mijn Customermates-werkruimte in: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling, een vragenlijst voor het evenement, een reviewverzoek en jubileumberichten.",
     "questions": [
       "Wat fotografeer, film of plan je en hoeveel boekingen heb je per jaar?",
       "Welke stappen doorloopt een klant van aanvraag tot boeking en wanneer reserveer je de datum?",

@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Prenotazioni per creativi",
-  "summary": "Per fotografi, videomaker e organizzatori di eventi: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, acconto e saldo sotto controllo e una nota per ogni anniversario.",
-  "description": "Una riga per prenotazione con due fasi: vendita (dalla richiesta alla prenotazione) e consegna (dal servizio svolto alla consegna). La data resta bloccata finché il contratto non è firmato e l'acconto versato, il saldo ha una propria scadenza e a ogni consegna si chiede una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti, qui si tengono i link.",
+  "summary": "Per fotografi, videomaker e organizzatori di eventi: tieni in ordine ogni richiesta, data e acconto, dal primo messaggio alla prenotazione, alla consegna e alla nota di anniversario.",
+  "description": "Le date vengono promesse senza acconto e le consegne dimenticate quando le richieste vivono nelle chat e in un calendario. Questo modello dà a ogni prenotazione una riga con due fasi: la vendita, dalla richiesta alla prenotazione, e la consegna, dal servizio svolto alla consegna. La data resta bloccata finché il contratto non è firmato e l'acconto versato, il saldo ha una propria scadenza e a ogni lavoro consegnato si chiede una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti: qui si tengono i link.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Clienti, partner dei clienti, organizzatori e referenti delle location." },
     "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Location, wedding planner, catering e altri fornitori con cui lavori." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "Le prenotazioni si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e messaggi di anniversario.",
+    "intro": "Gestisco un'attività di foto, video o eventi e perdo il conto di quali date sono bloccate, quali acconti sono pagati e che cosa resta da consegnare. Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e note di anniversario.",
     "questions": [
       "Che cosa fotografi, riprendi o organizzi e quante prenotazioni hai all'anno?",
       "Quali passaggi attraversa un cliente dalla richiesta alla prenotazione e quando blocchi la data?",

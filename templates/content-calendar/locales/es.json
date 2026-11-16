@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Calendario editorial",
-  "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
-  "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, pero no publica.",
+  "summary": "Ten claro qué se publica esta semana y quién lo está frenando. Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+  "description": "Las publicaciones, las newsletters y los vídeos se retrasan cuando los planes están en documentos distintos y nadie sabe quién revisa qué. Esta plantilla prepara un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Encaja con creadores de contenido, responsables de marketing en empresas y agencias. Planifica y hace seguimiento, pero no publica.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Autores, editores, revisores, aprobadores e invitados." },
     "pieces": { "label": "Pieza", "pluralLabel": "Piezas", "description": "Una pieza de contenido de la idea a la publicación." },
@@ -151,7 +151,7 @@
     "calendar_widget": "El panel muestra el calendario de publicación."
   },
   "prompt": {
-    "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
+    "intro": "Nuestras publicaciones, newsletters y vídeos salen tarde porque no veo quién revisa qué ni cuándo sale cada cosa. Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
     "questions": [
       "¿Qué publicas, en qué canales y con qué frecuencia?",
       "¿Quién escribe, quién revisa y quién aprueba? ¿Interviene un cliente?",

@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Biuro rachunkowe",
-  "summary": "Narzędzie dla biura rachunkowego z dwoma obiegami: pozyskanie klienta, z weryfikacją AML i umową, oraz stała obsługa klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
-  "description": "Prowadź biuro rachunkowe w jednym miejscu: umowy od zapytania do aktywnej współpracy, z weryfikacją klienta zgodnie z przepisami o przeciwdziałaniu praniu pieniędzy po drodze, powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty oraz rejestr terminów z terminem wstępnym i osobą, która sprawdziła każdą datę. Szablon to warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani NIP, ani kopii dowodów osobistych.",
+  "summary": "Miej pod kontrolą każdą umowę, każde rozliczenie klienta i każdy termin. Pozyskaj klienta przez weryfikację AML i umowę, prowadź powtarzalne rozliczenia na klienta i rejestr terminów sprawdzany przez drugą osobę.",
+  "description": "W biurze rachunkowym kalendarz wypełnia się czekaniem na dokumenty od klientów, a każdy termin wymaga drugiej pary oczu. Szablon prowadzi dwa obiegi: umowy od zapytania do aktywnej współpracy, z weryfikacją klienta zgodnie z przepisami o przeciwdziałaniu praniu pieniędzy po drodze, oraz powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty. Rejestr terminów zawiera termin wstępny i osobę, która sprawdziła każdą datę. To warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani NIP, ani kopii dowodów osobistych.",
   "lists": {
     "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby u klientów, które wysyłają dokumenty i podpisują." },
     "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Osoby prywatne, jednoosobowe działalności, spółki i stowarzyszenia, dla których pracujesz." },
@@ -125,7 +125,7 @@
     "deadline_control_page": "Baza wiedzy zawiera stronę o kontroli terminów."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
+    "intro": "Prowadzę biuro rachunkowe i muszę widzieć, które umowy są w toku, które rozliczenia czekają na dokumenty i które terminy zostały sprawdzone. Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
     "questions": [
       "Jakie usługi oferujesz i jakie powtarzalne rozliczenia prowadzisz na klienta?",
       "Jakie formy opodatkowania obsługujesz i jakie terminy śledzisz?",

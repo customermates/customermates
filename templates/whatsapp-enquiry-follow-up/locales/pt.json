@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Acompanhamento de atendimentos no WhatsApp",
-  "summary": "Um funil para uma pequena empresa cujos clientes escrevem no WhatsApp: registrar o atendimento, responder rápido, enviar o orçamento, fazer o retorno em dias, confirmar o pedido e lembrar da recompra.",
-  "description": "Transforme conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi “para depois”. Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
+  "summary": "Pare de perder clientes que escrevem no WhatsApp. Cada conversa vira um atendimento com orçamento, próximo contato com data e data para voltar, para você responder rápido, fazer o retorno em dias e lembrar da recompra.",
+  "description": "Quando o cliente pede um preço no WhatsApp, a conversa desce na lista e o orçamento nunca é cobrado. Este modelo transforma as conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi “para depois”. Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas por você. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que escrevem para você, com o consentimento do WhatsApp e a data de recompra." },
     "enquiries": { "label": "Atendimento", "pluralLabel": "Atendimentos (negócios)", "description": "Um pedido vindo de uma conversa, da primeira mensagem a pedido confirmado, perdido ou para depois." }
@@ -83,7 +83,7 @@
     "enquiries_board_view": "Os atendimentos abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
+    "intro": "Meus clientes pedem preço no WhatsApp e eu perco a conversa antes de fazer o retorno. Configure no meu espaço de trabalho do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
     "questions": [
       "O que os clientes perguntam no WhatsApp e como você faz o orçamento?",
       "Em quanto tempo você quer responder a um novo contato?",

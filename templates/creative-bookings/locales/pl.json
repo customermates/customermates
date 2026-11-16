@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Rezerwacje dla twórców",
-  "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty oraz notatka na każdą rocznicę.",
-  "description": "Jeden wiersz na rezerwację z dwoma etapami: sprzedaż (od zapytania do zarezerwowanego) i przekazanie materiałów (od zrobionej sesji do przekazanych zdjęć lub filmu). Termin jest blokowany do podpisania umowy i wpłaty zaliczki, dopłata ma własny termin, a po każdym przekazaniu materiałów prosisz o opinię. Umowy, faktury i galerie zostają w Twoich narzędziach, tutaj zapisujemy tylko linki.",
+  "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: miej pod kontrolą każde zapytanie, termin i zaliczkę, od pierwszej wiadomości po rezerwację, przekazanie materiałów i życzenia w rocznicę.",
+  "description": "Termin zostaje obiecany bez zaliczki, a o przekazaniu materiałów łatwo zapomnieć, gdy zapytania toną w czatach i kalendarzu. Szablon daje każdej rezerwacji jeden wiersz z dwoma etapami: sprzedaż, od zapytania do zarezerwowanego, i przekazanie materiałów, od zrobionej sesji do przekazanych zdjęć lub filmu. Termin jest blokowany do podpisania umowy i wpłaty zaliczki, dopłata ma własny termin, a po każdym przekazaniu materiałów prosisz o opinię. Umowy, faktury i galerie zostają w Twoich narzędziach, tutaj zapisujemy tylko linki.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Klienci, partnerzy klientów, organizatorzy i osoby kontaktowe w lokalach." },
     "partners": { "label": "Partner", "pluralLabel": "Partnerzy", "description": "Lokale, organizatorzy, cateringi i inni dostawcy, z którymi pracujesz." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "Rezerwacje otwierają się jako tablica według etapów."
   },
   "prompt": {
-    "intro": "Skonfiguruj rezerwacje dla twórców w mojej przestrzeni roboczej Customermates: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty, ankieta przed wydarzeniem, prośba o opinię i życzenia rocznicowe.",
+    "intro": "Prowadzę firmę fotograficzną, filmową lub eventową i gubię się, które terminy są zablokowane, które zaliczki zostały wpłacone i co jeszcze trzeba przekazać. Skonfiguruj rezerwacje dla twórców w mojej przestrzeni roboczej Customermates: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty, ankieta przed wydarzeniem, prośba o opinię i życzenia rocznicowe.",
     "questions": [
       "Co fotografujesz, filmujesz lub organizujesz i ile rezerwacji masz w roku?",
       "Przez jakie kroki przechodzi klient od zapytania do rezerwacji i kiedy blokujesz termin?",

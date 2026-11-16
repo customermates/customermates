@@ -1227,8 +1227,8 @@
     "de": {
       "locale": "de",
       "name": "Agentur-Kundenpipeline",
-      "summary": "Eine Pipeline für Marketing- und Kreativagenturen: Neugeschäft vom ersten Gespräch bis zum Abschluss mit Pitch-Entscheidung, und laufende Retainer mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel.",
-      "description": "Kunden gewinnen und halten an einem Ort: Neugeschäft über Gespräch, Qualifizierung, Briefing oder Pitch, Angebot und Verhandlung, ein gewonnener Auftrag, der ein Onboarding in fünf Schritten startet, und Retainer und Projekte, die folgen, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Kein Projektmanagement, keine Zeiterfassung, keine Retainer-Abrechnung und kein Reporting.",
+      "summary": "Neue Kunden gewinnen und über das erste Projekt hinaus halten. Chancen laufen vom ersten Gespräch bis zum Abschluss, mit Pitch-Entscheidung; laufende Retainer haben Verlängerungstermin und Quartalsgespräch.",
+      "description": "Agenturen gewinnen einen Kunden und werden dann von der Retainer-Verlängerung überrascht, weil Pitches und laufende Arbeit an verschiedenen Orten stehen. Diese Vorlage richtet Chancen ein, von Gespräch, Qualifizierung, Briefing oder Pitch über Angebot bis Verhandlung, einen gewonnenen Auftrag, der ein Onboarding in fünf Schritten startet, und laufende Aufträge für die Retainer und Projekte danach, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Sie passt zu Marketing-, Kommunikations-, Kreativ- und Digitalagenturen; Projektmanagement, Zeiterfassung und Abrechnung bleiben in Ihren eigenen Werkzeugen.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1626,7 +1626,7 @@
         "opportunities_board_view": "Die Chancen öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
+        "intro": "Wir gewinnen neue Kunden, verlieren aber den Überblick über laufende Pitches und darüber, wann Retainer verlängert werden. Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
         "questions": [
           "Welche Leistungen verkaufst du, und arbeitest du mit Retainern, Projekten oder beidem?",
           "Wie entscheidest du, ob du an einem Wettbewerbspitch teilnimmst?",
@@ -1638,8 +1638,8 @@
     "en": {
       "locale": "en",
       "name": "Agency client pipeline",
-      "summary": "A pipeline for a marketing or creative agency: opportunities from the first conversation to a signed deal with a pitch go/no-go, and live retainers with a renewal date, a notice period, a quarterly review and a health flag.",
-      "description": "Win and keep clients in one place: opportunities through conversation, qualification, brief or pitch, proposal and negotiation, a win that starts a five-step onboarding, and engagements for the retainers and projects that follow, with monthly fee, renewal date, notice period and the next quarterly review. Budgets are recorded when the client states them, never guessed. Logins, brand assets and ad-account access never go in the workspace. It is not project management, time tracking, retainer billing or reporting.",
+      "summary": "Win agency clients and keep them past the first project. Opportunities run from first conversation to signed deal with a pitch go/no-go, and live retainers carry a renewal date and a quarterly review.",
+      "description": "Agencies win a client and then get surprised when the retainer comes up for renewal, because pitches and live work are tracked in different places. This template sets up opportunities through conversation, qualification, brief or pitch, proposal and negotiation, a win that starts a five-step onboarding, and engagements for the retainers and projects that follow, with monthly fee, renewal date, notice period and the next quarterly review. Budgets are recorded when the client states them, never guessed, and logins, brand assets and ad-account access never go in the workspace. It fits marketing, communication, creative and digital agencies; project management, time tracking and billing stay in your own tools.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2037,7 +2037,7 @@
         "opportunities_board_view": "The opportunities open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up an agency client pipeline in my Customermates workspace: opportunities with a pitch go/no-go, engagements for retainers and projects with renewal date, notice period, quarterly review and a health flag, and dated follow-ups. Never store client logins or brand assets.",
+        "intro": "We win new clients but lose track of pitches in progress and of when retainers renew. Set up an agency client pipeline in my Customermates workspace: opportunities with a pitch go/no-go, engagements for retainers and projects with renewal date, notice period, quarterly review and a health flag, and dated follow-ups. Never store client logins or brand assets.",
         "questions": [
           "Which services do you sell, and do you work on retainers, projects or both?",
           "How do you decide whether to join a competitive pitch?",
@@ -2049,8 +2049,8 @@
     "es": {
       "locale": "es",
       "name": "Pipeline de clientes para agencias",
-      "summary": "Un pipeline para una agencia de marketing o creativa: oportunidades de la primera conversación a la firma con decisión sobre el concurso, e igualas en curso con fecha de renovación, preaviso, revisión trimestral e indicador de salud.",
-      "description": "Gana y conserva clientes en un solo lugar: oportunidades a través de conversación, cualificación, briefing o concurso, propuesta y negociación, una victoria que inicia un onboarding de cinco pasos, e igualas y proyectos que siguen, con cuota mensual, fecha de renovación, preaviso y próxima revisión trimestral. Los presupuestos se anotan cuando el cliente los indica, nunca se suponen. Los accesos, los materiales de marca y el acceso a cuentas publicitarias no van nunca al espacio de trabajo. No sirve para gestionar proyectos, controlar horas, facturar igualas ni elaborar informes.",
+      "summary": "Gana clientes y conserva las igualas más allá del primer proyecto. Las oportunidades van de la primera conversación a la firma, con decisión sobre el concurso, y cada iguala lleva fecha de renovación y revisión trimestral.",
+      "description": "Las agencias ganan un cliente y después se les escapa la fecha de renovación de la iguala, porque los concursos y el trabajo en curso se apuntan en sitios distintos. Esta plantilla prepara las oportunidades a través de conversación, cualificación, briefing o concurso, propuesta y negociación, una victoria que inicia un onboarding de cinco pasos, y las igualas y proyectos que siguen, con cuota mensual, fecha de renovación, preaviso y próxima revisión trimestral. Los presupuestos se anotan cuando el cliente los indica, nunca se suponen, y los accesos, los materiales de marca y el acceso a cuentas publicitarias no van nunca al espacio de trabajo. Encaja con agencias de marketing, comunicación, creatividad y digital; la gestión de proyectos, el control de horas y la facturación siguen en tus propias herramientas.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2448,7 +2448,7 @@
         "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
+        "intro": "Ganamos clientes nuevos, pero perdemos el hilo de los concursos en marcha y de cuándo se renuevan las igualas. Configura en mi espacio de trabajo de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
         "questions": [
           "¿Qué servicios vendes y trabajas con igualas, proyectos o ambos?",
           "¿Cómo decides si participas en un concurso entre agencias?",
@@ -2460,8 +2460,8 @@
     "fr": {
       "locale": "fr",
       "name": "Pipeline clients d’agence",
-      "summary": "Un pipeline pour une agence de communication ou de création : opportunités de la première conversation à la signature, avec la décision de répondre ou non à un appel d’offres, et retainers en cours avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé.",
-      "description": "Gagnez et gardez vos clients au même endroit : opportunités de la conversation à la qualification, au brief ou appel d’offres, à la proposition et à la négociation, un gain qui lance un onboarding en cinq étapes, et des contrats récurrents et projets qui suivent, avec honoraires mensuels, date de renouvellement, préavis et prochaine revue trimestrielle. Les budgets sont notés quand le client les annonce, jamais devinés. Les identifiants de connexion, les éléments de marque et les accès aux comptes publicitaires ne vont jamais dans l’espace de travail. Ce n’est ni de la gestion de projet, ni du suivi du temps, ni de la facturation de retainers, ni du reporting.",
+      "summary": "Gagnez des clients et gardez-les après le premier projet. Du premier échange à la signature, avec la décision de répondre ou non à un appel d’offres, puis un renouvellement daté et une revue trimestrielle par contrat récurrent.",
+      "description": "Une agence gagne un client, puis le renouvellement du contrat récurrent la surprend, parce que les appels d’offres et le travail en cours sont suivis à des endroits différents. Ce modèle met en place les opportunités de la conversation à la qualification, au brief ou appel d’offres, à la proposition et à la négociation, un gain qui lance un onboarding en cinq étapes, puis les contrats récurrents et projets qui suivent, avec honoraires mensuels, date de renouvellement, préavis et prochaine revue trimestrielle. Les budgets sont notés quand le client les annonce, jamais devinés, et les identifiants de connexion, les éléments de marque et les accès aux comptes publicitaires ne vont jamais dans l’espace de travail. Il convient aux agences de communication, de création, de marketing et digitales. La gestion de projet, le suivi du temps et la facturation restent dans vos propres outils.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2859,7 +2859,7 @@
         "opportunities_board_view": "Les opportunités s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d’offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d’identifiants clients ni d’éléments de marque.",
+        "intro": "Mon agence gagne de nouveaux clients, mais je perds le fil des appels d’offres en cours et des dates de renouvellement des contrats. Mets en place dans mon espace de travail Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d’offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d’identifiants clients ni d’éléments de marque.",
         "questions": [
           "Quelles prestations vendez-vous, et travaillez-vous en retainer, en projet ou les deux ?",
           "Comment décidez-vous de participer ou non à une mise en concurrence ?",
@@ -2871,8 +2871,8 @@
     "it": {
       "locale": "it",
       "name": "Pipeline clienti per agenzie",
-      "summary": "Una pipeline per un'agenzia di marketing o creativa: opportunità dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e retainer in corso con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute.",
-      "description": "Conquista e mantieni i clienti in un unico posto: opportunità attraverso conversazione, qualificazione, brief o gara, preventivo e trattativa, una trattativa vinta che avvia un onboarding in cinque passaggi, e contratti e progetti che seguono, con canone mensile, data di rinnovo, preavviso e prossima revisione trimestrale. I budget si registrano quando il cliente li dichiara, mai indovinati. Credenziali di accesso, materiali del marchio e accessi agli account pubblicitari non vanno mai nello spazio di lavoro. Non è project management, rilevazione dei tempi, fatturazione dei retainer né reportistica.",
+      "summary": "Conquista nuovi clienti e tienili oltre il primo progetto. Le opportunità vanno dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e ogni retainer ha la sua data di rinnovo e una revisione trimestrale.",
+      "description": "Un'agenzia conquista un cliente e poi si accorge all'ultimo che il retainer sta per scadere, perché le gare e il lavoro in corso stanno in posti diversi. Questo modello imposta le opportunità attraverso conversazione, qualificazione, brief o gara, preventivo e trattativa, una vittoria che avvia un onboarding in cinque passaggi, e i contratti e progetti che seguono, con canone mensile, data di rinnovo, preavviso e prossima revisione trimestrale. I budget si registrano quando il cliente li dichiara, mai indovinati; credenziali di accesso, materiali del marchio e accessi agli account pubblicitari non vanno mai nello spazio di lavoro. Adatto ad agenzie di marketing, comunicazione, creatività e digital; project management, rilevazione dei tempi e fatturazione restano nei tuoi strumenti.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3270,7 +3270,7 @@
         "opportunities_board_view": "Le opportunità si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai credenziali di accesso dei clienti né materiali del marchio.",
+        "intro": "Conquisto nuovi clienti per la mia agenzia ma perdo il filo delle gare in corso e di quando scadono i retainer. Imposta nel mio spazio di lavoro Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai credenziali di accesso dei clienti né materiali del marchio.",
         "questions": [
           "Quali servizi vendi e lavori a retainer, a progetto o in entrambi i modi?",
           "Come decidi se partecipare a una gara con più agenzie?",
@@ -3282,8 +3282,8 @@
     "nl": {
       "locale": "nl",
       "name": "Klantenpijplijn voor bureaus",
-      "summary": "Een pijplijn voor een marketing- of creatief bureau: kansen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende opdrachten met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht.",
-      "description": "Klanten winnen en behouden op één plek: kansen via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en retainers en projecten die volgen, met maandelijkse fee, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten worden vastgelegd als de klant ze noemt, nooit geraden. Inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de werkruimte. Geen projectmanagement, geen urenregistratie, geen facturering van retainers en geen rapportage.",
+      "summary": "Win klanten voor je bureau en houd ze langer dan het eerste project. Kansen lopen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers krijgen een verlengingsdatum en een kwartaalgesprek.",
+      "description": "Bureaus winnen een klant en worden later overvallen door de verlengingsdatum of opzegtermijn van de retainer, omdat pitches en lopend werk op verschillende plekken staan. Dit sjabloon zet kansen op via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en lopende opdrachten voor de retainers en projecten die volgen, met maandelijkse fee, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten leg je vast als de klant ze noemt, nooit geraden, en inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de werkruimte. Voor marketing-, communicatie-, creatieve en digitale bureaus; projectmanagement, urenregistratie, facturering en rapportage blijven in je eigen tools.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3681,7 +3681,7 @@
         "opportunities_board_view": "De kansen openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, lopende opdrachten (retainers en projecten) met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
+        "intro": "We winnen nieuwe klanten, maar verliezen het overzicht over lopende pitches en over de datum waarop retainers worden verlengd. Richt in mijn Customermates-werkruimte een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, lopende opdrachten (retainers en projecten) met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
         "questions": [
           "Welke diensten verkoop je en werk je met retainers, projecten of beide?",
           "Hoe beslis je of je meedoet aan een pitch tegen andere bureaus?",
@@ -3693,8 +3693,8 @@
     "pl": {
       "locale": "pl",
       "name": "Lejek klientów dla agencji",
-      "summary": "Lejek dla agencji marketingowej lub kreatywnej: szanse od pierwszej rozmowy do podpisania umowy z decyzją o udziale w przetargu oraz trwające umowy abonamentowe z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji.",
-      "description": "Zdobywaj i utrzymuj klientów w jednym miejscu: szanse przez rozmowę, kwalifikację, brief lub przetarg, ofertę i negocjacje, wygraną, która uruchamia onboarding w pięciu krokach, oraz umowy abonamentowe i projekty, które po niej następują, z abonamentem miesięcznym, terminem odnowienia, okresem wypowiedzenia i następnym przeglądem kwartalnym. Budżety zapisujemy, gdy klient je poda, nigdy nie zgadujemy. Dane dostępowe, materiały marki i dostęp do kont reklamowych nigdy nie trafiają do przestrzeni roboczej. To nie jest zarządzanie projektami, rejestr czasu pracy, rozliczanie abonamentów ani raportowanie.",
+      "summary": "Zdobywaj klientów agencji i zatrzymuj ich po pierwszym projekcie. Szanse prowadzisz od pierwszej rozmowy do podpisanej umowy, z decyzją o udziale w przetargu, a trwające umowy abonamentowe mają termin odnowienia i przegląd kwartalny.",
+      "description": "Agencja zdobywa klienta, a potem odnowienie umowy abonamentowej ją zaskakuje, bo przetargi i bieżące zlecenia są prowadzone w różnych miejscach. Szablon zakłada szanse sprzedaży od rozmowy przez kwalifikację, brief lub przetarg, ofertę i negocjacje po wygraną, która uruchamia onboarding w pięciu krokach, oraz umowy abonamentowe i projekty, które po niej następują, z abonamentem miesięcznym, terminem odnowienia, okresem wypowiedzenia i następnym przeglądem kwartalnym. Budżety zapisujesz, gdy klient je poda, nigdy nie zgadujesz, a dane dostępowe, materiały marki i dostęp do kont reklamowych nigdy nie trafiają do przestrzeni roboczej. Pasuje do agencji marketingowych, komunikacyjnych, kreatywnych i cyfrowych; zarządzanie projektami, rejestr czasu pracy i rozliczenia zostają w Twoich narzędziach.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4092,7 +4092,7 @@
         "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
+        "intro": "Prowadzę agencję: zdobywam nowych klientów, ale gubię się w trwających przetargach i w tym, kiedy odnawiają się umowy abonamentowe. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse sprzedaży z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
         "questions": [
           "Jakie usługi sprzedajesz i czy pracujesz w abonamencie, w projektach, czy w obu modelach?",
           "Jak decydujesz, czy startować w przetargu z udziałem innych agencji?",
@@ -4104,8 +4104,8 @@
     "pt": {
       "locale": "pt",
       "name": "Funil de clientes para agências",
-      "summary": "Um funil para uma agência de marketing ou criativa: oportunidades da primeira conversa ao fechamento com decisão sobre a concorrência, e contratos mensais em andamento com data de renovação, aviso prévio, revisão trimestral e indicador de saúde.",
-      "description": "Conquiste e mantenha clientes em um só lugar: oportunidades por conversa, qualificação, briefing ou concorrência, proposta e negociação, um ganho que inicia um onboarding em cinco passos, e contratos e projetos que seguem, com fee mensal, data de renovação, aviso prévio e próxima revisão trimestral. Os orçamentos são registrados quando o cliente os informa, nunca presumidos. Acessos, materiais da marca e acesso a contas de anúncios nunca entram no espaço de trabalho. Não é gestão de projetos, controle de horas, cobrança de fees nem relatórios.",
+      "summary": "Conquiste clientes para a agência e fique com eles depois do primeiro projeto. Oportunidades da primeira conversa ao fechamento, com decisão de entrar ou não na concorrência, e contratos mensais com data de renovação.",
+      "description": "A agência fecha um cliente e depois se surpreende quando o contrato mensal chega à renovação, porque as concorrências e o trabalho em andamento ficam em lugares diferentes. Este modelo monta oportunidades por conversa, qualificação, briefing ou concorrência, proposta e negociação, com um ganho que dá início a um onboarding em cinco passos, e os contratos e projetos que vêm depois, com fee mensal, data de renovação, aviso prévio e a próxima revisão trimestral. O orçamento só é registrado quando o cliente o informa, nunca presumido, e acessos, materiais da marca e acesso a contas de anúncios nunca entram no espaço de trabalho. Serve para agências de marketing, comunicação, criação e digital; gestão de projetos, controle de horas e cobrança ficam nas suas ferramentas.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4503,7 +4503,7 @@
         "opportunities_board_view": "As oportunidades abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um funil de clientes para uma agência: oportunidades com decisão sobre a concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",
+        "intro": "Eu fecho clientes novos, mas perco o fio das concorrências em andamento e de quando cada contrato mensal renova. Configure no meu espaço de trabalho do Customermates um funil de clientes para uma agência: oportunidades com decisão de entrar ou não na concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",
         "questions": [
           "Quais serviços você vende e trabalha com contrato mensal, projeto ou os dois?",
           "Como você decide entrar ou não em uma concorrência entre agências?",

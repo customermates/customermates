@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "CRM a medida",
-  "summary": "Un CRM construido en torno a tu forma de trabajar: contactos, empresas, oportunidades y tareas con fecha, con una importación desde tu hoja de cálculo o tu herramienta anterior y una revisión semanal.",
-  "description": "Parte de las cuatro listas que necesita todo CRM y adáptalas: etapas, campos y vistas son tuyos. Pensado para quien deja una hoja de Excel, Notion, Airtable o Trello y quiere sus datos en un CRM sin montar un proyecto. Anota de dónde se importó cada registro.",
+  "summary": "Deja tu hoja de cálculo o tu herramienta anterior sin un gran proyecto de migración. Contactos, empresas, oportunidades y tareas con fecha a tu medida, con una importación de tus datos y una revisión semanal.",
+  "description": "Tus datos de clientes están repartidos entre una hoja de cálculo, una página de Notion o una herramienta antigua, y nadie quiere empezar un proyecto de migración. Esta plantilla parte de las cuatro listas que necesita todo CRM, contactos, empresas, oportunidades y tareas, y tu agente adapta las etapas, los campos y las vistas a tu forma de trabajar. Después importa tus datos y anota de dónde viene cada registro. Está pensada para quien deja una hoja de cálculo, Notion, Airtable o Trello.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas con las que tratas." },
     "organizations": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Sociedades y otras entidades." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "La base de conocimiento explica cómo usa el equipo el CRM."
   },
   "prompt": {
-    "intro": "Configura un CRM a medida en mi espacio de trabajo de Customermates: contactos, empresas, oportunidades con etapas y tareas con fecha, una importación desde mi hoja de cálculo o mi herramienta anterior y una revisión semanal.",
+    "intro": "Mis clientes y mis oportunidades viven en una hoja de cálculo o en una herramienta antigua, y quiero un CRM que se ajuste a mi forma de trabajar. Configura un CRM a medida en mi espacio de trabajo de Customermates: contactos, empresas, oportunidades con etapas y tareas con fecha, una importación desde mi hoja de cálculo o mi herramienta anterior y una revisión semanal.",
     "questions": [
       "¿De qué herramienta u hoja de cálculo vienen tus registros y se puede exportar?",
       "¿Por qué etapas pasa una oportunidad en tu negocio?",

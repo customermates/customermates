@@ -1321,8 +1321,8 @@
     "de": {
       "locale": "de",
       "name": "Steuerkanzlei",
-      "summary": "Ein Kanzleiarbeitsplatz mit zwei Abläufen: ein Mandat gewinnen, mit Identifizierung und Mandatsvertrag, und die laufende Arbeit je Mandant erledigen, mit einem Fristenregister, das eine zweite Person verifiziert.",
-      "description": "Eine Steuerkanzlei oder ein Buchhaltungsbüro an einem Ort führen: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen und ein Fristenregister mit Vorfrist und der Person, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
+      "summary": "Mandate, laufende Arbeiten und Fristen im Griff behalten. Ein Mandat über Identifizierung und Mandatsvertrag gewinnen, wiederkehrende Vorgänge je Mandant führen und ein Fristenregister, das eine zweite Person verifiziert.",
+      "description": "In einer Steuerkanzlei oder einem Buchhaltungsbüro füllt sich der Kalender mit dem Warten auf Unterlagen der Mandanten, und jede Frist braucht ein zweites Augenpaar. Diese Vorlage führt zwei Abläufe: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, und wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen. Ein Fristenregister hält eine Vorfrist und die Person fest, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1744,7 +1744,7 @@
         "deadline_control_page": "Die Wissensdatenbank enthält eine Seite zur Fristenkontrolle."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
+        "intro": "Ich führe eine Steuerkanzlei und muss sehen, welche Mandate offen sind, welche Vorgänge auf Unterlagen warten und welche Fristen geprüft wurden. Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
         "questions": [
           "Welche Leistungen bietest du an, und welche wiederkehrenden Vorgänge führst du je Mandant?",
           "In welchem Land arbeitest du, und welche Fristen verfolgst du?",
@@ -1756,8 +1756,8 @@
     "en": {
       "locale": "en",
       "name": "Tax and bookkeeping practice",
-      "summary": "A practice desk with two flows: winning a mandate through an identification step and engagement letter, and doing the recurring work per client, with a deadline register that a second person verifies.",
-      "description": "Run a tax or bookkeeping practice from one place: mandates from inquiry to an active engagement with a money-laundering identification step in between, recurring jobs per client and period with a waiting-for-documents status, and a register of deadlines with a pre-deadline and the person who verified each date. It is the relationship, deadline-evidence and follow-up layer next to your practice software. It does not compute legal dates, file returns, keep ledgers, run payroll or bill time, and it holds no tax IDs or ID copies.",
+      "summary": "Keep every mandate, client job and deadline under control. Win a mandate through identification and engagement letter, run recurring jobs per client, and keep a deadline register that a second person verifies.",
+      "description": "In a tax or bookkeeping practice the calendar fills with waiting for client documents, and every deadline needs a second pair of eyes. This template runs two flows: mandates from inquiry to an active engagement with a money-laundering identification step in between, and recurring jobs per client and period with a waiting-for-documents status. A register of deadlines holds a pre-deadline and the person who verified each date. It is the relationship, deadline-evidence and follow-up layer next to your practice software. It does not compute legal dates, file returns, keep ledgers, run payroll or bill time, and it holds no tax IDs or ID copies.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2179,7 +2179,7 @@
         "deadline_control_page": "The knowledge base holds a page on deadline control."
       },
       "prompt": {
-        "intro": "Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
+        "intro": "I run a tax and bookkeeping practice and need to see which mandates are open, which jobs wait for documents and which deadlines have been checked. Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
         "questions": [
           "Which services do you offer, and which recurring jobs do you run per client?",
           "In which country do you practise, and which deadlines do you track?",
@@ -2191,8 +2191,8 @@
     "es": {
       "locale": "es",
       "name": "Despacho fiscal y contable",
-      "summary": "Un espacio de trabajo para un despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
-      "description": "Lleva un despacho fiscal o contable en un solo lugar: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, expedientes recurrentes por cliente y periodo con el estado a la espera de documentación, y un calendario de plazos con aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, constancia de plazos y seguimiento junto a tu programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
+      "summary": "Ten bajo control cada encargo, expediente y plazo. Consigue encargos con identificación PBC/FT y hoja de encargo, lleva el trabajo recurrente de cada cliente y mantén un calendario de plazos que verifica una segunda persona.",
+      "description": "En un despacho fiscal o contable se pierde mucho tiempo esperando la documentación de los clientes, y cada plazo necesita una segunda mirada. Esta plantilla lleva dos flujos: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, y expedientes recurrentes por cliente y periodo con el estado a la espera de documentación. Un calendario de plazos guarda un aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, constancia de plazos y seguimiento junto a tu programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2614,7 +2614,7 @@
         "deadline_control_page": "La base de conocimiento contiene una página sobre el control de plazos."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
+        "intro": "Llevo un despacho fiscal y contable y necesito ver qué encargos están abiertos, qué expedientes esperan documentación y qué plazos se han verificado. Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
         "questions": [
           "¿Qué servicios ofreces y qué expedientes recurrentes llevas por cliente?",
           "¿En qué país trabajas y qué plazos controlas?",
@@ -2626,8 +2626,8 @@
     "fr": {
       "locale": "fr",
       "name": "Cabinet d’expertise comptable",
-      "summary": "Un outil de cabinet avec deux flux : obtenir une mission, avec vigilance LCB-FT et lettre de mission, et faire le travail récurrent par client, avec un registre d’échéances vérifié par une seconde personne.",
-      "description": "Pilotez un cabinet d’expertise comptable au même endroit : missions de la demande à la mission active avec une étape de vigilance LCB-FT entre les deux, dossiers récurrents par client et période avec le statut en attente de pièces, et registre d’échéances avec une pré-échéance et la personne qui a vérifié chaque date. C’est la couche relation, preuve des échéances et relances, à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d’identité.",
+      "summary": "Gardez la main sur missions, dossiers et échéances. Obtenez une mission avec vigilance LCB-FT et lettre de mission, suivez le travail récurrent par client et tenez un registre d’échéances vérifié par une seconde personne.",
+      "description": "Dans un cabinet d’expertise comptable, l’agenda se remplit d’attentes de pièces clients, et chaque échéance demande un second regard. Ce modèle conduit deux flux : les missions de la demande à la mission active, avec une étape de vigilance LCB-FT entre les deux, et les dossiers récurrents par client et période, avec le statut en attente de pièces. Un registre d’échéances porte une pré-échéance et la personne qui a vérifié chaque date. C’est la couche relation, preuve des échéances et relances, à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d’identité.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -3049,7 +3049,7 @@
         "deadline_control_page": "La base de connaissances contient une page sur le contrôle des échéances."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un cabinet d’expertise comptable : missions de la demande à active avec une étape de vigilance, dossiers récurrents par client et période, registre d’échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d’identité.",
+        "intro": "Je dirige un cabinet d’expertise comptable et je dois voir quelles missions sont ouvertes, quels dossiers attendent des pièces et quelles échéances ont été vérifiées. Mets en place dans mon espace de travail Customermates un cabinet d’expertise comptable : missions de la demande à active avec une étape de vigilance, dossiers récurrents par client et période, registre d’échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d’identité.",
         "questions": [
           "Quelles prestations proposez-vous, et quels dossiers récurrents tenez-vous par client ?",
           "Dans quel pays exercez-vous, et quelles échéances suivez-vous ?",
@@ -3061,8 +3061,8 @@
     "it": {
       "locale": "it",
       "name": "Studio commercialista",
-      "summary": "Uno strumento per lo studio con due flussi: acquisire un incarico, con adeguata verifica e lettera di incarico, e svolgere il lavoro ricorrente per cliente, con uno scadenzario verificato da una seconda persona.",
-      "description": "Gestisci uno studio di commercialisti in un unico posto: incarichi dalla richiesta all'incarico attivo con un passaggio di adeguata verifica antiriciclaggio in mezzo, pratiche ricorrenti per cliente e periodo con lo stato in attesa di documenti, e uno scadenzario con una data di preavviso e la persona che ha verificato ogni data. È il livello di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
+      "summary": "Tieni sotto controllo incarichi, pratiche e scadenze dello studio. Acquisisci l'incarico con adeguata verifica e lettera d'incarico, segui il lavoro ricorrente per cliente e tieni uno scadenzario verificato da una seconda persona.",
+      "description": "In uno studio di commercialisti il calendario si riempie di attese dei documenti dei clienti e ogni scadenza richiede un secondo paio d'occhi. Questo modello gestisce due flussi: incarichi dalla richiesta all'incarico attivo, con un passaggio di adeguata verifica antiriciclaggio in mezzo, e pratiche ricorrenti per cliente e periodo, con lo stato in attesa di documenti. Uno scadenzario riporta una data di preavviso e la persona che ha verificato ogni data. È il livello di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3484,7 +3484,7 @@
         "deadline_control_page": "La base di conoscenza contiene una pagina sul controllo delle scadenze."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
+        "intro": "Gestisco uno studio di commercialisti e devo vedere quali incarichi sono aperti, quali pratiche aspettano documenti e quali scadenze sono state verificate. Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
         "questions": [
           "Quali servizi offri e quali pratiche ricorrenti segui per cliente?",
           "In quale Paese operi e quali scadenze monitori?",
@@ -3496,8 +3496,8 @@
     "nl": {
       "locale": "nl",
       "name": "Boekhoud- en belastingkantoor",
-      "summary": "Een kantoorwerkplek met twee stromen: een opdracht binnenhalen, met cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant doen, met een termijnenregister dat een tweede persoon controleert.",
-      "description": "Beheer een boekhoud- of belastingkantoor op één plek: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, terugkerende dossiers per klant en periode met de status wacht op documenten, en een termijnenregister met een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast je kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
+      "summary": "Houd elke opdracht, elk dossier en elke termijn onder controle. Opdrachten via cliëntenonderzoek en opdrachtbevestiging, terugkerend werk per klant en een termijnenregister dat een tweede persoon controleert.",
+      "description": "In een boekhoud- of belastingkantoor raakt de agenda vol met wachten op documenten van klanten, en elke termijn heeft een tweede paar ogen nodig. Dit sjabloon laat twee stromen lopen: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, en terugkerende dossiers per klant en periode met de status wacht op documenten. Een termijnenregister bevat een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast je kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3919,7 +3919,7 @@
         "deadline_control_page": "De kennisbank bevat een pagina over termijnbewaking."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
+        "intro": "Ik heb een boekhoud- en belastingkantoor en moet kunnen zien welke opdrachten openstaan, welke dossiers op documenten wachten en welke termijnen zijn gecontroleerd. Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
         "questions": [
           "Welke diensten bied je aan en welke terugkerende dossiers voer je per klant?",
           "In welk land werk je en welke termijnen bewaak je?",
@@ -3931,8 +3931,8 @@
     "pl": {
       "locale": "pl",
       "name": "Biuro rachunkowe",
-      "summary": "Narzędzie dla biura rachunkowego z dwoma obiegami: pozyskanie klienta, z weryfikacją AML i umową, oraz stała obsługa klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
-      "description": "Prowadź biuro rachunkowe w jednym miejscu: umowy od zapytania do aktywnej współpracy, z weryfikacją klienta zgodnie z przepisami o przeciwdziałaniu praniu pieniędzy po drodze, powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty oraz rejestr terminów z terminem wstępnym i osobą, która sprawdziła każdą datę. Szablon to warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani NIP, ani kopii dowodów osobistych.",
+      "summary": "Miej pod kontrolą każdą umowę, każde rozliczenie klienta i każdy termin. Pozyskaj klienta przez weryfikację AML i umowę, prowadź powtarzalne rozliczenia na klienta i rejestr terminów sprawdzany przez drugą osobę.",
+      "description": "W biurze rachunkowym kalendarz wypełnia się czekaniem na dokumenty od klientów, a każdy termin wymaga drugiej pary oczu. Szablon prowadzi dwa obiegi: umowy od zapytania do aktywnej współpracy, z weryfikacją klienta zgodnie z przepisami o przeciwdziałaniu praniu pieniędzy po drodze, oraz powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty. Rejestr terminów zawiera termin wstępny i osobę, która sprawdziła każdą datę. To warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani NIP, ani kopii dowodów osobistych.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4354,7 +4354,7 @@
         "deadline_control_page": "Baza wiedzy zawiera stronę o kontroli terminów."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
+        "intro": "Prowadzę biuro rachunkowe i muszę widzieć, które umowy są w toku, które rozliczenia czekają na dokumenty i które terminy zostały sprawdzone. Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
         "questions": [
           "Jakie usługi oferujesz i jakie powtarzalne rozliczenia prowadzisz na klienta?",
           "Jakie formy opodatkowania obsługujesz i jakie terminy śledzisz?",
@@ -4366,8 +4366,8 @@
     "pt": {
       "locale": "pt",
       "name": "Escritório contábil",
-      "summary": "Um espaço de trabalho de escritório com dois fluxos: conquistar um cliente, com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente, com um calendário de prazos conferido por uma segunda pessoa.",
-      "description": "Conduza um escritório contábil em um só lugar: contratos da proposta ao contrato ativo com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, entregas recorrentes por cliente e competência com o status aguardando documentos, e um calendário de prazos com aviso antecipado e a pessoa que conferiu cada data. O modelo é a camada de relacionamento, comprovação de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
+      "summary": "Mantenha cada contrato, entrega e prazo sob controle. Conquiste clientes com diligência de PLD e contrato de prestação de serviços, faça o trabalho recorrente por cliente e deixe cada prazo conferido por uma segunda pessoa.",
+      "description": "Em um escritório contábil, a agenda se enche de espera por documentos dos clientes, e todo prazo precisa de um segundo par de olhos. Este modelo cobre dois fluxos: contratos da proposta ao contrato ativo, com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, e entregas recorrentes por cliente e competência, com o status aguardando documentos. Um calendário de prazos guarda o aviso antecipado e a pessoa que conferiu cada data. É a camada de relacionamento, comprovação de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4789,7 +4789,7 @@
         "deadline_control_page": "A base de conhecimento tem uma página sobre controle de prazos."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
+        "intro": "Eu tenho um escritório contábil e preciso ver quais contratos estão em aberto, quais entregas aguardam documentos e quais prazos já foram conferidos. Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
         "questions": [
           "Quais serviços você oferece e quais entregas recorrentes mantém por cliente?",
           "Em qual regime tributário seus clientes costumam estar e quais prazos você acompanha?",

@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Reservas para criativos",
-  "summary": "Para fotógrafos, videomakers e cerimonialistas: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo e uma nota para cada aniversário.",
-  "description": "Uma linha por reserva com duas etapas: venda (da solicitação a reservado) e entrega (sessão feita a entregue). A data fica reservada até o contrato ser assinado e o sinal pago, o saldo tem um vencimento próprio e cada entrega pede uma avaliação. Contratos, notas fiscais e galerias ficam nas suas ferramentas, aqui ficam os links.",
+  "summary": "Para fotógrafos, videomakers e organizadores de eventos: mantenha em ordem cada solicitação, data e sinal, da primeira mensagem à reserva, à entrega e à mensagem de aniversário.",
+  "description": "Datas são prometidas sem sinal e entregas são esquecidas quando as solicitações ficam em conversas e na agenda. Este modelo dá a cada reserva uma linha com duas etapas: venda, da solicitação à reserva, e entrega, da sessão feita à entrega concluída. A data fica reservada até o contrato ser assinado e o sinal pago, o saldo tem um vencimento próprio e cada trabalho entregue pede uma avaliação. Contratos, notas fiscais e galerias ficam nas suas ferramentas, aqui ficam os links.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Clientes, parceiros dos clientes, cerimonialistas e contatos de espaços." },
     "partners": { "label": "Parceiro", "pluralLabel": "Parceiros", "description": "Espaços, cerimonialistas, buffets e outros fornecedores com quem você trabalha." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "As reservas abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure as reservas para criativos no meu espaço de trabalho do Customermates: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo, um questionário antes do evento, um pedido de avaliação e mensagens de aniversário.",
+    "intro": "Eu tenho um negócio de foto, vídeo ou eventos e perco o controle de quais datas estão reservadas, quais sinais foram pagos e o que ainda falta entregar. Configure as reservas para criativos no meu espaço de trabalho do Customermates: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo, um questionário antes do evento, um pedido de avaliação e mensagens de aniversário.",
     "questions": [
       "O que você fotografa, filma ou organiza e quantas reservas tem por ano?",
       "Por quais passos um cliente passa da solicitação à reserva e quando você reserva a data?",

@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Seguimiento de consultas por WhatsApp",
-  "summary": "Un pipeline para una pequeña empresa cuyos clientes escriben por WhatsApp: anotar la consulta, responder rápido, enviar un presupuesto, hacer seguimiento en días, confirmar el pedido y recordar la recompra.",
-  "description": "Convierte los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
+  "summary": "Deja de perder a los clientes que te escriben por WhatsApp. Cada chat pasa a ser una consulta con presupuesto, seguimiento con fecha y fecha para volver, así respondes rápido y te acuerdas de la recompra.",
+  "description": "Cuando un cliente pide precio por WhatsApp, el chat se pierde entre los demás y nadie da seguimiento al presupuesto. Esta plantilla convierte los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que te escriben, con su permiso de WhatsApp y su fecha de reposición." },
     "enquiries": { "label": "Consulta", "pluralLabel": "Consultas (oportunidades)", "description": "Una petición de un chat, del primer mensaje a pedido confirmado, perdido o más adelante." }
@@ -83,7 +83,7 @@
     "enquiries_board_view": "Las consultas se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
+    "intro": "Los clientes me piden precio por WhatsApp y pierdo el chat antes de hacer seguimiento. Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
     "questions": [
       "¿Qué te preguntan los clientes por WhatsApp y cómo presupuestas?",
       "¿En cuánto tiempo quieres responder a un chat nuevo?",

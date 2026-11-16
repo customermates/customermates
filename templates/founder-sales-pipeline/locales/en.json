@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Founder sales pipeline",
-  "summary": "A short pipeline for a founder who sells personally: conversations, discovery, an optional pilot with a fixed end date, a proposal, and a parked state with a date to come back.",
-  "description": "Sell as the founder with a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged; a pilot has an end date and says whether it is paid; a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and they are yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
+  "summary": "Sell as the founder without losing the thread of your conversations. A short pipeline from first conversation to won, with an optional pilot that has an end date and a parked state with a date to come back.",
+  "description": "When you sell personally, every conversation teaches you who buys and why, but the notes and the next step live in your head and a stack of tabs. This template keeps a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged. A pilot has an end date and says whether it is paid, and a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and they are yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people you talk to, with their role in the buying decision." },
     "companies": { "label": "Company", "pluralLabel": "Companies", "description": "Prospects, pilots, customers and partners." },
@@ -87,7 +87,7 @@
     "opportunities_board_view": "The opportunities open as a board by stage."
   },
   "prompt": {
-    "intro": "Set up a founder sales pipeline in my Customermates workspace: opportunities from the first conversation to won with discovery notes, an optional pilot with a fixed end date, a parked state with a revisit date, and dated follow-ups. Send nothing automatically.",
+    "intro": "I sell my product myself and keep losing the notes and next steps from my conversations. Set up a founder sales pipeline in my Customermates workspace: opportunities from the first conversation to won with discovery notes, an optional pilot with a fixed end date, a parked state with a revisit date, and dated follow-ups. Send nothing automatically.",
     "questions": [
       "What do you sell, and who has bought from you so far?",
       "Do you run pilots or trials, and are they paid?",

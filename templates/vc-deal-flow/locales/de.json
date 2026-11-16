@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Dealflow für Investoren",
-  "summary": "Ein Dealflow für einen kleinen Fonds oder Business Angel: acht Phasen von erkannt bis vollzogen oder abgelehnt, der Vermittler bei jedem Deal, ein Absagegrund und ein Termin zur Wiedervorlage.",
-  "description": "Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet begleiten. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, die eigene Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann man erneut hinsieht. Ein Beziehungswerkzeug, keine Cap Table, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob, und Sie legen sie selbst fest.",
+  "summary": "Nie vergessen, wer einen Deal vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Ein Dealflow für einen kleinen Fonds oder Business Angel, mit acht Phasen von erkannt bis vollzogen oder abgelehnt.",
+  "description": "Im Dealflow sind die meisten Deals Absagen, und ohne Aufzeichnung, wer ein Startup vermittelt hat und warum Sie abgesagt haben, wird derselbe Deal beim nächsten Mal wieder von vorn geprüft. Diese Vorlage begleitet Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, Ihre Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann Sie erneut hinsehen. Ein Beziehungswerkzeug, keine Cap Table, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob, und Sie legen sie selbst fest.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Gründer, Investoren, Mitinvestoren und Vermittler." },
     "organizations": { "label": "Organisation", "pluralLabel": "Organisationen", "description": "Startups, Fonds, Syndikate und Accelerators." },
@@ -118,7 +118,7 @@
     "board_view": "Die Deals öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
+    "intro": "Ich sehe mir viele Startups an und vergesse, wer sie vermittelt hat, warum ich abgesagt habe und wann ich erneut hinsehen wollte. Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
     "questions": [
       "In welche Phasen und Branchen investierst du, und wie groß ist deine übliche Ticketgröße?",
       "Wie erreichst du die Deals, und wer vermittelt sie?",

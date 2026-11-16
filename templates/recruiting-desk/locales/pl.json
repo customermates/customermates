@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Biuro rekrutacyjne",
-  "summary": "Narzędzie dla agencji rekrutacyjnej lub niezależnego rekrutera: zlecenia od zapytania do zatrudnienia, jeden wpis w procesie na kandydata, terminy prowizji i gwarancji, kontakty po zatrudnieniu i data przechowywania danych każdego kandydata.",
-  "description": "Prowadź biuro agencji w jednym miejscu: klienci i ich warunki współpracy, zlecenia rekrutacyjne z etapem i spodziewaną prowizją, kandydaci prezentowani na zlecenie z własnymi etapami, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przeglądu danych przy każdym kandydacie. Pasuje do biura jednego do pięciu rekruterów. To nie jest portal z ogłoszeniami, parser CV, narzędzie do masowych wysyłek ani system rozliczania czasu pracy i płac, a do kandydatów i klientów nic nie jest wysyłane automatycznie.",
+  "summary": "Trzymaj w jednym miejscu zlecenie, kandydata i termin prowizji. Zlecenia od zapytania do obsadzenia, jedna prezentacja na kandydata, terminy gwarancji i kontaktów po zatrudnieniu oraz data przechowywania danych.",
+  "description": "Rekruterzy żonglują klientami, zleceniami i kandydatami, którzy są w kilku procesach naraz, a ważne terminy, czyli zatrudnienie, koniec gwarancji i moment usunięcia danych kandydata, łatwo zgubić. Szablon zakłada klientów z warunkami współpracy, zlecenia rekrutacyjne z etapem i spodziewaną prowizją, kandydatów prezentowanych na zlecenie z własnymi etapami, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz datę przeglądu danych przy każdym kandydacie. Pasuje do biura jednego do pięciu rekruterów. To nie jest portal z ogłoszeniami, parser CV, narzędzie do masowych wysyłek ani system rozliczania czasu pracy i płac, a do kandydatów i klientów nic nie jest wysyłane automatycznie.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Kandydaci, kontakty u klientów i polecający." },
     "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Firmy, dla których rekrutujesz, z warunkami prowizji i gwarancji." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "Baza wiedzy zawiera stronę o danych kandydatów i ich przechowywaniu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rekrutacyjne: klienci z warunkami, zlecenia w dziewięciu etapach ze spodziewaną prowizją, jedna prezentacja na kandydata i zlecenie, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przechowywania danych każdego kandydata.",
+    "intro": "Rekrutuję dla swoich klientów i gubię się w tym, który kandydat jest zaprezentowany gdzie, kiedy kończy się gwarancja i jak długo wolno mi przechowywać dane kandydatów. Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rekrutacyjne: klienci z warunkami, zlecenia w dziewięciu etapach ze spodziewaną prowizją, jedna prezentacja na kandydata i zlecenie, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przechowywania danych każdego kandydata.",
     "questions": [
       "Pracujesz za sukces, z zaliczką, czy w obu modelach i jaką prowizję oraz gwarancję zwykle uzgadniasz?",
       "Ile zleceń i kandydatów obsługujesz naraz i kto odpowiada za który etap?",

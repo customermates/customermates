@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Escritório contábil",
-  "summary": "Um espaço de trabalho de escritório com dois fluxos: conquistar um cliente, com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente, com um calendário de prazos conferido por uma segunda pessoa.",
-  "description": "Conduza um escritório contábil em um só lugar: contratos da proposta ao contrato ativo com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, entregas recorrentes por cliente e competência com o status aguardando documentos, e um calendário de prazos com aviso antecipado e a pessoa que conferiu cada data. O modelo é a camada de relacionamento, comprovação de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
+  "summary": "Mantenha cada contrato, entrega e prazo sob controle. Conquiste clientes com diligência de PLD e contrato de prestação de serviços, faça o trabalho recorrente por cliente e deixe cada prazo conferido por uma segunda pessoa.",
+  "description": "Em um escritório contábil, a agenda se enche de espera por documentos dos clientes, e todo prazo precisa de um segundo par de olhos. Este modelo cobre dois fluxos: contratos da proposta ao contrato ativo, com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, e entregas recorrentes por cliente e competência, com o status aguardando documentos. Um calendário de prazos guarda o aviso antecipado e a pessoa que conferiu cada data. É a camada de relacionamento, comprovação de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas dos seus clientes que enviam documentos e assinam." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Pessoas físicas, MEIs, empresas e associações para quem você atua." },
@@ -125,7 +125,7 @@
     "deadline_control_page": "A base de conhecimento tem uma página sobre controle de prazos."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
+    "intro": "Eu tenho um escritório contábil e preciso ver quais contratos estão em aberto, quais entregas aguardam documentos e quais prazos já foram conferidos. Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
     "questions": [
       "Quais serviços você oferece e quais entregas recorrentes mantém por cliente?",
       "Em qual regime tributário seus clientes costumam estar e quais prazos você acompanha?",

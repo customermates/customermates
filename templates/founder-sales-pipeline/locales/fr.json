@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Pipeline commercial du fondateur",
-  "summary": "Un pipeline court pour un fondateur qui vend lui-même : échanges, rendez-vous découverte, un pilote facultatif avec date de fin fixe, une proposition et un état en pause avec une date de relance.",
-  "description": "Vendez en tant que fondateur avec de quelques-unes à quelques dizaines de conversations ouvertes : chaque affaire consigne le problème dans les mots du client, l’urgence, l’état du budget et si le décideur est impliqué ; un pilote a une date de fin et indique s’il est payant ; une affaire silencieuse est mise en pause avec une date de relance au lieu d’être relancée sans cesse. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et c’est à vous de les fixer. Ce n’est ni de la prospection en séquences à grande échelle, ni une levée de fonds, ni une prévision pour une équipe de plusieurs commerciaux.",
+  "summary": "Vendez en tant que fondateur sans perdre le fil de vos conversations. Un pipeline court du premier échange à la signature, avec un pilote facultatif à date de fin fixe et un état en pause avec une date de relance.",
+  "description": "Quand vous vendez vous-même, chaque conversation vous apprend qui achète et pourquoi, mais les notes et la prochaine étape restent dans votre tête et dans une pile d’onglets. Ce modèle suit de quelques-unes à quelques dizaines de conversations ouvertes. Chaque affaire consigne le problème dans les mots du client, l’urgence, l’état du budget et si le décideur est impliqué. Un pilote a une date de fin et indique s’il est payant, et une affaire silencieuse est mise en pause avec une date de relance au lieu d’être relancée sans cesse. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et c’est à vous de les fixer. Ce n’est ni de la prospection en séquences à grande échelle, ni une levée de fonds, ni une prévision pour une équipe de plusieurs commerciaux.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes avec qui vous parlez, avec leur rôle dans la décision d’achat." },
     "companies": { "label": "Entreprise", "pluralLabel": "Entreprises", "description": "Prospects, pilotes, clients et partenaires." },
@@ -87,7 +87,7 @@
     "opportunities_board_view": "Les affaires s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
+    "intro": "Je vends mon produit moi-même et je perds sans cesse les notes et les prochaines étapes de mes conversations. Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
     "questions": [
       "Que vendez-vous, et qui a déjà acheté chez vous ?",
       "Faites-vous des pilotes ou des essais, et sont-ils payants ?",

@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Adhérents et donateurs",
-  "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
-  "description": "Pour associations, clubs, organismes caritatifs et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
+  "summary": "Sachez qui sont vos adhérents et vos soutiens, qui attend encore un remerciement et qui doit renouveler. Un registre unique pour les adhésions avec leur échéance, les dons avec le reçu fiscal, et les grands dons et subventions.",
+  "description": "Les clubs, les associations caritatives et les paroisses perdent des adhérents et de la bonne volonté quand des renouvellements sont manqués et des dons jamais remerciés, parce que les listes sont tenues par des bénévoles différents. Ce modèle met en place les personnes, les adhésions avec cotisation et date d’échéance, les dons avec le remerciement et l’état du reçu fiscal, et un suivi des grands dons et subventions. Il convient aux associations, aux clubs, aux organismes caritatifs et aux paroisses qui veulent un seul registre au lieu de plusieurs. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
   "lists": {
     "supporters": { "label": "Personne", "pluralLabel": "Personnes", "description": "Adhérents, donateurs, bénévoles, invités et membres du bureau." },
     "memberships": { "label": "Adhésion", "pluralLabel": "Adhésions", "description": "Une adhésion avec sa cotisation et son échéance." },
@@ -137,7 +137,7 @@
     "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
   },
   "prompt": {
-    "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
+    "intro": "Nos adhérents, donateurs et bénévoles sont répartis sur plusieurs listes, et des renouvellements et des remerciements nous échappent. Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
     "questions": [
       "Êtes-vous une association ou un club, un organisme caritatif ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
       "Quelles catégories d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",

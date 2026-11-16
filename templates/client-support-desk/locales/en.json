@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Client support desk",
-  "summary": "A light support desk: tickets with a priority, a first-response time and a due time, known issues that link many tickets to one cause, and a satisfaction score.",
-  "description": "Answer customers and clients from one place: every ticket has a status, a priority, a type, an owner and the time by which you owe a first reply and a solution. Link tickets to a known issue so you can tell everyone when it is fixed, and keep the one-month clock of a data request visible. It is built for a few dozen tickets a week. It is not a phone system, a live chat, a customer portal or a business-hours calendar.",
+  "summary": "Answer every customer on time without a heavy helpdesk. Tickets with a priority, a first-reply time and a due time, known issues that link many tickets to one cause, and a satisfaction score.",
+  "description": "When customers and clients write in from several places, questions get lost and nobody knows which ones are overdue. This template sets up tickets with a status, a priority, a type and an owner, the time by which you owe a first reply and a solution, and known issues that link many tickets to one cause so you can tell everyone when it is fixed. The one-month clock of a data request stays visible. It is built for a few dozen tickets a week in a business or agency of one to eight people. It is not a phone system, a live chat, a customer portal or a business-hours calendar.",
   "lists": {
     "customers": { "label": "Customer", "pluralLabel": "Customers", "description": "The people who write to you for help." },
     "accounts": { "label": "Account", "pluralLabel": "Accounts", "description": "The companies behind your customers, with their support plan." },
@@ -96,7 +96,7 @@
     "tickets_board_view": "The tickets open as a board by status."
   },
   "prompt": {
-    "intro": "Set up a client support desk in my Customermates workspace: tickets with a status, a priority, a first-reply time and a solution time, known issues linked to tickets, a satisfaction rating and dated follow-ups.",
+    "intro": "Customer questions come in by email and chat and I cannot tell which ones are still waiting for an answer. Set up a client support desk in my Customermates workspace: tickets with a status, a priority, a first-reply time and a solution time, known issues linked to tickets, a satisfaction rating and dated follow-ups.",
     "questions": [
       "How many tickets do you handle a week, and through which channels do they arrive?",
       "How fast do you promise a first reply and a solution, by priority or support plan?",

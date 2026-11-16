@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Pipeline de ventas",
-  "summary": "Siete etapas con criterios de salida y ponderación, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria y un cambio de etapa que crea la siguiente tarea.",
-  "description": "Un pipeline para un equipo comercial pequeño: cinco etapas abiertas, Ganada y Perdida, un valor ponderado por oportunidad, el comité de compra en la oportunidad, un motivo de pérdida y un motivo de victoria, y la revisión semanal. Las ponderaciones sirven para valorar el pipeline, no para prever ventas: sustitúyelas por tus propias tasas de cierre cuando tengas entre 20 y 30 oportunidades cerradas.",
+  "summary": "Mira qué oportunidades avanzan, cuáles están atascadas y qué pasa a continuación. Siete etapas con un siguiente paso con fecha en cada oportunidad abierta, y los motivos por los que ganas o pierdes.",
+  "description": "Sin un pipeline claro, las oportunidades se paran sin hacer ruido, nadie recuerda por qué se perdió una y la reunión semanal de pipeline acaba en adivinanzas. Esta plantilla prepara cinco etapas abiertas más Ganada y Perdida con un criterio de salida para cada una, un valor ponderado por oportunidad, un siguiente paso con fecha en cada oportunidad abierta, el comité de compra en la oportunidad, los motivos de victoria y de pérdida y una tarea nueva en cada cambio de etapa. Encaja con un equipo comercial pequeño de uno a diez vendedores; las ponderaciones son un punto de partida, así que sustitúyelas por tus propias tasas de cierre cuando tengas entre 20 y 30 oportunidades cerradas.",
   "lists": {
     "contacts": { "label": "Persona de contacto", "pluralLabel": "Personas de contacto", "description": "Las personas del lado comprador, con su papel en la decisión." },
     "accounts": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Las empresas a las que vendes." },
@@ -236,7 +236,7 @@
     "stages_page": "La base de conocimiento contiene las etapas y sus criterios de salida."
   },
   "prompt": {
-    "intro": "Configura un pipeline de ventas en mi espacio de trabajo de Customermates: oportunidades con siete etapas y ponderaciones, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria, el comité de compra en cada oportunidad y una tarea creada en cada cambio de etapa.",
+    "intro": "Mi equipo vende a empresas y no sé cuáles son las oportunidades reales, cuáles se han parado ni por qué ganamos o perdemos. Configura un pipeline de ventas en mi espacio de trabajo de Customermates: oportunidades con siete etapas y ponderaciones, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria, el comité de compra en cada oportunidad y una tarea creada en cada cambio de etapa.",
     "questions": [
       "¿Qué vendes y cuántas personas lo venden?",
       "¿Qué pasos sigue una oportunidad desde el primer contacto hasta la firma? ¿Cuáles de las siete etapas encajan y cuáles necesitan otro nombre?",

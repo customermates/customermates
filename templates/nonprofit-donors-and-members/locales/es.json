@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Socios y donantes",
-  "summary": "Un registro único de socios, donantes y voluntarios: membresías con fecha de renovación, donativos con agradecimiento y certificado, y un seguimiento de grandes donaciones y subvenciones.",
-  "description": "Para asociaciones, clubes, entidades sin ánimo de lucro y parroquias: quién os apoya y cómo, qué membresía dura hasta cuándo, qué donativo espera aún un agradecimiento o un certificado y qué gran donación o subvención está en marcha. No emite certificados de donación ni cobra cuotas: indica cuáles toca hacer.",
+  "summary": "Un solo registro para saber quiénes son vuestros socios y colaboradores, a quién falta agradecer y quién renueva pronto: membresías con fecha de renovación, donativos con certificado, y grandes donaciones y subvenciones.",
+  "description": "Las asociaciones, los clubes y las parroquias pierden socios y buena voluntad cuando se olvidan las renovaciones y los donativos se quedan sin agradecer, porque las listas están en manos de voluntarios distintos. Esta plantilla prepara colaboradores, membresías con cuota y fecha de renovación, donativos con estado del agradecimiento y del certificado, y un seguimiento de grandes donaciones y subvenciones. Encaja con asociaciones, clubes, entidades sin ánimo de lucro y parroquias que quieren un solo registro en lugar de varios. No emite certificados de donación ni cobra cuotas: os indica cuáles toca hacer.",
   "lists": {
     "supporters": { "label": "Colaborador", "pluralLabel": "Colaboradores", "description": "Socios, donantes, voluntarios, invitados y junta directiva." },
     "memberships": { "label": "Membresía", "pluralLabel": "Membresías", "description": "Una membresía con su cuota y su fecha de renovación." },
@@ -137,7 +137,7 @@
     "receipt_field": "Cada donativo muestra si hay que emitir un certificado."
   },
   "prompt": {
-    "intro": "Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
+    "intro": "Nuestros socios, donantes y voluntarios están repartidos en varias listas y se nos escapan renovaciones y agradecimientos. Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
     "questions": [
       "¿Sois una asociación, una entidad benéfica o una parroquia? ¿Tenéis socios, donantes, voluntarios?",
       "¿Qué modalidades de cuota y qué importes usáis y cómo se cobran?",

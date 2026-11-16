@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Pipeline immobilier",
-  "summary": "Deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien, et suivre l’acquéreur, avec les visites, les dates clés et une routine pour les anciens clients.",
-  "description": "Une agence immobilière mène un côté propriétaire (estimation, mandat, commercialisation, offres) et un côté acquéreur (prospect, qualification, visites, offre), puis une phase commune sous compromis avec des dates impératives. Ce modèle suit les deux, le type de mandat et sa date de fin, chaque visite avec son retour, les dates clés après la signature et une routine datée pour les anciens clients. La valeur d’un bien correspond aux honoraires attendus.",
+  "summary": "Décrochez des mandats et vendez sans oublier une visite, un point avec le propriétaire ou une date clé. Deux pipelines qui se rejoignent au compromis, avec les visites, les dates clés et une routine pour les anciens clients.",
+  "description": "Une agence immobilière travaille les deux côtés d’une même vente, le propriétaire qui confie son bien et l’acquéreur qui cherche, et les dates clés après le compromis se perdent facilement entre les deux. Ce modèle suit le côté propriétaire (estimation, mandat, commercialisation, offres) et le côté acquéreur (prospect, qualification, visites, offre), puis une phase commune sous compromis avec des dates impératives. Vous voyez le type de mandat et sa date de fin, chaque visite avec son retour, les dates clés après la signature et une routine datée pour les anciens clients. La valeur d’un bien correspond aux honoraires attendus.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Propriétaires, bailleurs, acquéreurs, locataires et apporteurs d’affaires." },
     "organizations": { "label": "Organisation", "pluralLabel": "Organisations", "description": "Promoteurs, banques, notaires et partenaires apporteurs." },
@@ -401,10 +401,10 @@
     "operating_guide_page": "La base de connaissances contient le mode d’emploi."
   },
   "page": {
-    "metaTitle": "Modèle de pipeline immobilier pour votre agent IA",
-    "metaDescription": "Copiez le pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM.",
-    "headline": "Un pipeline immobilier que votre agent IA construit dans votre CRM",
-    "answer": "Une agence immobilière mène deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien pour le propriétaire, et suivre l’acquéreur de la visite jusqu’à l’offre. Collez ce modèle dans votre agent IA et il construit les deux dans Customermates, avec les mandats, les visites, les dates clés et une routine datée pour les anciens clients. Vous validez le plan avant toute écriture.",
+    "metaTitle": "Modèle de pipeline immobilier : biens, acquéreurs, dates",
+    "metaDescription": "Collez ce pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM.",
+    "headline": "Ne ratez plus une visite ni une date clé : un pipeline immobilier que votre agent IA construit",
+    "answer": "Un pipeline immobilier est fait de deux listes de travail qui se rejoignent au compromis : le bien du propriétaire, de l’estimation aux offres, et la recherche de l’acquéreur, du premier contact aux visites et à l’offre. Collez ce modèle dans votre agent IA : il construit les deux dans Customermates, avec les mandats, les visites avec retour, les dates clés après la signature et une routine datée pour les anciens clients. Vous validez le plan avant que rien ne soit créé.",
     "routine": {
       "title": "La tournée hebdomadaire des biens et des acquéreurs",
       "steps": [
@@ -442,7 +442,7 @@
     ]
   },
   "prompt": {
-    "intro": "Mets en place un pipeline immobilier dans mon espace de travail Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
+    "intro": "Je travaille avec des propriétaires qui confient leur bien et des acquéreurs qui cherchent, et je perds le fil des visites, des retours et des dates après le compromis. Mets en place un pipeline immobilier dans mon espace de travail Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
     "questions": [
       "Travaillez-vous pour des propriétaires, pour des acquéreurs ou pour les deux ? Vendez-vous, louez-vous ou les deux ?",
       "Dans quel pays travaillez-vous, et quels types de mandat y utilisez-vous ?",

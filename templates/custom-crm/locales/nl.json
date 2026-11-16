@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "CRM op maat",
-  "summary": "Een CRM rond jouw manier van werken: contactpersonen, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
-  "description": "Begin met de vier lijsten die elk CRM nodig heeft en pas ze aan: fasen, velden en weergaven zijn van jou. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat en zijn gegevens zonder project in een CRM wil. Het onthoudt waar elk record vandaan is geïmporteerd.",
+  "summary": "Stap over van je spreadsheet of oude tool zonder groot migratieproject. Contactpersonen, bedrijven, deals en acties met datum, afgestemd op hoe jij werkt, met een import van je gegevens en een wekelijkse controle.",
+  "description": "Je klantgegevens staan verspreid over een spreadsheet, een Notion-pagina of een oude tool, en niemand wil een migratieproject starten. Dit sjabloon begint bij de vier lijsten die elk CRM nodig heeft: contactpersonen, bedrijven, deals en acties. Je agent past de fasen, velden en weergaven aan op hoe je werkt, importeert daarna je gegevens en onthoudt waar elk record vandaan is geïmporteerd. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie je te maken hebt." },
     "organizations": { "label": "Bedrijf", "pluralLabel": "Bedrijven", "description": "Bedrijven en andere organisaties." },
@@ -86,7 +86,7 @@
     "how_we_use_page": "De kennisbank legt uit hoe het team het CRM gebruikt."
   },
   "prompt": {
-    "intro": "Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
+    "intro": "Mijn klanten en deals staan in een spreadsheet of een oude tool en ik wil een CRM dat past bij hoe ik werk. Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
     "questions": [
       "Uit welke tool of spreadsheet komen je records en kun je die exporteren?",
       "Welke fasen doorloopt een deal in jouw bedrijf?",

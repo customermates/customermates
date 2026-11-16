@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Seguimiento de candidaturas",
-  "summary": "Un seguimiento de selección para una pequeña empresa: vacantes, candidatos, una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar los descartes.",
-  "description": "Gestiona la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
+  "summary": "Mantén cada proceso en marcha y responde a todos los candidatos. Una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar las candidaturas descartadas.",
+  "description": "En una pequeña empresa la selección se hace con el correo y de memoria: los candidatos esperan demasiado una respuesta, las notas de las entrevistas están repartidas y las candidaturas descartadas se quedan en la bandeja de entrada mucho más tiempo del debido. Esta plantilla prepara vacantes con responsable y rango salarial, candidatos y candidaturas que avanzan de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte. Cada entrevistador rellena una ficha de evaluación, y las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. Encaja con una empresa que tiene pocas vacantes abiertas a la vez. No es un portal de empleo, un lector de currículos, una plataforma de pruebas ni una herramienta de firma electrónica, y no da asesoramiento legal sobre los plazos de conservación.",
   "lists": {
     "applicants": { "label": "Candidato", "pluralLabel": "Candidatos", "description": "Las personas que se presentan, con su origen y su consentimiento para futuros procesos." },
     "jobs": { "label": "Vacante", "pluralLabel": "Vacantes", "description": "Cada puesto abierto con su responsable y su rango salarial." },
@@ -105,7 +105,7 @@
     "applications_board_view": "Las candidaturas se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
+    "intro": "Tengo una pequeña empresa y contrato personal: los candidatos esperan demasiado una respuesta y las notas de las entrevistas están en sitios distintos. Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para las candidaturas descartadas y seguimientos con fecha.",
     "questions": [
       "¿Cuántas vacantes tienes abiertas a la vez y quién selecciona para cada una?",
       "¿De dónde vienen los candidatos y usas un formulario de candidatura?",

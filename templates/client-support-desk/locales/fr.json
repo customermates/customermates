@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Support client",
-  "summary": "Un support léger : tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
-  "description": "Répondez à vos clients depuis un seul endroit : chaque ticket a un statut, une priorité, un type, un responsable et les échéances de première réponse et de résolution. Reliez les tickets à un problème connu pour prévenir tout le monde de sa résolution et gardez bien visible le délai d’un mois d’une demande RGPD. Prévu pour quelques dizaines de tickets par semaine. Ce n’est ni un standard téléphonique, ni un chat en direct, ni un portail client, ni un calendrier d’heures ouvrées.",
+  "summary": "Répondez à chaque client à temps sans outil de support lourd. Tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
+  "description": "Quand vos clients écrivent de plusieurs côtés, des questions se perdent et personne ne sait lesquelles sont en retard. Ce modèle met en place des tickets avec un statut, une priorité, un type et un responsable, les échéances de première réponse et de résolution, et des problèmes connus qui relient plusieurs tickets à une même cause, pour prévenir tout le monde quand elle est corrigée. Le délai d’un mois d’une demande RGPD reste bien visible. Il est prévu pour quelques dizaines de tickets par semaine dans une entreprise ou une agence d’une à huit personnes. Ce n’est ni un standard téléphonique, ni un chat en direct, ni un portail client, ni un calendrier d’heures ouvrées.",
   "lists": {
     "customers": { "label": "Client", "pluralLabel": "Clients", "description": "Les personnes qui vous écrivent pour obtenir de l’aide." },
     "accounts": { "label": "Compte", "pluralLabel": "Comptes", "description": "Les entreprises derrière vos clients, avec leur formule de support." },
@@ -96,7 +96,7 @@
     "tickets_board_view": "Les tickets s’ouvrent en board par statut."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
+    "intro": "Les questions de mes clients arrivent par e-mail et par chat, et je ne vois pas lesquelles attendent encore une réponse. Mets en place dans mon espace de travail Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
     "questions": [
       "Combien de tickets traitez-vous par semaine, et par quels canaux arrivent-ils ?",
       "Quels délais promettez-vous pour la première réponse et la résolution, selon la priorité ou la formule de support ?",

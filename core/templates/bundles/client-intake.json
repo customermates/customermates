@@ -1407,8 +1407,8 @@
     "de": {
       "locale": "de",
       "name": "Mandantenaufnahme und Onboarding",
-      "summary": "Eine Aufnahme pro Mandat: Anfrage, Vorprüfung, Fragebogen, Unterlagenanforderung, Auftragsbestätigung und Kickoff, mit einem Termin je Phase und einem Grund bei Ablehnung.",
-      "description": "Eine kurze Pipeline für die Aufnahme neuer Kunden und Mandanten: binnen eines Tages antworten, auf Passung prüfen, Fragebogen senden, Unterlagen einholen, Auftragsbestätigung senden, starten. Regulierte Berufe halten fest, wer wann identifiziert hat, nie das Dokument selbst. Kein Werkzeug für elektronische Signatur, Geldwäscheprüfung oder Zahlungen.",
+      "summary": "Neue Mandanten aufnehmen, ohne Fragebögen, Unterlagen und Auftragsbestätigungen hinterherzulaufen. Eine Aufnahme pro Mandat, ein Termin je Phase und ein festgehaltener Grund, wenn Sie ablehnen.",
+      "description": "Neue Mandanten werden zwischen der ersten Anfrage und dem ersten Arbeitstag still: Der Fragebogen ist nicht zurück, eine Unterlage fehlt, die Auftragsbestätigung liegt unbeantwortet da. Diese Vorlage richtet eine Aufnahme pro Mandat ein, mit neun Phasen von der Anfrage bis zum Kickoff, Unterlagenanforderungen, einem Termin in jeder Phase, einer Antwort binnen eines Tages und einem Ablehnungsgrund, wenn Sie ein Mandat ablehnen. Regulierte Berufe halten fest, wer wann Identität, Interessenkonflikte und Risiko geprüft hat, nie das Dokument selbst. Kein Werkzeug für elektronische Signatur, Identitätsprüfung oder Zahlungen.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1897,7 +1897,7 @@
         "process_page": "Die Wissensdatenbank enthält den Aufnahmeablauf."
       },
       "prompt": {
-        "intro": "Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
+        "intro": "Neue Mandanten springen zwischen der ersten Anfrage und dem ersten Arbeitstag ab, weil ich vergesse, den Fragebogen zu schicken oder Unterlagen nachzufordern. Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
         "questions": [
           "Was verkaufst du, und wer sind deine Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
           "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchst du nicht?",
@@ -1910,8 +1910,8 @@
     "en": {
       "locale": "en",
       "name": "Client intake and onboarding",
-      "summary": "One intake per engagement: inquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
-      "description": "A short pipeline for taking on a new client: reply within a day, screen for fit, send the intake form, collect documents, send the agreement, start. Regulated professions can record who verified identity and when, never the document itself. Not an e-signature, KYC or payment tool.",
+      "summary": "Take on new clients without chasing forms, documents and agreements by hand. One intake per engagement, with a dated step at every stage and a reason on record when you decline.",
+      "description": "New clients go quiet between the first inquiry and the first day of work: the form is not back, a document is missing, the agreement is still waiting. This template sets up one intake per engagement with nine stages from inquiry to kickoff, document requests, a dated step at every stage, a reply within a day and a decline reason when you turn someone away. Regulated professions can record who checked identity, conflicts and risk and when, never the document itself. It is not an e-signature, identity verification or payment tool.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2400,7 +2400,7 @@
         "process_page": "The Knowledge Base holds the intake process."
       },
       "prompt": {
-        "intro": "Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
+        "intro": "New clients drop out between the first inquiry and the first day of work because I forget to send the form or chase the documents. Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
         "questions": [
           "What do you sell, and who are your clients: companies, sole traders or individuals?",
           "Which steps does a new client go through today, and which of the nine stages do you not need?",
@@ -2413,8 +2413,8 @@
     "es": {
       "locale": "es",
       "name": "Ficha de cliente y alta",
-      "summary": "Un alta por encargo: solicitud, valoración, cuestionario, documentación solicitada, hoja de encargo y reunión de arranque, con un paso fechado en cada etapa y un motivo cuando rechazas.",
-      "description": "Un pipeline breve para dar de alta a un cliente nuevo: responder en un día, valorar si encaja, enviar el cuestionario, reunir la documentación, enviar la hoja de encargo, empezar. Las profesiones reguladas anotan quién verificó la identidad y cuándo, nunca el documento. No es una herramienta de firma electrónica, de prevención del blanqueo ni de pagos.",
+      "summary": "Da de alta a tus clientes nuevos sin perseguir a mano formularios, documentos y hojas de encargo. Un alta por encargo, con un paso fechado en cada etapa y el motivo anotado cuando rechazas.",
+      "description": "Los clientes nuevos dejan de contestar entre la primera consulta y el primer día de trabajo: el cuestionario no vuelve, falta un documento, la hoja de encargo sigue pendiente. Esta plantilla prepara un alta por encargo con nueve etapas, de la solicitud a la reunión de arranque, los documentos solicitados, un paso fechado en cada etapa, una respuesta en un día y un motivo de rechazo cuando dices que no. Las profesiones reguladas pueden anotar quién comprobó la identidad, los conflictos y el riesgo, y cuándo, nunca el documento en sí. No es una herramienta de firma electrónica, de verificación de identidad ni de pagos.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2903,7 +2903,7 @@
         "process_page": "La base de conocimiento contiene el proceso de alta."
       },
       "prompt": {
-        "intro": "Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
+        "intro": "Pierdo clientes nuevos entre la primera consulta y el primer día de trabajo porque se me olvida enviar el cuestionario o reclamar los documentos. Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
         "questions": [
           "¿Qué vendes y quiénes son tus clientes: empresas, autónomos o particulares?",
           "¿Por qué pasos pasa hoy un cliente nuevo y cuáles de las nueve etapas no necesitas?",
@@ -2916,8 +2916,8 @@
     "fr": {
       "locale": "fr",
       "name": "Fiche client et intégration",
-      "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
-      "description": "Un court pipeline pour accueillir un nouveau client : répondre sous un jour, vérifier l’adéquation, envoyer le questionnaire, réunir les pièces, envoyer la lettre de mission, démarrer. Les professions réglementées notent qui a vérifié l’identité et quand, jamais la pièce elle-même. Ce n’est pas un outil de signature électronique, de LCB-FT ou de paiement.",
+      "summary": "Accueillez de nouveaux clients sans courir après les formulaires, les pièces et les lettres de mission. Une intégration par mission, avec une étape datée à chaque phase et un motif noté quand vous refusez.",
+      "description": "Les nouveaux clients disparaissent entre la première demande et le premier jour de travail : le questionnaire n’est pas revenu, une pièce manque, la lettre de mission attend toujours. Ce modèle met en place une intégration par mission en neuf étapes, de la demande à la réunion de lancement, avec les pièces demandées, une étape datée à chaque phase, une réponse sous un jour et un motif de refus quand vous déclinez une demande. Les professions réglementées peuvent noter qui a vérifié l’identité, les conflits et le risque, et quand, jamais la pièce elle-même. Ce n’est pas un outil de signature électronique, de vérification d’identité, de LCB-FT ou de paiement.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -3406,7 +3406,7 @@
         "process_page": "La base de connaissances contient le processus d’intégration."
       },
       "prompt": {
-        "intro": "Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
+        "intro": "De nouveaux clients abandonnent entre la première demande et le premier jour de travail, parce que j’oublie d’envoyer le questionnaire ou de relancer les pièces. Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
         "questions": [
           "Que vendez-vous, et qui sont vos clients : sociétés, indépendants ou particuliers ?",
           "Par quelles étapes passe un nouveau client aujourd’hui, et lesquelles des neuf étapes ne vous servent pas ?",
@@ -3419,8 +3419,8 @@
     "it": {
       "locale": "it",
       "name": "Scheda cliente e accoglienza",
-      "summary": "Un'accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d'incarico e riunione di avvio, con un passaggio datato a ogni fase e un motivo quando rifiuti.",
-      "description": "Una breve pipeline per accogliere un nuovo cliente: rispondere entro un giorno, valutare l'adeguatezza, inviare il questionario, raccogliere i documenti, inviare la lettera d'incarico, partire. Le professioni regolamentate annotano chi ha verificato l'identità e quando, mai il documento. Non è uno strumento di firma elettronica, di antiriciclaggio o di pagamento.",
+      "summary": "Accogli i nuovi clienti senza rincorrere moduli, documenti e lettere d'incarico a mano. Un'accoglienza per incarico, con un passaggio datato a ogni fase e il motivo registrato quando rifiuti.",
+      "description": "I nuovi clienti si fanno silenziosi tra la prima richiesta e il primo giorno di lavoro: il modulo non è tornato, manca un documento, la lettera d'incarico aspetta ancora. Questo modello imposta un'accoglienza per ogni incarico con nove fasi dalla richiesta alla riunione di avvio, i documenti richiesti, un passaggio datato a ogni fase, una risposta entro un giorno e il motivo del rifiuto quando declini. Le professioni regolamentate possono annotare chi ha verificato identità, conflitti e rischio e quando, mai il documento stesso. Non è uno strumento di firma elettronica, di verifica dell'identità né di pagamento.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3909,7 +3909,7 @@
         "process_page": "La base di conoscenza contiene il processo di accoglienza."
       },
       "prompt": {
-        "intro": "Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
+        "intro": "I nuovi clienti si perdono tra la prima richiesta e il primo giorno di lavoro, perché mi dimentico di mandare il modulo o di sollecitare i documenti. Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
         "questions": [
           "Che cosa vendi e chi sono i tuoi clienti: società, ditte individuali o privati?",
           "Quali passaggi attraversa oggi un nuovo cliente e quali delle nove fasi non ti servono?",
@@ -3922,8 +3922,8 @@
     "nl": {
       "locale": "nl",
       "name": "Klantintake en onboarding",
-      "summary": "Eén intake per opdracht: aanvraag, eerste screening, intakeformulier, documenten, overeenkomst en kickoff, met een stap met datum in elke fase en een reden als je afwijst.",
-      "description": "Een korte pipeline om een nieuwe klant aan te nemen: binnen een dag reageren, op geschiktheid screenen, het intakeformulier sturen, documenten verzamelen, de overeenkomst sturen, starten. Gereguleerde beroepen leggen vast wie de identiteit controleerde en wanneer, nooit het document zelf. Geen hulpmiddel voor e-handtekeningen, Wwft-controle of betalingen.",
+      "summary": "Neem nieuwe klanten aan zonder zelf achter formulieren, documenten en overeenkomsten aan te zitten. Eén intake per opdracht, met een stap met datum in elke fase en een vastgelegde reden als je iemand afwijst.",
+      "description": "Nieuwe klanten worden stil tussen de eerste aanvraag en de eerste werkdag: het formulier is nog niet terug, er ontbreekt een document, de overeenkomst ligt nog te wachten. Dit sjabloon zet één intake per opdracht op met negen fasen van aanvraag tot kickoff, documentverzoeken, een stap met datum in elke fase, een reactie binnen een dag en een reden van afwijzing als je iemand weigert. Gereguleerde beroepen leggen vast wie de identiteit, conflicten en risico controleerde en wanneer, nooit het document zelf. Geen hulpmiddel voor e-handtekeningen, identiteitsverificatie, Wwft-controle of betalingen.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -4412,7 +4412,7 @@
         "process_page": "De kennisbank bevat het intakeproces."
       },
       "prompt": {
-        "intro": "Richt de klantintake in mijn Customermates-werkruimte in: één intake per opdracht met negen fasen, documentverzoeken, een stap met datum in elke fase, een reden van afwijzing en optionele controles op identiteit, conflict en risico die vastleggen wie wanneer controleerde.",
+        "intro": "Nieuwe klanten haken af tussen de eerste aanvraag en de eerste werkdag, omdat ik vergeet het formulier te sturen of de documenten na te jagen. Richt de klantintake in mijn Customermates-werkruimte in: één intake per opdracht met negen fasen, documentverzoeken, een stap met datum in elke fase, een reden van afwijzing en optionele controles op identiteit, conflict en risico die vastleggen wie wanneer controleerde.",
         "questions": [
           "Wat verkoop je en wie zijn je klanten: bedrijven, zzp’ers of particulieren?",
           "Welke stappen doorloopt een nieuwe klant nu en welke van de negen fasen heb je niet nodig?",
@@ -4425,8 +4425,8 @@
     "pl": {
       "locale": "pl",
       "name": "Przyjęcie klienta i onboarding",
-      "summary": "Jedno przyjęcie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
-      "description": "Krótki lejek przyjęcia nowego klienta: odpowiedź w ciągu doby, ocena dopasowania, wysłanie ankiety, zebranie dokumentów, wysłanie umowy, start. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, nigdy samego dokumentu. To nie jest narzędzie do podpisu elektronicznego, weryfikacji KYC/AML ani płatności.",
+      "summary": "Przyjmuj nowych klientów bez ręcznego gonienia za ankietami, dokumentami i umowami. Jedno przyjęcie na zlecenie, z datowanym krokiem na każdym etapie i zapisanym powodem, gdy odmawiasz.",
+      "description": "Nowi klienci milkną między pierwszym zapytaniem a pierwszym dniem pracy: ankieta nie wróciła, brakuje dokumentu, umowa wciąż czeka na podpis. Szablon zakłada jedno przyjęcie na zlecenie z dziewięcioma etapami od zapytania do spotkania startowego, dokumenty od klienta, datowany krok na każdym etapie, odpowiedź w ciągu doby i powód odmowy, gdy rezygnujesz z klienta. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, sprawdził konflikt interesów i ocenił ryzyko, nigdy samego dokumentu. To nie jest narzędzie do podpisu elektronicznego, weryfikacji tożsamości KYC/AML ani płatności.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4915,7 +4915,7 @@
         "process_page": "Baza wiedzy zawiera proces przyjęcia."
       },
       "prompt": {
-        "intro": "Skonfiguruj przyjmowanie klientów w mojej przestrzeni roboczej Customermates: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
+        "intro": "Nowi klienci odpadają między pierwszym zapytaniem a pierwszym dniem pracy, bo zapominam wysłać ankietę albo ponaglić o dokumenty. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
         "questions": [
           "Co sprzedajesz i jacy są Twoi klienci: firmy, jednoosobowe działalności czy osoby prywatne?",
           "Jakie kroki przechodzi dziś nowy klient i których z dziewięciu etapów nie potrzebujesz?",
@@ -4928,8 +4928,8 @@
     "pt": {
       "locale": "pt",
       "name": "Ficha cadastral de clientes e integração",
-      "summary": "Uma integração por contrato: solicitação, triagem, questionário, documentos solicitados, contrato e reunião de kickoff, com um passo datado em cada etapa e um motivo quando você recusa.",
-      "description": "Um funil curto para receber um novo cliente: responder em um dia, triar a aderência, enviar o questionário, reunir os documentos, enviar o contrato, começar. Profissões regulamentadas registram quem conferiu a identidade e quando, nunca o documento. Não é uma ferramenta de assinatura eletrônica, de prevenção à lavagem de dinheiro nem de pagamentos.",
+      "summary": "Receba clientes novos sem correr atrás de formulários, documentos e contratos. Uma integração por contrato, com um passo datado em cada etapa e o motivo registrado quando você recusa um cliente.",
+      "description": "O cliente novo some entre o primeiro contato e o primeiro dia de trabalho: o formulário não voltou, falta um documento, o contrato ainda espera assinatura. Este modelo cria uma integração por contrato, com nove etapas da solicitação à reunião de kickoff, documentos solicitados, um passo datado em cada etapa, resposta em até um dia e um motivo quando você recusa. Profissões regulamentadas registram quem conferiu identidade, conflitos e risco, e quando, nunca o documento em si. Não é uma ferramenta de assinatura eletrônica, de verificação de identidade nem de pagamentos.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -5418,7 +5418,7 @@
         "process_page": "A base de conhecimento contém o processo de integração."
       },
       "prompt": {
-        "intro": "Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
+        "intro": "Eu perco clientes novos entre o primeiro contato e o primeiro dia de trabalho, porque esqueço de mandar o formulário ou de cobrar os documentos. Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
         "questions": [
           "O que você vende e quem são seus clientes: empresas, autônomos ou pessoas físicas?",
           "Por quais passos um novo cliente passa hoje e quais das nove etapas você não precisa?",

@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Cabinet de recrutement",
-  "summary": "Un outil pour un cabinet de recrutement ou un recruteur indépendant : missions du brief au placement, une fiche par candidat et par mission, dates d’honoraires et de garantie, suivi après l’embauche et date de conservation de chaque candidat.",
-  "description": "Gérez votre cabinet en un seul endroit : clients et leurs conditions, missions avec une étape et des honoraires attendus, candidats présentés par mission avec leur propre étape, placements avec la fin de la garantie et le suivi après l’embauche, et une date de revue de conservation sur chaque candidat. Convient à une équipe d’une à cinq personnes. Ce n’est ni un jobboard, ni un outil d’analyse de CV, ni un outil d’envoi en masse, ni un logiciel de gestion du temps et de la paie. Rien n’est envoyé automatiquement aux candidats ni aux clients.",
+  "summary": "Gardez missions, candidats et dates d’honoraires au même endroit. Missions du brief au placement, une présentation par candidat et par mission, garantie et suivi après l’embauche, et une date de conservation par candidat.",
+  "description": "Un recruteur jongle avec des clients, des missions et des candidats présentés sur plusieurs missions à la fois, et les dates qui comptent, le placement, la fin de la garantie et le moment de supprimer les données d’un candidat, se perdent facilement. Ce modèle met en place les clients et leurs conditions, les missions avec une étape et des honoraires attendus, les candidats présentés par mission avec leur propre étape, les placements avec la fin de la garantie et le suivi après l’embauche, et une date de revue de conservation sur chaque candidat. Il convient à un cabinet d’une à cinq personnes. Ce n’est ni un jobboard, ni un outil d’analyse de CV, ni un outil d’envoi en masse, ni un logiciel de gestion du temps et de la paie, et rien n’est envoyé automatiquement aux candidats ni aux clients.",
   "lists": {
     "people": { "label": "Personne", "pluralLabel": "Candidats et contacts", "description": "Candidats, contacts chez le client et prescripteurs." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Les entreprises pour lesquelles vous recrutez, avec leurs honoraires et leur garantie." },
@@ -184,7 +184,7 @@
     "candidate_data_page": "La base de connaissances contient une page sur les données des candidats et leur durée de conservation."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l’embauche, et une date de conservation pour chaque candidat.",
+    "intro": "Je place des candidats chez des clients et je perds le fil de qui est présenté où, de la fin des garanties et de la durée pendant laquelle je peux conserver les données des candidats. Mets en place dans mon espace de travail Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l’embauche, et une date de conservation pour chaque candidat.",
     "questions": [
       "Travaillez-vous au succès, en retainer ou les deux, et quels honoraires et quelle garantie convenez-vous d’habitude ?",
       "Combien de missions et de candidats gérez-vous en même temps, et qui porte quelle étape ?",

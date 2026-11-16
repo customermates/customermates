@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Suivi d’équipe",
-  "summary": "Un suivi du travail pour une petite équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes et demandes venues de l’extérieur sur la même liste.",
-  "description": "Gardez une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
+  "summary": "Voyez qui fait quoi pour quand, sans outil de projet lourd. Des projets et des tâches avec un responsable et une échéance, les tâches récurrentes et les demandes venues de l’extérieur sur la même liste.",
+  "description": "Dans une petite équipe, les tâches se cachent dans les messages, les tableaux et les têtes, et une tâche bloquée passe inaperçue jusqu’au jour de l’échéance. Ce modèle garde une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
   "lists": {
     "requesters": { "label": "Demandeur", "pluralLabel": "Demandeurs", "description": "Les personnes extérieures à l’équipe qui demandent du travail." },
     "projects": { "label": "Projet", "pluralLabel": "Projets", "description": "Un ensemble de tâches avec un responsable, un état de santé et une échéance." },
@@ -81,7 +81,7 @@
     "tasks_board_view": "Les tâches s’ouvrent en board par statut."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
+    "intro": "Le travail de notre équipe est éparpillé entre une messagerie, un tableau et un tableur, et je ne vois pas ce qui est en retard ou bloqué. Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
     "questions": [
       "Combien de personnes compte l’équipe, et sur quoi travaillent-elles ?",
       "Quels statuts utilisez-vous aujourd’hui dans Trello, Jira, Asana ou un tableur ?",

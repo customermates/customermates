@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Formulier naar CRM",
-  "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een uiterste antwoorddatum, een fase van nieuw tot omgezet, en spam en niet passend apart.",
-  "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een uiterste antwoorddatum de volgende dag. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gesignaleerd. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
+  "summary": "Zorg dat geen aanvraag uit een webformulier onbeantwoord blijft. Elke inzending wordt een aanvraag met bron en uiterste antwoorddatum, loopt van nieuw tot omgezet en houdt spam en niet passende aanvragen apart.",
+  "description": "Aanvragen uit je contact-, offerte- of intakeformulier belanden in een inbox, waar ze te laat of helemaal niet worden beantwoord, en je ziet niet waar de goede vandaan komen. Dit sjabloon maakt van elke inzending een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer de bezoeker het nodig heeft en een uiterste antwoorddatum de volgende dag. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, een aanvraag zonder antwoord wordt gesignaleerd en toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die je via een formulier schrijven." },
     "requests": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Eén inzending van een formulier, van nieuw tot omgezet, niet passend of spam." }
@@ -81,7 +81,7 @@
     "requests_board_view": "De aanvragen openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
+    "intro": "Aanvragen uit mijn webformulieren worden te laat of helemaal niet beantwoord en ik zie niet waar de goede vandaan komen. Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
     "questions": [
       "Welke formulieren gebruik je en wat moet je weten om een aanvraag te prijzen of door te sturen?",
       "Wie antwoordt en binnen welke tijd beloof je te reageren?",

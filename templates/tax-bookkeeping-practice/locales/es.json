@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Despacho fiscal y contable",
-  "summary": "Un espacio de trabajo para un despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
-  "description": "Lleva un despacho fiscal o contable en un solo lugar: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, expedientes recurrentes por cliente y periodo con el estado a la espera de documentación, y un calendario de plazos con aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, constancia de plazos y seguimiento junto a tu programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
+  "summary": "Ten bajo control cada encargo, expediente y plazo. Consigue encargos con identificación PBC/FT y hoja de encargo, lleva el trabajo recurrente de cada cliente y mantén un calendario de plazos que verifica una segunda persona.",
+  "description": "En un despacho fiscal o contable se pierde mucho tiempo esperando la documentación de los clientes, y cada plazo necesita una segunda mirada. Esta plantilla lleva dos flujos: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, y expedientes recurrentes por cliente y periodo con el estado a la espera de documentación. Un calendario de plazos guarda un aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, constancia de plazos y seguimiento junto a tu programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas de tus clientes que envían documentación y firman." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Particulares, autónomos, sociedades y asociaciones para los que trabajas." },
@@ -125,7 +125,7 @@
     "deadline_control_page": "La base de conocimiento contiene una página sobre el control de plazos."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
+    "intro": "Llevo un despacho fiscal y contable y necesito ver qué encargos están abiertos, qué expedientes esperan documentación y qué plazos se han verificado. Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
     "questions": [
       "¿Qué servicios ofreces y qué expedientes recurrentes llevas por cliente?",
       "¿En qué país trabajas y qué plazos controlas?",

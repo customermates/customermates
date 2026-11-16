@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Pipeline inmobiliario",
-  "summary": "Dos pipelines que se encuentran en las arras: captar y comercializar el inmueble, y atender al comprador, con visitas, fechas clave y un seguimiento periódico de clientes anteriores.",
-  "description": "Una inmobiliaria trabaja un lado propietario (valoración, encargo, comercialización, ofertas) y un lado comprador (contacto, cualificación, visitas, oferta), y después una fase común con las arras firmadas y fechas improrrogables. Esta plantilla sigue ambos, el tipo de encargo y su fecha de fin, cada visita con la opinión del comprador, las fechas clave tras la firma y un seguimiento con fechas de clientes anteriores. El valor de un inmueble recoge los honorarios esperados.",
+  "summary": "Capta y vende inmuebles sin perder una visita, un aviso al propietario ni una fecha clave. Dos pipelines, el del inmueble y el del comprador, que se encuentran en las arras, con visitas y seguimiento de clientes anteriores.",
+  "description": "Una inmobiliaria trabaja dos lados de una misma venta, el propietario que encarga y el comprador que busca, y entre uno y otro es fácil que se pasen por alto las fechas clave tras las arras. Esta plantilla sigue el lado propietario (valoración, encargo, comercialización, ofertas) y el lado comprador (contacto, cualificación, visitas, oferta), y después una fase común con las arras firmadas y fechas improrrogables. Ves el tipo de encargo y su fecha de fin, cada visita con la opinión del comprador, las fechas clave tras la firma y un seguimiento con fechas de clientes anteriores. El valor de un inmueble recoge los honorarios esperados.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Propietarios, arrendadores, compradores, inquilinos y prescriptores." },
     "organizations": { "label": "Organización", "pluralLabel": "Organizaciones", "description": "Promotoras, bancos, notarías y socios prescriptores." },
@@ -401,7 +401,7 @@
     "operating_guide_page": "La base de conocimiento contiene la guía de trabajo."
   },
   "prompt": {
-    "intro": "Configura un pipeline inmobiliario en mi espacio de trabajo de Customermates: inmuebles con el tipo de encargo y su fecha de fin, demandas de compradores, visitas con la opinión del comprador, fechas clave tras la firma del contrato y una tarea con fecha para cada registro abierto.",
+    "intro": "Trabajo con propietarios que encargan la venta y con compradores que buscan, y pierdo el hilo de las visitas, de las opiniones y de las fechas tras el contrato. Configura un pipeline inmobiliario en mi espacio de trabajo de Customermates: inmuebles con el tipo de encargo y su fecha de fin, demandas de compradores, visitas con la opinión del comprador, fechas clave tras la firma del contrato y una tarea con fecha para cada registro abierto.",
     "questions": [
       "¿Trabajas para propietarios, para compradores o para ambos? ¿Vendes, alquilas o ambas cosas?",
       "¿En qué país trabajas y qué tipos de encargo usas allí?",

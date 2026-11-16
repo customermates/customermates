@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Client intake and onboarding",
-  "summary": "One intake per engagement: inquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
-  "description": "A short pipeline for taking on a new client: reply within a day, screen for fit, send the intake form, collect documents, send the agreement, start. Regulated professions can record who verified identity and when, never the document itself. Not an e-signature, KYC or payment tool.",
+  "summary": "Take on new clients without chasing forms, documents and agreements by hand. One intake per engagement, with a dated step at every stage and a reason on record when you decline.",
+  "description": "New clients go quiet between the first inquiry and the first day of work: the form is not back, a document is missing, the agreement is still waiting. This template sets up one intake per engagement with nine stages from inquiry to kickoff, document requests, a dated step at every stage, a reply within a day and a decline reason when you turn someone away. Regulated professions can record who checked identity, conflicts and risk and when, never the document itself. It is not an e-signature, identity verification or payment tool.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people at each client: primary, billing, signatory." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Companies, sole traders and individuals you take on." },
@@ -200,7 +200,7 @@
     "process_page": "The Knowledge Base holds the intake process."
   },
   "prompt": {
-    "intro": "Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
+    "intro": "New clients drop out between the first inquiry and the first day of work because I forget to send the form or chase the documents. Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
     "questions": [
       "What do you sell, and who are your clients: companies, sole traders or individuals?",
       "Which steps does a new client go through today, and which of the nine stages do you not need?",

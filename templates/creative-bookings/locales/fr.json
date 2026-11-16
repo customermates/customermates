@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Réservations pour créatifs",
-  "summary": "Pour photographes, vidéastes et organisateurs d’événements : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde et une note pour chaque anniversaire.",
-  "description": "Une ligne par réservation avec deux étapes : vente (de la demande à la réservation) et livraison (de la prestation réalisée à la remise des fichiers). La date est bloquée jusqu’à la signature du contrat et au paiement de l’acompte, le solde a sa propre échéance et chaque livraison déclenche une demande d’avis. Contrats, factures et galeries restent dans vos propres outils, seuls les liens sont gardés ici.",
+  "summary": "Photographes, vidéastes, organisateurs d’événements : gardez chaque demande, chaque date et chaque acompte en ordre, du premier message à la réservation, à la livraison et au mot d’anniversaire.",
+  "description": "Des dates sont promises sans acompte et des livraisons oubliées quand les demandes vivent dans des discussions et un agenda. Ce modèle donne à chaque réservation une ligne avec deux étapes : la vente, de la demande à la réservation, et la livraison, de la prestation réalisée à la remise des fichiers. La date est bloquée jusqu’à la signature du contrat et au paiement de l’acompte, le solde a sa propre échéance et chaque livraison déclenche une demande d’avis. Contrats, factures et galeries restent dans vos propres outils, seuls les liens sont gardés ici.",
   "lists": {
     "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Clients, conjoints ou partenaires, organisateurs et contacts de lieux." },
     "partners": { "label": "Partenaire", "pluralLabel": "Partenaires", "description": "Lieux, wedding planners, traiteurs et autres prestataires avec qui vous travaillez." },
@@ -138,7 +138,7 @@
     "bookings_board_view": "Les réservations s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place les réservations pour créatifs dans mon espace de travail Customermates : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde, un questionnaire avant l’événement, une demande d’avis et des mots d’anniversaire.",
+    "intro": "Je gère une activité de photo, de vidéo ou d’événementiel et je ne sais plus quelles dates sont bloquées, quels acomptes sont payés ni ce qu’il reste à livrer. Mets en place les réservations pour créatifs dans mon espace de travail Customermates : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde, un questionnaire avant l’événement, une demande d’avis et des mots d’anniversaire.",
     "questions": [
       "Que photographiez-vous, filmez-vous ou organisez-vous, et combien de réservations par an ?",
       "Par quelles étapes passe un client de la demande à la réservation, et quand bloquez-vous la date ?",

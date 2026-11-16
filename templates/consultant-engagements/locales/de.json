@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Beratungsaufträge",
-  "summary": "Eine Pipeline für selbstständige Berater: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Auftragsklärung vor dem Angebot, einem beim Angebotsgespräch vereinbarten Nachfasstermin und Ergebnissen, die Durchführung und Abschluss steuern.",
-  "description": "Eine Beratung an einem Ort führen: Aufträge über Vorgespräch, Auftragsklärung, Angebot und Entscheidung, den mit dem Auftraggeber vereinbarten Nachfasstermin, eine Annahmeprüfung (Kapazität, Unabhängigkeit, Vertraulichkeit) vor dem Angebot, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung und eine Referenz bittet. Die Vorlage hält Pipeline, Beziehungen und Lieferschritte fest. Keine Zeiterfassung, keine Rechnungsstellung, keine elektronische Unterschrift für Angebote und keine Ressourcenplanung, und keine vertraulichen Daten des Kunden.",
+  "summary": "Wissen, wo jedes Angebot steht, und nach dem Gespräch keinen Interessenten verlieren. Aufträge vom Erstkontakt bis zur Erteilung, ein im Angebotsgespräch vereinbarter Nachfasstermin, Ergebnisse mit Abnahmedatum.",
+  "description": "Wer als Einzelberater arbeitet, führt wenige Gespräche und immer nur ein Angebot nach dem anderen, und Aufträge gehen in der Stille nach dem Angebotsgespräch verloren oder in der Lücke zwischen Unterschrift und Kickoff. Diese Vorlage richtet Aufträge über Vorgespräch, Auftragsklärung, Angebot und Entscheidung ein, mit einem Nachfasstermin, den Sie mit dem Auftraggeber vereinbaren, einer Annahmeprüfung (Kapazität, Unabhängigkeit, Vertraulichkeit) vor dem Angebot, Ergebnissen mit Fälligkeits- und Abnahmedatum und einem Abschluss, der um Rückmeldung und eine Referenz bittet. Sie hält Pipeline, Beziehungen und Lieferschritte fest. Keine Zeiterfassung, keine Rechnungsstellung, keine elektronische Unterschrift für Angebote und keine Ressourcenplanung, und keine vertraulichen Daten des Kunden.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Auftraggeber, Ansprechpartner im Tagesgeschäft, Freigebende und Empfehler." },
     "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Interessenten, Kunden, frühere Kunden und Empfehlungspartner." },
@@ -93,7 +93,7 @@
     "engagements_board_view": "Die Beratungsaufträge öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
+    "intro": "Ich berate selbstständig und verliere Aufträge in der Stille nach dem Angebotsgespräch. Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
     "questions": [
       "Welche Arten von Aufträgen verkaufst du, und zu welchem Tagessatz?",
       "Wie entscheidest du, ob du einen Auftrag annimmst?",

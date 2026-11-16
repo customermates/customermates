@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Teamtaken",
-  "summary": "Een werkoverzicht voor een klein team: projecten, taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
-  "description": "Houd een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
+  "summary": "Zie wie wat wanneer doet, zonder zware projecttool. Projecten en taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
+  "description": "In een klein team verdwijnen taken in chats, borden en hoofden, en een geblokkeerde taak valt pas op op de dag dat hij af moet zijn. Dit sjabloon houdt een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
   "lists": {
     "requesters": { "label": "Aanvrager", "pluralLabel": "Aanvragers", "description": "De mensen buiten het team die werk vragen." },
     "projects": { "label": "Project", "pluralLabel": "Projecten", "description": "Een bundel taken met eigenaar, stoplicht en deadline." },
@@ -81,7 +81,7 @@
     "tasks_board_view": "De taken openen als bord per status."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
+    "intro": "Het werk van ons team verspreidt zich over chat, een bord en een spreadsheet en ik kan niet zien wat te laat of geblokkeerd is. Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
     "questions": [
       "Hoeveel mensen telt het team en waar werken ze aan?",
       "Welke statussen gebruik je nu in Trello, Jira, Asana of een spreadsheet?",

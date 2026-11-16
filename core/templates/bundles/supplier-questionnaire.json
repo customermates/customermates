@@ -1029,8 +1029,8 @@
     "de": {
       "locale": "de",
       "name": "Lieferantenfragebogen",
-      "summary": "Ein Lieferantenregister mit Selbstauskunft, Zertifikaten mit Ablaufdatum, Risikoklasse, Freigabeentscheidung und Termin für die nächste Bewertung.",
-      "description": "Lieferanten und Auftragnehmer an einem Ort qualifizieren: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Die Vorlage koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
+      "summary": "Wissen, welche Lieferanten freigegeben sind und welches Zertifikat als Nächstes abläuft. Ein Lieferantenregister mit Fragebogen, Zertifikaten mit Ablaufdatum, Risikoklasse und einer Entscheidung je Lieferant.",
+      "description": "Zertifikate von Lieferanten laufen ab und Neubewertungen fallen aus, wenn die Antworten in E-Mails und Ordnern liegen. Diese Vorlage qualifiziert Lieferanten und Auftragnehmer an einem Ort: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Sie koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1385,7 +1385,7 @@
         "suppliers_board_view": "Die Lieferanten öffnen sich als Board nach Status."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
+        "intro": "Ich arbeite mit vielen Lieferanten und sehe nicht, wessen Zertifikate abgelaufen sind und wer neu bewertet werden muss. Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
         "questions": [
           "Wie viele Lieferanten hast du, und wie teilst du sie nach Risiko ein?",
           "Welche Zertifikate oder Bescheinigungen verlangst du, und wie lange ist jedes gültig?",
@@ -1397,8 +1397,8 @@
     "en": {
       "locale": "en",
       "name": "Supplier questionnaire",
-      "summary": "A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier, an approval decision and a date for the next review.",
-      "description": "Qualify suppliers and contractors in one place: send a questionnaire, collect certificates and clearances with their valid-until dates, tier each supplier by risk, record the decision (approve, approve with conditions, escalate, reject) and see what expires next. It coordinates evidence. It does not decide legal compliance, screen sanctions or financial risk, or replace your quality system, ERP or document archive.",
+      "summary": "Know which suppliers are approved and which certificate expires next. A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier and a decision for each supplier.",
+      "description": "Supplier certificates expire and re-evaluations get skipped when the answers live in emails and folders. This template qualifies suppliers and contractors in one place: send a questionnaire, collect certificates and clearances with their valid-until dates, tier each supplier by risk, record the decision (approve, approve with conditions, escalate, reject) and see what expires next. It coordinates evidence. It does not decide legal compliance, screen sanctions or financial risk, or replace your quality system, ERP or document archive.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1753,7 +1753,7 @@
         "suppliers_board_view": "The suppliers open as a board by status."
       },
       "prompt": {
-        "intro": "Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
+        "intro": "I work with many suppliers and cannot see whose certificates have expired or who is due for re-evaluation. Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
         "questions": [
           "How many suppliers do you have, and how do you split them by risk?",
           "Which certificates or clearances do you ask for, and how long is each valid?",
@@ -1765,8 +1765,8 @@
     "es": {
       "locale": "es",
       "name": "Cuestionario de proveedores",
-      "summary": "Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo, decisión de homologación y fecha de la próxima evaluación.",
-      "description": "Homologa proveedores y subcontratistas en un solo lugar: envía un cuestionario, reúne certificados y documentación con su fecha de validez, clasifica cada proveedor por nivel de riesgo, registra la decisión (homologar, homologar con condiciones, escalar, rechazar) y consulta qué vence primero. La plantilla coordina las evidencias. No decide el cumplimiento legal, no consulta sanciones ni riesgo financiero y no sustituye tu sistema de calidad, tu ERP ni tu archivo de documentos.",
+      "summary": "Ten claro qué proveedores están homologados y qué certificado vence primero. Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo y decisión de homologación para cada uno.",
+      "description": "Los certificados de los proveedores caducan y las reevaluaciones se saltan cuando las respuestas están repartidas entre correos y carpetas. Esta plantilla homologa proveedores y subcontratistas en un solo lugar: envía un cuestionario, reúne certificados y documentación con su fecha de validez, clasifica cada proveedor por nivel de riesgo, registra la decisión (homologar, homologar con condiciones, escalar, rechazar) y consulta qué vence primero. La plantilla coordina las evidencias. No decide el cumplimiento legal, no consulta sanciones ni riesgo financiero y no sustituye tu sistema de calidad, tu ERP ni tu archivo de documentos.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2121,7 +2121,7 @@
         "suppliers_board_view": "Los proveedores se abren como tablero por estado."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
+        "intro": "Trabajo con muchos proveedores y no veo a quién se le han caducado los certificados ni a quién le toca la reevaluación. Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
         "questions": [
           "¿Cuántos proveedores tienes y cómo los divides por nivel de riesgo?",
           "¿Qué certificados o documentos pides y cuánto tiempo es válido cada uno?",
@@ -2133,8 +2133,8 @@
     "fr": {
       "locale": "fr",
       "name": "Questionnaire fournisseurs",
-      "summary": "Un registre de fournisseurs avec questionnaire de qualification, documents et date de validité, niveau de risque, décision de référencement et date de la prochaine évaluation.",
-      "description": "Qualifiez fournisseurs et sous-traitants au même endroit : envoyez un questionnaire, collectez certificats et attestations avec leur date de validité, classez chaque fournisseur par niveau de risque, consignez la décision (référencer, référencer sous conditions, escalader, refuser) et voyez ce qui expire en premier. Il coordonne les justificatifs. Il ne décide pas de la conformité juridique, ne filtre ni les sanctions ni le risque financier et ne remplace ni votre système qualité, ni votre ERP, ni votre archive de documents.",
+      "summary": "Sachez quels fournisseurs sont référencés et quel certificat expire en premier. Un registre de fournisseurs avec questionnaire de qualification, certificats avec date de validité, niveau de risque et décision pour chacun.",
+      "description": "Les certificats des fournisseurs expirent et les réévaluations sautent quand les réponses sont dans des e-mails et des dossiers. Ce modèle qualifie fournisseurs et sous-traitants au même endroit : envoyez un questionnaire, collectez certificats et attestations avec leur date de validité, classez chaque fournisseur par niveau de risque, consignez la décision (référencer, référencer sous conditions, escalader, refuser) et voyez ce qui expire en premier. Il coordonne les justificatifs. Il ne décide pas de la conformité juridique, ne filtre ni les sanctions ni le risque financier et ne remplace ni votre système qualité, ni votre ERP, ni votre archive de documents.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2489,7 +2489,7 @@
         "suppliers_board_view": "Les fournisseurs s’ouvrent en board par statut."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
+        "intro": "Je travaille avec de nombreux fournisseurs et je ne vois pas quels certificats ont expiré ni qui doit être réévalué. Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
         "questions": [
           "Combien de fournisseurs avez-vous, et comment les répartissez-vous par niveau de risque ?",
           "Quels certificats ou attestations demandez-vous, et quelle est la durée de validité de chacun ?",
@@ -2501,8 +2501,8 @@
     "it": {
       "locale": "it",
       "name": "Questionario fornitori",
-      "summary": "Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio, decisione di qualifica e data della prossima rivalutazione.",
-      "description": "Qualifica fornitori e appaltatori in un unico posto: invia un questionario, raccogli certificati e documentazione con la loro scadenza, classifica ogni fornitore per livello di rischio, registra la decisione (qualificare, qualificare con riserva, escalation, respingere) e vedi che cosa scade per primo. Il modello coordina le evidenze. Non decide la conformità normativa, non verifica sanzioni o rischio finanziario e non sostituisce il sistema qualità, il gestionale o l'archivio documentale.",
+      "summary": "Vedi quali fornitori sono qualificati e quale certificato scade per primo. Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio e una decisione per ogni fornitore.",
+      "description": "I certificati dei fornitori scadono e le rivalutazioni saltano quando le risposte stanno in e-mail e cartelle. Questo modello qualifica fornitori e appaltatori in un unico posto: invii un questionario, raccogli certificati e documentazione con la loro scadenza, classifichi ogni fornitore per livello di rischio, registri la decisione (qualificare, qualificare con riserva, escalation, respingere) e vedi che cosa scade per primo. Coordina le evidenze: non decide la conformità normativa, non verifica sanzioni o rischio finanziario e non sostituisce il sistema qualità, il gestionale o l'archivio documentale.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2857,7 +2857,7 @@
         "suppliers_board_view": "I fornitori si aprono come board per stato."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
+        "intro": "Lavoro con molti fornitori e non riesco a vedere di chi sono scaduti i certificati o chi è da rivalutare. Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
         "questions": [
           "Quanti fornitori hai e come li dividi per livello di rischio?",
           "Quali certificati o documenti richiedi e quanto dura la validità di ciascuno?",
@@ -2869,8 +2869,8 @@
     "nl": {
       "locale": "nl",
       "name": "Leveranciersvragenlijst",
-      "summary": "Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau, goedkeuringsbeslissing en de datum van de volgende beoordeling.",
-      "description": "Kwalificeer leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. De sjabloon coördineert bewijs. Het oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt je kwaliteitssysteem, ERP of documentarchief niet.",
+      "summary": "Weet welke leveranciers zijn goedgekeurd en welk certificaat als eerste verloopt. Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier.",
+      "description": "Certificaten van leveranciers verlopen en herbeoordelingen worden overgeslagen als de antwoorden in e-mails en mappen staan. Dit sjabloon kwalificeert leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. Het sjabloon coördineert bewijs. Het oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt je kwaliteitssysteem, ERP of documentarchief niet.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3225,7 +3225,7 @@
         "suppliers_board_view": "De leveranciers openen als bord per status."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
+        "intro": "Ik werk met veel leveranciers en kan niet zien van wie de certificaten zijn verlopen of wie aan een herbeoordeling toe is. Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
         "questions": [
           "Hoeveel leveranciers heb je en hoe deel je ze in naar risico?",
           "Welke certificaten of verklaringen vraag je op en hoe lang is elk geldig?",
@@ -3237,8 +3237,8 @@
     "pl": {
       "locale": "pl",
       "name": "Kwestionariusz dostawcy",
-      "summary": "Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka, decyzją o zatwierdzeniu i terminem następnej oceny.",
-      "description": "Kwalifikuj dostawców i podwykonawców w jednym miejscu: wyślij kwestionariusz, zbieraj certyfikaty i zaświadczenia z datą ważności, przypisz każdemu dostawcy poziom ryzyka, zapisz decyzję (zatwierdzić, zatwierdzić warunkowo, eskalować, odrzucić) i zobacz, co wygasa jako następne. Szablon porządkuje dowody. Nie rozstrzyga o zgodności z prawem, nie sprawdza list sankcyjnych ani kondycji finansowej i nie zastępuje systemu jakości, ERP ani archiwum dokumentów.",
+      "summary": "Wiedz, którzy dostawcy są zatwierdzeni i który certyfikat wygasa jako następny. Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka i decyzją o zatwierdzeniu dla każdego dostawcy.",
+      "description": "Certyfikaty dostawców wygasają, a ponowne oceny są pomijane, gdy odpowiedzi leżą w e-mailach i folderach. Szablon pozwala kwalifikować dostawców i podwykonawców w jednym miejscu: wyślij kwestionariusz, zbieraj certyfikaty i zaświadczenia z datą ważności, przypisz każdemu dostawcy poziom ryzyka, zapisz decyzję (zatwierdzić, zatwierdzić warunkowo, eskalować, odrzucić) i zobacz, co wygasa jako następne. Szablon porządkuje dowody. Nie rozstrzyga o zgodności z prawem, nie sprawdza list sankcyjnych ani kondycji finansowej i nie zastępuje systemu jakości, ERP ani archiwum dokumentów.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3593,7 +3593,7 @@
         "suppliers_board_view": "Dostawcy otwierają się jako tablica według statusu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
+        "intro": "Współpracuję z wieloma dostawcami i nie widzę, komu wygasły certyfikaty ani kogo trzeba ocenić ponownie. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
         "questions": [
           "Ilu masz dostawców i jak dzielisz ich według ryzyka?",
           "O jakie certyfikaty lub zaświadczenia prosisz i jak długo ważny jest każdy z nich?",
@@ -3605,8 +3605,8 @@
     "pt": {
       "locale": "pt",
       "name": "Questionário de fornecedores",
-      "summary": "Um cadastro de fornecedores com questionário de qualificação, certidões com validade, nível de risco, decisão de homologação e data da próxima avaliação.",
-      "description": "Qualifique fornecedores e prestadores em um só lugar: envie um questionário, reúna certificados e certidões com a data de validade, classifique cada fornecedor por nível de risco, registre a decisão (homologar, homologar com restrições, escalar, reprovar) e veja o que vence primeiro. O modelo coordena as evidências. Ele não decide a conformidade legal, não consulta sanções nem risco financeiro e não substitui o sistema de qualidade, o ERP ou o arquivo de documentos.",
+      "summary": "Saiba quais fornecedores estão homologados e qual certidão vence primeiro. Um cadastro com questionário de qualificação, certidões com validade, nível de risco e uma decisão para cada fornecedor.",
+      "description": "Os certificados dos fornecedores vencem e as reavaliações ficam para trás quando as respostas estão em e-mails e pastas. Este modelo qualifica fornecedores e prestadores em um só lugar: você envia um questionário, reúne certificados e certidões com a data de validade, classifica cada fornecedor por nível de risco, registra a decisão (homologar, homologar com restrições, escalar, reprovar) e vê o que vence primeiro. Ele coordena as evidências. Não decide a conformidade legal, não consulta sanções nem risco financeiro e não substitui o sistema de qualidade, o ERP ou o arquivo de documentos.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3961,7 +3961,7 @@
         "suppliers_board_view": "Os fornecedores abrem como quadro por status."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
+        "intro": "Eu trabalho com muitos fornecedores e não vejo de quais os certificados já venceram nem quais precisam ser reavaliados. Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
         "questions": [
           "Quantos fornecedores você tem e como os divide por nível de risco?",
           "Quais certificados ou certidões você pede e quanto tempo vale cada um?",

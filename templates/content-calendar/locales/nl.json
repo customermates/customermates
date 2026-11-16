@@ -1,8 +1,8 @@
 {
   "locale": "nl",
   "name": "Contentkalender",
-  "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
-  "description": "Een redactiekalender voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Hij plant en volgt, hij publiceert niet.",
+  "summary": "Weet wat er deze week uitkomt en wie het ophoudt. Eén regel per stuk met een status, een eigenaar, een reviewer en een publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
+  "description": "Posts, nieuwsbrieven en video’s lopen uit als plannen in verschillende documenten staan en niemand weet wie wat reviewt. Dit sjabloon zet een redactiekalender op voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Voor creators, in-house marketeers en bureaus. Hij plant en volgt, hij publiceert niet.",
   "lists": {
     "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Auteurs, redacteuren, reviewers, goedkeurders en gasten." },
     "pieces": { "label": "Contentstuk", "pluralLabel": "Contentstukken", "description": "Eén stuk content van idee tot gepubliceerd." },
@@ -151,7 +151,7 @@
     "calendar_widget": "Het dashboard toont de publicatiekalender."
   },
   "prompt": {
-    "intro": "Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
+    "intro": "Onze posts, nieuwsbrieven en video’s lopen uit, omdat ik niet kan zien wie wat reviewt of wanneer het verschijnt. Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
     "questions": [
       "Wat publiceer je, op welke kanalen en hoe vaak?",
       "Wie schrijft, wie reviewt en wie keurt goed? Is er een klant bij betrokken?",

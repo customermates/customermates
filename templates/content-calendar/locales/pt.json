@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Calendário editorial",
-  "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma reunião editorial semanal.",
-  "description": "Um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar por conteúdo, uma conferência da identificação de publicidade para conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Planeja e acompanha, não publica.",
+  "summary": "Saiba o que vai ao ar esta semana e quem está segurando cada conteúdo. Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma rotina editorial semanal.",
+  "description": "Posts, newsletters e vídeos atrasam quando os planos ficam em documentos diferentes e ninguém sabe quem está revisando o quê. Este modelo monta um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar por conteúdo, uma conferência da identificação de publicidade em conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Serve para criadores de conteúdo, profissionais de marketing e agências. Planeja e acompanha, não publica.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Autores, editores, revisores, aprovadores e convidados." },
     "pieces": { "label": "Conteúdo", "pluralLabel": "Conteúdos", "description": "Um conteúdo da ideia à publicação." },
@@ -151,7 +151,7 @@
     "calendar_widget": "O painel mostra o calendário de postagens."
   },
   "prompt": {
-    "intro": "Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma reunião editorial semanal.",
+    "intro": "Nossos posts, newsletters e vídeos saem atrasados porque eu não sei quem está revisando o quê nem quando cada conteúdo vai ao ar. Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma rotina editorial semanal.",
     "questions": [
       "O que você publica, em quais canais e com que frequência?",
       "Quem escreve, quem revisa e quem aprova? Há um cliente envolvido?",

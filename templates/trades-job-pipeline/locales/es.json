@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Trabajos para oficios",
-  "summary": "Un pipeline para una empresa de oficios: solicitud, visita técnica, presupuesto y seguimiento, y luego el trabajo de programado a pagado, con fechas de desistimiento, garantía y mantenimiento en cada trabajo.",
-  "description": "Sigue un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabajas, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que tú confirmas, no asesoramiento jurídico.",
+  "summary": "Haz seguimiento de cada presupuesto y mantén cada trabajo al día, de la primera llamada al cobro: visita técnica, presupuesto y obra de programado a pagado, con fechas de desistimiento, garantía y mantenimiento.",
+  "description": "En una empresa de oficios se pierde dinero cuando sale un presupuesto y nadie vuelve a llamar, y cuando las fechas de garantía y de mantenimiento no están apuntadas en ningún sitio. Esta plantilla sigue un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabajas, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que tú confirmas, no asesoramiento jurídico.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Particulares, propietarios, administradores de fincas y empresas para los que trabajas." },
     "sites": { "label": "Obra", "pluralLabel": "Obras", "description": "La dirección donde se hace el trabajo, que puede ser distinta de la del cliente." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "Los trabajos se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
+    "intro": "Llevo una pequeña empresa de oficios: los presupuestos salen sin seguimiento y los trabajos, las visitas y las fechas de garantía están solo en mi cabeza. Configura en mi espacio de trabajo de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
     "questions": [
       "¿Qué trabajos realizas y para quién: particulares, propietarios o empresas?",
       "¿En cuánto tiempo respondes a una solicitud y envías el presupuesto tras la visita?",

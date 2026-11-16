@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Immobilien-Pipeline",
-  "summary": "Zwei Pipelines, die sich beim Kaufvertrag treffen: Objekt hereinholen und vermarkten, Interessenten betreuen, mit Besichtigungen, Fristen und einer Routine für frühere Kunden.",
-  "description": "Ein Maklerbüro arbeitet auf der Eigentümerseite (Bewertung, Maklerauftrag, Vermarktung, Angebote) und auf der Interessentenseite (Anfrage, Qualifizierung, Besichtigungen, Angebot) und danach in einer gemeinsamen Phase nach dem Kaufvertrag mit festen Terminen. Diese Vorlage hält beide Seiten fest, dazu die Art des Maklerauftrags mit Laufzeitende, jede Besichtigung mit Rückmeldung, die Fristen nach Vertragsabschluss und eine terminierte Routine für frühere Kunden. Der Wert eines Objekts steht für die erwartete Provision.",
+  "summary": "Objekte hereinholen und verkaufen, ohne eine Besichtigung, eine Rückmeldung an den Eigentümer oder eine Frist zu verpassen. Zwei Pipelines, die sich beim Kaufvertrag treffen, dazu eine Routine für frühere Kunden.",
+  "description": "Ein Maklerbüro arbeitet an zwei Seiten eines Verkaufs, dem Eigentümer, der sein Objekt anbietet, und dem Interessenten, der sucht, und die Fristen nach dem Kaufvertrag gehen zwischen beiden leicht unter. Diese Vorlage hält die Eigentümerseite fest (Bewertung, Maklerauftrag, Vermarktung, Angebote) und die Interessentenseite (Anfrage, Qualifizierung, Besichtigungen, Angebot), danach eine gemeinsame Phase nach dem Kaufvertrag mit festen Terminen. Sie sehen die Art des Maklerauftrags mit Laufzeitende, jede Besichtigung mit Rückmeldung, die Fristen nach der Unterschrift und eine terminierte Routine für frühere Kunden. Der Wert eines Objekts steht für die erwartete Provision.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Eigentümer, Vermieter, Käufer, Mieter und Empfehler." },
     "organizations": { "label": "Organisation", "pluralLabel": "Organisationen", "description": "Bauträger, Banken, Notare und Empfehlungspartner." },
@@ -401,10 +401,10 @@
     "operating_guide_page": "Die Wissensdatenbank enthält die Arbeitsanleitung."
   },
   "page": {
-    "metaTitle": "Immobilien-Pipeline als Vorlage für Ihren KI-Agenten",
-    "metaDescription": "Kopieren Sie die Immobilien-Pipeline in Claude, ChatGPT oder Codex: Objekte, Interessenten, Besichtigungen mit Rückmeldung und die Fristen nach dem Vertrag.",
-    "headline": "Eine Immobilien-Pipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
-    "answer": "Ein Maklerbüro führt zwei Pipelines, die sich beim Kaufvertrag treffen: für den Eigentümer das Objekt hereinholen und vermarkten, für den Interessenten die Betreuung über Besichtigungen bis zum Angebot. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beide in Customermates auf, mit Maklerauftrag, Besichtigungen, Fristen und einer terminierten Routine für frühere Kunden. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "metaTitle": "Immobilien-Pipeline Vorlage: Objekte, Interessenten, Fristen",
+    "metaDescription": "Immobilien-Pipeline in Claude, ChatGPT oder Codex einfügen: Objekte, Interessenten, Besichtigungen mit Rückmeldung und Fristen nach dem Kaufvertrag.",
+    "headline": "Keine Besichtigung und keine Frist verpassen: eine Immobilien-Pipeline, die Ihr KI-Agent aufbaut",
+    "answer": "Eine Immobilien-Pipeline besteht aus zwei Arbeitslisten, die sich beim Kaufvertrag treffen: das Objekt des Eigentümers, von der Bewertung bis zu den Angeboten, und die Suche des Interessenten, von der Anfrage über Besichtigungen bis zum Angebot. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beide in Customermates auf, mit Maklerauftrag, Besichtigungen mit Rückmeldung, Fristen nach der Unterschrift und einer terminierten Routine für frühere Kunden. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
     "routine": {
       "title": "Die wöchentliche Runde über Objekte und Interessenten",
       "steps": [
@@ -442,7 +442,7 @@
     ]
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Immobilien-Pipeline ein: Objekte mit Art und Ende des Maklerauftrags, Suchaufträge, Besichtigungen mit Rückmeldung, Fristen nach dem Kaufvertrag und eine terminierte Aufgabe für jeden offenen Datensatz.",
+    "intro": "Ich arbeite mit Eigentümern, die ihr Objekt anbieten, und Interessenten, die suchen, und verliere den Überblick über Besichtigungen, Rückmeldungen und die Fristen nach dem Vertrag. Richte in meinem Customermates-Workspace eine Immobilien-Pipeline ein: Objekte mit Art und Ende des Maklerauftrags, Suchaufträge, Besichtigungen mit Rückmeldung, Fristen nach dem Kaufvertrag und eine terminierte Aufgabe für jeden offenen Datensatz.",
     "questions": [
       "Arbeitest du für Eigentümer, für Käufer oder für beide? Verkaufen, vermieten oder beides?",
       "In welchem Land arbeitest du, und welche Arten von Maklerauftrag nutzt du dort?",

@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Seguimiento del equipo",
-  "summary": "Un seguimiento del trabajo para un equipo pequeño: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes externas en la misma lista.",
-  "description": "Mantén a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
+  "summary": "Ve quién hace qué y para cuándo, sin una herramienta de proyectos pesada. Proyectos y tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes de fuera del equipo en la misma lista.",
+  "description": "En un equipo pequeño las tareas se esconden en el chat, en tableros y en la cabeza de cada uno, y una tarea bloqueada pasa desapercibida hasta el día de su vencimiento. Esta plantilla mantiene a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
   "lists": {
     "requesters": { "label": "Solicitante", "pluralLabel": "Solicitantes", "description": "Las personas ajenas al equipo que piden trabajo." },
     "projects": { "label": "Proyecto", "pluralLabel": "Proyectos", "description": "Un conjunto de tareas con responsable, estado de salud y vencimiento." },
@@ -81,7 +81,7 @@
     "tasks_board_view": "Las tareas se abren como tablero por estado."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
+    "intro": "El trabajo de nuestro equipo está repartido entre el chat, un tablero y una hoja de cálculo, y no veo qué va con retraso ni qué está bloqueado. Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
     "questions": [
       "¿Cuántas personas tiene el equipo y en qué trabajan?",
       "¿Qué estados usas hoy en Trello, Jira, Asana o una hoja de cálculo?",

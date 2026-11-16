@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Formulário para CRM",
-  "summary": "Transformar as mensagens dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta pendente, uma etapa de nova a convertida, e spam e sem fit à parte.",
-  "description": "Cada mensagem vinda de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta a dar no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
+  "summary": "Não deixe nenhuma mensagem do formulário do site sem resposta. Cada envio vira uma solicitação com a origem e uma resposta devida, avança de nova a convertida e mantém spam e contatos sem fit à parte.",
+  "description": "As mensagens dos formulários de contato, de orçamento ou de triagem caem em uma caixa de entrada onde são respondidas tarde ou nunca, e você não sabe de onde vêm as boas. Este modelo transforma cada envio em uma solicitação ligada a um contato, com o formulário de origem, de onde o visitante chegou, para quando ele precisa e uma resposta a dar no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, uma solicitação sem resposta é sinalizada, e o consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que escrevem para você por um formulário." },
     "requests": { "label": "Solicitação", "pluralLabel": "Solicitações", "description": "Um envio de formulário, de nova a convertida, sem fit ou spam." }
@@ -81,7 +81,7 @@
     "requests_board_view": "As solicitações abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu espaço de trabalho do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
+    "intro": "As mensagens dos formulários do meu site são respondidas tarde ou nunca, e eu não sei de onde vêm as boas. Configure no meu espaço de trabalho do Customermates a ligação do formulário ao CRM: uma solicitação para cada envio, com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
     "questions": [
       "Quais formulários você usa e o que precisa saber para orçar ou encaminhar um contato?",
       "Quem responde e em quanto tempo você se compromete a responder?",

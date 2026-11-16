@@ -934,8 +934,8 @@
     "de": {
       "locale": "de",
       "name": "Bewerbermanagement",
-      "summary": "Ein Bewerbertracker für kleine Unternehmen: Stellen, Bewerber, eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschtermin für Absagen.",
-      "description": "Das Recruiting an einem Ort steuern: Jede Stelle hat Status, Fachvorgesetzten und Gehaltsspanne; jede Bewerbung läuft vom Eingang bis zur Einstellung oder Absage, mit Gesprächstermin, Angebotsfrist und Absagegrund; jeder Interviewer legt einen Interviewbogen ab. Abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
+      "summary": "Kein Bewerber soll auf eine Antwort warten müssen. Eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschdatum für abgelehnte Bewerbungen.",
+      "description": "In einem kleinen Betrieb läuft die Personalsuche über das Postfach und das Gedächtnis: Bewerber warten zu lange auf eine Antwort, Interviewnotizen liegen an verschiedenen Orten, und abgelehnte Bewerbungen bleiben viel länger im Postfach, als sie sollten. Diese Vorlage richtet Stellen mit Fachvorgesetztem und Gehaltsspanne ein, dazu Bewerber und Bewerbungen, die von neu bis eingestellt oder abgelehnt laufen, mit Gesprächstermin, Angebotsfrist und Absagegrund. Jeder Interviewer legt einen Interviewbogen ab, und abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Sie passt zu einem Unternehmen mit wenigen offenen Stellen gleichzeitig. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1250,7 +1250,7 @@
         "applications_board_view": "Die Bewerbungen öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
+        "intro": "Ich stelle für mein kleines Unternehmen ein, Bewerber warten zu lange auf eine Antwort, und die Interviewnotizen liegen an verschiedenen Orten. Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
         "questions": [
           "Wie viele Stellen sind gleichzeitig offen, und wer stellt jeweils ein?",
           "Woher kommen die Bewerber, und nutzt du ein Bewerbungsformular?",
@@ -1262,8 +1262,8 @@
     "en": {
       "locale": "en",
       "name": "Applicant tracking",
-      "summary": "A hiring tracker for a small business: jobs, applicants, one application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
-      "description": "Run hiring from one place: each job has a status, a hiring manager and a pay range; each application moves from new to hired or rejected with its interview time, offer deadline and rejection reason; every interviewer files a scorecard. Rejected applications get a retention date so you remember to delete them or ask for consent. It is not a job board, a CV parser, an assessment platform, an offer-letter or e-signature tool, or a legal authority on retention periods.",
+      "summary": "Keep every applicant moving and every candidate answered. One application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
+      "description": "In a small business hiring runs on email and memory: applicants wait too long for an answer, interview notes are scattered and rejected applications stay in the inbox far longer than they should. This template sets up jobs with a hiring manager and pay range, applicants, and applications that move from new to hired or rejected with interview time, offer deadline and rejection reason. Every interviewer files a scorecard, and rejected applications get a retention date so you remember to delete them or ask for consent. It fits a business with a few open jobs at a time. It is not a job board, CV parser, assessment platform or e-signature tool, and it gives no legal advice on retention periods.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1578,7 +1578,7 @@
         "applications_board_view": "The applications open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
+        "intro": "I hire for my small business and applicants wait too long for an answer while interview notes sit in different places. Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
         "questions": [
           "How many jobs are open at a time, and who hires for each?",
           "Where do applicants come from, and do you use an application form?",
@@ -1590,8 +1590,8 @@
     "es": {
       "locale": "es",
       "name": "Seguimiento de candidaturas",
-      "summary": "Un seguimiento de selección para una pequeña empresa: vacantes, candidatos, una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar los descartes.",
-      "description": "Gestiona la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
+      "summary": "Mantén cada proceso en marcha y responde a todos los candidatos. Una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar las candidaturas descartadas.",
+      "description": "En una pequeña empresa la selección se hace con el correo y de memoria: los candidatos esperan demasiado una respuesta, las notas de las entrevistas están repartidas y las candidaturas descartadas se quedan en la bandeja de entrada mucho más tiempo del debido. Esta plantilla prepara vacantes con responsable y rango salarial, candidatos y candidaturas que avanzan de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte. Cada entrevistador rellena una ficha de evaluación, y las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. Encaja con una empresa que tiene pocas vacantes abiertas a la vez. No es un portal de empleo, un lector de currículos, una plataforma de pruebas ni una herramienta de firma electrónica, y no da asesoramiento legal sobre los plazos de conservación.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1906,7 +1906,7 @@
         "applications_board_view": "Las candidaturas se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
+        "intro": "Tengo una pequeña empresa y contrato personal: los candidatos esperan demasiado una respuesta y las notas de las entrevistas están en sitios distintos. Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para las candidaturas descartadas y seguimientos con fecha.",
         "questions": [
           "¿Cuántas vacantes tienes abiertas a la vez y quién selecciona para cada una?",
           "¿De dónde vienen los candidatos y usas un formulario de candidatura?",
@@ -1918,8 +1918,8 @@
     "fr": {
       "locale": "fr",
       "name": "Suivi des candidatures",
-      "summary": "Un suivi de recrutement pour une petite entreprise : offres d’emploi, candidats, une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
-      "description": "Pilotez le recrutement au même endroit : chaque offre a un statut, un responsable du recrutement et une fourchette de salaire ; chaque candidature avance de reçue à embauchée ou refusée, avec la date d’entretien, le délai de réponse à la proposition et le motif de refus ; chaque recruteur remplit une fiche d’entretien. Les candidatures refusées reçoivent une date de conservation pour penser à les supprimer ou à demander un consentement. Ce n’est ni un job board, ni un analyseur de CV, ni une plateforme de tests, ni un outil de promesse d’embauche ou de signature électronique, ni un conseil juridique sur les durées de conservation.",
+      "summary": "Faites avancer chaque candidature et répondez à chaque candidat. Une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
+      "description": "Dans une petite entreprise, le recrutement se fait par e-mail et de mémoire : les candidats attendent trop longtemps une réponse, les notes d’entretien sont dispersées et les candidatures refusées traînent dans la boîte de réception. Ce modèle met en place les offres d’emploi avec un responsable du recrutement et une fourchette de salaire, les candidats, et les candidatures qui avancent de reçue à embauchée ou refusée, avec la date d’entretien, le délai de réponse à la proposition et le motif de refus. Chaque recruteur remplit une fiche d’entretien, et les candidatures refusées reçoivent une date de conservation pour penser à les supprimer ou à demander un consentement. Il convient à une entreprise qui a quelques offres ouvertes à la fois. Ce n’est ni un job board, ni un analyseur de CV, ni une plateforme de tests, ni un outil de promesse d’embauche ou de signature électronique, et il ne donne aucun conseil juridique sur les durées de conservation.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2234,7 +2234,7 @@
         "applications_board_view": "Les candidatures s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace de travail Customermates un suivi des candidatures : offres d’emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d’entretien, date de conservation des candidatures refusées et relances datées.",
+        "intro": "Je recrute pour ma petite entreprise, mais les candidats attendent trop longtemps une réponse et mes notes d’entretien sont éparpillées. Mets en place dans mon espace de travail Customermates un suivi des candidatures : offres d’emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d’entretien, date de conservation des candidatures refusées et relances datées.",
         "questions": [
           "Combien d’offres sont ouvertes en même temps, et qui recrute pour chacune ?",
           "D’où viennent les candidats, et utilisez-vous un formulaire de candidature ?",
@@ -2246,8 +2246,8 @@
     "it": {
       "locale": "it",
       "name": "Gestione candidature",
-      "summary": "Un tracker per la selezione del personale in una piccola azienda: posizioni, candidati, una candidatura per posizione in nove fasi, una scheda di valutazione per ogni intervistatore e una data di cancellazione per le candidature scartate.",
-      "description": "Gestisci la selezione in un unico posto: ogni posizione ha uno stato, un responsabile e una fascia retributiva; ogni candidatura avanza da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto; ogni intervistatore compila una scheda di valutazione. Le candidature scartate ricevono una data di conservazione per ricordarti di cancellarle o di chiedere il consenso. Non è un job board, un parser di CV, una piattaforma di test, uno strumento per lettere d'offerta e firma elettronica né una consulenza legale sui tempi di conservazione.",
+      "summary": "Fai avanzare ogni candidatura e dai una risposta a ogni candidato. Una candidatura per posizione attraverso nove fasi, una scheda di valutazione per ogni intervistatore e una data per cancellare quelle scartate.",
+      "description": "In una piccola azienda la selezione corre su e-mail e memoria: i candidati aspettano troppo una risposta, gli appunti dei colloqui sono sparsi e le candidature scartate restano nella posta molto più a lungo del dovuto. Questo modello imposta posizioni con responsabile e fascia retributiva, candidati e candidature che avanzano da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto. Ogni intervistatore compila una scheda di valutazione e le candidature scartate ricevono una data di conservazione, per ricordarti di cancellarle o di chiedere il consenso. Adatto a un'azienda con poche posizioni aperte alla volta. Non è un job board, un parser di CV, una piattaforma di test né uno strumento per la firma elettronica, e non dà consulenza legale sui tempi di conservazione.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2562,7 +2562,7 @@
         "applications_board_view": "Le candidature si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio spazio di lavoro Customermates la gestione delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per le candidature scartate e attività di follow-up con data.",
+        "intro": "Assumo per la mia piccola azienda: i candidati aspettano troppo una risposta e gli appunti dei colloqui restano sparsi in posti diversi. Imposta nel mio spazio di lavoro Customermates la gestione delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per le candidature scartate e attività di follow-up con data.",
         "questions": [
           "Quante posizioni hai aperte contemporaneamente e chi seleziona per ciascuna?",
           "Da dove arrivano i candidati e usi un modulo di candidatura?",
@@ -2574,8 +2574,8 @@
     "nl": {
       "locale": "nl",
       "name": "Sollicitatiebeheer",
-      "summary": "Een wervingsoverzicht voor een klein bedrijf: vacatures, sollicitanten, één sollicitatie per vacature in negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
-      "description": "Beheer de werving op één plek: elke vacature heeft een status, een leidinggevende en een salarisrange; elke sollicitatie loopt van ontvangen tot aangenomen of afgewezen, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing; elke interviewer vult een beoordelingsformulier in. Afgewezen sollicitaties krijgen een bewaardatum zodat je ze op tijd verwijdert of om toestemming vraagt. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
+      "summary": "Zorg dat elke sollicitant antwoord krijgt en geen sollicitatie blijft liggen. Eén sollicitatie per vacature door negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
+      "description": "In een klein bedrijf loopt werving op e-mail en geheugen: sollicitanten wachten te lang op antwoord, aantekeningen van gesprekken liggen verspreid en afgewezen sollicitaties blijven veel langer in de inbox staan dan zou moeten. Dit sjabloon zet vacatures op met een leidinggevende en salarisrange, sollicitanten en sollicitaties die van ontvangen naar aangenomen of afgewezen gaan, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing. Elke interviewer vult een beoordelingsformulier in en afgewezen sollicitaties krijgen een bewaardatum, zodat je ze op tijd verwijdert of om toestemming vraagt. Past bij een bedrijf met een paar open vacatures tegelijk. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2890,7 +2890,7 @@
         "applications_board_view": "De sollicitaties openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
+        "intro": "Ik werf voor mijn kleine bedrijf en sollicitanten wachten te lang op antwoord, terwijl de aantekeningen van gesprekken overal verspreid liggen. Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
         "questions": [
           "Hoeveel vacatures staan er tegelijk open en wie neemt voor elke vacature aan?",
           "Waar komen sollicitanten vandaan en gebruik je een sollicitatieformulier?",
@@ -2902,8 +2902,8 @@
     "pl": {
       "locale": "pl",
       "name": "Śledzenie kandydatów",
-      "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
-      "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, przyszłego przełożonego i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każda osoba prowadząca rozmowę wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji, narzędzie do ofert zatrudnienia i podpisów elektronicznych ani doradca prawny w sprawie okresów przechowywania danych.",
+      "summary": "Dopilnuj, żeby żaden kandydat nie czekał na odpowiedź bez końca. Jedna aplikacja na ofertę pracy w dziewięciu etapach, karta oceny od każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+      "description": "W małej firmie rekrutacja opiera się na e-mailach i pamięci: kandydaci za długo czekają na odpowiedź, notatki z rozmów są rozrzucone, a odrzucone aplikacje zalegają w skrzynce znacznie dłużej, niż powinny. Szablon zakłada oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydatów oraz aplikacje, które przechodzą od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia. Każda osoba prowadząca rozmowę wypełnia kartę oceny, a odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. Pasuje do firmy z kilkoma otwartymi ofertami naraz. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji ani narzędzie do podpisów elektronicznych i nie zastępuje porady prawnej w sprawie okresów przechowywania danych.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3218,7 +3218,7 @@
         "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
+        "intro": "Rekrutuję do swojej małej firmy: kandydaci za długo czekają na odpowiedź, a notatki z rozmów leżą w różnych miejscach. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
         "questions": [
           "Ile ofert jest otwartych jednocześnie i kto rekrutuje na każdą z nich?",
           "Skąd przychodzą kandydaci i czy używasz formularza aplikacyjnego?",
@@ -3230,8 +3230,8 @@
     "pt": {
       "locale": "pt",
       "name": "Acompanhamento de candidaturas",
-      "summary": "Um acompanhamento de seleção para uma pequena empresa: vagas, candidatos, uma candidatura por vaga em nove etapas, uma avaliação por entrevistador e uma data para excluir os reprovados.",
-      "description": "Conduza a seleção em um só lugar: cada vaga tem status, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
+      "summary": "Não deixe nenhum candidato sem resposta. Cada candidatura passa por nove etapas, cada entrevistador preenche uma avaliação e as candidaturas reprovadas ganham uma data para serem excluídas.",
+      "description": "Em uma empresa pequena, a seleção corre por e-mail e de memória: o candidato espera demais por uma resposta, as anotações das entrevistas ficam espalhadas e as candidaturas reprovadas continuam na caixa de entrada muito além do prazo. Este modelo organiza vagas com gestor e faixa salarial, candidatos e candidaturas que avançam de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação. Cada entrevistador preenche uma avaliação, e as candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou de pedir consentimento. Serve para quem tem poucas vagas abertas ao mesmo tempo. Não é um site de vagas, um leitor de currículos, uma plataforma de testes nem uma ferramenta de assinatura eletrônica, e não dá aconselhamento jurídico sobre prazos de guarda.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3546,7 +3546,7 @@
         "applications_board_view": "As candidaturas abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
+        "intro": "Eu faço a seleção da minha pequena empresa e os candidatos esperam demais por uma resposta, enquanto as anotações das entrevistas ficam em lugares diferentes. Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para as candidaturas reprovadas e acompanhamentos com data.",
         "questions": [
           "Quantas vagas ficam abertas ao mesmo tempo e quem contrata para cada uma?",
           "De onde vêm os candidatos e você usa um formulário de candidatura?",

@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Tax and bookkeeping practice",
-  "summary": "A practice desk with two flows: winning a mandate through an identification step and engagement letter, and doing the recurring work per client, with a deadline register that a second person verifies.",
-  "description": "Run a tax or bookkeeping practice from one place: mandates from inquiry to an active engagement with a money-laundering identification step in between, recurring jobs per client and period with a waiting-for-documents status, and a register of deadlines with a pre-deadline and the person who verified each date. It is the relationship, deadline-evidence and follow-up layer next to your practice software. It does not compute legal dates, file returns, keep ledgers, run payroll or bill time, and it holds no tax IDs or ID copies.",
+  "summary": "Keep every mandate, client job and deadline under control. Win a mandate through identification and engagement letter, run recurring jobs per client, and keep a deadline register that a second person verifies.",
+  "description": "In a tax or bookkeeping practice the calendar fills with waiting for client documents, and every deadline needs a second pair of eyes. This template runs two flows: mandates from inquiry to an active engagement with a money-laundering identification step in between, and recurring jobs per client and period with a waiting-for-documents status. A register of deadlines holds a pre-deadline and the person who verified each date. It is the relationship, deadline-evidence and follow-up layer next to your practice software. It does not compute legal dates, file returns, keep ledgers, run payroll or bill time, and it holds no tax IDs or ID copies.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "People at your clients who send documents and sign." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Individuals, sole traders, companies and associations you act for." },
@@ -125,7 +125,7 @@
     "deadline_control_page": "The knowledge base holds a page on deadline control."
   },
   "prompt": {
-    "intro": "Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
+    "intro": "I run a tax and bookkeeping practice and need to see which mandates are open, which jobs wait for documents and which deadlines have been checked. Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
     "questions": [
       "Which services do you offer, and which recurring jobs do you run per client?",
       "In which country do you practise, and which deadlines do you track?",

@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Action item tracker",
-  "summary": "Every action with one owner and a due date, linked to the meeting, decision or project it came from, with a weekly review and a way to close it with proof.",
-  "description": "A tracker for the actions that come out of meetings, projects, audits and customer requests: six statuses, a priority, an owner, a due date, a follow-up date, a decision log and a check after corrective actions. Reminders come from automation rules and notifications.",
+  "summary": "Make sure what was agreed in a meeting actually happens. Every action gets one owner and a due date, linked to the decision or project it came from, with a weekly review.",
+  "description": "Actions agreed in meetings, audits and customer calls vanish into notes and chat threads, and the same item gets discussed again next week. This template sets up one list of actions with six statuses, a priority, one owner, a due date and a follow-up date, linked to the meeting, decision or project they came from, plus a decision log and a check that a corrective action worked. It fits teams, project leads and quality managers who want one weekly review of what is open, overdue or blocked. Reminders come from automation rules and notifications you switch on.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "People", "description": "Team members, partners, customers and suppliers." },
     "meetings": { "label": "Meeting", "pluralLabel": "Meetings", "description": "Where actions and decisions come from." },
@@ -104,7 +104,7 @@
     "overdue_widget": "The dashboard shows how many actions are overdue."
   },
   "prompt": {
-    "intro": "Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
+    "intro": "Things we agree in meetings keep falling through, and nobody can say who owns what by when. Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
     "questions": [
       "Where do your actions come from: meetings, projects, audits, customers?",
       "Who owns actions, and who decides when one is re-dated or cancelled?",

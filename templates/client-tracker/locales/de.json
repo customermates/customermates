@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Kundenverwaltung",
-  "summary": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt, dazu eine wöchentliche Durchsicht und ein Prüfdatum für jeden beendeten Kunden.",
-  "description": "Eine schlanke Kundenkartei mit sieben Status, dem Datum des letzten Kontakts, einer Wiedervorlage, die die Arbeit steuert, einem Prüfrhythmus je Segment und einem Löschprüfdatum für beendete Kunden. Ansprechpartner, terminierte Wiedervorlagen und verknüpfte Unterhaltungen stehen direkt am Kunden.",
+  "summary": "Nie mehr rätseln, welchem Kunden Sie noch einen Anruf, eine Antwort oder ein Angebot schulden. Jeder Kunde hat einen Betreuer und einen terminierten nächsten Schritt, eine wöchentliche Durchsicht zeigt, was überfällig ist.",
+  "description": "Wenn Kundendaten in einer Tabelle, im Postfach und im Kopf stecken, rutschen Wiedervorlagen durch, und niemand merkt es, bis ein Kunde sich nicht mehr meldet. Diese Vorlage richtet eine Zeile pro Kunde ein, mit sieben Status, dem Datum des letzten Kontakts, einem terminierten nächsten Schritt und einem Prüfrhythmus je Segment. Ansprechpartner, terminierte Wiedervorlagen und verknüpfte Unterhaltungen stehen direkt am Kunden, und für beendete Kunden gibt es ein Prüfdatum für die Löschung. Sie passt zu Selbstständigen, Agenturen und kleinen Teams mit bis zu etwa zehn Personen, die ihre Kundenbeziehungen selbst pflegen.",
   "lists": {
     "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt." },
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen du bei jedem Kunden zu tun hast." },
@@ -184,10 +184,10 @@
     "playbook_page": "Die Wissensdatenbank enthält den Leitfaden zur Kundenverwaltung."
   },
   "page": {
-    "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
-    "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht.",
-    "headline": "Eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
-    "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Wiedervorlagen und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "metaTitle": "Kundenverwaltung Vorlage: keine Wiedervorlage verpassen",
+    "metaDescription": "Kein Kunde geht mehr verloren: Vorlage in Claude, ChatGPT oder Codex einfügen und für jeden Kunden Betreuer und nächsten Schritt mit Datum anlegen lassen.",
+    "headline": "Wissen, wen Sie als Nächstes anrufen: eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Kundenverwaltung ist eine Liste mit einer Zeile pro Kunde, einem Betreuer und einem terminierten nächsten Schritt, damit kein Kunde still wird, ohne dass Sie es merken. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Wiedervorlagen, verknüpften Unterhaltungen und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
     "routine": {
       "title": "Die wöchentliche Kundendurchsicht in 15 Minuten",
       "steps": [
@@ -224,7 +224,7 @@
     ]
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
+    "intro": "Ich betreue meine Kunden selbst, und zu viele Wiedervorlagen rutschen durch: Ich verliere den Überblick, mit wem ich zuletzt gesprochen habe und was als Nächstes ansteht. Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
     "questions": [
       "Wie viele Kunden betreust du heute, und wer arbeitet noch an der Kartei mit?",
       "Welche Kundenstatus nutzt du schon? Soll einer der sieben umbenannt oder weggelassen werden?",

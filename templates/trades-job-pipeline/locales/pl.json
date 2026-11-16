@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Zlecenia dla firm usługowych",
-  "summary": "Lejek dla firmy remontowej lub instalacyjnej: zapytanie, oględziny, wycena i przypomnienie, potem praca od zaplanowanej do opłaconej, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
-  "description": "Prowadź zlecenie od pierwszego telefonu do ostatniej faktury: klienci i obiekty, w których pracujesz, zlecenia z etapem sprzedaży i osobnym statusem prac, ważność oferty, oględziny i harmonogram, termin odstąpienia od umowy konsumenckiej, koniec rękojmi oraz umowy serwisowe, które przynoszą kolejne prace. Narzędzie zapisuje zlecenie, terminy i przypomnienia. To nie program do ofert i faktur, planowania ekip ani rejestru czasu pracy. Terminy prawne to pola, które potwierdzasz samodzielnie, a nie porada prawna.",
+  "summary": "Wracaj do każdej oferty i pilnuj każdego zlecenia, od pierwszego telefonu do zapłaty. Oględziny, wycena i same prace od zaplanowanych do opłaconych, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
+  "description": "W firmie remontowej lub instalacyjnej pieniądze przepadają, gdy oferta wychodzi i nikt do niej nie wraca, a terminy rękojmi i serwisu nie są nigdzie zapisane. Szablon prowadzi zlecenie od pierwszego telefonu do ostatniej faktury: klientów i obiekty, w których pracujesz, zlecenia z etapem sprzedaży i osobnym statusem prac, ważność oferty, oględziny i harmonogram, termin odstąpienia od umowy konsumenckiej, koniec rękojmi oraz umowy serwisowe, które przynoszą kolejne prace. Zapisuje zlecenie, terminy i przypomnienia. To nie program do ofert i faktur, planowania ekip ani rejestru czasu pracy. Terminy prawne to pola, które potwierdzasz samodzielnie, a nie porada prawna.",
   "lists": {
     "customers": { "label": "Klient", "pluralLabel": "Klienci", "description": "Właściciele domów, wynajmujący, zarządcy nieruchomości i firmy, dla których pracujesz." },
     "sites": { "label": "Obiekt", "pluralLabel": "Obiekty", "description": "Adres, pod którym wykonujesz prace, który może różnić się od adresu klienta." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "Zlecenia otwierają się jako tablica według etapu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla firmy remontowej lub instalacyjnej: klienci, obiekty, zlecenia z etapem sprzedaży i statusem prac, ważność oferty, terminy oględzin i prac, koniec rękojmi i umowy serwisowe, z zaplanowanymi kolejnymi krokami.",
+    "intro": "Prowadzę małą firmę remontową lub instalacyjną: oferty wychodzą bez przypomnienia, a zlecenia, wizyty i terminy rękojmi mam w głowie. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla firmy remontowej lub instalacyjnej: klienci, obiekty, zlecenia z etapem sprzedaży i statusem prac, ważność oferty, terminy oględzin i prac, koniec rękojmi i umowy serwisowe, z zaplanowanymi kolejnymi krokami.",
     "questions": [
       "Jakie prace wykonujesz i dla kogo: osób prywatnych, wynajmujących czy firm?",
       "Jak szybko odpowiadasz na zapytanie i wysyłasz ofertę po oględzinach?",

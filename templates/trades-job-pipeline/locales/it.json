@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Commesse per artigiani",
-  "summary": "Una pipeline per un'impresa artigiana: richiesta, sopralluogo, preventivo e sollecito, poi il lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
-  "description": "Segui una commessa dalla prima chiamata all'ultima fattura: clienti e cantieri in cui lavori, commesse con una fase commerciale e uno stato lavori separato, validità del preventivo, sopralluogo e programma, data di recesso per i contratti con i consumatori, fine della garanzia e contratti di manutenzione che portano nuovo lavoro. Conserva la commessa, le date e i solleciti. Non è uno strumento per preventivi e fatture, un sistema di pianificazione delle squadre né un sistema di rilevazione delle ore. Le date legali sono campi che confermi tu, non una consulenza legale.",
+  "summary": "Sollecita ogni preventivo e tieni ogni lavoro sotto controllo, dalla prima chiamata al pagamento. Sopralluogo, preventivo e lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
+  "description": "In un'impresa artigiana si perdono soldi quando parte un preventivo e nessuno richiama, e quando le date di garanzia e di manutenzione non sono scritte da nessuna parte. Questo modello segue una commessa dalla prima chiamata all'ultima fattura: clienti e cantieri in cui lavori, commesse con una fase commerciale e uno stato lavori separato, validità del preventivo, sopralluogo e programma, data di recesso per i contratti con i consumatori, fine della garanzia e contratti di manutenzione che portano nuovo lavoro. Conserva la commessa, le date e i solleciti. Non è uno strumento per preventivi e fatture, un sistema di pianificazione delle squadre né un sistema di rilevazione delle ore. Le date legali sono campi che confermi tu, non una consulenza legale.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Privati, proprietari, amministratori di condominio e aziende per cui lavori." },
     "sites": { "label": "Cantiere", "pluralLabel": "Cantieri", "description": "L'indirizzo dove si svolge il lavoro, che può essere diverso da quello del cliente." },
@@ -118,7 +118,7 @@
     "jobs_board_view": "Le commesse si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un'impresa artigiana: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
+    "intro": "Gestisco una piccola impresa artigiana: i preventivi partono senza un sollecito, mentre commesse, sopralluoghi e date di garanzia restano nella mia testa. Imposta nel mio spazio di lavoro Customermates una pipeline per un'impresa artigiana: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
     "questions": [
       "Quali lavori esegui e per chi: privati, proprietari o aziende?",
       "Con che rapidità rispondi a una richiesta e invii il preventivo dopo il sopralluogo?",

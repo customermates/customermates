@@ -952,8 +952,8 @@
     "de": {
       "locale": "de",
       "name": "Maßnahmenplan",
-      "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Deadline, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
-      "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Deadline, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
+      "summary": "Was in Besprechungen beschlossen wird, soll auch erledigt werden. Jede Maßnahme hat einen Verantwortlichen und eine Deadline, verknüpft mit Beschluss oder Projekt, dazu eine wöchentliche Durchsicht.",
+      "description": "Was in Besprechungen, Audits und Kundengesprächen vereinbart wird, versinkt in Notizen und Chatverläufen, und nächste Woche kommt dasselbe Thema noch einmal auf den Tisch. Diese Vorlage richtet eine Maßnahmenliste ein mit sechs Status, Priorität, einem Verantwortlichen, Deadline und Wiedervorlage, verknüpft mit der Besprechung, dem Beschluss oder dem Projekt, aus dem sie stammt, dazu ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Sie passt zu Teams, Projektleitungen und Qualitätsmanagement, die einmal pro Woche sehen wollen, was offen, überfällig oder blockiert ist. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen, die Sie einschalten.",
       "lists": {
         "people": {
           "label": "Person",
@@ -1271,7 +1271,7 @@
         "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
       },
       "prompt": {
-        "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
+        "intro": "Was wir in Besprechungen vereinbaren, bleibt liegen, und ich sehe nicht, wer was bis wann erledigt. Richte in meinem Customermates-Workspace einen Maßnahmenplan ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
         "questions": [
           "Woher kommen deine Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
           "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",
@@ -1283,8 +1283,8 @@
     "en": {
       "locale": "en",
       "name": "Action item tracker",
-      "summary": "Every action with one owner and a due date, linked to the meeting, decision or project it came from, with a weekly review and a way to close it with proof.",
-      "description": "A tracker for the actions that come out of meetings, projects, audits and customer requests: six statuses, a priority, an owner, a due date, a follow-up date, a decision log and a check after corrective actions. Reminders come from automation rules and notifications.",
+      "summary": "Make sure what was agreed in a meeting actually happens. Every action gets one owner and a due date, linked to the decision or project it came from, with a weekly review.",
+      "description": "Actions agreed in meetings, audits and customer calls vanish into notes and chat threads, and the same item gets discussed again next week. This template sets up one list of actions with six statuses, a priority, one owner, a due date and a follow-up date, linked to the meeting, decision or project they came from, plus a decision log and a check that a corrective action worked. It fits teams, project leads and quality managers who want one weekly review of what is open, overdue or blocked. Reminders come from automation rules and notifications you switch on.",
       "lists": {
         "people": {
           "label": "Person",
@@ -1602,7 +1602,7 @@
         "overdue_widget": "The dashboard shows how many actions are overdue."
       },
       "prompt": {
-        "intro": "Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
+        "intro": "Things we agree in meetings keep falling through, and nobody can say who owns what by when. Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
         "questions": [
           "Where do your actions come from: meetings, projects, audits, customers?",
           "Who owns actions, and who decides when one is re-dated or cancelled?",
@@ -1614,8 +1614,8 @@
     "es": {
       "locale": "es",
       "name": "Plan de acción",
-      "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con evidencia.",
-      "description": "Un seguimiento de las acciones que salen de reuniones, proyectos, auditorías y peticiones de clientes: seis estados, una prioridad, un responsable, una fecha límite, una fecha de seguimiento, un registro de decisiones y una verificación de eficacia tras las acciones correctivas. Los recordatorios vienen de las reglas de automatización y las notificaciones.",
+      "summary": "Haz que lo acordado en las reuniones se haga de verdad. Cada acción, vinculada a la decisión o al proyecto de donde sale, tiene un responsable y una fecha límite, y se repasa en una revisión semanal.",
+      "description": "Las acciones que se acuerdan en reuniones, auditorías y llamadas con clientes se pierden entre notas y chats, y a la semana siguiente se vuelve a discutir lo mismo. Esta plantilla prepara una lista única de acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a la reunión, la decisión o el proyecto de donde salen, más un registro de decisiones y una comprobación de que una acción correctiva funcionó. Encaja con equipos, responsables de proyecto y responsables de calidad que quieren una revisión semanal de lo que está abierto, vencido o bloqueado. Los recordatorios vienen de las reglas de automatización y de las notificaciones que tú actives.",
       "lists": {
         "people": {
           "label": "Persona",
@@ -1933,7 +1933,7 @@
         "overdue_widget": "El panel muestra cuántas acciones están vencidas."
       },
       "prompt": {
-        "intro": "Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
+        "intro": "Lo que acordamos en las reuniones se queda por el camino y nadie sabe quién se encarga de qué ni para cuándo. Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
         "questions": [
           "¿De dónde salen tus acciones: reuniones, proyectos, auditorías, clientes?",
           "¿Quién es responsable de las acciones y quién decide cuándo una cambia de fecha o se cancela?",
@@ -1945,8 +1945,8 @@
     "fr": {
       "locale": "fr",
       "name": "Plan d’action",
-      "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle est issue, avec une revue hebdomadaire et une clôture sur preuve.",
-      "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
+      "summary": "Faites que ce qui est décidé en réunion soit réellement fait. Chaque action a un pilote, une échéance et un lien vers la décision ou le projet dont elle vient, avec une revue chaque semaine.",
+      "description": "Les actions décidées en réunion, en audit ou au téléphone avec un client se perdent dans les comptes rendus et les messages, et le même point revient la semaine suivante. Ce modèle met en place une seule liste d’actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, reliées à la réunion, à la décision ou au projet dont elles viennent, avec un relevé de décisions et une vérification que l’action corrective a été efficace. Il convient aux équipes, aux chefs de projet et aux responsables qualité qui veulent une revue hebdomadaire de ce qui est ouvert, en retard ou bloqué. Les rappels viennent des règles d’automatisation et des notifications que vous activez.",
       "lists": {
         "people": {
           "label": "Personne",
@@ -2264,7 +2264,7 @@
         "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
       },
       "prompt": {
-        "intro": "Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
+        "intro": "Les actions décidées en réunion nous échappent et je ne sais plus qui doit faire quoi pour quand. Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
         "questions": [
           "D’où viennent vos actions : réunions, projets, audits, clients ?",
           "Qui pilote les actions, et qui décide quand l’une est reportée ou annulée ?",
@@ -2276,8 +2276,8 @@
     "it": {
       "locale": "it",
       "name": "Piano d'azione",
-      "summary": "Ogni azione con un responsabile e una scadenza, collegata alla riunione, alla decisione o al progetto da cui nasce, con una revisione settimanale e la chiusura con una prova a supporto.",
-      "description": "Un elenco delle azioni che nascono da riunioni, progetti, audit e richieste dei clienti: sei stati, una priorità, un responsabile, una scadenza, una data di follow-up, un registro delle decisioni e una verifica di efficacia dopo le azioni correttive. I promemoria vengono dalle regole di automazione e dalle notifiche.",
+      "summary": "Fai in modo che quello che si decide in riunione venga davvero fatto. Ogni azione ha un responsabile e una scadenza, è collegata alla riunione, alla decisione o al progetto da cui nasce e passa da una revisione settimanale.",
+      "description": "Le azioni decise in riunioni, audit e chiamate con i clienti si perdono tra appunti e chat, e la settimana dopo si discute di nuovo la stessa cosa. Questo modello imposta un unico elenco di azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate alla riunione, alla decisione o al progetto da cui nascono, più un registro delle decisioni e una verifica di efficacia per le azioni correttive. Adatto a team, responsabili di progetto e responsabili qualità che vogliono una revisione settimanale di ciò che è aperto, scaduto o bloccato. I promemoria vengono dalle regole di automazione e dalle notifiche che attivi tu.",
       "lists": {
         "people": {
           "label": "Persona",
@@ -2595,7 +2595,7 @@
         "overdue_widget": "La dashboard mostra quante azioni sono scadute."
       },
       "prompt": {
-        "intro": "Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
+        "intro": "Quello che decidiamo in riunione si perde per strada e nessuno sa dire chi se ne occupa e per quando. Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
         "questions": [
           "Da dove nascono le tue azioni: riunioni, progetti, audit, clienti?",
           "Chi è responsabile delle azioni e chi decide quando una viene rinviata o annullata?",
@@ -2607,8 +2607,8 @@
     "nl": {
       "locale": "nl",
       "name": "Actielijst",
-      "summary": "Elke actie met één eigenaar en een deadline, gekoppeld aan het overleg, het besluit of het project waaruit ze komt, met een wekelijkse controle en afsluiting met bewijs.",
-      "description": "Een actiepuntenlijst voor wat uit overleggen, projecten, audits en klantverzoeken volgt: zes statussen, een prioriteit, een eigenaar, een deadline, een opvolgdatum, een besluitenlijst en een effectiviteitscontrole na corrigerende acties. Herinneringen komen uit automatiseringsregels en meldingen.",
+      "summary": "Zorg dat wat in een overleg is afgesproken ook echt gebeurt. Elke actie krijgt één eigenaar en een deadline, gekoppeld aan het besluit of project waaruit ze komt, met een wekelijkse controle.",
+      "description": "Afspraken uit overleggen, audits en klantgesprekken verdwijnen in notulen en chatberichten, en volgende week bespreek je hetzelfde punt opnieuw. Dit sjabloon zet één lijst met acties op: zes statussen, een prioriteit, één eigenaar, een deadline en een opvolgdatum, gekoppeld aan het overleg, besluit of project waaruit ze komen, plus een besluitenlijst en een effectiviteitscontrole na een corrigerende actie. Voor teams, projectleiders en kwaliteitsmanagers die één keer per week willen zien wat openstaat, te laat is of vastloopt. Herinneringen komen uit automatiseringsregels en meldingen die je zelf aanzet.",
       "lists": {
         "people": {
           "label": "Persoon",
@@ -2926,7 +2926,7 @@
         "overdue_widget": "Het dashboard toont hoeveel acties achterstallig zijn."
       },
       "prompt": {
-        "intro": "Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
+        "intro": "Wat we in overleggen afspreken blijft liggen, en niemand kan zeggen wie wat wanneer oppakt. Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
         "questions": [
           "Waar komen je acties vandaan: overleggen, projecten, audits, klanten?",
           "Wie is eigenaar van acties en wie beslist wanneer er een wordt verzet of geannuleerd?",
@@ -2938,8 +2938,8 @@
     "pl": {
       "locale": "pl",
       "name": "Rejestr zadań i działań",
-      "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamykaniem z dowodem wykonania.",
-      "description": "Lista zadań wynikających ze spotkań, projektów, audytów i próśb klientów: sześć statusów, priorytet, osoba odpowiedzialna, termin, termin kontrolny, rejestr decyzji i sprawdzenie skuteczności po działaniach korygujących. Przypomnienia pochodzą z reguł automatyzacji i powiadomień.",
+      "summary": "Dopilnuj, żeby to, co ustalono na spotkaniu, naprawdę się wydarzyło. Każde zadanie ma jedną osobę odpowiedzialną i termin, wiadomo też, z jakiej decyzji lub jakiego projektu wynika, a raz w tygodniu robisz przegląd.",
+      "description": "Ustalenia ze spotkań, audytów i rozmów z klientami giną w notatkach i na czatach, a ta sama sprawa wraca na kolejnym spotkaniu. Szablon zakłada jedną listę zadań z sześcioma statusami, priorytetem, jedną osobą odpowiedzialną, terminem i terminem kontrolnym, powiązanych ze spotkaniem, decyzją lub projektem, z których wynikają, a do tego rejestr decyzji i sprawdzenie, czy działanie korygujące zadziałało. Pasuje do zespołów, kierowników projektów i osób odpowiedzialnych za jakość, które chcą raz w tygodniu przejrzeć, co jest otwarte, po terminie lub zablokowane. Przypomnienia pochodzą z reguł automatyzacji i powiadomień, które włączysz.",
       "lists": {
         "people": {
           "label": "Osoba",
@@ -3257,7 +3257,7 @@
         "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych."
       },
       "prompt": {
-        "intro": "Skonfiguruj rejestr zadań i działań w mojej przestrzeni roboczej Customermates: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
+        "intro": "Ustalenia ze spotkań przepadają i nikt nie wie, kto za co odpowiada i do kiedy. Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr zadań i działań: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
         "questions": [
           "Skąd biorą się Twoje zadania: spotkania, projekty, audyty, klienci?",
           "Kto odpowiada za zadania i kto decyduje o zmianie terminu lub anulowaniu zadania?",
@@ -3269,8 +3269,8 @@
     "pt": {
       "locale": "pt",
       "name": "Plano de ação",
-      "summary": "Cada ação com um responsável e um prazo, vinculada à reunião, à decisão ou ao projeto de onde vem, com revisão semanal e encerramento com comprovação.",
-      "description": "Um controle das ações que saem de reuniões, projetos, auditorias e pedidos de clientes: seis status, uma prioridade, um responsável, um prazo, uma data de retorno, um registro de decisões e uma verificação de eficácia depois de ações corretivas. Os lembretes vêm de regras de automação e notificações. O modelo 5W2H cabe aqui com os campos de responsável, prazo e origem.",
+      "summary": "Garanta que o que foi combinado na reunião realmente aconteça. Cada ação tem um responsável e um prazo e fica ligada à decisão ou ao projeto de onde veio, com uma revisão semanal.",
+      "description": "As ações combinadas em reuniões, auditorias e conversas com clientes se perdem em atas e mensagens, e o mesmo assunto volta à pauta na semana seguinte. Este modelo monta uma lista de ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, ligadas à reunião, à decisão ou ao projeto de onde vieram, além de um registro de decisões e uma verificação de eficácia depois de uma ação corretiva. Serve para equipes, gerentes de projeto e responsáveis pela qualidade que querem uma revisão semanal do que está aberto, atrasado ou bloqueado, e quem usa 5W2H encontra aqui responsável, prazo e origem. Os lembretes vêm de regras de automação e notificações que você ativa.",
       "lists": {
         "people": {
           "label": "Pessoa",
@@ -3588,7 +3588,7 @@
         "overdue_widget": "O painel mostra quantas ações estão atrasadas."
       },
       "prompt": {
-        "intro": "Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data de retorno, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
+        "intro": "As ações que combinamos nas reuniões ficam pelo caminho, e ninguém sabe quem é responsável por quê nem até quando. Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
         "questions": [
           "De onde vêm as suas ações: reuniões, projetos, auditorias, clientes?",
           "Quem é responsável pelas ações e quem decide quando o prazo de uma muda ou ela é cancelada?",

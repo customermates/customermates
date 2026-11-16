@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Prise de rendez-vous",
-  "summary": "Un registre de rendez-vous pour un prestataire de services : types de rendez-vous avec durée et délai de prévenance, chaque réservation avec son statut, ses rappels et son résultat, et une prochaine étape pour chacune.",
-  "description": "Prenez des réservations pour des appels, des consultations ou des visites et gardez-les dans le CRM : quelques types de rendez-vous avec durée, temps de battement et délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois confirmé, deux rappels et un résultat noté après chaque rendez-vous. Il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
+  "summary": "Gardez chaque appel, consultation ou visite au même endroit, de la demande au résultat. Des types de rendez-vous avec durée et délai de prévenance, un statut et des rappels sur chaque réservation, et une prochaine étape après chacun.",
+  "description": "Les réservations qui n’existent que dans un agenda et une boîte mail finissent par être oubliées : un client ne vient pas faute de rappel et personne ne note ce qu’a donné l’appel. Ce modèle met en place quelques types de rendez-vous avec une durée, un temps de battement et un délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois que vous confirmez, deux rappels et un résultat noté après chaque rendez-vous. Il convient aux prestataires de services qui prennent des appels, des consultations, des séances ou des visites, et il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
   "lists": {
     "people": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui prennent rendez-vous avec vous." },
     "appointment_types": { "label": "Type de rendez-vous", "pluralLabel": "Types de rendez-vous", "description": "Un type de rendez-vous avec sa durée, son temps de battement, son délai de prévenance et son prix." },
@@ -91,7 +91,7 @@
     "appointments_board_view": "Les rendez-vous s’ouvrent en board par statut."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
+    "intro": "Je prends des appels, des consultations et des visites, et je ne sais plus qui est réservé, qui a confirmé ni ce que chaque rendez-vous a donné. Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
     "questions": [
       "Quels types de rendez-vous proposez-vous, et combien de temps dure chacun ?",
       "De quel délai de prévenance avez-vous besoin, et jusqu’à combien de temps à l’avance peut-on réserver ?",
