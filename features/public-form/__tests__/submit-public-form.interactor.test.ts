@@ -13,7 +13,8 @@ import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DomainEvent } from "@/features/event/domain-events";
 import { PublicFormAccess } from "../public-form-access";
-import { PUBLIC_FORM_LIMITS } from "../public-form.schema";
+import { ANSWER_LIMITS } from "@/features/records/record-value-coercion";
+import { PUBLIC_FORM_LIMITS, SubmitPublicFormSchema } from "../public-form.schema";
 import { publicFormToken } from "../public-form-token";
 import { ReadPublicFormInteractor } from "../read-public-form.interactor";
 import { SubmitPublicFormInteractor } from "../submit-public-form.interactor";
@@ -155,6 +156,7 @@ function setup(options: Setup = {}) {
 }
 
 const token = publicFormToken(FORM_ID, SECRET);
+const fieldUuid = (index: number) => `00000000-0000-4000-8000-${String(index + 1000).padStart(12, "0")}`;
 
 function submission(overrides: Record<string, unknown> = {}) {
   return {
@@ -498,6 +500,48 @@ describe("SubmitPublicFormInteractor", () => {
         status: "invalid",
         errors: {},
       });
+    });
+
+    it("rejects an answer longer than the limit and more answers than the form has fields", async () => {
+      const { submit, writer } = setup();
+      const tooLong = { [NOTES_FIELD]: "x".repeat(ANSWER_LIMITS.maxRichTextChars + 1) };
+      const tooMany = Object.fromEntries(
+        Array.from({ length: PUBLIC_FORM_LIMITS.maxFields + 1 }, (_, index) => [fieldUuid(index), "x"]),
+      );
+
+      expect(await submit.invoke(submission({ answers: tooLong }))).toEqual({ status: "invalid", errors: {} });
+      expect(await submit.invoke(submission({ answers: tooMany }))).toEqual({ status: "invalid", errors: {} });
+      expect(writer.invoke).not.toHaveBeenCalled();
+    });
+
+    it("accepts an answer exactly at the limit", async () => {
+      const { submit } = setup();
+
+      const result = await submit.invoke(
+        submission({ answers: { [NAME_FIELD]: "Ada", [NOTES_FIELD]: "x".repeat(ANSWER_LIMITS.maxRichTextChars) } }),
+      );
+
+      expect(result.status).toBe("submitted");
+    });
+  });
+
+  describe("answer caps in the schema", () => {
+    const base = { token, renderToken: "r" };
+
+    it("caps each string, each list entry and the number of answers", () => {
+      const parse = (answers: Record<string, unknown>) =>
+        SubmitPublicFormSchema.safeParse({ ...base, answers }).success;
+      const atLimit = "x".repeat(ANSWER_LIMITS.maxRichTextChars);
+
+      expect(parse({ [NAME_FIELD]: atLimit })).toBe(true);
+      expect(parse({ [NAME_FIELD]: `${atLimit}x` })).toBe(false);
+      expect(parse({ [NAME_FIELD]: [atLimit] })).toBe(true);
+      expect(parse({ [NAME_FIELD]: [`${atLimit}x`] })).toBe(false);
+      expect(parse({ [NAME_FIELD]: true })).toBe(true);
+      const keys = (count: number) =>
+        Object.fromEntries(Array.from({ length: count }, (_, index) => [fieldUuid(index), "x"]));
+      expect(parse(keys(PUBLIC_FORM_LIMITS.maxFields))).toBe(true);
+      expect(parse(keys(PUBLIC_FORM_LIMITS.maxFields + 1))).toBe(false);
     });
   });
 });

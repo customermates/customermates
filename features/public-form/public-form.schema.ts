@@ -3,7 +3,7 @@ import type { AnswerQuestion } from "@/features/records/record-value-coercion";
 import { z } from "zod";
 
 import { isAppLocale } from "@/i18n/locale-registry";
-import { ANSWERABLE_VALUE_TYPES } from "@/features/records/record-value-coercion";
+import { ANSWER_LIMITS, ANSWERABLE_VALUE_TYPES } from "@/features/records/record-value-coercion";
 
 export const PUBLIC_FORM_LIMITS = {
   maxFields: 40,
@@ -208,7 +208,18 @@ export const SubmitPublicFormSchema = z
     consent: z.boolean().optional(),
     email: z.string().max(320).optional(),
     name: z.string().max(200).optional(),
-    answers: z.record(z.uuid(), z.union([z.string(), z.array(z.string()).max(100), z.boolean()])),
+    answers: z
+      .record(
+        z.uuid(),
+        z.union([
+          z.string().max(ANSWER_LIMITS.maxRichTextChars),
+          z.array(z.string().max(ANSWER_LIMITS.maxRichTextChars)).max(100),
+          z.boolean(),
+        ]),
+      )
+      .refine((answers) => Object.keys(answers).length <= PUBLIC_FORM_LIMITS.maxFields, {
+        message: "Too many answers",
+      }),
   })
   .strict();
 export type SubmitPublicFormInput = z.input<typeof SubmitPublicFormSchema>;
