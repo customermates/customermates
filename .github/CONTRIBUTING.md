@@ -87,7 +87,7 @@ Every pull-request description must contain these sections, in this order:
 
 The organization pull-request template pre-fills them, so open the pull request and replace the guidance text.
 
-Because every pull request is squash-merged, avoid updating your branch with a merge commit — the generated `Merge branch main into …` header does not satisfy the convention. Rebase onto `main` instead.
+Because every pull request is squash-merged, avoid updating your branch with a merge commit: the generated `Merge branch main into …` header does not satisfy the convention. Rebase onto `main` instead.
 
 ### Automatic Validation
 
@@ -135,4 +135,4 @@ The Customermates team handles changes to these areas itself. Contact us before 
 
 ## Reporting Issues
 
-GitHub issue tracking is disabled on this repository. If you face a problem or have a suggestion, please use the contact options at [customermates.com](https://customermates.com) and provide as much detail as possible. Suspected security vulnerabilities go through private vulnerability reporting on the repository's Security tab, as described in the [security policy](https://github.com/customermates/.github/blob/main/SECURITY.md) — never through a public channel.
+GitHub issue tracking is disabled on this repository. If you face a problem or have a suggestion, please use the contact options at [customermates.com](https://customermates.com) and provide as much detail as possible. Suspected security vulnerabilities go through private vulnerability reporting on the repository's Security tab, as described in the [security policy](https://github.com/customermates/.github/blob/main/SECURITY.md), never through a public channel.
