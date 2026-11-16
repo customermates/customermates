@@ -4824,10 +4824,10 @@
         "parentAccess": "{source} gets its access through {target}.",
         "requiresRestore": "Restore {target} first, {source} belongs to it.",
         "routine": "The routine {source} reacts to {target}.",
+        "rule": "The automation rule {source} reacts to {target}.",
         "snapshotTrigger": "{source} saves its value when {target} changes.",
         "webhook": "The webhook {source} sends changes of {target}.",
         "widget": "The widget {source} measures {target}."
-        "rule": "The automation rule {source} reacts to {target}.",
       },
       "cleaned": {
         "bindingAvatar": "{target} is no longer used as the profile picture of {consumers}.",

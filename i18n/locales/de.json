@@ -4824,10 +4824,10 @@
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
         "requiresRestore": "Stelle zuerst {target} wieder her, {source} gehört dazu.",
         "routine": "Die Routine {source} reagiert auf {target}.",
+        "rule": "Die Automatisierungsregel {source} reagiert auf {target}.",
         "snapshotTrigger": "{source} speichert seinen Wert, wenn sich {target} ändert.",
         "webhook": "Der Webhook {source} sendet Änderungen an {target}.",
         "widget": "Das Widget {source} misst {target}."
-        "rule": "Die Automatisierungsregel {source} reagiert auf {target}.",
       },
       "cleaned": {
         "bindingAvatar": "{target} wird nicht mehr als Profilbild von {consumers} verwendet.",

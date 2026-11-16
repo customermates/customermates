@@ -4824,10 +4824,10 @@
         "parentAccess": "{source} otrzymuje dostęp przez: {target}.",
         "requiresRestore": "Najpierw przywróć: {target}. Należy do tego: {source}.",
         "routine": "Rutyna {source} reaguje na zmiany: {target}.",
+        "rule": "Reguła automatyzacji {source} reaguje na zmiany: {target}.",
         "snapshotTrigger": "{source} zapisuje swoją wartość, gdy zmienia się: {target}.",
         "webhook": "Webhook {source} wysyła zmiany dotyczące: {target}.",
         "widget": "Widżet {source} mierzy: {target}."
-        "rule": "Reguła automatyzacji {source} reaguje na zmiany: {target}.",
       },
       "cleaned": {
         "bindingAvatar": "Element {target} nie jest już używany jako zdjęcie profilowe dla: {consumers}.",

@@ -4824,10 +4824,10 @@
         "parentAccess": "{source} krijgt toegang via {target}.",
         "requiresRestore": "Herstel eerst {target}, {source} hoort erbij.",
         "routine": "De routine {source} reageert op {target}.",
+        "rule": "De automatiseringsregel {source} reageert op {target}.",
         "snapshotTrigger": "{source} slaat zijn waarde op wanneer {target} verandert.",
         "webhook": "De webhook {source} verstuurt wijzigingen van {target}.",
         "widget": "De widget {source} meet {target}."
-        "rule": "De automatiseringsregel {source} reageert op {target}.",
       },
       "cleaned": {
         "bindingAvatar": "{target} wordt niet meer gebruikt als profielfoto van {consumers}.",
