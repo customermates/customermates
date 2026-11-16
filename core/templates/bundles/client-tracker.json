@@ -1100,7 +1100,7 @@
       "de": "noindex",
       "fr": "indexed",
       "it": "indexed",
-      "es": "none",
+      "es": "noindex",
       "pt": "indexed",
       "pl": "indexed",
       "nl": "noindex"

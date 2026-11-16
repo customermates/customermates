@@ -1086,7 +1086,7 @@
       "it": "indexed",
       "es": "noindex",
       "pt": "noindex",
-      "pl": "none",
+      "pl": "noindex",
       "nl": "indexed"
     }
   },

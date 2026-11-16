@@ -1285,13 +1285,13 @@
     "reviewedAt": "2026-11-12",
     "publication": {
       "en": "noindex",
-      "de": "none",
+      "de": "noindex",
       "fr": "noindex",
-      "it": "none",
-      "es": "none",
+      "it": "noindex",
+      "es": "noindex",
       "pt": "noindex",
       "pl": "noindex",
-      "nl": "none"
+      "nl": "noindex"
     }
   },
   "text": {

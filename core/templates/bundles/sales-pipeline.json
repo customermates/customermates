@@ -1347,11 +1347,11 @@
       "en": "noindex",
       "de": "noindex",
       "fr": "noindex",
-      "it": "none",
-      "es": "none",
+      "it": "noindex",
+      "es": "noindex",
       "pt": "noindex",
-      "pl": "none",
-      "nl": "none"
+      "pl": "noindex",
+      "nl": "noindex"
     }
   },
   "text": {

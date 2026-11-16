@@ -153,5 +153,5 @@
     { "url": "https://www.weddingwire.com/wedding-ideas/wedding-photography-contract", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "publication": { "en": "indexed", "de": "indexed", "fr": "noindex", "it": "indexed", "es": "none", "pt": "indexed", "pl": "none", "nl": "none" }
+  "publication": { "en": "indexed", "de": "indexed", "fr": "noindex", "it": "indexed", "es": "noindex", "pt": "indexed", "pl": "noindex", "nl": "noindex" }
 }

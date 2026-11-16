@@ -955,14 +955,14 @@
     ],
     "reviewedAt": "2026-11-12",
     "publication": {
-      "en": "none",
-      "de": "none",
-      "fr": "none",
-      "it": "none",
+      "en": "noindex",
+      "de": "noindex",
+      "fr": "noindex",
+      "it": "noindex",
       "es": "noindex",
       "pt": "noindex",
-      "pl": "none",
-      "nl": "none"
+      "pl": "noindex",
+      "nl": "noindex"
     }
   },
   "text": {

@@ -171,5 +171,5 @@
     { "url": "https://offers.hubspot.com/social-media-content-calendar", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "publication": { "en": "noindex", "de": "indexed", "fr": "noindex", "it": "indexed", "es": "noindex", "pt": "noindex", "pl": "none", "nl": "indexed" }
+  "publication": { "en": "noindex", "de": "indexed", "fr": "noindex", "it": "indexed", "es": "noindex", "pt": "noindex", "pl": "noindex", "nl": "indexed" }
 }

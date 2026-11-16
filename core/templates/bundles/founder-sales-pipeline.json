@@ -1086,11 +1086,11 @@
       "en": "noindex",
       "de": "noindex",
       "fr": "noindex",
-      "it": "none",
-      "es": "none",
-      "pt": "none",
-      "pl": "none",
-      "nl": "none"
+      "it": "noindex",
+      "es": "noindex",
+      "pt": "noindex",
+      "pl": "noindex",
+      "nl": "noindex"
     }
   },
   "text": {

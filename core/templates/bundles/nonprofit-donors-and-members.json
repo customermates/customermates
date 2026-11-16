@@ -1163,7 +1163,7 @@
       "it": "indexed",
       "es": "indexed",
       "pt": "noindex",
-      "pl": "none",
+      "pl": "noindex",
       "nl": "noindex"
     }
   },

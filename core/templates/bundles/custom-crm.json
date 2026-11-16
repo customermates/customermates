@@ -874,10 +874,10 @@
       "en": "noindex",
       "de": "noindex",
       "fr": "indexed",
-      "it": "none",
+      "it": "noindex",
       "es": "noindex",
       "pt": "noindex",
-      "pl": "none",
+      "pl": "noindex",
       "nl": "indexed"
     }
   },

@@ -1375,7 +1375,7 @@
     "reviewedAt": "2026-11-12",
     "publication": {
       "en": "noindex",
-      "de": "none",
+      "de": "noindex",
       "fr": "noindex",
       "it": "indexed",
       "es": "noindex",

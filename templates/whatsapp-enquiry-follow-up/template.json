@@ -148,5 +148,5 @@
     { "url": "https://www.pipedrive.com/pl/blog/proces-sprzedazy", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "publication": { "en": "none", "de": "none", "fr": "none", "it": "none", "es": "noindex", "pt": "noindex", "pl": "none", "nl": "none" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "noindex", "it": "noindex", "es": "noindex", "pt": "noindex", "pl": "noindex", "nl": "noindex" }
 }

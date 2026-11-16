@@ -924,10 +924,10 @@
       "en": "noindex",
       "de": "noindex",
       "fr": "noindex",
-      "it": "none",
-      "es": "none",
+      "it": "noindex",
+      "es": "noindex",
       "pt": "indexed",
-      "pl": "none",
+      "pl": "noindex",
       "nl": "indexed"
     }
   },

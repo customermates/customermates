@@ -129,5 +129,5 @@
     { "url": "https://customermates.com/en/docs/app-records", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "publication": { "en": "noindex", "de": "noindex", "fr": "indexed", "it": "none", "es": "noindex", "pt": "noindex", "pl": "none", "nl": "indexed" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "indexed", "it": "noindex", "es": "noindex", "pt": "noindex", "pl": "noindex", "nl": "indexed" }
 }

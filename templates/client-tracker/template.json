@@ -400,5 +400,5 @@
     { "url": "https://www.b2bmarketeers.nl/relatiebeheer-wat-is-dat-eigenlijk/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "publication": { "en": "noindex", "de": "noindex", "fr": "indexed", "it": "indexed", "es": "none", "pt": "indexed", "pl": "indexed", "nl": "noindex" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "indexed", "it": "indexed", "es": "noindex", "pt": "indexed", "pl": "indexed", "nl": "noindex" }
 }

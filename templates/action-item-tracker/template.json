@@ -210,5 +210,5 @@
     { "url": "https://www.vertex42.com/ExcelTemplates/action-items-template.html", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "publication": { "en": "noindex", "de": "noindex", "fr": "noindex", "it": "none", "es": "none", "pt": "indexed", "pl": "none", "nl": "indexed" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "noindex", "it": "noindex", "es": "noindex", "pt": "indexed", "pl": "noindex", "nl": "indexed" }
 }

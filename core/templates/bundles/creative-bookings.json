@@ -1157,10 +1157,10 @@
       "de": "indexed",
       "fr": "noindex",
       "it": "indexed",
-      "es": "none",
+      "es": "noindex",
       "pt": "indexed",
-      "pl": "none",
-      "nl": "none"
+      "pl": "noindex",
+      "nl": "noindex"
     }
   },
   "text": {

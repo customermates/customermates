@@ -1088,9 +1088,9 @@
       "de": "noindex",
       "fr": "noindex",
       "it": "noindex",
-      "es": "none",
+      "es": "noindex",
       "pt": "noindex",
-      "pl": "none",
+      "pl": "noindex",
       "nl": "noindex"
     }
   },

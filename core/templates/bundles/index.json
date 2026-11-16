@@ -48,8 +48,11 @@
       "es": {
         "name": "Plan de acción",
         "summary": "Haz que lo acordado en las reuniones se haga de verdad. Cada acción, vinculada a la decisión o al proyecto de donde sale, tiene un responsable y una fecha límite, y se repasa en una revisión semanal.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Plan de acción: plantilla para que se cumpla lo acordado",
+          "metaDescription": "Pega este plan de acción en Claude, ChatGPT o Codex: cada acción acordada en una reunión tiene un responsable, una fecha límite y una revisión semanal."
+        }
       },
       "fr": {
         "name": "Plan d’action",
@@ -63,8 +66,11 @@
       "it": {
         "name": "Piano d'azione",
         "summary": "Fai in modo che quello che si decide in riunione venga davvero fatto. Ogni azione ha un responsabile e una scadenza, è collegata alla riunione, alla decisione o al progetto da cui nasce e passa da una revisione settimanale.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Piano d'azione: responsabile e scadenza per ogni azione",
+          "metaDescription": "Incolla questo piano d'azione in Claude, ChatGPT o Codex: ogni azione decisa in riunione ha un responsabile, una scadenza e una revisione settimanale."
+        }
       },
       "nl": {
         "name": "Actielijst",
@@ -78,8 +84,11 @@
       "pl": {
         "name": "Rejestr zadań i działań",
         "summary": "Dopilnuj, żeby to, co ustalono na spotkaniu, naprawdę się wydarzyło. Każde zadanie ma jedną osobę odpowiedzialną i termin, wiadomo też, z jakiej decyzji lub jakiego projektu wynika, a raz w tygodniu robisz przegląd.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Rejestr zadań i działań: osoba odpowiedzialna i termin",
+          "metaDescription": "Lista zadań ze spotkań do wklejenia w Claude, ChatGPT lub Codex: każde ustalenie ma osobę odpowiedzialną, termin i cotygodniowy przegląd zaległości."
+        }
       },
       "pt": {
         "name": "Plano de ação",
@@ -141,38 +150,56 @@
       "es": {
         "name": "Pipeline de clientes para agencias",
         "summary": "Gana clientes y conserva las igualas más allá del primer proyecto. Las oportunidades van de la primera conversación a la firma, con decisión sobre el concurso, y cada iguala lleva fecha de renovación y revisión trimestral.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Pipeline de clientes para agencias: concursos e igualas",
+          "metaDescription": "Pega este pipeline para agencias en Claude, ChatGPT o Codex: decisión sobre el concurso, onboarding en cinco pasos e igualas con renovación y revisión."
+        }
       },
       "fr": {
         "name": "Pipeline clients d’agence",
         "summary": "Gagnez des clients et gardez-les après le premier projet. Du premier échange à la signature, avec la décision de répondre ou non à un appel d’offres, puis un renouvellement daté et une revue trimestrielle par contrat récurrent.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Pipeline clients d’agence : appels d’offres et contrats",
+          "metaDescription": "Collez ce pipeline d’agence dans Claude, ChatGPT ou Codex : décision sur les appels d’offres, onboarding en cinq étapes, contrats et renouvellements datés."
+        }
       },
       "it": {
         "name": "Pipeline clienti per agenzie",
         "summary": "Conquista nuovi clienti e tienili oltre il primo progetto. Le opportunità vanno dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e ogni retainer ha la sua data di rinnovo e una revisione trimestrale.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Pipeline clienti per agenzie: gare, retainer e rinnovi",
+          "metaDescription": "Incolla questa pipeline clienti per agenzie in Claude, ChatGPT o Codex: decisione sulla gara, onboarding in cinque passaggi, retainer con rinnovo e revisione."
+        }
       },
       "nl": {
         "name": "Klantenpijplijn voor bureaus",
         "summary": "Win klanten voor je bureau en houd ze langer dan het eerste project. Kansen lopen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers krijgen een verlengingsdatum en een kwartaalgesprek.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Klantenpijplijn voor bureaus: pitches en retainers",
+          "metaDescription": "Plak deze klantenpijplijn voor bureaus in Claude, ChatGPT of Codex: pitchbeslissing, onboarding in vijf stappen en retainers met verlengingsdatum."
+        }
       },
       "pl": {
         "name": "Lejek klientów dla agencji",
         "summary": "Zdobywaj klientów agencji i zatrzymuj ich po pierwszym projekcie. Szanse prowadzisz od pierwszej rozmowy do podpisanej umowy, z decyzją o udziale w przetargu, a trwające umowy abonamentowe mają termin odnowienia i przegląd kwartalny.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Lejek klientów dla agencji: przetargi i abonamenty",
+          "metaDescription": "Wklej ten lejek dla agencji w Claude, ChatGPT lub Codex: decyzja o udziale w przetargu, onboarding w pięciu krokach i abonamenty z terminem odnowienia."
+        }
       },
       "pt": {
         "name": "Funil de clientes para agências",
         "summary": "Conquiste clientes para a agência e fique com eles depois do primeiro projeto. Oportunidades da primeira conversa ao fechamento, com decisão de entrar ou não na concorrência, e contratos mensais com data de renovação.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Funil de clientes para agências: concorrências e contratos",
+          "metaDescription": "Cole este funil para agências no Claude, ChatGPT ou Codex: decisão sobre a concorrência, onboarding em cinco passos e contratos com renovação e revisão."
+        }
       }
     }
   },
@@ -234,8 +261,11 @@
       "it": {
         "name": "Gestione candidature",
         "summary": "Fai avanzare ogni candidatura e dai una risposta a ogni candidato. Una candidatura per posizione attraverso nove fasi, una scheda di valutazione per ogni intervistatore e una data per cancellare quelle scartate.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Gestione candidature: nessun candidato senza risposta",
+          "metaDescription": "Incolla questo modello di gestione candidature in Claude, ChatGPT o Codex: posizioni, nove fasi, schede di valutazione e data di cancellazione per i rifiuti."
+        }
       },
       "nl": {
         "name": "Sollicitatiebeheer",
@@ -392,8 +422,11 @@
       "de": {
         "name": "Mandantenaufnahme und Onboarding",
         "summary": "Neue Mandanten aufnehmen, ohne Fragebögen, Unterlagen und Auftragsbestätigungen hinterherzulaufen. Eine Aufnahme pro Mandat, ein Termin je Phase und ein festgehaltener Grund, wenn Sie ablehnen.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Mandantenaufnahme und Onboarding: Vorlage fürs CRM",
+          "metaDescription": "Mandantenaufnahme und Onboarding: Ihr KI-Agent baut im CRM Unterlagenanforderungen, Termine je Phase und einen Ablehnungsgrund auf, nichts bleibt liegen."
+        }
       },
       "en": {
         "name": "Client intake and onboarding",
@@ -603,8 +636,11 @@
       "es": {
         "name": "Ficha de clientes",
         "summary": "Ten siempre claro a qué cliente le debes una llamada, una respuesta o un presupuesto. Cada cliente tiene un responsable y una próxima acción con fecha, y la revisión semanal muestra lo que va con retraso.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Ficha de cliente: plantilla para no perder seguimientos",
+          "metaDescription": "Ficha de cliente para Claude, ChatGPT o Codex: un responsable y una próxima acción con fecha por cada cliente, y una revisión semanal de lo que va tarde."
+        }
       },
       "fr": {
         "name": "Fichier client",
@@ -683,8 +719,11 @@
       "de": {
         "name": "Beratungsaufträge",
         "summary": "Wissen, wo jedes Angebot steht, und nach dem Gespräch keinen Interessenten verlieren. Aufträge vom Erstkontakt bis zur Erteilung, ein im Angebotsgespräch vereinbarter Nachfasstermin, Ergebnisse mit Abnahmedatum.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Berater-CRM Vorlage: Angebote, Aufträge und Nachfassen",
+          "metaDescription": "Berater-CRM Vorlage für Ihren KI-Agenten: Beratungsaufträge vom Erstkontakt bis zur Erteilung, im Angebotsgespräch vereinbarter Nachfasstermin, Ergebnisse."
+        }
       },
       "en": {
         "name": "Consultant engagements",
@@ -698,38 +737,56 @@
       "es": {
         "name": "Encargos de consultoría",
         "summary": "Ten claro en qué punto está cada propuesta y no pierdas ningún contacto tras la llamada. Encargos del contacto al ganado, una fecha de seguimiento acordada en la llamada y entregables que controlan la ejecución y el cierre.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Encargos de consultoría: propuestas y seguimiento en tu CRM",
+          "metaDescription": "Encargos de consultoría que tu agente de IA crea en tu CRM: del contacto al ganado, con una fecha de seguimiento acordada en la llamada y entregables."
+        }
       },
       "fr": {
         "name": "Missions de conseil",
         "summary": "Sachez où en est chaque proposition et ne laissez plus un prospect sans suite après l’appel. Missions de la prospection à la signature, date de relance convenue lors de l’appel, livrables qui encadrent l’exécution et la clôture.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Missions de conseil : suivi des propositions et relances",
+          "metaDescription": "Missions de conseil : votre agent IA construit dans votre CRM le suivi, de la prospection à la signature, avec une date de relance convenue à l’appel."
+        }
       },
       "it": {
         "name": "Incarichi di consulenza",
         "summary": "Tieni d'occhio ogni proposta e non perdere nessun contatto dopo la chiamata. Incarichi dal contatto alla vittoria, una data di follow-up fissata nella chiamata sulla proposta e deliverable che regolano consegna e chiusura.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Incarichi di consulenza: proposte, follow-up e consegne",
+          "metaDescription": "Incarichi di consulenza che il tuo agente IA costruisce nel CRM: dal contatto alla vittoria, con una data di follow-up fissata nella chiamata e deliverable."
+        }
       },
       "nl": {
         "name": "Adviesopdrachten",
         "summary": "Weet waar elk voorstel staat en laat geen lead vallen na het gesprek. Opdrachten van kennismaking tot gewonnen, een opvolgdatum die je in het voorstelgesprek afspreekt en resultaten die uitvoering en afsluiting bewaken.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Adviesopdrachten: voorstellen en opvolging in je CRM",
+          "metaDescription": "Adviesopdrachten die je AI-agent in je CRM bouwt: van kennismaking tot gewonnen, met een opvolgdatum die je in het voorstelgesprek afspreekt en resultaten."
+        }
       },
       "pl": {
         "name": "Zlecenia konsultingowe",
         "summary": "Wiedz, na jakim etapie jest każda oferta, i nie gub kontaktów po rozmowie. Zlecenia od kontaktu do wygranego, termin ponownego kontaktu ustalony na rozmowie oraz rezultaty, od których zależą realizacja i zamknięcie.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Zlecenia konsultingowe: oferty i follow-up w Twoim CRM",
+          "metaDescription": "Zlecenia konsultingowe, które agent AI buduje w Twoim CRM: od kontaktu do wygranego, z terminem ponownego kontaktu ustalonym na rozmowie o ofercie."
+        }
       },
       "pt": {
         "name": "Projetos de consultoria",
         "summary": "Saiba em que pé está cada proposta e não deixe um contato esfriar depois da conversa. Projetos do contato ao ganho, data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Projetos de consultoria: propostas e retorno no seu CRM",
+          "metaDescription": "Projetos de consultoria que seu agente de IA monta no CRM: do contato ao ganho, com uma data de retorno combinada na conversa da proposta e entregáveis."
+        }
       }
     }
   },
@@ -808,8 +865,11 @@
       "pl": {
         "name": "Kalendarz treści",
         "summary": "Wiedz, co wychodzi w tym tygodniu i na kogo czekasz. Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Kalendarz treści: szablon planu publikacji w Twoim CRM",
+          "metaDescription": "Kalendarz treści, który agent AI buduje w Twoim CRM: osoba odpowiedzialna, recenzent i data przy każdym materiale, do tego kampanie i ważne daty."
+        }
       },
       "pt": {
         "name": "Calendário editorial",
@@ -861,8 +921,11 @@
       "es": {
         "name": "Reservas para creativos",
         "summary": "Para fotógrafos, videógrafos y organizadores de eventos: ten a mano cada solicitud, cada fecha y cada señal, del primer mensaje a la reserva, la entrega y la nota de aniversario.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Reservas para fotógrafos y wedding planners en tu CRM",
+          "metaDescription": "Reservas para fotógrafos, videógrafos y organizadores de eventos: solicitudes, fechas reservadas, señales y entrega, creadas por tu agente de IA en tu CRM."
+        }
       },
       "fr": {
         "name": "Réservations pour créatifs",
@@ -885,14 +948,20 @@
       "nl": {
         "name": "Boekingen voor creatieve ondernemers",
         "summary": "Houd elke aanvraag, datum en aanbetaling op orde, van het eerste bericht tot geboekt, geleverd en een jubileumbericht. Voor fotografen, videografen en eventplanners.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Boekingen voor fotografen en weddingplanners in je CRM",
+          "metaDescription": "Boekingen voor fotografen, videografen en eventplanners: aanvragen, vastgehouden data, aanbetalingen en oplevering, gebouwd door je AI-agent in je CRM."
+        }
       },
       "pl": {
         "name": "Rezerwacje dla twórców",
         "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: miej pod kontrolą każde zapytanie, termin i zaliczkę, od pierwszej wiadomości po rezerwację, przekazanie materiałów i życzenia w rocznicę.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Rezerwacje dla fotografów i filmowców w Twoim CRM",
+          "metaDescription": "Rezerwacje dla fotografów, filmowców i organizatorów: zapytania, zablokowane terminy, zaliczki i przekazanie materiałów, budowane przez agenta AI w CRM."
+        }
       },
       "pt": {
         "name": "Reservas para criativos",
@@ -964,8 +1033,11 @@
       "it": {
         "name": "CRM su misura",
         "summary": "Lascia il foglio di calcolo o il vecchio strumento senza un progetto di migrazione. Contatti, aziende, trattative e attività con scadenza costruiti sul tuo modo di lavorare, con l'importazione dei tuoi dati e una revisione settimanale.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM su misura: un'alternativa a Excel e ai fogli di calcolo",
+          "metaDescription": "CRM su misura senza progetto di migrazione: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il CRM e importa i tuoi dati."
+        }
       },
       "nl": {
         "name": "CRM op maat",
@@ -979,8 +1051,11 @@
       "pl": {
         "name": "Własny CRM",
         "summary": "Przejdź z arkusza lub starego narzędzia bez dużego projektu wdrożeniowego. Kontakty, organizacje, szanse sprzedaży i zadania z terminem dopasowane do Twojego sposobu pracy, z importem danych i cotygodniowym przeglądem.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Własny CRM: alternatywa dla Excela i arkuszy kalkulacyjnych",
+          "metaDescription": "Własny CRM bez projektu migracji: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje CRM i zaimportuje Twoje dane z arkusza."
+        }
       },
       "pt": {
         "name": "CRM personalizado",
@@ -1070,8 +1145,11 @@
       "pl": {
         "name": "Od formularza do CRM",
         "summary": "Dopilnuj, żeby żadne zapytanie z formularza nie zostało bez odpowiedzi. Każde zgłoszenie staje się zapytaniem ze źródłem i terminem odpowiedzi, a spam i zapytania nietrafione są trzymane osobno.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Formularz kontaktowy z CRM: żadne zapytanie bez odpowiedzi",
+          "metaDescription": "Formularz kontaktowy, który zasila CRM: wklej szablon do Claude, ChatGPT lub Codex, a każde zapytanie z formularza dostanie opiekuna i termin odpowiedzi."
+        }
       },
       "pt": {
         "name": "Formulário para CRM",
@@ -1132,8 +1210,11 @@
       "es": {
         "name": "Ventas lideradas por el fundador",
         "summary": "Vende como fundador sin perder el hilo de tus conversaciones. Un pipeline corto de la primera conversación a ganada, con un piloto opcional con fecha de fin y un estado en pausa con fecha para retomar.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Ventas del fundador: cada conversación con próximo paso",
+          "metaDescription": "Vende como fundador sin perder el hilo: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el pipeline con piloto y estado en pausa."
+        }
       },
       "fr": {
         "name": "Pipeline commercial du fondateur",
@@ -1147,26 +1228,38 @@
       "it": {
         "name": "Pipeline commerciale del fondatore",
         "summary": "Vendi da fondatore senza perdere il filo delle tue conversazioni. Una pipeline breve dalla prima conversazione alla vittoria, con un pilota facoltativo con data di fine e uno stato in pausa con una data per riprendere.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Vendite del fondatore: una pipeline per ogni conversazione",
+          "metaDescription": "Vendere da fondatore senza perdere il filo: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce la pipeline con pilota e pausa."
+        }
       },
       "nl": {
         "name": "Sales van de oprichter",
         "summary": "Verkoop zelf als oprichter zonder de draad van je gesprekken kwijt te raken. Een korte pijplijn van eerste gesprek tot gewonnen, met een optionele pilot met einddatum en een gepauzeerde status met een datum om terug te komen.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Sales van de oprichter: elk gesprek met een volgende stap",
+          "metaDescription": "Verkopen als oprichter zonder de draad kwijt te raken: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt de pijplijn met pilots en pauze."
+        }
       },
       "pl": {
         "name": "Sprzedaż prowadzona przez założyciela",
         "summary": "Sprzedawaj osobiście jako założyciel i nie gub wątku rozmów. Krótki lejek od pierwszej rozmowy do wygranej, z opcjonalnym pilotażem ze stałym terminem zakończenia i statusem wstrzymane z datą powrotu.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Sprzedaż prowadzona przez założyciela: lejek i terminy",
+          "metaDescription": "Sprzedawaj jako założyciel, nie gubiąc wątku: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje lejek z pilotażem i wstrzymanymi szansami."
+        }
       },
       "pt": {
         "name": "Venda consultiva do fundador",
         "summary": "Venda como fundador sem perder o fio das suas conversas. Um funil curto da primeira conversa ao ganho, com um piloto opcional com data de término e um estado pausado com data para retomar.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Funil de vendas do fundador: nenhuma conversa solta",
+          "metaDescription": "Venda como fundador sem perder o fio: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta o funil com piloto e etapa de pausa."
+        }
       }
     }
   },
@@ -1202,8 +1295,11 @@
       "de": {
         "name": "Versicherungsmakler",
         "summary": "Keine Verlängerung verpassen und das Neugeschäft in Bewegung halten. Von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, dazu je Vertrag ein Verlängerungsfall 120 bis 45 Tage vor der Hauptfälligkeit.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Versicherungsmakler Software: Neugeschäft und Verlängerungen",
+          "metaDescription": "Keine Hauptfälligkeit verpassen: Vorlage in Claude, ChatGPT oder Codex einfügen, Ihr KI-Agent baut Neugeschäft und Verlängerungen mit dokumentierter Beratung."
+        }
       },
       "en": {
         "name": "Insurance broker pipeline",
@@ -1217,8 +1313,11 @@
       "es": {
         "name": "Correduría de seguros",
         "summary": "Ve venir cada renovación y mantén el nuevo negocio en marcha. De la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación por póliza, de 120 a 45 días antes del vencimiento.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM de correduría de seguros: nuevo negocio y renovaciones",
+          "metaDescription": "Que ninguna renovación se te pase: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el CRM con asesoramiento documentado."
+        }
       },
       "fr": {
         "name": "Courtier en assurance",
@@ -1232,14 +1331,20 @@
       "it": {
         "name": "Broker assicurativo",
         "summary": "Vedi ogni rinnovo in arrivo e tieni in movimento i nuovi affari. Dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, più una pratica di rinnovo per ogni polizza.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM per broker assicurativo: nuovi affari e rinnovi",
+          "metaDescription": "Nessun rinnovo perso: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il CRM del broker con la consulenza documentata."
+        }
       },
       "nl": {
         "name": "Verzekeringsadviseur",
         "summary": "Zie elke prolongatie aankomen en houd nieuwe zaken in beweging. Van aanvraag tot polis met het advies vastgelegd vóór de offerte, plus een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM voor verzekeringsadviseurs: aanvragen en prolongaties",
+          "metaDescription": "Mis geen prolongatie meer: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt een CRM met vastgelegd advies en prolongatiezaken."
+        }
       },
       "pl": {
         "name": "Lejek dla brokera ubezpieczeniowego",
@@ -1310,8 +1415,11 @@
       "es": {
         "name": "Alta de clientes para despachos de abogados",
         "summary": "Acepta clientes sin saltarte la comprobación de conflicto de intereses ni un plazo. Consulta, conflicto, primera reunión, presupuesto y hoja de encargo firmada, y una carta escrita de no contratación para quien no llega a cliente.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Alta de clientes en despachos: conflictos, plazos y encargo",
+          "metaDescription": "Alta de clientes sin saltarte un conflicto de intereses ni un plazo: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el proceso."
+        }
       },
       "fr": {
         "name": "Prise de dossier pour avocats",
@@ -1334,14 +1442,20 @@
       "nl": {
         "name": "Intake voor advocatenkantoren",
         "summary": "Neem nieuwe cliënten aan zonder een conflictcheck of termijn te missen. Aanvraag, conflictcheck, intake, offerte en getekende opdrachtbevestiging, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Intake voor advocatenkantoren: conflictcheck en termijnen",
+          "metaDescription": "Intake zonder gemiste conflictcheck of termijn: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt de intake voor je advocatenkantoor."
+        }
       },
       "pl": {
         "name": "Przyjmowanie klientów w kancelarii",
         "summary": "Przyjmuj nowych klientów, nie pomijając weryfikacji konfliktu interesów ani biegnącego terminu. Zapytanie, konsultacja, oferta, umowa i pełnomocnictwo oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Przyjmowanie klientów w kancelarii: konflikt i terminy",
+          "metaDescription": "Przyjmowanie klientów bez pominiętej weryfikacji konfliktu i terminu: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje cały proces."
+        }
       },
       "pt": {
         "name": "Atendimento de clientes para advocacia",
@@ -1429,8 +1543,11 @@
       "pl": {
         "name": "Członkowie i darczyńcy",
         "summary": "Wiedz, kim są Twoi członkowie i sympatycy, kto czeka na podziękowanie i komu niedługo kończy się członkostwo. Jeden rejestr: członkostwa z terminem składki, darowizny z potwierdzeniem oraz duże darowizny i granty.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Program dla stowarzyszenia: członkowie, darczyńcy, składki",
+          "metaDescription": "Program dla stowarzyszenia: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje jeden rejestr członków, darowizn i terminów składek."
+        }
       },
       "pt": {
         "name": "Associados e doadores",
@@ -1520,8 +1637,11 @@
       "nl": {
         "name": "Makelaarspipeline",
         "summary": "Haal woningen binnen en verkoop ze zonder een bezichtiging, terugkoppeling aan de verkoper of sleutelmoment te missen. Twee pipelines die samenkomen bij de koopovereenkomst, plus een routine voor oud-klanten.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Makelaarspipeline: woningen, kopers, bezichtigingen, data",
+          "metaDescription": "Plak deze makelaarspipeline in Claude, ChatGPT of Codex: woningen, kopers, bezichtigingen met terugkoppeling en de sleutelmomenten na de koopovereenkomst."
+        }
       },
       "pl": {
         "name": "Lejek nieruchomości",
@@ -1695,8 +1815,11 @@
       "es": {
         "name": "Pipeline de ventas",
         "summary": "Mira qué oportunidades avanzan, cuáles están atascadas y qué pasa a continuación. Siete etapas con un siguiente paso con fecha en cada oportunidad abierta, y los motivos por los que ganas o pierdes.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Pipeline de ventas: el siguiente paso de cada oportunidad",
+          "metaDescription": "Pega este pipeline de ventas en Claude, ChatGPT o Codex: siete etapas, un siguiente paso con fecha en cada oportunidad y los motivos de victoria y de pérdida."
+        }
       },
       "fr": {
         "name": "Pipeline commercial",
@@ -1710,20 +1833,29 @@
       "it": {
         "name": "Pipeline commerciale",
         "summary": "Vedi quali trattative avanzano, quali sono ferme e che cosa succede dopo. Sette fasi con un prossimo passo con scadenza su ogni trattativa aperta, più i motivi per cui hai vinto o perso.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Pipeline commerciale: il prossimo passo di ogni trattativa",
+          "metaDescription": "Incolla questa pipeline commerciale in Claude, ChatGPT o Codex: sette fasi, un prossimo passo datato su ogni trattativa e i motivi di vittoria e di perdita."
+        }
       },
       "nl": {
         "name": "Sales pipeline",
         "summary": "Zie welke deals vooruitgaan, welke vastzitten en wat er daarna gebeurt. Zeven fasen met een volgende stap met datum bij elke open deal, plus de redenen waarom je een deal wint of verliest.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Sales pipeline sjabloon: de volgende stap bij elke deal",
+          "metaDescription": "Plak deze sales pipeline in Claude, ChatGPT of Codex: zeven fasen, een volgende stap met datum bij elke deal en de redenen waarom je wint of verliest."
+        }
       },
       "pl": {
         "name": "Lejek sprzedaży",
         "summary": "Zobacz, które szanse się ruszają, które utknęły i co dzieje się dalej. Siedem etapów z następnym krokiem z terminem przy każdej otwartej szansie oraz powody wygranej i przegranej.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Lejek sprzedaży: szablon z następnym krokiem przy szansie",
+          "metaDescription": "Wklej ten lejek sprzedaży w Claude, ChatGPT lub Codex: siedem etapów, następny krok z terminem przy każdej szansie i powody wygranej oraz przegranej."
+        }
       },
       "pt": {
         "name": "Funil de vendas",
@@ -1877,8 +2009,11 @@
       "es": {
         "name": "Despacho fiscal y contable",
         "summary": "Ten bajo control cada encargo, expediente y plazo. Consigue encargos con identificación PBC/FT y hoja de encargo, lleva el trabajo recurrente de cada cliente y mantén un calendario de plazos que verifica una segunda persona.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM contable: plantilla para despachos fiscales y contables",
+          "metaDescription": "CRM contable para despachos: encargos, expedientes, documentación que reclamar y calendario de plazos verificado. Pega la plantilla en tu agente de IA."
+        }
       },
       "fr": {
         "name": "Cabinet d’expertise comptable",
@@ -1901,8 +2036,11 @@
       "nl": {
         "name": "Boekhoud- en belastingkantoor",
         "summary": "Houd elke opdracht, elk dossier en elke termijn onder controle. Opdrachten via cliëntenonderzoek en opdrachtbevestiging, terugkerend werk per klant en een termijnenregister dat een tweede persoon controleert.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Software voor accountantskantoren: sjabloon met termijnen",
+          "metaDescription": "Software voor accountantskantoren: opdrachten, dossiers, documenten opvragen en een termijnenregister met controle. Plak het sjabloon in je AI-agent."
+        }
       },
       "pl": {
         "name": "Biuro rachunkowe",
@@ -2067,8 +2205,11 @@
       "es": {
         "name": "Trabajos para oficios",
         "summary": "Haz seguimiento de cada presupuesto y mantén cada trabajo al día, de la primera llamada al cobro: visita técnica, presupuesto y obra de programado a pagado, con fechas de desistimiento, garantía y mantenimiento.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM para instaladores: plantilla de presupuestos y obras",
+          "metaDescription": "CRM para instaladores: haz seguimiento de cada presupuesto, de la visita al cobro, y guarda las garantías. Pega la plantilla en tu agente de IA."
+        }
       },
       "fr": {
         "name": "Dossiers d’artisan",
@@ -2100,8 +2241,11 @@
       "pl": {
         "name": "Zlecenia dla firm usługowych",
         "summary": "Wracaj do każdej oferty i pilnuj każdego zlecenia, od pierwszego telefonu do zapłaty. Oględziny, wycena i same prace od zaplanowanych do opłaconych, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "Program dla firm budowlanych: szablon ofert i zleceń",
+          "metaDescription": "Program dla firm budowlanych i usługowych: wracaj do każdej oferty, prowadź zlecenie od oględzin do zapłaty, pilnuj rękojmi. Wklej szablon do agenta AI."
+        }
       },
       "pt": {
         "name": "Obras e serviços",
@@ -2152,38 +2296,56 @@
       "es": {
         "name": "Dealflow para inversores",
         "summary": "Recuerda quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Un dealflow para un fondo pequeño o un business angel, con ocho etapas de la detección al cierre o al rechazo.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM para inversores: plantilla de dealflow con rechazos",
+          "metaDescription": "Un CRM para tu dealflow: quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Pega la plantilla en tu agente de IA y la monta."
+        }
       },
       "fr": {
         "name": "Dealflow d’investisseur",
         "summary": "Retrouvez qui vous a apporté un dossier, pourquoi vous avez refusé et quand le revoir. Un dealflow pour un petit fonds ou un business angel, avec huit étapes de la détection au closing ou au refus.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM investisseur : modèle de dealflow et de refus datés",
+          "metaDescription": "Un CRM pour votre dealflow : qui a apporté un dossier, pourquoi vous avez refusé et quand le revoir. Collez le modèle dans votre agent IA, il le construit."
+        }
       },
       "it": {
         "name": "Dealflow per investitori",
         "summary": "Ricorda chi ti ha presentato un'operazione, perché hai detto no e quando riguardarla. Un dealflow per un piccolo fondo o un business angel, con otto fasi dall'individuazione al closing o al rifiuto.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM per investitori: modello di dealflow con rifiuti datati",
+          "metaDescription": "Un CRM per il tuo dealflow: chi ti ha presentato un’operazione, perché hai detto no e quando riguardarla. Incolla il modello nel tuo agente IA."
+        }
       },
       "nl": {
         "name": "Dealflow voor investeerders",
         "summary": "Onthoud wie een deal aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Een dealflow voor een klein fonds of business angel, met acht fasen van gesignaleerd tot gesloten of afgewezen.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM voor investeerders: dealflow-sjabloon met afwijzingen",
+          "metaDescription": "Een CRM voor je dealflow: wie een deal aandroeg, waarom je nee zei en wanneer je opnieuw kijkt. Plak het sjabloon in je AI-agent en hij bouwt het voor je."
+        }
       },
       "pl": {
         "name": "Dealflow inwestora",
         "summary": "Pamiętaj, kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM dla inwestorów: szablon dealflow z datami powrotu",
+          "metaDescription": "CRM dla Twojego dealflow: kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Wklej szablon do agenta AI, a zbuduje listę w Twoim CRM."
+        }
       },
       "pt": {
         "name": "Dealflow para investidores",
         "summary": "Lembre quem indicou cada negócio, por que você recusou e quando olhar de novo. Um dealflow para um fundo pequeno ou um investidor-anjo, com oito etapas da identificação ao fechamento ou à recusa.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM para investidores: modelo de dealflow com recusas",
+          "metaDescription": "Um CRM para o seu dealflow: quem indicou cada negócio, por que você recusou e quando olhar de novo. Cole o modelo no seu agente de IA e ele monta."
+        }
       }
     }
   },
@@ -2219,14 +2381,20 @@
       "de": {
         "name": "WhatsApp-Anfragen nachfassen",
         "summary": "Keine Kunden mehr verlieren, die per WhatsApp schreiben. Jeder Chat wird zur Anfrage mit Angebot, terminiertem nächstem Schritt und Wiedervorlage, damit Sie schnell antworten, nachfassen und den Wiederkauf nicht vergessen.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "WhatsApp CRM Vorlage: Anfragen und Angebote nachfassen",
+          "metaDescription": "WhatsApp CRM: jeder Chat wird zur Anfrage mit Angebot und terminiertem nächstem Schritt. Vorlage im KI-Agenten einfügen. Nicht die offizielle WhatsApp-API."
+        }
       },
       "en": {
         "name": "WhatsApp inquiry follow-up",
         "summary": "Stop losing customers who write to you on WhatsApp. Every chat becomes an inquiry with a quote, a dated next step and a come-back date, so you reply fast, follow up in days and remember the repeat purchase.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "WhatsApp CRM Template: Follow Up Every Inquiry and Quote",
+          "metaDescription": "WhatsApp CRM template: every chat becomes an inquiry with a quote and a dated next step. Paste it into your AI agent. Not the official WhatsApp API."
+        }
       },
       "es": {
         "name": "Seguimiento de consultas por WhatsApp",
@@ -2240,26 +2408,38 @@
       "fr": {
         "name": "Suivi des demandes WhatsApp",
         "summary": "Ne perdez plus les clients qui vous écrivent sur WhatsApp. Chaque conversation devient une demande avec un devis, une relance datée et une date pour revenir : vous répondez vite, relancez en quelques jours et pensez au réachat.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM WhatsApp : modèle pour suivre demandes et devis",
+          "metaDescription": "CRM WhatsApp : chaque conversation devient une demande avec devis et relance datée. Collez le modèle dans votre agent IA. Pas l’API officielle de WhatsApp."
+        }
       },
       "it": {
         "name": "Follow-up delle richieste WhatsApp",
         "summary": "Smetti di perdere i clienti che ti scrivono su WhatsApp. Ogni chat diventa una richiesta con preventivo e un prossimo passo con data, così rispondi in fretta, solleciti dopo pochi giorni e ricordi il riacquisto.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM WhatsApp: modello per richieste e preventivi",
+          "metaDescription": "CRM WhatsApp: ogni chat diventa una richiesta con preventivo e prossimo passo con data. Incolla il modello nel tuo agente IA. Non è l’API ufficiale."
+        }
       },
       "nl": {
         "name": "WhatsApp-aanvragen opvolgen",
         "summary": "Verlies geen klanten meer die je via WhatsApp schrijven. Elk gesprek wordt een aanvraag met offerte, een volgende stap met datum en een terugkomdatum, zodat je snel antwoordt, binnen dagen opvolgt en aan de herhaalaankoop denkt.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "WhatsApp CRM: sjabloon voor aanvragen en offertes",
+          "metaDescription": "WhatsApp CRM: elk gesprek wordt een aanvraag met offerte en een volgende stap met datum. Plak het sjabloon in je AI-agent. Niet de officiële WhatsApp-API."
+        }
       },
       "pl": {
         "name": "Obsługa zapytań z WhatsAppa",
         "summary": "Nie trać klientów, którzy piszą na WhatsAppie. Każda rozmowa staje się zapytaniem z ofertą, następnym krokiem z terminem i datą powrotu, więc odpowiadasz szybko, przypominasz się po kilku dniach i pamiętasz o ponownym zakupie.",
-        "publication": "none",
-        "page": null
+        "publication": "noindex",
+        "page": {
+          "metaTitle": "CRM do WhatsApp: szablon zapytań i ofert",
+          "metaDescription": "CRM do WhatsApp: każda rozmowa staje się zapytaniem z ofertą i terminem kolejnego kroku. Wklej szablon do agenta AI. To nie jest oficjalne API WhatsApp."
+        }
       },
       "pt": {
         "name": "Acompanhamento de atendimentos no WhatsApp",
