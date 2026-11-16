@@ -4,8 +4,8 @@ description: "Connecteurs Claude expliqués : annuaire ou personnalisé, formul
 
 relatedHrefs:
   - /blog/claude-crm
-  - /docs/connect-custom-connector
-  - /blog/what-is-an-mcp-server
+  - /blog/claude-skills-follow-up
+  - /blog/claude-outlook-gmail
   - /blog/claude-data-privacy
 
 hero:
@@ -88,7 +88,7 @@ Le travail avec les clients se passe à quatre endroits : la messagerie, l’ag
 | HubSpot | Contacts, leads, entreprises, transactions, tickets, objets personnalisés, historique d’interactions | Créer et modifier la plupart des fiches CRM et des interactions ; pas de suppression ; modifications en masse limitées à 10 fiches à la fois | Toutes les formules HubSpot ; Claude Pro, Max, Team ou Enterprise ; un Super Admin doit d’abord approuver, sauf si vous l’êtes ou avez l’accès App Marketplace | [Aide de HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [fiche](https://claude.com/marketplace/connectors/hubspot) |
 | Customermates (connecteur personnalisé) | Fiches de chaque liste que vous créez (par exemple contacts, organisations, transactions et tâches), leurs notes et fichiers, la base de connaissances ; agendas connectés en lecture seule | Créer, modifier et supprimer des fiches ([[derived.mcp.tools.total]] outils au total). À partir de Pro, aussi les conversations e-mail, LinkedIn et chat, brouillons et envois ; il ne peut pas réserver d’événements d’agenda | Toutes les formules et en auto-hébergement ; Free partage [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour et par espace de travail | [Guide du connecteur](/docs/connect-custom-connector), [référence MCP](/docs/mcp) |
 
-L’annuaire liste aussi, entre autres, Slack, Notion, Asana, Atlassian, Linear, monday.com et Box. Pour Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule et Salesforce, le [guide Claude et CRM](/blog/claude-crm) compare ce que le connecteur de chaque CRM laisse modifier à Claude. Si vous voulez seulement rattacher des e-mails Gmail ou Outlook aux fiches clients d’un CRM, voyez plutôt l’[intégration Gmail et CRM](/blog/gmail-crm-integration) et l’[intégration Outlook et CRM](/blog/outlook-crm-integration) au lieu d’un connecteur.
+L’annuaire liste aussi, entre autres, Slack, Notion, Asana, Atlassian, Linear, monday.com et Box. Pour Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule et Salesforce, le [guide Claude et CRM](/blog/claude-crm) compare ce que le connecteur de chaque CRM laisse modifier à Claude. Si vous voulez seulement rattacher des e-mails Gmail ou Outlook aux fiches clients d’un CRM, voyez plutôt l’[intégration Gmail et CRM](/blog/gmail-crm-integration) et l’[intégration Outlook et CRM](/blog/outlook-crm-integration) au lieu d’un connecteur. Comment relier Claude à la boîte mail, à l’agenda et à l’historique client, et quelles options existent pour Outlook et Gmail, figure dans [Connecter Claude à Outlook et Gmail](/blog/claude-outlook-gmail).
 
 ## Comment ajouter un connecteur personnalisé dans Claude ? [#add-custom-connector]
 
@@ -152,6 +152,8 @@ Ajoutez un connecteur par espace de travail ; Claude refuse un second connecteu
 - **Mode Research.** Anthropic note que, pendant Research, Claude peut appeler des outils de connecteur sans accord supplémentaire ; désactivez donc les outils qui écrivent.
 - **Customermates.** Le serveur demande aux clients de confirmer avant de supprimer ou d’envoyer, mais ne l’impose pas : dès que Claude peut appeler un outil, l’appel s’exécute. Ce qui vous protège, ce sont les Tool permissions dans Claude. Une connexion porte les droits de l’utilisateur qui l’a approuvée, sans périmètre par clé ; pour moins de droits, connectez un utilisateur distinct avec un rôle plus étroit (il occupe une place) ou utilisez `?toolsets=`. L’envoi est immédiat : demandez donc à Claude d’enregistrer un brouillon et envoyez-le vous-même depuis la boîte de réception.
 - **Données.** Avec les connecteurs Google, les données récupérées restent attachées à leur conversation : la supprimer les supprime. Un service connecté traite vos données selon ses propres conditions, qui peuvent, note Anthropic, s’appliquer hors des États-Unis.
+
+Un connecteur donne accès à Claude, mais ne lui dit pas comment le travail se déroule. Pour une routine répétable comme la relance des conversations clients, associez le connecteur à un skill : [Claude Skills pour les relances](/blog/claude-skills-follow-up) explique où les skills fonctionnent et en contient un à télécharger.
 
 ## Quand un connecteur Claude est-il le mauvais choix ? [#wrong-choice]
 

@@ -6,7 +6,7 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/outlook-crm-integration
   - /docs/app-inbox
-  - /blog/customer-interaction-management
+  - /blog/claude-outlook-gmail
 
 hero:
   title: "Gmail CRM koppeling: de drie typen en hoe je een CRM voor Gmail en Google kiest"
@@ -149,7 +149,7 @@ Wil je dit met je eigen Gmail proberen, [start dan je proefperiode](/auth/signup
 
 Past geen product, dan verbind je de Gmail API met de API of webhooks van het CRM met een tool zoals n8n of je eigen code. Een fasewijziging kan een bericht versturen; een binnenkomende e-mail kan een record aanmaken; een rij in Google Sheets kan beide starten. Jij beheert de OAuth-app, de foutafhandeling en de verificatie door Google, en een workflow die stilletjes faalt is de typische fout, dus laat je waarschuwen bij fouten. Staan je leads nog in een spreadsheet, dan behandelt [Google Sheets als CRM](/blog/google-sheets-crm) wanneer dat genoeg is.
 
-Gebruik je bij Customermates Claude, ChatGPT of een andere AI-client, koppel die dan via [MCP](/docs/mcp). Die kan Gmail-gesprekken lezen, een concept ter beoordeling opslaan en e-mail versturen, met dezelfde rechten als je account. De server vraagt clients om vóór het versturen te bevestigen, maar die controle gebeurt in de client, niet op de server. Test eerst met een concept hoe je client daarmee omgaat. Externe clients gebruiken je eigen AI-aanbieder, niet de gehoste credits.
+Gebruik je bij Customermates Claude, ChatGPT of een andere AI-client, koppel die dan via [MCP](/docs/mcp). Die kan Gmail-gesprekken lezen, een concept ter beoordeling opslaan en e-mail versturen, met dezelfde rechten als je account. De server vraagt clients om vóór het versturen te bevestigen, maar die controle gebeurt in de client, niet op de server. Test eerst met een concept hoe je client daarmee omgaat. Externe clients gebruiken je eigen AI-aanbieder, niet de gehoste credits. De wegen vergeleken, van de connector van Anthropic tot de Gmail-MCP-server van Google, staan in [Claude koppelen aan Outlook en Gmail](/blog/claude-outlook-gmail).
 
 Voor deterministische automatisering melden [webhooks](/docs/webhooks) [[derived.webhooks.events.total]] soorten gebeurtenissen, waaronder [[derived.webhooks.events.messaging]] berichtgebeurtenissen zoals een binnengehaalde e-mail. Een apart gedraaide n8n-instantie kan ze verwerken via de [n8n community node](/docs/n8n), bijvoorbeeld om elders een bericht te plaatsen als een klant antwoordt. n8n is niet inbegrepen bij Customermates.
 

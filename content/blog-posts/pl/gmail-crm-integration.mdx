@@ -6,7 +6,7 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/outlook-crm-integration
   - /docs/app-inbox
-  - /blog/customer-interaction-management
+  - /blog/claude-outlook-gmail
 
 hero:
   title: "CRM Gmail: trzy typy integracji i jak wybrać CRM do Gmaila"
@@ -155,7 +155,7 @@ Aby wypróbować to na własnym Gmailu, [rozpocznij okres próbny](/auth/signup?
 
 Jeśli żaden produkt nie pasuje, łączysz API Gmaila z API lub webhookami CRM za pomocą narzędzia takiego jak n8n albo własnego kodu. Zmiana etapu może wysłać wiadomość; przychodzący e-mail może utworzyć rekord; wiersz w Arkuszach Google może uruchomić jedno i drugie. Ty odpowiadasz za aplikację OAuth, obsługę błędów i weryfikację Google, a typową porażką jest przepływ, który zawodzi po cichu, więc ustaw alerty na błędy. Jeśli Twoje leady nadal żyją w arkuszu, [Arkusze Google jako CRM](/blog/google-sheets-crm) opisują, kiedy to wystarcza.
 
-W Customermates, jeśli używasz Claude, ChatGPT lub innego klienta AI, podłącz go przez [MCP](/docs/mcp). Może czytać rozmowy z Gmaila, zapisać szkic do sprawdzenia i wysłać e-mail, z tymi samymi uprawnieniami co Twoje konto. Serwer każe klientom potwierdzać przed wysłaniem, ale ta kontrola odbywa się w kliencie, nie na serwerze. Przetestuj najpierw na szkicu, jak Twój klient to obsługuje. Zewnętrzni klienci używają Twojego własnego dostawcy AI, nie hostowanych kredytów.
+W Customermates, jeśli używasz Claude, ChatGPT lub innego klienta AI, podłącz go przez [MCP](/docs/mcp). Może czytać rozmowy z Gmaila, zapisać szkic do sprawdzenia i wysłać e-mail, z tymi samymi uprawnieniami co Twoje konto. Serwer każe klientom potwierdzać przed wysłaniem, ale ta kontrola odbywa się w kliencie, nie na serwerze. Przetestuj najpierw na szkicu, jak Twój klient to obsługuje. Zewnętrzni klienci używają Twojego własnego dostawcy AI, nie hostowanych kredytów. Porównanie dróg, od konektora Anthropic po serwer MCP Gmaila od Google, znajdziesz w przewodniku [Claude z Outlookiem i Gmailem](/blog/claude-outlook-gmail).
 
 Do deterministycznej automatyzacji [webhooki](/docs/webhooks) raportują [[derived.webhooks.events.total]] typów zdarzeń, w tym [[derived.webhooks.events.messaging]] zdarzeń związanych z wiadomościami, takich jak przyjęty e-mail. Osobno uruchomiona instancja n8n może je konsumować przez [węzeł społecznościowy n8n](/docs/n8n), na przykład by wysłać wiadomość gdzie indziej, gdy klient odpowie. n8n nie wchodzi w skład Customermates.
 

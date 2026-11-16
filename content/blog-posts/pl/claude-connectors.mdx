@@ -4,8 +4,8 @@ description: "Konektory Claude wyjaśnione: katalog czy własny konektor, plany,
 
 relatedHrefs:
   - /blog/claude-crm
-  - /docs/connect-custom-connector
-  - /blog/what-is-an-mcp-server
+  - /blog/claude-skills-follow-up
+  - /blog/claude-outlook-gmail
   - /blog/claude-data-privacy
 
 hero:
@@ -88,7 +88,7 @@ Praca z klientami toczy się w czterech miejscach: w poczcie, kalendarzu, wspól
 | HubSpot | Kontakty, leady, firmy, szanse sprzedaży, zgłoszenia, obiekty niestandardowe, historia interakcji | Tworzyć i zmieniać większość rekordów CRM i interakcji; bez usuwania; zmiany zbiorcze po najwyżej 10 rekordów naraz | Wszystkie plany HubSpot; Claude Pro, Max, Team lub Enterprise; najpierw musi zatwierdzić Super Admin, chyba że nim jesteś albo masz dostęp App Marketplace | [Pomoc HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [karta](https://claude.com/marketplace/connectors/hubspot) |
 | Customermates (własny konektor) | Rekordy w każdej utworzonej przez Ciebie liście (na przykład kontakty, organizacje, szanse sprzedaży i zadania), ich notatki i pliki, Baza wiedzy; podłączone kalendarze tylko do odczytu | Tworzyć, zmieniać i usuwać rekordy (łącznie [[derived.mcp.tools.total]] narzędzi). Od planu Pro także wątki e-mail, LinkedIn i czatu, szkice i wysyłka; nie rezerwuje wydarzeń w kalendarzu | Każdy plan i samodzielny hosting; Free dzieli [[commercial.limit.free.apiRequestsPerMinute]] żądań na minutę i [[commercial.limit.free.apiRequestsPerDay]] na dobę na przestrzeń roboczą | [Poradnik o konektorze](/docs/connect-custom-connector), [dokumentacja MCP](/docs/mcp) |
 
-W katalogu są też między innymi Slack, Notion, Asana, Atlassian, Linear, monday.com i Box. Dla Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule i Salesforce [poradnik o Claude i CRM](/blog/claude-crm) porównuje, co konektor każdego CRM pozwala Claude zmieniać. Jeśli chcesz tylko widzieć pocztę z Gmaila lub Outlooka przy rekordach klientów w CRM, zajrzyj do wpisów o [integracji Gmaila z CRM](/blog/gmail-crm-integration) i [integracji Outlooka z CRM](/blog/outlook-crm-integration) zamiast konfigurować konektor.
+W katalogu są też między innymi Slack, Notion, Asana, Atlassian, Linear, monday.com i Box. Dla Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule i Salesforce [poradnik o Claude i CRM](/blog/claude-crm) porównuje, co konektor każdego CRM pozwala Claude zmieniać. Jeśli chcesz tylko widzieć pocztę z Gmaila lub Outlooka przy rekordach klientów w CRM, zajrzyj do wpisów o [integracji Gmaila z CRM](/blog/gmail-crm-integration) i [integracji Outlooka z CRM](/blog/outlook-crm-integration) zamiast konfigurować konektor. Jak połączyć Claude ze skrzynką, kalendarzem i historią klienta oraz jakie drogi istnieją dla Outlooka i Gmaila, opisuje przewodnik [Claude z Outlookiem i Gmailem](/blog/claude-outlook-gmail).
 
 ## Jak dodać własny konektor w Claude? [#add-custom-connector]
 
@@ -152,6 +152,8 @@ Dodawaj jeden konektor na przestrzeń roboczą; Claude odrzuca drugi konektor z 
 - **Tryb Research.** Anthropic zaznacza, że podczas Research Claude może wywoływać narzędzia konektorów bez dalszej zgody; wyłącz więc narzędzia, które zapisują.
 - **Customermates.** Serwer prosi klientów o potwierdzenie przed usunięciem lub wysłaniem, ale tego nie wymusza: jeśli Claude może wywołać narzędzie, wywołanie się wykona. Chronią Cię Tool permissions w Claude. Połączenie niesie uprawnienia użytkownika, który je zatwierdził, bez zakresu na klucz; aby mieć mniej uprawnień, połącz osobnego użytkownika z węższą rolą (zajmuje miejsce) albo użyj `?toolsets=`. Wysyłka jest natychmiastowa, więc poproś Claude o zapisanie szkicu i wyślij go sam ze skrzynki odbiorczej.
 - **Dane.** W konektorach Google pobrane dane są związane z czatem: usunięcie czatu je usuwa. Podłączona usługa przetwarza Twoje dane na własnych warunkach, które, jak zaznacza Anthropic, mogą obowiązywać poza Stanami Zjednoczonymi.
+
+Konektor daje Claude dostęp, ale nie mówi mu, jak przebiega praca. Przy powtarzalnej rutynie, takiej jak follow-up w rozmowach z klientami, połącz konektor ze skillem: [Claude Skills do follow-upów](/blog/claude-skills-follow-up) wyjaśnia, gdzie działają skille, i zawiera jeden do pobrania.
 
 ## Kiedy konektor Claude to zły wybór? [#wrong-choice]
 
