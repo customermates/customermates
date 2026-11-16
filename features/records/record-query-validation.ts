@@ -30,10 +30,8 @@ export function recordFieldFilterIsValid(
     return false;
   if (["in", "notIn", "all"].includes(filter.operator))
     return filter.values !== undefined && filter.values.every((value) => scalarMatchesType(value, field.valueType));
-  return (
-    ["empty", "notEmpty"].includes(filter.operator) ||
-    (Boolean(filter.value) && scalarMatchesType(filter.value, field.valueType))
-  );
+  if (["empty", "notEmpty"].includes(filter.operator)) return true;
+  return filter.value !== undefined && filter.value !== null && scalarMatchesType(filter.value, field.valueType);
 }
 
 export function invalidRecordQueryPart(
