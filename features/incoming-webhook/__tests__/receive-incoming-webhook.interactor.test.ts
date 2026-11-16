@@ -235,12 +235,12 @@ describe("ReceiveIncomingWebhookInteractor", () => {
     });
 
     const json = JSON.stringify({ data: { name: "Ada" } });
+    const encoder = new TextEncoder();
+    const bytes = (...chunks: Array<string | number[]>) =>
+      new Uint8Array(chunks.flatMap((chunk) => (typeof chunk === "string" ? [...encoder.encode(chunk)] : chunk)));
     it.each([
-      ["a byte order mark", new Uint8Array(Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(json)]))],
-      [
-        "a byte that is not valid UTF-8",
-        new Uint8Array(Buffer.concat([Buffer.from('{"data":{"name":"Ada '), Buffer.from([0xff]), Buffer.from('"}}')])),
-      ],
+      ["a byte order mark", bytes([0xef, 0xbb, 0xbf], json)],
+      ["a byte that is not valid UTF-8", bytes('{"data":{"name":"Ada ', [0xff], '"}}')],
     ])("verifies the signature over the raw bytes of a body with %s", async (_name, raw) => {
       const signature = (value: string | Uint8Array) => ({
         "x-hub-signature-256": `sha256=${incomingWebhookSignature("shared-secret", value)}`,
