@@ -35,7 +35,7 @@ Der Beitrag nennt die Pflichten, die für ein CRM zählen, mit ihren Artikeln, z
   <SummaryItem label="Die Regel">Für die personenbezogenen Daten in Ihrem CRM sind Sie der Verantwortliche und der CRM-Anbieter Ihr Auftragsverarbeiter. Die DSGVO macht Sie für Rechtsgrundlage, Vertrag und Betroffenenanfragen verantwortlich, nicht die Software.</SummaryItem>
   <SummaryItem label="Vor Vertragsschluss">Ein AVV mit dem Inhalt von Art. 28 Abs. 3 DSGVO, die Liste der Unterauftragsverarbeiter, der Ort der Verarbeitung und die Grundlage für jede Übermittlung an einen Anbieter außerhalb der EU.</SummaryItem>
   <SummaryItem label="Im Alltag">Knappe Zugriffsrechte, wenige Felder, ein Weg, die Daten einer Person zu finden, zu berichtigen, zu exportieren und zu löschen, und eine Aufbewahrungsprüfung, die Sie wirklich durchführen.</SummaryItem>
-  <SummaryItem label="Customermates">Ein AVV für die verwaltete Cloud, eine öffentliche Liste der Unterauftragsverarbeiter mit Anbietern aus den USA, die primäre Datenbank in der AWS-Region Frankfurt konfiguriert (eine gewählte Einstellung, keine Garantie), keine Compliance-Zertifizierung und ein Open-Source-Kern, den Sie selbst hosten können.</SummaryItem>
+  <SummaryItem label="Customermates">Ein AVV für die verwaltete Cloud, eine öffentliche Liste der Unterauftragsverarbeiter mit Anbietern aus den USA, die primäre Datenbank in der AWS-Region Frankfurt konfiguriert (eine gewählte Einstellung, keine Garantie), keine Compliance-Zertifizierung und eine Community Edition, die Sie selbst hosten können.</SummaryItem>
   <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Beitrag. Rechtsquellen sind mit EUR-Lex und der Europäischen Kommission belegt.</SummaryItem>
 </ArticleSummary>
 
@@ -150,7 +150,7 @@ Geboten, nach Produktdokumentation und Rechtstexten:
 - Rollen je Liste, ein Schalter zum Deaktivieren von Mitgliedern und Mandantentrennung nach Unternehmenskonto;
 - globale Suche nach E-Mail-Adresse oder Telefonnummer, Berichtigung im Feld, Excel- und JSON-Export je Liste und ein Papierkorb mit endgültigem Löschen;
 - ein Aktivitätsprotokoll für Änderungen an CRM-Datensätzen und an der Workspace-Konfiguration, lesbar für Rollen mit Zugriff; und
-- ein Open-Source-Kern unter der AGPL, den Sie [selbst hosten](/features/self-hosted) können.
+- eine Community Edition unter der Sustainable Use License, die Sie [selbst hosten](/features/self-hosted) können.
 
 Nicht geboten, fragen Sie danach also woanders, wenn Sie es brauchen:
 
@@ -158,7 +158,7 @@ Nicht geboten, fragen Sie danach also woanders, wenn Sie es brauchen:
 - es hat keine Berechtigungen auf Feldebene und keinen Export eines ganzen Kontos in einem Schritt;
 - sein Aktivitätsprotokoll erfasst keine Anmeldungen, API-Schlüssel oder Posteingangsinhalte und hat keine Export-Schaltfläche.
 
-Selbst hosten verschiebt die Verantwortung. Der AGPL-Kern läuft mit Docker und PostgreSQL auf Ihrer Infrastruktur, und der AVV deckt nur den verwalteten Dienst ab: Sie wählen Hosting und Dienstleister und halten Ihre eigenen Verträge nach Art. 28 und Garantien für Übermittlungen. TLS und Verschlüsselung im Ruhezustand richten Sie selbst ein. Selbst hosten nutzt den Starter-Funktionsumfang, ohne Posteingang und ohne Mate, und ist nicht von der Außenwelt abgeschnitten: Bei der ersten Adresseingabe für ein Land lädt die Instanz die öffentliche Postleitzahlen-Datei dieses Landes von GeoNames, es sei denn, Sie setzen `POSTAL_CODE_DATA_URL` auf `off` oder auf einen Mirror. Die [Anleitung zum Selbst-Hosting](/docs/self-hosting) nennt die Einzelheiten, die [Seite zum Open-Source-CRM](/features/open-source-crm) erklärt die Lizenzgrenze.
+Selbst hosten verschiebt die Verantwortung. Die Community Edition läuft mit Docker und PostgreSQL auf Ihrer Infrastruktur, und der AVV deckt nur den verwalteten Dienst ab: Sie wählen Hosting und Dienstleister und halten Ihre eigenen Verträge nach Art. 28 und Garantien für Übermittlungen. TLS und Verschlüsselung im Ruhezustand richten Sie selbst ein. Selbst hosten nutzt den Starter-Funktionsumfang, ohne Posteingang und ohne Mate, und ist nicht von der Außenwelt abgeschnitten: Bei der ersten Adresseingabe für ein Land lädt die Instanz die öffentliche Postleitzahlen-Datei dieses Landes von GeoNames, es sei denn, Sie setzen `POSTAL_CODE_DATA_URL` auf `off` oder auf einen Mirror. Die [Anleitung zum Selbst-Hosting](/docs/self-hosting) nennt die Einzelheiten, die [Seite zum Open-Source-CRM](/features/open-source-crm) erklärt die Lizenzgrenze.
 
 <AcquisitionCallout title="Wo Customermates nicht passt" variant="boundary">
   Verlangt eine Beschaffungs-Checkliste eine anerkannte Zertifizierung, eine vertragliche Zusage zur Verarbeitung nur in der EU oder Berechtigungen auf Feldebene, kann Customermates diese Punkte heute nicht abhaken. Fordern Sie sie von jedem Anbieter schriftlich, den Sie vergleichen, und lesen Sie die Antworten neben den Listen der Unterauftragsverarbeiter. Der [Vergleich der besten CRM-Software](/blog/best-crm-software) und der [Leitfaden zur CRM-Auswahl](/blog/how-to-choose-crm) behandeln die übrigen Kriterien.
@@ -188,7 +188,7 @@ Die DSGVO nennt keine feste Frist. Art. 5 Abs. 1 lit. e verlangt, dass Daten nic
 In der Regel ja. Art. 13 und 14 verlangen eine Datenschutzerklärung. Haben Sie die Daten nicht bei der Person erhoben, etwa aus einer importierten Liste, informieren Sie sie innerhalb einer angemessenen Frist, spätestens nach einem Monat.
 </FaqItem>
 <FaqItem question="Kann ich alle CRM-Daten auf meinem eigenen Server halten?">
-Mit dem Open-Source-Kern ja: Sie betreiben ihn mit Docker und PostgreSQL auf einer Infrastruktur Ihrer Wahl. Er nutzt den Starter-Funktionsumfang, ohne Posteingang und ohne Mate, und Sie sind für Ihre eigenen Hosting-Verträge und die Sicherheit verantwortlich.
+Mit der Community Edition ja: Sie betreiben sie mit Docker und PostgreSQL auf einer Infrastruktur Ihrer Wahl. Sie nutzt den Starter-Funktionsumfang, ohne Posteingang und ohne Mate, und Sie sind für Ihre eigenen Hosting-Verträge und die Sicherheit verantwortlich.
 </FaqItem>
 <FaqItem question="Was geschieht mit meinen Daten, wenn ich kündige?">
 Nach dem AVV von Customermates haben Sie 30 Tage nach Ende des Dienstes Zeit, Löschung oder Rückgabe zu wählen. Danach werden die Daten aus den eigenen Systemen von Customermates gelöscht, aus Sicherungen spätestens binnen 90 Tagen, und Unterauftragsverarbeiter löschen nach ihren eigenen Verträgen.

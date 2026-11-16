@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Open Source"
+    "label": "Quellcode einsehbar"
   },
   "ApiKeyModal": {
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
@@ -2786,7 +2786,7 @@
     "invalid": "Enthält Fehler"
   },
   "EmailLayout": {
-    "tagline": "Das Open-Source-CRM zum Nachfassen"
+    "tagline": "Das CRM zum Nachfassen mit einsehbarem Quellcode"
   },
   "EmailVerification": {
     "notVerified": "E-Mail nicht verifiziert",
@@ -2991,7 +2991,7 @@
       "cancelAnytime": "Jederzeit kündbar",
       "gdpr": "Datenbank-Region EU; keine Zertifizierung",
       "noLimits": "Transparente Tarife",
-      "openSource": "Open Core"
+      "openSource": "Quellcode einsehbar"
     },
     "eyebrow": "Preise",
     "selfHosted": {
@@ -3001,12 +3001,12 @@
       "featureN8n": "Schnittstellen für eine separate n8n-Instanz",
       "featureRecords": "CRM-Kerndatensätze",
       "featureUsers": "Workspace-Nutzer",
-      "period": "unter AGPL",
-      "price": "Kern kostenlos",
-      "tag": "Betreiben Sie die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang, ohne Posteingang und gehostete KI. Externe Dienste bleiben separat.",
+      "period": "Community Edition",
+      "price": "Kostenlos",
+      "tag": "Betreiben Sie die Community Edition (Quellcode einsehbar) und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang, für die interne Nutzung kostenlos, ohne Posteingang und gehostete KI. Externe Dienste bleiben separat.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Transparente Tarife, keine versteckten Kosten. Der AGPL-Kern bleibt beim Self-Hosting kostenlos; externe Dienste bleiben separat. Oder testen Sie die Cloud kostenlos, ganz ohne Kreditkarte.",
+    "subtitle": "Transparente Tarife, keine versteckten Kosten. Die Community Edition bleibt beim Self-Hosting für Ihr eigenes Unternehmen kostenlos; externe Dienste bleiben separat. Oder testen Sie die Cloud kostenlos, ganz ohne Kreditkarte.",
     "title": "Einfach, ehrlich, europäisch"
   },
   "HomepageWorkspacePrompt": {
@@ -3482,7 +3482,7 @@
       "mcpDocs": "MCP-Dokumentation",
       "n8n": "n8n-Automatisierung",
       "openExampleWorkspace": "Diesen Beispiel-Workspace öffnen",
-      "openSourceCrm": "Open-Source-CRM",
+      "openSourceCrm": "CRM mit einsehbarem Quellcode",
       "pillarData": "Daten",
       "pillarDataDescription": "Kunden, Deals und Listen, die Sie selbst gestalten",
       "pillarInbox": "Posteingang",

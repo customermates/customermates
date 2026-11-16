@@ -47,7 +47,7 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Ein Cloud-CRM, mit dem Sie bei jedem Kunden nachfassen"
-      body: "In Customermates Cloud ab Pro liegen LinkedIn- und E-Mail-Gespräche am Kundendatensatz, und Mate entwirft die Antworten zur Prüfung. Cloud-Datenbank in Frankfurt, AGPL-Kern zum Selbst-Hosten."
+      body: "In Customermates Cloud ab Pro liegen LinkedIn- und E-Mail-Gespräche am Kundendatensatz, und Mate entwirft die Antworten zur Prüfung. Cloud-Datenbank in Frankfurt, Community Edition zum Selbst-Hosten."
       checksum: fnv1a-3800ab7d
     kind: none
     reason: "Die frühe, offengelegte Dashboard-Demo ist der direkte Produktbeleg; ein zusätzliches Hero-Bild ist nicht nötig."
@@ -85,13 +85,13 @@ sections:
       - title: "Cloud oder Self-Hosting"
         description: "Die Cloud nimmt Ihnen den Betrieb ab und kostet etwas Kontrolle. Self-Hosting hält Server und Daten in Ihrer Hand und bringt den Betrieb mit."
       - title: "Customermates"
-        description: "Managed Cloud mit monatlichen Tarifen pro Nutzer oder der Open-Source-Kern auf eigenen Servern mit dem Funktionsumfang von Starter: ohne Postfach, ohne verbundenen Kalender, ohne gehosteten Mate."
+        description: "Managed Cloud mit monatlichen Tarifen pro Nutzer oder die Community Edition auf eigenen Servern mit dem Funktionsumfang von Starter: ohne Postfach, ohne verbundenen Kalender, ohne gehosteten Mate."
       - title: "Vor dem Kauf"
         description: "Prüfen Sie Datenstandort und Auftragsverarbeitungsvertrag, Exportformate, API, Preis pro Nutzer und die Verfügbarkeitszusage, und testen Sie einen Export mit echten Datensätzen."
 
 hero:
   title: "Ein Cloud-CRM, mit dem Sie bei jedem Kunden nachfassen"
-  description: "In Customermates Cloud ab Pro liegen LinkedIn- und E-Mail-Gespräche am Kundendatensatz, und Mate entwirft die Antworten zur Prüfung. Cloud-Datenbank in Frankfurt, AGPL-Kern zum Selbst-Hosten."
+  description: "In Customermates Cloud ab Pro liegen LinkedIn- und E-Mail-Gespräche am Kundendatensatz, und Mate entwirft die Antworten zur Prüfung. Cloud-Datenbank in Frankfurt, Community Edition zum Selbst-Hosten."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Tarife vergleichen
@@ -108,7 +108,7 @@ cta:
   hint: "Keine Kreditkarte erforderlich. Self-Hosting wird separat bewertet und umfasst den Funktionsumfang von Starter."
 ---
 
-Ein **Cloud CRM** (auch cloudbasiertes CRM, CRM in der Cloud oder SaaS-CRM genannt) ist eine Kundenmanagement-Software, die der Anbieter hostet und betreibt: Ihr Team nutzt das CRM-System im Browser und installiert, aktualisiert und sichert nichts selbst. Customermates ist ein solches Cloud-CRM-System: Die primäre Produktionsdatenbank ist in Frankfurt konfiguriert, und den Open-Source-Kern können Sie alternativ selbst hosten.
+Ein **Cloud CRM** (auch cloudbasiertes CRM, CRM in der Cloud oder SaaS-CRM genannt) ist eine Kundenmanagement-Software, die der Anbieter hostet und betreibt: Ihr Team nutzt das CRM-System im Browser und installiert, aktualisiert und sichert nichts selbst. Customermates ist ein solches Cloud-CRM-System: Die primäre Produktionsdatenbank ist in Frankfurt konfiguriert, und die Community Edition können Sie alternativ selbst hosten.
 
 **Was die Cloud beim Nachfassen ändert.** Läuft das CRM in der Cloud, können Ihre LinkedIn- und E-Mail-Gespräche am Datensatz des Kunden liegen, und Mate kann dort die Antwort entwerfen. In Customermates Cloud beginnt das mit Pro, und die kostenlose Testphase dauert [[commercial.trial.days]] Tage auf Pro. Ein selbst gehosteter Kern behält Kundendatensätze und MCP, hat aber keinen Posteingang und kein Mate; entworfenes Nachfassen ist also eine Cloud-Funktion.
 
@@ -178,7 +178,7 @@ Einen datierten Vergleich von zehn CRM-Anbietern mit Lizenz, Hosting, kostenlose
 
 ## Wo passt Customermates hin? (unser Produkt)
 
-*Hinweis: Customermates veröffentlicht diese Seite.* Customermates ist ein Open-Source-KI-CRM aus Deutschland. Es gibt zwei Formen, die das Kern-CRM teilen, aber nicht funktionsgleich sind: Customermates Cloud, das Customermates betreibt, und den Open-Source-Kern, den Sie selbst mit Docker Compose und PostgreSQL betreiben.
+*Hinweis: Customermates veröffentlicht diese Seite.* Customermates ist ein KI-CRM mit einsehbarem Quellcode aus Deutschland (Sustainable Use License, nicht Open Source im Sinne der OSI-Definition). Es gibt zwei Formen, die das Kern-CRM teilen, aber nicht funktionsgleich sind: Customermates Cloud, das Customermates betreibt, und die Community Edition, die Sie selbst mit Docker Compose und PostgreSQL betreiben.
 
 ### Cloud oder Self-Hosting bei Customermates?
 
@@ -262,7 +262,7 @@ Customermates ist bewusst schmal geschnitten. Wählen Sie ein anderes Produkt od
 - **Prädiktive Prognosen, Lead-Scoring oder Conversion-Analysen.** Dashboards, Aktivitätshistorie, Phasenwahrscheinlichkeiten sowie gewichtete Deal- und Pipeline-Werte beschreiben den aktuellen Workspace. Prognosen sind das nicht.
 - **Ein vollständiges ERP, Buchhaltung, Lager, Helpdesk, Callcenter oder eine schlüsselfertige Migration.** Dafür brauchen Sie andere Produkte oder eine bewusst entworfene Integration.
 
-Customermates Cloud passt zu Teams, die ein verwaltetes Browser-CRM für flexible Datensätze und Pipelines suchen, explizite Schnittstellen geschlossenen Integrationsversprechen vorziehen und einen separat betreibbaren Open-Source-Kern schätzen.
+Customermates Cloud passt zu Teams, die ein verwaltetes Browser-CRM für flexible Datensätze und Pipelines suchen, explizite Schnittstellen geschlossenen Integrationsversprechen vorziehen und eine separat betreibbare Community Edition mit einsehbarem Quellcode schätzen.
 
 ## Häufige Fragen
 
@@ -289,7 +289,7 @@ Customermates Cloud passt zu Teams, die ein verwaltetes Browser-CRM für flexibl
 </FaqItem>
 
 <FaqItem question="Kann ich dasselbe CRM selbst hosten?">
-  Sie können den Open-Source-Kern mit Docker Compose und PostgreSQL betreiben.
+  Sie können die Community Edition mit Docker Compose und PostgreSQL betreiben.
   Self-Hosting umfasst den Funktionsumfang von Starter und enthält weder
   einheitliches Postfach noch verbundenen Kalender, gehosteten Mate oder
   gehostete Credits.

@@ -36,7 +36,7 @@ Dieser Beitrag klärt, wie sich Kundendatenbank, Kundenkartei, Kundenverwaltung 
   <SummaryItem label="Welche Art">Ein schlankes CRM für Teams mit Kundenkontakt, ein Datenbank-Baukasten für ein ungewöhnliches Datenmodell, Excel oder das Adressbuch für eine Person.</SummaryItem>
   <SummaryItem label="Gratis-Tarife">Die kostenlosen HubSpot-Tools enden bei 1.000 Kontakten, Airtable Free bei 1.000 Datensätzen pro Base, Ninox Free bei 5.000 Datensätzen. Selbst gehostete Open-Source-CRMs kosten keine Lizenz, brauchen aber einen Server.</SummaryItem>
   <SummaryItem label="Vor der Entscheidung">50 echte Zeilen importieren, absichtlich eine Dublette anlegen, dann alles exportieren. Der Export zeigt, wie schwer ein späterer Wechsel wird.</SummaryItem>
-  <SummaryItem label="Customermates">Ein Open-Source-CRM, in dem Kontakte „Kunden“ heißen können. Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat; der einheitliche Posteingang beginnt mit Pro.</SummaryItem>
+  <SummaryItem label="Customermates">Ein CRM mit einsehbarem Quellcode, in dem Kontakte „Kunden“ heißen können. Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat; der einheitliche Posteingang beginnt mit Pro.</SummaryItem>
   <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Beitrag. Die anderen Tools werden nach Eignung beschrieben, nicht gerankt.</SummaryItem>
 </ArticleSummary>
 
@@ -115,7 +115,7 @@ Kostenlose Tarife gibt es wirklich, aber jeder endet an einer anderen Stelle. Gr
 | [Ninox Free](https://ninox.com/de/preise) | Datenbank-Baukasten | Bis zu 5 Nutzer, 5.000 Datensätze, 100 MB Speicher, Server-Region Deutschland | Datensätze und Speicher |
 | [Notion Free](https://www.notion.com/pricing) | Workspace mit Datenbanken | Unbegrenzte Blöcke für eine Person, begrenzte Anzahl ab 2 Mitgliedern | Beim ersten Kollegen |
 | [EspoCRM](https://www.espocrm.com/download/) und [SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core) | Open-Source-CRM, selbst gehostet | Keine Lizenzkosten, AGPLv3 | Server, Updates und Datensicherungen liegen bei Ihnen |
-| [Customermates Kern](/features/self-hosted) | Open-Source-CRM, selbst gehostet | Keine Lizenzkosten, AGPL-3.0 | Selbst gehostet ohne einheitlichen Posteingang und ohne Mate |
+| [Customermates Community Edition](/features/self-hosted) | CRM mit einsehbarem Quellcode, selbst gehostet | Keine Lizenzkosten für das eigene Unternehmen, Sustainable Use License | Selbst gehostet ohne einheitlichen Posteingang und ohne Mate |
 
 Pipedrive hat keinen kostenlosen Tarif und bietet eine 14-tägige kostenlose Testversion. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; die Testphase dauert [[commercial.trial.days]] Tage.
 
@@ -137,7 +137,7 @@ Airtable und Ninox sind Baukästen: Der Preis kauft die Tabellen, die Kundenverw
 
 ## Eine Kundendatenbank in Customermates, Schritt für Schritt
 
-Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Hier eine Kundenverwaltung für eine kleine Beratung, eingerichtet so, wie das Produkt heute funktioniert. Ein neuer Workspace startet ohne Listen: In Customermates Cloud beschreiben Sie Ihr Geschäft in einem Satz, und Mate baut Listen, Pipeline und Dashboard; bei einer selbst gehosteten Installation legen Sie die Listen im Datenmodell an. Danach passen Sie sie so an.
+Customermates ist ein KI-CRM mit einsehbarem Quellcode aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Hier eine Kundenverwaltung für eine kleine Beratung, eingerichtet so, wie das Produkt heute funktioniert. Ein neuer Workspace startet ohne Listen: In Customermates Cloud beschreiben Sie Ihr Geschäft in einem Satz, und Mate baut Listen, Pipeline und Dashboard; bei einer selbst gehosteten Installation legen Sie die Listen im Datenmodell an. Danach passen Sie sie so an.
 
 <Steps>
   <Step title="Datensätze so benennen, wie Sie sprechen">Öffnen Sie im Datenmodell eine Liste und ändern Sie **Name** und **Pluralname** unter **Allgemein**: Benennen Sie die Kontakte in „Kunden“ und die Organisationen in „Unternehmen“ um. Aus Deals können „Projekte“ werden, aus Aufgaben „Follow-ups“. Jeder Name ist möglich und gilt für den ganzen Workspace.</Step>
@@ -171,7 +171,7 @@ Eine Kundendatenbank zahlt sich aus, wenn jeder Kunde einen nächsten Schritt ha
 - **Sie verkaufen Termine.** Customermates hat keine Terminbuchung. Schauen Sie sich Branchensoftware für Ihr Gewerbe an.
 - **Sie arbeiten vor allem am Smartphone.** Eine native Mobile-App gibt es nicht.
 - **Ihr Datenmodell besteht nicht aus Personen und Unternehmen.** Customermates startet ohne Listen und lässt Sie eigene anlegen, ist aber auf Personen, Unternehmen und Deals ausgelegt. Geräte, Objekte oder Veranstaltungen ohne Verkaufsbezug passen womöglich besser in Ninox oder Airtable.
-- **Sie wollen selbst hosten und den Posteingang behalten.** Selbst gehostet ist Customermates der AGPL-Kern mit REST, Webhooks und MCP. Der einheitliche Posteingang und Mate gehören nicht dazu.
+- **Sie wollen selbst hosten und den Posteingang behalten.** Selbst gehostet ist Customermates die Community Edition mit REST, Webhooks und MCP. Der einheitliche Posteingang und Mate gehören nicht dazu.
 
 ## DSGVO: Wo die Kundendaten liegen
 
@@ -191,7 +191,7 @@ Beginnen Sie mit dem, was Sie nachschlagen und filtern: Name, Unternehmen, Telef
 </FaqItem>
 
 <FaqItem question="Welche kostenlose Kundendatenbank-Software gibt es?">
-Das hängt davon ab, wie viele Personen sie nutzen und wie viele Datensätze Sie haben. Die kostenlosen HubSpot-Tools decken 2 Nutzer und 1.000 Kontakte ab, die Free Edition von Zoho CRM 3 Nutzer, Airtable Free 1.000 Datensätze pro Base und Ninox Free 5 Nutzer mit 5.000 Datensätzen. Wenn Sie einen Server betreiben können, sind EspoCRM, SuiteCRM und der Kern von Customermates Open Source ohne Lizenzkosten. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen und eine Testphase von [[commercial.trial.days]] Tagen.
+Das hängt davon ab, wie viele Personen sie nutzen und wie viele Datensätze Sie haben. Die kostenlosen HubSpot-Tools decken 2 Nutzer und 1.000 Kontakte ab, die Free Edition von Zoho CRM 3 Nutzer, Airtable Free 1.000 Datensätze pro Base und Ninox Free 5 Nutzer mit 5.000 Datensätzen. Wenn Sie einen Server betreiben können, sind EspoCRM und SuiteCRM Open Source und die Community Edition von Customermates hat einsehbaren Quellcode, alle ohne Lizenzkosten für das eigene Unternehmen. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen und eine Testphase von [[commercial.trial.days]] Tagen.
 </FaqItem>
 
 <FaqItem question="Was kostet ein CRM-System im Monat?">
@@ -211,7 +211,7 @@ Eine Kundendatenbank speichert, wer Ihre Kunden sind. Ein CRM ergänzt, was mit 
 </FaqItem>
 
 <FaqItem question="Kann ich eine Kundendatenbank auf dem eigenen Server betreiben?">
-Ja, mit einem Open-Source-CRM. EspoCRM und SuiteCRM stehen unter AGPLv3, EspoCRM läuft mit PHP und MySQL, MariaDB oder PostgreSQL. Der Kern von Customermates steht unter AGPL-3.0 und läuft mit Docker Compose und PostgreSQL 16. Selbst gehostet bietet Customermates REST, Webhooks und MCP für Ihren eigenen KI-Client, aber keinen einheitlichen Posteingang und kein Mate.
+Ja, mit einem Open-Source-CRM. EspoCRM und SuiteCRM stehen unter AGPLv3, EspoCRM läuft mit PHP und MySQL, MariaDB oder PostgreSQL. Die Community Edition von Customermates hat einsehbaren Quellcode unter der Sustainable Use License und läuft mit Docker Compose und PostgreSQL 16. Selbst gehostet bietet Customermates REST, Webhooks und MCP für Ihren eigenen KI-Client, aber keinen einheitlichen Posteingang und kein Mate.
 </FaqItem>
 </Faq>
 

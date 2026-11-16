@@ -12,7 +12,7 @@ import VerifyEmail from "../verify-email";
 import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 
 const EXPECTED_LAYOUT_COPY = {
-  de: { country: "Deutschland", tagline: "Das Open-Source-CRM zum Nachfassen" },
+  de: { country: "Deutschland", tagline: "Das CRM zum Nachfassen mit einsehbarem Quellcode" },
   en: { country: "Germany", tagline: "The source-available CRM for client follow-up" },
   es: { country: "Alemania", tagline: "El CRM de código abierto para el seguimiento de clientes" },
   fr: { country: "Allemagne", tagline: "Le CRM open source pour relancer vos clients" },

@@ -49,7 +49,7 @@ Viele Bestenlisten bewerten Funktionen, die ein Team aus zwei Gründern nie öff
 | Gründergeführter B2B-Vertrieb, ein bis fünf Verkäufer | Pipedrive, Attio | Pipedrive nennt sich selbst ein Vertriebs-Pipeline-CRM; Attio hat einen kostenlosen Tarif für 3 Nutzer | Sequenzen gibt es bei Pipedrive erst ab Growth |
 | Akquise per Telefon | Close | Telefonie und SMS in jedem Tarif | Power Dialer und automatisierte Workflows erst ab Growth |
 | Investoren, Partner, Netzwerk | folk | Fokus auf persönlichen Vertrieb, LinkedIn-Erweiterung in jedem Tarif | Deals und E-Mail-Sequenzen erst ab Premium |
-| Dienstleistungs-Startup (Agentur, Beratung, Studio) mit Deals in E-Mail-, LinkedIn- und WhatsApp-Verläufen | Customermates (Herausgeber) | CRM-Posteingang ab Pro; Mate in Customermates Cloud (gehostete KI-Credits) oder Ihr eigener KI-Client über MCP; Open-Source-Kern | Keine Telefonie, keine Sequenzen, keine mobile App, kostenloser Cloud-Tarif nur für [[commercial.limit.free.maxMembers]] Person |
+| Dienstleistungs-Startup (Agentur, Beratung, Studio) mit Deals in E-Mail-, LinkedIn- und WhatsApp-Verläufen | Customermates (Herausgeber) | CRM-Posteingang ab Pro; Mate in Customermates Cloud (gehostete KI-Credits) oder Ihr eigener KI-Client über MCP; selbst hostbare Community Edition | Keine Telefonie, keine Sequenzen, keine mobile App, kostenloser Cloud-Tarif nur für [[commercial.limit.free.maxMembers]] Person |
 
 Passen zwei Zeilen, nehmen Sie die, die beschreibt, wie Ihre nächsten zehn Deals zustande kommen. Nicht die, von der Sie hoffen, dass sie in zwei Jahren stimmt.
 
@@ -110,7 +110,7 @@ Prüfen Sie vor der Bindung einen Kontakt, eine Organisation, einen Deal, eine v
 
 ## Wann passt Customermates?
 
-*Offenlegung: Customermates veröffentlicht diesen Ratgeber.* Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt: Beratungen, Agenturen und andere Dienstleister, außerdem Gründer, die über Gespräche verkaufen. Kontakte, Organisationen, Deals und Aufgaben liegen im selben Workspace wie die Verläufe der verbundenen E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, die im [CRM-Posteingang](/features/unified-inbox) zusammenlaufen. Der Posteingang setzt Pro oder höher voraus; Starter hat keinen.
+*Offenlegung: Customermates veröffentlicht diesen Ratgeber.* Customermates ist ein KI-CRM mit einsehbarem Quellcode aus Deutschland für kleine Teams mit Kundenkontakt: Beratungen, Agenturen und andere Dienstleister, außerdem Gründer, die über Gespräche verkaufen. Kontakte, Organisationen, Deals und Aufgaben liegen im selben Workspace wie die Verläufe der verbundenen E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, die im [CRM-Posteingang](/features/unified-inbox) zusammenlaufen. Der Posteingang setzt Pro oder höher voraus; Starter hat keinen.
 
 In Customermates Cloud bereitet Mate Zusammenfassungen und Antwortentwürfe vor und nutzt dafür gehostete KI-Credits. Routinen führen gespeicherte Anweisungen nach Zeitplan oder bei Änderungen an Datensätzen aus. Wenn Sie lieber mit Claude, ChatGPT oder einem anderen Client arbeiten, greift dieser über [MCP](/docs/mcp) auf das CRM zu; die Modellaufrufe laufen dann über Ihren eigenen KI-Anbieter. Für ein gründergeführtes Startup heißt das: Kein Lead- und kein Investorengespräch schläft ein, die Verläufe liegen am Kontakt, ein Antwortentwurf und ein nächster Schritt stehen zur Prüfung bereit, und Sie senden selbst.
 
@@ -160,7 +160,7 @@ Der letzte Satz ist eine Anweisung, keine technisch erzwungene Sendefreigabe. Ma
 | Fünf Personen, CRM und MCP ohne Posteingang | Starter | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5.months.12]] |
 | Fünf Personen mit Posteingang | Pro | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5.months.12]] |
 
-Jeder kostenpflichtige Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer; Details stehen unter [Preise](/pricing). Ihr erster Workspace startet [[commercial.trial.days]] Tage kostenlos mit Pro, ohne Kreditkarte; [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup) mit einem Kanal und Ihren nächsten fünf Gesprächen. Wer die Software selbst betreiben möchte, kann den AGPL-Kern mit Docker Compose und PostgreSQL [selbst hosten](/features/self-hosted), inklusive REST, Webhooks und MCP. Selbst gehostet gibt es aber keinen Posteingang, kein Mate und keine gehosteten Credits; die Posteingang-Schritte oben brauchen also Customermates Cloud.
+Jeder kostenpflichtige Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer; Details stehen unter [Preise](/pricing). Ihr erster Workspace startet [[commercial.trial.days]] Tage kostenlos mit Pro, ohne Kreditkarte; [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup) mit einem Kanal und Ihren nächsten fünf Gesprächen. Wer die Software selbst betreiben möchte, kann die Community Edition mit Docker Compose und PostgreSQL [selbst hosten](/features/self-hosted), inklusive REST, Webhooks und MCP. Selbst gehostet gibt es aber keinen Posteingang, kein Mate und keine gehosteten Credits; die Posteingang-Schritte oben brauchen also Customermates Cloud.
 
 Für die DSGVO-Prüfung: In der Cloud ist die primäre Produktionsdatenbank in der AWS-Region Frankfurt konfiguriert. Das ist eine gewählte Einstellung, keine vertragliche Zusicherung des Speicherorts. Die [Unterauftragsverarbeiter](/subprocessors), darunter US-Anbieter, sind öffentlich gelistet, und ein [Auftragsverarbeitungsvertrag](/dpa) liegt bereit.
 
@@ -178,7 +178,7 @@ Der Umzug aus einer Tabelle nach Customermates läuft pro Liste. Importieren Sie
 
 <Faq>
 <FaqItem question="Welches CRM ist für Gründer kostenlos?">
-Für zwei Gründer reichen die HubSpot Free Tools mit bis zu 2 Nutzern zu 0 US-Dollar. Die Free Edition von Zoho CRM und Attio Free decken je bis zu 3 Nutzer ab. Prüfen Sie vorher, was der nächste Tarif kostet: Der eigentliche Preis ist der Bezahltarif, den Sie nach der ersten Neueinstellung brauchen. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; der AGPL-Kern lässt sich ohne Lizenzgebühr selbst hosten, dann ohne Posteingang und Mate.
+Für zwei Gründer reichen die HubSpot Free Tools mit bis zu 2 Nutzern zu 0 US-Dollar. Die Free Edition von Zoho CRM und Attio Free decken je bis zu 3 Nutzer ab. Prüfen Sie vorher, was der nächste Tarif kostet: Der eigentliche Preis ist der Bezahltarif, den Sie nach der ersten Neueinstellung brauchen. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; die Community Edition lässt sich für Ihr eigenes Unternehmen ohne Lizenzgebühr selbst hosten, dann ohne Posteingang und Mate.
 </FaqItem>
 
 <FaqItem question="Welche drei Arten von CRM gibt es?">
