@@ -2,6 +2,7 @@ import type { PermissionService } from "@/core/base/permission.service";
 import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.repo";
+import type { RefreshConnectedAccountStatusesRepo } from "../connect/refresh-connected-account-statuses.repo";
 import type { CountChannelsNeedingActionRepo } from "../connect/count-channels-needing-action.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-hosted-auth-link.repo";
 import type { ThreadAccountOwnersRepo } from "../inbox/thread-account-owners.repo";
@@ -14,6 +15,7 @@ import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountRecord } from "../messaging.schema";
+import { AccountConnectionDetailsSchema, type AccountConnectionDetails } from "../account-connection.schema";
 import type { EmailSettings } from "../email-settings";
 import { resolveStoredEmailSettings } from "../email-settings";
 
@@ -55,6 +57,7 @@ export class PrismaConnectedAccountRepo
   extends TenantRepository
   implements
     GetMyConnectedAccountsRepo,
+    RefreshConnectedAccountStatusesRepo,
     CountChannelsNeedingActionRepo,
     CreateHostedAuthLinkRepo,
     DeleteConnectedAccountRepo,
@@ -159,6 +162,8 @@ export class PrismaConnectedAccountRepo
   async updateAccountUnscoped(args: {
     unipileAccountId: string;
     status?: ConnectedAccountStatus;
+    connectionDetails?: AccountConnectionDetails;
+    statusCheckedAt?: Date;
     displayName?: string | null;
     emailAddress?: string | null;
     lastSyncedAt?: Date;
@@ -187,9 +192,10 @@ export class PrismaConnectedAccountRepo
     return this.withCompanyTransaction(owner.companyId, async () => {
       const before = await this.prisma.connectedAccount.findUnique({
         where: { unipileAccountId: args.unipileAccountId },
-        select: { status: true },
+        select: { status: true, statusCheckedAt: true },
       });
       if (before?.status === ConnectedAccountStatus.deleted) return null;
+      if (args.statusCheckedAt && before?.statusCheckedAt && before.statusCheckedAt > args.statusCheckedAt) return null;
       const row = await this.writeAccountUpdate(args);
       await this.billingUsage.recordChannels(row.companyId, channelChange(row.id, before?.status, row.status));
       return row;
@@ -203,6 +209,8 @@ export class PrismaConnectedAccountRepo
       where: { unipileAccountId },
       data: {
         status: args.status,
+        connectionDetails: args.connectionDetails,
+        statusCheckedAt: args.statusCheckedAt,
         displayName: args.displayName,
         emailAddress: args.emailAddress,
         lastSyncedAt: args.lastSyncedAt,
@@ -336,6 +344,18 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async findAccountByIdUnscoped(id: string) {
     return this.prisma.connectedAccount.findUnique({ where: { id } });
+  }
+
+  @BypassTenantGuard
+  async findAccountsNeedingStatusRefreshUnscoped(before: Date) {
+    return this.prisma.connectedAccount.findMany({
+      where: {
+        status: { not: ConnectedAccountStatus.deleted },
+        OR: [{ statusCheckedAt: null }, { statusCheckedAt: { lt: before } }],
+      },
+      select: { unipileAccountId: true, connectionDetails: true },
+      orderBy: { id: "asc" },
+    });
   }
 
   @BypassTenantGuard
@@ -557,6 +577,8 @@ export class PrismaConnectedAccountRepo
       id: true,
       provider: true,
       status: true,
+      connectionDetails: true,
+      statusCheckedAt: true,
       hasMessaging: true,
       hasCalendar: true,
       emailAddress: true,
@@ -586,6 +608,7 @@ export class PrismaConnectedAccountRepo
     const { user, folders, ...account } = row;
     return {
       ...account,
+      connectionDetails: AccountConnectionDetailsSchema.nullable().catch(null).parse(account.connectionDetails),
       folders: EmailFolderSchema.array().catch([]).parse(folders),
       owner: {
         userId: user.id,

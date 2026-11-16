@@ -10,7 +10,7 @@ import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-doc
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.repo";
 import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.repo";
 import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan-user.repo";
-import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
+import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/webhook-user.repo";
 import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";

@@ -3,6 +3,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { EmailFolderSchema } from "./email-folders";
+import { AccountConnectionDetailsSchema } from "./account-connection.schema";
 import { defaultEmailSettings, EmailSettingsSchema } from "./email-settings";
 
 import {
@@ -30,6 +31,8 @@ export const ConnectedAccountDtoSchema = z.object({
   id: z.uuid(),
   provider: MessagingProviderSchema,
   status: z.enum(ConnectedAccountStatus),
+  connectionDetails: AccountConnectionDetailsSchema.nullable().optional(),
+  statusCheckedAt: z.date().nullable().optional(),
   hasMessaging: z.boolean(),
   hasCalendar: z.boolean(),
   emailAddress: z.string().nullable(),

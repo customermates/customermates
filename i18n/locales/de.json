@@ -1318,6 +1318,7 @@
       "unipileDisconnectedAccount": "Der Kanal ist getrennt. Die Person, der er gehört, muss ihn unter Kanäle & Kalender neu verbinden, bevor er wieder nutzbar ist.",
       "unipileFeatureUnavailable": "Das ist auf diesem Kanal nicht verfügbar. Ein erneuter Versuch hilft nicht; das Team wurde benachrichtigt.",
       "unipileInvalidRequest": "Der Anbieter hat die Anfrage als ungültig abgelehnt. Bitte Kennungen und Parameter prüfen.",
+      "unipileMessagingUnavailable": "E-Mail ist für dieses Konto nicht verfügbar. Wähle einen verbundenen E-Mail-Kanal; der Kalenderzugriff ist davon unabhängig.",
       "unipileProviderError": "Der Anbieter hat aktuell Probleme. Bitte später erneut versuchen.",
       "unipileProviderRejected": "Der Anbieter hat diese Anfrage abgelehnt. Unverändert wiederholen hilft nicht; prüfe zuerst Empfänger, Inhalt oder Ziel.",
       "unipileRateLimit": "Dieser Kanal hat sein Limit vorerst erreicht. Bitte {retryAfter} erneut versuchen. Mehr unter https://customermates.com/docs/messaging-rate-limits.",
@@ -1837,6 +1838,7 @@
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
     "alreadyExistsToastTitle": "Konto bereits verbunden",
     "channels": {
+      "gmail": "Gmail",
       "imap": "IMAP",
       "linkedinClassic": "LinkedIn (Classic)",
       "linkedinRecruiter": "LinkedIn (Classic & Recruiter)",
@@ -1921,6 +1923,8 @@
     "ownerLabel": "Eigentümer",
     "paidSubscriptionRequired": "Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.",
     "provider": "Anbieter",
+    "providerReason": "Grund des Anbieters",
+    "providerReasonUnavailable": "Der Anbieter hat keinen Grund angegeben.",
     "reactivate": "Reaktivieren",
     "resync": "Neu synchronisieren",
     "resyncFailedDescription": "Die Synchronisierung konnte nicht gestartet werden. Versuche es erneut oder kontaktiere den Support.",
@@ -1938,6 +1942,7 @@
       "stacked": "Logo oben"
     },
     "status": "Status",
+    "statusCheckedAt": "Status geprüft",
     "statusLabels": {
       "connecting": "Wird verbunden",
       "credentials": "Erneute Verbindung nötig",

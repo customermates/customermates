@@ -334,6 +334,7 @@ import { GetMyConnectedAccountsApiInteractor } from "@/ee/messaging/connect/get-
 import { GetMyConnectedAccountsContextInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-context.interactor";
 import { GetMessagingAccountsStateInteractor } from "@/ee/messaging/connect/get-messaging-accounts-state.interactor";
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
+import { RefreshConnectedAccountStatusesInteractor } from "@/ee/messaging/connect/refresh-connected-account-statuses.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
 import { SetConnectedAccountSignatureInteractor } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
@@ -1807,7 +1808,11 @@ export const getProcessAccountAddWebhookInteractor = () =>
     getOnboardingFunnelRepo(),
   );
 export const getProcessAccountReadyWebhookInteractor = () =>
-  new ProcessAccountReadyWebhookInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
+  new ProcessAccountReadyWebhookInteractor(
+    getConnectedAccountRepo(),
+    getBackgroundTaskService(),
+    getMessagingService(),
+  );
 export const getProcessAccountReconnectWebhookInteractor = () =>
   new ProcessAccountReconnectWebhookInteractor(
     getMessagingService(),
@@ -1818,7 +1823,10 @@ export const getProcessAccountReconnectWebhookInteractor = () =>
 export const getProcessAccountRemoveWebhookInteractor = () =>
   new ProcessAccountRemoveWebhookInteractor(getConnectedAccountRepo());
 export const getProcessAccountStatusWebhookInteractor = () =>
-  new ProcessAccountStatusWebhookInteractor(getConnectedAccountRepo());
+  new ProcessAccountStatusWebhookInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getRefreshConnectedAccountStatusesInteractor = () =>
+  new RefreshConnectedAccountStatusesInteractor(getConnectedAccountRepo(), getMessagingService());
 
 export const getProcessUnipileWebhookInteractor = () => {
   const messageNew = getProcessMessageNewWebhookInteractor();

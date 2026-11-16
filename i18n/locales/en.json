@@ -1318,6 +1318,7 @@
       "unipileDisconnectedAccount": "The channel is disconnected. Its owner needs to reconnect it under Channels & calendars before it can be used again.",
       "unipileFeatureUnavailable": "This is not available on this channel. Retrying will not help; the team has been notified.",
       "unipileInvalidRequest": "The provider rejected the request as invalid. Check the identifiers and parameters.",
+      "unipileMessagingUnavailable": "Email is unavailable for this account. Choose a connected email channel; calendar access is separate.",
       "unipileProviderError": "The provider is having issues right now. Please try again shortly.",
       "unipileProviderRejected": "The provider rejected this request. Repeating it unchanged won't help; check the recipients, content or target first.",
       "unipileRateLimit": "This channel reached its limit for now. You can try again {retryAfter}. Learn more at https://customermates.com/docs/messaging-rate-limits.",
@@ -1837,6 +1838,7 @@
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channels": {
+      "gmail": "Gmail",
       "imap": "IMAP",
       "linkedinClassic": "LinkedIn (Classic)",
       "linkedinRecruiter": "LinkedIn (Classic & Recruiter)",
@@ -1921,6 +1923,8 @@
     "ownerLabel": "Owner",
     "paidSubscriptionRequired": "Connecting channels requires an active subscription or a trial that hasn't expired.",
     "provider": "Provider",
+    "providerReason": "Provider reason",
+    "providerReasonUnavailable": "The provider did not return a reason.",
     "reactivate": "Reactivate",
     "resync": "Resync",
     "resyncFailedDescription": "Resync couldn't be started. Try again or contact support.",
@@ -1938,6 +1942,7 @@
       "stacked": "Logo above"
     },
     "status": "Status",
+    "statusCheckedAt": "Status checked",
     "statusLabels": {
       "connecting": "Connecting",
       "credentials": "Reconnect needed",

@@ -1318,6 +1318,7 @@
       "unipileDisconnectedAccount": "Le canal est déconnecté. Son propriétaire doit le reconnecter dans Canaux et agendas avant qu’il soit à nouveau utilisable.",
       "unipileFeatureUnavailable": "Ce n’est pas disponible sur ce canal. Réessayer n’aidera pas ; l’équipe a été prévenue.",
       "unipileInvalidRequest": "Le fournisseur a rejeté la requête comme invalide. Vérifiez les identifiants et les paramètres.",
+      "unipileMessagingUnavailable": "La messagerie n’est pas disponible pour ce compte. Choisissez un canal de messagerie connecté ; l’accès au calendrier est indépendant.",
       "unipileProviderError": "Le fournisseur rencontre actuellement des problèmes. Réessayez dans un instant.",
       "unipileProviderRejected": "Le fournisseur a refusé cette demande. La répéter telle quelle n’aidera pas ; vérifiez d’abord les destinataires, le contenu ou la cible.",
       "unipileRateLimit": "Ce canal a atteint sa limite pour le moment. Vous pouvez réessayer {retryAfter}. Plus d’informations sur https://customermates.com/docs/messaging-rate-limits.",
@@ -1837,6 +1838,7 @@
     "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l’espace de travail pour éviter les messages en double dans la boîte de réception.",
     "alreadyExistsToastTitle": "Compte déjà connecté",
     "channels": {
+      "gmail": "Gmail",
       "imap": "IMAP",
       "linkedinClassic": "LinkedIn (Classic)",
       "linkedinRecruiter": "LinkedIn (Classic et Recruiter)",
@@ -1921,6 +1923,8 @@
     "ownerLabel": "Propriétaire",
     "paidSubscriptionRequired": "La connexion de canaux nécessite un abonnement actif ou un essai non expiré.",
     "provider": "Fournisseur",
+    "providerReason": "Motif du fournisseur",
+    "providerReasonUnavailable": "Le fournisseur n’a pas indiqué de motif.",
     "reactivate": "Réactiver",
     "resync": "Resynchroniser",
     "resyncFailedDescription": "La resynchronisation n’a pas pu démarrer. Réessayez ou contactez l’assistance.",
@@ -1938,6 +1942,7 @@
       "stacked": "Logo au-dessus"
     },
     "status": "Statut",
+    "statusCheckedAt": "Statut vérifié",
     "statusLabels": {
       "connecting": "Connexion en cours",
       "credentials": "Reconnexion nécessaire",

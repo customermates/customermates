@@ -517,7 +517,7 @@ describe("getAccount consumer drift policies", () => {
     hasCalendar: false,
   } as any;
 
-  it("reconnect defaults the status to ok on drift and still updates + dispatches", async () => {
+  it("reconnect retains the cached status on schema drift instead of inventing a healthy connection", async () => {
     const messagingService = { getAccount: vi.fn().mockRejectedValue(new z.ZodError([])) };
     const repo = {
       findAccountByUnipileIdOrThrowUnscoped: vi.fn().mockResolvedValue(account),
@@ -532,15 +532,12 @@ describe("getAccount consumer drift policies", () => {
       { publish: vi.fn().mockResolvedValue(undefined) } as any,
     );
 
-    await interactor.invoke({ type: "account.reconnect", account_id: "acc_uni-1" });
+    await expect(interactor.invoke({ type: "account.reconnect", account_id: "acc_uni-1" })).rejects.toBeInstanceOf(
+      z.ZodError,
+    );
 
-    expect(repo.updateAccountUnscoped).toHaveBeenCalledWith({ unipileAccountId: "acc_uni-1", status: "ok" });
-    expect(backgroundTaskService.dispatch).toHaveBeenCalledWith("backfill-connected-account", {
-      connectedAccountId: account.id,
-    });
-    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
-      tags: { unipileAccountId: "acc_uni-1" },
-    });
+    expect(repo.updateAccountUnscoped).not.toHaveBeenCalled();
+    expect(backgroundTaskService.dispatch).not.toHaveBeenCalled();
   });
 
   it("reconnect propagates non-drift errors without updating", async () => {
