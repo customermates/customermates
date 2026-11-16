@@ -15,10 +15,10 @@ import { AppModal } from "@/components/modal/app-modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { upsertAutomationRuleAction } from "../actions";
 import { draftHasRecord, draftToUpsert } from "./automation-draft";
+import { dismissAutomationError, showAutomationError, showAutomationSaveError } from "./automation-error-toast";
 import { Labeled } from "./automation-builder-fields";
 import { AutomationConditionsEditor } from "./automation-conditions-editor";
 import { AutomationEffectsEditor } from "./automation-effects-editor";
@@ -52,14 +52,15 @@ export function AutomationBuilder({ draft: initial, model, onClose, onSaved }: P
     const converted = draftToUpsert(draft, model);
     if (!converted.ok) {
       setInvalid(converted.issues);
-      toast.error(t("AutomationRules.builder.incomplete"));
+      showAutomationError(t("AutomationRules.builder.incomplete"));
       return;
     }
     setInvalid([]);
+    dismissAutomationError();
     startTransition(async () => {
       const result = await upsertAutomationRuleAction(converted.input);
       if (!result.ok) {
-        toastZodErrorTree(result.error);
+        showAutomationSaveError(result.error);
         return;
       }
       toast.success(t("Common.notifications.updated"));

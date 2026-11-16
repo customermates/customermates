@@ -3,7 +3,6 @@
 import { History, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import type { AutomationRuleDto } from "@/features/automation-rules/automation-rule.schema";
 import type { AutomationBuilderModel } from "./automation-builder-model";
@@ -251,7 +250,6 @@ const AutomationsViewContent = ({ initialRules, model, prefill, total: initialTo
         onSaved={(rule) => {
           replace(rule);
           setDraft(null);
-          toast.dismiss();
         }}
       />
 
