@@ -183,6 +183,31 @@ describe("SendEmailInteractor new-thread adoption", () => {
     expect(service.sendEmail).not.toHaveBeenCalled();
   });
 
+  it("refuses email on a connected calendar-only account before contacting the provider", async () => {
+    const service = { sendEmail: vi.fn(), getEmail: vi.fn() };
+    const repo = makeRepo() as never;
+    const interactor = new SendEmailInteractor(
+      repo,
+      {
+        findUsableAccountByIdOrThrow: vi
+          .fn()
+          .mockResolvedValue({ ...(account as object), status: "ok", hasMessaging: false }),
+      } as never,
+      service as never,
+      mockEntitlementService(),
+      new DraftSendGate(repo),
+      {} as never,
+    );
+    const result = await interactor.invoke(input);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.issues).toEqual(
+        expect.arrayContaining([expect.objectContaining({ params: { error: "unipileMessagingUnavailable" } })]),
+      );
+    }
+    expect(service.sendEmail).not.toHaveBeenCalled();
+  });
+
   it("reports an accepted reply as sent with its thread when recording the sent copy failed", async () => {
     const service = {
       sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),

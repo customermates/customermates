@@ -1,4 +1,4 @@
-import { getReprocessStuckWebhookEventsInteractor } from "@/core/di";
+import { getRefreshConnectedAccountStatusesInteractor, getReprocessStuckWebhookEventsInteractor } from "@/core/di";
 import { env } from "@/env";
 
 export const runtime = "nodejs";
@@ -12,6 +12,9 @@ export async function GET(req: Request) {
   if (env.APP_MODE === "demo") return Response.json({ skipped: "demo-mode" });
 
   await getReprocessStuckWebhookEventsInteractor().invoke();
+  const accountStatuses = env.UNIPILE_API_KEY
+    ? await getRefreshConnectedAccountStatusesInteractor().invoke()
+    : undefined;
 
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, accountStatuses });
 }

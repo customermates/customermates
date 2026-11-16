@@ -28,6 +28,7 @@ const {
   getCountChannelsNeedingActionInteractor,
   getGetMyConnectedAccountsInteractor,
   getGetMyConnectedAccountsApiInteractor,
+  getConnectedAccountRepo,
 } = await import("@/core/di");
 const { getWorkspaceContextTool } = await import("@/features/mcp-tools/workspace.mcp-tools");
 const { prisma } = await import("@/prisma/db");
@@ -59,6 +60,12 @@ const accounts = [
   account(colleague, "error", true),
   account(colleague, "permissions"),
 ];
+
+const connectionDetails = {
+  status: "partial",
+  products: { gmail: "disconnected", calendar: "running" },
+  reason: "Provider reported mail unavailable",
+};
 
 const asOwner = (permissions: Array<{ resource: Resource; action: Action }>) => ({
   ...createMockUserWithPermissions(permissions),
@@ -104,6 +111,10 @@ describeDatabase("connected-account reads that every role runs", { timeout: 120_
         });
       }
       await prisma.connectedAccount.createMany({ data: accounts });
+      await prisma.connectedAccount.update({
+        where: { id: accounts[0].id },
+        data: { connectionDetails, statusCheckedAt: new Date("2026-11-16T10:00:00Z") },
+      });
     });
   });
 
@@ -155,6 +166,51 @@ describeDatabase("connected-account reads that every role runs", { timeout: 120_
     if (!listed.ok) throw new Error("Expected the connected-accounts list");
     expect(listed.data.map(({ id }) => id).sort()).toEqual([accounts[0].id, accounts[1].id, accounts[2].id].sort());
     expect(listed.data.find(({ id }) => id === accounts[2].id)?.isOwner).toBe(false);
+    expect(listed.data.find(({ id }) => id === accounts[0].id)).toMatchObject({
+      connectionDetails,
+      statusCheckedAt: new Date("2026-11-16T10:00:00Z"),
+    });
+  });
+
+  it("selects unchecked and stale accounts for reconciliation, excluding deleted and fresh accounts", async () => {
+    const [stale, fresh, deleted] = [randomUUID(), randomUUID(), randomUUID()];
+    await runWithoutTenant(async () => {
+      await prisma.connectedAccount.createMany({
+        data: [
+          { ...account(owner, "ok"), id: stale, statusCheckedAt: new Date("2026-11-16T10:00:00Z") },
+          { ...account(owner, "ok"), id: fresh, statusCheckedAt: new Date("2026-11-16T11:00:00Z") },
+          { ...account(owner, "deleted"), id: deleted },
+        ],
+      });
+      const repo = getConnectedAccountRepo();
+      const rows = await repo.findAccountsNeedingStatusRefreshUnscoped(new Date("2026-11-16T10:30:00Z"));
+      const targets = await prisma.connectedAccount.findMany({ where: { id: { in: [stale, fresh, deleted] } } });
+      const ids = new Set(rows.map(({ unipileAccountId }) => unipileAccountId));
+      expect(targets.filter(({ unipileAccountId }) => ids.has(unipileAccountId)).map(({ id }) => id)).toEqual([stale]);
+    });
+  });
+
+  it("does not let an older concurrent provider read overwrite a newer status", async () => {
+    await runWithoutTenant(async () => {
+      const created = await prisma.connectedAccount.create({
+        data: {
+          ...account(owner, "ok"),
+          statusCheckedAt: new Date("2026-11-16T11:00:00Z"),
+          connectionDetails,
+        },
+      });
+      const result = await getConnectedAccountRepo().updateAccountUnscoped({
+        unipileAccountId: created.unipileAccountId,
+        status: "credentials",
+        statusCheckedAt: new Date("2026-11-16T10:00:00Z"),
+      });
+      expect(result).toBeNull();
+      expect(await prisma.connectedAccount.findUnique({ where: { id: created.id } })).toMatchObject({
+        status: "ok",
+        statusCheckedAt: new Date("2026-11-16T11:00:00Z"),
+        connectionDetails,
+      });
+    });
   });
 
   it("gives the workspace context an empty account list instead of failing, for a role without inbox access", async () => {

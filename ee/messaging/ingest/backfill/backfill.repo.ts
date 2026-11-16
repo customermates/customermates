@@ -1,5 +1,6 @@
 import type { ConnectedAccount, ConnectedAccountStatus } from "@/generated/prisma";
 import type { EmailFolder } from "../../email-folders";
+import type { AccountConnectionDetails } from "../../account-connection.schema";
 
 export type EmailFolderPass = { companyId: string; connectedAccountId: string; folderId: string };
 
@@ -14,6 +15,8 @@ export abstract class BackfillConnectedAccountRepo {
   abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
     status?: ConnectedAccountStatus;
+    connectionDetails?: AccountConnectionDetails;
+    statusCheckedAt?: Date;
     lastSyncedAt?: Date;
     syncing?: boolean;
     hasMessaging?: boolean;

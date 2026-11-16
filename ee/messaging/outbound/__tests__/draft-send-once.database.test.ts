@@ -239,7 +239,7 @@ describeDatabase("sending a saved draft revision at most once", () => {
       [ownerId, ownerEmail, "Draft", "Sender", companyId],
     );
     await client.query(
-      'INSERT INTO "ConnectedAccount" ("id", "companyId", "userId", "provider", "unipileAccountId", "status", "emailAddress", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)',
+      'INSERT INTO "ConnectedAccount" ("id", "companyId", "userId", "provider", "unipileAccountId", "status", "emailAddress", "hasMessaging", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, true, CURRENT_TIMESTAMP)',
       [emailAccountId, companyId, ownerId, MessagingProvider.mail, `unipile-${emailAccountId}`, "ok", ownerEmail],
     );
     await client.query(

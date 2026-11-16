@@ -1,5 +1,3 @@
-import type { TenantUser } from "@/features/user/user.schema";
-
 import type {
   ConnectedAccount,
   ConnectedAccountStatus as ConnectedAccountStatusType,
@@ -7,12 +5,9 @@ import type {
 } from "@/generated/prisma";
 
 import type { EmailFolder } from "../../email-folders";
+import type { AccountConnectionDetails } from "../../account-connection.schema";
 
 import { FindAccountByUnipileIdUnscopedRepo } from "../../persistence/find-account-by-unipile-id-unscoped.repo";
-
-export abstract class WebhookUserRepo {
-  abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
-}
 
 export abstract class AccountWebhookRepo extends FindAccountByUnipileIdUnscopedRepo {
   abstract createAccountUnscoped(args: {
@@ -29,6 +24,8 @@ export abstract class AccountWebhookRepo extends FindAccountByUnipileIdUnscopedR
   abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
     status?: ConnectedAccountStatusType;
+    connectionDetails?: AccountConnectionDetails;
+    statusCheckedAt?: Date;
     displayName?: string | null;
     emailAddress?: string | null;
     provider?: MessagingProvider;

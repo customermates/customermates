@@ -27,6 +27,7 @@ import { PlanUpsellNotice } from "@/app/components/upsell/plan-upsell-notice";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
+import { AccountConnectionDetails } from "./account-connection-details";
 import { isEmailProvider } from "@/ee/messaging/provider";
 
 import { AccountFolders } from "./account-folders";
@@ -47,7 +48,7 @@ export const ConnectedAccountModal = observer(() => {
     tab: "details",
   });
 
-  const showEmailTab = isEmailProvider(account.provider) && account.isOwner;
+  const showEmailTab = isEmailProvider(account.provider) && account.hasMessaging && account.isOwner;
   const showFoldersTab = account.folders.length > 0;
   const requestedTab = tabState.accountId === account.id ? tabState.tab : "details";
   const activeTab =
@@ -69,6 +70,7 @@ export const ConnectedAccountModal = observer(() => {
     (account.status === "credentials" ||
       account.status === "permissions" ||
       account.status === "error" ||
+      account.connectionDetails?.status === "partial" ||
       account.status === "stopped");
   const canResync = canUpdate && (account.status === "ok" || account.status === "connecting");
   const hasAccountActions = account.isOwner && (canReconnect || canResync || canDelete);
@@ -76,8 +78,8 @@ export const ConnectedAccountModal = observer(() => {
     appMode: rootStore.appMode,
     plan: subscriptionStore.subscription?.plan ?? "pro",
   }).sharedAccounts;
-  const primaryAction: AppModalActionProps | null = hasAccountActions
-    ? canReconnect
+  const reconnectAction: AppModalActionProps | null =
+    hasAccountActions && canReconnect
       ? {
           id: "reconnect-account",
           anchorId: "connected-account-reactivate",
@@ -85,16 +87,17 @@ export const ConnectedAccountModal = observer(() => {
           icon: Plug,
           onClick: () => connectedAccountsStore.reconnect(account.id),
         }
-      : canResync
-        ? {
-            id: "resync-account",
-            anchorId: "connected-account-resync",
-            label: t("ConnectedAccountsCard.resync"),
-            icon: RefreshCw,
-            onClick: () => connectedAccountsStore.resync(account.id),
-          }
-        : null
-    : null;
+      : null;
+  const resyncAction: AppModalActionProps | null =
+    hasAccountActions && canResync
+      ? {
+          id: "resync-account",
+          anchorId: "connected-account-resync",
+          label: t("ConnectedAccountsCard.resync"),
+          icon: RefreshCw,
+          onClick: () => connectedAccountsStore.resync(account.id),
+        }
+      : null;
   const destructiveAction: AppModalActionProps | null =
     hasAccountActions && canDelete
       ? {
@@ -111,13 +114,9 @@ export const ConnectedAccountModal = observer(() => {
             }, title),
         }
       : null;
-  const modalActions: AppModalActions = primaryAction
-    ? destructiveAction
-      ? [primaryAction, destructiveAction]
-      : [primaryAction]
-    : destructiveAction
-      ? [destructiveAction]
-      : [];
+  const modalActions: AppModalActions = [resyncAction, reconnectAction, destructiveAction].filter(
+    (action) => action !== null,
+  );
 
   return (
     <AppModal
@@ -193,6 +192,14 @@ export const ConnectedAccountModal = observer(() => {
                     </AppChip>
                   )}
                 </InfoRow>
+
+                <AccountConnectionDetails account={account} />
+
+                {account.statusCheckedAt && (
+                  <InfoRow label={t("ConnectedAccountsCard.statusCheckedAt")}>
+                    {intlStore.formatNumericalShortDateTime(account.statusCheckedAt)}
+                  </InfoRow>
+                )}
 
                 <InfoRow label={t("ConnectedAccountsCard.ownerLabel")}>
                   <AvatarStack

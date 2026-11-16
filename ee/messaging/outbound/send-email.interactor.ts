@@ -201,6 +201,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
     }
     if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);
+    if (account.hasMessaging === false) return fail(CustomErrorCode.unipileMessagingUnavailable, []);
 
     let draft: DraftThreadTarget | null = null;
     if (data.draftMessageId && data.draftRevision) {
