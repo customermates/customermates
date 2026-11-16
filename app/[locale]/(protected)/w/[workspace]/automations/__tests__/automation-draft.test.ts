@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import type { RecordModelView } from "@/features/records/record-model.schema";
-import type { AutomationBuilderModel } from "../automation-builder-model";
-import type { AutomationDraft } from "../automation-draft";
-import type { AutomationRuleDto } from "../automation-rule.schema";
+import type { AutomationRuleDto } from "@/features/automation-rules/automation-rule.schema";
+import type { AutomationBuilderModel } from "../components/automation-builder-model";
+import type { AutomationDraft } from "../components/automation-draft";
 
-import { toAutomationBuilderModel } from "../automation-builder-model";
-import { draftToUpsert, emptyDraft, reminderDraft, ruleToDraft, scalarFor } from "../automation-draft";
-import { automationModelIssues } from "../automation-model-validation";
-import { UpsertAutomationRuleSchema } from "../automation-rule.schema";
+import { automationModelIssues } from "@/features/automation-rules/automation-model-validation";
+import { UpsertAutomationRuleSchema } from "@/features/automation-rules/automation-rule.schema";
+import { toAutomationBuilderModel } from "../components/automation-builder-model";
+import { draftToUpsert, emptyDraft, reminderDraft, ruleToDraft, scalarFor } from "../components/automation-draft";
 
 const DEALS = "11111111-1111-4111-8111-111111111111";
 const TASKS = "11111111-1111-4111-8111-222222222222";

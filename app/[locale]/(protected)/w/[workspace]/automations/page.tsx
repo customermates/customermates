@@ -4,8 +4,9 @@ import { getGetAutomationRulesInteractor, getGetRecordModelInteractor } from "@/
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { requireAccess } from "@/features/auth/next/require";
-import { toAutomationBuilderModel } from "@/features/automation-rules/automation-builder-model";
+import { AUTOMATION_RULE_PAGE_SIZE } from "@/features/automation-rules/automation-rule.schema";
 
+import { toAutomationBuilderModel } from "./components/automation-builder-model";
 import { AutomationsView, type AutomationsPrefill } from "./components/automations-view";
 
 type Props = {
@@ -28,13 +29,20 @@ export default async function AutomationsPage({ searchParams }: Props) {
 
   const params = await searchParams;
   const [rules, model] = await Promise.all([
-    unwrapPage(getGetAutomationRulesInteractor().invoke({ page: 1, pageSize: 100, owner: "all" })),
+    unwrapPage(
+      getGetAutomationRulesInteractor().invoke({ page: 1, pageSize: AUTOMATION_RULE_PAGE_SIZE, owner: "all" }),
+    ),
     unwrapPage(getGetRecordModelInteractor().invoke({})),
   ]);
 
   return (
     <PageContainer padded={false}>
-      <AutomationsView initialRules={rules.items} model={toAutomationBuilderModel(model)} prefill={prefillOf(params)} />
+      <AutomationsView
+        initialRules={rules.items}
+        model={toAutomationBuilderModel(model)}
+        prefill={prefillOf(params)}
+        total={rules.total}
+      />
     </PageContainer>
   );
 }

@@ -148,10 +148,10 @@ export const automationRuleApiPaths = {
         "Returns one rule's run history newest first. Each run has its status (queued, running, applied, skipped or failed), the record it concerned, the outcome of every effect and, when skipped, the reason.",
       permission: "read permission on routines",
       input: GetAutomationRuleRunsSchema,
-      inputExample: { id: RULE_ID, page: 1, pageSize: 25 },
+      inputExample: { id: RULE_ID },
       output: AutomationRuleRunPageSchema,
       outputExample: {
-        items: [
+        runs: [
           {
             id: "5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c1d",
             ruleId: RULE_ID,
@@ -168,9 +168,9 @@ export const automationRuleApiPaths = {
             createdAt: "2026-11-12T07:05:01.000Z",
           },
         ],
-        total: 1,
+        nextCursor: null,
       },
-      statusDescription: "One page of runs.",
+      statusDescription: "One page of runs, with the cursor of the next page or null.",
     }),
   },
   "/v1/rules/create": {

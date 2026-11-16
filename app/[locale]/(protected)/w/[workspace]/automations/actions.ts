@@ -3,6 +3,7 @@
 import type {
   AutomationRuleIdData,
   GetAutomationRuleRunsData,
+  GetAutomationRulesData,
   SetAutomationRuleEnabledData,
   UpsertAutomationRuleData,
 } from "@/features/automation-rules/automation-rule.schema";
@@ -10,10 +11,15 @@ import type {
 import {
   getDeleteAutomationRuleInteractor,
   getGetAutomationRuleRunsInteractor,
+  getGetAutomationRulesInteractor,
   getSetAutomationRuleEnabledInteractor,
   getUpsertAutomationRuleInteractor,
 } from "@/core/di";
 import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
+
+export async function getAutomationRulesAction(data: GetAutomationRulesData) {
+  return serializeTypedResult(getGetAutomationRulesInteractor().invoke(data));
+}
 
 export async function upsertAutomationRuleAction(data: UpsertAutomationRuleData) {
   return serializeResult(getUpsertAutomationRuleInteractor().invoke(data));
@@ -27,8 +33,6 @@ export async function deleteAutomationRuleAction(data: AutomationRuleIdData) {
   return serializeResult(getDeleteAutomationRuleInteractor().invoke(data));
 }
 
-export async function getAutomationRuleRunsAction(
-  data: Pick<GetAutomationRuleRunsData, "id"> & Partial<GetAutomationRuleRunsData>,
-) {
-  return serializeTypedResult(getGetAutomationRuleRunsInteractor().invoke(data as GetAutomationRuleRunsData));
+export async function getAutomationRuleRunsAction(data: GetAutomationRuleRunsData) {
+  return serializeTypedResult(getGetAutomationRuleRunsInteractor().invoke(data));
 }

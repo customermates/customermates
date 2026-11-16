@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Your plan includes {limit} active automations. Upgrade your plan (from {price} per user per month) or switch another automation off.",
       "automationRuleNotFound": "Automation ID not found or not accessible.",
       "automationRuleOwnerIneligible": "The owner of an automation must be an active member of this workspace.",
+      "automationRuleRunCursorInvalid": "That page link for the run history is no longer valid. Reload the history and try again.",
       "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "bookingAnswerInvalid": "An answer is missing or not valid.",
       "bookingLinkLimitReached": "You can have at most {limit} booking links. Delete one to create another.",

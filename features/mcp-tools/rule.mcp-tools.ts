@@ -22,7 +22,7 @@ const ManageRulesSchema = z.object({
   action: z
     .enum(["list", "get", "runs", "create", "update", "enable", "disable", "delete", "preview"])
     .describe(
-      "Rule operation. Keys per action: list = optional typeId, owner, page, pageSize; get, enable, disable and delete = id; runs = id, optional page, pageSize; create = name, trigger, effects, then optional conditions, enabled; update = id plus any of name, trigger, conditions, effects, enabled; preview = id, or trigger with optional conditions (date-reached rules only).",
+      "Rule operation. Keys per action: list = optional typeId, owner, page, pageSize; get, enable, disable and delete = id; runs = id, optional cursor; create = name, trigger, effects, then optional conditions, enabled; update = id plus any of name, trigger, conditions, effects, enabled; preview = id, or trigger with optional conditions (date-reached rules only).",
     ),
   id: z
     .uuid()
@@ -54,7 +54,12 @@ const ManageRulesSchema = z.object({
   typeId: z.uuid().optional().describe("list only. Limits the list to rules about this list (record type)."),
   owner: z.enum(["all", "mine"]).default("all").describe("list only. mine returns the rules the caller owns."),
   page: mcpPage(),
-  pageSize: mcpPageSize(25, `list and runs only. ${MCP_PAGE_SIZE_DESCRIPTION} Default 25.`),
+  pageSize: mcpPageSize(25, `list only. ${MCP_PAGE_SIZE_DESCRIPTION} Default 25.`),
+  cursor: z
+    .string()
+    .max(500)
+    .optional()
+    .describe("runs only. The nextCursor of the previous page. Omit it for the newest runs."),
 });
 
 const ManageRulesOutputSchema = z
@@ -63,6 +68,8 @@ const ManageRulesOutputSchema = z
     total: z.number().optional(),
     page: z.number().optional(),
     pageSize: z.number().optional(),
+    runs: z.array(z.looseObject({ id: z.string() })).optional(),
+    nextCursor: z.string().nullable().optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     enabled: z.boolean().optional(),
@@ -72,7 +79,7 @@ const ManageRulesOutputSchema = z
     alreadyFired: z.number().optional(),
   })
   .describe(
-    "list and runs return items, total, page and pageSize; get, create, update, enable and disable return the rule with its trigger, conditions and effects; delete returns deleted and id; preview returns supported, total, recordIds (at most 50) and alreadyFired.",
+    "list returns items, total, page and pageSize; runs returns runs and nextCursor (null on the last page); get, create, update, enable and disable return the rule with its trigger, conditions and effects; delete returns deleted and id; preview returns supported, total, recordIds (at most 50) and alreadyFired.",
   );
 
 export const manageRulesTool = {
@@ -156,9 +163,8 @@ export const manageRulesTool = {
       return runInteractor(getGetAutomationRuleInteractor().invoke({ id }), (data) => toonResult({ ...data }));
 
     if (params.action === "runs" && id) {
-      return runInteractor(
-        getGetAutomationRuleRunsInteractor().invoke({ id, page: params.page, pageSize: params.pageSize }),
-        (data) => toonResult({ total: data.total, page: params.page, pageSize: params.pageSize, items: data.items }),
+      return runInteractor(getGetAutomationRuleRunsInteractor().invoke({ id, cursor: params.cursor }), (data) =>
+        toonResult({ nextCursor: data.nextCursor, runs: data.runs }),
       );
     }
 

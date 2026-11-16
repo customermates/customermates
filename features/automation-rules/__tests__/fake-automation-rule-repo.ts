@@ -10,6 +10,7 @@ import type {
   StoredAutomationRuleRun,
 } from "../automation-rule.repo";
 import type { RuleRecordTrigger } from "../automation-record-trigger";
+import type { AutomationRunCursor } from "../automation-run-cursor";
 
 import { AutomationRuleRepo } from "../automation-rule.repo";
 
@@ -89,9 +90,20 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve([...this.rules.values()].filter((rule) => rule.enabled && rule.id !== excludeId).length);
   }
 
-  findRuns(args: { ruleId: string; page: number; pageSize: number }) {
-    const items = [...this.runs.values()].filter((run) => run.ruleId === args.ruleId);
-    return Promise.resolve({ items, total: items.length });
+  findRuns(args: { ruleId: string; cursor: AutomationRunCursor | null; limit: number }) {
+    const { cursor } = args;
+    return Promise.resolve(
+      [...this.runs.values()]
+        .filter(
+          (run) =>
+            run.ruleId === args.ruleId &&
+            (!cursor ||
+              run.createdAt < cursor.createdAt ||
+              (run.createdAt.getTime() === cursor.createdAt.getTime() && run.id < cursor.id)),
+        )
+        .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime() || right.id.localeCompare(left.id))
+        .slice(0, args.limit),
+    );
   }
 
   findEnabledRulesUnscoped(args: {

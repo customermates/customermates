@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Je pakket bevat {limit} actieve automatiseringen. Upgrade je pakket (vanaf {price} per gebruiker per maand) of zet een andere automatisering uit.",
       "automationRuleNotFound": "Automatiserings-ID niet gevonden of niet toegankelijk.",
       "automationRuleOwnerIneligible": "De eigenaar van een automatisering moet een actief lid van deze werkruimte zijn.",
+      "automationRuleRunCursorInvalid": "Die paginalink voor de uitvoeringsgeschiedenis is niet meer geldig. Laad de geschiedenis opnieuw en probeer het nogmaals.",
       "billingPortalUnavailable": "Het factureringsportaal is niet beschikbaar voor deze werkruimte. Neem contact op met support om wijzigingen aan te brengen.",
       "bookingAnswerInvalid": "Een antwoord ontbreekt of is ongeldig.",
       "bookingLinkLimitReached": "Je kunt maximaal {limit} boekingspagina's hebben. Verwijder er een om een nieuwe te maken.",

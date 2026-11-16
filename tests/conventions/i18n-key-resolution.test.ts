@@ -678,17 +678,17 @@ const AUTOMATION_TRIGGER_KINDS = [
 ] as const;
 const NOTIFICATION_KIND_NAMES = ["dueToday", "replyReceived", "ruleAlert"] as const;
 const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string[]]> = [
-  [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: builder.boolean.\${option}`, AUTOMATION_KEYS("builder.boolean", ["false", "true"])],
-  [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: effect.\${kind}`, AUTOMATION_KEYS("effect", ["createRecord", "notify", "setField"])],
+  [`${AUTOMATIONS_DIRECTORY}/automation-builder-fields.tsx :: t :: builder.boolean.\${option}`, AUTOMATION_KEYS("builder.boolean", ["false", "true"])],
+  [`${AUTOMATIONS_DIRECTORY}/automation-effects-editor.tsx :: t :: effect.\${kind}`, AUTOMATION_KEYS("effect", ["createRecord", "notify", "setField"])],
   [
-    `${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: notificationKind.\${kind}`,
+    `${AUTOMATIONS_DIRECTORY}/automation-effect-editors.tsx :: t :: notificationKind.\${kind}`,
     AUTOMATION_KEYS("notificationKind", ["dueToday", "replyReceived", "ruleAlert"]),
   ],
   [
-    `${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: operator.\${operator}`,
+    `${AUTOMATIONS_DIRECTORY}/automation-conditions-editor.tsx :: t :: operator.\${operator}`,
     AUTOMATION_KEYS("operator", ["after", "before", "empty", "equals", "notEmpty", "notEquals"]),
   ],
-  [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: trigger.\${kind}`, AUTOMATION_KEYS("trigger", AUTOMATION_TRIGGER_KINDS)],
+  [`${AUTOMATIONS_DIRECTORY}/automation-trigger-editor.tsx :: t :: trigger.\${kind}`, AUTOMATION_KEYS("trigger", AUTOMATION_TRIGGER_KINDS)],
   [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
   [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
   [

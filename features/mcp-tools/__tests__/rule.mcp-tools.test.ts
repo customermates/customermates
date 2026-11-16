@@ -147,9 +147,12 @@ describe("manage_rules", () => {
     spies.get.mockResolvedValue({ ok: true, data: rule });
     expect(structured(await run({ action: "get", id: RULE }))).toMatchObject({ id: RULE, effects: expect.any(Array) });
 
-    spies.runs.mockResolvedValue({ ok: true, data: { items: [{ id: "r1" }], total: 1 } });
-    expect(structured(await run({ action: "runs", id: RULE, pageSize: 5 }))).toMatchObject({ total: 1, pageSize: 5 });
-    expect(spies.runs).toHaveBeenCalledWith({ id: RULE, page: 1, pageSize: 5 });
+    spies.runs.mockResolvedValue({ ok: true, data: { runs: [{ id: "r1" }], nextCursor: "next" } });
+    expect(structured(await run({ action: "runs", id: RULE, cursor: "page-2" }))).toMatchObject({
+      runs: [{ id: "r1" }],
+      nextCursor: "next",
+    });
+    expect(spies.runs).toHaveBeenCalledWith({ id: RULE, cursor: "page-2" });
 
     spies.remove.mockResolvedValue({ ok: true, data: { deleted: true, id: RULE } });
     expect(structured(await run({ action: "delete", id: RULE }))).toEqual({ deleted: true, id: RULE });

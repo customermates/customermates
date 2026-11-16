@@ -17,23 +17,15 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { IntlLink } from "@/i18n/navigation";
 
 import { getAutomationRuleRunsAction } from "../actions";
+import { AUTOMATION_STATUS_VARIANT } from "./automation-status-variant";
 
 type Props = { rule: AutomationRuleDto | null; onClose: () => void };
-
-const PAGE_SIZE = 25;
-const STATUS_VARIANT = {
-  queued: "secondary",
-  running: "info",
-  applied: "success",
-  skipped: "warning",
-  failed: "destructive",
-} as const;
 
 export function AutomationRunHistory({ rule, onClose }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const [runs, setRuns] = useState<AutomationRuleRunDto[]>([]);
-  const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const ruleId = rule?.id ?? null;
 
@@ -41,11 +33,11 @@ export function AutomationRunHistory({ rule, onClose }: Props) {
     if (!ruleId) return;
     let active = true;
     setLoading(true);
-    void actionDataOrNull(getAutomationRuleRunsAction({ id: ruleId, page: 1, pageSize: PAGE_SIZE }))
+    void actionDataOrNull(getAutomationRuleRunsAction({ id: ruleId }))
       .then((page) => {
         if (!active) return;
-        setRuns(page?.items ?? []);
-        setTotal(page?.total ?? 0);
+        setRuns(page?.runs ?? []);
+        setNextCursor(page?.nextCursor ?? null);
         setLoading(false);
       })
       .catch((error: unknown) => {
@@ -58,13 +50,12 @@ export function AutomationRunHistory({ rule, onClose }: Props) {
   }, [ruleId]);
 
   const more = () => {
-    if (!ruleId) return;
+    if (!ruleId || !nextCursor) return;
     setLoading(true);
-    void actionDataOrNull(
-      getAutomationRuleRunsAction({ id: ruleId, page: Math.floor(runs.length / PAGE_SIZE) + 1, pageSize: PAGE_SIZE }),
-    )
+    void actionDataOrNull(getAutomationRuleRunsAction({ id: ruleId, cursor: nextCursor }))
       .then((page) => {
-        setRuns((current) => [...current, ...(page?.items ?? [])]);
+        setRuns((current) => [...current, ...(page?.runs ?? [])]);
+        setNextCursor(page?.nextCursor ?? null);
         setLoading(false);
       })
       .catch((error: unknown) => {
@@ -90,7 +81,9 @@ export function AutomationRunHistory({ rule, onClose }: Props) {
             {runs.map((run) => (
               <li key={run.id} className="flex flex-col gap-1.5 rounded-md border border-border p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Badge variant={STATUS_VARIANT[run.status]}>{t(`AutomationRules.status.${run.status}`)}</Badge>
+                  <Badge variant={AUTOMATION_STATUS_VARIANT[run.status]}>
+                    {t(`AutomationRules.status.${run.status}`)}
+                  </Badge>
 
                   <span className="text-xs text-muted-foreground">
                     {intlStore.formatRelativeTime(new Date(run.createdAt))}
@@ -126,7 +119,7 @@ export function AutomationRunHistory({ rule, onClose }: Props) {
 
           {loading && <Spinner aria-label={t("PageState.loading")} />}
 
-          {!loading && runs.length < total && (
+          {!loading && nextCursor && (
             <div>
               <Button size="sm" variant="secondary" onClick={more}>
                 {t("Common.actions.loadMore")}

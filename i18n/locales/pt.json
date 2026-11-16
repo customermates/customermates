@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Seu plano inclui {limit} automações ativas. Faça upgrade do plano (a partir de {price} por usuário por mês) ou desative outra automação.",
       "automationRuleNotFound": "ID da automação não encontrado ou inacessível.",
       "automationRuleOwnerIneligible": "O proprietário de uma automação precisa ser um membro ativo deste espaço de trabalho.",
+      "automationRuleRunCursorInvalid": "Esse link de página do histórico de execuções não é mais válido. Recarregue o histórico e tente novamente.",
       "billingPortalUnavailable": "O portal de cobrança não está disponível para este espaço de trabalho. Entre em contato com o suporte para fazer alterações.",
       "bookingAnswerInvalid": "Uma resposta está faltando ou não é válida.",
       "bookingLinkLimitReached": "Você pode ter no máximo {limit} páginas de agendamento. Exclua uma para criar outra.",

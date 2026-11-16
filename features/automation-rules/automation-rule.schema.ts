@@ -346,18 +346,25 @@ export const AutomationRuleRunDtoSchema = z.object({
 });
 export type AutomationRuleRunDto = Data<typeof AutomationRuleRunDtoSchema>;
 
+export const AUTOMATION_RUN_PAGE_SIZE = 25;
+export const AUTOMATION_RULE_PAGE_SIZE = 25;
+
 export const GetAutomationRuleRunsSchema = z
   .object({
     id: z.uuid(),
-    page: z.number().int().min(1).default(1),
-    pageSize: z.number().int().min(1).max(100).default(25),
+    cursor: z
+      .string()
+      .max(500)
+      .nullable()
+      .optional()
+      .describe("The nextCursor of the previous page. Omit it for the newest runs."),
   })
   .strict();
 export type GetAutomationRuleRunsData = z.output<typeof GetAutomationRuleRunsSchema>;
 
 export const AutomationRuleRunPageSchema = z.object({
-  items: z.array(AutomationRuleRunDtoSchema),
-  total: z.number().int().nonnegative(),
+  runs: z.array(AutomationRuleRunDtoSchema),
+  nextCursor: z.string().nullable(),
 });
 export type AutomationRuleRunPage = z.infer<typeof AutomationRuleRunPageSchema>;
 

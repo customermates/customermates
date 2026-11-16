@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Twój plan obejmuje {limit} aktywnych automatyzacji. Przejdź na wyższy plan (od {price} za użytkownika miesięcznie) lub wyłącz inną automatyzację.",
       "automationRuleNotFound": "Nie znaleziono automatyzacji o tym ID albo brak do niej dostępu.",
       "automationRuleOwnerIneligible": "Właściciel automatyzacji musi być aktywnym członkiem tego obszaru roboczego.",
+      "automationRuleRunCursorInvalid": "Ten link do strony historii uruchomień jest już nieważny. Załaduj historię ponownie i spróbuj jeszcze raz.",
       "billingPortalUnavailable": "Portal rozliczeń jest niedostępny dla tej przestrzeni roboczej. Skontaktuj się z pomocą techniczną, aby wprowadzić zmiany.",
       "bookingAnswerInvalid": "Brakuje odpowiedzi lub jest nieprawidłowa.",
       "bookingLinkLimitReached": "Limit stron rezerwacji to {limit}. Usuń jedną, aby utworzyć kolejną.",

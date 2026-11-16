@@ -1,5 +1,6 @@
 import type { AutomationRunStatus, AutomationTriggerKind, Prisma, Status } from "@/generated/prisma";
 import type { RuleRecordTrigger } from "./automation-record-trigger";
+import type { AutomationRunCursor } from "./automation-run-cursor";
 
 export type StoredAutomationRule = {
   id: string;
@@ -95,9 +96,9 @@ export abstract class AutomationRuleRepo {
   abstract countActiveRules(excludeId?: string): Promise<number>;
   abstract findRuns(args: {
     ruleId: string;
-    page: number;
-    pageSize: number;
-  }): Promise<{ items: StoredAutomationRuleRun[]; total: number }>;
+    cursor: AutomationRunCursor | null;
+    limit: number;
+  }): Promise<StoredAutomationRuleRun[]>;
 
   abstract findEnabledRulesUnscoped(args: {
     companyId: string;

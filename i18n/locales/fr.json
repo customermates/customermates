@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Votre forfait inclut {limit} automatisations actives. Changez de forfait (à partir de {price} par utilisateur et par mois) ou désactivez une autre automatisation.",
       "automationRuleNotFound": "ID d’automatisation introuvable ou inaccessible.",
       "automationRuleOwnerIneligible": "Le propriétaire d’une automatisation doit être un membre actif de cet espace de travail.",
+      "automationRuleRunCursorInvalid": "Ce lien de page de l’historique des exécutions n’est plus valide. Rechargez l’historique et réessayez.",
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "bookingAnswerInvalid": "Une réponse est manquante ou invalide.",
       "bookingLinkLimitReached": "Vous pouvez avoir au maximum {limit} pages de réservation. Supprimez-en une pour en créer une autre.",

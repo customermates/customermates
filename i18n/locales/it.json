@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Il tuo piano include {limit} automazioni attive. Passa a un altro piano (da {price} per utente al mese) o disattiva un’altra automazione.",
       "automationRuleNotFound": "ID dell’automazione non trovato o non accessibile.",
       "automationRuleOwnerIneligible": "Il proprietario di un’automazione deve essere un membro attivo di questo spazio di lavoro.",
+      "automationRuleRunCursorInvalid": "Questo link di pagina della cronologia delle esecuzioni non è più valido. Ricarica la cronologia e riprova.",
       "billingPortalUnavailable": "Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.",
       "bookingAnswerInvalid": "Una risposta manca o non è valida.",
       "bookingLinkLimitReached": "Puoi avere al massimo {limit} pagine di prenotazione. Eliminane una per crearne un’altra.",

@@ -31,6 +31,7 @@ import type { CalculatedValue } from "@/features/records/record-model.schema";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AutomationPlanLimitsAdapter } from "../automation-plan-limits";
+import { AUTOMATION_RUN_PAGE_SIZE } from "../automation-rule.schema";
 import { DeleteAutomationRuleInteractor } from "../delete-automation-rule.interactor";
 import { GetAutomationRuleRunsInteractor } from "../get-automation-rule-runs.interactor";
 import { GetAutomationRulesInteractor } from "../get-automation-rules.interactor";
@@ -344,7 +345,7 @@ describe("reading rules", () => {
     const run = (id: string, user = mockUser) => runWithTenant(user, () => runs.invoke({ id } as never));
     await expect(run(RULE)).resolves.toMatchObject({
       ok: true,
-      data: { total: 1, items: [{ ruleId: RULE, effects: [] }] },
+      data: { nextCursor: null, runs: [{ ruleId: RULE, effects: [] }] },
     });
     const own = {
       ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
@@ -353,6 +354,39 @@ describe("reading rules", () => {
     };
     expect((await run(RULE, own)).ok).toBe(false);
     expect((await run("00000000-0000-4000-8000-0000000000ff")).ok).toBe(false);
+  });
+
+  it("pages through the runs newest first with a cursor and refuses a broken cursor", async () => {
+    const times = Array.from({ length: 30 }, (_, index) => new Date(NOW.getTime() - index * 60_000));
+    for (const [index, createdAt] of times.entries()) {
+      await repo.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey: `event:page-${index}`,
+        triggerKind: "recordCreated",
+        typeId: DEALS,
+        recordId: RECORD,
+        payload: null,
+        depth: 0,
+        scheduledFor: createdAt,
+      });
+    }
+    for (const [index, run] of [...repo.runs.values()].entries())
+      repo.runs.set(run.id, { ...run, createdAt: times[index] ?? run.createdAt });
+    const runs = new GetAutomationRuleRunsInteractor(repo);
+    const page = (input: unknown) => runWithTenant(mockUser, () => runs.invoke(input as never));
+
+    const first = await page({ id: RULE });
+    if (!first.ok) throw new Error("expected the first page");
+    expect(first.data.runs).toHaveLength(AUTOMATION_RUN_PAGE_SIZE);
+    expect(first.data.nextCursor).toEqual(expect.any(String));
+    const second = await page({ id: RULE, cursor: first.data.nextCursor });
+    if (!second.ok) throw new Error("expected the second page");
+    expect(second.data.runs).toHaveLength(30 - AUTOMATION_RUN_PAGE_SIZE);
+    expect(second.data.nextCursor).toBeNull();
+    const ids = [...first.data.runs, ...second.data.runs].map((item) => item.id);
+    expect(new Set(ids).size).toBe(30);
+    expect((await page({ id: RULE, cursor: "not a cursor" })).ok).toBe(false);
   });
 });
 

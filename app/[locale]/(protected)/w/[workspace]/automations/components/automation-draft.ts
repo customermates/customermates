@@ -6,7 +6,9 @@ import type {
   AutomationRuleDto,
   AutomationTrigger,
   UpsertAutomationRuleData,
-} from "./automation-rule.schema";
+} from "@/features/automation-rules/automation-rule.schema";
+
+import { AUTOMATION_DATE_OFFSET_MAX_DAYS } from "@/features/automation-rules/automation-rule.schema";
 
 export const DRAFT_TRIGGER_KINDS = [
   "recordCreated",
@@ -177,7 +179,8 @@ function toTrigger(draft: DraftTrigger, model: AutomationBuilderModel): Automati
   }
   const days = Number(draft.days);
   const atHour = Number(draft.atHour);
-  if (!DATE_TYPES.has(field.valueType) || !Number.isInteger(days) || days < 0 || days > 3650) return null;
+  if (!DATE_TYPES.has(field.valueType) || !Number.isInteger(days) || days < 0 || days > AUTOMATION_DATE_OFFSET_MAX_DAYS)
+    return null;
   if (!Number.isInteger(atHour) || atHour < 0 || atHour > 23 || !draft.timezone) return null;
   return {
     kind: "dateReached",

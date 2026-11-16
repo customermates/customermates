@@ -5,9 +5,9 @@ import { useCallback, useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import type { AutomationBuilderModel } from "@/features/automation-rules/automation-builder-model";
-import type { AutomationDraft } from "@/features/automation-rules/automation-draft";
 import type { AutomationRuleDto } from "@/features/automation-rules/automation-rule.schema";
+import type { AutomationBuilderModel } from "./automation-builder-model";
+import type { AutomationDraft } from "./automation-draft";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AppCard } from "@/components/card/app-card";
@@ -20,39 +20,34 @@ import { Switch } from "@/components/ui/switch";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import {
-  emptyDraft,
-  fieldOfList,
-  listOf,
-  reminderDraft,
-  ruleToDraft,
-} from "@/features/automation-rules/automation-draft";
+import { AUTOMATION_RULE_PAGE_SIZE } from "@/features/automation-rules/automation-rule.schema";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
-import { deleteAutomationRuleAction, setAutomationRuleEnabledAction } from "../actions";
+import { deleteAutomationRuleAction, getAutomationRulesAction, setAutomationRuleEnabledAction } from "../actions";
 import { AutomationBuilder } from "./automation-builder";
+import { emptyDraft, fieldOfList, listOf, reminderDraft, ruleToDraft } from "./automation-draft";
 import { AutomationRunHistory } from "./automation-run-history";
+import { AUTOMATION_STATUS_VARIANT } from "./automation-status-variant";
 
 export type AutomationsPrefill =
   | { kind: "new"; typeId: string }
   | { kind: "remind"; typeId: string; fieldId: string }
   | null;
 
-type Props = { initialRules: AutomationRuleDto[]; model: AutomationBuilderModel; prefill: AutomationsPrefill };
+type Props = {
+  initialRules: AutomationRuleDto[];
+  model: AutomationBuilderModel;
+  prefill: AutomationsPrefill;
+  total: number;
+};
 
-const STATUS_VARIANT = {
-  queued: "secondary",
-  running: "info",
-  applied: "success",
-  skipped: "warning",
-  failed: "destructive",
-} as const;
-
-const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
+const AutomationsViewContent = ({ initialRules, model, prefill, total: initialTotal }: Props) => {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const { showConfirmation } = useDeleteConfirmation();
   const [rules, setRules] = useState(initialRules);
+  const [total, setTotal] = useState(initialTotal);
+  const [pageCount, setPageCount] = useState(1);
   const [draft, setDraft] = useState<AutomationDraft | null>(() => {
     if (!prefill || !listOf(model, prefill.typeId)) return null;
     const timezone = browserTimeZone();
@@ -67,12 +62,33 @@ const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
   const topBar = useMemo(() => <TopBarPrimaryButton label={t("AutomationRules.new")} onClick={create} />, [create, t]);
   useSetTopBarActions(topBar);
 
-  const replace = (rule: AutomationRuleDto) =>
+  const replace = (rule: AutomationRuleDto) => {
+    if (!rules.some((item) => item.id === rule.id)) setTotal((current) => current + 1);
     setRules((current) =>
       current.some((item) => item.id === rule.id)
         ? current.map((item) => (item.id === rule.id ? rule : item))
         : [rule, ...current],
     );
+  };
+
+  const loadMore = () =>
+    startTransition(async () => {
+      const result = await getAutomationRulesAction({
+        page: pageCount + 1,
+        pageSize: AUTOMATION_RULE_PAGE_SIZE,
+        owner: "all",
+      });
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        return;
+      }
+      setPageCount((current) => current + 1);
+      setTotal(result.data.total);
+      setRules((current) => [
+        ...current,
+        ...result.data.items.filter((item) => !current.some((known) => known.id === item.id)),
+      ]);
+    });
 
   const toggle = (rule: AutomationRuleDto, enabled: boolean) =>
     startTransition(async () => {
@@ -98,6 +114,7 @@ const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
           return false;
         }
         setRules((current) => current.filter((item) => item.id !== rule.id));
+        setTotal((current) => Math.max(0, current - 1));
         return true;
       },
     });
@@ -156,7 +173,7 @@ const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
 
                     <div className="flex items-center gap-2">
                       {rule.lastRunStatus && (
-                        <Badge variant={STATUS_VARIANT[rule.lastRunStatus]}>
+                        <Badge variant={AUTOMATION_STATUS_VARIANT[rule.lastRunStatus]}>
                           {t(`AutomationRules.status.${rule.lastRunStatus}`)}
                         </Badge>
                       )}
@@ -215,6 +232,14 @@ const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
             </li>
           ))}
         </ul>
+      )}
+
+      {rules.length < total && (
+        <div>
+          <Button disabled={pending} size="sm" variant="secondary" onClick={loadMore}>
+            {t("Common.actions.loadMore")}
+          </Button>
+        </div>
       )}
 
       <AutomationBuilder

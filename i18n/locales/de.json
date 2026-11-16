@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Dein Tarif enthält {limit} aktive Automatisierungen. Wechsle deinen Tarif (ab {price} pro Nutzer und Monat) oder schalte eine andere Automatisierung aus.",
       "automationRuleNotFound": "Automatisierungs-ID nicht gefunden oder nicht zugänglich.",
       "automationRuleOwnerIneligible": "Die Eigentümerin oder der Eigentümer einer Automatisierung muss ein aktives Mitglied dieses Workspaces sein.",
+      "automationRuleRunCursorInvalid": "Dieser Link zur Seite des Ausführungsverlaufs ist nicht mehr gültig. Lade den Verlauf neu und versuche es noch einmal.",
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "bookingAnswerInvalid": "Eine Antwort fehlt oder ist ungültig.",
       "bookingLinkLimitReached": "Du kannst höchstens {limit} Buchungsseiten haben. Lösche eine, um eine neue zu erstellen.",

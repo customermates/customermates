@@ -4,6 +4,7 @@ import type { Prisma } from "@/generated/prisma";
 import type { PlanRulePauseRepo } from "@/ee/subscription/plan-rule-pause.repo";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
 import type { RuleRecordTrigger } from "./automation-record-trigger";
+import type { AutomationRunCursor } from "./automation-run-cursor";
 import type {
   AutomationDateCandidate,
   AutomationOutboundWebhook,
@@ -171,19 +172,20 @@ export class PrismaAutomationRuleRepo
     });
   }
 
-  async findRuns(args: { ruleId: string; page: number; pageSize: number }) {
-    const where = { companyId: this.companyId, ruleId: args.ruleId };
-    const [items, total] = await Promise.all([
-      this.prisma.automationRuleRun.findMany({
-        where,
-        select: RUN_SELECT,
-        orderBy: [{ createdAt: "desc" }, { id: "asc" }],
-        skip: (args.page - 1) * args.pageSize,
-        take: args.pageSize,
-      }),
-      this.prisma.automationRuleRun.count({ where }),
-    ]);
-    return { items, total };
+  findRuns(args: { ruleId: string; cursor: AutomationRunCursor | null; limit: number }) {
+    const { cursor } = args;
+    return this.prisma.automationRuleRun.findMany({
+      where: {
+        companyId: this.companyId,
+        ruleId: args.ruleId,
+        ...(cursor
+          ? { OR: [{ createdAt: { lt: cursor.createdAt } }, { createdAt: cursor.createdAt, id: { lt: cursor.id } }] }
+          : {}),
+      },
+      select: RUN_SELECT,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: args.limit,
+    });
   }
 
   @BypassTenantGuard

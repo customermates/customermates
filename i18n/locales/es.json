@@ -1380,6 +1380,7 @@
       "automationRuleLimitReached": "Tu plan incluye {limit} automatizaciones activas. Cambia de plan (desde {price} por usuario y mes) o desactiva otra automatización.",
       "automationRuleNotFound": "ID de automatización no encontrado o no accesible.",
       "automationRuleOwnerIneligible": "El propietario de una automatización debe ser un miembro activo de este espacio de trabajo.",
+      "automationRuleRunCursorInvalid": "Ese enlace de página del historial de ejecuciones ya no es válido. Vuelve a cargar el historial e inténtalo de nuevo.",
       "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
       "bookingAnswerInvalid": "Falta una respuesta o no es válida.",
       "bookingLinkLimitReached": "Puedes tener como máximo {limit} páginas de reservas. Elimina una para crear otra.",
