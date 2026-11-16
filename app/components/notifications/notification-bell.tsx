@@ -6,9 +6,10 @@ import { useTranslations } from "next-intl";
 
 import type { NotificationDto } from "@/features/notifications/notification.schema";
 
+import { NavBadge } from "@/app/components/navigation/nav-main";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { actionDataOrNull } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
@@ -61,28 +62,28 @@ export function NotificationBell() {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <Button aria-label={label} className="relative" size="icon" variant="ghost">
-              <Bell aria-hidden="true" className="size-4" />
+      <PopoverTrigger asChild>
+        <SidebarMenuButton
+          aria-label={label}
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          id="nav-notifications"
+          tooltip={label}
+        >
+          <Bell />
 
-              {unreadCount > 0 && (
-                <span
-                  aria-hidden="true"
-                  className="absolute -end-0.5 -top-0.5 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-4 text-primary-foreground"
-                >
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
-            </Button>
-          </PopoverTrigger>
-        </TooltipTrigger>
+          <span className="flex-1">{t("Notifications.title")}</span>
 
-        <TooltipContent>{t("Notifications.title")}</TooltipContent>
-      </Tooltip>
+          <NavBadge count={unreadCount} />
+        </SidebarMenuButton>
+      </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-96 max-w-[calc(100vw-2rem)] p-0">
+      <PopoverContent
+        align="start"
+        className="w-96 max-w-[calc(100vw-2rem)] p-0"
+        collisionPadding={16}
+        side="right"
+        sideOffset={8}
+      >
         <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
           <h2 className="text-sm font-semibold">{t("Notifications.title")}</h2>
 

@@ -12,11 +12,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 type Props = {
   children?: ReactNode;
   actions?: ReactNode;
-  notifications?: ReactNode;
   navigationDisabled?: boolean;
 };
 
-export function ShellHeader({ children, actions, notifications, navigationDisabled = false }: Props) {
+export function ShellHeader({ children, actions, navigationDisabled = false }: Props) {
   const t = useTranslations();
 
   return (
@@ -43,12 +42,8 @@ export function ShellHeader({ children, actions, notifications, navigationDisabl
         )}
       </div>
 
-      {(actions || notifications) && (
-        <div className="flex shrink-0 items-center gap-2 px-4 pe-[calc(1rem+var(--safe-right,0px))]">
-          {actions}
-
-          {notifications}
-        </div>
+      {actions && (
+        <div className="flex shrink-0 items-center gap-2 px-4 pe-[calc(1rem+var(--safe-right,0px))]">{actions}</div>
       )}
     </header>
   );

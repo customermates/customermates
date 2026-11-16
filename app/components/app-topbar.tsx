@@ -19,7 +19,6 @@ import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink } from "@/i18n/navigation";
 
-import { NotificationBell } from "./notifications/notification-bell";
 import { ShellHeader } from "./shell-header";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
@@ -41,13 +40,10 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
     [pathname, t, layoutStore.runtimeIdentity, inboxThreadId, operatorConsoleVisible],
   );
 
-  const bell = <NotificationBell />;
-
-  if (crumbs.length === 0)
-    return <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled} notifications={bell} />;
+  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled} />;
 
   return (
-    <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled} notifications={bell}>
+    <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled}>
       <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => {

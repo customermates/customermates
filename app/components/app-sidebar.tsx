@@ -46,6 +46,7 @@ import { workspaceDisplayName } from "@/app/components/workspaces/workspace-iden
 import { WorkspaceSwitcherItems } from "@/app/components/workspaces/workspace-switcher-items";
 
 import { NavHeader } from "./navigation/nav-header";
+import { NotificationBell } from "./notifications/notification-bell";
 import { NavBadge } from "./navigation/nav-main";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
@@ -558,6 +559,7 @@ const FullAppSidebar = observer(
             }
             brandName="Customermates"
             logoAlt={t("Common.imageAlt.logo")}
+            notifications={restricted ? null : <NotificationBell />}
             overlaysDisabled={!restricted && !recordWorkspaceStore.routeReady(intlPathname)}
             quickActions={!area}
             searchLabel={t("NavigationBar.search")}
