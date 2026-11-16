@@ -5,6 +5,8 @@ import {
   Building,
   DoorOpen,
   Cable,
+  CircleHelp,
+  Columns3,
   Database,
   FileJson,
   Gauge,
@@ -20,6 +22,7 @@ import {
   PlugZap,
   Rocket,
   Repeat,
+  Scale,
   Search,
   Server,
   Shield,
@@ -87,6 +90,16 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
     items: [
       { slug: "self-hosting", i18nKey: "DocsSidebar.getStarted", icon: Server },
       { slug: "architecture-security", i18nKey: "DocsSidebar.architectureSecurity", icon: Shield },
+    ],
+  },
+  {
+    key: "licensing",
+    labelEn: "Licensing",
+    i18nKey: "DocsSidebar.licensing",
+    items: [
+      { slug: "licence", i18nKey: "DocsSidebar.licence", icon: Scale },
+      { slug: "licence-faq", i18nKey: "DocsSidebar.licenceFaq", icon: CircleHelp },
+      { slug: "compare-editions", i18nKey: "DocsSidebar.compareEditions", icon: Columns3 },
     ],
   },
   {

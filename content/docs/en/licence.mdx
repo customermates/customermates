@@ -1,0 +1,41 @@
+---
+title: "Customermates Licence: Source-Available and Fair-Code"
+description: "Which licences cover Customermates: the Sustainable Use License for the code, the Enterprise License for ee/. What you may do and why it is not open source."
+---
+
+Customermates is source-available and fair-code. You can read the source code, run it yourself and change it for your own business. Two licences apply, and the path of a file decides which one covers it. This page explains both. The [Licence FAQ](/docs/licence-faq) answers concrete cases, and [Compare editions](/docs/compare-editions) lists what only Cloud or an enterprise agreement offers. If this page and a licence text differ, the text applies: [`LICENSE.md`](https://github.com/customermates/customermates/blob/main/LICENSE.md) and [`ee/LICENSE.md`](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md).
+
+## Which licences cover Customermates? [#which-licences-cover-customermates]
+
+| Where | Licence | In short |
+|---|---|---|
+| Everything outside `ee/` | Sustainable Use License 1.0 | Use and change it for your own internal business purposes or for non-commercial and personal use. Share it only free of charge and non-commercially. Keep every notice. |
+| The folder `ee/` | Customermates Enterprise License | Production use needs an enterprise licence, except the limited Community Build permission. Copying and changing it for development and testing is free. |
+| Third-party components | Their own licences | Listed in `THIRD_PARTY_LICENSES.md` and `NOTICE`, and generated again for every release. |
+| The folder `plugins/cursor/` | MIT License | Its own `LICENSE` file. |
+
+The folder name is not checked while the software runs. Code in `ee/` that gates a paid feature still asks the entitlement service whether the feature is on.
+
+## What does the Sustainable Use License allow? [#what-does-the-sustainable-use-license-allow]
+
+The Sustainable Use License, version 1.0, is the licence n8n uses. It lets you use, copy and change the software for your own internal business purposes or for non-commercial or personal use. You may give the software to others only free of charge and non-commercially, and you must give them the licence terms and, if you changed it, a prominent notice. You may not remove or hide licence, copyright or other notices. It grants no trademark rights; see the [trademark policy](https://github.com/customermates/customermates/blob/main/TRADEMARK.md). If you break the terms, the licence ends, and it is reinstated if you stop within 30 days of a notice.
+
+## What is the Community Edition? [#what-is-the-community-edition]
+
+The Community Edition is the self-hosted version without an enterprise licence. The image at `ghcr.io/customermates/customermates` also contains compiled commercial support code, because Cloud and the Community Edition share one build. The Community Build permission in `ee/LICENSE.md` lets you run that unmodified code, in production too, to operate the Community Edition. It does not turn on any Enterprise Feature. Buying a Cloud plan unlocks nothing in a self-hosted installation.
+
+## Is Customermates open source? [#is-customermates-open-source]
+
+No. The Open Source Initiative says open-source licences cannot limit use, and the Sustainable Use License does: you may not sell Customermates, host it for others or white-label it. So we call it source-available and fair-code. Fair-code is a model, not a licence: the software is free to use and distribute for anybody, its source code is openly available, anybody can extend it, and its authors restrict commercial use. In practice the Community Edition gives most teams what they look for in open source: you can read the code, host it yourself, keep your data on your own infrastructure and change it for your own use. If you need an OSI-approved open-source licence, other CRMs offer one.
+
+## How do contributions work? [#how-do-contributions-work]
+
+Every contributor signs the [Contributor License Agreement](https://github.com/customermates/customermates/blob/main/.github/CLA.md), a few plain-English sentences. It lets Customermates license your contribution on any terms and says you are not liable for it. A patch to `ee/` is accepted only under Section 2 of `ee/LICENSE.md` and the agreement. The [contributing guide](https://github.com/customermates/customermates/blob/main/.github/CONTRIBUTING.md) has the pull request rules.
+
+## What changed in the licence? [#what-changed-in-the-licence]
+
+Until 16 November 2026 the first-party code outside `ee/` was licensed under AGPL-3.0-only, and `ee/` under version 1.0 of the Customermates Commercial License. Since that date the code outside `ee/` is under the Sustainable Use License, and `ee/` is under version 1.1 of the Enterprise License. A copy you received earlier keeps the licence it came with.
+
+## Who do I ask about a licence? [#who-do-i-ask-about-a-licence]
+
+Use the [contact page](/contact) for questions about the licence, enterprise licences, embedding and white-labelling. Plans and prices are on the [pricing page](/pricing).
