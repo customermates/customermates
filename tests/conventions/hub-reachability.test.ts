@@ -183,7 +183,7 @@ const PRIORITY_NAV_PATHS = [
   "/for/professional-services",
   "/for/agencies",
   "/blog/agentic-crm",
-  "/blog/open-source-crm",
+  "/features/claude-crm",
 ] as const;
 const FOOTER_UTILITY_DETAIL_PATHS = [
   "/features/integrations",
