@@ -192,6 +192,7 @@
   "engines": {
     "node": "^24.15.0"
   },
+  "license": "SEE LICENSE IN LICENSE.md",
   "name": "customermates",
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "private": true,
@@ -229,6 +230,8 @@
     "docs:index": "tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/index-docs-retrieval.ts",
     "email:dev": "APP_MODE=cloud email dev --dir components/emails",
     "i18n:audit": "tsx scripts/audit-i18n.ts",
+    "licenses:check": "node scripts/licenses/third-party-licenses.mjs --check",
+    "licenses:generate": "node scripts/licenses/third-party-licenses.mjs",
     "lint": "node --max-old-space-size=12288 node_modules/eslint/bin/eslint.js . --ext .ts,.tsx,.json,.jsonc,.json5 -c .eslintrc.json --max-warnings 0",
     "lint:check": "yarn lint",
     "marketing:visual-catalog": "tsx scripts/list-marketing-visual-fixtures.ts",

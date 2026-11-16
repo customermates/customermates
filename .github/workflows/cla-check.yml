@@ -1,0 +1,52 @@
+name: CLA Check
+run-name: "${{ github.event_name == 'workflow_dispatch' && format('CLA Check (PR #{0})', inputs.pr_number) || '' }}"
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+  merge_group:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to verify again
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+
+concurrency:
+  group: >-
+    cla-check-${{ github.event_name == 'issue_comment'
+      && format('comment-{0}', github.event.issue.number)
+      || github.event.pull_request.number
+      || github.event.merge_group.head_sha
+      || github.event.inputs.pr_number
+      || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cla-check:
+    name: Verify CLA signatures
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.pull_request != null &&
+       startsWith(github.event.comment.body, '/cla-check'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: n8n-io/github-actions/cla-check@ea082925743265a61d9fd0a69a32b211551f88f0 # cla-check/v1.0.2
+        with:
+          app-id: ${{ secrets.CLA_APP_ID }}
+          private-key: ${{ secrets.CLA_APP_PRIVATE_KEY }}
+          pr-number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
+          cla-api: ${{ vars.CLA_API_URL }}
+          cla-sign-url: ${{ vars.CLA_SIGN_URL }}
+          status-context: CLA Check
+          comment-marker: "<!-- customermates-cla-check -->"
+          label-name: cla-signed

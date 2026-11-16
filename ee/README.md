@@ -5,7 +5,7 @@
 
 # Commercial Components under `ee/`
 
-First-party files in `ee/` are Commercial Software under [`ee/LICENSE.md`](./LICENSE.md), subject to the AGPL client-material exception stated there. Third-party components retain their supplied licences.
+First-party files in `ee/` are Commercial Software under [`ee/LICENSE.md`](./LICENSE.md), the Customermates Enterprise License. They are not licensed under the Sustainable Use License that covers the rest of the repository. Third-party components retain their supplied licences.
 
 Commercial Software currently supports hosted or Enterprise functionality such as the unified inbox, connected-account messaging and calendar integrations, and cloud subscription and lifecycle operations. The hosted in-app Assistant is a Cloud-only Enterprise Feature. Production use of Commercial Software outside the limited Community Build permission, including any Enterprise Feature, requires a Commercial Agreement.
 
