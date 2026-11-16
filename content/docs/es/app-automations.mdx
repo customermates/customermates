@@ -5,7 +5,7 @@ description: "Las automatizaciones se ejecutan sin IA cuando ocurre algo y coinc
 
 Una automatización es una regla que se ejecuta sin IA: cuando ocurre algo y coincide, Customermates hace lo que configuraste. Puede crear una tarea de seguimiento, fijar un campo, avisarte a ti o a tu equipo en la página Notificaciones y por correo, o llamar a un webhook. Las automatizaciones funcionan en todos los planes y en instancias autoalojadas. En una instancia autoalojada, las reglas de fecha y los correos de resumen solo funcionan una vez configuradas las dos llamadas programadas que se describen en [Autoalojamiento](/docs/self-hosting#scheduled-jobs). No son [Rutinas](app:routines): una rutina deja que Mate trabaje por su cuenta, una automatización hace exactamente lo que dicen sus tres tarjetas y nada más.
 
-La página **Automatizaciones** está en la barra lateral junto a **Rutinas**. Quién la ve depende de la fila **Rutinas** de su rol en [Roles](app:settings/roles): **Acceso de lectura** **Todos** muestra todas las automatizaciones del espacio de trabajo, **Asignados** solo las propias y **Ninguno** oculta la página. Para crear se necesita **Crear**.
+La página **Automatizaciones** está en la barra lateral junto a **Rutinas**. Quién la ve depende de la fila **Rutinas y automatizaciones** de su rol en [Roles](app:settings/roles) (en una instancia autoalojada la fila se llama **Automatizaciones**): **Acceso de lectura** **Todos** muestra todas las automatizaciones del espacio de trabajo, **Asignados** solo las propias y **Ninguno** oculta la página. Para crear se necesita **Crear**.
 
 ## ¿Cómo creo una automatización? [#how-do-i-create-an-automation]
 
@@ -49,7 +49,7 @@ En un chat, Mate puede listar tus automatizaciones, leer una con su historial de
 
 ## Para agentes [#for-agents]
 
-Usa `manage_rules` por [MCP](/docs/mcp), con las acciones `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` y `preview`. Si se omite `enabled` en `create`, la automatización nace activa; pasa `enabled: false` para guardar un borrador. Los disparadores son `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` y `webhookReceived`; los ids de lista y de campo salen de `discover_record_types` y `get_record_model`. Un rechazo por el plan llega con el límite y el precio de la mejora. REST ofrece las mismas operaciones como `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` y `preview`, con permiso de lectura sobre **Rutinas** para leer y permiso de creación para crear; consulta la [referencia de la API](/docs/openapi).
+Usa `manage_rules` por [MCP](/docs/mcp), con las acciones `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` y `preview`. Si se omite `enabled` en `create`, la automatización nace activa; pasa `enabled: false` para guardar un borrador. Los disparadores son `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` y `webhookReceived`; los ids de lista y de campo salen de `discover_record_types` y `get_record_model`. Un rechazo por el plan llega con el límite y el precio de la mejora. REST ofrece las mismas operaciones como `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` y `preview`, con permiso de lectura sobre **Rutinas y automatizaciones** para leer y permiso de creación para crear; consulta la [referencia de la API](/docs/openapi).
 
 ## Preguntas frecuentes [#frequently-asked-questions]
 

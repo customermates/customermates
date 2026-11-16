@@ -5399,6 +5399,7 @@
     "resize": "Größe von {before} und {after} ändern. Ziehen oder Pfeiltasten verwenden; durch Doppeltippen oder die Eingabetaste zurücksetzen."
   },
   "RoleModal": {
+    "automationsResource": "Automatisierungen",
     "create": "Erstellen",
     "dataModelNote": "Listen, Felder und Beziehungen im Datenmodell anlegen und ändern.",
     "edit": "Bearbeiten",
@@ -5418,7 +5419,7 @@
       "dataModel": "Datenmodell",
       "inboxMessages": "Inbox-Nachrichten",
       "publicLinks": "Öffentliche Links",
-      "routines": "Routinen",
+      "routines": "Routinen und Automatisierungen",
       "users": "Benutzer & Rollen",
       "wiki": "Wissensdatenbank"
     },

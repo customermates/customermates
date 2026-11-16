@@ -5,7 +5,7 @@ description: "Automatiseringen draaien zonder AI als er iets gebeurt en het past
 
 Een automatisering is een regel die zonder AI draait: als er iets gebeurt en het past, doet Customermates wat je hebt ingesteld. Ze kan een opvolgtaak aanmaken, een veld instellen, jou of je team op de hoogte stellen op de pagina Meldingen en per e-mail, of een webhook aanroepen. Automatiseringen werken op elk pakket en op zelfgehoste instanties. Op een zelfgehoste instantie werken datumregels en samenvattingsmails pas nadat je de twee geplande aanroepen uit [Zelf hosten](/docs/self-hosting#scheduled-jobs) hebt ingesteld. Het zijn geen [Routines](app:routines): een routine laat Mate zelfstandig werken, een automatisering doet precies wat haar drie kaarten zeggen en niets anders.
 
-De pagina **Automatiseringen** staat in de zijbalk naast **Routines**. Wie haar ziet, hangt af van de rij **Routines** van hun rol in [Rollen](app:settings/roles): **Leestoegang** **Alle** toont elke automatisering in de werkruimte, **Toegewezen** alleen je eigen, en **Geen** verbergt de pagina. Aanmaken vraagt **Aanmaken**.
+De pagina **Automatiseringen** staat in de zijbalk naast **Routines**. Wie haar ziet, hangt af van de rij **Routines en automatiseringen** van hun rol in [Rollen](app:settings/roles) (op een zelfgehoste instantie heet de rij **Automatiseringen**): **Leestoegang** **Alle** toont elke automatisering in de werkruimte, **Toegewezen** alleen je eigen, en **Geen** verbergt de pagina. Aanmaken vraagt **Aanmaken**.
 
 ## Hoe maak ik een automatisering aan? [#how-do-i-create-an-automation]
 
@@ -49,7 +49,7 @@ In een chat kan Mate je automatiseringen oplijsten, er een lezen met de geschied
 
 ## Voor agents [#for-agents]
 
-Gebruik `manage_rules` via [MCP](/docs/mcp), met de acties `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` en `preview`. Als `enabled` bij `create` ontbreekt, ontstaat een actieve automatisering; geef `enabled: false` mee om een concept op te slaan. De triggers zijn `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` en `webhookReceived`; lijst- en veld-id’s komen uit `discover_record_types` en `get_record_model`. Een weigering door het pakket komt met de limiet en de upgradeprijs. REST biedt dezelfde bewerkingen als `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` en `preview`, met leesrechten op **Routines** om te lezen en aanmaakrechten om aan te maken; zie de [API-referentie](/docs/openapi).
+Gebruik `manage_rules` via [MCP](/docs/mcp), met de acties `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` en `preview`. Als `enabled` bij `create` ontbreekt, ontstaat een actieve automatisering; geef `enabled: false` mee om een concept op te slaan. De triggers zijn `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` en `webhookReceived`; lijst- en veld-id’s komen uit `discover_record_types` en `get_record_model`. Een weigering door het pakket komt met de limiet en de upgradeprijs. REST biedt dezelfde bewerkingen als `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` en `preview`, met leesrechten op **Routines en automatiseringen** om te lezen en aanmaakrechten om aan te maken; zie de [API-referentie](/docs/openapi).
 
 ## Veelgestelde vragen [#frequently-asked-questions]
 

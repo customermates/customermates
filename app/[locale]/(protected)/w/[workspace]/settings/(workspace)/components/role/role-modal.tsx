@@ -1,12 +1,12 @@
 "use client";
 
 import type { RoleModalStore } from "./role-modal.store";
+import type { Resource } from "@/generated/prisma";
 import { EmptyValue } from "@/components/shared/empty-value";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
-import { Resource } from "@/generated/prisma";
 
 import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { Button } from "@/components/ui/button";
@@ -37,22 +37,11 @@ import {
 } from "@/features/role/resource-access";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 
+import { isAutomationsOnlyRow, visibleSystemResources } from "./role-resources";
+
 type Props = {
   store: RoleModalStore;
 };
-
-const SYSTEM_RESOURCE_ORDER = [
-  Resource.api,
-  Resource.users,
-  Resource.company,
-  Resource.dataModel,
-  Resource.wiki,
-  Resource.activityLog,
-  Resource.inboxMessages,
-  Resource.routines,
-  Resource.publicLinks,
-];
-const CLOUD_RESOURCES = new Set<Resource>([Resource.inboxMessages, Resource.routines]);
 
 export const RoleModal = observer(({ store }: Props) => {
   const t = useTranslations();
@@ -137,7 +126,9 @@ export const RoleModal = observer(({ store }: Props) => {
   }
 
   function renderResource(resource: Resource) {
-    const label = t(`RoleModal.resources.${resource}`);
+    const label = isAutomationsOnlyRow(resource, store.rootStore.appMode)
+      ? t("RoleModal.automationsResource")
+      : t(`RoleModal.resources.${resource}`);
     const access = form.permissions[resource];
     return renderAccessRow({
       key: resource,
@@ -229,9 +220,7 @@ export const RoleModal = observer(({ store }: Props) => {
               <SectionRows className={tableClass}>
                 {header(t("RoleModal.resourceHeader"))}
 
-                {SYSTEM_RESOURCE_ORDER.filter(
-                  (resource) => store.rootStore.appMode !== "self-hosted" || !CLOUD_RESOURCES.has(resource),
-                ).map(renderResource)}
+                {visibleSystemResources(store.rootStore.appMode).map(renderResource)}
               </SectionRows>
             </CollapsibleSection>
 

@@ -5399,6 +5399,7 @@
     "resize": "Resize {before} and {after}. Drag or use arrow keys to resize; double-tap or press Enter to reset."
   },
   "RoleModal": {
+    "automationsResource": "Automations",
     "create": "Create",
     "dataModelNote": "Create and change lists, fields and relationships in Data model.",
     "edit": "Edit",
@@ -5418,7 +5419,7 @@
       "dataModel": "Data model",
       "inboxMessages": "Inbox messages",
       "publicLinks": "Public links",
-      "routines": "Routines",
+      "routines": "Routines and automations",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
     },

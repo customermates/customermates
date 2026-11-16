@@ -5,7 +5,7 @@ description: "Le automazioni girano senza IA quando succede qualcosa e corrispon
 
 Un’automazione è una regola che gira senza IA: quando succede qualcosa e corrisponde, Customermates fa ciò che hai impostato. Può creare un’attività di seguito, impostare un campo, avvisare te o il tuo team nella pagina Notifiche e per e-mail, oppure chiamare un webhook. Le automazioni funzionano su ogni piano e sulle istanze self-hosted. Su un’istanza self-hosted, le regole di data e le e-mail di riepilogo funzionano solo dopo aver configurato le due chiamate pianificate descritte in [Self-hosting](/docs/self-hosting#scheduled-jobs). Non sono [Routine](app:routines): una routine lascia lavorare Mate in autonomia, un’automazione fa esattamente ciò che dicono le sue tre schede e nient’altro.
 
-La pagina **Automazioni** si trova nella barra laterale accanto a **Routine**. Chi la vede dipende dalla riga **Routine** del suo ruolo in [Ruoli](app:settings/roles): **Accesso in lettura** **Tutti** mostra ogni automazione dello spazio di lavoro, **Assegnati** solo le proprie e **Nessuno** nasconde la pagina. Per creare serve **Crea**.
+La pagina **Automazioni** si trova nella barra laterale accanto a **Routine**. Chi la vede dipende dalla riga **Routine e automazioni** del suo ruolo in [Ruoli](app:settings/roles) (su un’istanza self-hosted la riga si chiama **Automazioni**): **Accesso in lettura** **Tutti** mostra ogni automazione dello spazio di lavoro, **Assegnati** solo le proprie e **Nessuno** nasconde la pagina. Per creare serve **Crea**.
 
 ## Come creo un’automazione? [#how-do-i-create-an-automation]
 
@@ -49,7 +49,7 @@ In una chat Mate può elencare le tue automazioni, leggerne una con la cronologi
 
 ## Per gli agenti [#for-agents]
 
-Usa `manage_rules` tramite [MCP](/docs/mcp), con le azioni `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` e `preview`. Se `enabled` manca in `create`, l’automazione nasce attiva; passa `enabled: false` per salvare una bozza. I trigger sono `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` e `webhookReceived`; gli id di elenco e campo vengono da `discover_record_types` e `get_record_model`. Un rifiuto legato al piano arriva con il limite e il prezzo dell’upgrade. REST offre le stesse operazioni come `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` e `preview`, con il permesso di lettura su **Routine** per leggere e il permesso di creazione per creare; vedi il [riferimento API](/docs/openapi).
+Usa `manage_rules` tramite [MCP](/docs/mcp), con le azioni `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` e `preview`. Se `enabled` manca in `create`, l’automazione nasce attiva; passa `enabled: false` per salvare una bozza. I trigger sono `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` e `webhookReceived`; gli id di elenco e campo vengono da `discover_record_types` e `get_record_model`. Un rifiuto legato al piano arriva con il limite e il prezzo dell’upgrade. REST offre le stesse operazioni come `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` e `preview`, con il permesso di lettura su **Routine e automazioni** per leggere e il permesso di creazione per creare; vedi il [riferimento API](/docs/openapi).
 
 ## Domande frequenti [#frequently-asked-questions]
 

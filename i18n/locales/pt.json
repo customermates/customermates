@@ -5399,6 +5399,7 @@
     "resize": "Redimensione {before} e {after}. Arraste ou use as setas do teclado para redimensionar; toque duas vezes ou pressione Enter para redefinir."
   },
   "RoleModal": {
+    "automationsResource": "Automações",
     "create": "Criar",
     "dataModelNote": "Crie e altere listas, campos e relacionamentos no Modelo de dados.",
     "edit": "Editar",
@@ -5418,7 +5419,7 @@
       "dataModel": "Modelo de dados",
       "inboxMessages": "Mensagens da caixa de entrada",
       "publicLinks": "Links públicos",
-      "routines": "Rotinas",
+      "routines": "Rotinas e automações",
       "users": "Usuários e funções",
       "wiki": "Base de conhecimento"
     },

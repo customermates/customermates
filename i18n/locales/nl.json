@@ -5399,6 +5399,7 @@
     "resize": "Formaat van {before} en {after} aanpassen. Sleep of gebruik de pijltjestoetsen om het formaat te wijzigen; dubbeltik of druk op Enter om te resetten."
   },
   "RoleModal": {
+    "automationsResource": "Automatiseringen",
     "create": "Aanmaken",
     "dataModelNote": "Maak en wijzig lijsten, velden en relaties in het Gegevensmodel.",
     "edit": "Bewerken",
@@ -5418,7 +5419,7 @@
       "dataModel": "Gegevensmodel",
       "inboxMessages": "Inboxberichten",
       "publicLinks": "Openbare links",
-      "routines": "Routines",
+      "routines": "Routines en automatiseringen",
       "users": "Gebruikers & rollen",
       "wiki": "Kennisbank"
     },

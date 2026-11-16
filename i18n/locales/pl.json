@@ -5399,6 +5399,7 @@
     "resize": "Zmień rozmiar: {before} i {after}. Przeciągnij lub użyj klawiszy strzałek; dotknij dwukrotnie lub naciśnij Enter, aby zresetować."
   },
   "RoleModal": {
+    "automationsResource": "Automatyzacje",
     "create": "Tworzenie",
     "dataModelNote": "Twórz i zmieniaj listy, pola i relacje w sekcji Model danych.",
     "edit": "Edycja",
@@ -5418,7 +5419,7 @@
       "dataModel": "Model danych",
       "inboxMessages": "Wiadomości w skrzynce odbiorczej",
       "publicLinks": "Linki publiczne",
-      "routines": "Rutyny",
+      "routines": "Rutyny i automatyzacje",
       "users": "Użytkownicy i role",
       "wiki": "Baza wiedzy"
     },

@@ -5399,6 +5399,7 @@
     "resize": "Redimensionner {before} et {after}. Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser."
   },
   "RoleModal": {
+    "automationsResource": "Automatisations",
     "create": "Créer",
     "dataModelNote": "Créer et modifier des listes, des champs et des relations dans Modèle de données.",
     "edit": "Modifier",
@@ -5418,7 +5419,7 @@
       "dataModel": "Modèle de données",
       "inboxMessages": "Messages de la boîte de réception",
       "publicLinks": "Liens publics",
-      "routines": "Routines",
+      "routines": "Routines et automatisations",
       "users": "Utilisateurs et rôles",
       "wiki": "Base de connaissances de l’espace de travail"
     },

@@ -5,7 +5,7 @@ description: "Automations run when something happens and it matches, without AI:
 
 An automation is a rule that runs without AI: when something happens and it matches, Customermates does what you set up. It can create a follow-up task, set a field, tell you or your team on the Notifications page and by email, or call a webhook. Automations work on every plan and on self-hosted instances. On a self-hosted instance, date rules and digest emails run only after you set up the two scheduled calls described in [Self-hosting](/docs/self-hosting#scheduled-jobs). They are not [Routines](app:routines): a routine lets Mate work on its own, an automation does exactly what its three cards say and nothing else.
 
-The **Automations** page sits next to **Routines** in the sidebar. Who sees it follows the **Routines** row of their role in [Roles](app:settings/roles): **Read access** **All** shows every automation in the workspace, **Assigned** only your own, and **None** hides the page. Creating needs **Create**.
+The **Automations** page sits next to **Routines** in the sidebar. Who sees it follows the **Routines and automations** row of their role in [Roles](app:settings/roles) (on a self-hosted instance the row is called **Automations**): **Read access** **All** shows every automation in the workspace, **Assigned** only your own, and **None** hides the page. Creating needs **Create**.
 
 ## How do I create an automation? [#how-do-i-create-an-automation]
 
@@ -49,7 +49,7 @@ In a chat, Mate can list your automations, read one and its run history and prev
 
 ## For agents [#for-agents]
 
-Use `manage_rules` over [MCP](/docs/mcp), with the actions `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` and `preview`. Omitting `enabled` on `create` produces a live automation, so pass `enabled: false` to save a draft. Triggers are `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` and `webhookReceived`; list and field ids come from `discover_record_types` and `get_record_model`. A plan refusal arrives with the limit and the upgrade price. REST has the same operations as `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` and `preview`, with read permission on **Routines** for the reads and create permission for creating; see the [API reference](/docs/openapi).
+Use `manage_rules` over [MCP](/docs/mcp), with the actions `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` and `preview`. Omitting `enabled` on `create` produces a live automation, so pass `enabled: false` to save a draft. Triggers are `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` and `webhookReceived`; list and field ids come from `discover_record_types` and `get_record_model`. A plan refusal arrives with the limit and the upgrade price. REST has the same operations as `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` and `preview`, with read permission on **Routines and automations** for the reads and create permission for creating; see the [API reference](/docs/openapi).
 
 ## Frequently asked questions [#frequently-asked-questions]
 
