@@ -5463,6 +5463,33 @@
     "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
     "emptyBodyReadOnly": "No Knowledge Base pages have been created yet.",
     "emptyTitle": "Your Knowledge Base is empty",
+    "graph": {
+      "canvasLabel": "Map of Knowledge Base pages and the links between them",
+      "drawerLabel": "Page preview: {title}",
+      "drawerSegments": "Page preview sections",
+      "fit": "Fit the map to the window",
+      "label": "Knowledge Base map",
+      "legend": "Larger circles are pages that more pages link to. Click a page to read it.",
+      "legendEdit": "Larger circles are pages that more pages link to. Click a page to read it, drag a page to pin it.",
+      "linkCounts": "Linked from {inbound} · links to {outbound}",
+      "linkedFrom": "Linked from",
+      "linksTo": "Links to",
+      "missingLinks": "{count, plural, one {# link points to a deleted page} other {# links point to deleted pages}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "No pages",
+      "noMatches": "No page matches the filter.",
+      "openPage": "Open page",
+      "pin": "Pin here",
+      "pinned": "Pinned",
+      "records": "Linked records",
+      "search": "Find a page",
+      "segments": {
+        "links": "Links",
+        "page": "Page"
+      },
+      "truncated": "Showing the first {count} pages.",
+      "unpin": "Unpin"
+    },
     "kind": {
       "guide": "Operating Guide",
       "guideDescription": "Shared rules and tone for every request. One per workspace.",

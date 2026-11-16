@@ -246,11 +246,16 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
     await expect(sheet).not.toBeVisible();
   } else {
     await page.goto(appPath(DEMO_SLUG, "/wiki"));
-    const list = page
-      .getByRole("navigation", { name: "Knowledge Base pages" })
-      .or(page.getByLabel("Knowledge Base pages"));
-    for (const { title } of pages) await expect(list.getByText(title, { exact: true }).first()).toBeVisible();
-    await list.getByText(procedure.title, { exact: true }).first().click();
+    const map = page.getByRole("application", { name: /Knowledge Base pages/ });
+    await expect(map).toBeVisible();
+    await expect.poll(() => map.locator("> g").getAttribute("transform")).not.toBe("translate(0 0) scale(1)");
+    const node = (title: string) =>
+      map.getByRole("button", { name: new RegExp(`^${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\(`) });
+    for (const { title } of pages) await expect(node(title)).toBeVisible();
+    await node(procedure.title).click();
+    const drawer = page.getByRole("complementary", { name: new RegExp(procedure.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) });
+    await expect(drawer.getByRole("heading", { name: procedure.title, level: 2 })).toBeVisible();
+    await drawer.getByRole("button", { name: "Open page" }).click();
   }
   await expect(page).toHaveURL(new RegExp(`[?&]page=${procedure.id}`));
   await expect(page.getByRole("textbox", { name: "Page title", exact: true })).toHaveValue(procedure.title);

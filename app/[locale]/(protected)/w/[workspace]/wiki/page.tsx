@@ -1,7 +1,12 @@
 import { Resource } from "@/generated/prisma";
 
 import { PageContainer } from "@/components/shared/page-container";
-import { getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
+import {
+  getGetWikiGraphInteractor,
+  getGetWikiHomepageSetupStateInteractor,
+  getGetWikiPageInteractor,
+  getGetWikiPagesInteractor,
+} from "@/core/di";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { requireAccess } from "@/features/auth/next/require";
 import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
@@ -34,8 +39,12 @@ export default async function WikiPage({ searchParams }: Props) {
 
   const requestedId = firstString(raw.page);
   const selectedId = requestedId ?? pages.items[0]?.id;
-  const selectedResult = selectedId ? await getGetWikiPageInteractor().invoke({ id: selectedId }) : null;
+  const [selectedResult, graphResult] = await Promise.all([
+    selectedId ? getGetWikiPageInteractor().invoke({ id: selectedId }) : null,
+    !requestedId && pages.total > 1 ? getGetWikiGraphInteractor().invoke({}) : null,
+  ]);
   const selectedPage = selectedResult?.ok ? selectedResult.data : null;
+  const graph = graphResult?.ok ? graphResult.data : null;
   const pinnedPage =
     selectedPage && !pages.items.some(({ id }) => id === selectedPage.id)
       ? (({ markdown: _markdown, ...summary }) => summary)(selectedPage)
@@ -44,6 +53,7 @@ export default async function WikiPage({ searchParams }: Props) {
   return (
     <PageContainer padded={false}>
       <WikiPageView
+        graph={graph}
         initialPage={selectedPage}
         initialSetupState={setupState}
         layoutInitial={layout?.columnWidths}

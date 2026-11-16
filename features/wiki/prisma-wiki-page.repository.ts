@@ -14,6 +14,7 @@ import type { WikiImportPageRepo, WikiImportProvenance } from "./wiki-import-pag
 import type { GetWikiSuggestionSignalRepo } from "./get-wiki-suggestion-signal.repo";
 import type { WikiIndexClaimRepo } from "./wiki-index-claim.repo";
 import type { PurgeWikiPageProposalsRepo } from "./purge-wiki-page-proposals.repo";
+import type { WikiLinkSyncCandidate, WikiLinkSyncPage, WikiLinkSyncRepo } from "./wiki-link-sync.repo";
 import type { WikiIndexClaim } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 
 import { Prisma, Resource } from "@/generated/prisma";
@@ -42,7 +43,8 @@ export class PrismaWikiPageRepo
     StartWikiHomepageSetupRepo,
     WikiImportPageRepo,
     GetWikiSuggestionSignalRepo,
-    WikiIndexClaimRepo
+    WikiIndexClaimRepo,
+    WikiLinkSyncRepo
 {
   constructor(
     private readonly permissions: PermissionService,
@@ -220,6 +222,31 @@ export class PrismaWikiPageRepo
     const updated = await this.prisma.$executeRaw(Prisma.sql`
       UPDATE "WikiPage" SET "summary" = ${args.summary}, "summaryContentHash" = ${args.contentHash}
       WHERE "id" = ${args.pageId} AND "companyId" = ${this.companyId} AND "updatedAt" = ${args.pageUpdatedAt}
+    `);
+    return updated === 1;
+  }
+
+  async listLinkSyncCandidates(): Promise<WikiLinkSyncCandidate[]> {
+    return this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, deletedAt: null },
+      select: { id: true, updatedAt: true, linksSyncedAt: true },
+      orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
+    });
+  }
+
+  async loadPagesForLinkSync(ids: string[]): Promise<WikiLinkSyncPage[]> {
+    if (ids.length === 0) return [];
+    return this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, deletedAt: null, id: { in: ids } },
+      select: { id: true, markdown: true, updatedAt: true },
+    });
+  }
+
+  async markLinksSynced(pageId: string, pageUpdatedAt: Date): Promise<boolean> {
+    const updated = await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "WikiPage" SET "linksSyncedAt" = ${pageUpdatedAt}
+      WHERE "id" = ${pageId} AND "companyId" = ${this.companyId} AND "updatedAt" = ${pageUpdatedAt}
+        AND "linksSyncedAt" IS DISTINCT FROM ${pageUpdatedAt}
     `);
     return updated === 1;
   }

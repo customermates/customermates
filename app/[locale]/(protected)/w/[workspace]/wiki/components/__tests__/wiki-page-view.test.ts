@@ -1916,4 +1916,11 @@ describe("resolveWikiPageState", () => {
     expect(resolveWikiPageState({ ...base, setupActive: true })).toBe("setup");
     expect(resolveWikiPageState(base)).toBe("empty");
   });
+
+  it("shows the map before a document, never while navigating or when the page is missing", () => {
+    expect(resolveWikiPageState({ ...base, hasDocument: true, showGraph: true })).toBe("graph");
+    expect(resolveWikiPageState({ ...base, showGraph: true })).toBe("graph");
+    expect(resolveWikiPageState({ ...base, isNavigating: true, showGraph: true })).toBe("loading");
+    expect(resolveWikiPageState({ ...base, missing: true, showGraph: true })).toBe("error");
+  });
 });

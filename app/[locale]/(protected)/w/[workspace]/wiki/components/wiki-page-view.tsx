@@ -1,6 +1,7 @@
 "use client";
 
 import type { WikiPageKind, WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
+import type { WikiGraph } from "@/features/wiki/wiki-graph.schema";
 import type { ReactNode } from "react";
 import type { ResizablePanelDefinition } from "@/components/layout/resizable-panels";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
@@ -39,7 +40,9 @@ import { wikiPagePath } from "@/features/wiki/wiki-links";
 import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
 import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
 import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
+import { useIsWiderThan } from "@/hooks/use-media-query";
 
+import { WikiGraphView } from "./wiki-graph-view";
 import { WikiPageActions } from "./wiki-page-actions";
 import { WikiProposals } from "./wiki-proposals";
 import { WikiProposalsEntry } from "./wiki-proposals-entry";
@@ -57,6 +60,7 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
 type Props = {
+  graph?: WikiGraph | null;
   initialPage: WikiPageDto | null;
   initialSetupState?: WikiHomepageSetupState;
   layoutInitial?: Record<string, number>;
@@ -68,6 +72,7 @@ type Props = {
 };
 
 const WikiPageViewContent = observer(function WikiPageView({
+  graph = null,
   initialPage,
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   layoutInitial,
@@ -140,11 +145,21 @@ const WikiPageViewContent = observer(function WikiPageView({
     !store.creating &&
     (store.unavailable || (unavailable && !store.awaitingSelection && !store.hasUnsavedChanges && !store.isLoading));
   const hasDocument = !missing && (store.creating || Boolean(store.form.id));
+  const wide = useIsWiderThan("lg");
+  const showGraph =
+    graph !== null &&
+    graph.nodes.length > 1 &&
+    wide &&
+    !requestedPageId &&
+    !store.creating &&
+    !store.hasUnsavedChanges &&
+    !store.awaitingSelection;
   const pageState = resolveWikiPageState({
     isNavigating,
     missing,
     hasDocument,
     setupActive: importRunning && !hasPages,
+    showGraph,
   });
   const setupFailedBody = useWikiSetupFailureBody(setupState);
   const setupFailed = store.allows(Action.create) && setupState.status === "failed";
@@ -227,6 +242,15 @@ const WikiPageViewContent = observer(function WikiPageView({
 
   let documentBody: ReactNode;
   switch (pageState) {
+    case "graph":
+      documentBody = graph && (
+        <WikiGraphView
+          canPin={store.allows(Action.update) && rootStore.appMode !== "demo"}
+          graph={graph}
+          onOpenPage={selectPage}
+        />
+      );
+      break;
     case "loading":
       documentBody = (
         <PageState background={<WikiPageSkeleton documentOnly />} label={t("PageState.loading")} state="loading" />
@@ -382,6 +406,20 @@ const WikiPageViewContent = observer(function WikiPageView({
       const exhaustive: never = pageState;
       documentBody = exhaustive;
     }
+  }
+
+  if (pageState === "graph") {
+    return (
+      <section
+        aria-label={t("Wiki.graph.label")}
+        className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+        id="wiki-document-panel"
+      >
+        {documentBody}
+
+        {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
+      </section>
+    );
   }
 
   const panelDefinitions: ResizablePanelDefinition[] = [

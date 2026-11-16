@@ -5463,6 +5463,33 @@
     "emptyBody": "Przekaż Mate i połączonym narzędziom AI wiedzę o firmie, procesy i wskazówki, których potrzebują.",
     "emptyBodyReadOnly": "Nie utworzono jeszcze żadnych stron Bazy wiedzy.",
     "emptyTitle": "Twoja Baza wiedzy jest pusta",
+    "graph": {
+      "canvasLabel": "Mapa stron Bazy wiedzy i powiązań między nimi",
+      "drawerLabel": "Podgląd strony: {title}",
+      "drawerSegments": "Sekcje podglądu strony",
+      "fit": "Dopasuj mapę do okna",
+      "label": "Mapa Bazy wiedzy",
+      "legend": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją przeczytać.",
+      "legendEdit": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją przeczytać, przeciągnij stronę, aby ją przypiąć.",
+      "linkCounts": "Linki z {inbound} · prowadzi do {outbound}",
+      "linkedFrom": "Linki z",
+      "linksTo": "Prowadzi do",
+      "missingLinks": "{count, plural, one {# link prowadzi do usuniętej strony} few {# linki prowadzą do usuniętych stron} many {# linków prowadzi do usuniętych stron} other {# linku prowadzi do usuniętych stron}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Brak stron",
+      "noMatches": "Żadna strona nie pasuje do filtra.",
+      "openPage": "Otwórz stronę",
+      "pin": "Przypnij tutaj",
+      "pinned": "Przypięta",
+      "records": "Powiązane rekordy",
+      "search": "Znajdź stronę",
+      "segments": {
+        "links": "Linki",
+        "page": "Strona"
+      },
+      "truncated": "Pokazano pierwsze {count} stron.",
+      "unpin": "Odepnij"
+    },
     "kind": {
       "guide": "Przewodnik operacyjny",
       "guideDescription": "Wspólne zasady i ton dla każdego zapytania. Jeden na przestrzeń roboczą.",

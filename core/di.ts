@@ -205,6 +205,7 @@ import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository"
 import { PrismaWikiPageProposalRepo } from "@/features/wiki/prisma-wiki-page-proposal.repository";
 import { PrismaWikiSectionRepo } from "@/features/wiki/prisma-wiki-section.repository";
 import { PrismaWikiKnowledgeGapRepo } from "@/features/wiki/prisma-wiki-knowledge-gap.repository";
+import { PrismaWikiGraphRepo } from "@/features/wiki/prisma-wiki-graph.repository";
 // Services
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
@@ -431,6 +432,9 @@ import { RejectWikiPageProposalInteractor } from "@/features/wiki/reject-wiki-pa
 import { GetWikiKnowledgeGapsInteractor } from "@/features/wiki/get-wiki-knowledge-gaps.interactor";
 import { PruneWikiKnowledgeGapsInteractor } from "@/features/wiki/prune-wiki-knowledge-gaps.interactor";
 import { SyncStaleWikiSectionsInteractor } from "@/features/wiki/sync-stale-wiki-sections.interactor";
+import { GetWikiGraphInteractor } from "@/features/wiki/get-wiki-graph.interactor";
+import { GetWikiPageLinksInteractor } from "@/features/wiki/get-wiki-page-links.interactor";
+import { PinWikiGraphNodeInteractor } from "@/features/wiki/pin-wiki-graph-node.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
@@ -1059,6 +1063,7 @@ export const getWikiPageRepo = (companyId?: string) =>
   new PrismaWikiPageRepo(getPermissionService(), companyId, new PrismaWikiPageProposalRepo(companyId));
 export const getWikiSectionRepo = () => new PrismaWikiSectionRepo(getWikiPageRepo());
 export const getWikiKnowledgeGapRepo = () => new PrismaWikiKnowledgeGapRepo();
+export const getWikiGraphRepo = () => new PrismaWikiGraphRepo(getWikiPageRepo());
 export const getMessagingRepo = () =>
   new PrismaMessagingRepo(
     getRecordRepo(),
@@ -1548,6 +1553,11 @@ export const getGetWikiKnowledgeGapsInteractor = () => new GetWikiKnowledgeGapsI
 export const getPruneWikiKnowledgeGapsInteractor = () =>
   new PruneWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
 export const getSyncStaleWikiSectionsInteractor = () => new SyncStaleWikiSectionsInteractor(getWikiSectionRepo());
+export const getGetWikiGraphInteractor = () =>
+  new GetWikiGraphInteractor(getWikiGraphRepo(), getRecordRepo(), getRecordAccessPolicy());
+export const getGetWikiPageLinksInteractor = () =>
+  new GetWikiPageLinksInteractor(getWikiGraphRepo(), getRecordRepo(), getRecordAccessPolicy());
+export const getPinWikiGraphNodeInteractor = () => new PinWikiGraphNodeInteractor(getWikiGraphRepo());
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());

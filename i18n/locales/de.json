@@ -5463,6 +5463,33 @@
     "emptyBody": "Gib Mate und verbundenen KI-Tools das Unternehmenswissen, die Prozesse und Leitlinien, die sie benötigen.",
     "emptyBodyReadOnly": "Es wurden noch keine Wissensdatenbank-Seiten erstellt.",
     "emptyTitle": "Deine Wissensdatenbank ist leer",
+    "graph": {
+      "canvasLabel": "Karte der Wissensdatenbank-Seiten und ihrer Verknüpfungen",
+      "drawerLabel": "Seitenvorschau: {title}",
+      "drawerSegments": "Bereiche der Seitenvorschau",
+      "fit": "Karte ins Fenster einpassen",
+      "label": "Karte der Wissensdatenbank",
+      "legend": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu lesen.",
+      "legendEdit": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu lesen, ziehe eine Seite, um sie festzupinnen.",
+      "linkCounts": "Verweise von {inbound} · verweist auf {outbound}",
+      "linkedFrom": "Verweise von",
+      "linksTo": "Verweist auf",
+      "missingLinks": "{count, plural, one {# Verweis führt zu einer gelöschten Seite} other {# Verweise führen zu gelöschten Seiten}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Keine Seiten",
+      "noMatches": "Keine Seite passt zum Filter.",
+      "openPage": "Seite öffnen",
+      "pin": "Hier festpinnen",
+      "pinned": "Festgepinnt",
+      "records": "Verknüpfte Datensätze",
+      "search": "Seite finden",
+      "segments": {
+        "links": "Verweise",
+        "page": "Seite"
+      },
+      "truncated": "Die ersten {count} Seiten werden gezeigt.",
+      "unpin": "Lösen"
+    },
     "kind": {
       "guide": "Betriebsleitfaden",
       "guideDescription": "Gemeinsame Regeln und Tonalität für jede Anfrage. Einer pro Workspace.",

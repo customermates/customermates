@@ -9,6 +9,7 @@ import { DeleteWikiPageResultSchema, DeleteWikiPageSchema } from "./delete-wiki-
 import { GetWikiPageSchema } from "./get-wiki-page.interactor";
 import { MoveWikiPageSchema } from "./move-wiki-page.interactor";
 import { UpdateWikiPageSchema } from "./update-wiki-page.interactor";
+import { GetWikiGraphSchema, GetWikiPageLinksSchema, WikiGraphSchema, WikiPageLinksSchema } from "./wiki-graph.schema";
 import {
   WikiPageDtoSchema,
   WikiPageListResultSchema,
@@ -84,6 +85,28 @@ export const wikiApiPaths = {
       { id: EXAMPLE_PAGE_ID },
       WikiPageDtoSchema,
       "The page.",
+    ),
+  },
+  "/v1/wiki/graph": {
+    post: wikiOperation(
+      "getWikiGraph",
+      "Read the Knowledge Base map",
+      `Returns every live page as a node with its saved map position, the links between pages, and how many pages link to each page. Positions are kept per workspace, so the map stays stable between reads; a pinned node keeps the place a person gave it. Links to records count per page and recordTypes names the lists the caller may read. Send an empty object. ${READ}`,
+      GetWikiGraphSchema,
+      {},
+      WikiGraphSchema,
+      "The nodes, links and record lists of the map.",
+    ),
+  },
+  "/v1/wiki/links": {
+    post: wikiOperation(
+      "getWikiPageLinks",
+      "Read the links of a Knowledge Base page",
+      `Lists the pages that link to one page, the pages it links to, how many of its page links point at a deleted page, and the record lists it links into with a count per list. A missing page answers 404. ${READ}`,
+      GetWikiPageLinksSchema,
+      { id: EXAMPLE_PAGE_ID },
+      WikiPageLinksSchema,
+      "The links of the page.",
     ),
   },
   "/v1/wiki/create": {

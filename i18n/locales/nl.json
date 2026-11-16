@@ -5463,6 +5463,33 @@
     "emptyBody": "Geef Mate en gekoppelde AI-tools de bedrijfskennis, processen en richtlijnen die ze nodig hebben.",
     "emptyBodyReadOnly": "Er zijn nog geen Kennisbank-pagina's aangemaakt.",
     "emptyTitle": "Je Kennisbank is leeg",
+    "graph": {
+      "canvasLabel": "Kaart van de Kennisbank-pagina's en hun koppelingen",
+      "drawerLabel": "Paginavoorbeeld: {title}",
+      "drawerSegments": "Onderdelen van het paginavoorbeeld",
+      "fit": "Kaart in het venster passen",
+      "label": "Kaart van de Kennisbank",
+      "legend": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te lezen.",
+      "legendEdit": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te lezen, sleep een pagina om haar vast te zetten.",
+      "linkCounts": "Gekoppeld vanuit {inbound} · verwijst naar {outbound}",
+      "linkedFrom": "Gekoppeld vanuit",
+      "linksTo": "Verwijst naar",
+      "missingLinks": "{count, plural, one {# koppeling wijst naar een verwijderde pagina} other {# koppelingen wijzen naar verwijderde pagina's}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Geen pagina's",
+      "noMatches": "Geen pagina past bij het filter.",
+      "openPage": "Pagina openen",
+      "pin": "Hier vastzetten",
+      "pinned": "Vastgezet",
+      "records": "Gekoppelde records",
+      "search": "Pagina zoeken",
+      "segments": {
+        "links": "Koppelingen",
+        "page": "Pagina"
+      },
+      "truncated": "De eerste {count} pagina's worden getoond.",
+      "unpin": "Losmaken"
+    },
     "kind": {
       "guide": "Werkhandleiding",
       "guideDescription": "Gedeelde regels en toon voor elk verzoek. Eén per werkruimte.",

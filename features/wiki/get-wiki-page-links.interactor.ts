@@ -1,0 +1,75 @@
+import type { RecordAccessPolicy } from "@/features/records/record-access";
+import type { RecordRepo } from "@/features/records/record.repo";
+import type { Validated } from "@/core/validation/validation.utils";
+import type { WikiGraphRepo } from "./wiki-graph.repo";
+import type { GetWikiPageLinksData, WikiPageLinks } from "./wiki-graph.schema";
+
+import { Resource } from "@/generated/prisma";
+
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { env } from "@/env";
+
+import { WIKI_LINK_SYNC_BATCH_PAGES } from "./get-wiki-graph.interactor";
+import { wikiGraphRecordTypes } from "./wiki-graph-records";
+import { GetWikiPageLinksSchema, WikiPageLinksSchema } from "./wiki-graph.schema";
+
+@AllowInDemoMode
+@TenantInteractor({ resource: Resource.wiki, read: "all" })
+export class GetWikiPageLinksInteractor extends AuthenticatedInteractor<GetWikiPageLinksData, WikiPageLinks> {
+  constructor(
+    private repo: WikiGraphRepo,
+    private records: RecordRepo,
+    private policy: RecordAccessPolicy,
+  ) {
+    super();
+  }
+
+  @Validate(GetWikiPageLinksSchema)
+  @ValidateOutput(WikiPageLinksSchema)
+  async invoke(data: GetWikiPageLinksData): Validated<WikiPageLinks> {
+    const [page] = await this.repo.loadPagesByIds([data.id]);
+    if (!page) return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
+    await this.repo.syncStaleLinks({ baseUrl: env.BASE_URL, limit: WIKI_LINK_SYNC_BATCH_PAGES });
+
+    const { outgoing, incomingPageIds } = await this.repo.loadLinksOfPage(page.id);
+    const outgoingPageIds = outgoing.filter((link) => link.targetKind === "page").map((link) => link.targetId);
+    const related = await this.repo.loadPagesByIds([...new Set([...incomingPageIds, ...outgoingPageIds])]);
+    const incoming = new Set(incomingPageIds);
+    const outgoingSet = new Set(outgoingPageIds);
+    const summaries = related.map((item) => ({ id: item.id, title: item.title, kind: item.kind }));
+    const linkedFrom = summaries.filter((item) => incoming.has(item.id));
+    const linksTo = summaries.filter((item) => outgoingSet.has(item.id));
+
+    const counts = new Map<string, number>();
+    for (const link of outgoing) {
+      if (link.targetKind !== "record" || !link.targetTypeId) continue;
+      counts.set(link.targetTypeId, (counts.get(link.targetTypeId) ?? 0) + 1);
+    }
+    const records = await runInTransaction(async () => {
+      if (counts.size === 0) return [];
+      const [model, access] = await Promise.all([this.records.getModel(), this.policy.load()]);
+      return wikiGraphRecordTypes(model, counts.keys(), access.canReadType).map((type) => ({
+        ...type,
+        count: counts.get(type.id) ?? 1,
+      }));
+    });
+
+    return {
+      ok: true as const,
+      data: {
+        id: page.id,
+        linkedFrom,
+        linksTo,
+        missing: outgoingPageIds.length - linksTo.length,
+        records,
+      },
+    };
+  }
+}

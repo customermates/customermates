@@ -5463,6 +5463,33 @@
     "emptyBody": "Donnez à Mate et aux outils d’IA connectés les connaissances, processus et consignes dont ils ont besoin.",
     "emptyBodyReadOnly": "Aucune page de la base de connaissances n’a encore été créée.",
     "emptyTitle": "La base de connaissances de votre espace de travail est vide",
+    "graph": {
+      "canvasLabel": "Carte des pages de la base de connaissances et de leurs liens",
+      "drawerLabel": "Aperçu de la page : {title}",
+      "drawerSegments": "Sections de l’aperçu",
+      "fit": "Ajuster la carte à la fenêtre",
+      "label": "Carte de la base de connaissances",
+      "legend": "Les grands cercles sont des pages vers lesquelles pointent plus de pages. Cliquez sur une page pour la lire.",
+      "legendEdit": "Les grands cercles sont des pages vers lesquelles pointent plus de pages. Cliquez sur une page pour la lire, faites-la glisser pour l’épingler.",
+      "linkCounts": "Liée depuis {inbound} · pointe vers {outbound}",
+      "linkedFrom": "Liée depuis",
+      "linksTo": "Pointe vers",
+      "missingLinks": "{count, plural, one {# lien pointe vers une page supprimée} other {# liens pointent vers des pages supprimées}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Aucune page",
+      "noMatches": "Aucune page ne correspond au filtre.",
+      "openPage": "Ouvrir la page",
+      "pin": "Épingler ici",
+      "pinned": "Épinglée",
+      "records": "Enregistrements liés",
+      "search": "Trouver une page",
+      "segments": {
+        "links": "Liens",
+        "page": "Page"
+      },
+      "truncated": "Les {count} premières pages sont affichées.",
+      "unpin": "Désépingler"
+    },
     "kind": {
       "guide": "Guide opérationnel",
       "guideDescription": "Règles et ton communs à chaque demande. Un par espace de travail.",

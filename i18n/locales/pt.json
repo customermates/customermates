@@ -5463,6 +5463,33 @@
     "emptyBody": "Dê ao Mate e às ferramentas de IA conectadas o conhecimento da empresa, os processos e as orientações de que eles precisam.",
     "emptyBodyReadOnly": "Nenhuma página da base de conhecimento foi criada ainda.",
     "emptyTitle": "Sua base de conhecimento está vazia",
+    "graph": {
+      "canvasLabel": "Mapa das páginas da base de conhecimento e dos links entre elas",
+      "drawerLabel": "Pré-visualização da página: {title}",
+      "drawerSegments": "Seções da pré-visualização",
+      "fit": "Ajustar o mapa à janela",
+      "label": "Mapa da base de conhecimento",
+      "legend": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para lê-la.",
+      "legendEdit": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para lê-la, arraste uma página para fixá-la.",
+      "linkCounts": "Linkada de {inbound} · aponta para {outbound}",
+      "linkedFrom": "Linkada de",
+      "linksTo": "Aponta para",
+      "missingLinks": "{count, plural, one {# link aponta para uma página excluída} other {# links apontam para páginas excluídas}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Nenhuma página",
+      "noMatches": "Nenhuma página corresponde ao filtro.",
+      "openPage": "Abrir página",
+      "pin": "Fixar aqui",
+      "pinned": "Fixada",
+      "records": "Registros vinculados",
+      "search": "Encontrar uma página",
+      "segments": {
+        "links": "Links",
+        "page": "Página"
+      },
+      "truncated": "Mostrando as primeiras {count} páginas.",
+      "unpin": "Soltar"
+    },
     "kind": {
       "guide": "Guia operacional",
       "guideDescription": "Regras e tom compartilhados para todas as solicitações. Um por espaço de trabalho.",
