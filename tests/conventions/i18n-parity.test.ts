@@ -107,7 +107,7 @@ function isLocaleInvariantTemplate(message: string): boolean {
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   // Dutch keeps these loanwords, product names and units as English does (record, filter, tone of voice).
   "nl:AgentChat.activity.counted.records",
-  "nl:AgplGithubBadge.label",
+  "nl:SourceBadge.label",
   "nl:Common.filters.palette.appliedCount",
   "nl:ConnectedAccountsCard.channels.linkedinClassic",
   "nl:ConnectedAccountsCard.channels.linkedinRecruiter",
@@ -144,7 +144,7 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "pl:DocsSidebar.openapi",
   "pl:OnboardingWizard.ai.choices.claudeDesktop",
   "pl:OnboardingWizard.ai.choices.openai",
-  "pl:AgplGithubBadge.label",
+  "pl:SourceBadge.label",
   // German dashboards abbreviate quarters with Q, as in English.
   "de:RecordWidgets.quarterLabel",
   // "Configuration" is the French word as well.
@@ -170,7 +170,7 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "de:OnboardingWizard.ai.choices.claudeDesktop",
   "de:OnboardingWizard.ai.choices.openai",
   "de:RoleModal.resources.api",
-  "fr:AgplGithubBadge.label",
+  "fr:SourceBadge.label",
   "fr:RoutineDetail.triggerThread",
   "fr:Common.defaultData.deal.options.qualification",
   "fr:Common.filters.fields.participants",
@@ -182,7 +182,7 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:OnboardingWizard.ai.choices.claudeDesktop",
   "fr:OnboardingWizard.ai.choices.openai",
   "fr:UserAvatar.documentation",
-  "it:AgplGithubBadge.label",
+  "it:SourceBadge.label",
   "it:ConnectedAccountsCard.channels.linkedinClassic",
   "it:DocsSidebar.openapi",
   "it:OnboardingWizard.ai.choices.claudeDesktop",

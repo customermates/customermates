@@ -401,7 +401,7 @@
     "components/map/__tests__/map-markers.test.ts": 49,
     "components/map/__tests__/map-painter.test.ts": 7,
     "components/map/__tests__/map-view.dom.test.tsx": 2607,
-    "components/marketing/__tests__/agpl-github-badge.test.ts": 25,
+    "components/marketing/__tests__/source-badge.test.ts": 25,
     "components/marketing/__tests__/browser-frame.test.tsx": 225,
     "components/marketing/__tests__/hero-headings.test.ts": 58,
     "components/marketing/__tests__/homepage-product-stage-environment.test.ts": 355,

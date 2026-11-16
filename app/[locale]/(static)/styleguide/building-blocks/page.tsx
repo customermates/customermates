@@ -36,7 +36,7 @@ const LANDING_SECTIONS = [
   [
     "Landing hero",
     "LandingHero · hero",
-    "MarketingHero from the page's hero fields: eyebrow, outcome headline, mechanism lede, one ink primary, a low-risk secondary, then the hint. One line above the title: the eyebrow or the open-source chip.",
+    "MarketingHero from the page's hero fields: eyebrow, outcome headline, mechanism lede, one ink primary, a low-risk secondary, then the hint. One line above the title: the eyebrow or the source chip.",
   ],
   [
     "Signature visual",
@@ -178,9 +178,9 @@ export default async function BuildingBlocksPage({ params }: StaticLocaleProps) 
         <div data-reveal className="mk-card overflow-hidden">
           <MarketingHero
             description="Connect LinkedIn and email. Mate or your own AI agent drafts the reply and puts the next step on your dashboard."
-            eyebrow="The open-source CRM for following up on every client"
+            eyebrow="The source-available CRM for following up on every client"
             footnotes={
-              <p className="text-muted-foreground">No credit card · Open source (AGPL) · Database in Frankfurt</p>
+              <p className="text-muted-foreground">No credit card · Source available · Database in Frankfurt</p>
             }
             primary={{ href: "/auth/signup", label: "Start your 14-day trial" }}
             secondary={{

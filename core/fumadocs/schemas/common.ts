@@ -9,7 +9,7 @@ const metaSchema = z.object({
 });
 
 const acquisitionFactReferenceSchema = z.enum([
-  "product:agpl-community-core",
+  "product:source-available-community-core",
   "product:cloud-only-unified-inbox",
   "product:core-crm-records",
   "product:custom-fields-and-views",
@@ -31,7 +31,7 @@ const acquisitionFactReferenceSchema = z.enum([
 ]);
 
 export const ACQUISITION_FACT_SOURCES = {
-  "product:agpl-community-core": ["LICENSE", "ee/LICENSE.md"],
+  "product:source-available-community-core": ["LICENSE", "ee/LICENSE.md"],
   "product:cloud-only-unified-inbox": ["ee/subscription/entitlements.ts"],
   "product:core-crm-records": [
     "features/mcp-tools/server-instructions.ts",

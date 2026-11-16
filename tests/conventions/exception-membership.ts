@@ -99,7 +99,7 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:AgentChat.activity.counted.messages":
     "unresolved C09: French spells the plural count of conversations exactly as English does",
-  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:AgplGithubBadge.label":
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:SourceBadge.label":
     "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:Common.filters.palette.appliedCount":
     "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
@@ -147,7 +147,7 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:Trash.permanentRecords":
     "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
-  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:AgplGithubBadge.label":
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:SourceBadge.label":
     "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:ConnectedAccountsCard.channels.linkedinClassic":
     "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",

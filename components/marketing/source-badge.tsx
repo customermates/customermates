@@ -24,7 +24,7 @@ async function getStarCount(): Promise<number | null> {
   }
 }
 
-export async function AgplGithubBadge({ className }: Props) {
+export async function SourceBadge({ className }: Props) {
   const [t, starCount, locale] = await Promise.all([getTranslations(), getStarCount(), getLocale()]);
   const formattingTag = formattingTagFor(contentLocaleOrDefault(locale));
 
@@ -40,7 +40,7 @@ export async function AgplGithubBadge({ className }: Props) {
       >
         <Github aria-hidden className="size-3.5" />
 
-        <span className="font-semibold">{t("AgplGithubBadge.label")}</span>
+        <span className="font-semibold">{t("SourceBadge.label")}</span>
       </AppLink>
 
       {starCount !== null && (

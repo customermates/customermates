@@ -18,7 +18,7 @@ const SHARED_VALUE_PREFIXES = [
   "OnboardingWizard.ai.choices.",
   "Subscription.planNames.",
   "Subscription.picker.price.",
-  "AgplGithubBadge.label",
+  "SourceBadge.label",
 ];
 
 const GLOSSARY: Record<string, Record<string, string>> = {

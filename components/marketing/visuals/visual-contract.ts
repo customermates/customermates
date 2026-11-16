@@ -23,7 +23,7 @@ export const VISUAL_PLACEMENTS = ["wide", "split", "narrow"] as const;
 export const VISUAL_LOCALES = ASSET_LOCALES;
 
 export const SUPPORTED_VISUAL_FACTS = [
-  "product:agpl-community-core",
+  "product:source-available-community-core",
   "product:conversation-record-association",
   "product:deal-kanban-movement",
   "product:deal-status-field",

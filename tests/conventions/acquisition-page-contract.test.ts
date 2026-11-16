@@ -251,7 +251,7 @@ describe("approved acquisition page contract", () => {
     expect(schema).not.toContain("heroImage");
   });
 
-  it("does not label the cloud-only unified inbox as AGPL open source", () => {
+  it("does not show the source badge on the cloud-only unified inbox", () => {
     for (const locale of CONTENT_LOCALES) {
       const { data } = readPage(
         contentFile("feature-pages", locale, "unified-inbox"),
@@ -265,7 +265,7 @@ describe("approved acquisition page contract", () => {
     );
     expect(source).toContain("showOpenSourceBadge = true");
     expect(source).toContain(
-      'showOpenSourceBadge ? <AgplGithubBadge className="mk-hero-chip" /> : null',
+      'showOpenSourceBadge ? <SourceBadge className="mk-hero-chip" /> : null',
     );
   });
 

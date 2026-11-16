@@ -8,9 +8,9 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
 }));
 
-import { AgplGithubBadge } from "../agpl-github-badge";
+import { SourceBadge } from "../source-badge";
 
-describe("AgplGithubBadge", () => {
+describe("SourceBadge", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -20,7 +20,7 @@ describe("AgplGithubBadge", () => {
     const fetch = vi.fn();
     vi.stubGlobal("fetch", fetch);
 
-    await AgplGithubBadge({});
+    await SourceBadge({});
 
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -30,7 +30,7 @@ describe("AgplGithubBadge", () => {
     const fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ stargazers_count: 42 }) });
     vi.stubGlobal("fetch", fetch);
 
-    await AgplGithubBadge({});
+    await SourceBadge({});
 
     expect(fetch).toHaveBeenCalledWith("https://api.github.com/repos/customermates/customermates", expect.anything());
   });
