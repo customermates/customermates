@@ -103,9 +103,9 @@ Reviews follow the Code Owners listed in [CODEOWNERS](./CODEOWNERS):
 
 ## Contributor License Agreement
 
-Contributing needs a signed Contributor License Agreement. It is the plain-English agreement from Indie Open Source, a few sentences long, and you sign it with the push of a button. The full text is in [CLA.md](./CLA.md). It gives Customermates permission to license your contribution on any terms, and it means you are not liable for your contribution.
+Contributing needs a signed Contributor License Agreement. It is the plain-English agreement from Indie Open Source, a few sentences long, and you sign it with one comment. The full text is in [CLA.md](./CLA.md). It gives Customermates permission to license your contribution on any terms, and it means you are not liable for your contribution.
 
-Once a pull request is opened, an automated check named "CLA Check" leaves a comment that lists everyone who has not signed yet and links to the signing page. After signing, comment `/cla-check` on the pull request to run the check again. The pull request can only be merged once the check passes, and it runs again in the merge queue.
+Once a pull request is opened, an automated check named "CLA Check" leaves a comment that lists everyone who has not signed yet. Sign by replying with the sentence the comment asks for, `I have read the CLA Document and I hereby sign the CLA`. The check records your GitHub account on the `cla-signatures` branch, so you sign once for every later pull request. Comment `recheck` to run the check again. The pull request can only be merged once the check passes.
 
 ## Licence of your contribution
 

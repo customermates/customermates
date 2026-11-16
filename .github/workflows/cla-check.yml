@@ -1,52 +1,45 @@
 name: CLA Check
-run-name: "${{ github.event_name == 'workflow_dispatch' && format('CLA Check (PR #{0})', inputs.pr_number) || '' }}"
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
   issue_comment:
     types: [created]
-  merge_group:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: Pull request number to verify again
-        required: true
-        type: string
+  pull_request_target:
+    types: [opened, closed, synchronize]
 
 permissions:
-  contents: read
+  actions: write
+  contents: write
   pull-requests: write
-  issues: write
   statuses: write
 
 concurrency:
-  group: >-
-    cla-check-${{ github.event_name == 'issue_comment'
-      && format('comment-{0}', github.event.issue.number)
-      || github.event.pull_request.number
-      || github.event.merge_group.head_sha
-      || github.event.inputs.pr_number
-      || github.ref }}
-  cancel-in-progress: true
+  group: cla-check-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
 
 jobs:
   cla-check:
     name: Verify CLA signatures
     if: >-
-      github.event_name != 'issue_comment' ||
+      github.event_name == 'pull_request_target' ||
       (github.event.issue.pull_request != null &&
-       startsWith(github.event.comment.body, '/cla-check'))
+       (github.event.comment.body == 'recheck' ||
+        github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: n8n-io/github-actions/cla-check@ea082925743265a61d9fd0a69a32b211551f88f0 # cla-check/v1.0.2
+      - uses: contributor-assistant/github-action@ca4a40a7d1004f18d9960b404b97e5f30a505a08 # v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          app-id: ${{ secrets.CLA_APP_ID }}
-          private-key: ${{ secrets.CLA_APP_PRIVATE_KEY }}
-          pr-number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
-          cla-api: ${{ vars.CLA_API_URL }}
-          cla-sign-url: ${{ vars.CLA_SIGN_URL }}
-          status-context: CLA Check
-          comment-marker: "<!-- customermates-cla-check -->"
-          label-name: cla-signed
+          path-to-signatures: signatures/cla.json
+          path-to-document: https://github.com/customermates/customermates/blob/main/.github/CLA.md
+          branch: cla-signatures
+          allowlist: benjiwagner,eljulsi,dependabot[bot],github-actions[bot],renovate[bot]
+          lock-pullrequest-aftermerge: false
+          custom-notsigned-prcomment: >-
+            Thank you for the pull request. Before it can be merged, every contributor has to sign the
+            [Contributor License Agreement](https://github.com/customermates/customermates/blob/main/.github/CLA.md),
+            a few plain-English sentences. Sign it by replying with the sentence below; you sign once for all later
+            pull requests. The contributors who have not signed yet:
+          custom-pr-sign-comment: I have read the CLA Document and I hereby sign the CLA
+          custom-allsigned-prcomment: Every contributor has signed the Contributor License Agreement.
