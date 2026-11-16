@@ -5857,7 +5857,6 @@
   "TemplatePages": {
     "breadcrumbHome": "Strona główna",
     "breadcrumbTemplates": "Szablony",
-    "browse": "Przeglądaj szablony",
     "copied": "Skopiowano. Wklej do swojego agenta.",
     "copy": "Kopiuj prompt",
     "copyFailed": "Nie udało się skopiować. Zaznacz tekst i skopiuj go ręcznie.",

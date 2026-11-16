@@ -62,7 +62,6 @@ export async function TemplatesHub({ locale }: { locale: string }) {
           </ol>
         }
         primary={{ href: SIGNUP_PATH, label: t("startFree") }}
-        secondary={{ href: "#templates", label: t("browse") }}
         showOpenSourceBadge={false}
         title={t("hubTitle")}
       />

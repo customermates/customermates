@@ -5857,7 +5857,6 @@
   "TemplatePages": {
     "breadcrumbHome": "Accueil",
     "breadcrumbTemplates": "Modèles",
-    "browse": "Voir les modèles",
     "copied": "Copié. Collez-le dans votre agent.",
     "copy": "Copier le prompt",
     "copyFailed": "La copie a échoué. Sélectionnez le texte et copiez-le à la main.",
