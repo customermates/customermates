@@ -258,7 +258,8 @@ describe("ReceiveIncomingWebhookInteractor", () => {
 
   it("logs the byte size of the raw body, not of its decoded text", async () => {
     const { interactor, repo } = setup();
-    const raw = Buffer.from([...Buffer.from('{"data":{"name":"Ada '), 0xff, ...Buffer.from('"}}')]);
+    const encoder = new TextEncoder();
+    const raw = new Uint8Array([...encoder.encode('{"data":{"name":"Ada '), 0xff, ...encoder.encode('"}}')]);
 
     await interactor.invoke(request(raw));
 
