@@ -3475,7 +3475,7 @@
       "mcpDocs": "Documentación de MCP",
       "n8n": "Automatización con n8n",
       "openExampleWorkspace": "Abrir este espacio de trabajo de ejemplo",
-      "openSourceCrm": "Alternativas de CRM de código abierto",
+      "openSourceCrm": "CRM de código fuente disponible",
       "pillarData": "Datos",
       "pillarDataDescription": "Clientes, oportunidades y listas a tu medida",
       "pillarInbox": "Bandeja de entrada",
@@ -5740,7 +5740,7 @@
     }
   },
   "SourceBadge": {
-    "label": "Código fuente disponible · fair-code"
+    "label": "Código fuente disponible"
   },
   "StructuredData": {
     "breadcrumb": {

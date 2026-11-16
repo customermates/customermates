@@ -93,6 +93,8 @@ const RULE_PARAMETER_CONSTANTS: Readonly<Record<string, string>> = {
 };
 
 const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:NavigationBar.notifications":
+    "unresolved C09: French uses the English word notifications for the sidebar entry like every other locale uses its plain noun",
   "i18n-parity.test.ts#ALLOWED_LOCALIZED_NUMBERS: pl:AgentChat.activity.consequence.recordsDelete":
     "unresolved C09: Polish declines the sentence in four plural branches, each carrying the 30 days",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:AgentChat.activity.counted.records":

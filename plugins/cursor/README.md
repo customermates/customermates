@@ -1,6 +1,6 @@
 # Customermates plugin for Cursor
 
-Connects Cursor to [Customermates](https://customermates.com), the open-source CRM with an MCP endpoint, so the Cursor agent can read and write your contacts, organizations, deals and tasks and search your company knowledge base.
+Connects Cursor to [Customermates](https://customermates.com), the source-available CRM with an MCP endpoint, so the Cursor agent can read and write your contacts, organizations, deals and tasks and search your company knowledge base.
 
 ## What it adds
 
