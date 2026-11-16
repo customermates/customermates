@@ -853,9 +853,6 @@
       "workingOnRequest": "Deine Anfrage wird bearbeitet…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "Quellcode einsehbar"
-  },
   "ApiKeyModal": {
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
     "addTitle": "API-Key hinzufügen",
@@ -5745,6 +5742,9 @@
       "pitchBoard": "Pitch-Board"
     }
   },
+  "SourceBadge": {
+    "label": "Quellcode einsehbar"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Alle Features",
@@ -6175,6 +6175,7 @@
         "mate": "Mate ({count, plural, one {# Anfrage} other {# Anfragen}})",
         "members": "{count, plural, one {# weitere Person} other {# weitere Personen}}",
         "routines": "{count, plural, one {# aktive Routine} other {# aktive Routinen}}",
+        "rules": "{count, plural, one {# Automatisierung über dem Limit} other {# Automatisierungen über dem Limit}}",
         "webhooks": "{count, plural, one {# aktiver Webhook} other {# aktive Webhooks}}"
       },
       "lead": "Das stoppt auf Free:"

@@ -853,9 +853,6 @@
       "workingOnRequest": "Bezig met je verzoek…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "Source available"
-  },
   "ApiKeyModal": {
     "addDescription": "Maak een sleutel voor je eigen integratie of kies een AI-client voor begeleide installatie.",
     "addTitle": "Een API-sleutel toevoegen",
@@ -5745,6 +5742,9 @@
       "pitchBoard": "Pitchbord"
     }
   },
+  "SourceBadge": {
+    "label": "Source available"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Alle functies",
@@ -6175,6 +6175,7 @@
         "mate": "Mate ({count, plural, one {# verzoek} other {# verzoeken}})",
         "members": "{count, plural, one {# extra persoon} other {# extra personen}}",
         "routines": "{count, plural, one {# actieve routine} other {# actieve routines}}",
+        "rules": "{count, plural, one {# automatisering boven de limiet} other {# automatiseringen boven de limiet}}",
         "webhooks": "{count, plural, one {# actieve webhook} other {# actieve webhooks}}"
       },
       "lead": "Op Free stopt dit:"

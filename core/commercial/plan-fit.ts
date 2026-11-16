@@ -34,7 +34,7 @@ export const EMPTY_PLAN_FIT_USAGE: PlanFitUsage = {
   apiClients: 0,
 };
 
-export type FreeLossKind = "accounts" | "drafts" | "routines" | "members" | "forms" | "webhooks" | "mate";
+export type FreeLossKind = "accounts" | "drafts" | "routines" | "rules" | "members" | "forms" | "webhooks" | "mate";
 
 export type FreeLoss = { kind: FreeLossKind; count: number };
 
@@ -58,6 +58,7 @@ export function lostOnFree(usage: PlanFitUsage): FreeLoss[] {
     { kind: "accounts", count: usage.connectedAccounts },
     { kind: "drafts", count: usage.openDrafts },
     { kind: "routines", count: usage.activeRoutines },
+    { kind: "rules", count: beyond(free.activeAutomationRules, usage.activeAutomationRules) },
     { kind: "members", count: Math.max(0, usage.members - 1) },
     { kind: "forms", count: beyond(free.formSubmissionsPerMonth, usage.formSubmissionsThisMonth) },
     { kind: "webhooks", count: usage.webhooks },

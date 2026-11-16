@@ -51,8 +51,12 @@ describe("what stops when a trial moves to Free", () => {
     expect(lostOnFree(usage({ formSubmissionsThisMonth: 51 }))).toEqual([{ kind: "forms", count: 1 }]);
   });
 
-  it("leaves automations out of what stops, because an enabled rule keeps running on Free", () => {
-    expect(lostOnFree(usage({ activeAutomationRules: 30 }))).toEqual([]);
+  it("counts only the automations beyond the Free allowance, because the plan pauses those", () => {
+    const allowance = PLAN_CATALOG.free.entitlements.activeAutomationRules;
+
+    expect(allowance).toBe(3);
+    expect(lostOnFree(usage({ activeAutomationRules: 3 }))).toEqual([]);
+    expect(lostOnFree(usage({ activeAutomationRules: 5 }))).toEqual([{ kind: "rules", count: 2 }]);
   });
 
   it("counts people beyond the one Free seat and ignores a workspace of one", () => {

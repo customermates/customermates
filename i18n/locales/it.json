@@ -853,9 +853,6 @@
       "workingOnRequest": "Elaborazione della tua richiesta…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "Source-available"
-  },
   "ApiKeyModal": {
     "addDescription": "Crea una chiave per la tua integrazione oppure scegli un client IA per la configurazione guidata.",
     "addTitle": "Aggiungi una chiave API",
@@ -5745,6 +5742,9 @@
       "pitchBoard": "Pitch"
     }
   },
+  "SourceBadge": {
+    "label": "Source-available"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Tutte le funzionalità",
@@ -6175,6 +6175,7 @@
         "mate": "Mate ({count, plural, one {# richiesta} other {# richieste}})",
         "members": "{count, plural, one {# persona in più} other {# persone in più}}",
         "routines": "{count, plural, one {# routine attiva} other {# routine attive}}",
+        "rules": "{count, plural, one {# automazione oltre il limite} other {# automazioni oltre il limite}}",
         "webhooks": "{count, plural, one {# webhook attivo} other {# webhook attivi}}"
       },
       "lead": "Questo si ferma sul piano Free:"

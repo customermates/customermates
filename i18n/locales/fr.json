@@ -853,9 +853,6 @@
       "workingOnRequest": "Traitement de votre demande…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "Source-available"
-  },
   "ApiKeyModal": {
     "addDescription": "Créez une clé pour votre propre intégration ou choisissez un client d’IA pour une configuration guidée.",
     "addTitle": "Ajouter une clé API",
@@ -5745,6 +5742,9 @@
       "pitchBoard": "Pitchs"
     }
   },
+  "SourceBadge": {
+    "label": "Source-available"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Toutes les fonctionnalités",
@@ -6175,6 +6175,7 @@
         "mate": "Mate ({count, plural, one {# demande} other {# demandes}})",
         "members": "{count, plural, one {# personne de plus} other {# personnes de plus}}",
         "routines": "{count, plural, one {# routine active} other {# routines actives}}",
+        "rules": "{count, plural, one {# automatisation au-delà de la limite} other {# automatisations au-delà de la limite}}",
         "webhooks": "{count, plural, one {# webhook actif} other {# webhooks actifs}}"
       },
       "lead": "Ceci s’arrête en Free :"

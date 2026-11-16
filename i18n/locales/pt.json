@@ -853,9 +853,6 @@
       "workingOnRequest": "Trabalhando no seu pedido…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "Código-fonte disponível · fair-code"
-  },
   "ApiKeyModal": {
     "addDescription": "Crie uma chave para a sua própria integração ou escolha um cliente de IA para uma configuração guiada.",
     "addTitle": "Adicionar uma chave de API",
@@ -5745,6 +5742,9 @@
       "pitchBoard": "Quadro de pitches"
     }
   },
+  "SourceBadge": {
+    "label": "Código-fonte disponível · fair-code"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Todos os recursos",
@@ -6175,6 +6175,7 @@
         "mate": "Mate ({count, plural, one {# solicitação} other {# solicitações}})",
         "members": "{count, plural, one {mais # pessoa} other {mais # pessoas}}",
         "routines": "{count, plural, one {# rotina ativa} other {# rotinas ativas}}",
+        "rules": "{count, plural, one {# automação acima do limite} other {# automações acima do limite}}",
         "webhooks": "{count, plural, one {# webhook ativo} other {# webhooks ativos}}"
       },
       "lead": "No plano Free, estes recursos deixam de funcionar:"

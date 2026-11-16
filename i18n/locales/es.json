@@ -853,9 +853,6 @@
       "workingOnRequest": "Procesando tu solicitud…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "Código fuente disponible · fair-code"
-  },
   "ApiKeyModal": {
     "addDescription": "Crea una clave para tu propia integración o elige un cliente de IA para recibir una configuración guiada.",
     "addTitle": "Añadir una clave de API",
@@ -5745,6 +5742,9 @@
       "pitchBoard": "Pitches"
     }
   },
+  "SourceBadge": {
+    "label": "Código fuente disponible · fair-code"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Todas las funciones",
@@ -6175,6 +6175,7 @@
         "mate": "Mate ({count, plural, one {# solicitud} other {# solicitudes}})",
         "members": "{count, plural, one {# persona más} other {# personas más}}",
         "routines": "{count, plural, one {# rutina activa} other {# rutinas activas}}",
+        "rules": "{count, plural, one {# automatización por encima del límite} other {# automatizaciones por encima del límite}}",
         "webhooks": "{count, plural, one {# webhook activo} other {# webhooks activos}}"
       },
       "lead": "Esto se detiene en Free:"

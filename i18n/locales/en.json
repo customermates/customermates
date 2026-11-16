@@ -853,9 +853,6 @@
       "workingOnRequest": "Working on your request…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "Source available"
-  },
   "ApiKeyModal": {
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
     "addTitle": "Add an API key",
@@ -5745,6 +5742,9 @@
       "pitchBoard": "Pitch board"
     }
   },
+  "SourceBadge": {
+    "label": "Source available"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "All Features",
@@ -6175,6 +6175,7 @@
         "mate": "Mate ({count, plural, one {# request} other {# requests}})",
         "members": "{count, plural, one {# more person} other {# more people}}",
         "routines": "{count, plural, one {# active routine} other {# active routines}}",
+        "rules": "{count, plural, one {# automation over the limit} other {# automations over the limit}}",
         "webhooks": "{count, plural, one {# active webhook} other {# active webhooks}}"
       },
       "lead": "On Free these stop:"
