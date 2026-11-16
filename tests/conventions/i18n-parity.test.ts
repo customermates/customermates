@@ -113,6 +113,8 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "nl:ConnectedAccountsCard.channels.linkedinRecruiter",
   "nl:ConnectedAccountsCard.channels.linkedinSalesNavigator",
   "nl:ConnectedAccountsCard.emailFontFamilies.monospace",
+  "nl:HomepagePricing.compare.openSource",
+  "nl:HomepagePricing.selfHosted.period",
   "nl:ConnectedAccountsCard.emailLogoPlaceholder",
   "nl:ContactPage.form.founderName",
   "nl:DataView.views.recordCount",
@@ -145,6 +147,8 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "pl:OnboardingWizard.ai.choices.claudeDesktop",
   "pl:OnboardingWizard.ai.choices.openai",
   "pl:SourceBadge.label",
+  "pl:HomepagePricing.compare.openSource",
+  "pl:HomepagePricing.selfHosted.period",
   // German dashboards abbreviate quarters with Q, as in English.
   "de:RecordWidgets.quarterLabel",
   // "Configuration" is the French word as well.
@@ -170,7 +174,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "de:OnboardingWizard.ai.choices.claudeDesktop",
   "de:OnboardingWizard.ai.choices.openai",
   "de:RoleModal.resources.api",
-  "fr:SourceBadge.label",
   "fr:RoutineDetail.triggerThread",
   "fr:Common.defaultData.deal.options.qualification",
   "fr:Common.filters.fields.participants",
@@ -182,7 +185,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:OnboardingWizard.ai.choices.claudeDesktop",
   "fr:OnboardingWizard.ai.choices.openai",
   "fr:UserAvatar.documentation",
-  "it:SourceBadge.label",
   "it:ConnectedAccountsCard.channels.linkedinClassic",
   "it:DocsSidebar.openapi",
   "it:OnboardingWizard.ai.choices.claudeDesktop",

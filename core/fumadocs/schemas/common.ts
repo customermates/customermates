@@ -31,7 +31,7 @@ const acquisitionFactReferenceSchema = z.enum([
 ]);
 
 export const ACQUISITION_FACT_SOURCES = {
-  "product:source-available-community-core": ["LICENSE", "ee/LICENSE.md"],
+  "product:source-available-community-core": ["LICENSE.md", "ee/LICENSE.md"],
   "product:cloud-only-unified-inbox": ["ee/subscription/entitlements.ts"],
   "product:core-crm-records": [
     "features/mcp-tools/server-instructions.ts",
