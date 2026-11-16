@@ -12,6 +12,7 @@ import type { NotificationsStore } from "./notifications.store";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -81,7 +82,7 @@ function NotificationRow({ item, intlStore, store }: RowProps) {
   );
 }
 
-export const NotificationsPageView = observer(function NotificationsPageView({ initialInbox }: Props) {
+const NotificationsPageViewContent = observer(function NotificationsPageView({ initialInbox }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const { notificationsStore: store } = useRootStore();
@@ -208,3 +209,5 @@ export const NotificationsPageView = observer(function NotificationsPageView({ i
     </div>
   );
 });
+
+export const NotificationsPageView = serverRenderedClient(NotificationsPageViewContent);

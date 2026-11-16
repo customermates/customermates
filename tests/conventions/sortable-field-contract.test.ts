@@ -23,6 +23,8 @@ const STORE_REPOSITORY: Record<string, string> = {
     "ee/operator/prisma-operator-workspaces.repository.ts",
   "app/[locale]/(protected)/operator/components/audit/operator-audit.store.ts":
     "ee/operator/prisma-operator-audit.repository.ts",
+  "components/incoming-webhook/incoming-webhooks.store.ts":
+    "features/incoming-webhook/prisma-incoming-webhook.repository.ts",
 };
 
 const COLUMN_HOOK_STORE: Record<string, string> = {
@@ -44,6 +46,7 @@ const COLUMN_HOOK_STORE: Record<string, string> = {
     "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store.ts",
   "app/[locale]/(protected)/operator/components/audit/use-operator-audit-columns.tsx":
     "app/[locale]/(protected)/operator/components/audit/operator-audit.store.ts",
+  "components/incoming-webhook/use-incoming-webhook-columns.tsx": "components/incoming-webhook/incoming-webhooks.store.ts",
 };
 
 const REPOSITORY_MODEL: Record<string, string> = {
@@ -59,6 +62,7 @@ const REPOSITORY_MODEL: Record<string, string> = {
   "ee/messaging/persistence/prisma-messaging.repository.ts": "MessagingThread",
   "ee/calendar/prisma-calendar.repository.ts": "Calendar",
   "ee/calendar/prisma-calendar-events.repository.ts": "CalendarEvent",
+  "features/incoming-webhook/prisma-incoming-webhook.repository.ts": "IncomingWebhook",
 };
 
 const COMPUTED_SORT_REPOSITORIES: string[] = [];
@@ -310,7 +314,11 @@ describe("every sort option a surface offers is one its repository applies", () 
 
 describe("every column header that sorts is one its repository applies", () => {
   it("maps every column hook to the store behind its page", () => {
-    const hooks = walkFiles(REPO_ROOT, (path) => /\/use-[a-z-]+-columns\.tsx$/.test(path) && path.includes("/app/"))
+    const hooks = walkFiles(
+      REPO_ROOT,
+      (path) =>
+        /\/use-[a-z-]+-columns\.tsx$/.test(path) && (path.includes("/app/") || path.includes("/components/")),
+    )
       .map((path) => relative(REPO_ROOT, path))
       .filter((path) => !path.includes("/__tests__/"));
 
