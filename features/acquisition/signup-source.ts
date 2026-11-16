@@ -13,11 +13,19 @@ import {
   signupCampaignFromRequest,
   type SignupCampaign,
 } from "./signup-campaign";
+import { SIGNUP_PATH, SIGNUP_TEMPLATE_QUERY_PARAM } from "./signup-link";
+import {
+  CampaignValueSchema,
+  type SearchParams,
+  campaignValue,
+  decodeJson,
+  firstValue,
+  isSameSite,
+  parseHttpUrl,
+} from "./signup-parsing";
 
 export const SIGNUP_JOURNEY_COOKIE_NAME = "cm_signup_journey";
-export const SIGNUP_TEMPLATE_QUERY_PARAM = "template";
 export const SIGNUP_JOURNEY_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24;
-export const SIGNUP_LANDING_FALLBACK_PATH = "/auth/signup";
 
 const SIGNUP_JOURNEY_COOKIE_MAX_BYTES = 2_048;
 const UTM_QUERY_PARAMS = { utmSource: "utm_source", utmMedium: "utm_medium", utmCampaign: "utm_campaign" } as const;
@@ -32,11 +40,6 @@ const ReferrerHostSchema = z
   .min(1)
   .max(253)
   .regex(/^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/u);
-const CampaignValueSchema = z
-  .string()
-  .min(1)
-  .max(128)
-  .regex(/^[\p{L}\p{N}._~+\- ]+$/u);
 
 const MarketingFieldsSchema = z.object({
   referrerHost: ReferrerHostSchema.nullable(),
@@ -81,27 +84,6 @@ export const RegistrationSignupSourceSchema = SignupJourneyInputSchema.omit({ te
 });
 export type RegistrationSignupSource = z.infer<typeof RegistrationSignupSourceSchema>;
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
-function firstValue(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function parseUrl(value: string | null | undefined): URL | null {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:" ? url : null;
-  } catch {
-    return null;
-  }
-}
-
-function campaignValue(value: string | string[] | undefined): string | null {
-  const parsed = CampaignValueSchema.safeParse(firstValue(value)?.trim());
-  return parsed.success ? parsed.data : null;
-}
-
 function parseTemplateChoice(value: string | string[] | undefined): TemplateSlug | null {
   const candidate = firstValue(value)?.trim().toLowerCase();
   return isTemplateSlug(candidate) ? candidate : null;
@@ -109,7 +91,7 @@ function parseTemplateChoice(value: string | string[] | undefined): TemplateSlug
 
 function landingPath(pathname: string): string {
   const parsed = LandingPathSchema.safeParse(pathname);
-  return parsed.success ? parsed.data : SIGNUP_LANDING_FALLBACK_PATH;
+  return parsed.success ? parsed.data : SIGNUP_PATH;
 }
 
 function referrerHost(url: URL): string | null {
@@ -122,14 +104,13 @@ export function signupJourneyFromRequest(args: {
   referer: string | null;
   baseUrl: string;
 }): SignupJourneyInput {
-  const referrer = parseUrl(args.referer);
-  const ownHost = new URL(args.baseUrl).host;
-  const sameSite = referrer !== null && referrer.host === ownHost;
+  const referrer = parseHttpUrl(args.referer);
+  const sameSite = isSameSite(referrer, args.baseUrl);
 
   return {
     job: parseOnboardingJob(args.searchParams[SIGNUP_JOB_QUERY_PARAM]),
     template: parseTemplateChoice(args.searchParams[SIGNUP_TEMPLATE_QUERY_PARAM]),
-    landingPath: sameSite ? landingPath(referrer.pathname) : SIGNUP_LANDING_FALLBACK_PATH,
+    landingPath: sameSite ? landingPath(referrer.pathname) : SIGNUP_PATH,
     referrerHost: referrer && !sameSite ? referrerHost(referrer) : null,
     utmSource: campaignValue(args.searchParams[UTM_QUERY_PARAMS.utmSource]),
     utmMedium: campaignValue(args.searchParams[UTM_QUERY_PARAMS.utmMedium]),
@@ -158,7 +139,7 @@ function hasMarketingFields(journey: SignupJourneyInput): boolean {
 }
 
 export function choiceOnlyJourney<T extends SignupJourneyInput>(journey: T): T {
-  return { ...withoutMarketingFields(journey), job: null, landingPath: SIGNUP_LANDING_FALLBACK_PATH };
+  return { ...withoutMarketingFields(journey), job: null, landingPath: SIGNUP_PATH };
 }
 
 export function nextSignupJourney(args: {
@@ -203,10 +184,5 @@ export function encodeSignupJourneyCookie(journey: SignupJourney): string | null
 
 export function decodeSignupJourneyCookie(value: string | undefined): SignupJourney | null {
   if (!value || Buffer.byteLength(value, "utf8") > SIGNUP_JOURNEY_COOKIE_MAX_BYTES) return null;
-  try {
-    const parsed = SignupJourneySchema.safeParse(JSON.parse(Buffer.from(value, "base64url").toString("utf8")));
-    return parsed.success ? parsed.data : null;
-  } catch {
-    return null;
-  }
+  return decodeJson(SignupJourneySchema, Buffer.from(value, "base64url").toString("utf8"));
 }

@@ -2,10 +2,13 @@ import { z } from "zod";
 
 import { TEMPLATE_SLUGS, isTemplateSlug } from "@/core/templates/template-slugs";
 
+import { SIGNUP_TEMPLATE_QUERY_PARAM } from "./signup-link";
+import { isSameSite, parseHttpUrl } from "./signup-parsing";
+
 export const SIGNUP_LAST_PAGE_MAX_LENGTH = 512;
 export const SIGNUP_LAST_PAGE_OPAQUE_SEGMENT = ":id";
 
-const TEMPLATE_QUERY_PREFIX = "template=";
+const TEMPLATE_QUERY_PREFIX = `${SIGNUP_TEMPLATE_QUERY_PARAM}=`;
 const PAGE_PATTERN = new RegExp(
   `^/(?!/)[^\\s?#\\p{Cc}]*(?:\\?${TEMPLATE_QUERY_PREFIX}(?:${TEMPLATE_SLUGS.join("|")}))?$`,
   "u",
@@ -19,16 +22,6 @@ export function isSignupLastPage(value: string): boolean {
   return SignupLastPageSchema.safeParse(value).success;
 }
 
-function parseUrl(value: string | null | undefined): URL | null {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:" ? url : null;
-  } catch {
-    return null;
-  }
-}
-
 function withoutOpaqueSegments(pathname: string): string {
   return pathname
     .split("/")
@@ -37,11 +30,11 @@ function withoutOpaqueSegments(pathname: string): string {
 }
 
 export function signupLastPageFromReferer(args: { referer: string | null; baseUrl: string }): string | null {
-  const referrer = parseUrl(args.referer);
-  if (referrer === null || referrer.host !== new URL(args.baseUrl).host) return null;
+  const referrer = parseHttpUrl(args.referer);
+  if (!isSameSite(referrer, args.baseUrl)) return null;
 
   const path = withoutOpaqueSegments(referrer.pathname);
-  const template = referrer.searchParams.get("template")?.trim().toLowerCase();
+  const template = referrer.searchParams.get(SIGNUP_TEMPLATE_QUERY_PARAM)?.trim().toLowerCase();
   const page = isTemplateSlug(template) ? `${path}?${TEMPLATE_QUERY_PREFIX}${template}` : path;
   return isSignupLastPage(page) ? page : null;
 }

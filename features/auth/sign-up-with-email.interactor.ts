@@ -52,7 +52,7 @@ export class SignUpWithEmailInteractor {
   constructor(
     private authService: AuthService,
     private onboardingIntentService: OnboardingIntentService,
-    private signupLastPages?: Pick<RegisterUserRepo, "recordSignupLastPageUnscoped" | "recordSignupCampaignUnscoped">,
+    private signupAttribution?: Pick<RegisterUserRepo, "recordSignupAttributionUnscoped">,
   ) {}
 
   async invoke(data: EmailSignUpData): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
@@ -96,16 +96,12 @@ export class SignUpWithEmailInteractor {
         error,
       };
     }
-    if (data.signupLastPage && this.signupLastPages) {
+    if ((data.signupLastPage || data.signupCampaign) && this.signupAttribution) {
       try {
-        await this.signupLastPages.recordSignupLastPageUnscoped(res.user.id, data.signupLastPage);
-      } catch (error) {
-        ErrorReporter.captureException(error);
-      }
-    }
-    if (data.signupCampaign && this.signupLastPages) {
-      try {
-        await this.signupLastPages.recordSignupCampaignUnscoped(res.user.id, data.signupCampaign);
+        await this.signupAttribution.recordSignupAttributionUnscoped(res.user.id, {
+          lastPage: data.signupLastPage,
+          campaign: data.signupCampaign,
+        });
       } catch (error) {
         ErrorReporter.captureException(error);
       }

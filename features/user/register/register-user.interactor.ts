@@ -203,12 +203,12 @@ export class RegisterUserInteractor {
     }
     if (companyId && (await this.repo.hasLeftMembershipUnscoped(registrationData.email, companyId)))
       await this.authService.revokeMembershipCredentials(sessionUserId, companyId);
-    const signupLastPage =
-      !companyId && isNewCloudCompany ? await this.repo.takeSignupLastPageUnscoped(sessionUserId) : null;
-    const signupCampaign =
+    const attribution =
       !companyId && isNewCloudCompany
-        ? decodeSignupCampaign(await this.repo.takeSignupCampaignUnscoped(sessionUserId))
-        : null;
+        ? await this.repo.takeSignupAttributionUnscoped(sessionUserId)
+        : { lastPage: null, campaign: null };
+    const signupLastPage = attribution.lastPage;
+    const signupCampaign = decodeSignupCampaign(attribution.campaign);
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
           ...registrationData,

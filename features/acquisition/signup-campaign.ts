@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+import {
+  CampaignValueSchema,
+  type SearchParams,
+  campaignValue,
+  decodeJson,
+  isSameSite,
+  parseHttpUrl,
+} from "./signup-parsing";
+
 export const SIGNUP_CAMPAIGN_MAX_LENGTH = 1_024;
 
 const CAMPAIGN_QUERY_PARAMS = {
@@ -11,12 +20,6 @@ const CAMPAIGN_QUERY_PARAMS = {
 } as const;
 type CampaignField = keyof typeof CAMPAIGN_QUERY_PARAMS;
 const CAMPAIGN_FIELDS = Object.keys(CAMPAIGN_QUERY_PARAMS) as CampaignField[];
-
-const CampaignValueSchema = z
-  .string()
-  .min(1)
-  .max(128)
-  .regex(/^[\p{L}\p{N}._~+\- ]+$/u);
 
 export const SignupCampaignSchema = z
   .strictObject({
@@ -34,30 +37,12 @@ export const EncodedSignupCampaignSchema = z
   .max(SIGNUP_CAMPAIGN_MAX_LENGTH)
   .refine((value) => decodeSignupCampaign(value) !== null);
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
-function campaignValue(value: string | string[] | null | undefined): string | null {
-  const candidate = Array.isArray(value) ? value[0] : value;
-  const parsed = CampaignValueSchema.safeParse(candidate?.trim());
-  return parsed.success ? parsed.data : null;
-}
-
 function campaignFrom(read: (param: string) => string | string[] | null | undefined): SignupCampaign | null {
   const campaign = Object.fromEntries(
     CAMPAIGN_FIELDS.map((field) => [field, campaignValue(read(CAMPAIGN_QUERY_PARAMS[field]))]),
   );
   const parsed = SignupCampaignSchema.safeParse(campaign);
   return parsed.success ? parsed.data : null;
-}
-
-function sameSiteReferrer(referer: string | null, baseUrl: string): URL | null {
-  if (!referer) return null;
-  try {
-    const url = new URL(referer);
-    return url.host === new URL(baseUrl).host ? url : null;
-  } catch {
-    return null;
-  }
 }
 
 export function signupCampaignFromRequest(args: {
@@ -68,8 +53,8 @@ export function signupCampaignFromRequest(args: {
   const fromSignupLink = campaignFrom((param) => args.searchParams[param]);
   if (fromSignupLink) return fromSignupLink;
 
-  const referrer = sameSiteReferrer(args.referer, args.baseUrl);
-  return referrer ? campaignFrom((param) => referrer.searchParams.get(param)) : null;
+  const referrer = parseHttpUrl(args.referer);
+  return isSameSite(referrer, args.baseUrl) ? campaignFrom((param) => referrer.searchParams.get(param)) : null;
 }
 
 export function encodeSignupCampaign(campaign: SignupCampaign | null | undefined): string | null {
@@ -81,12 +66,7 @@ export function encodeSignupCampaign(campaign: SignupCampaign | null | undefined
 
 export function decodeSignupCampaign(value: unknown): SignupCampaign | null {
   if (typeof value !== "string" || value.length > SIGNUP_CAMPAIGN_MAX_LENGTH) return null;
-  try {
-    const parsed = SignupCampaignSchema.safeParse(JSON.parse(value));
-    return parsed.success ? parsed.data : null;
-  } catch {
-    return null;
-  }
+  return decodeJson(SignupCampaignSchema, value);
 }
 
 export function readSignupCampaign(value: unknown): SignupCampaign | null {

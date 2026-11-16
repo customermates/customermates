@@ -17,7 +17,7 @@ import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo"
 import type { FindUserSummariesRepo } from "@/features/user/find-user-summaries.repo";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.repo";
 import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
-import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
+import type { RegisterUserRepo, SignupAttribution } from "@/features/user/register/register-user.repo";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.repo";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.repo";
 import type { Prisma } from "@/generated/prisma";
@@ -686,41 +686,36 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async recordSignupLastPageUnscoped(authUserId: string, page: string) {
-    await this.prisma.authUser.updateMany({
-      where: { id: authUserId, companyId: null, signupLastPage: null },
-      data: { signupLastPage: page },
-    });
+  async recordSignupAttributionUnscoped(authUserId: string, attribution: Partial<SignupAttribution>) {
+    const { lastPage, campaign } = attribution;
+    if (lastPage) {
+      await this.prisma.authUser.updateMany({
+        where: { id: authUserId, companyId: null, signupLastPage: null },
+        data: { signupLastPage: lastPage },
+      });
+    }
+    if (campaign) {
+      await this.prisma.authUser.updateMany({
+        where: { id: authUserId, companyId: null, signupCampaign: null },
+        data: { signupCampaign: campaign },
+      });
+    }
   }
 
   @BypassTenantGuard
-  async takeSignupLastPageUnscoped(authUserId: string) {
+  async takeSignupAttributionUnscoped(authUserId: string): Promise<SignupAttribution> {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: authUserId },
-      select: { signupLastPage: true },
+      select: { signupLastPage: true, signupCampaign: true },
     });
-    if (!authUser?.signupLastPage) return null;
-    await this.prisma.authUser.updateMany({ where: { id: authUserId }, data: { signupLastPage: null } });
-    return authUser.signupLastPage;
-  }
-
-  @BypassTenantGuard
-  async recordSignupCampaignUnscoped(authUserId: string, campaign: string) {
-    await this.prisma.authUser.updateMany({
-      where: { id: authUserId, companyId: null, signupCampaign: null },
-      data: { signupCampaign: campaign },
-    });
-  }
-
-  @BypassTenantGuard
-  async takeSignupCampaignUnscoped(authUserId: string) {
-    const authUser = await this.prisma.authUser.findUnique({
-      where: { id: authUserId },
-      select: { signupCampaign: true },
-    });
-    if (!authUser?.signupCampaign) return null;
-    await this.prisma.authUser.updateMany({ where: { id: authUserId }, data: { signupCampaign: null } });
-    return authUser.signupCampaign;
+    const taken = { lastPage: authUser?.signupLastPage ?? null, campaign: authUser?.signupCampaign ?? null };
+    if (taken.lastPage || taken.campaign) {
+      await this.prisma.authUser.updateMany({
+        where: { id: authUserId },
+        data: { signupLastPage: null, signupCampaign: null },
+      });
+    }
+    return taken;
   }
 
   @BypassTenantGuard

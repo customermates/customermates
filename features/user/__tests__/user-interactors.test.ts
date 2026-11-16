@@ -72,8 +72,7 @@ describe("RegisterUserInteractor", () => {
       countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
-      takeSignupLastPageUnscoped: vi.fn().mockResolvedValue(null),
-      takeSignupCampaignUnscoped: vi.fn().mockResolvedValue(null),
+      takeSignupAttributionUnscoped: vi.fn().mockResolvedValue({ lastPage: null, campaign: null }),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -720,7 +719,7 @@ describe("RegisterUserInteractor", () => {
 
   it("moves the last page before signup from the pending login onto the new cloud company", async () => {
     mutableEnv.APP_MODE = "cloud";
-    mockRepo.takeSignupLastPageUnscoped.mockResolvedValue("/en/for/law-firms");
+    mockRepo.takeSignupAttributionUnscoped.mockResolvedValue({ lastPage: "/en/for/law-firms", campaign: null });
 
     await createInteractor().invoke(
       {
@@ -733,7 +732,7 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.takeSignupLastPageUnscoped).toHaveBeenCalledWith(USER_ID);
+    expect(mockRepo.takeSignupAttributionUnscoped).toHaveBeenCalledWith(USER_ID);
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: expect.objectContaining({ signupLastPage: "/en/for/law-firms" }) }),
     );
@@ -742,7 +741,7 @@ describe("RegisterUserInteractor", () => {
   it("stores the campaign of the signup link and the team size on the new cloud company", async () => {
     mutableEnv.APP_MODE = "cloud";
     const campaign = { source: "google", medium: "cpc", campaign: "de-company-k1", content: null, term: "crm outlook" };
-    mockRepo.takeSignupCampaignUnscoped.mockResolvedValue(JSON.stringify(campaign));
+    mockRepo.takeSignupAttributionUnscoped.mockResolvedValue({ lastPage: null, campaign: JSON.stringify(campaign) });
 
     await createInteractor().invoke(
       {
@@ -756,7 +755,7 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.takeSignupCampaignUnscoped).toHaveBeenCalledWith(USER_ID);
+    expect(mockRepo.takeSignupAttributionUnscoped).toHaveBeenCalledWith(USER_ID);
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({
         workspace: expect.objectContaining({ signupCampaign: campaign, teamSize: "small" }),
@@ -767,7 +766,7 @@ describe("RegisterUserInteractor", () => {
 
   it("ignores a stored campaign that is not valid", async () => {
     mutableEnv.APP_MODE = "cloud";
-    mockRepo.takeSignupCampaignUnscoped.mockResolvedValue('{"source":"<script>"}');
+    mockRepo.takeSignupAttributionUnscoped.mockResolvedValue({ lastPage: null, campaign: '{"source":"<script>"}' });
 
     await createInteractor().invoke(
       { email: "jane@example.com", firstName: "Jane", lastName: "Doe", avatarUrl: null, agreeToTerms: true },
@@ -806,7 +805,7 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.takeSignupLastPageUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.takeSignupAttributionUnscoped).not.toHaveBeenCalled();
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: expect.objectContaining({ signupLastPage: null }) }),
     );

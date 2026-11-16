@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { SIGNUP_PATH } from "../signup-link";
 import {
-  SIGNUP_LANDING_FALLBACK_PATH,
   choiceOnlyJourney,
   decodeSignupJourneyCookie,
   encodeSignupJourneyCookie,
@@ -40,7 +40,7 @@ describe("signup journey from the signup request", () => {
         referer: "https://www.Google.com/search?q=customermates+crm",
         baseUrl: BASE_URL,
       }),
-    ).toMatchObject({ job: null, landingPath: SIGNUP_LANDING_FALLBACK_PATH, referrerHost: "www.google.com" });
+    ).toMatchObject({ job: null, landingPath: SIGNUP_PATH, referrerHost: "www.google.com" });
   });
 
   it.each([
@@ -61,7 +61,7 @@ describe("signup journey from the signup request", () => {
     ).toEqual({
       job: null,
       template: null,
-      landingPath: SIGNUP_LANDING_FALLBACK_PATH,
+      landingPath: SIGNUP_PATH,
       referrerHost: null,
       utmSource: null,
       utmMedium: null,
@@ -118,7 +118,7 @@ describe("signup journey consent", () => {
     expect(nextSignupJourney({ existing: null, input, marketingConsent: false, now: NOW })).toEqual({
       job: null,
       template: "client-tracker",
-      landingPath: SIGNUP_LANDING_FALLBACK_PATH,
+      landingPath: SIGNUP_PATH,
       referrerHost: null,
       utmSource: null,
       utmMedium: null,
@@ -135,7 +135,7 @@ describe("signup journey consent", () => {
     expect(choiceOnlyJourney(input)).toEqual({
       job: null,
       template: "client-tracker",
-      landingPath: SIGNUP_LANDING_FALLBACK_PATH,
+      landingPath: SIGNUP_PATH,
       referrerHost: null,
       utmSource: null,
       utmMedium: null,

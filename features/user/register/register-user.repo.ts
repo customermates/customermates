@@ -9,6 +9,8 @@ export type OwnerPreferences = {
   theme: Theme;
 };
 
+export type SignupAttribution = { lastPage: string | null; campaign: string | null };
+
 export abstract class RegisterUserRepo {
   abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
   abstract findAuthUserCompanyIdForUpdateUnscoped(userId: string): Promise<string | null | undefined>;
@@ -16,10 +18,8 @@ export abstract class RegisterUserRepo {
   abstract hasCreatedWorkspaceUnscoped(authUserId: string): Promise<boolean>;
   abstract hasConsumedTrialUnscoped(authUserId: string): Promise<boolean>;
   abstract markTrialConsumedUnscoped(authUserId: string): Promise<void>;
-  abstract recordSignupLastPageUnscoped(authUserId: string, page: string): Promise<void>;
-  abstract takeSignupLastPageUnscoped(authUserId: string): Promise<string | null>;
-  abstract recordSignupCampaignUnscoped(authUserId: string, campaign: string): Promise<void>;
-  abstract takeSignupCampaignUnscoped(authUserId: string): Promise<string | null>;
+  abstract recordSignupAttributionUnscoped(authUserId: string, attribution: Partial<SignupAttribution>): Promise<void>;
+  abstract takeSignupAttributionUnscoped(authUserId: string): Promise<SignupAttribution>;
   abstract countCreatedWorkspacesUnscoped(authUserId: string): Promise<number>;
   abstract hasLeftMembershipUnscoped(email: string, companyId: string): Promise<boolean>;
   abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;
