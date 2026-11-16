@@ -61,17 +61,6 @@ const ManageIncomingWebhooksSchema = z.object({
 
 type Params = z.infer<typeof ManageIncomingWebhooksSchema>;
 
-const ACTION_KEYS: Record<Params["action"], ReadonlyArray<keyof Params>> = {
-  list: ["typeId"],
-  get: ["id"],
-  fields: ["typeId"],
-  create: ["typeId", "name", "mapping", "enabled", "signatureHeader", "signingSecret", "samplePayload"],
-  update: ["id", "name", "mapping", "enabled", "signatureHeader", "signingSecret", "samplePayload", "rotateUrl"],
-  delete: ["id"],
-  test: ["id", "payload"],
-  deliveries: ["id", "limit"],
-};
-
 const OutputSchema = z
   .looseObject({
     items: z.array(z.looseObject({ id: z.string() })).optional(),
@@ -85,13 +74,10 @@ const OutputSchema = z
     "list returns items; get, create and update return webhook with its secret url; delete returns deleted; test returns preview, what the mapping would write for the body without writing it; deliveries returns the recent deliveries; fields returns the fields of the list a mapping can fill.",
   );
 
-function relevantInput(params: Params): Record<string, unknown> {
-  const relevant = ACTION_KEYS[params.action].flatMap((key) => {
-    const value = params[key];
-    const dropped = value === undefined || (value === null && params.action === "create");
-    return dropped ? [] : [[key, value] as const];
-  });
-  return { action: params.action, ...Object.fromEntries(relevant) };
+function manage(input: unknown) {
+  const parsed = ManageIncomingWebhookSchema.safeParse(input);
+  if (!parsed.success) return mcpValidationFailure(parsed.error);
+  return runInteractor(getManageIncomingWebhookInteractor().invoke(parsed.data), (result) => toonResult({ ...result }));
 }
 
 export const manageIncomingWebhooksTool = {
@@ -109,10 +95,35 @@ export const manageIncomingWebhooksTool = {
   inputSchema: ManageIncomingWebhooksSchema,
   outputSchema: OutputSchema,
   execute: async (params: Params) => {
-    const parsed = ManageIncomingWebhookSchema.safeParse(relevantInput(params));
-    if (!parsed.success) return mcpValidationFailure(parsed.error);
-    return runInteractor(getManageIncomingWebhookInteractor().invoke(parsed.data), (result) =>
-      toonResult({ ...result }),
-    );
+    if (params.action === "list") return manage({ action: "list", typeId: params.typeId });
+    if (params.action === "get") return manage({ action: "get", id: params.id });
+    if (params.action === "fields") return manage({ action: "fields", typeId: params.typeId });
+    if (params.action === "delete") return manage({ action: "delete", id: params.id });
+    if (params.action === "test") return manage({ action: "test", id: params.id, payload: params.payload });
+    if (params.action === "deliveries") return manage({ action: "deliveries", id: params.id, limit: params.limit });
+    if (params.action === "create") {
+      return manage({
+        action: "create",
+        typeId: params.typeId,
+        name: params.name,
+        mapping: params.mapping,
+        enabled: params.enabled,
+        signatureHeader: params.signatureHeader,
+        signingSecret: params.signingSecret ?? undefined,
+        samplePayload: params.samplePayload ?? undefined,
+      });
+    }
+
+    return manage({
+      action: "update",
+      id: params.id,
+      name: params.name,
+      mapping: params.mapping,
+      enabled: params.enabled,
+      signatureHeader: params.signatureHeader,
+      signingSecret: params.signingSecret,
+      samplePayload: params.samplePayload,
+      rotateUrl: params.rotateUrl,
+    });
   },
 };

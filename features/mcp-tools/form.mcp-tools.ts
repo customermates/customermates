@@ -69,40 +69,36 @@ export const manageFormsTool = {
   inputSchema: ManageFormsSchema,
   outputSchema: ManageFormsOutputSchema,
   execute: async (params: ManageFormsParams) => {
-    switch (params.action) {
-      case "list": {
-        const parsed = ListPublicFormsSchema.safeParse({ typeId: params.typeId });
-        if (!parsed.success) return mcpValidationFailure(parsed.error);
-        return runInteractor(getListPublicFormsInteractor().invoke(parsed.data), (data) =>
-          toonResult({ items: data.items }),
-        );
-      }
-      case "get": {
-        const parsed = GetPublicFormSchema.safeParse({ id: params.id });
-        if (!parsed.success) return mcpValidationFailure(parsed.error);
-        return runInteractor(getGetPublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
-      }
-      case "fields": {
-        const parsed = GetPublicFormEditorSchema.safeParse({ typeId: params.typeId });
-        if (!parsed.success) return mcpValidationFailure(parsed.error);
-        return runInteractor(getGetPublicFormEditorInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
-      }
-      case "disable": {
-        const parsed = DisablePublicFormSchema.safeParse({ id: params.id });
-        if (!parsed.success) return mcpValidationFailure(parsed.error);
-        return runInteractor(getDisablePublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
-      }
-      case "create":
-      case "update": {
-        const parsed = UpsertPublicFormSchema.safeParse({
-          ...(params.action === "update" ? { id: params.id } : { typeId: params.typeId }),
-          name: params.name,
-          enabled: params.enabled,
-          config: params.config,
-        });
-        if (!parsed.success) return mcpValidationFailure(parsed.error);
-        return runInteractor(getUpsertPublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
-      }
+    if (params.action === "list") {
+      const parsed = ListPublicFormsSchema.safeParse({ typeId: params.typeId });
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(getListPublicFormsInteractor().invoke(parsed.data), (data) =>
+        toonResult({ items: data.items }),
+      );
     }
+    if (params.action === "get") {
+      const parsed = GetPublicFormSchema.safeParse({ id: params.id });
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(getGetPublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
+    }
+    if (params.action === "fields") {
+      const parsed = GetPublicFormEditorSchema.safeParse({ typeId: params.typeId });
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(getGetPublicFormEditorInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
+    }
+    if (params.action === "disable") {
+      const parsed = DisablePublicFormSchema.safeParse({ id: params.id });
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(getDisablePublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
+    }
+
+    const parsed = UpsertPublicFormSchema.safeParse({
+      ...(params.action === "update" ? { id: params.id } : { typeId: params.typeId }),
+      name: params.name,
+      enabled: params.enabled,
+      config: params.config,
+    });
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+    return runInteractor(getUpsertPublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
   },
 };
