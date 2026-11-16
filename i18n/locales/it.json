@@ -1826,6 +1826,7 @@
       },
       "searchFields": {
         "inbox": "Oggetto, messaggio o partecipante",
+        "incomingWebhooks": "Nome",
         "members": "Nome",
         "operatorAudit": "Azione",
         "operatorUsers": "Nome o email",
@@ -2638,6 +2639,7 @@
         "auditEntries": "Tutte le voci",
         "conversations": "Tutte le conversazioni",
         "deliveries": "Tutte le consegne",
+        "incomingWebhooks": "Tutti i webhook in entrata",
         "members": "Tutti i membri",
         "records": "Tutti: {list}",
         "roles": "Tutti i ruoli",

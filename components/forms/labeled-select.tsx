@@ -12,7 +12,7 @@ type Props = {
   onValueChange: (value: string) => void;
 };
 
-export function PublicFormSelect({ id, label, value, items, disabled, onValueChange }: Props) {
+export function LabeledSelect({ id, label, value, items, disabled, onValueChange }: Props) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <Label htmlFor={id}>{label}</Label>

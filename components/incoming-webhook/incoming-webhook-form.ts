@@ -7,8 +7,8 @@ import { IncomingWebhookMappingSchema } from "@/features/incoming-webhook/incomi
 
 export type MappingRow = { path: string; fieldId: string };
 
-export type IncomingWebhookDraft = {
-  id: string | null;
+export type IncomingWebhookForm = {
+  id: string;
   typeId: string;
   name: string;
   enabled: boolean;
@@ -24,15 +24,17 @@ export type IncomingWebhookDraft = {
 
 export const DEFAULT_SIGNATURE_HEADER = "x-signature";
 
-export function emptyDraft(typeId: string): IncomingWebhookDraft {
+export const EMPTY_MAPPING_ROW: MappingRow = { path: "", fieldId: "" };
+
+export function emptyForm(typeId: string): IncomingWebhookForm {
   return {
-    id: null,
+    id: "",
     typeId,
     name: "",
     enabled: true,
     mode: "create",
     matchFieldId: "",
-    rows: [{ path: "", fieldId: "" }],
+    rows: [{ ...EMPTY_MAPPING_ROW }],
     signingSecret: "",
     clearSecret: false,
     hasSecret: false,
@@ -41,7 +43,7 @@ export function emptyDraft(typeId: string): IncomingWebhookDraft {
   };
 }
 
-export function draftOf(webhook: IncomingWebhookDto): IncomingWebhookDraft {
+export function formOf(webhook: IncomingWebhookDto): IncomingWebhookForm {
   return {
     id: webhook.id,
     typeId: webhook.typeId,
@@ -70,40 +72,40 @@ export function parseSample(text: string): { ok: true; value: Record<string, unk
   }
 }
 
-export function mappingOf(draft: IncomingWebhookDraft) {
+export function mappingOf(form: IncomingWebhookForm) {
   const parsed = IncomingWebhookMappingSchema.safeParse({
-    mode: draft.mode,
-    matchFieldId: draft.mode === "upsert" ? draft.matchFieldId || null : null,
-    fields: draft.rows
+    mode: form.mode,
+    matchFieldId: form.mode === "upsert" ? form.matchFieldId || null : null,
+    fields: form.rows
       .filter((row) => row.path.trim() && row.fieldId)
       .map((row) => ({ path: row.path.trim(), fieldId: row.fieldId })),
   });
   return parsed.success ? parsed.data : null;
 }
 
-export function saveRequest(draft: IncomingWebhookDraft): ManageIncomingWebhookData | null {
-  const mapping = mappingOf(draft);
-  const sample = parseSample(draft.sample);
-  if (!mapping || !sample.ok || draft.name.trim().length === 0) return null;
-  const signatureHeader = draft.signatureHeader.trim().toLowerCase() || DEFAULT_SIGNATURE_HEADER;
-  const secret = draft.signingSecret.trim();
-  if (draft.id) {
+export function saveRequest(form: IncomingWebhookForm): ManageIncomingWebhookData | null {
+  const mapping = mappingOf(form);
+  const sample = parseSample(form.sample);
+  if (!mapping || !sample.ok || form.name.trim().length === 0) return null;
+  const signatureHeader = form.signatureHeader.trim().toLowerCase() || DEFAULT_SIGNATURE_HEADER;
+  const secret = form.signingSecret.trim();
+  if (form.id) {
     return {
       action: "update",
-      id: draft.id,
-      name: draft.name.trim(),
-      enabled: draft.enabled,
+      id: form.id,
+      name: form.name.trim(),
+      enabled: form.enabled,
       mapping,
       signatureHeader,
       samplePayload: sample.value,
-      ...(draft.clearSecret ? { signingSecret: null } : secret ? { signingSecret: secret } : {}),
+      ...(form.clearSecret ? { signingSecret: null } : secret ? { signingSecret: secret } : {}),
     } as ManageIncomingWebhookData;
   }
   return {
     action: "create",
-    typeId: draft.typeId,
-    name: draft.name.trim(),
-    enabled: draft.enabled,
+    typeId: form.typeId,
+    name: form.name.trim(),
+    enabled: form.enabled,
     mapping,
     signatureHeader,
     ...(secret ? { signingSecret: secret } : {}),

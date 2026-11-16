@@ -3,6 +3,8 @@ import type { BaseModalStore } from "../base/base-modal.store";
 
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/company-invite/invite-by-email.store";
+import { IncomingWebhookModalStore } from "@/components/incoming-webhook/incoming-webhook-modal.store";
+import { IncomingWebhooksStore } from "@/components/incoming-webhook/incoming-webhooks.store";
 import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
 import { AddPickerStore } from "@/app/components/navigation/add-picker.store";
 import { ViewPickerStore } from "@/components/data-view/views/view-picker.store";
@@ -89,6 +91,7 @@ export class RootStore {
   private _usersStore?: UsersStore;
   private _webhookDeliveriesStore?: WebhookDeliveriesStore;
   private _webhooksStore?: WebhooksStore;
+  private _incomingWebhooksStore?: IncomingWebhooksStore;
   private _routinesStore?: RoutinesStore;
   private _trashStore?: TrashStore;
   private _widgetsGridStore?: WidgetsStore;
@@ -131,6 +134,7 @@ export class RootStore {
   private _userModalStore?: UserModalStore;
   private _webhookDeliveryModalStore?: WebhookDeliveryModalStore;
   private _webhookModalStore?: WebhookModalStore;
+  private _incomingWebhookModalStore?: IncomingWebhookModalStore;
   private _routineModalStore?: RoutineModalStore;
   private _routineRunChatStore?: AgentChatStore;
   private _widgetModalStore?: WidgetModalStore;
@@ -381,6 +385,14 @@ export class RootStore {
 
   get webhooksStore() {
     return (this._webhooksStore ??= new WebhooksStore(this));
+  }
+
+  get incomingWebhookModalStore() {
+    return (this._incomingWebhookModalStore ??= new IncomingWebhookModalStore(this));
+  }
+
+  get incomingWebhooksStore() {
+    return (this._incomingWebhooksStore ??= new IncomingWebhooksStore(this));
   }
 
   get webhookDeliveriesStore() {

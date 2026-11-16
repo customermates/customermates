@@ -9,6 +9,7 @@ import { MembersPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/se
 import { WebhookDeliveriesPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhook-deliveries-page-skeleton";
 import { WebhooksPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhooks-page-skeleton";
 import { RoutinesPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routines-page-skeleton";
+import { IncomingWebhooksPageSkeleton } from "@/components/incoming-webhook/incoming-webhooks-page-skeleton";
 
 import { RecordsPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/records-page-skeleton";
 import type { DataViewView } from "../data-view-state";
@@ -21,6 +22,7 @@ const CASES: Array<[string, Skeleton, string, string]> = [
   ["roles", RolesPageSkeleton, "plain", "text"],
   ["webhooks", WebhooksPageSkeleton, "plain", "text"],
   ["webhook-deliveries", WebhookDeliveriesPageSkeleton, "plain", "text"],
+  ["incoming-webhooks", IncomingWebhooksPageSkeleton, "plain", "text"],
   ["routines", RoutinesPageSkeleton, "plain", "text"],
 ];
 

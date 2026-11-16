@@ -5,13 +5,12 @@ import type { FormDraft } from "./public-form-draft";
 
 import { useTranslations } from "next-intl";
 
+import { LabeledSelect } from "@/components/forms/labeled-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { APP_LOCALES } from "@/i18n/locale-registry";
-
-import { PublicFormSelect } from "./public-form-select";
 
 const AUTO_LOCALE = "auto";
 
@@ -79,7 +78,7 @@ function PersonSettings({ draft, editor, onChange }: Props) {
 
       {draft.personEnabled && current ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <PublicFormSelect
+          <LabeledSelect
             id="public-form-person-list"
             items={lists.map((list) => ({ value: list.typeId, label: list.label }))}
             label={t("PublicForm.builder.personList")}
@@ -87,7 +86,7 @@ function PersonSettings({ draft, editor, onChange }: Props) {
             onValueChange={pickList}
           />
 
-          <PublicFormSelect
+          <LabeledSelect
             id="public-form-person-relationship"
             items={current.relationships.map((relation) => ({
               value: relation.id,
@@ -115,7 +114,7 @@ function PersonSettings({ draft, editor, onChange }: Props) {
           />
 
           {current.nameFields.length > 0 ? (
-            <PublicFormSelect
+            <LabeledSelect
               id="public-form-person-name-field"
               items={current.nameFields.map((field) => ({ value: field.fieldId, label: field.label }))}
               label={t("PublicForm.builder.personNameField")}
@@ -209,7 +208,7 @@ export function PublicFormSettings({ draft, editor, onChange }: Props) {
           onChange={(value) => onChange({ submitLabel: value })}
         />
 
-        <PublicFormSelect
+        <LabeledSelect
           id="public-form-language"
           items={[
             { value: AUTO_LOCALE, label: t("PublicForm.builder.languageAuto") },

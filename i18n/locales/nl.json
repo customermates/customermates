@@ -1826,6 +1826,7 @@
       },
       "searchFields": {
         "inbox": "Onderwerp, bericht of deelnemer",
+        "incomingWebhooks": "Naam",
         "members": "Naam",
         "operatorAudit": "Actie",
         "operatorUsers": "Naam of e-mailadres",
@@ -2638,6 +2639,7 @@
         "auditEntries": "Alle vermeldingen",
         "conversations": "Alle gesprekken",
         "deliveries": "Alle leveringen",
+        "incomingWebhooks": "Alle inkomende webhooks",
         "members": "Alle leden",
         "records": "Alle {list}",
         "roles": "Alle rollen",

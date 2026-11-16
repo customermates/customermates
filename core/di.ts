@@ -2633,6 +2633,7 @@ export const getManageDataViewsInteractor = () =>
     getShareDataViewInteractor(),
     getManagePublicLinkInteractor(),
   );
+      [SURFACE.incomingWebhooks]: getIncomingWebhookRepo(),
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
 import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";
@@ -3024,7 +3025,6 @@ import { IncomingWebhookTenant } from "@/features/incoming-webhook/incoming-webh
 import { ManageIncomingWebhookInteractor } from "@/features/incoming-webhook/manage-incoming-webhook.interactor";
 import { ReceiveIncomingWebhookInteractor } from "@/features/incoming-webhook/receive-incoming-webhook.interactor";
 
-const getIncomingWebhookRepo = () => new PrismaIncomingWebhookRepo();
 const getIncomingWebhookSettings = () => ({ baseUrl: env.BASE_URL, authSecret: env.BETTER_AUTH_SECRET });
 const getIncomingWebhookEngine = () =>
   new IncomingWebhookEngine(getRecordRepo(), getQueryRecordsInteractor(), getMutateRecordInteractor());
@@ -3042,6 +3042,7 @@ const incomingWebhookLimiters = {
 
 export const getManageIncomingWebhookInteractor = () =>
   new ManageIncomingWebhookInteractor(
+import { GetIncomingWebhooksInteractor } from "@/features/incoming-webhook/get-incoming-webhooks.interactor";
     getIncomingWebhookRepo(),
     getRecordRepo(),
     getRecordAccessPolicy(),
@@ -3049,6 +3050,7 @@ export const getManageIncomingWebhookInteractor = () =>
     getPlanLimitsService(),
     getIncomingWebhookSettings(),
   );
+const getIncomingWebhookRepo = () => new PrismaIncomingWebhookRepo(getIncomingWebhookSettings());
 
 export const getReceiveIncomingWebhookInteractor = () =>
   new ReceiveIncomingWebhookInteractor(
@@ -3061,3 +3063,11 @@ export const getReceiveIncomingWebhookInteractor = () =>
     incomingWebhookLimiters,
     { authSecret: env.BETTER_AUTH_SECRET },
   );
+export const getGetIncomingWebhooksInteractor = () =>
+  new GetIncomingWebhooksInteractor(
+    getIncomingWebhookRepo(),
+    getDataViewStateRepo(),
+    "interactive",
+    getQueryParamsPrecheck(),
+  );
+

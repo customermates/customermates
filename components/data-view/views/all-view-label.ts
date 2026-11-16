@@ -19,6 +19,8 @@ export function allViewLabel(
       return t("DataView.views.allTab.webhooks");
     case SURFACE.webhookDeliveries:
       return t("DataView.views.allTab.deliveries");
+    case SURFACE.incomingWebhooks:
+      return t("DataView.views.allTab.incomingWebhooks");
     case SURFACE.messagingThreads:
       return t("DataView.views.allTab.conversations");
     case SURFACE.entityTimeline:

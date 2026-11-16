@@ -1,29 +1,37 @@
 import { Resource } from "@/generated/prisma";
 
 import {
+  getGetIncomingWebhooksInteractor,
   getGetPlanUsageInteractor,
   getGetRecordNavigationInteractor,
-  getManageIncomingWebhookInteractor,
 } from "@/core/di";
 import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
 import { FreePlanFeatureOverlay } from "@/app/components/upsell/free-plan-feature-overlay";
-import { IncomingWebhooksView } from "@/components/incoming-webhook/incoming-webhooks-view";
+import { IncomingWebhooksPageView } from "@/components/incoming-webhook/incoming-webhooks-page-view";
 import { requireAccess } from "@/features/auth/next/require";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
-export default async function CompanyIncomingWebhooksPage() {
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function CompanyIncomingWebhooksPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.api });
 
-  const [list, navigation, usage] = await Promise.all([
-    unwrapPage(getManageIncomingWebhookInteractor().invoke({ action: "list" })),
+  const webhookParams = await readSurfaceParams(SURFACE.incomingWebhooks, searchParams);
+
+  const [webhooks, navigation, usage] = await Promise.all([
+    unwrapPage(getGetIncomingWebhooksInteractor().invoke(webhookParams)),
     unwrapPage(getGetRecordNavigationInteractor().invoke()),
     unwrapPage(getGetPlanUsageInteractor().invoke()),
   ]);
 
-  const body = (
-    <IncomingWebhooksView
-      initial={list.items ?? []}
+  const view = (
+    <IncomingWebhooksPageView
+      initialWebhooks={webhooks}
       lists={navigation.types
         .filter((type) => type.canCreate)
         .map((type) => ({ id: type.id, label: type.pluralLabel }))}
@@ -32,7 +40,7 @@ export default async function CompanyIncomingWebhooksPage() {
 
   return (
     <PageContainer padded={false}>
-      {usage.plan === FREE_PLAN_ID ? <FreePlanFeatureOverlay feature="webhooks">{body}</FreePlanFeatureOverlay> : body}
+      {usage.plan === FREE_PLAN_ID ? <FreePlanFeatureOverlay feature="webhooks">{view}</FreePlanFeatureOverlay> : view}
     </PageContainer>
   );
 }

@@ -7,11 +7,18 @@ import type {
   StoredIncomingWebhook,
 } from "./incoming-webhook.repo";
 import type { IncomingWebhookLookup, IncomingWebhookLookupRepo } from "./incoming-webhook-lookup.repo";
+import type { GetIncomingWebhooksRepo } from "./get-incoming-webhooks.repo";
+import type { IncomingWebhookSettings } from "./incoming-webhook-dto";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
 
-import { TenantRepository } from "@/core/base/tenant-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { Prisma } from "@/generated/prisma";
+
+import { toIncomingWebhookDto } from "./incoming-webhook-dto";
 
 const WEBHOOK_SELECT = {
   id: true,
@@ -36,8 +43,50 @@ function jsonValue(value: unknown): Prisma.InputJsonValue | typeof Prisma.JsonNu
 }
 
 export class PrismaIncomingWebhookRepo
-  extends TenantRepository
-  implements IncomingWebhookRepo, IncomingWebhookLookupRepo
+  extends QueryRepository<Prisma.IncomingWebhookWhereInput>
+  constructor(private readonly settings?: IncomingWebhookSettings) {
+    super();
+  }
+
+  getSearchableFields() {
+    return [{ field: "name" }];
+  }
+
+  getSortableFields() {
+    return [
+      { field: "name", resolvedFields: ["name"], collate: true },
+      { field: "createdAt", resolvedFields: ["createdAt"] },
+      { field: "updatedAt", resolvedFields: ["updatedAt"] },
+    ];
+  }
+
+  getFilterableFields() {
+    return Promise.resolve([
+      { field: FilterFieldKey.updatedAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt] },
+      { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
+    ]);
+  }
+
+  async getItems(params: GetQueryParams) {
+    const settings = this.settings;
+    if (!settings) throw new Error("PrismaIncomingWebhookRepo needs settings to list webhooks");
+    const rows = await this.list({
+      model: "incomingWebhook",
+      baseWhere: { companyId: this.companyId },
+      select: WEBHOOK_SELECT,
+      params,
+      map: (webhook: StoredIncomingWebhook) => toIncomingWebhookDto(webhook, settings),
+    });
+    return rows.flatMap((row) => row ?? []);
+  }
+
+  async getCount(params: GetQueryParams) {
+    const { where } = await this.buildQueryArgs(params, { companyId: this.companyId });
+
+    return this.prisma.incomingWebhook.count({ where });
+  }
+
+  implements IncomingWebhookRepo, IncomingWebhookLookupRepo, GetIncomingWebhooksRepo
 {
   findWebhook(id: string): Promise<StoredIncomingWebhook | null> {
     return this.prisma.incomingWebhook.findFirst({ where: { id, companyId: this.companyId }, select: WEBHOOK_SELECT });
