@@ -97,6 +97,7 @@ import { MeetingRecordService } from "@/ee/calendar/meeting-record.service";
 import { PrismaBookingRepo } from "@/ee/calendar/prisma-booking.repository";
 import { PrismaCalendarEventLinkRepo } from "@/ee/calendar/prisma-calendar-event-link.repository";
 import { PrismaCalendarWriteAccessRepo } from "@/ee/calendar/prisma-calendar-write-access.repository";
+import { PruneBookingsInteractor } from "@/ee/calendar/prune-bookings.interactor";
 import { PublicBookingAccess } from "@/ee/calendar/public-booking-access";
 import { ReadPublicBookingInteractor } from "@/ee/calendar/read-public-booking.interactor";
 import { ReadPublicBookingSlotsInteractor } from "@/ee/calendar/read-public-booking-slots.interactor";
@@ -593,8 +594,8 @@ const getRecordRepoOwners = (): RecordRepoOwners => ({
   events: getEventLogRepo(),
   webhooks: getWebhookRepo(),
   routines: getRoutineRepo(),
-  members: getUserRepo(),
   rules: getAutomationRuleRepo(),
+  members: getUserRepo(),
   roles: getRoleRepo(),
   subscriptions: getRecordEventSubscriptionRepo(),
   files: getRecordFileRepo(),
@@ -1260,8 +1261,8 @@ export const getFreePlanPauseService = () =>
     getUserRepo(),
     getCompanyRepo(),
     (companyId) => getRoutineRepo(companyId),
-    env.APP_MODE,
     (companyId) => getAutomationRuleRepo(companyId),
+    env.APP_MODE,
     new PaidSeatQuantitySync(getCompanyRepo(), getSubscriptionService()).sync,
   );
 export const getSyncFreePlanPausesInteractor = () =>
@@ -1818,9 +1819,19 @@ export const getProcessCalendarUpsertWebhookInteractor = () =>
 export const getProcessCalendarDeleteWebhookInteractor = () =>
   new ProcessCalendarDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessCalendarEventUpsertWebhookInteractor = () =>
-  new ProcessCalendarEventUpsertWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+  new ProcessCalendarEventUpsertWebhookInteractor(
+    getCalendarRepo(),
+    getConnectedAccountRepo(),
+    getEventService(),
+    getBookingRepo(),
+  );
 export const getProcessCalendarEventDeleteWebhookInteractor = () =>
-  new ProcessCalendarEventDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+  new ProcessCalendarEventDeleteWebhookInteractor(
+    getCalendarRepo(),
+    getConnectedAccountRepo(),
+    getEventService(),
+    getBookingRepo(),
+  );
 export const getGetCalendarsInteractor = () =>
   new GetCalendarsInteractor(
     getCalendarRepo(),
@@ -1902,20 +1913,24 @@ export const getSaveBookingLinkInteractor = () =>
   );
 export const getDeleteBookingLinkInteractor = () =>
   new DeleteBookingLinkInteractor(getBookingRepo(), getEntitlementService());
+export const getPruneBookingsInteractor = () => new PruneBookingsInteractor(getBookingRepo());
 
+const publicTenant = new PublicTenant(getUserService());
 const publicBookingReadAccess = new PublicBookingAccess(
   getBookingRepo(),
-  new PublicLinkTenant(getUserService()),
+  publicTenant,
   { perLink: new TokenBucketRateLimiter(300, 60_000), perVisitor: new TokenBucketRateLimiter(60, 60_000) },
   () => getEntitlementService(),
   () => getPermissionService(),
+  { authSecret: env.BETTER_AUTH_SECRET },
 );
 const publicBookingSubmitAccess = new PublicBookingAccess(
   getBookingRepo(),
-  new PublicLinkTenant(getUserService()),
+  publicTenant,
   { perLink: new TokenBucketRateLimiter(30, 600_000), perVisitor: new TokenBucketRateLimiter(5, 600_000) },
   () => getEntitlementService(),
   () => getPermissionService(),
+  { authSecret: env.BETTER_AUTH_SECRET },
 );
 export const getReadPublicBookingInteractor = () =>
   new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService());
@@ -2618,6 +2633,7 @@ export const getManageDataViewsInteractor = () =>
       [SURFACE.roles]: getRoleRepo(),
       [SURFACE.webhooks]: getWebhookRepo(),
       [SURFACE.webhookDeliveries]: getWebhookDeliveryRepo(),
+      [SURFACE.incomingWebhooks]: getIncomingWebhookRepo(),
       [SURFACE.messagingThreads]: getMessagingRepo(),
       [SURFACE.routines]: getRoutineRepo(),
     },
@@ -2633,7 +2649,6 @@ export const getManageDataViewsInteractor = () =>
     getShareDataViewInteractor(),
     getManagePublicLinkInteractor(),
   );
-      [SURFACE.incomingWebhooks]: getIncomingWebhookRepo(),
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
 import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";
@@ -2833,6 +2848,7 @@ import { PreviewAutomationRuleInteractor } from "@/features/automation-rules/pre
 import { RecordAutomationPort } from "@/features/automation-rules/record-automation.port";
 import { RunAutomationRuleInteractor } from "@/features/automation-rules/run-automation-rule.interactor";
 import { SetAutomationRuleEnabledInteractor } from "@/features/automation-rules/set-automation-rule-enabled.interactor";
+import { PruneAutomationRuleRunsInteractor } from "@/features/automation-rules/prune-automation-rule-runs.interactor";
 import { SweepAutomationRulesInteractor } from "@/features/automation-rules/sweep-automation-rules.interactor";
 import { UpsertAutomationRuleInteractor } from "@/features/automation-rules/upsert-automation-rule.interactor";
 import { PrismaNotificationRepo } from "@/features/notifications/prisma-notification.repository";
@@ -2841,6 +2857,7 @@ import { GetNotificationPreferencesInteractor } from "@/features/notifications/g
 import { GetNotificationsInteractor } from "@/features/notifications/get-notifications.interactor";
 import { MarkNotificationsReadInteractor } from "@/features/notifications/mark-notifications-read.interactor";
 import { NotificationService } from "@/features/notifications/notification.service";
+import { PruneNotificationsInteractor } from "@/features/notifications/prune-notifications.interactor";
 import { SendNotificationDigestInteractor } from "@/features/notifications/send-notification-digest.interactor";
 import { SetNotificationPreferencesInteractor } from "@/features/notifications/set-notification-preferences.interactor";
 
@@ -2848,7 +2865,6 @@ const getNotificationRepo = () => new PrismaNotificationRepo();
 const getNotificationMailer = () => new EmailNotificationMailer(getEmailService());
 export const getNotificationService = () => new NotificationService(getNotificationRepo(), getNotificationMailer());
 export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
-import { PruneAutomationRuleRunsInteractor } from "@/features/automation-rules/prune-automation-rule-runs.interactor";
 export const getMarkNotificationsReadInteractor = () => new MarkNotificationsReadInteractor(getNotificationRepo());
 export const getGetNotificationPreferencesInteractor = () =>
   new GetNotificationPreferencesInteractor(getNotificationRepo());
@@ -2856,8 +2872,8 @@ export const getSetNotificationPreferencesInteractor = () =>
   new SetNotificationPreferencesInteractor(getNotificationRepo());
 export const getSendNotificationDigestInteractor = () =>
   new SendNotificationDigestInteractor(getNotificationRepo(), getNotificationMailer());
+export const getPruneNotificationsInteractor = () => new PruneNotificationsInteractor(getNotificationRepo());
 
-import { PruneNotificationsInteractor } from "@/features/notifications/prune-notifications.interactor";
 const getAutomationRuleRepo = (companyId?: string) =>
   new PrismaAutomationRuleRepo(getRecordEventSubscriptionRepo(companyId), companyId);
 const getRecordAutomationPort = () =>
@@ -2872,7 +2888,6 @@ const getAutomationEffectRunner = () =>
     getAutomationRuleRepo(),
   );
 export const getAutomationRuleAdmission = () =>
-export const getPruneNotificationsInteractor = () => new PruneNotificationsInteractor(getNotificationRepo());
   new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getGetAutomationRulesInteractor = () => new GetAutomationRulesInteractor(getAutomationRuleRepo());
 export const getGetAutomationRuleInteractor = () => new GetAutomationRuleInteractor(getAutomationRuleRepo());
@@ -2894,6 +2909,8 @@ export const getSweepAutomationRulesInteractor = () =>
     getBackgroundTaskService(),
     getDiscardAutomationRuleRunInteractor(),
   );
+export const getPruneAutomationRuleRunsInteractor = () =>
+  new PruneAutomationRuleRunsInteractor(getAutomationRuleRepo());
 
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
 import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
@@ -2903,14 +2920,12 @@ import { ReadPublicListRecordsInteractor } from "@/features/public-link/read-pub
 import { ReadPublicWidgetRecordsInteractor } from "@/features/public-link/read-public-widget-records.interactor";
 import { PublicLinkAccess } from "@/features/public-link/public-link-access";
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
-import { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
+import { PublicTenant } from "@/core/network/public-tenant";
 import { GetPublicLinkSettingsInteractor } from "@/features/public-link/get-public-link-settings.interactor";
 import { SetPublicLinksAllowedInteractor } from "@/features/public-link/set-public-links-allowed.interactor";
 
 const getPublicLinkRepo = () => new PrismaPublicLinkRepo();
 
-export const getPruneAutomationRuleRunsInteractor = () =>
-  new PruneAutomationRuleRunsInteractor(getAutomationRuleRepo());
 export const getManagePublicLinkInteractor = () =>
   new ManagePublicLinkInteractor(getPublicLinkRepo(), getDataViewRepo(), getRecordViewPolicy(), getEventService(), {
     baseUrl: env.BASE_URL,
@@ -2919,7 +2934,7 @@ export const getManagePublicLinkInteractor = () =>
 
 const publicLinkAccess = new PublicLinkAccess(
   getPublicLinkRepo(),
-  new PublicLinkTenant(getUserService()),
+  publicTenant,
   { invoke: (data) => getGetWidgetsInteractor().invoke(data) },
   new TokenBucketRateLimiter(120, 60_000),
   new TokenBucketRateLimiter(60, 60_000),
@@ -2952,7 +2967,7 @@ import { PrismaPublicFormRepo } from "@/features/public-form/prisma-public-form.
 import { PublicFormAccess } from "@/features/public-form/public-form-access";
 import { PUBLIC_FORM_LIMITS } from "@/features/public-form/public-form.schema";
 import { PlanPublicFormQuota } from "@/features/public-form/public-form-quota";
-import { PublicFormTenant } from "@/features/public-form/public-form-tenant";
+import { PrunePublicFormSubmissionsInteractor } from "@/features/public-form/prune-public-form-submissions.interactor";
 import { DisablePublicFormInteractor } from "@/features/public-form/disable-public-form.interactor";
 import { GetPublicFormEditorInteractor } from "@/features/public-form/get-public-form-editor.interactor";
 import { GetPublicFormInteractor } from "@/features/public-form/get-public-form.interactor";
@@ -2967,7 +2982,7 @@ const getPublicFormSettings = () => ({ baseUrl: env.BASE_URL, authSecret: env.BE
 
 const publicFormAccess = new PublicFormAccess(
   getPublicFormRepo(),
-  new PublicFormTenant(getUserService()),
+  publicTenant,
   {
     view: new TokenBucketRateLimiter(PUBLIC_FORM_LIMITS.viewBucket.capacity, PUBLIC_FORM_LIMITS.viewBucket.windowMs),
     visitorSubmit: new TokenBucketRateLimiter(
@@ -2995,6 +3010,9 @@ export const getSubmitPublicFormInteractor = () =>
     getEventService(),
     getPublicFormQuota(),
   );
+
+export const getPrunePublicFormSubmissionsInteractor = () =>
+  new PrunePublicFormSubmissionsInteractor(getPublicFormRepo());
 
 export const getListPublicFormsInteractor = () =>
   new ListPublicFormsInteractor(getPublicFormRepo(), getPublicFormQuota(), getPublicFormSettings());
@@ -3025,12 +3043,14 @@ export const getGetPublicFormEditorInteractor = () =>
 
 import { PrismaIncomingWebhookRepo } from "@/features/incoming-webhook/prisma-incoming-webhook.repository";
 import { INCOMING_WEBHOOK_LIMITS } from "@/features/incoming-webhook/incoming-webhook.schema";
+import { GetIncomingWebhooksInteractor } from "@/features/incoming-webhook/get-incoming-webhooks.interactor";
 import { IncomingWebhookEngine } from "@/features/incoming-webhook/incoming-webhook-engine";
-import { IncomingWebhookTenant } from "@/features/incoming-webhook/incoming-webhook-tenant";
 import { ManageIncomingWebhookInteractor } from "@/features/incoming-webhook/manage-incoming-webhook.interactor";
+import { PruneIncomingWebhookDeliveriesInteractor } from "@/features/incoming-webhook/prune-incoming-webhook-deliveries.interactor";
 import { ReceiveIncomingWebhookInteractor } from "@/features/incoming-webhook/receive-incoming-webhook.interactor";
 
 const getIncomingWebhookSettings = () => ({ baseUrl: env.BASE_URL, authSecret: env.BETTER_AUTH_SECRET });
+const getIncomingWebhookRepo = () => new PrismaIncomingWebhookRepo(getIncomingWebhookSettings());
 const getIncomingWebhookEngine = () =>
   new IncomingWebhookEngine(getRecordRepo(), getQueryRecordsInteractor(), getMutateRecordInteractor());
 
@@ -3045,29 +3065,9 @@ const incomingWebhookLimiters = {
   ),
 };
 
-export const getManageIncomingWebhookInteractor = () =>
-  new ManageIncomingWebhookInteractor(
-import { GetIncomingWebhooksInteractor } from "@/features/incoming-webhook/get-incoming-webhooks.interactor";
-    getIncomingWebhookRepo(),
-    getRecordRepo(),
-    getRecordAccessPolicy(),
-    getIncomingWebhookEngine(),
-    getPlanLimitsService(),
-    getIncomingWebhookSettings(),
-  );
-const getIncomingWebhookRepo = () => new PrismaIncomingWebhookRepo(getIncomingWebhookSettings());
+export const getPruneIncomingWebhookDeliveriesInteractor = () =>
+  new PruneIncomingWebhookDeliveriesInteractor(getIncomingWebhookRepo());
 
-export const getReceiveIncomingWebhookInteractor = () =>
-  new ReceiveIncomingWebhookInteractor(
-    getIncomingWebhookRepo(),
-    getIncomingWebhookRepo(),
-    new IncomingWebhookTenant(getUserService()),
-    getIncomingWebhookEngine(),
-    getEventService(),
-    getPlanLimitsService(),
-    incomingWebhookLimiters,
-    { authSecret: env.BETTER_AUTH_SECRET },
-  );
 export const getGetIncomingWebhooksInteractor = () =>
   new GetIncomingWebhooksInteractor(
     getIncomingWebhookRepo(),
@@ -3076,3 +3076,24 @@ export const getGetIncomingWebhooksInteractor = () =>
     getQueryParamsPrecheck(),
   );
 
+export const getManageIncomingWebhookInteractor = () =>
+  new ManageIncomingWebhookInteractor(
+    getIncomingWebhookRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getIncomingWebhookEngine(),
+    getPlanLimitsService(),
+    getIncomingWebhookSettings(),
+  );
+
+export const getReceiveIncomingWebhookInteractor = () =>
+  new ReceiveIncomingWebhookInteractor(
+    getIncomingWebhookRepo(),
+    getIncomingWebhookRepo(),
+    publicTenant,
+    getIncomingWebhookEngine(),
+    getEventService(),
+    getPlanLimitsService(),
+    incomingWebhookLimiters,
+    { authSecret: env.BETTER_AUTH_SECRET },
+  );

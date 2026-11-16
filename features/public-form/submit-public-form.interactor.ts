@@ -2,12 +2,12 @@ import type { z } from "zod";
 
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
+import type { RecordLink, RecordWriter } from "@/features/records/person-lookup";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { PublicFormAccess } from "./public-form-access";
 import type { AcceptedFormAnswers } from "./public-form-answers";
 import type { PublicFormLookup } from "./public-form-lookup.repo";
-import type { FormRecordWriter } from "./public-form-person";
 import type { PublicFormQuota } from "./public-form-quota";
 import type { PublicFormRepo } from "./public-form.repo";
 import type { PublicFormConfig, PublicFormSubmitResult, SubmitPublicFormInput } from "./public-form.schema";
@@ -15,18 +15,17 @@ import type { PublicFormConfig, PublicFormSubmitResult, SubmitPublicFormInput } 
 import { randomUUID } from "node:crypto";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { looksAutomated, visitorHash } from "@/core/network/public-submit-guard";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import * as ErrorReporter from "@/core/observability/server";
 import { DomainEvent } from "@/features/event/domain-events";
 import { isAppLocale } from "@/i18n/locale-registry";
+import { createPerson, findPersonByEmail, linkDirection } from "@/features/records/person-lookup";
 
 import { PUBLIC_FORM_UNAVAILABLE } from "./public-form-access";
 import { buildFormAnswers, mutationFieldErrors } from "./public-form-answers";
-import { PUBLIC_FORM_LIMITS } from "./public-form-limits";
-import { createPerson, findPersonByEmail, linkDirection } from "./public-form-person";
 import { startOfUtcMonth } from "./public-form-quota";
-import { renderTokenAgeMs, visitorHash } from "./public-form-render-token";
-import { SubmitPublicFormSchema } from "./public-form.schema";
+import { PUBLIC_FORM_LIMITS, SubmitPublicFormSchema } from "./public-form.schema";
 
 type Submission = z.infer<typeof SubmitPublicFormSchema>;
 
@@ -39,8 +38,6 @@ type Context = {
   submissionId: string;
 };
 
-type FormLink = { relationId: string; direction: "outgoing" | "incoming"; record: RecordRef };
-
 type Created = { status: "created"; recordId: string | null } | { status: "failed"; result: PublicFormSubmitResult };
 
 const HOUR_MS = 60 * 60_000;
@@ -52,7 +49,7 @@ export class SubmitPublicFormInteractor {
     private forms: PublicFormRepo,
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
-    private writer: FormRecordWriter,
+    private writer: RecordWriter,
     private events: Pick<EventService, "publish">,
     private quota: PublicFormQuota,
   ) {}
@@ -78,12 +75,6 @@ export class SubmitPublicFormInteractor {
     return { status: "submitted", message: config.success.message, redirectUrl: config.success.redirectUrl };
   }
 
-  private looksAutomated({ form, data, now }: Context): boolean {
-    if (data.website) return true;
-    const age = renderTokenAgeMs(data.renderToken, form.id, now, this.access.authSecret);
-    return age === null || age < PUBLIC_FORM_LIMITS.minFillMs || age > PUBLIC_FORM_LIMITS.maxFillMs;
-  }
-
   private async overLimit({ form, ipHash, now }: Context): Promise<PublicFormSubmitResult | null> {
     const limits = await this.quota.limits(form.companyId);
     if (limits.submissionsPerMonth !== null) {
@@ -101,7 +92,14 @@ export class SubmitPublicFormInteractor {
 
   private async submit(context: Context): Promise<PublicFormSubmitResult> {
     const { form, config, data } = context;
-    if (this.looksAutomated(context)) return this.accepted(config);
+    const automated = looksAutomated({
+      honeypot: data.website,
+      renderToken: data.renderToken,
+      subjectId: form.id,
+      now: context.now,
+      authSecret: this.access.authSecret,
+    });
+    if (automated) return this.accepted(config);
 
     const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
     const typeExists = model.types.some((entry) => entry.id === form.typeId && !entry.archived);
@@ -150,7 +148,7 @@ export class SubmitPublicFormInteractor {
     model: RecordModel,
     typeId: string,
     person: RecordRef | null,
-  ): FormLink[] | null {
+  ): RecordLink[] | null {
     if (!person || !config.person) return [];
     const direction = linkDirection(model, config.person, typeId);
     return direction ? [{ relationId: config.person.relationshipId, direction, record: person }] : null;
@@ -180,7 +178,7 @@ export class SubmitPublicFormInteractor {
     context: Context,
     model: RecordModel,
     built: AcceptedFormAnswers,
-    links: FormLink[],
+    links: RecordLink[],
   ): Promise<Created> {
     const { form, submissionId } = context;
     const attempt = (revision: number) =>

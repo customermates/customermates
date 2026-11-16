@@ -1,16 +1,16 @@
+import type { PublicBlocked } from "@/core/network/public-access";
+import type { PublicTenant } from "@/core/network/public-tenant";
 import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import type { PublicFormLookup, PublicFormLookupRepo } from "./public-form-lookup.repo";
-import type { PublicFormTenant } from "./public-form-tenant";
 import type { PublicFormConfig } from "./public-form.schema";
 
 import { PermissionService } from "@/core/base/permission.service";
+import { admitAll } from "@/core/network/public-access";
 import { eventVia } from "@/features/event/event-via";
 import { Action, Resource } from "@/generated/prisma";
 
 import { publicFormIdFromToken } from "./public-form-token";
 import { PublicFormConfigSchema } from "./public-form.schema";
-
-export type PublicFormBlocked = { status: "unavailable" } | { status: "rateLimited"; retryAfterSeconds: number };
 
 export const PUBLIC_FORM_UNAVAILABLE = { status: "unavailable" } as const;
 
@@ -32,7 +32,7 @@ export function parsePublicFormConfig(value: unknown): PublicFormConfig | null {
 export class PublicFormAccess {
   constructor(
     private lookup: PublicFormLookupRepo,
-    private tenant: PublicFormTenant,
+    private tenant: PublicTenant,
     private limiters: PublicFormLimiters,
     private settings: Settings,
   ) {}
@@ -49,23 +49,20 @@ export class PublicFormAccess {
     token: string,
     visitor: string | null | undefined,
     mode: PublicFormOpenMode,
-    read: (form: PublicFormLookup, config: PublicFormConfig) => Promise<T | PublicFormBlocked>,
-  ): Promise<T | PublicFormBlocked> {
+    read: (form: PublicFormLookup, config: PublicFormConfig) => Promise<T | PublicBlocked>,
+  ): Promise<T | PublicBlocked> {
     const formId = publicFormIdFromToken(token, this.settings.authSecret);
     if (!formId) return PUBLIC_FORM_UNAVAILABLE;
 
-    const checks =
+    const limited = admitAll(
       mode === "view"
-        ? [[this.limiters.view, visitor ? `view:${visitor}` : null] as const]
+        ? [[this.limiters.view, visitor ? `view:${visitor}` : null]]
         : [
-            [this.limiters.visitorSubmit, visitor ? `submit:${formId}:${visitor}` : null] as const,
-            [this.limiters.formSubmit, `form:${formId}`] as const,
-          ];
-    for (const [limiter, key] of checks) {
-      if (!key) continue;
-      const admission = limiter.admit(key);
-      if (!admission.allowed) return { status: "rateLimited", retryAfterSeconds: admission.retryAfterSeconds };
-    }
+            [this.limiters.visitorSubmit, visitor ? `submit:${formId}:${visitor}` : null],
+            [this.limiters.formSubmit, `form:${formId}`],
+          ],
+    );
+    if (limited) return limited;
 
     const form = await this.lookup.findFormUnscoped(formId);
     if (!form || !form.enabled || !form.company.allowPublicLinks || form.company.deletingAt || form.type.archived)
@@ -75,7 +72,6 @@ export class PublicFormAccess {
 
     return this.tenant.run(
       form.createdById,
-      eventVia("form", form.name),
       async () => {
         const creator = new PermissionService();
         if (creator.companyId !== form.companyId || !creator.has(Resource.publicLinks, Action.create))
@@ -83,6 +79,7 @@ export class PublicFormAccess {
         return read(form, config);
       },
       () => Promise.resolve(PUBLIC_FORM_UNAVAILABLE),
+      eventVia("form", form.name),
     );
   }
 }

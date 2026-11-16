@@ -1,13 +1,15 @@
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { PublicLinkLookup, PublicLinkLookupRepo } from "./public-link-lookup.repo";
+import type { PublicBlocked } from "@/core/network/public-access";
+import type { PublicTenant } from "@/core/network/public-tenant";
 import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
-import type { PublicLinkTenant } from "./public-link-tenant";
 
 import { createHash } from "node:crypto";
 
 import { PermissionService } from "@/core/base/permission.service";
 import { SURFACE } from "@/core/data-view/data-view-keys";
+import { admitAll } from "@/core/network/public-access";
 import { Action, Resource } from "@/generated/prisma";
 
 import { isPublishableSurface } from "./public-link-surface";
@@ -16,8 +18,6 @@ import { publicLinkIdFromToken } from "./public-link-token";
 export type WidgetReader = {
   invoke(data: { viewId: string }): Promise<{ ok: true; data: { items: WidgetDto[]; activeViewKey: string } }>;
 };
-
-export type PublicLinkBlocked = { status: "unavailable" } | { status: "rateLimited"; retryAfterSeconds: number };
 
 export const PUBLIC_LINK_UNAVAILABLE = { status: "unavailable" } as const;
 
@@ -34,7 +34,7 @@ export class PublicLinkAccess {
 
   constructor(
     private lookup: PublicLinkLookupRepo,
-    private tenant: PublicLinkTenant,
+    private tenant: PublicTenant,
     private widgets: WidgetReader,
     private perLink: TokenBucketRateLimiter,
     private perVisitor: TokenBucketRateLimiter,
@@ -48,19 +48,16 @@ export class PublicLinkAccess {
   async open<T>(
     token: string,
     visitor: string | null | undefined,
-    read: (link: PublicLinkLookup) => Promise<T | PublicLinkBlocked>,
-  ): Promise<T | PublicLinkBlocked> {
+    read: (link: PublicLinkLookup) => Promise<T | PublicBlocked>,
+  ): Promise<T | PublicBlocked> {
     const linkId = publicLinkIdFromToken(token, this.settings.authSecret);
     if (!linkId) return PUBLIC_LINK_UNAVAILABLE;
 
-    for (const [limiter, key] of [
+    const limited = admitAll([
       [this.perVisitor, visitor ? `visitor:${visitor}` : null],
       [this.perLink, `link:${linkId}`],
-    ] as const) {
-      if (!key) continue;
-      const admission = limiter.admit(key);
-      if (!admission.allowed) return { status: "rateLimited", retryAfterSeconds: admission.retryAfterSeconds };
-    }
+    ]);
+    if (limited) return limited;
 
     const link = await this.lookup.findLinkUnscoped(linkId);
     const now = this.now();

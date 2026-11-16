@@ -3,8 +3,7 @@
 import type { PublicListRecordsInput, PublicWidgetRecordsInput } from "@/features/public-link/public-link.schema";
 
 import { getReadPublicListRecordsInteractor, getReadPublicWidgetRecordsInteractor } from "@/core/di";
-
-import { visitorKey } from "./visitor-key";
+import { visitorKey } from "@/core/network/visitor-key";
 
 export async function readPublicWidgetRecordsAction(input: PublicWidgetRecordsInput) {
   return getReadPublicWidgetRecordsInteractor().invoke({ ...input, visitor: await visitorKey() });

@@ -8,13 +8,12 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { renderToken } from "@/core/network/public-submit-guard";
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DomainEvent } from "@/features/event/domain-events";
 import { PublicFormAccess } from "../public-form-access";
-import { PUBLIC_FORM_LIMITS } from "../public-form-limits";
-import { UNLIMITED_PUBLIC_FORM_QUOTA } from "../public-form-quota";
-import { renderToken } from "../public-form-render-token";
+import { PUBLIC_FORM_LIMITS } from "../public-form.schema";
 import { publicFormToken } from "../public-form-token";
 import { ReadPublicFormInteractor } from "../read-public-form.interactor";
 import { SubmitPublicFormInteractor } from "../submit-public-form.interactor";
@@ -29,6 +28,7 @@ import {
   RELATION_ID,
   SECRET,
   TYPE_ID,
+  UNLIMITED_PUBLIC_FORM_QUOTA,
   USER_ID,
   createConfig,
   createModel,
@@ -87,9 +87,9 @@ function setup(options: Setup = {}) {
   const tenant = {
     run: (
       _creatorId: string,
-      attribution: unknown,
       read: () => Promise<unknown>,
       unavailable: () => Promise<unknown>,
+      attribution: unknown,
     ) => {
       via.push(attribution);
       return options.tenantUser === undefined && options.allowed !== false
@@ -543,8 +543,7 @@ describe("ReadPublicFormInteractor", () => {
         findFormUnscoped: () => Promise.resolve({ enabled: true, company: { allowPublicLinks: true }, type: {} }),
       } as never,
       {
-        run: (_id: string, _via: unknown, _read: () => Promise<unknown>, unavailable: () => Promise<unknown>) =>
-          unavailable(),
+        run: (_id: string, _read: () => Promise<unknown>, unavailable: () => Promise<unknown>) => unavailable(),
       } as never,
       { view: limited, visitorSubmit: limited, formSubmit: limited },
       { authSecret: SECRET, now: () => now },

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { SIGNED_ID_TOKEN_PATTERN } from "@/core/utils/signed-id";
 import { incomingWebhookSignature, incomingWebhookSignatureValid } from "../incoming-webhook-signature";
 import {
-  INCOMING_WEBHOOK_TOKEN_PATTERN,
   incomingWebhookIdFromToken,
   incomingWebhookToken,
   incomingWebhookTokenValid,
@@ -30,7 +30,7 @@ describe("incoming webhook token", () => {
   it("encodes the id and a signature of the id and the token version", () => {
     const token = incomingWebhookToken(HOOK_ID, 1, SECRET);
 
-    expect(token).toMatch(INCOMING_WEBHOOK_TOKEN_PATTERN);
+    expect(token).toMatch(SIGNED_ID_TOKEN_PATTERN);
     expect(incomingWebhookIdFromToken(token)).toBe(HOOK_ID);
     expect(incomingWebhookTokenValid(token, HOOK_ID, 1, SECRET)).toBe(true);
   });

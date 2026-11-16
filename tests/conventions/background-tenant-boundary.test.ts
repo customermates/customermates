@@ -39,10 +39,8 @@ const BACKGROUND_TENANT_DEFINITION = "core/decorators/background-tenant.ts";
 const BACKGROUND_TENANT_CALLER_PREFIX = "workflows/";
 
 const TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS = [
-  "features/incoming-webhook/incoming-webhook-tenant.ts",
+  "core/network/public-tenant.ts",
   "features/planner/calendar-subscription-tenant.ts",
-  "features/public-form/public-form-tenant.ts",
-  "features/public-link/public-link-tenant.ts",
   "features/record-files/record-file-grant-tenant.ts",
 ];
 
@@ -89,35 +87,51 @@ function importersOf(modulePattern: RegExp, symbol: string) {
 }
 
 describe("background tenant boundary", () => {
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("only authenticated entrypoints assume a tenant identity", () => {
-    const violations = importersOf(TENANT_CONTEXT_MODULE, "runWithTenant")
-      .filter((file) => !TENANT_ENTRYPOINTS.includes(file))
-      .map(
-        (file) =>
-          `${file} value-imports runWithTenant. Assuming a tenant identity is limited to entrypoints that derive the user from an authenticated source; load a user by id only through runAsBackgroundTenant.`,
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "only authenticated entrypoints assume a tenant identity",
+    () => {
+      const violations = importersOf(TENANT_CONTEXT_MODULE, "runWithTenant")
+        .filter((file) => !TENANT_ENTRYPOINTS.includes(file))
+        .map(
+          (file) =>
+            `${file} value-imports runWithTenant. Assuming a tenant identity is limited to entrypoints that derive the user from an authenticated source; load a user by id only through runAsBackgroundTenant.`,
+        );
+
+      expect(violations, violations.join("\n")).toEqual([]);
+    },
+    REPO_SCAN_TIMEOUT_MS,
+  );
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "only workflows act as a background tenant",
+    () => {
+      const violations = importersOf(BACKGROUND_TENANT_MODULE, "runAsBackgroundTenant")
+        .filter((file) => file !== BACKGROUND_TENANT_DEFINITION)
+        .filter((file) => !file.startsWith(BACKGROUND_TENANT_CALLER_PREFIX))
+        .map((file) => `${file} value-imports runAsBackgroundTenant outside ${BACKGROUND_TENANT_CALLER_PREFIX}`);
+
+      expect(violations, violations.join("\n")).toEqual([]);
+    },
+    REPO_SCAN_TIMEOUT_MS,
+  );
+
+  it(
+    "runs as a stored user only behind a verified link or subscription token",
+    () => {
+      expect(importersOf(BACKGROUND_TENANT_MODULE, "runAsStoredUser").sort()).toEqual(
+        TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS,
       );
+    },
+    REPO_SCAN_TIMEOUT_MS,
+  );
 
-    expect(violations, violations.join("\n")).toEqual([]);
-  }, REPO_SCAN_TIMEOUT_MS);
-
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("only workflows act as a background tenant", () => {
-    const violations = importersOf(BACKGROUND_TENANT_MODULE, "runAsBackgroundTenant")
-      .filter((file) => file !== BACKGROUND_TENANT_DEFINITION)
-      .filter((file) => !file.startsWith(BACKGROUND_TENANT_CALLER_PREFIX))
-      .map((file) => `${file} value-imports runAsBackgroundTenant outside ${BACKGROUND_TENANT_CALLER_PREFIX}`);
-
-    expect(violations, violations.join("\n")).toEqual([]);
-  }, REPO_SCAN_TIMEOUT_MS);
-
-  it("runs as a stored user only behind a verified link or subscription token", () => {
-    expect(importersOf(BACKGROUND_TENANT_MODULE, "runAsStoredUser").sort()).toEqual(
-      TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS,
-    );
-  }, REPO_SCAN_TIMEOUT_MS);
-
-  it("sees the identity-assuming surface it is meant to guard", () => {
-    expect(sourceFiles().length).toBeGreaterThan(100);
-    expect(importersOf(TENANT_CONTEXT_MODULE, "runWithTenant").sort()).toEqual([...TENANT_ENTRYPOINTS].sort());
-    expect(valueImportsOf(BACKGROUND_TENANT_DEFINITION).some((entry) => entry.name === "runWithTenant")).toBe(true);
-  }, REPO_SCAN_TIMEOUT_MS);
+  it(
+    "sees the identity-assuming surface it is meant to guard",
+    () => {
+      expect(sourceFiles().length).toBeGreaterThan(100);
+      expect(importersOf(TENANT_CONTEXT_MODULE, "runWithTenant").sort()).toEqual([...TENANT_ENTRYPOINTS].sort());
+      expect(valueImportsOf(BACKGROUND_TENANT_DEFINITION).some((entry) => entry.name === "runWithTenant")).toBe(true);
+    },
+    REPO_SCAN_TIMEOUT_MS,
+  );
 });

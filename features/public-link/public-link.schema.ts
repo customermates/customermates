@@ -5,9 +5,8 @@ import { z } from "zod";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { DataViewPageSizeSchema } from "@/core/data-view/data-view-state.schema";
+import { SIGNED_ID_TOKEN_PATTERN } from "@/core/utils/signed-id";
 import { RecordContributionGroupSchema } from "@/features/records/record-contribution.schema";
-
-export const PUBLIC_LINK_TOKEN_PATTERN = /^[0-9a-f]{64}$/u;
 
 const VisitorFiltersSchema = z.array(FilterSchema).max(20).optional();
 const VisitorSearchSchema = z.string().max(200).optional();
@@ -62,7 +61,7 @@ export type PublicDashboard = {
 
 export const PublicWidgetRecordsSchema = z
   .object({
-    token: z.string().regex(PUBLIC_LINK_TOKEN_PATTERN),
+    token: z.string().regex(SIGNED_ID_TOKEN_PATTERN),
     widget: z.string().regex(/^[0-9a-f]{16}$/u),
     group: RecordContributionGroupSchema.nullable(),
     label: z.string().max(500).nullable(),
@@ -85,7 +84,7 @@ export type PublicList = {
 
 export const PublicListRecordsSchema = z
   .object({
-    token: z.string().regex(PUBLIC_LINK_TOKEN_PATTERN),
+    token: z.string().regex(SIGNED_ID_TOKEN_PATTERN),
     page: z.number().int().min(1).max(10_000).default(1),
     pageSize: PageSizeSchema,
     sortDescriptor: SortDescriptorSchema.optional(),

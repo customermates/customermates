@@ -31,7 +31,7 @@ const di = await import("@/core/di");
 const { ReadPublicLinkInteractor } = await import("../read-public-link.interactor");
 const { PrismaPublicLinkRepo } = await import("../prisma-public-link.repository");
 const { TokenBucketRateLimiter } = await import("@/core/network/token-bucket-rate-limiter");
-const { PublicLinkTenant } = await import("../public-link-tenant");
+const { PublicTenant } = await import("@/core/network/public-tenant");
 const { PublicLinkAccess } = await import("../public-link-access");
 const { ReadPublicWidgetRecordsInteractor } = await import("../read-public-widget-records.interactor");
 const { ReadPublicListRecordsInteractor } = await import("../read-public-list-records.interactor");
@@ -61,7 +61,7 @@ async function workspace() {
 function access(options: { now?: Date; perLink?: number; secret?: string } = {}) {
   return new PublicLinkAccess(
     new PrismaPublicLinkRepo(),
-    new PublicLinkTenant(di.getUserService()),
+    new PublicTenant(di.getUserService()),
     { invoke: (data) => di.getGetWidgetsInteractor().invoke(data) },
     new TokenBucketRateLimiter(options.perLink ?? 1000, 60_000),
     new TokenBucketRateLimiter(1000, 60_000),

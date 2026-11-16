@@ -6,10 +6,10 @@ import type { PublicFormReadResult } from "./public-form.schema";
 
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { renderToken } from "@/core/network/public-submit-guard";
 
 import { PUBLIC_FORM_UNAVAILABLE } from "./public-form-access";
 import { presentPublicForm } from "./public-form-presentation";
-import { renderToken } from "./public-form-render-token";
 
 @AllowInDemoMode
 @SystemInteractor
