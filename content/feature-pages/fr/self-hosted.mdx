@@ -1,6 +1,6 @@
 ---
 title: "CRM auto-hébergé avec Docker et PostgreSQL"
-description: "Exécutez l’application CRM Customermates et PostgreSQL sur votre infrastructure avec Docker Compose. Noyau AGPL, MCP, REST et webhooks inclus."
+description: "Exécutez l’application CRM Customermates et PostgreSQL sur votre infrastructure avec Docker Compose. Community Edition, MCP, REST et webhooks inclus."
 featureName: CRM auto-hébergé
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: Déploiement d’un CRM auto-hébergé
   metadata:
     title: "CRM auto-hébergé avec Docker et PostgreSQL"
-    description: "Exécutez l’application CRM Customermates et PostgreSQL sur votre infrastructure avec Docker Compose. Noyau AGPL, MCP, REST et webhooks inclus."
+    description: "Exécutez l’application CRM Customermates et PostgreSQL sur votre infrastructure avec Docker Compose. Community Edition, MCP, REST et webhooks inclus."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -120,7 +120,7 @@ hero:
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Lire le guide d’installation"
   buttonRightHref: /docs/self-hosting
-  hint: "Noyau AGPL • Docker Compose • PostgreSQL 16"
+  hint: "Source-available • Docker Compose • PostgreSQL 16"
 
 cta:
   action: "Besoin aussi de relancer LinkedIn et l’e-mail ? Essayez d’abord le cloud"
@@ -132,9 +132,9 @@ cta:
   hint: "L’exploitant gère l’infrastructure, les mises à jour, les sauvegardes et les fournisseurs connectés."
 ---
 
-Customermates est un **CRM auto-hébergé** que vous pouvez exécuter sous forme de deux services Docker Compose : l’application et PostgreSQL 16. Il convient quand votre équipe veut exploiter elle-même l’infrastructure de son CRM et utiliser un noyau open source. Ce n’est pas l’édition auto-hébergée de toutes les fonctionnalités de Customermates Cloud.
+Customermates est un **CRM auto-hébergé** que vous pouvez exécuter sous forme de deux services Docker Compose : l’application et PostgreSQL 16. Il convient quand votre équipe veut exploiter elle-même l’infrastructure de son CRM et utiliser une Community Edition au code source disponible. Ce n’est pas l’édition auto-hébergée de toutes les fonctionnalités de Customermates Cloud.
 
-Un CRM auto-hébergé s’exécute sur des serveurs que vous contrôlez plutôt que dans le cloud de l’éditeur : vous décidez où vivent l’application et la base de données, et vous prenez en charge les mises à jour, les sauvegardes et la sécurité. Savoir si le code est open source est une autre question, celle des droits de licence, traitée dans le [guide du CRM open source](/blog/open-source-crm). Cette page traite du côté opérationnel pour Customermates.
+Un CRM auto-hébergé s’exécute sur des serveurs que vous contrôlez plutôt que dans le cloud de l’éditeur : vous décidez où vivent l’application et la base de données, et vous prenez en charge les mises à jour, les sauvegardes et la sécurité. Savoir quels droits la licence vous donne est une autre question, traitée dans le [guide du CRM open source et source-available](/blog/open-source-crm). Cette page traite du côté opérationnel pour Customermates.
 
 **Où se place la relance.** L’auto-hébergement garde les fiches clients, les dates de prochaine étape, les tableaux de bord et MCP sur vos propres serveurs : votre propre client IA peut les lire et les mettre à jour. Il n’a pas la boîte de réception qui rattache les conversations LinkedIn et e-mail au client, ni Mate qui rédige les réponses. Si ce sont les relances rédigées qui vous intéressent, commencez sur Customermates Cloud ; l’auto-hébergement convient mieux quand le contrôle de l’endroit où tournent les données compte davantage.
 
@@ -180,11 +180,11 @@ Le fichier Compose n’inclut ni n8n, ni modèle d’IA, ni fournisseur d’envo
 | Vue calendrier connecté en lecture seule           | Non inclus                |
 | Comptes connectés partagés                         | Non inclus                |
 
-La [boîte de réception unifiée du CRM](/features/unified-inbox) est une fonctionnalité du cloud géré à partir de Pro. L’auto-hébergement reste centré sur le noyau open source du CRM et les clients MCP externes.
+La [boîte de réception unifiée du CRM](/features/unified-inbox) est une fonctionnalité du cloud géré à partir de Pro. L’auto-hébergement reste centré sur la Community Edition du CRM et les clients MCP externes.
 
-## Limites entre code open source et code commercial
+## Limites entre la Community Edition et le code commercial
 
-Le matériel propriétaire hors de `ee/` est sous licence AGPL-3.0-only. Dans `ee/`, le matériel est sous licence commerciale, à l’exception des images, polices, CSS et JavaScript côté client identifiés comme AGPL Client Material à la section 6 de `ee/LICENSE.md`. Examinez les deux licences avant de modifier, redistribuer ou exploiter le logiciel pour votre cas d’usage.
+Le code de Customermates en dehors de `ee/` est sous Sustainable Use License 1.0 : vous pouvez l’utiliser et le modifier pour les besoins internes de votre entreprise ou à des fins non commerciales ou personnelles, et le redistribuer uniquement gratuitement et sans but commercial. Vous ne pouvez pas le revendre ni l’héberger pour des tiers. Le code de `ee/` relève de la Customermates Commercial License. Examinez `LICENSE.md` et `ee/LICENSE.md` avant de modifier, redistribuer ou exploiter le logiciel pour votre cas d’usage.
 
 Cette distinction compte quand on compare des [CRM open source](/blog/open-source-crm) : un dépôt public ne dit pas à lui seul quel code vous pouvez utiliser sous quelles conditions. Si vous comparez d’autres projets auto-hébergeables, les comparatifs [EspoCRM](/compare/espocrm-alternative) et [Twenty](/compare/twenty-alternative) montrent en quoi leurs limites de déploiement et de licence diffèrent.
 
@@ -203,7 +203,7 @@ Les services connectés restent des périmètres de traitement distincts. Les fo
 | vous voulez que des clients IA externes utilisent MCP | vous voulez les droits des formules cloud et des comptes connectés gérés |
 | vous assumerez les mises à jour, les sauvegardes et la reprise | vous préférez un abonnement avec exploitation gérée |
 
-Si vous voulez essayer Customermates avant d’exploiter votre propre serveur, la page [CRM open source dans le cloud ou auto-hébergé](/features/open-source-crm) présente les deux voies côte à côte, avec l’essai cloud gratuit comme démarrage le plus rapide.
+Si vous voulez essayer Customermates avant d’exploiter votre propre serveur, la page [CRM open source ou source-available : cloud ou auto-hébergé](/features/open-source-crm) présente les deux voies côte à côte, avec l’essai cloud gratuit comme démarrage le plus rapide.
 
 Les enregistrements passent d’une installation à l’autre, ou depuis un autre CRM, sous forme de classeurs XLSX, un type d’enregistrement à la fois et dans les limites de lignes, ou via l’API REST, qui peut aussi téléverser des fichiers dans les champs Fichier. Un import XLSX ne transporte aucune pièce jointe et il n’existe pas de transfert complet du compte : prévoyez donc un déménagement plus important comme un projet de migration que vous validez.
 
@@ -211,7 +211,7 @@ Les enregistrements passent d’une installation à l’autre, ou depuis un autr
 
 <Faq>
 <FaqItem question="Customermates est-il entièrement open source ?">
-Le matériel propriétaire hors de `ee/` est sous AGPL-3.0-only. Dans `ee/`, le matériel client identifié à la section 6 de `ee/LICENSE.md` est aussi sous AGPL-3.0-only ; le reste du matériel propriétaire relève de la licence commerciale. Examinez les deux fichiers de licence pour la limite exacte.
+Non. Le code est source-available, pas open source au sens de l’OSI. Le code en dehors de `ee/` est sous Sustainable Use License 1.0 (usage interne, non commercial ou personnel ; redistribution gratuite et non commerciale uniquement), et le code de `ee/` relève de la Customermates Commercial License. Examinez les deux fichiers de licence pour la limite exacte.
 </FaqItem>
 
 <FaqItem question="L’auto-hébergement inclut-il la boîte de réception unifiée ?">

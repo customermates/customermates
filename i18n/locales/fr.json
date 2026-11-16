@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Open source"
+    "label": "Source-available"
   },
   "ApiKeyModal": {
     "addDescription": "Créez une clé pour votre propre intégration ou choisissez un client d’IA pour une configuration guidée.",
@@ -2736,6 +2736,9 @@
     "goBack": "Retour",
     "integrations": "Intégrations",
     "introduction": "Introduction",
+    "licence": "Licence",
+    "licenceFaq": "FAQ sur la licence",
+    "licensing": "Licences",
     "mcp": "MCP",
     "messagingRateLimits": "Limites de débit",
     "n8n": "N8N",
@@ -2782,7 +2785,7 @@
     "invalid": "Contient des erreurs"
   },
   "EmailLayout": {
-    "tagline": "Le CRM open source pour relancer vos clients"
+    "tagline": "Le CRM source-available pour relancer vos clients"
   },
   "EmailVerification": {
     "notVerified": "Adresse e-mail non vérifiée",
@@ -2987,7 +2990,7 @@
       "cancelAnytime": "Résiliable à tout moment",
       "gdpr": "Base de données en région UE ; sans certification",
       "noLimits": "Formules transparentes",
-      "openSource": "Open core"
+      "openSource": "Source-available"
     },
     "eyebrow": "Tarifs",
     "selfHosted": {
@@ -2997,12 +3000,12 @@
       "featureN8n": "Interfaces pour une instance n8n distincte",
       "featureRecords": "Enregistrements CRM principaux",
       "featureUsers": "Utilisateurs de l’espace de travail",
-      "period": "sous AGPL",
+      "period": "source-available",
       "price": "Cœur gratuit",
-      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter, sans boîte de réception ni IA hébergée. Les services externes restent distincts.",
+      "tag": "Exécutez la Community Edition (source-available) et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter, sans boîte de réception ni IA hébergée. Les services externes restent distincts.",
       "title": "Auto-hébergé"
     },
-    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement le cœur sous AGPL ; les services externes restent distincts. Ou essayez le Cloud gratuitement, sans carte bancaire.",
+    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement la Community Edition pour votre usage interne ; les services externes restent distincts. Ou essayez le Cloud gratuitement, sans carte bancaire.",
     "title": "Simple, honnête, européen"
   },
   "HomepageWorkspacePrompt": {
@@ -3478,7 +3481,7 @@
       "mcpDocs": "Documentation MCP",
       "n8n": "Automatisation n8n",
       "openExampleWorkspace": "Ouvrir cet espace de travail d’exemple",
-      "openSourceCrm": "CRM open source",
+      "openSourceCrm": "CRM open source ou source-available",
       "pillarData": "Données",
       "pillarDataDescription": "Clients, affaires et listes à votre façon",
       "pillarInbox": "Boîte de réception",
@@ -6167,9 +6170,9 @@
       "items": {
         "accounts": "{count, plural, one {# compte connecté} other {# comptes connectés}}",
         "drafts": "{count, plural, one {# brouillon ouvert} other {# brouillons ouverts}}",
+        "forms": "{count, plural, one {# envoi de formulaire au-delà de la limite mensuelle} other {# envois de formulaire au-delà de la limite mensuelle}}",
         "mate": "Mate ({count, plural, one {# demande} other {# demandes}})",
         "members": "{count, plural, one {# personne de plus} other {# personnes de plus}}",
-        "forms": "{count, plural, one {# envoi de formulaire au-delà de la limite mensuelle} other {# envois de formulaire au-delà de la limite mensuelle}}",
         "routines": "{count, plural, one {# routine active} other {# routines actives}}",
         "webhooks": "{count, plural, one {# webhook actif} other {# webhooks actifs}}"
       },

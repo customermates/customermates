@@ -23,7 +23,7 @@ blogPost:
     - microsoft-copilot
     - IA commerciale
     - CRM
-    - Open source
+    - Source-available
 ---
 
 # Copilot for Sales : Sales agent, licences et coût
@@ -112,7 +112,7 @@ Sur la question « est-ce que ça vaut le coup » : Sales agent est rentable 
 
 ## Où se place Customermates
 
-Customermates est un CRM open source et IA native, développé en Allemagne, pour les petites équipes au contact des clients comme les cabinets de conseil et les agences. C’est une option pour la dernière ligne du tableau, et ce n’est pas un remplaçant de Sales agent pour une entreprise qui utilise Dynamics 365 et enregistre ses appels clients dans Teams.
+Customermates est un CRM source-available et IA native, développé en Allemagne, pour les petites équipes au contact des clients comme les cabinets de conseil et les agences. C’est une option pour la dernière ligne du tableau, et ce n’est pas un remplaçant de Sales agent pour une entreprise qui utilise Dynamics 365 et enregistre ses appels clients dans Teams.
 
 Une configuration typique pour une équipe de cinq personnes :
 
@@ -122,7 +122,7 @@ Une configuration typique pour une équipe de cinq personnes :
 - **Une routine, dans Customermates Cloud.** Déclencheur « Quand quelque chose change », évènement « Enregistrement mis à jour » pour les affaires, et dans « Champs modifiés » le champ Étape. Consignes : « Quand une affaire passe en Proposition, lisez le dernier fil avec le contact et enregistrez un brouillon de réponse. N’envoyez rien. » La routine s’exécute au nom de son propriétaire, avec les canaux de ce propriétaire. Voir les [routines](/docs/app-routines).
 - **Votre propre client IA.** Si votre équipe utilise déjà Claude ou ChatGPT, connectez-le via MCP avec le [connecteur personnalisé](/docs/connect-custom-connector). Microsoft documente que les agents Copilot Studio peuvent se connecter à un serveur MCP existant ; Customermates n’a pas encore de guide publié pour ce client, testez donc une lecture avant de vous y fier.
 
-**Coût.** Cinq utilisateurs sur Pro coûtent [[commercial.price.pro.monthly.seats.5]] par mois, facturés au mois, boîte de réception et crédits IA hébergés mensuels par utilisateur actif compris ([voir les tarifs](/pricing)). Starter à [[commercial.price.starter.monthly]] par utilisateur n’a pas de boîte de réception. L’auto-hébergement du cœur AGPL est sans frais de licence et conserve REST, les webhooks et MCP, mais n’a ni boîte de réception ni Mate.
+**Coût.** Cinq utilisateurs sur Pro coûtent [[commercial.price.pro.monthly.seats.5]] par mois, facturés au mois, boîte de réception et crédits IA hébergés mensuels par utilisateur actif compris ([voir les tarifs](/pricing)). Starter à [[commercial.price.starter.monthly]] par utilisateur n’a pas de boîte de réception. L’auto-hébergement de la Community Edition est sans frais de licence et conserve REST, les webhooks et MCP, mais n’a ni boîte de réception ni Mate.
 
 Pour ce siège, une petite équipe obtient du suivi sans environnement Microsoft : des fils sur la fiche du client, un brouillon de réponse et une prochaine étape préparés par Mate ou votre propre client IA, et vous relisez et envoyez. Pour l’essayer avec votre propre messagerie ou LinkedIn, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup). Sans carte bancaire.
 

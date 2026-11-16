@@ -2736,6 +2736,9 @@
     "goBack": "Indietro",
     "integrations": "Integrazioni",
     "introduction": "Introduzione",
+    "licence": "Licenza",
+    "licenceFaq": "FAQ sulla licenza",
+    "licensing": "Licenze",
     "mcp": "MCP",
     "messagingRateLimits": "Limiti di frequenza",
     "n8n": "N8N",
@@ -6167,9 +6170,9 @@
       "items": {
         "accounts": "{count, plural, one {# account collegato} other {# account collegati}}",
         "drafts": "{count, plural, one {# bozza aperta} other {# bozze aperte}}",
+        "forms": "{count, plural, one {# invio di modulo oltre il limite mensile} other {# invii di modulo oltre il limite mensile}}",
         "mate": "Mate ({count, plural, one {# richiesta} other {# richieste}})",
         "members": "{count, plural, one {# persona in più} other {# persone in più}}",
-        "forms": "{count, plural, one {# invio di modulo oltre il limite mensile} other {# invii di modulo oltre il limite mensile}}",
         "routines": "{count, plural, one {# routine attiva} other {# routine attive}}",
         "webhooks": "{count, plural, one {# webhook attivo} other {# webhook attivi}}"
       },

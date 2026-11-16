@@ -1,5 +1,5 @@
 ---
-title: "Alternative à Notion : CRM open source et boîte de réception"
+title: "Alternative à Notion : CRM avec boîte de réception"
 description: "Alternative à Notion CRM comparée : quand une base Notion suffit, ce qu’apporte un vrai CRM, les prix pour cinq personnes et comment migrer vos données."
 competitorName: Notion
 
@@ -87,8 +87,8 @@ comparison:
         competitor: true
   - title: Licence, hébergement et accès
     features:
-      - name: Licence open source
-        source: Cœur AGPL-3.0
+      - name: Licence
+        source: Source-available (Sustainable Use License)
         competitor: false
       - name: Auto-hébergement
         source: Docker Compose (CRM de base sans boîte de réception ni Mate)
@@ -123,7 +123,7 @@ cta:
 | Vous avez besoin de vos propres types d’enregistrements, comme des investisseurs, des biens ou des candidats, avec formules et rollups | Attio, Twenty, Airtable ou Customermates | Customermates démarre sans listes ; vous créez les vôtres (contacts, affaires ou autre chose) avec des champs calculés |
 | Les clients écrivent par e-mail, LinkedIn et WhatsApp, et vous voulez ces fils sur le contact | Customermates Pro ou Business | Tous ces canaux arrivent dans une seule boîte de réception, reliés aux contacts |
 | Vous voulez la valeur de l’affaire multipliée par la probabilité de l’étape sans avoir à la construire | Customermates, toutes formules | Le champ d’étape avec probabilités existe dès l’inscription |
-| Vous avez besoin d’un hébergement dans l’UE sans contrat Enterprise, ou voulez héberger le CRM vous-même | Customermates | Base de données cloud configurée dans la région AWS de Francfort dans toutes les formules ; cœur AGPL pour l’auto-hébergement, sans boîte de réception ni Mate |
+| Vous avez besoin d’un hébergement dans l’UE sans contrat Enterprise, ou voulez héberger le CRM vous-même | Customermates | Base de données cloud configurée dans la région AWS de Francfort dans toutes les formules ; Community Edition pour l’auto-hébergement, sans boîte de réception ni Mate |
 | Vous avez besoin du SSO SAML ou d’applications mobiles natives | Notion Business | Notion a les deux ; Customermates n’a ni SSO ni application native |
 
 ## Pour qui Notion est un bon choix comme CRM
@@ -170,7 +170,7 @@ Dans Notion, vous construisez le CRM vous-même et y collez les conversations. D
 
 **L’IA tient les enregistrements à jour.** Dans Customermates Cloud, Mate résume les fils, rédige des réponses, met à jour les enregistrements et construit des vues, avec des crédits IA hébergés et une allocation mensuelle par utilisateur actif (voir les [tarifs](/pricing)). Il demande une nouvelle approbation avant chaque suppression mais envoie les messages sans approbation : demandez-lui donc d’enregistrer des brouillons quand vous voulez vérifier d’abord. Les routines exécutent une consigne enregistrée selon un planning ou quand un enregistrement change : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro. Vous préférez Claude ou ChatGPT ? Connectez-le au [serveur MCP](/docs/mcp), qui offre [[derived.mcp.tools.total]] outils dans toutes les formules ; les appels de modèle s’exécutent alors chez votre propre fournisseur d’IA.
 
-**Votre choix d’hébergement.** La base de données cloud est configurée dans la région AWS de Francfort ; un DPA est disponible et les sous-traitants, dont des fournisseurs américains, sont listés. Le cœur AGPL-3.0 tourne sur votre propre serveur avec Docker Compose, REST, webhooks et MCP compris, mais une [installation auto-hébergée](/features/self-hosted) n’a ni boîte de réception ni Mate. Customermates ne détient aucune certification de conformité.
+**Votre choix d’hébergement.** La base de données cloud est configurée dans la région AWS de Francfort ; un DPA est disponible et les sous-traitants, dont des fournisseurs américains, sont listés. La Community Edition tourne sur votre propre serveur avec Docker Compose, REST, webhooks et MCP compris, mais une [installation auto-hébergée](/features/self-hosted) n’a ni boîte de réception ni Mate. Customermates ne détient aucune certification de conformité.
 
 ## Quand Customermates n’est pas le bon choix
 
@@ -240,7 +240,7 @@ Oui. Les deux ont une API REST et des webhooks, et n8n a des nœuds pour les deu
 </FaqItem>
 
 <FaqItem question="Existe-t-il une alternative open source à Notion pour le CRM ?">
-Oui. Twenty est open source avec des objets personnalisés, le plus proche d’un schéma Notion flexible. Customermates a un cœur AGPL-3.0 que vous pouvez héberger avec Docker Compose ; la boîte de réception et Mate n’existent que dans Customermates Cloud.
+Oui. Twenty est open source avec des objets personnalisés, le plus proche d’un schéma Notion flexible. Customermates est source-available, pas open source au sens de l’OSI : sa Community Edition se héberge avec Docker Compose ; la boîte de réception et Mate n’existent que dans Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="Où Notion stocke-t-il mes données de CRM ?">

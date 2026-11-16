@@ -2736,6 +2736,9 @@
     "goBack": "Terug",
     "integrations": "Integraties",
     "introduction": "Introductie",
+    "licence": "Licentie",
+    "licenceFaq": "Licentie-FAQ",
+    "licensing": "Licenties",
     "mcp": "MCP",
     "messagingRateLimits": "Limieten",
     "n8n": "N8N",
@@ -6167,9 +6170,9 @@
       "items": {
         "accounts": "{count, plural, one {# gekoppeld account} other {# gekoppelde accounts}}",
         "drafts": "{count, plural, one {# openstaand concept} other {# openstaande concepten}}",
+        "forms": "{count, plural, one {# formulierinzending boven de maandlimiet} other {# formulierinzendingen boven de maandlimiet}}",
         "mate": "Mate ({count, plural, one {# verzoek} other {# verzoeken}})",
         "members": "{count, plural, one {# extra persoon} other {# extra personen}}",
-        "forms": "{count, plural, one {# formulierinzending boven de maandlimiet} other {# formulierinzendingen boven de maandlimiet}}",
         "routines": "{count, plural, one {# actieve routine} other {# actieve routines}}",
         "webhooks": "{count, plural, one {# actieve webhook} other {# actieve webhooks}}"
       },
