@@ -3,6 +3,7 @@
 import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { WizardJobChoice, WizardStep } from "./onboarding-wizard.store";
+import type { WizardFlowContext } from "./onboarding-wizard-flow";
 import type { OnboardingJobChoiceView } from "@/features/onboarding-funnel/get-onboarding-job-choice.interactor";
 import type {
   OnboardingTemplateCard,
@@ -38,7 +39,6 @@ import { StepTemplate, StepTemplateFooter } from "./step-template";
 import { StepPrompt, StepPromptFooter } from "./step-prompt";
 import { StepInvite } from "./step-invite";
 import { StepChannel, StepChannelFooter } from "./step-channel";
-import { isTeam } from "@/features/onboarding-funnel/team-size";
 import { StepSetup, useHydratedSetupStore } from "./setup/step-setup";
 import { resolveSetupStage } from "./setup/setup-interview-state";
 import { useSelectedAgentName } from "./use-selected-agent-name";
@@ -57,7 +57,7 @@ type Props = {
   templates?: readonly OnboardingTemplateCard[];
   templatePreselection?: OnboardingTemplatePreselection;
   onboardingIntent?: string;
-  sourceAvailable?: boolean;
+  flow: WizardFlowContext;
   inviterName?: string;
   isInvited?: boolean;
   canNameWorkspace?: boolean;
@@ -94,7 +94,7 @@ const OnboardingWizardContent = observer(
     templates = NO_TEMPLATES,
     templatePreselection = NO_PRESELECTION,
     onboardingIntent,
-    sourceAvailable: sourceOffered = false,
+    flow: flowContext,
     inviterName,
     isInvited = false,
     canNameWorkspace = false,
@@ -109,25 +109,13 @@ const OnboardingWizardContent = observer(
     const { onboardingWizardStore, appMode } = useRootStore();
     const agentName = useSelectedAgentName();
     const selfHosted = appMode === "self-hosted";
-    const chooseAvailable = !isInvited && appMode !== "demo";
-    const templatesAvailable = chooseAvailable && templates.length > 0;
-    const sourceAvailable = chooseAvailable && sourceOffered && appMode === "cloud";
-    const channelAvailable = chooseAvailable && appMode === "cloud";
-    const teamInvite = chooseAvailable && isTeam(jobChoice?.teamSize);
-    const setupAvailable = profileCompleted
-      ? Boolean(setupStatus?.available) && !isInvited
-      : appMode === "cloud" && !isInvited;
+    const chooseAvailable = flowContext.chooseAvailable ?? false;
     const { store: setupStore, ready: setupReady } = useHydratedSetupStore(setupStatus ?? UNAVAILABLE_SETUP);
     const savedGoalJob = chooseAvailable && savedProgress?.step === "goal" ? savedProgress.job : null;
     const { steps, resumeStepIndex, flow } = resolveWizardResume({
+      ...flowContext,
       profileCompleted,
       isInvited,
-      setupAvailable,
-      chooseAvailable,
-      templatesAvailable,
-      sourceAvailable,
-      channelAvailable,
-      teamInvite,
       sourceResolved: jobChoice?.discoveryResolved,
       setupStepCompleted,
       jobSelected: !jobChoice || jobChoice.selectedJob !== null,
@@ -163,13 +151,8 @@ const OnboardingWizardContent = observer(
       resumeStepIndex,
       userId,
       savedProgress,
-      setupAvailable,
+      flowContext,
       initialJobChoice,
-      chooseAvailable,
-      templatesAvailable,
-      sourceAvailable,
-      channelAvailable,
-      teamInvite,
       emptyChosen,
       selfHosted,
       initialTemplate,
@@ -180,7 +163,7 @@ const OnboardingWizardContent = observer(
     const visibleSteps = isStepSynchronized ? onboardingWizardStore.steps : steps;
     const connectsAgent = isStepSynchronized
       ? onboardingWizardStore.connectsAgent
-      : connectsAgentWithVerification({ setupAvailable, chooseAvailable, templatesAvailable }, flow);
+      : connectsAgentWithVerification(flowContext, flow);
     const milestoneSteps = visibleSteps.filter(isMilestoneStep).filter((step) => step !== "prompt");
     const milestoneIndex = milestoneSteps.indexOf(
       currentStep === "prompt" ? "template" : currentStep === "source" ? "goal" : currentStep,
@@ -199,12 +182,9 @@ const OnboardingWizardContent = observer(
     const selectedTemplateName = templates.find((card) => card.slug === onboardingWizardStore.selectedTemplate)?.name;
 
     useEffect(() => {
+      const { setupAvailable, ...flags } = flowContext;
       onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress, setupAvailable, initialJobChoice, {
-        chooseAvailable,
-        templatesAvailable,
-        sourceAvailable,
-        channelAvailable,
-        teamInvite,
+        ...flags,
         emptyChosen,
         selfHosted,
         template: initialTemplate,
@@ -218,9 +198,8 @@ const OnboardingWizardContent = observer(
         { equals: comparer.structural },
       );
     }, [
-      channelAvailable,
-      chooseAvailable,
       emptyChosen,
+      flowContext,
       initialJobChoice,
       initialTemplate,
       initializationKey,
@@ -228,10 +207,6 @@ const OnboardingWizardContent = observer(
       resumeStepIndex,
       savedProgress,
       selfHosted,
-      setupAvailable,
-      sourceAvailable,
-      teamInvite,
-      templatesAvailable,
       userId,
     ]);
 

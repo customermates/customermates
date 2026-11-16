@@ -1,15 +1,74 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildWizardFlowContext,
   connectsAgentWithVerification,
   persistedWizardStep,
   resolveWizardResume,
+  wizardChoiceAvailable,
   wizardSteps,
 } from "../onboarding-wizard-flow";
 
 const CLOUD = { setupAvailable: true, chooseAvailable: true, templatesAvailable: true };
 const CLOUD_NO_TEMPLATES = { ...CLOUD, templatesAvailable: false };
 const SELF_HOSTED = { setupAvailable: false, chooseAvailable: true, templatesAvailable: true };
+
+describe("the flow context", () => {
+  const owner = {
+    appMode: "cloud" as const,
+    isInvited: false,
+    profileCompleted: false,
+    setupOffered: false,
+    templateCount: 3,
+    teamSize: "small" as const,
+  };
+
+  it("offers the choice, the templates, the source question, the channel and team invites to a cloud owner", () => {
+    expect(buildWizardFlowContext(owner)).toEqual({
+      setupAvailable: true,
+      chooseAvailable: true,
+      templatesAvailable: true,
+      sourceAvailable: true,
+      channelAvailable: true,
+      teamInvite: true,
+    });
+  });
+
+  it("opens the setup for a registered owner only when the setup is offered", () => {
+    expect(buildWizardFlowContext({ ...owner, profileCompleted: true }).setupAvailable).toBe(false);
+    expect(buildWizardFlowContext({ ...owner, profileCompleted: true, setupOffered: true }).setupAvailable).toBe(true);
+  });
+
+  it("keeps the cloud-only steps away from a self-hosted owner and asks for no team invites from a solo owner", () => {
+    expect(buildWizardFlowContext({ ...owner, appMode: "self-hosted", teamSize: "solo" })).toEqual({
+      setupAvailable: false,
+      chooseAvailable: true,
+      templatesAvailable: true,
+      sourceAvailable: false,
+      channelAvailable: false,
+      teamInvite: false,
+    });
+    expect(buildWizardFlowContext({ ...owner, templateCount: 0 }).templatesAvailable).toBe(false);
+  });
+
+  it("offers nothing to an invited member and nothing to choose in the demo", () => {
+    const none = {
+      setupAvailable: false,
+      chooseAvailable: false,
+      templatesAvailable: false,
+      sourceAvailable: false,
+      channelAvailable: false,
+      teamInvite: false,
+    };
+    expect(buildWizardFlowContext({ ...owner, isInvited: true, profileCompleted: true, setupOffered: true })).toEqual(
+      none,
+    );
+    expect(buildWizardFlowContext({ ...owner, appMode: "demo" })).toEqual({ ...none, setupAvailable: false });
+    expect(wizardChoiceAvailable("demo", false)).toBe(false);
+    expect(wizardChoiceAvailable("cloud", true)).toBe(false);
+    expect(wizardChoiceAvailable("self-hosted", false)).toBe(true);
+  });
+});
 
 describe("wizard steps", () => {
   it("keeps the connect, template and prompt steps for the user's own agent", () => {

@@ -1,7 +1,9 @@
 import type { OnboardingJob } from "@/features/onboarding-funnel/onboarding-job";
+import type { TeamSize } from "@/features/onboarding-funnel/team-size";
 import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 
 import { DEFAULT_ONBOARDING_JOB } from "@/features/onboarding-funnel/onboarding-job";
+import { isTeam } from "@/features/onboarding-funnel/team-size";
 
 export const WIZARD_STEPS = [
   "profile",
@@ -33,8 +35,33 @@ export type WizardFlowContext = {
   teamInvite?: boolean;
 };
 
+type WizardAppMode = "cloud" | "self-hosted" | "demo";
+
+export function wizardChoiceAvailable(appMode: WizardAppMode, isInvited: boolean): boolean {
+  return !isInvited && appMode !== "demo";
+}
+
+export function buildWizardFlowContext(input: {
+  appMode: WizardAppMode;
+  isInvited: boolean;
+  profileCompleted: boolean;
+  setupOffered: boolean;
+  templateCount: number;
+  teamSize: TeamSize | null | undefined;
+}): WizardFlowContext {
+  const chooseAvailable = wizardChoiceAvailable(input.appMode, input.isInvited);
+  const cloudOwner = chooseAvailable && input.appMode === "cloud";
+  return {
+    setupAvailable: !input.isInvited && (input.profileCompleted ? input.setupOffered : input.appMode === "cloud"),
+    chooseAvailable,
+    templatesAvailable: chooseAvailable && input.templateCount > 0,
+    sourceAvailable: cloudOwner,
+    channelAvailable: cloudOwner,
+    teamInvite: chooseAvailable && isTeam(input.teamSize),
+  };
+}
+
 const PLAIN_STEPS: readonly WizardStep[] = ["profile", "invite", "ai"];
-const EMPTY_STEPS: readonly WizardStep[] = ["profile", "goal", "invite", "channel", "ai"];
 const FOLLOWUP_STEPS: readonly WizardStep[] = ["profile", "goal", "playbook"];
 const AGENT_STEPS: readonly WizardStep[] = ["profile", "goal", "invite", "channel", "ai"];
 const AGENT_TEMPLATE_STEPS: readonly WizardStep[] = [
@@ -53,7 +80,7 @@ function coreWizardSteps(context: WizardFlowContext, flow: WizardFlowKey): reado
   const choose = context.chooseAvailable ?? false;
   const templates = context.templatesAvailable ?? false;
   if (!context.setupAvailable && !choose) return PLAIN_STEPS;
-  if (flow === "empty") return EMPTY_STEPS;
+  if (flow === "empty") return AGENT_STEPS;
   const agentSteps = choose && templates ? AGENT_TEMPLATE_STEPS : AGENT_STEPS;
   if (!context.setupAvailable || flow === "agent") return agentSteps;
   if (flow === "followup") return FOLLOWUP_STEPS;
@@ -133,14 +160,7 @@ function flowAfterSetup(input: WizardResumeInput, job: OnboardingJob): WizardFlo
 
 export function resolveWizardResume(input: WizardResumeInput): WizardResume {
   const owner = !input.isInvited && ((input.chooseAvailable ?? false) || input.setupAvailable);
-  const context: WizardFlowContext = {
-    setupAvailable: input.setupAvailable && !input.isInvited,
-    chooseAvailable: (input.chooseAvailable ?? false) && !input.isInvited,
-    templatesAvailable: input.templatesAvailable ?? false,
-    sourceAvailable: (input.sourceAvailable ?? false) && !input.isInvited,
-    channelAvailable: (input.channelAvailable ?? false) && !input.isInvited,
-    teamInvite: (input.teamInvite ?? false) && !input.isInvited,
-  };
+  const context: WizardFlowContext = input.isInvited ? { setupAvailable: false } : input;
   const job = input.job ?? DEFAULT_ONBOARDING_JOB;
   const open = owner && !input.setupStepCompleted;
   const flow: WizardFlowKey = open || !owner ? job : flowAfterSetup(input, job);

@@ -236,12 +236,12 @@ describe("OnboardingWizardPage authentication detours", () => {
   it("offers the optional source question to a cloud owner only", async () => {
     registeredOwner(null);
     const cloud = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-    expect(cloud.props.children.props).toMatchObject({ sourceAvailable: true });
+    expect(cloud.props.children.props).toMatchObject({ flow: { sourceAvailable: true } });
 
     mocks.env.APP_MODE = "self-hosted";
     registeredOwner(null);
     const selfHosted = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-    expect(selfHosted.props.children.props).toMatchObject({ sourceAvailable: false });
+    expect(selfHosted.props.children.props).toMatchObject({ flow: { sourceAvailable: false } });
 
     mocks.env.APP_MODE = "cloud";
     mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
@@ -250,7 +250,39 @@ describe("OnboardingWizardPage authentication detours", () => {
       user: { companyId: "company-a", role: { isSystemRole: false }, onboardingWikiStepCompletedAt: null },
     });
     const invited = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-    expect(invited.props.children.props).toMatchObject({ sourceAvailable: false });
+    expect(invited.props.children.props).toMatchObject({ flow: { sourceAvailable: false } });
+  });
+
+  it("builds the flow context once for the wizard: choice, templates, source, channel and team invites", async () => {
+    registeredOwner(null);
+    mocks.offeredTemplateCards.mockReturnValue([{ slug: "client-tracker", name: "Client tracker" }]);
+    mocks.getJobChoice.mockResolvedValue({
+      ok: true,
+      data: { selectedJob: null, signupJob: "agent", preselectedJob: "agent", teamSize: "small" },
+    });
+
+    const owner = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(owner.props.children.props.flow).toEqual({
+      setupAvailable: true,
+      chooseAvailable: true,
+      templatesAvailable: true,
+      sourceAvailable: true,
+      channelAvailable: true,
+      teamInvite: true,
+    });
+
+    mocks.env.APP_MODE = "demo";
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "demo", setup: null } });
+    registeredOwner(null);
+    const demo = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(demo.props.children.props.flow).toEqual({
+      setupAvailable: false,
+      chooseAvailable: false,
+      templatesAvailable: false,
+      sourceAvailable: false,
+      channelAvailable: false,
+      teamInvite: false,
+    });
   });
 
   it("offers the templates of the language and the cloud, and preselects from the signup", async () => {

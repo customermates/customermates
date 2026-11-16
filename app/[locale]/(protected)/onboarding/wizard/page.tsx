@@ -6,6 +6,7 @@ import { buildLocalePath } from "@/i18n/locale-registry";
 import { getLocale } from "next-intl/server";
 
 import { OnboardingWizard } from "./components/onboarding-wizard";
+import { buildWizardFlowContext, wizardChoiceAvailable } from "./components/onboarding-wizard-flow";
 
 import { requireAccountState } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
@@ -28,6 +29,7 @@ import type {
   OnboardingTemplatePreselection,
 } from "@/features/onboarding-templates/onboarding-template-offer";
 
+import { templateDeployment } from "@/core/templates/template-deployment";
 import { env } from "@/env";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import {
@@ -78,7 +80,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   );
   if (!user && !isInvited && !canCreateCompany) redirect(await appRedirectHref("/onboarding"));
 
-  const choosing = !isInvited && env.APP_MODE !== "demo";
+  const choosing = wizardChoiceAvailable(env.APP_MODE, isInvited);
   let setupStatus: WorkspaceSetupStatusView | undefined;
   let setupStepCompleted = false;
   if (user?.role?.isSystemRole) {
@@ -89,7 +91,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   const templates: OnboardingTemplateCard[] = choosing
     ? offeredTemplateCards({
         locale: appLocaleOrDefault(await getLocale()),
-        deployment: env.APP_MODE === "self-hosted" ? "self-hosted" : "cloud",
+        deployment: templateDeployment(),
       })
     : [];
   let jobChoice: OnboardingJobChoiceView | undefined;
@@ -116,11 +118,20 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   const sessionAvatarUrl = sessionUser.image?.startsWith("https:") ? sessionUser.image : "";
   const savedProgress = user?.role?.isSystemRole ? await getGetOnboardingWizardProgressInteractor().invoke() : null;
   if (savedProgress && isRedirect(savedProgress)) redirect(await appRedirectHref(savedProgress.redirect));
+  const flow = buildWizardFlowContext({
+    appMode: env.APP_MODE,
+    isInvited,
+    profileCompleted: Boolean(user),
+    setupOffered: Boolean(setupStatus?.available),
+    templateCount: templates.length,
+    teamSize: jobChoice?.teamSize,
+  });
 
   return (
     <CenteredCardPage>
       <OnboardingWizard
         canNameWorkspace={canCreateCompany}
+        flow={flow}
         inviterName={invitation?.inviterName}
         isInvited={isInvited}
         jobChoice={jobChoice}
@@ -133,7 +144,6 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionLastName={sessionLastName}
         setupStatus={setupStatus}
         setupStepCompleted={setupStepCompleted}
-        sourceAvailable={choosing && env.APP_MODE === "cloud"}
         templatePreselection={templatePreselection}
         templates={templates}
         userId={user?.role?.isSystemRole ? user.id : undefined}

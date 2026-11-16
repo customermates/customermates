@@ -77,6 +77,7 @@ vi.mock("../setup/step-setup", () => ({
 
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
 import { OnboardingWizard, resolveWizardResume, wizardJobChoice } from "../onboarding-wizard";
+import { buildWizardFlowContext } from "../onboarding-wizard-flow";
 
 const AVAILABLE: WorkspaceSetupStatusView = { available: true, setup: null };
 const SELF_HOSTED: WorkspaceSetupStatusView = { available: false, reason: "selfHosted", setup: null };
@@ -89,7 +90,7 @@ const choice = (
   signupJob: null,
   preselectedJob: selectedJob ?? "agent",
   suggestedPlaybook: null,
-  discoveryResolved: false,
+  discoveryResolved: true,
   teamSize: null,
   ...over,
 });
@@ -137,6 +138,14 @@ function renderWizard({
 
   return renderToStaticMarkup(
     createElement(OnboardingWizard, {
+      flow: buildWizardFlowContext({
+        appMode,
+        isInvited,
+        profileCompleted,
+        setupOffered: Boolean(setupStatus?.available),
+        templateCount: templates?.length ?? 0,
+        teamSize: jobChoice?.teamSize,
+      }),
       profileCompleted,
       isInvited,
       setupStatus,
@@ -382,7 +391,19 @@ describe("OnboardingWizard", () => {
       onboardingWizardStore: new OnboardingWizardStore({} as RootStore),
     } as unknown as RootStore;
     const html = renderToStaticMarkup(
-      createElement(OnboardingWizard, { profileCompleted: false, isInvited: true, workspaceName: "Bergmann Steuern" }),
+      createElement(OnboardingWizard, {
+        flow: buildWizardFlowContext({
+          appMode: "cloud",
+          isInvited: true,
+          profileCompleted: false,
+          setupOffered: false,
+          templateCount: 0,
+          teamSize: null,
+        }),
+        profileCompleted: false,
+        isInvited: true,
+        workspaceName: "Bergmann Steuern",
+      }),
     );
 
     expect(html).toContain("OnboardingWizard.steps.profile.invitedSubtitleNamed workspace=Bergmann Steuern");
@@ -638,7 +659,20 @@ describe("OnboardingWizard", () => {
     const store = new OnboardingWizardStore({} as RootStore);
     testContext.rootStore = { onboardingWizardStore: store, appMode: "cloud" } as unknown as RootStore;
 
-    renderToStaticMarkup(createElement(OnboardingWizard, { profileCompleted: true, setupStatus: AVAILABLE }));
+    renderToStaticMarkup(
+      createElement(OnboardingWizard, {
+        flow: buildWizardFlowContext({
+          appMode: "cloud",
+          isInvited: false,
+          profileCompleted: true,
+          setupOffered: true,
+          templateCount: 0,
+          teamSize: null,
+        }),
+        profileCompleted: true,
+        setupStatus: AVAILABLE,
+      }),
+    );
 
     expect(store.currentStep).toBe("profile");
   });

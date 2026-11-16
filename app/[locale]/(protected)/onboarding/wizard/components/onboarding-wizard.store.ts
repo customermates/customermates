@@ -56,12 +56,7 @@ export type WizardJobChoice = {
   suggestedPlaybook?: OnboardingPlaybook | null;
 };
 
-export type WizardFlowOptions = {
-  chooseAvailable?: boolean;
-  templatesAvailable?: boolean;
-  sourceAvailable?: boolean;
-  channelAvailable?: boolean;
-  teamInvite?: boolean;
+export type WizardFlowOptions = Omit<WizardFlowContext, "setupAvailable"> & {
   emptyChosen?: boolean;
   selfHosted?: boolean;
   template?: TemplateSlug | null;
@@ -76,12 +71,7 @@ export class OnboardingWizardStore {
   isInitializing = true;
   pendingSaves = 0;
   inviteTab: OnboardingWizardProgress["inviteTab"] = "link";
-  setupAvailable = true;
-  chooseAvailable = false;
-  templatesAvailable = false;
-  sourceAvailable = false;
-  channelAvailable = false;
-  teamInvite = false;
+  flowContext: WizardFlowContext = { setupAvailable: true };
   selectedDiscovery: DiscoveryChoice | null = null;
   discoveryDetail = "";
   emptyChosen = false;
@@ -113,17 +103,6 @@ export class OnboardingWizardStore {
       initializationVersion: false,
       promptVersion: false,
     });
-  }
-
-  get flowContext(): WizardFlowContext {
-    return {
-      setupAvailable: this.setupAvailable,
-      chooseAvailable: this.chooseAvailable,
-      templatesAvailable: this.templatesAvailable,
-      sourceAvailable: this.sourceAvailable,
-      channelAvailable: this.channelAvailable,
-      teamInvite: this.teamInvite,
-    };
   }
 
   get flowKey(): WizardFlowKey {
@@ -186,14 +165,10 @@ export class OnboardingWizardStore {
     flow: WizardFlowOptions = {},
   ) => {
     const identityChanged = this.userId !== userId;
-    this.setupAvailable = setupAvailable;
-    this.chooseAvailable = flow.chooseAvailable ?? false;
-    this.templatesAvailable = flow.templatesAvailable ?? false;
-    this.sourceAvailable = flow.sourceAvailable ?? false;
-    this.channelAvailable = flow.channelAvailable ?? false;
-    this.teamInvite = flow.teamInvite ?? false;
-    this.emptyChosen = flow.emptyChosen ?? false;
-    this.selfHosted = flow.selfHosted ?? false;
+    const { emptyChosen = false, selfHosted = false, template = null, ...context } = flow;
+    this.flowContext = { ...context, setupAvailable };
+    this.emptyChosen = emptyChosen;
+    this.selfHosted = selfHosted;
     this.selectedJob = jobChoice.selectedJob;
     this.suggestedJob = jobChoice.suggestedJob;
     this.suggestedPlaybook = jobChoice.suggestedPlaybook ?? null;
@@ -204,7 +179,7 @@ export class OnboardingWizardStore {
     this.savedProgress = resumeStepIndex > 0 ? readOnboardingWizardProgress(progress) : null;
     this.goalPinned = this.savedProgress?.step === "goal";
     this.rootStore.stepAiStore.reset(identityChanged);
-    this.selectedTemplate = flow.template ?? null;
+    this.selectedTemplate = template;
     this.applyProgress(this.savedProgress ?? readOnboardingWizardProgress(null));
     this.minStepIndex = this.minimumStepIndex(resumeStepIndex);
     this.currentStepIndex =
@@ -219,7 +194,7 @@ export class OnboardingWizardStore {
       step === "template" ||
       step === "prompt" ||
       ((step === "ai" || step === "channel" || step === "invite") && this.connectsAgent);
-    return this.chooseAvailable && goal !== -1 && reachesGoal ? goal : resumeStepIndex;
+    return this.flowContext.chooseAvailable && goal !== -1 && reachesGoal ? goal : resumeStepIndex;
   }
 
   setSelectedJob = (value: string) => {
@@ -308,9 +283,8 @@ export class OnboardingWizardStore {
         this.moveTo(target, { closeBehind: !this.connectsAgent });
         return;
       }
-      this.moveTo(this.templatesAvailable && this.chooseAvailable ? "template" : "setup", {
-        closeBehind: !(this.templatesAvailable && this.chooseAvailable),
-      });
+      const picksTemplate = Boolean(this.flowContext.templatesAvailable && this.flowContext.chooseAvailable);
+      this.moveTo(picksTemplate ? "template" : "setup", { closeBehind: !picksTemplate });
     } finally {
       this.setIsSubmitting(false);
     }
@@ -388,7 +362,7 @@ export class OnboardingWizardStore {
 
   continueFromConnect = async (): Promise<void> => {
     if (this.isSubmitting || this.currentStep !== "ai" || !this.connectsAgent) return;
-    if (!this.templatesAvailable) {
+    if (!this.flowContext.templatesAvailable) {
       await this.complete();
       return;
     }
