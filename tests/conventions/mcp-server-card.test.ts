@@ -49,4 +49,15 @@ describe("public MCP server card", () => {
 
     expect(stored, "Public metadata drifted; run yarn mcp:generate-card").toEqual(buildMcpServerCard(ALL_MCP_TOOLS));
   }, 120_000);
+
+  it("keeps the registry manifest on the same remote endpoint and icon as the server", () => {
+    const manifest = JSON.parse(readFileSync(join(REPO_ROOT, "server.json"), "utf8"));
+
+    expect(manifest.title).toBe(MCP_SERVER_INFO.name);
+    expect(manifest.icons).toEqual(MCP_SERVER_INFO.icons);
+    expect(manifest.remotes).toEqual([expect.objectContaining({ url: "https://customermates.com/api/v1/mcp" })]);
+    expect(manifest._meta["io.modelcontextprotocol.registry/publisher-provided"].serverCard).toBe(
+      "https://customermates.com/.well-known/mcp/server-card.json",
+    );
+  });
 });

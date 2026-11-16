@@ -546,3 +546,91 @@ describe("public MCP execution boundary", () => {
     });
   }, 5_000);
 });
+
+describe("anonymous MCP discovery", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const executed = vi.fn();
+  const discoverableTool: McpTool = {
+    name: "discoverable",
+    title: "Discoverable",
+    description: "Returns a fixed value.",
+    inputSchema: z.object({}),
+    execute: () => {
+      executed();
+      return Promise.resolve("ran");
+    },
+  };
+  const anonymous = { credential: {} };
+
+  it("answers initialize and tools/list without a credential and never consults the auth services", async () => {
+    const handler = createMcpRoute({ test: [discoverableTool] });
+
+    const initialized = await rpc(handler, requestBody("initialize", 1), undefined, anonymous);
+    expect(initialized.response.status).toBe(200);
+    expect(initialized.data?.result).toMatchObject({ serverInfo: MCP_SERVER_INFO });
+    const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
+
+    const notified = await rpc(handler, requestBody("notifications/initialized"), sessionId, anonymous);
+    expect(notified.response.status).toBeLessThan(300);
+
+    const listed = await rpc(handler, requestBody("tools/list", 2), sessionId, anonymous);
+    expect(listed.response.status).toBe(200);
+    expect(listed.data?.result).toMatchObject({ tools: [{ name: "discoverable" }] });
+
+    expect(apiKeys.isMcpApiKeyValid).not.toHaveBeenCalled();
+    expect(apiKeys.isMcpBearerValid).not.toHaveBeenCalled();
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+    expect(executed).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["a tool call", { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "discoverable", arguments: {} } }],
+    ["a resource list", requestBody("resources/list", 4)],
+    ["a prompt read", { jsonrpc: "2.0", id: 5, method: "prompts/get", params: { name: "get-started" } }],
+    ["a batch that hides a tool call behind tools/list", [requestBody("tools/list", 6), requestBody("tools/call", 7)]],
+  ])("still challenges %s without a credential", async (_label, body) => {
+    const handler = createMcpRoute({ test: [discoverableTool] });
+
+    const challenged = await rpc(handler, body as Record<string, unknown>, undefined, anonymous);
+
+    expect(challenged.response.status).toBe(401);
+    expect(challenged.response.headers.get("www-authenticate")).toBe(
+      'Bearer resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource"',
+    );
+    expect(executed).not.toHaveBeenCalled();
+  });
+
+  it("keeps the challenge for an invalid credential even on discovery, so the client signs in again", async () => {
+    const handler = createMcpRoute({ test: [discoverableTool] });
+    apiKeys.isMcpBearerValid.mockResolvedValueOnce(false);
+
+    const challenged = await rpc(handler, requestBody("tools/list", 1), undefined, {
+      credential: { authorization: "Bearer expired" },
+    });
+
+    expect(challenged.response.status).toBe(401);
+  });
+
+  it("does not open discovery at a workspace's URL", async () => {
+    const handler = createMcpRoute({ test: [discoverableTool] });
+
+    const challenged = await rpc(handler, requestBody("tools/list", 1), undefined, {
+      workspaceId: WORKSPACE,
+      credential: {},
+    });
+
+    expect(challenged.response.status).toBe(401);
+  });
+
+  it("challenges a stream or session request without a credential", async () => {
+    const handler = createMcpRoute({ test: [discoverableTool] });
+
+    for (const method of ["GET", "DELETE"]) {
+      const response = await handler(new Request("http://localhost:4105/api/v1/mcp", { method }));
+      expect(response.status).toBe(401);
+    }
+  });
+});

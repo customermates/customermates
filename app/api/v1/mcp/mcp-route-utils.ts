@@ -205,17 +205,46 @@ type McpRpcCall = { method?: unknown; id?: unknown };
 
 export type McpToolCallInfo = { toolCall: boolean; singleToolCallId: string | number | null };
 
-export async function readMcpToolCall(request: Request): Promise<McpToolCallInfo> {
-  if (request.method !== "POST") return { toolCall: false, singleToolCallId: null };
+/** The JSON-RPC messages of a POST body, or null when the request has no parseable JSON body. */
+async function readRpcMessages(request: Request): Promise<unknown[] | null> {
+  if (request.method !== "POST") return null;
   let body: unknown;
   try {
     body = await request.clone().json();
   } catch {
-    return { toolCall: false, singleToolCallId: null };
+    return null;
   }
-  const calls = (Array.isArray(body) ? body : [body]).filter(
-    (call): call is McpRpcCall => typeof call === "object" && call !== null,
+  return Array.isArray(body) ? body : [body];
+}
+
+function isRpcCall(message: unknown): message is McpRpcCall {
+  return typeof message === "object" && message !== null;
+}
+
+/**
+ * Methods answered without a credential at the bare endpoint: the handshake and the tool list, which the public
+ * server card already publishes. Every tool call, resource and prompt read still requires sign-in.
+ */
+const PUBLIC_DISCOVERY_METHODS: ReadonlySet<unknown> = new Set([
+  "initialize",
+  "notifications/initialized",
+  "ping",
+  "tools/list",
+]);
+
+export async function isPublicDiscoveryRequest(request: Request): Promise<boolean> {
+  const messages = await readRpcMessages(request);
+  return (
+    messages !== null &&
+    messages.length > 0 &&
+    messages.every((message) => isRpcCall(message) && PUBLIC_DISCOVERY_METHODS.has(message.method))
   );
+}
+
+export async function readMcpToolCall(request: Request): Promise<McpToolCallInfo> {
+  const messages = await readRpcMessages(request);
+  if (!messages) return { toolCall: false, singleToolCallId: null };
+  const calls = messages.filter(isRpcCall);
   const toolCalls = calls.filter((call) => call.method === "tools/call");
   const only = calls.length === 1 ? toolCalls[0] : undefined;
   const id = only && (typeof only.id === "string" || typeof only.id === "number") ? only.id : null;
@@ -370,12 +399,25 @@ export function createMcpRoute(
     );
   }
 
+  /** Answers the handshake and tools/list without a credential; nothing here reads workspace data. */
+  function anonymousDiscovery(request: Request) {
+    const toolsets = resolveToolsetKey(request, knownKeys);
+    if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
+    return handlerFor(toolsets.key, false)(request);
+  }
+
   return async (request: Request, workspaceId?: string) => {
     const resourceMetadataUrl = mcpProtectedResourceMetadataUrl(env.BASE_URL, workspaceId);
     if (workspaceId) {
       const foreign = await workspaceCredentialRefusal(request, workspaceId, resourceMetadataUrl);
       if (foreign) return foreign;
-    } else if (!(await isMcpRequestAuthorized(request))) return unauthorizedChallenge(resourceMetadataUrl);
+    } else if (!(await isMcpRequestAuthorized(request))) {
+      // Only a request without any credential gets anonymous discovery; an invalid or expired credential keeps the
+      // challenge so the client refreshes or signs in again.
+      const { apiKey, bearer } = credentialHeaders(request);
+      if (!apiKey && !bearer && (await isPublicDiscoveryRequest(request))) return anonymousDiscovery(request);
+      return unauthorizedChallenge(resourceMetadataUrl);
+    }
     const toolCall = await readMcpToolCall(request);
     if (!toolCall.toolCall) await exemptCurrentRequestFromIntegrationLimit();
     const refused = await mcpAccessRefusal(resourceMetadataUrl, toolCall);

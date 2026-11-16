@@ -17,8 +17,24 @@ test("public discovery matches the authenticated MCP definitions without grantin
   expect(card.tools.length).toBeGreaterThan(0);
   expect(card.tools.every((tool: Record<string, unknown>) => !("execute" in tool))).toBe(true);
 
+  const anonymous = new Client({ name: "anonymous-discovery", version: "1.0.0" });
+  try {
+    await anonymous.connect(new StreamableHTTPClientTransport(new URL("/api/v1/mcp", localE2eEnvironment().baseUrl)));
+    expect(anonymous.getServerVersion()).toEqual(card.serverInfo);
+    const { tools } = await anonymous.listTools();
+    expect(tools.map((tool) => tool.name).sort()).toEqual(card.tools.map((tool: { name: string }) => tool.name).sort());
+  } finally {
+    await anonymous.close();
+  }
+
   const denied = await request.post("/api/v1/mcp", {
-    data: { jsonrpc: "2.0", id: 1, method: "initialize", params: {} },
+    headers: { accept: "application/json, text/event-stream" },
+    data: {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: { name: "get_workspace_context", arguments: {} },
+    },
   });
   expect(denied.status()).toBe(401);
   expect(denied.headers()["www-authenticate"]).toContain("resource_metadata");
