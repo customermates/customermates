@@ -4,7 +4,7 @@ import type {
   AutomationRuleIdData,
   GetAutomationRuleRunsData,
   SetAutomationRuleEnabledData,
-  UpsertAutomationRuleInput,
+  UpsertAutomationRuleData,
 } from "@/features/automation-rules/automation-rule.schema";
 
 import {
@@ -15,8 +15,8 @@ import {
 } from "@/core/di";
 import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 
-export async function upsertAutomationRuleAction(data: UpsertAutomationRuleInput) {
-  return serializeResult(getUpsertAutomationRuleInteractor().invoke(data as never));
+export async function upsertAutomationRuleAction(data: UpsertAutomationRuleData) {
+  return serializeResult(getUpsertAutomationRuleInteractor().invoke(data));
 }
 
 export async function setAutomationRuleEnabledAction(data: SetAutomationRuleEnabledData) {

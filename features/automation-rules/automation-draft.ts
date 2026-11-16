@@ -5,7 +5,7 @@ import type {
   AutomationEffect,
   AutomationRuleDto,
   AutomationTrigger,
-  UpsertAutomationRuleInput,
+  UpsertAutomationRuleData,
 } from "./automation-rule.schema";
 
 export const DRAFT_TRIGGER_KINDS = [
@@ -263,7 +263,7 @@ function toEffect(
   };
 }
 
-export type DraftConversion = { ok: true; input: UpsertAutomationRuleInput } | { ok: false; issues: string[] };
+export type DraftConversion = { ok: true; input: UpsertAutomationRuleData } | { ok: false; issues: string[] };
 
 export function draftToUpsert(draft: AutomationDraft, model: AutomationBuilderModel): DraftConversion {
   const issues: string[] = [];
