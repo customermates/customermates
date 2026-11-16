@@ -28,7 +28,7 @@ relatedHrefs:
 
 The best MCP servers for sales are the ones your CRM vendor runs itself: HubSpot's remote server, the hosted servers of Pipedrive and Attio and, for large organizations with administrators, Salesforce Hosted MCP Servers. Email is weaker. Google's Gmail server is a developer preview that drafts and labels but does not send, and Microsoft's Work IQ server needs a tenant administrator to switch it on. Below, eight servers are ranked for sales and client work, with the maintainer, hosting, sign-in and write scope of each.
 
-Disclosure: Customermates, an open-source CRM with its own MCP server, publishes this list and is one of the eight entries. Every row was checked on 12 November 2026 against the vendor's own documentation or official repository, linked in the table. We read those pages and did not run every server, so a row shows what the vendor documents, not a measurement.
+Disclosure: Customermates, a source-available CRM with its own MCP server, publishes this list and is one of the eight entries. Every row was checked on 12 November 2026 against the vendor's own documentation or official repository, linked in the table. We read those pages and did not run every server, so a row shows what the vendor documents, not a measurement.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="CRM servers">
@@ -69,7 +69,7 @@ The fit test is a small client-facing team: a few seats, long email histories, n
 | 1 | HubSpot remote MCP server | Teams that run HubSpot and want records, activities and conversations in one server | No delete in the documented write access; activity data is blocked when Sensitive Data is on |
 | 2 | Pipedrive MCP | Pipeline-first sales teams on any Pipedrive plan | Delete is not documented; usage counts against plan token limits |
 | 3 | Attio MCP | A custom data model with lists, notes and tasks | Deletes only tasks and comments; one SQL tool is not on every plan |
-| 4 | Customermates MCP (publisher) | Small client-facing teams that want conversations beside the records, with an open-source core | Messaging tools need Pro in the cloud; no field-level permissions; no sequences, telephony or invoicing |
+| 4 | Customermates MCP (publisher) | Small client-facing teams that want conversations beside the records, with a self-hostable Community Edition | Messaging tools need Pro in the cloud; no field-level permissions; no sequences, telephony or invoicing |
 | 5 | Salesforce Hosted MCP Servers | Organizations that already run Salesforce and have admins | Needs an admin, an External Client App and Enterprise Edition or above |
 | 6 | Microsoft Work IQ MCP | Outlook mail, calendar and Teams inside a Microsoft 365 tenant | A Global Administrator sets it up, plus a usage-based billing plan in Copilot Studio |
 | 7 | Gmail MCP server (Google) | Reading threads and drafting replies in Gmail | Developer preview; no send or delete tool listed; needs your own Google Cloud project |
@@ -138,7 +138,7 @@ On 12 November 2026 we found no MCP server run by LinkedIn. Community servers ex
 | You run Pipedrive | Pipedrive's server, with a plan whose token limit fits your use |
 | You want a custom data model with lists and reports | Attio |
 | You run Salesforce with admins and custom logic | Salesforce Hosted MCP Servers, starting with `platform/sobject-reads` in a sandbox |
-| You are choosing a first CRM and want the MCP server, the conversations and an open-source core in one product | Customermates |
+| You are choosing a first CRM and want the MCP server, the conversations and a source-available core in one product | Customermates |
 | You want the AI to read your mailbox and draft replies | Gmail's server if you accept a preview, Microsoft Work IQ if you run Microsoft 365 |
 | Your mailbox is IMAP, not Gmail or Microsoft 365 | Neither Google's nor Microsoft's server applies; Customermates connects Gmail, Outlook and IMAP mailboxes on Cloud from Pro |
 | You want fixed steps across several tools | n8n's server |

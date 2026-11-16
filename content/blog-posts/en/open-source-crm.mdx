@@ -1,6 +1,6 @@
 ---
 title: "Open Source CRM: How to Compare Self-Hosted Options"
-description: "Compare open-source CRM options by license, deployment, operations, CRM scope and integrations. See the exact Customermates self-hosted boundary."
+description: "Compare open-source CRM options by license, deployment, operations and scope. Customermates is source-available, not open source: see its boundary."
 
 acquisition:
   locale: en
@@ -10,7 +10,7 @@ acquisition:
   primaryIntent: Open-source CRM comparison
   metadata:
     title: "Open Source CRM: How to Compare Self-Hosted Options"
-    description: "Compare open-source CRM options by license, deployment, operations, CRM scope and integrations. See the exact Customermates self-hosted boundary."
+    description: "Compare open-source CRM options by license, deployment, operations and scope. Customermates is source-available, not open source: see its boundary."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -24,8 +24,8 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    action: Evaluate Customermates as an open-source CRM
-    description: Follow up on every client conversation in the managed cloud CRM, or review the self-hosted edition with its AGPL core, Docker and PostgreSQL. Self-hosting uses the Starter feature set and includes neither the hosted inbox nor Mate.
+    action: Evaluate Customermates, a source-available CRM
+    description: Follow up on every client conversation in the managed cloud CRM, or review the self-hosted Community Edition with Docker and PostgreSQL. Self-hosting uses the Starter feature set and includes neither the hosted inbox nor Mate.
     buttonLeftText: Start your [[commercial.trial.days]]-day trial
     buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Review self-hosting
@@ -64,7 +64,7 @@ acquisition:
       text: Self-hosted app
     semanticLabels:
       - locale: en
-        text: AGPL core
+        text: Community Edition
       - locale: en
         text: PostgreSQL
     focalSubject:
@@ -92,7 +92,7 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-03-01
-  updated: 2026-10-16
+  updated: 2026-11-16
   tags:
     - Open Source
     - CRM
@@ -103,6 +103,8 @@ blogPost:
 # Open Source CRM: How to Compare Self-Hosted Options
 
 The best **open-source CRM** is the one whose license, self-hosting path, operating effort and CRM scope match your team. “Source available,” “open core” and “open source” are not interchangeable, and a long feature checklist says little about what you can lawfully run or realistically maintain.
+
+**Customermates is not open source in the OSI sense.** It is source-available (fair-code) under the Sustainable Use License: you can read the code and self-host the free Community Edition for your own business, and you cannot resell it or host it for others. Code in `ee/` uses a commercial licence. If you need an OSI-approved open source CRM, the shortlist below names SuiteCRM, EspoCRM and the largely AGPL-licensed Twenty, and the comparison pages say what each licence allows.
 
 This guide uses a durable evaluation framework instead of ranking projects by changing prices, star counts or unsourced feature claims. Disclosure: Customermates publishes this comparison and is one of the products discussed below.
 
@@ -161,17 +163,17 @@ Treat an unmeasured or undocumented capability as unknown, not as included.
 
 ## A shortlist without a fake ranking
 
-Open-source CRM searches surface projects with very different scopes. Customermates, SuiteCRM, EspoCRM and Twenty are useful starting points for a source-led shortlist. Odoo Community and CiviCRM can be relevant when a broader business-suite or membership context is part of the requirement. Verify the current official license, edition boundary, deployment documentation and maintenance state before deciding. Side-by-side comparisons: [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) and [Twenty](/compare/twenty-alternative).
+Open-source CRM searches surface projects with very different scopes. Customermates (source-available), SuiteCRM, EspoCRM and Twenty (largely AGPL) are useful starting points for a source-led shortlist. Odoo Community and CiviCRM can be relevant when a broader business-suite or membership context is part of the requirement. Verify the current official license, edition boundary, deployment documentation and maintenance state before deciding. Side-by-side comparisons: [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) and [Twenty](/compare/twenty-alternative).
 
 For side-by-side detail on two of them, see the [EspoCRM alternative](/compare/espocrm-alternative) and [Twenty alternative](/compare/twenty-alternative) comparisons, which list licence, stack, pricing, channels and MCP support from each project's official pages.
 
 Their intended breadth differs. Some focus on CRM, some sit inside a broader business suite, and some are shaped around nonprofit or membership workflows. That makes a universal “number one” less useful than a shortlist scored against your own requirements.
 
-### Official source map checked on 28 August 2026
+### Official source map checked on 28 August 2026, Customermates row updated on 16 November 2026
 
 | Project       | Current official evidence to inspect                                                                                                                                                                                                                                                                                 | What this source supports                                                                |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Customermates | [AGPL core license](https://github.com/customermates/customermates/blob/main/LICENSE), [commercial and AGPL client-material boundary](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md), and [Compose deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exact repository licenses and the tracked application plus PostgreSQL deployment         |
+| Customermates | [Sustainable Use License](https://github.com/customermates/customermates/blob/main/LICENSE.md), [Commercial License for `ee/`](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md), and [Compose deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exact repository licenses and the tracked application plus PostgreSQL deployment         |
 | SuiteCRM      | [AGPL licensing](https://docs.suitecrm.com/admin/licensing/) and [installation guide](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/)                                                                                                                                                    | The documentation states AGPLv3 and exposes a maintained administrator installation path |
 | EspoCRM       | [Repository and license](https://github.com/espocrm/espocrm) and [Docker installation](https://docs.espocrm.com/administration/docker/installation/)                                                                                                                                                                 | A public source license and an official Docker deployment path                           |
 | Twenty        | [License](https://github.com/twentyhq/twenty/blob/main/LICENSE) and [Docker Compose guide](https://docs.twenty.com/developers/self-host/capabilities/docker-compose)                                                                                                                                                 | A public source license and an official Docker Compose self-hosting path                 |
@@ -189,7 +191,7 @@ This table is a source map, not a product ranking or a claim that the projects h
 
 ## Where Customermates fits
 
-Customermates is an open-core CRM for customer relationships and pipelines, made in Germany. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, material is commercially licensed except for the client material identified as AGPL-3.0-only in Section 6 of `ee/LICENSE.md`.
+Customermates is a source-available CRM for customer relationships and pipelines, made in Germany, under the Sustainable Use License (fair-code). First-party material outside `ee/` may be used and modified for your own internal business purposes or for non-commercial and personal use, and distributed only free of charge and non-commercially. Material inside `ee/` is under the Customermates Commercial License. That makes it free to self-host for your own business, but you cannot resell it, host it for third parties or white-label it; embedding is by agreement.
 
 The official [self-hosted CRM](/features/self-hosted) deployment contains the application and PostgreSQL 16. The self-hosted edition has the Starter feature set.
 
@@ -208,7 +210,7 @@ This makes Customermates a fit when you want a focused CRM, Docker/PostgreSQL de
 
 If follow-up on client conversations is the job, the managed cloud adds what self-hosting leaves out: from Pro, LinkedIn and email threads sit on the client record, and Mate or your own AI agent drafts the reply and the next step for you to review and send. Self-hosting keeps the CRM and MCP for your own AI client.
 
-To try Customermates yourself, [start your trial](/auth/signup?job=followup) on the managed cloud ([[commercial.trial.days]] days of Pro, no credit card) or self-host with Docker; see the product page [open source CRM: cloud or self-hosted](/features/open-source-crm).
+To try Customermates yourself, [start your trial](/auth/signup?job=followup) on the managed cloud ([[commercial.trial.days]] days of Pro, no credit card) or self-host with Docker; see the page on whether Customermates is an [open source CRM, in the cloud or self-hosted](/features/open-source-crm).
 
 <ProductDemo hostedBoundary path="/dashboard" />
 
@@ -284,11 +286,17 @@ It means the CRM code is offered under an open-source license that grants define
   providers, contracts, policies and operations.
 </FaqItem>
 
-<FaqItem question="Is all Customermates code AGPL-3.0?">
-  No. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the
-  client material identified in Section 6 of `ee/LICENSE.md` is also
-  AGPL-3.0-only; the remaining first-party material uses the commercial license.
-  Review both license files for the exact boundary.
+<FaqItem question="Is Customermates open source?">
+  No. Customermates is source-available under the Sustainable Use License
+  (fair-code), which limits use to your own internal business purposes or
+  non-commercial and personal use, so it does not meet the OSI definition.
+  First-party material outside `ee/` uses that licence and material inside
+  `ee/` uses the Customermates Commercial License. Review both license files
+  for the exact boundary.
+</FaqItem>
+
+<FaqItem question="Which free open source CRM fits B2C or B2B client management?">
+'Opensource CRM' and 'open source CRM' mean the same thing in search, but free to download is not free to run, so check the licence and the CRM model first. For B2C you need people-first records and a simple import; for B2B you need organizations with several contacts and deals. SuiteCRM and EspoCRM are open source under the AGPL and can be self-hosted at no licence fee; Customermates is source-available and free to self-host for your own business. In every case, test customer relationship management on your own data before you commit.
 </FaqItem>
 
 <FaqItem question="Can I import or export CRM records in self-hosted Customermates?">

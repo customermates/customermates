@@ -58,7 +58,7 @@ cta:
 
 Customermates is a CRM with an open REST API on every plan, from Starter at [[commercial.price.starter.monthly]] per user per month, and in the free self-hosted edition. You authenticate with an API key in the `x-api-key` header, the full schema is an OpenAPI 3.1 document at `/api/v1/openapi`, and, on paid plans and self-hosted, [[derived.webhooks.events.total]] webhook events tell your systems when something changes. There is no separate developer plan and no paid API add-on.
 
-Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams. The API matters to two kinds of readers: a developer who wants to sync the CRM with another system, and a team that wants an AI client such as Claude or ChatGPT to update records. The first uses REST and webhooks. The second uses the MCP endpoint, which sits on the same permissions.
+Customermates is a source-available, AI-native CRM built in Germany for small client-facing teams. The API matters to two kinds of readers: a developer who wants to sync the CRM with another system, and a team that wants an AI client such as Claude or ChatGPT to update records. The first uses REST and webhooks. The second uses the MCP endpoint, which sits on the same permissions.
 
 **Why this matters for follow-up.** A client reply slips when the facts it needs sit in another system. Through MCP your own AI client, such as Claude or ChatGPT, reads a client's record and, on Customermates Cloud from Pro, the conversations with them, and can save a reply draft for you to review and send. Through REST and webhooks your other tools get the same records and are told when one changes.
 
@@ -148,11 +148,11 @@ Customermates publishes this page. The figures below come from each vendor's own
 | [EspoCRM](https://docs.espocrm.com/development/api/) | Yes, including the [free self-hosted edition](https://www.espocrm.com/) | API key, HMAC or basic auth through dedicated API users whose roles set what they can do |
 | Customermates | Every plan and self-hosted | No published quota; bulk routes take 100 records per request |
 
-Choose HubSpot or Zoho CRM if you want a free hosted plan with API access and your integration fits within their published call limits. Choose Pipedrive if a daily budget that grows with plan and seats suits your volume. Choose EspoCRM if you want a self-hosted open-source CRM with separate API users and their own roles. Customermates fits a small team that wants the record API, webhooks and an MCP endpoint for AI clients at the price of the CRM itself, with an AGPL core it can self-host. It does not fit if you need per-key scopes or, in Customermates Cloud, an API user that does not take a paid seat.
+Choose HubSpot or Zoho CRM if you want a free hosted plan with API access and your integration fits within their published call limits. Choose Pipedrive if a daily budget that grows with plan and seats suits your volume. Choose EspoCRM if you want a self-hosted open-source CRM with separate API users and their own roles. Customermates fits a small team that wants the record API, webhooks and an MCP endpoint for AI clients at the price of the CRM itself, with a Community Edition it can self-host. It does not fit if you need per-key scopes or, in Customermates Cloud, an API user that does not take a paid seat.
 
 ## What it costs
 
-API access has no surcharge. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month and gets REST, webhooks and MCP. The same team on Pro pays [[commercial.price.pro.monthly.seats.3]] and adds the [unified inbox](/features/unified-inbox) and its messaging routes. Self-hosting the open-source edition costs nothing in licence fees; you run the server. Billing is monthly, see [pricing](/pricing). If you build flows in n8n, n8n is a separate product with its own plans; the [n8n guide](/docs/n8n) shows the HTTP Request setup.
+API access has no surcharge. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month and gets REST, webhooks and MCP. The same team on Pro pays [[commercial.price.pro.monthly.seats.3]] and adds the [unified inbox](/features/unified-inbox) and its messaging routes. Self-hosting the Community Edition costs nothing in licence fees for your own business; you run the server. Billing is monthly, see [pricing](/pricing). If you build flows in n8n, n8n is a separate product with its own plans; the [n8n guide](/docs/n8n) shows the HTTP Request setup.
 
 <Faq>
 <FaqItem question="What is an API in a CRM?">
@@ -162,7 +162,7 @@ It is the programmatic way into the CRM's data. Another program sends HTTP reque
 There is no single answer. Check four things against your project: whether the API is on the plan you will actually buy, how calls are metered, whether webhooks include what changed, and whether there is a machine-readable spec. For a small team, an API on the entry plan with an OpenAPI document and signed webhooks usually matters more than the size of the endpoint catalog.
 </FaqItem>
 <FaqItem question="What is the best free CRM with API integration?">
-HubSpot and Zoho CRM both have free hosted plans with metered API access, and EspoCRM offers a free self-hosted edition with a REST API. The self-hosted edition of Customermates is free open source and includes the REST API, webhooks and MCP, but no inbox and no Mate, and you run the server yourself. See [self-hosting](/features/self-hosted).
+HubSpot and Zoho CRM both have free hosted plans with metered API access, and EspoCRM offers a free self-hosted edition with a REST API. The self-hosted Community Edition of Customermates is free for your own business (source-available, not open source) and includes the REST API, webhooks and MCP, but no inbox and no Mate, and you run the server yourself. See [self-hosting](/features/self-hosted).
 </FaqItem>
 <FaqItem question="Can I limit an API key to read-only?">
 No. A key has exactly the permissions of the user who owns it. Create the key under a member with a restricted role if an integration should only read.

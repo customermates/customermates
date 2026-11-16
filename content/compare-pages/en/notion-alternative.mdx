@@ -1,5 +1,5 @@
 ---
-title: "Notion CRM Alternative: Open-Source CRM with an Inbox"
+title: "Notion CRM Alternative: Source-Available CRM with an Inbox"
 description: "Notion CRM alternative compared: when a Notion database is enough, what a dedicated CRM adds, prices for five people, and how to move your data."
 competitorName: Notion
 
@@ -87,8 +87,8 @@ comparison:
         competitor: true
   - title: Licence, Hosting & Access
     features:
-      - name: Open-source licence
-        source: AGPL-3.0 core
+      - name: Source code licence
+        source: Sustainable Use License (source-available); ee/ under a commercial licence
         competitor: false
       - name: Self-hosting
         source: Docker Compose (core CRM without inbox or Mate)
@@ -123,7 +123,7 @@ cta:
 | You need your own record types, such as investors, properties or candidates, with formulas and rollups | Attio, Twenty, Airtable or Customermates | Customermates starts without lists; you create your own (contacts, deals or anything else) with calculated fields |
 | Clients write by email, LinkedIn and WhatsApp, and you want those threads on the contact | Customermates Pro or Business | All of these channels arrive in one inbox, linked to contacts |
 | You want deal value times stage probability without building it | Customermates, any plan | The stage field with probabilities exists from sign-up |
-| You need EU hosting without an Enterprise contract, or want to host the CRM yourself | Customermates | Cloud database configured in the AWS Frankfurt region on every plan; AGPL core for self-hosting, without inbox or Mate |
+| You need EU hosting without an Enterprise contract, or want to host the CRM yourself | Customermates | Cloud database configured in the AWS Frankfurt region on every plan; Community Edition for self-hosting, without inbox or Mate |
 | You need SAML SSO or native mobile apps | Notion Business | Notion has both; Customermates has no SSO and no native app |
 
 ## Who Notion is a good choice for as a CRM
@@ -170,7 +170,7 @@ In Notion you build the CRM yourself and paste the conversations in. In Customer
 
 **AI keeps the records current.** In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and builds views, using hosted AI credits with a monthly allowance per active user (see [pricing](/pricing)). It asks for a fresh approval before every delete but sends messages without one, so tell it to save drafts when you want to check first. Routines run a saved instruction on a schedule or when a record changes: [[commercial.entitlement.starter.includedRoutinesPerUser]] per user on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro. Prefer Claude or ChatGPT? Connect it to the [MCP server](/docs/mcp), which offers [[derived.mcp.tools.total]] tools on every plan; the model calls then run on your own AI provider.
 
-**Your choice of hosting.** The cloud database is configured in the AWS Frankfurt region; a DPA is available and the subprocessors, including US providers, are listed. The AGPL-3.0 core runs on your own server with Docker Compose, including REST, webhooks and MCP, but a [self-hosted install](/features/self-hosted) has no inbox and no Mate. Customermates holds no compliance certification.
+**Your choice of hosting.** The cloud database is configured in the AWS Frankfurt region; a DPA is available and the subprocessors, including US providers, are listed. The Community Edition runs on your own server with Docker Compose, including REST, webhooks and MCP, but a [self-hosted install](/features/self-hosted) has no inbox and no Mate. Customermates holds no compliance certification.
 
 ## Where Customermates is the wrong choice
 
@@ -240,7 +240,7 @@ Yes. Both have a REST API and webhooks, and n8n has nodes for both, so a workflo
 </FaqItem>
 
 <FaqItem question="Is there an open-source Notion alternative for CRM?">
-Yes. Twenty is open source with custom objects, the closest match for a flexible Notion schema. Customermates has an AGPL-3.0 core you can host with Docker Compose; the inbox and Mate exist only in Customermates Cloud.
+Yes. Twenty is open source with custom objects, the closest match for a flexible Notion schema. Customermates is source-available rather than open source, and its Community Edition can be hosted with Docker Compose; the inbox and Mate exist only in Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="Where does Notion store my CRM data?">

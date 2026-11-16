@@ -1,6 +1,6 @@
 ---
 title: "Self-Hosted CRM with Docker and PostgreSQL"
-description: "Run the Customermates CRM application and PostgreSQL on your infrastructure with Docker Compose. AGPL core, MCP, REST and webhooks are included."
+description: "Run the Customermates CRM application and PostgreSQL on your infrastructure with Docker Compose. Community Edition, MCP, REST and webhooks are included."
 featureName: Self-Hosted CRM
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: Self-hosted CRM deployment
   metadata:
     title: "Self-Hosted CRM with Docker and PostgreSQL"
-    description: "Run the Customermates CRM application and PostgreSQL on your infrastructure with Docker Compose. AGPL core, MCP, REST and webhooks are included."
+    description: "Run the Customermates CRM application and PostgreSQL on your infrastructure with Docker Compose. Community Edition, MCP, REST and webhooks are included."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -120,7 +120,7 @@ hero:
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Read the setup guide"
   buttonRightHref: /docs/self-hosting
-  hint: "AGPL core • Docker Compose • PostgreSQL 16"
+  hint: "Community Edition • Docker Compose • PostgreSQL 16"
 
 cta:
   action: "Need LinkedIn and email follow-up too? Try the cloud first"
@@ -132,9 +132,9 @@ cta:
   hint: "The operator owns infrastructure, updates, backups and connected providers."
 ---
 
-Customermates is a **self-hosted CRM** you can run as two Docker Compose services: the application and PostgreSQL 16. It is a good fit when your team wants to operate its CRM infrastructure and use an open-source core. It is not the self-hosted edition of every Customermates Cloud feature.
+Customermates is a **self-hosted CRM** you can run as two Docker Compose services: the application and PostgreSQL 16. It is a good fit when your team wants to operate its CRM infrastructure and use a source-available Community Edition. It is not the self-hosted edition of every Customermates Cloud feature.
 
-A self-hosted CRM runs on servers you control instead of the vendor's cloud: you decide where the application and database live, and you take on updates, backups and security. Whether the code is open source is a separate question about licence rights, covered in the [open-source CRM guide](/blog/open-source-crm). This page covers the operational side for Customermates.
+A self-hosted CRM runs on servers you control instead of the vendor's cloud: you decide where the application and database live, and you take on updates, backups and security. Whether the code is open source is a separate question about licence rights: Customermates is source-available under the Sustainable Use License, and the [open-source CRM guide](/blog/open-source-crm) covers the difference. This page covers the operational side for Customermates.
 
 **Where follow-up fits.** Self-hosting keeps client records, next-step dates, dashboards and MCP on your own servers, so your own AI client can read and update them. It does not have the inbox that puts LinkedIn and email conversations on the client, and it does not have Mate, which drafts the replies. If drafted follow-up on conversations is why you want the CRM, start on Customermates Cloud; self-hosting fits better when control over where the data runs matters more.
 
@@ -179,13 +179,13 @@ The Compose file does not bundle n8n, an AI model, an email-delivery provider or
 | Read-only connected calendar view                  | Not included              |
 | Shared connected accounts                          | Not included              |
 
-The [unified CRM inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. Self-hosting remains focused on the CRM's open-source core and external MCP clients.
+The [unified CRM inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. Self-hosting remains focused on the CRM's Community Edition and external MCP clients.
 
-## Open-source and commercial code boundaries
+## Source-available and commercial code boundaries
 
-First-party material outside `ee/` is licensed under AGPL-3.0-only. Inside `ee/`, material is commercially licensed except for the client-side images, fonts, CSS and JavaScript material identified as AGPL Client Material in Section 6 of `ee/LICENSE.md`. Review both licenses before modifying, redistributing or operating the software for your use case.
+First-party material outside `ee/` is licensed under the Sustainable Use License: you may use and modify it for your own internal business purposes or for non-commercial and personal use, and distribute it only free of charge and non-commercially. Material inside `ee/` uses the Customermates Commercial License. Review `LICENSE.md` and `ee/LICENSE.md` before modifying, redistributing or operating the software for your use case.
 
-That distinction matters when comparing an [open-source CRM](/blog/open-source-crm): a public repository alone does not tell you which code you may use under which terms. If you are weighing other self-hostable projects, the [EspoCRM](/compare/espocrm-alternative) and [Twenty](/compare/twenty-alternative) comparisons show how their deployment and licence boundaries differ.
+That distinction matters when comparing an [open-source CRM](/blog/open-source-crm): a public repository alone does not tell you which code you may use under which terms, and Customermates itself is source-available, not open source. If you are weighing other self-hostable projects, the [EspoCRM](/compare/espocrm-alternative) and [Twenty](/compare/twenty-alternative) comparisons show how their deployment and licence boundaries differ.
 
 ## What control does self-hosting provide?
 
@@ -202,7 +202,7 @@ Connected services remain separate processing boundaries. OAuth providers, Resen
 | you want external AI clients to use MCP     | you want cloud plan entitlements and managed connected accounts |
 | you will own updates, backups and recovery  | you prefer a subscription with managed operations               |
 
-If you want to try Customermates before running your own server, the [open source CRM in the cloud or self-hosted](/features/open-source-crm) page sets both routes side by side, with the free cloud trial as the fastest start.
+If you want to try Customermates before running your own server, the page on whether Customermates is an [open source CRM, in the cloud or self-hosted](/features/open-source-crm) sets both routes side by side, with the free cloud trial as the fastest start.
 
 Records move between installations or from another CRM as XLSX workbooks, one record type at a time and within row limits, or through the REST API, which can also upload files to File fields. An XLSX import carries no attachments and there is no complete account transfer, so plan a larger move as a migration project you validate.
 
@@ -210,7 +210,7 @@ Records move between installations or from another CRM as XLSX workbooks, one re
 
 <Faq>
 <FaqItem question="Is Customermates fully open source?">
-First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the client material identified in Section 6 of `ee/LICENSE.md` is also AGPL-3.0-only; the remaining first-party material uses the commercial license. Review both license files for the exact boundary.
+No. Customermates is source-available under the Sustainable Use License (fair-code), not open source in the OSI sense. First-party material outside `ee/` uses that licence; material inside `ee/` uses the Customermates Commercial License. Review both licence files for the exact boundary.
 </FaqItem>
 
 <FaqItem question="Does self-hosting include the unified inbox?">

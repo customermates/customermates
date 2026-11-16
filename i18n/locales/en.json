@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Open source"
+    "label": "Source available"
   },
   "ApiKeyModal": {
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
@@ -2786,7 +2786,7 @@
     "invalid": "Contains errors"
   },
   "EmailLayout": {
-    "tagline": "The open-source CRM for client follow-up"
+    "tagline": "The source-available CRM for client follow-up"
   },
   "EmailVerification": {
     "notVerified": "Email not verified",
@@ -2991,7 +2991,7 @@
       "cancelAnytime": "Cancel anytime",
       "gdpr": "EU database region; no certification claim",
       "noLimits": "Transparent tiers",
-      "openSource": "Open core"
+      "openSource": "Source available"
     },
     "eyebrow": "Pricing",
     "selfHosted": {
@@ -3001,12 +3001,12 @@
       "featureN8n": "Interfaces for a separate n8n instance",
       "featureRecords": "Core CRM records",
       "featureUsers": "Workspace users",
-      "period": "under AGPL",
-      "price": "Free core",
-      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope, without the inbox and hosted AI. External services stay separate.",
+      "period": "Community Edition",
+      "price": "Free",
+      "tag": "Run the source-available Community Edition and PostgreSQL on your server with Docker Compose at Starter scope, free for internal use, without the inbox and hosted AI. External services stay separate.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Transparent tiers, no hidden costs. Self-host the AGPL core for free; external services stay separate. Or start a free trial on Cloud, no credit card needed.",
+    "subtitle": "Transparent tiers, no hidden costs. Self-host the free Community Edition for your own business; external services stay separate. Or start a free trial on Cloud, no credit card needed.",
     "title": "Simple, honest, European"
   },
   "HomepageWorkspacePrompt": {
@@ -3482,7 +3482,7 @@
       "mcpDocs": "MCP docs",
       "n8n": "n8n automation",
       "openExampleWorkspace": "Open this example workspace",
-      "openSourceCrm": "Open-source CRM",
+      "openSourceCrm": "Source-available CRM",
       "pillarData": "Data",
       "pillarDataDescription": "Clients, deals and lists you shape yourself",
       "pillarInbox": "Inbox",

@@ -23,7 +23,7 @@ blogPost:
     - Customer Database
     - CRM Software
     - Small Business
-    - Open Source
+    - Self-Hosting
 ---
 
 # Customer and client database software: which kind fits your team
@@ -36,7 +36,7 @@ Below you'll find how the terms differ, the five kinds of software that show up 
   <SummaryItem label="Which kind">A light CRM for client-facing teams, a no-code database for an unusual data model, a spreadsheet or address book for one person.</SummaryItem>
   <SummaryItem label="Free plans">HubSpot's free tools stop at 1,000 contacts, Airtable Free at 1,000 records per base, Ninox Free at 5,000 records. Self-hosted open-source CRMs cost no licence fee but need a server.</SummaryItem>
   <SummaryItem label="Before you commit">Import 50 real rows, add one duplicate on purpose, then export everything. The export tells you how hard leaving will be.</SummaryItem>
-  <SummaryItem label="Customermates">An open-source CRM in which Contacts can be renamed Clients. Cloud from [[commercial.price.starter.monthly]] per user per month; the unified inbox starts on Pro.</SummaryItem>
+  <SummaryItem label="Customermates">A source-available CRM in which Contacts can be renamed Clients. Cloud from [[commercial.price.starter.monthly]] per user per month; the unified inbox starts on Pro.</SummaryItem>
   <SummaryItem label="Disclosure">Customermates publishes this guide. The other tools are described by fit, not ranked.</SummaryItem>
 </ArticleSummary>
 
@@ -115,7 +115,7 @@ Free plans are real, but each one stops at a different wall. Limits as listed on
 | [Ninox Free](https://ninox.com/de/preise) | No-code database | Up to 5 users, 5,000 records, 100 MB storage, server region Germany | Records and storage |
 | [Notion Free](https://www.notion.com/pricing) | Workspace with databases | Unlimited blocks for one person, a limited number once 2 or more members join | The first colleague |
 | [EspoCRM](https://www.espocrm.com/download/) and [SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core) | Open-source CRM, self-hosted | No licence fee, AGPLv3 | You run the server, the updates and the backups |
-| [Customermates core](/features/self-hosted) | Open-source CRM, self-hosted | No licence fee, AGPL-3.0 | Self-hosting has no unified inbox and no Mate |
+| [Customermates Community Edition](/features/self-hosted) | Source-available CRM, self-hosted | No licence fee for your own business, Sustainable Use License | Self-hosting has no unified inbox and no Mate |
 
 Pipedrive has no free plan and offers a 14-day free trial. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; its trial runs [[commercial.trial.days]] days.
 
@@ -137,7 +137,7 @@ Airtable and Ninox are database builders, so that price buys the tables and you 
 
 ## A client database in Customermates, step by step
 
-Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. Here is a client database for a small consultancy, set up the way the product works today. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the lists, pipeline and dashboard, and on a self-hosted instance you create the lists in Data model. Then adjust them like this.
+Customermates is a source-available, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. Here is a client database for a small consultancy, set up the way the product works today. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the lists, pipeline and dashboard, and on a self-hosted instance you create the lists in Data model. Then adjust them like this.
 
 <Steps>
   <Step title="Name the records the way you talk">In Data model, open a list and change its **Name** and **Plural name** under **General**: rename Contacts to Clients and Organizations to Companies. Deals can become Projects, and Tasks can become Follow-ups. Any name works, and it applies to the whole workspace.</Step>
@@ -171,7 +171,7 @@ A client database earns its keep when every client has a next step. On Pro, Link
 - **You take bookings or appointments.** Customermates has no booking. Look at industry software for your trade.
 - **You mostly work from your phone.** There is no native mobile app.
 - **Your data model isn't people and companies.** Customermates starts without lists and lets you create your own, but it is built around people, companies and deals. Equipment, properties or events with nothing to sell may fit better in Airtable or Ninox.
-- **You want to self-host and keep the inbox.** Self-hosting is the AGPL core with REST, webhooks and MCP. The unified inbox and Mate are not part of it.
+- **You want to self-host and keep the inbox.** Self-hosting is the Community Edition with REST, webhooks and MCP. The unified inbox and Mate are not part of it.
 
 ## Where the client data lives
 
@@ -191,7 +191,7 @@ Start with what you look up and filter on: name, company, phone numbers and emai
 </FaqItem>
 
 <FaqItem question="What is the best free client database software?">
-It depends on how many people use it and how many records you keep. HubSpot's free tools cover 2 users and 1,000 contacts, Zoho CRM's free edition 3 users, Airtable Free 1,000 records per base and Ninox Free 5 users with 5,000 records. If you can run a server, EspoCRM, SuiteCRM and the Customermates core are open source with no licence fee. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines, and a [[commercial.trial.days]]-day trial.
+It depends on how many people use it and how many records you keep. HubSpot's free tools cover 2 users and 1,000 contacts, Zoho CRM's free edition 3 users, Airtable Free 1,000 records per base and Ninox Free 5 users with 5,000 records. If you can run a server, EspoCRM and SuiteCRM are open source and the Customermates Community Edition is source-available, all with no licence fee for your own business. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines, and a [[commercial.trial.days]]-day trial.
 </FaqItem>
 
 <FaqItem question="How do I create a client database?">
@@ -211,7 +211,7 @@ If names and addresses are all you need, the customer list in your invoicing sof
 </FaqItem>
 
 <FaqItem question="Can I host a client database on my own server?">
-Yes, with an open-source CRM. EspoCRM and SuiteCRM are licensed under AGPLv3, and EspoCRM runs on PHP with MySQL, MariaDB or PostgreSQL. The Customermates core is AGPL-3.0 and runs with Docker Compose and PostgreSQL 16. Self-hosted Customermates includes REST, webhooks and MCP for your own AI client, but no unified inbox and no Mate.
+Yes, with an open-source CRM. EspoCRM and SuiteCRM are licensed under AGPLv3, and EspoCRM runs on PHP with MySQL, MariaDB or PostgreSQL. The Customermates Community Edition is source-available under the Sustainable Use License and runs with Docker Compose and PostgreSQL 16. Self-hosted Customermates includes REST, webhooks and MCP for your own AI client, but no unified inbox and no Mate.
 </FaqItem>
 </Faq>
 

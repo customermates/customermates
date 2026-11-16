@@ -113,11 +113,11 @@ Microsoft says the Sales agent in Microsoft 365 Copilot will become the preferre
 
 ## Customermates as an AI-native CRM
 
-Customermates is an open-source CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Contacts, organizations, deals, services and tasks live in one workspace; on Pro and higher, the email, LinkedIn and WhatsApp conversations about them sit alongside. AI reaches that data in two ways, and self-hosting changes which of them you get.
+Customermates is a source-available CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Contacts, organizations, deals, services and tasks live in one workspace; on Pro and higher, the email, LinkedIn and WhatsApp conversations about them sit alongside. AI reaches that data in two ways, and self-hosting changes which of them you get.
 
 | | Mate | Your own AI client through MCP | Self-hosted |
 |---|---|---|---|
-| Where it runs | Customermates Cloud, every paid plan | Customermates Cloud on every plan, and self-hosted | Your server, with the AGPL core |
+| Where it runs | Customermates Cloud, every paid plan | Customermates Cloud on every plan, and self-hosted | Your server, with the Community Edition |
 | Who pays for the model | Monthly hosted AI credits per active user | Your own AI subscription or provider; clients include Claude, ChatGPT, Cursor, Codex and Gemini CLI | Your own AI provider, through MCP |
 | Inbox | Pro and higher | Messaging tools on Pro and higher, cloud only | No inbox |
 | Unattended runs | Routines | Only if your client schedules them | No Mate and no routines |
@@ -168,7 +168,7 @@ That setup is follow-up in practice: LinkedIn and email threads on the client, a
 - No email sequences or bulk sending. Routines have no recipient lists or sequence steps, and Mate sends individual messages.
 - No calendar booking. Pro and higher read connected calendars without writing to them.
 - No native mobile app.
-- No inbox, Mate or routines when self-hosted. Self-hosting gives you the AGPL core with REST, webhooks and MCP.
+- No inbox, Mate or routines when self-hosted. Self-hosting gives you the Community Edition with REST, webhooks and MCP.
 
 If predictive scoring for a large sales team is why you want AI, Customermates is not the fit: look at Zoho CRM with Zia or at Salesforce, whose own pages describe predictive features.
 
@@ -202,7 +202,7 @@ Not the record itself. An AI model needs a place that stores who the client is, 
 </FaqItem>
 
 <FaqItem question="Is AI in a CRM safe for customer data under GDPR?">
-That depends on where the model runs and who processes the data, so ask every vendor for its subprocessor list and a data processing agreement. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region. The subprocessors page names Google Cloud Vertex AI, Exa and TypeSafe AI for model, web-search and ranking work. Mate's primary chat route is pinned to the EU, but embeddings and other processing can involve the United States. Microsoft Azure serves no Mate request. With your own AI client through MCP, the data the client reads goes to the AI provider you chose. Self-hosting the open-source core keeps the CRM data on your own servers.
+That depends on where the model runs and who processes the data, so ask every vendor for its subprocessor list and a data processing agreement. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region. The subprocessors page names Google Cloud Vertex AI, Exa and TypeSafe AI for model, web-search and ranking work. Mate's primary chat route is pinned to the EU, but embeddings and other processing can involve the United States. Microsoft Azure serves no Mate request. With your own AI client through MCP, the data the client reads goes to the AI provider you chose. Self-hosting the Community Edition keeps the CRM data on your own servers.
 </FaqItem>
 </Faq>
 

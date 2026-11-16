@@ -613,7 +613,7 @@ describe("transactional email preview rendering", () => {
     async (definition) => {
       const html = await render(definition.render(DEFAULT_LOCALE));
       expect(html).toMatch(/<html[^>]*\blang="en"/i);
-      expect(html).toContain("The open-source CRM for client follow-up");
+      expect(html).toContain("The source-available CRM for client follow-up");
     },
   );
 

@@ -28,7 +28,7 @@ relatedHrefs:
 
 What is an MCP server? It is a program that offers an AI application a set of tools, data and prompt templates through the Model Context Protocol (MCP), an open standard, so that Claude, ChatGPT, Cursor or another MCP client can look things up and take actions in a system it otherwise could not reach. The server sits in front of that system, a file folder, a database or a CRM, and decides what the AI may see and do there.
 
-Anthropic introduced MCP on 25 November 2024 as an open standard for connecting AI assistants to the systems where data lives. Since then the major AI clients have added support, and many software vendors run their own servers. This guide explains the parts in plain terms and then walks through one real server for business data: the MCP server built into Customermates, the open-source CRM that publishes this article.
+Anthropic introduced MCP on 25 November 2024 as an open standard for connecting AI assistants to the systems where data lives. Since then the major AI clients have added support, and many software vendors run their own servers. This guide explains the parts in plain terms and then walks through one real server for business data: the MCP server built into Customermates, the source-available CRM that publishes this article.
 
 For a fixed integration and an AI client, compare [MCP versus API on the same customer-record task](/blog/mcp-vs-api). Tool discovery changes how the client finds an operation; authentication and permissions still apply.
 
@@ -128,7 +128,7 @@ Before you connect a vendor's server, check three things: whether it is the vend
 
 Most explanations stop at a weather tool. Here is what a production server for customer data looks like, using Customermates as the example. All details below come from the public [MCP reference](/docs/mcp).
 
-**The endpoint.** Customermates runs a remote server at `/api/v1/mcp` on the address you use for the app, plus a workspace-specific URL with the same tools locked to that workspace. It speaks Streamable HTTP. The endpoint is part of every Cloud plan and of self-hosted installations; when you self-host the open-source edition, it is still a remote server, just on your own infrastructure.
+**The endpoint.** Customermates runs a remote server at `/api/v1/mcp` on the address you use for the app, plus a workspace-specific URL with the same tools locked to that workspace. It speaks Streamable HTTP. The endpoint is part of every Cloud plan and of self-hosted installations; when you self-host the Community Edition, it is still a remote server, just on your own infrastructure.
 
 **Connecting.** In Claude and ChatGPT you add the URL as a custom connector, sign in and approve ([custom connector setup](/docs/connect-custom-connector)). Claude Code, Codex, Cursor and Gemini CLI connect with an API key in the `x-api-key` header ([CLI setup](/docs/connect-cli)). Either way, the client acts as exactly one user in exactly one workspace, and connecting needs read access to API & Webhooks in that user's role.
 
@@ -146,7 +146,7 @@ Most explanations stop at a weather tool. Here is what a production server for c
 
 **What it is for.** For a client-facing team, the useful job is follow-up: with LinkedIn and email connected on Customermates Cloud from Pro, your own Claude or ChatGPT reads the conversation on the client record and drafts the reply and the next step for you to review and send. To try it, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
 
-Customermates is the wrong choice if you only want to connect an AI to the CRM you already use; then use that CRM's own server. It fits when you are choosing a CRM and want the MCP server, the data and the [open-source code](/features/open-source-crm) in one product.
+Customermates is the wrong choice if you only want to connect an AI to the CRM you already use; then use that CRM's own server. It fits when you are choosing a CRM and want the MCP server, the data and the [source code](/features/open-source-crm) in one product.
 
 ## What are the security risks of MCP servers?
 

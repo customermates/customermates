@@ -51,7 +51,7 @@ Each cell names the first plan where the vendor's pricing page lists the feature
 | Pipedrive | 14-day trial, no free plan | Growth (if/else steps) | Growth | Not compared here | Growth | Premium lists 150,000 API tokens |
 | Salesforce Sales Cloud | Free Suite | Starter Suite (sales flows, lead routing) | Not compared here | Not compared here | Pro Suite | Not compared here |
 | Zoho CRM | Free edition, 3 users | Free edition lists workflow automation | Not compared here | Standard (built-in calling) | Free edition and up | Free edition, 5,000 calls per day |
-| Customermates | [[commercial.trial.days]]-day trial; free hosted plan for [[commercial.limit.free.maxMembers]] person; AGPL core free to self-host | No rules engine; Routines in Customermates Cloud, plus webhooks for your own n8n | None | None | Weighted pipeline from stage probabilities, no forecasting | REST, webhooks and MCP on every paid plan |
+| Customermates | [[commercial.trial.days]]-day trial; free hosted plan for [[commercial.limit.free.maxMembers]] person; Community Edition free to self-host for your own business | No rules engine; Routines in Customermates Cloud, plus webhooks for your own n8n | None | None | Weighted pipeline from stage probabilities, no forecasting | REST, webhooks and MCP on every paid plan |
 
 Two things this chart cannot show. A feature on the plan does not mean it is good at your job, and the limits differ: HubSpot Starter's workflows have restricted triggers and actions, and monday's Standard plan caps automations at 250 per month. Check the limit, not only the plan name, and confirm open cells in the trial.
 
@@ -149,13 +149,13 @@ A and B are placeholders. Put your own systems and scores in. For the full selec
 
 ## Where Customermates fits
 
-*Disclosure: Customermates publishes this comparison.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other relationship-driven service businesses and founders. Contacts, organizations, deals, services and tasks sit next to conversations from connected email, LinkedIn, WhatsApp, Instagram and Telegram accounts, which come together in the [unified inbox](/features/unified-inbox) on Pro and higher.
+*Disclosure: Customermates publishes this comparison.* Customermates is a source-available, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other relationship-driven service businesses and founders. Contacts, organizations, deals, services and tasks sit next to conversations from connected email, LinkedIn, WhatsApp, Instagram and Telegram accounts, which come together in the [unified inbox](/features/unified-inbox) on Pro and higher.
 
 Three rows in the charts above are worth reading closely:
 
 - **AI.** In Customermates Cloud, the assistant Mate prepares summaries and reply drafts and uses hosted AI credits; every paid plan includes monthly hosted AI credits per active user, see pricing. Routines run saved instructions on a schedule or when a record changes. If you prefer Claude, ChatGPT or another client, it works with the CRM through [MCP](/docs/mcp) on every plan, billed by your own AI provider.
 - **Automation.** There is no rules engine. Webhooks and the REST API connect to an n8n instance you run yourself.
-- **Hosting.** The AGPL core can be [self-hosted](/features/self-hosted) with Docker, with REST, webhooks and MCP. Self-hosting has no inbox, no Mate and no hosted credits.
+- **Hosting.** The Community Edition can be [self-hosted](/features/self-hosted) with Docker, with REST, webhooks and MCP. Self-hosting has no inbox, no Mate and no hosted credits.
 
 A deal's value comes from its line items, each a service times quantity, and each stage, a configurable Single choice field, carries a probability. The weighted pipeline is that arithmetic, not a prediction. Records import and export as Excel workbooks or JSON, one list at a time.
 
@@ -187,7 +187,7 @@ Operational, analytical and collaborative are the three most guides name. Some a
 </FaqItem>
 
 <FaqItem question="Which CRM is free?">
-HubSpot Free Tools cover up to 2 users, the Zoho CRM free edition 3 users, and Salesforce lists a Free Suite. Pipedrive and monday CRM have no free plan. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; its AGPL core can be self-hosted without a licence fee, without the inbox and Mate. See the [free CRM guide](/blog/free-crm).
+HubSpot Free Tools cover up to 2 users, the Zoho CRM free edition 3 users, and Salesforce lists a Free Suite. Pipedrive and monday CRM have no free plan. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; its Community Edition can be self-hosted without a licence fee for your own business, without the inbox and Mate. See the [free CRM guide](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="Can I switch CRM later?">

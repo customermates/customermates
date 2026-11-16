@@ -31,7 +31,7 @@ blogPost:
 
 "Agentic" comes from "agent": someone who acts on another's behalf. AWS explains that "agentic" indicates agency, "the ability of these systems to act independently, but in a goal-driven manner" ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). IBM's short definition is a good anchor too: agentic AI is "an artificial intelligence system that can accomplish a specific goal with limited supervision" ([IBM](https://www.ibm.com/think/topics/agentic-ai)). The two words that carry the meaning are *goal* and *limited*. Someone still sets the goal, and someone still decides how much the system may do without asking.
 
-Disclosure: Customermates, an open-source CRM, publishes this guide. It answers the general question. Running agents on CRM records is covered in the [agentic CRM guide](/blog/agentic-crm) and sales-specific agents in the [AI sales agent guide](/blog/ai-sales-agent); one short section below describes our own product.
+Disclosure: Customermates, a source-available CRM, publishes this guide. It answers the general question. Running agents on CRM records is covered in the [agentic CRM guide](/blog/agentic-crm) and sales-specific agents in the [AI sales agent guide](/blog/ai-sales-agent); one short section below describes our own product.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Definition">
@@ -187,7 +187,7 @@ This page answers the general question. Two neighbouring guides own the narrower
 
 ### What Customermates does here
 
-This is vendor information about our own product. Customermates is an open-source, AI-native CRM. Its [MCP server](/docs/mcp) lets an AI client such as Claude or ChatGPT read and write CRM records with the permissions of the connected user, on every plan and self-hosted; the server asks clients to confirm before deleting or sending, but that is guidance a client may ignore. Customermates Cloud adds Mate, an assistant, and [routines](/docs/app-routines) that run Mate on a schedule or when something changes. Mate asks before deletions, imports, access changes and a few other actions, but not before it sends an email or chat message, so ask for a draft when you want to review the wording first; the [Mate documentation](/docs/app-assistant) has the full list. Whether Mate is live depends on the hosted environment.
+This is vendor information about our own product. Customermates is a source-available, AI-native CRM. Its [MCP server](/docs/mcp) lets an AI client such as Claude or ChatGPT read and write CRM records with the permissions of the connected user, on every plan and self-hosted; the server asks clients to confirm before deleting or sending, but that is guidance a client may ignore. Customermates Cloud adds Mate, an assistant, and [routines](/docs/app-routines) that run Mate on a schedule or when something changes. Mate asks before deletions, imports, access changes and a few other actions, but not before it sends an email or chat message, so ask for a draft when you want to review the wording first; the [Mate documentation](/docs/app-assistant) has the full list. Whether Mate is live depends on the hosted environment.
 
 It is the wrong choice if you want an agent that prospects and sends on its own: there are no sequences, no mass sending and no lead scoring, and the [AI sales agent guide](/blog/ai-sales-agent) covers dedicated outreach agents instead. A self-hosted installation has MCP but neither Mate nor routines. To see follow-up on your own conversations, [start the [[commercial.trial.days]]-day trial](/auth/signup?job=followup): Pro, no credit card. If you are choosing an AI-ready CRM, the [AI CRM guide](/blog/ai-crm) lists what to compare.
 
@@ -281,7 +281,7 @@ If the steps never change, a fixed rule is cheaper and more predictable than an 
 
 ## Agentic AI and data protection
 
-Agents read personal data: names, email addresses, the content of conversations. Under the GDPR, a provider that processes that data on your behalf is a processor and needs a data processing agreement, and the AI providers it relies on are its subprocessors. For Mate in Customermates Cloud, the model providers are named in the [subprocessors list](/subprocessors). If you want to choose the provider yourself, connect your own AI client through MCP, or self-host the open-source core so the CRM data stays on your own servers.
+Agents read personal data: names, email addresses, the content of conversations. Under the GDPR, a provider that processes that data on your behalf is a processor and needs a data processing agreement, and the AI providers it relies on are its subprocessors. For Mate in Customermates Cloud, the model providers are named in the [subprocessors list](/subprocessors). If you want to choose the provider yourself, connect your own AI client through MCP, or self-host the Community Edition so the CRM data stays on your own servers.
 
 ## Frequently asked questions
 
