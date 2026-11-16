@@ -87,10 +87,11 @@ jobs:
       - run: yarn openapi:generate
       - run: yarn raw-docs:generate
       - run: yarn mcp:generate-card
+      - run: yarn templates:generate
       - name: Verify generated files are committed
         run: |
           if ! git diff --quiet; then
-            echo "::error::Generated files are out of date. Run 'yarn openapi:generate && yarn raw-docs:generate && yarn mcp:generate-card' and commit the result."
+            echo "::error::Generated files are out of date. Run 'yarn openapi:generate && yarn raw-docs:generate && yarn mcp:generate-card && yarn templates:generate' and commit the result."
             git diff --stat
             exit 1
           fi

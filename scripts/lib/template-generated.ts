@@ -3,10 +3,6 @@ import type { TemplateBundle } from "@/core/templates/template-spec.schema";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { z } from "zod";
-
-import { TemplateLocaleSchema, TemplateSpecObjectSchema } from "@/core/templates/template-spec.schema";
-
 import { buildTemplateIndex } from "./template-index";
 import { BUNDLES_ROOT, TEMPLATES_ROOT, buildTemplateBundles } from "./template-sources";
 
@@ -43,7 +39,6 @@ function readme(bundles: Map<string, TemplateBundle>): string {
     "- `<slug>/template.json`: the structure, language-neutral, with snake_case keys.",
     "- `<slug>/locales/<code>.json`: only the text of one app locale.",
     "- `_modules/*.json`: blocks shared by several templates (structure and text).",
-    "- `schema/*.json`: JSON Schemas generated from the Zod schemas in `core/templates/template-spec.schema.ts`.",
     "- `core/templates/bundles/<slug>.json`: the validated bundle the app reads.",
     "- `core/templates/bundles/index.json`: the light index (publication state, names and summaries per locale) that the sitemap, the navigation and the public pages read without loading the bundles.",
     "",
@@ -60,14 +55,6 @@ export function generatedOutputs(): Map<string, string> {
   for (const [slug, bundle] of bundles) outputs.set(join(BUNDLES_ROOT, `${slug}.json`), json(bundle));
   outputs.set(join(BUNDLES_ROOT, "index.json"), json(buildTemplateIndex(bundles)));
   outputs.set(join(TEMPLATES_ROOT, "README.md"), readme(bundles));
-  outputs.set(
-    join(TEMPLATES_ROOT, "schema", "template.schema.json"),
-    json(z.toJSONSchema(TemplateSpecObjectSchema, { io: "input" })),
-  );
-  outputs.set(
-    join(TEMPLATES_ROOT, "schema", "template-locale.schema.json"),
-    json(z.toJSONSchema(TemplateLocaleSchema, { io: "input" })),
-  );
   return outputs;
 }
 
