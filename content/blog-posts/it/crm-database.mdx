@@ -36,7 +36,7 @@ Raramente costruisci quel database da zero. Scegli un CRM, decidi di quali tipi 
   <SummaryItem label="Come costruirlo">Fissa prima i tipi di record, poi i campi su cui filtri, poi una chiave univoca per persona. Pulisci prima di importare e importa le aziende prima delle persone.</SummaryItem>
   <SummaryItem label="Cosa lo rovina">Duplicati, campi di testo libero che dovrebbero essere scelte e nessuno che si occupi della pulizia.</SummaryItem>
   <SummaryItem label="Riavere i dati">Pianifica l’esportazione prima di averne bisogno. Customermates esporta una lista alla volta, in Excel o JSON; non esiste un’esportazione dell’intero account.</SummaryItem>
-  <SummaryItem label="Customermates">Parte senza liste: crei quelle che ti servono (contatti, organizzazioni, trattative o le tue), con campi tipizzati e relazioni, da [[commercial.price.starter.monthly]] per utente al mese nel cloud, oppure in self-hosting con licenza AGPL.</SummaryItem>
+  <SummaryItem label="Customermates">Parte senza liste: crei quelle che ti servono (contatti, organizzazioni, trattative o le tue), con campi tipizzati e relazioni, da [[commercial.price.starter.monthly]] per utente al mese nel cloud, oppure in self-hosting con la Community Edition (source-available).</SummaryItem>
 </ArticleSummary>
 
 Il database è solo una parte della scelta: prova come le persone trovano e aggiornano questi record con la checklist per browser e mobile nella [guida alle app CRM](/blog/crm-app).
@@ -136,7 +136,7 @@ Questi passaggi valgono per qualsiasi CRM. L’ordine conta più dello strumento
 
 ## Esempio pratico: un CRM database per una società di consulenza di quattro persone
 
-Ecco lo stesso progetto in Customermates, impostato come funziona oggi il prodotto. Customermates è un CRM open source nativo per l’IA, costruito in Germania per piccoli team a contatto con i clienti come consulenti, agenzie e fondatori. Un nuovo spazio di lavoro parte senza liste: su Customermates Cloud descrivi la tua attività in una frase e Mate costruisce liste, pipeline e dashboard; i passaggi qui sotto funzionano anche a mano in Modello dati.
+Ecco lo stesso progetto in Customermates, impostato come funziona oggi il prodotto. Customermates è un CRM source-available nativo per l’IA, costruito in Germania per piccoli team a contatto con i clienti come consulenti, agenzie e fondatori. Un nuovo spazio di lavoro parte senza liste: su Customermates Cloud descrivi la tua attività in una frase e Mate costruisce liste, pipeline e dashboard; i passaggi qui sotto funzionano anche a mano in Modello dati.
 
 **Liste.** In Modello dati apri Contatti e cambia **Nome** e **Nome plurale** sotto **Generale** in Cliente e Clienti, poi rinomina allo stesso modo Trattative in Progetti. Va bene qualsiasi nome. Organizzazioni, Servizi e Attività mantengono il loro nome.
 
@@ -161,7 +161,7 @@ Ecco lo stesso progetto in Customermates, impostato come funziona oggi il prodot
 
 **Viste.** Salva «Non toccati da 90 giorni» filtrando **Aggiornato il** con **Più vecchio di…** 90 giorni, e «Clienti senza organizzazione». Condividi «Non toccati da 90 giorni» con tutto il team o con ruoli selezionati, così tutti lavorano dalla stessa lista.
 
-**Costo.** Quattro persone su Starter pagano [[commercial.price.starter.monthly.seats.4]] al mese. Su Pro, che aggiunge la [posta in arrivo unificata](/features/unified-inbox) così l’account e-mail, LinkedIn o WhatsApp collegato di ogni utente mostra le sue conversazioni accanto al cliente, il costo è [[commercial.price.pro.monthly.seats.4]] al mese. La fatturazione è mensile e il tuo primo spazio di lavoro parte con Pro gratis per [[commercial.trial.days]] giorni senza carta di credito. Il self-hosting del nucleo open source non ha costi di licenza, ma non ha posta in arrivo né Mate.
+**Costo.** Quattro persone su Starter pagano [[commercial.price.starter.monthly.seats.4]] al mese. Su Pro, che aggiunge la [posta in arrivo unificata](/features/unified-inbox) così l’account e-mail, LinkedIn o WhatsApp collegato di ogni utente mostra le sue conversazioni accanto al cliente, il costo è [[commercial.price.pro.monthly.seats.4]] al mese. La fatturazione è mensile e il tuo primo spazio di lavoro parte con Pro gratis per [[commercial.trial.days]] giorni senza carta di credito. Il self-hosting della Community Edition non ha costi di licenza, ma non ha posta in arrivo né Mate.
 
 **Una routine per la qualità dei dati (Customermates Cloud).** Mate, l’assistente di Customermates Cloud, usa crediti IA ospitati. Una routine esegue istruzioni salvate a intervalli regolari o su un evento di un record, come la persona che ne è proprietaria; Pro include [[commercial.entitlement.pro.includedRoutinesPerUser]] routine per utente. Una routine settimanale potrebbe contenere questa istruzione:
 
@@ -202,7 +202,7 @@ La [documentazione sui record](/docs/app-records) elenca tutti i limiti di impor
 
 Nell’UE un database CRM di persone contiene dati personali ai sensi del [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Tre principi dell’articolo 5 si traducono direttamente in scelte di progettazione: conserva solo dati «limitati a quanto necessario» (meno campi), tienili accurati (la routine di pulizia) e limita per quanto tempo li conservi (l’eliminazione trimestrale). L’articolo 17 dà alle persone il diritto alla cancellazione dei propri dati, quindi devi poter trovare ed eliminare completamente una persona. L’articolo 28 richiede un contratto con qualsiasi fornitore che conservi i dati per te.
 
-Per Customermates Cloud, l’[accordo sul trattamento dei dati](/dpa) è pubblico, il database dell’applicazione è configurato nella regione AWS di Francoforte e i [sub-responsabili](/subprocessors), compresi i fornitori statunitensi, sono elencati. Customermates non ha alcuna certificazione di conformità. Se ti servono i dati su un tuo server, [installa il nucleo open source sul tuo server](/features/self-hosted).
+Per Customermates Cloud, l’[accordo sul trattamento dei dati](/dpa) è pubblico, il database dell’applicazione è configurato nella regione AWS di Francoforte e i [sub-responsabili](/subprocessors), compresi i fornitori statunitensi, sono elencati. Customermates non ha alcuna certificazione di conformità. Se ti servono i dati su un tuo server, [installa la Community Edition sul tuo server](/features/self-hosted).
 
 ## Quando Customermates è il database sbagliato
 

@@ -28,7 +28,7 @@ relatedHrefs:
 
 Che cos’è un server MCP? È un programma che offre a un’applicazione di IA un insieme di strumenti, dati e modelli di prompt attraverso il Model Context Protocol (MCP), uno standard aperto, così che Claude, ChatGPT, Cursor o un altro client MCP possano consultare un sistema e compiervi azioni che altrimenti non potrebbero raggiungere. Il server sta davanti a quel sistema, una cartella di file, un database o un CRM, e decide che cosa l’IA può vedervi e farvi.
 
-Anthropic ha introdotto MCP il 25 novembre 2024 come standard aperto per collegare gli assistenti IA ai sistemi in cui vivono i dati. Da allora i principali client IA hanno aggiunto il supporto e molti fornitori di software gestiscono un proprio server. Questa guida spiega le parti in modo semplice e poi presenta un server reale per i dati aziendali: il server MCP integrato in Customermates, il CRM open source che pubblica questo articolo.
+Anthropic ha introdotto MCP il 25 novembre 2024 come standard aperto per collegare gli assistenti IA ai sistemi in cui vivono i dati. Da allora i principali client IA hanno aggiunto il supporto e molti fornitori di software gestiscono un proprio server. Questa guida spiega le parti in modo semplice e poi presenta un server reale per i dati aziendali: il server MCP integrato in Customermates, il CRM source-available che pubblica questo articolo.
 
 Per un’integrazione fissa e un client IA, confronta [MCP e API sullo stesso compito sui record dei clienti](/blog/mcp-vs-api). La scoperta degli strumenti cambia il modo in cui il client trova un’operazione; autenticazione e permessi restano validi.
 
@@ -130,7 +130,7 @@ Prima di collegare il server di un fornitore, controlla tre cose: se è il serve
 
 La maggior parte delle spiegazioni si ferma a uno strumento per il meteo. Ecco come si presenta un server di produzione per i dati dei clienti, con Customermates come esempio. Tutti i dettagli qui sotto vengono dal [riferimento MCP](/docs/mcp) pubblico.
 
-**L’endpoint.** Customermates gestisce un server remoto su `/api/v1/mcp` all’indirizzo che usi per l’app, più un URL specifico per spazio di lavoro con gli stessi strumenti vincolati a quello spazio di lavoro. Parla Streamable HTTP. L’endpoint fa parte di ogni piano Cloud e delle installazioni self-hosted; quando installi in self-hosting l’edizione open source, resta comunque un server remoto, solo sulla tua infrastruttura.
+**L’endpoint.** Customermates gestisce un server remoto su `/api/v1/mcp` all’indirizzo che usi per l’app, più un URL specifico per spazio di lavoro con gli stessi strumenti vincolati a quello spazio di lavoro. Parla Streamable HTTP. L’endpoint fa parte di ogni piano Cloud e delle installazioni self-hosted; quando installi in self-hosting la Community Edition, resta comunque un server remoto, solo sulla tua infrastruttura.
 
 **Il collegamento.** In Claude e ChatGPT aggiungi l’URL come connettore personalizzato, accedi e approvi ([configurazione del connettore personalizzato](/docs/connect-custom-connector)). Claude Code, Codex, Cursor e Gemini CLI si collegano con una chiave API nell’intestazione `x-api-key` ([configurazione da CLI](/docs/connect-cli)). In entrambi i casi il client agisce come esattamente un utente in esattamente uno spazio di lavoro, e il collegamento richiede l’accesso in lettura ad API e webhook nel ruolo di quell’utente.
 
@@ -148,7 +148,7 @@ La maggior parte delle spiegazioni si ferma a uno strumento per il meteo. Ecco c
 
 **A che cosa serve.** Per un team a contatto con i clienti, il compito utile è il follow-up: con LinkedIn ed e-mail collegati su Customermates Cloud da Pro, il tuo Claude o ChatGPT legge la conversazione sul record del cliente e prepara la bozza della risposta e del prossimo passo, che tu rivedi e invii. Per provarlo, [inizia la prova](/auth/signup?job=followup): [[commercial.trial.days]] giorni di Pro senza carta di credito.
 
-Customermates è la scelta sbagliata se vuoi solo collegare un’IA al CRM che già usi; allora usa il server di quel CRM. È adatto quando stai scegliendo un CRM e vuoi il server MCP, i dati e il [codice open source](/features/open-source-crm) in un unico prodotto.
+Customermates è la scelta sbagliata se vuoi solo collegare un’IA al CRM che già usi; allora usa il server di quel CRM. È adatto quando stai scegliendo un CRM e vuoi il server MCP, i dati e il [codice sorgente consultabile](/features/open-source-crm) in un unico prodotto.
 
 ## Quali sono i rischi di sicurezza dei server MCP?
 

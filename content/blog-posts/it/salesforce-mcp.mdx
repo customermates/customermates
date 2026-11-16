@@ -155,7 +155,7 @@ Stai ancora scegliendo tra un server MCP e una normale integrazione API? [MCP o 
 
 ## Un CRM con un server MCP integrato
 
-Se non ti sei ancora impegnato con Salesforce, esiste un modello diverso: un CRM il cui server MCP fa parte del prodotto. Customermates è uno di questi. È un CRM open source e nativo per l’IA per piccoli team a contatto con i clienti, ed espone un endpoint MCP a `/api/v1/mcp` su ogni piano cloud e sulle installazioni self-hosted. Un client collegato scopre [[derived.mcp.tools.total]] strumenti per contatti, organizzazioni, trattative, servizi, attività e i tuoi elenchi, il modello dati, le viste salvate, le dashboard, le routine e i webhook. Da Pro in su, in Customermates Cloud, si aggiungono gli strumenti della Posta in arrivo unificata per e-mail, LinkedIn, WhatsApp, Instagram e Telegram.
+Se non ti sei ancora impegnato con Salesforce, esiste un modello diverso: un CRM il cui server MCP fa parte del prodotto. Customermates è uno di questi. È un CRM source-available e nativo per l’IA per piccoli team a contatto con i clienti, ed espone un endpoint MCP a `/api/v1/mcp` su ogni piano cloud e sulle installazioni self-hosted. Un client collegato scopre [[derived.mcp.tools.total]] strumenti per contatti, organizzazioni, trattative, servizi, attività e i tuoi elenchi, il modello dati, le viste salvate, le dashboard, le routine e i webhook. Da Pro in su, in Customermates Cloud, si aggiungono gli strumenti della Posta in arrivo unificata per e-mail, LinkedIn, WhatsApp, Instagram e Telegram.
 
 La connessione funziona in due modi, come descrive la [documentazione MCP](/docs/mcp). Claude e ChatGPT si collegano come connettore personalizzato: incolla l’URL, accedi, approva. Claude Code, Codex, Cursor e Gemini CLI usano una [chiave API](/docs/api-keys) che eredita i permessi di chi l’ha creata. Per esporre solo una parte degli strumenti, aggiungi `?toolsets=` all’URL dell’endpoint, per esempio `?toolsets=records`.
 
@@ -166,7 +166,7 @@ La connessione funziona in due modi, come descrive la [documentazione MCP](/docs
 | Costo d’uso | Flex Credits; misurazione HPI a chiamata annunciata, tariffa TBA | Nessun addebito a chiamata; il tuo client IA usa il tuo fornitore di IA |
 | Controllo dell’ambito | Server separati per lettura, scrittura ed eliminazione; sicurezza a livello di campo | Permessi di ruolo per risorsa e azione; restrizione dei toolset tramite URL; nessun permesso a livello di campo |
 | Strumenti personalizzati | Apex, Flow, query con nome, API Catalog, template di prompt | Catalogo di strumenti fisso; si estende tramite REST e webhook |
-| Licenza | Servizio ospitato proprietario; il repository della community di Salesforce contiene documentazione, non il server | Core AGPL, installabile in self-hosting |
+| Licenza | Servizio ospitato proprietario; il repository della community di Salesforce contiene documentazione, non il server | Community Edition, installabile in self-hosting |
 
 Il conto dei costi è semplice. Un team di cinque persone su Starter paga [[commercial.price.starter.monthly.seats.5]] al mese e ottiene tutto l’insieme di strumenti CRM via MCP. Gli strumenti della Posta in arrivo richiedono Pro, [[commercial.price.pro.monthly.seats.5]] al mese per lo stesso team. L’abbonamento del client IA si aggiunge, presso Anthropic, OpenAI o qualunque fornitore usi. I prezzi attuali sono nella [pagina dei prezzi](/pricing).
 

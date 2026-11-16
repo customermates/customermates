@@ -113,11 +113,11 @@ Microsoft afferma che il Sales agent in Microsoft 365 Copilot diventerà il modo
 
 ## Customermates come CRM AI-native
 
-Customermates è un CRM open source nato in Germania per piccoli team a contatto con i clienti: consulenti, agenzie, altre attività di servizi e founder. Contatti, organizzazioni, trattative, servizi e attività vivono in un unico spazio di lavoro; da Pro in su, accanto ci sono le conversazioni e-mail, LinkedIn e WhatsApp che li riguardano. L’AI raggiunge quei dati in due modi e il self-hosting cambia quale dei due ottieni.
+Customermates è un CRM source-available nato in Germania per piccoli team a contatto con i clienti: consulenti, agenzie, altre attività di servizi e founder. Contatti, organizzazioni, trattative, servizi e attività vivono in un unico spazio di lavoro; da Pro in su, accanto ci sono le conversazioni e-mail, LinkedIn e WhatsApp che li riguardano. L’AI raggiunge quei dati in due modi e il self-hosting cambia quale dei due ottieni.
 
 | | Mate | Il tuo client AI tramite MCP | Self-hosted |
 |---|---|---|---|
-| Dove gira | Customermates Cloud, ogni piano a pagamento | Customermates Cloud su ogni piano e self-hosted | Il tuo server, con il core AGPL |
+| Dove gira | Customermates Cloud, ogni piano a pagamento | Customermates Cloud su ogni piano e self-hosted | Il tuo server, con la Community Edition |
 | Chi paga il modello | Crediti AI ospitati mensili per ogni utente attivo | Il tuo abbonamento o provider AI; tra i client ci sono Claude, ChatGPT, Cursor, Codex e Gemini CLI | Il tuo provider AI, tramite MCP |
 | Posta in arrivo | Da Pro in su | Strumenti di messaggistica da Pro in su, solo cloud | Nessuna Posta in arrivo |
 | Esecuzioni senza supervisione | Routine | Solo se il tuo client le pianifica | Niente Mate e niente routine |
@@ -168,7 +168,7 @@ Questa impostazione è il follow-up nella pratica: thread LinkedIn ed e-mail sul
 - Niente sequenze di e-mail né invii di massa. Le routine non hanno elenchi di destinatari né passaggi di sequenza, e Mate invia messaggi singoli.
 - Niente prenotazione di appuntamenti nel calendario. Da Pro in su i calendari collegati vengono letti, non scritti.
 - Nessuna app mobile nativa.
-- Niente Posta in arrivo, Mate o routine in self-hosted. Il self-hosting ti dà il core AGPL con REST, webhook e MCP.
+- Niente Posta in arrivo, Mate o routine in self-hosted. Il self-hosting ti dà la Community Edition con REST, webhook e MCP.
 
 Se il motivo per cui vuoi l’AI è il punteggio predittivo per un grande team commerciale, Customermates non fa per te: guarda Zoho CRM con Zia o Salesforce, le cui pagine descrivono funzioni predittive.
 
@@ -202,7 +202,7 @@ Non il record in sé. Un modello AI ha bisogno di un posto in cui sia memorizzat
 </FaqItem>
 
 <FaqItem question="L’AI in un CRM è sicura per i dati dei clienti ai sensi del GDPR?">
-Dipende da dove gira il modello e da chi tratta i dati, quindi chiedi a ogni fornitore l’elenco dei sub-responsabili e un contratto di trattamento dei dati. In Customermates Cloud il database principale è configurato nella regione AWS di Francoforte. La pagina dei sub-responsabili nomina Google Cloud Vertex AI, Exa e TypeSafe AI per le attività di modello, ricerca web e ranking. Il percorso principale della chat di Mate è vincolato all’UE, ma embedding e altri trattamenti possono coinvolgere gli Stati Uniti. Microsoft Azure non serve alcuna richiesta di Mate. Con il tuo client AI tramite MCP, i dati letti dal client vanno al provider AI che hai scelto. Il self-hosting del core open source tiene i dati del CRM sui tuoi server.
+Dipende da dove gira il modello e da chi tratta i dati, quindi chiedi a ogni fornitore l’elenco dei sub-responsabili e un contratto di trattamento dei dati. In Customermates Cloud il database principale è configurato nella regione AWS di Francoforte. La pagina dei sub-responsabili nomina Google Cloud Vertex AI, Exa e TypeSafe AI per le attività di modello, ricerca web e ranking. Il percorso principale della chat di Mate è vincolato all’UE, ma embedding e altri trattamenti possono coinvolgere gli Stati Uniti. Microsoft Azure non serve alcuna richiesta di Mate. Con il tuo client AI tramite MCP, i dati letti dal client vanno al provider AI che hai scelto. Il self-hosting della Community Edition tiene i dati del CRM sui tuoi server.
 </FaqItem>
 </Faq>
 

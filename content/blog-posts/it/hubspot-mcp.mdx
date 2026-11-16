@@ -31,7 +31,7 @@ Sì, esiste un server HubSpot MCP ufficiale. Il server remoto su `https://mcp.hu
 
 HubSpot offre anche un secondo server, indipendente, per gli sviluppatori, che gira in locale tramite la CLI di HubSpot, cioè un [server MCP locale](/blog/what-is-an-mcp-server) nei termini del protocollo. Gran parte della confusione intorno a «HubSpot MCP» nasce dallo scambiare i due, o dallo scambiare il server di HubSpot con i molti server della community su GitHub.
 
-Dichiarazione: Customermates, un CRM open source con un proprio server MCP, pubblica questa guida. I dettagli su HubSpot sono stati verificati l’8 ottobre 2026 sulle pagine di HubSpot, collegate nella riga delle fonti in fondo.
+Dichiarazione: Customermates, un CRM source-available con un proprio server MCP, pubblica questa guida. I dettagli su HubSpot sono stati verificati l’8 ottobre 2026 sulle pagine di HubSpot, collegate nella riga delle fonti in fondo.
 
 <ArticleSummary title="In breve">
   <SummaryItem label="Server remoto">
@@ -138,7 +138,7 @@ Se stai scegliendo un CRM invece di collegarne uno esistente, un server MCP inte
 | Eliminare record | Non nell’accesso in scrittura documentato | Possibile, entro i permessi dell’utente |
 | Contenuti di marketing | Landing page, articoli del blog, campagne, e-mail di marketing | Non fa parte del prodotto |
 | Conversazioni con i clienti | Legge le conversazioni della posta in arrivo di HubSpot | Legge, scrive bozze e invia messaggi di e-mail, LinkedIn, WhatsApp, Instagram e Telegram dal piano Pro in su, solo nel cloud |
-| Self-hosting | No, ospitato da HubSpot | Nucleo AGPL con MCP, senza posta in arrivo |
+| Self-hosting | No, ospitato da HubSpot | Community Edition con MCP, senza posta in arrivo |
 
 Poter eliminare e inviare è un’arma a doppio taglio. Il server di Customermates dice ai client collegati di chiedere conferma prima di eliminare o inviare, ma è un’indicazione al client, non un blocco nel server: una volta che un client autorizzato richiama uno strumento, questo viene eseguito. Controlla come il tuo client gestisce le approvazioni degli strumenti e parti da letture e bozze, come con HubSpot.
 

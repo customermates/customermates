@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Open source"
+    "label": "Source-available"
   },
   "ApiKeyModal": {
     "addDescription": "Crea una chiave per la tua integrazione oppure scegli un client IA per la configurazione guidata.",
@@ -2785,7 +2785,7 @@
     "invalid": "Contiene errori"
   },
   "EmailLayout": {
-    "tagline": "Il CRM open source per seguire ogni cliente"
+    "tagline": "Il CRM source-available per seguire ogni cliente"
   },
   "EmailVerification": {
     "notVerified": "E-mail non verificata",
@@ -2990,7 +2990,7 @@
       "cancelAnytime": "Disdetta in qualsiasi momento",
       "gdpr": "Database in regione UE; nessuna certificazione",
       "noLimits": "Piani trasparenti",
-      "openSource": "Open core"
+      "openSource": "Source-available"
     },
     "eyebrow": "Prezzi",
     "selfHosted": {
@@ -3000,12 +3000,12 @@
       "featureN8n": "Interfacce per un'istanza n8n separata",
       "featureRecords": "Record principali del CRM",
       "featureUsers": "Utenti dello spazio di lavoro",
-      "period": "con licenza AGPL",
+      "period": "source-available",
       "price": "Core gratuito",
-      "tag": "Esegui il core dell'applicazione con licenza AGPL e PostgreSQL sul tuo server tramite Docker Compose, con funzionalità Starter, senza posta in arrivo e senza IA ospitata. I servizi esterni restano separati.",
+      "tag": "Esegui la Community Edition (source-available) e PostgreSQL sul tuo server tramite Docker Compose, con funzionalità Starter, senza posta in arrivo e senza IA ospitata. I servizi esterni restano separati.",
       "title": "Self-hosted"
     },
-    "subtitle": "Piani trasparenti, senza costi nascosti. Ospita gratis il core con licenza AGPL; i servizi esterni restano separati. Oppure prova gratis il Cloud, senza carta di credito.",
+    "subtitle": "Piani trasparenti, senza costi nascosti. Ospita gratis la Community Edition per uso interno; i servizi esterni restano separati. Oppure prova gratis il Cloud, senza carta di credito.",
     "title": "Semplice, onesto, europeo"
   },
   "HomepageWorkspacePrompt": {
@@ -3481,7 +3481,7 @@
       "mcpDocs": "Documentazione MCP",
       "n8n": "Automazione n8n",
       "openExampleWorkspace": "Apri questa area di lavoro di esempio",
-      "openSourceCrm": "CRM open source",
+      "openSourceCrm": "CRM open source o source-available",
       "pillarData": "Dati",
       "pillarDataDescription": "Clienti, trattative e liste su misura",
       "pillarInbox": "Posta in arrivo",
