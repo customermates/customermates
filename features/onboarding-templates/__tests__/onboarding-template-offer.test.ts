@@ -27,8 +27,22 @@ function entry(slug: string, over: Partial<TemplateIndex[number]> = {}): Templat
     reviewedAt: "2026-11-12",
     counts: { lists: 3, fields: 20, views: 4, widgets: 6, rules: 2 },
     locales: {
-      en: { name: `${slug} en`, summary: `${slug} summary`, status: "draft", publicPage: "own", page: null },
-      de: { name: `${slug} de`, summary: `${slug} Zusammenfassung`, status: "draft", publicPage: "own", page: null },
+      en: {
+        name: `${slug} en`,
+        summary: `${slug} summary`,
+        status: "draft",
+        publicPage: "own",
+        publishWave: "wave1",
+        page: null,
+      },
+      de: {
+        name: `${slug} de`,
+        summary: `${slug} Zusammenfassung`,
+        status: "draft",
+        publicPage: "own",
+        publishWave: "wave1",
+        page: null,
+      },
     },
     ...over,
   };
