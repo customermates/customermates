@@ -22,6 +22,7 @@ function engine(
     match?: { ref: { typeId: string; recordId: string }; version: number } | null;
     identityOwner?: boolean;
     results?: unknown[];
+    queryResult?: unknown;
   } = {},
 ) {
   const getModel = vi
@@ -41,10 +42,12 @@ function engine(
   };
   const query = {
     invoke: vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        data: { records: options.match ? [options.match] : [], total: 0, page: 1, pageSize: 1, schemaRevision: 1 },
-      }),
+      Promise.resolve(
+        options.queryResult ?? {
+          ok: true,
+          data: { records: options.match ? [options.match] : [], total: 0, page: 1, pageSize: 1, schemaRevision: 1 },
+        },
+      ),
     ),
   };
   const results = [...(options.results ?? [completed(CREATED)])];
@@ -120,6 +123,29 @@ describe("IncomingWebhookEngine.plan", () => {
       ok: true,
       operation: "create",
       existing: null,
+    });
+  });
+
+  it("reports a failed lookup instead of planning a create that could duplicate the record", async () => {
+    const { engine: subject, writer } = engine({
+      queryResult: failure(CustomErrorCode.recordSchemaChanged),
+    });
+
+    const plan = await subject.plan({ typeId: TYPE_ID, mapping: upsertByName }, PAYLOAD);
+
+    expect(plan).toEqual({ ok: false, reason: "lookup", message: `lookup: ${CustomErrorCode.recordSchemaChanged}` });
+    expect(writer.invoke).not.toHaveBeenCalled();
+  });
+
+  it("names the first issue when a failed lookup carries no error code", async () => {
+    const { engine: subject } = engine({
+      queryResult: { ok: false, error: { issues: [{ code: "invalid_type", path: [] }] } },
+    });
+
+    expect(await subject.plan({ typeId: TYPE_ID, mapping: upsertByName }, PAYLOAD)).toEqual({
+      ok: false,
+      reason: "lookup",
+      message: "lookup: invalid_type",
     });
   });
 

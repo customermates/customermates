@@ -22,6 +22,12 @@ export type MappedPayload =
     }
   | { ok: false; values: MappedValue[] };
 
+const MATCHABLE_VALUE_TYPES: readonly string[] = ["text", "channels", "url", "number", "select"];
+
+export function isMatchableField(field: Pick<RecordField, "valueType" | "multiple">): boolean {
+  return MATCHABLE_VALUE_TYPES.includes(field.valueType) && !(field.valueType === "select" && field.multiple);
+}
+
 const PATH_PART = /[^.[\]]+|\[(\d+)\]/gu;
 
 export function readJsonPath(payload: unknown, path: string): unknown {

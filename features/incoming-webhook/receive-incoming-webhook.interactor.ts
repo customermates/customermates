@@ -149,6 +149,10 @@ export class ReceiveIncomingWebhookInteractor {
 
     const plan = await this.engine.plan({ typeId: webhook.typeId, mapping }, parsed.value);
     if (!plan.ok && plan.reason === "unavailable") return this.rejected(webhook, "failed", 404, "list", body);
+    if (!plan.ok && plan.reason === "lookup") {
+      await this.log(webhook, "failed", 422, plan.message, body, parsed.value);
+      return { status: 422, body: { ok: false, error: "lookup_failed" } };
+    }
     if (!plan.ok) {
       const bad = plan.values.filter((value) => value.error).map((value) => `${value.path}:${value.error}`);
       await this.log(webhook, "rejected_payload", 422, bad.join(", ").slice(0, 500), body, parsed.value);

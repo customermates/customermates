@@ -16,8 +16,13 @@ export type RecordQuerier = { invoke(query: RecordQuery): Validated<RecordQueryR
 
 export type AcceptedMapping = Extract<MappedPayload, { ok: true }>;
 
+type Existing = { ref: RecordRef; version: number };
+
+type ExistingLookup = { ok: true; existing: Existing | null } | { ok: false; message: string };
+
 export type WebhookPlan =
   | { ok: false; reason: "unavailable" }
+  | { ok: false; reason: "lookup"; message: string }
   | { ok: false; reason: "invalid"; values: MappedPayload["values"] }
   | {
       ok: true;
@@ -39,6 +44,10 @@ function failureCode(issues: ReadonlyArray<{ code: string; params?: Record<strin
   return typeof custom?.params?.error === "string" ? custom.params.error : null;
 }
 
+function lookupFailureMessage(issues: ReadonlyArray<{ code: string; params?: Record<string, unknown> }>): string {
+  return `lookup: ${failureCode(issues) ?? issues[0]?.code ?? "failed"}`;
+}
+
 export class IncomingWebhookEngine {
   constructor(
     private records: RecordRepo,
@@ -54,20 +63,21 @@ export class IncomingWebhookEngine {
     const mapped = mapIncomingPayload(webhook.mapping, payload, webhook.typeId, model.fields);
     if (!mapped.ok) return { ok: false, reason: "invalid", values: mapped.values };
 
-    const existing = mapped.match ? await this.findExisting(webhook.typeId, mapped.match) : null;
+    const lookup: ExistingLookup = mapped.match
+      ? await this.findExisting(webhook.typeId, mapped.match)
+      : { ok: true, existing: null };
+    if (!lookup.ok) return { ok: false, reason: "lookup", message: lookup.message };
+    const { existing } = lookup;
     return { ok: true, typeId: webhook.typeId, operation: existing ? "update" : "create", existing, mapped, model };
   }
 
-  private async findExisting(
-    typeId: string,
-    match: NonNullable<AcceptedMapping["match"]>,
-  ): Promise<{ ref: RecordRef; version: number } | null> {
+  private async findExisting(typeId: string, match: NonNullable<AcceptedMapping["match"]>): Promise<ExistingLookup> {
     if (match.identity) {
       const ref = await findPersonByEmail(this.records, typeId, match.identity.value);
       const row = ref ? await this.records.getRecordCompanyWide(ref) : null;
-      return ref && row ? { ref, version: row.version } : null;
+      return { ok: true, existing: ref && row ? { ref, version: row.version } : null };
     }
-    if (!match.scalar) return null;
+    if (!match.scalar) return { ok: true, existing: null };
     const result = await this.query.invoke({
       typeId,
       fields: [],
@@ -77,8 +87,9 @@ export class IncomingWebhookEngine {
       page: 1,
       pageSize: 1,
     });
-    const record = result.ok ? result.data.records[0] : undefined;
-    return record ? { ref: record.ref, version: record.version } : null;
+    if (!result.ok) return { ok: false, message: lookupFailureMessage(result.error.issues) };
+    const record = result.data.records[0];
+    return { ok: true, existing: record ? { ref: record.ref, version: record.version } : null };
   }
 
   async apply(plan: Extract<WebhookPlan, { ok: true }>, idempotencyKey: string): Promise<WebhookApplied> {

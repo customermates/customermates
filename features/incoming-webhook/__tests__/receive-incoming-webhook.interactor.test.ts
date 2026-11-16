@@ -51,6 +51,7 @@ type Setup = {
   creatorActive?: boolean;
   burst?: number;
   queryMatch?: { ref: { typeId: string; recordId: string }; version: number } | null;
+  queryResult?: unknown;
   identityOwner?: { ref: { typeId: string; recordId: string } } | null;
 };
 
@@ -92,16 +93,18 @@ function setup(options: Setup = {}) {
   };
   const query = {
     invoke: vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        data: {
-          records: options.queryMatch ? [options.queryMatch] : [],
-          total: 0,
-          page: 1,
-          pageSize: 1,
-          schemaRevision: 3,
+      Promise.resolve(
+        options.queryResult ?? {
+          ok: true,
+          data: {
+            records: options.queryMatch ? [options.queryMatch] : [],
+            total: 0,
+            page: 1,
+            pageSize: 1,
+            schemaRevision: 3,
+          },
         },
-      }),
+      ),
     ),
   };
   const writes: Array<{ idempotencyKey: string; expectedRevision: number; mutation: Record<string, unknown> }> = [];
@@ -395,6 +398,27 @@ describe("ReceiveIncomingWebhookInteractor", () => {
         expect.objectContaining({
           typeId: TYPE_ID,
           filters: [{ fieldId: NAME_FIELD, operator: "eq", value: { kind: "text", value: "Ada Lovelace" } }],
+        }),
+      );
+    });
+
+    it("fails with 422 and logs the lookup error instead of creating a duplicate when the lookup fails", async () => {
+      const { interactor, writer, repo, events } = setup({
+        webhook: { mapping: createMapping({ mode: "upsert", matchFieldId: NAME_FIELD }) },
+        queryResult: failure(CustomErrorCode.recordSchemaChanged),
+      });
+
+      const result = await interactor.invoke(request(PAYLOAD));
+
+      expect(result).toEqual({ status: 422, body: { ok: false, error: "lookup_failed" } });
+      expect(writer.invoke).not.toHaveBeenCalled();
+      expect(events.publish).not.toHaveBeenCalled();
+      expect(repo.recordDelivery).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({
+          outcome: "failed",
+          statusCode: 422,
+          message: `lookup: ${CustomErrorCode.recordSchemaChanged}`,
+          recordId: null,
         }),
       );
     });

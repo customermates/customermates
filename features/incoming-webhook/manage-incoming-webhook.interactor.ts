@@ -22,6 +22,7 @@ import { formFieldOptions } from "@/features/public-form/public-form-config-vali
 import { Action, Resource } from "@/generated/prisma";
 
 import { parseIncomingMapping, toIncomingDeliveryDto, toIncomingWebhookDto } from "./incoming-webhook-dto";
+import { isMatchableField } from "./incoming-webhook-mapping";
 import { IncomingWebhookResultSchema, ManageIncomingWebhookSchema } from "./incoming-webhook.schema";
 
 type Outcome = Validated<IncomingWebhookResult>;
@@ -113,7 +114,10 @@ export class ManageIncomingWebhookInteractor extends AuthenticatedInteractor<
     const model = await this.records.getModel();
     const eligible = new Set(formFieldOptions(model, typeId).map((field) => field.fieldId));
     const bad = mapping.fields.findIndex((field) => !eligible.has(field.fieldId));
-    return bad >= 0 ? ["mapping", "fields", String(bad), "fieldId"] : null;
+    if (bad >= 0) return ["mapping", "fields", String(bad), "fieldId"];
+    if (mapping.mode !== "upsert") return null;
+    const match = model.fields.find((field) => field.id === mapping.matchFieldId && field.typeId === typeId);
+    return match && isMatchableField(match) ? null : ["mapping", "matchFieldId"];
   }
 
   private async create(data: Extract<ManageIncomingWebhookData, { action: "create" }>): Outcome {

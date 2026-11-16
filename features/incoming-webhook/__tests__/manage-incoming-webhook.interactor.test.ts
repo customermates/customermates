@@ -23,11 +23,16 @@ import { Action, Resource } from "@/generated/prisma";
 import { IncomingWebhookEngine } from "../incoming-webhook-engine";
 import { ManageIncomingWebhookInteractor } from "../manage-incoming-webhook.interactor";
 import type { IncomingWebhookResult } from "../incoming-webhook.schema";
+import { AGREE_FIELD } from "@/features/public-form/__tests__/public-form-fixtures";
 import {
+  CONTACT_FIELD,
   HOOK_ID,
   NAME_FIELD,
+  NOTES_FIELD,
   PAYLOAD,
   SECRET,
+  SIZE_FIELD,
+  SOURCE_FIELD,
   TYPE_ID,
   USER_ID,
   createMapping,
@@ -291,6 +296,68 @@ describe("ManageIncomingWebhookInteractor", () => {
       const result = await interactor(repo(null)).invoke(input);
 
       expect(errorCode(result)).toBe(CustomErrorCode.permissionDenied);
+    });
+
+    describe("upsert match field", () => {
+      const upsertBy = (matchFieldId: string) => ({
+        ...input,
+        mapping: createMapping({
+          mode: "upsert",
+          matchFieldId,
+          fields: [{ path: "data.match", fieldId: matchFieldId }],
+        }),
+      });
+
+      it.each([
+        ["text", NAME_FIELD],
+        ["number", SIZE_FIELD],
+        ["select", SOURCE_FIELD],
+        ["email and phone", CONTACT_FIELD],
+      ])("accepts a %s field", async (_type, fieldId) => {
+        const hookRepo = repo(null);
+
+        const result = await interactor(hookRepo).invoke(upsertBy(fieldId));
+
+        expect(result.ok).toBe(true);
+        expect(hookRepo.createWebhook).toHaveBeenCalledTimes(1);
+      });
+
+      it.each([
+        ["rich text", NOTES_FIELD],
+        ["yes or no", AGREE_FIELD],
+      ])("refuses a %s field with the invalid mapping error", async (_type, fieldId) => {
+        const hookRepo = repo(null);
+
+        const result = await interactor(hookRepo).invoke(upsertBy(fieldId));
+
+        expect(errorCode(result)).toBe(CustomErrorCode.incomingWebhookMappingInvalid);
+        expect(result.ok === false && result.error.issues[0].path).toEqual(["mapping", "matchFieldId"]);
+        expect(hookRepo.createWebhook).not.toHaveBeenCalled();
+      });
+
+      it("refuses a select field that holds several options", async () => {
+        const base = createModel();
+        const model = createModel({
+          fields: base.fields.map((entry) => (entry.id === SOURCE_FIELD ? { ...entry, multiple: true } : entry)),
+        });
+
+        const result = await interactor(repo(null), { model }).invoke(upsertBy(SOURCE_FIELD));
+
+        expect(errorCode(result)).toBe(CustomErrorCode.incomingWebhookMappingInvalid);
+      });
+
+      it("applies the same rule when a mapping is updated", async () => {
+        const hookRepo = repo();
+
+        const result = await interactor(hookRepo).invoke({
+          action: "update",
+          id: HOOK_ID,
+          mapping: upsertBy(NOTES_FIELD).mapping,
+        });
+
+        expect(errorCode(result)).toBe(CustomErrorCode.incomingWebhookMappingInvalid);
+        expect(hookRepo.updateWebhook).not.toHaveBeenCalled();
+      });
     });
   });
 
