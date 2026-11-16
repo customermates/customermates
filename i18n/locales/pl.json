@@ -3443,6 +3443,7 @@
     "public": {
       "agenciesAndVas": "Agencje i wirtualni asystenci",
       "agenticCrm": "CRM z agentami AI",
+      "aiAgents": "Agenci AI",
       "allFeatures": "Wszystkie funkcje",
       "allIntegrations": "Wszystkie integracje",
       "allTeams": "Wszystkie zespoły",
@@ -3450,6 +3451,8 @@
       "blog": "Blog",
       "byJob": "Według zadania",
       "byTeam": "Według zespołu",
+      "claudeCrm": "CRM dla Claude",
+      "claudeLinkedIn": "Claude z LinkedIn",
       "clientManagement": "Zarządzanie klientami",
       "cloudVsSelfHosted": "Chmura a self-hosting",
       "compare": "Porównania",

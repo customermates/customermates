@@ -187,7 +187,6 @@ describe("resolvePublicNavGroups", () => {
       "/features/contact-management",
       "/features/unified-inbox",
       "/features/integrations",
-      "/docs/mcp",
       "/features/open-source-crm",
       "/features/self-hosted",
       "/features/all",

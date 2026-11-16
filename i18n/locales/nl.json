@@ -3443,6 +3443,7 @@
     "public": {
       "agenciesAndVas": "Bureaus en VA's",
       "agenticCrm": "Agentic CRM",
+      "aiAgents": "AI-agents",
       "allFeatures": "Alle functies",
       "allIntegrations": "Alle integraties",
       "allTeams": "Alle teams",
@@ -3450,6 +3451,8 @@
       "blog": "Blog",
       "byJob": "Per taak",
       "byTeam": "Per team",
+      "claudeCrm": "CRM voor Claude",
+      "claudeLinkedIn": "Claude met LinkedIn",
       "clientManagement": "Klantbeheer",
       "cloudVsSelfHosted": "Cloud of zelf hosten",
       "compare": "Vergelijkingen",
