@@ -2998,7 +2998,7 @@
       "featureN8n": "Schnittstellen für eine separate n8n-Instanz",
       "featureRecords": "CRM-Kerndatensätze",
       "featureUsers": "Workspace-Nutzer",
-      "period": "Community Edition",
+      "period": "als Community Edition",
       "price": "Kostenlos",
       "tag": "Betreiben Sie die Community Edition (Quellcode einsehbar) und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang, für die interne Nutzung kostenlos, ohne Posteingang und gehostete KI. Externe Dienste bleiben separat.",
       "title": "Self-Hosted"
