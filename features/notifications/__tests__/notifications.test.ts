@@ -33,6 +33,7 @@ import { GetNotificationsInteractor } from "../get-notifications.interactor";
 import { MarkNotificationsReadInteractor } from "../mark-notifications-read.interactor";
 import { DEFAULT_NOTIFICATION_EMAIL_MODES, NotifyMembersSchema } from "../notification.schema";
 import { NotificationService, effectiveEmailMode } from "../notification.service";
+import { PruneNotificationsInteractor } from "../prune-notifications.interactor";
 import { SendNotificationDigestInteractor } from "../send-notification-digest.interactor";
 import { SetNotificationPreferencesInteractor } from "../set-notification-preferences.interactor";
 import { FakeNotificationRepo } from "./fake-notification-repo";
@@ -226,11 +227,11 @@ describe("the daily digest", () => {
     repo.preferences.set(COLLEAGUE, new Map([["dueToday", "off"]]));
     const mail = mailer();
     const digest = new SendNotificationDigestInteractor(repo, mail);
-    await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 1, notificationsPruned: 0 });
+    await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 1 });
     expect(mail.sendDigest).toHaveBeenCalledTimes(1);
     expect(mail.sendDigest.mock.calls[0]?.[1]).toHaveLength(2);
     expect(repo.rows.filter((row) => row.emailedAt).length).toBe(2);
-    await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 0, notificationsPruned: 0 });
+    await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 0 });
   });
 
   it("leaves notifications unsent when the mail cannot be delivered, and skips read ones", async () => {
@@ -249,11 +250,11 @@ describe("the daily digest", () => {
     });
   });
 
-  it("prunes notifications older than ninety days", async () => {
+  it("prunes notifications older than ninety days, apart from the digest", async () => {
     await seed("dueToday", ME, 91 * 24);
     await seed("ruleAlert", ME, 1);
-    const digest = new SendNotificationDigestInteractor(repo, mailer(false));
-    await expect(digest.invoke(NOW)).resolves.toMatchObject({ notificationsPruned: 1 });
+    await expect(new PruneNotificationsInteractor(repo).invoke({ now: NOW })).resolves.toEqual({ pruned: 1 });
     expect(repo.rows).toHaveLength(1);
+    await expect(new PruneNotificationsInteractor(repo).invoke({ now: NOW })).resolves.toEqual({ pruned: 0 });
   });
 });

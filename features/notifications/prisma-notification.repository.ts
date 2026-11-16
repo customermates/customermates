@@ -159,8 +159,14 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
-  async pruneUnscoped(before: Date): Promise<number> {
-    const result = await this.prisma.notification.deleteMany({ where: { createdAt: { lt: before } } });
+  async pruneUnscoped(before: Date, limit: number): Promise<number> {
+    const expired = await this.prisma.notification.findMany({
+      where: { createdAt: { lt: before } },
+      select: { id: true },
+      orderBy: { createdAt: "asc" },
+      take: limit,
+    });
+    const result = await this.prisma.notification.deleteMany({ where: { id: { in: expired.map((row) => row.id) } } });
     return result.count;
   }
 }

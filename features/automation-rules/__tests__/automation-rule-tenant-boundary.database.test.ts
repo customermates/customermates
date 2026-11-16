@@ -191,6 +191,35 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     ).toEqual({ lastRunStatus: "applied" });
   });
 
+  it("prunes finished runs of every workspace in batches and keeps unfinished ones", async () => {
+    const old = new Date("2026-01-01T00:00:00.000Z");
+    const insertRun = async (company: string, rule: string, status: string, key: string) => {
+      const id = randomUUID();
+      await client.query(
+        `INSERT INTO "AutomationRuleRun"
+           ("id", "companyId", "ruleId", "occurrenceKey", "status", "triggerKind", "scheduledFor", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5::"AutomationRunStatus", 'messageReceived'::"AutomationTriggerKind", $6, $6, CURRENT_TIMESTAMP)`,
+        [id, company, rule, key, status, old],
+      );
+      return id;
+    };
+    const finished = [
+      await insertRun(companyId, ruleId, "applied", "prune:1"),
+      await insertRun(companyId, ruleId, "failed", "prune:2"),
+      await insertRun(otherCompanyId, otherRuleId, "skipped", "prune:3"),
+    ];
+    const queued = await insertRun(companyId, ruleId, "queued", "prune:4");
+    const cutoff = new Date("2026-06-01T00:00:00.000Z");
+
+    expect(await runWithoutTenant(() => repo().deleteRunsBeforeUnscoped(cutoff, 2))).toBe(2);
+    expect(await runWithoutTenant(() => repo().deleteRunsBeforeUnscoped(cutoff, 2))).toBe(1);
+    expect(await runWithoutTenant(() => repo().deleteRunsBeforeUnscoped(cutoff, 2))).toBe(0);
+    const left = await client.query('SELECT "id" FROM "AutomationRuleRun" WHERE "id" = ANY($1)', [
+      [...finished, queued],
+    ]);
+    expect(left.rows).toEqual([{ id: queued }]);
+  });
+
   it("finds enabled rules of one workspace by id or trigger", async () => {
     const found = await runWithoutTenant(() =>
       repo().findEnabledRulesUnscoped({ companyId, ids: [ruleId, otherRuleId], triggerKind: "messageReceived" }),

@@ -52,5 +52,5 @@ export abstract class NotificationRepo {
   abstract markEmailedUnscoped(ids: string[], now: Date): Promise<void>;
   abstract findDigestUsersUnscoped(since: Date, limit: number): Promise<{ companyId: string; userId: string }[]>;
   abstract findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]>;
-  abstract pruneUnscoped(before: Date): Promise<number>;
+  abstract pruneUnscoped(before: Date, limit: number): Promise<number>;
 }

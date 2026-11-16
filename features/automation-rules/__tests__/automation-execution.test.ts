@@ -34,6 +34,7 @@ import { AutomationEffectRunner } from "../automation-effect-runner";
 import { AutomationRuleAdmission } from "../automation-rule-admission";
 import { currentCausation } from "@/core/decorators/causation-context";
 import { DiscardAutomationRuleRunInteractor } from "../discard-automation-rule-run.interactor";
+import { PruneAutomationRuleRunsInteractor } from "../prune-automation-rule-runs.interactor";
 import { RunAutomationRuleInteractor } from "../run-automation-rule.interactor";
 import { SweepAutomationRulesInteractor } from "../sweep-automation-rules.interactor";
 import { FakeAutomationRuleRepo } from "./fake-automation-rule-repo";
@@ -812,5 +813,29 @@ describe("sweeping date-reached rules", () => {
     );
     await discardSweep.invoke(NOW);
     expect(orphan.runs.get(orphanRun)?.status).toBe("skipped");
+  });
+});
+
+describe("pruning rule runs", () => {
+  it("deletes finished runs older than ninety days and keeps recent and unfinished ones", async () => {
+    const repo = new FakeAutomationRuleRepo();
+    const first = (await seedRun(repo)) as string;
+    const template = repo.runs.get(first);
+    if (!template) throw new Error("The run was not admitted");
+    const day = 24 * 60 * 60 * 1000;
+    const rows: Array<[string, "queued" | "applied" | "skipped" | "failed", number]> = [
+      ["old-applied", "applied", 91],
+      ["old-failed", "failed", 120],
+      ["old-skipped", "skipped", 100],
+      ["old-queued", "queued", 200],
+      ["recent-applied", "applied", 89],
+    ];
+    repo.runs.clear();
+    for (const [id, status, age] of rows)
+      repo.runs.set(id, { ...template, id, status, createdAt: new Date(NOW.getTime() - age * day) });
+
+    await expect(new PruneAutomationRuleRunsInteractor(repo).invoke({ now: NOW })).resolves.toEqual({ pruned: 3 });
+    expect([...repo.runs.keys()].sort()).toEqual(["old-queued", "recent-applied"]);
+    await expect(new PruneAutomationRuleRunsInteractor(repo).invoke({ now: NOW })).resolves.toEqual({ pruned: 0 });
   });
 });

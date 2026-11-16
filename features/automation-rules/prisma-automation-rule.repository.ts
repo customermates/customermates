@@ -347,6 +347,23 @@ export class PrismaAutomationRuleRepo
   }
 
   @BypassTenantGuard
+  async deleteRunsBeforeUnscoped(before: Date, limit: number): Promise<number> {
+    const expired = await this.prisma.automationRuleRun.findMany({
+      where: {
+        createdAt: { lt: before },
+        status: { in: [AutomationRunStatus.applied, AutomationRunStatus.skipped, AutomationRunStatus.failed] },
+      },
+      select: { id: true },
+      orderBy: { createdAt: "asc" },
+      take: limit,
+    });
+    const { count } = await this.prisma.automationRuleRun.deleteMany({
+      where: { id: { in: expired.map((run) => run.id) } },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
   async disableRuleUnscoped(companyId: string, ruleId: string, reason: string): Promise<void> {
     await this.prisma.automationRule.updateMany({
       where: { id: ruleId, companyId },

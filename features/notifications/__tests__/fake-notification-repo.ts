@@ -114,10 +114,9 @@ export class FakeNotificationRepo extends NotificationRepo {
     );
   }
 
-  pruneUnscoped(before: Date) {
-    const kept = this.rows.filter((row) => row.createdAt >= before);
-    const removed = this.rows.length - kept.length;
-    this.rows = kept;
-    return Promise.resolve(removed);
+  pruneUnscoped(before: Date, limit: number) {
+    const expired = this.rows.filter((row) => row.createdAt < before).slice(0, limit);
+    this.rows = this.rows.filter((row) => !expired.includes(row));
+    return Promise.resolve(expired.length);
   }
 }

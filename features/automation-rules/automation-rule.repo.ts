@@ -135,6 +135,7 @@ export abstract class AutomationRuleRepo {
     limit: number;
   }): Promise<AutomationDateCandidate[]>;
   abstract findOccurrencesUnscoped(ruleId: string, keys: string[]): Promise<Set<string>>;
+  abstract deleteRunsBeforeUnscoped(before: Date, limit: number): Promise<number>;
   abstract disableRuleUnscoped(companyId: string, ruleId: string, reason: string): Promise<void>;
   abstract disableOwnerRulesUnscoped(companyId: string, ownerUserId: string, reason: string): Promise<number>;
   abstract syncRulesToPlanLimitCompanyWide(limit: number | null): Promise<{ paused: number; resumed: number }>;

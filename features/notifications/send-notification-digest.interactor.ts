@@ -4,7 +4,7 @@ import type { NotificationRepo } from "./notification.repo";
 import * as ErrorReporter from "@/core/observability/server";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
-import { NOTIFICATION_DIGEST_WINDOW_HOURS, NOTIFICATION_RETENTION_DAYS } from "./notification.schema";
+import { NOTIFICATION_DIGEST_WINDOW_HOURS } from "./notification.schema";
 import { effectiveEmailMode } from "./notification.service";
 
 const USER_BATCH_LIMIT = 500;
@@ -17,7 +17,7 @@ export class SendNotificationDigestInteractor {
     private readonly mailer: NotificationMailer,
   ) {}
 
-  async invoke(now = new Date()): Promise<{ notificationDigests: number; notificationsPruned: number }> {
+  async invoke(now = new Date()): Promise<{ notificationDigests: number }> {
     const since = new Date(now.getTime() - 2 * NOTIFICATION_DIGEST_WINDOW_HOURS * HOUR_MS);
     let digests = 0;
     for (const { companyId, userId } of await this.repo.findDigestUsersUnscoped(since, USER_BATCH_LIMIT)) {
@@ -40,7 +40,6 @@ export class SendNotificationDigestInteractor {
       );
       digests += 1;
     }
-    const pruned = await this.repo.pruneUnscoped(new Date(now.getTime() - NOTIFICATION_RETENTION_DAYS * 24 * HOUR_MS));
-    return { notificationDigests: digests, notificationsPruned: pruned };
+    return { notificationDigests: digests };
   }
 }

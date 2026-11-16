@@ -211,6 +211,14 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve(this.occurrences(ruleId, keys));
   }
 
+  deleteRunsBeforeUnscoped(before: Date, limit: number) {
+    const expired = [...this.runs.values()]
+      .filter((run) => run.createdAt < before && ["applied", "skipped", "failed"].includes(run.status))
+      .slice(0, limit);
+    for (const run of expired) this.runs.delete(run.id);
+    return Promise.resolve(expired.length);
+  }
+
   disableRuleUnscoped(companyId: string, ruleId: string, reason: string) {
     const rule = this.rules.get(ruleId);
     if (rule?.companyId === companyId) this.rules.set(ruleId, { ...rule, enabled: false, disabledReason: reason });

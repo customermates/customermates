@@ -2848,6 +2848,7 @@ const getNotificationRepo = () => new PrismaNotificationRepo();
 const getNotificationMailer = () => new EmailNotificationMailer(getEmailService());
 export const getNotificationService = () => new NotificationService(getNotificationRepo(), getNotificationMailer());
 export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
+import { PruneAutomationRuleRunsInteractor } from "@/features/automation-rules/prune-automation-rule-runs.interactor";
 export const getMarkNotificationsReadInteractor = () => new MarkNotificationsReadInteractor(getNotificationRepo());
 export const getGetNotificationPreferencesInteractor = () =>
   new GetNotificationPreferencesInteractor(getNotificationRepo());
@@ -2856,6 +2857,7 @@ export const getSetNotificationPreferencesInteractor = () =>
 export const getSendNotificationDigestInteractor = () =>
   new SendNotificationDigestInteractor(getNotificationRepo(), getNotificationMailer());
 
+import { PruneNotificationsInteractor } from "@/features/notifications/prune-notifications.interactor";
 const getAutomationRuleRepo = (companyId?: string) =>
   new PrismaAutomationRuleRepo(getRecordEventSubscriptionRepo(companyId), companyId);
 const getRecordAutomationPort = () =>
@@ -2870,6 +2872,7 @@ const getAutomationEffectRunner = () =>
     getAutomationRuleRepo(),
   );
 export const getAutomationRuleAdmission = () =>
+export const getPruneNotificationsInteractor = () => new PruneNotificationsInteractor(getNotificationRepo());
   new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getGetAutomationRulesInteractor = () => new GetAutomationRulesInteractor(getAutomationRuleRepo());
 export const getGetAutomationRuleInteractor = () => new GetAutomationRuleInteractor(getAutomationRuleRepo());
@@ -2906,6 +2909,8 @@ import { SetPublicLinksAllowedInteractor } from "@/features/public-link/set-publ
 
 const getPublicLinkRepo = () => new PrismaPublicLinkRepo();
 
+export const getPruneAutomationRuleRunsInteractor = () =>
+  new PruneAutomationRuleRunsInteractor(getAutomationRuleRepo());
 export const getManagePublicLinkInteractor = () =>
   new ManagePublicLinkInteractor(getPublicLinkRepo(), getDataViewRepo(), getRecordViewPolicy(), getEventService(), {
     baseUrl: env.BASE_URL,

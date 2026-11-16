@@ -96,16 +96,14 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
         return { status: "skipped", reason: "conditionsNotMet" };
     }
     const parentChain = RunPayloadSchema.parse(run.payload ?? {}).chain;
-    const { outcomes, failure } = await runInCausation(
-      { ruleChain: extendAutomationChain(parentChain, rule.id) },
-      () =>
-        this.runner.run(definition.effects, {
-          companyId: this.user.companyId,
-          runId: run.id,
-          rule: { id: rule.id, name: rule.name, ownerUserId: this.user.id, trigger: definition.trigger },
-          recordRef,
-          now,
-        }),
+    const { outcomes, failure } = await runInCausation({ ruleChain: extendAutomationChain(parentChain, rule.id) }, () =>
+      this.runner.run(definition.effects, {
+        companyId: this.user.companyId,
+        runId: run.id,
+        rule: { id: rule.id, name: rule.name, ownerUserId: this.user.id, trigger: definition.trigger },
+        recordRef,
+        now,
+      }),
     );
     return failure === null
       ? { status: "applied", effects: outcomes }
