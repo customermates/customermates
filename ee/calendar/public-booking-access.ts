@@ -1,39 +1,51 @@
 import type { PermissionService } from "@/core/base/permission.service";
+import type { PublicBlocked } from "@/core/network/public-access";
+import type { PublicTenant } from "@/core/network/public-tenant";
 import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
-import type { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
 
+import { admitAll } from "@/core/network/public-access";
+import { env } from "@/env";
 import { Action, Resource } from "@/generated/prisma";
 
 import type { BookingLinkLookup, BookingLinkRepo } from "./booking-link.repo";
-import type { PublicBookingBlocked } from "./booking.schema";
 
 export const PUBLIC_BOOKING_UNAVAILABLE = { status: "unavailable" } as const;
 
 type Limiters = { perLink: TokenBucketRateLimiter; perVisitor: TokenBucketRateLimiter };
 
+type Settings = { authSecret: string | undefined; now?: () => Date };
+
 export class PublicBookingAccess {
   constructor(
     private lookup: Pick<BookingLinkRepo, "findByTokenUnscoped">,
-    private tenant: PublicLinkTenant,
+    private tenant: PublicTenant,
     private limiters: Limiters,
     private entitlements: () => Pick<EntitlementService, "require">,
     private permissions: () => Pick<PermissionService, "has" | "companyId">,
+    private settings: Settings,
   ) {}
+
+  now(): Date {
+    return this.settings.now?.() ?? new Date();
+  }
+
+  get authSecret(): string | undefined {
+    return this.settings.authSecret;
+  }
 
   async open<T>(
     token: string,
     visitor: string | null | undefined,
     read: (link: BookingLinkLookup) => Promise<T>,
-  ): Promise<T | PublicBookingBlocked> {
-    for (const [limiter, key] of [
+  ): Promise<T | PublicBlocked> {
+    if (env.APP_MODE !== "cloud") return PUBLIC_BOOKING_UNAVAILABLE;
+
+    const limited = admitAll([
       [this.limiters.perVisitor, visitor ? `visitor:${visitor}` : null],
       [this.limiters.perLink, `link:${token}`],
-    ] as const) {
-      if (!key) continue;
-      const admission = limiter.admit(key);
-      if (!admission.allowed) return { status: "rateLimited", retryAfterSeconds: admission.retryAfterSeconds };
-    }
+    ]);
+    if (limited) return limited;
 
     const link = await this.lookup.findByTokenUnscoped(token);
     if (!link || !link.enabled || link.companyDeleting || !link.accountUsable) return PUBLIC_BOOKING_UNAVAILABLE;

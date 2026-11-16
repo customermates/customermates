@@ -20,10 +20,17 @@ export type BookingConfirmation = {
 };
 
 export abstract class BookingReservationRepo {
-  abstract reserve(input: BookingReservationInput): Promise<{ id: string } | null>;
+  abstract reserve(input: BookingReservationInput, isOpen: () => Promise<boolean>): Promise<{ id: string } | null>;
   abstract confirm(id: string, confirmation: BookingConfirmation): Promise<void>;
   abstract release(id: string): Promise<void>;
   abstract cancelForCalendarEvent(calendarEventId: string): Promise<void>;
+  abstract cancelForCalendarEventUnscoped(args: {
+    companyId: string;
+    calendarEventId: string;
+    stillAt?: { startsAt: Date; endsAt: Date };
+  }): Promise<number>;
   abstract busyForOwner(from: Date, to: Date): Promise<BusyInterval[]>;
   abstract countOpenForEmail(bookingLinkId: string, email: string, now: Date): Promise<number>;
+  abstract countForVisitorSince(bookingLinkId: string, ipHash: string, since: Date): Promise<number>;
+  abstract deleteExpiredUnscoped(cutoffs: { endedBefore: Date; abandonedBefore: Date }, limit: number): Promise<number>;
 }

@@ -112,6 +112,8 @@ function reservation(bookingLinkId: string, startsAt = START, email = "ada@examp
   };
 }
 
+const open = () => Promise.resolve(true);
+
 describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
   it("creates, lists, updates and deletes a link of the caller only", async () => {
     const w = await workspace();
@@ -144,10 +146,10 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const repo = new PrismaBookingRepo();
     const link = await w.as(w.admin, () => repo.create("token-b-0123456789abcdef", linkData(calendar.id)));
 
-    const first = await w.as(w.admin, () => repo.reserve(reservation(link.id)));
-    const second = await w.as(w.admin, () => repo.reserve(reservation(link.id, START, "bob@example.test")));
+    const first = await w.as(w.admin, () => repo.reserve(reservation(link.id), open));
+    const second = await w.as(w.admin, () => repo.reserve(reservation(link.id, START, "bob@example.test"), open));
     const otherStart = await w.as(w.admin, () =>
-      repo.reserve(reservation(link.id, new Date(START.getTime() + 3_600_000))),
+      repo.reserve(reservation(link.id, new Date(START.getTime() + 3_600_000)), open),
     );
 
     expect(first).toEqual({ id: expect.any(String) });
@@ -155,7 +157,7 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     expect(otherStart).toEqual({ id: expect.any(String) });
 
     await w.as(w.admin, () => repo.release(first?.id as string));
-    const again = await w.as(w.admin, () => repo.reserve(reservation(link.id, START, "bob@example.test")));
+    const again = await w.as(w.admin, () => repo.reserve(reservation(link.id, START, "bob@example.test"), open));
     expect(again).toEqual({ id: expect.any(String) });
 
     const event = await runWithoutTenant(() =>
@@ -180,10 +182,12 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
         recordId: null,
       }),
     );
-    expect(await w.as(w.admin, () => repo.reserve(reservation(link.id)))).toBeNull();
-
-    await w.as(w.admin, () => repo.cancelForCalendarEvent(event.id));
-    expect(await w.as(w.admin, () => repo.reserve(reservation(link.id)))).toEqual({ id: expect.any(String) });
+    expect(
+      await runWithoutTenant(() => prisma.booking.findUnique({ where: { id: again?.id as string } })),
+    ).toMatchObject({ status: "confirmed", slotKey: null, calendarEventId: event.id });
+    expect(await w.as(w.admin, () => repo.reserve(reservation(link.id), () => Promise.resolve(false)))).toBeNull();
+    expect(await w.as(w.admin, () => repo.cancelForCalendarEvent(event.id))).toBeUndefined();
+    expect(await w.as(w.admin, () => repo.reserve(reservation(link.id), open))).toEqual({ id: expect.any(String) });
   });
 
   it("reports busy time and open bookings per email, and ignores stale unconfirmed reservations", async () => {
@@ -193,8 +197,8 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const link = await w.as(w.admin, () => repo.create("token-c-0123456789abcdef", linkData(calendar.id)));
     const future = new Date(Date.now() + 7 * 86_400_000);
     const stale = new Date(future.getTime() + 86_400_000);
-    await w.as(w.admin, () => repo.reserve(reservation(link.id, future)));
-    const old = await w.as(w.admin, () => repo.reserve(reservation(link.id, stale, "old@example.test")));
+    await w.as(w.admin, () => repo.reserve(reservation(link.id, future), open));
+    const old = await w.as(w.admin, () => repo.reserve(reservation(link.id, stale, "old@example.test"), open));
     await runWithoutTenant(() =>
       prisma.booking.update({
         where: { id: old?.id as string },
@@ -203,12 +207,12 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     );
 
     const busy = await w.as(w.admin, () => repo.busyForOwner(new Date(), new Date(stale.getTime() + 86_400_000)));
-    const open = await w.as(w.admin, () => repo.countOpenForEmail(link.id, "ada@example.test", new Date()));
-    const replaced = await w.as(w.admin, () => repo.reserve(reservation(link.id, stale, "new@example.test")));
+    const openCount = await w.as(w.admin, () => repo.countOpenForEmail(link.id, "ada@example.test", new Date()));
+    const replaced = await w.as(w.admin, () => repo.reserve(reservation(link.id, stale, "new@example.test"), open));
 
     expect(busy).toHaveLength(1);
     expect(busy[0].startsAt).toEqual(future);
-    expect(open).toBe(1);
+    expect(openCount).toBe(1);
     expect(replaced).toEqual({ id: expect.any(String) });
   });
 });
@@ -327,5 +331,256 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
     expect(await index(organization)).toEqual([linked.id]);
     expect(await index(other)).toEqual([]);
     expect(unlinked.id).not.toBe(linked.id);
+  });
+});
+
+type Interval = { startsAt: Date; endsAt: Date };
+
+function freeOfOwnerBookings(
+  repo: { busyForOwner(from: Date, to: Date): Promise<Interval[]> },
+  { startsAt, endsAt }: Interval,
+) {
+  return async () => {
+    const busy = await repo.busyForOwner(
+      new Date(startsAt.getTime() - 86_400_000),
+      new Date(endsAt.getTime() + 86_400_000),
+    );
+    return busy.every((interval) => interval.endsAt <= startsAt || interval.startsAt >= endsAt);
+  };
+}
+
+describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () => {
+  function createLink(w: Workspace, calendarId: string, token: string) {
+    const data: Record<string, unknown> = { ...linkData(calendarId) };
+    delete data.personRelationshipId;
+    return runWithoutTenant(() =>
+      prisma.bookingLink.create({
+        data: { ...data, companyId: w.companyId, userId: w.admin.id, token } as never,
+        select: { id: true },
+      }),
+    );
+  }
+
+  async function bookedEvent(w: Workspace, repo: InstanceType<typeof PrismaBookingRepo>, linkId: string) {
+    const { account, calendar } = await connectCalendar(w);
+    const event = await runWithoutTenant(() =>
+      prisma.calendarEvent.create({
+        data: {
+          companyId: w.companyId,
+          connectedAccountId: account.id,
+          calendarId: calendar.id,
+          unipileEventId: randomUUID(),
+          title: "Intro call",
+          startsAt: START,
+          endsAt: END,
+        },
+      }),
+    );
+    const reserved = await w.as(w.admin, () => repo.reserve(reservation(linkId), open));
+    await w.as(w.admin, () =>
+      repo.confirm(reserved?.id as string, {
+        calendarEventId: event.id,
+        personTypeId: null,
+        personRecordId: null,
+        recordTypeId: null,
+        recordId: null,
+      }),
+    );
+    return { event, bookingId: reserved?.id as string };
+  }
+
+  const stored = (bookingId: string) =>
+    runWithoutTenant(() => prisma.booking.findUniqueOrThrow({ where: { id: bookingId } }));
+
+  it("counts only in-flight reservations as busy and drops a booking from busy time once it is confirmed", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-d-0123456789abcdef");
+    const reserved = await w.as(w.admin, () => repo.reserve(reservation(link.id), open));
+    const window = [new Date("2030-01-14T00:00:00.000Z"), new Date("2030-01-16T00:00:00.000Z")] as const;
+
+    expect(await w.as(w.admin, () => repo.busyForOwner(...window))).toHaveLength(1);
+
+    await w.as(w.admin, () =>
+      repo.confirm(reserved?.id as string, {
+        calendarEventId: randomUUID(),
+        personTypeId: null,
+        personRecordId: null,
+        recordTypeId: null,
+        recordId: null,
+      }),
+    );
+
+    expect(await w.as(w.admin, () => repo.busyForOwner(...window))).toEqual([]);
+    expect(await stored(reserved?.id as string)).toMatchObject({ status: "confirmed", slotKey: null });
+  });
+
+  it("cancels a booking when its event is deleted or moved, and keeps it while the event still sits at the booked time", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-e-0123456789abcdef");
+    const { event, bookingId } = await bookedEvent(w, repo, link.id);
+
+    const unchanged = await runWithoutTenant(() =>
+      repo.cancelForCalendarEventUnscoped({
+        companyId: w.companyId,
+        calendarEventId: event.id,
+        stillAt: { startsAt: START, endsAt: END },
+      }),
+    );
+    expect(unchanged).toBe(0);
+    expect(await stored(bookingId)).toMatchObject({ status: "confirmed" });
+
+    const moved = await runWithoutTenant(() =>
+      repo.cancelForCalendarEventUnscoped({
+        companyId: w.companyId,
+        calendarEventId: event.id,
+        stillAt: { startsAt: new Date(START.getTime() + 3_600_000), endsAt: new Date(END.getTime() + 3_600_000) },
+      }),
+    );
+    expect(moved).toBe(1);
+    expect(await stored(bookingId)).toMatchObject({ status: "cancelled", slotKey: null });
+    expect(await w.as(w.admin, () => repo.countOpenForEmail(link.id, "ada@example.test", new Date(0)))).toBe(0);
+  });
+
+  it("cancels every open booking of a deleted event, for its own workspace only", async () => {
+    const w = await workspace();
+    const other = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-f-0123456789abcdef");
+    const { event, bookingId } = await bookedEvent(w, repo, link.id);
+
+    const foreign = await runWithoutTenant(() =>
+      repo.cancelForCalendarEventUnscoped({ companyId: other.companyId, calendarEventId: event.id }),
+    );
+    expect(foreign).toBe(0);
+    expect(await stored(bookingId)).toMatchObject({ status: "confirmed" });
+
+    const own = await runWithoutTenant(() =>
+      repo.cancelForCalendarEventUnscoped({ companyId: w.companyId, calendarEventId: event.id }),
+    );
+    expect(own).toBe(1);
+    expect(await stored(bookingId)).toMatchObject({ status: "cancelled" });
+    expect(await w.as(w.admin, () => repo.reserve(reservation(link.id), open))).toEqual({ id: expect.any(String) });
+  });
+
+  it("lets only one of two overlapping reservations of one owner through", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-g-0123456789abcdef");
+    const first = reservation(link.id, START, "ada@example.test");
+    const second = reservation(link.id, new Date(START.getTime() + 15 * 60_000), "bob@example.test");
+
+    const results = await Promise.all([
+      w.as(w.admin, () => repo.reserve(first, freeOfOwnerBookings(repo, first))),
+      w.as(w.admin, () => repo.reserve(second, freeOfOwnerBookings(repo, second))),
+    ]);
+
+    expect(results.filter((result) => result !== null)).toHaveLength(1);
+  });
+
+  it("lets only one of two reservations for the same start through when they come from two links of one owner", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const linkA = await createLink(w, calendar.id, "token-h-0123456789abcdef");
+    const linkB = await createLink(w, calendar.id, "token-i-0123456789abcdef");
+    const first = reservation(linkA.id, START, "ada@example.test");
+    const second = reservation(linkB.id, START, "bob@example.test");
+
+    const results = await Promise.all([
+      w.as(w.admin, () => repo.reserve(first, freeOfOwnerBookings(repo, first))),
+      w.as(w.admin, () => repo.reserve(second, freeOfOwnerBookings(repo, second))),
+    ]);
+
+    expect(results.filter((result) => result !== null)).toHaveLength(1);
+  });
+
+  it("books both when the slots do not overlap", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-j-0123456789abcdef");
+    const first = reservation(link.id, START, "ada@example.test");
+    const second = reservation(link.id, new Date(START.getTime() + 3_600_000), "bob@example.test");
+
+    const results = await Promise.all([
+      w.as(w.admin, () => repo.reserve(first, freeOfOwnerBookings(repo, first))),
+      w.as(w.admin, () => repo.reserve(second, freeOfOwnerBookings(repo, second))),
+    ]);
+
+    expect(results.every((result) => result !== null)).toBe(true);
+  });
+
+  it("counts the bookings of one visitor on one link since a time", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-k-0123456789abcdef");
+    const other = await createLink(w, calendar.id, "token-l-0123456789abcdef");
+    await w.as(w.admin, () => repo.reserve({ ...reservation(link.id), ipHash: "visitor-a" }, open));
+    await w.as(w.admin, () =>
+      repo.reserve({ ...reservation(link.id, new Date(START.getTime() + 3_600_000)), ipHash: "visitor-a" }, open),
+    );
+    await w.as(w.admin, () =>
+      repo.reserve({ ...reservation(link.id, new Date(START.getTime() + 7_200_000)), ipHash: "visitor-b" }, open),
+    );
+    await w.as(w.admin, () => repo.reserve({ ...reservation(other.id), ipHash: "visitor-a" }, open));
+    const hourAgo = new Date(Date.now() - 3_600_000);
+
+    expect(await w.as(w.admin, () => repo.countForVisitorSince(link.id, "visitor-a", hourAgo))).toBe(2);
+    expect(await w.as(w.admin, () => repo.countForVisitorSince(link.id, "visitor-b", hourAgo))).toBe(1);
+    expect(
+      await w.as(w.admin, () => repo.countForVisitorSince(link.id, "visitor-a", new Date(Date.now() + 60_000))),
+    ).toBe(0);
+  });
+
+  it("prunes bookings that ended long ago and abandoned reservations, in batches, and keeps the rest", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-m-0123456789abcdef");
+    const now = Date.now();
+    const day = 86_400_000;
+    const row = (email: string, endsAt: Date, status: "reserved" | "confirmed" | "cancelled", createdAt = new Date()) =>
+      runWithoutTenant(() =>
+        prisma.booking.create({
+          data: {
+            companyId: w.companyId,
+            bookingLinkId: link.id,
+            status,
+            inviteeName: "Ada",
+            inviteeEmail: email,
+            startsAt: new Date(endsAt.getTime() - 30 * 60_000),
+            endsAt,
+            timeZone: "UTC",
+            createdAt,
+          },
+        }),
+      );
+    const ended = await row("ended@example.test", new Date(now - 100 * day), "confirmed");
+    const endedCancelled = await row("cancelled@example.test", new Date(now - 95 * day), "cancelled");
+    const abandoned = await row("abandoned@example.test", new Date(now + 5 * day), "reserved", new Date(now - 2 * day));
+    const recent = await row("recent@example.test", new Date(now - 10 * day), "confirmed");
+    const upcoming = await row("upcoming@example.test", new Date(now + 5 * day), "confirmed");
+    const fresh = await row("fresh@example.test", new Date(now + 6 * day), "reserved");
+    const cutoffs = { endedBefore: new Date(now - 90 * day), abandonedBefore: new Date(now - day) };
+
+    const first = await repo.deleteExpiredUnscoped(cutoffs, 2);
+    const second = await repo.deleteExpiredUnscoped(cutoffs, 2);
+    const third = await repo.deleteExpiredUnscoped(cutoffs, 2);
+
+    expect([first, second, third]).toEqual([2, 1, 0]);
+    const left = await runWithoutTenant(() =>
+      prisma.booking.findMany({ where: { companyId: w.companyId }, select: { id: true } }),
+    );
+    expect(left.map((booking) => booking.id).sort()).toEqual([recent.id, upcoming.id, fresh.id].sort());
+    expect([ended.id, endedCancelled.id, abandoned.id].some((id) => left.some((booking) => booking.id === id))).toBe(
+      false,
+    );
   });
 });

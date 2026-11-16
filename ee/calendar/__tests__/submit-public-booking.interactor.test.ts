@@ -1,24 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
-import {
-  MOCK_ENV_MODULE,
-  createMockDiModule,
-  MOCK_ZOD_MODULE,
-  MOCK_PRISMA_DB_MODULE,
-} from "@/tests/helpers/interactor-test-setup";
+import { createMockDiModule, MOCK_ZOD_MODULE, MOCK_PRISMA_DB_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
+const mockEnv = vi.hoisted(() => ({
+  NODE_ENV: "test",
+  APP_MODE: "cloud" as string,
+  BASE_URL: "http://localhost:4000",
+  DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+  BETTER_AUTH_SECRET: "0".repeat(32),
+}));
 
-vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => ({ env: mockEnv }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
+import { PUBLIC_FILL_MS, renderToken, visitorHash } from "@/core/network/public-submit-guard";
+import { PublicTenant } from "@/core/network/public-tenant";
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import { DomainEvent } from "@/features/event/domain-events";
-import { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 
@@ -33,15 +36,17 @@ const ACTIONS = "10000000-0000-4000-8000-000000000002";
 const TITLE = "20000000-0000-4000-8000-000000000001";
 const DUE = "20000000-0000-4000-8000-000000000002";
 const NOTE = "20000000-0000-4000-8000-000000000003";
-const PERSON = { typeId: PEOPLE, recordId: "40000000-0000-4000-8000-000000000001" };
-const RECORD = { typeId: ACTIONS, recordId: "40000000-0000-4000-8000-000000000002" };
-const TOKEN = "tok_abcdefghijklmnop";
 const SOURCE = "20000000-0000-4000-8000-000000000004";
 const SIZE = "20000000-0000-4000-8000-000000000005";
 const DAY = "20000000-0000-4000-8000-000000000006";
 const CONTACT = "20000000-0000-4000-8000-000000000007";
 const PERSON_RELATION = "30000000-0000-4000-8000-000000000001";
+const PERSON = { typeId: PEOPLE, recordId: "40000000-0000-4000-8000-000000000001" };
+const RECORD = { typeId: ACTIONS, recordId: "40000000-0000-4000-8000-000000000002" };
+const TOKEN = "tok_abcdefghijklmnop";
 const STARTS_AT = "2026-11-17T09:00:00.000Z";
+const SECRET = "booking-test-secret";
+const NOW = new Date("2026-11-16T10:00:00.000Z");
 
 const MODEL = {
   revision: 1,
@@ -74,11 +79,6 @@ const MODEL = {
       archived: false,
       options: [],
     },
-  ],
-  relationships: [],
-} as unknown as RecordModelView;
-
-function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
     {
       id: SOURCE,
       typeId: ACTIONS,
@@ -118,6 +118,11 @@ function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
       archived: false,
       options: [],
     },
+  ],
+  relationships: [],
+} as unknown as RecordModelView;
+
+function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
   return {
     id: "50000000-0000-4000-8000-000000000001",
     companyId: mockUser.companyId,
@@ -135,12 +140,12 @@ function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
     workingHours: DEFAULT_WORKING_HOURS,
     withVideo: true,
     personTypeId: PEOPLE,
+    personRelationshipId: PERSON_RELATION,
     recordTypeId: ACTIONS,
     startFieldId: DUE,
     questions: [{ fieldId: NOTE, required: true }],
     successMessage: "See you soon",
     enabled: true,
-    personRelationshipId: PERSON_RELATION,
     createdAt: new Date(0),
     upcomingBookings: 0,
     hostName: "Ben",
@@ -161,20 +166,24 @@ function build(options: { link?: BookingLinkLookup | null; entitlement?: unknown
   };
   const access = new PublicBookingAccess(
     lookup,
-    new PublicLinkTenant({ getActiveUserByIdOrThrow: vi.fn().mockResolvedValue(mockUser) }),
+    new PublicTenant({ getActiveUserByIdOrThrow: vi.fn().mockResolvedValue(mockUser) }),
     {
       perLink: new TokenBucketRateLimiter(100, 60_000),
       perVisitor: new TokenBucketRateLimiter(options.perVisitor ?? 100, 60_000),
     },
     () => ({ require: vi.fn().mockResolvedValue(options.entitlement ?? null) }),
     () => ({ companyId: mockUser.companyId, has: vi.fn().mockReturnValue(true) }),
+    { authSecret: SECRET, now: () => NOW },
   );
   const availability = { isOpen: vi.fn().mockResolvedValue(true) };
   const reservations = {
-    reserve: vi.fn().mockResolvedValue({ id: "80000000-0000-4000-8000-000000000001" }),
+    reserve: vi.fn<(input: unknown, isOpen: () => Promise<boolean>) => Promise<{ id: string } | null>>(() =>
+      Promise.resolve({ id: "80000000-0000-4000-8000-000000000001" }),
+    ),
     confirm: vi.fn().mockResolvedValue(undefined),
     release: vi.fn().mockResolvedValue(undefined),
     countOpenForEmail: vi.fn().mockResolvedValue(0),
+    countForVisitorSince: vi.fn().mockResolvedValue(0),
   };
   const writer = {
     create: vi.fn().mockResolvedValue({
@@ -211,9 +220,13 @@ const INPUT = {
   timeZone: "Europe/London",
   answers: { [NOTE]: "Pricing" },
   website: "",
+  renderToken: renderToken(link().id, new Date(NOW.getTime() - 8_000), SECRET),
 };
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockEnv.APP_MODE = "cloud";
+});
 
 describe("SubmitPublicBookingInteractor", () => {
   it("books: creates the event, the Person and the record, links them, confirms and emits form.submitted", async () => {
@@ -235,9 +248,11 @@ describe("SubmitPublicBookingInteractor", () => {
         inviteeName: "Ada Lovelace",
         timeZone: "Europe/London",
         answers: { [NOTE]: "Pricing" },
-        ipHash: "visitor-hash",
+        ipHash: visitorHash("visitor-hash", SECRET),
       }),
+      expect.any(Function),
     );
+    expect(visitorHash("visitor-hash", SECRET)).not.toBe("visitor-hash");
     expect(writer.create).toHaveBeenCalledWith(
       mockUser.companyId,
       expect.objectContaining({ unipileCalendarId: "cal_1", unipileAccountId: "acc_1" }),
@@ -356,21 +371,6 @@ describe("SubmitPublicBookingInteractor", () => {
     expect(reservations.reserve).not.toHaveBeenCalled();
   });
 
-  it("stops a visitor with too many upcoming bookings on one page", async () => {
-    const { interactor, reservations } = build();
-    reservations.countOpenForEmail.mockResolvedValue(3);
-
-    expect(await interactor.invoke(INPUT)).toEqual({ status: "rateLimited", retryAfterSeconds: 3600 });
-    expect(reservations.reserve).not.toHaveBeenCalled();
-  });
-
-  it("releases the reservation when the provider refuses the event", async () => {
-    const { interactor, writer, reservations, records } = build();
-    writer.create.mockResolvedValue({ ok: false, error: CustomErrorCode.unipileProviderRejected });
-
-    expect(await interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
-    expect(reservations.release).toHaveBeenCalledWith("80000000-0000-4000-8000-000000000001");
-    expect(reservations.confirm).not.toHaveBeenCalled();
   it("coerces each answer by its field type and hands contact details to the record as an identity", async () => {
     const { interactor, records, reservations, writer } = build({
       link: link({
@@ -449,6 +449,21 @@ describe("SubmitPublicBookingInteractor", () => {
     expect(reservations.reserve).not.toHaveBeenCalled();
   });
 
+  it("stops a visitor with too many upcoming bookings on one page", async () => {
+    const { interactor, reservations } = build();
+    reservations.countOpenForEmail.mockResolvedValue(3);
+
+    expect(await interactor.invoke(INPUT)).toEqual({ status: "rateLimited", retryAfterSeconds: 3600 });
+    expect(reservations.reserve).not.toHaveBeenCalled();
+  });
+
+  it("releases the reservation when the provider refuses the event", async () => {
+    const { interactor, writer, reservations, records } = build();
+    writer.create.mockResolvedValue({ ok: false, error: CustomErrorCode.unipileProviderRejected });
+
+    expect(await interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
+    expect(reservations.release).toHaveBeenCalledWith("80000000-0000-4000-8000-000000000001");
+    expect(reservations.confirm).not.toHaveBeenCalled();
     expect(records.findOrCreatePerson).not.toHaveBeenCalled();
   });
 
@@ -471,5 +486,85 @@ describe("SubmitPublicBookingInteractor", () => {
     await interactor.invoke(INPUT);
 
     expect(await interactor.invoke(INPUT)).toEqual({ status: "rateLimited", retryAfterSeconds: expect.any(Number) });
+  });
+
+  it("is unavailable outside the cloud and touches nothing", async () => {
+    mockEnv.APP_MODE = "self-hosted";
+    const { interactor, lookup } = build();
+
+    expect(await interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
+    expect(lookup.findByTokenUnscoped).not.toHaveBeenCalled();
+  });
+
+  describe("abuse protection", () => {
+    it.each([
+      ["a missing render token", ""],
+      ["a render token of another page", renderToken("50000000-0000-4000-8000-000000000002", new Date(0), SECRET)],
+      ["a page filled faster than a person can", renderToken(link().id, new Date(NOW.getTime() - 500), SECRET)],
+      [
+        "a page that is far too old",
+        renderToken(link().id, new Date(NOW.getTime() - PUBLIC_FILL_MS.max - 60_000), SECRET),
+      ],
+    ])("refuses %s before reading availability or reserving", async (_name, token) => {
+      const { interactor, availability, reservations, writer } = build();
+
+      expect(await interactor.invoke({ ...INPUT, renderToken: token })).toEqual({ status: "unavailable" });
+      expect(availability.isOpen).not.toHaveBeenCalled();
+      expect(reservations.reserve).not.toHaveBeenCalled();
+      expect(writer.create).not.toHaveBeenCalled();
+    });
+
+    it("stops a visitor that already booked too often this hour and says when to come back", async () => {
+      const { interactor, reservations, writer } = build();
+      reservations.countForVisitorSince.mockResolvedValue(10);
+
+      expect(await interactor.invoke(INPUT)).toEqual({ status: "rateLimited", retryAfterSeconds: 600 });
+      expect(reservations.countForVisitorSince).toHaveBeenCalledWith(
+        link().id,
+        visitorHash("visitor-hash", SECRET),
+        new Date(NOW.getTime() - 3_600_000),
+      );
+      expect(reservations.reserve).not.toHaveBeenCalled();
+      expect(writer.create).not.toHaveBeenCalled();
+    });
+
+    it("does not count a visitor whose address is unknown", async () => {
+      const { interactor, reservations } = build();
+
+      expect((await interactor.invoke({ ...INPUT, visitor: null })).status).toBe("booked");
+      expect(reservations.countForVisitorSince).not.toHaveBeenCalled();
+      expect(reservations.reserve).toHaveBeenCalledWith(
+        expect.objectContaining({ ipHash: null }),
+        expect.any(Function),
+      );
+    });
+  });
+
+  describe("reservation race", () => {
+    it("re-checks that the start is still open inside the reservation and answers slotTaken when it is not", async () => {
+      const { interactor, availability, reservations, writer } = build();
+      reservations.reserve.mockImplementation((_input, isOpen) =>
+        isOpen().then((open) => (open ? { id: "80000000-0000-4000-8000-000000000001" } : null)),
+      );
+      availability.isOpen.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+
+      expect(await interactor.invoke(INPUT)).toEqual({ status: "slotTaken" });
+      expect(availability.isOpen).toHaveBeenCalledTimes(2);
+      expect(availability.isOpen).toHaveBeenLastCalledWith(
+        expect.objectContaining({ id: link().id }),
+        NOW,
+        new Date(STARTS_AT),
+      );
+      expect(writer.create).not.toHaveBeenCalled();
+    });
+
+    it("books when the start is still open inside the reservation", async () => {
+      const { interactor, reservations } = build();
+      reservations.reserve.mockImplementation((_input, isOpen) =>
+        isOpen().then((open) => (open ? { id: "80000000-0000-4000-8000-000000000001" } : null)),
+      );
+
+      expect((await interactor.invoke(INPUT)).status).toBe("booked");
+    });
   });
 });

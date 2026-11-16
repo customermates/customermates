@@ -5,9 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { PublicBookingUnavailable, PublicBookingView } from "./public-booking-view";
 
 import { getReadPublicBookingInteractor } from "@/core/di";
-import { env } from "@/env";
-
-import { visitorKey } from "../../p/[token]/visitor-key";
+import { visitorKey } from "@/core/network/visitor-key";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PublicBookingPage({ params }: Props) {
   const { token } = await params;
-  const result =
-    env.APP_MODE === "cloud"
-      ? await getReadPublicBookingInteractor().invoke({ token, visitor: await visitorKey() })
-      : ({ status: "unavailable" } as const);
+  const result = await getReadPublicBookingInteractor().invoke({ token, visitor: await visitorKey() });
 
   if (result.status === "available") return <PublicBookingView page={result.page} token={token} />;
 

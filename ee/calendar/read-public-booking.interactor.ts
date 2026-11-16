@@ -1,3 +1,4 @@
+import { renderToken } from "@/core/network/public-submit-guard";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 import type { MeetingRecordService } from "./meeting-record.service";
@@ -32,6 +33,7 @@ export class ReadPublicBookingInteractor {
           hostName: link.hostName,
           withVideo: link.withVideo,
           questions: publicQuestions(link.recordTypeId ? await this.records.loadModel() : null, link),
+          renderToken: renderToken(link.id, this.access.now(), this.access.authSecret),
         },
       }),
     );

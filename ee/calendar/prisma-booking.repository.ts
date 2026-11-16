@@ -1,9 +1,12 @@
 import type { Prisma } from "@/generated/prisma";
 
-import { BookingStatus, ConnectedAccountStatus, Prisma as PrismaNamespace } from "@/generated/prisma";
+import { randomUUID } from "node:crypto";
+
+import { BookingStatus, ConnectedAccountStatus } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 import type { BookingLinkRow } from "./booking.schema";
 import type { BookingLinkLookup, BookingLinkRepo, BookingLinkWrite } from "./booking-link.repo";
@@ -34,10 +37,10 @@ function linkSelect(now: Date) {
     workingHours: true,
     withVideo: true,
     personTypeId: true,
+    personRelationshipId: true,
     recordTypeId: true,
     startFieldId: true,
     questions: true,
-    personRelationshipId: true,
     successMessage: true,
     enabled: true,
     createdAt: true,
@@ -50,10 +53,6 @@ type LinkRecord = Prisma.BookingLinkGetPayload<{ select: ReturnType<typeof linkS
 
 function toRow({ calendar, _count, ...link }: LinkRecord): BookingLinkRow {
   return { ...link, calendarName: calendar.name, upcomingBookings: _count.bookings };
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  return error instanceof PrismaNamespace.PrismaClientKnownRequestError && error.code === "P2002";
 }
 
 function writeData(data: Partial<BookingLinkWrite>): Prisma.BookingLinkUncheckedUpdateInput {
@@ -158,45 +157,55 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     };
   }
 
-  async reserve(input: BookingReservationInput): Promise<{ id: string } | null> {
+  reserve(input: BookingReservationInput, isOpen: () => Promise<boolean>): Promise<{ id: string } | null> {
     const slotKey = input.startsAt.toISOString();
-    await this.prisma.booking.deleteMany({
-      where: {
-        companyId: this.companyId,
-        bookingLinkId: input.bookingLinkId,
-        slotKey,
-        status: BookingStatus.reserved,
-        createdAt: { lt: new Date(Date.now() - RESERVATION_TTL_MS) },
-      },
-    });
 
-    try {
-      return await this.prisma.booking.create({
-        data: {
-          companyId: this.companyId,
-          bookingLinkId: input.bookingLinkId,
-          slotKey,
-          status: BookingStatus.reserved,
-          inviteeName: input.inviteeName,
-          inviteeEmail: input.inviteeEmail,
-          startsAt: input.startsAt,
-          endsAt: input.endsAt,
-          timeZone: input.timeZone,
-          answers: input.answers,
-          ipHash: input.ipHash,
-        },
-        select: { id: true },
-      });
-    } catch (error) {
-      if (isUniqueViolation(error)) return null;
-      throw error;
-    }
+    return runInTransaction(
+      async () => {
+        await this.prisma
+          .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customermates:booking-owner:${this.userId}`}, 0))`;
+        await this.prisma.booking.deleteMany({
+          where: {
+            companyId: this.companyId,
+            bookingLinkId: input.bookingLinkId,
+            slotKey,
+            status: BookingStatus.reserved,
+            createdAt: { lt: new Date(Date.now() - RESERVATION_TTL_MS) },
+          },
+        });
+        if (!(await isOpen())) return null;
+
+        const id = randomUUID();
+        const { count } = await this.prisma.booking.createMany({
+          data: [
+            {
+              id,
+              companyId: this.companyId,
+              bookingLinkId: input.bookingLinkId,
+              slotKey,
+              status: BookingStatus.reserved,
+              inviteeName: input.inviteeName,
+              inviteeEmail: input.inviteeEmail,
+              startsAt: input.startsAt,
+              endsAt: input.endsAt,
+              timeZone: input.timeZone,
+              answers: input.answers,
+              ipHash: input.ipHash,
+            },
+          ],
+          skipDuplicates: true,
+        });
+
+        return count ? { id } : null;
+      },
+      { lockCompany: false },
+    );
   }
 
   async confirm(id: string, confirmation: BookingConfirmation): Promise<void> {
     await this.prisma.booking.updateMany({
       where: { id, companyId: this.companyId },
-      data: { ...confirmation, status: BookingStatus.confirmed },
+      data: { ...confirmation, status: BookingStatus.confirmed, slotKey: null },
     });
   }
 
@@ -213,28 +222,67 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     });
   }
 
-  async busyForOwner(from: Date, to: Date): Promise<BusyInterval[]> {
-    const rows = await this.prisma.booking.findMany({
+  async cancelForCalendarEventUnscoped(args: {
+    companyId: string;
+    calendarEventId: string;
+    stillAt?: { startsAt: Date; endsAt: Date };
+  }): Promise<number> {
+    const { count } = await this.prisma.booking.updateMany({
+      where: {
+        companyId: args.companyId,
+        calendarEventId: args.calendarEventId,
+        status: { in: OPEN_STATUSES },
+        ...(args.stillAt ? { NOT: { startsAt: args.stillAt.startsAt, endsAt: args.stillAt.endsAt } } : {}),
+      },
+      data: { status: BookingStatus.cancelled, slotKey: null },
+    });
+
+    return count;
+  }
+
+  busyForOwner(from: Date, to: Date): Promise<BusyInterval[]> {
+    return this.prisma.booking.findMany({
       where: {
         companyId: this.companyId,
         link: { is: { userId: this.userId } },
         startsAt: { lt: to },
         endsAt: { gt: from },
-        OR: [
-          { status: BookingStatus.confirmed },
-          { status: BookingStatus.reserved, createdAt: { gte: new Date(Date.now() - RESERVATION_TTL_MS) } },
-        ],
+        status: BookingStatus.reserved,
+        createdAt: { gte: new Date(Date.now() - RESERVATION_TTL_MS) },
       },
       select: { startsAt: true, endsAt: true },
       take: 2000,
     });
-
-    return rows;
   }
 
   countOpenForEmail(bookingLinkId: string, email: string, now: Date): Promise<number> {
     return this.prisma.booking.count({
       where: { companyId: this.companyId, bookingLinkId, inviteeEmail: email, ...upcomingWhere(now) },
     });
+  }
+
+  countForVisitorSince(bookingLinkId: string, ipHash: string, since: Date): Promise<number> {
+    return this.prisma.booking.count({
+      where: { companyId: this.companyId, bookingLinkId, ipHash, createdAt: { gte: since } },
+    });
+  }
+
+  @BypassTenantGuard
+  async deleteExpiredUnscoped(cutoffs: { endedBefore: Date; abandonedBefore: Date }, limit: number): Promise<number> {
+    const expired = await this.prisma.booking.findMany({
+      where: {
+        OR: [
+          { endsAt: { lt: cutoffs.endedBefore } },
+          { status: BookingStatus.reserved, createdAt: { lt: cutoffs.abandonedBefore } },
+        ],
+      },
+      select: { id: true },
+      take: limit,
+    });
+    const { count } = await this.prisma.booking.deleteMany({
+      where: { id: { in: expired.map((booking) => booking.id) } },
+    });
+
+    return count;
   }
 }

@@ -5,9 +5,10 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { looksAutomated, visitorHash } from "@/core/network/public-submit-guard";
 import { DomainEvent } from "@/features/event/domain-events";
-
 import { coerceAnswers } from "@/features/records/record-value-coercion";
+
 import type { BookingAvailability } from "./booking-availability";
 import type { BookingReservationRepo } from "./booking-reservation.repo";
 import type { CalendarEventLinkRepo } from "./calendar-event-link.repo";
@@ -21,12 +22,15 @@ import {
   type PublicBookingSubmitResult,
   type SubmitPublicBookingData,
   BOOKING_OPEN_PER_EMAIL,
+  BOOKING_PER_VISITOR_PER_HOUR,
   SubmitPublicBookingSchema,
 } from "./booking.schema";
 import { publicQuestions } from "./public-booking-questions";
 
 const MINUTE_MS = 60_000;
+const HOUR_MS = 60 * MINUTE_MS;
 const OPEN_BOOKINGS_RETRY_SECONDS = 3600;
+const VISITOR_RETRY_SECONDS = 600;
 
 async function safely<T>(kind: string, work: () => Promise<T>): Promise<T | null> {
   try {
@@ -67,8 +71,16 @@ export class SubmitPublicBookingInteractor {
   }
 
   private async book(link: BookingLinkLookup, data: SubmitPublicBookingData): Promise<PublicBookingSubmitResult> {
-    const now = new Date();
+    const now = this.access.now();
     const startsAt = new Date(data.startsAt);
+    const automated = looksAutomated({
+      honeypot: data.website,
+      renderToken: data.renderToken,
+      subjectId: link.id,
+      now,
+      authSecret: this.access.authSecret,
+    });
+    if (automated) return { status: "unavailable" };
     if (!(await this.availability.isOpen(link, now, startsAt))) return { status: "slotTaken" };
 
     const model = link.recordTypeId ? await this.records.loadModel() : null;
@@ -78,18 +90,28 @@ export class SubmitPublicBookingInteractor {
     if (invalid.length) return { status: "invalid", fields: invalid };
     if ((await this.reservations.countOpenForEmail(link.id, data.email, now)) >= BOOKING_OPEN_PER_EMAIL)
       return { status: "rateLimited", retryAfterSeconds: OPEN_BOOKINGS_RETRY_SECONDS };
+    const ipHash = visitorHash(data.visitor, this.access.authSecret);
+    const hourAgo = new Date(now.getTime() - HOUR_MS);
+    if (
+      ipHash &&
+      (await this.reservations.countForVisitorSince(link.id, ipHash, hourAgo)) >= BOOKING_PER_VISITOR_PER_HOUR
+    )
+      return { status: "rateLimited", retryAfterSeconds: VISITOR_RETRY_SECONDS };
 
     const endsAt = new Date(startsAt.getTime() + link.durationMinutes * MINUTE_MS);
-    const reservation = await this.reservations.reserve({
-      bookingLinkId: link.id,
-      startsAt,
-      endsAt,
-      inviteeName: data.name,
-      inviteeEmail: data.email,
-      timeZone: data.timeZone,
-      answers: answers.display,
-      ipHash: data.visitor ?? null,
-    });
+    const reservation = await this.reservations.reserve(
+      {
+        bookingLinkId: link.id,
+        startsAt,
+        endsAt,
+        inviteeName: data.name,
+        inviteeEmail: data.email,
+        timeZone: data.timeZone,
+        answers: answers.display,
+        ipHash,
+      },
+      () => this.availability.isOpen(link, this.access.now(), startsAt),
+    );
     if (!reservation) return { status: "slotTaken" };
 
     const calendar: WritableCalendarRow = {

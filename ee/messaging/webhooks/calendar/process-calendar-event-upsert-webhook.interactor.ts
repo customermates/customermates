@@ -6,9 +6,11 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import type { FindAccountByUnipileIdUnscopedRepo } from "../../persistence/find-account-by-unipile-id-unscoped.repo";
+import type { BookingReservationRepo } from "@/ee/calendar/booking-reservation.repo";
 import type { CalendarWriteRepo } from "@/ee/calendar/calendar-write.repo";
 import type { EventService } from "@/features/event/event.service";
 
+import { CalendarEventStatus } from "@/generated/prisma";
 import { DomainEvent } from "@/features/event/domain-events";
 import { buildCalendarEvent, collectAttendeeEmails } from "@/ee/calendar/calendar-normalize";
 import { UnipileCalendarEventSchema } from "../../unipile.schema";
@@ -27,6 +29,7 @@ export class ProcessCalendarEventUpsertWebhookInteractor {
     private calendarRepo: CalendarWriteRepo,
     private accountRepo: FindAccountByUnipileIdUnscopedRepo,
     private eventService: EventService,
+    private bookings: Pick<BookingReservationRepo, "cancelForCalendarEventUnscoped">,
   ) {}
 
   @Enforce(Schema)
@@ -55,6 +58,13 @@ export class ProcessCalendarEventUpsertWebhookInteractor {
       attendeeEmails: collectAttendeeEmails(normalized),
     });
 
+    await this.bookings.cancelForCalendarEventUnscoped({
+      companyId: account.companyId,
+      calendarEventId: event.id,
+      ...(normalized.status === CalendarEventStatus.cancelled
+        ? {}
+        : { stillAt: { startsAt: normalized.startsAt, endsAt: normalized.endsAt } }),
+    });
     await this.eventService.publish(
       DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED,
       {

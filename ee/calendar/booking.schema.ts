@@ -1,4 +1,7 @@
+import type { PublicBlocked } from "@/core/network/public-access";
+
 import type { AnswerQuestion } from "@/features/records/record-value-coercion";
+
 import { z } from "zod";
 
 import { TimeZoneSchema } from "@/core/utils/time-zone";
@@ -11,6 +14,7 @@ export const BOOKING_MAX_DURATION_MINUTES = 480;
 export const BOOKING_MAX_HORIZON_DAYS = 90;
 export const BOOKING_MAX_NOTICE_MINUTES = 14 * 24 * 60;
 export const BOOKING_OPEN_PER_EMAIL = 3;
+export const BOOKING_PER_VISITOR_PER_HOUR = 10;
 export const BOOKING_ANSWER_MAX_CHARS = 2000;
 
 export const BookingQuestionSchema = z
@@ -50,16 +54,16 @@ const LinkFieldsSchema = z.object({
     .describe(
       "The list whose record is found or created for the visitor, one per email. It needs a contact details field.",
     ),
-  recordTypeId: z
-    .uuid()
-    .nullable()
-    .describe("The list that receives one record per booking, for example the Actions list. Null stores no record."),
   personRelationshipId: z
     .uuid()
     .nullable()
     .describe(
       "The relationship between the booking list and the person list that links each booking record to the visitor's person. Null links nothing.",
     ),
+  recordTypeId: z
+    .uuid()
+    .nullable()
+    .describe("The list that receives one record per booking, for example the Actions list. Null stores no record."),
   startFieldId: z
     .uuid()
     .nullable()
@@ -120,11 +124,11 @@ export type BookingLinkRow = {
   workingHours: unknown;
   withVideo: boolean;
   personTypeId: string | null;
+  personRelationshipId: string | null;
   recordTypeId: string | null;
   startFieldId: string | null;
   questions: unknown;
   successMessage: string | null;
-  personRelationshipId: string | null;
   enabled: boolean;
   createdAt: Date;
   upcomingBookings: number;
@@ -133,11 +137,11 @@ export type BookingLinkRow = {
 export const PublicAnswerValueSchema = z.union([
   z.string().max(BOOKING_ANSWER_MAX_CHARS),
   z.boolean(),
+  z.array(z.string().max(200)).max(100),
 ]);
 
 export const PublicBookingQuerySchema = z
   .object({
-  z.array(z.string().max(200)).max(100),
     token: z
       .string()
       .min(16)
@@ -164,6 +168,7 @@ export const SubmitPublicBookingSchema = PublicBookingQuerySchema.extend({
   timeZone: TimeZoneSchema,
   answers: z.record(z.uuid(), PublicAnswerValueSchema).default({}),
   website: z.string().max(200).default(""),
+  renderToken: z.string().max(200),
 }).strict();
 export type SubmitPublicBookingData = z.infer<typeof SubmitPublicBookingSchema>;
 export type SubmitPublicBookingInput = z.input<typeof SubmitPublicBookingSchema>;
@@ -179,15 +184,14 @@ export type PublicBookingPage = {
   hostName: string;
   withVideo: boolean;
   questions: PublicQuestion[];
+  renderToken: string;
 };
 
-export type PublicBookingBlocked = { status: "unavailable" } | { status: "rateLimited"; retryAfterSeconds: number };
-
-export type PublicBookingPageResult = { status: "available"; page: PublicBookingPage } | PublicBookingBlocked;
+export type PublicBookingPageResult = { status: "available"; page: PublicBookingPage } | PublicBlocked;
 
 export type PublicBookingSlotsResult =
   | { status: "available"; timeZone: string; slots: Array<{ startsAt: string; endsAt: string }> }
-  | PublicBookingBlocked;
+  | PublicBlocked;
 
 export type PublicBookingSubmitResult =
   | {
@@ -200,4 +204,4 @@ export type PublicBookingSubmitResult =
     }
   | { status: "slotTaken" }
   | { status: "invalid"; fields: string[] }
-  | PublicBookingBlocked;
+  | PublicBlocked;
