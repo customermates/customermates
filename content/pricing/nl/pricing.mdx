@@ -187,6 +187,8 @@ comparison:
     rows:
       - label: Routines per gebruiker
         catalogFact: includedRoutinesPerUser
+      - label: Actieve automatiseringen
+        catalogFact: activeAutomationRules
       - label: Bestandsopslag per gebruiker, gedeeld in de werkruimte
         catalogFact: fileStoragePerActiveUser
       - label: "API- en MCP-verzoeken per werkruimte"
@@ -221,6 +223,10 @@ comparison:
         enterprise: true
       - label: "Webhooks en de n8n-trigger"
         catalogFact: webhooks
+      - label: Formulierinzendingen per maand
+        catalogFact: formSubmissionsPerMonth
+      - label: Formulieren zonder Customermates-vermelding
+        catalogFact: formBadge
       - label: MCP-toegang voor een externe AI-client
         free: true
         starter: true

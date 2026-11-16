@@ -22,6 +22,9 @@ export type PlanEntitlements = {
   hostedAiCreditsPerActiveUser: number | "contract" | null;
   fileStorageBytesPerActiveUser: number | "contract" | null;
   webhooks: boolean;
+  formSubmissionsPerMonth: number | "unlimited";
+  formBadge: boolean;
+  activeAutomationRules: number | "unlimited";
   usageLimits: PlanUsageLimits | null;
 };
 
@@ -110,6 +113,9 @@ export const PLAN_CATALOG = {
       hostedAiCreditsPerActiveUser: null,
       fileStorageBytesPerActiveUser: null,
       webhooks: false,
+      formSubmissionsPerMonth: 50,
+      formBadge: true,
+      activeAutomationRules: 3,
       usageLimits: {
         maxMembers: 1,
         maxRecords: 250,
@@ -132,6 +138,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(1),
       fileStorageBytesPerActiveUser: Number(GIB),
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: 20,
       usageLimits: null,
     },
     offers: {
@@ -159,6 +168,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(3),
       fileStorageBytesPerActiveUser: 5 * GIB,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {
@@ -186,6 +198,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(10),
       fileStorageBytesPerActiveUser: 20 * GIB,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {
@@ -213,6 +228,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(20),
       fileStorageBytesPerActiveUser: 50 * GIB,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {
@@ -241,6 +259,9 @@ export const PLAN_CATALOG = {
       hostedAiCreditsPerActiveUser: "contract",
       fileStorageBytesPerActiveUser: "contract",
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {},

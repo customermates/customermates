@@ -1,6 +1,11 @@
 import type { PlanId } from "@/core/commercial/plan-catalog";
 
-import { formLimitsOf, type FormLimits } from "@/core/commercial/form-limits";
+import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+
+export type FormLimits = {
+  submissionsPerMonth: number | null;
+  badge: boolean;
+};
 
 export type PublicFormQuota = {
   limits(companyId?: string): Promise<FormLimits>;
@@ -19,7 +24,12 @@ export class PlanPublicFormQuota implements PublicFormQuota {
 
   async limits(companyId?: string): Promise<FormLimits> {
     const { plan } = await this.plans.plan(companyId);
-    return plan ? formLimitsOf(plan) : UNLIMITED_LIMITS;
+    if (!plan) return UNLIMITED_LIMITS;
+    const { formSubmissionsPerMonth, formBadge } = PLAN_CATALOG[plan].entitlements;
+    return {
+      submissionsPerMonth: formSubmissionsPerMonth === "unlimited" ? null : formSubmissionsPerMonth,
+      badge: formBadge,
+    };
   }
 }
 

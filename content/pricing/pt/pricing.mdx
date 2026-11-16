@@ -187,6 +187,8 @@ comparison:
     rows:
       - label: Rotinas por usuário
         catalogFact: includedRoutinesPerUser
+      - label: Automações ativas
+        catalogFact: activeAutomationRules
       - label: Armazenamento de arquivos por usuário, compartilhado no espaço de trabalho
         catalogFact: fileStoragePerActiveUser
       - label: "Requisições de API e MCP por espaço de trabalho"
@@ -221,6 +223,10 @@ comparison:
         enterprise: true
       - label: "Webhooks e o gatilho do n8n"
         catalogFact: webhooks
+      - label: Envios de formulário por mês
+        catalogFact: formSubmissionsPerMonth
+      - label: Formulários sem o selo do Customermates
+        catalogFact: formBadge
       - label: Acesso MCP para um cliente de IA externo
         free: true
         starter: true

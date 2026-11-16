@@ -4,6 +4,7 @@ import type { PlanFitUsage } from "@/core/commercial/plan-fit";
 import { AgentUsagePurpose, AgentUsageState, ConnectedAccountStatus, Status } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { startOfUtcMonth } from "@/features/public-form/public-form-quota";
 
 export class PrismaPlanUsageRepo extends TenantRepository implements PlanUsageRepo {
   @BypassTenantGuard
@@ -51,34 +52,47 @@ export class PrismaPlanUsageRepo extends TenantRepository implements PlanUsageRe
   @BypassTenantGuard
   async readFeatureUsageUnscoped(companyId: string): Promise<PlanFitUsage> {
     const liveAccount = { status: { not: ConnectedAccountStatus.deleted } };
-    const [members, accounts, sharedAccounts, openDrafts, routines, webhooks, mateRequests, apiKeys, oauthClients] =
-      await Promise.all([
-        this.prisma.user.count({ where: { companyId, leftAt: null, status: Status.active, pausedByPlanAt: null } }),
-        this.prisma.connectedAccount.groupBy({
-          by: ["userId"],
-          where: { companyId, ...liveAccount },
-          _count: { _all: true },
-        }),
-        this.prisma.connectedAccount.count({ where: { companyId, shared: true, ...liveAccount } }),
-        this.prisma.messagingMessage.count({
-          where: { companyId, isDraft: true, isDeleted: false, connectedAccount: liveAccount },
-        }),
-        this.prisma.routine.groupBy({
-          by: ["ownerUserId"],
-          where: { companyId, enabled: true, deletedAt: null },
-          _count: { _all: true },
-        }),
-        this.prisma.webhook.count({ where: { companyId, enabled: true } }),
-        this.prisma.agentUsageEvent.count({
-          where: { companyId, purpose: AgentUsagePurpose.turn, state: { not: AgentUsageState.released } },
-        }),
-        this.prisma.apikey.count({ where: { companyId, enabled: true } }),
-        this.prisma.oauthAccessToken.findMany({
-          where: { companyId },
-          distinct: ["clientId"],
-          select: { clientId: true },
-        }),
-      ]);
+    const [
+      members,
+      accounts,
+      sharedAccounts,
+      openDrafts,
+      routines,
+      automationRules,
+      formSubmissions,
+      webhooks,
+      mateRequests,
+      apiKeys,
+      oauthClients,
+    ] = await Promise.all([
+      this.prisma.user.count({ where: { companyId, leftAt: null, status: Status.active, pausedByPlanAt: null } }),
+      this.prisma.connectedAccount.groupBy({
+        by: ["userId"],
+        where: { companyId, ...liveAccount },
+        _count: { _all: true },
+      }),
+      this.prisma.connectedAccount.count({ where: { companyId, shared: true, ...liveAccount } }),
+      this.prisma.messagingMessage.count({
+        where: { companyId, isDraft: true, isDeleted: false, connectedAccount: liveAccount },
+      }),
+      this.prisma.routine.groupBy({
+        by: ["ownerUserId"],
+        where: { companyId, enabled: true, deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.automationRule.count({ where: { companyId, enabled: true } }),
+      this.prisma.publicFormSubmission.count({ where: { companyId, createdAt: { gte: startOfUtcMonth(new Date()) } } }),
+      this.prisma.webhook.count({ where: { companyId, enabled: true } }),
+      this.prisma.agentUsageEvent.count({
+        where: { companyId, purpose: AgentUsagePurpose.turn, state: { not: AgentUsageState.released } },
+      }),
+      this.prisma.apikey.count({ where: { companyId, enabled: true } }),
+      this.prisma.oauthAccessToken.findMany({
+        where: { companyId },
+        distinct: ["clientId"],
+        select: { clientId: true },
+      }),
+    ]);
     const total = (groups: Array<{ _count: { _all: number } }>) =>
       groups.reduce((sum, group) => sum + group._count._all, 0);
     const largest = (groups: Array<{ _count: { _all: number } }>) =>
@@ -92,6 +106,8 @@ export class PrismaPlanUsageRepo extends TenantRepository implements PlanUsageRe
       openDrafts,
       activeRoutines: total(routines),
       maxRoutinesPerOwner: largest(routines),
+      activeAutomationRules: automationRules,
+      formSubmissionsThisMonth: formSubmissions,
       webhooks,
       mateRequests,
       apiClients: apiKeys + oauthClients.length,

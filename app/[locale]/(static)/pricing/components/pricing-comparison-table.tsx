@@ -70,6 +70,16 @@ export function pricingComparisonPresentation({
             const allowance = definition.entitlements.includedRoutinesPerUser;
             return allowance === "unlimited" ? unlimitedValue : String(allowance);
           }
+          case "activeAutomationRules": {
+            const allowance = definition.entitlements.activeAutomationRules;
+            return allowance === "unlimited" ? unlimitedValue : String(allowance);
+          }
+          case "formSubmissionsPerMonth": {
+            const allowance = definition.entitlements.formSubmissionsPerMonth;
+            return allowance === "unlimited" ? unlimitedValue : String(allowance);
+          }
+          case "formBadge":
+            return !definition.entitlements.formBadge;
           case "sharedAccounts":
             return definition.entitlements.sharedAccounts;
           case "fileStoragePerActiveUser": {

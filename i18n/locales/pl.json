@@ -6167,6 +6167,7 @@
         "drafts": "{count, plural, one {# otwarty szkic} few {# otwarte szkice} many {# otwartych szkiców} other {# otwartego szkicu}}",
         "mate": "Mate ({count, plural, one {# zapytanie} few {# zapytania} many {# zapytań} other {# zapytania}})",
         "members": "{count, plural, one {# dodatkowa osoba} few {# dodatkowe osoby} many {# dodatkowych osób} other {# dodatkowej osoby}}",
+        "forms": "{count, plural, one {# zgłoszenie formularza ponad miesięczny limit} few {# zgłoszenia formularza ponad miesięczny limit} many {# zgłoszeń formularza ponad miesięczny limit} other {# zgłoszenia formularza ponad miesięczny limit}}",
         "routines": "{count, plural, one {# aktywna rutyna} few {# aktywne rutyny} many {# aktywnych rutyn} other {# aktywnej rutyny}}",
         "webhooks": "{count, plural, one {# aktywny webhook} few {# aktywne webhooki} many {# aktywnych webhooków} other {# aktywnego webhooka}}"
       },

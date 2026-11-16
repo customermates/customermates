@@ -22,6 +22,19 @@ describe("commercial content tokens", () => {
     );
   });
 
+  it("resolves the automation and form allowances through the regular entitlement tokens", () => {
+    expect(resolveCommercialTokens("[[commercial.entitlement.free.activeAutomationRules]]", "en")).toBe("3");
+    expect(resolveCommercialTokens("[[commercial.entitlement.starter.activeAutomationRules]]", "en")).toBe("20");
+    expect(resolveCommercialTokens("[[commercial.entitlement.pro.activeAutomationRules]]", "en")).toBe("unlimited");
+    expect(resolveCommercialTokens("[[commercial.entitlement.free.formSubmissionsPerMonth]]", "en")).toBe("50");
+    expect(resolveCommercialTokens("[[commercial.entitlement.starter.formSubmissionsPerMonth]]", "de")).toBe(
+      "unbegrenzt",
+    );
+    expect(() => resolveCommercialTokens("[[commercial.entitlement.free.activeRules]]", "en")).toThrow("Invalid");
+    expect(() => resolveCommercialTokens("[[commercial.form.free.submissionsPerMonth]]", "en")).toThrow("Unknown");
+    expect(() => resolveCommercialTokens("[[commercial.entitlement.free.formBadge]]", "en")).toThrow("Invalid");
+  });
+
   it("resolves the file storage each active user adds per plan", () => {
     expect(resolveCommercialTokens("[[commercial.storage.starter]]", "en")).toBe("1 GB");
     expect(resolveCommercialTokens("[[commercial.storage.pro]]", "en")).toBe("5 GB");

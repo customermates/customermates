@@ -187,6 +187,8 @@ comparison:
     rows:
       - label: Routinen pro Nutzer
         catalogFact: includedRoutinesPerUser
+      - label: Aktive Automatisierungen
+        catalogFact: activeAutomationRules
       - label: Dateispeicher pro Nutzer, gemeinsam im Workspace
         catalogFact: fileStoragePerActiveUser
       - label: "API- und MCP-Anfragen pro Workspace"
@@ -221,6 +223,10 @@ comparison:
         enterprise: true
       - label: "Webhooks und der n8n-Trigger"
         catalogFact: webhooks
+      - label: Formular-Einsendungen pro Monat
+        catalogFact: formSubmissionsPerMonth
+      - label: Formulare ohne Customermates-Hinweis
+        catalogFact: formBadge
       - label: MCP-Zugriff für einen externen KI-Client
         free: true
         starter: true

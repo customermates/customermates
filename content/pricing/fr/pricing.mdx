@@ -187,6 +187,8 @@ comparison:
     rows:
       - label: "Routines par utilisateur"
         catalogFact: includedRoutinesPerUser
+      - label: "Automatisations actives"
+        catalogFact: activeAutomationRules
       - label: "Stockage de fichiers par utilisateur, partagé dans l’espace de travail"
         catalogFact: fileStoragePerActiveUser
       - label: "Requêtes API et MCP par espace de travail"
@@ -221,6 +223,10 @@ comparison:
         enterprise: true
       - label: "Webhooks et déclencheur n8n"
         catalogFact: webhooks
+      - label: "Envois de formulaire par mois"
+        catalogFact: formSubmissionsPerMonth
+      - label: "Formulaires sans la mention Customermates"
+        catalogFact: formBadge
       - label: "Accès MCP pour un client IA externe"
         free: true
         starter: true

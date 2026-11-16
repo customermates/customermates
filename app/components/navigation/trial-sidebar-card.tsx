@@ -180,6 +180,8 @@ function freeLossLabel({ kind, count }: FreeLoss, t: ReturnType<typeof useTransl
       return t("Upsell.trialEnd.items.routines", { count });
     case "members":
       return t("Upsell.trialEnd.items.members", { count });
+    case "forms":
+      return t("Upsell.trialEnd.items.forms", { count });
     case "webhooks":
       return t("Upsell.trialEnd.items.webhooks", { count });
     case "mate":

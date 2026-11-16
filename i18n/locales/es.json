@@ -6167,6 +6167,7 @@
         "drafts": "{count, plural, one {# borrador abierto} other {# borradores abiertos}}",
         "mate": "Mate ({count, plural, one {# solicitud} other {# solicitudes}})",
         "members": "{count, plural, one {# persona más} other {# personas más}}",
+        "forms": "{count, plural, one {# envío de formulario por encima del límite mensual} other {# envíos de formulario por encima del límite mensual}}",
         "routines": "{count, plural, one {# rutina activa} other {# rutinas activas}}",
         "webhooks": "{count, plural, one {# webhook activo} other {# webhooks activos}}"
       },

@@ -13,8 +13,6 @@ import {
   type MarketingLocale,
 } from "@/i18n/locale-registry";
 
-import { activeAutomationRuleAllowance } from "./automation-rule-limits";
-import { formLimitsOf } from "./form-limits";
 import {
   CLOUD_TRIAL,
   CLOUD_WORKSPACE_CREATION_LIMIT,
@@ -25,7 +23,7 @@ import {
   isPlanId,
   MIB,
   totalPriceAmountMinor,
-  type PlanId,
+  type PlanEntitlements,
   type PlanUsageLimits,
 } from "./plan-catalog";
 
@@ -109,7 +107,12 @@ function resolvePriceToken(parts: string[], locale: string): string {
   return formatCommercialAmount(amountMinor, locale, offer.currency);
 }
 
-const COUNTED_ENTITLEMENTS = ["includedAccountsPerUser", "includedRoutinesPerUser", "activeRules"] as const;
+const COUNTED_ENTITLEMENTS = [
+  "includedAccountsPerUser",
+  "includedRoutinesPerUser",
+  "activeAutomationRules",
+  "formSubmissionsPerMonth",
+] as const satisfies readonly (keyof PlanEntitlements)[];
 
 type CountedEntitlement = (typeof COUNTED_ENTITLEMENTS)[number];
 
@@ -117,18 +120,13 @@ function isCountedEntitlement(value: string): value is CountedEntitlement {
   return (COUNTED_ENTITLEMENTS as readonly string[]).includes(value);
 }
 
-function entitlementValue(plan: PlanId, entitlement: CountedEntitlement): number | "unlimited" {
-  if (entitlement === "activeRules") return activeAutomationRuleAllowance(plan);
-  return getPlanDefinition(plan).entitlements[entitlement];
-}
-
 function resolveEntitlementToken(parts: string[], locale: string): string {
   const [, rawPlan, entitlement] = parts;
   if (parts.length !== 3 || !rawPlan || !isPlanId(rawPlan) || !entitlement || !isCountedEntitlement(entitlement))
     throw new Error(`Invalid commercial entitlement token: ${parts.join(".")}`);
 
-  const value = entitlementValue(rawPlan, entitlement);
-  return value === "unlimited" ? localizedUnlimited(locale) : String(value);
+  const value = getPlanDefinition(rawPlan).entitlements[entitlement];
+  return value === "unlimited" ? localizedUnlimited(locale) : new Intl.NumberFormat(locale).format(value);
 }
 
 function resolveStorageToken(parts: string[], locale: string): string {
@@ -164,17 +162,8 @@ function resolveLimitToken(parts: string[], locale: string): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
-function resolveFormToken(parts: string[], locale: string): string {
-  const [, rawPlan, limit] = parts;
-  if (parts.length !== 3 || !rawPlan || !isPlanId(rawPlan) || limit !== "submissionsPerMonth")
-    throw new Error(`Invalid commercial form token: ${parts.join(".")}`);
-  const value = formLimitsOf(rawPlan).submissionsPerMonth;
-  return value === null ? localizedUnlimited(locale) : new Intl.NumberFormat(locale).format(value);
-}
-
 function resolveCommercialToken(token: string, locale: string): string {
   const parts = token.split(".");
-  if (parts[0] === "form") return resolveFormToken(parts, locale);
   if (parts[0] === "limit") return resolveLimitToken(parts, locale);
   if (parts[0] === "storage") return resolveStorageToken(parts, locale);
   if (parts[0] === "price") return resolvePriceToken(parts, locale);

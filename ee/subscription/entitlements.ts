@@ -26,6 +26,7 @@ export function getEffectiveEntitlements(input: { appMode: AppMode; plan: Subscr
   if (input.appMode === "self-hosted") {
     return {
       ...PLAN_CATALOG.starter.entitlements,
+      activeAutomationRules: "unlimited",
       hostedAiUsageMultiplier: null,
       hostedAiCreditsPerActiveUser: null,
       fileStorageBytesPerActiveUser: null,

@@ -6167,6 +6167,7 @@
         "drafts": "{count, plural, one {# openstaand concept} other {# openstaande concepten}}",
         "mate": "Mate ({count, plural, one {# verzoek} other {# verzoeken}})",
         "members": "{count, plural, one {# extra persoon} other {# extra personen}}",
+        "forms": "{count, plural, one {# formulierinzending boven de maandlimiet} other {# formulierinzendingen boven de maandlimiet}}",
         "routines": "{count, plural, one {# actieve routine} other {# actieve routines}}",
         "webhooks": "{count, plural, one {# actieve webhook} other {# actieve webhooks}}"
       },

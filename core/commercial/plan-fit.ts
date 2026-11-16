@@ -1,4 +1,4 @@
-import type { PlanId, PlanEntitlements, PurchasablePlanId } from "./plan-catalog";
+import type { PlanId, PurchasablePlanId } from "./plan-catalog";
 
 import { PLAN_CATALOG, PURCHASABLE_PLAN_IDS } from "./plan-catalog";
 
@@ -12,6 +12,8 @@ export type PlanFitUsage = {
   openDrafts: number;
   activeRoutines: number;
   maxRoutinesPerOwner: number;
+  activeAutomationRules: number;
+  formSubmissionsThisMonth: number;
   webhooks: number;
   mateRequests: number;
   apiClients: number;
@@ -25,17 +27,25 @@ export const EMPTY_PLAN_FIT_USAGE: PlanFitUsage = {
   openDrafts: 0,
   activeRoutines: 0,
   maxRoutinesPerOwner: 0,
+  activeAutomationRules: 0,
+  formSubmissionsThisMonth: 0,
   webhooks: 0,
   mateRequests: 0,
   apiClients: 0,
 };
 
-export type FreeLossKind = "accounts" | "drafts" | "routines" | "members" | "webhooks" | "mate";
+export type FreeLossKind = "accounts" | "drafts" | "routines" | "members" | "forms" | "webhooks" | "mate";
 
 export type FreeLoss = { kind: FreeLossKind; count: number };
 
-function holds(allowance: PlanEntitlements["includedAccountsPerUser"], needed: number): boolean {
+type Allowance = number | "unlimited";
+
+function holds(allowance: Allowance, needed: number): boolean {
   return allowance === "unlimited" || allowance >= needed;
+}
+
+function beyond(allowance: Allowance, used: number): number {
+  return allowance === "unlimited" ? 0 : Math.max(0, used - allowance);
 }
 
 function teamSharesAccounts(usage: PlanFitUsage): boolean {
@@ -43,11 +53,13 @@ function teamSharesAccounts(usage: PlanFitUsage): boolean {
 }
 
 export function lostOnFree(usage: PlanFitUsage): FreeLoss[] {
+  const free = PLAN_CATALOG.free.entitlements;
   const losses: FreeLoss[] = [
     { kind: "accounts", count: usage.connectedAccounts },
     { kind: "drafts", count: usage.openDrafts },
     { kind: "routines", count: usage.activeRoutines },
     { kind: "members", count: Math.max(0, usage.members - 1) },
+    { kind: "forms", count: beyond(free.formSubmissionsPerMonth, usage.formSubmissionsThisMonth) },
     { kind: "webhooks", count: usage.webhooks },
     { kind: "mate", count: usage.mateRequests },
   ];
@@ -63,6 +75,8 @@ export function planCovers(plan: PurchasablePlanId, usage: PlanFitUsage): boolea
     return false;
   if (teamSharesAccounts(usage) && !entitlements.sharedAccounts) return false;
   if (usage.activeRoutines > 0 && !holds(entitlements.includedRoutinesPerUser, usage.maxRoutinesPerOwner)) return false;
+  if (!holds(entitlements.activeAutomationRules, usage.activeAutomationRules)) return false;
+  if (!holds(entitlements.formSubmissionsPerMonth, usage.formSubmissionsThisMonth)) return false;
   return true;
 }
 
