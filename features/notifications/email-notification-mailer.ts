@@ -29,7 +29,6 @@ export class EmailNotificationMailer implements NotificationMailer {
     notifications: PendingEmailNotification[],
     mode: "instant" | "digest",
   ): Promise<boolean> {
-    if (env.NODE_ENV === "production" && !env.RESEND_API_KEY) return false;
     const locale = resolveUserLocale(recipient);
     const t = await getTranslator(locale, "NotificationEmail");
     const layoutCopy = await getEmailLayoutCopy(locale);

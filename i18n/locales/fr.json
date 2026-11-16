@@ -1458,7 +1458,6 @@
       "notAuthenticated": "Connectez-vous pour utiliser cette action.",
       "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
       "notesInvalidFormat": "Format de notes invalide. Il doit s’agir de JSON Tiptap valide ou de texte markdown.",
-      "notificationNotFound": "Notification introuvable.",
       "operatorAllowanceMissing": "Cet espace de travail n’a pas encore d’allocation Enterprise contractuelle, les crédits ne peuvent donc pas être corrigés. Définissez d’abord l’allocation dans la liste des espaces de travail.",
       "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
       "operatorConnectedAccountsActive": "Cet espace de travail a encore des comptes de messagerie connectés. Déconnectez-les d’abord pour libérer les comptes chez le prestataire, puis supprimez l’espace de travail.",
@@ -3543,16 +3542,12 @@
     },
     "empty": "Vous êtes à jour.",
     "kindHelp": {
-      "assigned": "Quand un enregistrement vous est assigné.",
       "dueToday": "Rappels des dates qui arrivent aujourd’hui.",
-      "formSubmission": "Quand quelqu’un envoie l’un de vos formulaires.",
       "replyReceived": "Quand arrive un message que vous attendiez.",
       "ruleAlert": "Quand l’une de vos automatisations vous signale quelque chose."
     },
     "kinds": {
-      "assigned": "Assigné à vous",
       "dueToday": "À faire aujourd’hui",
-      "formSubmission": "Réponses aux formulaires",
       "replyReceived": "Réponses reçues",
       "ruleAlert": "Alertes d’automatisation"
     },

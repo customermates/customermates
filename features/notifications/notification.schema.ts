@@ -4,16 +4,18 @@ import { z } from "zod";
 
 import { NotificationEmailMode, NotificationKind } from "@/generated/prisma";
 
-export const NOTIFICATION_KINDS = ["assigned", "dueToday", "formSubmission", "ruleAlert", "replyReceived"] as const;
+export const NOTIFICATION_KINDS = [
+  "dueToday",
+  "replyReceived",
+  "ruleAlert",
+] as const satisfies readonly (keyof typeof NotificationKind)[];
 export const NOTIFICATION_EMAIL_MODES = ["instant", "digest", "off"] as const;
 
 export const NotificationKindSchema = z.enum(NotificationKind);
 export const NotificationEmailModeSchema = z.enum(NotificationEmailMode);
 
 export const DEFAULT_NOTIFICATION_EMAIL_MODES = {
-  assigned: "instant",
   dueToday: "digest",
-  formSubmission: "instant",
   ruleAlert: "instant",
   replyReceived: "digest",
 } as const satisfies Record<(typeof NOTIFICATION_KINDS)[number], (typeof NOTIFICATION_EMAIL_MODES)[number]>;
@@ -30,7 +32,7 @@ export const NotifyMembersSchema = z
   .object({
     companyId: z.uuid(),
     recipients: z.array(z.uuid()).min(1).max(NOTIFICATION_RECIPIENT_LIMIT),
-    kind: NotificationKindSchema,
+    kind: z.enum(NOTIFICATION_KINDS),
     title: z.string().trim().min(1).max(NOTIFICATION_TITLE_MAX_CHARS),
     body: z.string().max(NOTIFICATION_BODY_MAX_CHARS).nullish(),
     href: z

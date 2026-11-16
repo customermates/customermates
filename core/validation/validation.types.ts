@@ -204,7 +204,6 @@ export enum CustomErrorCode {
   automationRuleEditNotOwner = "automationRuleEditNotOwner",
   automationRuleOwnerIneligible = "automationRuleOwnerIneligible",
   automationRuleAdminRequired = "automationRuleAdminRequired",
-  notificationNotFound = "notificationNotFound",
   planMemberLimitReached = "planMemberLimitReached",
   planRecordLimitReached = "planRecordLimitReached",
   planWebhooksNotIncluded = "planWebhooksNotIncluded",

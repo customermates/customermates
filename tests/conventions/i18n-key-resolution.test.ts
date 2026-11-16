@@ -671,7 +671,7 @@ const AUTOMATION_TRIGGER_KINDS = [
   "recordCreated",
   "recordUpdated",
 ] as const;
-const NOTIFICATION_KIND_NAMES = ["assigned", "dueToday", "formSubmission", "replyReceived", "ruleAlert"] as const;
+const NOTIFICATION_KIND_NAMES = ["dueToday", "replyReceived", "ruleAlert"] as const;
 const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string[]]> = [
   [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: builder.boolean.\${option}`, AUTOMATION_KEYS("builder.boolean", ["false", "true"])],
   [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: effect.\${kind}`, AUTOMATION_KEYS("effect", ["createRecord", "notify", "setField"])],

@@ -1458,7 +1458,6 @@
       "notAuthenticated": "Entre para usar esta ação.",
       "notesExceedsMaxLength": "O conteúdo das notas excede o tamanho máximo.",
       "notesInvalidFormat": "Formato de notas inválido. Deve ser JSON válido do Tiptap ou texto em markdown.",
-      "notificationNotFound": "Notificação não encontrada.",
       "operatorAllowanceMissing": "Este espaço de trabalho ainda não tem uma franquia Enterprise contratada, então os créditos não podem ser corrigidos. Defina primeiro a franquia na lista Espaços de trabalho.",
       "operatorConflict": "Essa alteração foi recusada. O registro pode ter mudado desde que a lista foi carregada, ou o espaço de trabalho pode não permitir isso agora. Recarregue e verifique o estado atual.",
       "operatorConnectedAccountsActive": "Este espaço de trabalho ainda tem contas de mensagens conectadas. Desconecte-as primeiro para liberar as contas do provedor e depois exclua o espaço de trabalho.",
@@ -3543,16 +3542,12 @@
     },
     "empty": "Você está em dia.",
     "kindHelp": {
-      "assigned": "Quando um registro é atribuído a você.",
       "dueToday": "Lembretes das datas que chegam hoje.",
-      "formSubmission": "Quando alguém envia um dos seus formulários.",
       "replyReceived": "Quando chega uma mensagem que você esperava.",
       "ruleAlert": "Quando uma das suas automações avisa você de algo."
     },
     "kinds": {
-      "assigned": "Atribuídos a você",
       "dueToday": "Vencem hoje",
-      "formSubmission": "Envios de formulários",
       "replyReceived": "Respostas recebidas",
       "ruleAlert": "Alertas de automação"
     },

@@ -1458,7 +1458,6 @@
       "notAuthenticated": "Log in om deze actie te gebruiken.",
       "notesExceedsMaxLength": "De inhoud van de notities overschrijdt de maximale lengte.",
       "notesInvalidFormat": "Ongeldig notitieformaat. Moet geldige Tiptap-JSON of markdowntekst zijn.",
-      "notificationNotFound": "Melding niet gevonden.",
       "operatorAllowanceMissing": "Deze werkruimte heeft nog geen contractueel Enterprise-contingent, dus credits kunnen niet worden gecorrigeerd. Stel eerst het contingent in op de lijst Werkruimtes.",
       "operatorConflict": "Die wijziging is geweigerd. Mogelijk is het record gewijzigd sinds het laden van de lijst, of staat de werkruimte het nu niet toe. Laad opnieuw en controleer de huidige status.",
       "operatorConnectedAccountsActive": "Deze werkruimte heeft nog verbonden berichtenaccounts. Ontkoppel ze eerst zodat de provideraccounts worden vrijgegeven, en verwijder daarna de werkruimte.",
@@ -3543,16 +3542,12 @@
     },
     "empty": "Je bent helemaal bij.",
     "kindHelp": {
-      "assigned": "Wanneer een record aan jou wordt toegewezen.",
       "dueToday": "Herinneringen voor datums die vandaag aanbreken.",
-      "formSubmission": "Wanneer iemand een van je formulieren verstuurt.",
       "replyReceived": "Wanneer een bericht binnenkomt waar je op wachtte.",
       "ruleAlert": "Wanneer een van je automatiseringen je iets meldt."
     },
     "kinds": {
-      "assigned": "Aan jou toegewezen",
       "dueToday": "Vandaag aan de beurt",
-      "formSubmission": "Ingevulde formulieren",
       "replyReceived": "Ontvangen antwoorden",
       "ruleAlert": "Meldingen van automatiseringen"
     },

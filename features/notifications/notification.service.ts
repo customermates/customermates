@@ -9,11 +9,13 @@ import * as ErrorReporter from "@/core/observability/server";
 
 import { DEFAULT_NOTIFICATION_EMAIL_MODES, NotifyMembersSchema } from "./notification.schema";
 
+const DEFAULT_EMAIL_MODES: Partial<Record<NotificationKind, NotificationEmailMode>> = DEFAULT_NOTIFICATION_EMAIL_MODES;
+
 export function effectiveEmailMode(
   preferences: ReadonlyMap<NotificationKind, NotificationEmailMode> | undefined,
   kind: NotificationKind,
 ): NotificationEmailMode {
-  return preferences?.get(kind) ?? DEFAULT_NOTIFICATION_EMAIL_MODES[kind];
+  return preferences?.get(kind) ?? DEFAULT_EMAIL_MODES[kind] ?? "off";
 }
 
 export class NotificationService {

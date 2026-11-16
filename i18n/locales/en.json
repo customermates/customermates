@@ -1458,7 +1458,6 @@
       "notAuthenticated": "Sign in to use this action.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length.",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
-      "notificationNotFound": "Notification not found.",
       "operatorAllowanceMissing": "This workspace has no contracted Enterprise allowance yet, so credits cannot be corrected. Set the allowance on the Workspaces list first.",
       "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
       "operatorConnectedAccountsActive": "This workspace still has connected messaging accounts. Disconnect them first so the provider accounts are released, then delete the workspace.",
@@ -3543,16 +3542,12 @@
     },
     "empty": "You are all caught up.",
     "kindHelp": {
-      "assigned": "When a record is assigned to you.",
       "dueToday": "Reminders for dates that arrive today.",
-      "formSubmission": "When someone submits one of your forms.",
       "replyReceived": "When a message you were waiting for arrives.",
       "ruleAlert": "When one of your automations tells you something."
     },
     "kinds": {
-      "assigned": "Assigned to you",
       "dueToday": "Due today",
-      "formSubmission": "Form submissions",
       "replyReceived": "Replies received",
       "ruleAlert": "Automation alerts"
     },

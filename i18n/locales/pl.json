@@ -1458,7 +1458,6 @@
       "notAuthenticated": "Zaloguj się, aby użyć tej czynności.",
       "notesExceedsMaxLength": "Treść notatek przekracza maksymalną długość.",
       "notesInvalidFormat": "Nieprawidłowy format notatek. Musi to być prawidłowy JSON Tiptap lub tekst w formacie Markdown.",
-      "notificationNotFound": "Nie znaleziono powiadomienia.",
       "operatorAllowanceMissing": "Ta przestrzeń robocza nie ma jeszcze umownego limitu Enterprise, więc nie można skorygować kredytów. Najpierw ustaw limit na liście Przestrzenie robocze.",
       "operatorConflict": "Ta zmiana została odrzucona. Rekord mógł się zmienić od załadowania listy lub przestrzeń robocza może teraz na nią nie pozwalać. Odśwież i sprawdź aktualny stan.",
       "operatorConnectedAccountsActive": "Ta przestrzeń robocza nadal ma połączone konta komunikacyjne. Najpierw je odłącz, aby konta u dostawców zostały zwolnione, a potem usuń przestrzeń roboczą.",
@@ -3543,16 +3542,12 @@
     },
     "empty": "Wszystko na bieżąco.",
     "kindHelp": {
-      "assigned": "Gdy rekord zostanie do Ciebie przypisany.",
       "dueToday": "Przypomnienia o datach, które nadchodzą dziś.",
-      "formSubmission": "Gdy ktoś wyśle jeden z Twoich formularzy.",
       "replyReceived": "Gdy nadejdzie wiadomość, na którą czekasz.",
       "ruleAlert": "Gdy jedna z Twoich automatyzacji coś zgłosi."
     },
     "kinds": {
-      "assigned": "Przypisane do Ciebie",
       "dueToday": "Termin dziś",
-      "formSubmission": "Wysłane formularze",
       "replyReceived": "Otrzymane odpowiedzi",
       "ruleAlert": "Alerty automatyzacji"
     },

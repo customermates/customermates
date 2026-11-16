@@ -87,7 +87,6 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.roleNotFound,
   CustomErrorCode.routineNotFound,
   CustomErrorCode.automationRuleNotFound,
-  CustomErrorCode.notificationNotFound,
   CustomErrorCode.threadNotFound,
   CustomErrorCode.messageNotFound,
   CustomErrorCode.recordFileNotFound,

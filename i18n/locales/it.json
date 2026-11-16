@@ -1458,7 +1458,6 @@
       "notAuthenticated": "Accedi per usare questa azione.",
       "notesExceedsMaxLength": "Il contenuto delle note supera la lunghezza massima.",
       "notesInvalidFormat": "Formato delle note non valido. Deve essere JSON Tiptap valido o testo markdown.",
-      "notificationNotFound": "Notifica non trovata.",
       "operatorAllowanceMissing": "Questo spazio di lavoro non ha ancora un contingente Enterprise contrattuale, quindi i crediti non possono essere corretti. Imposta prima il contingente nell'elenco degli spazi di lavoro.",
       "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
       "operatorConnectedAccountsActive": "Questo spazio di lavoro ha ancora account di messaggistica collegati. Scollegali prima per liberare gli account del fornitore, poi elimina lo spazio di lavoro.",
@@ -3543,16 +3542,12 @@
     },
     "empty": "Sei in pari con tutto.",
     "kindHelp": {
-      "assigned": "Quando ti viene assegnato un record.",
       "dueToday": "Promemoria per le date che arrivano oggi.",
-      "formSubmission": "Quando qualcuno invia uno dei tuoi moduli.",
       "replyReceived": "Quando arriva un messaggio che aspettavi.",
       "ruleAlert": "Quando una delle tue automazioni ti segnala qualcosa."
     },
     "kinds": {
-      "assigned": "Assegnati a te",
       "dueToday": "In scadenza oggi",
-      "formSubmission": "Invii di moduli",
       "replyReceived": "Risposte ricevute",
       "ruleAlert": "Avvisi di automazione"
     },

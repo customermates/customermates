@@ -31,7 +31,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { GetNotificationPreferencesInteractor } from "../get-notification-preferences.interactor";
 import { GetNotificationsInteractor } from "../get-notifications.interactor";
 import { MarkNotificationsReadInteractor } from "../mark-notifications-read.interactor";
-import { DEFAULT_NOTIFICATION_EMAIL_MODES, NotifyMembersSchema } from "../notification.schema";
+import { DEFAULT_NOTIFICATION_EMAIL_MODES, NOTIFICATION_KINDS, NotifyMembersSchema } from "../notification.schema";
 import { NotificationService, effectiveEmailMode } from "../notification.service";
 import { PruneNotificationsInteractor } from "../prune-notifications.interactor";
 import { SendNotificationDigestInteractor } from "../send-notification-digest.interactor";
@@ -95,11 +95,18 @@ describe("notifying members", () => {
   });
 
   it("defaults each kind to its documented email mode", () => {
-    expect(effectiveEmailMode(undefined, "assigned")).toBe("instant");
+    expect(effectiveEmailMode(undefined, "ruleAlert")).toBe("instant");
     expect(effectiveEmailMode(undefined, "dueToday")).toBe("digest");
     expect(effectiveEmailMode(undefined, "replyReceived")).toBe("digest");
     expect(effectiveEmailMode(new Map([["dueToday", "instant"]]), "dueToday")).toBe("instant");
-    expect(DEFAULT_NOTIFICATION_EMAIL_MODES.formSubmission).toBe("instant");
+    expect(Object.keys(DEFAULT_NOTIFICATION_EMAIL_MODES).sort()).toEqual([...NOTIFICATION_KINDS].sort());
+  });
+
+  it("never mails a kind that nothing produces and refuses to create one", async () => {
+    expect(effectiveEmailMode(undefined, "assigned")).toBe("off");
+    expect(effectiveEmailMode(undefined, "formSubmission")).toBe("off");
+    const service = new NotificationService(repo, mailer(), () => NOW);
+    await expect(service.notify({ ...base, kind: "assigned" } as never)).rejects.toThrow();
   });
 
   it("creates a notification once for the same dedupe key and keeps going when the mail fails", async () => {
@@ -138,7 +145,7 @@ describe("the inbox", () => {
         ...base,
         recipients: [recipient],
         title: `Note ${index}`,
-        kind: "assigned",
+        kind: "ruleAlert",
       });
     }
   });
@@ -186,19 +193,19 @@ describe("the inbox", () => {
     const before = await asMe(() => read.invoke());
     expect(before).toMatchObject({ ok: true });
     if (!before.ok) return;
-    expect(before.data.preferences).toHaveLength(5);
+    expect(before.data.preferences.map((item) => item.kind)).toEqual(NOTIFICATION_KINDS);
     expect(before.data.preferences.find((item) => item.kind === "dueToday")?.emailMode).toBe("digest");
     const after = await asMe(() =>
       write.invoke({
         preferences: [
           { kind: "dueToday", emailMode: "off" },
-          { kind: "assigned", emailMode: "digest" },
+          { kind: "replyReceived", emailMode: "instant" },
         ],
       } as never),
     );
     if (!after.ok) throw new Error("expected preferences");
     expect(after.data.preferences.find((item) => item.kind === "dueToday")?.emailMode).toBe("off");
-    expect(after.data.preferences.find((item) => item.kind === "assigned")?.emailMode).toBe("digest");
+    expect(after.data.preferences.find((item) => item.kind === "replyReceived")?.emailMode).toBe("instant");
     expect(after.data.preferences.find((item) => item.kind === "ruleAlert")?.emailMode).toBe("instant");
     expect(repo.preferences.get(COLLEAGUE)).toBeUndefined();
   });

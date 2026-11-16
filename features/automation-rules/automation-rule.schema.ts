@@ -2,9 +2,9 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import type { NotificationKind } from "@/generated/prisma";
 import { AutomationRunStatus, AutomationTriggerKind, Status } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { NOTIFICATION_KINDS } from "@/features/notifications/notification.schema";
 import { TimeZoneSchema } from "@/core/utils/time-zone";
 import { zx } from "@/core/validation/validation.utils";
 import { RecordFieldAssignmentSchema, RecordScalarSchema } from "@/features/records/record-model.schema";
@@ -42,11 +42,7 @@ export const AUTOMATION_CONDITION_OPERATORS = [
 ] as const;
 export type AutomationConditionOperator = (typeof AUTOMATION_CONDITION_OPERATORS)[number];
 
-export const AUTOMATION_NOTIFY_KINDS = [
-  "ruleAlert",
-  "dueToday",
-  "replyReceived",
-] as const satisfies readonly (keyof typeof NotificationKind)[];
+export const AUTOMATION_NOTIFY_KINDS = NOTIFICATION_KINDS;
 
 const TypeIdSchema = z.uuid().describe("Stable id of the list (record type).");
 const FieldIdSchema = z.uuid().describe("Stable id of the field.");
