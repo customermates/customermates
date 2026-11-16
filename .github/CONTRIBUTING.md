@@ -53,7 +53,7 @@ Vercel builds a preview only for SEO daily branches (`feat/seo-daily-*`) and for
 
 Customermates uses a main-only integration model:
 
-- `main` is the only long-lived branch and always holds the latest stable state. There is no integration or release branch.
+- `main` is the only long-lived branch for code and always holds the latest stable state. There is no integration or release branch. The `cla-signatures` branch holds only the list of signed contributor agreements and is written only by the CLA check.
 - Every change arrives through a pull request that targets `main`. Direct pushes, force pushes, and branch deletion are blocked for everyone.
 - Pull requests are squash-merged, and the branch is deleted automatically afterwards.
 
