@@ -117,6 +117,7 @@ async function runOffloaded() {
     "-lc",
     [
       "set -e",
+      ...(/^\d+$/.test(process.env.NEXT_BUILD_HEAP_MB ?? "") ? [`export NEXT_BUILD_HEAP_MB=${process.env.NEXT_BUILD_HEAP_MB}`] : []),
       `export CRM_VERIFY_ENV_TEMPLATE_B64=${readFileSync(resolve(REPO_ROOT, ".env.cloud.template")).toString("base64")}`,
       'stamp="$(sha256sum yarn.lock | cut -c1-16)"',
       'if [ ! -f node_modules/.verify-lock ] || [ "$(cat node_modules/.verify-lock)" != "$stamp" ]; then DATABASE_URL=postgresql://localhost/unused yarn install --frozen-lockfile --prefer-offline >/dev/null && echo "$stamp" > node_modules/.verify-lock; fi',
