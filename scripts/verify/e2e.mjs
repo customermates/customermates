@@ -59,9 +59,20 @@ targets.forEach(parseTarget);
 const offloaded = options.offload ? options.offload.split(",").filter((target) => targets.includes(target)) : [];
 const local = targets.filter((target) => !offloaded.includes(target));
 
+function cgroupMemoryLimit() {
+  try {
+    const group = readFileSync("/proc/self/cgroup", "utf8").split("\n").find((line) => line.startsWith("0::"))?.slice(3).trim();
+    if (!group) return null;
+    const value = readFileSync(`/sys/fs/cgroup${group}/memory.max`, "utf8").trim();
+    return /^\d+$/.test(value) ? Number(value) : null;
+  } catch {
+    return null;
+  }
+}
+
 const cores = cpus().length;
-const memoryGb = totalmem() / 1024 ** 3;
-const parallel = Number(options.parallel) || Math.max(1, Math.min(Math.floor(cores / 2), Math.floor(memoryGb / 4)));
+const memoryGb = Math.min(totalmem(), cgroupMemoryLimit() ?? Infinity) / 1024 ** 3;
+const parallel = Number(options.parallel) || Math.max(1, Math.min(Math.floor(cores / 2), Math.floor(memoryGb / 6)));
 const shardsPerTarget = Number(options.shards) || Math.max(1, Math.floor(parallel / Math.max(1, local.length)));
 
 const DURATION_FILES = [resolve(REPO_ROOT, ".runs/verify/e2e-durations.json"), resolve(REPO_ROOT, "tests/e2e/durations.json")];
@@ -117,7 +128,7 @@ async function runOffloaded() {
     "-lc",
     [
       "set -e",
-      ...(/^\d+$/.test(process.env.NEXT_BUILD_HEAP_MB ?? "") ? [`export NEXT_BUILD_HEAP_MB=${process.env.NEXT_BUILD_HEAP_MB}`] : []),
+      `export NEXT_BUILD_HEAP_MB=${/^\d+$/.test(process.env.NEXT_BUILD_HEAP_MB ?? "") ? process.env.NEXT_BUILD_HEAP_MB : "7168"}`,
       `export CRM_VERIFY_ENV_TEMPLATE_B64=${readFileSync(resolve(REPO_ROOT, ".env.cloud.template")).toString("base64")}`,
       'stamp="$(sha256sum yarn.lock | cut -c1-16)"',
       'if [ ! -f node_modules/.verify-lock ] || [ "$(cat node_modules/.verify-lock)" != "$stamp" ]; then DATABASE_URL=postgresql://localhost/unused yarn install --frozen-lockfile --prefer-offline >/dev/null && echo "$stamp" > node_modules/.verify-lock; fi',
