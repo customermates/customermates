@@ -13,7 +13,7 @@ import { SOLUTION_WORKSPACES, type SolutionWorkspace } from "./solution-workspac
 export const SOLUTION_SEED_CONCURRENCY = 5;
 
 /** Upper bound for seeding every demo workspace; a slower run means the seed grew past what a deploy should wait for. */
-export const SOLUTION_SEED_BUDGET_MS = 600_000;
+export const SOLUTION_SEED_BUDGET_MS = 1_200_000;
 
 export type SolutionWorkspacePlan = { workspace: SolutionWorkspace; content: SolutionContent; model: RecordModel };
 
