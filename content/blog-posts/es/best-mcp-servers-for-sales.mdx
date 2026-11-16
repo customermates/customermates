@@ -28,7 +28,7 @@ relatedHrefs:
 
 Los mejores servidores MCP para ventas son los que el proveedor de tu CRM opera por su cuenta: el servidor remoto de HubSpot, los servidores alojados de Pipedrive y Attio y, para organizaciones grandes con administradores, los Salesforce Hosted MCP Servers. En el correo electrónico el panorama es más débil. El servidor de Gmail de Google es una versión preliminar para desarrolladores que crea borradores y aplica etiquetas, pero no envía nada, y el servidor Work IQ de Microsoft tiene que activarlo antes un administrador del tenant. Abajo hay ocho servidores clasificados para ventas y trabajo con clientes, con el operador, el alojamiento, el inicio de sesión y el alcance de escritura de cada uno.
 
-Transparencia: Customermates, un CRM de código abierto con su propio servidor MCP, publica esta lista y es una de las ocho entradas. Cada fila se comprobó el 12 de noviembre de 2026 en la documentación del proveedor o en su repositorio oficial, enlazados en la tabla. Leímos esas páginas sin ejecutar cada servidor: una fila muestra lo que el proveedor documenta, no una medición.
+Transparencia: Customermates, un CRM con el código fuente disponible y su propio servidor MCP, publica esta lista y es una de las ocho entradas. Cada fila se comprobó el 12 de noviembre de 2026 en la documentación del proveedor o en su repositorio oficial, enlazados en la tabla. Leímos esas páginas sin ejecutar cada servidor: una fila muestra lo que el proveedor documenta, no una medición.
 
 <ArticleSummary title="De un vistazo">
   <SummaryItem label="Servidores de CRM">
@@ -71,7 +71,7 @@ El criterio es un equipo pequeño que trata directamente con clientes: pocos pue
 | 1 | Servidor MCP remoto de HubSpot | Equipos que usan HubSpot y quieren registros, actividades y conversaciones en un solo servidor | Sin borrado en el acceso de escritura documentado; los datos de actividad se bloquean con los datos sensibles activados |
 | 2 | MCP de Pipedrive | Equipos de ventas centrados en el pipeline, con cualquier plan de Pipedrive | El borrado no está documentado; el uso cuenta contra los límites de tokens del plan |
 | 3 | MCP de Attio | Un modelo de datos propio con listas, notas y tareas | Solo borra tareas y comentarios; una herramienta SQL no está en todos los planes |
-| 4 | MCP de Customermates (editor) | Equipos pequeños con clientes que quieren las conversaciones junto a los registros, con un núcleo de código abierto | Las herramientas de mensajería exigen Pro en la nube; sin permisos a nivel de campo; sin secuencias, telefonía ni facturación |
+| 4 | MCP de Customermates (editor) | Equipos pequeños con clientes que quieren las conversaciones junto a los registros, con una edición Community autoalojable | Las herramientas de mensajería exigen Pro en la nube; sin permisos a nivel de campo; sin secuencias, telefonía ni facturación |
 | 5 | Salesforce Hosted MCP Servers | Organizaciones que ya usan Salesforce y tienen administradores | Exige un administrador, una External Client App y la edición Enterprise o superior |
 | 6 | Microsoft Work IQ MCP | Correo de Outlook, calendario y Teams dentro de un tenant de Microsoft 365 | Lo configura un administrador global, más un plan de facturación por uso en Copilot Studio |
 | 7 | Servidor MCP de Gmail (Google) | Leer hilos y redactar respuestas en Gmail | Versión preliminar para desarrolladores; sin herramienta de envío ni de borrado; exige tu propio proyecto de Google Cloud |
@@ -140,7 +140,7 @@ El 12 de noviembre de 2026 no encontramos ningún servidor MCP operado por Linke
 | Usas Pipedrive | El servidor de Pipedrive, con un plan cuyo límite de tokens encaje con tu uso |
 | Quieres un modelo de datos propio con listas e informes | Attio |
 | Usas Salesforce con administradores y lógica propia | Salesforce Hosted MCP Servers, empezando por `platform/sobject-reads` en un sandbox |
-| Estás eligiendo tu primer CRM y quieres servidor MCP, conversaciones y núcleo de código abierto en un solo producto | Customermates |
+| Estás eligiendo tu primer CRM y quieres servidor MCP, conversaciones y edición Community autoalojable en un solo producto | Customermates |
 | Quieres que la IA lea tu buzón y redacte respuestas | El servidor de Gmail si aceptas una versión preliminar, Microsoft Work IQ si usas Microsoft 365 |
 | Tu buzón es IMAP, ni Gmail ni Microsoft 365 | No sirve ni el servidor de Google ni el de Microsoft; Customermates conecta buzones de Gmail, Outlook e IMAP en la nube desde Pro |
 | Quieres pasos fijos entre varias herramientas | El servidor de n8n |

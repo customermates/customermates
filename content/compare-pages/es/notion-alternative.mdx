@@ -87,8 +87,8 @@ comparison:
         competitor: true
   - title: Licencia, alojamiento y acceso
     features:
-      - name: Licencia de código abierto
-        source: Núcleo AGPL-3.0
+      - name: Código fuente disponible
+        source: Sustainable Use License; ee/ con una licencia comercial aparte
         competitor: false
       - name: Autoalojamiento
         source: Docker Compose (CRM base sin bandeja de entrada ni Mate)
@@ -127,7 +127,7 @@ Notion no es un CRM listo para usar, pero puede hacer de CRM si lo montas tú. E
 | Necesitas tipos de registro propios, como inversores, inmuebles o candidatos, con fórmulas y rollups | Attio, Twenty, Airtable o Customermates | Customermates empieza sin listas; creas las tuyas (contactos, oportunidades o lo que necesites) con campos calculados |
 | Los clientes escriben por correo, LinkedIn y WhatsApp y quieres esos hilos en el contacto | Customermates Pro o Business | Todos estos canales llegan a una sola bandeja de entrada, vinculados a los contactos |
 | Quieres el valor de la oportunidad por la probabilidad de la etapa sin tener que construirlo | Customermates, cualquier plan | El campo de etapa con probabilidades existe desde el registro |
-| Necesitas alojamiento en la UE sin un contrato Enterprise, o quieres alojar el CRM tú mismo | Customermates | Base de datos en la nube configurada en la región AWS de Fráncfort en todos los planes; núcleo AGPL para el autoalojamiento, sin bandeja de entrada ni Mate |
+| Necesitas alojamiento en la UE sin un contrato Enterprise, o quieres alojar el CRM tú mismo | Customermates | Base de datos en la nube configurada en la región AWS de Fráncfort en todos los planes; edición Community para el autoalojamiento, sin bandeja de entrada ni Mate |
 | Necesitas SSO SAML o apps móviles nativas | Notion Business | Notion tiene ambas cosas; Customermates no tiene SSO ni app nativa |
 
 ## Para quién es buena opción un CRM en Notion
@@ -198,7 +198,7 @@ En Notion te construyes el CRM tú y pegas las conversaciones dentro. En Custome
 
 **La IA mantiene los registros al día.** En Customermates Cloud, Mate resume hilos, redacta respuestas, actualiza registros y crea vistas, con créditos de IA alojados y una asignación mensual por usuario activo (consulta los [precios](/pricing)). Pide una aprobación nueva antes de cada eliminación, pero envía los mensajes sin pedirla, así que dile que guarde borradores cuando quieras revisarlos antes. Las rutinas ejecutan una instrucción guardada con una programación o cuando cambia un registro: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuario en Starter y [[commercial.entitlement.pro.includedRoutinesPerUser]] en Pro. ¿Prefieres Claude o ChatGPT? Conéctalo al [servidor MCP](/docs/mcp), que ofrece [[derived.mcp.tools.total]] herramientas en todos los planes; las llamadas al modelo se ejecutan entonces con tu propio proveedor de IA.
 
-**Tú eliges dónde alojarlo.** La base de datos en la nube está configurada en la región AWS de Fráncfort; hay un DPA disponible y se enumeran los subencargados del tratamiento, incluidos los proveedores estadounidenses. El núcleo AGPL-3.0 se ejecuta en tu propio servidor con Docker Compose, con REST, webhooks y MCP incluidos, pero una [instalación autoalojada](/features/self-hosted) no tiene bandeja de entrada ni Mate. Customermates no cuenta con ninguna certificación de cumplimiento.
+**Tú eliges dónde alojarlo.** La base de datos en la nube está configurada en la región AWS de Fráncfort; hay un DPA disponible y se enumeran los subencargados del tratamiento, incluidos los proveedores estadounidenses. La edición Community se ejecuta en tu propio servidor para uso interno con Docker Compose, con REST, webhooks y MCP incluidos, pero una [instalación autoalojada](/features/self-hosted) no tiene bandeja de entrada ni Mate. Customermates no cuenta con ninguna certificación de cumplimiento.
 
 ## Dónde Customermates es la opción equivocada
 
@@ -284,7 +284,7 @@ Sí. Ambos tienen una API REST y webhooks, y n8n tiene nodos para los dos, así 
 </FaqItem>
 
 <FaqItem question="¿Existe una alternativa de código abierto a Notion para el CRM?">
-Sí. Twenty es de código abierto, con objetos personalizados, y es lo más parecido a un esquema flexible de Notion. Customermates tiene un núcleo AGPL-3.0 que puedes alojar con Docker Compose; la bandeja de entrada y Mate existen solo en Customermates Cloud.
+Sí. Twenty es de código abierto, con objetos personalizados, y es lo más parecido a un esquema flexible de Notion. Customermates no es de código abierto, pero tiene el código fuente disponible bajo la Sustainable Use License y una edición Community que puedes alojar con Docker Compose para uso interno; la bandeja de entrada y Mate existen solo en Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="¿Dónde guarda Notion los datos de mi CRM?">

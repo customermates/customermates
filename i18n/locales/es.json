@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Código abierto"
+    "label": "Código fuente disponible · fair-code"
   },
   "ApiKeyModal": {
     "addDescription": "Crea una clave para tu propia integración o elige un cliente de IA para recibir una configuración guiada.",
@@ -2786,7 +2786,7 @@
     "invalid": "Contiene errores"
   },
   "EmailLayout": {
-    "tagline": "El CRM de código abierto para el seguimiento de clientes"
+    "tagline": "El CRM autoalojable para el seguimiento de clientes"
   },
   "EmailVerification": {
     "notVerified": "Correo no verificado",
@@ -2991,7 +2991,7 @@
       "cancelAnytime": "Cancela cuando quieras",
       "gdpr": "Base de datos en región UE; sin certificación",
       "noLimits": "Planes transparentes",
-      "openSource": "Open core"
+      "openSource": "Código fuente disponible"
     },
     "eyebrow": "Precios",
     "selfHosted": {
@@ -3001,12 +3001,12 @@
       "featureN8n": "Interfaces para una instancia de n8n separada",
       "featureRecords": "Registros básicos del CRM",
       "featureUsers": "Usuarios del espacio de trabajo",
-      "period": "bajo AGPL",
-      "price": "Núcleo gratis",
-      "tag": "Ejecuta la aplicación base con licencia AGPL y PostgreSQL en tu servidor mediante Docker Compose, con el alcance de Starter, sin bandeja de entrada ni IA alojada. Los servicios externos van aparte.",
+      "period": "para uso interno",
+      "price": "Community gratis",
+      "tag": "La versión autoalojada está en GitHub: ejecuta la edición Community y PostgreSQL en tu servidor mediante Docker Compose, con el alcance de Starter, sin bandeja de entrada ni IA alojada. Uso interno gratis, sin reventa ni alojamiento para terceros. Los servicios externos van aparte.",
       "title": "Autoalojado"
     },
-    "subtitle": "Planes transparentes, sin costes ocultos. Autoaloja gratis el núcleo AGPL; los servicios externos van aparte. O prueba Cloud gratis, sin tarjeta.",
+    "subtitle": "Planes transparentes, sin costes ocultos. Autoaloja gratis la edición Community para uso interno; los servicios externos van aparte. O prueba Cloud gratis, sin tarjeta.",
     "title": "Sencillo, honesto, europeo"
   },
   "HomepageWorkspacePrompt": {
@@ -3482,7 +3482,7 @@
       "mcpDocs": "Documentación de MCP",
       "n8n": "Automatización con n8n",
       "openExampleWorkspace": "Abrir este espacio de trabajo de ejemplo",
-      "openSourceCrm": "CRM de código abierto",
+      "openSourceCrm": "Alternativas de CRM de código abierto",
       "pillarData": "Datos",
       "pillarDataDescription": "Clientes, oportunidades y listas a tu medida",
       "pillarInbox": "Bandeja de entrada",
