@@ -9,6 +9,21 @@ export const PRODUCT_FILMS = {
     seconds: 81,
     src: "/customermates-film-de.mp4",
   },
+  fr: {
+    posters: { dark: "/customermates-film-fr-poster-dark.jpg", light: "/customermates-film-fr-poster.jpg" },
+    seconds: 84,
+    src: "/customermates-film-fr.mp4",
+  },
+  es: {
+    posters: { dark: "/customermates-film-es-poster-dark.jpg", light: "/customermates-film-es-poster.jpg" },
+    seconds: 80,
+    src: "/customermates-film-es.mp4",
+  },
+  it: {
+    posters: { dark: "/customermates-film-it-poster-dark.jpg", light: "/customermates-film-it-poster.jpg" },
+    seconds: 83,
+    src: "/customermates-film-it.mp4",
+  },
 } as const;
 
 export type ProductFilmLocale = keyof typeof PRODUCT_FILMS;

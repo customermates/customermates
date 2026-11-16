@@ -22,11 +22,14 @@ function jpegSize(path: string): { height: number; width: number } {
   throw new Error(`${path} has no frame header`);
 }
 
+const OWN_FILM_LOCALES = ["de", "fr", "es", "it"] as const;
+const ENGLISH_WORD = { de: /englisch/iu, es: /ingl[eé]s/iu, fr: /anglais/iu, it: /inglese/iu } as const;
+
 describe("product film per locale", () => {
-  it("shows the German film on the German pages and the English film everywhere else", () => {
-    expect(productFilmFor("de")).toBe(PRODUCT_FILMS.de);
+  it("shows the film of a locale on its pages and the English film on the others", () => {
     expect(productFilmFor("en")).toBe(PRODUCT_FILMS.en);
-    for (const locale of CONTENT_LOCALES.filter((value) => value !== "de")) {
+    for (const locale of OWN_FILM_LOCALES) expect(productFilmFor(locale), locale).toBe(PRODUCT_FILMS[locale]);
+    for (const locale of CONTENT_LOCALES.filter((value) => value !== "en" && !OWN_FILM_LOCALES.some((own) => own === value))) {
       expect(productFilmFor(locale), locale).toBe(PRODUCT_FILMS.en);
     }
     expect(productFilmFor("xx")).toBe(PRODUCT_FILMS.en);
@@ -57,10 +60,12 @@ describe("product film per locale", () => {
     }
   });
 
-  it("does not call the German film English", () => {
-    const messages = JSON.parse(readFileSync(join(REPO_ROOT, "i18n", "locales", "de.json"), "utf8")) as {
-      ProductFilm: { caption: string };
-    };
-    expect(messages.ProductFilm.caption).not.toMatch(/englisch/iu);
+  it("does not call a locale's own film English in its caption", () => {
+    for (const locale of OWN_FILM_LOCALES) {
+      const messages = JSON.parse(readFileSync(join(REPO_ROOT, "i18n", "locales", `${locale}.json`), "utf8")) as {
+        ProductFilm: { caption: string };
+      };
+      expect(messages.ProductFilm.caption, locale).not.toMatch(ENGLISH_WORD[locale]);
+    }
   });
 });
