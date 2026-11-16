@@ -24,11 +24,6 @@ function rememberLastCall(companyId: string, now: number) {
   lastCallStamps.set(companyId, now);
 }
 
-export function forgetRecordedAgentFirstCalls() {
-  recordedWorkspaces.clear();
-  lastCallStamps.clear();
-}
-
 @TenantInteractor()
 export class RecordAgentFirstCallInteractor extends AuthenticatedInteractor<void, { recorded: boolean }> {
   constructor(private readonly repo: RecordAgentFirstCallRepo) {

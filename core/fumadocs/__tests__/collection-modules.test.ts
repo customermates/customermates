@@ -5,44 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { collectionModules, renderHeadModule } from "../collection-modules";
-
-describe("renderHeadModule", () => {
-  it("writes one frontmatter-only import and one entry per file", () => {
-    const content = renderHeadModule("auth", [
-      {
-        fullPath: "content/auth/en/signin.mdx",
-        importPath: "../../content/auth/en/signin.mdx",
-        lastModified: new Date("2026-11-11T20:26:47.000Z"),
-        path: "en/signin.mdx",
-      },
-      {
-        fullPath: "content/auth/en/signup.mdx",
-        importPath: "../../content/auth/en/signup.mdx",
-        lastModified: null,
-        path: "en/signup.mdx",
-      },
-    ]);
-
-    expect(content).toBe(
-      [
-        "// @ts-nocheck",
-        'import { frontmatter as head0 } from "../../content/auth/en/signin.mdx?collection=auth&only=frontmatter";',
-        'import { frontmatter as head1 } from "../../content/auth/en/signup.mdx?collection=auth&only=frontmatter";',
-        "",
-        "export const auth = [",
-        '  { path: "en/signin.mdx", fullPath: "content/auth/en/signin.mdx", frontmatter: head0, lastModified: "2026-11-11T20:26:47.000Z" },',
-        '  { path: "en/signup.mdx", fullPath: "content/auth/en/signup.mdx", frontmatter: head1 },',
-        "];",
-        "",
-      ].join("\n"),
-    );
-  });
-
-  it("writes an empty list for a collection without files", () => {
-    expect(renderHeadModule("auth", [])).toBe(["// @ts-nocheck", "", "export const auth = [", "];", ""].join("\n"));
-  });
-});
+import { collectionModules } from "../collection-modules";
 
 describe("collectionModules", () => {
   let directory: string;
@@ -91,6 +54,36 @@ describe("collectionModules", () => {
     expect(head?.content).toContain('lastModified: "1970-01-01T00:00:00.000Z"');
     expect(head?.content).not.toContain("notes.txt");
     expect(head?.content).toMatch(/\.\.\/\.\.\/.*en\/a\.mdx\?collection=notes&only=frontmatter/u);
+  });
+
+  it("writes one frontmatter-only import and one entry per file", async () => {
+    const { core } = fakeCore();
+    const plugin = collectionModules({
+      lastModified: (path: string) =>
+        Promise.resolve(path.endsWith("a.mdx") ? new Date("2026-11-11T20:26:47.000Z") : null),
+    });
+    const head = (await plugin.emit?.call({ core }))?.find((entry) => entry.path === "heads/notes.ts")?.content ?? "";
+    const lines = head.split("\n");
+
+    expect(lines[0]).toBe("// @ts-nocheck");
+    expect(lines.filter((line) => line.startsWith("import { frontmatter as head"))).toHaveLength(2);
+    expect(head).toContain("export const notes = [");
+    expect(head).toMatch(
+      /\{ path: "en\/a\.mdx", fullPath: "[^"]+en\/a\.mdx", frontmatter: head0, lastModified: "2026-11-11T20:26:47\.000Z" \},/u,
+    );
+    expect(head).toMatch(/\{ path: "en\/b\.mdx", fullPath: "[^"]+en\/b\.mdx", frontmatter: head1 \},/u);
+    expect(head.endsWith("];\n")).toBe(true);
+  });
+
+  it("writes an empty list for a collection without files", async () => {
+    rmSync(join(directory, "en"), { force: true, recursive: true });
+    const { core } = fakeCore();
+    const plugin = collectionModules({ lastModified: () => Promise.resolve(null) });
+    const entries = await plugin.emit?.call({ core });
+
+    expect(entries?.find((entry) => entry.path === "heads/notes.ts")?.content).toBe(
+      ["// @ts-nocheck", "", "export const notes = [", "];", ""].join("\n"),
+    );
   });
 
   it("keeps a failed date lookup from failing the emit", async () => {

@@ -8,15 +8,21 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
 import { GetOnboardingAgentStatusInteractor } from "../get-onboarding-agent-status.interactor";
-import { RecordAgentFirstCallInteractor, forgetRecordedAgentFirstCalls } from "../record-agent-first-call.interactor";
+import { RecordAgentFirstCallInteractor } from "../record-agent-first-call.interactor";
 
 const owner = createMockUser({ onboardingWizardCompletedAt: null });
+let workspaces = 0;
 
 describe("RecordAgentFirstCallInteractor", () => {
   let repo: { recordAgentFirstCall: ReturnType<typeof vi.fn>; recordAgentCall: ReturnType<typeof vi.fn> };
+  let recordingOwner = owner;
 
   beforeEach(() => {
-    forgetRecordedAgentFirstCalls();
+    workspaces += 1;
+    recordingOwner = createMockUser({
+      onboardingWizardCompletedAt: null,
+      companyId: `first-call-workspace-${workspaces}`,
+    });
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
     repo = {
       recordAgentFirstCall: vi.fn().mockResolvedValue(true),
@@ -41,7 +47,7 @@ describe("RecordAgentFirstCallInteractor", () => {
     expect(repo.recordAgentCall).toHaveBeenCalledTimes(2);
   });
 
-  const record = (user = owner) =>
+  const record = (user = recordingOwner) =>
     runWithTenant(user, () => new RecordAgentFirstCallInteractor(repo as never).invoke());
 
   it("records the first authenticated call of a workspace", async () => {

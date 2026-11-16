@@ -40,7 +40,3 @@ export function templateFieldIndex(spec: TemplateModelParts): Map<string, Templa
 export function templateRoleList(spec: Pick<TemplateSpecObject, "lists">, role: string): string | null {
   return spec.lists.find((list) => list.role === role)?.key ?? null;
 }
-
-export function templateStageField(spec: Pick<TemplateSpecObject, "stages">, ref: string) {
-  return spec.stages.find((stage) => stage.field === ref) ?? null;
-}

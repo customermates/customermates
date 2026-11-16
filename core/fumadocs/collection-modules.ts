@@ -67,7 +67,7 @@ async function bodyModule(core: Core, collection: DocCollectionItem): Promise<Em
   return { path: `${BODY_MODULE_DIRECTORY}/${collection.name}.ts`, content: server.content };
 }
 
-export function renderHeadModule(
+function renderHeadModule(
   collectionName: string,
   entries: readonly { fullPath: string; importPath: string; lastModified: Date | null; path: string }[],
 ): string {

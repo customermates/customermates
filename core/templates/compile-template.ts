@@ -229,7 +229,3 @@ export function compileTemplate(
   };
   return { plan, extras: compileTemplateExtras(spec, text, options) };
 }
-
-export function compileTemplateToSetupPlan(spec: TemplateSpec, text: TemplateLocale): SetupPlan {
-  return compileTemplate(spec, text).plan;
-}

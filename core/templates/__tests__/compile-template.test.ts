@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { compileTemplate, compileTemplateToSetupPlan } from "@/core/templates/compile-template";
+import { compileTemplate } from "@/core/templates/compile-template";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 import { SetupFieldKeySchema, SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 
@@ -27,12 +27,6 @@ describe("compileTemplate", () => {
     expect(keys.filter((key) => !PLAN_KEY.test(key))).toEqual([]);
     const fieldKeys = [...plan.recordModel.fields, ...plan.recordModel.calculations].map((field) => field.key);
     expect(fieldKeys.filter((key) => !SetupFieldKeySchema.safeParse(key).success)).toEqual([]);
-  });
-
-  it("returns the plan alone from compileTemplateToSetupPlan", () => {
-    expect(compileTemplateToSetupPlan(cloneSpec(), cloneText())).toEqual(
-      compileTemplate(cloneSpec(), cloneText()).plan,
-    );
   });
 
   it("puts the stage field first and carries weights and outcomes", () => {
