@@ -20,13 +20,6 @@ function pause(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Serializes seed runs on one database. Two seeds writing the same fixture namespaces delete each other's rows
- * (foreign key and unique violations) or wait on each other's transactions, so a seed holds a transaction-level
- * advisory lock on its own connection for its whole run. A transaction lock survives a transaction pooler, and a
- * process that dies drops its connection, which releases the lock. A seed that cannot get the lock within the wait
- * fails with a message instead of waiting on a run that never ends.
- */
 export async function acquireSeedLock(connectionString: string, options: SeedLockOptions = {}): Promise<SeedLock> {
   const waitMs = options.waitMs ?? SEED_LOCK_WAIT_MS;
   const pollMs = options.pollMs ?? SEED_LOCK_POLL_MS;
