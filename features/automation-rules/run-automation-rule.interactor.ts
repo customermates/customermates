@@ -10,11 +10,12 @@ import type { AutomationEffectOutcome } from "./automation-rule.schema";
 import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { roleCanRead } from "@/core/base/permission.service";
+import { runInCausation } from "@/core/decorators/causation-context";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 
 import { evaluateConditions } from "./automation-conditions";
-import { extendAutomationChain, runInAutomationContext } from "./automation-context";
+import { extendAutomationChain } from "./automation-context";
 import { ruleConditionPlan } from "./automation-record-trigger";
 import { AutomationConditionSchema, AutomationEffectSchema, AutomationTriggerSchema } from "./automation-rule.schema";
 
@@ -95,8 +96,8 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
         return { status: "skipped", reason: "conditionsNotMet" };
     }
     const parentChain = RunPayloadSchema.parse(run.payload ?? {}).chain;
-    const { outcomes, failure } = await runInAutomationContext(
-      { chain: extendAutomationChain(parentChain, rule.id) },
+    const { outcomes, failure } = await runInCausation(
+      { ruleChain: extendAutomationChain(parentChain, rule.id) },
       () =>
         this.runner.run(definition.effects, {
           companyId: this.user.companyId,

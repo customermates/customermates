@@ -32,7 +32,7 @@ import type { AutomationRecordView } from "../automation-ports";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { AutomationEffectRunner } from "../automation-effect-runner";
 import { AutomationRuleAdmission } from "../automation-rule-admission";
-import { currentAutomationChain } from "../automation-context";
+import { currentCausation } from "@/core/decorators/causation-context";
 import { DiscardAutomationRuleRunInteractor } from "../discard-automation-rule-run.interactor";
 import { RunAutomationRuleInteractor } from "../run-automation-rule.interactor";
 import { SweepAutomationRulesInteractor } from "../sweep-automation-rules.interactor";
@@ -429,16 +429,16 @@ describe("running a rule", () => {
     const runId = (await seedRun(repo, {
       effects: [{ kind: "setField", fields: [{ fieldId: STAGE, value: null }] }],
     })) as string;
-    const seen: Array<string[] | undefined> = [];
+    const seen: Array<readonly string[] | undefined> = [];
     const set = ports();
     set.records.mutate.mockImplementation(() => {
-      seen.push(currentAutomationChain());
+      seen.push(currentCausation()?.ruleChain);
       return Promise.resolve({ ok: true, refs: [] });
     });
     const instance = new RunAutomationRuleInteractor(repo, set.runner, set.records as never, () => NOW);
     await run(instance, runId);
     expect(seen).toEqual([[RULE]]);
-    expect(currentAutomationChain()).toBeUndefined();
+    expect(currentCausation()).toBeUndefined();
   });
 
   it("extends the chain it was started with", async () => {
@@ -447,10 +447,10 @@ describe("running a rule", () => {
     })) as string;
     const started = repo.runs.get(runId);
     if (started) repo.runs.set(runId, { ...started, payload: { chain: [RULE_B] } });
-    const seen: Array<string[] | undefined> = [];
+    const seen: Array<readonly string[] | undefined> = [];
     const set = ports();
     set.records.mutate.mockImplementation(() => {
-      seen.push(currentAutomationChain());
+      seen.push(currentCausation()?.ruleChain);
       return Promise.resolve({ ok: true, refs: [] });
     });
     await run(new RunAutomationRuleInteractor(repo, set.runner, set.records as never, () => NOW), runId);

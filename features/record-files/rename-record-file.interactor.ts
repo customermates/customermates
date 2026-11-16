@@ -17,7 +17,6 @@ import {
   unwoundFailure,
 } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { RecordJournal } from "@/features/records/record-journal";
 import { recordCauseBy } from "@/features/records/record-event-cause";
 import { RenameRecordFileSchema } from "./record-file.schema";
@@ -84,7 +83,7 @@ export class RenameRecordFileInteractor extends AuthenticatedInteractor<RenameRe
           model,
           this.userId,
           `record-file-rename:${file.id}:${record.version}`,
-          recordCauseBy(this.user, { kind: "mutation", routineDepth: currentRoutineContext()?.causationDepth }),
+          recordCauseBy(this.user, { kind: "mutation" }),
         );
         return { ok: true, data: recordFileDto({ ...file, name: renamed }) };
       },

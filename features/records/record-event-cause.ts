@@ -1,11 +1,14 @@
-import { currentAutomationChain } from "@/features/automation-rules/automation-context";
+import { currentCausation } from "@/core/decorators/causation-context";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { EventVia } from "@/features/event/event-via";
 import type { RecordEventPayload, RecordOperationCause } from "./record-event.schema";
 
 export function recordCauseBy(user: Pick<TenantUser, "via">, cause: RecordOperationCause): RecordOperationCause {
-  const ruleChain = currentAutomationChain();
-  const caused = ruleChain ? { ...cause, ruleChain } : cause;
+  const { routineDepth, ruleChain } = currentCausation() ?? {};
+  const inherited: Partial<RecordOperationCause> = {};
+  if (routineDepth !== undefined) inherited.routineDepth = routineDepth;
+  if (ruleChain?.length) inherited.ruleChain = [...ruleChain];
+  const caused = Object.keys(inherited).length ? { ...inherited, ...cause } : cause;
   return user.via ? { ...caused, via: user.via } : caused;
 }
 
