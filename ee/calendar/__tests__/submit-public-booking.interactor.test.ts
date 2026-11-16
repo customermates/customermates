@@ -328,14 +328,62 @@ describe("SubmitPublicBookingInteractor", () => {
     expect(events.publish).not.toHaveBeenCalled();
   });
 
-  it("refuses a filled honeypot before touching anything", async () => {
+  it("answers a filled honeypot like any unavailable page before touching anything", async () => {
     const { interactor, lookup } = build();
 
-    expect(await interactor.invoke({ ...INPUT, website: "http://spam.example" })).toEqual({
-      status: "invalid",
-      fields: ["website"],
-    });
+    expect(await interactor.invoke({ ...INPUT, website: "http://spam.example" })).toEqual({ status: "unavailable" });
     expect(lookup.findByTokenUnscoped).not.toHaveBeenCalled();
+  });
+
+  describe("control characters", () => {
+    it("strips them from the name and from text answers before the event, the reservation and the record", async () => {
+      const { interactor, writer, reservations, records } = build();
+
+      const result = await interactor.invoke({
+        ...INPUT,
+        name: "Ada\u0000 Love\nlace\u007F",
+        answers: { [NOTE]: "Pricing\r\nATTENDEE:evil@example.com\u0007\t!" },
+      });
+
+      expect(result.status).toBe("booked");
+      const event = writer.create.mock.calls[0][2] as { title: string; description: string };
+      expect(event.title).toBe("Intro call - Ada Lovelace");
+      expect(event.description).toBe("Ada Lovelace <ada@example.com>\nTopic: PricingATTENDEE:evil@example.com!");
+      expect(event.description.split("\n")).toHaveLength(2);
+      expect(reservations.reserve).toHaveBeenCalledWith(
+        expect.objectContaining({
+          inviteeName: "Ada Lovelace",
+          answers: { [NOTE]: "PricingATTENDEE:evil@example.com!" },
+        }),
+        expect.any(Function),
+      );
+      expect(records.findOrCreatePerson).toHaveBeenCalledWith(expect.objectContaining({ name: "Ada Lovelace" }));
+      expect(records.createBookingRecord).toHaveBeenCalledWith(
+        expect.objectContaining({ title: "Ada Lovelace - Intro call" }),
+      );
+    });
+
+    it("refuses a name that is nothing but control characters and reserves nothing", async () => {
+      const { interactor, lookup, reservations } = build();
+
+      expect(await interactor.invoke({ ...INPUT, name: "\u0001 \u0002" })).toEqual({
+        status: "invalid",
+        fields: ["name"],
+      });
+      expect(lookup.findByTokenUnscoped).not.toHaveBeenCalled();
+      expect(reservations.reserve).not.toHaveBeenCalled();
+    });
+
+    it("leaves the text of a normal name and answer untouched", async () => {
+      const { interactor, writer } = build();
+
+      await interactor.invoke({ ...INPUT, name: "Zoë O'Brien-Müller", answers: { [NOTE]: "Preis: 100 € / Monat" } });
+
+      expect(writer.create.mock.calls[0][2]).toMatchObject({
+        title: "Intro call - Zoë O'Brien-Müller",
+        description: "Zoë O'Brien-Müller <ada@example.com>\nTopic: Preis: 100 € / Monat",
+      });
+    });
   });
 
   it("names the invalid input fields", async () => {

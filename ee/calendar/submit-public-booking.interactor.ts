@@ -6,6 +6,7 @@ import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { looksAutomated, visitorHash } from "@/core/network/public-submit-guard";
+import { stripControlCharacters } from "@/core/utils/strip-control-characters";
 import { DomainEvent } from "@/features/event/domain-events";
 import { coerceAnswers } from "@/features/records/record-value-coercion";
 
@@ -45,6 +46,19 @@ function isRef(value: RecordRef | null): value is RecordRef {
   return value !== null;
 }
 
+function withoutControlCharacters(answers: SubmitPublicBookingData["answers"]): SubmitPublicBookingData["answers"] {
+  return Object.fromEntries(
+    Object.entries(answers).map(([fieldId, value]) => [
+      fieldId,
+      typeof value === "string"
+        ? stripControlCharacters(value)
+        : Array.isArray(value)
+          ? value.map(stripControlCharacters)
+          : value,
+    ]),
+  );
+}
+
 @SystemInteractor
 export class SubmitPublicBookingInteractor {
   constructor(
@@ -65,9 +79,12 @@ export class SubmitPublicBookingInteractor {
         fields: [...new Set(parsed.error.issues.map((issue) => String(issue.path[0] ?? "")))],
       };
     }
-    if (parsed.data.website.trim()) return { status: "invalid", fields: ["website"] };
+    if (parsed.data.website.trim()) return { status: "unavailable" };
+    const name = stripControlCharacters(parsed.data.name).trim();
+    if (!name) return { status: "invalid", fields: ["name"] };
+    const data = { ...parsed.data, name, answers: withoutControlCharacters(parsed.data.answers) };
 
-    return this.access.open(parsed.data.token, parsed.data.visitor, (link) => this.book(link, parsed.data));
+    return this.access.open(data.token, data.visitor, (link) => this.book(link, data));
   }
 
   private async book(link: BookingLinkLookup, data: SubmitPublicBookingData): Promise<PublicBookingSubmitResult> {
