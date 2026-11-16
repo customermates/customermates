@@ -1641,12 +1641,12 @@
       "workspaceSlugTaken": "Een andere werkruimte gebruikt deze URL al. Kies een andere."
     },
     "events": {
-      "connected_account": {
       "automation": {
         "rule": {
           "fired": "Automatiseringsregel geactiveerd"
         }
       },
+      "connected_account": {
         "created": "Account verbonden",
         "deleted": "Account losgekoppeld",
         "reconnected": "Account opnieuw verbonden",

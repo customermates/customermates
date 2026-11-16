@@ -1641,12 +1641,12 @@
       "workspaceSlugTaken": "Otro espacio de trabajo ya usa esta URL. Elige otra."
     },
     "events": {
-      "connected_account": {
       "automation": {
         "rule": {
           "fired": "Regla de automatización activada"
         }
       },
+      "connected_account": {
         "created": "Cuenta conectada",
         "deleted": "Cuenta desconectada",
         "reconnected": "Cuenta reconectada",
