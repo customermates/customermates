@@ -1,9 +1,8 @@
-import type { Capability } from "@/core/capabilities/capabilities";
-import type { TemplateDeployment } from "./template-registry";
+import type { TemplateDeployment } from "./template-publication";
 import type { TemplateLocale, TemplateRule, TemplateSpec } from "./template-spec.schema";
 import type { TemplatePromptText } from "./template-prompt-text";
 
-import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
+import { SIGNUP_TEMPLATE_QUERY_PARAM } from "@/features/acquisition/signup-link";
 import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
 
 import { ruleEngineGap } from "./compile-template-automation";
@@ -14,7 +13,6 @@ import { resolveTemplateRule, templateCountry, templateRuleText } from "./templa
 type PromptOptions = {
   deployment: TemplateDeployment;
   signupUrl: string;
-  shipped?: ReadonlySet<Capability>;
   connected?: boolean;
   mcpUrl?: string;
   country?: string | null;
@@ -33,7 +31,7 @@ function heading(copy: string, index?: number): string {
 
 export function templateSignupUrl(signupUrl: string, slug: string): string {
   const url = new URL(signupUrl);
-  url.searchParams.set("template", slug);
+  url.searchParams.set(SIGNUP_TEMPLATE_QUERY_PARAM, slug);
   return url.toString();
 }
 
@@ -155,9 +153,8 @@ function pageSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
   return [heading(copy.headings.knowledgePages, 7), ...pages];
 }
 
-function ruleKind(rule: TemplateRule, shipped: ReadonlySet<Capability>): RuleKind {
+function ruleKind(rule: TemplateRule): RuleKind {
   if (rule.needs === "today") return "routine";
-  if (!shipped.has(rule.needs)) return "unavailable";
   const gap = ruleEngineGap(rule);
   if (gap === "unavailable") return "unavailable";
   return gap === "routine" ? "routine" : "rule";
@@ -175,7 +172,6 @@ const UNRANKED = 1_000;
 function ruleSection(
   spec: TemplateSpec,
   text: TemplateLocale,
-  shipped: ReadonlySet<Capability>,
   copy: TemplatePromptText,
   country: string,
   allowance: PromptOptions["routineAllowance"],
@@ -185,7 +181,7 @@ function ruleSection(
     const rule = resolveTemplateRule(declared, country);
     const label = templateRuleText(needText(text.rules, declared.key, "rules"), declared, country);
     const sentence = `${label.title}${label.description ? `: ${label.description}` : ""}, ${dueText(rule, copy, text.locale)}`;
-    return { kind: ruleKind(rule, shipped), priority: declared.priority ?? UNRANKED, sentence };
+    return { kind: ruleKind(rule), priority: declared.priority ?? UNRANKED, sentence };
   });
   const routines = entries.filter((entry) => entry.kind === "routine");
   if (typeof allowance !== "number" || routines.length <= allowance) {
@@ -226,7 +222,6 @@ function ruleOfTheRoad(copy: TemplatePromptText): string[] {
 }
 
 export function renderTemplatePrompt(spec: TemplateSpec, text: TemplateLocale, options: PromptOptions): string {
-  const shipped = options.shipped ?? SHIPPED_CAPABILITIES;
   const copy = templatePromptText(text.locale);
   const sections = [
     [`# ${text.name}`, text.prompt.intro],
@@ -236,7 +231,7 @@ export function renderTemplatePrompt(spec: TemplateSpec, text: TemplateLocale, o
     relationshipSection(spec, text, copy),
     viewSection(spec, text, copy),
     pageSection(spec, text, copy),
-    ruleSection(spec, text, shipped, copy, templateCountry(text.locale, options.country), options.routineAllowance),
+    ruleSection(spec, text, copy, templateCountry(text.locale, options.country), options.routineAllowance),
     questionSection(text, copy),
     ruleOfTheRoad(copy),
   ];

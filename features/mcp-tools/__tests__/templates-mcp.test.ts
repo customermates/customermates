@@ -3,12 +3,9 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Capability } from "@/core/capabilities/capabilities";
-
 import { templatePromptText } from "@/core/templates/template-prompt-text";
 
 const state = vi.hoisted(() => ({
-  shipped: new Set<string>(),
   locale: "de",
   appMode: "cloud",
   subscription: (() => Promise.resolve({ ok: false })) as () => Promise<unknown>,
@@ -22,10 +19,6 @@ vi.mock("@/env", () => ({
     },
   },
 }));
-vi.mock("@/core/capabilities/capabilities", async (importOriginal) => ({
-  ...(await importOriginal<object>()),
-  SHIPPED_CAPABILITIES: state.shipped,
-}));
 vi.mock("@/core/di", () => ({
   getUserService: () => ({
     getActiveTenantUserOrThrow: () => Promise.resolve({ displayLanguage: state.locale }),
@@ -38,7 +31,6 @@ import { registerTemplateMcpFeatures } from "@/features/mcp-tools/templates.mcp-
 import { MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO } from "@/features/mcp-tools/server-metadata";
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 
-const ALL: Capability[] = ["forms", "rules", "calendarWrite", "notifications", "incomingWebhooks"];
 const NAMED_TOOLS = [{ name: "get_workspace_context" }, { name: "discover_record_types" }] as unknown as McpTool[];
 
 async function connect(tools: McpTool[] = NAMED_TOOLS) {
@@ -57,7 +49,6 @@ function textOf(read: Awaited<ReturnType<Client["readResource"]>>): string {
 }
 
 beforeEach(() => {
-  state.shipped.clear();
   state.locale = "de";
   state.appMode = "cloud";
   state.subscription = () =>
@@ -80,17 +71,7 @@ describe("template MCP prompt and resources", () => {
     return connection.client;
   }
 
-  it("offers nothing while no capability has shipped", async () => {
-    const client = await open();
-    expect((await client.listResources()).resources).toEqual([]);
-    await expect(
-      client.getPrompt({ name: MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name, arguments: { template: "client-tracker" } }),
-    ).rejects.toThrow(/not available/);
-    await expect(client.readResource({ uri: "templates://client-tracker" })).rejects.toThrow(/not available/);
-  });
-
   it("lists every offered template with its name in the workspace language", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     const client = await open();
     const listed = (await client.listResources()).resources;
     expect(listed.map((resource) => resource.uri).sort()).toEqual(
@@ -102,7 +83,6 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("reads the spec, the text, the compiled plan and the rules of one template", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     const client = await open();
     const read = await client.readResource({ uri: "templates://client-tracker" });
     const content = JSON.parse(textOf(read)) as {
@@ -122,7 +102,6 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("falls back to English for an unknown display language", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     state.locale = "system";
     const client = await open();
     const read = await client.readResource({ uri: "templates://client-tracker" });
@@ -130,7 +109,6 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("tells the agent the routine allowance of the workspace's plan and says nothing where it is unlimited or unknown", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     state.locale = "en";
     const client = await open();
     const ask = async () => {
@@ -155,7 +133,6 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("serves the prompt of a template without asking for a new workspace", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     const client = await open();
     const prompt = await client.getPrompt({
       name: MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name,
@@ -173,7 +150,6 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("lists the prompt with the title and argument description the public server card shows", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     const client = await open();
     const listed = (await client.listPrompts()).prompts.find(
       (prompt) => prompt.name === MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name,
@@ -182,16 +158,21 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("refuses an unknown template and one the deployment cannot run", async () => {
-    state.shipped.add("forms");
+    state.appMode = "self-hosted";
     const client = await open();
     await expect(
       client.getPrompt({ name: MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name, arguments: { template: "nope" } }),
     ).rejects.toThrow(/not available/);
     await expect(client.readResource({ uri: "templates://real-estate-pipeline" })).rejects.toThrow(/not available/);
+    await expect(
+      client.getPrompt({
+        name: MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name,
+        arguments: { template: "real-estate-pipeline" },
+      }),
+    ).rejects.toThrow(/not available/);
   });
 
   it("does not offer a cloud-only template to a self-hosted deployment", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     state.appMode = "self-hosted";
     const client = await open();
     const slugs = (await client.listResources()).resources.map((resource) => resource.uri);
@@ -199,7 +180,6 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("completes the template argument over the offered slugs", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     const client = await open();
     const completed = await client.complete({
       ref: { type: "ref/prompt", name: MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name },
@@ -215,7 +195,6 @@ describe("template MCP prompt and resources", () => {
   });
 
   it("registers nothing when the workspace tools are not active", async () => {
-    ALL.forEach((capability) => state.shipped.add(capability));
     const server = new McpServer({ name: "test", version: "1" });
     registerTemplateMcpFeatures(server, [{ name: "search" }] as unknown as McpTool[]);
     const client = new Client({ name: "client", version: "1" });

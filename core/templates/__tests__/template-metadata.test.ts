@@ -8,28 +8,28 @@ vi.mock("next/navigation", () => ({
 
 import { generateTemplatePageMetadata, generateTemplatesHubMetadata } from "@/core/templates/template-metadata";
 
-import { ALL_CAPABILITIES, entryOf, indexOf, localeOf } from "./template-publication-fixtures";
+import { entryOf, indexOf, localeOf } from "./template-publication-fixtures";
 
 const BASE = "http://localhost:4000";
 
 const index = indexOf(
   entryOf("tracker", {
     locales: {
-      de: localeOf({ publicPage: "own" }),
-      en: localeOf({ publicPage: "own" }),
-      fr: localeOf({ publicPage: "proof" }),
-      it: localeOf({ status: "draft" }),
+      de: localeOf({ publication: "indexed" }),
+      en: localeOf({ publication: "indexed" }),
+      fr: localeOf({ publication: "noindex" }),
+      it: localeOf({ publication: "none" }),
     },
   }),
 );
-const options = { index, shipped: ALL_CAPABILITIES };
+const options = { index };
 const copy = {
   description: "Hub description that reads as a real search snippet for the templates hub page.",
   title: "Hub title",
 };
 
 describe("template page metadata", () => {
-  it("canonicalises an own page and lists only the own locales in hreflang", () => {
+  it("canonicalises an indexed page and lists only the indexed locales in hreflang", () => {
     const metadata = generateTemplatePageMetadata("en", "tracker", options);
 
     expect(metadata.alternates).toEqual({
@@ -46,7 +46,7 @@ describe("template page metadata", () => {
     );
   });
 
-  it("marks a proof page noindex with follow and no hreflang", () => {
+  it("marks a noindex page noindex with follow and no hreflang", () => {
     const metadata = generateTemplatePageMetadata("fr", "tracker", options);
 
     expect(metadata.robots).toEqual({ follow: true, index: false });
@@ -54,7 +54,7 @@ describe("template page metadata", () => {
   });
 
   it.each([
-    ["a draft locale", "it", "tracker"],
+    ["a locale without a page", "it", "tracker"],
     ["a locale without text", "pl", "tracker"],
     ["an unknown slug", "en", "missing"],
   ])("answers %s with a 404", (_label, locale, slug) => {
@@ -63,7 +63,7 @@ describe("template page metadata", () => {
 });
 
 describe("templates hub metadata", () => {
-  it("is indexable with hreflang across the locales that have an own page", () => {
+  it("is indexable with hreflang across the locales that have an indexed page", () => {
     const metadata = generateTemplatesHubMetadata("en", copy, options);
 
     expect(metadata.title).toBe("Hub title | Customermates");
@@ -78,7 +78,7 @@ describe("templates hub metadata", () => {
     expect(metadata.robots).toBeUndefined();
   });
 
-  it("is noindex in a locale that only has proof pages", () => {
+  it("is noindex in a locale that only has noindex pages", () => {
     expect(generateTemplatesHubMetadata("fr", copy, options).robots).toEqual({ follow: true, index: false });
   });
 

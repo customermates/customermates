@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { CAPABILITIES } from "@/core/capabilities/capabilities";
 import { CLOUD_TRIAL, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 import { ruleIsRoutine } from "@/core/templates/compile-template-automation";
 import { renderTemplatePrompt, templateSignupUrl } from "@/core/templates/template-prompt";
@@ -8,11 +7,8 @@ import { fillPrompt, templatePromptText } from "@/core/templates/template-prompt
 import { templateCountry, templateRuleText } from "@/core/templates/template-rule-variants";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 
-import type { Capability } from "@/core/capabilities/capabilities";
-
 import { cloneSpec, cloneText, getTemplate } from "./template-fixtures";
 
-const ALL_SHIPPED = new Set<Capability>(CAPABILITIES);
 const TRIAL_ROUTINES = PLAN_CATALOG[CLOUD_TRIAL.plan].entitlements.includedRoutinesPerUser;
 if (typeof TRIAL_ROUTINES !== "number") throw new Error("The cloud trial plan has an unlimited routine allowance");
 
@@ -142,7 +138,7 @@ describe("renderTemplatePrompt", () => {
             : [],
         ),
       );
-      for (const locale of Object.keys(spec.status)) {
+      for (const locale of Object.keys(spec.publication)) {
         const text = cloneText(slug, locale);
         const copy = templatePromptText(locale);
         const lines = prompt(slug, {}, locale).split("\n");
@@ -192,10 +188,10 @@ describe("renderTemplatePrompt", () => {
     (slug) => {
       const spec = getTemplate(slug);
       const routines = spec.followUpRules.filter(ruleIsRoutine);
-      for (const locale of Object.keys(spec.status)) {
+      for (const locale of Object.keys(spec.publication)) {
         const copy = templatePromptText(locale);
         const text = cloneText(slug, locale);
-        const lines = routineLines(prompt(slug, { shipped: ALL_SHIPPED, routineAllowance: TRIAL_ROUTINES }, locale));
+        const lines = routineLines(prompt(slug, { routineAllowance: TRIAL_ROUTINES }, locale));
         expect(lines, `${slug} ${locale}`).toHaveLength(routines.length);
         FIRST_ROUTINES[slug].forEach((key, position) => {
           const rule = spec.followUpRules.find((candidate) => candidate.key === key);
@@ -208,7 +204,7 @@ describe("renderTemplatePrompt", () => {
             `${copy.availability.routine}, ${copy.routineAllowance.optional}]`,
           );
         }
-        expect(prompt(slug, { shipped: ALL_SHIPPED, routineAllowance: TRIAL_ROUTINES }, locale)).toContain(
+        expect(prompt(slug, { routineAllowance: TRIAL_ROUTINES }, locale)).toContain(
           fillPrompt(copy.routineAllowance.limited, { count: TRIAL_ROUTINES }),
         );
       }
@@ -216,7 +212,7 @@ describe("renderTemplatePrompt", () => {
   );
 
   it("tells the agent the allowance in the first sentence about routines and keeps rules and routines apart", () => {
-    const text = prompt("client-tracker", { shipped: ALL_SHIPPED, routineAllowance: 5 });
+    const text = prompt("client-tracker", { routineAllowance: 5 });
     const section = text.split(/^## 8\. .*$/m)[1]?.split(/^## 9\. /m)[0] ?? "";
     expect(section.indexOf("routine allowance of your plan is 5 per user")).toBeLessThan(section.indexOf("\n1. "));
     expect(section).toMatch(/- Tell the owner that an Action is overdue: .*\[an automation rule\]/);
@@ -229,23 +225,21 @@ describe("renderTemplatePrompt", () => {
   });
 
   it("leaves the list as it was where the plan has no routine limit, none is known or the template fits", () => {
-    const plain = prompt("client-tracker", { shipped: ALL_SHIPPED });
+    const plain = prompt("client-tracker");
     for (const routineAllowance of ["unlimited", null, 7, 20] as const) {
-      const text = prompt("client-tracker", { shipped: ALL_SHIPPED, routineAllowance });
+      const text = prompt("client-tracker", { routineAllowance });
       expect(text).toBe(plain);
       expect(routineLines(text)).toEqual([]);
     }
-    expect(prompt("booking-page", { shipped: ALL_SHIPPED, routineAllowance: 5 })).toBe(
-      prompt("booking-page", { shipped: ALL_SHIPPED }),
-    );
+    expect(prompt("booking-page", { routineAllowance: 5 })).toBe(prompt("booking-page"));
   });
 
   it("lists every routine as optional where the plan includes none", () => {
-    const text = prompt("client-tracker", { shipped: ALL_SHIPPED, routineAllowance: 0 });
+    const text = prompt("client-tracker", { routineAllowance: 0 });
     expect(text).toContain("Your plan includes no assistant routines");
     expect(routineLines(text)).toHaveLength(7);
     expect(routineLines(text).every((line) => line.includes(", optional]"))).toBe(true);
-    const german = prompt("client-tracker", { shipped: ALL_SHIPPED, routineAllowance: 0 }, "de");
+    const german = prompt("client-tracker", { routineAllowance: 0 }, "de");
     expect(german).toContain(templatePromptText("de").routineAllowance.none);
   });
 
@@ -257,30 +251,25 @@ describe("renderTemplatePrompt", () => {
     expect(prompt("client-tracker", {}, "de")).toContain("(Tabelle, Standardansicht)");
   });
 
-  it("marks rules by whether their capability has shipped", () => {
-    const none = prompt("client-tracker", { shipped: new Set<Capability>() });
-    expect(none).toContain("[not available yet, do not set up]");
-    expect(none).toContain("[an assistant routine that runs on a schedule]");
-    expect(none).not.toContain("[an automation rule]");
-    const shipped = new Set<Capability>(["forms", "rules", "notifications"]);
-    const all = prompt("client-tracker", { shipped });
-    expect(all).toContain("[an automation rule]");
-    expect(all).not.toContain("[not available yet, do not set up]");
+  it("marks the rules the engine can run as automation rules and the others as assistant routines", () => {
+    const text = prompt("client-tracker");
+    expect(text).toContain("[an automation rule]");
+    expect(text).toContain("[an assistant routine that runs on a schedule]");
+    expect(text).not.toContain("[not available yet, do not set up]");
   });
 
   it("does not offer a rule as a rule when the rules engine cannot run it", () => {
-    const shipped = new Set<Capability>(["forms", "rules", "notifications", "calendarWrite", "incomingWebhooks"]);
-    const text = prompt("real-estate-pipeline", { shipped });
+    const text = prompt("real-estate-pipeline");
     expect(text).toMatch(/Send the owner update: .*\[an assistant routine that runs on a schedule\]/);
     expect(text).toMatch(/Add the key date to the agent's calendar: .*\[not available yet, do not set up\]/);
     expect(text).toMatch(/Contact the new lead today: .*\[an automation rule\]/);
     expect(text).toMatch(/Create the key dates from the contract: .*\[an assistant routine that runs on a schedule\]/);
-    const inquiry = prompt("client-tracker", { shipped });
+    const inquiry = prompt("client-tracker");
     expect(inquiry).toMatch(/Create the client and the contact from an inquiry: .*\[an automation rule\]/);
   });
 
   it.each(TEMPLATE_SLUGS)("contains no dash characters for %s", (slug) => {
-    for (const locale of Object.keys(getTemplate(slug).status))
+    for (const locale of Object.keys(getTemplate(slug).publication))
       expect(DASHES.test(prompt(slug, {}, locale))).toBe(false);
   });
 

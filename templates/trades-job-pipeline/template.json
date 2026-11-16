@@ -155,6 +155,5 @@
     { "url": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
-  "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "none", "pt": "proof", "pl": "none", "nl": "proof" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "noindex", "it": "noindex", "es": "none", "pt": "noindex", "pl": "none", "nl": "noindex" }
 }

@@ -188,6 +188,5 @@
     { "url": "https://revistaapolice.com.br/2026/06/renovacao-de-seguro-auto-ainda-exige-processos-manuais/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
-  "publicPage": { "en": "proof", "de": "none", "fr": "proof", "it": "none", "es": "none", "pt": "proof", "pl": "proof", "nl": "none" }
+  "publication": { "en": "noindex", "de": "none", "fr": "noindex", "it": "none", "es": "none", "pt": "noindex", "pl": "noindex", "nl": "none" }
 }

@@ -4,16 +4,17 @@ import type { TemplateBundle } from "@/core/templates/template-spec.schema";
 function entryOf({ spec, text }: TemplateBundle): TemplateIndexEntry {
   const locales: TemplateIndexEntry["locales"] = {};
   for (const locale of Object.keys(text).sort()) {
-    const status = spec.status[locale];
-    if (!status) continue;
+    const publication = spec.publication[locale];
+    if (!publication) continue;
     const copy = text[locale];
     locales[locale] = {
       name: copy.name,
       summary: copy.summary,
-      status,
-      publicPage: spec.publicPage[locale] ?? "none",
-      publishWave: spec.publishWave[locale] ?? null,
-      page: copy.page ? { metaTitle: copy.page.metaTitle, metaDescription: copy.page.metaDescription } : null,
+      publication,
+      page:
+        publication !== "none" && copy.page
+          ? { metaTitle: copy.page.metaTitle, metaDescription: copy.page.metaDescription }
+          : null,
     };
   }
   return {

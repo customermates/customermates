@@ -189,6 +189,5 @@
     { "url": "https://www.onderneming.nl/belasting/btw-aangifte/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
-  "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "none", "pt": "proof", "pl": "proof", "nl": "none" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "noindex", "it": "noindex", "es": "none", "pt": "noindex", "pl": "noindex", "nl": "none" }
 }

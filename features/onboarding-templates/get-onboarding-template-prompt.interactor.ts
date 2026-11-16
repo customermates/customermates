@@ -5,13 +5,15 @@ import type { TemplateBundle } from "@/core/templates/template-spec.schema";
 import type { TemplateSlug } from "@/core/templates/template-slugs";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
 import type { OnboardingAgentStatusRepo } from "@/features/onboarding-funnel/onboarding-agent.repo";
-import type { OnboardingTemplateDeployment } from "./onboarding-template-offer";
 
 import { z } from "zod";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { templateDeployment } from "@/core/templates/template-deployment";
+import { signupUrl } from "@/core/templates/template-page-model";
+import { renderTemplatePrompt } from "@/core/templates/template-prompt";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { routineAllowanceOf } from "@/ee/subscription/entitlements";
 import { accountStateRedirect } from "@/features/auth/account-state";
@@ -21,7 +23,6 @@ import { env } from "@/env";
 import { APP_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 import { offeredTemplateCards } from "./onboarding-template-offer";
-import { renderOnboardingTemplatePrompt } from "./onboarding-template-prompt";
 
 const Schema = z.strictObject({
   slug: z.enum(TEMPLATE_SLUGS),
@@ -32,10 +33,6 @@ export type GetOnboardingTemplatePromptData = z.infer<typeof Schema>;
 export type OnboardingTemplatePrompt = { prompt: string | null; connected: boolean };
 
 export type TemplateBundleLoader = (slug: TemplateSlug) => Promise<TemplateBundle | null>;
-
-function deployment(): OnboardingTemplateDeployment {
-  return env.APP_MODE === "self-hosted" ? "self-hosted" : "cloud";
-}
 
 @SystemInteractor
 export class GetOnboardingTemplatePromptInteractor {
@@ -56,7 +53,7 @@ export class GetOnboardingTemplatePromptInteractor {
     if (!user) return redirectTo("/auth/signin");
     if (!user.role?.isSystemRole) return redirectTo("/");
 
-    const mode = deployment();
+    const mode = templateDeployment();
     const offered = offeredTemplateCards({ locale: data.locale, deployment: mode }).some(
       (card) => card.slug === data.slug,
     );
@@ -74,13 +71,11 @@ export class GetOnboardingTemplatePromptInteractor {
     return {
       ok: true as const,
       data: {
-        prompt: renderOnboardingTemplatePrompt({
-          spec: bundle.spec,
-          text,
+        prompt: renderTemplatePrompt(bundle.spec, text, {
           deployment: mode,
-          baseUrl: env.BASE_URL,
-          mcpUrl: mcpWorkspaceUrl(env.BASE_URL, user.companyId),
+          signupUrl: signupUrl(data.locale),
           connected,
+          mcpUrl: mcpWorkspaceUrl(env.BASE_URL, user.companyId),
           routineAllowance,
         }),
         connected,

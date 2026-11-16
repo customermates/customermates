@@ -33,7 +33,7 @@ export default async function TemplatePage({ params }: Props) {
   const locale = await enableMarketingLocale(params, `/templates/${slug}`);
   const found = templateVisibilityBySlug(slug, locale, pagePublicationOptions());
 
-  if (!found || (found.visibility !== "own" && found.visibility !== "proof")) notFound();
+  if (!found || found.visibility === "none") notFound();
 
   return <TemplateDetail locale={locale} slug={slug} visibility={found.visibility} />;
 }

@@ -23,6 +23,14 @@ function optionIssues(spec: TemplateSpec, text: TemplateLocale): string[] {
   return selects.flatMap(([ref, keys]) => sameKeys(`fields.${ref}.options`, keys, text.fields[ref]?.options ?? {}));
 }
 
+function publicationIssues(spec: TemplateSpec, text: TemplateLocale, locale: string): string[] {
+  const publication = spec.publication[locale];
+  if (!publication) return [`publication.${locale} is missing in the spec`];
+  return publication !== "none" && !text.page
+    ? [`publication.${locale} is ${publication} but the locale has no page copy`]
+    : [];
+}
+
 function rangeIssues(spec: TemplateSpec, text: TemplateLocale): string[] {
   return spec.fields
     .filter((field) => field.type === "dateRange" && !text.fields[field.key]?.rangeLabels)
@@ -45,7 +53,7 @@ export function templateTextIssues(spec: TemplateSpec, text: TemplateLocale, loc
   ];
   return [
     ...(text.locale === locale ? [] : [`locale is ${text.locale} but the file is ${locale}`]),
-    ...(spec.status[locale] ? [] : [`status.${locale} is missing in the spec`]),
+    ...publicationIssues(spec, text, locale),
     ...sameKeys(
       "lists",
       spec.lists.map((list) => list.key),

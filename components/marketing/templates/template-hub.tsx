@@ -9,7 +9,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { resolveCommercialTokens } from "@/core/commercial/commercial-tokens";
 import { breadcrumbListSchema, itemListSchema } from "@/core/seo/schemas";
 import { pagePublicationOptions } from "@/core/templates/template-deployment";
-import { SIGNUP_PATH } from "@/core/templates/template-page-model";
+import { SIGNUP_PATH } from "@/features/acquisition/signup-link";
 import { hubVisibility, pageTemplates } from "@/core/templates/template-publication";
 import { TEMPLATES_HUB_PATH, templatePagePath } from "@/core/templates/templates-source";
 

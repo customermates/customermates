@@ -157,7 +157,5 @@
     { "url": "https://fi.co/insight/venture-capital-crm", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
-  "publicPage": { "en": "own", "de": "own", "fr": "none", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" },
-  "publishWave": { "en": "wave2", "de": "wave2" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "none", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" }
 }

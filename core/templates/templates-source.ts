@@ -4,7 +4,7 @@ import { buildLocalePath } from "@/i18n/locale-registry";
 
 import { pagePublicationOptions } from "./template-deployment";
 import { getTemplateIndex } from "./template-index";
-import { hubVisibility, ownPageSlugs } from "./template-publication";
+import { hubVisibility, indexedPageSlugs } from "./template-publication";
 
 type TemplatePageData = { description: string; lastModified?: Date; title: string };
 
@@ -39,7 +39,7 @@ export function createTemplatesSources(options: TemplatePublicationOptions = {})
   function detail(slug: string, locale: string): TemplatePage | undefined {
     const entry = index().find((candidate) => candidate.slug === slug);
     const text = entry?.locales[locale];
-    if (!entry || !text?.page || !ownPageSlugs(locale, options).includes(slug)) return undefined;
+    if (!entry || !text?.page || !indexedPageSlugs(locale, options).includes(slug)) return undefined;
     return {
       data: {
         description: text.page.metaDescription,
@@ -53,7 +53,7 @@ export function createTemplatesSources(options: TemplatePublicationOptions = {})
 
   const pages: TemplatePageLookup = {
     getPage: (path, locale) => (path.length === 1 ? detail(path[0], locale) : undefined),
-    getPages: (locale) => ownPageSlugs(locale, options).flatMap((slug) => detail(slug, locale) ?? []),
+    getPages: (locale) => indexedPageSlugs(locale, options).flatMap((slug) => detail(slug, locale) ?? []),
   };
 
   const hub: TemplatePageLookup = {

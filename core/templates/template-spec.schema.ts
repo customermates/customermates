@@ -32,9 +32,8 @@ export const TEMPLATE_FAMILIES = [
   "custom",
 ] as const;
 export const TEMPLATE_KINDS = ["pipeline", "tracker", "register", "checklist"] as const;
-export const TEMPLATE_STATUSES = ["draft", "reviewed", "published"] as const;
-export const TEMPLATE_PUBLIC_PAGES = ["own", "proof", "none"] as const;
-export const TEMPLATE_PUBLISH_WAVES = ["wave1", "wave2", "hold"] as const;
+export const TEMPLATE_PUBLICATIONS = ["indexed", "noindex", "none"] as const;
+export type TemplatePublication = (typeof TEMPLATE_PUBLICATIONS)[number];
 export const TEMPLATE_FIELD_TYPES = [...SETUP_FIELD_VALUE_TYPES, "file", "dateRange", "channels"] as const;
 export const TEMPLATE_RULE_NEEDS = ["today", ...CAPABILITIES] as const;
 export const TEMPLATE_SYSTEM_COLUMNS = ["system:createdAt", "system:updatedAt", "system:assignedTo"] as const;
@@ -373,9 +372,7 @@ export const TemplateSpecObjectSchema = z.strictObject({
   ...TemplateBodyShape,
   sources: z.array(SourceSchema).min(1).max(30),
   reviewedAt: DateSchema,
-  status: localeRecord(z.enum(TEMPLATE_STATUSES)),
-  publicPage: localeRecord(z.enum(TEMPLATE_PUBLIC_PAGES)),
-  publishWave: localeRecord(z.enum(TEMPLATE_PUBLISH_WAVES)).default({}),
+  publication: localeRecord(z.enum(TEMPLATE_PUBLICATIONS)),
 });
 export type TemplateSpecObject = z.output<typeof TemplateSpecObjectSchema>;
 

@@ -38,7 +38,7 @@ import {
 type Props = {
   locale: string;
   slug: string;
-  visibility: Extract<TemplateVisibility, "own" | "proof">;
+  visibility: Extract<TemplateVisibility, "indexed" | "noindex">;
 };
 
 type Paired = { demoHref: string | null; href: string | null; name: string | null };
@@ -84,7 +84,7 @@ export async function TemplateDetail({ locale, slug, visibility }: Props) {
   const families = t.raw("families") as Record<string, string>;
   const path = `/${locale}${templatePagePath(slug)}`;
   const paired = pairedPage(locale, spec.pairedPages[locale]);
-  const related = visibility === "own" ? relatedCards(families, locale, slug, spec.family) : [];
+  const related = visibility === "indexed" ? relatedCards(families, locale, slug, spec.family) : [];
   const lastModified = new Date(`${spec.reviewedAt}T00:00:00Z`);
   const signupHref = templateSignupPath(slug);
   const trialHint = resolveCommercialTokens(t("trialHint"), locale);

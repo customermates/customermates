@@ -34,7 +34,6 @@ function promptFor(slug: (typeof TEMPLATE_SLUGS)[number], locale: string, option
   return renderTemplatePrompt(cloneSpec(slug), cloneText(slug, locale), {
     deployment: "cloud",
     signupUrl: SIGNUP,
-    shipped: new Set(["rules"]),
     ...options,
   });
 }

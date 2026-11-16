@@ -27,7 +27,7 @@ export async function TemplateProofBlock({ locale, path }: Props) {
         const text = bundle?.text[locale];
         if (!bundle || !text) return null;
         return {
-          href: item.visibility === "block" ? null : templatePagePath(item.entry.slug),
+          href: item.visibility === "none" ? null : templatePagePath(item.entry.slug),
           lists: bundle.spec.lists.map((list) => text.lists[list.key]?.pluralLabel).filter(Boolean),
           name: text.name,
           prompt: templatePrompts(bundle.spec, text, locale).cloud,

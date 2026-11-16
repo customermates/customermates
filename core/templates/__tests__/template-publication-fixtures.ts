@@ -1,13 +1,4 @@
-import type { Capability } from "@/core/capabilities/capabilities";
 import type { TemplateIndex, TemplateIndexEntry, TemplateIndexLocale } from "@/core/templates/template-index.types";
-
-export const ALL_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
-  "forms",
-  "rules",
-  "calendarWrite",
-  "notifications",
-  "incomingWebhooks",
-]);
 
 const PAGE = {
   metaDescription: "A description that is long enough to read as a real search snippet for the fixture page.",
@@ -15,12 +6,11 @@ const PAGE = {
 };
 
 export function localeOf(overrides: Partial<TemplateIndexLocale> = {}): TemplateIndexLocale {
+  const publication = overrides.publication ?? "indexed";
   return {
     name: "Fixture template",
-    page: PAGE,
-    publicPage: "own",
-    publishWave: "wave1",
-    status: "published",
+    page: publication === "none" ? null : PAGE,
+    publication,
     summary: "A short summary of the fixture template.",
     ...overrides,
   };

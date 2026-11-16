@@ -104,7 +104,7 @@ describe("rule variants", () => {
   it("has text for every variant in every locale", () => {
     for (const slug of TEMPLATE_SLUGS) {
       const spec = cloneSpec(slug);
-      for (const locale of Object.keys(spec.status)) {
+      for (const locale of Object.keys(spec.publication)) {
         expect(templateTextIssues(spec, cloneText(slug, locale), locale)).toEqual([]);
         for (const rule of spec.followUpRules) {
           for (const country of Object.keys(rule.variants ?? {}))

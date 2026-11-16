@@ -5,134 +5,127 @@ import { MARKETING_LOCALES } from "@/i18n/locale-registry";
 import {
   hubVisibility,
   indexableLocales,
-  ownPageSlugs,
+  indexedPageSlugs,
+  isTemplateOffered,
   pageTemplates,
   templateVisibility,
   templateVisibilityBySlug,
   templatesPairedWith,
 } from "@/core/templates/template-publication";
 
-import { ALL_CAPABILITIES, entryOf, indexOf, localeOf } from "./template-publication-fixtures";
+import { entryOf, indexOf, localeOf } from "./template-publication-fixtures";
 
 describe("template visibility", () => {
-  it("keeps a draft locale hidden even when every capability has shipped", () => {
-    const entry = entryOf("a", { locales: { en: localeOf({ status: "draft" }) } });
-    expect(templateVisibility(entry, "en", { shipped: ALL_CAPABILITIES })).toBe("hidden");
-  });
-
-  it("keeps a reviewed locale hidden until it is published", () => {
-    const entry = entryOf("a", { locales: { en: localeOf({ status: "reviewed" }) } });
-    expect(templateVisibility(entry, "en", { shipped: ALL_CAPABILITIES })).toBe("hidden");
-  });
-
-  it("indexes only a wave-1 own page and renders every other published page as noindex", () => {
+  it("follows the publication of the locale: indexed, noindex or no page", () => {
     const entry = entryOf("a", {
       locales: {
-        de: localeOf({ publicPage: "proof", publishWave: null }),
-        en: localeOf({ publicPage: "own" }),
-        es: localeOf({ publicPage: "own", publishWave: "wave2" }),
-        fr: localeOf({ publicPage: "none", publishWave: null }),
-        it: localeOf({ page: null, publicPage: "none", publishWave: null }),
+        de: localeOf({ publication: "noindex" }),
+        en: localeOf({ publication: "indexed" }),
+        it: localeOf({ publication: "none" }),
       },
     });
-    expect(templateVisibility(entry, "en")).toBe("own");
-    expect(templateVisibility(entry, "de")).toBe("proof");
-    expect(templateVisibility(entry, "es")).toBe("proof");
-    expect(templateVisibility(entry, "fr")).toBe("proof");
-    expect(templateVisibility(entry, "it")).toBe("block");
-  });
-
-  it("hides a page that has no page text, because it could not carry a title or description", () => {
-    const entry = entryOf("a", {
-      locales: { de: localeOf({ page: null, publicPage: "proof" }), en: localeOf({ page: null }) },
-    });
-    expect(templateVisibility(entry, "en")).toBe("hidden");
-    expect(templateVisibility(entry, "de")).toBe("hidden");
+    expect(templateVisibility(entry, "en")).toBe("indexed");
+    expect(templateVisibility(entry, "de")).toBe("noindex");
+    expect(templateVisibility(entry, "it")).toBe("none");
   });
 
   it("hides a locale without text", () => {
     expect(templateVisibility(entryOf("a"), "pl")).toBe("hidden");
   });
 
-  it("hides a template whose capability has not shipped", () => {
-    const entry = entryOf("a", { requiresCapabilities: ["forms", "rules"] });
-    expect(templateVisibility(entry, "en", { shipped: new Set(["forms"]) })).toBe("hidden");
-    expect(templateVisibility(entry, "en", { shipped: new Set(["forms", "rules"]) })).toBe("own");
-  });
-
   it("hides a cloud-only capability from a self-hosted deployment", () => {
     const entry = entryOf("a", { requiresCapabilities: ["calendarWrite"] });
-    expect(templateVisibility(entry, "en", { deployment: "cloud", shipped: ALL_CAPABILITIES })).toBe("own");
-    expect(templateVisibility(entry, "en", { deployment: "self-hosted", shipped: ALL_CAPABILITIES })).toBe("hidden");
+    expect(templateVisibility(entry, "en", { deployment: "cloud" })).toBe("indexed");
+    expect(templateVisibility(entry, "en", { deployment: "self-hosted" })).toBe("hidden");
+  });
+});
+
+describe("template offer", () => {
+  it("offers every template in the cloud", () => {
+    const needs = entryOf("a", { requiresCapabilities: ["forms", "rules", "calendarWrite", "incomingWebhooks"] });
+    expect(isTemplateOffered(needs, "cloud")).toBe(true);
+  });
+
+  it("keeps the cloud-only capability out of a self-hosted deployment and offers the rest", () => {
+    expect(isTemplateOffered({ requiresCapabilities: ["calendarWrite", "forms"] }, "self-hosted")).toBe(false);
+    expect(isTemplateOffered({ requiresCapabilities: ["forms", "rules", "notifications"] }, "self-hosted")).toBe(true);
+    expect(isTemplateOffered({ requiresCapabilities: [] }, "self-hosted")).toBe(true);
   });
 });
 
 describe("template listings", () => {
   const index = indexOf(
-    entryOf("own-one", { locales: { en: localeOf({ publicPage: "own" }) } }),
-    entryOf("proof-one", {
-      locales: { en: localeOf({ publicPage: "proof" }) },
+    entryOf("indexed-one", { locales: { en: localeOf({ publication: "indexed" }) } }),
+    entryOf("noindex-one", {
+      locales: { en: localeOf({ publication: "noindex" }) },
       pairedPages: { en: "/for/real-estate" },
     }),
-    entryOf("block-one", {
-      locales: { en: localeOf({ page: null, publicPage: "none" }) },
+    entryOf("none-one", {
+      locales: { en: localeOf({ publication: "none" }) },
       pairedPages: { en: "/for/real-estate" },
     }),
-    entryOf("draft-one", { locales: { en: localeOf({ status: "draft" }) } }),
   );
-  const options = { index, shipped: ALL_CAPABILITIES };
+  const options = { index };
 
-  it("lists own and proof pages, never a block or a draft", () => {
-    expect(pageTemplates("en", options).map((item) => item.entry.slug)).toEqual(["own-one", "proof-one"]);
+  it("lists indexed and noindex pages, never one without a page", () => {
+    expect(pageTemplates("en", options).map((item) => item.entry.slug)).toEqual(["indexed-one", "noindex-one"]);
   });
 
-  it("lists only own pages for the sitemap", () => {
-    expect(ownPageSlugs("en", options)).toEqual(["own-one"]);
+  it("lists only indexed pages for the sitemap", () => {
+    expect(indexedPageSlugs("en", options)).toEqual(["indexed-one"]);
   });
 
-  it("finds the templates paired with a for or features page, blocks included", () => {
+  it("finds the templates paired with a for or features page, those without a page included", () => {
     expect(templatesPairedWith("en", "/for/real-estate", options).map((item) => item.entry.slug)).toEqual([
-      "proof-one",
-      "block-one",
+      "noindex-one",
+      "none-one",
     ]);
     expect(templatesPairedWith("en", "/for/recruiting", options)).toEqual([]);
   });
 
   it("resolves one slug with its visibility", () => {
-    expect(templateVisibilityBySlug("proof-one", "en", options)?.visibility).toBe("proof");
-    expect(templateVisibilityBySlug("draft-one", "en", options)).toBeNull();
+    expect(templateVisibilityBySlug("noindex-one", "en", options)?.visibility).toBe("noindex");
+    expect(templateVisibilityBySlug("none-one", "en", options)?.visibility).toBe("none");
     expect(templateVisibilityBySlug("missing", "en", options)).toBeNull();
   });
 
   it("names the locales in which a page is indexable", () => {
     const both = indexOf(
       entryOf("a", {
-        locales: { de: localeOf({ publicPage: "own" }), en: localeOf({ publicPage: "proof" }), fr: localeOf() },
+        locales: {
+          de: localeOf({ publication: "indexed" }),
+          en: localeOf({ publication: "noindex" }),
+          fr: localeOf(),
+          it: localeOf({ publication: "none" }),
+        },
       }),
     );
-    const locales = indexableLocales("a", MARKETING_LOCALES, { index: both, shipped: ALL_CAPABILITIES });
+    const locales = indexableLocales("a", MARKETING_LOCALES, { index: both });
 
     expect(locales).toHaveLength(2);
     expect(locales).toContain("de");
     expect(locales).toContain("fr");
     expect(locales).not.toContain("en");
+    expect(locales).not.toContain("it");
   });
 });
 
 describe("hub visibility", () => {
-  it("is hidden when nothing is public", () => {
-    const index = indexOf(entryOf("a", { locales: { en: localeOf({ status: "draft" }) } }));
+  it("is hidden when no locale has a page", () => {
+    const index = indexOf(entryOf("a", { locales: { en: localeOf({ publication: "none" }) } }));
 
     expect(hubVisibility("en", { index })).toBe("hidden");
   });
 
-  it("is noindex when only proof pages exist", () => {
+  it("is noindex when only noindex pages exist", () => {
     expect(
-      hubVisibility("en", { index: indexOf(entryOf("a", { locales: { en: localeOf({ publicPage: "proof" }) } })) }),
+      hubVisibility("en", {
+        index: indexOf(entryOf("a", { locales: { en: localeOf({ publication: "noindex" }) } })),
+      }),
     ).toBe("noindex");
   });
 
-  it("is indexable as soon as one own page exists", () => {
+  it("is indexable as soon as one indexed page exists", () => {
     expect(hubVisibility("en", { index: indexOf(entryOf("a")) })).toBe("indexable");
   });
 

@@ -1,12 +1,10 @@
 import type { Capability } from "@/core/capabilities/capabilities";
-import type { TemplateSpec } from "./template-spec.schema";
+import type { TemplatePublication, TemplateSpec } from "./template-spec.schema";
 
 export type TemplateIndexLocale = {
   name: string;
   summary: string;
-  status: TemplateSpec["status"][string];
-  publicPage: TemplateSpec["publicPage"][string];
-  publishWave: TemplateSpec["publishWave"][string] | null;
+  publication: TemplatePublication;
   page: { metaTitle: string; metaDescription: string } | null;
 };
 

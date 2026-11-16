@@ -70,7 +70,7 @@ const RELATED_SEGMENTS: Record<RelatedRouteSegment, RelatedTargetResolver> = {
   },
   templates: (slug, locale) => {
     const found = templateVisibilityBySlug(slug, locale, pagePublicationOptions());
-    if (found?.visibility !== "own") return null;
+    if (found?.visibility !== "indexed") return null;
 
     return {
       description: found.locale.page?.metaDescription ?? found.locale.summary,

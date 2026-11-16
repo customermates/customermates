@@ -1,26 +1,23 @@
 import { describe, expect, it } from "vitest";
 
 import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
+import { renderTemplatePrompt } from "@/core/templates/template-prompt";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { templatePromptText } from "@/core/templates/template-prompt-text";
 import { getTemplate, getTemplateText } from "@/core/templates/__tests__/template-fixtures";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
-import { renderOnboardingTemplatePrompt } from "../onboarding-template-prompt";
-
 const MCP_URL = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
-const BASE_URL = "https://app.example.test";
+const SIGNUP_URL = "https://app.example.test/en/auth/signup";
 
 function render(
   slug: (typeof TEMPLATE_SLUGS)[number],
   locale: string,
   options: { deployment?: "cloud" | "self-hosted"; connected?: boolean } = {},
 ) {
-  return renderOnboardingTemplatePrompt({
-    spec: getTemplate(slug),
-    text: getTemplateText(slug, locale),
+  return renderTemplatePrompt(getTemplate(slug), getTemplateText(slug, locale), {
     deployment: options.deployment ?? "cloud",
-    baseUrl: BASE_URL,
+    signupUrl: SIGNUP_URL,
     mcpUrl: MCP_URL,
     connected: options.connected ?? true,
   });

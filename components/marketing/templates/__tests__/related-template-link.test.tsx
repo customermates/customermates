@@ -12,7 +12,7 @@ import { renderAsync } from "./render-async";
 const BASELINE: TemplateIndex = (rawIndex as unknown as TemplateIndex).map((entry) => ({
   ...entry,
   locales: Object.fromEntries(
-    Object.entries(entry.locales).map(([code, text]) => [code, { ...text, status: "draft" as const }]),
+    Object.entries(entry.locales).map(([code, text]) => [code, { ...text, publication: "none" as const }]),
   ),
 }));
 const state = vi.hoisted(() => ({ index: [] as unknown[] }));
@@ -25,10 +25,6 @@ vi.mock("next-intl/server", () => ({
 vi.mock("@/core/templates/template-index", () => ({
   getTemplateIndex: () => state.index,
   getTemplateIndexEntry: (slug: string) => (state.index as { slug: string }[]).find((entry) => entry.slug === slug),
-}));
-vi.mock("@/core/capabilities/capabilities", () => ({
-  CAPABILITIES: ["forms", "rules", "calendarWrite", "notifications", "incomingWebhooks"],
-  SHIPPED_CAPABILITIES: new Set(["forms", "rules", "calendarWrite", "notifications", "incomingWebhooks"]),
 }));
 vi.mock("@/core/templates/template-deployment", () => ({ pagePublicationOptions: () => ({ deployment: "cloud" }) }));
 vi.mock("@/components/shared/app-link", () => ({
@@ -44,22 +40,9 @@ vi.mock("@/core/fumadocs/source", () => ({
 
 import { RelatedPage } from "../../related-pages";
 
-function publish(slug: string, publicPage: "own" | "proof") {
+function publish(slug: string, publication: "indexed" | "noindex") {
   return BASELINE.map((entry) =>
-    entry.slug === slug
-      ? {
-          ...entry,
-          locales: {
-            ...entry.locales,
-            en: {
-              ...entry.locales.en,
-              publicPage,
-              publishWave: publicPage === "own" ? ("wave1" as const) : null,
-              status: "published" as const,
-            },
-          },
-        }
-      : entry,
+    entry.slug === slug ? { ...entry, locales: { ...entry.locales, en: { ...entry.locales.en, publication } } } : entry,
   );
 }
 
@@ -69,7 +52,7 @@ beforeEach(() => {
 
 describe("a related link to a template page", () => {
   it("shows the template name, its search description and the templates label", async () => {
-    state.index = publish("client-tracker", "own");
+    state.index = publish("client-tracker", "indexed");
 
     const html = await renderAsync(await RelatedPage({ href: "/templates/client-tracker" }));
 
@@ -78,14 +61,14 @@ describe("a related link to a template page", () => {
     expect(html).toContain("Templates");
   });
 
-  it("fails the build for a template that is still a draft", async () => {
+  it("fails the build for a template that has no page", async () => {
     await expect(RelatedPage({ href: "/templates/client-tracker" })).rejects.toThrow(
       "resolves to no published page in en",
     );
   });
 
-  it("does not link a proof page that is kept out of search", async () => {
-    state.index = publish("client-tracker", "proof");
+  it("does not link a noindex page that is kept out of search", async () => {
+    state.index = publish("client-tracker", "noindex");
 
     await expect(RelatedPage({ href: "/templates/client-tracker" })).rejects.toThrow(
       "resolves to no published page in en",

@@ -62,11 +62,11 @@ describe("template sources", () => {
     for (const bundle of bundles.values()) expect(TemplateBundleSchema.safeParse(bundle).success).toBe(true);
   });
 
-  it.each(TEMPLATE_SLUGS)("has a locale file for exactly the locales in the status of %s", (slug) => {
+  it.each(TEMPLATE_SLUGS)("has a locale file for exactly the locales in the publication of %s", (slug) => {
     const spec = getTemplate(slug);
     const bundle = buildTemplateBundles().get(slug);
-    expect(Object.keys(bundle?.text ?? {}).sort()).toEqual(Object.keys(spec.status).sort());
-    for (const locale of Object.keys(spec.status))
+    expect(Object.keys(bundle?.text ?? {}).sort()).toEqual(Object.keys(spec.publication).sort());
+    for (const locale of Object.keys(spec.publication))
       expect(TemplateLocaleSchema.safeParse(getTemplateText(slug, locale)).success).toBe(true);
   });
 
@@ -98,7 +98,7 @@ describe("template sources", () => {
   it("reads the shared modules", () => {
     const modules = readTemplateModules();
     expect([...modules.keys()]).toEqual(["actions_core", "actions_dashboard"]);
-    const shipped = new Set(TEMPLATE_SLUGS.flatMap((slug) => Object.keys(getTemplate(slug).status)));
+    const shipped = new Set(TEMPLATE_SLUGS.flatMap((slug) => Object.keys(getTemplate(slug).publication)));
     for (const key of modules.keys())
       expect(Object.keys(modules.get(key)?.text ?? {}).sort()).toEqual([...shipped].sort());
   });

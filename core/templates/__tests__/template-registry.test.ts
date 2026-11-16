@@ -1,26 +1,15 @@
 import { describe, expect, it } from "vitest";
 
+import { isTemplateOffered } from "@/core/templates/template-publication";
 import {
-  CLOUD_ONLY_CAPABILITIES,
   TEMPLATE_SLUGS,
   getTemplate,
   getTemplateText,
   hasTemplateText,
-  isTemplateOffered,
   isTemplateSlug,
-  listTemplates,
+  listOfferedTemplates,
   loadTemplate,
 } from "@/core/templates/template-registry";
-
-import type { Capability } from "@/core/capabilities/capabilities";
-
-const ALL: ReadonlySet<Capability> = new Set<Capability>([
-  "forms",
-  "rules",
-  "calendarWrite",
-  "notifications",
-  "incomingWebhooks",
-]);
 
 describe("template registry", () => {
   it("lists the slugs and validates them", () => {
@@ -50,54 +39,35 @@ describe("template registry", () => {
   });
 
   it("answers what the light index knows without loading a bundle, and agrees with every bundle", async () => {
-    const listings = listTemplates({ locale: "en", shipped: ALL });
+    const listings = listOfferedTemplates({ locale: "en", deployment: "cloud" });
     for (const slug of TEMPLATE_SLUGS) {
       const { spec, text } = await loadTemplate(slug, "en");
       expect(spec.slug).toBe(slug);
-      expect(Object.keys(spec.status).every((locale) => hasTemplateText(slug, locale))).toBe(true);
+      expect(Object.keys(spec.publication).every((locale) => hasTemplateText(slug, locale))).toBe(true);
       expect(listings.find((listing) => listing.slug === slug)?.name).toBe(text.name);
-      expect(isTemplateOffered(slug, { deployment: "cloud", shipped: ALL })).toBe(
-        spec.requiresCapabilities.every((capability) => ALL.has(capability)),
-      );
     }
   });
 
-  it("offers nothing while no capability has shipped", () => {
-    const shipped = new Set<Capability>();
-    for (const slug of TEMPLATE_SLUGS) expect(isTemplateOffered(slug, { deployment: "cloud", shipped })).toBe(false);
-    expect(listTemplates({ locale: "en", publishedOnly: true, shipped })).toEqual([]);
-  });
-
-  it("offers a template once every capability it requires has shipped", () => {
-    const shipped = new Set<Capability>(["forms", "rules", "notifications"]);
-    expect(isTemplateOffered("sales-pipeline", { deployment: "cloud", shipped })).toBe(true);
-    expect(isTemplateOffered("sales-pipeline", { deployment: "self-hosted", shipped })).toBe(true);
-    expect(isTemplateOffered("real-estate-pipeline", { deployment: "cloud", shipped })).toBe(false);
-    shipped.delete("rules");
-    expect(isTemplateOffered("sales-pipeline", { deployment: "cloud", shipped })).toBe(false);
-  });
-
-  it("does not offer a cloud-only capability to a self-hosted deployment", () => {
-    expect(CLOUD_ONLY_CAPABILITIES.has("calendarWrite")).toBe(true);
-    expect(isTemplateOffered("real-estate-pipeline", { deployment: "cloud", shipped: ALL })).toBe(true);
-    expect(isTemplateOffered("real-estate-pipeline", { deployment: "self-hosted", shipped: ALL })).toBe(false);
-  });
-
-  it("lists templates with the text of the locale and the publication state", () => {
-    const listings = listTemplates({ locale: "de", shipped: ALL });
-    expect(listings.map((listing) => listing.slug)).toEqual([...TEMPLATE_SLUGS]);
-    expect(listings.every((listing) => listing.translated && listing.offered)).toBe(true);
-    expect(listings.find((listing) => listing.slug === "client-tracker")?.name).toBe("Kundenverwaltung");
-    expect(listings.every((listing) => listing.status === "published")).toBe(true);
-    expect(
-      listTemplates({ locale: "xx", shipped: ALL }).every((listing) => !listing.translated && listing.status === null),
-    ).toBe(true);
-  });
-
-  it("lists only published and offered templates when asked", () => {
-    expect(listTemplates({ locale: "pl", publishedOnly: true, shipped: ALL }).map((listing) => listing.slug)).toEqual([
+  it("offers every template in the cloud and keeps the cloud-only capability out of a self-hosted deployment", async () => {
+    expect(listOfferedTemplates({ locale: "en", deployment: "cloud" }).map((listing) => listing.slug)).toEqual([
       ...TEMPLATE_SLUGS,
     ]);
-    expect(listTemplates({ locale: "pl", publishedOnly: true, shipped: new Set() })).toEqual([]);
+    const selfHosted = listOfferedTemplates({ locale: "en", deployment: "self-hosted" }).map((listing) => listing.slug);
+    expect(selfHosted).toContain("sales-pipeline");
+    expect(selfHosted).not.toContain("real-estate-pipeline");
+    for (const slug of TEMPLATE_SLUGS) {
+      const { spec } = await loadTemplate(slug, "en");
+      expect(selfHosted.includes(slug)).toBe(isTemplateOffered(spec, "self-hosted"));
+    }
+  });
+
+  it("lists templates with the text of the locale", () => {
+    const listings = listOfferedTemplates({ locale: "de", deployment: "cloud" });
+    expect(listings.map((listing) => listing.slug)).toEqual([...TEMPLATE_SLUGS]);
+    expect(listings.every((listing) => listing.translated)).toBe(true);
+    expect(listings.find((listing) => listing.slug === "client-tracker")?.name).toBe("Kundenverwaltung");
+    expect(listOfferedTemplates({ locale: "xx", deployment: "cloud" }).every((listing) => !listing.translated)).toBe(
+      true,
+    );
   });
 });

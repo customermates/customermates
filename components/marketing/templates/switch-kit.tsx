@@ -7,6 +7,7 @@ import { templateSignupPath } from "@/core/templates/template-page-model";
 import { templateVisibilityBySlug } from "@/core/templates/template-publication";
 import { isTemplateSlug } from "@/core/templates/template-slugs";
 import { templatePagePath } from "@/core/templates/templates-source";
+import { SIGNUP_PATH } from "@/features/acquisition/signup-link";
 import { formattingTagFor, marketingLocaleOrDefault } from "@/i18n/locale-registry";
 
 import {
@@ -33,8 +34,8 @@ export async function SwitchKitBlock({ heading = "h2", locale, tool }: BlockProp
   }).format(new Date(`${SWITCH_KIT_CHECKED_ON}T00:00:00Z`));
   const mapped = isTemplateSlug(SWITCH_KIT_TEMPLATE);
   const found = mapped ? templateVisibilityBySlug(SWITCH_KIT_TEMPLATE, locale, pagePublicationOptions()) : null;
-  const templateVisible = found?.visibility === "own" || found?.visibility === "proof";
-  const signupHref = mapped ? templateSignupPath(SWITCH_KIT_TEMPLATE) : "/auth/signup";
+  const templateVisible = found !== null && found.visibility !== "none";
+  const signupHref = mapped ? templateSignupPath(SWITCH_KIT_TEMPLATE) : SIGNUP_PATH;
   const facts = [
     { body: copy.moves, label: t("movesLabel"), name: "moves" },
     { body: copy.export, label: t("exportLabel"), name: "export" },

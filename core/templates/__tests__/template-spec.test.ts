@@ -189,13 +189,13 @@ describe("template spec validation", () => {
     expect(messages.join()).toContain("at most 24 characters");
   });
 
-  it("rejects an id that does not follow the slug and locales that disagree", () => {
+  it("rejects an id that does not follow the slug and a paired page for a locale without a publication", () => {
     const messages = specIssuesAfter((spec) => {
       spec.id = "tpl_other";
-      spec.publicPage = { en: "own" };
+      spec.publication = { en: "indexed" };
     });
     expect(messages.join()).toContain("The id must be tpl_ plus the slug");
-    expect(messages.join()).toContain("status and publicPage need the same locales.");
+    expect(messages.join()).toContain("Unknown locale.");
   });
 
   it("rejects acceptance checks that point nowhere", () => {
@@ -208,8 +208,26 @@ describe("template spec validation", () => {
 
 describe("template text validation", () => {
   it.each(TEMPLATE_SLUGS)("finds no problem in the shipped text of %s", (slug) => {
-    for (const locale of Object.keys(cloneSpec(slug).status))
+    for (const locale of Object.keys(cloneSpec(slug).publication))
       expect(templateTextIssues(cloneSpec(slug), cloneText(slug, locale), locale)).toEqual([]);
+  });
+
+  it("asks for page copy only where the locale has a page", () => {
+    const spec = cloneSpec();
+    const text = cloneText();
+    delete text.page;
+    spec.publication.en = "indexed";
+    expect(templateTextIssues(spec, text, "en")).toContain("publication.en is indexed but the locale has no page copy");
+    spec.publication.en = "noindex";
+    expect(templateTextIssues(spec, text, "en")).toContain("publication.en is noindex but the locale has no page copy");
+    spec.publication.en = "none";
+    expect(templateTextIssues(spec, text, "en")).toEqual([]);
+  });
+
+  it("reports a locale without a publication", () => {
+    const spec = cloneSpec();
+    delete spec.publication.en;
+    expect(templateTextIssues(spec, cloneText(), "en")).toContain("publication.en is missing in the spec");
   });
 
   it("reports missing and surplus keys", () => {

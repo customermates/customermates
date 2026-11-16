@@ -123,7 +123,5 @@
     { "url": "https://www.jazzhr.com/insights/best-free-ats", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
-  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "none", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
-  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "es": "wave2", "pt": "wave2", "pl": "wave2", "nl": "wave2" }
+  "publication": { "en": "noindex", "de": "noindex", "fr": "noindex", "it": "none", "es": "noindex", "pt": "noindex", "pl": "noindex", "nl": "noindex" }
 }

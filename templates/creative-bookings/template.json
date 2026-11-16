@@ -153,7 +153,5 @@
     { "url": "https://www.weddingwire.com/wedding-ideas/wedding-photography-contract", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "published", "de": "published", "fr": "published", "it": "published", "es": "published", "pt": "published", "pl": "published", "nl": "published" },
-  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "none", "pt": "own", "pl": "none", "nl": "none" },
-  "publishWave": { "en": "wave1", "de": "wave1", "fr": "wave2", "it": "wave1", "pt": "wave1" }
+  "publication": { "en": "indexed", "de": "indexed", "fr": "noindex", "it": "indexed", "es": "none", "pt": "indexed", "pl": "none", "nl": "none" }
 }

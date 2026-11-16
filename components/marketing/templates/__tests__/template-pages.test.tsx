@@ -10,7 +10,7 @@ import type { TemplateIndex } from "@/core/templates/template-index.types";
 const BASELINE: TemplateIndex = (rawIndex as unknown as TemplateIndex).map((entry) => ({
   ...entry,
   locales: Object.fromEntries(
-    Object.entries(entry.locales).map(([code, text]) => [code, { ...text, status: "draft" as const }]),
+    Object.entries(entry.locales).map(([code, text]) => [code, { ...text, publication: "none" as const }]),
   ),
 }));
 
@@ -37,10 +37,6 @@ vi.mock("next-intl/server", () => ({
 vi.mock("@/core/templates/template-index", () => ({
   getTemplateIndex: () => state.index,
   getTemplateIndexEntry: (slug: string) => (state.index as { slug: string }[]).find((entry) => entry.slug === slug),
-}));
-vi.mock("@/core/capabilities/capabilities", () => ({
-  CAPABILITIES: ["forms", "rules", "calendarWrite", "notifications", "incomingWebhooks"],
-  SHIPPED_CAPABILITIES: new Set(["forms", "rules", "calendarWrite", "notifications", "incomingWebhooks"]),
 }));
 vi.mock("@/core/templates/template-deployment", () => ({ pagePublicationOptions: () => ({ deployment: "cloud" }) }));
 vi.mock("@/app/components/footer", () => ({ Footer: () => null }));
@@ -92,21 +88,15 @@ import { TemplateDetail } from "../template-detail";
 import { TemplateProofBlock } from "../template-proof-block";
 import { TemplatesHub } from "../template-hub";
 
-function publish(slug: string, locale: string, publicPage: "own" | "proof" | "none", index: TemplateIndex = BASELINE) {
+function publish(
+  slug: string,
+  locale: string,
+  publication: "indexed" | "noindex" | "none",
+  index: TemplateIndex = BASELINE,
+) {
   return index.map((entry) =>
     entry.slug === slug
-      ? {
-          ...entry,
-          locales: {
-            ...entry.locales,
-            [locale]: {
-              ...entry.locales[locale],
-              publicPage,
-              publishWave: publicPage === "own" ? ("wave1" as const) : null,
-              status: "published" as const,
-            },
-          },
-        }
+      ? { ...entry, locales: { ...entry.locales, [locale]: { ...entry.locales[locale], publication } } }
       : entry,
   );
 }
@@ -116,12 +106,12 @@ beforeEach(() => {
 });
 
 describe("the templates hub", () => {
-  it("answers 404 while every template is a draft", async () => {
+  it("answers 404 while no template has a page", async () => {
     await expect(TemplatesHub({ locale: "en" })).rejects.toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
   });
 
-  it("lists own and proof pages, with the headline, the trial hint and the structured data", async () => {
-    state.index = publish("sales-pipeline", "en", "proof", publish("client-tracker", "en", "own"));
+  it("lists indexed and noindex pages, with the headline, the trial hint and the structured data", async () => {
+    state.index = publish("sales-pipeline", "en", "noindex", publish("client-tracker", "en", "indexed"));
 
     const html = await renderAsync(await TemplatesHub({ locale: "en" }));
 
@@ -139,10 +129,10 @@ describe("the templates hub", () => {
 
 describe("a template page", () => {
   beforeEach(() => {
-    state.index = publish("client-tracker", "en", "own");
+    state.index = publish("client-tracker", "en", "indexed");
   });
 
-  async function detail(slug = "client-tracker", visibility: "own" | "proof" = "own") {
+  async function detail(slug = "client-tracker", visibility: "indexed" | "noindex" = "indexed") {
     return renderAsync(await TemplateDetail({ locale: "en", slug, visibility }));
   }
 
@@ -202,28 +192,28 @@ describe("a template page", () => {
     expect(await detail()).not.toContain('"@type":"HowTo"');
   });
 
-  it("offers no related templates on a proof page", async () => {
-    state.index = publish("sales-pipeline", "en", "proof", publish("client-tracker", "en", "own"));
+  it("offers no related templates on a noindex page", async () => {
+    state.index = publish("sales-pipeline", "en", "noindex", publish("client-tracker", "en", "indexed"));
 
-    expect(await detail("sales-pipeline", "proof")).not.toContain('id="related"');
+    expect(await detail("sales-pipeline", "noindex")).not.toContain('id="related"');
   });
 
   it("answers 404 for a locale without page text", async () => {
-    await expect(TemplateDetail({ locale: "xx", slug: "client-tracker", visibility: "own" })).rejects.toThrow(
+    await expect(TemplateDetail({ locale: "xx", slug: "client-tracker", visibility: "indexed" })).rejects.toThrow(
       "NEXT_HTTP_ERROR_FALLBACK;404",
     );
   });
 });
 
 describe("the proof block", () => {
-  it("renders nothing while the paired template is a draft", async () => {
-    expect(await renderAsync(await TemplateProofBlock({ locale: "en", path: "/features/contact-management" }))).toBe(
+  it("renders nothing while no template is paired with the page in the locale", async () => {
+    expect(await renderAsync(await TemplateProofBlock({ locale: "xx", path: "/features/contact-management" }))).toBe(
       "",
     );
   });
 
   it("shows the template, what it sets up, a copy button and a link to its page", async () => {
-    state.index = publish("client-tracker", "en", "own");
+    state.index = publish("client-tracker", "en", "indexed");
 
     const html = await renderAsync(await TemplateProofBlock({ locale: "en", path: "/features/contact-management" }));
 
@@ -235,8 +225,8 @@ describe("the proof block", () => {
     expect(html).toContain('href="/templates/client-tracker"');
   });
 
-  it("links to the noindex page of a template that has no indexable page of its own", async () => {
-    state.index = publish("client-tracker", "en", "none");
+  it("links to the noindex page of a template that has no indexable page", async () => {
+    state.index = publish("client-tracker", "en", "noindex");
 
     const html = await renderAsync(await TemplateProofBlock({ locale: "en", path: "/features/contact-management" }));
 
@@ -244,10 +234,20 @@ describe("the proof block", () => {
     expect(html).toContain('href="/templates/client-tracker"');
   });
 
-  it("renders nothing for a page that no template names", async () => {
-    state.index = publish("client-tracker", "en", "own");
+  it("shows the template without a link where it has no page", async () => {
+    state.index = publish("client-tracker", "en", "none");
 
-    expect(await renderAsync(await TemplateProofBlock({ locale: "en", path: "/for/recruiting" }))).toBe("");
+    const html = await renderAsync(await TemplateProofBlock({ locale: "en", path: "/features/contact-management" }));
+
+    expect(html).toContain('data-template-proof-card="client-tracker"');
+    expect(html).toContain('data-copy="# Client tracker"');
+    expect(html).not.toContain('href="/templates/client-tracker"');
+  });
+
+  it("renders nothing for a page that no template names", async () => {
+    state.index = publish("client-tracker", "en", "indexed");
+
+    expect(await renderAsync(await TemplateProofBlock({ locale: "en", path: "/for/astronauts" }))).toBe("");
   });
 });
 

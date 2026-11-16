@@ -141,8 +141,8 @@ export function buildTemplateBundle(
       return [locale, parsed];
     }),
   );
-  if (Object.keys(text).sort().join() !== Object.keys(spec.status).sort().join())
-    throw new Error(`templates/${slug}: locale files and status keys differ`);
+  if (Object.keys(text).sort().join() !== Object.keys(spec.publication).sort().join())
+    throw new Error(`templates/${slug}: locale files and publication keys differ`);
   return parseOrThrow(TemplateBundleSchema, { spec, text }, `templates/${slug} bundle`);
 }
 

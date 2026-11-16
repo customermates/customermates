@@ -2,25 +2,23 @@ import { describe, expect, it } from "vitest";
 
 import { templateLlmsLines } from "@/core/templates/template-llms";
 
-import { ALL_CAPABILITIES, entryOf, indexOf, localeOf } from "./template-publication-fixtures";
+import { entryOf, indexOf, localeOf } from "./template-publication-fixtures";
 
 describe("llms.txt template entries", () => {
-  it("adds nothing while no template page is public", () => {
+  it("adds nothing while no template page is indexed", () => {
     expect(
       templateLlmsLines("https://example.com", {
-        index: indexOf(entryOf("a", { locales: { en: localeOf({ status: "draft" }) } })),
-        shipped: ALL_CAPABILITIES,
+        index: indexOf(entryOf("a", { locales: { en: localeOf({ publication: "none" }) } })),
       }),
     ).toEqual([]);
   });
 
-  it("lists published own pages in English and leaves proof pages out", () => {
+  it("lists indexed pages in English and leaves noindex pages out", () => {
     const lines = templateLlmsLines("https://example.com", {
       index: indexOf(
         entryOf("tracker", { locales: { en: localeOf({ name: "Client tracker" }) } }),
-        entryOf("proof", { locales: { en: localeOf({ publicPage: "proof" }) } }),
+        entryOf("quiet", { locales: { en: localeOf({ publication: "noindex" }) } }),
       ),
-      shipped: ALL_CAPABILITIES,
     });
 
     expect(lines).toEqual([

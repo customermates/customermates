@@ -9,25 +9,17 @@ import { getGetSubscriptionInteractor, getUserService } from "@/core/di";
 import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { compileTemplate } from "@/core/templates/compile-template";
 import { compileTemplateAutomation } from "@/core/templates/compile-template-automation";
+import { templateDeployment } from "@/core/templates/template-deployment";
+import { signupUrl } from "@/core/templates/template-page-model";
 import { renderTemplatePrompt } from "@/core/templates/template-prompt";
-import {
-  type TemplateDeployment,
-  isTemplateOffered,
-  listTemplates,
-  loadTemplate,
-} from "@/core/templates/template-registry";
-import { type TemplateSlug, TEMPLATE_SLUGS, isTemplateSlug } from "@/core/templates/template-slugs";
+import { listOfferedTemplates, loadTemplate } from "@/core/templates/template-registry";
+import { type TemplateSlug, isTemplateSlug } from "@/core/templates/template-slugs";
 import { routineAllowanceOf } from "@/ee/subscription/entitlements";
-import { env } from "@/env";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 
 import { MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO, MCP_TEMPLATE_RESOURCE_INFO } from "./server-metadata";
 
 const TEMPLATE_UNAVAILABLE = "This template is not available in this workspace.";
-
-function deployment(): TemplateDeployment {
-  return env.APP_MODE === "self-hosted" ? "self-hosted" : "cloud";
-}
 
 async function workspaceLocale(): Promise<string> {
   try {
@@ -48,7 +40,9 @@ async function workspaceRoutineAllowance(): Promise<number | "unlimited" | null>
 }
 
 export function offeredTemplateSlugs(): TemplateSlug[] {
-  return TEMPLATE_SLUGS.filter((slug) => isTemplateOffered(slug, { deployment: deployment() }));
+  return listOfferedTemplates({ locale: DEFAULT_LOCALE, deployment: templateDeployment() }).map(
+    (listing) => listing.slug,
+  );
 }
 
 function offeredSlug(value: unknown): TemplateSlug {
@@ -76,8 +70,8 @@ export async function templateResourceContents(slug: TemplateSlug, locale: strin
 export async function templatePromptText(slug: TemplateSlug, locale: string): Promise<string> {
   const { spec, text } = await loadTemplate(slug, locale);
   return renderTemplatePrompt(spec, text, {
-    deployment: deployment(),
-    signupUrl: `${env.BASE_URL}/signup`,
+    deployment: templateDeployment(),
+    signupUrl: signupUrl(locale),
     connected: true,
     routineAllowance: await workspaceRoutineAllowance(),
   });
@@ -130,15 +124,13 @@ function registerTemplateResources(server: McpServer) {
       list: async () => {
         const locale = await workspaceLocale();
         return {
-          resources: listTemplates({ locale, deployment: deployment() })
-            .filter((listing) => listing.offered)
-            .map((listing) => ({
-              uri: `templates://${listing.slug}`,
-              name: listing.slug,
-              title: listing.name,
-              description: listing.summary,
-              mimeType: MCP_TEMPLATE_RESOURCE_INFO.mimeType,
-            })),
+          resources: listOfferedTemplates({ locale, deployment: templateDeployment() }).map((listing) => ({
+            uri: `templates://${listing.slug}`,
+            name: listing.slug,
+            title: listing.name,
+            description: listing.summary,
+            mimeType: MCP_TEMPLATE_RESOURCE_INFO.mimeType,
+          })),
         };
       },
       complete: { slug: slugCompletions },

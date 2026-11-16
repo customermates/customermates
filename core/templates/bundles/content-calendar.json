@@ -1079,34 +1079,15 @@
       }
     ],
     "reviewedAt": "2026-11-12",
-    "status": {
-      "en": "published",
-      "de": "published",
-      "fr": "published",
-      "it": "published",
-      "es": "published",
-      "pt": "published",
-      "pl": "published",
-      "nl": "published"
-    },
-    "publicPage": {
-      "en": "own",
-      "de": "own",
-      "fr": "own",
-      "it": "own",
-      "es": "own",
-      "pt": "own",
+    "publication": {
+      "en": "noindex",
+      "de": "indexed",
+      "fr": "noindex",
+      "it": "indexed",
+      "es": "noindex",
+      "pt": "noindex",
       "pl": "none",
-      "nl": "own"
-    },
-    "publishWave": {
-      "en": "wave2",
-      "de": "wave1",
-      "fr": "wave2",
-      "it": "wave1",
-      "es": "wave2",
-      "pt": "hold",
-      "nl": "wave1"
+      "nl": "indexed"
     }
   },
   "text": {

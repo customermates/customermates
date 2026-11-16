@@ -1082,27 +1082,16 @@
       }
     ],
     "reviewedAt": "2026-11-12",
-    "status": {
-      "en": "published",
-      "de": "published",
-      "fr": "published",
-      "it": "published",
-      "es": "published",
-      "pt": "published",
-      "pl": "published",
-      "nl": "published"
-    },
-    "publicPage": {
-      "en": "proof",
-      "de": "proof",
-      "fr": "proof",
+    "publication": {
+      "en": "noindex",
+      "de": "noindex",
+      "fr": "noindex",
       "it": "none",
       "es": "none",
       "pt": "none",
       "pl": "none",
       "nl": "none"
-    },
-    "publishWave": {}
+    }
   },
   "text": {
     "de": {

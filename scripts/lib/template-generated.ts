@@ -15,7 +15,7 @@ function json(value: unknown): string {
 function readme(bundles: Map<string, TemplateBundle>): string {
   const rows = [...bundles.entries()].map(([slug, { spec, text }]) => {
     const locales = Object.keys(text)
-      .map((locale) => `${locale} (${spec.status[locale] ?? "none"})`)
+      .map((locale) => `${locale} (${spec.publication[locale]})`)
       .join(", ");
     const needs = spec.requiresCapabilities.join(", ") || "none";
     const cells = [

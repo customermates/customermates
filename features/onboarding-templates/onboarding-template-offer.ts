@@ -1,13 +1,11 @@
-import type { Capability } from "@/core/capabilities/capabilities";
 import type { TemplateIndex, TemplateIndexEntry } from "@/core/templates/template-index.types";
+import type { TemplateDeployment } from "@/core/templates/template-publication";
 import type { TemplateSlug } from "@/core/templates/template-slugs";
 
-import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
 import { getTemplateIndex } from "@/core/templates/template-index";
+import { isTemplateOffered } from "@/core/templates/template-publication";
 import { isTemplateSlug } from "@/core/templates/template-slugs";
 import { DEFAULT_LOCALE, routingLocaleFromPathname, stripLocalePrefix } from "@/i18n/locale-registry";
-
-export type OnboardingTemplateDeployment = "cloud" | "self-hosted";
 
 export type OnboardingTemplateCard = {
   slug: TemplateSlug;
@@ -24,27 +22,16 @@ export type OnboardingTemplatePreselection = {
 
 type OfferOptions = {
   locale: string;
-  deployment: OnboardingTemplateDeployment;
+  deployment: TemplateDeployment;
   index?: TemplateIndex;
-  shipped?: ReadonlySet<Capability>;
 };
 
 export const DEFAULT_ONBOARDING_TEMPLATE: TemplateSlug = "sales-pipeline";
 
-const CLOUD_ONLY_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>(["calendarWrite"]);
-
-function isOffered(entry: TemplateIndexEntry, options: Pick<OfferOptions, "deployment" | "shipped">): boolean {
-  const shipped = options.shipped ?? SHIPPED_CAPABILITIES;
-  return entry.requiresCapabilities.every(
-    (capability) =>
-      shipped.has(capability) && (options.deployment === "cloud" || !CLOUD_ONLY_CAPABILITIES.has(capability)),
-  );
-}
-
 export function offeredTemplateCards(options: OfferOptions): OnboardingTemplateCard[] {
   return (options.index ?? getTemplateIndex()).flatMap((entry) => {
     const text = entry.locales[options.locale] ?? entry.locales[DEFAULT_LOCALE];
-    if (!text || !isTemplateSlug(entry.slug) || !isOffered(entry, options)) return [];
+    if (!text || !isTemplateSlug(entry.slug) || !isTemplateOffered(entry, options.deployment)) return [];
     return [
       {
         slug: entry.slug,

@@ -12,7 +12,7 @@ import {
 } from "@/components/marketing/related-target";
 import { relatedHrefsSchema } from "@/core/fumadocs/schemas/common";
 import { RELATED_LINK_COUNT } from "@/core/seo/related-selection";
-import { ownPageSlugs } from "@/core/templates/template-publication";
+import { indexedPageSlugs } from "@/core/templates/template-publication";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
@@ -83,7 +83,7 @@ function publishedRoutes(locale: string) {
     ...Object.entries(TARGET_COLLECTIONS).flatMap(([collection, base]) =>
       entries(collection, locale).map(({ slug }) => `${base}/${slug}`),
     ),
-    ...ownPageSlugs(locale).map((slug) => `/templates/${slug}`),
+    ...indexedPageSlugs(locale).map((slug) => `/templates/${slug}`),
   ]);
 }
 

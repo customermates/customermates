@@ -49,7 +49,7 @@ export function generateTemplatePageMetadata(
 ): Metadata {
   const found = templateVisibilityBySlug(slug, locale, options);
   const page = found?.locale.page;
-  if (!found || !page || (found.visibility !== "own" && found.visibility !== "proof")) notFound();
+  if (!found || !page || found.visibility === "none") notFound();
 
   const publicPath = templatePagePath(slug);
   const languages = buildAlternateLanguages(
@@ -62,7 +62,7 @@ export function generateTemplatePageMetadata(
     description: page.metaDescription,
     languages,
     locale,
-    noindex: found.visibility === "proof",
+    noindex: found.visibility === "noindex",
     publicPath,
     title: page.metaTitle,
   });
