@@ -1711,32 +1711,33 @@ enum BookingStatus {
 }
 
 model BookingLink {
-  id               String    @id @default(uuid())
-  companyId        String
-  userId           String
-  calendarId       String
-  token            String    @unique
-  title            String
-  description      String?
-  durationMinutes  Int
-  bufferMinutes    Int       @default(0)
-  minNoticeMinutes Int       @default(240)
-  horizonDays      Int       @default(30)
-  timeZone         String
-  workingHours     Json
-  withVideo        Boolean   @default(false)
-  personTypeId     String?
-  recordTypeId     String?
-  startFieldId     String?
-  questions        Json      @default("[]")
-  successMessage   String?
-  enabled          Boolean   @default(true)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  user             User      @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
-  calendar         Calendar  @relation(fields: [calendarId], references: [id], onDelete: Cascade)
-  bookings         Booking[]
+  id                   String    @id @default(uuid())
+  companyId            String
+  userId               String
+  calendarId           String
+  token                String    @unique
+  title                String
+  description          String?
+  durationMinutes      Int
+  bufferMinutes        Int       @default(0)
+  minNoticeMinutes     Int       @default(240)
+  horizonDays          Int       @default(30)
+  timeZone             String
+  workingHours         Json
+  withVideo            Boolean   @default(false)
+  personTypeId         String?
+  personRelationshipId String?
+  recordTypeId         String?
+  startFieldId         String?
+  questions            Json      @default("[]")
+  successMessage       String?
+  enabled              Boolean   @default(true)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  company              Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user                 User      @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
+  calendar             Calendar  @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  bookings             Booking[]
 
   @@unique([companyId, id])
   @@index([companyId, userId])

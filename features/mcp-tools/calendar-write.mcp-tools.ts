@@ -151,7 +151,7 @@ const ManageBookingLinksToolSchema = z
     action: z
       .enum(BOOKING_ACTIONS)
       .describe(
-        "list returns the caller's booking links; get: id; save: id, calendarId, title, description, durationMinutes, bufferMinutes, minNoticeMinutes, horizonDays, timeZone, workingHours, withVideo, personTypeId, recordTypeId, startFieldId, questions, successMessage, enabled; delete: id.",
+        "list returns the caller's booking links; get: id; save: id, calendarId, title, description, durationMinutes, bufferMinutes, minNoticeMinutes, horizonDays, timeZone, workingHours, withVideo, personTypeId, personRelationshipId, recordTypeId, startFieldId, questions, successMessage, enabled; delete: id.",
       ),
     id: SaveBookingLinkSchema.shape.id.describe(
       "get, delete and save: the booking link; omit it on save to create a new link.",
@@ -167,6 +167,7 @@ const ManageBookingLinksToolSchema = z
     workingHours: z.unknown().optional(),
     withVideo: z.boolean().optional(),
     personTypeId: z.uuid().nullable().optional(),
+    personRelationshipId: z.uuid().nullable().optional(),
     recordTypeId: z.uuid().nullable().optional(),
     startFieldId: z.uuid().nullable().optional(),
     questions: z.array(z.unknown()).optional(),
@@ -190,8 +191,8 @@ export const manageBookingLinksTool = {
   description:
     "Lists, creates, changes and deletes the caller's public booking pages, a link where anyone can book a meeting in the caller's connected calendar without an account. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. " +
     "A booking link carries the meeting duration, a buffer, minimum notice, how many days ahead slots are offered, working hours in a time zone, an optional video link and the visitor questions. " +
-    "Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email. " +
-    "calendarId is the id of one of the caller's writable calendars; personTypeId, recordTypeId and startFieldId are the stable ids of lists and fields of the record model. save with an id changes only the keys sent, and questions and workingHours replace the whole value. " +
+    "Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email, and personRelationshipId the relationship of the booking list that links each booking record to that person (null links nothing). " +
+    "calendarId is the id of one of the caller's writable calendars; personTypeId, personRelationshipId, recordTypeId and startFieldId are the stable ids of lists, relationships and fields of the record model. save with an id changes only the keys sent, and questions and workingHours replace the whole value. " +
     "The page shows free slots from the synced calendars and creates the calendar event, the Person and the record when someone books; every booking also emits the form.submitted event, so rules can react. " +
     "delete permanently removes the link and its booking history; meetings already booked stay in the calendar.",
   annotations: {
