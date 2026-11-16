@@ -3740,6 +3740,7 @@
       "connectedLabel": "Canaux connectés",
       "emailDescription": "Connectez la boîte mail à laquelle vos clients écrivent. Vos e-mails arrivent et restent privés par défaut.",
       "emailTitle": "E-mail",
+      "finishing": "Connexion en cours de finalisation. Votre compte apparaîtra ici dans quelques secondes.",
       "later": "WhatsApp, Telegram et d’autres canaux se trouvent dans les paramètres après la configuration.",
       "skip": "Passer pour l’instant"
     },

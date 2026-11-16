@@ -3740,6 +3740,7 @@
       "connectedLabel": "Connected channels",
       "emailDescription": "Connect the mailbox your clients write to. Your emails come in, private to you by default.",
       "emailTitle": "Email",
+      "finishing": "Finishing the connection. Your account appears here in a few seconds.",
       "later": "WhatsApp, Telegram and more channels are in the settings after setup.",
       "skip": "Skip for now"
     },

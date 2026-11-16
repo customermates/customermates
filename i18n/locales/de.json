@@ -3740,6 +3740,7 @@
       "connectedLabel": "Verbundene Kanäle",
       "emailDescription": "Verbinde das Postfach, an das deine Kunden schreiben. Deine E-Mails kommen herein und sind standardmäßig nur für dich sichtbar.",
       "emailTitle": "E-Mail",
+      "finishing": "Die Verbindung wird abgeschlossen. Dein Konto erscheint in wenigen Sekunden hier.",
       "later": "WhatsApp, Telegram und weitere Kanäle findest du nach der Einrichtung in den Einstellungen.",
       "skip": "Vorerst überspringen"
     },

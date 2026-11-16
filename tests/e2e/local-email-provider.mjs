@@ -40,9 +40,45 @@ function removeAccount(accountId) {
   return Promise.resolve(Response.json({ object: "AccountDeleted" }));
 }
 
+// Hosted sign-in, simulated: the link points straight back to the requested redirect_uri, as if the user had
+// finished the provider's page. The test then sends the signed account.add webhook itself.
+async function createHostedLink(request) {
+  const body = await request.json();
+  const redirect = new URL(body.redirect_uri);
+  if (!["localhost", "127.0.0.1"].includes(redirect.hostname))
+    throw new Error("Local hosted sign-in returns only to the local test server");
+  return Response.json({ object: "HostedAuthURL", link: redirect.href });
+}
+
+// An account the test connected through the simulated hosted sign-in (ids start with e2e_local_imap_).
+function hostedAccount(accountId) {
+  return Promise.resolve(
+    Response.json({
+      object: "Account",
+      id: accountId,
+      name: "onboarding-mailbox@example.test",
+      provider: "IMAP",
+      status: "running",
+      initial_sync: { status: "completed" },
+    }),
+  );
+}
+
 export function localEmailRequest(input, init) {
   const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
   if (url.origin !== "https://api.unipile.com" || process.env.UNIPILE_API_KEY !== localProviderKey) return null;
+  if (url.pathname === "/v2/auth/link" && !url.search) {
+    const request = new Request(input, init);
+    if (request.method === "POST" && request.headers.get("X-API-KEY") === localProviderKey)
+      return createHostedLink(request);
+    return null;
+  }
+  const hosted = url.pathname.match(/^\/v2\/accounts\/(e2e_local_imap_[a-f0-9-]{36})$/);
+  if (hosted && !url.search) {
+    const request = new Request(input, init);
+    if (request.method === "GET" && request.headers.get("X-API-KEY") === localProviderKey)
+      return hostedAccount(hosted[1]);
+  }
   const removal = url.pathname.match(/^\/v2\/accounts\/(e2e_local_[a-f0-9-]{36})$/);
   if (removal && !url.search && !url.username && !url.password) {
     const request = new Request(input, init);

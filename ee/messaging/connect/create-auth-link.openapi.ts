@@ -6,7 +6,9 @@ import { StructuredApiResponses } from "@/core/api/structured-interactor-handler
 
 import { CreateAuthLinkSchema } from "./create-auth-link.interactor";
 
-const ConnectLinkRequestSchema = CreateAuthLinkSchema.extend({
+const ConnectLinkRequestSchema = CreateAuthLinkSchema.omit({
+  returnTo: true,
+}).extend({
   channel: CreateAuthLinkSchema.shape.channel.describe(
     "The channel to connect: google (Gmail), outlook, imap (any other email via IMAP and SMTP), whatsapp, linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram or telegram.",
   ),

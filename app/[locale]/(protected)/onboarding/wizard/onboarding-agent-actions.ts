@@ -28,5 +28,5 @@ export async function recordChannelSkippedAction() {
 }
 
 export async function startOnboardingChannelConnectAction(channel: ConnectChannel) {
-  return startConnectAccountAction(channel);
+  return startConnectAccountAction(channel, "onboarding");
 }

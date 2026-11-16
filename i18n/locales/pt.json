@@ -3740,6 +3740,7 @@
       "connectedLabel": "Canais conectados",
       "emailDescription": "Conecte a caixa de entrada para a qual seus clientes escrevem. Seus e-mails chegam e, por padrão, só você os vê.",
       "emailTitle": "E-mail",
+      "finishing": "Finalizando a conexão. Sua conta aparece aqui em alguns segundos.",
       "later": "WhatsApp, Telegram e outros canais ficam nas configurações depois da configuração inicial.",
       "skip": "Pular por enquanto"
     },

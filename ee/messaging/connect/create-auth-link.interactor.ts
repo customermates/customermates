@@ -24,7 +24,7 @@ import { retryAfterPhrase } from "../retry-after.server";
 import { unipileErrorCode } from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 import { signHostedAuthState } from "../webhook-signature";
-import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS } from "./connect-channels";
+import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS, ONBOARDING_CHANNEL_RETURN_PARAM } from "./connect-channels";
 import type { CreateHostedAuthLinkRepo } from "./create-hosted-auth-link.repo";
 import type { CreateAuthLinkSubscriptionRepo } from "./create-auth-link-subscription.repo";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
@@ -32,7 +32,10 @@ import { workspaceReturnUrl } from "@/features/workspace/workspace-return-url";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
-export const CreateAuthLinkSchema = z.object({ channel: z.enum(CONNECT_CHANNEL_KEYS) });
+export const CreateAuthLinkSchema = z.object({
+  channel: z.enum(CONNECT_CHANNEL_KEYS),
+  returnTo: z.enum(["settings", "onboarding"]).optional(),
+});
 type CreateAuthLinkData = z.infer<typeof CreateAuthLinkSchema>;
 
 type ConnectDenialCode = "upgradeToBusinessForMoreAccounts" | "accountLimitReached";
@@ -72,7 +75,13 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     try {
       link = await this.messagingService.createAuthLink({
         providers: [...entry.providers],
-        redirectUri: workspaceReturnUrl(baseUrl, this.user.company?.slug, settingsHref("channels")),
+        redirectUri: workspaceReturnUrl(
+          baseUrl,
+          this.user.company?.slug,
+          data.returnTo === "onboarding"
+            ? `/onboarding/wizard?${ONBOARDING_CHANNEL_RETURN_PARAM}=${encodeURIComponent(data.channel)}`
+            : settingsHref("channels"),
+        ),
         expiresOn,
         state,
         ...(entry.config ? { config: entry.config } : {}),

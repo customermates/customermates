@@ -3740,6 +3740,7 @@
       "connectedLabel": "Canales conectados",
       "emailDescription": "Conecta el buzón al que escriben tus clientes. Tus correos entran y, por defecto, solo los ves tú.",
       "emailTitle": "Correo",
+      "finishing": "Terminando la conexión. Tu cuenta aparecerá aquí en unos segundos.",
       "later": "WhatsApp, Telegram y más canales están en los ajustes después de la configuración.",
       "skip": "Omitir por ahora"
     },

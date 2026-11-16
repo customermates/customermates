@@ -19,3 +19,5 @@ export const CONNECT_CHANNELS = {
 export type ConnectChannel = keyof typeof CONNECT_CHANNELS;
 
 export const CONNECT_CHANNEL_KEYS = Object.keys(CONNECT_CHANNELS) as [ConnectChannel, ...ConnectChannel[]];
+
+export const ONBOARDING_CHANNEL_RETURN_PARAM = "channelConnected";

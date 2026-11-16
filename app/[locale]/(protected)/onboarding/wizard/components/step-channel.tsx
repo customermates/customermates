@@ -6,7 +6,8 @@ import type { MessagingProvider } from "@/generated/prisma";
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowRight, CircleCheck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ArrowRight, CircleCheck, Loader2 } from "lucide-react";
 
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,11 @@ import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { CONNECT_CHANNEL_KEYS, ONBOARDING_CHANNEL_RETURN_PARAM } from "@/ee/messaging/connect/connect-channels";
+
+function parseConnectReturn(value: string | null): ConnectChannel | null {
+  return CONNECT_CHANNEL_KEYS.find((key) => key === value) ?? null;
+}
 
 import { orderedEmailChannels } from "./channel-suggestions";
 import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
@@ -35,9 +41,18 @@ export const StepChannel = observer(({ email }: { email: string }) => {
   const emailChannels = orderedEmailChannels(email).map((key) => labels[key]);
   const connect = (channel: ConnectChannel) => runUserAction(() => store.connectChannel(channel));
 
+  const returnedFrom = parseConnectReturn(useSearchParams().get(ONBOARDING_CHANNEL_RETURN_PARAM));
+  const finishing = returnedFrom !== null && connected.length === 0;
+
   useEffect(() => {
     void connectedAccountsStore.ensureLoaded().catch(reportApplicationError);
   }, [connectedAccountsStore]);
+
+  useEffect(() => {
+    if (!returnedFrom) return;
+    connectedAccountsStore.startSyncPolling();
+    return () => connectedAccountsStore.stopSyncPolling();
+  }, [connectedAccountsStore, returnedFrom]);
 
   const linkedin = (
     <div
@@ -111,6 +126,18 @@ export const StepChannel = observer(({ email }: { email: string }) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {finishing ? (
+        <p
+          className="flex items-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground"
+          id="onboarding-channel-finishing"
+          role="status"
+        >
+          <Loader2 aria-hidden="true" className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
+
+          {t("OnboardingWizard.channel.finishing")}
+        </p>
+      ) : null}
+
       {connected.length > 0 ? (
         <ul
           aria-label={t("OnboardingWizard.channel.connectedLabel")}
