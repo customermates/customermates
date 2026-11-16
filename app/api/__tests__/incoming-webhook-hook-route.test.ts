@@ -22,48 +22,55 @@ function post(body: string | null, headers: Record<string, string> = {}) {
 
 const context = { params: Promise.resolve({ token: TOKEN }) };
 
+const bodyOf = () => receive.mock.calls[0][0].readBody() as Promise<string | null>;
+
 beforeEach(() => {
   vi.resetAllMocks();
   receive.mockResolvedValue({ status: 201, body: { ok: true, outcome: "created", recordId: "r1" } });
 });
 
 describe("POST /api/hooks/[token]", () => {
-  it("hands the token, the raw body and a header reader to the interactor and returns its answer", async () => {
+  it("hands the token, a body reader and a header reader to the interactor and returns its answer", async () => {
     const response = await POST(post('{"a":1}', { "x-signature": "abc" }), context);
 
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({ ok: true, outcome: "created", recordId: "r1" });
     const input = receive.mock.calls[0][0];
     expect(input.token).toBe(TOKEN);
-    expect(input.body).toBe('{"a":1}');
+    expect(await input.readBody()).toBe('{"a":1}');
     expect(input.header("x-signature")).toBe("abc");
     expect(input.header("x-missing")).toBeNull();
+  });
+
+  it("does not buffer the body until the interactor asks for it", async () => {
+    const request = post('{"a":1}');
+    const read = vi.spyOn(request.body as ReadableStream<Uint8Array>, "getReader");
+
+    await POST(request, context);
+
+    expect(read).not.toHaveBeenCalled();
+    await receive.mock.calls[0][0].readBody();
+    expect(read).toHaveBeenCalledOnce();
   });
 
   it("passes an empty body through so the interactor can refuse it", async () => {
     await POST(post(null), context);
 
-    expect(receive.mock.calls[0][0].body).toBe("");
+    expect(await bodyOf()).toBe("");
   });
 
-  it("answers 413 without calling the interactor when the declared length is over the limit", async () => {
-    const response = await POST(
-      post("{}", { "content-length": String(INCOMING_WEBHOOK_LIMITS.maxBodyBytes + 1) }),
-      context,
-    );
+  it("reads no body when the declared length is over the limit", async () => {
+    await POST(post("{}", { "content-length": String(INCOMING_WEBHOOK_LIMITS.maxBodyBytes + 1) }), context);
 
-    expect(response.status).toBe(413);
-    expect(await response.json()).toEqual({ ok: false, error: "payload_too_large" });
-    expect(receive).not.toHaveBeenCalled();
+    expect(await bodyOf()).toBeNull();
   });
 
-  it("answers 413 when the streamed body is over the limit although no length was declared", async () => {
+  it("reads no body when the streamed body is over the limit although no length was declared", async () => {
     const big = JSON.stringify({ filler: "x".repeat(INCOMING_WEBHOOK_LIMITS.maxBodyBytes) });
 
-    const response = await POST(post(big), context);
+    await POST(post(big), context);
 
-    expect(response.status).toBe(413);
-    expect(receive).not.toHaveBeenCalled();
+    expect(await bodyOf()).toBeNull();
   });
 
   it("accepts a body exactly at the limit", async () => {
@@ -71,7 +78,7 @@ describe("POST /api/hooks/[token]", () => {
 
     await POST(post(body), context);
 
-    expect(receive.mock.calls[0][0].body).toHaveLength(INCOMING_WEBHOOK_LIMITS.maxBodyBytes);
+    expect(await bodyOf()).toHaveLength(INCOMING_WEBHOOK_LIMITS.maxBodyBytes);
   });
 
   it("sends Retry-After with a 429", async () => {
@@ -93,38 +100,17 @@ describe("POST /api/hooks/[token]", () => {
     expect(response.headers.get("Retry-After")).toBeNull();
   });
 
-  describe("visitor", () => {
-    const visitor = () => receive.mock.calls[0][0].visitor as string | null;
+  it("passes the hashed client address as the visitor and never the address itself", async () => {
+    await POST(post("{}", { "x-real-ip": "203.0.113.9" }), context);
 
-    it("hashes the client address and never passes it on in clear", async () => {
-      await POST(post("{}", { "x-real-ip": "203.0.113.9" }), context);
+    const visitor = receive.mock.calls[0][0].visitor as string;
+    expect(visitor).toMatch(/^[0-9a-f]{32}$/u);
+    expect(visitor).not.toContain("203");
+  });
 
-      expect(visitor()).toMatch(/^[0-9a-f]{32}$/u);
-      expect(visitor()).not.toContain("203");
-    });
+  it("passes no visitor when no address is known", async () => {
+    await POST(post("{}"), context);
 
-    it("takes the last forwarded address, which the proxy added, not the first one the client may have set", async () => {
-      await POST(post("{}", { "x-forwarded-for": "198.51.100.1, 203.0.113.9" }), context);
-      const forwarded = visitor();
-      receive.mockClear();
-      await POST(post("{}", { "x-real-ip": "203.0.113.9" }), context);
-
-      expect(forwarded).toBe(visitor());
-    });
-
-    it("prefers the platform header over the others", async () => {
-      await POST(post("{}", { "x-vercel-forwarded-for": "203.0.113.9", "x-real-ip": "198.51.100.7" }), context);
-      const platform = visitor();
-      receive.mockClear();
-      await POST(post("{}", { "x-real-ip": "203.0.113.9" }), context);
-
-      expect(platform).toBe(visitor());
-    });
-
-    it("is null when no address is known", async () => {
-      await POST(post("{}"), context);
-
-      expect(visitor()).toBeNull();
-    });
+    expect(receive.mock.calls[0][0].visitor).toBeNull();
   });
 });

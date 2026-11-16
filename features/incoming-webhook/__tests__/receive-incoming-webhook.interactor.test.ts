@@ -75,7 +75,7 @@ function setup(options: Setup = {}) {
   };
   const via: unknown[] = [];
   const tenant = {
-    run: (_id: string, attribution: unknown, read: () => Promise<unknown>, unavailable: () => Promise<unknown>) => {
+    run: (_id: string, read: () => Promise<unknown>, unavailable: () => Promise<unknown>, attribution: unknown) => {
       via.push(attribution);
       return options.creatorActive === false ? unavailable() : runWithTenant(creator, read);
     },
@@ -135,7 +135,7 @@ function request(body: unknown, headers: Record<string, string> = {}, overrides:
   const text = typeof body === "string" ? body : JSON.stringify(body);
   return {
     token,
-    body: text,
+    readBody: () => Promise.resolve<string | null>(text),
     header: (name: string) => headers[name.toLowerCase()] ?? null,
     visitor: "visitor-1",
     ...overrides,
@@ -164,7 +164,6 @@ describe("ReceiveIncomingWebhookInteractor", () => {
         recordId: RECORD_ID,
         payload: PAYLOAD,
       }),
-      INCOMING_WEBHOOK_LIMITS.retentionDays,
     );
     expect(events.publish).toHaveBeenCalledWith(
       DomainEvent.WEBHOOK_RECEIVED,
@@ -213,7 +212,6 @@ describe("ReceiveIncomingWebhookInteractor", () => {
       expect(writer.invoke).not.toHaveBeenCalled();
       expect(repo.recordDelivery).toHaveBeenCalledWith(
         expect.objectContaining({ outcome: "rejected_signature", statusCode: 401, payload: null }),
-        expect.any(Number),
       );
     });
 
@@ -243,7 +241,6 @@ describe("ReceiveIncomingWebhookInteractor", () => {
     expect(writer.invoke).not.toHaveBeenCalled();
     expect(repo.recordDelivery).toHaveBeenCalledWith(
       expect.objectContaining({ outcome: "rejected_payload", statusCode: 400 }),
-      expect.any(Number),
     );
   });
 
@@ -257,8 +254,42 @@ describe("ReceiveIncomingWebhookInteractor", () => {
     });
     expect(repo.recordDelivery).toHaveBeenCalledWith(
       expect.objectContaining({ outcome: "rejected_limit", statusCode: 413, payload: null }),
-      expect.any(Number),
     );
+  });
+
+  it("answers 413 without logging when the reader gives up on an oversize body", async () => {
+    const { interactor, repo, writer } = setup();
+
+    expect(await interactor.invoke({ ...request(PAYLOAD), readBody: () => Promise.resolve(null) })).toEqual({
+      status: 413,
+      body: { ok: false, error: "payload_too_large" },
+    });
+    expect(repo.recordDelivery).not.toHaveBeenCalled();
+    expect(writer.invoke).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["an unknown endpoint", { token: incomingWebhookToken("00000000-0000-4000-8000-0000000000ff", 1, SECRET) }],
+    ["a malformed token", { token: "nope" }],
+    ["a token signed with another secret", { token: incomingWebhookToken(HOOK_ID, 1, "other") }],
+  ])("does not read the body for %s", async (_name, overrides) => {
+    const { interactor } = setup();
+    const readBody = vi.fn(() => Promise.resolve<string | null>("{}"));
+
+    await interactor.invoke({ ...request(PAYLOAD, {}, overrides), readBody });
+
+    expect(readBody).not.toHaveBeenCalled();
+  });
+
+  it("does not read the body once the endpoint is rate limited", async () => {
+    const { interactor } = setup({ burst: 1 });
+    await interactor.invoke(request(PAYLOAD));
+    const readBody = vi.fn(() => Promise.resolve<string | null>("{}"));
+
+    const result = await interactor.invoke({ ...request(PAYLOAD), readBody });
+
+    expect(result.status).toBe(429);
+    expect(readBody).not.toHaveBeenCalled();
   });
 
   it("stores no body in the log above its size limit", async () => {
@@ -268,7 +299,7 @@ describe("ReceiveIncomingWebhookInteractor", () => {
     const result = await interactor.invoke(request(large));
 
     expect(result.status).toBe(201);
-    expect(repo.recordDelivery).toHaveBeenCalledWith(expect.objectContaining({ payload: null }), expect.any(Number));
+    expect(repo.recordDelivery).toHaveBeenCalledWith(expect.objectContaining({ payload: null }));
   });
 
   it("refuses a workspace whose plan has no webhooks", async () => {
@@ -276,10 +307,7 @@ describe("ReceiveIncomingWebhookInteractor", () => {
 
     expect(await interactor.invoke(request(PAYLOAD))).toEqual({ status: 403, body: { ok: false, error: "plan" } });
     expect(writer.invoke).not.toHaveBeenCalled();
-    expect(repo.recordDelivery).toHaveBeenCalledWith(
-      expect.objectContaining({ outcome: "rejected_plan" }),
-      expect.any(Number),
-    );
+    expect(repo.recordDelivery).toHaveBeenCalledWith(expect.objectContaining({ outcome: "rejected_plan" }));
   });
 
   it.each([
@@ -328,7 +356,6 @@ describe("ReceiveIncomingWebhookInteractor", () => {
         statusCode: 422,
         message: "data.name:required, data.size:invalid",
       }),
-      expect.any(Number),
     );
   });
 
@@ -409,7 +436,6 @@ describe("ReceiveIncomingWebhookInteractor", () => {
       expect(await interactor.invoke(request(PAYLOAD))).toEqual({ status, body: { ok: false, error } });
       expect(repo.recordDelivery).toHaveBeenCalledWith(
         expect.objectContaining({ outcome, statusCode: status, message: code }),
-        expect.any(Number),
       );
       expect(events.publish).not.toHaveBeenCalled();
     });
@@ -420,10 +446,7 @@ describe("ReceiveIncomingWebhookInteractor", () => {
     records.getModel.mockResolvedValueOnce(createModel({ types: [] }));
 
     expect(await interactor.invoke(request(PAYLOAD))).toEqual({ status: 404, body: { ok: false, error: "list" } });
-    expect(repo.recordDelivery).toHaveBeenCalledWith(
-      expect.objectContaining({ outcome: "failed", statusCode: 404 }),
-      expect.any(Number),
-    );
+    expect(repo.recordDelivery).toHaveBeenCalledWith(expect.objectContaining({ outcome: "failed", statusCode: 404 }));
   });
 
   it("does not fail the request when the event cannot be published", async () => {
