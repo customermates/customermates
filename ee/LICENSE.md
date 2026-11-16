@@ -1,4 +1,4 @@
-# Customermates Commercial License
+# Customermates Enterprise License
 
 Version 1.1, 16 November 2026
 Copyright (c) 2026-present Benjamin Wagner, doing business as Customermates.
