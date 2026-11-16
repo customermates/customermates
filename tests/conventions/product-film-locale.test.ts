@@ -22,8 +22,8 @@ function jpegSize(path: string): { height: number; width: number } {
   throw new Error(`${path} has no frame header`);
 }
 
-const OWN_FILM_LOCALES = ["de", "fr", "es", "it"] as const;
 const ENGLISH_WORD = { de: /englisch/iu, es: /ingl[eé]s/iu, fr: /anglais/iu, it: /inglese/iu } as const;
+const OWN_FILM_LOCALES = Object.keys(ENGLISH_WORD) as (keyof typeof ENGLISH_WORD)[];
 
 describe("product film per locale", () => {
   it("shows the film of a locale on its pages and the English film on the others", () => {
