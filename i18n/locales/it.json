@@ -1922,6 +1922,7 @@
     "messagingRequiresPro": "La messaggistica richiede il piano Pro o superiore. Passa a un piano superiore per collegare un canale.",
     "ownerLabel": "Proprietario",
     "paidSubscriptionRequired": "Il collegamento dei canali richiede un abbonamento attivo o una prova non scaduta.",
+    "productUnavailable": "Non disponibile",
     "provider": "Provider",
     "providerReason": "Motivo del fornitore",
     "providerReasonUnavailable": "Il fornitore non ha indicato un motivo.",

@@ -26,9 +26,9 @@ export function AccountConnectionDetails({ account }: { account: Pick<ConnectedA
         >
           {status === "running"
             ? t("ConnectedAccountsCard.statusLabels.ok")
-            : status === "disconnected"
+            : details.status === "disconnected"
               ? t("ConnectedAccountsCard.statusLabels.credentials")
-              : t("ConnectedAccountsCard.statusLabels.error")}
+              : t("ConnectedAccountsCard.productUnavailable")}
         </InfoRow>
       ))}
 

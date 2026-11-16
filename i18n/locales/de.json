@@ -1922,6 +1922,7 @@
     "messagingRequiresPro": "Messaging erfordert den Pro-Tarif oder höher. Führe ein Upgrade durch, um einen Kanal zu verbinden.",
     "ownerLabel": "Eigentümer",
     "paidSubscriptionRequired": "Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.",
+    "productUnavailable": "Nicht verfügbar",
     "provider": "Anbieter",
     "providerReason": "Grund des Anbieters",
     "providerReasonUnavailable": "Der Anbieter hat keinen Grund angegeben.",

@@ -1922,6 +1922,7 @@
     "messagingRequiresPro": "Wiadomości wymagają planu Pro lub wyższego. Przejdź na wyższy plan, aby połączyć kanał.",
     "ownerLabel": "Właściciel",
     "paidSubscriptionRequired": "Łączenie kanałów wymaga aktywnej subskrypcji lub okresu próbnego, który nie wygasł.",
+    "productUnavailable": "Niedostępne",
     "provider": "Dostawca",
     "providerReason": "Powód dostawcy",
     "providerReasonUnavailable": "Dostawca nie podał powodu.",

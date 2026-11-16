@@ -1922,6 +1922,7 @@
     "messagingRequiresPro": "Messaging requires the Pro plan or higher. Upgrade to connect a channel.",
     "ownerLabel": "Owner",
     "paidSubscriptionRequired": "Connecting channels requires an active subscription or a trial that hasn't expired.",
+    "productUnavailable": "Not available",
     "provider": "Provider",
     "providerReason": "Provider reason",
     "providerReasonUnavailable": "The provider did not return a reason.",

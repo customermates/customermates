@@ -1922,6 +1922,7 @@
     "messagingRequiresPro": "La mensajería requiere el plan Pro o superior. Cambia a un plan superior para conectar un canal.",
     "ownerLabel": "Propietario",
     "paidSubscriptionRequired": "Conectar canales requiere una suscripción activa o una prueba no caducada.",
+    "productUnavailable": "No disponible",
     "provider": "Proveedor",
     "providerReason": "Motivo del proveedor",
     "providerReasonUnavailable": "El proveedor no ha indicado el motivo.",

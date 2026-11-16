@@ -30,6 +30,8 @@ test("Settings explains a Google account with an operational calendar and unavai
   await page.goto(companyPath(workspace.companyId, "/settings/channels"));
   const card = page.getByRole("button", { name: /Calendar only/ });
   await expect(card.getByText("Connected", { exact: true })).toHaveCount(3);
+  await expect(card.getByText("Not available", { exact: true })).toBeVisible();
+  await expect(card.getByText("Reconnect needed", { exact: true })).toHaveCount(0);
   await expect(card.getByText("Mailbox unavailable", { exact: true })).toBeVisible();
   await expect(card.getByText("Status checked", { exact: true })).toBeVisible();
   await card.click();

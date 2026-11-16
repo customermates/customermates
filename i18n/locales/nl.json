@@ -1922,6 +1922,7 @@
     "messagingRequiresPro": "Voor berichten is het Pro-abonnement of hoger nodig. Upgrade om een kanaal te koppelen.",
     "ownerLabel": "Eigenaar",
     "paidSubscriptionRequired": "Voor het koppelen van kanalen is een actief abonnement nodig of een proefperiode die nog niet is verlopen.",
+    "productUnavailable": "Niet beschikbaar",
     "provider": "Provider",
     "providerReason": "Reden van de provider",
     "providerReasonUnavailable": "De provider heeft geen reden opgegeven.",

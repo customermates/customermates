@@ -1922,6 +1922,7 @@
     "messagingRequiresPro": "La messagerie nécessite la formule Pro ou supérieure. Passez à une formule supérieure pour connecter un canal.",
     "ownerLabel": "Propriétaire",
     "paidSubscriptionRequired": "La connexion de canaux nécessite un abonnement actif ou un essai non expiré.",
+    "productUnavailable": "Non disponible",
     "provider": "Fournisseur",
     "providerReason": "Motif du fournisseur",
     "providerReasonUnavailable": "Le fournisseur n’a pas indiqué de motif.",
