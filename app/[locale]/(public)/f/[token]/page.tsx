@@ -8,9 +8,8 @@ import { PublicFormUnavailable } from "./public-form-unavailable";
 
 import { PublicFormView } from "@/components/public-form/public-form-view";
 import { getReadPublicFormInteractor } from "@/core/di";
+import { visitorKey } from "@/core/network/visitor-key";
 import { buildLocalePath } from "@/i18n/locale-registry";
-
-import { visitorKey } from "../../p/[token]/visitor-key";
 
 export const dynamic = "force-dynamic";
 

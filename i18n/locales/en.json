@@ -6171,9 +6171,9 @@
       "items": {
         "accounts": "{count, plural, one {# connected account} other {# connected accounts}}",
         "drafts": "{count, plural, one {# open draft} other {# open drafts}}",
+        "forms": "{count, plural, one {# form submission over the monthly limit} other {# form submissions over the monthly limit}}",
         "mate": "Mate ({count, plural, one {# request} other {# requests}})",
         "members": "{count, plural, one {# more person} other {# more people}}",
-        "forms": "{count, plural, one {# form submission over the monthly limit} other {# form submissions over the monthly limit}}",
         "routines": "{count, plural, one {# active routine} other {# active routines}}",
         "webhooks": "{count, plural, one {# active webhook} other {# active webhooks}}"
       },
