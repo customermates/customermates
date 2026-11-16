@@ -194,18 +194,10 @@ describe("resolvePublicNavGroups", () => {
     ]);
   });
 
-  it("offers the templates hub in the resources menu only when it is public", () => {
-    const hrefs = (templates: boolean) =>
-      resolvePublicNavGroups(translate, "en", { templates })
-        .find((group) => group.id === "resources")
-        ?.links.map((link) => link.href);
+  it("keeps the templates hub out of the dropdown menus, since it is a top-level link", () => {
+    const hrefs = resolvePublicNavGroups(translate, "en").flatMap((group) => group.links.map((link) => link.href));
 
-    expect(hrefs(false)).not.toContain("/templates");
-    expect(hrefs(true)).toContain("/templates");
-
-    const defaults = resolvePublicNavGroups(translate, "en").flatMap((group) => group.links.map((link) => link.href));
-
-    expect(defaults).not.toContain("/templates");
+    expect(hrefs).not.toContain("/templates");
   });
 
   it("lists solutions by job first, then by team", () => {

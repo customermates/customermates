@@ -297,11 +297,12 @@ describe("public navigation preferences", () => {
     expect(menu).not.toContain("mark-glow");
     expect(menu).toContain('href="/docs"');
 
-    expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(2);
+    // Group summary, the templates link (shown while the hub is public) and pricing.
+    expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(3);
     expect(mobile, "a group row has to look like the flat mobile links beside it").toMatch(
       /<summary\s+className=\{cn\(\s*mobileOverviewRowClassName/u,
     );
-    for (const href of ["/pricing"]) {
+    for (const href of ["/templates", "/pricing"]) {
       const hrefIndex = mobile.indexOf(`href="${href}"`);
       const linkStart = mobile.lastIndexOf("<AppLink", hrefIndex);
       expect(mobile.slice(linkStart, hrefIndex)).toContain('appearance="unstyled"');

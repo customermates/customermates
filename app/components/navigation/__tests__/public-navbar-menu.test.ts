@@ -594,6 +594,28 @@ describe("PublicNavbarMenu", () => {
     expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
   });
 
+  it("shows the templates hub as a top-level link before pricing only while it is public", () => {
+    const render = (templatesLabel?: string, pathname = "/") =>
+      renderToStaticMarkup(
+        createElement(PublicNavbarMenu, {
+          ariaLabel: "Primary navigation",
+          groups,
+          onNavigate: vi.fn(),
+          pathname,
+          pricingLabel: "Pricing",
+          templatesLabel,
+        }),
+      );
+
+    expect(render()).not.toContain('href="/templates"');
+
+    const markup = render("Templates", "/templates/client-tracker");
+
+    expect(markup.match(/href="\/templates"/gu)).toHaveLength(1);
+    expect(markup.indexOf('href="/templates"')).toBeLessThan(markup.indexOf('href="/pricing"'));
+    expect(markup).toMatch(/<a(?=[^>]*aria-current="page")(?=[^>]*href="\/templates")[^>]*>/u);
+  });
+
   it("keeps documentation as one standalone current destination", () => {
     const markup = renderToStaticMarkup(
       createElement(PublicNavbarMenu, {

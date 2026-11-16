@@ -12,7 +12,6 @@ import {
   Github,
   HardDrive,
   Inbox,
-  LayoutTemplate,
   Newspaper,
   Plug,
   Server,
@@ -85,11 +84,7 @@ export function resolvePublicNavbarActions({
   };
 }
 
-export function resolvePublicNavGroups(
-  t: ReturnType<typeof useTranslations>,
-  locale: string,
-  options: { templates?: boolean } = {},
-): PublicNavGroup[] {
+export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, locale: string): PublicNavGroup[] {
   return [
     {
       activeHref: "/features",
@@ -268,15 +263,6 @@ export function resolvePublicNavGroups(
           href: "/compare",
           title: t("NavigationBar.public.compare"),
         },
-        ...(options.templates
-          ? [
-              {
-                icon: LayoutTemplate,
-                href: "/templates",
-                title: t("NavigationBar.public.templates"),
-              },
-            ]
-          : []),
         {
           icon: Bot,
           href: "/blog/agentic-crm",
