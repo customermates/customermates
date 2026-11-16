@@ -2,7 +2,6 @@ import { getImageProps } from "next/image";
 
 import type { ProductFilmPoster } from "./product-film-assets";
 
-// 24 x 14 JPEGs of the four posters (one per language and theme), shown blurred until the poster has loaded.
 const PRODUCT_FILM_POSTER_BLUR = {
   "/customermates-film-poster.jpg":
     "data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAHAAbAAD//gAQTGF2YzYwLjMxLjEwMgD/2wBDAAgICAkICQsLCwsLCw0MDQ0NDQ0NDQ0NDQ0ODg4REREODg4NDQ4OEBARERITEhERERETExQUFBgYFxccHB0iIin/xABhAAEBAQEBAAAAAAAAAAAAAAADAQACBwEBAQAAAAAAAAAAAAAAAAAAAAEQAAEDAgUEAwEAAAAAAAAAAAEAAhEhMaFxYUES8JEDsYFRYhQRAQAAAAAAAAAAAAAAAAAAAAD/wAARCAAOABgDASIAAhEAAxEA/9oADAMBAAIRAxEAPwD2o+UtBIG8Cd0ofItXDvZDwceIEUmakV7HVM1pESTkLepxVV3cfR61U4rHyMad5yHuVP6G/rr5Qf/Z",

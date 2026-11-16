@@ -45,6 +45,11 @@ describe("product film per locale", () => {
     expect(new Set(PRODUCT_FILM_PUBLIC_PATHS).size).toBe(PRODUCT_FILM_PUBLIC_PATHS.length);
   });
 
+  it("gives every film and poster the cache headers of next.config.ts", () => {
+    const config = readFileSync(join(REPO_ROOT, "next.config.ts"), "utf8");
+    for (const path of PRODUCT_FILM_PUBLIC_PATHS) expect(config, path).toContain(`"${path}"`);
+  });
+
   it("names the length of the film each locale shows in the hero's film button", () => {
     for (const locale of CONTENT_LOCALES) {
       const homepage = readFileSync(join(REPO_ROOT, "content", "homepage", locale, "homepage.mdx"), "utf8");

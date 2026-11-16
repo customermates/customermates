@@ -10,7 +10,6 @@ import { createMDX } from "fumadocs-mdx/next";
 import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
-import { PRODUCT_FILM_PUBLIC_PATHS } from "@/components/marketing/product-film-assets";
 import { frameAncestorsPolicy } from "@/core/config/environment";
 import { permanentAliasRedirects, retiredAppRouteRedirects } from "@/core/seo/route-aliases";
 import { recordFileParserPackages } from "@/features/record-file-index/record-file-parser-packages";
@@ -163,7 +162,16 @@ const nextConfig: NextConfig = {
         source: "/maps/v1/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
-      ...[...PRODUCT_FILM_PUBLIC_PATHS, "/images/:path*", "/icons/:path*"].map((source) => ({
+      ...[
+        "/customermates-film.mp4",
+        "/customermates-film-poster.jpg",
+        "/customermates-film-poster-dark.jpg",
+        "/customermates-film-de.mp4",
+        "/customermates-film-de-poster.jpg",
+        "/customermates-film-de-poster-dark.jpg",
+        "/images/:path*",
+        "/icons/:path*",
+      ].map((source) => ({
         source,
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       })),
