@@ -1,5 +1,6 @@
 import { ProfileSettingsForm } from "../components/profile-settings-form";
 
+import { NotificationNoticeToast } from "../components/notification-notice-toast";
 import { NotificationPreferencesCard } from "../components/notification-preferences-card";
 
 import { getGetNotificationPreferencesInteractor, getGetUserDetailsInteractor } from "@/core/di";
@@ -21,6 +22,8 @@ export default async function ProfileSettingsPage() {
 
   return (
     <PageContainer>
+      <NotificationNoticeToast />
+
       <ProfileSettingsForm emailVerified={emailVerified} userDetails={userDetails} />
 
       <NotificationPreferencesCard initial={notificationPreferences} />
