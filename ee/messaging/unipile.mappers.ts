@@ -141,9 +141,10 @@ export function deriveAccountFeatures(account: UnipileAccount): {
 
   if (CALENDAR_PROVIDERS.has(provider)) {
     const products = account.metadata?.products_connection_status;
-    const scopes = Array.isArray(account.oauth_scope)
+    const listedScopes = Array.isArray(account.oauth_scope)
       ? account.oauth_scope
       : account.oauth_scope?.split(/[\s,]+/).filter(Boolean);
+    const scopes = listedScopes?.length ? listedScopes : undefined;
     const productStatus = (names: string[]) => {
       const matches = Object.entries(products ?? {}).filter(([name]) => names.includes(name.toLowerCase()));
       return matches.length > 0 ? matches.some(([, status]) => status === "running") : undefined;

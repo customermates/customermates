@@ -14,7 +14,6 @@ import { isEmailProvider } from "../../provider";
 import { verifyHostedAuthState } from "../../webhook-signature";
 import { mapUnipileProvider } from "../../unipile.mappers";
 import { deriveAccountConnection } from "../../account-connection";
-import { AccountConnectionDetailsSchema } from "../../account-connection.schema";
 import type { AccountWebhookRepo } from "./account-webhook.repo";
 import type { WebhookUserRepo } from "./webhook-user.repo";
 import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
@@ -59,12 +58,7 @@ export class ProcessAccountAddWebhookInteractor {
     const snapshot = await this.messagingService.getAccount(envelope.account_id);
 
     const provider = mapUnipileProvider(snapshot.provider);
-    const connection = deriveAccountConnection(
-      snapshot,
-      undefined,
-      AccountConnectionDetailsSchema.nullable().catch(null).parse(existing?.connectionDetails),
-      checkedAt,
-    );
+    const connection = deriveAccountConnection(snapshot, undefined, existing?.connectionDetails, checkedAt);
     const { status, hasMessaging, hasCalendar } = connection;
     const displayName = snapshot.name ?? null;
     const emailAddress = isEmailProvider(provider) ? (snapshot.name ?? null) : null;

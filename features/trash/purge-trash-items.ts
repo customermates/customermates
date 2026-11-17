@@ -46,7 +46,7 @@ export async function purgeTrashItems(
           continue;
         }
         retry.add(item.id);
-        failures.set(item.id, { item, error: result.ok ? null : result.error });
+        failures.set(item.id, { item, error: result.ok ? (failures.get(item.id)?.error ?? null) : result.error });
       }
     }
     groups = groups

@@ -15,7 +15,7 @@ import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountRecord } from "../messaging.schema";
-import { AccountConnectionDetailsSchema, type AccountConnectionDetails } from "../account-connection.schema";
+import { parseAccountConnectionDetails, type AccountConnectionDetails } from "../account-connection.schema";
 import type { EmailSettings } from "../email-settings";
 import { resolveStoredEmailSettings } from "../email-settings";
 
@@ -52,6 +52,7 @@ import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema
 import { channelChange } from "@/features/billing-usage/billing-usage-changes";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
+const STATUS_REFRESH_BATCH_SIZE = 100;
 
 export class PrismaConnectedAccountRepo
   extends TenantRepository
@@ -190,10 +191,9 @@ export class PrismaConnectedAccountRepo
     if (!owner) return this.writeAccountUpdate(args);
 
     return this.withCompanyTransaction(owner.companyId, async () => {
-      const before = await this.prisma.connectedAccount.findUnique({
-        where: { unipileAccountId: args.unipileAccountId },
-        select: { status: true, statusCheckedAt: true },
-      });
+      const [before] = await this.prisma.$queryRaw<
+        Array<{ status: ConnectedAccountStatus; statusCheckedAt: Date | null }>
+      >`SELECT "status", "statusCheckedAt" FROM "ConnectedAccount" WHERE "unipileAccountId" = ${args.unipileAccountId} AND "companyId" = ${owner.companyId} FOR UPDATE`;
       if (before?.status === ConnectedAccountStatus.deleted) return null;
       if (args.statusCheckedAt && before?.statusCheckedAt && before.statusCheckedAt > args.statusCheckedAt) return null;
       const row = await this.writeAccountUpdate(args);
@@ -354,7 +354,8 @@ export class PrismaConnectedAccountRepo
         OR: [{ statusCheckedAt: null }, { statusCheckedAt: { lt: before } }],
       },
       select: { unipileAccountId: true, connectionDetails: true },
-      orderBy: { id: "asc" },
+      orderBy: [{ statusCheckedAt: { sort: "asc", nulls: "first" } }, { id: "asc" }],
+      take: STATUS_REFRESH_BATCH_SIZE,
     });
   }
 
@@ -608,7 +609,7 @@ export class PrismaConnectedAccountRepo
     const { user, folders, ...account } = row;
     return {
       ...account,
-      connectionDetails: AccountConnectionDetailsSchema.nullable().catch(null).parse(account.connectionDetails),
+      connectionDetails: parseAccountConnectionDetails(account.connectionDetails),
       folders: EmailFolderSchema.array().catch([]).parse(folders),
       owner: {
         userId: user.id,

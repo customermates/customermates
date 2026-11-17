@@ -13,9 +13,8 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { deriveLinkedinProducts, isEmailProvider } from "../../provider";
 import { BACKFILL_EMAIL_TIMEOUT_MS } from "./paginate";
 import { isUnipileRateLimit } from "../../messaging.service";
-import { deriveAccountFeatures, mapUnipileProvider } from "../../unipile.mappers";
+import { mapUnipileProvider } from "../../unipile.mappers";
 import { deriveAccountConnection } from "../../account-connection";
-import { AccountConnectionDetailsSchema } from "../../account-connection.schema";
 import {
   buildFolderCatalog,
   defaultSelectedFolderIds,
@@ -29,16 +28,16 @@ export const ACCOUNT_WIDE_SOURCE = "__account_wide__";
 export function classifyAccountReadiness(account: UnipileAccount): "ready" | "waiting" | "stalled" {
   if (account.status === "disconnected" || account.status === "paused") return "stalled";
 
-  const features = deriveAccountFeatures(account);
-  if (!features.hasMessaging && features.hasCalendar && deriveAccountConnection(account).status === "ok")
-    return "ready";
+  const connection = deriveAccountConnection(account);
+  const operational = connection.status === ConnectedAccountStatus.ok;
+  if (!connection.hasMessaging && connection.hasCalendar && operational) return "ready";
 
   const syncStatus = account.initial_sync?.status;
   const gateOnInitialSync = mapUnipileProvider(account.provider) !== MessagingProvider.whatsapp;
   if (gateOnInitialSync && syncStatus)
     return syncStatus === "completed" || syncStatus === "failed" ? "ready" : "waiting";
 
-  return deriveAccountConnection(account).status === "ok" ? "ready" : "waiting";
+  return operational ? "ready" : "waiting";
 }
 
 export type BackfillPlan =
@@ -119,12 +118,7 @@ export class PrepareBackfillInteractor {
     snapshot: UnipileAccount,
     checkedAt: Date,
   ): Promise<{ hasMessaging: boolean; hasCalendar: boolean }> {
-    const connection = deriveAccountConnection(
-      snapshot,
-      undefined,
-      AccountConnectionDetailsSchema.nullable().catch(null).parse(account.connectionDetails),
-      checkedAt,
-    );
+    const connection = deriveAccountConnection(snapshot, undefined, account.connectionDetails, checkedAt);
 
     const update: Parameters<BackfillConnectedAccountRepo["updateAccountUnscoped"]>[0] = {
       unipileAccountId: account.unipileAccountId,

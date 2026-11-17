@@ -7,3 +7,9 @@ export const AccountConnectionDetailsSchema = z.object({
 });
 
 export type AccountConnectionDetails = z.infer<typeof AccountConnectionDetailsSchema>;
+
+export function parseAccountConnectionDetails(value: unknown): AccountConnectionDetails | null {
+  return AccountConnectionDetailsSchema.nullable()
+    .catch(null)
+    .parse(value ?? null);
+}

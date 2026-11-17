@@ -1,5 +1,5 @@
 import type { UnipileAccount } from "./unipile.schema";
-import type { AccountConnectionDetails } from "./account-connection.schema";
+import { parseAccountConnectionDetails, type AccountConnectionDetails } from "./account-connection.schema";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
@@ -18,7 +18,10 @@ function providerReason(value: unknown): string | null {
     return (
       value
         .replace(/\bBearer\s+\S+/gi, "Bearer [redacted]")
-        .replace(/\b(access_token|refresh_token|api_key|password|client_secret)\s*[:=]\s*\S+/gi, "$1=[redacted]")
+        .replace(
+          /\b(access_token|refresh_token|api_key|password|client_secret)["']?\s*[:=]\s*(?:"[^"]*"|'[^']*'|[^\s,}]+)/gi,
+          "$1=[redacted]",
+        )
         .trim()
         .slice(0, 1000) || null
     );
@@ -37,9 +40,10 @@ function providerReason(value: unknown): string | null {
 export function deriveAccountConnection(
   account: UnipileAccount,
   reason?: unknown,
-  previous?: AccountConnectionDetails | null,
+  storedDetails?: unknown,
   checkedAt = new Date(),
 ): AccountConnectionUpdate {
+  const previous = parseAccountConnectionDetails(storedDetails);
   const features = deriveAccountFeatures(account);
   const products = account.metadata?.products_connection_status ?? {};
   const provider = account.provider?.toLowerCase();

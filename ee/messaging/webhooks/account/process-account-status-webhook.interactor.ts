@@ -6,7 +6,6 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import { deriveAccountConnection } from "../../account-connection";
-import { AccountConnectionDetailsSchema } from "../../account-connection.schema";
 import type { MessagingService } from "../../messaging.service";
 import type { AccountWebhookRepo } from "./account-webhook.repo";
 
@@ -45,12 +44,14 @@ export class ProcessAccountStatusWebhookInteractor {
     const eventStatus = envelope.type.slice("account.status.".length);
     const product = envelope.product ?? envelope.payload?.product;
     const matches = product
-      ? snapshot.metadata?.products_connection_status?.[product] === eventStatus
+      ? Object.entries(snapshot.metadata?.products_connection_status ?? {}).some(
+          ([name, productStatus]) => name.toLowerCase() === product.toLowerCase() && productStatus === eventStatus,
+        )
       : snapshot.status === eventStatus;
     const connection = deriveAccountConnection(
       snapshot,
       matches ? (envelope.reason ?? envelope.error ?? envelope.payload?.reason ?? envelope.payload?.error) : undefined,
-      AccountConnectionDetailsSchema.nullable().catch(null).parse(account.connectionDetails),
+      account.connectionDetails,
       checkedAt,
     );
     const { status } = connection;

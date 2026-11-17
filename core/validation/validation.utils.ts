@@ -117,6 +117,7 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.storageQuotaExceededTopPlan,
   CustomErrorCode.unipileProviderRejected,
   CustomErrorCode.unipileDisconnectedAccount,
+  CustomErrorCode.unipileMessagingUnavailable,
   CustomErrorCode.unipileAccountRestricted,
   CustomErrorCode.unipileFeatureUnavailable,
   CustomErrorCode.unipileUnknown,

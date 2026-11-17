@@ -4,7 +4,6 @@ import type { RefreshConnectedAccountStatusesRepo } from "./refresh-connected-ac
 import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
-import { AccountConnectionDetailsSchema } from "../account-connection.schema";
 import { deriveAccountConnection } from "../account-connection";
 import { isUnipileRateLimit } from "../messaging.service";
 
@@ -28,12 +27,7 @@ export class RefreshConnectedAccountStatusesInteractor {
       try {
         const checkedAt = new Date();
         const snapshot = await this.messagingService.getAccount(account.unipileAccountId);
-        const connection = deriveAccountConnection(
-          snapshot,
-          undefined,
-          AccountConnectionDetailsSchema.nullable().catch(null).parse(account.connectionDetails),
-          checkedAt,
-        );
+        const connection = deriveAccountConnection(snapshot, undefined, account.connectionDetails, checkedAt);
         const stalled = connection.status !== "ok" && connection.status !== "connecting";
         await this.repo.updateAccountUnscoped({
           unipileAccountId: account.unipileAccountId,
