@@ -263,7 +263,7 @@ describe("claiming a job", () => {
   it.each([
     ["ownerInactive", "ownerInactive"],
     ["ownerApiAccess", "ownerApiAccess"],
-    ["planRequired", "planRequired"],
+    ["planRequired", "planApiAccess"],
   ] as const)("fails the job with %s when no key can be issued, and takes the next one", async (refusal, error) => {
     const s = setup();
     s.jobs.addJob();

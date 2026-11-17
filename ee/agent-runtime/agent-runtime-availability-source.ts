@@ -20,6 +20,7 @@ export class AgentRuntimeAvailabilityAdapter implements AgentRuntimeAvailability
     private readonly ownKeyPlan: Pick<AgentOwnKeyPlan, "allowed">,
     private readonly keys: Pick<AgentProviderKeyRepo, "findAll">,
     private readonly runners: Pick<AgentRunnerRepo, "listRunners">,
+    private readonly currentUserId: () => string,
     private readonly clock: () => Date = () => new Date(),
   ) {}
 
@@ -48,11 +49,12 @@ export class AgentRuntimeAvailabilityAdapter implements AgentRuntimeAvailability
 
   private async runner(): Promise<AgentRuntimeAvailability["runner"]> {
     const now = this.clock();
-    const runners = (await this.runners.listRunners())
-      .filter((runner) => runner.revokedAt === null)
-      .map((runner) => toAgentRunnerDto(runner, now))
-      .map(({ id, name, online }) => ({ id, name, online }));
-    const online = runners.some((runner) => runner.online);
-    return { available: online, reason: online ? null : "noRunner", models: [], runners };
+    const userId = this.currentUserId();
+    const own = (await this.runners.listRunners())
+      .filter((runner) => runner.revokedAt === null && runner.createdById === userId)
+      .map((runner) => toAgentRunnerDto(runner, now));
+    const usable = own.some((runner) => runner.clients.length > 0);
+    const runners = own.map(({ id, name, online, clients }) => ({ id, name, online: online && clients.length > 0 }));
+    return { available: usable, reason: usable ? null : "noRunner", models: [], runners };
   }
 }

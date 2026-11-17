@@ -37,7 +37,7 @@ export type AgentRunnerOutcomeStatus = (typeof AGENT_RUNNER_OUTCOME_STATUSES)[nu
 export const AGENT_RUNNER_JOB_ERRORS = {
   ownerInactive: "ownerInactive",
   ownerApiAccess: "ownerApiAccess",
-  planRequired: "planRequired",
+  planRequired: "planApiAccess",
   failed: "runnerFailed",
   timedOut: "timedOut",
 } as const;

@@ -17,16 +17,28 @@ type Options = {
   chatEnabled?: boolean;
   plan?: PlanId | null;
   keys?: Array<{ provider: "anthropic" | "openai" | "google" }>;
-  runners?: Array<{ id: string; name: string; lastSeenAt: Date | null }>;
+  runners?: Array<{
+    id: string;
+    name: string;
+    lastSeenAt: Date | null;
+    createdById?: string;
+    clients?: unknown[];
+    revokedAt?: Date | null;
+  }>;
 };
+
+const ME = "00000000-0000-4000-8000-0000000000a1";
+const COLLEAGUE = "00000000-0000-4000-8000-0000000000a2";
+const CLIENTS = [{ name: "claude", version: "2.1.326" }];
 
 const withMachine = (runners: NonNullable<Options["runners"]>) =>
   runners.map((runner) => ({
-    ...runner,
     machine: null,
-    clients: [],
+    clients: runner.lastSeenAt ? CLIENTS : [],
     revokedAt: null,
+    createdById: ME,
     createdAt: runner.lastSeenAt ?? new Date(0),
+    ...runner,
   }));
 
 function adapter(options: Options = {}) {
@@ -38,6 +50,7 @@ function adapter(options: Options = {}) {
     new AgentOwnKeyPlan(plans),
     { findAll: vi.fn().mockResolvedValue(options.keys ?? []) },
     { listRunners: vi.fn().mockResolvedValue(withMachine(options.runners ?? [])) },
+    () => ME,
     () => NOW,
   );
 }
@@ -100,8 +113,12 @@ describe("agent runtime availability", () => {
     });
 
     const offline = await adapter({ runners: [{ id: RUNNER_B, name: "laptop", lastSeenAt: stale }] }).availability();
-    expect(offline.runner).toMatchObject({ available: false, reason: "noRunner" });
-    expect(offline.runner.runners).toHaveLength(1);
+    expect(offline.runner).toEqual({
+      available: true,
+      reason: null,
+      models: [],
+      runners: [{ id: RUNNER_B, name: "laptop", online: false }],
+    });
 
     const never = await adapter({ runners: [{ id: RUNNER_B, name: "new", lastSeenAt: null }] }).availability();
     expect(never.runner.reason).toBe("noRunner");
@@ -110,6 +127,26 @@ describe("agent runtime availability", () => {
       reason: "noRunner",
       models: [],
       runners: [],
+    });
+  });
+
+  it("offers a member only their own runners, and none that is revoked or has no command line client", async () => {
+    const answer = await adapter({
+      runners: [
+        { id: RUNNER_A, name: "colleague", lastSeenAt: NOW, createdById: COLLEAGUE },
+        { id: RUNNER_B, name: "revoked", lastSeenAt: NOW, revokedAt: NOW },
+      ],
+    }).availability();
+    expect(answer.runner).toEqual({ available: false, reason: "noRunner", models: [], runners: [] });
+
+    const withoutClient = await adapter({
+      runners: [{ id: RUNNER_A, name: "bare", lastSeenAt: NOW, clients: [] }],
+    }).availability();
+    expect(withoutClient.runner).toEqual({
+      available: false,
+      reason: "noRunner",
+      models: [],
+      runners: [{ id: RUNNER_A, name: "bare", online: false }],
     });
   });
 

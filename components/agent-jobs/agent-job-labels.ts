@@ -57,6 +57,12 @@ export function agentJobErrorLabel(t: Translator, code: string): string {
       return t("AgentJobs.errors.ownerApiAccess");
     case "planRequired":
       return t("AgentJobs.errors.planRequired");
+    case "planApiAccess":
+      return t("AgentJobs.errors.planApiAccess");
+    case "contextLimit":
+      return t("AgentJobs.errors.contextLimit");
+    case "modelRequired":
+      return t("AgentJobs.errors.modelRequired");
     case "queueExpired":
       return t("AgentJobs.errors.queueExpired");
     case "runnerRevoked":

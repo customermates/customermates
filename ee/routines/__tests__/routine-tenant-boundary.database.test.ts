@@ -854,6 +854,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       releaseRepo,
       new ReconcileRoutineRunsInteractor(releaseRepo),
       createTestAutomationRuleRepo(),
+      { revokeOfMember: () => Promise.resolve(0) },
     ).invoke({
       companyId,
       ownerUserId: inactiveOwnerId,

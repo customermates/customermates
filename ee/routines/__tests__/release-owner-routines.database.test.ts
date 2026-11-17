@@ -83,6 +83,7 @@ describeDatabase("releasing the routines of an unavailable owner", () => {
       repo,
       new ReconcileRoutineRunsInteractor(repo),
       createTestAutomationRuleRepo(),
+      { revokeOfMember: () => Promise.resolve(0) },
     ).invoke({
       companyId,
       ownerUserId: ownerId,

@@ -563,7 +563,7 @@ import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service
 import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
 import { DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
 import { PrismaDocsSectionRepo } from "@/features/mcp-tools/prisma-docs-section.repository";
-import { tenantStorage } from "@/core/decorators/tenant-context";
+import { getTenantUser, tenantStorage } from "@/core/decorators/tenant-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
@@ -2444,7 +2444,12 @@ export const getSweepDueRoutinesInteractor = () =>
 export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
 
 export const getReleaseOwnerRoutinesInteractor = () =>
-  new ReleaseOwnerRoutinesInteractor(getRoutineRepo(), getReconcileRoutineRunsInteractor(), getAutomationRuleRepo());
+  new ReleaseOwnerRoutinesInteractor(
+    getRoutineRepo(),
+    getReconcileRoutineRunsInteractor(),
+    getAutomationRuleRepo(),
+    getAgentRunnerRevocation(),
+  );
 
 export const getPruneRoutineRunsInteractor = () => new PruneRoutineRunsInteractor(getRoutineRepo());
 
@@ -2955,6 +2960,7 @@ const getAgentRuntimeAvailabilitySource = () =>
     getAgentOwnKeyPlan(),
     getAgentProviderKeyRepo(),
     getAgentRunnerRepo(),
+    () => getTenantUser().id,
   );
 const getMateAgentJobCredits = () => new MateAgentJobCredits(getAgentUsageService());
 const getEnqueueAgentJobInteractor = () =>

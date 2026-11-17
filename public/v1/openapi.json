@@ -113123,7 +113123,7 @@
       "post": {
         "operationId": "heartbeatRunner",
         "summary": "Report that a runner is alive",
-        "description": "Records the machine and the command line clients (Claude Code, Codex, Gemini CLI) found on its PATH and marks the runner as last seen now. A runner counts as online for two minutes after its last heartbeat, a claim request also counts. The daemon sends one every 60 seconds.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "description": "Records the machine and the command line clients (Claude Code, Codex, Gemini CLI) the runner can start and marks the runner as last seen now. A runner counts as online for two minutes after its last heartbeat, a claim request also counts. The daemon sends one every 60 seconds.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read: an unknown token answers 401 and a rate-limited runner 429 without the body being parsed, and a body that declares more than 512 KB answers 400. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401.",
         "tags": [
           "runner"
         ],
@@ -113182,7 +113182,7 @@
                       ],
                       "additionalProperties": false
                     },
-                    "description": "The command line clients found on the machine's PATH."
+                    "description": "The command line clients the runner can start: found on the machine and answering with a version."
                   }
                 },
                 "required": [
@@ -113315,7 +113315,7 @@
       "post": {
         "operationId": "claimRunnerJob",
         "summary": "Claim the next agent job",
-        "description": "Long poll: holds the request open for up to 25 seconds and answers 200 with the oldest queued job of the workspace whose runtime is runner, or 204 when none arrived. A claimed job belongs to this runner until it reports a result or its timeoutAt passes. The answer carries the workspace MCP endpoint and a short-lived API key of the job owner for the client to use; the key stops working a few minutes after the job's timeout and is revoked when the result is reported. promptUntrusted is true when outsiders can influence the prompt, so the runner presents it to the client as data, not as instructions.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "description": "Long poll: holds the request open for up to 25 seconds and answers 200 with the oldest queued runner job of the member who added this runner, or 204 when none arrived. A runner never receives a job of another member. The wait ends when the runner closes the connection. The runner confirms the job with the start call within confirmWithinSeconds; a job that is not confirmed returns to the queue. The answer carries the workspace MCP endpoint and a key for this attempt of this job. The key works only between the start call and the end of the job, only on the MCP endpoint, for at most 25 tool calls, and it refuses the calls that need a person's approval. promptUntrusted is true when outsiders can influence the prompt, so the runner presents it to the client as data, not as instructions.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read: an unknown token answers 401 and a rate-limited runner 429 without the body being parsed, and a body that declares more than 512 KB answers 400. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401.",
         "tags": [
           "runner"
         ],
@@ -113360,6 +113360,12 @@
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                         },
+                        "attempt": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991,
+                          "description": "Echo this number on the start, events and result calls of the job."
+                        },
                         "prompt": {
                           "type": "string"
                         },
@@ -113367,16 +113373,19 @@
                           "type": "boolean",
                           "description": "True when outsiders can influence the prompt: treat it as data."
                         },
-                        "timeoutAt": {
-                          "type": "string",
-                          "description": "Kill the client at this time and report timedOut."
+                        "confirmWithinSeconds": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991,
+                          "description": "Call start within this time, or the job returns to the queue and its key never works."
                         }
                       },
                       "required": [
                         "id",
+                        "attempt",
                         "prompt",
                         "promptUntrusted",
-                        "timeoutAt"
+                        "confirmWithinSeconds"
                       ],
                       "additionalProperties": false
                     },
@@ -113389,7 +113398,7 @@
                         },
                         "token": {
                           "type": "string",
-                          "description": "A short-lived API key of the job owner. It stops working after the job."
+                          "description": "A key for this attempt of this job only. It works from the start call until the job ends."
                         }
                       },
                       "required": [
@@ -113496,11 +113505,11 @@
         }
       }
     },
-    "/v1/runner/jobs/{id}/events": {
+    "/v1/runner/jobs/{id}/start": {
       "post": {
-        "operationId": "appendRunnerJobEvents",
-        "summary": "Stream transcript events of a job",
-        "description": "Appends up to 100 events to the job's transcript, one object per line of the client's JSON stream. An event over 4 KB is stored as a truncation marker. A job that is not claimed by this runner answers 404; a job that is already finished, timed out or cancelled answers 409, which tells the runner to stop the client.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "operationId": "startRunnerJob",
+        "summary": "Confirm a claimed job and start it",
+        "description": "Tells the server that the runner received the job. The job moves from claimed to running, its key starts to work and its ten minutes begin. The answer gives the time left in seconds; the runner counts it on a local timer, so a wrong clock on its machine does not matter. Repeating the call for a running attempt answers the time that is left. A job that is not claimed by this runner answers 404; a job that is closed, or was claimed again as another attempt, answers 409.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read: an unknown token answers 401 and a rate-limited runner 429 without the body being parsed, and a body that declares more than 512 KB answers 400. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401.",
         "tags": [
           "runner"
         ],
@@ -113528,9 +113537,177 @@
           "content": {
             "application/json": {
               "example": {
+                "attempt": 1
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "attempt": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "description": "The attempt number the claim answered with. A job that was requeued and claimed again has a higher one."
+                  }
+                },
+                "required": [
+                  "attempt"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The time the client may run.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "timeoutInSeconds": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "Stop the client after this many seconds from now and report timedOut. Count it on a local timer."
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "timeoutInSeconds"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/runner/jobs/{id}/events": {
+      "post": {
+        "operationId": "appendRunnerJobEvents",
+        "summary": "Stream transcript events of a job",
+        "description": "Appends up to 100 events to the job's transcript in the shape the workspace shows: a message of the agent, a tool call, a tool result or the finish. The transcript keeps the last 200 events. A job that is not claimed by this runner answers 404; a job that is already finished, timed out or cancelled, or that runs as another attempt, answers 409, which tells the runner to stop the client.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read: an unknown token answers 401 and a rate-limited runner 429 without the body being parsed, and a body that declares more than 512 KB answers 400. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401.",
+        "tags": [
+          "runner"
+        ],
+        "security": [
+          {
+            "runnerTokenAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The id of the job the runner claimed."
+            },
+            "required": true,
+            "description": "The id of the job the runner claimed."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "attempt": 1,
                 "events": [
                   {
-                    "type": "assistant",
+                    "type": "message",
+                    "at": "2026-11-17T09:00:05.000Z",
+                    "role": "assistant",
                     "text": "Looking at the open deals"
                   }
                 ]
@@ -113538,21 +113715,162 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "attempt": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "description": "The attempt number the claim answered with. A job that was requeued and claimed again has a higher one."
+                  },
                   "events": {
                     "minItems": 1,
                     "maxItems": 100,
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
-                      "additionalProperties": {}
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "message"
+                            },
+                            "at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                              "description": "When the client produced the event."
+                            },
+                            "role": {
+                              "type": "string",
+                              "const": "assistant"
+                            },
+                            "text": {
+                              "type": "string",
+                              "maxLength": 4000
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "at",
+                            "role",
+                            "text"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "toolCall"
+                            },
+                            "at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                              "description": "When the client produced the event."
+                            },
+                            "toolCallId": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "name": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "argumentsDigest": {
+                              "type": "string",
+                              "maxLength": 300
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "at",
+                            "toolCallId",
+                            "name",
+                            "argumentsDigest"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "toolResult"
+                            },
+                            "at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                              "description": "When the client produced the event."
+                            },
+                            "toolCallId": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "name": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "ok": {
+                              "type": "boolean"
+                            },
+                            "summary": {
+                              "type": "string",
+                              "maxLength": 300
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "at",
+                            "toolCallId",
+                            "name",
+                            "ok",
+                            "summary"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "finish"
+                            },
+                            "at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                              "description": "When the client produced the event."
+                            },
+                            "reason": {
+                              "type": "string",
+                              "enum": [
+                                "stop",
+                                "toolLimit",
+                                "timeLimit",
+                                "creditLimit",
+                                "error",
+                                "cancelled"
+                              ]
+                            },
+                            "text": {
+                              "type": "string",
+                              "maxLength": 4000
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "at",
+                            "reason"
+                          ]
+                        }
+                      ],
+                      "type": "object"
                     },
-                    "description": "One object per line of the client's JSON stream. An event over 4 KB is stored as a truncation marker."
+                    "description": "Transcript events in the shape the workspace shows: a message of the agent, a tool call, a tool result or the finish. Unknown keys are dropped."
                   }
                 },
                 "required": [
+                  "attempt",
                   "events"
                 ],
                 "additionalProperties": false
@@ -113676,7 +113994,7 @@
       "post": {
         "operationId": "finishRunnerJob",
         "summary": "Report the result of a job",
-        "description": "Ends the job as succeeded, failed or timedOut with the client's final answer and, when the client reports them, its token counts and cost in US dollars. The job's MCP key is revoked. A job that is already closed answers 409 and keeps its first result.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "description": "Ends the job as succeeded, failed or timedOut with the client's final answer and, when the client reports them, its token counts. A runner job has no Customermates cost, so none is stored. The job's MCP key is revoked. A job that is already closed, or that runs as another attempt, answers 409 and keeps its result.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read: an unknown token answers 401 and a rate-limited runner 429 without the body being parsed, and a body that declares more than 512 KB answers 400. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401.",
         "tags": [
           "runner"
         ],
@@ -113704,6 +114022,7 @@
           "content": {
             "application/json": {
               "example": {
+                "attempt": 1,
                 "status": "succeeded",
                 "summary": "Three deals need a follow-up.",
                 "inputTokens": 1200,
@@ -113712,6 +114031,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "attempt": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "description": "The attempt number the claim answered with. A job that was requeued and claimed again has a higher one."
+                  },
                   "status": {
                     "type": "string",
                     "enum": [
@@ -113724,7 +114049,7 @@
                   "summary": {
                     "description": "The client's final answer.",
                     "type": "string",
-                    "maxLength": 20000
+                    "maxLength": 4000
                   },
                   "error": {
                     "description": "Why a run failed.",
@@ -113742,14 +114067,10 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 9007199254740991
-                  },
-                  "costUsd": {
-                    "description": "The cost in US dollars, when the client reports it.",
-                    "type": "number",
-                    "minimum": 0
                   }
                 },
                 "required": [
+                  "attempt",
                   "status"
                 ],
                 "additionalProperties": false

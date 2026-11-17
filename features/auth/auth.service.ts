@@ -483,7 +483,9 @@ export class AuthService {
       ? await prisma.apikey.findMany({ where: { id: { in: ids }, companyId }, select: { id: true } })
       : [];
     const boundIds = new Set(bound.map((key) => key.id));
-    return result.apiKeys.filter((key) => boundIds.has(key.id));
+    return result.apiKeys.filter(
+      (key) => boundIds.has(key.id) && parseAgentJobCredentialMetadata(key.metadata) === null,
+    );
   }
 
   async resolveApiKeyReferences(

@@ -30,20 +30,28 @@ function setup() {
       return Promise.resolve(4);
     }),
   };
-  const interactor = new ReleaseOwnerRoutinesInteractor(repo, reconcile as never, rules);
-  return { calls, repo, rules, interactor };
+  const runners = {
+    revokeOfMember: vi.fn(() => {
+      calls.push("runners");
+      return Promise.resolve(1);
+    }),
+  };
+  const interactor = new ReleaseOwnerRoutinesInteractor(repo, reconcile as never, rules, runners);
+  return { calls, repo, rules, runners, interactor };
 }
 
 describe("releasing everything an unavailable owner runs", () => {
   it("blocks the owner's runs and switches off their routines and automation rules", async () => {
-    const { calls, repo, rules, interactor } = setup();
+    const { calls, repo, rules, runners, interactor } = setup();
 
     expect(await interactor.invoke({ companyId: COMPANY, ownerUserId: OWNER, now: NOW })).toEqual({
       blocked: 2,
       disabled: 3,
       rulesDisabled: 4,
+      runnersRevoked: 1,
     });
-    expect(calls).toEqual(["reconcile", "block", "routines", "rules"]);
+    expect(calls).toEqual(["reconcile", "block", "routines", "rules", "runners"]);
+    expect(runners.revokeOfMember).toHaveBeenCalledExactlyOnceWith({ companyId: COMPANY, userId: OWNER, at: NOW });
     expect(repo.disableRoutinesForOwnerUnscoped).toHaveBeenCalledWith({
       companyId: COMPANY,
       ownerUserId: OWNER,
