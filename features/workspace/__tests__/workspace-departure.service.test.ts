@@ -27,6 +27,7 @@ function announced(status: Status, kind: "left" | "removed") {
     unused,
     unused,
     unused,
+    unused,
   );
   return service.announce({ id: "member-1", status }, kind, AT).then(() => publish.mock.calls);
 }
