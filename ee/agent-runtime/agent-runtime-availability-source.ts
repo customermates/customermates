@@ -7,7 +7,11 @@ import type { AgentOwnKeyPlan } from "@/ee/agent-keys/agent-own-key-plan";
 import type { AgentProviderKeyRepo } from "@/ee/agent-keys/agent-provider-key.repo";
 
 import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
-import { agentProviderModels } from "@/ee/agent-keys/agent-provider-models";
+import {
+  agentProviderModels,
+  agentStepProvider,
+  chooseAgentProviderModel,
+} from "@/ee/agent-keys/agent-provider-models";
 import { toAgentRunnerDto } from "@/features/agent-runners/agent-runner-dto";
 
 type PlanSource = { plan(): Promise<{ plan: PlanId | null }> };
@@ -44,7 +48,13 @@ export class AgentRuntimeAvailabilityAdapter implements AgentRuntimeAvailability
     const keys = await this.keys.findAll();
     if (keys.length === 0) return { available: false, reason: "noKey", models: [], runners: [] };
     const models = keys.flatMap((key) => agentProviderModels(key.provider).map(({ id, label }) => ({ id, label })));
-    return { available: true, reason: null, models, runners: [] };
+    const step = agentStepProvider(
+      keys.map((key) => key.provider),
+      null,
+    );
+    const only = step.ok ? keys.find((key) => key.provider === step.provider) : undefined;
+    const defaultModel = only ? chooseAgentProviderModel(only.provider, null, only.defaultModel).modelId : null;
+    return { available: true, reason: null, models, runners: [], defaultModel };
   }
 
   private async runner(): Promise<AgentRuntimeAvailability["runner"]> {

@@ -239,6 +239,131 @@ describe("saving a rule", () => {
   });
 });
 
+describe("saving a step that names a model, a runner or a webhook", () => {
+  const RUNNER = "88888888-8888-4888-8888-888888888888";
+  const OTHER_RUNNER = "88888888-8888-4888-8888-999999999999";
+  const WEBHOOK = "66666666-6666-4666-8666-666666666666";
+  const SONNET = { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5" };
+  const GPT = { id: "gpt-5-mini", label: "GPT-5 mini" };
+  const none = { available: false, reason: "notConfigured" as const, models: [], runners: [] };
+  const oneKey = { available: true, reason: null, models: [SONNET], runners: [], defaultModel: SONNET.id };
+  const twoKeys = { available: true, reason: null, models: [SONNET, GPT], runners: [], defaultModel: null };
+  const noKey = { available: false, reason: "noKey" as const, models: [], runners: [] };
+  const myRunner = {
+    available: true,
+    reason: null,
+    models: [],
+    runners: [{ id: RUNNER, name: "Laptop", online: true }],
+  };
+
+  let repo: FakeAutomationRuleRepo;
+  beforeEach(() => {
+    repo = new FakeAutomationRuleRepo();
+  });
+
+  function source(ownKey: object = oneKey, runner: object = myRunner) {
+    return { availability: vi.fn().mockResolvedValue({ mate: none, ownKey, runner }) };
+  }
+  const saveSteps = (effects: unknown[], runtimes: ReturnType<typeof source> | null = source()) =>
+    runWithTenant(mockUser, () =>
+      new UpsertAutomationRuleInteractor(repo, recordsPort() as never, unlimited(), runtimes as never).invoke({
+        ...reminder,
+        effects,
+      } as never),
+    );
+  const refusal = (result: Awaited<ReturnType<typeof saveSteps>>) => {
+    const issue = result.ok ? undefined : result.error.issues[0];
+    const params = (issue as { params?: Record<string, unknown> } | undefined)?.params;
+    return { path: issue?.path, error: params?.error, reason: params?.reason };
+  };
+  const ask = (step: Record<string, unknown>) => ({ kind: "agent", prompt: "Summarise it", ...step });
+
+  it("saves the default model of the only key with an own-key step that names none", async () => {
+    const result = await saveSteps([notify, ask({ runtime: "ownKey" })]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.effects[1]).toMatchObject({ runtime: "ownKey", model: SONNET.id });
+    expect([...repo.rules.values()][0]?.effects).toMatchObject([{ kind: "notify" }, { model: SONNET.id }]);
+  });
+
+  it("refuses an own-key step without a model when the workspace has several keys", async () => {
+    const result = await saveSteps([notify, ask({ runtime: "ownKey" })], source(twoKeys));
+    expect(refusal(result)).toEqual({
+      path: ["effects", "1", "model"],
+      error: CustomErrorCode.mustNotBeBlank,
+      reason: "modelRequired",
+    });
+    expect(repo.rules.size).toBe(0);
+    const chosen = await saveSteps([ask({ runtime: "ownKey", model: GPT.id })], source(twoKeys));
+    expect(chosen.ok && chosen.data.effects[0]).toMatchObject({ model: GPT.id });
+  });
+
+  it("refuses a model the workspace's keys do not offer", async () => {
+    const result = await saveSteps([ask({ runtime: "ownKey", model: GPT.id })]);
+    expect(refusal(result)).toEqual({
+      path: ["effects", "0", "model"],
+      error: CustomErrorCode.agentProviderModelInvalid,
+      reason: "agentModelUnavailable",
+    });
+    expect(repo.rules.size).toBe(0);
+  });
+
+  it("leaves an own-key step as it is while the workspace has no key to run it on", async () => {
+    const bare = await saveSteps([ask({ runtime: "ownKey" })], source(noKey));
+    expect(bare.ok && bare.data.effects[0]).toEqual({ kind: "agent", runtime: "ownKey", prompt: "Summarise it" });
+    const named = await saveSteps([ask({ runtime: "ownKey", model: GPT.id })], source(noKey));
+    expect(named.ok).toBe(true);
+  });
+
+  it("refuses a runner that is not one of the owner's own unrevoked runners", async () => {
+    const result = await saveSteps([ask({ runtime: "runner", runnerId: OTHER_RUNNER })]);
+    expect(refusal(result)).toEqual({
+      path: ["effects", "0", "runnerId"],
+      error: CustomErrorCode.agentRunnerNotFound,
+      reason: "agentRunnerUnavailable",
+    });
+    const noRunners = { available: false, reason: "noRunner" as const, models: [], runners: [] };
+    expect(refusal(await saveSteps([ask({ runtime: "runner", runnerId: RUNNER })], source(oneKey, noRunners)))).toEqual(
+      {
+        path: ["effects", "0", "runnerId"],
+        error: CustomErrorCode.agentRunnerNotFound,
+        reason: "agentRunnerUnavailable",
+      },
+    );
+    expect(repo.rules.size).toBe(0);
+    expect((await saveSteps([ask({ runtime: "runner", runnerId: RUNNER })])).ok).toBe(true);
+    expect((await saveSteps([ask({ runtime: "runner" })], source(oneKey, noRunners))).ok).toBe(true);
+  });
+
+  it("refuses a webhook that does not exist and accepts one that does", async () => {
+    const step = { kind: "callWebhook", webhookId: WEBHOOK };
+    expect(refusal(await saveSteps([notify, step]))).toEqual({
+      path: ["effects", "1", "webhookId"],
+      error: CustomErrorCode.webhookNotFound,
+      reason: "webhook:missing",
+    });
+    expect(repo.rules.size).toBe(0);
+    repo.webhooks.set(WEBHOOK, { id: WEBHOOK, enabled: false, events: [] });
+    expect((await saveSteps([notify, step])).ok).toBe(true);
+  });
+
+  it("asks for the runtimes only when a step needs them and checks a step again on a later save", async () => {
+    const quiet = source();
+    expect((await saveSteps([notify, ask({ runtime: "mate" })], quiet)).ok).toBe(true);
+    expect(quiet.availability).not.toHaveBeenCalled();
+    expect((await saveSteps([ask({ runtime: "ownKey" })], null)).ok).toBe(true);
+
+    const [stored] = [...repo.rules.values()].filter((rule) => JSON.stringify(rule.effects).includes("ownKey"));
+    const renamed = await runWithTenant(mockUser, () =>
+      new UpsertAutomationRuleInteractor(repo, recordsPort() as never, unlimited(), source(twoKeys) as never).invoke({
+        id: stored?.id,
+        name: "Renamed",
+      } as never),
+    );
+    expect(refusal(renamed)).toMatchObject({ path: ["effects", "0", "model"], reason: "modelRequired" });
+  });
+});
+
 describe("switching a rule on and off", () => {
   let repo: FakeAutomationRuleRepo;
   beforeEach(() => {

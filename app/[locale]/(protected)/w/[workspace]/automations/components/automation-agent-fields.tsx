@@ -6,6 +6,8 @@ import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent
 import type { AgentRuntimeKind } from "@/features/automation-rules/automation-rule.schema";
 import type { DraftAgent } from "./automation-draft";
 
+import { ownKeyModelRequired } from "./automation-draft";
+
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/core/utils/cn";
 import { AGENT_RUNTIMES, AUTOMATION_AGENT_PROMPT_MAX_CHARS } from "@/features/automation-rules/automation-rule.schema";
@@ -46,6 +48,7 @@ function RuntimeReason({ runtime, runtimes }: { runtime: AgentRuntimeKind; runti
 export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: Props) {
   const t = useTranslations();
   const option = runtimes[effect.runtime];
+  const modelRequired = ownKeyModelRequired(runtimes);
   const choose = (runtime: AgentRuntimeKind) => onChange({ ...effect, runtime, model: "", runnerId: "" });
 
   return (
@@ -96,10 +99,13 @@ export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: P
       {effect.runtime === "ownKey" && (option.models.length > 0 || effect.model !== "") && (
         <Labeled label={t("Automations.agent.model")}>
           <Choose
-            items={[{ id: DEFAULT_CHOICE, label: t("Automations.agent.defaultModel") }, ...option.models]}
+            items={[
+              ...(modelRequired ? [] : [{ id: DEFAULT_CHOICE, label: t("Automations.agent.defaultModel") }]),
+              ...option.models,
+            ]}
             label={t("Automations.agent.model")}
             placeholder={t("AutomationRules.builder.choose")}
-            value={effect.model || DEFAULT_CHOICE}
+            value={effect.model || (modelRequired ? "" : DEFAULT_CHOICE)}
             onChange={(model) => onChange({ ...effect, model: model === DEFAULT_CHOICE ? "" : model })}
           />
         </Labeled>

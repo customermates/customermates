@@ -3,7 +3,9 @@ import { z } from "zod";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { AutomationPlanLimits, AutomationRecordPort } from "./automation-ports";
 import type { AutomationRuleRepo, StoredAutomationRule } from "./automation-rule.repo";
-import type { AutomationRuleDto, UpsertAutomationRuleData } from "./automation-rule.schema";
+import type { AutomationEffect, AutomationRuleDto, UpsertAutomationRuleData } from "./automation-rule.schema";
+import type { ResolvedSteps } from "./automation-step-references";
+import type { AgentRuntimeAvailabilitySource } from "./get-agent-runtime-availability.interactor";
 
 import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -24,6 +26,7 @@ import {
   automationRuleFinalStateIssues,
   triggerTypeId,
 } from "./automation-rule.schema";
+import { needsAgentRuntimes, resolveStepReferences } from "./automation-step-references";
 
 function mergeFinalState(previous: StoredAutomationRule | null, update: UpsertAutomationRuleData) {
   return {
@@ -44,6 +47,7 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
     private readonly repo: AutomationRuleRepo,
     private readonly records: AutomationRecordPort,
     private readonly limits: AutomationPlanLimits,
+    private readonly runtimes: AgentRuntimeAvailabilitySource | null = null,
   ) {
     super();
   }
@@ -61,6 +65,8 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
     const model = await this.records.model();
     const modelIssue = automationModelIssues(state, model)[0];
     if (modelIssue) return fail(CustomErrorCode.automationRuleInvalid, modelIssue.split("."));
+    const steps = await this.resolveSteps(state.effects);
+    if (!steps.ok) return fail(steps.issue.code, steps.issue.path, { reason: steps.issue.reason });
 
     if (state.enabled && !previous?.enabled) {
       const allowance = await this.limits.activeRuleAllowance();
@@ -82,10 +88,21 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
         typeId: triggerTypeId(state.trigger),
         trigger: state.trigger,
         conditions: state.conditions,
-        effects: state.effects,
+        effects: steps.effects,
       },
       ruleConditionPlan(state.trigger, state.conditions, model).subscription,
     );
     return { ok: true as const, data: toAutomationRuleDto(saved) };
+  }
+
+  private async resolveSteps(effects: AutomationEffect[]): Promise<ResolvedSteps> {
+    const webhookIds = new Set<string>();
+    for (const effect of effects) {
+      if (effect.kind !== "callWebhook" || webhookIds.has(effect.webhookId)) continue;
+      if (await this.repo.findOutboundWebhookUnscoped(this.user.companyId, effect.webhookId))
+        webhookIds.add(effect.webhookId);
+    }
+    const runtimes = this.runtimes && needsAgentRuntimes(effects) ? await this.runtimes.availability() : null;
+    return resolveStepReferences(effects, { runtimes, webhookIds });
   }
 }

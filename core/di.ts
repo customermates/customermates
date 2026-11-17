@@ -3017,7 +3017,12 @@ export const getGetAutomationsListInteractor = () =>
 export const getGetAutomationRuleInteractor = () => new GetAutomationRuleInteractor(getAutomationRuleRepo());
 export const getGetAutomationRuleRunsInteractor = () => new GetAutomationRuleRunsInteractor(getAutomationRuleRepo());
 export const getUpsertAutomationRuleInteractor = () =>
-  new UpsertAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort(), getAutomationPlanLimits());
+  new UpsertAutomationRuleInteractor(
+    getAutomationRuleRepo(),
+    getRecordAutomationPort(),
+    getAutomationPlanLimits(),
+    getAgentRuntimeAvailabilitySource(),
+  );
 export const getSetAutomationRuleEnabledInteractor = () =>
   new SetAutomationRuleEnabledInteractor(getAutomationRuleRepo(), getAutomationPlanLimits(), getAgentJobRepo());
 export const getDeleteAutomationRuleInteractor = () =>

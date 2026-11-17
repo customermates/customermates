@@ -7,6 +7,7 @@ export const AgentRuntimeOptionSchema = z.object({
   reason: z.enum(AGENT_RUNTIME_UNAVAILABLE_REASONS).nullable(),
   models: z.array(z.object({ id: z.string(), label: z.string() })).default([]),
   runners: z.array(z.object({ id: z.uuid(), name: z.string(), online: z.boolean() })).default([]),
+  defaultModel: z.string().nullable().optional(),
 });
 
 export const AgentRuntimeAvailabilitySchema = z.object({

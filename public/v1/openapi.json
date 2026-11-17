@@ -124731,7 +124731,7 @@
                                       "type": "string",
                                       "format": "uuid",
                                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                      "description": "An enabled outbound webhook."
+                                      "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                                     }
                                   },
                                   "required": [
@@ -124763,12 +124763,12 @@
                                       "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                                     },
                                     "model": {
-                                      "description": "ownKey only: the provider model id; the key's default when omitted.",
+                                      "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                                       "type": "string",
                                       "maxLength": 80
                                     },
                                     "runnerId": {
-                                      "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                                      "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                                       "type": "string",
                                       "format": "uuid",
                                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -127197,7 +127197,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "An enabled outbound webhook."
+                                "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                               }
                             },
                             "required": [
@@ -127229,12 +127229,12 @@
                                 "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                               },
                               "model": {
-                                "description": "ownKey only: the provider model id; the key's default when omitted.",
+                                "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                                 "type": "string",
                                 "maxLength": 80
                               },
                               "runnerId": {
-                                "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                                "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -128828,7 +128828,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "An enabled outbound webhook."
+                              "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                             }
                           },
                           "required": [
@@ -128860,12 +128860,12 @@
                               "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                             },
                             "model": {
-                              "description": "ownKey only: the provider model id; the key's default when omitted.",
+                              "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                               "type": "string",
                               "maxLength": 80
                             },
                             "runnerId": {
-                              "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                              "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -131101,7 +131101,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "An enabled outbound webhook."
+                                "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                               }
                             },
                             "required": [
@@ -131133,12 +131133,12 @@
                                 "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                               },
                               "model": {
-                                "description": "ownKey only: the provider model id; the key's default when omitted.",
+                                "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                                 "type": "string",
                                 "maxLength": 80
                               },
                               "runnerId": {
-                                "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                                "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -132364,7 +132364,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "An enabled outbound webhook."
+                              "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                             }
                           },
                           "required": [
@@ -132396,12 +132396,12 @@
                               "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                             },
                             "model": {
-                              "description": "ownKey only: the provider model id; the key's default when omitted.",
+                              "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                               "type": "string",
                               "maxLength": 80
                             },
                             "runnerId": {
-                              "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                              "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -134640,7 +134640,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "An enabled outbound webhook."
+                                "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                               }
                             },
                             "required": [
@@ -134672,12 +134672,12 @@
                                 "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                               },
                               "model": {
-                                "description": "ownKey only: the provider model id; the key's default when omitted.",
+                                "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                                 "type": "string",
                                 "maxLength": 80
                               },
                               "runnerId": {
-                                "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                                "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -137093,7 +137093,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "An enabled outbound webhook."
+                                "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                               }
                             },
                             "required": [
@@ -137125,12 +137125,12 @@
                                 "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                               },
                               "model": {
-                                "description": "ownKey only: the provider model id; the key's default when omitted.",
+                                "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                                 "type": "string",
                                 "maxLength": 80
                               },
                               "runnerId": {
-                                "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                                "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -139546,7 +139546,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "An enabled outbound webhook."
+                                "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                               }
                             },
                             "required": [
@@ -139578,12 +139578,12 @@
                                 "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                               },
                               "model": {
-                                "description": "ownKey only: the provider model id; the key's default when omitted.",
+                                "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                                 "type": "string",
                                 "maxLength": 80
                               },
                               "runnerId": {
-                                "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                                "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -140958,7 +140958,7 @@
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                  "description": "An enabled outbound webhook."
+                                  "description": "An enabled outbound webhook of the workspace; an unknown id is refused."
                                 }
                               },
                               "required": [
@@ -140990,12 +140990,12 @@
                                   "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                                 },
                                 "model": {
-                                  "description": "ownKey only: the provider model id; the key's default when omitted.",
+                                  "description": "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
                                   "type": "string",
                                   "maxLength": 80
                                 },
                                 "runnerId": {
-                                  "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                                  "description": "runner only: one of your own runners that is not revoked; any of your live runners when omitted.",
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"

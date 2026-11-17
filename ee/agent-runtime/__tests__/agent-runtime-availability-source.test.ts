@@ -16,7 +16,7 @@ type Options = {
   appMode?: AppMode;
   chatEnabled?: boolean;
   plan?: PlanId | null;
-  keys?: Array<{ provider: "anthropic" | "openai" | "google" }>;
+  keys?: Array<{ provider: "anthropic" | "openai" | "google"; defaultModel?: string | null }>;
   runners?: Array<{
     id: string;
     name: string;
@@ -80,6 +80,23 @@ describe("agent runtime availability", () => {
     expect(both.ownKey.models.map((model) => model.id)).toEqual(
       expect.arrayContaining(["claude-sonnet-5-5", "gpt-5", "gpt-5-mini"]),
     );
+  });
+
+  it("names the model a step without one is saved with, and none when the workspace has several keys", async () => {
+    const saved = await adapter({ keys: [{ provider: "openai", defaultModel: "gpt-5" }] }).availability();
+    expect(saved.ownKey.defaultModel).toBe("gpt-5");
+
+    const retired = await adapter({ keys: [{ provider: "openai", defaultModel: "gpt-3" }] }).availability();
+    expect(retired.ownKey.defaultModel).toBe("gpt-5-mini");
+
+    const unset = await adapter({ keys: [{ provider: "anthropic" }] }).availability();
+    expect(unset.ownKey.defaultModel).toBe("claude-sonnet-5-5");
+
+    const both = await adapter({ keys: [{ provider: "anthropic" }, { provider: "openai" }] }).availability();
+    expect(both.ownKey).toMatchObject({ available: true, defaultModel: null });
+
+    expect((await adapter({ keys: [] }).availability()).ownKey.defaultModel).toBeUndefined();
+    expect(AgentRuntimeAvailabilitySchema.parse(both).ownKey.defaultModel).toBeNull();
   });
 
   it("keeps own keys open on an install without a plan, where the key is the customer's own", async () => {

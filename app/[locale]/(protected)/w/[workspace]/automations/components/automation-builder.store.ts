@@ -28,6 +28,7 @@ import {
   blankCondition,
   blankEffect,
   conditionOperatorsFor,
+  draftModelIssues,
   draftToPreviewInput,
   draftToUpsert,
   draftUnavailable,
@@ -482,8 +483,13 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     if (!model || this.isReadOnly) return "failed";
     const unavailable = this.unavailable;
     const converted = draftToUpsert(this.form, model);
-    if (unavailable.length > 0 || !converted.ok) {
-      const issues = [...unavailable.map((entry) => entry.card), ...(converted.ok ? [] : converted.issues)];
+    const unchosen = this.context ? draftModelIssues(this.form, this.context.runtimes) : [];
+    if (unavailable.length > 0 || !converted.ok || unchosen.length > 0) {
+      const issues = [
+        ...unavailable.map((entry) => entry.card),
+        ...(converted.ok ? [] : converted.issues),
+        ...unchosen,
+      ];
       runInAction(() => {
         this.invalid = [...new Set(issues)];
         const card = automationCardId(unavailable[0]?.card ?? issues[0] ?? "");

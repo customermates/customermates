@@ -233,7 +233,10 @@ export const NotifyEffectSchema = z
   .describe("Adds a notification to the bell of the chosen members, with an email when their preference asks for one.");
 
 export const CallWebhookEffectSchema = z
-  .object({ kind: z.literal("callWebhook"), webhookId: z.uuid().describe("An enabled outbound webhook.") })
+  .object({
+    kind: z.literal("callWebhook"),
+    webhookId: z.uuid().describe("An enabled outbound webhook of the workspace; an unknown id is refused."),
+  })
   .strict()
   .describe("Sends the rule payload to one of the workspace's outbound webhooks.");
 
@@ -257,8 +260,13 @@ export const AgentEffectSchema = z
       .string()
       .max(80)
       .optional()
-      .describe("ownKey only: the provider model id; the key's default when omitted."),
-    runnerId: z.uuid().optional().describe("runner only: one runner of the workspace; any live runner when omitted."),
+      .describe(
+        "ownKey only: a model id the workspace's provider keys offer. When omitted, the default model of the workspace's only key is saved with the step; required when the workspace has several keys.",
+      ),
+    runnerId: z
+      .uuid()
+      .optional()
+      .describe("runner only: one of your own runners that is not revoked; any of your live runners when omitted."),
   })
   .strict()
   .describe("Asks an agent to act on the triggering record, through the runtime the workspace chose.");

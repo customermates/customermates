@@ -106,10 +106,21 @@ export type DraftReferences = {
   model: AutomationBuilderModel;
   webhooks: readonly { id: string }[] | null;
   runtimes: {
-    ownKey: { available: boolean; models: readonly { id: string }[] };
+    ownKey: { available: boolean; models: readonly { id: string }[]; defaultModel?: string | null };
     runner: { reason: string | null; runners: readonly { id: string }[] };
   };
 };
+
+export function ownKeyModelRequired(runtimes: DraftReferences["runtimes"]): boolean {
+  return runtimes.ownKey.available && runtimes.ownKey.defaultModel === null;
+}
+
+export function draftModelIssues(draft: AutomationDraft, runtimes: DraftReferences["runtimes"]): string[] {
+  if (!ownKeyModelRequired(runtimes)) return [];
+  return draft.effects.flatMap((effect, index) =>
+    effect.kind === "agent" && effect.runtime === "ownKey" && !effect.model.trim() ? [`effects.${index}`] : [],
+  );
+}
 
 const DATE_TYPES = new Set(["date", "dateTime"]);
 const NUMBER_TYPES = new Set(["number", "currency"]);

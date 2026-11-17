@@ -362,6 +362,31 @@ describe("AutomationBuilderStore", () => {
     expect(store.unavailable).toEqual([]);
   });
 
+  it("asks for a model before saving an own-key step when the workspace has several keys", async () => {
+    actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: SAVED });
+    const models = [
+      { id: "m-1", label: "One" },
+      { id: "m-2", label: "Two" },
+    ];
+    const several = { available: true, reason: null, models, runners: [], defaultModel: null };
+    const rule = { ...SAVED, effects: [{ kind: "agent", runtime: "ownKey", prompt: "Summarise it" }] };
+    const store = makeStore();
+    store.openForRule({ ...CONTEXT, runtimes: { ...noAgentRuntimes(), ownKey: several } }, rule as never, vi.fn());
+
+    expect(await store.save()).toBe("incomplete");
+    expect(store.isFlagged("effects.0")).toBe(true);
+    expect(store.expanded).toBe("effect-0");
+    expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
+
+    store.setEffect(0, { kind: "agent", runtime: "ownKey", prompt: "Summarise it", model: "m-2", runnerId: "" });
+    expect(await store.save()).toBe("saved");
+
+    const single = makeStore();
+    const oneKey = { ...several, models: models.slice(0, 1), defaultModel: "m-1" };
+    single.openForRule({ ...CONTEXT, runtimes: { ...noAgentRuntimes(), ownKey: oneKey } }, rule as never, vi.fn());
+    expect(await single.save()).toBe("saved");
+  });
+
   it("keeps a webhook step as it is for a member who may not see webhooks", async () => {
     actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: SAVED });
     const rule = { ...SAVED, effects: [{ kind: "callWebhook", webhookId: WEBHOOK }] };

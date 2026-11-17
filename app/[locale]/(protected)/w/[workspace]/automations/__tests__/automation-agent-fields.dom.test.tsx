@@ -212,6 +212,23 @@ describe("the Ask an agent card", () => {
     expect(container.textContent).toContain("Automations.agent.runnerOffline:Office");
   });
 
+  it("offers the default model of the key only when the workspace has one key", () => {
+    const models = [
+      { id: "m-1", label: "Model one" },
+      { id: "m-2", label: "Model two" },
+    ];
+    const values = () =>
+      [...container.querySelectorAll("[data-value]")].map((option) => option.getAttribute("data-value"));
+
+    render(blankAgentEffect("ownKey"), runtimes({ ownKey: { ...AVAILABLE, models, defaultModel: null } }));
+    expect(values()).toEqual(["m-1", "m-2"]);
+    expect(container.querySelector("[data-select]")?.getAttribute("data-select")).toBe("");
+
+    render(blankAgentEffect("ownKey"), runtimes({ ownKey: { ...AVAILABLE, models, defaultModel: "m-1" } }));
+    expect(values()).toEqual(["default", "m-1", "m-2"]);
+    expect(container.querySelector("[data-select]")?.getAttribute("data-select")).toBe("default");
+  });
+
   it("keeps the prompt in the effect and bounds its length", () => {
     const effect = blankAgentEffect("mate");
     const onChange = render(effect, runtimes({ mate: AVAILABLE }));
