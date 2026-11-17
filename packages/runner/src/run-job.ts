@@ -49,6 +49,8 @@ type Confirmation = { timeoutMs: number } | null;
 
 const FLUSH_BATCH = 20;
 const MAX_EVENTS = 5000;
+const FINISH_EVENTS = 1;
+const EVENT_ATTEMPTS = 2;
 const STDERR_TAIL = 20;
 const REPORT_ATTEMPTS = 3;
 const HIDDEN_ENV_NAMES = [TOKEN_ENV, TOKEN_FILE_ENV];
@@ -199,16 +201,22 @@ export async function runJob(
   };
 
   const sendBatch = async (batch: TranscriptEvent[]) => {
-    try {
-      const response = await deps.api.events(job.id, job.attempt, batch);
-      if (response.status === 404 || response.status === 409) {
-        closed = true;
-        log.warn("server closed the job, stopping the client", { status: response.status });
-        terminate("closed");
-      } else if (response.status === 401) terminate("shutdown");
-      else if (response.status >= 400) log.warn("events were not accepted", { status: response.status });
-    } catch (error) {
-      log.warn("could not send events", { error: redactText(String(error), secrets) });
+    for (let attempt = 1; attempt <= EVENT_ATTEMPTS; attempt += 1) {
+      try {
+        const response = await deps.api.events(job.id, job.attempt, batch);
+        if (response.status === 404 || response.status === 409) {
+          closed = true;
+          log.warn("server closed the job, stopping the client", { status: response.status });
+          return terminate("closed");
+        }
+        if (response.status === 401) return terminate("shutdown");
+        if (response.status < 400) return;
+        log.warn("events were not accepted", { status: response.status, attempt });
+        if (response.status < 500 && response.status !== 429) return;
+      } catch (error) {
+        log.warn("could not send events", { attempt, error: redactText(String(error), secrets) });
+      }
+      if (attempt < EVENT_ATTEMPTS) await pause(retryMs);
     }
   };
 
@@ -222,9 +230,9 @@ export async function runJob(
     return sending;
   };
 
-  const push = (events: readonly TranscriptEvent[]) => {
+  const push = (events: readonly TranscriptEvent[], limit = MAX_EVENTS - FINISH_EVENTS) => {
     for (const event of events) {
-      if (eventCount >= MAX_EVENTS) return;
+      if (eventCount >= limit) break;
       eventCount += 1;
       pending.push(redactValue(event, secrets) as TranscriptEvent);
     }
@@ -344,14 +352,17 @@ export async function runJob(
   const result = resultOf(observer.outcome(), { exitCode, timedOut, stopped, stderrLines, secrets, startFailure });
   if (!closed) {
     push(observer.flush(now().toISOString()));
-    push([
-      {
-        type: "finish",
-        at: now().toISOString(),
-        reason: stopped && !timedOut ? "cancelled" : FINISH_REASONS[result.status],
-        ...(result.summary === undefined ? {} : { text: result.summary }),
-      },
-    ]);
+    push(
+      [
+        {
+          type: "finish",
+          at: now().toISOString(),
+          reason: stopped && !timedOut ? "cancelled" : FINISH_REASONS[result.status],
+          ...(result.summary === undefined ? {} : { text: result.summary }),
+        },
+      ],
+      MAX_EVENTS,
+    );
   }
   await flush();
   for (const directory of directories) {

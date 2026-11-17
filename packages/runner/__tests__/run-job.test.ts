@@ -369,6 +369,56 @@ describe("running a job", () => {
 
     expect(await running).toMatchObject({ status: "succeeded", summary: "fine" });
   });
+
+  it.each([
+    ["answers 503", () => Promise.resolve({ status: 503, body: null, retryAfterMs: null })],
+    ["cannot be reached", () => Promise.reject(new Error("network down"))],
+  ])("sends a batch of events a second time when the server %s", async (_name, firstAnswer) => {
+    const { deps, api, posted, started } = setup();
+    mockOf(api, "events").mockImplementationOnce(firstAnswer);
+
+    const running = runJob(claimed(), CLAUDE, OPTIONS, deps);
+    const child = await started();
+    child.stdout(assistant("working"), success("fine"));
+    child.exit(0);
+    await running;
+
+    const sent = mockOf(api, "events").mock.calls.map((call) => call[2] as TranscriptEvent[]);
+    expect(sent).toHaveLength(2);
+    expect(sent[1]).toEqual(sent[0]);
+    expect(posted.flat().map((event) => event.type)).toEqual(["message", "finish"]);
+  });
+
+  it("gives up on a batch after the second try and does not repeat one the server refuses as invalid", async () => {
+    const down = setup({ eventsStatus: 503 });
+    const downRun = runJob(claimed(), CLAUDE, OPTIONS, down.deps);
+    (await down.started()).exit(0);
+    await downRun;
+
+    const invalid = setup({ eventsStatus: 400 });
+    const invalidRun = runJob(claimed(), CLAUDE, OPTIONS, invalid.deps);
+    (await invalid.started()).exit(0);
+    await invalidRun;
+
+    expect(mockOf(down.api, "events")).toHaveBeenCalledTimes(2);
+    expect(mockOf(invalid.api, "events")).toHaveBeenCalledTimes(1);
+    expect(mockOf(down.api, "result")).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps room for the finish event when the client produces more events than a job may hold", async () => {
+    const { deps, posted, started } = setup();
+
+    const running = runJob(claimed(), CLAUDE, OPTIONS, deps);
+    const child = await started();
+    child.stdout(...Array.from({ length: 5010 }, (_unused, index) => assistant(`step ${index}`)), success("done"));
+    child.exit(0);
+    await running;
+
+    const events = posted.flat();
+    expect(events).toHaveLength(5000);
+    expect(events.filter((event) => event.type === "message")).toHaveLength(4999);
+    expect(events.at(-1)).toMatchObject({ type: "finish", reason: "stop", text: "done" });
+  });
 });
 
 describe("timeouts and closed jobs", () => {
