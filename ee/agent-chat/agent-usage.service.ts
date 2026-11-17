@@ -1,4 +1,5 @@
 import type { AgentUsageRepo } from "./agent-usage.repo";
+import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import { z } from "zod";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
@@ -564,6 +565,22 @@ export class AgentUsageService {
     return args.creditState
       ? this.repo.reserveUsageEventUnscoped(event, args.creditState)
       : this.repo.reserveUsageEventUnscoped(event);
+  }
+
+  async settleReservation(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    settlement: AgentUsageSettlement;
+    now?: Date;
+  }): Promise<boolean> {
+    return this.repo.settleUsageReservationUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      settlement: args.settlement,
+      settledAt: args.now ?? new Date(),
+    });
   }
 
   async releaseReservation(args: { reservationId: string; companyId: string; userId: string; now?: Date }) {

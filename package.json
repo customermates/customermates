@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@/generated/prisma": "link:./generated/prisma",
+    "@ai-sdk/anthropic": "4.0.41",
+    "@ai-sdk/google": "4.0.50",
     "@ai-sdk/mcp": "2.0.36",
     "@ai-sdk/openai": "4.0.46",
     "@ai-sdk/react": "4.0.80",

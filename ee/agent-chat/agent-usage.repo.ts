@@ -1,5 +1,6 @@
 import type { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
+import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import type {
   AgentRetrievalPayer,
   AgentWorkspaceCreditPool,
@@ -58,6 +59,13 @@ export abstract class AgentUsageRepo {
     userId: string;
     releasedAt: Date;
   }): Promise<void>;
+  abstract settleUsageReservationUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    settlement: AgentUsageSettlement;
+    settledAt: Date;
+  }): Promise<boolean>;
   abstract admitsHostedAiRetrievalUnscoped(now: Date): Promise<boolean>;
   abstract getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null>;
   abstract accruePlatformUsageUnscoped(args: {

@@ -2844,6 +2844,26 @@ import { upgradeOfferValues } from "@/ee/subscription/plan-upgrade-offer";
 import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
 import { AutomationEffectRunner } from "@/features/automation-rules/automation-effect-runner";
 import { GetAgentRuntimeAvailabilityInteractor } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
+import { PrismaAgentJobRepo } from "@/features/agent-jobs/prisma-agent-job.repository";
+import { PrismaAgentRunnerPresenceRepo } from "@/features/agent-jobs/prisma-agent-runner-presence.repository";
+import { EnqueueAgentJobInteractor } from "@/features/agent-jobs/enqueue-agent-job.interactor";
+import { GetAgentJobsInteractor } from "@/features/agent-jobs/get-agent-jobs.interactor";
+import { GetAgentJobInteractor } from "@/features/agent-jobs/get-agent-job.interactor";
+import { DiscardAgentJobInteractor } from "@/features/agent-jobs/discard-agent-job.interactor";
+import { SweepAgentJobTimeoutsInteractor } from "@/features/agent-jobs/sweep-agent-job-timeouts.interactor";
+import { PruneAgentJobsInteractor } from "@/features/agent-jobs/prune-agent-jobs.interactor";
+import { PrismaAgentProviderKeyRepo } from "@/ee/agent-keys/prisma-agent-provider-key.repository";
+import { AgentOwnKeyPlan } from "@/ee/agent-keys/agent-own-key-plan";
+import { FetchAgentProviderKeyValidator } from "@/ee/agent-keys/fetch-agent-provider-key-validator";
+import { GetAgentProviderKeysInteractor } from "@/ee/agent-keys/get-agent-provider-keys.interactor";
+import { SaveAgentProviderKeyInteractor } from "@/ee/agent-keys/save-agent-provider-key.interactor";
+import { DeleteAgentProviderKeyInteractor } from "@/ee/agent-keys/delete-agent-provider-key.interactor";
+import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
+import { AgentRuntimeAvailabilityAdapter } from "@/ee/agent-runtime/agent-runtime-availability-source";
+import { createOwnKeyModel } from "@/ee/agent-runtime/create-own-key-model";
+import { createAgentJobToolkit } from "@/ee/agent-runtime/agent-job-toolset";
+import { MateAgentJobCredits } from "@/ee/agent-runtime/mate-agent-job-credits";
+import { RunAgentJobInteractor } from "@/ee/agent-runtime/run-agent-job.interactor";
 import { AutomationPlanLimitsAdapter } from "@/features/automation-rules/automation-plan-limits";
 import { AutomationRuleAdmission } from "@/features/automation-rules/automation-rule-admission";
 import { DeleteAutomationRuleInteractor } from "@/features/automation-rules/delete-automation-rule.interactor";
@@ -2905,12 +2925,28 @@ const getRecordAutomationPort = () =>
   new RecordAutomationPort(getGetRecordModelInteractor(), getGetRecordInteractor(), getMutateRecordInteractor());
 const getAutomationPlanLimits = () =>
   new AutomationPlanLimitsAdapter(getPlanLimitsService(), (plan) => upgradeOfferValues(plan));
+const getAgentJobRepo = () => new PrismaAgentJobRepo();
+const getAgentProviderKeyRepo = () => new PrismaAgentProviderKeyRepo();
+const getAgentOwnKeyPlan = () => new AgentOwnKeyPlan(getPlanLimitsService());
+const getAgentRuntimeAvailabilitySource = () =>
+  new AgentRuntimeAvailabilityAdapter(
+    env.APP_MODE,
+    isAgentChatAvailable,
+    getPlanLimitsService(),
+    getAgentOwnKeyPlan(),
+    getAgentProviderKeyRepo(),
+    new PrismaAgentRunnerPresenceRepo(),
+  );
+const getMateAgentJobCredits = () => new MateAgentJobCredits(getAgentUsageService());
+const getEnqueueAgentJobInteractor = () =>
+  new EnqueueAgentJobInteractor(getAgentJobRepo(), getAgentRuntimeAvailabilitySource(), getBackgroundTaskService());
 const getAutomationEffectRunner = () =>
   new AutomationEffectRunner(
     getRecordAutomationPort(),
     getNotificationService(),
     getEventService(),
     getAutomationRuleRepo(),
+    getEnqueueAgentJobInteractor(),
   );
 export const getAutomationRuleAdmission = () =>
   new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService(), getRecordRecipientReader());
@@ -2955,7 +2991,32 @@ export const getSweepAutomationRulesInteractor = () =>
   );
 export const getPruneAutomationRuleRunsInteractor = () =>
   new PruneAutomationRuleRunsInteractor(getAutomationRuleRepo());
-export const getGetAgentRuntimeAvailabilityInteractor = () => new GetAgentRuntimeAvailabilityInteractor();
+export const getGetAgentRuntimeAvailabilityInteractor = () =>
+  new GetAgentRuntimeAvailabilityInteractor(getAgentRuntimeAvailabilitySource());
+export const getGetAgentJobsInteractor = () => new GetAgentJobsInteractor(getAgentJobRepo());
+export const getGetAgentJobInteractor = () => new GetAgentJobInteractor(getAgentJobRepo());
+export const getRunAgentJobInteractor = () =>
+  new RunAgentJobInteractor(
+    getAgentJobRepo(),
+    getAgentProviderKeyRepo(),
+    getAutomationRuleRepo(),
+    getMateAgentJobCredits(),
+    createOwnKeyModel,
+    createAgentJobToolkit,
+  );
+export const getDiscardAgentJobInteractor = () => new DiscardAgentJobInteractor(getAgentJobRepo());
+export const getSweepAgentJobTimeoutsInteractor = () =>
+  new SweepAgentJobTimeoutsInteractor(getAgentJobRepo(), getBackgroundTaskService(), getMateAgentJobCredits());
+export const getPruneAgentJobsInteractor = () => new PruneAgentJobsInteractor(getAgentJobRepo());
+export const getGetAgentProviderKeysInteractor = () => new GetAgentProviderKeysInteractor(getAgentProviderKeyRepo());
+export const getSaveAgentProviderKeyInteractor = () =>
+  new SaveAgentProviderKeyInteractor(
+    getAgentProviderKeyRepo(),
+    new FetchAgentProviderKeyValidator(),
+    getAgentOwnKeyPlan(),
+  );
+export const getDeleteAgentProviderKeyInteractor = () =>
+  new DeleteAgentProviderKeyInteractor(getAgentProviderKeyRepo());
 
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
 import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";

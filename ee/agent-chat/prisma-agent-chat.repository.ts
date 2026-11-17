@@ -3158,4 +3158,57 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       },
     });
   }
+
+  @BypassTenantGuard
+  async settleUsageReservationUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    settlement: AgentUsageSettlement;
+    settledAt: Date;
+  }): Promise<boolean> {
+    const { settlement } = args;
+    const counts = [
+      settlement.inputTokens,
+      settlement.outputTokens,
+      settlement.cacheReadTokens,
+      settlement.cacheWriteTokens,
+      settlement.costMicrocents,
+      settlement.chargedMicrocents,
+    ];
+    if (
+      counts.some((count) => !Number.isSafeInteger(count) || count < 0) ||
+      !Number.isSafeInteger(settlement.reservedMicrocents) ||
+      settlement.reservedMicrocents < 1 ||
+      settlement.chargedMicrocents > settlement.reservedMicrocents ||
+      settlement.state !== "settled" ||
+      !settlement.model
+    )
+      throw new Error("Agent usage settlement is invalid.");
+
+    const settled = await this.prisma.agentUsageEvent.updateMany({
+      where: {
+        id: args.id,
+        companyId: args.companyId,
+        userId: args.userId,
+        state: "reserved",
+        reservedMicrocents: settlement.reservedMicrocents,
+      },
+      data: {
+        state: settlement.state,
+        model: settlement.model,
+        inputTokens: settlement.inputTokens,
+        outputTokens: settlement.outputTokens,
+        cacheReadTokens: settlement.cacheReadTokens,
+        cacheWriteTokens: settlement.cacheWriteTokens,
+        costMicrocents: settlement.costMicrocents,
+        costSource: settlement.costSource,
+        chargedMicrocents: settlement.chargedMicrocents,
+        policyBreach: settlement.policyBreach,
+        providerStartedAt: args.settledAt,
+        settledAt: args.settledAt,
+      },
+    });
+    return settled.count === 1;
+  }
 }
