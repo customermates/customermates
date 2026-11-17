@@ -5,6 +5,7 @@ import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { agentCreditsToMicrocents } from "@/ee/agent-chat/agent-credit-policy";
+import { agentJobUsageSessionId } from "@/ee/agent-chat/agent-job-usage-session";
 import { resolveAgentModel } from "@/ee/agent-chat/model-catalog";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
 
@@ -19,7 +20,7 @@ export type MateJobReservationOutcome =
   | { ok: false; reason: "credits" | "unavailable" };
 
 export function mateJobReservationId(jobId: string, attempt: number): string {
-  return `agent-job:${jobId}:${attempt}`;
+  return agentJobUsageSessionId(jobId, attempt);
 }
 
 export class MateAgentJobCredits implements AgentJobCredits {

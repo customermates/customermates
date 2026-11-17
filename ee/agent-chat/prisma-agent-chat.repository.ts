@@ -34,6 +34,7 @@ import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-sugge
 import type { RoutineConversationPurgeRepo } from "@/ee/routines/routine-conversation-purge.repo";
 import type { RoutineRunLinkRepo } from "./routine-run-link.repo";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
+import { AGENT_JOB_USAGE_SESSION_PREFIX } from "./agent-job-usage-session";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
 import type { AgentContextAttachment } from "./agent-context";
@@ -1254,6 +1255,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         state: "reserved",
         purpose: "turn",
         turnRequestId: null,
+        OR: [{ sessionId: null }, { NOT: { sessionId: { startsWith: AGENT_JOB_USAGE_SESSION_PREFIX } } }],
       },
       data: {
         state: "released",

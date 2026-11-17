@@ -27,7 +27,8 @@ const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service"
 const { MateAgentJobCredits } = await import("../mate-agent-job-credits");
 const { buildMateJobSettlement } = await import("../mate-agent-job-settlement");
 const { prisma } = await import("@/prisma/db");
-const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
+const { createMockUser } = await import("@/tests/helpers/mock-user");
 
 const companyIds: string[] = [];
 
@@ -93,6 +94,7 @@ describeDatabase("hosted credits of a Mate agent job", () => {
       userId,
       purpose: "turn",
       turnRequestId: null,
+      sessionId: `agent-job:${jobId}:1`,
     });
 
     const settlement = buildMateJobSettlement(
@@ -132,6 +134,53 @@ describeDatabase("hosted credits of a Mate agent job", () => {
     expect(
       await mate.settle({ reservationId: reserved.reservation.reservationId, companyId, userId, settlement }),
     ).toBe(false);
+  });
+
+  it("keeps the credits of a running job when the owner's expired chat lease is cleaned up", async () => {
+    const { companyId, userId } = await seedActiveSeat();
+    const owner = createMockUser({ id: userId, companyId, email: `agent-job-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+    const usage = new AgentUsageService(repo);
+    const mate = new MateAgentJobCredits(usage);
+    const reserved = await mate.reserve({ jobId: randomUUID(), attempt: 1, companyId, userId });
+    if (!reserved.ok) throw new Error("The credits were not reserved");
+
+    const orphanedChatReservation = randomUUID();
+    const admission = await usage.prepareTurn(userId, new Date(), { model: mate.model });
+    if (!admission.reservation) throw new Error("The chat turn was not admitted");
+    await usage.reserveUsage({
+      reservationId: orphanedChatReservation,
+      companyId,
+      userId,
+      reservation: admission.reservation,
+    });
+    const conversationId = randomUUID();
+    await runWithoutTenant(() => prisma.agentConversation.create({ data: { id: conversationId, companyId, userId } }));
+    await runWithoutTenant(() =>
+      prisma.agentRunLease.create({
+        data: { conversationId, companyId, userId, runId: randomUUID(), expiresAt: new Date(Date.now() - 60_000) },
+      }),
+    );
+
+    await runWithTenant(owner, () =>
+      repo.normalizeExpiredAgentRunLease(new Date(), reserved.reservation.budget.modelSpec),
+    );
+
+    expect(await runWithoutTenant(() => prisma.agentRunLease.count({ where: { userId } }))).toBe(0);
+    expect((await eventOf(orphanedChatReservation))?.state).toBe("released");
+    expect((await eventOf(reserved.reservation.reservationId))?.state).toBe("reserved");
+    const settlement = buildMateJobSettlement(
+      [
+        {
+          tokens: { inputTokens: 1000, outputTokens: 100, cacheReadTokens: 0, cacheWriteTokens: 0 },
+          providerMetadata: undefined,
+        },
+      ],
+      reserved.reservation.budget,
+    );
+    expect(
+      await mate.settle({ reservationId: reserved.reservation.reservationId, companyId, userId, settlement }),
+    ).toBe(true);
   });
 
   it("does not settle another member's reservation", async () => {
