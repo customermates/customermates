@@ -38,7 +38,12 @@ import { deleteAutomationRuleAction } from "../actions";
 import { AutomationBuilderModal } from "./automation-builder-modal";
 import { reminderDraft } from "./automation-draft";
 import { showsRoutinesOnly } from "./automation-kind-filter";
-import { canDeleteAutomation, canToggleAutomation, toggleAutomation } from "./automation-row-actions";
+import {
+  type AutomationViewer,
+  canDeleteAutomation,
+  canToggleAutomation,
+  toggleAutomation,
+} from "./automation-row-actions";
 import { AutomationsPageSkeleton } from "./automations-page-skeleton";
 import { useAutomationColumns } from "./use-automation-columns";
 
@@ -130,26 +135,29 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
 
   const userId = userStore.user?.id;
   const isAdmin = routineModalStore.isAdmin;
-  const canUpdate = userStore.can(Resource.routines, Action.update);
-  const canDelete = userStore.can(Resource.routines, Action.delete);
-  const viewer = useMemo(
-    () => ({ userId, isAdmin, canUpdate, canDelete }),
-    [canDelete, canUpdate, isAdmin, userId],
+  const viewer = useCallback(
+    (): AutomationViewer => ({
+      userId,
+      isAdmin,
+      canUpdate: userStore.can(Resource.routines, Action.update),
+      canDelete: userStore.can(Resource.routines, Action.delete),
+    }),
+    [isAdmin, userId, userStore],
   );
-  const canToggle = useCallback((item: AutomationListItemDto) => canToggleAutomation(item, viewer), [viewer]);
+  const canToggle = useCallback((item: AutomationListItemDto) => canToggleAutomation(item, viewer()), [viewer]);
 
   const toggle = useCallback(
     async (item: AutomationListItemDto, enabled: boolean) => {
       setPendingId(item.id);
       try {
-        const result = await toggleAutomation(item, enabled, viewer);
+        const result = await toggleAutomation(item, enabled, { userId });
         if (!result.ok) toastZodErrorTree(result.error);
         await refresh();
       } finally {
         setPendingId(null);
       }
     },
-    [refresh, viewer],
+    [refresh, userId],
   );
 
   const remove = useCallback(
@@ -212,7 +220,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
           },
         ]}
         name={item.name}
-        onDelete={canDeleteAutomation(item, viewer) ? () => remove(item) : undefined}
+        onDelete={canDeleteAutomation(item, viewer()) ? () => remove(item) : undefined}
         onOpen={() => openItem(item)}
       />
     ),
