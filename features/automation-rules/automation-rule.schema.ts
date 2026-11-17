@@ -135,7 +135,7 @@ export const AutomationTriggerSchema = z.discriminatedUnion("kind", [
 ]);
 export type AutomationTrigger = z.infer<typeof AutomationTriggerSchema>;
 
-export function automationTimeZone(trigger: Pick<AutomationTrigger, "timezone">): string {
+export function automationTimeZone(trigger: { timezone?: string }): string {
   return trigger.timezone ?? "UTC";
 }
 

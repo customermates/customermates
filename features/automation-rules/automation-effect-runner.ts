@@ -244,7 +244,7 @@ export class AutomationEffectRunner {
     context: AutomationEffectContext,
   ): Promise<Map<AutomationRecipientAccess, string[]>> {
     const ref = context.recordRef;
-    if (!ref) return new Map([["name", userIds]]);
+    if (!ref) return new Map<AutomationRecipientAccess, string[]>([["name", userIds]]);
     const others = userIds.filter((userId) => userId !== context.rule.ownerUserId);
     const known =
       others.length && this.recipientAccess
