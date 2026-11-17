@@ -1,5 +1,6 @@
 import type { Validated } from "@/core/validation/validation.utils";
 import type { AgentRunnerRepo } from "./agent-runner.repo";
+import type { AgentRunnerRevocation } from "./agent-runner-revocation";
 import type { RevokeAgentRunnerData, RevokeAgentRunnerResult } from "./agent-runner.schema";
 
 import { Resource } from "@/generated/prisma";
@@ -18,7 +19,8 @@ export class RevokeAgentRunnerInteractor extends AuthenticatedInteractor<
   RevokeAgentRunnerResult
 > {
   constructor(
-    private readonly repo: Pick<AgentRunnerRepo, "revokeRunner">,
+    private readonly repo: Pick<AgentRunnerRepo, "findRunner">,
+    private readonly revocation: Pick<AgentRunnerRevocation, "revoke">,
     private readonly clock: () => Date = () => new Date(),
   ) {
     super();
@@ -26,8 +28,12 @@ export class RevokeAgentRunnerInteractor extends AuthenticatedInteractor<
 
   @Write({ input: RevokeAgentRunnerSchema, output: RevokeAgentRunnerResultSchema, tx: false })
   async invoke(data: RevokeAgentRunnerData): Validated<RevokeAgentRunnerResult> {
-    const revokedAt = await this.repo.revokeRunner(data.id, this.clock());
-    if (!revokedAt) return failNotFound(CustomErrorCode.agentRunnerNotFound, ["id"]);
-    return { ok: true, data: { id: data.id, revokedAt: revokedAt.toISOString() } };
+    const runner = await this.repo.findRunner(data.id);
+    if (!runner) return failNotFound(CustomErrorCode.agentRunnerNotFound, ["id"]);
+    if (runner.revokedAt) return { ok: true, data: { id: data.id, revokedAt: runner.revokedAt.toISOString() } };
+
+    const at = this.clock();
+    await this.revocation.revoke({ companyId: this.companyId, runnerId: runner.id, at });
+    return { ok: true, data: { id: data.id, revokedAt: at.toISOString() } };
   }
 }

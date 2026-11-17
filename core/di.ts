@@ -1447,6 +1447,7 @@ export const getWorkspaceDepartureService = () =>
     getConnectedAccountRepo(),
     getDeleteAccountForBillingService(),
     getHandOverPublicEndpointsService(),
+    getAgentRunnerRevocation(),
   );
 
 export const getLeaveWorkspaceInteractor = () =>
@@ -3235,7 +3236,10 @@ export const getReceiveIncomingWebhookInteractor = () =>
     { authSecret: env.BETTER_AUTH_SECRET },
   );
 
+import { AdmitAgentJobCredentialInteractor } from "@/features/agent-runners/admit-agent-job-credential.interactor";
 import { AgentRunnerAuthenticator } from "@/features/agent-runners/agent-runner-authenticator";
+import { AgentRunnerRevocation } from "@/features/agent-runners/agent-runner-revocation";
+import { StartAgentJobInteractor } from "@/features/agent-runners/start-agent-job.interactor";
 import { AGENT_RUNNER_LIMITS } from "@/features/agent-runners/agent-runner.schema";
 import { AppendAgentJobEventsInteractor } from "@/features/agent-runners/append-agent-job-events.interactor";
 import { AuthAgentJobCredentials } from "@/features/agent-runners/auth-agent-job-credentials";
@@ -3251,8 +3255,11 @@ import { RevokeAgentRunnerInteractor } from "@/features/agent-runners/revoke-age
 import { getTranslator } from "@/i18n/get-translator";
 
 const getAgentRunnerRepo = () => new PrismaAgentRunnerRepo();
-const getAgentJobRunnerRepo = () => new QueuedAgentJobRunnerRepo(getAgentJobRepo());
-const getAgentJobCredentials = () => new AuthAgentJobCredentials(getAuthService(), getUserService(), env.BASE_URL);
+const getAgentJobRunnerRepo = () => new QueuedAgentJobRunnerRepo(getAgentJobRepo(), getAgentRunnerRepo());
+const getAgentJobCredentials = () =>
+  new AuthAgentJobCredentials(getAuthService(), getUserService(), getWorkspacePlanService(), env.BASE_URL);
+const getAgentRunnerRevocation = () =>
+  new AgentRunnerRevocation(getAgentRunnerRepo(), getAgentJobRepo(), getAgentJobCredentials());
 
 const agentRunnerLimiters = {
   runner: new TokenBucketRateLimiter(
@@ -3265,12 +3272,18 @@ const agentRunnerLimiters = {
   ),
 };
 
-const getAgentRunnerAuthenticator = () => new AgentRunnerAuthenticator(getAgentRunnerRepo(), agentRunnerLimiters);
+const getAgentRunnerAuthenticator = () =>
+  new AgentRunnerAuthenticator(getAgentRunnerRepo(), agentRunnerLimiters, getAgentRunnerRevocation());
 
 export const getGetAgentRunnersInteractor = () => new GetAgentRunnersInteractor(getAgentRunnerRepo());
 export const getCreateAgentRunnerInteractor = () =>
   new CreateAgentRunnerInteractor(getAgentRunnerRepo(), getWorkspacePlanService(), { baseUrl: env.BASE_URL });
-export const getRevokeAgentRunnerInteractor = () => new RevokeAgentRunnerInteractor(getAgentRunnerRepo());
+export const getRevokeAgentRunnerInteractor = () =>
+  new RevokeAgentRunnerInteractor(getAgentRunnerRepo(), getAgentRunnerRevocation());
+export const getStartAgentJobInteractor = () =>
+  new StartAgentJobInteractor(getAgentRunnerAuthenticator(), getAgentJobRunnerRepo());
+export const getAdmitAgentJobCredentialInteractor = () =>
+  new AdmitAgentJobCredentialInteractor(getAgentJobRunnerRepo());
 export const getHeartbeatAgentRunnerInteractor = () =>
   new HeartbeatAgentRunnerInteractor(getAgentRunnerAuthenticator(), getAgentRunnerRepo());
 export const getClaimAgentJobInteractor = () =>

@@ -91,6 +91,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
       { findOwnedConnectedAccountIdsCompanyWide: vi.fn().mockResolvedValue(["mailbox-1"]) } as never,
       channelRemoval as never,
       new HandOverPublicEndpointsService(forms as never, webhooks as never),
+      { revokeOfMember: () => Promise.resolve(0) },
     );
     return new RemoveWorkspaceMemberInteractor(
       repo as never,

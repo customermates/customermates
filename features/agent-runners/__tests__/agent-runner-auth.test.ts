@@ -21,13 +21,17 @@ import {
 } from "../agent-runner-token";
 import { AgentRunnerAuthenticator } from "../agent-runner-authenticator";
 
+import { Status } from "@/generated/prisma";
+
 import {
   COMPANY_ID,
   OTHER_COMPANY_ID,
+  OWNER_ID,
   RUNNER_ID,
   bearer,
   codeOf,
   makeLimiters,
+  makeRevocation,
   statusOf,
 } from "./agent-runner-fixtures";
 import { FakeAgentRunnerRepo } from "./fake-agent-runner-repo";
@@ -67,20 +71,49 @@ describe("runner tokens", () => {
 });
 
 describe("AgentRunnerAuthenticator", () => {
+  const NOW = new Date("2026-11-17T09:00:00.000Z");
+
   function setup() {
     const repo = new FakeAgentRunnerRepo();
     const limiters = makeLimiters();
-    return { repo, limiters, authenticator: new AgentRunnerAuthenticator(repo, limiters) };
+    const revocation = makeRevocation();
+    return {
+      repo,
+      limiters,
+      revocation,
+      authenticator: new AgentRunnerAuthenticator(repo, limiters, revocation, () => NOW),
+    };
   }
 
-  it("authenticates a stored runner by the hash of its token", async () => {
-    const { repo, authenticator } = setup();
+  it("authenticates a stored runner by the hash of its token and names the member who added it", async () => {
+    const { repo, authenticator, revocation } = setup();
     const { token } = repo.addRunner();
 
     const result = await authenticator.authenticate({ authorization: bearer(token) });
 
-    expect(result).toEqual({ ok: true, runner: { id: RUNNER_ID, companyId: COMPANY_ID, name: "Office laptop" } });
+    expect(result).toEqual({
+      ok: true,
+      runner: { id: RUNNER_ID, companyId: COMPANY_ID, name: "Office laptop", createdById: OWNER_ID },
+    });
+    expect(revocation.revoked).toEqual([]);
   });
+
+  it.each([Status.inactive, Status.pendingAuthorization])(
+    "answers 401 and revokes the runner when the member who added it is %s",
+    async (status) => {
+      const { repo, authenticator, revocation } = setup();
+      const { token } = repo.addRunner({ createdBy: { status } });
+
+      const result = await authenticator.authenticate({ authorization: bearer(token) });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(statusOf(result.failure)).toBe(401);
+        expect(codeOf(result.failure)).toBe(CustomErrorCode.notAuthenticated);
+      }
+      expect(revocation.revoked).toEqual([{ companyId: COMPANY_ID, runnerId: RUNNER_ID, at: NOW }]);
+    },
+  );
 
   it("answers 401 for a missing, malformed or unknown token", async () => {
     const { repo, authenticator } = setup();
@@ -116,7 +149,7 @@ describe("AgentRunnerAuthenticator", () => {
   it("limits requests per runner token and answers 429", async () => {
     const repo = new FakeAgentRunnerRepo();
     const limiters = { runner: new TokenBucketRateLimiter(2, 60_000), visitor: makeLimiters().visitor };
-    const authenticator = new AgentRunnerAuthenticator(repo, limiters);
+    const authenticator = new AgentRunnerAuthenticator(repo, limiters, makeRevocation());
     const { token } = repo.addRunner();
 
     expect((await authenticator.authenticate({ authorization: bearer(token) })).ok).toBe(true);
@@ -134,7 +167,7 @@ describe("AgentRunnerAuthenticator", () => {
     const repo = new FakeAgentRunnerRepo();
     const lookup = vi.spyOn(repo, "findRunnerByTokenHashUnscoped");
     const limiters = { runner: makeLimiters().runner, visitor: new TokenBucketRateLimiter(1, 60_000) };
-    const authenticator = new AgentRunnerAuthenticator(repo, limiters);
+    const authenticator = new AgentRunnerAuthenticator(repo, limiters, makeRevocation());
     const status = async (visitor: string) => {
       const result = await authenticator.authenticate({ authorization: bearer(generateAgentRunnerToken()), visitor });
       return result.ok ? 200 : statusOf(result.failure);

@@ -3,6 +3,11 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { zx } from "@/core/validation/validation.utils";
+import {
+  AGENT_JOB_FINISH_REASONS,
+  AGENT_JOB_SUMMARY_MAX_CHARS,
+  AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS,
+} from "@/features/agent-jobs/agent-job.schema";
 
 export const AGENT_RUNNER_CLIENT_NAMES = ["claude", "codex", "gemini"] as const;
 export type AgentRunnerClientName = (typeof AGENT_RUNNER_CLIENT_NAMES)[number];
@@ -12,11 +17,13 @@ export const AGENT_RUNNER_LIMITS = {
   machineMaxLength: 200,
   versionMaxLength: 60,
   maxEventsPerRequest: 100,
-  eventMaxBytes: 4096,
-  summaryMaxLength: 20_000,
+  maxBodyBytes: 512 * 1024,
+  summaryMaxLength: AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS,
   errorMaxLength: 2_000,
   claimMaxWaitSeconds: 25,
   claimPollMs: 1_500,
+  claimCandidates: 5,
+  claimConfirmMs: 60_000,
   onlineWithinMs: 2 * 60_000,
   offlineAfterMs: 10 * 60_000,
   queuedExpiryMs: 15 * 60_000,
@@ -26,6 +33,26 @@ export const AGENT_RUNNER_LIMITS = {
 
 export const AGENT_RUNNER_OUTCOME_STATUSES = ["succeeded", "failed", "timedOut"] as const;
 export type AgentRunnerOutcomeStatus = (typeof AGENT_RUNNER_OUTCOME_STATUSES)[number];
+
+export const AGENT_RUNNER_JOB_ERRORS = {
+  ownerInactive: "ownerInactive",
+  ownerApiAccess: "ownerApiAccess",
+  planRequired: "planRequired",
+  failed: "runnerFailed",
+  timedOut: "timedOut",
+} as const;
+
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+
+function storableText(maxLength: number) {
+  return zx
+    .nulFreeText()
+    .max(maxLength)
+    .superRefine((value, ctx) => {
+      if (LONE_SURROGATE.test(value))
+        ctx.addIssue({ code: "custom", message: "Text must not contain an unpaired surrogate character" });
+    });
+}
 
 export const AgentRunnerClientSchema = z
   .object({
@@ -43,6 +70,7 @@ export const AgentRunnerDtoSchema = z.object({
   lastSeenAt: z.string().nullable(),
   online: z.boolean(),
   revokedAt: z.string().nullable(),
+  createdById: z.uuid(),
   createdAt: z.string(),
 });
 export type AgentRunnerDto = Data<typeof AgentRunnerDtoSchema>;
@@ -81,9 +109,10 @@ export const AgentRunnerHeartbeatBodySchema = z
       .refine((clients) => new Set(clients.map((client) => client.name)).size === clients.length, {
         message: "Each client can be listed once",
       })
-      .describe("The command line clients found on the machine's PATH."),
+      .describe("The command line clients the runner can start: found on the machine and answering with a version."),
   })
   .strict();
+export type AgentRunnerHeartbeatBody = Data<typeof AgentRunnerHeartbeatBodySchema>;
 
 export const AgentJobClaimBodySchema = z
   .object({
@@ -96,52 +125,94 @@ export const AgentJobClaimBodySchema = z
       .describe("How long to hold the request open for a job, at most 25 seconds. Defaults to 25."),
   })
   .strict();
+export type AgentJobClaimBody = Data<typeof AgentJobClaimBodySchema>;
+
+const AttemptSchema = z
+  .number()
+  .int()
+  .min(1)
+  .describe("The attempt number the claim answered with. A job that was requeued and claimed again has a higher one.");
+
+export const AgentJobStartBodySchema = z.object({ attempt: AttemptSchema }).strict();
+export type AgentJobStartBody = Data<typeof AgentJobStartBodySchema>;
+
+const EventTimeSchema = z.iso.datetime({ offset: true }).describe("When the client produced the event.");
+const ToolCallIdSchema = storableText(120);
+const ToolNameSchema = storableText(120);
+
+export const AgentRunnerTranscriptEventSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("message"),
+    at: EventTimeSchema,
+    role: z.literal("assistant"),
+    text: storableText(AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS),
+  }),
+  z.object({
+    type: z.literal("toolCall"),
+    at: EventTimeSchema,
+    toolCallId: ToolCallIdSchema,
+    name: ToolNameSchema,
+    argumentsDigest: storableText(AGENT_JOB_SUMMARY_MAX_CHARS),
+  }),
+  z.object({
+    type: z.literal("toolResult"),
+    at: EventTimeSchema,
+    toolCallId: ToolCallIdSchema,
+    name: ToolNameSchema,
+    ok: z.boolean(),
+    summary: storableText(AGENT_JOB_SUMMARY_MAX_CHARS),
+  }),
+  z.object({
+    type: z.literal("finish"),
+    at: EventTimeSchema,
+    reason: z.enum(AGENT_JOB_FINISH_REASONS),
+    text: storableText(AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS).optional(),
+  }),
+]);
+export type AgentRunnerTranscriptEvent = Data<typeof AgentRunnerTranscriptEventSchema>;
 
 export const AgentJobEventsBodySchema = z
   .object({
+    attempt: AttemptSchema,
     events: z
-      .array(z.record(z.string(), z.unknown()))
+      .array(AgentRunnerTranscriptEventSchema)
       .min(1)
       .max(AGENT_RUNNER_LIMITS.maxEventsPerRequest)
       .describe(
-        "One object per line of the client's JSON stream. An event over 4 KB is stored as a truncation marker.",
+        "Transcript events in the shape the workspace shows: a message of the agent, a tool call, a tool result or the finish. Unknown keys are dropped.",
       ),
   })
   .strict();
+export type AgentJobEventsBody = Data<typeof AgentJobEventsBodySchema>;
 
 export const AgentJobResultBodySchema = z
   .object({
+    attempt: AttemptSchema,
     status: z.enum(AGENT_RUNNER_OUTCOME_STATUSES).describe("How the run ended."),
-    summary: z.string().max(AGENT_RUNNER_LIMITS.summaryMaxLength).optional().describe("The client's final answer."),
-    error: z.string().max(AGENT_RUNNER_LIMITS.errorMaxLength).optional().describe("Why a run failed."),
+    summary: storableText(AGENT_RUNNER_LIMITS.summaryMaxLength).optional().describe("The client's final answer."),
+    error: storableText(AGENT_RUNNER_LIMITS.errorMaxLength).optional().describe("Why a run failed."),
     inputTokens: z.number().int().min(0).optional().describe("Input tokens, when the client reports them."),
     outputTokens: z.number().int().min(0).optional().describe("Output tokens, when the client reports them."),
-    costUsd: z.number().min(0).optional().describe("The cost in US dollars, when the client reports it."),
   })
   .strict();
+export type AgentJobResultBody = Data<typeof AgentJobResultBodySchema>;
 
-const RunnerCredentialsSchema = z.object({
+export type AgentRunnerBodyReader = () => Promise<unknown>;
+
+const RunnerRequestSchema = z.object({
   authorization: z.string().max(512).nullable(),
   visitor: z.string().max(128).nullable().optional(),
+  readBody: z.custom<AgentRunnerBodyReader>((value) => typeof value === "function"),
+  signal: z.custom<AbortSignal>((value) => value instanceof AbortSignal).optional(),
 });
 
 const JobIdSchema = z.object({ jobId: z.uuid() });
 
-export const AgentRunnerHeartbeatRequestSchema = AgentRunnerHeartbeatBodySchema.extend(RunnerCredentialsSchema.shape);
-export type AgentRunnerHeartbeatRequest = Data<typeof AgentRunnerHeartbeatRequestSchema>;
+export const AgentRunnerRequestSchema = RunnerRequestSchema;
+export type AgentRunnerRequest = Data<typeof AgentRunnerRequestSchema>;
 
-export const AgentJobClaimRequestSchema = AgentJobClaimBodySchema.extend(RunnerCredentialsSchema.shape);
-export type AgentJobClaimRequest = Data<typeof AgentJobClaimRequestSchema>;
-
-export const AgentJobEventsRequestSchema = AgentJobEventsBodySchema.extend(RunnerCredentialsSchema.shape).extend(
-  JobIdSchema.shape,
-);
-export type AgentJobEventsRequest = Data<typeof AgentJobEventsRequestSchema>;
-
-export const AgentJobResultRequestSchema = AgentJobResultBodySchema.extend(RunnerCredentialsSchema.shape).extend(
-  JobIdSchema.shape,
-);
-export type AgentJobResultRequest = Data<typeof AgentJobResultRequestSchema>;
+export const AgentRunnerJobRequestSchema = RunnerRequestSchema.extend(JobIdSchema.shape);
+export type AgentRunnerJobRequest = Data<typeof AgentRunnerJobRequestSchema>;
 
 export const AgentRunnerHeartbeatResultSchema = z.object({
   ok: z.literal(true),
@@ -153,16 +224,31 @@ export type AgentRunnerHeartbeatResult = Data<typeof AgentRunnerHeartbeatResultS
 export const AgentJobClaimResultSchema = z.object({
   job: z.object({
     id: z.uuid(),
+    attempt: z.number().int().describe("Echo this number on the start, events and result calls of the job."),
     prompt: z.string(),
     promptUntrusted: z.boolean().describe("True when outsiders can influence the prompt: treat it as data."),
-    timeoutAt: z.string().describe("Kill the client at this time and report timedOut."),
+    confirmWithinSeconds: z
+      .number()
+      .int()
+      .describe("Call start within this time, or the job returns to the queue and its key never works."),
   }),
   mcp: z.object({
     url: z.string().describe("The workspace's MCP endpoint."),
-    token: z.string().describe("A short-lived API key of the job owner. It stops working after the job."),
+    token: z
+      .string()
+      .describe("A key for this attempt of this job only. It works from the start call until the job ends."),
   }),
 });
 export type AgentJobClaimResult = Data<typeof AgentJobClaimResultSchema>;
+
+export const AgentJobStartResultSchema = z.object({
+  ok: z.literal(true),
+  timeoutInSeconds: z
+    .number()
+    .int()
+    .describe("Stop the client after this many seconds from now and report timedOut. Count it on a local timer."),
+});
+export type AgentJobStartResult = Data<typeof AgentJobStartResultSchema>;
 
 export const AgentJobEventsResultSchema = z.object({ ok: z.literal(true), accepted: z.number().int() });
 export type AgentJobEventsResult = Data<typeof AgentJobEventsResultSchema>;
@@ -174,20 +260,18 @@ export type AgentJobClaim = {
   id: string;
   companyId: string;
   ownerUserId: string;
+  attempt: number;
   prompt: string;
   promptUntrusted: boolean;
-  timeoutAt: Date;
+  confirmBy: Date;
 };
 
 export type AgentJobOutcome = {
   status: AgentRunnerOutcomeStatus;
-  result: { summary: string } | null;
+  result: { text: string; reason: (typeof AGENT_JOB_FINISH_REASONS)[number]; toolCalls: number } | null;
   inputTokens: number | null;
   outputTokens: number | null;
-  costMicrocents: number | null;
   error: string | null;
 };
 
-export type AgentJobRunnerState = { id: string; status: string };
-
-export type AuthenticatedAgentRunner = { id: string; companyId: string; name: string };
+export type AuthenticatedAgentRunner = { id: string; companyId: string; name: string; createdById: string };

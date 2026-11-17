@@ -13,6 +13,19 @@ export const OWNER_ID = "33333333-3333-4333-8333-333333333333";
 export const RUNNER_ID = "44444444-4444-4444-8444-444444444444";
 export const JOB_ID = "55555555-5555-4555-8555-555555555555";
 
+export type RevocationCall = { companyId: string; runnerId: string; at: Date };
+
+export function makeRevocation() {
+  const revoked: RevocationCall[] = [];
+  return {
+    revoked,
+    revoke: (args: RevocationCall) => {
+      revoked.push(args);
+      return Promise.resolve();
+    },
+  };
+}
+
 export function makeLimiters(now: () => number = () => Date.now(), capacity = 1_000) {
   return {
     runner: new TokenBucketRateLimiter(capacity, 60_000, 100, now),
@@ -20,12 +33,21 @@ export function makeLimiters(now: () => number = () => Date.now(), capacity = 1_
   };
 }
 
-export function makeAuthenticator(repo: FakeAgentRunnerRepo, limiters = makeLimiters()) {
-  return new AgentRunnerAuthenticator(repo, limiters);
+export function makeAuthenticator(
+  repo: FakeAgentRunnerRepo,
+  limiters = makeLimiters(),
+  revocation: Pick<ReturnType<typeof makeRevocation>, "revoke"> = makeRevocation(),
+  clock: () => Date = () => new Date(),
+) {
+  return new AgentRunnerAuthenticator(repo, limiters, revocation, clock);
 }
 
 export function bearer(token: string): string {
   return `Bearer ${token}`;
+}
+
+export function runnerRequest(token: string, body: unknown = {}) {
+  return { authorization: bearer(token), readBody: () => Promise.resolve(body) };
 }
 
 export function statusOf(result: { ok: true } | InteractorFailure): number {

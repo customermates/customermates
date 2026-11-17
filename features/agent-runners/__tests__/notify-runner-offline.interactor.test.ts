@@ -13,6 +13,7 @@ import { COMPANY_ID, OTHER_COMPANY_ID, OWNER_ID } from "./agent-runner-fixtures"
 import { FakeAgentRunnerRepo } from "./fake-agent-runner-repo";
 
 const NOW = new Date("2026-11-17T09:20:00.000Z");
+const LAST_SEEN = new Date("2026-11-17T08:40:00.000Z");
 const SECOND_OWNER = "77777777-7777-4777-8777-777777777777";
 const THIRD_OWNER = "88888888-8888-4888-8888-888888888888";
 
@@ -30,20 +31,20 @@ describe("NotifyRunnerOfflineInteractor", () => {
 
     await interactor.invoke({ now: NOW });
 
-    expect(repo.offlineQueries).toEqual([new Date(NOW.getTime() - AGENT_RUNNER_LIMITS.offlineAfterMs)]);
+    expect(repo.waitingQueries).toEqual([new Date(NOW.getTime() - AGENT_RUNNER_LIMITS.offlineAfterMs)]);
     expect(new Date(NOW.getTime() - AGENT_RUNNER_LIMITS.offlineAfterMs).toISOString()).toBe("2026-11-17T09:10:00.000Z");
   });
 
-  it("notifies nobody when no workspace has queued runner jobs without a live runner", async () => {
+  it("notifies nobody when no member has a job waiting without a runner that could take it", async () => {
     const { notify, interactor } = setup();
 
     expect(await interactor.invoke({ now: NOW })).toEqual({ runnerOfflineNotified: 0 });
     expect(notify).not.toHaveBeenCalled();
   });
 
-  it("tells each job owner as a rule alert that links to the runner settings, once per hour", async () => {
+  it("tells the member whose jobs wait, as a rule alert that links to the runner settings", async () => {
     const { repo, notify, interactor } = setup();
-    repo.offline = [{ companyId: COMPANY_ID, owners: [{ userId: OWNER_ID, displayLanguage: "en" }] }];
+    repo.waiting = [{ companyId: COMPANY_ID, userId: OWNER_ID, displayLanguage: "en", lastSeenAt: LAST_SEEN }];
 
     const result = await interactor.invoke({ now: NOW });
 
@@ -55,56 +56,60 @@ describe("NotifyRunnerOfflineInteractor", () => {
       title: "title:en",
       body: "body:en",
       href: "/settings/connections?tab=agents",
-      dedupeKey: "runner-offline:2026-11-17T09",
+      dedupeKey: "runner-offline:2026-11-17T08:40:00.000Z",
     });
   });
 
-  it("uses the same dedupe key for every run inside one hour and a new one in the next hour", async () => {
+  it("notifies once for as long as the runner stays away, and again only after it was seen in between", async () => {
     const { repo, notify, interactor } = setup();
-    repo.offline = [{ companyId: COMPANY_ID, owners: [{ userId: OWNER_ID, displayLanguage: "en" }] }];
+    const waiting = { companyId: COMPANY_ID, userId: OWNER_ID, displayLanguage: "en" as const };
+    repo.waiting = [{ ...waiting, lastSeenAt: LAST_SEEN }];
 
     await interactor.invoke({ now: new Date("2026-11-17T09:00:30.000Z") });
-    await interactor.invoke({ now: new Date("2026-11-17T09:55:00.000Z") });
-    await interactor.invoke({ now: new Date("2026-11-17T10:00:00.000Z") });
+    await interactor.invoke({ now: new Date("2026-11-17T10:05:00.000Z") });
+    await interactor.invoke({ now: new Date("2026-11-18T10:05:00.000Z") });
+    repo.waiting = [{ ...waiting, lastSeenAt: new Date("2026-11-18T12:00:00.000Z") }];
+    await interactor.invoke({ now: new Date("2026-11-18T13:00:00.000Z") });
 
     expect(notify.mock.calls.map(([input]) => input.dedupeKey)).toEqual([
-      "runner-offline:2026-11-17T09",
-      "runner-offline:2026-11-17T09",
-      "runner-offline:2026-11-17T10",
+      "runner-offline:2026-11-17T08:40:00.000Z",
+      "runner-offline:2026-11-17T08:40:00.000Z",
+      "runner-offline:2026-11-17T08:40:00.000Z",
+      "runner-offline:2026-11-18T12:00:00.000Z",
     ]);
   });
 
-  it("writes the text in each owner's language and sends one notification per workspace and language", async () => {
+  it("uses one key for a member whose runner never connected", async () => {
+    const { repo, notify, interactor } = setup();
+    repo.waiting = [{ companyId: COMPANY_ID, userId: OWNER_ID, displayLanguage: "en", lastSeenAt: null }];
+
+    await interactor.invoke({ now: NOW });
+
+    expect(notify.mock.calls[0][0].dedupeKey).toBe("runner-offline:never");
+  });
+
+  it("writes the text in each member's language", async () => {
     const { repo, notify, copy, interactor } = setup();
-    repo.offline = [
-      {
-        companyId: COMPANY_ID,
-        owners: [
-          { userId: OWNER_ID, displayLanguage: "de" },
-          { userId: SECOND_OWNER, displayLanguage: "de" },
-          { userId: THIRD_OWNER, displayLanguage: "system" },
-        ],
-      },
-      { companyId: OTHER_COMPANY_ID, owners: [{ userId: OWNER_ID, displayLanguage: "fr" }] },
+    repo.waiting = [
+      { companyId: COMPANY_ID, userId: OWNER_ID, displayLanguage: "de", lastSeenAt: null },
+      { companyId: COMPANY_ID, userId: SECOND_OWNER, displayLanguage: "system", lastSeenAt: null },
+      { companyId: OTHER_COMPANY_ID, userId: THIRD_OWNER, displayLanguage: "fr", lastSeenAt: null },
     ];
 
     const result = await interactor.invoke({ now: NOW });
 
     expect(result).toEqual({ runnerOfflineNotified: 3 });
-    expect(copy).toHaveBeenCalledTimes(3);
-    expect(copy).toHaveBeenNthCalledWith(1, "de");
-    expect(copy).toHaveBeenNthCalledWith(2, "en");
-    expect(copy).toHaveBeenNthCalledWith(3, "fr");
+    expect(copy.mock.calls.map(([locale]) => locale)).toEqual(["de", "en", "fr"]);
     expect(notify.mock.calls.map(([input]) => [input.companyId, input.recipients, input.title])).toEqual([
-      [COMPANY_ID, [OWNER_ID, SECOND_OWNER], "title:de"],
-      [COMPANY_ID, [THIRD_OWNER], "title:en"],
-      [OTHER_COMPANY_ID, [OWNER_ID], "title:fr"],
+      [COMPANY_ID, [OWNER_ID], "title:de"],
+      [COMPANY_ID, [SECOND_OWNER], "title:en"],
+      [OTHER_COMPANY_ID, [THIRD_OWNER], "title:fr"],
     ]);
   });
 
-  it("counts only notifications that were created, so a repeat inside the hour reports zero", async () => {
+  it("counts only notifications that were created, so a repeat reports zero", async () => {
     const { repo, notify, interactor } = setup();
-    repo.offline = [{ companyId: COMPANY_ID, owners: [{ userId: OWNER_ID, displayLanguage: "en" }] }];
+    repo.waiting = [{ companyId: COMPANY_ID, userId: OWNER_ID, displayLanguage: "en", lastSeenAt: LAST_SEEN }];
     notify.mockResolvedValueOnce({ created: 1, emailed: 0 }).mockResolvedValueOnce({ created: 0, emailed: 0 });
 
     expect(await interactor.invoke({ now: NOW })).toEqual({ runnerOfflineNotified: 1 });

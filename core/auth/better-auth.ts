@@ -389,13 +389,18 @@ export async function issueExpiringApiKey(args: {
   companyId: string;
   name: string;
   expiresAt: Date;
+  metadata?: string;
 }): Promise<{ id: string; key: string }> {
   const created = await auth.api.createApiKey({
     body: { name: args.name, userId: args.authUserId, expiresIn: API_KEY_MIN_EXPIRATION_DAYS * 24 * 60 * 60 },
   });
   const bound = await prisma.apikey.updateMany({
     where: { id: created.id, referenceId: args.authUserId, companyId: null },
-    data: { companyId: args.companyId, expiresAt: args.expiresAt },
+    data: {
+      companyId: args.companyId,
+      expiresAt: args.expiresAt,
+      ...(args.metadata === undefined ? {} : { metadata: args.metadata }),
+    },
   });
   if (bound.count !== 1) {
     await prisma.apikey.deleteMany({ where: { id: created.id } });
@@ -407,6 +412,19 @@ export async function issueExpiringApiKey(args: {
 export async function revokeApiKeysNamed(companyId: string, name: string): Promise<number> {
   const removed = await prisma.apikey.deleteMany({ where: { companyId, name } });
   return removed.count;
+}
+
+export async function apiKeyRequestsNamed(companyId: string, name: string): Promise<number> {
+  const used = await prisma.apikey.aggregate({ where: { companyId, name }, _sum: { requestCount: true } });
+  return used._sum.requestCount ?? 0;
+}
+
+export async function countApiKeyRequest(keyId: string, limit: number): Promise<boolean> {
+  const counted = await prisma.apikey.updateMany({
+    where: { id: keyId, requestCount: { lt: limit } },
+    data: { requestCount: { increment: 1 } },
+  });
+  return counted.count === 1;
 }
 
 export async function revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {

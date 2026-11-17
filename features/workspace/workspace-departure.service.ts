@@ -1,3 +1,4 @@
+import type { AgentRunnerRevocation } from "@/features/agent-runners/agent-runner-revocation";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
@@ -36,6 +37,7 @@ export class WorkspaceDepartureService {
     private readonly channels: LeaveWorkspaceChannelsRepo,
     private readonly channelRemoval: Pick<DeleteAccountForBillingService, "deleteForBillingOrThrow">,
     private readonly handOverEndpoints: Pick<HandOverPublicEndpointsService, "invoke">,
+    private readonly runners: Pick<AgentRunnerRevocation, "revokeOfMember">,
   ) {}
 
   async announce(member: Pick<WorkspaceDeparture["member"], "id" | "status">): Promise<void> {
@@ -46,6 +48,7 @@ export class WorkspaceDepartureService {
 
   async complete({ companyId, member, loginId, successorUserId }: WorkspaceDeparture): Promise<void> {
     if (loginId) await this.authService.revokeMembershipCredentials(loginId, companyId);
+    await this.runners.revokeOfMember({ companyId, userId: member.id, at: new Date() });
     await this.disconnectOwnChannels(member.id);
     if (loginId) await this.moveLastUsedWorkspace(loginId, member.email, companyId);
 

@@ -56,6 +56,58 @@ describeDatabase("the API key of a runner job", { timeout: 60_000 }, () => {
     expect(await sessionUserOf(issued.key)).toBe(authUserId);
   });
 
+  it("carries the marker of its job attempt and still authenticates as the owner", async () => {
+    const { issueExpiringApiKey } = await import("@/core/auth/better-auth");
+    const { agentJobCredentialMetadata, parseAgentJobCredentialMetadata } = await import(
+      "../agent-job-credential-marker"
+    );
+    const { prisma } = await db();
+    const { authUserId, companyId } = await seed();
+    const marker = { jobId: randomUUID(), attempt: 2, runnerId: randomUUID() };
+
+    const issued = await issueExpiringApiKey({
+      authUserId,
+      companyId,
+      name: "Runner job marked",
+      expiresAt: new Date(Date.now() + 15 * 60_000),
+      metadata: agentJobCredentialMetadata(marker),
+    });
+
+    const row = await prisma.apikey.findUnique({ where: { id: issued.id } });
+    expect(parseAgentJobCredentialMetadata(row?.metadata)).toEqual(marker);
+    expect(await sessionUserOf(issued.key)).toBe(authUserId);
+    expect(await sessionUserOf(issued.key)).toBe(authUserId);
+    const plain = await issueExpiringApiKey({
+      authUserId,
+      companyId,
+      name: "Ordinary key",
+      expiresAt: new Date(Date.now() + 15 * 60_000),
+    });
+    const plainRow = await prisma.apikey.findUnique({ where: { id: plain.id } });
+    expect(parseAgentJobCredentialMetadata(plainRow?.metadata)).toBeNull();
+  });
+
+  it("counts tool calls up to the limit and no further, also when they arrive at once", async () => {
+    const { issueExpiringApiKey, countApiKeyRequest, apiKeyRequestsNamed } = await import("@/core/auth/better-auth");
+    const { authUserId, companyId } = await seed();
+    const issued = await issueExpiringApiKey({
+      authUserId,
+      companyId,
+      name: "Runner job counted",
+      expiresAt: new Date(Date.now() + 15 * 60_000),
+    });
+
+    const admitted = await Promise.all(Array.from({ length: 8 }, () => countApiKeyRequest(issued.id, 5)));
+
+    expect(admitted.filter(Boolean)).toHaveLength(5);
+    expect(await countApiKeyRequest(issued.id, 5)).toBe(false);
+    expect(await apiKeyRequestsNamed(companyId, "Runner job counted")).toBe(5);
+    expect(await sessionUserOf(issued.key)).toBe(authUserId);
+    expect(await apiKeyRequestsNamed(companyId, "Runner job counted")).toBe(5);
+    expect(await apiKeyRequestsNamed(companyId, "No such key")).toBe(0);
+    expect(await countApiKeyRequest(randomUUID(), 5)).toBe(false);
+  });
+
   it("stops working once its expiry has passed", async () => {
     const { issueExpiringApiKey } = await import("@/core/auth/better-auth");
     const { authUserId, companyId } = await seed();

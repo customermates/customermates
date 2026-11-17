@@ -1,6 +1,6 @@
 import type { AppLocale } from "@/i18n/locale-registry";
 import type { NotificationService } from "@/features/notifications/notification.service";
-import type { AgentRunnerOwner, AgentRunnerRepo } from "./agent-runner.repo";
+import type { AgentRunnerRepo } from "./agent-runner.repo";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { resolveUserLocale } from "@/i18n/user-locale";
@@ -11,44 +11,36 @@ export type RunnerOfflineCopy = { title: string; body: string };
 
 export const RUNNER_SETTINGS_HREF = "/settings/connections?tab=agents";
 
-function ownersByLocale(owners: AgentRunnerOwner[]): Map<AppLocale, string[]> {
-  const grouped = new Map<AppLocale, string[]>();
-  for (const owner of owners) {
-    const locale = resolveUserLocale(owner);
-    grouped.set(locale, [...(grouped.get(locale) ?? []), owner.userId]);
-  }
-  return grouped;
+export function runnerOfflineDedupeKey(lastSeenAt: Date | null): string {
+  return `runner-offline:${lastSeenAt ? lastSeenAt.toISOString() : "never"}`;
 }
 
 @SystemInteractor
 export class NotifyRunnerOfflineInteractor {
   constructor(
-    private readonly repo: Pick<AgentRunnerRepo, "findOfflineWorkspacesUnscoped">,
+    private readonly repo: Pick<AgentRunnerRepo, "findWaitingOwnersUnscoped">,
     private readonly notifications: Pick<NotificationService, "notify">,
     private readonly copy: (locale: AppLocale) => Promise<RunnerOfflineCopy>,
   ) {}
 
   async invoke(args: { now?: Date } = {}): Promise<{ runnerOfflineNotified: number }> {
     const now = args.now ?? new Date();
-    const workspaces = await this.repo.findOfflineWorkspacesUnscoped({
+    const owners = await this.repo.findWaitingOwnersUnscoped({
       seenSince: new Date(now.getTime() - AGENT_RUNNER_LIMITS.offlineAfterMs),
     });
-    const hour = now.toISOString().slice(0, 13);
     let notified = 0;
-    for (const workspace of workspaces) {
-      for (const [locale, recipients] of ownersByLocale(workspace.owners)) {
-        const { title, body } = await this.copy(locale);
-        const { created } = await this.notifications.notify({
-          companyId: workspace.companyId,
-          recipients,
-          kind: "ruleAlert",
-          title,
-          body,
-          href: RUNNER_SETTINGS_HREF,
-          dedupeKey: `runner-offline:${hour}`,
-        });
-        notified += created;
-      }
+    for (const owner of owners) {
+      const { title, body } = await this.copy(resolveUserLocale(owner));
+      const { created } = await this.notifications.notify({
+        companyId: owner.companyId,
+        recipients: [owner.userId],
+        kind: "ruleAlert",
+        title,
+        body,
+        href: RUNNER_SETTINGS_HREF,
+        dedupeKey: runnerOfflineDedupeKey(owner.lastSeenAt),
+      });
+      notified += created;
     }
     return { runnerOfflineNotified: notified };
   }

@@ -76,6 +76,7 @@ describe("LeaveInactiveWorkspaceInteractor", () => {
       channels as never,
       channelRemoval as never,
       new HandOverPublicEndpointsService(forms as never, webhooks as never),
+      { revokeOfMember: () => Promise.resolve(0) },
     );
     return new LeaveInactiveWorkspaceInteractor(
       authService as never,

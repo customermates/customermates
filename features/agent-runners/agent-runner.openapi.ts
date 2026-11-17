@@ -11,12 +11,14 @@ import {
   AgentJobEventsResultSchema,
   AgentJobFinishResultSchema,
   AgentJobResultBodySchema,
+  AgentJobStartBodySchema,
+  AgentJobStartResultSchema,
   AgentRunnerHeartbeatBodySchema,
   AgentRunnerHeartbeatResultSchema,
 } from "./agent-runner.schema";
 
 const AUTHENTICATION =
-  "a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.";
+  "a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read; a body over 512 KB answers 413. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401.";
 
 const JobPathSchema = z.object({ id: z.uuid().describe("The id of the job the runner claimed.") });
 
@@ -61,7 +63,7 @@ export const agentRunnerApiPaths = {
       operationId: "heartbeatRunner",
       summary: "Report that a runner is alive",
       description:
-        "Records the machine and the command line clients (Claude Code, Codex, Gemini CLI) found on its PATH and marks the runner as last seen now. A runner counts as online for two minutes after its last heartbeat, a claim request also counts. The daemon sends one every 60 seconds.",
+        "Records the machine and the command line clients (Claude Code, Codex, Gemini CLI) the runner can start and marks the runner as last seen now. A runner counts as online for two minutes after its last heartbeat, a claim request also counts. The daemon sends one every 60 seconds.",
       input: AgentRunnerHeartbeatBodySchema,
       example: { machine: "ws-main", clients: [{ name: "claude", version: "2.1.0" }] },
       output: AgentRunnerHeartbeatResultSchema,
@@ -73,7 +75,7 @@ export const agentRunnerApiPaths = {
       operationId: "claimRunnerJob",
       summary: "Claim the next agent job",
       description:
-        "Long poll: holds the request open for up to 25 seconds and answers 200 with the oldest queued job of the workspace whose runtime is runner, or 204 when none arrived. A claimed job belongs to this runner until it reports a result or its timeoutAt passes. The answer carries the workspace MCP endpoint and a short-lived API key of the job owner for the client to use; the key stops working a few minutes after the job's timeout and is revoked when the result is reported. promptUntrusted is true when outsiders can influence the prompt, so the runner presents it to the client as data, not as instructions.",
+        "Long poll: holds the request open for up to 25 seconds and answers 200 with the oldest queued runner job of the member who added this runner, or 204 when none arrived. A runner never receives a job of another member. The wait ends when the runner closes the connection. The runner confirms the job with the start call within confirmWithinSeconds; a job that is not confirmed returns to the queue. The answer carries the workspace MCP endpoint and a key for this attempt of this job. The key works only between the start call and the end of the job, only on the MCP endpoint, for at most 25 tool calls, and it refuses the calls that need a person's approval. promptUntrusted is true when outsiders can influence the prompt, so the runner presents it to the client as data, not as instructions.",
       input: AgentJobClaimBodySchema,
       example: {},
       output: AgentJobClaimResultSchema,
@@ -81,14 +83,32 @@ export const agentRunnerApiPaths = {
       extraResponses: { "204": { description: "No job became available within the wait." } },
     }),
   },
+  "/v1/runner/jobs/{id}/start": {
+    post: runnerOperation({
+      operationId: "startRunnerJob",
+      summary: "Confirm a claimed job and start it",
+      description:
+        "Tells the server that the runner received the job. The job moves from claimed to running, its key starts to work and its ten minutes begin. The answer gives the time left in seconds; the runner counts it on a local timer, so a wrong clock on its machine does not matter. Repeating the call for a running attempt answers the time that is left. A job that is not claimed by this runner answers 404; a job that is closed, or was claimed again as another attempt, answers 409.",
+      input: AgentJobStartBodySchema,
+      example: { attempt: 1 },
+      output: AgentJobStartResultSchema,
+      outputDescription: "The time the client may run.",
+      withJobId: true,
+    }),
+  },
   "/v1/runner/jobs/{id}/events": {
     post: runnerOperation({
       operationId: "appendRunnerJobEvents",
       summary: "Stream transcript events of a job",
       description:
-        "Appends up to 100 events to the job's transcript, one object per line of the client's JSON stream. An event over 4 KB is stored as a truncation marker. A job that is not claimed by this runner answers 404; a job that is already finished, timed out or cancelled answers 409, which tells the runner to stop the client.",
+        "Appends up to 100 events to the job's transcript in the shape the workspace shows: a message of the agent, a tool call, a tool result or the finish. The transcript keeps the last 200 events. A job that is not claimed by this runner answers 404; a job that is already finished, timed out or cancelled, or that runs as another attempt, answers 409, which tells the runner to stop the client.",
       input: AgentJobEventsBodySchema,
-      example: { events: [{ type: "assistant", text: "Looking at the open deals" }] },
+      example: {
+        attempt: 1,
+        events: [
+          { type: "message", at: "2026-11-17T09:00:05.000Z", role: "assistant", text: "Looking at the open deals" },
+        ],
+      },
       output: AgentJobEventsResultSchema,
       outputDescription: "How many events were accepted.",
       withJobId: true,
@@ -99,9 +119,15 @@ export const agentRunnerApiPaths = {
       operationId: "finishRunnerJob",
       summary: "Report the result of a job",
       description:
-        "Ends the job as succeeded, failed or timedOut with the client's final answer and, when the client reports them, its token counts and cost in US dollars. The job's MCP key is revoked. A job that is already closed answers 409 and keeps its first result.",
+        "Ends the job as succeeded, failed or timedOut with the client's final answer and, when the client reports them, its token counts. A runner job has no Customermates cost, so none is stored. The job's MCP key is revoked. A job that is already closed, or that runs as another attempt, answers 409 and keeps its result.",
       input: AgentJobResultBodySchema,
-      example: { status: "succeeded", summary: "Three deals need a follow-up.", inputTokens: 1200, outputTokens: 300 },
+      example: {
+        attempt: 1,
+        status: "succeeded",
+        summary: "Three deals need a follow-up.",
+        inputTokens: 1200,
+        outputTokens: 300,
+      },
       output: AgentJobFinishResultSchema,
       outputDescription: "Confirmation that the result was stored.",
       withJobId: true,

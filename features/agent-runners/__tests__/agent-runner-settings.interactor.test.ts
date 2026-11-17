@@ -10,7 +10,7 @@ import {
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
-const mockUser = createMockUser();
+const mockUser = createMockUser({ companyId: "11111111-1111-4111-8111-111111111111" });
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -32,7 +32,10 @@ import { CreateAgentRunnerInteractor } from "../create-agent-runner.interactor";
 import { GetAgentRunnersInteractor } from "../get-agent-runners.interactor";
 import { RevokeAgentRunnerInteractor } from "../revoke-agent-runner.interactor";
 
-import { RUNNER_ID } from "./agent-runner-fixtures";
+import { AgentRunnerRevocation } from "../agent-runner-revocation";
+
+import { JOB_ID, OWNER_ID, RUNNER_ID } from "./agent-runner-fixtures";
+import { FakeAgentJobCredentials } from "./fake-agent-job-credentials";
 import { FakeAgentRunnerRepo } from "./fake-agent-runner-repo";
 
 const NOW = new Date("2026-11-17T09:00:00.000Z");
@@ -151,33 +154,105 @@ describe("GetAgentRunnersInteractor", () => {
   });
 });
 
+function revocationFor(repo: FakeAgentRunnerRepo) {
+  const cancelled: Array<{ companyId: string; runnerId: string; now: Date }> = [];
+  const credentials = new FakeAgentJobCredentials();
+  const jobs = {
+    cancelForRunnerUnscoped: (args: { companyId: string; runnerId: string; now: Date }) => {
+      cancelled.push(args);
+      return Promise.resolve(repo.liveJobs.length);
+    },
+  };
+  return { cancelled, credentials, revocation: new AgentRunnerRevocation(repo, jobs, credentials) };
+}
+
 describe("RevokeAgentRunnerInteractor", () => {
   it("revokes a runner of this workspace and keeps the first revocation time on a repeat", async () => {
     const repo = new FakeAgentRunnerRepo();
     repo.addRunner();
-    const first = await new RevokeAgentRunnerInteractor(repo, () => NOW).invoke({ id: RUNNER_ID });
+    const { revocation, cancelled } = revocationFor(repo);
+    const first = await new RevokeAgentRunnerInteractor(repo, revocation, () => NOW).invoke({ id: RUNNER_ID });
     const later = new Date(NOW.getTime() + 60_000);
-    const second = await new RevokeAgentRunnerInteractor(repo, () => later).invoke({ id: RUNNER_ID });
+    const second = await new RevokeAgentRunnerInteractor(repo, revocation, () => later).invoke({ id: RUNNER_ID });
 
     expect(first).toEqual({ ok: true, data: { id: RUNNER_ID, revokedAt: NOW.toISOString() } });
     expect(second).toEqual({ ok: true, data: { id: RUNNER_ID, revokedAt: NOW.toISOString() } });
     expect(repo.runners.get(RUNNER_ID)?.revokedAt).toEqual(NOW);
+    expect(cancelled).toHaveLength(1);
+  });
+
+  it("cancels the runner's jobs and revokes the keys of the ones that were live", async () => {
+    const repo = new FakeAgentRunnerRepo();
+    repo.addRunner();
+    repo.liveJobs = [
+      { id: JOB_ID, attempts: 2 },
+      { id: "88888888-8888-4888-8888-888888888888", attempts: 1 },
+    ];
+    const { revocation, cancelled, credentials } = revocationFor(repo);
+
+    await new RevokeAgentRunnerInteractor(repo, revocation, () => NOW).invoke({ id: RUNNER_ID });
+
+    expect(cancelled).toEqual([{ companyId: mockUser.companyId, runnerId: RUNNER_ID, now: NOW }]);
+    expect(credentials.revoked).toEqual([
+      { companyId: mockUser.companyId, jobId: JOB_ID, attempt: 2 },
+      { companyId: mockUser.companyId, jobId: "88888888-8888-4888-8888-888888888888", attempt: 1 },
+    ]);
+  });
+
+  it("still cancels the jobs when a key cannot be revoked", async () => {
+    const repo = new FakeAgentRunnerRepo();
+    repo.addRunner();
+    repo.liveJobs = [{ id: JOB_ID, attempts: 1 }];
+    const { revocation, cancelled, credentials } = revocationFor(repo);
+    credentials.revokeFails = true;
+
+    const result = await new RevokeAgentRunnerInteractor(repo, revocation, () => NOW).invoke({ id: RUNNER_ID });
+
+    expect(result.ok).toBe(true);
+    expect(cancelled).toHaveLength(1);
   });
 
   it("answers not found for a runner that does not exist in this workspace", async () => {
     const repo = new FakeAgentRunnerRepo();
+    const { revocation, cancelled } = revocationFor(repo);
 
-    const result = await new RevokeAgentRunnerInteractor(repo, () => NOW).invoke({ id: RUNNER_ID });
+    const result = await new RevokeAgentRunnerInteractor(repo, revocation, () => NOW).invoke({ id: RUNNER_ID });
 
     expect(result.ok).toBe(false);
     expect(errorCode(result as never)).toBe(CustomErrorCode.agentRunnerNotFound);
+    expect(cancelled).toEqual([]);
   });
 
   it("rejects an id that is not a uuid", async () => {
-    const result = await new RevokeAgentRunnerInteractor(new FakeAgentRunnerRepo(), () => NOW).invoke({
+    const repo = new FakeAgentRunnerRepo();
+    const result = await new RevokeAgentRunnerInteractor(repo, revocationFor(repo).revocation, () => NOW).invoke({
       id: "not-a-uuid",
     });
 
     expect(result.ok).toBe(false);
+  });
+});
+
+describe("AgentRunnerRevocation", () => {
+  it("revokes every runner a member added, with its jobs, and leaves the runners of others", async () => {
+    const repo = new FakeAgentRunnerRepo();
+    const other = "99999999-9999-4999-8999-999999999999";
+    const second = "66666666-6666-4666-8666-666666666666";
+    repo.addRunner({ companyId: mockUser.companyId });
+    repo.addRunner({ id: second, companyId: mockUser.companyId });
+    repo.addRunner({
+      id: other,
+      companyId: mockUser.companyId,
+      createdById: "77777777-7777-4777-8777-777777777777",
+    });
+    const { revocation, cancelled } = revocationFor(repo);
+
+    const revoked = await revocation.revokeOfMember({ companyId: mockUser.companyId, userId: OWNER_ID, at: NOW });
+
+    expect(revoked).toBe(2);
+    expect(repo.runners.get(RUNNER_ID)?.revokedAt).toEqual(NOW);
+    expect(repo.runners.get(second)?.revokedAt).toEqual(NOW);
+    expect(repo.runners.get(other)?.revokedAt).toBeNull();
+    expect(cancelled.map((call) => call.runnerId)).toEqual([RUNNER_ID, second]);
   });
 });

@@ -2,26 +2,36 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { AgentJobCredentials } from "./agent-job-credentials";
 import type { AgentJobRunnerRepo } from "./agent-job-runner.repo";
 import type { AgentRunnerAuthenticator } from "./agent-runner-authenticator";
-import type { AgentJobFinishResult, AgentJobOutcome, AgentJobResultRequest } from "./agent-runner.schema";
+import type {
+  AgentJobFinishResult,
+  AgentJobOutcome,
+  AgentJobResultBody,
+  AgentRunnerJobRequest,
+} from "./agent-runner.schema";
 
-import { AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import * as ErrorReporter from "@/core/observability/server";
 
-import { ACTIVE_JOB_STATUSES, jobClosed, jobNotFound } from "./agent-runner-failures";
-import { AgentJobFinishResultSchema, AgentJobResultRequestSchema } from "./agent-runner.schema";
+import { jobClosed, jobNotFound } from "./agent-runner-failures";
+import { readAgentRunnerBody } from "./agent-runner-request";
+import {
+  AGENT_RUNNER_JOB_ERRORS,
+  AgentJobFinishResultSchema,
+  AgentJobResultBodySchema,
+  AgentRunnerJobRequestSchema,
+} from "./agent-runner.schema";
 
-const DEFAULT_ERRORS = { failed: "failed", timedOut: "timeout" } as const;
+const FINISH_REASONS = { succeeded: "stop", failed: "error", timedOut: "timeLimit" } as const;
+const DEFAULT_ERRORS = { failed: AGENT_RUNNER_JOB_ERRORS.failed, timedOut: AGENT_RUNNER_JOB_ERRORS.timedOut } as const;
 
-function outcomeOf(data: AgentJobResultRequest): AgentJobOutcome {
+export function agentRunnerOutcome(data: AgentJobResultBody, toolCalls: number): AgentJobOutcome {
   return {
     status: data.status,
-    result: data.summary === undefined ? null : { summary: data.summary },
+    result: { text: data.summary ?? "", reason: FINISH_REASONS[data.status], toolCalls },
     inputTokens: data.inputTokens ?? null,
     outputTokens: data.outputTokens ?? null,
-    costMicrocents: data.costUsd === undefined ? null : Math.round(data.costUsd * AGENT_MICROCENTS_PER_USD),
     error: data.status === "succeeded" ? null : (data.error ?? DEFAULT_ERRORS[data.status]),
   };
 }
@@ -31,26 +41,39 @@ export class FinishAgentJobInteractor {
   constructor(
     private readonly authenticator: AgentRunnerAuthenticator,
     private readonly jobs: Pick<AgentJobRunnerRepo, "findForRunner" | "finish">,
-    private readonly credentials: Pick<AgentJobCredentials, "revoke">,
+    private readonly credentials: Pick<AgentJobCredentials, "toolCalls" | "revoke">,
   ) {}
 
-  @Validate(AgentJobResultRequestSchema)
+  @Validate(AgentRunnerJobRequestSchema)
   @ValidateOutput(AgentJobFinishResultSchema)
-  async invoke(data: AgentJobResultRequest): Validated<AgentJobFinishResult> {
+  async invoke(data: AgentRunnerJobRequest): Validated<AgentJobFinishResult> {
     const authentication = await this.authenticator.authenticate(data);
     if (!authentication.ok) return authentication.failure;
+    const body = await readAgentRunnerBody(data, AgentJobResultBodySchema);
+    if (!body.ok) return body;
 
     const { runner } = authentication;
     const state = await this.jobs.findForRunner(data.jobId, runner);
     if (!state) return jobNotFound();
-    if (!ACTIVE_JOB_STATUSES.has(state.status)) return jobClosed();
 
-    await this.jobs.finish(state.id, runner, outcomeOf(data));
-    await this.credentials.revoke({ companyId: runner.companyId, jobId: state.id }).catch((error: unknown) => {
+    const attempt = { companyId: runner.companyId, jobId: state.id, attempt: body.data.attempt };
+    const report = (error: unknown) => {
       ErrorReporter.captureException(error, {
         tags: { kind: "agent-job-credentials-revoke", companyId: runner.companyId },
       });
+    };
+    const toolCalls = await this.credentials.toolCalls(attempt).catch((error: unknown) => {
+      report(error);
+      return 0;
     });
+    const finished = await this.jobs.finish(
+      state.id,
+      runner,
+      body.data.attempt,
+      agentRunnerOutcome(body.data, toolCalls),
+    );
+    await this.credentials.revoke(attempt).catch(report);
+    if (!finished) return jobClosed();
     return { ok: true, data: { ok: true } };
   }
 }

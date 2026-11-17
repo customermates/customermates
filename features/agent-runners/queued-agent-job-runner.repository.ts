@@ -1,15 +1,18 @@
 import type { Prisma } from "@/generated/prisma";
 import type { AgentJobRepo } from "@/features/agent-jobs/agent-job.repo";
+import type { AgentJobCredentialRun, AgentJobRunnerState } from "./agent-job-runner.repo";
+import type { AgentRunnerRepo } from "./agent-runner.repo";
 import type {
   AgentJobClaim,
   AgentJobOutcome,
-  AgentJobRunnerState,
+  AgentRunnerTranscriptEvent,
   AuthenticatedAgentRunner,
 } from "./agent-runner.schema";
 
 import { AGENT_JOB_MAX_WALL_MS, AGENT_JOB_TRANSCRIPT_MAX_EVENTS } from "@/features/agent-jobs/agent-job.schema";
 
 import { AgentJobRunnerRepo } from "./agent-job-runner.repo";
+import { AGENT_RUNNER_LIMITS } from "./agent-runner.schema";
 
 type Jobs = Pick<
   AgentJobRepo,
@@ -19,62 +22,96 @@ type Jobs = Pick<
 export class QueuedAgentJobRunnerRepo extends AgentJobRunnerRepo {
   constructor(
     private readonly jobs: Jobs,
+    private readonly runners: Pick<AgentRunnerRepo, "findClaimableJobIdsUnscoped">,
     private readonly clock: () => Date = () => new Date(),
   ) {
     super();
   }
 
   async claimNextForRunner(runner: AuthenticatedAgentRunner): Promise<AgentJobClaim | null> {
-    const now = this.clock();
-    const timeoutAt = new Date(now.getTime() + AGENT_JOB_MAX_WALL_MS);
-    const job = await this.jobs.claimUnscoped({
+    const candidates = await this.runners.findClaimableJobIdsUnscoped({
       companyId: runner.companyId,
-      runtime: "runner",
+      ownerUserId: runner.createdById,
       runnerId: runner.id,
-      now,
-      timeoutAt,
+      limit: AGENT_RUNNER_LIMITS.claimCandidates,
     });
-    if (!job) return null;
-    await this.jobs.startUnscoped({ id: job.id, companyId: runner.companyId, now, timeoutAt });
-    return {
-      id: job.id,
-      companyId: job.companyId,
-      ownerUserId: job.ownerUserId,
-      prompt: job.prompt,
-      promptUntrusted: job.promptUntrusted,
-      timeoutAt,
-    };
+    for (const jobId of candidates) {
+      const now = this.clock();
+      const confirmBy = new Date(now.getTime() + AGENT_RUNNER_LIMITS.claimConfirmMs);
+      const job = await this.jobs.claimUnscoped({
+        companyId: runner.companyId,
+        runtime: "runner",
+        jobId,
+        runnerId: runner.id,
+        now,
+        timeoutAt: confirmBy,
+      });
+      if (!job) continue;
+      return {
+        id: job.id,
+        companyId: job.companyId,
+        ownerUserId: job.ownerUserId,
+        attempt: job.attempts,
+        prompt: job.prompt,
+        promptUntrusted: job.promptUntrusted,
+        confirmBy,
+      };
+    }
+    return null;
   }
 
   async findForRunner(jobId: string, runner: AuthenticatedAgentRunner): Promise<AgentJobRunnerState | null> {
     const job = await this.jobs.findUnscoped(runner.companyId, jobId);
-    return job && job.runnerId === runner.id ? { id: job.id, status: job.status } : null;
+    if (!job || job.runnerId !== runner.id) return null;
+    return { id: job.id, status: job.status, attempt: job.attempts, timeoutAt: job.timeoutAt };
   }
 
-  async appendTranscript(
+  async start(jobId: string, runner: AuthenticatedAgentRunner, attempt: number): Promise<Date | null> {
+    const now = this.clock();
+    const timeoutAt = new Date(now.getTime() + AGENT_JOB_MAX_WALL_MS);
+    const started = await this.jobs.startUnscoped({ id: jobId, companyId: runner.companyId, attempt, now, timeoutAt });
+    return started ? timeoutAt : null;
+  }
+
+  appendTranscript(
     jobId: string,
     runner: AuthenticatedAgentRunner,
-    events: Record<string, unknown>[],
-  ): Promise<void> {
-    await this.jobs.appendEventsUnscoped({
+    attempt: number,
+    events: AgentRunnerTranscriptEvent[],
+  ): Promise<boolean> {
+    return this.jobs.appendEventsUnscoped({
       id: jobId,
       companyId: runner.companyId,
+      attempt,
       events: events as unknown as Prisma.InputJsonValue[],
       maxEvents: AGENT_JOB_TRANSCRIPT_MAX_EVENTS,
     });
   }
 
-  async finish(jobId: string, runner: AuthenticatedAgentRunner, outcome: AgentJobOutcome): Promise<void> {
-    await this.jobs.finishUnscoped({
+  finish(jobId: string, runner: AuthenticatedAgentRunner, attempt: number, outcome: AgentJobOutcome): Promise<boolean> {
+    return this.jobs.finishUnscoped({
       id: jobId,
       companyId: runner.companyId,
+      attempt,
       status: outcome.status,
       result: outcome.result,
       error: outcome.error,
       inputTokens: outcome.inputTokens,
       outputTokens: outcome.outputTokens,
-      costMicrocents: outcome.costMicrocents,
+      costMicrocents: null,
       now: this.clock(),
     });
+  }
+
+  async findRunningAttempt(args: {
+    companyId: string;
+    jobId: string;
+    attempt: number;
+    runnerId: string;
+  }): Promise<AgentJobCredentialRun | null> {
+    const job = await this.jobs.findUnscoped(args.companyId, args.jobId);
+    if (!job || job.runtime !== "runner" || job.status !== "running") return null;
+    if (job.attempts !== args.attempt || job.runnerId !== args.runnerId) return null;
+    return { ruleChain: job.ruleChain };
   }
 }

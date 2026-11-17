@@ -14,8 +14,10 @@ import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import {
+  apiKeyRequestsNamed,
   auth,
   bindApiKeyToCompany,
+  countApiKeyRequest,
   deleteApiKeysForIdentities,
   issueExpiringApiKey,
   revokeApiKeysNamed,
@@ -34,6 +36,10 @@ import {
 import { requestedWorkspaceSlug } from "@/core/navigation/workspace-request-header";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { eventVia, type EventVia } from "@/features/event/event-via";
+import {
+  parseAgentJobCredentialMetadata,
+  type AgentJobCredentialMarker,
+} from "@/features/agent-runners/agent-job-credential-marker";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
@@ -54,7 +60,12 @@ export type AuthenticatedSession = Pick<Session, "session" | "user">;
 export type CredentialWorkspace =
   | { kind: "integration"; companyId: string | null }
   | { kind: "session"; sessionId: string; workspaceSlug: string | null };
-export type McpCredentialWorkspace = { credential: "apiKey" | "bearer"; companyId: string | null };
+export type AgentJobApiKey = AgentJobCredentialMarker & { keyId: string; companyId: string | null };
+export type McpCredentialWorkspace = {
+  credential: "apiKey" | "bearer";
+  companyId: string | null;
+  agentJobKey: AgentJobApiKey | null;
+};
 type CreateApiKeyError =
   | CustomErrorCode.apiKeyMinExpiration
   | CustomErrorCode.apiKeyMaxExpiration
@@ -173,6 +184,19 @@ export class AuthService {
     return null;
   }
 
+  async getAgentJobApiKey(session: AuthenticatedSession, headersList?: Headers): Promise<AgentJobApiKey | null> {
+    const requestHeaders = headersList ?? (await headers());
+    if (!requestHeaders.has("x-api-key")) return null;
+
+    const key = await prisma.apikey.findUnique({
+      where: { id: session.session.id },
+      select: { id: true, referenceId: true, companyId: true, metadata: true },
+    });
+    if (!key || key.referenceId !== session.user.id) return null;
+    const marker = parseAgentJobCredentialMetadata(key.metadata);
+    return marker ? { ...marker, keyId: key.id, companyId: key.companyId } : null;
+  }
+
   async revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
     return revokeMembershipCredentials(authUserId, companyId);
   }
@@ -182,6 +206,7 @@ export class AuthService {
     companyId: string;
     name: string;
     expiresAt: Date;
+    metadata?: string;
   }): Promise<{ id: string; key: string } | null> {
     const identity = await runWithoutTenant(() =>
       prisma.authUser.findFirst({ where: { email: args.ownerEmail.toLowerCase() }, select: { id: true } }),
@@ -192,11 +217,20 @@ export class AuthService {
       companyId: args.companyId,
       name: args.name,
       expiresAt: args.expiresAt,
+      ...(args.metadata === undefined ? {} : { metadata: args.metadata }),
     });
   }
 
   revokeApiKeysNamed(companyId: string, name: string): Promise<number> {
     return revokeApiKeysNamed(companyId, name);
+  }
+
+  apiKeyRequestsNamed(companyId: string, name: string): Promise<number> {
+    return apiKeyRequestsNamed(companyId, name);
+  }
+
+  countApiKeyRequest(keyId: string, limit: number): Promise<boolean> {
+    return countApiKeyRequest(keyId, limit);
   }
 
   async signInWithEmail(args: {
@@ -640,6 +674,7 @@ export class AuthService {
       return {
         credential: key ? "apiKey" : "bearer",
         companyId: binding.kind === "integration" ? binding.companyId : null,
+        agentJobKey: key ? await this.getAgentJobApiKey(session, headersList) : null,
       };
     } catch {
       return null;

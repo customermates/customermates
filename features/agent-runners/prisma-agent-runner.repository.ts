@@ -1,8 +1,9 @@
 import type {
   AgentRunnerHeartbeat,
+  AgentRunnerLiveJob,
   AgentRunnerLookup,
-  AgentRunnerOfflineWorkspace,
   AgentRunnerRepo,
+  AgentRunnerWaitingOwner,
   StoredAgentRunner,
 } from "./agent-runner.repo";
 
@@ -17,8 +18,15 @@ const RUNNER_SELECT = {
   clients: true,
   lastSeenAt: true,
   revokedAt: true,
+  createdById: true,
   createdAt: true,
 } as const;
+
+const LIVE_STATUSES = [AgentJobStatus.claimed, AgentJobStatus.running];
+
+function ownerKey(companyId: string, userId: string): string {
+  return `${companyId}:${userId}`;
+}
 
 export class PrismaAgentRunnerRepo extends TenantRepository implements AgentRunnerRepo {
   listRunners(): Promise<StoredAgentRunner[]> {
@@ -36,25 +44,41 @@ export class PrismaAgentRunnerRepo extends TenantRepository implements AgentRunn
     });
   }
 
-  async revokeRunner(id: string, at: Date): Promise<Date | null> {
-    const runner = await this.prisma.agentRunner.findFirst({
+  findRunner(id: string): Promise<Pick<StoredAgentRunner, "id" | "revokedAt"> | null> {
+    return this.prisma.agentRunner.findFirst({
       where: { id, companyId: this.companyId },
-      select: { revokedAt: true },
+      select: { id: true, revokedAt: true },
     });
-    if (!runner) return null;
-    if (runner.revokedAt) return runner.revokedAt;
-    await this.prisma.agentRunner.updateMany({
-      where: { id, companyId: this.companyId, revokedAt: null },
-      data: { revokedAt: at },
+  }
+
+  @BypassTenantGuard
+  async revokeRunnerUnscoped(args: { companyId: string; id: string; at: Date }): Promise<boolean> {
+    const { count } = await this.prisma.agentRunner.updateMany({
+      where: { id: args.id, companyId: args.companyId, revokedAt: null },
+      data: { revokedAt: args.at },
     });
-    return at;
+    return count === 1;
+  }
+
+  @BypassTenantGuard
+  async findUnrevokedRunnerIdsOfUnscoped(args: { companyId: string; createdById: string }): Promise<string[]> {
+    const runners = await this.prisma.agentRunner.findMany({
+      where: { companyId: args.companyId, createdById: args.createdById, revokedAt: null },
+      select: { id: true },
+    });
+    return runners.map((runner) => runner.id);
   }
 
   @BypassTenantGuard
   findRunnerByTokenHashUnscoped(tokenHash: string): Promise<AgentRunnerLookup | null> {
     return this.prisma.agentRunner.findUnique({
       where: { tokenHash },
-      select: { ...RUNNER_SELECT, companyId: true, company: { select: { deletingAt: true } } },
+      select: {
+        ...RUNNER_SELECT,
+        companyId: true,
+        company: { select: { deletingAt: true } },
+        createdBy: { select: { status: true } },
+      },
     });
   }
 
@@ -76,7 +100,37 @@ export class PrismaAgentRunnerRepo extends TenantRepository implements AgentRunn
   }
 
   @BypassTenantGuard
-  async findOfflineWorkspacesUnscoped(args: { seenSince: Date }): Promise<AgentRunnerOfflineWorkspace[]> {
+  async findClaimableJobIdsUnscoped(args: {
+    companyId: string;
+    ownerUserId: string;
+    runnerId: string;
+    limit: number;
+  }): Promise<string[]> {
+    const jobs = await this.prisma.agentJob.findMany({
+      where: {
+        companyId: args.companyId,
+        runtime: AgentRuntime.runner,
+        status: AgentJobStatus.queued,
+        ownerUserId: args.ownerUserId,
+        OR: [{ pinnedRunnerId: null }, { pinnedRunnerId: args.runnerId }],
+      },
+      select: { id: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: args.limit,
+    });
+    return jobs.map((job) => job.id);
+  }
+
+  @BypassTenantGuard
+  findLiveJobsOfRunnerUnscoped(args: { companyId: string; runnerId: string }): Promise<AgentRunnerLiveJob[]> {
+    return this.prisma.agentJob.findMany({
+      where: { companyId: args.companyId, runnerId: args.runnerId, status: { in: LIVE_STATUSES } },
+      select: { id: true, attempts: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async findWaitingOwnersUnscoped(args: { seenSince: Date }): Promise<AgentRunnerWaitingOwner[]> {
     const queued = await this.prisma.agentJob.findMany({
       where: {
         runtime: AgentRuntime.runner,
@@ -84,27 +138,45 @@ export class PrismaAgentRunnerRepo extends TenantRepository implements AgentRunn
         company: { deletingAt: null },
         owner: { status: Status.active },
       },
-      select: { companyId: true, ownerUserId: true, owner: { select: { displayLanguage: true } } },
-      distinct: ["companyId", "ownerUserId"],
+      select: {
+        companyId: true,
+        ownerUserId: true,
+        pinnedRunnerId: true,
+        owner: { select: { displayLanguage: true } },
+      },
+      distinct: ["companyId", "ownerUserId", "pinnedRunnerId"],
     });
     if (queued.length === 0) return [];
-    const online = await this.prisma.agentRunner.findMany({
+    const runners = await this.prisma.agentRunner.findMany({
       where: {
         companyId: { in: [...new Set(queued.map((job) => job.companyId))] },
+        createdById: { in: [...new Set(queued.map((job) => job.ownerUserId))] },
         revokedAt: null,
-        lastSeenAt: { gte: args.seenSince },
       },
-      select: { companyId: true },
-      distinct: ["companyId"],
+      select: { id: true, companyId: true, createdById: true, lastSeenAt: true },
     });
-    const onlineCompanies = new Set(online.map((runner) => runner.companyId));
-    const byCompany = new Map<string, AgentRunnerOfflineWorkspace>();
-    for (const job of queued) {
-      if (onlineCompanies.has(job.companyId)) continue;
-      const workspace = byCompany.get(job.companyId) ?? { companyId: job.companyId, owners: [] };
-      workspace.owners.push({ userId: job.ownerUserId, displayLanguage: job.owner.displayLanguage });
-      byCompany.set(job.companyId, workspace);
+    const ownRunners = new Map<string, typeof runners>();
+    for (const runner of runners) {
+      const key = ownerKey(runner.companyId, runner.createdById);
+      ownRunners.set(key, [...(ownRunners.get(key) ?? []), runner]);
     }
-    return [...byCompany.values()];
+    const waiting = new Map<string, AgentRunnerWaitingOwner>();
+    for (const job of queued) {
+      const key = ownerKey(job.companyId, job.ownerUserId);
+      const own = ownRunners.get(key) ?? [];
+      const able = own.filter((runner) => job.pinnedRunnerId === null || runner.id === job.pinnedRunnerId);
+      if (able.some((runner) => runner.lastSeenAt !== null && runner.lastSeenAt >= args.seenSince)) continue;
+      const seen = able.flatMap((runner) => (runner.lastSeenAt ? [runner.lastSeenAt.getTime()] : []));
+      const lastSeenAt = seen.length > 0 ? new Date(Math.max(...seen)) : null;
+      const known = waiting.get(key);
+      if (known && (known.lastSeenAt?.getTime() ?? 0) >= (lastSeenAt?.getTime() ?? 0)) continue;
+      waiting.set(key, {
+        companyId: job.companyId,
+        userId: job.ownerUserId,
+        displayLanguage: job.owner.displayLanguage,
+        lastSeenAt,
+      });
+    }
+    return [...waiting.values()];
   }
 }

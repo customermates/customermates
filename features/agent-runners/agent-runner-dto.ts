@@ -21,6 +21,7 @@ export function toAgentRunnerDto(stored: StoredAgentRunner, now: Date): AgentRun
     lastSeenAt: stored.lastSeenAt?.toISOString() ?? null,
     online,
     revokedAt: stored.revokedAt?.toISOString() ?? null,
+    createdById: stored.createdById,
     createdAt: stored.createdAt.toISOString(),
   };
 }

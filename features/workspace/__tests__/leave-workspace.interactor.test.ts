@@ -71,9 +71,19 @@ describe("LeaveWorkspaceInteractor", () => {
       channels as never,
       channelRemoval as never,
       new HandOverPublicEndpointsService(forms as never, webhooks as never),
+      runners,
     );
     return new LeaveWorkspaceInteractor(authService as never, repo as never, roleRepo as never, departure);
   }
+
+  const runnerRevocations: Array<{ companyId: string; userId: string }> = [];
+  const runners = {
+    revokeOfMember: (args: { companyId: string; userId: string; at: Date }) => {
+      order.push("runners revoked");
+      runnerRevocations.push({ companyId: args.companyId, userId: args.userId });
+      return Promise.resolve(1);
+    },
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -142,7 +152,15 @@ describe("LeaveWorkspaceInteractor", () => {
       ["account-1", "ownerInactive"],
       ["account-2", "ownerInactive"],
     ]);
-    expect(order).toEqual(["left", "announced", "revoked", "disconnected account-1", "disconnected account-2"]);
+    expect(order).toEqual([
+      "left",
+      "announced",
+      "revoked",
+      "runners revoked",
+      "disconnected account-1",
+      "disconnected account-2",
+    ]);
+    expect(runnerRevocations.at(-1)).toEqual({ companyId: COMPANY_ID, userId: "member-1" });
     expect(events.publish).toHaveBeenCalledWith("user.updated", {
       entityId: "member-1",
       payload: { changes: { status: { previous: Status.active, current: Status.inactive } } },
