@@ -281,7 +281,21 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       return settled ? settlement.chargedMicrocents : null;
     } catch (error) {
       ErrorReporter.captureException(error);
+      await this.releaseAfterFailedSettlement(job);
       return null;
+    }
+  }
+
+  private async releaseAfterFailedSettlement(job: StoredAgentJob): Promise<void> {
+    try {
+      await this.credits.release({
+        jobId: job.id,
+        attempt: job.attempts,
+        companyId: job.companyId,
+        userId: this.user.id,
+      });
+    } catch (error) {
+      ErrorReporter.captureException(error);
     }
   }
 

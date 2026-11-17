@@ -312,7 +312,7 @@ describe("running an agent job on Mate", () => {
     expect(credits.settle).not.toHaveBeenCalled();
   });
 
-  it("keeps the job's result when the settlement itself fails and reports the failure", async () => {
+  it("keeps the job's result when the settlement itself fails, gives the held credits back and reports the failure", async () => {
     const { jobs, credits, run } = await world();
     credits.settle.mockRejectedValueOnce(new Error("ledger unavailable"));
     const job = jobs.add({ runtime: "mate" });
@@ -321,5 +321,6 @@ describe("running an agent job on Mate", () => {
 
     expect(jobs.jobs.get(job.id)).toMatchObject({ status: "succeeded", costMicrocents: null });
     expect(sentry.captureException).toHaveBeenCalled();
+    expect(credits.release).toHaveBeenCalledWith({ jobId: job.id, attempt: 1, companyId: COMPANY, userId: OWNER });
   });
 });
