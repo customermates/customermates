@@ -56,6 +56,8 @@ export function runReasonText(t: Translate, reason: string): string {
       return t("AutomationRules.reason.ownerNotPermitted");
     case "recordUnavailable":
       return t("AutomationRules.reason.recordUnavailable");
+    case "ruleChanged":
+      return t("AutomationRules.reason.ruleChanged");
     case "ruleDisabled":
       return t("AutomationRules.reason.ruleDisabled");
     default:

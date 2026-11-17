@@ -36,6 +36,7 @@ const RunPayloadSchema = z.looseObject({
   chain: z.array(z.uuid()).max(5).default([]),
   routineDepth: z.number().int().nonnegative().optional(),
   fieldValue: z.string().optional(),
+  subscriptionRevision: z.number().int().optional(),
 });
 
 const RunProgressSchema = z.looseObject({ effects: z.array(AutomationEffectOutcomeSchema) });
@@ -88,23 +89,45 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     const staleBefore = new Date(now.getTime() - AUTOMATION_RUN_STALE_MS);
     if (!(await this.repo.claimRunUnscoped(runId, companyId, now, staleBefore)))
       return { ok: true as const, data: { status: "notClaimed" } };
-    const settlement = await this.execute(found.run, found.rule, now);
+    const progress = RunProgressSchema.safeParse(found.run.outcome);
+    const done = progress.success ? progress.data.effects : null;
+    const settlement = await this.execute(found.run, found.rule, done, now);
     await this.repo.settleRunUnscoped({
       runId,
       companyId,
       ruleId: found.run.ruleId,
       status: settlement.status,
-      outcome: { effects: settlement.effects ?? [], ...(settlement.reason ? { reason: settlement.reason } : {}) },
+      outcome: {
+        effects: settlement.effects ?? done ?? [],
+        ...(settlement.reason ? { reason: settlement.reason } : {}),
+      },
       error: settlement.error ?? null,
       now: this.clock(),
     });
     return { ok: true as const, data: { status: settlement.status } };
   }
 
-  private async execute(run: StoredAutomationRuleRun, rule: StoredAutomationRule | null, now: Date): Promise<Settlement> {
+  private async execute(
+    run: StoredAutomationRuleRun,
+    rule: StoredAutomationRule | null,
+    done: AutomationEffectOutcome[] | null,
+    now: Date,
+  ): Promise<Settlement> {
     if (!rule || !rule.enabled) return { status: "skipped", reason: "ruleDisabled" };
     if (rule.ownerUserId !== this.user.id) return { status: "skipped", reason: "ownerChanged" };
     if (!roleCanRead(this.user.role, Resource.routines)) return { status: "skipped", reason: "ownerNotPermitted" };
+    const companyId = this.user.companyId;
+    const {
+      chain: parentChain,
+      routineDepth,
+      fieldValue,
+      subscriptionRevision,
+    } = RunPayloadSchema.parse(run.payload ?? {});
+    if (
+      subscriptionRevision !== undefined &&
+      (await this.repo.findSubscriptionRevisionUnscoped(companyId, rule.id)) !== subscriptionRevision
+    )
+      return { status: "skipped", reason: "ruleChanged" };
     const definition = parseRule(rule);
     if (!definition) return { status: "failed", error: "ruleInvalid" };
     const recordRef: RecordRef | null =
@@ -112,10 +135,7 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     const timeZone = automationTimeZone(definition.trigger);
     const model = await this.records.model();
     if (automationModelIssues(definition, model).length > 0) return { status: "failed", error: "ruleInvalid" };
-    const { chain: parentChain, routineDepth, fieldValue } = RunPayloadSchema.parse(run.payload ?? {});
-    const progress = RunProgressSchema.safeParse(run.outcome);
-    const companyId = this.user.companyId;
-    if (!progress.success) {
+    if (!done) {
       if (recordRef) {
         const record = await this.records.read(recordRef);
         if (!record) return { status: "skipped", reason: "recordUnavailable" };
@@ -144,7 +164,7 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
             admittedAt: run.createdAt,
           },
           {
-            done: progress.success ? progress.data.effects : [],
+            done: done ?? [],
             save: (effects) => this.repo.saveRunProgressUnscoped(companyId, run.id, { effects }),
           },
         ),

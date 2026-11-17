@@ -39,6 +39,7 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
   runs = new Map<string, StoredAutomationRuleRun>();
   candidates: Array<Omit<AutomationDateCandidate, "kind"> & { kind?: AutomationDateCandidate["kind"] }> = [];
   unreadableRecords = new Set<string>();
+  subscriptionRevisions = new Map<string, number>();
   webhooks = new Map<string, AutomationOutboundWebhook>();
   accessibleAccounts = new Set<string>();
   companyId = "00000000-0000-4000-8000-000000000011";
@@ -190,6 +191,10 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     const run = this.runs.get(runId);
     if (!run || run.companyId !== companyId) return Promise.resolve(null);
     return Promise.resolve({ run, rule: this.rules.get(run.ruleId) ?? null });
+  }
+
+  findSubscriptionRevisionUnscoped(_companyId: string, ruleId: string) {
+    return Promise.resolve(this.subscriptionRevisions.get(ruleId) ?? 1);
   }
 
   claimRunUnscoped(runId: string, companyId: string, now: Date, staleBefore: Date) {

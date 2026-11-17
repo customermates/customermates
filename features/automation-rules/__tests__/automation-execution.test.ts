@@ -591,6 +591,34 @@ describe("running a rule", () => {
     await expect(run(instance, runId)).resolves.toEqual({ ok: true, data: { status: "applied" } });
   });
 
+  it("skips a run whose rule was changed after the event matched it, and says so", async () => {
+    await seedRun(repo);
+    const seed = async (occurrenceKey: string, subscriptionRevision: number) => {
+      const runId = await repo.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey,
+        triggerKind: "recordCreated",
+        typeId: TYPE,
+        recordId: RECORD,
+        payload: { chain: [], subscriptionRevision },
+        depth: 0,
+        scheduledFor: NOW,
+      });
+      if (!runId) throw new Error("expected an admitted run");
+      return runId;
+    };
+    repo.subscriptionRevisions.set(RULE, 3);
+    const outdated = await seed("event:old", 2);
+    const current = await seed("event:current", 3);
+    const { interactor: instance, notifications } = interactor();
+    await expect(run(instance, outdated)).resolves.toEqual({ ok: true, data: { status: "skipped" } });
+    expect(repo.runs.get(outdated)?.outcome).toMatchObject({ reason: "ruleChanged", effects: [] });
+    expect(notifications.notify).not.toHaveBeenCalled();
+    await expect(run(instance, current)).resolves.toEqual({ ok: true, data: { status: "applied" } });
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+  });
+
   it("finishes a reclaimed run whose own first effect made its conditions untrue", async () => {
     const runId = (await seedRun(repo, {
       conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } }],
@@ -992,6 +1020,13 @@ describe("admitting events", () => {
       recordId: RECORD,
       typeId: TYPE,
     });
+  });
+
+  it("remembers on the run which revision of the rule's subscription matched the event", async () => {
+    seedRule(repo);
+    matched(matchOf(RULE, { revision: 4 }, 4));
+    await admit(recordEvent({}));
+    expect([...repo.runs.values()][0]?.payload).toMatchObject({ subscriptionRevision: 4 });
   });
 
   it("is idempotent when the same event is delivered twice", async () => {

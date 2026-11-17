@@ -1145,6 +1145,7 @@
       "ownerMissing": "The automation has no owner.",
       "ownerNotPermitted": "The owner no longer has access to automations.",
       "recordUnavailable": "The record is gone or not readable for the owner.",
+      "ruleChanged": "The automation was changed after this event matched it.",
       "ruleDisabled": "The automation was off."
     },
     "remindBefore": "Remind me about {field}",

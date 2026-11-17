@@ -1145,6 +1145,7 @@
       "ownerMissing": "La automatización no tiene propietario.",
       "ownerNotPermitted": "El propietario ya no tiene acceso a las automatizaciones.",
       "recordUnavailable": "El registro ya no existe o el propietario no puede leerlo.",
+      "ruleChanged": "La automatización se modificó después de que este evento la activara.",
       "ruleDisabled": "La automatización estaba desactivada."
     },
     "remindBefore": "Recordarme {field}",

@@ -1145,6 +1145,7 @@
       "ownerMissing": "A automação não tem proprietário.",
       "ownerNotPermitted": "O proprietário não tem mais acesso às automações.",
       "recordUnavailable": "O registro não existe mais ou o proprietário não pode lê-lo.",
+      "ruleChanged": "A automação foi alterada depois que este evento a acionou.",
       "ruleDisabled": "A automação estava desativada."
     },
     "remindBefore": "Lembrar-me de {field}",

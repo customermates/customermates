@@ -267,6 +267,12 @@ export class PrismaAutomationRuleRepo
   }
 
   @BypassTenantGuard
+  async findSubscriptionRevisionUnscoped(companyId: string, ruleId: string): Promise<number | null> {
+    const [subscription] = await this.subscriptions.findUnscoped(companyId, [ruleId]);
+    return subscription?.kind === "rule" ? subscription.revision : null;
+  }
+
+  @BypassTenantGuard
   async claimRunUnscoped(runId: string, companyId: string, now: Date, staleBefore: Date): Promise<boolean> {
     const result = await this.prisma.automationRuleRun.updateMany({
       where: {

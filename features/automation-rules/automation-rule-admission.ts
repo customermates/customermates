@@ -17,6 +17,7 @@ type Occurrence = {
   occurrenceKey: string;
   chain: string[];
   routineDepth?: number;
+  subscriptionRevision?: number;
 };
 
 export class AutomationRuleAdmission implements EventAdmission {
@@ -83,6 +84,7 @@ export class AutomationRuleAdmission implements EventAdmission {
           occurrenceKey: eventOccurrenceKey(event.id),
           chain,
           routineDepth: cause.routineDepth,
+          subscriptionRevision: match.subscriptionRevision,
         });
       }
     }
@@ -106,6 +108,9 @@ export class AutomationRuleAdmission implements EventAdmission {
         eventId: event.id,
         event: event.kind,
         ...(occurrence.routineDepth === undefined ? {} : { routineDepth: occurrence.routineDepth }),
+        ...(occurrence.subscriptionRevision === undefined
+          ? {}
+          : { subscriptionRevision: occurrence.subscriptionRevision }),
       },
       depth: occurrence.chain.length,
       scheduledFor: this.clock(),

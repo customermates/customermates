@@ -1145,6 +1145,7 @@
       "ownerMissing": "De automatisering heeft geen eigenaar.",
       "ownerNotPermitted": "De eigenaar heeft geen toegang meer tot automatiseringen.",
       "recordUnavailable": "Het record bestaat niet meer of is niet leesbaar voor de eigenaar.",
+      "ruleChanged": "De automatisering is gewijzigd nadat deze gebeurtenis haar had gestart.",
       "ruleDisabled": "De automatisering stond uit."
     },
     "remindBefore": "Herinner me aan {field}",
