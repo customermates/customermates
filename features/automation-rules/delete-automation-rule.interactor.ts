@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { Validated } from "@/core/validation/validation.utils";
+import type { AutomationAgentJobQueue } from "./automation-ports";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationRuleIdData } from "./automation-rule.schema";
 
@@ -18,7 +19,11 @@ type Deleted = z.infer<typeof DeletedSchema>;
 
 @TenantInteractor({ resource: Resource.routines, manage: "delete" })
 export class DeleteAutomationRuleInteractor extends AuthenticatedInteractor<AutomationRuleIdData, Deleted> {
-  constructor(private readonly repo: AutomationRuleRepo) {
+  constructor(
+    private readonly repo: AutomationRuleRepo,
+    private readonly agentJobs: AutomationAgentJobQueue,
+    private readonly clock: () => Date = () => new Date(),
+  ) {
     super();
   }
 
@@ -29,6 +34,7 @@ export class DeleteAutomationRuleInteractor extends AuthenticatedInteractor<Auto
     if (rule.ownerUserId !== this.user.id && !this.user.role?.isSystemRole)
       return failAuthorization(CustomErrorCode.automationRuleAdminRequired, ["id"]);
     if (!(await this.repo.deleteRule(id))) return failNotFound(CustomErrorCode.automationRuleNotFound, ["id"]);
+    await this.agentJobs.cancelQueuedForRuleUnscoped({ companyId: this.companyId, ruleId: id, now: this.clock() });
     return { ok: true as const, data: { deleted: true as const, id } };
   }
 }

@@ -44,6 +44,7 @@ export type AutomationNotifyPort = {
 export type AutomationAgentJobInput = {
   companyId: string;
   runId: string;
+  idempotencyKey: string;
   ownerUserId: string;
   runtime: AgentRuntimeKind;
   prompt: string;
@@ -55,4 +56,8 @@ export type AutomationAgentJobInput = {
 
 export type AutomationAgentPort = {
   enqueue(input: AutomationAgentJobInput): Promise<{ ok: true; jobId: string } | { ok: false; reason: string }>;
+};
+
+export type AutomationAgentJobQueue = {
+  cancelQueuedForRuleUnscoped(args: { companyId: string; ruleId: string; now: Date }): Promise<number>;
 };

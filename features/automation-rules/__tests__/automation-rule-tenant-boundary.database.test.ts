@@ -248,7 +248,7 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
       await insertRun(companyId, ruleId, "running", minutesAgo(50), minutesAgo(3)),
       await insertRun(otherCompanyId, otherRuleId, "applied", minutesAgo(50), minutesAgo(49)),
     ];
-    const mine = [...stuck, neighbour, ...fresh];
+    const mine: string[] = [...stuck, neighbour, ...fresh];
 
     const found = await runWithoutTenant(() =>
       repo().findStaleRunsUnscoped(minutesAgo(2), minutesAgo(10), { companies: 1000, perCompany: 2 }),

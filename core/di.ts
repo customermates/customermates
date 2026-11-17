@@ -2993,8 +2993,9 @@ export const getGetAutomationRuleRunsInteractor = () => new GetAutomationRuleRun
 export const getUpsertAutomationRuleInteractor = () =>
   new UpsertAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort(), getAutomationPlanLimits());
 export const getSetAutomationRuleEnabledInteractor = () =>
-  new SetAutomationRuleEnabledInteractor(getAutomationRuleRepo(), getAutomationPlanLimits());
-export const getDeleteAutomationRuleInteractor = () => new DeleteAutomationRuleInteractor(getAutomationRuleRepo());
+  new SetAutomationRuleEnabledInteractor(getAutomationRuleRepo(), getAutomationPlanLimits(), getAgentJobRepo());
+export const getDeleteAutomationRuleInteractor = () =>
+  new DeleteAutomationRuleInteractor(getAutomationRuleRepo(), getAgentJobRepo());
 export const getPreviewAutomationRuleInteractor = () =>
   new PreviewAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort());
 export const getRunAutomationRuleInteractor = () =>

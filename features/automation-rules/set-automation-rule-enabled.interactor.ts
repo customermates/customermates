@@ -1,5 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { AutomationPlanLimits } from "./automation-ports";
+import type { AutomationAgentJobQueue, AutomationPlanLimits } from "./automation-ports";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationRuleDto, SetAutomationRuleEnabledData } from "./automation-rule.schema";
 
@@ -21,6 +21,8 @@ export class SetAutomationRuleEnabledInteractor extends AuthenticatedInteractor<
   constructor(
     private readonly repo: AutomationRuleRepo,
     private readonly limits: AutomationPlanLimits,
+    private readonly agentJobs: AutomationAgentJobQueue,
+    private readonly clock: () => Date = () => new Date(),
   ) {
     super();
   }
@@ -44,6 +46,8 @@ export class SetAutomationRuleEnabledInteractor extends AuthenticatedInteractor<
     }
     const updated = await this.repo.setEnabled(id, enabled, enabled ? null : "disabledByUser");
     if (!updated) return failNotFound(CustomErrorCode.automationRuleNotFound, ["id"]);
+    if (!enabled)
+      await this.agentJobs.cancelQueuedForRuleUnscoped({ companyId: this.companyId, ruleId: id, now: this.clock() });
     return { ok: true as const, data: toAutomationRuleDto(updated) };
   }
 }

@@ -245,7 +245,18 @@ describe("switching a rule on and off", () => {
     repo = new FakeAutomationRuleRepo();
   });
 
-  const toggle = (limits = unlimited()) => new SetAutomationRuleEnabledInteractor(repo, limits);
+  const cancelled: { companyId: string; ruleId: string }[] = [];
+  const agentJobs = {
+    cancelQueuedForRuleUnscoped: ({ companyId, ruleId }: { companyId: string; ruleId: string }) => {
+      cancelled.push({ companyId, ruleId });
+      return Promise.resolve(1);
+    },
+  };
+  beforeEach(() => {
+    cancelled.length = 0;
+  });
+
+  const toggle = (limits = unlimited()) => new SetAutomationRuleEnabledInteractor(repo, limits, agentJobs);
   const set = (
     instance: SetAutomationRuleEnabledInteractor,
     input: { id: string; enabled: boolean },
@@ -258,6 +269,26 @@ describe("switching a rule on and off", () => {
     expect(off).toMatchObject({ ok: true, data: { enabled: false, disabledReason: "disabledByUser" } });
     const on = await set(toggle(), { id: RULE, enabled: true });
     expect(on).toMatchObject({ ok: true, data: { enabled: true, disabledReason: null } });
+  });
+
+  it("cancels the agent jobs that still wait for a rule when it is switched off or deleted, not when switched on", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify] });
+
+    await set(toggle(), { id: RULE, enabled: false });
+    expect(cancelled).toEqual([{ companyId: COMPANY, ruleId: RULE }]);
+
+    await set(toggle(), { id: RULE, enabled: true });
+    expect(cancelled).toHaveLength(1);
+
+    const remove = new DeleteAutomationRuleInteractor(repo, agentJobs);
+    await runWithTenant(mockUser, () => remove.invoke({ id: RULE }));
+    expect(cancelled).toEqual([
+      { companyId: COMPANY, ruleId: RULE },
+      { companyId: COMPANY, ruleId: RULE },
+    ]);
+
+    await runWithTenant(mockUser, () => remove.invoke({ id: RULE }));
+    expect(cancelled).toHaveLength(2);
   });
 
   it("checks the allowance when a rule is switched on", async () => {
@@ -285,7 +316,7 @@ describe("switching a rule on and off", () => {
   });
 
   it("deletes a rule for its owner or an administrator and reports an unknown one", async () => {
-    const remove = new DeleteAutomationRuleInteractor(repo);
+    const remove = new DeleteAutomationRuleInteractor(repo, agentJobs);
     const run = (id: string, user = mockUser) => runWithTenant(user, () => remove.invoke({ id }));
     repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], ownerUserId: COLLEAGUE });
     await expect(run(RULE)).resolves.toEqual({ ok: true, data: { deleted: true, id: RULE } });

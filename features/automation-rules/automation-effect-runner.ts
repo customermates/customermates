@@ -113,7 +113,7 @@ export class AutomationEffectRunner {
       { record: record ?? undefined, rule: context.rule },
       untrustedText,
     );
-    const request: AutomationAgentJobInput & { idempotencyKey: string } = {
+    const request: AutomationAgentJobInput = {
       companyId: context.companyId,
       runId: context.runId,
       idempotencyKey: `rule:${context.runId}:${index}`,
