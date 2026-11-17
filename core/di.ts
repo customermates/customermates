@@ -3300,7 +3300,7 @@ const agentRunnerLimiters = {
 const getAgentRunnerAuthenticator = () =>
   new AgentRunnerAuthenticator(getAgentRunnerRepo(), agentRunnerLimiters, getAgentRunnerRevocation());
 
-export const getGetAgentRunnersInteractor = () => new GetAgentRunnersInteractor(getAgentRunnerRepo());
+export const getGetAgentRunnersInteractor = () => new GetAgentRunnersInteractor(getAgentRunnerRepo(), getUserRepo());
 export const getCreateAgentRunnerInteractor = () =>
   new CreateAgentRunnerInteractor(getAgentRunnerRepo(), getWorkspacePlanService(), { baseUrl: env.BASE_URL });
 export const getRevokeAgentRunnerInteractor = () =>

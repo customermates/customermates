@@ -171,6 +171,34 @@ describe("the Ask an agent card", () => {
     expect(container.querySelector("[data-agent-reason]")).toBeNull();
   });
 
+  it("says 'runner of the owner' on a colleague's runner step instead of the viewer's own runners", () => {
+    const effect = { ...blankAgentEffect("runner"), runnerId: RUNNER };
+    const mine = { ...AVAILABLE, runners: [{ id: "99999999-9999-4999-8999-999999999999", name: "Mine", online: true }] };
+    const show = (ownRule: boolean, availability: AgentRuntimeAvailability) =>
+      mount(
+        <AutomationAgentFields
+          effect={effect}
+          flagged={false}
+          ownRule={ownRule}
+          runtimes={availability}
+          onChange={vi.fn()}
+        />,
+      );
+
+    show(false, runtimes());
+    expect(container.querySelector("[data-agent-owner-runner]")?.textContent).toBe("Automations.agent.ownerRunner");
+    expect(container.querySelector("[data-agent-reason]")).toBeNull();
+    expect(container.querySelector("[data-select]")).toBeNull();
+
+    show(false, runtimes({ runner: mine }));
+    expect(container.querySelector("[data-select]")).toBeNull();
+
+    show(true, runtimes());
+    expect(container.querySelector("[data-agent-owner-runner]")).toBeNull();
+    expect(container.querySelector("[data-agent-reason]")?.getAttribute("data-agent-reason")).toBe("noRunner");
+    expect(offered(RUNNER)).toEqual(["default"]);
+  });
+
   it("offers the three runtimes as radios and switches runtime without keeping a stale model or runner", () => {
     const effect = { ...blankAgentEffect("ownKey"), model: "m-1", runnerId: RUNNER, prompt: "Draft" };
     const onChange = render(

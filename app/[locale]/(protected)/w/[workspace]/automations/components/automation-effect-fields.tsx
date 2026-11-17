@@ -20,6 +20,7 @@ type Props = {
   webhooks: WebhookOption[] | null;
   flagged: boolean;
   unavailable?: DraftUnavailableKind;
+  ownRule?: boolean;
   onChange: (effect: DraftEffect) => void;
 };
 
@@ -31,6 +32,7 @@ export function AutomationEffectFields({
   webhooks,
   flagged,
   unavailable,
+  ownRule = true,
   onChange,
 }: Props) {
   const t = useTranslations();
@@ -89,7 +91,13 @@ export function AutomationEffectFields({
         ))}
 
       {effect.kind === "agent" && (
-        <AutomationAgentFields effect={effect} flagged={flagged} runtimes={runtimes} onChange={onChange} />
+        <AutomationAgentFields
+          effect={effect}
+          flagged={flagged}
+          ownRule={ownRule}
+          runtimes={runtimes}
+          onChange={onChange}
+        />
       )}
 
       {flagged && !unavailable && <p className="text-xs text-destructive">{t("AutomationRules.builder.fixEffect")}</p>}

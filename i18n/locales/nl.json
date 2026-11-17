@@ -1179,11 +1179,12 @@
       "defaultModel": "Standaardmodel van de sleutel",
       "model": "Model",
       "openSettings": "Instellingen, Verbindingen, Agents openen",
+      "ownerRunner": "Draait op een runner van de eigenaar van de automatisering. Runners zijn persoonlijk, dus die van jou staan hier niet.",
       "prompt": "Wat moet de agent doen?",
       "promptPlaceholder": "Bijvoorbeeld: schrijf een korte, vriendelijke reactie en bewaar die ter controle.",
       "reason": {
         "noKey": "Voor deze werkruimte is nog geen sleutel van een aanbieder opgeslagen.",
-        "noRunner": "Er is nog geen runner met deze werkruimte verbonden.",
+        "noRunner": "Je hebt nog geen runner die klaar is. Runners zijn persoonlijk: elk lid voegt een eigen runner toe.",
         "notConfigured": "Deze manier om een agent uit te voeren is nog niet ingesteld.",
         "plan": "Je abonnement bevat deze manier om een agent uit te voeren niet.",
         "selfHosted": "Mate is een Cloud-functie en niet beschikbaar als je Customermates zelf host."
@@ -6126,6 +6127,7 @@
     "description": "Met een runner draaien jouw agentstappen met je eigen Claude Code, Codex of Gemini CLI op je machine. Hij haalt de taken op van de automatiseringen waarvan jij de eigenaar bent, voert de CLI uit waarin je bent ingelogd en meldt het resultaat terug. Customermates ontvangt nooit je CLI-login.",
     "dockerDescription": "Draait dezelfde runner in een container. Koppel de loginmap van je CLI zodat die ingelogd blijft. Op macOS bewaart Claude Code de login in de Sleutelhanger: geef daar de API-sleutel of het token als variabele mee.",
     "dockerTitle": "Draaien met Docker",
+    "empty": "Je hebt nog geen runner. Voeg er een toe om agentstappen met je eigen CLI uit te voeren.",
     "installDescription": "Vereist Node 24 en Claude Code, Codex of Gemini CLI, ingelogd op die machine.",
     "installTitle": "Draaien met Node",
     "lastSeen": "Laatst gezien",
@@ -6135,6 +6137,7 @@
       "body": "Jouw agenttaken wachten, en de afgelopen 10 minuten heeft zich geen runner van jou verbonden die ze kan oppakken. Start je runner of controleer de machine waarop hij draait. Een taak die langer dan 15 minuten wacht, eindigt met een time-out.",
       "title": "Je runner is offline"
     },
+    "owner": "Toegevoegd door",
     "revoke": "Intrekken",
     "revokeDescription": "{name} kan geen taken meer ophalen, en de taken die hij uitvoert of die op hem wachten eindigen als geannuleerd. Dit kan niet ongedaan worden gemaakt. Voeg een nieuwe runner toe om de machine opnieuw te verbinden.",
     "revokeTitle": "Deze runner intrekken?",
@@ -6148,7 +6151,8 @@
     "toastRevoked": "Runner ingetrokken",
     "tokenCreated": "Runner toegevoegd. Kopieer het token nu, het wordt maar één keer getoond.",
     "tokenLabel": "Runner-token",
-    "tokenWarning": "Iedereen met dit token kan jouw runnertaken in deze werkruimte ophalen. Trek de runner in als het token uitlekt."
+    "tokenWarning": "Iedereen met dit token kan jouw runnertaken in deze werkruimte ophalen. Trek de runner in als het token uitlekt.",
+    "withheld": "Je rol mag runners niet zien, dus hier staan er geen."
   },
   "ScheduleMeeting": {
     "action": "Afspraak plannen",

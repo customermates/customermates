@@ -30,7 +30,7 @@ export async function ConnectionAgentsTab() {
     <div className="flex flex-col gap-4" data-connection-tab="agents">
       <ConnectionScopeLine owner="workspace" scope="agents" />
 
-      <AgentsPageView availability={availability} keys={keys.keys} runners={runners?.runners ?? []} runs={runs} />
+      <AgentsPageView availability={availability} keys={keys.keys} runners={runners?.runners ?? null} runs={runs} />
     </div>
   );
 }

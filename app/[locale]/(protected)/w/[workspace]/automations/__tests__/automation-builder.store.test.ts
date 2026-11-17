@@ -450,6 +450,24 @@ describe("AutomationBuilderStore", () => {
     expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
   });
 
+  it("marks a pinned runner as gone for the owner only, not for an admin who looks at a colleague's rule", () => {
+    const rule = {
+      ...SAVED,
+      effects: [{ kind: "agent", runtime: "runner", prompt: "Check", runnerId: "88888888-8888-4888-8888-888888888888" }],
+    };
+    const noRunner = { available: false, reason: "noRunner" as const, models: [], runners: [] };
+    const context = { ...CONTEXT, runtimes: { ...noAgentRuntimes(), runner: noRunner } };
+
+    const owner = makeStore();
+    owner.openForRule(context, rule as never, vi.fn());
+    expect(owner.unavailable).toEqual([{ card: "effects.0", what: "runner" }]);
+
+    const admin = makeStore({ id: "admin", admin: true });
+    admin.openForRule(context, rule as never, vi.fn());
+    expect(admin.isOwner).toBe(false);
+    expect(admin.unavailable).toEqual([]);
+  });
+
   it("asks for a model before saving an own-key step when the workspace has several keys", async () => {
     actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: SAVED });
     const models = [

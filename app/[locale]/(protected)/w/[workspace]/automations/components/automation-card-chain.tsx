@@ -184,6 +184,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
               effect={effect}
               flagged={store.isFlagged(`effects.${index}`)}
               model={model}
+              ownRule={store.isOwner}
               runtimes={context.runtimes}
               trigger={form.trigger}
               unavailable={store.unavailableAt(`effects.${index}`)}

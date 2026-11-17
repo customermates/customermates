@@ -1,4 +1,4 @@
-import type { AgentRunnerDto } from "@/features/agent-runners/agent-runner.schema";
+import type { ListedAgentRunner } from "@/features/agent-runners/get-agent-runners.interactor";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -51,8 +51,9 @@ import { AgentRunnersCard } from "../agent-runners-card";
 
 const RUNNER_ID = "44444444-4444-4444-8444-444444444444";
 
-function runner(overrides: Partial<AgentRunnerDto> = {}): AgentRunnerDto {
+function runner(overrides: Partial<ListedAgentRunner> = {}): ListedAgentRunner {
   return {
+    createdByName: "Ada Owner",
     id: RUNNER_ID,
     name: "Office laptop",
     machine: "ws-main",
@@ -66,8 +67,8 @@ function runner(overrides: Partial<AgentRunnerDto> = {}): AgentRunnerDto {
   };
 }
 
-function render(runners: AgentRunnerDto[]) {
-  harness.items = runners;
+function render(runners: ListedAgentRunner[] | null) {
+  harness.items = runners ?? [];
   return renderToStaticMarkup(createElement(AgentRunnersCard, { runners }));
 }
 
@@ -86,6 +87,30 @@ describe("AgentRunnersCard", () => {
     expect(html).toContain("Runners.description");
     expect(html).toContain("Runners.add");
     expect(html).not.toContain("data-agent-runner=");
+  });
+
+  it("says that the member has no runner yet instead of showing nothing", () => {
+    const html = render([]);
+
+    expect(html).toContain("data-agent-runners-empty");
+    expect(html).toContain("Runners.empty");
+    expect(html).not.toContain("Runners.withheld");
+    expect(render([runner()])).not.toContain("Runners.empty");
+  });
+
+  it("says that the list was withheld when the member's role may not see runners", () => {
+    const html = render(null);
+
+    expect(html).toContain("data-agent-runners-withheld");
+    expect(html).toContain("Runners.withheld");
+    expect(html).not.toContain("Runners.empty");
+  });
+
+  it("names the member who added a runner, and leaves the line out when that is not known", () => {
+    const html = render([runner(), runner({ id: "b", name: "orphan", createdByName: null })]);
+
+    expect(html.match(/Runners\.owner/g)).toHaveLength(1);
+    expect(html).toContain('<span data-agent-runner-owner="">Ada Owner</span>');
   });
 
   it("shows name, status, machine, CLIs with versions and last seen of each runner", () => {

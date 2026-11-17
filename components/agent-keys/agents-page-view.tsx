@@ -2,7 +2,7 @@
 
 import type { AgentProviderKeyDto } from "@/ee/agent-keys/agent-provider-key.schema";
 import type { AgentJobPage } from "@/features/agent-jobs/agent-job.schema";
-import type { AgentRunnerDto } from "@/features/agent-runners/agent-runner.schema";
+import type { ListedAgentRunner } from "@/features/agent-runners/get-agent-runners.interactor";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 
 import { observer } from "mobx-react-lite";
@@ -23,7 +23,7 @@ import { AgentRuntimesCard } from "./agent-runtimes-card";
 type Props = {
   availability: AgentRuntimeAvailability;
   keys: AgentProviderKeyDto[];
-  runners: AgentRunnerDto[];
+  runners: ListedAgentRunner[] | null;
   runs: AgentJobPage | null;
 };
 

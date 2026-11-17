@@ -26,6 +26,7 @@ type Props = {
   effect: DraftAgent;
   runtimes: AgentRuntimeAvailability;
   flagged: boolean;
+  ownRule?: boolean;
   onChange: (effect: DraftAgent) => void;
 };
 
@@ -45,9 +46,10 @@ function RuntimeReason({ runtime, runtimes }: { runtime: AgentRuntimeKind; runti
   );
 }
 
-export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: Props) {
+export function AutomationAgentFields({ effect, runtimes, flagged, ownRule = true, onChange }: Props) {
   const t = useTranslations();
   const option = runtimes[effect.runtime];
+  const ownerRunner = effect.runtime === "runner" && !ownRule;
   const modelRequired = ownKeyModelRequired(runtimes);
   const choose = (runtime: AgentRuntimeKind) => onChange({ ...effect, runtime, model: "", runnerId: "" });
 
@@ -94,7 +96,13 @@ export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: P
         })}
       </div>
 
-      <RuntimeReason runtime={effect.runtime} runtimes={runtimes} />
+      {ownerRunner ? (
+        <p className="text-xs text-muted-foreground" data-agent-owner-runner="">
+          {t("Automations.agent.ownerRunner")}
+        </p>
+      ) : (
+        <RuntimeReason runtime={effect.runtime} runtimes={runtimes} />
+      )}
 
       {effect.runtime === "ownKey" && (option.models.length > 0 || effect.model !== "") && (
         <Labeled label={t("Automations.agent.model")}>
@@ -111,7 +119,7 @@ export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: P
         </Labeled>
       )}
 
-      {effect.runtime === "runner" && (option.runners.length > 0 || effect.runnerId !== "") && (
+      {effect.runtime === "runner" && !ownerRunner && (option.runners.length > 0 || effect.runnerId !== "") && (
         <Labeled label={t("Automations.agent.runner")}>
           <Choose
             items={[

@@ -114,6 +114,7 @@ export type DraftReferences = {
     ownKey: { available: boolean; models: readonly { id: string }[]; defaultModel?: string | null };
     runner: { reason: string | null; runners: readonly { id: string }[] };
   };
+  viewerIsOwner?: boolean;
 };
 
 export function ownKeyModelRequired(runtimes: DraftReferences["runtimes"]): boolean {
@@ -593,6 +594,7 @@ function effectUnavailable(
     return webhook.subscribed ? null : "webhookEvent";
   }
   if (effect.kind === "agent") {
+    if (effect.runtime === "runner" && references.viewerIsOwner === false) return null;
     if (effect.runtime === "runner" && effect.runnerId && runtimes.runner.reason !== "notConfigured")
       return runtimes.runner.runners.some((runner) => runner.id === effect.runnerId) ? null : "runner";
     if (effect.runtime === "ownKey" && effect.model && runtimes.ownKey.available)

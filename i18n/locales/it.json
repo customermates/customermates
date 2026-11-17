@@ -1179,11 +1179,12 @@
       "defaultModel": "Modello predefinito della chiave",
       "model": "Modello",
       "openSettings": "Apri Impostazioni, Connessioni, Agenti",
+      "ownerRunner": "Viene eseguito su un runner del proprietario dell’automazione. I runner sono personali, quindi i tuoi non sono elencati qui.",
       "prompt": "Che cosa deve fare l’agente?",
       "promptPlaceholder": "Per esempio: scrivi una risposta breve e cordiale e salvala per la revisione.",
       "reason": {
         "noKey": "Per questo spazio di lavoro non è ancora salvata nessuna chiave del fornitore.",
-        "noRunner": "A questo spazio di lavoro non è ancora collegato nessun runner.",
+        "noRunner": "Non hai ancora un runner pronto. I runner sono personali: ogni membro aggiunge il proprio.",
         "notConfigured": "Questo modo di eseguire un agente non è ancora configurato.",
         "plan": "Il tuo piano non include questo modo di eseguire un agente.",
         "selfHosted": "Mate è una funzione del Cloud e non è disponibile se ospiti Customermates in autonomia."
@@ -6126,6 +6127,7 @@
     "description": "Un runner esegue i tuoi passaggi dell’agente con il tuo Claude Code, Codex o Gemini CLI sulla tua macchina. Ritira i lavori delle automazioni di cui sei proprietario, avvia la CLI a cui hai effettuato l’accesso e riporta il risultato. Customermates non riceve mai il tuo accesso alla CLI.",
     "dockerDescription": "Avvia lo stesso runner in un container. Monta la cartella di accesso della tua CLI perché resti autenticata. Su macOS Claude Code conserva l’accesso nel Portachiavi: lì passa la sua chiave API o il suo token in una variabile.",
     "dockerTitle": "Avvia con Docker",
+    "empty": "Non hai ancora un runner. Aggiungine uno per eseguire i passaggi dell’agente con la tua CLI.",
     "installDescription": "Richiede Node 24 e Claude Code, Codex o Gemini CLI, con l’accesso effettuato su quella macchina.",
     "installTitle": "Avvia con Node",
     "lastSeen": "Ultima attività",
@@ -6135,6 +6137,7 @@
       "body": "I tuoi lavori dell’agente sono in attesa e negli ultimi 10 minuti non si è collegato nessun tuo runner che possa prenderli. Avvia il runner o controlla la macchina su cui gira. Un lavoro che attende più di 15 minuti termina per tempo scaduto.",
       "title": "Il tuo runner è offline"
     },
+    "owner": "Aggiunto da",
     "revoke": "Revoca",
     "revokeDescription": "{name} non può più ritirare lavori, e i lavori che sta eseguendo o che lo attendono terminano come annullati. L’azione non si può annullare. Aggiungi un nuovo runner per collegare di nuovo la macchina.",
     "revokeTitle": "Revocare questo runner?",
@@ -6148,7 +6151,8 @@
     "toastRevoked": "Runner revocato",
     "tokenCreated": "Runner aggiunto. Copia subito il token, viene mostrato una sola volta.",
     "tokenLabel": "Token del runner",
-    "tokenWarning": "Chiunque abbia questo token può ritirare i tuoi lavori del runner in questo spazio di lavoro. Revoca il runner se il token viene diffuso."
+    "tokenWarning": "Chiunque abbia questo token può ritirare i tuoi lavori del runner in questo spazio di lavoro. Revoca il runner se il token viene diffuso.",
+    "withheld": "Il tuo ruolo non può vedere i runner, quindi qui non ne viene elencato nessuno."
   },
   "ScheduleMeeting": {
     "action": "Pianifica riunione",

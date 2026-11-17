@@ -1179,11 +1179,12 @@
       "defaultModel": "Default model of the key",
       "model": "Model",
       "openSettings": "Open Settings, Connections, Agents",
+      "ownerRunner": "Runs on a runner of the automation's owner. Runners are personal, so yours are not listed here.",
       "prompt": "What should the agent do?",
       "promptPlaceholder": "For example: Draft a short, friendly reply and save it for review.",
       "reason": {
         "noKey": "No provider key is saved for this workspace yet.",
-        "noRunner": "No runner is connected to this workspace yet.",
+        "noRunner": "You have no runner that is ready yet. Runners are personal: each member adds their own.",
         "notConfigured": "This way of running an agent is not set up yet.",
         "plan": "Your plan does not include this way of running an agent.",
         "selfHosted": "Mate is a Cloud feature and is not available when you host Customermates yourself."
@@ -6126,6 +6127,7 @@
     "description": "A runner lets your agent steps run with your own Claude Code, Codex or Gemini CLI on your machine. It picks up the jobs of the automations you own, runs the CLI you are signed in to and reports back. Customermates never receives your CLI login.",
     "dockerDescription": "Runs the same runner in a container. Mount the login folder of your CLI so it stays signed in. On macOS Claude Code keeps its login in the Keychain: pass its API key or token as a variable there.",
     "dockerTitle": "Run with Docker",
+    "empty": "You have no runner yet. Add one to run agent steps with your own CLI.",
     "installDescription": "Needs Node 24 and one of Claude Code, Codex or Gemini CLI, signed in on that machine.",
     "installTitle": "Run with Node",
     "lastSeen": "Last seen",
@@ -6135,6 +6137,7 @@
       "body": "Your agent jobs are waiting, and no runner of yours that could take them has connected in the last 10 minutes. Start your runner or check the machine it runs on. A job that waits longer than 15 minutes ends as timed out.",
       "title": "Your runner is offline"
     },
+    "owner": "Added by",
     "revoke": "Revoke",
     "revokeDescription": "{name} can no longer pick up jobs, and the jobs it is running or that wait for it end as cancelled. This cannot be undone. Add a new runner to connect the machine again.",
     "revokeTitle": "Revoke this runner?",
@@ -6148,7 +6151,8 @@
     "toastRevoked": "Runner revoked",
     "tokenCreated": "Runner added. Copy the token now, it is shown only once.",
     "tokenLabel": "Runner token",
-    "tokenWarning": "Anyone with this token can pick up your runner jobs in this workspace. Revoke the runner if the token leaks."
+    "tokenWarning": "Anyone with this token can pick up your runner jobs in this workspace. Revoke the runner if the token leaks.",
+    "withheld": "Your role cannot see runners, so none are listed here."
   },
   "ScheduleMeeting": {
     "action": "Schedule meeting",

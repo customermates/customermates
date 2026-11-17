@@ -205,6 +205,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       model: context.model,
       webhooks: context.webhooks,
       runtimes: context.runtimes,
+      viewerIsOwner: this.isOwner,
     });
   }
 

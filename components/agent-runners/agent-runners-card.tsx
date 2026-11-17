@@ -1,6 +1,7 @@
 "use client";
 
-import type { AgentRunnerClientName, AgentRunnerDto } from "@/features/agent-runners/agent-runner.schema";
+import type { AgentRunnerClientName } from "@/features/agent-runners/agent-runner.schema";
+import type { ListedAgentRunner } from "@/features/agent-runners/get-agent-runners.interactor";
 import type { AgentRunnerStatus } from "./agent-runner-status";
 
 import { observer } from "mobx-react-lite";
@@ -19,7 +20,9 @@ import { startAgentRunnerRefresh } from "./agent-runner-refresh";
 import { AGENT_RUNNER_BADGE_VARIANTS, agentRunnerStatus } from "./agent-runner-status";
 import { AgentRunnerModal } from "./agent-runner-modal";
 
-type Props = { runners: AgentRunnerDto[] };
+type Props = { runners: ListedAgentRunner[] | null };
+
+const NO_RUNNERS: ListedAgentRunner[] = [];
 
 export const AgentRunnersCard = observer(({ runners }: Props) => {
   const t = useTranslations();
@@ -40,7 +43,7 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
     gemini: t("Runners.clientNames.gemini"),
   };
 
-  useLayoutEffect(() => store.setItems({ items: runners }), [runners, store]);
+  useLayoutEffect(() => store.setItems({ items: runners ?? NO_RUNNERS }), [runners, store]);
 
   useEffect(() => {
     if (!hasLiveRunner) return undefined;
@@ -50,7 +53,7 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
     );
   }, [hasLiveRunner, store]);
 
-  function revoke(runner: AgentRunnerDto) {
+  function revoke(runner: ListedAgentRunner) {
     showConfirmation({
       title: t("Runners.revokeTitle"),
       message: t("Runners.revokeDescription", { name: runner.name }),
@@ -93,6 +96,12 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
                     <Badge variant={AGENT_RUNNER_BADGE_VARIANTS[status]}>{statusLabels[status]}</Badge>
                   </div>
 
+                  {runner.createdByName ? (
+                    <InfoRow label={t("Runners.owner")}>
+                      <span data-agent-runner-owner="">{runner.createdByName}</span>
+                    </InfoRow>
+                  ) : null}
+
                   <InfoRow label={t("Runners.machine")}>{runner.machine ?? t("Common.never")}</InfoRow>
 
                   <InfoRow label={t("Runners.clients")}>
@@ -119,7 +128,15 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
             );
           })}
         </div>
-      ) : null}
+      ) : runners === null ? (
+        <p className="text-sm text-muted-foreground" data-agent-runners-withheld="">
+          {t("Runners.withheld")}
+        </p>
+      ) : (
+        <p className="text-sm text-muted-foreground" data-agent-runners-empty="">
+          {t("Runners.empty")}
+        </p>
+      )}
 
       <AgentRunnerModal />
     </section>

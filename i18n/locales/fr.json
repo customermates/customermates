@@ -1179,11 +1179,12 @@
       "defaultModel": "Modèle par défaut de la clé",
       "model": "Modèle",
       "openSettings": "Ouvrir Paramètres, Connexions, Agents",
+      "ownerRunner": "S’exécute sur un runner du propriétaire de l’automatisation. Les runners sont personnels, les vôtres ne sont donc pas affichés ici.",
       "prompt": "Que doit faire l’agent ?",
       "promptPlaceholder": "Par exemple : rédige une réponse courte et aimable et enregistre-la pour relecture.",
       "reason": {
         "noKey": "Aucune clé de fournisseur n’est encore enregistrée pour cet espace de travail.",
-        "noRunner": "Aucun runner n’est encore connecté à cet espace de travail.",
+        "noRunner": "Vous n’avez pas encore de runner prêt. Les runners sont personnels : chaque membre ajoute le sien.",
         "notConfigured": "Cette façon d’exécuter un agent n’est pas encore configurée.",
         "plan": "Votre offre n’inclut pas cette façon d’exécuter un agent.",
         "selfHosted": "Mate est une fonction du Cloud et n’est pas disponible si vous hébergez Customermates vous-même."
@@ -6126,6 +6127,7 @@
     "description": "Un runner exécute vos étapes d’agent avec votre propre Claude Code, Codex ou Gemini CLI sur votre machine. Il récupère les tâches des automatisations dont vous êtes propriétaire, lance la CLI dont vous avez ouvert la session et renvoie le résultat. Customermates ne reçoit jamais votre connexion à la CLI.",
     "dockerDescription": "Lance le même runner dans un conteneur. Montez le dossier de connexion de votre CLI pour qu’elle reste connectée. Sous macOS, Claude Code garde sa connexion dans le Trousseau : passez-y sa clé d’API ou son jeton dans une variable.",
     "dockerTitle": "Lancer avec Docker",
+    "empty": "Vous n’avez pas encore de runner. Ajoutez-en un pour exécuter les étapes d’agent avec votre propre CLI.",
     "installDescription": "Nécessite Node 24 et Claude Code, Codex ou Gemini CLI, connecté sur cette machine.",
     "installTitle": "Lancer avec Node",
     "lastSeen": "Dernière activité",
@@ -6135,6 +6137,7 @@
       "body": "Vos tâches d’agent attendent, et aucun de vos runners capables de les prendre ne s’est connecté depuis 10 minutes. Démarrez votre runner ou vérifiez la machine sur laquelle il tourne. Une tâche qui attend plus de 15 minutes se termine en délai dépassé.",
       "title": "Votre runner est hors ligne"
     },
+    "owner": "Ajouté par",
     "revoke": "Révoquer",
     "revokeDescription": "{name} ne peut plus récupérer de tâches, et les tâches qu’il exécute ou qui l’attendent se terminent comme annulées. Cette action est irréversible. Ajoutez un nouveau runner pour reconnecter la machine.",
     "revokeTitle": "Révoquer ce runner ?",
@@ -6148,7 +6151,8 @@
     "toastRevoked": "Runner révoqué",
     "tokenCreated": "Runner ajouté. Copiez le jeton maintenant, il n’est affiché qu’une seule fois.",
     "tokenLabel": "Jeton du runner",
-    "tokenWarning": "Toute personne disposant de ce jeton peut récupérer vos tâches de runner dans cet espace de travail. Révoquez le runner si le jeton fuite."
+    "tokenWarning": "Toute personne disposant de ce jeton peut récupérer vos tâches de runner dans cet espace de travail. Révoquez le runner si le jeton fuite.",
+    "withheld": "Votre rôle ne permet pas de voir les runners, aucun n’est donc affiché ici."
   },
   "ScheduleMeeting": {
     "action": "Planifier une réunion",

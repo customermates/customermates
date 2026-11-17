@@ -1179,11 +1179,12 @@
       "defaultModel": "Domyślny model klucza",
       "model": "Model",
       "openSettings": "Otwórz Ustawienia, Połączenia, Agenci",
+      "ownerRunner": "Działa na runnerze właściciela automatyzacji. Runnery są osobiste, więc Twoje nie są tutaj wymienione.",
       "prompt": "Co ma zrobić agent?",
       "promptPlaceholder": "Na przykład: napisz krótką, życzliwą odpowiedź i zapisz ją do sprawdzenia.",
       "reason": {
         "noKey": "Dla tego obszaru roboczego nie zapisano jeszcze klucza dostawcy.",
-        "noRunner": "Z tym obszarem roboczym nie połączono jeszcze żadnego runnera.",
+        "noRunner": "Nie masz jeszcze gotowego runnera. Runnery są osobiste: każdy członek dodaje własny.",
         "notConfigured": "Ten sposób uruchamiania agenta nie jest jeszcze skonfigurowany.",
         "plan": "Twój plan nie obejmuje tego sposobu uruchamiania agenta.",
         "selfHosted": "Mate jest funkcją chmury i nie jest dostępna, jeśli sam hostujesz Customermates."
@@ -6126,6 +6127,7 @@
     "description": "Runner uruchamia Twoje kroki agenta z Twoim własnym Claude Code, Codex lub Gemini CLI na Twojej maszynie. Pobiera zadania automatyzacji, których jesteś właścicielem, uruchamia CLI, w którym masz aktywne logowanie, i odsyła wynik. Customermates nigdy nie otrzymuje Twojego logowania do CLI.",
     "dockerDescription": "Uruchamia tego samego runnera w kontenerze. Zamontuj folder logowania swojego CLI, aby pozostało zalogowane. W systemie macOS Claude Code przechowuje logowanie w Pęku kluczy: przekaż tam jego klucz API lub token w zmiennej.",
     "dockerTitle": "Uruchom w Dockerze",
+    "empty": "Nie masz jeszcze żadnego runnera. Dodaj go, aby uruchamiać kroki agenta we własnym CLI.",
     "installDescription": "Wymaga Node 24 oraz Claude Code, Codex lub Gemini CLI, zalogowanego na tej maszynie.",
     "installTitle": "Uruchom z Node",
     "lastSeen": "Ostatnio widziany",
@@ -6135,6 +6137,7 @@
       "body": "Twoje zadania agenta czekają, a w ciągu ostatnich 10 minut nie połączył się żaden Twój runner, który mógłby je podjąć. Uruchom runnera lub sprawdź maszynę, na której działa. Zadanie, które czeka dłużej niż 15 minut, kończy się przekroczeniem czasu.",
       "title": "Twój runner jest offline"
     },
+    "owner": "Dodany przez",
     "revoke": "Unieważnij",
     "revokeDescription": "{name} nie może już pobierać zadań, a zadania, które wykonuje lub które na niego czekają, kończą się jako anulowane. Tego nie można cofnąć. Dodaj nowego runnera, aby ponownie połączyć maszynę.",
     "revokeTitle": "Unieważnić tego runnera?",
@@ -6148,7 +6151,8 @@
     "toastRevoked": "Runner unieważniony",
     "tokenCreated": "Runner dodany. Skopiuj token teraz, jest pokazywany tylko raz.",
     "tokenLabel": "Token runnera",
-    "tokenWarning": "Każdy, kto ma ten token, może pobierać Twoje zadania runnera w tej przestrzeni roboczej. Unieważnij runnera, jeśli token wycieknie."
+    "tokenWarning": "Każdy, kto ma ten token, może pobierać Twoje zadania runnera w tej przestrzeni roboczej. Unieważnij runnera, jeśli token wycieknie.",
+    "withheld": "Twoja rola nie widzi runnerów, więc żaden nie jest tutaj wymieniony."
   },
   "ScheduleMeeting": {
     "action": "Zaplanuj spotkanie",

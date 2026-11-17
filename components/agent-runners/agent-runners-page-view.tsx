@@ -1,12 +1,12 @@
 "use client";
 
-import type { AgentRunnerDto } from "@/features/agent-runners/agent-runner.schema";
+import type { ListedAgentRunner } from "@/features/agent-runners/get-agent-runners.interactor";
 
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 import { AgentRunnersCard } from "./agent-runners-card";
 
-type Props = { runners: AgentRunnerDto[] };
+type Props = { runners: ListedAgentRunner[] | null };
 
 function AgentRunnersPageViewContent({ runners }: Props) {
   return <AgentRunnersCard runners={runners} />;

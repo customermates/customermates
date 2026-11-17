@@ -1,7 +1,7 @@
 import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
-import type { AgentRunnerDto } from "@/features/agent-runners/agent-runner.schema";
+import type { ListedAgentRunner } from "@/features/agent-runners/get-agent-runners.interactor";
 
 import { action, computed, makeObservable } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
@@ -12,7 +12,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { refreshAgentRunnersAction, revokeAgentRunnerAction } from "./actions";
 
-export class AgentRunnersStore extends BaseDataViewStore<AgentRunnerDto> {
+export class AgentRunnersStore extends BaseDataViewStore<ListedAgentRunner> {
   constructor(rootStore: RootStore) {
     super(rootStore, Resource.api);
 

@@ -1179,11 +1179,12 @@
       "defaultModel": "Standardmodell des Schlüssels",
       "model": "Modell",
       "openSettings": "Einstellungen, Verbindungen, Agenten öffnen",
+      "ownerRunner": "Läuft auf einem Runner der Person, der diese Automatisierung gehört. Runner sind persönlich, deine werden hier deshalb nicht aufgeführt.",
       "prompt": "Was soll der Agent tun?",
       "promptPlaceholder": "Zum Beispiel: Verfasse eine kurze, freundliche Antwort und speichere sie zur Prüfung.",
       "reason": {
         "noKey": "Für diesen Arbeitsbereich ist noch kein Anbieter-Schlüssel gespeichert.",
-        "noRunner": "Mit diesem Arbeitsbereich ist noch kein Runner verbunden.",
+        "noRunner": "Du hast noch keinen einsatzbereiten Runner. Runner sind persönlich: Jedes Mitglied fügt seinen eigenen hinzu.",
         "notConfigured": "Diese Art, einen Agenten auszuführen, ist noch nicht eingerichtet.",
         "plan": "Dein Tarif enthält diese Art, einen Agenten auszuführen, nicht.",
         "selfHosted": "Mate gibt es nur in der Cloud und nicht, wenn du Customermates selbst betreibst."
@@ -6126,6 +6127,7 @@
     "description": "Mit einem Runner laufen deine Agent-Schritte mit deinem eigenen Claude Code, Codex oder Gemini CLI auf deinem Rechner. Er holt die Aufträge der Automatisierungen ab, die dir gehören, führt die CLI aus, bei der du angemeldet bist, und meldet das Ergebnis zurück. Customermates erhält nie deine CLI-Anmeldung.",
     "dockerDescription": "Startet denselben Runner in einem Container. Binde den Anmeldeordner deiner CLI ein, damit sie angemeldet bleibt. Unter macOS liegt die Anmeldung von Claude Code im Schlüsselbund: Übergib dort den API-Schlüssel oder Token als Variable.",
     "dockerTitle": "Mit Docker starten",
+    "empty": "Du hast noch keinen Runner. Füge einen hinzu, um Agentenschritte mit deiner eigenen CLI auszuführen.",
     "installDescription": "Benötigt Node 24 und Claude Code, Codex oder Gemini CLI, auf diesem Rechner angemeldet.",
     "installTitle": "Mit Node starten",
     "lastSeen": "Zuletzt gesehen",
@@ -6135,6 +6137,7 @@
       "body": "Deine Agent-Aufträge warten, und seit 10 Minuten hat sich kein Runner von dir verbunden, der sie übernehmen könnte. Starte deinen Runner oder prüfe den Rechner, auf dem er läuft. Ein Auftrag, der länger als 15 Minuten wartet, endet mit Zeitüberschreitung.",
       "title": "Dein Runner ist offline"
     },
+    "owner": "Hinzugefügt von",
     "revoke": "Widerrufen",
     "revokeDescription": "{name} kann keine Aufträge mehr abholen, und die Aufträge, die er gerade ausführt oder die auf ihn warten, enden als abgebrochen. Das lässt sich nicht rückgängig machen. Füge einen neuen Runner hinzu, um den Rechner erneut zu verbinden.",
     "revokeTitle": "Diesen Runner widerrufen?",
@@ -6148,7 +6151,8 @@
     "toastRevoked": "Runner widerrufen",
     "tokenCreated": "Runner hinzugefügt. Kopiere den Token jetzt, er wird nur einmal angezeigt.",
     "tokenLabel": "Runner-Token",
-    "tokenWarning": "Jeder mit diesem Token kann deine Runner-Aufträge in diesem Workspace abholen. Widerrufe den Runner, falls der Token bekannt wird."
+    "tokenWarning": "Jeder mit diesem Token kann deine Runner-Aufträge in diesem Workspace abholen. Widerrufe den Runner, falls der Token bekannt wird.",
+    "withheld": "Deine Rolle darf Runner nicht sehen, deshalb werden hier keine aufgeführt."
   },
   "ScheduleMeeting": {
     "action": "Termin planen",

@@ -1053,6 +1053,17 @@ describe("references that are no longer available", () => {
     expect(pickableWebhooks([silent, other], WEBHOOK)).toEqual([silent, other]);
   });
 
+  it("does not call the runner of a colleague's rule missing: the viewer only knows their own runners", () => {
+    const rule = stored({ effects: [{ kind: "agent", runtime: "runner", prompt: "Check", runnerId: RUNNER }] });
+    const noneOfMine = { ownKey: { available: false, models: [] }, runner: { reason: "noRunner", runners: [] } };
+
+    expect(unavailableOf(rule, { runtimes: noneOfMine, viewerIsOwner: false })).toEqual([]);
+    expect(unavailableOf(rule, { runtimes: noneOfMine, viewerIsOwner: true })).toEqual([
+      { card: "effects.0", what: "runner" },
+    ]);
+    expect(unavailableOf(rule, { runtimes: noneOfMine })).toEqual([{ card: "effects.0", what: "runner" }]);
+  });
+
   it("does not call a webhook missing when the member may not see webhooks, nor a model when no key is saved", () => {
     const rule = stored({
       effects: [

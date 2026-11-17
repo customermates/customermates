@@ -39,6 +39,7 @@ import { FakeAgentJobCredentials } from "./fake-agent-job-credentials";
 import { FakeAgentRunnerRepo } from "./fake-agent-runner-repo";
 
 const NOW = new Date("2026-11-17T09:00:00.000Z");
+const NO_NAMES = { findUserSummaries: () => Promise.resolve(new Map()) };
 
 function plans(allowed = true) {
   return { canCreateIntegrations: vi.fn().mockResolvedValue(allowed) } as Pick<
@@ -120,7 +121,7 @@ describe("GetAgentRunnersInteractor", () => {
       lastSeenAt: ago(1_000),
       revokedAt: ago(500),
     });
-    const interactor = new GetAgentRunnersInteractor(repo, () => NOW);
+    const interactor = new GetAgentRunnersInteractor(repo, NO_NAMES, () => NOW);
 
     const result = await interactor.invoke();
 
@@ -145,7 +146,7 @@ describe("GetAgentRunnersInteractor", () => {
     const repo = new FakeAgentRunnerRepo();
     repo.addRunner({ clients: [{ name: "vim", version: 3 }] });
 
-    const result = await new GetAgentRunnersInteractor(repo, () => NOW).invoke();
+    const result = await new GetAgentRunnersInteractor(repo, NO_NAMES, () => NOW).invoke();
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
