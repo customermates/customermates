@@ -5,6 +5,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import type { Prisma } from "@/generated/prisma";
 import type { ActivityKind } from "@/ee/messaging/activities/activities.schema";
 import type { RecordActivityIndexRow } from "@/ee/messaging/activities/record-activity-query";
+import type { CalendarEventCore } from "../calendar.schema";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
@@ -34,6 +35,8 @@ const { PrismaBookingRepo } = await import("../prisma-booking.repository");
 const { PrismaCalendarEventLinkRepo } = await import("../prisma-calendar-event-link.repository");
 const { PrismaCalendarRepo } = await import("../prisma-calendar.repository");
 const { PrismaCalendarWriteAccessRepo } = await import("../prisma-calendar-write-access.repository");
+const { PrismaPlannerPersonalEventsRepo } = await import("../prisma-planner-personal-events.repository");
+const { BusyTimeReader } = await import("../busy-time.reader");
 const { DEFAULT_WORKING_HOURS } = await import("../working-hours");
 const { compileRecordActivityIndex } = await import("@/ee/messaging/activities/record-activity-query");
 const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/record-activities.schema");
@@ -344,6 +347,7 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
         recurrenceRule: null,
         status: "confirmed",
         visibility: null,
+        transparency: null,
         attendees: [],
         organizer: null,
       },
@@ -414,6 +418,91 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
     expect(await index(organization)).toEqual([linked.id]);
     expect(await index(other)).toEqual([]);
     expect(unlinked.id).not.toBe(linked.id);
+  });
+
+  it("stores the free or busy mark of the provider and blocks a booking page only for busy entries", async () => {
+    const w = await workspace();
+    const { account, calendar } = await connectCalendar(w);
+    const calendars = new PrismaCalendarRepo();
+    const day = (date: string) => new Date(`${date}T00:00:00.000Z`);
+    const sync = (title: string, event: Partial<CalendarEventCore>) =>
+      calendars.upsertCalendarEventUnscoped({
+        companyId: w.companyId,
+        connectedAccountId: account.id,
+        calendarId: calendar.id,
+        attendeeEmails: [],
+        event: {
+          unipileEventId: `mark-${title}`,
+          title,
+          description: null,
+          location: null,
+          conferenceUrl: null,
+          startsAt: START,
+          endsAt: END,
+          allDay: false,
+          timezone: "Europe/Berlin",
+          recurrenceRule: null,
+          status: "confirmed",
+          visibility: null,
+          transparency: null,
+          attendees: [],
+          organizer: null,
+          ...event,
+        },
+      });
+    const allDay = { allDay: true, startsAt: day("2030-01-16"), endsAt: day("2030-01-17") };
+
+    await sync("timed busy", { transparency: "opaque" });
+    await sync("timed free", {
+      transparency: "transparent",
+      startsAt: new Date("2030-01-15T11:00:00.000Z"),
+      endsAt: new Date("2030-01-15T12:00:00.000Z"),
+    });
+    await sync("timed unmarked", {
+      startsAt: new Date("2030-01-15T13:00:00.000Z"),
+      endsAt: new Date("2030-01-15T14:00:00.000Z"),
+    });
+    await sync("day busy", { ...allDay, transparency: "opaque" });
+    await sync("day free", { ...allDay, transparency: "transparent" });
+    await sync("day unmarked", { ...allDay, startsAt: day("2030-01-18"), endsAt: day("2030-01-19") });
+    const moved = await sync("day free", { ...allDay, transparency: "opaque", timezone: "America/New_York" });
+
+    const rows = await runWithoutTenant(() =>
+      prisma.calendarEvent.findMany({
+        where: { calendarId: calendar.id },
+        select: { id: true, title: true, transparency: true },
+        orderBy: { title: "asc" },
+      }),
+    );
+    expect(rows.map((row) => [row.title, row.transparency])).toEqual([
+      ["day busy", "opaque"],
+      ["day free", "opaque"],
+      ["day unmarked", null],
+      ["timed busy", "opaque"],
+      ["timed free", "transparent"],
+      ["timed unmarked", null],
+    ]);
+    expect(rows.find((row) => row.title === "day free")?.id).toBe(moved.id);
+
+    const reader = new BusyTimeReader(new PrismaPlannerPersonalEventsRepo());
+    const read = (from: string, to: string) =>
+      w.as(w.admin, async () =>
+        (await reader.read(new Date(from), new Date(to), "Europe/Berlin"))
+          .map((interval) => `${interval.startsAt.toISOString()} ${interval.endsAt.toISOString()}`)
+          .sort(),
+      );
+
+    expect(await read("2030-01-15T00:00:00.000Z", "2030-01-19T00:00:00.000Z")).toEqual([
+      "2030-01-15T09:00:00.000Z 2030-01-15T09:30:00.000Z",
+      "2030-01-15T13:00:00.000Z 2030-01-15T14:00:00.000Z",
+      "2030-01-15T23:00:00.000Z 2030-01-16T23:00:00.000Z",
+      "2030-01-16T05:00:00.000Z 2030-01-17T05:00:00.000Z",
+    ]);
+    expect(await read("2030-01-17T00:30:00.000Z", "2030-01-17T04:00:00.000Z")).toEqual([
+      "2030-01-15T23:00:00.000Z 2030-01-16T23:00:00.000Z",
+      "2030-01-16T05:00:00.000Z 2030-01-17T05:00:00.000Z",
+    ]);
+    expect(await w.as(w.member, () => reader.read(day("2030-01-15"), day("2030-01-19"), "Europe/Berlin"))).toEqual([]);
   });
 });
 

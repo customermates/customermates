@@ -14,6 +14,8 @@ export type PersonalCalendarEvent = {
   location: string | null;
   recurrenceRule: string | null;
   provider: string;
+  timezone?: string | null;
+  transparency?: string | null;
 };
 export type PersonalCalendarWindow = { events: PersonalCalendarEvent[]; truncated: boolean };
 export interface PlannerPersonalEventsRepo {

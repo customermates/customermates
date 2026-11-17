@@ -68,6 +68,7 @@ const EVENT = {
   recurrenceRule: null,
   status: "confirmed",
   visibility: null,
+  transparency: null,
   attendees: [{ email: "ada@example.com", displayName: null, responseStatus: null, isOrganizer: false }],
   organizer: null,
 };

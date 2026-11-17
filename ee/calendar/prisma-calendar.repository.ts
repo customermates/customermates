@@ -155,6 +155,7 @@ export class PrismaCalendarRepo
       recurrenceRule: args.event.recurrenceRule,
       status: args.event.status,
       visibility: args.event.visibility,
+      transparency: args.event.transparency,
       attendees: args.event.attendees,
       organizer: args.event.organizer ?? Prisma.JsonNull,
       attendeeEmails: args.attendeeEmails,

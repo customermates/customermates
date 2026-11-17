@@ -231,6 +231,9 @@ CREATE TABLE "IncomingWebhookDelivery" (
 );
 
 -- AlterTable
+ALTER TABLE "CalendarEvent" ADD COLUMN "transparency" TEXT;
+
+-- AlterTable
 ALTER TABLE "AuthUser" ADD COLUMN "signupLastPage" VARCHAR(512),
 ADD COLUMN "signupCampaign" VARCHAR(1024);
 

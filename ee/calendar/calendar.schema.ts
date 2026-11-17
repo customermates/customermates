@@ -29,6 +29,7 @@ const CalendarEventCoreSchema = z.object({
   recurrenceRule: z.string().nullable(),
   status: CalendarEventStatusSchema,
   visibility: z.string().nullable(),
+  transparency: z.string().nullable(),
   attendees: z.array(CalendarAttendeeSchema),
   organizer: CalendarAttendeeSchema.nullable(),
 });
@@ -57,6 +58,7 @@ export type CalendarDto = z.infer<typeof CalendarDtoSchema>;
 export const CalendarEventDtoSchema = CalendarEventSchema.omit({
   unipileEventId: true,
   visibility: true,
+  transparency: true,
   createdAt: true,
   updatedAt: true,
 }).extend({

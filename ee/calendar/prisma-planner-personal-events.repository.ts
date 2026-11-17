@@ -52,6 +52,7 @@ export class PrismaPlannerPersonalEventsRepo extends TenantRepository implements
         location: true,
         recurrenceRule: true,
         timezone: true,
+        transparency: true,
         calendar: { select: { name: true } },
         connectedAccount: { select: { provider: true } },
       },
