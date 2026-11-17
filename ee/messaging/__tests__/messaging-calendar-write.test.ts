@@ -85,6 +85,7 @@ describe("MessagingService calendar write", () => {
       end: { type: "datetime", date_time: "2026-11-17T09:30:00Z", timezone: "Europe/Berlin" },
       conference: { provider: "google_meet" },
       notify: "all",
+      transparency: "opaque",
     });
   });
 

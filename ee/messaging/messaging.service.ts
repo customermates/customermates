@@ -678,6 +678,7 @@ export class MessagingService {
             end: calendarEventTime(input.endsAt, input.timeZone),
             ...(input.conferenceProvider ? { conference: { provider: input.conferenceProvider } } : {}),
             notify: input.notifyAttendees ? "all" : "none",
+            transparency: "opaque",
           },
           headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
         }),
