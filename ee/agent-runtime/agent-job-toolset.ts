@@ -8,6 +8,7 @@ import { runInCausation } from "@/core/decorators/causation-context";
 import { getAgentAiTools } from "@/ee/agent-chat/agent-tools";
 import { LOAD_TOOLSET_TOOL_NAME, isAgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 import { onDemandToolsetOfTool } from "@/ee/agent-chat/agent-toolsets";
+import { agentJobToolPolicyRefusal } from "@/features/agent-jobs/agent-job-tool-policy";
 import { mcpMessageFailure } from "@/features/mcp-tools/utils";
 
 import { summarizeAgentJobToolOutput } from "./agent-job-tool-output";
@@ -50,6 +51,7 @@ export type AgentJobToolkitFactory = (args: {
   maxToolCalls: number;
   recorder: AgentJobRecorder;
   ruleChain: readonly string[];
+  untrusted: boolean;
 }) => AgentJobToolkit;
 
 export function agentJobCausation(ruleChain: readonly string[]): CausationContext {
@@ -66,10 +68,12 @@ export function buildAgentJobTools(args: {
   maxToolCalls: number;
   recorder: AgentJobRecorder;
   ruleChain?: readonly string[];
+  untrusted?: boolean;
   base?: ToolSet;
 }): ToolSet {
   const { recorder, maxToolCalls } = args;
-  const causation = agentJobCausation(args.ruleChain ?? []);
+  const policy = { untrusted: args.untrusted ?? true, ruleChain: args.ruleChain ?? [] };
+  const causation = agentJobCausation(policy.ruleChain);
   const base = args.base ?? getAgentAiTools(AGENT_JOB_TOOL_DEPS, { locale: args.locale, surface: "routine" });
   return Object.fromEntries(
     Object.entries(base).map(([name, definition]) => {
@@ -86,6 +90,11 @@ export function buildAgentJobTools(args: {
               return { ok: false, result: TOOL_LIMIT_RESULT };
             }
             recorder.toolCalls += 1;
+            const refused = agentJobToolPolicyRefusal(name, input, policy);
+            if (refused) {
+              recorder.toolResult(options.toolCallId, name, false, refused);
+              return { ok: false, result: refused };
+            }
             if (name === LOAD_TOOLSET_TOOL_NAME) {
               const toolset = (input as { toolset?: unknown } | null)?.toolset;
               if (typeof toolset === "string" && isAgentOnDemandToolset(toolset)) recorder.loadedToolsets.add(toolset);

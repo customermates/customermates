@@ -2968,7 +2968,7 @@ const getRecordAutomationPort = () =>
   new RecordAutomationPort(getGetRecordModelInteractor(), getGetRecordInteractor(), getMutateRecordInteractor());
 const getAutomationPlanLimits = () =>
   new AutomationPlanLimitsAdapter(getPlanLimitsService(), (plan) => upgradeOfferValues(plan));
-const getAgentJobRepo = () => new PrismaAgentJobRepo();
+export const getAgentJobRepo = () => new PrismaAgentJobRepo();
 const getAgentProviderKeyRepo = () => new PrismaAgentProviderKeyRepo();
 const getAgentOwnKeyPlan = () => new AgentOwnKeyPlan(getPlanLimitsService());
 const getAgentRuntimeAvailabilitySource = () =>

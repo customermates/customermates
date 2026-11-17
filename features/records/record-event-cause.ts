@@ -3,6 +3,15 @@ import type { TenantUser } from "@/features/user/user.schema";
 import type { EventVia } from "@/features/event/event-via";
 import type { RecordEventPayload, RecordOperationCause } from "./record-event.schema";
 
+import { storedEventVia } from "@/features/event/event-via";
+
+const OUTSIDE_VIA_KINDS: readonly EventVia["kind"][] = ["form", "incomingWebhook"];
+
+export function isOutsideRecordWrite(via: unknown): boolean {
+  const stored = storedEventVia(via);
+  return stored !== null && OUTSIDE_VIA_KINDS.includes(stored.kind);
+}
+
 export function recordCauseBy(user: Pick<TenantUser, "via">, cause: RecordOperationCause): RecordOperationCause {
   const { routineDepth, ruleChain } = currentCausation() ?? {};
   const inherited: Partial<RecordOperationCause> = {};

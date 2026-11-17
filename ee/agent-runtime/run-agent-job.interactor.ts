@@ -223,6 +223,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       maxToolCalls: AGENT_JOB_MAX_TOOL_CALLS,
       recorder,
       ruleChain: job.ruleChain,
+      untrusted: job.promptUntrusted,
     });
     const budget = prepared.mate?.budget;
     return this.loop({

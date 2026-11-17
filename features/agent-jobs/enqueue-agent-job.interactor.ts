@@ -61,9 +61,10 @@ export class EnqueueAgentJobInteractor
     const refusal = await this.refusal(data);
     if (refusal) return failUnavailable(CustomErrorCode.agentRuntimeUnavailable, ["runtime"], { reason: refusal });
 
-    const message = data.recordRef
-      ? null
-      : ((await this.triggers?.messageOf({ companyId: data.companyId, runId: data.runId })) ?? null);
+    const trigger = (await this.triggers?.triggerOf({ companyId: data.companyId, runId: data.runId })) ?? {
+      outside: false,
+      message: null,
+    };
     const job = await this.repo.enqueue({
       runtime: data.runtime,
       sourceKind: AGENT_JOB_SOURCE_AUTOMATION,
@@ -71,8 +72,8 @@ export class EnqueueAgentJobInteractor
       idempotencyKey: data.idempotencyKey,
       ruleChain: [...(currentCausation()?.ruleChain ?? [])],
       ownerUserId: data.ownerUserId,
-      prompt: composeAgentJobPrompt(data.prompt, data.recordRef, message),
-      promptUntrusted: data.promptUntrusted,
+      prompt: composeAgentJobPrompt(data.prompt, data.recordRef, trigger.message),
+      promptUntrusted: data.promptUntrusted || trigger.outside,
       model: data.model,
       pinnedRunnerId: data.runnerId,
     });
