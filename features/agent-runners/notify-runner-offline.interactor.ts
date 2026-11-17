@@ -9,7 +9,7 @@ import { AGENT_RUNNER_LIMITS } from "./agent-runner.schema";
 
 export type RunnerOfflineCopy = { title: string; body: string };
 
-export const RUNNER_SETTINGS_HREF = "/settings/agents";
+export const RUNNER_SETTINGS_HREF = "/settings/connections?tab=agents";
 
 function ownersByLocale(owners: AgentRunnerOwner[]): Map<AppLocale, string[]> {
   const grouped = new Map<AppLocale, string[]>();

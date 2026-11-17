@@ -26,6 +26,7 @@ const redirectOnlyPages = [
   "open/[area]/[preset]/page.tsx",
   "open/[area]/[preset]/[recordId]/page.tsx",
   "w/[workspace]/settings/(account)/api-keys/page.tsx",
+  "w/[workspace]/settings/(workspace)/agents/page.tsx",
   "w/[workspace]/settings/(account)/booking/page.tsx",
   "w/[workspace]/settings/(account)/channels/page.tsx",
   "w/[workspace]/settings/(workspace)/incoming-webhooks/page.tsx",

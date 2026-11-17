@@ -53,18 +53,19 @@ export function connectionsHref(tab: ConnectionTab, section?: ConnectionSection 
 
 export const CONNECTIONS_REDIRECTS = {
   channels: { tab: "channels", section: "accounts" },
+  agents: { tab: "agents", section: null },
   "api-keys": { tab: "developers", section: "keys" },
   webhooks: { tab: "developers", section: "webhooks" },
   "webhook-deliveries": { tab: "developers", section: "deliveries" },
   "incoming-webhooks": { tab: "developers", section: "incoming" },
-} as const satisfies Record<string, { tab: ConnectionTab; section: ConnectionSection }>;
+} as const satisfies Record<string, { tab: ConnectionTab; section: ConnectionSection | null }>;
 
 export type ConnectionsRedirectSlug = keyof typeof CONNECTIONS_REDIRECTS;
 
 export function connectionsRedirectHref(slug: ConnectionsRedirectSlug, search: URLSearchParams): string {
   const { tab, section } = CONNECTIONS_REDIRECTS[slug];
   const params = new URLSearchParams({ [CONNECTION_TAB_PARAM]: tab });
-  if (section !== connectionSectionsOf(tab)[0]) params.set(CONNECTION_SECTION_PARAM, section);
+  if (section !== null && section !== connectionSectionsOf(tab)[0]) params.set(CONNECTION_SECTION_PARAM, section);
   for (const [key, value] of search)
     if (key !== CONNECTION_TAB_PARAM && key !== CONNECTION_SECTION_PARAM) params.append(key, value);
   return `/settings/connections?${params.toString()}`;

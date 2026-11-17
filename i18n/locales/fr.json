@@ -933,15 +933,11 @@
   "AgentRuntime": {
     "available": "Disponible",
     "description": "Les étapes d’agent peuvent tourner sur chacune de ces options dès qu’elle est disponible dans cet espace de travail.",
-    "lastSeen": "Vu pour la dernière fois {at}",
     "names": {
       "mate": "Mate",
       "ownKey": "Votre propre clé",
       "runner": "Votre propre runner"
     },
-    "neverSeen": "Jamais vu",
-    "offline": "Hors ligne",
-    "online": "En ligne",
     "reasons": {
       "noKey": "Ajoutez une clé de fournisseur",
       "noRunner": "Aucun runner en ligne",
@@ -949,9 +945,6 @@
       "plan": "Pas dans votre forfait",
       "selfHosted": "Nécessite le cloud"
     },
-    "runnersDescription": "Machines qui exécutent Claude Code ou Codex pour cet espace de travail. Chaque runner se connecte avec son propre jeton et sa propre session.",
-    "runnersEmpty": "Aucun runner n’est connecté.",
-    "runnersTitle": "Runners",
     "summary": {
       "mate": "L’agent hébergé de Customermates, payé avec vos crédits IA.",
       "ownKey": "Un agent dans notre cloud qui utilise votre clé de fournisseur. Le fournisseur vous facture.",
@@ -2577,11 +2570,6 @@
     "visibilityUpdateFailed": "Impossible de mettre à jour la visibilité. Réessayez."
   },
   "Connections": {
-    "agents": {
-      "body": "Les agents travaillent dans cet espace de travail avec leurs propres clés et limites. Vous les configurez sur leur propre page.",
-      "open": "Ouvrir les réglages des agents",
-      "title": "Agents"
-    },
     "apps": {
       "comingSoon": "Disponible dans la prochaine version",
       "connect": "Connecter",

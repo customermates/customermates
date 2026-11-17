@@ -41,13 +41,11 @@ test("Connections opens each tab and keeps it in the address", async ({ page, co
     await expect(page.locator("[data-connection-scope='apps']")).toContainText("Owner: this workspace");
   });
 
-  await test.step("Agents links to the agent settings", async () => {
+  await test.step("Agents holds the runtimes, provider keys, runners and recent runs", async () => {
     await tabs.getByRole("tab", { name: "Agents" }).click();
     await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections\\?tab=agents$"));
-    await expect(page.getByRole("link", { name: "Open agent settings" })).toHaveAttribute(
-      "href",
-      /\/settings\/agents$/,
-    );
+    await expect(page.locator("[data-connection-tab='agents']")).toBeVisible();
+    await expect(page.locator("[data-connection-scope='agents']")).toContainText("Owner: this workspace");
   });
 
   await test.step("Developers holds the keys, webhooks, deliveries and incoming webhooks as sections", async () => {
@@ -83,6 +81,7 @@ test("the old settings routes open the tab that now holds them and keep their qu
 
   for (const [old, expected] of [
     ["channels", "tab=channels"],
+    ["agents", "tab=agents"],
     ["api-keys", "tab=developers"],
     ["webhooks", "tab=developers&section=webhooks"],
     ["webhook-deliveries", "tab=developers&section=deliveries"],

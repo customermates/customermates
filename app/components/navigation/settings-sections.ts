@@ -52,6 +52,7 @@ type RedirectedSettings = { labelKey: string; icon: LucideIcon; resource: Resour
 
 export const REDIRECTED_SETTINGS: Record<ConnectionsRedirectSlug, RedirectedSettings> = {
   channels: { labelKey: "SettingsNav.channels", icon: Mail, resource: Resource.inboxMessages, cloudOnly: true },
+  agents: { labelKey: "SettingsNav.agents", icon: Bot, resource: Resource.company, cloudOnly: false },
   "api-keys": { labelKey: "SettingsNav.apiKeys", icon: KeyRound, resource: Resource.api, cloudOnly: false },
   webhooks: { labelKey: "SettingsNav.webhooks", icon: Webhook, resource: Resource.api, cloudOnly: false },
   "webhook-deliveries": { labelKey: "SettingsNav.deliveries", icon: Send, resource: Resource.api, cloudOnly: false },

@@ -1,6 +1,6 @@
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { AgentRuntimeAvailabilitySource } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
-import type { AgentRunnerPresenceRepo } from "@/features/agent-jobs/agent-runner-presence.repo";
+import type { AgentRunnerRepo } from "@/features/agent-runners/agent-runner.repo";
 import type { PlanId } from "@/core/commercial/plan-catalog";
 import type { AppMode } from "@/core/config/environment";
 import type { AgentOwnKeyPlan } from "@/ee/agent-keys/agent-own-key-plan";
@@ -8,7 +8,7 @@ import type { AgentProviderKeyRepo } from "@/ee/agent-keys/agent-provider-key.re
 
 import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 import { agentProviderModels } from "@/ee/agent-keys/agent-provider-models";
-import { isAgentRunnerOnline } from "@/features/agent-jobs/agent-runner.schema";
+import { toAgentRunnerDto } from "@/features/agent-runners/agent-runner-dto";
 
 type PlanSource = { plan(): Promise<{ plan: PlanId | null }> };
 
@@ -19,7 +19,7 @@ export class AgentRuntimeAvailabilityAdapter implements AgentRuntimeAvailability
     private readonly plans: PlanSource,
     private readonly ownKeyPlan: Pick<AgentOwnKeyPlan, "allowed">,
     private readonly keys: Pick<AgentProviderKeyRepo, "findAll">,
-    private readonly runners: AgentRunnerPresenceRepo,
+    private readonly runners: Pick<AgentRunnerRepo, "listRunners">,
     private readonly clock: () => Date = () => new Date(),
   ) {}
 
@@ -48,11 +48,10 @@ export class AgentRuntimeAvailabilityAdapter implements AgentRuntimeAvailability
 
   private async runner(): Promise<AgentRuntimeAvailability["runner"]> {
     const now = this.clock();
-    const runners = (await this.runners.findActive()).map((runner) => ({
-      id: runner.id,
-      name: runner.name,
-      online: isAgentRunnerOnline(runner.lastSeenAt, now),
-    }));
+    const runners = (await this.runners.listRunners())
+      .filter((runner) => runner.revokedAt === null)
+      .map((runner) => toAgentRunnerDto(runner, now))
+      .map(({ id, name, online }) => ({ id, name, online }));
     const online = runners.some((runner) => runner.online);
     return { available: online, reason: online ? null : "noRunner", models: [], runners };
   }

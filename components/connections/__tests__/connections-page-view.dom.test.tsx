@@ -14,7 +14,6 @@ vi.mock("@/i18n/navigation", () => ({
     createElement("a", { href }, children as never),
 }));
 
-import { ConnectionAgentsTab } from "../connection-agents-tab";
 import { ConnectionAppsTab } from "../connection-apps-tab";
 import { ConnectionsPageView } from "../connections-page-view";
 
@@ -161,17 +160,5 @@ describe("ConnectionAppsTab", () => {
     expect(cards[0]?.querySelector("button")?.disabled).toBe(true);
     expect(cards[1]?.textContent).not.toContain("Connections.apps.comingSoon");
     expect(cards[1]?.querySelector("button")?.disabled).toBe(false);
-  });
-});
-
-describe("ConnectionAgentsTab", () => {
-  it("links to the agent settings page and names its owner and scope", () => {
-    render(<ConnectionAgentsTab />);
-
-    expect(container.querySelector("a")?.getAttribute("href")).toBe("/settings/agents");
-    expect(container.textContent).toContain("Connections.agents.body");
-    expect(
-      container.querySelector("[data-connection-owner='workspace'][data-connection-scope='agents']"),
-    ).not.toBeNull();
   });
 });

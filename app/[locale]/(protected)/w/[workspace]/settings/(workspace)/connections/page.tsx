@@ -30,6 +30,7 @@ type Props = { searchParams: Promise<SearchParams> };
 
 const TAB_RESOURCES: Partial<Record<ConnectionTab, Resource>> = {
   channels: Resource.inboxMessages,
+  agents: Resource.company,
   developers: Resource.api,
 };
 

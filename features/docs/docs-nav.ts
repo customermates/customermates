@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
 import {
-  Bot,
   BookOpen,
   Bot,
   Building,

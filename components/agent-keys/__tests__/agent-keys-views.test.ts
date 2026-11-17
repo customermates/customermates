@@ -41,7 +41,6 @@ vi.mock("next-intl", () => ({
 
 import { AgentKeysStore } from "../agent-keys.store";
 import { AgentKeysCard } from "../agent-keys-card";
-import { AgentRunnersCard } from "../agent-runners-card";
 import { agentRuntimeWithKeys } from "../agent-runtime-with-keys";
 import { AgentRuntimesCard } from "../agent-runtimes-card";
 
@@ -121,47 +120,6 @@ describe("AgentKeysCard", () => {
     expect(markup).not.toContain('id="agent-key-add"');
     expect(markup).not.toContain("agent-key-test-anthropic");
     expect(markup).not.toContain("agent-key-remove-anthropic");
-  });
-});
-
-describe("AgentRunnersCard", () => {
-  it("lists each runner with its machine, when it was last seen and whether it is online", () => {
-    const markup = renderToStaticMarkup(
-      createElement(AgentRunnersCard, {
-        runners: [
-          {
-            id: "00000000-0000-4000-8000-0000000000c1",
-            name: "ws-main",
-            machine: "ubuntu-vm",
-            lastSeenAt: "2026-11-17T08:00:00.000Z",
-            online: true,
-          },
-          {
-            id: "00000000-0000-4000-8000-0000000000c2",
-            name: "laptop",
-            machine: null,
-            lastSeenAt: null,
-            online: false,
-          },
-        ],
-      }),
-    );
-
-    expect(markup).toContain("ws-main");
-    expect(markup).toContain("ubuntu-vm · AgentRuntime.lastSeen(at=date:2026-11-17)");
-    expect(markup).toContain("AgentRuntime.online");
-    expect(markup).toContain("laptop");
-    expect(markup).toContain("AgentRuntime.neverSeen");
-    expect(markup).toContain("AgentRuntime.offline");
-  });
-
-  it("says no runner is connected and leaves a slot for the actions of the runner lane", () => {
-    const markup = renderToStaticMarkup(
-      createElement(AgentRunnersCard, { runners: [], actions: createElement("button", { id: "runner-slot" }, "x") }),
-    );
-
-    expect(markup).toContain("AgentRuntime.runnersEmpty");
-    expect(markup).toContain('id="runner-slot"');
   });
 });
 

@@ -5,7 +5,7 @@ import type { AppMode } from "@/core/config/environment";
 
 import { AgentOwnKeyPlan } from "@/ee/agent-keys/agent-own-key-plan";
 import { AgentRuntimeAvailabilitySchema } from "@/features/automation-rules/agent-runtime-availability";
-import { AGENT_RUNNER_ONLINE_WINDOW_MS } from "@/features/agent-jobs/agent-runner.schema";
+import { AGENT_RUNNER_LIMITS } from "@/features/agent-runners/agent-runner.schema";
 import { AgentRuntimeAvailabilityAdapter } from "../agent-runtime-availability-source";
 
 const NOW = new Date("2026-11-17T12:00:00.000Z");
@@ -21,7 +21,13 @@ type Options = {
 };
 
 const withMachine = (runners: NonNullable<Options["runners"]>) =>
-  runners.map((runner) => ({ ...runner, machine: null }));
+  runners.map((runner) => ({
+    ...runner,
+    machine: null,
+    clients: [],
+    revokedAt: null,
+    createdAt: runner.lastSeenAt ?? new Date(0),
+  }));
 
 function adapter(options: Options = {}) {
   const plans = { plan: () => Promise.resolve({ plan: options.plan === undefined ? ("pro" as const) : options.plan }) };
@@ -31,7 +37,7 @@ function adapter(options: Options = {}) {
     plans,
     new AgentOwnKeyPlan(plans),
     { findAll: vi.fn().mockResolvedValue(options.keys ?? []) },
-    { findActive: vi.fn().mockResolvedValue(withMachine(options.runners ?? [])) },
+    { listRunners: vi.fn().mockResolvedValue(withMachine(options.runners ?? [])) },
     () => NOW,
   );
 }
@@ -74,8 +80,8 @@ describe("agent runtime availability", () => {
   });
 
   it("counts a runner as online for two minutes after it was last seen and never a revoked one", async () => {
-    const fresh = new Date(NOW.getTime() - AGENT_RUNNER_ONLINE_WINDOW_MS + 1000);
-    const stale = new Date(NOW.getTime() - AGENT_RUNNER_ONLINE_WINDOW_MS - 1000);
+    const fresh = new Date(NOW.getTime() - AGENT_RUNNER_LIMITS.onlineWithinMs + 1000);
+    const stale = new Date(NOW.getTime() - AGENT_RUNNER_LIMITS.onlineWithinMs - 1000);
 
     const online = await adapter({
       runners: [

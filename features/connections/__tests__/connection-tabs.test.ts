@@ -47,10 +47,11 @@ describe("connection tabs", () => {
 describe("redirects from the old settings pages", () => {
   it("send every old slug to the tab and section that now holds it", () => {
     expect(Object.keys(CONNECTIONS_REDIRECTS).sort()).toEqual(
-      ["api-keys", "channels", "incoming-webhooks", "webhook-deliveries", "webhooks"].sort(),
+      ["agents", "api-keys", "channels", "incoming-webhooks", "webhook-deliveries", "webhooks"].sort(),
     );
     const none = new URLSearchParams();
     expect(connectionsRedirectHref("channels", none)).toBe("/settings/connections?tab=channels");
+    expect(connectionsRedirectHref("agents", none)).toBe("/settings/connections?tab=agents");
     expect(connectionsRedirectHref("api-keys", none)).toBe("/settings/connections?tab=developers");
     expect(connectionsRedirectHref("webhooks", none)).toBe("/settings/connections?tab=developers&section=webhooks");
     expect(connectionsRedirectHref("webhook-deliveries", none)).toBe(

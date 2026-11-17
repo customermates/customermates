@@ -2845,11 +2845,9 @@ import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-aut
 import { AutomationEffectRunner } from "@/features/automation-rules/automation-effect-runner";
 import { GetAgentRuntimeAvailabilityInteractor } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
 import { PrismaAgentJobRepo } from "@/features/agent-jobs/prisma-agent-job.repository";
-import { PrismaAgentRunnerPresenceRepo } from "@/features/agent-jobs/prisma-agent-runner-presence.repository";
 import { EnqueueAgentJobInteractor } from "@/features/agent-jobs/enqueue-agent-job.interactor";
 import { GetAgentJobsInteractor } from "@/features/agent-jobs/get-agent-jobs.interactor";
 import { GetAgentJobInteractor } from "@/features/agent-jobs/get-agent-job.interactor";
-import { GetAgentRunnersInteractor } from "@/features/agent-jobs/get-agent-runners.interactor";
 import { DiscardAgentJobInteractor } from "@/features/agent-jobs/discard-agent-job.interactor";
 import { SweepAgentJobTimeoutsInteractor } from "@/features/agent-jobs/sweep-agent-job-timeouts.interactor";
 import { PruneAgentJobsInteractor } from "@/features/agent-jobs/prune-agent-jobs.interactor";
@@ -2937,7 +2935,7 @@ const getAgentRuntimeAvailabilitySource = () =>
     getPlanLimitsService(),
     getAgentOwnKeyPlan(),
     getAgentProviderKeyRepo(),
-    new PrismaAgentRunnerPresenceRepo(),
+    getAgentRunnerRepo(),
   );
 const getMateAgentJobCredits = () => new MateAgentJobCredits(getAgentUsageService());
 const getEnqueueAgentJobInteractor = () =>
@@ -2997,7 +2995,6 @@ export const getGetAgentRuntimeAvailabilityInteractor = () =>
   new GetAgentRuntimeAvailabilityInteractor(getAgentRuntimeAvailabilitySource());
 export const getGetAgentJobsInteractor = () => new GetAgentJobsInteractor(getAgentJobRepo());
 export const getGetAgentJobInteractor = () => new GetAgentJobInteractor(getAgentJobRepo());
-export const getGetAgentRunnersInteractor = () => new GetAgentRunnersInteractor(new PrismaAgentRunnerPresenceRepo());
 export const getRunAgentJobInteractor = () =>
   new RunAgentJobInteractor(
     getAgentJobRepo(),

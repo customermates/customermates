@@ -2,7 +2,7 @@
 
 import type { AgentProviderKeyDto } from "@/ee/agent-keys/agent-provider-key.schema";
 import type { AgentJobPage } from "@/features/agent-jobs/agent-job.schema";
-import type { AgentRunnerDto } from "@/features/agent-jobs/agent-runner.schema";
+import type { AgentRunnerDto } from "@/features/agent-runners/agent-runner.schema";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 
 import { observer } from "mobx-react-lite";
@@ -10,13 +10,13 @@ import { useLayoutEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AgentRunsCard } from "@/components/agent-jobs/agent-runs-card";
+import { AgentRunnersCard } from "@/components/agent-runners/agent-runners-card";
 import { Alert } from "@/components/shared/alert";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 import { AgentKeyModal } from "./agent-key-modal";
 import { AgentKeysCard } from "./agent-keys-card";
-import { AgentRunnersCard } from "./agent-runners-card";
 import { agentRuntimeWithKeys } from "./agent-runtime-with-keys";
 import { AgentRuntimesCard } from "./agent-runtimes-card";
 

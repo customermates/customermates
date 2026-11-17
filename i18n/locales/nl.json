@@ -933,15 +933,11 @@
   "AgentRuntime": {
     "available": "Beschikbaar",
     "description": "Agentstappen kunnen op elk van deze opties draaien zodra die in deze werkruimte beschikbaar is.",
-    "lastSeen": "Laatst gezien {at}",
     "names": {
       "mate": "Mate",
       "ownKey": "Je eigen sleutel",
       "runner": "Je eigen runner"
     },
-    "neverSeen": "Nooit gezien",
-    "offline": "Offline",
-    "online": "Online",
     "reasons": {
       "noKey": "Voeg een sleutel van een aanbieder toe",
       "noRunner": "Geen runner online",
@@ -949,9 +945,6 @@
       "plan": "Niet in je pakket",
       "selfHosted": "Heeft de cloud nodig"
     },
-    "runnersDescription": "Machines die Claude Code of Codex voor deze werkruimte uitvoeren. Elke runner meldt zich aan met een eigen token en eigen login.",
-    "runnersEmpty": "Er is geen runner verbonden.",
-    "runnersTitle": "Runners",
     "summary": {
       "mate": "De gehoste agent van Customermates, betaald met je AI-credits.",
       "ownKey": "Een agent in onze cloud die de sleutel van je aanbieder gebruikt. De aanbieder rekent met je af.",
@@ -2577,11 +2570,6 @@
     "visibilityUpdateFailed": "Zichtbaarheid kon niet worden bijgewerkt. Probeer het opnieuw."
   },
   "Connections": {
-    "agents": {
-      "body": "Agents werken in deze werkruimte met eigen sleutels en limieten. Je stelt ze in op hun eigen pagina.",
-      "open": "Agentinstellingen openen",
-      "title": "Agents"
-    },
     "apps": {
       "comingSoon": "Komt in de volgende release",
       "connect": "Koppelen",

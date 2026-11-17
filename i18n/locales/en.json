@@ -933,15 +933,11 @@
   "AgentRuntime": {
     "available": "Available",
     "description": "Agent steps can run on any of these once it is available in this workspace.",
-    "lastSeen": "Last seen {at}",
     "names": {
       "mate": "Mate",
       "ownKey": "Your own key",
       "runner": "Your own runner"
     },
-    "neverSeen": "Never seen",
-    "offline": "Offline",
-    "online": "Online",
     "reasons": {
       "noKey": "Add a provider key",
       "noRunner": "No runner online",
@@ -949,9 +945,6 @@
       "plan": "Not in your plan",
       "selfHosted": "Needs the cloud"
     },
-    "runnersDescription": "Machines that run Claude Code or Codex for this workspace. Each runner signs in with its own token and login.",
-    "runnersEmpty": "No runner is connected.",
-    "runnersTitle": "Runners",
     "summary": {
       "mate": "The hosted agent of Customermates, paid with your AI credits.",
       "ownKey": "An agent in our cloud that uses your provider key. The provider bills you.",
@@ -2577,11 +2570,6 @@
     "visibilityUpdateFailed": "Couldn't update visibility. Try again."
   },
   "Connections": {
-    "agents": {
-      "body": "Agents work in this workspace with their own keys and limits. You set them up on their own page.",
-      "open": "Open agent settings",
-      "title": "Agents"
-    },
     "apps": {
       "comingSoon": "Coming in the next release",
       "connect": "Connect",

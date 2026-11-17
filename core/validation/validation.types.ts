@@ -213,7 +213,6 @@ export enum CustomErrorCode {
   agentProviderKeyUnreachable = "agentProviderKeyUnreachable",
   agentProviderKeyNotFound = "agentProviderKeyNotFound",
   agentProviderModelInvalid = "agentProviderModelInvalid",
-  agentJobNotFound = "agentJobNotFound",
   agentRuntimeUnavailable = "agentRuntimeUnavailable",
   agentJobCursorInvalid = "agentJobCursorInvalid",
   planMemberLimitReached = "planMemberLimitReached",

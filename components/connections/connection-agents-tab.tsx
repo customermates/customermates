@@ -1,39 +1,36 @@
-"use client";
-
-import { Bot } from "lucide-react";
-import { useTranslations } from "next-intl";
-
+import { AgentsPageView } from "@/components/agent-keys/agents-page-view";
 import { ConnectionScopeLine } from "@/components/connections/connection-scope-line";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { IntlLink } from "@/i18n/navigation";
+import {
+  getGetAgentJobsInteractor,
+  getGetAgentProviderKeysInteractor,
+  getGetAgentRunnersInteractor,
+  getGetAgentRuntimeAvailabilityInteractor,
+} from "@/core/di";
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
-export const AGENT_SETTINGS_HREF = "/settings/agents";
+async function recentRuns() {
+  try {
+    return await unwrapPage(getGetAgentJobsInteractor().invoke({}));
+  } catch (error) {
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return null;
+    throw error;
+  }
+}
 
-export function ConnectionAgentsTab() {
-  const t = useTranslations();
+export async function ConnectionAgentsTab() {
+  const [keys, runners, availability, runs] = await Promise.all([
+    unwrapPage(getGetAgentProviderKeysInteractor().invoke()),
+    unwrapPage(getGetAgentRunnersInteractor().invoke()),
+    unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke()),
+    recentRuns(),
+  ]);
 
   return (
     <div className="flex flex-col gap-4" data-connection-tab="agents">
       <ConnectionScopeLine owner="workspace" scope="agents" />
 
-      <Card>
-        <CardContent className="flex flex-col gap-3 p-4">
-          <div className="flex items-center gap-2">
-            <Bot aria-hidden className="size-4 text-muted-foreground" />
-
-            <h2 className="text-base font-semibold">{t("Connections.agents.title")}</h2>
-          </div>
-
-          <p className="text-sm text-muted-foreground">{t("Connections.agents.body")}</p>
-
-          <div>
-            <Button asChild size="sm" variant="secondary">
-              <IntlLink href={AGENT_SETTINGS_HREF}>{t("Connections.agents.open")}</IntlLink>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <AgentsPageView availability={availability} keys={keys.keys} runners={runners.runners} runs={runs} />
     </div>
   );
 }
