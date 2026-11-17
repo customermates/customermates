@@ -580,7 +580,50 @@ describe("SubmitPublicFormInteractor", () => {
       expect(result.status).toBe("submitted");
       expect(writer.invoke).not.toHaveBeenCalled();
       expect(forms.recordSubmission).toHaveBeenCalledWith(
-        expect.objectContaining({ outcome: "duplicate", recordId: null, personRecordId: RECORD_ID }),
+        expect.objectContaining({ outcome: "duplicate", recordId: RECORD_ID, personRecordId: RECORD_ID }),
+      );
+    });
+
+    it("keeps what a duplicate answered on the submission, linked to the existing record, and still emits the event", async () => {
+      const config = createConfig({
+        fields: [
+          { fieldId: NAME_FIELD, label: "Your name", helpText: null, required: true },
+          { fieldId: CONTACT_FIELD, label: "Email", helpText: null, required: true },
+        ],
+      });
+      const { submit, forms, events } = setup({
+        config,
+        owners: [{ ref: { typeId: TYPE_ID, recordId: RECORD_ID } }],
+      });
+
+      await submit.invoke(submission({ answers: { [NAME_FIELD]: "Ada", [CONTACT_FIELD]: "ada@example.com" } }));
+
+      expect(forms.recordSubmission).toHaveBeenCalledWith(
+        expect.objectContaining({
+          outcome: "duplicate",
+          recordId: RECORD_ID,
+          answers: [
+            { fieldId: NAME_FIELD, label: "Your name", value: "Ada" },
+            { fieldId: CONTACT_FIELD, label: "Email", value: "ada@example.com" },
+          ],
+        }),
+      );
+      expect(events.publish).toHaveBeenCalledWith(
+        DomainEvent.FORM_SUBMITTED,
+        expect.objectContaining({
+          payload: expect.objectContaining({ outcome: "duplicate", recordId: null, personRecordId: RECORD_ID }),
+        }),
+        { systemCompanyId: COMPANY_ID },
+      );
+    });
+
+    it("stores no answers on the submission of a record it created, because the record holds them", async () => {
+      const { submit, forms } = setup();
+
+      await submit.invoke(submission());
+
+      expect(forms.recordSubmission).toHaveBeenCalledWith(
+        expect.objectContaining({ outcome: "created", recordId: RECORD_ID, answers: null }),
       );
     });
   });

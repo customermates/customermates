@@ -14,6 +14,8 @@ export type StoredPublicForm = {
   updatedAt: Date;
 };
 
+export type SubmissionAnswer = { fieldId: string | null; label: string; value: string };
+
 export type NewPublicFormSubmission = {
   id: string;
   formId: string;
@@ -23,9 +25,20 @@ export type NewPublicFormSubmission = {
   ipHash: string | null;
   locale: string | null;
   consent: { text: string; version: number; at: Date } | null;
+  answers: SubmissionAnswer[] | null;
 };
 
 export const FAILED_SUBMISSION_OUTCOME = "failed";
+export const DUPLICATE_SUBMISSION_OUTCOME = "duplicate";
+
+export type DuplicatePublicFormSubmission = {
+  id: string;
+  createdAt: Date;
+  recordId: string | null;
+  answers: SubmissionAnswer[];
+};
+
+export type PublicFormDuplicates = { count: number; items: DuplicatePublicFormSubmission[] };
 
 export type FailedPublicFormSubmission = {
   id: string;
@@ -62,6 +75,7 @@ export abstract class PublicFormRepo {
   abstract recordSubmission(submission: NewPublicFormSubmission): Promise<{ id: string }>;
   abstract recordFailedSubmission(submission: FailedPublicFormSubmission): Promise<void>;
   abstract failedSubmissionsSince(formId: string, since: Date): Promise<PublicFormFailures>;
+  abstract duplicateSubmissionsSince(formId: string, since: Date, limit: number): Promise<PublicFormDuplicates>;
   abstract workspaceName(): Promise<string | null>;
   abstract deleteSubmissionsBeforeUnscoped(before: Date, limit: number): Promise<number>;
   abstract reassignCreatorUnscoped(args: {

@@ -77,7 +77,7 @@ export const publicFormApiPaths = {
       operationId: "saveForm",
       summary: "Create or update a public form",
       description:
-        "Creates the form of a list (typeId, name and config are required) or, with id, updates it; config replaces the stored definition. A list has at most one form. Submissions create a record in the list with the form as its source, as the member who last turned the form on. A submission can find or create a person by email and link it; one person exists per email. When the consent text or the privacy link changes, the consent version increases. Free plan forms accept a monthly number of submissions and show a badge.",
+        "Creates the form of a list (typeId, name and config are required) or, with id, updates it; config replaces the stored definition. A list has at most one form. Submissions create a record in the list with the form as its source, as the member who last turned the form on. A submission from an email address that already has a record in the list creates no second record; its answers are kept and listed as duplicates by listFormFields. A submission can find or create a person by email and link it; one person exists per email. When the consent text or the privacy link changes, the consent version increases. Free plan forms accept a monthly number of submissions and show a badge.",
       requires: REQUIRES,
       tag: "forms",
       input: UpsertPublicFormSchema,

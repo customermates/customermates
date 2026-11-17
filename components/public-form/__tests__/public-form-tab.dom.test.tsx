@@ -20,7 +20,10 @@ const translate = vi.hoisted(
 
 vi.mock("next-intl", () => ({ useTranslations: () => translate }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({ formatDescriptiveLongDate: (date: Date) => date.toISOString().slice(0, 10) }),
+  useHydratedIntlStore: () => ({
+    formatDescriptiveLongDate: (date: Date) => date.toISOString().slice(0, 10),
+    formatDescriptiveLongDateTime: (date: Date) => date.toISOString().slice(0, 16),
+  }),
 }));
 vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => harness.wide }));
 vi.mock("sonner", () => ({ toast: { success: harness.toastSuccess, error: harness.toastProblem } }));
@@ -409,9 +412,35 @@ describe("PublicFormTab when the list changed", () => {
     );
   });
 
+  it("lists the submissions of people already in the list with their answers and a link to the existing record", async () => {
+    const duplicate = {
+      id: "70000000-0000-4000-8000-000000000001",
+      submittedAt: "2026-11-12T09:30:00.000Z",
+      recordId: "70000000-0000-4000-8000-000000000002",
+      answers: [
+        { label: "Email", value: "ada@example.com" },
+        { label: "Message", value: "Please call me back" },
+      ],
+    };
+    await renderTab(build(editor({ form: savedForm(), duplicates: { count: 4, items: [duplicate] } })));
+
+    const section = field("#public-form-duplicates");
+    expect(section.textContent).toContain('PublicForm.builder.duplicatesIntro:{"count":4}');
+    const row = field(`[data-form-duplicate="${duplicate.id}"]`);
+    expect(row.textContent).toContain("2026-11-12T09:30");
+    expect([...row.querySelectorAll("dt")].map((item) => item.textContent)).toEqual(["Email", "Message"]);
+    expect([...row.querySelectorAll("dd")].map((item) => item.textContent)).toEqual([
+      "ada@example.com",
+      "Please call me back",
+    ]);
+    expect(row.querySelector("a")?.getAttribute("href")).toBe(`/records/${TYPE_ID}/${duplicate.recordId}`);
+    expect(row.querySelector("a")?.textContent).toBe("PublicForm.builder.duplicateOpenRecord");
+  });
+
   it("shows no notice for a form that still fits its list", async () => {
     await renderTab();
 
+    expect(container.querySelector("#public-form-duplicates")).toBeNull();
     expect(container.querySelector("#public-form-repairs")).toBeNull();
     expect(container.querySelector("#public-form-blocking-fields")).toBeNull();
     expect(container.querySelector("#public-form-failed-submissions")).toBeNull();

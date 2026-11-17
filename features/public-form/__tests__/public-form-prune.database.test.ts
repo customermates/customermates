@@ -109,6 +109,7 @@ describeDatabase("failed public form submissions", { timeout: 60_000 }, () => {
         ipHash: "hash",
         locale: null,
         consent: null,
+        answers: null,
       }),
     );
     await w.as(w.admin, () => repo.recordFailedSubmission(failed));
@@ -127,5 +128,64 @@ describeDatabase("failed public form submissions", { timeout: 60_000 }, () => {
       { submissionCount: 1 },
     );
     expect(typeof (await w.as(w.admin, () => repo.workspaceName()))).not.toBe("undefined");
+  });
+});
+
+describeDatabase("duplicate public form submissions", { timeout: 60_000 }, () => {
+  it("stores what a duplicate answered and lists the duplicates of one form, newest first, with the existing record", async () => {
+    const w = await createRestRouteWorkspace();
+    const other = await createRestRouteWorkspace();
+    cleanups.push(w.cleanup, other.cleanup);
+    const existing = await w.create("organization", "organization.name", "Acme");
+    const form = await runWithoutTenant(() =>
+      prisma.publicForm.create({
+        data: {
+          companyId: w.companyId,
+          typeId: w.id("organization"),
+          name: "Contact",
+          createdById: w.admin.id,
+          config: createConfig() as never,
+        },
+      }),
+    );
+    const repo = new PrismaPublicFormRepo();
+    const base = { formId: form.id, personRecordId: null, ipHash: "hash", locale: null, consent: null };
+    const answers = [
+      { fieldId: null, label: "Email", value: "ada@example.com" },
+      { fieldId: randomUUID(), label: "Message", value: "Please call me back" },
+    ];
+    const older = randomUUID();
+    const newer = randomUUID();
+
+    await w.as(w.admin, () =>
+      repo.recordSubmission({ ...base, id: older, outcome: "duplicate", recordId: existing.recordId, answers }),
+    );
+    await w.as(w.admin, () =>
+      repo.recordSubmission({ ...base, id: newer, outcome: "duplicate", recordId: existing.recordId, answers: [] }),
+    );
+    await w.as(w.admin, () =>
+      repo.recordSubmission({ ...base, id: randomUUID(), outcome: "created", recordId: null, answers: null }),
+    );
+    await runWithoutTenant(() =>
+      prisma.publicFormSubmission.update({ where: { id: older }, data: { createdAt: new Date(Date.now() - 60_000) } }),
+    );
+    const since = new Date(Date.now() - DAY_MS);
+
+    const listed = await w.as(w.admin, () => repo.duplicateSubmissionsSince(form.id, since, 20));
+    const firstOnly = await w.as(w.admin, () => repo.duplicateSubmissionsSince(form.id, since, 1));
+
+    expect(listed.count).toBe(2);
+    expect(listed.items.map((item) => item.id)).toEqual([newer, older]);
+    expect(listed.items[1]).toMatchObject({ recordId: existing.recordId, answers });
+    expect(listed.items[0].answers).toEqual([]);
+    expect(firstOnly).toMatchObject({ count: 2, items: [{ id: newer }] });
+    expect(await w.as(w.admin, () => repo.duplicateSubmissionsSince(form.id, new Date(Date.now() + DAY_MS), 20))).toEqual(
+      { count: 0, items: [] },
+    );
+    expect(await other.as(other.admin, () => repo.duplicateSubmissionsSince(form.id, since, 20))).toEqual({
+      count: 0,
+      items: [],
+    });
+    expect(await w.as(w.admin, () => repo.countSubmissionsSince(since))).toBe(3);
   });
 });

@@ -61,6 +61,7 @@ export function editor(overrides: Partial<PublicFormEditor> = {}): PublicFormEdi
     ],
     blockingFields: [],
     failures: { count: 0, lastAt: null },
+    duplicates: { count: 0, items: [] },
     workspaceName: "Acme",
     badge: false,
     allowed: true,

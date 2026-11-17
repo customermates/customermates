@@ -1,6 +1,9 @@
 import type { AnswerAssignment, AnswerField, AnswerValue } from "@/features/records/record-value-coercion";
 import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
+import type { SubmissionAnswer } from "./public-form.repo";
 import type { PublicFormConfig, PublicFormFieldError } from "./public-form.schema";
+
+import { z } from "zod";
 
 import { normalizeChannelValue } from "@/features/records/channel-value";
 import { coerceAnswers, hasTextValue } from "@/features/records/record-value-coercion";
@@ -21,6 +24,27 @@ export type AcceptedFormAnswers = {
 };
 
 export type BuiltFormAnswers = AcceptedFormAnswers | { ok: false; errors: Record<string, PublicFormFieldError> };
+
+const SubmissionAnswersSchema = z.array(
+  z.object({ fieldId: z.string().nullable(), label: z.string(), value: z.string() }),
+);
+
+export function storedSubmissionAnswers(value: unknown): SubmissionAnswer[] {
+  const parsed = SubmissionAnswersSchema.safeParse(value);
+  return parsed.success ? parsed.data : [];
+}
+
+export function submissionAnswers(config: PublicFormConfig, built: AcceptedFormAnswers): SubmissionAnswer[] {
+  const { person } = config;
+  return [
+    ...(person && built.email ? [{ fieldId: null, label: person.emailLabel, value: built.email }] : []),
+    ...(person?.nameLabel && built.name ? [{ fieldId: null, label: person.nameLabel, value: built.name }] : []),
+    ...config.fields.flatMap((field) => {
+      const value = built.display[field.fieldId];
+      return value ? [{ fieldId: field.fieldId, label: field.label, value }] : [];
+    }),
+  ];
+}
 
 export function mutationFieldErrors(
   fields: readonly AnswerAssignment[],

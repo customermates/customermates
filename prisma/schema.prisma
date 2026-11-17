@@ -829,6 +829,8 @@ model PublicFormSubmission {
   personRecordId String?
   ipHash         String?
   locale         String?
+  /// Only for the outcome duplicate: what the visitor answered, because no record was created from it.
+  answers        Json?
   consentText    String?
   consentVersion Int?
   consentedAt    DateTime?

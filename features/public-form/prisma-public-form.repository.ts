@@ -2,6 +2,7 @@ import type {
   FailedPublicFormSubmission,
   NewPublicFormSubmission,
   PublicFormCreate,
+  PublicFormDuplicates,
   PublicFormFailures,
   PublicFormPatch,
   PublicFormRepo,
@@ -9,7 +10,8 @@ import type {
 } from "./public-form.repo";
 import type { PublicFormLookup, PublicFormLookupRepo } from "./public-form-lookup.repo";
 
-import { FAILED_SUBMISSION_OUTCOME } from "./public-form.repo";
+import { DUPLICATE_SUBMISSION_OUTCOME, FAILED_SUBMISSION_OUTCOME } from "./public-form.repo";
+import { storedSubmissionAnswers } from "./public-form-answers";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -109,6 +111,28 @@ export class PrismaPublicFormRepo extends TenantRepository implements PublicForm
     return { count: failed._count._all, lastAt: failed._max.createdAt };
   }
 
+  async duplicateSubmissionsSince(formId: string, since: Date, limit: number): Promise<PublicFormDuplicates> {
+    const where = {
+      companyId: this.companyId,
+      formId,
+      outcome: DUPLICATE_SUBMISSION_OUTCOME,
+      createdAt: { gte: since },
+    };
+    const [count, rows] = await Promise.all([
+      this.prisma.publicFormSubmission.count({ where }),
+      this.prisma.publicFormSubmission.findMany({
+        where,
+        select: { id: true, createdAt: true, recordId: true, answers: true },
+        orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+        take: limit,
+      }),
+    ]);
+    return {
+      count,
+      items: rows.map((row) => ({ ...row, answers: storedSubmissionAnswers(row.answers) })),
+    };
+  }
+
   async workspaceName(): Promise<string | null> {
     const company = await this.prisma.company.findUnique({ where: { id: this.companyId }, select: { name: true } });
     return company?.name ?? null;
@@ -132,6 +156,7 @@ export class PrismaPublicFormRepo extends TenantRepository implements PublicForm
         personRecordId: submission.personRecordId,
         ipHash: submission.ipHash,
         locale: submission.locale,
+        ...(submission.answers ? { answers: submission.answers } : {}),
         consentText: submission.consent?.text ?? null,
         consentVersion: submission.consent?.version ?? null,
         consentedAt: submission.consent?.at ?? null,

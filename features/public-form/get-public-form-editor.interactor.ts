@@ -20,6 +20,7 @@ import { readPublicFormUsage, toPublicFormDto } from "./public-form-dto";
 import { GetPublicFormEditorSchema, PublicFormEditorSchema } from "./public-form.schema";
 
 const FAILURE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+const DUPLICATE_LIST_LIMIT = 20;
 
 @TenantInteractor()
 export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPublicFormEditorData, PublicFormEditor> {
@@ -57,6 +58,7 @@ export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPu
           peopleLists: [],
           blockingFields: [],
           failures: { count: 0, lastAt: null },
+          duplicates: { count: 0, items: [] },
           workspaceName: null,
           badge: false,
           allowed: false,
@@ -67,12 +69,14 @@ export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPu
 
     const now = this.settings.now?.() ?? new Date();
     const stored = await this.repo.findFormOfType(type.id);
-    const [usage, workspaceName, failures] = await Promise.all([
+    const since = new Date(now.getTime() - FAILURE_WINDOW_MS);
+    const [usage, workspaceName, failures, duplicates] = await Promise.all([
       readPublicFormUsage(this.repo, this.quota, now),
       this.repo.workspaceName(),
+      stored ? this.repo.failedSubmissionsSince(stored.id, since) : Promise.resolve({ count: 0, lastAt: null }),
       stored
-        ? this.repo.failedSubmissionsSince(stored.id, new Date(now.getTime() - FAILURE_WINDOW_MS))
-        : Promise.resolve({ count: 0, lastAt: null }),
+        ? this.repo.duplicateSubmissionsSince(stored.id, since, DUPLICATE_LIST_LIMIT)
+        : Promise.resolve({ count: 0, items: [] }),
     ]);
     return {
       ok: true as const,
@@ -83,6 +87,15 @@ export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPu
         peopleLists: formPeopleLists(model, type.id),
         blockingFields: formBlockingFields(model, type.id),
         failures: { count: failures.count, lastAt: failures.lastAt?.toISOString() ?? null },
+        duplicates: {
+          count: duplicates.count,
+          items: duplicates.items.map((item) => ({
+            id: item.id,
+            submittedAt: item.createdAt.toISOString(),
+            recordId: item.recordId,
+            answers: item.answers.map(({ label, value }) => ({ label, value })),
+          })),
+        },
         workspaceName,
         badge: usage.badge,
         allowed: true,

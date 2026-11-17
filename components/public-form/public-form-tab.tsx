@@ -21,6 +21,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { PublicFormAfterSubmitChain } from "./public-form-after-submit-chain";
+import { PublicFormDuplicates } from "./public-form-duplicates";
 import { PublicFormFieldList } from "./public-form-field-list";
 import { PublicFormPreview } from "./public-form-preview";
 import { PublicFormSettings } from "./public-form-settings";
@@ -252,6 +253,8 @@ export const PublicFormTab = observer(function PublicFormTab({ store, onClose }:
             ) : null}
 
             <PublishedLinks editor={editor} />
+
+            <PublicFormDuplicates duplicates={editor.duplicates} typeId={store.typeId} />
 
             {store.config === null ? (
               <p className="text-xs text-muted-foreground" id="public-form-invalid">

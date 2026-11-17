@@ -185,6 +185,24 @@ export const PublicFormEditorSchema = z
       .object({ count: z.number().int(), lastAt: z.string().nullable() })
       .strict()
       .describe("Submissions of the last 30 days that could not be saved as a record."),
+    duplicates: z
+      .object({
+        count: z.number().int(),
+        items: z.array(
+          z
+            .object({
+              id: z.uuid(),
+              submittedAt: z.string(),
+              recordId: z.uuid().nullable().describe("The record of the list that already had this email address."),
+              answers: z.array(z.object({ label: z.string(), value: z.string() }).strict()),
+            })
+            .strict(),
+        ),
+      })
+      .strict()
+      .describe(
+        "Submissions of the last 30 days whose email address already had a record in the list. No second record is created; the answers are kept here, the newest 20 with their answers.",
+      ),
     workspaceName: z.string().nullable(),
     badge: z.boolean(),
     allowed: z.boolean(),

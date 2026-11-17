@@ -186,6 +186,7 @@ CREATE TABLE "PublicFormSubmission" (
     "personRecordId" TEXT,
     "ipHash" TEXT,
     "locale" TEXT,
+    "answers" JSONB,
     "consentText" TEXT,
     "consentVersion" INTEGER,
     "consentedAt" TIMESTAMP(3),

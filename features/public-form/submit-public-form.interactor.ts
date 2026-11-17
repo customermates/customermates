@@ -23,7 +23,7 @@ import { isAppLocale } from "@/i18n/locale-registry";
 import { createPerson, findPersonByEmail, linkDirection } from "@/features/records/person-lookup";
 
 import { PUBLIC_FORM_UNAVAILABLE } from "./public-form-access";
-import { buildFormAnswers, mutationFieldErrors } from "./public-form-answers";
+import { buildFormAnswers, mutationFieldErrors, submissionAnswers } from "./public-form-answers";
 import { formCannotSaveRecords } from "./public-form-config-validation";
 import { startOfUtcMonth } from "./public-form-quota";
 import { PUBLIC_FORM_LIMITS, SubmitPublicFormSchema } from "./public-form.schema";
@@ -135,7 +135,7 @@ export class SubmitPublicFormInteractor {
     const identity = built.identities[0];
     const duplicate = identity ? await findPersonByEmail(this.records, form.typeId, identity.value) : null;
     if (duplicate) {
-      await this.finish(context, built, "duplicate", null, duplicate);
+      await this.finish(context, built, "duplicate", null, duplicate, duplicate);
       return this.accepted(config);
     }
 
@@ -240,17 +240,19 @@ export class SubmitPublicFormInteractor {
     outcome: "created" | "duplicate",
     recordId: string | null,
     person: RecordRef | null,
+    existing: RecordRef | null = null,
   ): Promise<void> {
     const { form, config, data, ipHash, now, submissionId } = context;
     await this.forms.recordSubmission({
       id: submissionId,
       formId: form.id,
       outcome,
-      recordId,
+      recordId: existing?.recordId ?? recordId,
       personRecordId: person?.recordId ?? null,
       ipHash,
       locale: isAppLocale(data.locale) ? data.locale : config.locale,
       consent: config.consent ? { text: config.consent.text, version: form.consentVersion, at: now } : null,
+      answers: existing ? submissionAnswers(config, built) : null,
     });
     await this.events
       .publish(

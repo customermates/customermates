@@ -75,6 +75,7 @@ function repo(existing: ReturnType<typeof stored> | null = null, extra: Record<s
     publicLinksAllowed: vi.fn(() => Promise.resolve(true)),
     workspaceName: vi.fn(() => Promise.resolve("Acme")),
     failedSubmissionsSince: vi.fn(() => Promise.resolve({ count: 0, lastAt: null as Date | null })),
+    duplicateSubmissionsSince: vi.fn(() => Promise.resolve({ count: 0, items: [] as unknown[] })),
     ...extra,
   };
 }
@@ -424,6 +425,45 @@ describe("GetPublicFormEditorInteractor", () => {
     expect(formRepo.failedSubmissionsSince).toHaveBeenCalledWith(
       FORM_ID,
       new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+    );
+  });
+
+  it("returns the duplicates of the last 30 days with their answers and the record that already existed", async () => {
+    const createdAt = new Date("2026-11-12T09:30:00.000Z");
+    const recordId = "00000000-0000-4000-8000-0000000000d1";
+    const formRepo = repo(stored(), {
+      duplicateSubmissionsSince: vi.fn(() =>
+        Promise.resolve({
+          count: 25,
+          items: [
+            {
+              id: "00000000-0000-4000-8000-0000000000d2",
+              createdAt,
+              recordId,
+              answers: [{ fieldId: NAME_FIELD, label: "Name", value: "Ada" }],
+            },
+          ],
+        }),
+      ),
+    });
+
+    const result = await build(formRepo).invoke({ typeId: TYPE_ID });
+
+    expect(result.ok && result.data.duplicates).toEqual({
+      count: 25,
+      items: [
+        {
+          id: "00000000-0000-4000-8000-0000000000d2",
+          submittedAt: createdAt.toISOString(),
+          recordId,
+          answers: [{ label: "Name", value: "Ada" }],
+        },
+      ],
+    });
+    expect(formRepo.duplicateSubmissionsSince).toHaveBeenCalledWith(
+      FORM_ID,
+      new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+      20,
     );
   });
 
