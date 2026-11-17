@@ -25,7 +25,7 @@ function build(providerStatus: string | z.ZodError, localStatus = account.status
   const getAccount =
     providerStatus instanceof z.ZodError
       ? vi.fn().mockRejectedValue(providerStatus)
-      : vi.fn().mockResolvedValue({ status: providerStatus });
+      : vi.fn().mockResolvedValue({ id: "unipile-1", provider: "imap", status: providerStatus });
   const messagingService = { getAccount };
   const backgroundTaskService = { dispatch: vi.fn().mockResolvedValue(undefined) };
   const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
@@ -35,7 +35,7 @@ function build(providerStatus: string | z.ZodError, localStatus = account.status
     backgroundTaskService as never,
     eventService as never,
   );
-  return { interactor, eventService };
+  return { interactor, eventService, accountRepo };
 }
 
 describe("ProcessAccountReconnectWebhookInteractor", () => {
@@ -52,11 +52,21 @@ describe("ProcessAccountReconnectWebhookInteractor", () => {
   });
 
   it("stays silent while the account still needs credentials", async () => {
-    const { interactor, eventService } = build("credentials");
+    const { interactor, eventService } = build("disconnected");
 
     await interactor.invoke({ type: "account.reconnect", account_id: "unipile-1" });
 
     expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("retains the stored provider reason when reconnect did not change the account state", async () => {
+    const { interactor, accountRepo } = build("disconnected");
+    const connectionDetails = { status: "disconnected", products: {}, reason: "provider: Authorization expired" };
+    accountRepo.findAccountByUnipileIdUnscoped.mockResolvedValue({ ...account, connectionDetails });
+
+    await interactor.invoke({ type: "account.reconnect", account_id: "unipile-1" });
+
+    expect(accountRepo.updateAccountUnscoped).toHaveBeenCalledWith(expect.objectContaining({ connectionDetails }));
   });
 
   it("still announces the reconnect when the status webhook already marked the account healthy", async () => {
@@ -68,10 +78,13 @@ describe("ProcessAccountReconnectWebhookInteractor", () => {
   });
 
   it("stays silent when the provider status cannot be read", async () => {
-    const { interactor, eventService } = build(new z.ZodError([]));
+    const { interactor, eventService, accountRepo } = build(new z.ZodError([]));
 
-    await interactor.invoke({ type: "account.reconnect", account_id: "unipile-1" });
+    await expect(interactor.invoke({ type: "account.reconnect", account_id: "unipile-1" })).rejects.toBeInstanceOf(
+      z.ZodError,
+    );
 
     expect(eventService.publish).not.toHaveBeenCalled();
+    expect(accountRepo.updateAccountUnscoped).not.toHaveBeenCalled();
   });
 });

@@ -170,19 +170,22 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
         : bareMcp(request);
     };
 
-    const initialized = await post(mcpBody("initialize", 1));
-    if (initialized.status !== 200) {
-      const body = (await initialized.json()) as { error?: string };
+    const refusal = async (response: Response): Promise<McpAnswer> => {
+      const body = (await response.json()) as { error?: string };
       return {
-        status: initialized.status,
+        status: response.status,
         companyId: null,
-        challenge: initialized.headers.get("www-authenticate"),
+        challenge: response.headers.get("www-authenticate"),
         error: body.error ?? null,
       };
-    }
+    };
+
+    const initialized = await post(mcpBody("initialize", 1));
+    if (initialized.status !== 200) return refusal(initialized);
     await initialized.text();
 
     const called = await post(mcpBody("tools/call", 2, { name: "get_workspace_context", arguments: {} }));
+    if (called.status === 401) return refusal(called);
     const event = lastEvent(await called.text(), called.headers.get("content-type")) as {
       result?: { structuredContent?: { company?: { id?: string } } };
     };

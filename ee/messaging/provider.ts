@@ -84,10 +84,11 @@ export function deriveLinkedinProducts(inboxIds: string[]): LinkedinProduct[] {
 }
 
 export function isUsableSenderFor(
-  account: { status: string; provider: MessagingProvider },
+  account: { status: string; provider: MessagingProvider; hasMessaging?: boolean },
   provider: MessagingProvider,
 ): boolean {
   if (account.status !== "ok") return false;
+  if (account.hasMessaging === false) return false;
   return isEmailProvider(provider) ? isEmailProvider(account.provider) : account.provider === provider;
 }
 

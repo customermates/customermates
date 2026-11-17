@@ -28,6 +28,7 @@ import { resolveResourcePageState, type ResourcePageState } from "@/components/p
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
+import { AccountConnectionDetails } from "./account-connection-details";
 import { ConnectedAccountsPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -244,6 +245,14 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
                           : t("ConnectedAccountsCard.visibilityPrivate")}
                       </AppChip>
                     </InfoRow>
+
+                    <AccountConnectionDetails account={account} />
+
+                    {account.statusCheckedAt && (
+                      <InfoRow label={t("ConnectedAccountsCard.statusCheckedAt")}>
+                        {intlStore.formatNumericalShortDateTime(account.statusCheckedAt)}
+                      </InfoRow>
+                    )}
 
                     <InfoRow label={t("ConnectedAccountsCard.ownerLabel")}>
                       <AvatarStack

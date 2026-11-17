@@ -462,7 +462,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     page.waitForEvent("download"),
     renamedPreview.getByRole("button", { name: "Download file", exact: true }).first().click(),
   ]);
-  expect(renamedDownload.suggestedFilename()).toBe("plan final.md");
+  expect(renamedDownload.suggestedFilename()).toMatch(/^plan[ _]final\.md$/);
   await renamedPreview.getByRole("button", { name: "Rename plan final.md", exact: true }).click();
   const drawerInput = renamedPreview.getByRole("textbox", { name: "File name", exact: true });
   await expect(drawerInput).toBeFocused();

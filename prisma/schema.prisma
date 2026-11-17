@@ -1296,6 +1296,9 @@ model ConnectedAccount {
   unipileAccountId   String                       @unique
   provider           MessagingProvider
   status             ConnectedAccountStatus       @default(connecting)
+  connectionDetails  Json?
+  statusCheckedAt    DateTime?
+  statusAttemptedAt  DateTime?
   hasMessaging       Boolean                      @default(false)
   hasCalendar        Boolean                      @default(false)
   emailAddress       String?

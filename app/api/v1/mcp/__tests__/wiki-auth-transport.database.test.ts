@@ -298,21 +298,30 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
       expect((await connect(credential)).status, Object.values(credential)[0].slice(0, 6)).toBe(200);
   });
 
-  it("rejects missing, invalid and expired API keys with the OAuth challenge", async () => {
+  it("answers discovery without a key but rejects tool calls without one, and invalid or expired keys, with the OAuth challenge", async () => {
     const headers = new Headers({
       accept: "application/json, text/event-stream",
       "content-type": "application/json",
     });
     requestContext.headers = headers;
-    const missing = await POST(
+    const anonymousInitialize = await POST(
       new Request(MCP_URL, {
         method: "POST",
         headers,
         body: JSON.stringify(mcpBody("initialize", 30)),
       }),
     );
+    expect(anonymousInitialize.status).toBe(200);
+    const missing = await POST(
+      new Request("http://localhost:4000/api/v1/mcp?toolsets=docs", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(mcpBody("tools/call", 30, { name: "search_docs", arguments: { query: "pipeline" } })),
+      }),
+    );
     expect(missing.status).toBe(401);
     expect(missing.headers.get("www-authenticate")).toContain("oauth-protected-resource");
+    expect(await missing.text()).not.toContain("reader-key-discovery-phrase");
 
     for (const rejectedKey of ["z".repeat(64), "pb6-not-a-valid-key", expiredApiKey]) {
       const initialized = await rpc(rejectedKey, mcpBody("initialize", 31));

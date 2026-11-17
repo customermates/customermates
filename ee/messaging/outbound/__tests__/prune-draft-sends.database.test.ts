@@ -201,7 +201,7 @@ describeDatabase("pruning draft send records", () => {
         [owner, email, "Draft", "Pruner", company],
       );
       await client.query(
-        'INSERT INTO "ConnectedAccount" ("id", "companyId", "userId", "provider", "unipileAccountId", "status", "emailAddress", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)',
+        'INSERT INTO "ConnectedAccount" ("id", "companyId", "userId", "provider", "unipileAccountId", "status", "emailAddress", "hasMessaging", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, true, CURRENT_TIMESTAMP)',
         [account, company, owner, MessagingProvider.mail, `unipile-${account}`, "ok", email],
       );
     }

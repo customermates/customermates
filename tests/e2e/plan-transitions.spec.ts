@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { mintApiKey } from "./api-key";
 import { appPath, appUrlPattern } from "./app-paths";
+import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
   changeProviderSubscription,
@@ -801,6 +802,7 @@ test.describe("plans on Customermates Cloud", () => {
 
     expect(await readSurfaces(page, slug)).toEqual(surfaces({ billing: "Pro Trial", card: "trial" }));
     await page.goto(appPath(slug, "/dashboard"));
+    await openSidebar(page);
     const card = page.locator("[data-trial-card]");
     await expect(card).toContainText("3 days left in your Pro trial");
     for (const loss of ["accounts", "routines", "webhooks"])
@@ -840,6 +842,7 @@ test.describe("plans on Customermates Cloud", () => {
     const kept = [await connectAccount(database, second, "google", "kept-1@synthetic.test", 30)];
     await setActiveWorkspace(database, workspace, second.companyId);
     await page.goto(appPath(second.slug, "/dashboard"));
+    await openSidebar(page);
     await expect(page.locator("[data-trial-card]")).toContainText("Keep it running with Pro");
     const pro = startProviderSubscription(second.companyId, "pro", 1);
     await deliverWebhookBody(request, subscriptionWebhookBody("subscription_created", pro));
@@ -924,6 +927,7 @@ test.describe("plans on Customermates Cloud", () => {
       await page.goto(appPath(slug, "/dashboard"));
       await member.page.goto(appPath(slug, "/dashboard"));
       await outsider.page.goto(appPath(slug, "/dashboard"));
+      for (const surface of [page, member.page, outsider.page]) await openSidebar(surface);
       await expect(page.locator("[data-trial-card]")).toBeVisible();
       await expect(member.page.locator("[data-trial-card]")).toBeVisible();
       await expect(outsider.page.locator("[data-trial-card]")).toHaveCount(0);
@@ -1021,6 +1025,7 @@ test.describe("plans on Customermates Cloud", () => {
 
       expect(await readSurfaces(page, slug)).toEqual({ ...FREE, pausedBanner: true });
       await page.goto(appPath(slug, "/dashboard"));
+      await openSidebar(page);
       const card = page.locator("[data-free-plan-card]");
       await expect(card).toContainText("This workspace is on Free");
       await expect(card.locator("[data-free-plan-usage]")).toContainText("1 of 1");
@@ -1062,6 +1067,8 @@ test.describe("plans on Customermates Cloud", () => {
       recordGrants: [],
     });
     const teammate = await secondUser(browser, database, workspace.companyId, testInfo, role.role.id);
+    expectBlockedEmailScripts(page);
+    expectBlockedEmailScripts(teammate.page);
     try {
       const owner = { companyId: workspace.companyId, userId: workspace.userId };
       const paid = await subscribe(request, workspace, "business", 2);

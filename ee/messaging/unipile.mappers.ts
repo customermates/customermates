@@ -139,6 +139,36 @@ export function deriveAccountFeatures(account: UnipileAccount): {
 
   const provider = mapUnipileProvider(account.provider);
 
+  if (CALENDAR_PROVIDERS.has(provider)) {
+    const products = account.metadata?.products_connection_status;
+    const listedScopes = Array.isArray(account.oauth_scope)
+      ? account.oauth_scope
+      : account.oauth_scope?.split(/[\s,]+/).filter(Boolean);
+    const scopes = listedScopes?.length ? listedScopes : undefined;
+    const productStatus = (names: string[]) => {
+      const matches = Object.entries(products ?? {}).filter(([name]) => names.includes(name.toLowerCase()));
+      return matches.length > 0 ? matches.some(([, status]) => status === "running") : undefined;
+    };
+    const hasMessaging = productStatus(["gmail", "mail", "email", "google_mail", "outlook_mail"]);
+    const hasCalendar = productStatus(["calendar", "google_calendar", "outlook_calendar"]);
+    const hasKnownProducts = hasMessaging !== undefined || hasCalendar !== undefined;
+    const mailScope = scopes?.some((scope) =>
+      provider === MessagingProvider.google
+        ? /^https:\/\/www\.googleapis\.com\/auth\/gmail\./.test(scope) || scope === "https://mail.google.com/"
+        : /\bmail\./i.test(scope),
+    );
+    const calendarScope = scopes?.some((scope) =>
+      provider === MessagingProvider.google
+        ? /^https:\/\/www\.googleapis\.com\/auth\/calendar(?:\.|$)/.test(scope)
+        : /\bcalendars\./i.test(scope),
+    );
+
+    return {
+      hasMessaging: hasKnownProducts ? (hasMessaging ?? false) : (mailScope ?? true),
+      hasCalendar: hasKnownProducts ? (hasCalendar ?? false) : (calendarScope ?? true),
+    };
+  }
+
   return {
     hasMessaging: MESSAGING_PROVIDERS.has(provider),
     hasCalendar: CALENDAR_PROVIDERS.has(provider),
