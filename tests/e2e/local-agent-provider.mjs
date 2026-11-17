@@ -2,6 +2,8 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 export const localAgentKeyPrefix = "e2e-valid-";
+export const localAgentRestrictedKeyPrefix = "e2e-restricted-";
+const LISTING_FORBIDDEN = 403;
 
 const PROVIDERS = [
   {
@@ -62,6 +64,10 @@ export function localAgentProviderRequest(input, init) {
     checksFile(process.env.CRM_E2E_PROVIDER_DIRECTORY),
     `${JSON.stringify({ provider: target.provider, accepted: valid, keyInHeader: Boolean(keyOf(request, target.header)) })}\n`,
   );
+  if (keyOf(request, target.header).startsWith(localAgentRestrictedKeyPrefix))
+    return Promise.resolve(
+      Response.json({ error: { message: "this key may not list models" } }, { status: LISTING_FORBIDDEN }),
+    );
   if (!valid)
     return Promise.resolve(
       Response.json({ error: { message: "invalid api key" } }, { status: target.rejected }),

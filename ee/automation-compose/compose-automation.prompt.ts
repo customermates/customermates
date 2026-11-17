@@ -1,30 +1,39 @@
 import type { RecordModelView } from "@/features/records/record-model.schema";
 
+export const COMPOSE_MODEL_MAX_CHARS = 60_000;
+const MAX_LABEL_CHARS = 120;
 const MAX_LISTS = 30;
 const MAX_FIELDS_PER_LIST = 60;
-const MAX_OPTIONS_PER_FIELD = 40;
+const MIN_FIELDS_PER_LIST = 4;
+const OPTIONS_PER_FIELD_STEPS = [40, 20, 10, 5, 2, 0] as const;
 
-export function compactRecordModel(model: RecordModelView) {
-  const types = model.types.filter((type) => !type.archived && !type.embedded).slice(0, MAX_LISTS);
+type ModelLimits = { lists: number; fields: number; options: number };
+
+function label(text: string): string {
+  return text.length > MAX_LABEL_CHARS ? text.slice(0, MAX_LABEL_CHARS) : text;
+}
+
+function modelWithin(model: RecordModelView, limits: ModelLimits) {
+  const types = model.types.filter((type) => !type.archived && !type.embedded).slice(0, limits.lists);
   const listIds = new Set(types.map((type) => type.id));
   return {
     lists: types.map((type) => ({
       id: type.id,
-      label: type.label,
+      label: label(type.label),
       fields: model.fields
         .filter((field) => field.typeId === type.id && !field.archived)
-        .slice(0, MAX_FIELDS_PER_LIST)
+        .slice(0, limits.fields)
         .map((field) => ({
           id: field.id,
-          label: field.label,
+          label: label(field.label),
           valueType: field.valueType,
           writable: field.behavior.kind === "input",
           multiple: field.multiple === true,
-          ...(field.options.length > 0
+          ...(field.options.length > 0 && limits.options > 0
             ? {
                 options: field.options
-                  .slice(0, MAX_OPTIONS_PER_FIELD)
-                  .map((option) => ({ id: option.id, label: option.label })),
+                  .slice(0, limits.options)
+                  .map((option) => ({ id: option.id, label: label(option.label) })),
               }
             : {}),
         })),
@@ -39,6 +48,34 @@ export function compactRecordModel(model: RecordModelView) {
         targetTypeId: relation.targetTypeId,
       })),
   };
+}
+
+function largestThatFits(low: number, high: number, fits: (count: number) => boolean): number | null {
+  if (!fits(low)) return null;
+  let [fitting, tooLarge] = [low, high + 1];
+  while (tooLarge - fitting > 1) {
+    const middle = Math.floor((fitting + tooLarge) / 2);
+    if (fits(middle)) fitting = middle;
+    else tooLarge = middle;
+  }
+  return fitting;
+}
+
+export function compactRecordModel(model: RecordModelView, maxChars: number = COMPOSE_MODEL_MAX_CHARS) {
+  const fits = (limits: ModelLimits) => JSON.stringify(modelWithin(model, limits)).length <= maxChars;
+
+  for (const options of OPTIONS_PER_FIELD_STEPS) {
+    const limits = { lists: MAX_LISTS, fields: MAX_FIELDS_PER_LIST, options };
+    if (fits(limits)) return modelWithin(model, limits);
+  }
+  const fields = largestThatFits(MIN_FIELDS_PER_LIST, MAX_FIELDS_PER_LIST, (count) =>
+    fits({ lists: MAX_LISTS, fields: count, options: 0 }),
+  );
+  if (fields !== null) return modelWithin(model, { lists: MAX_LISTS, fields, options: 0 });
+  const lists = largestThatFits(1, MAX_LISTS, (count) =>
+    fits({ lists: count, fields: MIN_FIELDS_PER_LIST, options: 0 }),
+  );
+  return modelWithin(model, { lists: lists ?? 1, fields: MIN_FIELDS_PER_LIST, options: 0 });
 }
 
 export function composeSystemPrompt(model: RecordModelView, today: string): string {

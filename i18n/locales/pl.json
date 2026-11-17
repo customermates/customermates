@@ -932,7 +932,8 @@
     },
     "replaceNote": "Klucz dostawcy, który już ma klucz, zastępuje go.",
     "test": "Testuj",
-    "testSucceeded": "Dostawca zaakceptował ten klucz."
+    "testSucceeded": "Dostawca zaakceptował ten klucz.",
+    "unverifiedNote": "Dostawca nie pozwolił temu kluczowi wyświetlić listy modeli, więc nie udało się go sprawdzić. Uruchomienie agenta pokaże, czy klucz działa."
   },
   "AgentRuntime": {
     "available": "Dostępne",
@@ -1709,6 +1710,7 @@
       "agentProviderKeyNotFound": "Nie znaleziono tego klucza AI w tej przestrzeni roboczej.",
       "agentProviderKeyUnreachable": "Nie udało się połączyć z dostawcą, aby sprawdzić ten klucz. Spróbuj ponownie za chwilę.",
       "agentProviderKeyUnreadable": "Tego klucza nie można odczytać za pomocą sekretu tego serwera. Zapisz go ponownie.",
+      "agentProviderKeyUnverified": "Dostawca nie pozwala temu kluczowi wyświetlić listy modeli, więc nie można go tutaj sprawdzić. Uruchomienie agenta pokaże, czy klucz działa.",
       "agentProviderModelInvalid": "Ten model nie jest oferowany przez tego dostawcę.",
       "agentRunnerNotFound": "Nie znaleziono tego runnera w tej przestrzeni roboczej.",
       "agentRuntimeUnavailable": "Ten sposób uruchamiania agentów jest teraz niedostępny w tej przestrzeni roboczej.",

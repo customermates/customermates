@@ -42,6 +42,7 @@ export class TestAgentProviderKeyInteractor extends AuthenticatedInteractor<
 
     const check = await this.validator.check(sealed.provider, apiKey);
     if (check === "invalid") return fail(CustomErrorCode.agentProviderKeyInvalid, ["id"]);
+    if (check === "unverified") return fail(CustomErrorCode.agentProviderKeyUnverified, ["id"]);
     if (check === "unreachable") return failUnavailable(CustomErrorCode.agentProviderKeyUnreachable, ["id"]);
 
     const validated = await this.repo.markValidated(id, this.now());

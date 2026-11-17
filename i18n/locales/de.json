@@ -932,7 +932,8 @@
     },
     "replaceNote": "Ein Schlüssel für einen Anbieter, der schon einen hat, ersetzt diesen.",
     "test": "Testen",
-    "testSucceeded": "Der Anbieter hat diesen Schlüssel akzeptiert."
+    "testSucceeded": "Der Anbieter hat diesen Schlüssel akzeptiert.",
+    "unverifiedNote": "Der Anbieter hat diesem Schlüssel nicht erlaubt, seine Modelle aufzulisten, deshalb konnte der Schlüssel nicht geprüft werden. Ein Agentenlauf zeigt, ob er funktioniert."
   },
   "AgentRuntime": {
     "available": "Verfügbar",
@@ -1709,6 +1710,7 @@
       "agentProviderKeyNotFound": "Dieser KI-Schlüssel wurde in diesem Workspace nicht gefunden.",
       "agentProviderKeyUnreachable": "Der Anbieter war nicht erreichbar, um diesen Schlüssel zu prüfen. Versuche es gleich noch einmal.",
       "agentProviderKeyUnreadable": "Dieser Schlüssel kann mit dem Geheimnis dieses Servers nicht gelesen werden. Speichere den Schlüssel erneut.",
+      "agentProviderKeyUnverified": "Der Anbieter erlaubt diesem Schlüssel nicht, seine Modelle aufzulisten, deshalb lässt er sich hier nicht prüfen. Ein Agentenlauf zeigt, ob er funktioniert.",
       "agentProviderModelInvalid": "Dieses Modell wird für diesen Anbieter nicht angeboten.",
       "agentRunnerNotFound": "Dieser Runner wurde in diesem Workspace nicht gefunden.",
       "agentRuntimeUnavailable": "Diese Art, Agenten auszuführen, ist für diesen Workspace gerade nicht verfügbar.",

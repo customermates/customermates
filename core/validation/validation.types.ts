@@ -212,6 +212,7 @@ export enum CustomErrorCode {
   agentProviderKeyInvalid = "agentProviderKeyInvalid",
   agentProviderKeyUnreachable = "agentProviderKeyUnreachable",
   agentProviderKeyUnreadable = "agentProviderKeyUnreadable",
+  agentProviderKeyUnverified = "agentProviderKeyUnverified",
   agentProviderKeyNotFound = "agentProviderKeyNotFound",
   agentProviderModelInvalid = "agentProviderModelInvalid",
   agentRuntimeUnavailable = "agentRuntimeUnavailable",

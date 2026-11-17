@@ -932,7 +932,8 @@
     },
     "replaceNote": "A key for a provider that already has one replaces it.",
     "test": "Test",
-    "testSucceeded": "The provider accepted this key."
+    "testSucceeded": "The provider accepted this key.",
+    "unverifiedNote": "The provider did not let this key list its models, so the key could not be checked. An agent run shows whether it works."
   },
   "AgentRuntime": {
     "available": "Available",
@@ -1709,6 +1710,7 @@
       "agentProviderKeyNotFound": "This AI key was not found in this workspace.",
       "agentProviderKeyUnreachable": "The provider could not be reached to check this key. Try again in a moment.",
       "agentProviderKeyUnreadable": "This key cannot be read with this server's secret. Save the key again.",
+      "agentProviderKeyUnverified": "The provider does not let this key list its models, so it cannot be checked here. An agent run shows whether it works.",
       "agentProviderModelInvalid": "That model is not offered for this provider.",
       "agentRunnerNotFound": "This runner was not found in this workspace.",
       "agentRuntimeUnavailable": "This way of running agents is not available for this workspace right now.",

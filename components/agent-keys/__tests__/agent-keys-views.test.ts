@@ -99,6 +99,16 @@ describe("AgentKeysCard", () => {
     expect(markup).not.toMatch(/sk-|keyCiphertext|v1\./);
   });
 
+  it("notes on a key the provider would not let it check, and on no other key", () => {
+    const unverified = renderKeys([{ ...KEY, validatedAt: null }]);
+    expect(unverified).toContain("data-agent-key-unverified");
+    expect(unverified).toContain("AgentKeys.unverifiedNote");
+
+    const checked = renderKeys([KEY]);
+    expect(checked).not.toContain("data-agent-key-unverified");
+    expect(checked).not.toContain("AgentKeys.unverifiedNote");
+  });
+
   it("says there is no key yet and offers adding one to someone who can change settings", () => {
     const markup = renderKeys([]);
 

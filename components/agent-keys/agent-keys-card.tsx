@@ -89,6 +89,12 @@ export const AgentKeysCard = observer(({ planAllowed }: Props) => {
                   </InfoRow>
                 </div>
 
+                {key.validatedAt ? null : (
+                  <p data-agent-key-unverified className="text-xs text-muted-foreground" role="note">
+                    {t("AgentKeys.unverifiedNote")}
+                  </p>
+                )}
+
                 {canManage ? (
                   <div className="flex items-center gap-2">
                     <Button

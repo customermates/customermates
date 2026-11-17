@@ -39,7 +39,7 @@ import type { ComposeModelCall, ComposeModelOutcome } from "../compose-model-cal
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ComposeModelCaller } from "../compose-model-caller";
 import { ComposeAutomationInteractor } from "../compose-automation.interactor";
-import { compactRecordModel, composeSystemPrompt } from "../compose-automation.prompt";
+import { COMPOSE_MODEL_MAX_CHARS, compactRecordModel, composeSystemPrompt } from "../compose-automation.prompt";
 
 const DEALS = "11111111-1111-4111-8111-111111111111";
 const TASKS = "11111111-1111-4111-8111-222222222222";
@@ -246,5 +246,83 @@ describe("the composer prompt", () => {
       ],
     });
     expect(composeSystemPrompt(MODEL, "2026-11-16")).toContain("never invent an id");
+  });
+
+  function largeModel(lists: number, fields: number, options: number): RecordModelView {
+    const id = (kind: string, ...parts: number[]) => `${kind}-${parts.join("-")}-0000-4000-8000-000000000000`;
+    return {
+      revision: 1,
+      types: Array.from({ length: lists }, (_unused, list) => ({
+        id: id("list", list),
+        label: `List number ${list} with a descriptive name`,
+        archived: false,
+        embedded: false,
+        position: list,
+        primaryFieldId: null,
+      })),
+      fields: Array.from({ length: lists * fields }, (_unused, index) => {
+        const list = Math.floor(index / fields);
+        const field = index % fields;
+        return {
+          id: id("field", list, field),
+          typeId: id("list", list),
+          label: `Field number ${field} of list ${list}`,
+          valueType: "select",
+          behavior: { kind: "input" },
+          archived: false,
+          required: false,
+          position: field,
+          options: Array.from({ length: options }, (_option, option) => ({
+            id: id("option", list, field, option),
+            label: `Choice ${option}`,
+          })),
+        };
+      }),
+      relationships: [],
+    } as unknown as RecordModelView;
+  }
+
+  it("keeps a workspace with many lists, fields and options inside the character limit instead of sending it whole", () => {
+    const heavy = largeModel(30, 60, 40);
+    const unbounded = compactRecordModel(heavy, Number.MAX_SAFE_INTEGER);
+    expect(JSON.stringify(unbounded).length).toBeGreaterThan(1_000_000);
+    expect(unbounded.lists[0]?.fields[0]?.options).toHaveLength(40);
+
+    const compact = compactRecordModel(heavy);
+
+    expect(JSON.stringify(compact).length).toBeLessThanOrEqual(COMPOSE_MODEL_MAX_CHARS);
+    expect(JSON.stringify(compact).length).toBeGreaterThan(COMPOSE_MODEL_MAX_CHARS * 0.9);
+    expect(compact.lists).toHaveLength(30);
+    expect(compact.lists.every((list) => list.fields.length >= 10)).toBe(true);
+    expect(compact.lists[0]?.fields[0]?.options).toBeUndefined();
+    expect(composeSystemPrompt(heavy, "2026-11-16").length).toBeLessThan(COMPOSE_MODEL_MAX_CHARS + 2_500);
+  });
+
+  it("gives up options before fields and fields before lists, and keeps a small workspace whole", () => {
+    const medium = largeModel(10, 30, 20);
+    const compact = compactRecordModel(medium);
+
+    expect(JSON.stringify(compact).length).toBeLessThanOrEqual(COMPOSE_MODEL_MAX_CHARS);
+    expect(compact.lists).toHaveLength(10);
+    expect(compact.lists[0]?.fields).toHaveLength(30);
+    expect(compact.lists[0]?.fields[0]?.options?.length ?? 0).toBeLessThan(20);
+
+    const small = compactRecordModel(largeModel(3, 5, 4));
+    expect(small.lists).toHaveLength(3);
+    expect(small.lists[0]?.fields).toHaveLength(5);
+    expect(small.lists[0]?.fields[0]?.options).toHaveLength(4);
+  });
+
+  it("clips a label of unreasonable length and still fits a tiny limit", () => {
+    const long = {
+      ...MODEL,
+      types: [{ ...MODEL.types[0], label: "L".repeat(5_000) }, MODEL.types[1]],
+    } as unknown as RecordModelView;
+
+    expect(compactRecordModel(long).lists[0]?.label).toHaveLength(120);
+    const tiny = compactRecordModel(largeModel(30, 60, 40), 4_000);
+    expect(JSON.stringify(tiny).length).toBeLessThanOrEqual(4_000);
+    expect(tiny.lists.length).toBeGreaterThan(1);
+    expect(tiny.lists.every((list) => list.fields.length === 4)).toBe(true);
   });
 });

@@ -47,7 +47,7 @@ export class SaveAgentProviderKeyInteractor extends AuthenticatedInteractor<
       keyCiphertext: sealSecret(data.apiKey, agentProviderKeyBinding(this.user.companyId, data.provider)),
       keyLast4: secretLast4(data.apiKey),
       defaultModel: data.defaultModel ?? null,
-      validatedAt: this.now(),
+      validatedAt: check === "valid" ? this.now() : null,
     });
     return { ok: true as const, data: toAgentProviderKeyDto(saved) };
   }

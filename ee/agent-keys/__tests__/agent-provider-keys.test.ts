@@ -312,6 +312,61 @@ describe("testing a saved provider key", () => {
   });
 });
 
+describe("a key the provider does not let list its models", () => {
+  it("is neither accepted nor rejected by the check", async () => {
+    const doFetch = vi.fn().mockResolvedValue({ status: 403, ok: false });
+    const validator = new FetchAgentProviderKeyValidator(doFetch);
+
+    expect(await validator.check("openai", "sk-restricted-key-7777")).toBe("unverified");
+    expect(await validator.check("anthropic", "sk-ant-restricted-7777")).toBe("unverified");
+  });
+
+  it("is saved without a check date instead of being refused", async () => {
+    const repo = new FakeAgentProviderKeyRepo();
+    const check = vi.fn().mockResolvedValue("unverified");
+
+    const result = await runWithTenant(mockUser, () =>
+      new SaveAgentProviderKeyInteractor(repo, { check } as never, plan("starter"), () => NOW).invoke({
+        provider: "openai",
+        label: "Restricted",
+        apiKey: "sk-restricted-key-7777",
+      } as never),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toMatchObject({ provider: "openai", last4: "7777", validatedAt: null });
+    const [stored] = [...repo.rows.values()];
+    expect(stored.validatedAt).toBeNull();
+    expect(openSecret(stored.keyCiphertext, agentProviderKeyBinding(mockUser.companyId, "openai"))).toBe(
+      "sk-restricted-key-7777",
+    );
+  });
+
+  it("says on Test that it cannot be checked here and keeps the earlier check date", async () => {
+    const repo = new FakeAgentProviderKeyRepo();
+    const stored = await repo.upsert({
+      provider: "openai",
+      label: "OpenAI",
+      keyCiphertext: sealSecret("sk-openai-stored-4321", agentProviderKeyBinding(mockUser.companyId, "openai")),
+      keyLast4: "4321",
+      defaultModel: null,
+      validatedAt: null,
+    });
+
+    const result = await runWithTenant(mockUser, () =>
+      new TestAgentProviderKeyInteractor(
+        repo,
+        { check: vi.fn().mockResolvedValue("unverified") } as never,
+        () => NOW,
+      ).invoke({ id: stored.id } as never),
+    );
+
+    expect(issueOf(result as never)).toEqual({ path: ["id"], error: CustomErrorCode.agentProviderKeyUnverified });
+    expect((await repo.findSealed(stored.id))?.validatedAt).toBeNull();
+  });
+});
+
 describe("choosing the provider and model of an agent step", () => {
   it("takes the provider of the step's model and refuses a model no list or no key offers", () => {
     expect(agentStepProvider(["anthropic", "openai"], "gpt-5")).toEqual({ ok: true, provider: "openai" });
@@ -382,7 +437,7 @@ describe("the provider key check", () => {
 
   it("separates a rejected key from a provider that could not be reached", async () => {
     expect(await call(401).result).toBe("invalid");
-    expect(await call(403, "openai").result).toBe("invalid");
+    expect(await call(401, "openai").result).toBe("invalid");
     expect(await call(400, "google").result).toBe("invalid");
     expect(await call(429).result).toBe("unreachable");
     expect(await call(503).result).toBe("unreachable");

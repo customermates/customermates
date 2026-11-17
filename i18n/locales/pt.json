@@ -932,7 +932,8 @@
     },
     "replaceNote": "Uma chave de um provedor que já tem uma a substitui.",
     "test": "Testar",
-    "testSucceeded": "O provedor aceitou esta chave."
+    "testSucceeded": "O provedor aceitou esta chave.",
+    "unverifiedNote": "O provedor não permitiu que esta chave listasse os modelos, então não foi possível verificá-la. Uma execução de agente mostra se ela funciona."
   },
   "AgentRuntime": {
     "available": "Disponível",
@@ -1709,6 +1710,7 @@
       "agentProviderKeyNotFound": "Esta chave de IA não foi encontrada neste espaço de trabalho.",
       "agentProviderKeyUnreachable": "Não foi possível alcançar o provedor para verificar esta chave. Tente novamente em instantes.",
       "agentProviderKeyUnreadable": "Esta chave não pode ser lida com o segredo deste servidor. Salve-a novamente.",
+      "agentProviderKeyUnverified": "O provedor não permite que esta chave liste os modelos, então ela não pode ser verificada aqui. Uma execução de agente mostra se ela funciona.",
       "agentProviderModelInvalid": "Esse modelo não é oferecido por este provedor.",
       "agentRunnerNotFound": "Este runner não foi encontrado neste espaço de trabalho.",
       "agentRuntimeUnavailable": "Esta forma de executar agentes não está disponível para este espaço de trabalho no momento.",

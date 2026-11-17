@@ -4,7 +4,8 @@ import type { AgentProviderId } from "./agent-provider-models";
 const ANTHROPIC_VERSION = "2023-06-01";
 const CHECK_TIMEOUT_MS = 10_000;
 
-const REJECTED_STATUSES = new Set([400, 401, 403]);
+const REJECTED_STATUSES = new Set([400, 401]);
+const LISTING_FORBIDDEN_STATUS = 403;
 
 type FetchLike = (url: string, init: RequestInit) => Promise<Pick<Response, "status" | "ok">>;
 
@@ -39,6 +40,7 @@ export class FetchAgentProviderKeyValidator implements AgentProviderKeyValidator
         signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
       });
       if (response.ok) return "valid";
+      if (response.status === LISTING_FORBIDDEN_STATUS) return "unverified";
       return REJECTED_STATUSES.has(response.status) ? "invalid" : "unreachable";
     } catch {
       return "unreachable";

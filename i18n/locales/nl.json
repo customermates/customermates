@@ -932,7 +932,8 @@
     },
     "replaceNote": "Een sleutel voor een aanbieder die er al een heeft, vervangt die.",
     "test": "Testen",
-    "testSucceeded": "De aanbieder heeft deze sleutel geaccepteerd."
+    "testSucceeded": "De aanbieder heeft deze sleutel geaccepteerd.",
+    "unverifiedNote": "De aanbieder liet deze sleutel zijn modellen niet opvragen, dus de sleutel kon niet worden gecontroleerd. Een agentuitvoering laat zien of hij werkt."
   },
   "AgentRuntime": {
     "available": "Beschikbaar",
@@ -1709,6 +1710,7 @@
       "agentProviderKeyNotFound": "Deze AI-sleutel is niet gevonden in deze werkruimte.",
       "agentProviderKeyUnreachable": "De aanbieder kon niet worden bereikt om deze sleutel te controleren. Probeer het zo meteen opnieuw.",
       "agentProviderKeyUnreadable": "Deze sleutel kan niet worden gelezen met het geheim van deze server. Sla hem opnieuw op.",
+      "agentProviderKeyUnverified": "De aanbieder laat deze sleutel zijn modellen niet opvragen, dus hij kan hier niet worden gecontroleerd. Een agentuitvoering laat zien of hij werkt.",
       "agentProviderModelInvalid": "Dat model wordt niet aangeboden voor deze aanbieder.",
       "agentRunnerNotFound": "Deze runner is niet gevonden in deze werkruimte.",
       "agentRuntimeUnavailable": "Deze manier om agents uit te voeren is nu niet beschikbaar voor deze werkruimte.",

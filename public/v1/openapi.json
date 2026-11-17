@@ -171328,6 +171328,7 @@
                         "agentProviderKeyInvalid",
                         "agentProviderKeyUnreachable",
                         "agentProviderKeyUnreadable",
+                        "agentProviderKeyUnverified",
                         "agentProviderKeyNotFound",
                         "agentProviderModelInvalid",
                         "agentRuntimeUnavailable",

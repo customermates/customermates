@@ -22,7 +22,7 @@ export type AgentProviderKeyWrite = {
   keyCiphertext: string;
   keyLast4: string;
   defaultModel: string | null;
-  validatedAt: Date;
+  validatedAt: Date | null;
 };
 
 export abstract class AgentProviderKeyRepo {
