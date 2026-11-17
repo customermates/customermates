@@ -88,7 +88,7 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    // 90 is the film poster's quality (components/marketing/product-film-poster-blur.ts); 75 is the default.
+    // 90 is the film posters' quality (components/marketing/product-film-poster-blur.ts); 75 is the default.
     qualities: [75, 90],
   },
 
@@ -164,8 +164,20 @@ const nextConfig: NextConfig = {
       },
       ...[
         "/customermates-film.mp4",
-        "/customermates-film-poster-inbox.jpg",
-        "/customermates-film-poster-inbox-dark.jpg",
+        "/customermates-film-poster.jpg",
+        "/customermates-film-poster-dark.jpg",
+        "/customermates-film-de.mp4",
+        "/customermates-film-de-poster.jpg",
+        "/customermates-film-de-poster-dark.jpg",
+        "/customermates-film-fr.mp4",
+        "/customermates-film-fr-poster.jpg",
+        "/customermates-film-fr-poster-dark.jpg",
+        "/customermates-film-es.mp4",
+        "/customermates-film-es-poster.jpg",
+        "/customermates-film-es-poster-dark.jpg",
+        "/customermates-film-it.mp4",
+        "/customermates-film-it-poster.jpg",
+        "/customermates-film-it-poster-dark.jpg",
         "/images/:path*",
         "/icons/:path*",
       ].map((source) => ({
