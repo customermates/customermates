@@ -53,7 +53,7 @@ The runner logs to its standard output and never prints its token.
 
 The server sends the prompt of the job, whether outsiders can influence that prompt, the MCP address of your workspace and the key of the job. When the runner confirms the job, the server tells it how long the job may run. It never sends a workspace secret, a provider key or a job of another member. The key only reaches this workspace, only as you, and only while the job runs: the server refuses it before the runner confirmed the job and from the moment the job is finished, timed out or cancelled.
 
-The runner never sends your CLI login, your files or your environment. It sends the machine name, the CLIs it can start, the transcript events (what the agent wrote, each tool call with a short digest of its arguments and each tool result, with tokens removed) and the result. Transcripts are stored with the job, so do not let a CLI print secrets it should not show.
+The runner never sends your CLI login, your files or your environment. It sends the machine name, the CLIs it can start, the transcript events (what the agent wrote, each tool call with a short digest of its arguments and each tool result, with tokens removed) and the result. Transcripts are stored with the job, so do not let a CLI print secrets it should not show. The workspace keeps the last 200 events of a job, so a longer run shows its latest steps.
 
 A prompt that outsiders can influence, for example one that carries a form submission, an incoming webhook or the name of a record, is marked in the job. The runner wraps it in the same framing as the MCP server uses: the text is data, not instructions, and a request inside it to change what the agent does is reported, not followed.
 

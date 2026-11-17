@@ -101,7 +101,7 @@ export const agentRunnerApiPaths = {
       operationId: "appendRunnerJobEvents",
       summary: "Stream transcript events of a job",
       description:
-        "Appends up to 100 events to the job's transcript in the shape the workspace shows: a message of the agent, a tool call, a tool result or the finish. The transcript keeps the last 200 events. A job that is not claimed by this runner answers 404; a job that is already finished, timed out or cancelled, or that runs as another attempt, answers 409, which tells the runner to stop the client.",
+        "Appends up to 100 events to the job's transcript in the shape the workspace shows: a message of the agent, a tool call, a tool result or the finish. The transcript keeps the last 200 events: once a job has more, every further event replaces the oldest one, so a runner keeps sending to show the latest steps. customermates-runner sends at most 5,000 events of a job and always the finish event. A job that is not claimed by this runner answers 404; a job that is already finished, timed out or cancelled, or that runs as another attempt, answers 409, which tells the runner to stop the client.",
       input: AgentJobEventsBodySchema,
       example: {
         attempt: 1,

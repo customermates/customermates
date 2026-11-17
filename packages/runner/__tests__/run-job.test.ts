@@ -407,7 +407,7 @@ describe("running a job", () => {
     expect(mockOf(down.api, "result")).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps room for the finish event when the client produces more events than a job may hold", async () => {
+  it("keeps room for the finish event when the client produces more events than the runner sends for one job", async () => {
     const { deps, posted, started } = setup();
 
     const running = runJob(claimed(), CLAUDE, OPTIONS, deps);

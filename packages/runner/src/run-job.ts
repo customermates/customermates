@@ -48,7 +48,7 @@ export type RunJobDeps = {
 type Confirmation = { timeoutMs: number } | null;
 
 const FLUSH_BATCH = 20;
-const MAX_EVENTS = 5000;
+const MAX_SENT_EVENTS = 5000;
 const FINISH_EVENTS = 1;
 const EVENT_ATTEMPTS = 2;
 const STDERR_TAIL = 20;
@@ -230,7 +230,7 @@ export async function runJob(
     return sending;
   };
 
-  const push = (events: readonly TranscriptEvent[], limit = MAX_EVENTS - FINISH_EVENTS) => {
+  const push = (events: readonly TranscriptEvent[], limit = MAX_SENT_EVENTS - FINISH_EVENTS) => {
     for (const event of events) {
       if (eventCount >= limit) break;
       eventCount += 1;
@@ -361,7 +361,7 @@ export async function runJob(
           ...(result.summary === undefined ? {} : { text: result.summary }),
         },
       ],
-      MAX_EVENTS,
+      MAX_SENT_EVENTS,
     );
   }
   await flush();
