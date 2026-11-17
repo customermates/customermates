@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { AutomationDateCandidateReader } from "./automation-ports";
 import type { AutomationRuleRepo, StaleAutomationRuleRun, StoredAutomationRule } from "./automation-rule.repo";
@@ -17,6 +19,7 @@ const STALE_COMPANY_LIMIT = 50;
 const STALE_RUNS_PER_COMPANY = 20;
 const STALE_QUEUED_MS = 2 * 60 * 1000;
 
+export const AUTOMATION_DATE_ADMISSION_BUDGET_MS = 150 * 1000;
 export const AUTOMATION_RUN_GIVE_UP_MS = 30 * 60 * 1000;
 export const AUTOMATION_RUN_ABANDONED_ERROR = "runAbandoned";
 
@@ -28,6 +31,8 @@ type SweepResult = {
   automationRunsAbandoned: number;
 };
 
+export type SweepPacing = { budgetMs: number; elapsed: () => number; startAfter: () => string };
+
 @SystemInteractor
 export class SweepAutomationRulesInteractor {
   constructor(
@@ -38,6 +43,11 @@ export class SweepAutomationRulesInteractor {
     private readonly pages = { rules: RULE_PAGE, candidates: CANDIDATE_PAGE },
     private readonly report: (error: unknown, failure: SweepFailure) => void = (error, failure) =>
       captureException(error, { tags: { kind: "automation-rule-sweep", ...failure } }),
+    private readonly pacing: SweepPacing = {
+      budgetMs: AUTOMATION_DATE_ADMISSION_BUDGET_MS,
+      elapsed: Date.now,
+      startAfter: randomUUID,
+    },
   ) {}
 
   async invoke(now = new Date()): Promise<SweepResult> {
@@ -51,23 +61,31 @@ export class SweepAutomationRulesInteractor {
   }
 
   private async admitDateRules(now: Date): Promise<number> {
+    const deadline = this.pacing.elapsed() + this.pacing.budgetMs;
+    const start = this.pacing.startAfter();
+    const laps: Array<{ afterId?: string; untilId?: string }> = [{ afterId: start }, { untilId: start }];
     let admitted = 0;
-    let afterId: string | undefined;
-    for (;;) {
-      const rules = await this.repo.findDateRulesUnscoped({ afterId, limit: this.pages.rules });
-      for (const rule of rules) {
-        try {
-          admitted += await this.admitDateRule(rule, now);
-        } catch (error) {
-          this.report(error, { companyId: rule.companyId, ruleId: rule.id });
+    for (const lap of laps) {
+      let afterId = lap.afterId;
+      for (;;) {
+        const rules = await this.repo.findDateRulesUnscoped({ afterId, limit: this.pages.rules });
+        for (const rule of rules) {
+          if (lap.untilId !== undefined && rule.id > lap.untilId) return admitted;
+          if (this.pacing.elapsed() >= deadline) return admitted;
+          try {
+            admitted += await this.admitDateRule(rule, now, deadline);
+          } catch (error) {
+            this.report(error, { companyId: rule.companyId, ruleId: rule.id });
+          }
         }
+        if (rules.length < this.pages.rules) break;
+        afterId = rules.at(-1)?.id;
       }
-      if (rules.length < this.pages.rules) return admitted;
-      afterId = rules.at(-1)?.id;
     }
+    return admitted;
   }
 
-  private async admitDateRule(rule: StoredAutomationRule, now: Date): Promise<number> {
+  private async admitDateRule(rule: StoredAutomationRule, now: Date, deadline: number): Promise<number> {
     const trigger = AutomationTriggerSchema.safeParse(rule.trigger);
     if (!rule.ownerUserId || !trigger.success || trigger.data.kind !== "dateReached") return 0;
     const dateTrigger = trigger.data;
@@ -112,7 +130,7 @@ export class SweepAutomationRulesInteractor {
           ownerUserId: rule.ownerUserId,
         });
       }
-      if (candidates.length < this.pages.candidates) return admitted;
+      if (candidates.length < this.pages.candidates || this.pacing.elapsed() >= deadline) return admitted;
       afterRecordId = candidates.at(-1)?.recordId;
     }
   }

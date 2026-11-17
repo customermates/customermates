@@ -1256,6 +1256,75 @@ describe("sweeping date-reached rules", () => {
     expect(reader.queries[0]).toMatchObject({ companyId: COMPANY, userId: OWNER, typeId: TYPE, fieldId: NEXT_STEP });
   });
 
+  function pacedSweep(pacing: { budgetMs: number; stepMs: number; startAfter: string }) {
+    let elapsed = 0;
+    return new SweepAutomationRulesInteractor(
+      repo,
+      new FakeDateCandidateReader(repo),
+      { dispatch } as never,
+      new DiscardAutomationRuleRunInteractor(repo, () => NOW),
+      undefined,
+      undefined,
+      {
+        budgetMs: pacing.budgetMs,
+        elapsed: () => {
+          elapsed += pacing.stepMs;
+          return elapsed;
+        },
+        startAfter: () => pacing.startAfter,
+      },
+    );
+  }
+
+  it("stops admitting date rules when its time is used up, so that stale runs still get their turn", async () => {
+    for (const suffix of ["a2", "a3"])
+      seedRule(repo, { id: RULE_B.replace("a2", suffix), triggerKind: "dateReached", trigger });
+    repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-13" }];
+    const stalled = (await repo.admitRunUnscoped({
+      companyId: COMPANY,
+      ruleId: RULE,
+      occurrenceKey: "event:stalled",
+      triggerKind: "dateReached",
+      typeId: TYPE,
+      recordId: RECORD,
+      payload: { chain: [] },
+      depth: 0,
+      scheduledFor: NOW,
+    })) as string;
+    const queued = repo.runs.get(stalled);
+    if (queued) repo.runs.set(stalled, { ...queued, createdAt: new Date("2026-11-12T06:50:00.000Z") });
+
+    const short = pacedSweep({ budgetMs: 100, stepMs: 60, startAfter: "00000000-0000-0000-0000-000000000000" });
+    await expect(short.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toEqual({
+      automationRulesAdmitted: 1,
+      automationRunsRedispatched: 1,
+      automationRunsAbandoned: 0,
+    });
+    expect(dispatch).toHaveBeenCalledWith("run-automation-rule", {
+      runId: stalled,
+      companyId: COMPANY,
+      ownerUserId: OWNER,
+    });
+  });
+
+  it("starts each pass at another rule, so a short time still reaches every rule", async () => {
+    const second = RULE_B;
+    const third = RULE_B.replace("a2", "a3");
+    for (const id of [second, third]) seedRule(repo, { id, triggerKind: "dateReached", trigger });
+    repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-13" }];
+    const admittedFor = () => [...repo.runs.values()].map((run) => run.ruleId).sort();
+    const at = new Date("2026-11-12T07:00:00.000Z");
+
+    await pacedSweep({ budgetMs: 100, stepMs: 60, startAfter: RULE }).invoke(at);
+    expect(admittedFor()).toEqual([second]);
+    await pacedSweep({ budgetMs: 100, stepMs: 60, startAfter: second }).invoke(at);
+    expect(admittedFor()).toEqual([second, third]);
+    await pacedSweep({ budgetMs: 100, stepMs: 60, startAfter: third }).invoke(at);
+    expect(admittedFor()).toEqual([RULE, second, third]);
+    await pacedSweep({ budgetMs: 10_000, stepMs: 1, startAfter: second }).invoke(at);
+    expect(admittedFor()).toEqual([RULE, second, third]);
+  });
+
   it("pages through every rule and every candidate instead of stopping at the first page", async () => {
     for (const suffix of ["a2", "a3", "a4"])
       seedRule(repo, { id: RULE_B.replace("a2", suffix), triggerKind: "dateReached", trigger });
