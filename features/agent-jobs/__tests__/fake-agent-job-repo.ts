@@ -16,6 +16,7 @@ const COMPANY = "00000000-0000-4000-8000-000000000011";
 export class FakeAgentJobRepo implements AgentJobRepo {
   readonly jobs = new Map<string, StoredAgentJob>();
   readonly events = new Map<string, unknown[]>();
+  readonly inactiveRuleIds = new Set<string>();
   private sequence = 0;
 
   constructor(private readonly companyId = COMPANY) {}
@@ -34,6 +35,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
       prompt: "Do the thing",
       promptUntrusted: false,
       model: null,
+      pinnedRunnerId: null,
       runnerId: null,
       attempts: 0,
       queuedAt: new Date(Date.UTC(2026, 10, 17, 8, 0, this.sequence)),
@@ -91,12 +93,14 @@ export class FakeAgentJobRepo implements AgentJobRepo {
         candidate.companyId === claim.companyId &&
         candidate.runtime === claim.runtime &&
         candidate.status === "queued" &&
-        (!claim.jobId || candidate.id === claim.jobId),
+        (!claim.jobId || candidate.id === claim.jobId) &&
+        (!claim.runnerId || !candidate.pinnedRunnerId || candidate.pinnedRunnerId === claim.runnerId),
     );
     if (!job) return Promise.resolve(null);
     const claimed = {
       ...job,
       status: "claimed" as const,
+      runnerId: claim.runnerId ?? null,
       claimedAt: claim.now,
       timeoutAt: claim.timeoutAt,
       attempts: job.attempts + 1,
@@ -157,7 +161,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
       this.jobs.set(
         job.id,
         requeued
-          ? { ...job, status: "queued", queuedAt: args.now, timeoutAt: null }
+          ? { ...job, status: "queued", queuedAt: args.now, runnerId: null, timeoutAt: null }
           : { ...job, status: "timedOut", timeoutAt: null },
       );
       outcomes.push({
@@ -183,6 +187,56 @@ export class FakeAgentJobRepo implements AgentJobRepo {
       .slice(0, args.limit)
       .map(({ id, companyId, ownerUserId, runtime }) => ({ id, companyId, ownerUserId, runtime }));
     return Promise.resolve(stale);
+  }
+
+  private close(
+    matches: (job: StoredAgentJob) => boolean,
+    patch: Pick<StoredAgentJob, "status" | "error" | "finishedAt">,
+    limit = Number.POSITIVE_INFINITY,
+  ): Promise<number> {
+    const closing = [...this.jobs.values()].filter(matches).slice(0, limit);
+    for (const job of closing) this.jobs.set(job.id, { ...job, ...patch, timeoutAt: null });
+    return Promise.resolve(closing.length);
+  }
+
+  expireQueuedUnscoped(args: { queuedBefore: Date; now: Date; limit: number }): Promise<number> {
+    return this.close(
+      (job) => job.status === "queued" && job.queuedAt < args.queuedBefore,
+      { status: "timedOut", error: "queueExpired", finishedAt: args.now },
+      args.limit,
+    );
+  }
+
+  cancelForRunnerUnscoped(args: { companyId: string; runnerId: string; now: Date }): Promise<number> {
+    return this.close(
+      (job) =>
+        job.companyId === args.companyId &&
+        ((job.status === "queued" && job.pinnedRunnerId === args.runnerId) ||
+          (["claimed", "running"].includes(job.status) && job.runnerId === args.runnerId)),
+      { status: "cancelled", error: "runnerRevoked", finishedAt: args.now },
+    );
+  }
+
+  cancelQueuedForRuleUnscoped(args: { companyId: string; ruleId: string; now: Date }): Promise<number> {
+    return this.close(
+      (job) =>
+        job.companyId === args.companyId &&
+        job.status === "queued" &&
+        job.sourceKind === "automation" &&
+        job.ruleChain.at(-1) === args.ruleId,
+      { status: "cancelled", error: "ruleInactive", finishedAt: args.now },
+    );
+  }
+
+  cancelQueuedOfInactiveRulesUnscoped(args: { now: Date; limit: number }): Promise<number> {
+    return this.close(
+      (job) =>
+        job.status === "queued" &&
+        job.sourceKind === "automation" &&
+        this.inactiveRuleIds.has(job.ruleChain.at(-1) ?? ""),
+      { status: "cancelled", error: "ruleInactive", finishedAt: args.now },
+      args.limit,
+    );
   }
 
   deleteFinishedBeforeUnscoped(before: Date): Promise<number> {

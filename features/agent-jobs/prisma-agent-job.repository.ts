@@ -15,6 +15,13 @@ import { AgentJobStatus, Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
+import {
+  AGENT_JOB_ERROR_QUEUE_EXPIRED,
+  AGENT_JOB_ERROR_RULE_INACTIVE,
+  AGENT_JOB_ERROR_RUNNER_REVOKED,
+  AGENT_JOB_SOURCE_AUTOMATION,
+} from "./agent-job.schema";
+
 const JOB_LIST_SELECT = {
   id: true,
   companyId: true,
@@ -25,6 +32,7 @@ const JOB_LIST_SELECT = {
   ruleChain: true,
   ownerUserId: true,
   model: true,
+  pinnedRunnerId: true,
   runnerId: true,
   attempts: true,
   queuedAt: true,
@@ -101,7 +109,7 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
           AND j."runtime" = ${claim.runtime}::"AgentRuntime"
           AND j."status" = 'queued'
           AND (${jobId}::text IS NULL OR j."id" = ${jobId})
-          AND (${runnerId}::text IS NULL OR j."runnerId" IS NULL OR j."runnerId" = ${runnerId})
+          AND (${runnerId}::text IS NULL OR j."pinnedRunnerId" IS NULL OR j."pinnedRunnerId" = ${runnerId})
         ORDER BY j."createdAt" ASC, j."id" ASC
         LIMIT 1
         FOR UPDATE SKIP LOCKED
@@ -111,7 +119,7 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
         "claimedAt" = ${claim.now},
         "timeoutAt" = ${claim.timeoutAt},
         "attempts" = job."attempts" + 1,
-        "runnerId" = COALESCE(${runnerId}, job."runnerId"),
+        "runnerId" = ${runnerId},
         "updatedAt" = ${claim.now}
       FROM claimable c
       WHERE job."id" = c."id" AND job."companyId" = ${claim.companyId}
@@ -229,12 +237,102 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
       const result = await this.prisma.agentJob.updateMany({
         where: { id: job.id, companyId: job.companyId, status: { in: LIVE_STATUSES }, timeoutAt: { lt: args.now } },
         data: requeue
-          ? { status: AgentJobStatus.queued, queuedAt: args.now, claimedAt: null, startedAt: null, timeoutAt: null }
+          ? {
+              status: AgentJobStatus.queued,
+              queuedAt: args.now,
+              runnerId: null,
+              claimedAt: null,
+              startedAt: null,
+              timeoutAt: null,
+            }
           : { status: AgentJobStatus.timedOut, finishedAt: args.now, timeoutAt: null, error: "timedOut" },
       });
       if (result.count === 1) outcomes.push({ ...job, requeued: requeue });
     }
     return outcomes;
+  }
+
+  @BypassTenantGuard
+  async expireQueuedUnscoped(args: { queuedBefore: Date; now: Date; limit: number }): Promise<number> {
+    const waiting = await this.prisma.agentJob.findMany({
+      where: { status: AgentJobStatus.queued, queuedAt: { lt: args.queuedBefore } },
+      select: { id: true },
+      orderBy: { queuedAt: "asc" },
+      take: args.limit,
+    });
+    if (waiting.length === 0) return 0;
+    const { count } = await this.prisma.agentJob.updateMany({
+      where: {
+        id: { in: waiting.map((job) => job.id) },
+        status: AgentJobStatus.queued,
+        queuedAt: { lt: args.queuedBefore },
+      },
+      data: { status: AgentJobStatus.timedOut, finishedAt: args.now, error: AGENT_JOB_ERROR_QUEUE_EXPIRED },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
+  async cancelForRunnerUnscoped(args: { companyId: string; runnerId: string; now: Date }): Promise<number> {
+    const { count } = await this.prisma.agentJob.updateMany({
+      where: {
+        companyId: args.companyId,
+        OR: [
+          { status: AgentJobStatus.queued, pinnedRunnerId: args.runnerId },
+          { status: { in: LIVE_STATUSES }, runnerId: args.runnerId },
+        ],
+      },
+      data: {
+        status: AgentJobStatus.cancelled,
+        finishedAt: args.now,
+        timeoutAt: null,
+        error: AGENT_JOB_ERROR_RUNNER_REVOKED,
+      },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
+  cancelQueuedForRuleUnscoped(args: { companyId: string; ruleId: string; now: Date }): Promise<number> {
+    return this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "AgentJob" job SET
+        "status" = 'cancelled',
+        "finishedAt" = ${args.now},
+        "error" = ${AGENT_JOB_ERROR_RULE_INACTIVE},
+        "updatedAt" = ${args.now}
+      WHERE job."companyId" = ${args.companyId}
+        AND job."status" = 'queued'
+        AND job."sourceKind" = ${AGENT_JOB_SOURCE_AUTOMATION}
+        AND job."ruleChain"[cardinality(job."ruleChain")] = ${args.ruleId}
+    `);
+  }
+
+  @BypassTenantGuard
+  cancelQueuedOfInactiveRulesUnscoped(args: { now: Date; limit: number }): Promise<number> {
+    return this.prisma.$executeRaw(Prisma.sql`
+      WITH orphaned AS MATERIALIZED (
+        SELECT j."id" FROM "AgentJob" j
+        WHERE j."status" = 'queued'
+          AND j."sourceKind" = ${AGENT_JOB_SOURCE_AUTOMATION}
+          AND cardinality(j."ruleChain") > 0
+          AND NOT EXISTS (
+            SELECT 1 FROM "AutomationRule" rule
+            WHERE rule."companyId" = j."companyId"
+              AND rule."id" = j."ruleChain"[cardinality(j."ruleChain")]
+              AND rule."enabled"
+          )
+        ORDER BY j."queuedAt" ASC
+        LIMIT ${args.limit}::int
+        FOR UPDATE SKIP LOCKED
+      )
+      UPDATE "AgentJob" job SET
+        "status" = 'cancelled',
+        "finishedAt" = ${args.now},
+        "error" = ${AGENT_JOB_ERROR_RULE_INACTIVE},
+        "updatedAt" = ${args.now}
+      FROM orphaned
+      WHERE job."id" = orphaned."id" AND job."status" = 'queued'
+    `);
   }
 
   @BypassTenantGuard

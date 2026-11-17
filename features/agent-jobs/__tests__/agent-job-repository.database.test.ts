@@ -39,7 +39,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
           prompt: "Summarise the deal",
           promptUntrusted: false,
           model: null,
-          runnerId: null,
+          pinnedRunnerId: null,
           ...overrides,
         }),
       company,
@@ -51,6 +51,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
       status: string;
       attempts: number;
       runnerId: string | null;
+      pinnedRunnerId: string | null;
       error: string | null;
       queuedAt: Date;
       timeoutAt: Date | null;
@@ -59,7 +60,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
       costMicrocents: string | null;
       inputTokens: number | null;
     }>(
-      'SELECT "status", "attempts", "runnerId", "error", "queuedAt", "timeoutAt", "finishedAt", "transcript", "costMicrocents", "inputTokens" FROM "AgentJob" WHERE "id" = $1',
+      'SELECT "status", "attempts", "runnerId", "pinnedRunnerId", "error", "queuedAt", "timeoutAt", "finishedAt", "transcript", "costMicrocents", "inputTokens" FROM "AgentJob" WHERE "id" = $1',
       [id],
     );
     return rows[0];
@@ -149,18 +150,29 @@ describeDatabase("PrismaAgentJobRepo", () => {
             prompt: "Summarise the deal",
             promptUntrusted: false,
             model: null,
-            runnerId: runner,
+            pinnedRunnerId: runner,
           }),
         ),
       ),
     );
+    const now = new Date();
+    for (const runner of [doomedRunner, keptRunner]) {
+      const claimed = await repo().claimUnscoped({
+        companyId: doomedCompany,
+        runtime: "runner",
+        runnerId: runner,
+        now,
+        timeoutAt: new Date(now.getTime() + HOUR),
+      });
+      expect(claimed).toMatchObject({ runnerId: runner, pinnedRunnerId: runner });
+    }
 
     await client.query('DELETE FROM "AgentRunner" WHERE "id" = $1', [doomedRunner]);
-    const orphan = await client.query<{ companyId: string; runnerId: string | null }>(
-      'SELECT "companyId", "runnerId" FROM "AgentJob" WHERE "id" = $1',
+    const orphan = await client.query<{ companyId: string; runnerId: string | null; pinnedRunnerId: string | null }>(
+      'SELECT "companyId", "runnerId", "pinnedRunnerId" FROM "AgentJob" WHERE "id" = $1',
       [jobs[0].id],
     );
-    expect(orphan.rows).toEqual([{ companyId: doomedCompany, runnerId: null }]);
+    expect(orphan.rows).toEqual([{ companyId: doomedCompany, runnerId: null, pinnedRunnerId: doomedRunner }]);
 
     await client.query('DELETE FROM "Company" WHERE "id" = $1', [doomedCompany]);
     const left = await client.query('SELECT 1 FROM "AgentJob" WHERE "id" = ANY($1)', [jobs.map((job) => job.id)]);
@@ -268,9 +280,10 @@ describeDatabase("PrismaAgentJobRepo", () => {
        VALUES ($1, $2, 'laptop', $3, $4, CURRENT_TIMESTAMP)`,
       [strangerRunner, companyId, `hash-${strangerRunner}`, ownerId],
     );
-    const reserved = await enqueue({ runtime: "runner", sourceId: source, runnerId: strangerRunner });
+    const reserved = await enqueue({ runtime: "runner", sourceId: source, pinnedRunnerId: strangerRunner });
     const open = await enqueue({ runtime: "runner", sourceId: source });
-    const pinned = await enqueue({ runtime: "runner", sourceId: source, runnerId });
+    const pinned = await enqueue({ runtime: "runner", sourceId: source, pinnedRunnerId: runnerId });
+    expect(reserved).toMatchObject({ pinnedRunnerId: strangerRunner, runnerId: null });
     for (const [index, job] of [reserved, open, pinned].entries()) {
       await client.query('UPDATE "AgentJob" SET "createdAt" = $2 WHERE "id" = $1', [
         job.id,
@@ -281,11 +294,155 @@ describeDatabase("PrismaAgentJobRepo", () => {
     const timeoutAt = new Date(now.getTime() + HOUR);
 
     const first = await repo().claimUnscoped({ companyId, runtime: "runner", runnerId, now, timeoutAt });
-    expect(first).toMatchObject({ id: open.id, runnerId, status: "claimed" });
+    expect(first).toMatchObject({ id: open.id, runnerId, pinnedRunnerId: null, status: "claimed" });
     const second = await repo().claimUnscoped({ companyId, runtime: "runner", runnerId, now, timeoutAt });
-    expect(second).toMatchObject({ id: pinned.id, runnerId });
+    expect(second).toMatchObject({ id: pinned.id, runnerId, pinnedRunnerId: runnerId });
     expect(await repo().claimUnscoped({ companyId, runtime: "runner", runnerId, now, timeoutAt })).toBeNull();
-    expect(await row(reserved.id)).toMatchObject({ status: "queued", runnerId: strangerRunner });
+    expect(await row(reserved.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: strangerRunner });
+  });
+
+  it("frees a job for any runner again when the runner that claimed it went away, and keeps a pin", async () => {
+    const source = randomUUID();
+    const otherRunner = randomUUID();
+    await client.query(
+      `INSERT INTO "AgentRunner" ("id", "companyId", "name", "tokenHash", "createdById", "updatedAt")
+       VALUES ($1, $2, 'desktop', $3, $4, CURRENT_TIMESTAMP)`,
+      [otherRunner, companyId, `hash-${otherRunner}`, ownerId],
+    );
+    const open = await enqueue({ runtime: "runner", sourceId: source });
+    const pinned = await enqueue({ runtime: "runner", sourceId: source, pinnedRunnerId: runnerId });
+    await client.query('UPDATE "AgentJob" SET "createdAt" = $2 WHERE "id" = $1', [
+      open.id,
+      new Date(Date.UTC(2026, 9, 1)),
+    ]);
+    await client.query('UPDATE "AgentJob" SET "createdAt" = $2 WHERE "id" = $1', [
+      pinned.id,
+      new Date(Date.UTC(2026, 9, 2)),
+    ]);
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const past = new Date(now.getTime() - HOUR);
+    const claimAs = (runner: string, timeoutAt: Date) =>
+      repo().claimUnscoped({ companyId, runtime: "runner", runnerId: runner, now, timeoutAt });
+
+    expect(await claimAs(runnerId, past)).toMatchObject({ id: open.id, runnerId });
+    expect(await claimAs(runnerId, past)).toMatchObject({ id: pinned.id, runnerId });
+    // The runner crashes; both jobs pass their timeout.
+    await repo().sweepTimeoutsUnscoped({ now, maxAttempts: 2, limit: 500 });
+
+    expect(await row(open.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: null });
+    expect(await row(pinned.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: runnerId });
+    const future = new Date(now.getTime() + HOUR);
+    expect(await claimAs(otherRunner, future)).toMatchObject({ id: open.id, runnerId: otherRunner, attempts: 2 });
+    expect(await claimAs(otherRunner, future)).toBeNull();
+    expect(await claimAs(runnerId, future)).toMatchObject({ id: pinned.id, runnerId, attempts: 2 });
+  });
+
+  it("ends jobs that waited in the queue past the expiry as timed out and leaves the rest", async () => {
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60_000);
+    const stuckRunner = await enqueue({ runtime: "runner" });
+    const stuckHosted = await enqueue({ runtime: "ownKey" });
+    const waiting = await enqueue({ runtime: "runner" });
+    const running = await enqueue({ runtime: "runner" });
+    await age(stuckRunner.id, { queuedAt: minutesAgo(16) });
+    await age(stuckHosted.id, { queuedAt: minutesAgo(40) });
+    await age(waiting.id, { queuedAt: minutesAgo(14) });
+    await age(running.id, { queuedAt: minutesAgo(40), status: "running" });
+
+    const expired = await repo().expireQueuedUnscoped({ queuedBefore: minutesAgo(15), now, limit: 500 });
+
+    expect(expired).toBeGreaterThanOrEqual(2);
+    expect(await row(stuckRunner.id)).toMatchObject({ status: "timedOut", error: "queueExpired", finishedAt: now });
+    expect(await row(stuckHosted.id)).toMatchObject({ status: "timedOut", error: "queueExpired" });
+    expect(await row(waiting.id)).toMatchObject({ status: "queued", finishedAt: null });
+    expect(await row(running.id)).toMatchObject({ status: "running" });
+  });
+
+  it("cancels the jobs of a revoked runner: the ones it runs and the queued ones pinned to it", async () => {
+    const revoked = randomUUID();
+    await client.query(
+      `INSERT INTO "AgentRunner" ("id", "companyId", "name", "tokenHash", "createdById", "updatedAt")
+       VALUES ($1, $2, 'revoked', $3, $4, CURRENT_TIMESTAMP)`,
+      [revoked, companyId, `hash-${revoked}`, ownerId],
+    );
+    const source = randomUUID();
+    const now = new Date();
+    const timeoutAt = new Date(now.getTime() + HOUR);
+    const runningThere = await enqueue({ runtime: "runner", sourceId: source, pinnedRunnerId: revoked });
+    await repo().claimUnscoped({
+      companyId,
+      runtime: "runner",
+      jobId: runningThere.id,
+      runnerId: revoked,
+      now,
+      timeoutAt,
+    });
+    const queuedForIt = await enqueue({ runtime: "runner", sourceId: source, pinnedRunnerId: revoked });
+    const queuedForAnyone = await enqueue({ runtime: "runner", sourceId: source });
+    const elsewhere = await enqueue({ runtime: "runner", sourceId: source });
+    await repo().claimUnscoped({ companyId, runtime: "runner", jobId: elsewhere.id, runnerId, now, timeoutAt });
+
+    expect(await repo().cancelForRunnerUnscoped({ companyId: otherCompanyId, runnerId: revoked, now })).toBe(0);
+    expect(await repo().cancelForRunnerUnscoped({ companyId, runnerId: revoked, now })).toBe(2);
+
+    expect(await row(runningThere.id)).toMatchObject({ status: "cancelled", error: "runnerRevoked", timeoutAt: null });
+    expect(await row(queuedForIt.id)).toMatchObject({ status: "cancelled", error: "runnerRevoked" });
+    expect((await row(queuedForIt.id)).finishedAt).not.toBeNull();
+    expect(await row(queuedForAnyone.id)).toMatchObject({ status: "queued" });
+    expect(await row(elsewhere.id)).toMatchObject({ status: "claimed", runnerId });
+    expect(
+      await repo().finishUnscoped({
+        id: runningThere.id,
+        companyId,
+        attempt: 1,
+        status: "succeeded",
+        result: null,
+        error: null,
+        inputTokens: null,
+        outputTokens: null,
+        costMicrocents: null,
+        now,
+      }),
+    ).toBe(false);
+  });
+
+  it("cancels the queued jobs of a rule, by call and by sweep once the rule is disabled or gone", async () => {
+    const liveRule = randomUUID();
+    const disabledRule = randomUUID();
+    const deletedRule = randomUUID();
+    for (const [id, enabled] of [
+      [liveRule, true],
+      [disabledRule, false],
+    ] as const) {
+      await client.query(
+        `INSERT INTO "AutomationRule" ("id", "companyId", "name", "enabled", "triggerKind", "trigger", "effects", "updatedAt")
+         VALUES ($1, $2, 'Rule', $3, 'recordUpdated'::"AutomationTriggerKind", '{}'::jsonb, '[]'::jsonb, CURRENT_TIMESTAMP)`,
+        [id, companyId, enabled],
+      );
+    }
+    const now = new Date();
+    const ofLive = await enqueue({ runtime: "runner", ruleChain: [disabledRule, liveRule] });
+    const ofDisabled = await enqueue({ runtime: "runner", ruleChain: [liveRule, disabledRule] });
+    const ofDeleted = await enqueue({ runtime: "runner", ruleChain: [deletedRule] });
+    const withoutRule = await enqueue({ runtime: "runner" });
+    const runningOfDisabled = await enqueue({ runtime: "runner", ruleChain: [disabledRule] });
+    await age(runningOfDisabled.id, { status: "running" });
+    const byCall = await enqueue({ runtime: "runner", ruleChain: [liveRule] });
+
+    expect(await repo().cancelQueuedForRuleUnscoped({ companyId: otherCompanyId, ruleId: liveRule, now })).toBe(0);
+    await age(ofLive.id, { status: "claimed" });
+    expect(await repo().cancelQueuedForRuleUnscoped({ companyId, ruleId: liveRule, now })).toBe(1);
+    expect(await row(byCall.id)).toMatchObject({ status: "cancelled", error: "ruleInactive" });
+    await age(ofLive.id, { status: "queued" });
+
+    expect(await repo().cancelQueuedOfInactiveRulesUnscoped({ now, limit: 500 })).toBeGreaterThanOrEqual(2);
+    expect(await row(ofDisabled.id)).toMatchObject({ status: "cancelled", error: "ruleInactive" });
+    expect(await row(ofDeleted.id)).toMatchObject({ status: "cancelled", error: "ruleInactive" });
+    expect((await row(ofDeleted.id)).finishedAt).not.toBeNull();
+    expect(await row(ofLive.id)).toMatchObject({ status: "queued" });
+    expect(await row(withoutRule.id)).toMatchObject({ status: "queued" });
+    expect(await row(runningOfDisabled.id)).toMatchObject({ status: "running" });
+    await client.query('DELETE FROM "AutomationRule" WHERE "companyId" = $1', [companyId]);
   });
 
   it("runs a claimed job, appends transcript events up to the cap and finishes it once", async () => {

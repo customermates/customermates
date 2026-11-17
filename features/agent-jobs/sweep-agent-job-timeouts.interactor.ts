@@ -4,6 +4,7 @@ import type { AgentJobQueueEntry, AgentJobRepo, AgentJobSweepOutcome } from "./a
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import * as ErrorReporter from "@/core/observability/server";
+import { AGENT_RUNNER_LIMITS } from "@/features/agent-runners/agent-runner.schema";
 
 import { AGENT_JOB_HOSTED_RUNTIMES, AGENT_JOB_MAX_ATTEMPTS, AGENT_JOB_QUEUED_REDISPATCH_MS } from "./agent-job.schema";
 
@@ -13,6 +14,8 @@ export type AgentJobSweepResult = {
   agentJobsTimedOut: number;
   agentJobsRequeued: number;
   agentJobsRedispatched: number;
+  agentJobsExpired: number;
+  agentJobsCancelled: number;
 };
 
 function isHosted(job: AgentJobQueueEntry): boolean {
@@ -22,7 +25,13 @@ function isHosted(job: AgentJobQueueEntry): boolean {
 @SystemInteractor
 export class SweepAgentJobTimeoutsInteractor {
   constructor(
-    private readonly repo: Pick<AgentJobRepo, "sweepTimeoutsUnscoped" | "findStaleQueuedUnscoped">,
+    private readonly repo: Pick<
+      AgentJobRepo,
+      | "sweepTimeoutsUnscoped"
+      | "findStaleQueuedUnscoped"
+      | "expireQueuedUnscoped"
+      | "cancelQueuedOfInactiveRulesUnscoped"
+    >,
     private readonly tasks: Pick<BackgroundTaskService, "dispatch">,
     private readonly credits: AgentJobCredits,
   ) {}
@@ -37,6 +46,13 @@ export class SweepAgentJobTimeoutsInteractor {
     for (const job of outcomes) await this.afterTimeout(job);
     const requeued = outcomes.filter((job) => job.requeued).length;
 
+    const cancelled = await this.repo.cancelQueuedOfInactiveRulesUnscoped({ now, limit: SWEEP_LIMIT });
+    const expired = await this.repo.expireQueuedUnscoped({
+      queuedBefore: new Date(now.getTime() - AGENT_RUNNER_LIMITS.queuedExpiryMs),
+      now,
+      limit: SWEEP_LIMIT,
+    });
+
     const stale = await this.repo.findStaleQueuedUnscoped({
       runtimes: AGENT_JOB_HOSTED_RUNTIMES,
       queuedBefore: new Date(now.getTime() - AGENT_JOB_QUEUED_REDISPATCH_MS),
@@ -49,6 +65,8 @@ export class SweepAgentJobTimeoutsInteractor {
       agentJobsTimedOut: outcomes.length - requeued,
       agentJobsRequeued: requeued,
       agentJobsRedispatched: redispatched,
+      agentJobsExpired: expired,
+      agentJobsCancelled: cancelled,
     };
   }
 

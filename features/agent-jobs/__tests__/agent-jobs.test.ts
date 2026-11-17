@@ -148,7 +148,12 @@ describe("enqueueing an agent job from an automation", () => {
 
     expect(outcome.ok).toBe(true);
     if (!outcome.ok) return;
-    expect(repo.jobs.get(outcome.jobId)).toMatchObject({ runtime: "runner", runnerId: RUNNER, status: "queued" });
+    expect(repo.jobs.get(outcome.jobId)).toMatchObject({
+      runtime: "runner",
+      pinnedRunnerId: RUNNER,
+      runnerId: null,
+      status: "queued",
+    });
     expect(dispatch).not.toHaveBeenCalled();
   });
 
@@ -312,7 +317,13 @@ describe("sweeping timed-out jobs", () => {
 
     const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
 
-    expect(result).toEqual({ agentJobsTimedOut: 1, agentJobsRequeued: 2, agentJobsRedispatched: 0 });
+    expect(result).toEqual({
+      agentJobsTimedOut: 1,
+      agentJobsRequeued: 2,
+      agentJobsRedispatched: 0,
+      agentJobsExpired: 0,
+      agentJobsCancelled: 0,
+    });
     expect(repo.jobs.get(hosted.id)).toMatchObject({ status: "queued", queuedAt: NOW });
     expect(repo.jobs.get(runner.id)?.status).toBe("queued");
     expect(repo.jobs.get(mate.id)?.status).toBe("timedOut");
@@ -340,7 +351,7 @@ describe("sweeping timed-out jobs", () => {
 
     const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
 
-    expect(result).toEqual({ agentJobsTimedOut: 0, agentJobsRequeued: 0, agentJobsRedispatched: 2 });
+    expect(result).toMatchObject({ agentJobsTimedOut: 0, agentJobsRequeued: 0, agentJobsRedispatched: 2 });
     expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId).sort()).toEqual(
       [lostOwnKey.id, lostMate.id].sort(),
     );
@@ -366,7 +377,7 @@ describe("sweeping timed-out jobs", () => {
 
     const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
 
-    expect(result).toEqual({ agentJobsTimedOut: 0, agentJobsRequeued: 3, agentJobsRedispatched: 1 });
+    expect(result).toMatchObject({ agentJobsTimedOut: 0, agentJobsRequeued: 3, agentJobsRedispatched: 1 });
     expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId)).toEqual([
       brokenRelease.id,
       brokenDispatch.id,
@@ -382,6 +393,65 @@ describe("sweeping timed-out jobs", () => {
     const next = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: later });
     expect(next.agentJobsRedispatched).toBe(4);
     expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId)).toContain(brokenDispatch.id);
+  });
+});
+
+describe("jobs that wait in the queue", () => {
+  const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
+  const sweep = (repo: FakeAgentJobRepo, dispatch = vi.fn().mockResolvedValue(undefined)) =>
+    new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release: vi.fn() }).invoke({ now: NOW });
+
+  it("end as timed out once they waited longer than the queue allows, on every runtime", async () => {
+    const repo = new FakeAgentJobRepo();
+    const noRunner = repo.add({ runtime: "runner", queuedAt: minutesAgo(16) });
+    const neverStarted = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(20) });
+    const waiting = repo.add({ runtime: "runner", queuedAt: minutesAgo(14) });
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+
+    const result = await sweep(repo, dispatch);
+
+    expect(result).toMatchObject({ agentJobsExpired: 2, agentJobsRedispatched: 0 });
+    expect(repo.jobs.get(noRunner.id)).toMatchObject({ status: "timedOut", error: "queueExpired", finishedAt: NOW });
+    expect(repo.jobs.get(neverStarted.id)).toMatchObject({ status: "timedOut", error: "queueExpired" });
+    expect(repo.jobs.get(waiting.id)?.status).toBe("queued");
+    expect(dispatch).not.toHaveBeenCalled();
+  });
+
+  it("are free for any live runner again after the runner that claimed them went away", async () => {
+    const repo = new FakeAgentJobRepo();
+    const RUNNER_A = "00000000-0000-4000-8000-0000000000c1";
+    const RUNNER_B = "00000000-0000-4000-8000-0000000000c2";
+    const open = repo.add({ runtime: "runner" });
+    const pinned = repo.add({ runtime: "runner", pinnedRunnerId: RUNNER_A });
+    const claimAs = (runnerId: string, now = minutesAgo(12)) =>
+      repo.claimUnscoped({ companyId: COMPANY, runtime: "runner", runnerId, now, timeoutAt: minutesAgo(1) });
+
+    expect(await claimAs(RUNNER_A)).toMatchObject({ id: open.id, runnerId: RUNNER_A, pinnedRunnerId: null });
+    expect(await claimAs(RUNNER_A)).toMatchObject({ id: pinned.id, runnerId: RUNNER_A });
+    // Runner A crashes: both jobs pass their timeout and the sweep puts them back.
+    await sweep(repo);
+
+    expect(repo.jobs.get(open.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: null });
+    expect(repo.jobs.get(pinned.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: RUNNER_A });
+    expect(await claimAs(RUNNER_B, NOW)).toMatchObject({ id: open.id, runnerId: RUNNER_B, attempts: 2 });
+    expect(await claimAs(RUNNER_B, NOW)).toBeNull();
+  });
+
+  it("are cancelled by the sweep when the rule that enqueued them is disabled or deleted", async () => {
+    const repo = new FakeAgentJobRepo();
+    const RULE_ON = "00000000-0000-4000-8000-0000000000d1";
+    const RULE_OFF = "00000000-0000-4000-8000-0000000000d2";
+    const kept = repo.add({ runtime: "runner", ruleChain: [RULE_OFF, RULE_ON], queuedAt: minutesAgo(1) });
+    const orphaned = repo.add({ runtime: "runner", ruleChain: [RULE_ON, RULE_OFF], queuedAt: minutesAgo(1) });
+    const running = repo.add({ runtime: "runner", status: "running", ruleChain: [RULE_OFF] });
+    repo.inactiveRuleIds.add(RULE_OFF);
+
+    const result = await sweep(repo);
+
+    expect(result).toMatchObject({ agentJobsCancelled: 1, agentJobsExpired: 0 });
+    expect(repo.jobs.get(orphaned.id)).toMatchObject({ status: "cancelled", error: "ruleInactive", finishedAt: NOW });
+    expect(repo.jobs.get(kept.id)?.status).toBe("queued");
+    expect(repo.jobs.get(running.id)?.status).toBe("running");
   });
 });
 

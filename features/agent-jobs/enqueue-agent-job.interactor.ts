@@ -65,7 +65,7 @@ export class EnqueueAgentJobInteractor
       prompt: composeAgentJobPrompt(data.prompt, data.recordRef),
       promptUntrusted: data.promptUntrusted,
       model: data.model,
-      runnerId: data.runnerId,
+      pinnedRunnerId: data.runnerId,
     });
     if (HOSTED_RUNTIMES.has(data.runtime)) {
       await this.tasks.dispatch("run-agent-job", {

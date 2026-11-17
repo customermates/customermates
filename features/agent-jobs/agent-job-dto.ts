@@ -24,7 +24,7 @@ export function toAgentJobSummary(job: StoredAgentJobSummary): AgentJobSummary {
     sourceKind: job.sourceKind,
     sourceId: job.sourceId,
     model: job.model,
-    runnerId: job.runnerId,
+    runnerId: job.runnerId ?? job.pinnedRunnerId,
     attempts: job.attempts,
     inputTokens: job.inputTokens,
     outputTokens: job.outputTokens,

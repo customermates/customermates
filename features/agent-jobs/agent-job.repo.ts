@@ -14,6 +14,7 @@ export type StoredAgentJob = {
   prompt: string;
   promptUntrusted: boolean;
   model: string | null;
+  pinnedRunnerId: string | null;
   runnerId: string | null;
   attempts: number;
   queuedAt: Date;
@@ -41,7 +42,7 @@ export type AgentJobEnqueue = {
   prompt: string;
   promptUntrusted: boolean;
   model: string | null;
-  runnerId: string | null;
+  pinnedRunnerId: string | null;
 };
 
 export type AgentJobFilter = {
@@ -119,5 +120,9 @@ export abstract class AgentJobRepo {
     queuedBefore: Date;
     limit: number;
   }): Promise<AgentJobQueueEntry[]>;
+  abstract expireQueuedUnscoped(args: { queuedBefore: Date; now: Date; limit: number }): Promise<number>;
+  abstract cancelForRunnerUnscoped(args: { companyId: string; runnerId: string; now: Date }): Promise<number>;
+  abstract cancelQueuedForRuleUnscoped(args: { companyId: string; ruleId: string; now: Date }): Promise<number>;
+  abstract cancelQueuedOfInactiveRulesUnscoped(args: { now: Date; limit: number }): Promise<number>;
   abstract deleteFinishedBeforeUnscoped(before: Date, limit: number): Promise<number>;
 }
