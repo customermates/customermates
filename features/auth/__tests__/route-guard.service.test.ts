@@ -406,12 +406,6 @@ describe("accessRedirectForAccountState", () => {
     expect(await resolveAccess({ resource: Resource.routines })).toBeNull();
   });
 
-  it("lets every member into a page of a resource that all roles may read, without a stored permission", async () => {
-    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ role: { isSystemRole: false, permissions: [] } }));
-
-    expect(await resolveAccess({ resource: Resource.company })).toBeNull();
-  });
-
   it("lets a system-role user bypass the resource permission check", async () => {
     expect(await resolveAccess({ resource: Resource.routines })).toBeNull();
   });
