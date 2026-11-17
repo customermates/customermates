@@ -897,7 +897,6 @@
     "tokens": "{input} in, {output} uit",
     "transcript": {
       "assistant": "Agent",
-      "attempt": "Poging {attempt}: opnieuw gestart nadat de vorige de tijdslimiet overschreed",
       "called": "{name} aangeroepen",
       "empty": "Er zijn geen stappen vastgelegd.",
       "finish": {

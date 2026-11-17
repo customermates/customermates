@@ -114,25 +114,6 @@ describe("AgentJobTranscript", () => {
     expect(markup).not.toContain("AgentJobs.transcript.untrusted");
   });
 
-  it("marks where a further attempt starts and keeps the steps of the attempt before it", () => {
-    const second: AgentJobDetail["transcript"] = [
-      { type: "message", at: AT, role: "user", text: "Follow up on the offer" },
-      { type: "toolCall", at: AT, toolCallId: "c1", name: "query_crm_records", argumentsDigest: "{}" },
-      { type: "attempt", at: "2026-11-17T08:27:00.000Z", attempt: 2 },
-      { type: "message", at: AT, role: "user", text: "Follow up on the offer" },
-      { type: "finish", at: AT, reason: "stop", text: "Done on the second try." },
-    ];
-    const markup = renderToStaticMarkup(
-      createElement(AgentJobTranscript, { job: { transcript: second, promptUntrusted: false } }),
-    );
-
-    const marker = markup.indexOf("AgentJobs.transcript.attempt(attempt=2) · time:08:27");
-    expect(marker).toBeGreaterThan(markup.indexOf("AgentJobs.transcript.called(name=query_crm_records)"));
-    expect(marker).toBeLessThan(markup.lastIndexOf("AgentJobs.transcript.user"));
-    expect(markup.split("Follow up on the offer")).toHaveLength(3);
-    expect(markup).toContain('data-transcript-event="attempt"');
-  });
-
   it("says when the run started from outside the workspace and when nothing was recorded", () => {
     const untrusted = renderToStaticMarkup(
       createElement(AgentJobTranscript, { job: { transcript: TRANSCRIPT, promptUntrusted: true } }),

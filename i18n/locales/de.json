@@ -897,7 +897,6 @@
     "tokens": "{input} ein, {output} aus",
     "transcript": {
       "assistant": "Agent",
-      "attempt": "Versuch {attempt}: neu gestartet, nachdem der vorherige Versuch das Zeitlimit überschritten hat",
       "called": "{name} aufgerufen",
       "empty": "Es wurden keine Schritte aufgezeichnet.",
       "finish": {

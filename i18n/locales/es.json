@@ -897,7 +897,6 @@
     "tokens": "{input} de entrada, {output} de salida",
     "transcript": {
       "assistant": "Agente",
-      "attempt": "Intento {attempt}: reiniciado después de que el anterior superara el límite de tiempo",
       "called": "Llamó a {name}",
       "empty": "No se registró ningún paso.",
       "finish": {

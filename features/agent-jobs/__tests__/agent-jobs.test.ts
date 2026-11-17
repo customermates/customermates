@@ -515,6 +515,7 @@ describe("reading the run history", () => {
           argumentsDigest: "{}",
         },
         { type: "weird", at: "x" },
+        { type: "attempt", at: "2026-11-17T08:00:01.500Z", attempt: 2 },
         {
           type: "toolResult",
           at: "2026-11-17T08:00:02.000Z",

@@ -74,14 +74,6 @@ export const AgentTranscriptEventSchema = z.discriminatedUnion("type", [
     reason: AgentJobFinishReasonSchema,
     text: z.string().max(AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS).optional(),
   }),
-  EventBaseSchema.extend({
-    type: z.literal("attempt"),
-    attempt: z
-      .number()
-      .int()
-      .min(2)
-      .describe("Which started attempt of the job begins here; the events before it belong to the one before."),
-  }),
 ]);
 export type AgentTranscriptEvent = z.infer<typeof AgentTranscriptEventSchema>;
 
