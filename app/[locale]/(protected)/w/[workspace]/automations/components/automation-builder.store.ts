@@ -9,6 +9,8 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { Resource } from "@/generated/prisma";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { actionData } from "@/core/utils/action-data";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import {
@@ -345,7 +347,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     try {
       const result = await composeAutomationAction({ sentence });
       if (!result.ok) {
-        toastZodErrorTree(result.error);
+        if (!notifyIfWorkspaceChanged(result.failure)) toastZodErrorTree(serializedFailureErrorTree(result.failure));
         return "failed";
       }
       if (result.data.status === "refused") {

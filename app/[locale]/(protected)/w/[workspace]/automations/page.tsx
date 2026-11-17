@@ -12,6 +12,7 @@ import {
 } from "@/core/di";
 import { RoutineAllowanceNotice } from "@/app/components/upsell/routine-allowance-notice";
 import { PageContainer } from "@/components/shared/page-container";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -42,7 +43,7 @@ function kindFilterOf(params: Record<string, string | string[] | undefined>): Fi
   const kind = single(params.kind);
   const known = AUTOMATION_LIST_KINDS.find((candidate) => candidate === kind);
   if (!known || params.filters !== undefined) return undefined;
-  return [{ field: FilterFieldKey.automationKind, operator: "in", value: [known] }];
+  return [{ field: FilterFieldKey.automationKind, operator: FilterOperatorKey.in, value: [known] }];
 }
 
 export default async function AutomationsPage({ searchParams }: Props) {
@@ -77,7 +78,13 @@ export default async function AutomationsPage({ searchParams }: Props) {
         model={toAutomationBuilderModel(model)}
         prefill={prefillOf(params)}
         runtimes={runtimes}
-        webhooks={webhooks.ok ? webhooks.data.items.map((hook) => ({ id: hook.id, label: hook.name ?? hook.url })) : []}
+        webhooks={
+          webhooks.ok
+            ? webhooks.data.items
+                .filter((hook) => hook.enabled)
+                .map((hook) => ({ id: hook.id, label: hook.description ?? hook.url }))
+            : []
+        }
       />
     </PageContainer>
   );

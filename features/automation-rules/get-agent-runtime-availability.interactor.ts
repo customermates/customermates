@@ -29,7 +29,7 @@ export class GetAgentRuntimeAvailabilityInteractor extends AuthenticatedInteract
 
   @Validate(NoInputSchema)
   @ValidateOutput(AgentRuntimeAvailabilitySchema)
-  async invoke(): Validated<AgentRuntimeAvailability> {
+  async invoke(_data: z.infer<typeof NoInputSchema>): Validated<AgentRuntimeAvailability> {
     return { ok: true as const, data: this.source ? await this.source.availability() : noAgentRuntimes() };
   }
 }

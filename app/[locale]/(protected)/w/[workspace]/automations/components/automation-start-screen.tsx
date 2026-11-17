@@ -81,7 +81,11 @@ export const AutomationStartScreen = observer(function AutomationStartScreen({ s
 
           <div className="flex flex-wrap items-center gap-3">
             <Button disabled={store.composing || !store.composerText.trim()} type="submit">
-              {store.composing ? <Spinner aria-hidden="true" /> : <Sparkles aria-hidden="true" className="size-4" />}
+              {store.composing ? (
+                <Spinner aria-label={t("PageState.loading")} />
+              ) : (
+                <Sparkles aria-hidden="true" className="size-4" />
+              )}
 
               {t("Automations.start.compose")}
             </Button>

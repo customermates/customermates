@@ -5,6 +5,7 @@ import type { GetRoutinesRepo } from "@/ee/routines/get-routines.repo";
 import type { RoutineDto } from "@/ee/routines/routine.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { AutomationsListComposer } from "../automations-list.composer";
 import { FakeAutomationRuleRepo } from "./fake-automation-rule-repo";
@@ -173,7 +174,9 @@ describe("AutomationsListComposer", () => {
     expect(await names({ filters: [equals(FilterFieldKey.automationRunsOn, "ownKey")] })).toEqual(["Beta"]);
     expect(await names({ searchTerm: "alp" })).toEqual(["Alpha"]);
     expect(
-      await composer.getCount({ filters: [{ field: FilterFieldKey.automationKind, operator: "in", value: ["rule"] }] }),
+      await composer.getCount({
+        filters: [{ field: FilterFieldKey.automationKind, operator: FilterOperatorKey.in, value: ["rule"] }],
+      }),
     ).toBe(2);
   });
 
@@ -197,11 +200,20 @@ describe("AutomationsListComposer", () => {
     const byLastRun = await composer.getItems({ sortDescriptor: { field: "lastRunAt", direction: "desc" } });
     expect(byLastRun.map((item) => item.name)).toEqual(["Recent", "Weekly review", "Never run"]);
 
+    for (const index of [3, 4, 5, 6]) {
+      rules.addRule({
+        id: `20000000-0000-4000-8000-00000000000${index}`,
+        name: `Extra ${index}`,
+        trigger: CREATED,
+        effects: [NOTIFY],
+      });
+    }
     const secondPage = await composer.getItems({
       sortDescriptor: { field: "name", direction: "asc" },
-      pagination: { page: 2, pageSize: 2 },
+      pagination: { page: 2, pageSize: 5 },
     });
-    expect(secondPage.map((item) => item.name)).toEqual(["Weekly review"]);
+    expect(secondPage.map((item) => item.name)).toEqual(["Recent", "Weekly review"]);
+    expect(await composer.getCount({})).toBe(7);
   });
 
   it("shows a member only the rules they own and no routines on self-hosted", async () => {
