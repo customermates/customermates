@@ -1077,6 +1077,7 @@
     "detail": {
       "agentJobRefused": "Não foi possível iniciar o agente.",
       "agentModelUnavailable": "O modelo escolhido não está mais disponível.",
+      "agentNoRunner": "O proprietário da automação não tinha nenhum runner pronto.",
       "agentRunnerUnavailable": "O runner escolhido não está mais disponível.",
       "noRecipients": "Não havia ninguém para notificar.",
       "previousEffectFailed": "Uma etapa anterior falhou, então esta não foi executada.",
@@ -1297,6 +1298,7 @@
       "note": "Com base nos seus registros atuais. Nada foi alterado.",
       "record": "Abrir um registro correspondente",
       "title": "Prévia",
+      "truncated": "Esta prévia verificou apenas uma parte dos registros envolvidos, então o número real pode ser maior.",
       "unsupported": "Há prévia para lembretes em uma data. Os outros gatilhos agem quando algo acontece, então ainda não há nada para olhar para trás.",
       "wouldRun": "{count, plural, =0 {Não teria sido executada} one {Teria sido executada # vez} other {Teria sido executada # vezes}} nos últimos {days} dias"
     },

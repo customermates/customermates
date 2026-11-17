@@ -1077,6 +1077,7 @@
     "detail": {
       "agentJobRefused": "Nie udało się uruchomić agenta.",
       "agentModelUnavailable": "Wybrany model nie jest już dostępny.",
+      "agentNoRunner": "Właściciel automatyzacji nie miał żadnego gotowego runnera.",
       "agentRunnerUnavailable": "Wybrany runner nie jest już dostępny.",
       "noRecipients": "Nie było kogo powiadomić.",
       "previousEffectFailed": "Wcześniejszy krok się nie powiódł, więc ten nie został wykonany.",
@@ -1297,6 +1298,7 @@
       "note": "Na podstawie Twoich bieżących rekordów. Nic nie zostało zmienione.",
       "record": "Otwórz pasujący rekord",
       "title": "Podgląd",
+      "truncated": "Ten podgląd sprawdził tylko część pasujących rekordów, więc rzeczywista liczba może być większa.",
       "unsupported": "Podgląd jest dostępny dla przypomnień o dacie. Pozostałe wyzwalacze działają, gdy coś się wydarzy, więc nie ma jeszcze czego sprawdzać wstecz.",
       "wouldRun": "{count, plural, =0 {Nie uruchomiłaby się} one {Uruchomiłaby się # raz} few {Uruchomiłaby się # razy} many {Uruchomiłaby się # razy} other {Uruchomiłaby się # razy}} w ciągu ostatnich {days} dni"
     },

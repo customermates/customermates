@@ -1077,6 +1077,7 @@
     "detail": {
       "agentJobRefused": "The agent could not be started.",
       "agentModelUnavailable": "The chosen model is no longer available.",
+      "agentNoRunner": "The owner of the automation had no runner that was ready.",
       "agentRunnerUnavailable": "The chosen runner is no longer available.",
       "noRecipients": "There was nobody to notify.",
       "previousEffectFailed": "An earlier step failed, so this one did not run.",
@@ -1297,6 +1298,7 @@
       "note": "Based on your current records. Nothing has been changed.",
       "record": "Open a matching record",
       "title": "Preview",
+      "truncated": "This preview checked only part of the records in reach, so the real number may be higher.",
       "unsupported": "A preview is available for reminders on a date. The other triggers run when something happens, so there is nothing to look back on yet.",
       "wouldRun": "{count, plural, =0 {Would not have run} one {Would have run # time} other {Would have run # times}} in the last {days} days"
     },

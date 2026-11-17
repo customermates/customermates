@@ -1077,6 +1077,7 @@
     "detail": {
       "agentJobRefused": "Der Agent konnte nicht gestartet werden.",
       "agentModelUnavailable": "Das gewählte Modell ist nicht mehr verfügbar.",
+      "agentNoRunner": "Die Person, der die Automatisierung gehört, hatte keinen einsatzbereiten Runner.",
       "agentRunnerUnavailable": "Der gewählte Runner ist nicht mehr verfügbar.",
       "noRecipients": "Es gab niemanden zu benachrichtigen.",
       "previousEffectFailed": "Ein früherer Schritt ist fehlgeschlagen, deshalb lief dieser nicht.",
@@ -1297,6 +1298,7 @@
       "note": "Auf Basis deiner aktuellen Datensätze. Es wurde nichts geändert.",
       "record": "Passenden Datensatz öffnen",
       "title": "Vorschau",
+      "truncated": "Diese Vorschau hat nur einen Teil der infrage kommenden Datensätze geprüft, die tatsächliche Zahl kann daher höher sein.",
       "unsupported": "Eine Vorschau gibt es für Erinnerungen zu einem Datum. Die anderen Auslöser laufen, wenn etwas passiert, daher gibt es noch nichts Zurückliegendes.",
       "wouldRun": "{count, plural, =0 {Wäre nicht gelaufen} one {Wäre # Mal gelaufen} other {Wäre # Mal gelaufen}} in den letzten {days} Tagen"
     },

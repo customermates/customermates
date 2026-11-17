@@ -45,6 +45,12 @@ export const AutomationPreviewPane = observer(function AutomationPreviewPane({
 
           <p className="text-sm text-muted-foreground">{t("Automations.preview.note")}</p>
 
+          {preview.truncated && (
+            <p className="text-xs text-muted-foreground" data-automation-preview-truncated="">
+              {t("Automations.preview.truncated")}
+            </p>
+          )}
+
           {preview.alreadyFired > 0 && (
             <p className="text-xs text-muted-foreground">
               {t("Automations.preview.alreadyFired", { count: preview.alreadyFired })}

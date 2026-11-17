@@ -115,6 +115,20 @@ describe("the run history texts", () => {
     );
   });
 
+  it.each(APP_LOCALES)("names the owner in %s when no runner was ready, not the reader of the history", (locale) => {
+    const messages = catalog(locale);
+    const t = translator(messages);
+
+    expect(effectDetailText(t, "agentRuntimeUnavailable:noRunner")).not.toBe(t("Automations.agent.reason.noRunner"));
+    expect(effectDetailText(t, "agentRuntimeUnavailable:noRunner")).toBe(t("AutomationRules.detail.agentNoRunner"));
+  });
+
+  it("says in English that the owner had no runner", () => {
+    expect(effectDetailText(translator(catalog("en")), "agentRuntimeUnavailable:noRunner")).toBe(
+      "The owner of the automation had no runner that was ready.",
+    );
+  });
+
   it("keeps a message it does not know as it is", () => {
     const t = translator(catalog("en"));
 

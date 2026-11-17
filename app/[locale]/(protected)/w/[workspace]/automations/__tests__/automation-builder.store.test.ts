@@ -124,7 +124,7 @@ describe("AutomationBuilderStore", () => {
     vi.clearAllMocks();
     actions.previewAutomationRuleAction.mockResolvedValue({
       ok: true,
-      data: { supported: true, total: 3, recordIds: [], alreadyFired: 0 },
+      data: { supported: true, total: 3, recordIds: [], alreadyFired: 0, truncated: false },
     });
   });
 
@@ -580,7 +580,7 @@ describe("AutomationBuilderStore", () => {
         conditions: [],
       },
     });
-    expect(store.preview).toEqual({ supported: true, total: 3, recordIds: [], alreadyFired: 0 });
+    expect(store.preview).toEqual({ supported: true, total: 3, recordIds: [], alreadyFired: 0, truncated: false });
   });
 
   it("keeps the last answer for the latest edit when previews overlap", async () => {
@@ -589,13 +589,16 @@ describe("AutomationBuilderStore", () => {
     let release: (value: unknown) => void = () => undefined;
     actions.previewAutomationRuleAction
       .mockImplementationOnce(() => new Promise((resolve) => (release = resolve)))
-      .mockResolvedValueOnce({ ok: true, data: { supported: true, total: 9, recordIds: [], alreadyFired: 0 } });
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { supported: true, total: 9, recordIds: [], alreadyFired: 0, truncated: false },
+      });
 
     store.patchTrigger({ kind: "dateReached", fieldId: CLOSE, days: "1" });
     await vi.advanceTimersByTimeAsync(AUTOMATION_PREVIEW_DELAY_MS);
     store.patchTrigger({ days: "3" });
     await vi.advanceTimersByTimeAsync(AUTOMATION_PREVIEW_DELAY_MS);
-    release({ ok: true, data: { supported: true, total: 1, recordIds: [], alreadyFired: 0 } });
+    release({ ok: true, data: { supported: true, total: 1, recordIds: [], alreadyFired: 0, truncated: false } });
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.preview?.total).toBe(9);

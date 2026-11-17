@@ -30,7 +30,7 @@ export function effectDetailText(t: Translate, detail: string): string {
     case "agentRuntimeUnavailable:noKey":
       return t("Automations.agent.reason.noKey");
     case "agentRuntimeUnavailable:noRunner":
-      return t("Automations.agent.reason.noRunner");
+      return t("AutomationRules.detail.agentNoRunner");
     case "agentRuntimeUnavailable:plan":
       return t("Automations.agent.reason.plan");
     case "agentRuntimeUnavailable:selfHosted":
