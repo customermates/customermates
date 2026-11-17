@@ -1,3 +1,6 @@
+import type { Page } from "@playwright/test";
+import type { Client } from "pg";
+
 import { randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -10,6 +13,57 @@ import { createView, openShareDialog } from "./view-sharing-helpers";
 const share = englishMessages.DataView.share;
 const builder = englishMessages.PublicForm.builder;
 const afterSubmit = englishMessages.PublicForm.afterSubmit;
+
+// A list can require a field only while every one of its records has a value for it, and the workspace of a browser
+// test holds one organization. So the field arrives the way it does in a workspace with data: as an optional field,
+// then the existing records get a value, then the field becomes required. It has no default value at any point.
+async function requireNewTextField(
+  page: Page,
+  database: Client,
+  companyId: string,
+  field: { id: string; typeId: string; label: string; multiple: boolean; position: number },
+) {
+  const { typeId } = field;
+  const put = async (required: boolean) => {
+    const applied = await postOk(page, "/api/v1/model/apply", {
+      expectedRevision: (await readModel(database, companyId)).revision,
+      idempotencyKey: randomUUID(),
+      operations: [
+        {
+          operation: "putField",
+          field: { ...field, valueType: "text", behavior: { kind: "input" }, required, options: [] },
+        },
+      ],
+    });
+    expect(applied).toMatchObject({ status: "completed" });
+  };
+
+  await put(false);
+  const { revision } = await readModel(database, companyId);
+  const records = await database.query<{ id: string; version: number }>(
+    'SELECT id, version FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+    [companyId, typeId],
+  );
+  for (const record of records.rows)
+    await postOk(page, "/api/v1/records/mutate", {
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "update",
+        ref: { typeId, recordId: record.id },
+        expectedVersion: record.version,
+        fields: [
+          {
+            fieldId: field.id,
+            value: field.multiple
+              ? { kind: "textList", value: ["Filled in before"] }
+              : { kind: "text", value: "Filled in before" },
+          },
+        ],
+      },
+    });
+  await put(true);
+}
 
 test("edits the form in two panes, sees the preview follow every change and is asked before the edits are dropped", async ({
   page,
@@ -139,25 +193,12 @@ test("says that the list gained a required field, asks before that change or an 
 
   // The list gains a required field without a default value after the form was saved.
   const budgetCode = randomUUID();
-  const model = await readModel(database, companyId);
-  await postOk(page, "/api/v1/model/apply", {
-    expectedRevision: model.revision,
-    idempotencyKey: randomUUID(),
-    operations: [
-      {
-        operation: "putField",
-        field: {
-          id: budgetCode,
-          typeId,
-          label: "Budget code",
-          valueType: "text",
-          behavior: { kind: "input" },
-          required: true,
-          options: [],
-          position: 100,
-        },
-      },
-    ],
+  await requireNewTextField(page, database, companyId, {
+    id: budgetCode,
+    typeId,
+    label: "Budget code",
+    multiple: false,
+    position: 100,
   });
   expect(await storedFieldIds()).not.toContain(budgetCode);
 
@@ -223,26 +264,12 @@ test("switches a form off although its list now requires a field no form can ask
   const form = await storedForm();
 
   // The list gains a required field that a form cannot ask for: several text values, no default value.
-  const model = await readModel(database, companyId);
-  await postOk(page, "/api/v1/model/apply", {
-    expectedRevision: model.revision,
-    idempotencyKey: randomUUID(),
-    operations: [
-      {
-        operation: "putField",
-        field: {
-          id: randomUUID(),
-          typeId,
-          label: "Contract files",
-          valueType: "text",
-          multiple: true,
-          behavior: { kind: "input" },
-          required: true,
-          options: [],
-          position: 101,
-        },
-      },
-    ],
+  await requireNewTextField(page, database, companyId, {
+    id: randomUUID(),
+    typeId,
+    label: "Contract files",
+    multiple: true,
+    position: 101,
   });
 
   // Someone whose email address already has a record sent the form again; the answers are kept on the submission.
