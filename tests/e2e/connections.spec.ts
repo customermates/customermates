@@ -1,9 +1,12 @@
+import { randomUUID } from "node:crypto";
+
 import {
   notificationUnsubscribeSecret,
   signNotificationUnsubscribe,
 } from "../../features/notifications/notification-unsubscribe-token";
 import { companyPath, companyUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { secondUser } from "./second-user";
 import { e2eAppMode } from "./workspace-switching";
 
 type Kind = "dueToday" | "replyReceived" | "ruleAlert";
@@ -214,4 +217,65 @@ test("a turn-off link from a notification email asks first, then switches that k
   });
 
   expect(errors).toEqual([]);
+});
+
+test("a member without API access opens Connections and is offered only the tabs the role allows", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  const model = await page.request.post("/api/v1/model/read", { data: {} });
+  const { revision } = (await model.json()) as { revision: number };
+  const saved = await page.request.post("/api/v1/roles/save", {
+    data: {
+      name: `Automations only ${randomUUID().slice(0, 6)}`,
+      description: "Routines and automations, no API access, no workspace settings",
+      permissions: [
+        { resource: "routines", actions: ["readAll", "create", "update", "delete"] },
+        { resource: "api", actions: [] },
+        { resource: "company", actions: [] },
+      ],
+      recordGrants: [],
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+    },
+  });
+  expect(saved.status(), await saved.text()).toBe(200);
+  const roleId = ((await saved.json()) as { role: { id: string } }).role.id;
+  const member = await secondUser(browser, database, companyId, testInfo, roleId);
+  try {
+    await member.page.goto(companyPath(companyId, "/settings/connections"));
+    await member.page.waitForLoadState("networkidle");
+    await expect(member.page.locator("[data-connections-page]")).toBeVisible();
+    const tabs = member.page.getByRole("tablist", { name: "Connection types" });
+
+    await test.step("the Developers tab, which needs API access, is not offered", async () => {
+      await expect(tabs.getByRole("tab", { name: "Apps" })).toBeVisible();
+      await expect(tabs.getByRole("tab", { name: "Developers" })).toHaveCount(0);
+      await expect(member.page.getByRole("tablist", { name: "Developer sections" })).toHaveCount(0);
+    });
+
+    await test.step("asking for it by address opens a tab the role allows instead of an error page", async () => {
+      await member.page.goto(companyPath(companyId, "/settings/connections?tab=developers&section=webhooks"));
+      await member.page.waitForLoadState("networkidle");
+      await expect(member.page.locator("[data-connections-page]")).toBeVisible();
+      await expect(member.page.locator("[data-connection-scope='keys']")).toHaveCount(0);
+      await expect(member.page.locator("[data-connection-scope='webhooks']")).toHaveCount(0);
+      await expect(tabs.getByRole("tab", { selected: true })).not.toHaveText("Developers");
+    });
+
+    await test.step("every tab that is offered opens, also Agents, whose runner list needs API access", async () => {
+      for (const tab of await tabs.getByRole("tab").all()) {
+        await tab.click();
+        await expect(tab).toHaveAttribute("data-state", "active");
+        await member.page.waitForLoadState("networkidle");
+        await expect(member.page.locator("[data-connections-page]")).toBeVisible();
+      }
+    });
+
+    expect(member.errors).toEqual([]);
+  } finally {
+    await member.close();
+  }
 });

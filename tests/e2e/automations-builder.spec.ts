@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
+import { secondUser } from "./second-user";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
 
 const NOTIFY_EFFECT = JSON.stringify([
@@ -180,8 +181,78 @@ test.describe("routines in the same list", () => {
 });
 
 test("redirects the old Routines page to the Automations list filtered to routines", async ({ page, companyId }) => {
-  await page.goto(companyPath(companyId, "/routines"));
+  await page.goto(companyPath(companyId, "/routines?focus=routine:00000000-0000-4000-8000-000000000001"));
 
-  await expect(page).toHaveURL(/\/automations(\?|$)/);
+  await expect(page).toHaveURL(/\/automations\?/);
   await expect(page.getByRole("heading", { name: "Automations", level: 1 })).toBeAttached();
+  // The shortcut becomes the list's own filter, so removing the filter also removes it from the address.
+  await expect.poll(() => new URL(page.url()).searchParams.get("kind")).toBeNull();
+  await expect.poll(() => new URL(page.url()).searchParams.getAll("filters")).toEqual(["automationKind:in:routine"]);
+  // The rest of an old link survives the redirect.
+  expect(new URL(page.url()).searchParams.get("focus")).toBe("routine:00000000-0000-4000-8000-000000000001");
+});
+
+async function roleWithoutApiAccess(page: Page) {
+  const model = await page.request.post("/api/v1/model/read", { data: {} });
+  const { revision } = (await model.json()) as { revision: number };
+  const saved = await page.request.post("/api/v1/roles/save", {
+    data: {
+      name: `Automations only ${randomUUID().slice(0, 6)}`,
+      description: "Routines and automations, no API access, no workspace settings",
+      permissions: [
+        { resource: "routines", actions: ["readAll", "create", "update", "delete"] },
+        { resource: "api", actions: [] },
+        { resource: "company", actions: [] },
+      ],
+      recordGrants: [],
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+    },
+  });
+  expect(saved.status(), await saved.text()).toBe(200);
+  return ((await saved.json()) as { role: { id: string } }).role.id;
+}
+
+test("a member with automation access but no API access opens Automations without the webhook list", async ({
+  page,
+  browser,
+  database,
+  companyId,
+  workspace,
+}, testInfo) => {
+  const ruleId = await insertRule(database, { companyId, ownerUserId: workspace.userId, name: "Owned by the admin" });
+  const roleId = await roleWithoutApiAccess(page);
+  const member = await secondUser(browser, database, companyId, testInfo, roleId);
+  try {
+    await member.page.goto(companyPath(companyId, "/automations"));
+    await expect(member.page.getByRole("heading", { name: "Automations", level: 1 })).toBeAttached();
+    // The page used to answer with the error page here, because the webhook list needs API access.
+    await expect(member.page.locator(`[data-automation-switch="${ruleId}"]`)).toBeVisible();
+    await expect(member.page.locator(`[data-automation-switch="${ruleId}"]`)).toBeDisabled();
+
+    await test.step("someone else's automation opens read-only", async () => {
+      await clickHydrated(member.page.getByRole("button", { name: "Owned by the admin", exact: true }));
+      const existing = member.page.getByRole("dialog", { name: "Edit automation" });
+      await expect(existing.locator("[data-automation-read-only]")).toBeVisible();
+      await expect(existing.getByLabel("Name")).toHaveAttribute("readonly", "");
+      await expect(existing.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+      await expect(existing.getByRole("button", { name: "Add a step" })).toHaveCount(0);
+      await member.page.keyboard.press("Escape");
+      await expect(existing).not.toBeVisible();
+    });
+
+    await test.step("a webhook step says that the role cannot see webhooks instead of an empty picker", async () => {
+      const builder = await openNewAutomation(member.page);
+      await builder.locator("[data-automation-scratch]").click();
+      await builder.getByRole("button", { name: "Add a step" }).last().click();
+      await builder.locator('[data-automation-palette-item="callWebhook"]').click();
+      const card = builder.locator('[data-automation-card="effect-0"]');
+      await expect(card.locator("[data-automation-webhook-restricted]")).toBeVisible();
+      await expect(card.getByRole("combobox")).toHaveCount(0);
+    });
+
+    expect(member.errors).toEqual([]);
+  } finally {
+    await member.close();
+  }
 });
