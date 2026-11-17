@@ -106,7 +106,13 @@ function conditionParts(condition: DraftCondition, field: AutomationBuilderField
     ];
   }
   const needsValue = condition.operator !== "empty" && condition.operator !== "notEmpty";
-  return [t(`AutomationRules.operator.${condition.operator}`), needsValue ? optionLabel(field, condition.value) : ""];
+  return [t(`AutomationRules.operator.${condition.operator}`), needsValue ? valueLabel(field, condition.value, t) : ""];
+}
+
+function valueLabel(field: AutomationBuilderField | undefined, value: string, t: Translate): string {
+  if (field?.valueType !== "boolean") return optionLabel(field, value);
+  if (value === "true") return t("AutomationRules.builder.boolean.true");
+  return value === "false" ? t("AutomationRules.builder.boolean.false") : value;
 }
 
 export function conditionSentence(
