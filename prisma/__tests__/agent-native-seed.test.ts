@@ -73,8 +73,10 @@ describe("agent-native demo workspaces", () => {
       expect((content.apiKeys ?? []).map((key) => key.name)).toEqual([...AGENT_KEY_NAMES]);
       expect(new Set((content.apiKeys ?? []).map((key) => key.createdDaysAgo)).size).toBe(AGENT_KEY_NAMES.length);
       expect(new Set(agentNotes(content))).toEqual(new Set(["Claude", "ChatGPT", "Codex"]));
-      expect(content.wiki.at(-1)).toMatchObject({ key: "agents", kind: "knowledge" });
-      expect(content.wiki.at(-1)?.markdown.join("\n")).toMatch(/Mate/);
+      const agents = content.wiki.find(({ key }) => key === "agents");
+      expect(agents).toMatchObject({ kind: "knowledge" });
+      expect(agents?.markdown.join("\n")).toMatch(/Mate/);
+      expect(content.wiki.some(({ related }) => related?.includes("agents"))).toBe(true);
       expect((content.mateChats ?? []).length).toBeGreaterThanOrEqual(2);
       const owners = (content.routines ?? [])
         .filter((routine) => routine.enabled !== false)

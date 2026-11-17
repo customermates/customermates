@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { wikiMarkdownSections, wikiOutline, wikiSectionOffsetIn } from "../wiki-markdown-sections";
+import {
+  wikiAnchoredSections,
+  wikiMarkdownSections,
+  wikiOutline,
+  wikiSectionAnchorAt,
+  wikiSectionOffsetIn,
+} from "../wiki-markdown-sections";
 
 const handbook = [
   "Intro paragraph about the handbook.",
@@ -27,6 +33,46 @@ describe("wikiMarkdownSections and wikiOutline", () => {
       { level: 3, heading: "Approval", offset: handbook.indexOf("### Approval") },
       { level: 2, heading: "Travel", offset: handbook.indexOf("## Travel") },
     ]);
+  });
+
+  it("names every section by an anchor of its own, numbering a repeated heading", () => {
+    const page = [
+      "Intro.",
+      "## Inbox",
+      "### Limits",
+      "Twenty.",
+      "## Signals",
+      "### Limits",
+      "Five.",
+      "## Limits 2",
+      "None.",
+      "### Limits",
+      "Again.",
+      "## ???",
+      "No words.",
+    ].join("\n");
+    const sections = wikiAnchoredSections(page);
+
+    expect(sections.map((section) => section.anchor)).toEqual([
+      "inbox",
+      "limits",
+      "signals",
+      "limits-3",
+      "limits-2",
+      "limits-4",
+      "",
+    ]);
+    expect(new Set(sections.map((section) => section.anchor)).size).toBe(sections.length);
+    expect(wikiAnchoredSections(handbook).map((section) => section.anchor)).toEqual(["refunds", "approval", "travel"]);
+  });
+
+  it("finds the anchor of the section that starts at an offset", () => {
+    const page = "Intro.\n## Limits\nOne.\n## Limits\nTwo.";
+
+    expect(wikiSectionAnchorAt(page, page.indexOf("## Limits"))).toBe("limits");
+    expect(wikiSectionAnchorAt(page, page.lastIndexOf("## Limits"))).toBe("limits-2");
+    expect(wikiSectionAnchorAt(page, 0)).toBeNull();
+    expect(wikiSectionAnchorAt(page, 3)).toBeNull();
   });
 
   it("maps a section offset between stored and link-externalized Markdown", () => {

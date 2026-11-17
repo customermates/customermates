@@ -1,18 +1,28 @@
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 import type { CalendarWidgetData, CalendarWidgetItem } from "@/features/widget/record-calendar-widget.schema";
 
+import type { CSSProperties } from "react";
+
+import { getChartColors, getChartTextColors } from "@/constants/chart-colors";
 import { calendarDateParts, calendarDayDifference, calendarMonthWeeks } from "@/features/record-calendar/calendar-date";
+import { ChartColor } from "@/features/widget/widget-display.schema";
 
-export const CALENDAR_HEAT_LEVELS = [0, 1, 2, 3, 4] as const;
+export const CALENDAR_HEAT_LEVELS = [0, 1, 2, 3] as const;
 export type CalendarHeatLevel = (typeof CALENDAR_HEAT_LEVELS)[number];
+const CALENDAR_HEAT_STEPS = CALENDAR_HEAT_LEVELS.length - 1;
 
-export const CALENDAR_HEAT_CLASS: Record<CalendarHeatLevel, string> = {
-  0: "bg-muted text-muted-foreground",
-  1: "bg-primary/10 text-foreground",
-  2: "bg-primary/25 text-foreground",
-  3: "bg-primary/55 text-primary-foreground",
-  4: "bg-primary text-primary-foreground",
-};
+export const CALENDAR_HEAT_EMPTY_CLASS = "bg-muted text-muted-foreground";
+
+export function calendarHeatStyle(level: CalendarHeatLevel, accent: ChartColor): CSSProperties | undefined {
+  if (level === 0) return undefined;
+  const hue = accent.replace(/\d$/u, "");
+  const shade = `${hue}${CALENDAR_HEAT_STEPS + 1 - level}` as ChartColor;
+  const fill = getChartColors()[shade] ?? getChartColors()[ChartColor.primary1];
+  return {
+    backgroundColor: fill,
+    color: level === CALENDAR_HEAT_STEPS ? "var(--background)" : getChartTextColors()[shade],
+  };
+}
 
 type CalendarDay = CalendarWidgetData["days"][number];
 
@@ -28,14 +38,23 @@ export function calendarHeatLevels(
   days: CalendarDay[],
   aggregation: "count" | "sum",
 ): Map<CalendarDate, CalendarHeatLevel> {
-  const magnitudes = days.map((day) => ({ day, magnitude: calendarDayMagnitude(day, aggregation) }));
-  const largest = Math.max(0, ...magnitudes.map(({ magnitude }) => magnitude));
+  const magnitudes = days
+    .map((day) => ({ day, magnitude: calendarDayMagnitude(day, aggregation) }))
+    .filter(({ day, magnitude }) => (day.count ?? 0) > 0 || magnitude > 0);
+  const distinct = [...new Set(magnitudes.map(({ magnitude }) => magnitude))].sort((a, b) => a - b);
   const levels = new Map<CalendarDate, CalendarHeatLevel>();
   for (const { day, magnitude } of magnitudes) {
-    const hasRecords = (day.count ?? 0) > 0 || magnitude > 0;
-    if (!hasRecords) continue;
-    const scaled = largest > 0 ? Math.ceil((magnitude / largest) * 4) : 1;
-    levels.set(day.date, Math.min(4, Math.max(1, scaled)) as CalendarHeatLevel);
+    const level =
+      distinct.length === 1
+        ? aggregation === "count"
+          ? Math.round(magnitude)
+          : Math.ceil(CALENDAR_HEAT_STEPS / 2)
+        : distinct.length === 2
+          ? magnitude === distinct[0]
+            ? 1
+            : CALENDAR_HEAT_STEPS
+          : Math.ceil(((distinct.indexOf(magnitude) + 1) / distinct.length) * CALENDAR_HEAT_STEPS);
+    levels.set(day.date, Math.min(CALENDAR_HEAT_STEPS, Math.max(1, level)) as CalendarHeatLevel);
   }
   return levels;
 }

@@ -310,6 +310,20 @@ export const es: Strings = {
     },
   },
   wiki: {
+    proposal: {
+      title: "Redactar una propuesta",
+      whenToUse:
+        "Cuando una primera llamada ha ido bien y el cliente pide una propuesta por escrito con alcance y precio.",
+      markdown: [
+        "Una propuesta repite lo que dijo el cliente y añade un precio claro. La escribo en los dos días laborables siguientes a la llamada, mientras la conversación sigue fresca.",
+        "",
+        "## Pasos",
+        "1. Lee las notas de la consulta tomadas en la llamada; [Después de una primera llamada](wiki:afterCall) indica qué debe constar allí.",
+        "2. Estima los días de cada parte del trabajo y toma la tarifa diaria de [Mis tarifas y condiciones](wiki:rates).",
+        "3. Escribe en la propuesta el alcance, los días, los honorarios y la fecha de inicio, adjúntala a la consulta y envíala por correo.",
+        "4. Pasa la consulta a Propuesta enviada como en [Etapas de una consulta](wiki:stages) y pon la fecha de la próxima acción una semana después.",
+      ],
+    },
     guide: {
       title: "Guía operativa",
       markdown: [

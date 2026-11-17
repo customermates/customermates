@@ -353,6 +353,20 @@ const en = {
     tasksMonth: "Open tasks this month",
   },
   wiki: {
+    pilot: {
+      title: "Running a pilot",
+      whenToUse: "When a prospect agrees to try the product on one production line and the opportunity moves to Pilot.",
+      markdown: [
+        "A pilot is the proof a manufacturer needs before buying from a young company. Agree on what counts as success before it starts, or it never ends.",
+        "",
+        "## Steps",
+        "1. Move the opportunity to Pilot as described in [Founder Sales Process](wiki:process) and set the pilot period on the opportunity.",
+        "2. Write the success criteria into the opportunity notes: which line, which inspection steps and the number that has to improve.",
+        "3. Attach the pilot agreement and the answered security questionnaire to the Documents field of the opportunity.",
+        "4. Set a next step date for a weekly check-in and note open questions as in [After a demo](wiki:afterDemo).",
+        "5. Before the pilot period ends, send the pricing and schedule the decision meeting; then move the stage to Decision.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -1011,6 +1025,21 @@ const de: Strings = {
     tasksMonth: "Offene Aufgaben im Monat",
   },
   wiki: {
+    pilot: {
+      title: "Einen Piloten durchführen",
+      whenToUse:
+        "Wenn ein Interessent das Produkt auf einer Produktionslinie testen will und die Verkaufschance in die Pilotphase wechselt.",
+      markdown: [
+        "Ein Pilot ist der Beweis, den ein Industriebetrieb braucht, bevor er bei einem jungen Unternehmen kauft. Vor dem Start wird vereinbart, was als Erfolg zählt, sonst endet er nie.",
+        "",
+        "## Schritte",
+        "1. Die Verkaufschance wie in [Gründervertrieb Schritt für Schritt](wiki:process) beschrieben auf Pilotphase stellen und den Pilotzeitraum eintragen.",
+        "2. Die Erfolgskriterien in die Notizen der Verkaufschance schreiben: welche Linie, welche Prüfschritte und welche Kennzahl besser werden muss.",
+        "3. Die Pilotvereinbarung und den beantworteten IT-Fragebogen an das Feld „Dokumente“ der Verkaufschance hängen.",
+        "4. Ein Datum für den nächsten Schritt zur wöchentlichen Abstimmung setzen und offene Fragen wie in [Nach einer Demo](wiki:afterDemo) festhalten.",
+        "5. Vor dem Ende des Pilotzeitraums die Preise verschicken und den Entscheidungstermin vereinbaren; dann die Phase auf Entscheidung stellen.",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2524,17 +2553,37 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "process", kind: "knowledge", title: t.wiki.process.title, markdown: t.wiki.process.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "process",
+          kind: "knowledge",
+          title: t.wiki.process.title,
+          markdown: t.wiki.process.markdown,
+          related: ["afterDemo", "pilot", "mcp", "agents", "guide"],
+        },
         {
           key: "afterDemo",
           kind: "procedure",
           title: t.wiki.afterDemo.title,
           whenToUse: t.wiki.afterDemo.whenToUse,
           markdown: t.wiki.afterDemo.markdown,
+          related: ["process", "pilot", "guide"],
         },
-        { key: "mcp", kind: "knowledge", title: t.mcp.title, markdown: t.mcp.markdown },
-        agentsPage(locale, t.agents),
+        { key: "mcp", kind: "knowledge", title: t.mcp.title, markdown: t.mcp.markdown, related: ["agents", "guide"] },
+        { ...agentsPage(locale, t.agents), related: ["guide", "mcp"] },
+        {
+          key: "pilot",
+          kind: "procedure",
+          title: t.wiki.pilot.title,
+          whenToUse: t.wiki.pilot.whenToUse,
+          markdown: t.wiki.pilot.markdown,
+          related: ["guide"],
+        },
       ],
       dealValue: { kind: "product", left: "deal.productionLines", right: "deal.pricePerLine" },
       files,

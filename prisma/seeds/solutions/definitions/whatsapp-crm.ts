@@ -264,6 +264,19 @@ const en = {
     nextStepsMonth: "Next steps this month",
   },
   wiki: {
+    offerFollowUp: {
+      title: "Following up on an offer",
+      whenToUse: "When an offer has been with the customer for a week and no answer has come back.",
+      markdown: [
+        "An offer that gets no answer is rarely a no. Most owners are busy with their opening date, so one friendly message usually brings the answer.",
+        "",
+        "## Steps",
+        "1. Read the project notes and the linked chat first: the measurements from the [Site visit checklist](wiki:siteVisit) and what the customer asked last.",
+        "2. Write one short message in the same chat that names the open point (the price, the wood or the installation date) and asks one question.",
+        "3. Set the contact's chat status to Waiting for customer and move the next step date on the project by one week.",
+        "4. If the customer says no, set the stage to Lost with the reason as in the [Sales Process](wiki:process). A new request from the same customer starts again with [From WhatsApp chat to project](wiki:whatsappToOpportunity).",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -843,6 +856,19 @@ const de: Strings = {
     nextStepsMonth: "Nächste Schritte im Monat",
   },
   wiki: {
+    offerFollowUp: {
+      title: "Bei einem Angebot nachfassen",
+      whenToUse: "Wenn ein Angebot seit einer Woche beim Kunden liegt und keine Antwort gekommen ist.",
+      markdown: [
+        "Ein Angebot ohne Antwort ist selten ein Nein. Die meisten Inhaber sind mit ihrem Eröffnungstermin beschäftigt, deshalb bringt eine freundliche Nachricht meist die Antwort.",
+        "",
+        "## Schritte",
+        "1. Zuerst die Notizen des Auftrags und den verknüpften Chat lesen: die Maße aus der [Checkliste für das Aufmaß](wiki:siteVisit) und die letzte Frage des Kunden.",
+        "2. Im selben Chat eine kurze Nachricht schreiben, die den offenen Punkt nennt (Preis, Holz oder Montagetermin) und eine Frage stellt.",
+        "3. Den Chat-Status des Kontakts auf „Wartet auf Kunden“ setzen und das Datum des nächsten Schritts im Auftrag um eine Woche verschieben.",
+        "4. Sagt der Kunde ab, die Phase mit Grund auf Verloren stellen, wie im [Vertriebsprozess](wiki:process) beschrieben. Eine neue Anfrage desselben Kunden beginnt wieder mit [Vom WhatsApp-Chat zum Auftrag](wiki:whatsappToOpportunity).",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2429,14 +2455,26 @@ export default defineSolution<Strings>({
       },
       apiKeys: agentApiKeys([62, 35, 14]),
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "process", kind: "knowledge", title: t.wiki.process.title, markdown: t.wiki.process.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "process",
+          kind: "knowledge",
+          title: t.wiki.process.title,
+          markdown: t.wiki.process.markdown,
+          related: ["whatsappToOpportunity", "siteVisit", "offerFollowUp", "agents", "guide"],
+        },
         {
           key: "whatsappToOpportunity",
           kind: "procedure",
           title: t.wiki.whatsappToOpportunity.title,
           whenToUse: t.wiki.whatsappToOpportunity.whenToUse,
           markdown: t.wiki.whatsappToOpportunity.markdown,
+          related: ["process", "siteVisit", "guide"],
         },
         {
           key: "siteVisit",
@@ -2444,8 +2482,17 @@ export default defineSolution<Strings>({
           title: t.wiki.siteVisit.title,
           whenToUse: t.wiki.siteVisit.whenToUse,
           markdown: t.wiki.siteVisit.markdown,
+          related: ["process", "offerFollowUp", "guide"],
         },
-        agentsPage(locale, t.agents),
+        { ...agentsPage(locale, t.agents), related: ["guide"] },
+        {
+          key: "offerFollowUp",
+          kind: "procedure",
+          title: t.wiki.offerFollowUp.title,
+          whenToUse: t.wiki.offerFollowUp.whenToUse,
+          markdown: t.wiki.offerFollowUp.markdown,
+          related: ["guide"],
+        },
       ],
       files: [
         photoFile("copperWall", "copperCounter", "cafe-brick-wall.jpg", 32),

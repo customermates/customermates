@@ -255,6 +255,19 @@ export const pt: Strings = {
     meetingsMonth: "Reuniões com clientes neste mês",
   },
   wiki: {
+    wrapUp: {
+      title: "Encerrar um projeto",
+      whenToUse: "Quando o workshop final de um projeto já aconteceu e o trabalho está pronto para ser encerrado.",
+      markdown: [
+        "O fim de um projeto é o começo da próxima conversa. Estes passos encerram bem o trabalho e mantêm o relacionamento ativo.",
+        "",
+        "## Passos",
+        "1. Mova o projeto para concluído, como descreve [Como os projetos avançam](wiki:process), e anexe o relatório final aos documentos dele.",
+        "2. Compare os dias trabalhados com a estimativa e registre qualquer diferença nas notas; dias extras seguem as [Diárias e opções de honorários](wiki:rates).",
+        "3. Agradeça ao patrocinador e à pessoa que nos indicou, e atualize a força do relacionamento dos dois contatos.",
+        "4. Crie uma tarefa para retomar o contato em três meses e, antes dessa ligação, siga [Preparar um briefing de relacionamento](wiki:brief).",
+      ],
+    },
     guide: {
       title: "Guia de operação",
       markdown: [

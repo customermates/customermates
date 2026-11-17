@@ -1,11 +1,12 @@
+import type { WikiGraph } from "@/features/wiki/wiki-graph.schema";
+
 import { Resource } from "@/generated/prisma";
 
 import { PageContainer } from "@/components/shared/page-container";
-import { getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
+import * as ErrorReporter from "@/core/observability/server";
+import { getGetWikiGraphInteractor, getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor } from "@/core/di";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { requireAccess } from "@/features/auth/next/require";
-import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
-import { WIKI_LAYOUT_P13N_ID } from "./components/wiki-personalization";
 
 import { WikiPageView } from "./components/wiki-page-view";
 
@@ -17,39 +18,35 @@ function firstString(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+async function loadGraph(): Promise<WikiGraph | null> {
+  try {
+    const result = await getGetWikiGraphInteractor().invoke({});
+    return result.ok ? result.data : null;
+  } catch (error) {
+    ErrorReporter.captureException(error, { tags: { kind: "wiki-graph-page" } });
+    return null;
+  }
+}
+
 export default async function WikiPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.wiki });
 
   const raw = await searchParams;
-  const listPage = Math.max(1, Number.parseInt(firstString(raw.listPage) ?? "1", 10) || 1);
-  const [initialPages, setupState, layout] = await Promise.all([
-    unwrapPage(getGetWikiPagesInteractor().invoke({ page: listPage, pageSize: 25 })),
-    unwrapPage(getGetWikiHomepageSetupStateInteractor().invoke()),
-    getOptionalP13n(WIKI_LAYOUT_P13N_ID),
-  ]);
-  const pages =
-    initialPages.total > 0 && initialPages.items.length === 0
-      ? await unwrapPage(getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 25 }))
-      : initialPages;
-
   const requestedId = firstString(raw.page);
-  const selectedId = requestedId ?? pages.items[0]?.id;
-  const selectedResult = selectedId ? await getGetWikiPageInteractor().invoke({ id: selectedId }) : null;
+  const [graph, setupState, selectedResult] = await Promise.all([
+    loadGraph(),
+    unwrapPage(getGetWikiHomepageSetupStateInteractor().invoke()),
+    requestedId ? getGetWikiPageInteractor().invoke({ id: requestedId }) : null,
+  ]);
   const selectedPage = selectedResult?.ok ? selectedResult.data : null;
-  const pinnedPage =
-    selectedPage && !pages.items.some(({ id }) => id === selectedPage.id)
-      ? (({ markdown: _markdown, ...summary }) => summary)(selectedPage)
-      : null;
 
   return (
     <PageContainer padded={false}>
       <WikiPageView
+        graph={graph}
         initialPage={selectedPage}
         initialSetupState={setupState}
-        layoutInitial={layout?.columnWidths}
-        listPage={pages}
         openProposals={firstString(raw.proposals) === "open"}
-        pinnedPage={pinnedPage}
         requestedPageId={requestedId}
         unavailable={Boolean(requestedId && !selectedPage)}
       />

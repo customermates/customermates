@@ -179,6 +179,8 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C01: email documents render without the app color tokens",
   "design-system.test.ts#COLOR_EXEMPTIONS: features/messaging/email-frame.tsx":
     "unresolved C01: email documents render without the app color tokens",
+  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/w/[workspace]/wiki/components/wiki-graph-canvas.tsx":
+    "unresolved C01: data graphic or illustration, not an icon",
   "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-display-type-picker.tsx":
     "unresolved C01: data graphic or illustration, not an icon",
   "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx":

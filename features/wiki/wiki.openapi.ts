@@ -10,6 +10,14 @@ import { GetWikiPageSchema } from "./get-wiki-page.interactor";
 import { MoveWikiPageSchema } from "./move-wiki-page.interactor";
 import { UpdateWikiPageSchema } from "./update-wiki-page.interactor";
 import {
+  GetWikiGraphSchema,
+  GetWikiLinkReportSchema,
+  GetWikiPageLinksSchema,
+  WikiGraphSchema,
+  WikiLinkReportSchema,
+  WikiPageLinksSchema,
+} from "./wiki-graph.schema";
+import {
   WikiPageDtoSchema,
   WikiPageListResultSchema,
   WikiPageListSchema,
@@ -84,6 +92,39 @@ export const wikiApiPaths = {
       { id: EXAMPLE_PAGE_ID },
       WikiPageDtoSchema,
       "The page.",
+    ),
+  },
+  "/v1/wiki/graph": {
+    post: wikiOperation(
+      "getWikiGraph",
+      "Read the Knowledge Base map",
+      `Returns every live page as a node with its saved map position, the links between pages, and how many pages link to each page. Positions are kept per workspace, so the map stays stable between reads; a pinned node keeps the place a person gave it. Links to records count per page and recordTypes names the lists the caller may read. Send an empty object. ${READ}`,
+      GetWikiGraphSchema,
+      {},
+      WikiGraphSchema,
+      "The nodes, links and record lists of the map.",
+    ),
+  },
+  "/v1/wiki/links": {
+    post: wikiOperation(
+      "getWikiPageLinks",
+      "Read the links of a Knowledge Base page",
+      `Lists the pages that link to one page, the pages it links to, the linked page ids that point at a deleted page, and the record lists it links into: per list how many single records the page links to and whether it links to the list itself. A missing page answers 404. ${READ}`,
+      GetWikiPageLinksSchema,
+      { id: EXAMPLE_PAGE_ID },
+      WikiPageLinksSchema,
+      "The links of the page.",
+    ),
+  },
+  "/v1/wiki/link-report": {
+    post: wikiOperation(
+      "getWikiLinkReport",
+      "Read what to repair in the Knowledge Base links",
+      `Lists the pages that no other page links to (orphans; the Operating Guide is the entry page and never one) and the pages whose links point at a deleted page (broken, with the missing ids), up to 50 each with their totals. syncing is true while links of recently changed pages are still being read. Send an empty object. ${READ}`,
+      GetWikiLinkReportSchema,
+      {},
+      WikiLinkReportSchema,
+      "The orphan pages and the pages with broken links.",
     ),
   },
   "/v1/wiki/create": {

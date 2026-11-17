@@ -273,6 +273,9 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       });
       await expectWikiPage(page, kellerSlug, checklist.id, checklistText);
       await shot(page, "second-workspace-wiki");
+      // The page is open in a side sheet over the Knowledge Base, like a record; close it to reach the sidebar.
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("dialog")).toHaveCount(0);
 
       await switchTo(page, workspace.slug, workspace.companyId, "Browser workspace");
       await page.goto(organizationsOf(workspace.slug, workspace.companyId));

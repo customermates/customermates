@@ -328,6 +328,20 @@ export const es: Strings = {
     },
   },
   wiki: {
+    onboarding: {
+      title: "Incorporación de un cliente nuevo",
+      whenToUse: "Cuando se gana un pitch y está a punto de empezar el primer proyecto o retainer con el cliente.",
+      markdown: [
+        "Un pitch ganado es una promesa. Estos pasos lo convierten en trabajo en marcha durante la primera semana, para que el cliente conozca al equipo que va a entregar.",
+        "",
+        "## Pasos",
+        "1. Pon el pitch en Ganado como describe el [Proceso de un pitch](wiki:process) y crea el proyecto o el retainer, vinculado al cliente y al pitch.",
+        "2. Introduce en el proyecto el presupuesto, el presupuesto de horas y el periodo de producción, o en el retainer la cuota mensual, la duración y la fecha de renovación.",
+        "3. Reserva el kickoff con la persona que decide en el cliente y vincula el hilo de correo al cliente.",
+        "4. Crea una tarea por cada promesa hecha en el pitch, con responsable y fecha de vencimiento.",
+        "5. Anota ya la fecha de renovación; la [Lista de comprobación de renovación de retainers](wiki:renewal) empieza 60 días antes.",
+      ],
+    },
     guide: {
       title: "Guía de uso",
       markdown: [

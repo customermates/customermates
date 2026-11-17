@@ -430,9 +430,9 @@ Ihren persönlichen Kalender lesen und ändern: options listet die Listen mit Da
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsortieren (vor oder nach eine andere Seite verschieben) oder löschen (in den Papierkorb verschieben), jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
+Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsortieren (vor oder nach eine andere Seite verschieben) oder löschen (in den Papierkorb verschieben), jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Ein Update kann Teile einer Seite ändern (Suchen und Ersetzen oder ein Abschnitt über seinen Anker), statt die ganze Seite neu zu senden, festlegen, wer die Seite aktuell hält, und sie als geprüft markieren. links liefert die Seiten, die auf eine Seite verweisen, und die Seiten, auf die sie verweist, oder für die ganze Wissensdatenbank die Seiten, auf die keine andere Seite verweist, und die Seiten mit Links auf gelöschte Seiten. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `anchor`, `maxChars`, `page`, `pageSize`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `edits`, `kind`, `whenToUse`, `owner`, `verified`.
 {/* /mcp-catalog */}
 
 ### Messaging [#messaging]

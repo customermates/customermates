@@ -298,6 +298,19 @@ export const pt: Strings = {
     appointmentsMonth: "Compromissos do mês",
   },
   wiki: {
+    onboarding: {
+      title: "Receber um novo cliente de suporte",
+      whenToUse: "Quando um negócio de suporte gerenciado é ganho e começa o primeiro mês com o novo cliente.",
+      markdown: [
+        "Um contrato de suporte ganho começa com um primeiro mês em que o cliente decide se fomos a escolha certa. Estes passos garantem que nada do que foi prometido na conversa de vendas se perca.",
+        "",
+        "## Passos",
+        "1. Leia as notas e os documentos do negócio: o inventário de rede, a proposta e tudo o que foi prometido depois da visita, como em [Follow-up depois de uma visita técnica](wiki:followUp).",
+        "2. Confira se os serviços do negócio correspondem ao número de estações de trabalho; a [Tabela de preços e descontos](wiki:priceList) explica como a quantidade é entendida.",
+        "3. Crie uma tarefa com horário agendado para o primeiro dia no local e uma tarefa para cada promessa em aberto.",
+        "4. Depois do primeiro mês, ligue para o cliente, registre o resultado nas notas do negócio e crie uma tarefa para a conversa de renovação.",
+      ],
+    },
     guide: {
       title: "Guia operacional",
       markdown: [

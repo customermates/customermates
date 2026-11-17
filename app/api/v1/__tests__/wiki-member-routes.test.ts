@@ -14,6 +14,9 @@ const interactors = vi.hoisted(() => ({
   updateWiki: vi.fn(),
   moveWiki: vi.fn(),
   deleteWiki: vi.fn(),
+  wikiGraph: vi.fn(),
+  wikiLinks: vi.fn(),
+  wikiLinkReport: vi.fn(),
   invite: vi.fn(),
   updateMember: vi.fn(),
   getProfile: vi.fn(),
@@ -35,6 +38,9 @@ vi.mock("@/core/di", () => ({
   getUpdateWikiPageInteractor: () => ({ invoke: interactors.updateWiki }),
   getMoveWikiPageInteractor: () => ({ invoke: interactors.moveWiki }),
   getDeleteWikiPageInteractor: () => ({ invoke: interactors.deleteWiki }),
+  getGetWikiGraphInteractor: () => ({ invoke: interactors.wikiGraph }),
+  getGetWikiPageLinksInteractor: () => ({ invoke: interactors.wikiLinks }),
+  getGetWikiLinkReportInteractor: () => ({ invoke: interactors.wikiLinkReport }),
   getInviteUsersByEmailInteractor: () => ({ invoke: interactors.invite }),
   getAdminUpdateUserDetailsInteractor: () => ({ invoke: interactors.updateMember }),
   getGetUserDetailsInteractor: () => ({ invoke: interactors.getProfile }),
@@ -48,6 +54,9 @@ import { POST as createWiki } from "../wiki/create/route";
 import { POST as updateWiki } from "../wiki/update/route";
 import { POST as moveWiki } from "../wiki/move/route";
 import { POST as deleteWiki } from "../wiki/delete/route";
+import { POST as wikiGraph } from "../wiki/graph/route";
+import { POST as wikiLinks } from "../wiki/links/route";
+import { POST as wikiLinkReport } from "../wiki/link-report/route";
 import { POST as inviteMembers } from "../members/invite/route";
 import { POST as updateMember } from "../members/update/route";
 import { GET as getProfile, PATCH as updateProfile } from "../users/me/route";
@@ -80,6 +89,9 @@ const routes = [
     body: { id: ID, targetId: ID, placement: "after" },
   },
   { path: "wiki/delete", handler: deleteWiki, spy: interactors.deleteWiki, body: { id: ID } },
+  { path: "wiki/graph", handler: wikiGraph, spy: interactors.wikiGraph, body: {} },
+  { path: "wiki/links", handler: wikiLinks, spy: interactors.wikiLinks, body: { id: ID } },
+  { path: "wiki/link-report", handler: wikiLinkReport, spy: interactors.wikiLinkReport, body: {} },
   { path: "members/invite", handler: inviteMembers, spy: interactors.invite, body: { emails: ["a@example.test"] } },
   {
     path: "members/update",

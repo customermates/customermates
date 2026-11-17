@@ -317,6 +317,20 @@ export const nl: Strings = {
     },
   },
   wiki: {
+    onboarding: {
+      title: "Onboarding van een nieuwe klant",
+      whenToUse: "Wanneer een pitch is gewonnen en het eerste project of de eerste retainer met de klant begint.",
+      markdown: [
+        "Een gewonnen pitch is een belofte. Met deze stappen wordt het in de eerste week lopend werk, zodat de klant het team leert kennen dat gaat leveren.",
+        "",
+        "## Stappen",
+        "1. Zet de pitch op Gewonnen zoals het [Pitchproces](wiki:process) beschrijft en maak het project of de retainer aan, gekoppeld aan de klant en de pitch.",
+        "2. Vul bij het project het budget, het urenbudget en de productieperiode in, of bij de retainer het maandbedrag, de looptijd en de verlengingsdatum.",
+        "3. Plan de kick-off met de beslisser bij de klant en koppel de e-mailthread aan de klant.",
+        "4. Maak voor elke belofte uit de pitch een taak aan, met een eigenaar en een vervaldatum.",
+        "5. Noteer de verlengingsdatum meteen; de [Checklist retainerverlenging](wiki:renewal) begint 60 dagen ervoor.",
+      ],
+    },
     guide: {
       title: "Handleiding",
       markdown: [

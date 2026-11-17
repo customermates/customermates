@@ -362,6 +362,23 @@ export const nl: Strings = {
     nextSteps: "Volgende stappen, komende 14 dagen",
   },
   wiki: {
+    qualification: {
+      title: "Kwalificatievragen",
+      markdown: [
+        "Een verkoopkans is gekwalificeerd als we vier dingen weten. Vraag ernaar in de eerste twee gesprekken; zonder die antwoorden zegt de gewogen waarde weinig.",
+        "",
+        "## De vier vragen",
+        "- **Toepassing:** waarvoor de perslucht wordt gebruikt en hoeveel uur per dag de fabriek draait.",
+        "- **Budget:** een bandbreedte is genoeg, en of het uit het investerings- of het onderhoudsbudget komt.",
+        "- **Beslissing:** wie tekent, wie meepraat en wanneer ze willen beslissen.",
+        "- **Timing:** wat er in de fabriek gebeurt als er dit jaar niets verandert.",
+        "",
+        "## Wat je met de antwoorden doet",
+        "- Zet ze in de notities van de verkoopkans, stel de verwachte afsluitdatum in en zet de fase op Gekwalificeerd zoals in [Verkoopfasen](wiki:stages).",
+        "- Beantwoord een vroege prijsvraag met de catalogusprijs; de [Kortings- en goedkeuringsregels](wiki:discounts) komen later.",
+        "- Volgt er een locatiebezoek, dan staat in [Na een locatiebezoek](wiki:siteVisit) wat je vastlegt.",
+      ],
+    },
     guide: {
       title: "Werkhandleiding",
       markdown: [

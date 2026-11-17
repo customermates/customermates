@@ -375,6 +375,19 @@ const en = {
     },
   },
   wiki: {
+    proposal: {
+      title: "Writing a proposal",
+      whenToUse: "When a first call went well and the client asks for a written proposal with scope and price.",
+      markdown: [
+        "A proposal repeats what the client said and adds a clear price. I write it within two working days of the call, while the conversation is still fresh.",
+        "",
+        "## Steps",
+        "1. Read the inquiry notes from the call; [After a first call](wiki:afterCall) lists what belongs there.",
+        "2. Estimate the days for each part of the work and take the day rate from [My rates and terms](wiki:rates).",
+        "3. Write scope, days, fee and start date into the proposal, attach it to the inquiry and send it by email.",
+        "4. Move the inquiry to Proposal sent as in [Stages of an inquiry](wiki:stages) and set the next action date one week ahead.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -920,6 +933,19 @@ const de: Strings = {
     },
   },
   wiki: {
+    proposal: {
+      title: "Ein Angebot schreiben",
+      whenToUse: "Wenn ein Erstgespräch gut lief und der Kunde ein schriftliches Angebot mit Umfang und Preis möchte.",
+      markdown: [
+        "Ein Angebot wiederholt, was der Kunde gesagt hat, und nennt einen klaren Preis. Ich schreibe es innerhalb von zwei Arbeitstagen nach dem Gespräch, solange es noch frisch ist.",
+        "",
+        "## Schritte",
+        "1. Die Notizen der Anfrage aus dem Gespräch lesen; [Nach einem Erstgespräch](wiki:afterCall) nennt, was dort stehen soll.",
+        "2. Die Tage je Arbeitsteil schätzen und den Tagessatz aus [Meine Tagessätze und Konditionen](wiki:rates) nehmen.",
+        "3. Umfang, Tage, Honorar und Starttermin ins Angebot schreiben, es an die Anfrage hängen und per E-Mail senden.",
+        "4. Die Anfrage wie in [Phasen einer Anfrage](wiki:stages) auf Angebot gesendet setzen und das Datum der nächsten Aktion eine Woche später eintragen.",
+      ],
+    },
     guide: {
       title: "Arbeitsleitfaden",
       markdown: [
@@ -2028,17 +2054,43 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "stages", kind: "knowledge", title: t.wiki.stages.title, markdown: t.wiki.stages.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "stages",
+          kind: "knowledge",
+          title: t.wiki.stages.title,
+          markdown: t.wiki.stages.markdown,
+          related: ["afterCall", "proposal", "rates", "agents", "guide"],
+        },
         {
           key: "afterCall",
           kind: "procedure",
           title: t.wiki.afterCall.title,
           whenToUse: t.wiki.afterCall.whenToUse,
           markdown: t.wiki.afterCall.markdown,
+          related: ["stages", "proposal", "guide"],
         },
-        { key: "rates", kind: "knowledge", title: t.wiki.rates.title, markdown: t.wiki.rates.markdown },
-        agentsPage(locale, t.agents),
+        {
+          key: "rates",
+          kind: "knowledge",
+          title: t.wiki.rates.title,
+          markdown: t.wiki.rates.markdown,
+          related: ["proposal", "guide"],
+        },
+        { ...agentsPage(locale, t.agents), related: ["guide"] },
+        {
+          key: "proposal",
+          kind: "procedure",
+          title: t.wiki.proposal.title,
+          whenToUse: t.wiki.proposal.whenToUse,
+          markdown: t.wiki.proposal.markdown,
+          related: ["guide"],
+        },
       ],
       apiKeys: agentApiKeys([62, 35, 11]),
       routines: [

@@ -277,6 +277,19 @@ export const pl: Strings = {
     appointmentsMonth: "Spotkania w tym miesiącu",
   },
   wiki: {
+    onboarding: {
+      title: "Wdrożenie nowego klienta wsparcia",
+      whenToUse: "Gdy szansa na stałe wsparcie IT jest wygrana i zaczyna się pierwszy miesiąc z nowym klientem.",
+      markdown: [
+        "Wygrana umowa wsparcia zaczyna się od pierwszego miesiąca, w którym klient ocenia, czy dobrze wybrał. Te kroki pilnują, żeby nie zginęła żadna obietnica z rozmów sprzedażowych.",
+        "",
+        "## Kroki",
+        "1. Przeczytaj notatki i dokumenty szansy: inwentaryzację sieci, ofertę i wszystko, co obiecano po wizycie, jak opisuje [Follow-up po wizycie u klienta](wiki:followUp).",
+        "2. Sprawdź, czy usługi w szansie zgadzają się z liczbą stanowisk; [Cennik i rabaty](wiki:priceList) wyjaśnia, jak rozumieć ilość.",
+        "3. Utwórz zadanie z zaplanowaną godziną na pierwszy dzień u klienta i po jednym zadaniu na każdą otwartą obietnicę.",
+        "4. Po pierwszym miesiącu zadzwoń do klienta, zapisz wynik w notatkach szansy i utwórz zadanie na rozmowę o przedłużeniu.",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

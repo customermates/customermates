@@ -324,6 +324,20 @@ export const nl: Strings = {
     },
   },
   wiki: {
+    proposal: {
+      title: "Een offerte schrijven",
+      whenToUse:
+        "Wanneer een eerste gesprek goed ging en de klant een schriftelijke offerte met scope en prijs vraagt.",
+      markdown: [
+        "Een offerte herhaalt wat de klant zei en voegt een duidelijke prijs toe. Ik schrijf haar binnen twee werkdagen na het gesprek, zolang het nog vers is.",
+        "",
+        "## Stappen",
+        "1. Lees de notities van de aanvraag uit het gesprek; [Na een eerste gesprek](wiki:afterCall) noemt wat daar hoort te staan.",
+        "2. Schat de dagen per onderdeel van het werk en neem het dagtarief uit [Mijn dagtarieven en voorwaarden](wiki:rates).",
+        "3. Zet scope, dagen, honorarium en startdatum in de offerte, voeg haar toe aan de aanvraag en verstuur haar per e-mail.",
+        "4. Zet de aanvraag op Offerte verstuurd zoals in [Fases van een aanvraag](wiki:stages) en zet de datum van de volgende actie een week later.",
+      ],
+    },
     guide: {
       title: "Werkhandleiding",
       markdown: [

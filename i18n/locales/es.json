@@ -1356,6 +1356,10 @@
       "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
       "widgetLayoutTooSmall": "Este widget es demasiado pequeño: los gráficos y las cifras necesitan al menos 2 filas, las cronologías de actividad 2 columnas y 6 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
+      "wikiEditInvalid": "Esta edición no es válida. Envía find con replace, anchor con markdown o solo markdown, y markdown o edits, no ambos.",
+      "wikiEditSectionNotFound": "La página no tiene ninguna sección con este ancla. El esquema de la página indica las anclas de sus secciones.",
+      "wikiEditTextAmbiguous": "El texto a reemplazar aparece más de una vez. Incluye más texto de alrededor para que coincida con un solo lugar.",
+      "wikiEditTextNotFound": "El texto a reemplazar no está en la página. Cópialo exactamente de una lectura reciente de la página.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
       "wikiPageConflict": "Esta página de la base de conocimientos cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
@@ -5456,6 +5460,7 @@
     "showDeliveries": "Ver entregas"
   },
   "Wiki": {
+    "changed": "Último cambio",
     "conflict": "Esta página ha cambiado. Tus cambios siguen aquí. Recarga para usar la versión más reciente.",
     "copyLink": "Copiar enlace de la página",
     "delete": "Eliminar página",
@@ -5463,6 +5468,44 @@
     "emptyBody": "Proporciona a Mate y a las herramientas de IA conectadas el conocimiento, los procesos y las pautas que necesitan.",
     "emptyBodyReadOnly": "Aún no se han creado páginas de la base de conocimientos.",
     "emptyTitle": "La base de conocimientos de tu espacio de trabajo está vacía",
+    "graph": {
+      "canvasLabel": "Mapa de las páginas de la base de conocimientos y sus enlaces",
+      "filter": {
+        "all": "Todas las páginas",
+        "knowledge": "Conocimiento",
+        "label": "Mostrar páginas por tipo",
+        "procedure": "Procedimientos"
+      },
+      "fit": "Ajustar el mapa a la ventana",
+      "label": "Mapa de la base de conocimientos",
+      "legend": "Los círculos más grandes son páginas a las que enlazan más páginas. Haz clic en una página para abrirla.",
+      "legendEdit": "Los círculos más grandes son páginas a las que enlazan más páginas. Haz clic en una página para abrirla y arrástrala para fijarla en su sitio.",
+      "linkedFrom": "Enlazada desde",
+      "linkedFromCount": "{count, plural, one {Enlazada desde # página} other {Enlazada desde # páginas}}",
+      "linksFailed": "No se pudieron cargar los enlaces de esta página.",
+      "linksTo": "Enlaza a",
+      "loadFailed": "No se pudieron cargar las páginas de la base de conocimientos.",
+      "missingLinks": "{count, plural, one {# enlace apunta a una página eliminada} other {# enlaces apuntan a páginas eliminadas}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Ninguna página",
+      "noMatches": "Ninguna página coincide con el filtro.",
+      "pin": "Fijar en el mapa",
+      "pinHelp": "Mantiene esta página en su sitio en el mapa. También puedes arrastrar una página para fijarla.",
+      "pinned": "Fijada",
+      "pinnedHelp": "Esta página mantiene su sitio cuando el mapa se reordena.",
+      "records": "Registros enlazados",
+      "search": "Buscar una página",
+      "segments": {
+        "details": "Detalles",
+        "links": "Enlaces",
+        "page": "Página"
+      },
+      "sheetSegments": "Secciones de la página",
+      "syncing": "Los enlaces aún se están leyendo. Recarga la página para verlos todos.",
+      "truncated": "Se muestran las primeras {count} páginas. Busca y pulsa Intro para abrir cualquier otra página.",
+      "unpin": "Soltar la fijación",
+      "unpinHelp": "El mapa vuelve a colocar esta página."
+    },
     "kind": {
       "guide": "Guía operativa",
       "guideDescription": "Reglas y tono comunes para cada solicitud. Una por espacio de trabajo.",
@@ -5482,8 +5525,11 @@
     "next": "Siguiente",
     "noResults": "No hay páginas coincidentes.",
     "onThisPage": "En esta página",
-    "page": "Página {current} de {total}",
-    "pageActions": "Acciones de la página",
+    "owner": {
+      "help": "La persona, el equipo o el agente que mantiene esta página al día. Los agentes lo ven junto a la página.",
+      "label": "Responsable",
+      "placeholder": "Por ejemplo, equipo de soporte"
+    },
     "pagesLabel": "Páginas de la base de conocimientos",
     "pageTitle": "Título de la página",
     "previous": "Anterior",
@@ -5515,10 +5561,17 @@
       "title": "Propuestas"
     },
     "reload": "Recargar página",
-    "search": "Buscar páginas…",
     "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
     "unavailableTitle": "Página no disponible",
     "untitled": "Página sin título",
+    "verified": {
+      "help": "Deja constancia de que hoy has revisado esta página y sigue siendo correcta.",
+      "label": "Última verificación",
+      "mark": "Marcar como verificada",
+      "never": "Aún sin verificar",
+      "on": "Verificada el {date}",
+      "saveFirst": "Guarda tus cambios antes de marcar la página como verificada."
+    },
     "websiteImport": {
       "faqHeading": "Preguntas frecuentes",
       "source": "Fuente: {url} · consultada el {date}"

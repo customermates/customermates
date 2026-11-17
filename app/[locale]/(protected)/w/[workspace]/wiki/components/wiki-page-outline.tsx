@@ -1,11 +1,3 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
-
-import { headingAnchorId } from "@/components/editor/heading-anchor-extension";
-import { TocItems } from "@/components/shared/toc";
-
 type WikiDocumentNode = {
   attrs?: {
     level?: unknown;
@@ -47,40 +39,3 @@ export function wikiDocumentHeadings(document: object): WikiDocumentHeading[] {
 }
 
 export const WIKI_HEADING_ID_PREFIX = "wiki-heading";
-
-export function WikiPageOutline({ document }: { document: object }) {
-  const t = useTranslations();
-  const items = useMemo(
-    () =>
-      wikiDocumentHeadings(document).map((heading) => ({
-        title: heading.text,
-        url: `#${headingAnchorId(WIKI_HEADING_ID_PREFIX, heading.index)}`,
-        depth: heading.level + 1,
-      })),
-    [document],
-  );
-  const firstAnchor = items[0]?.url.slice(1);
-  const [renderedAnchor, setRenderedAnchor] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!firstAnchor || renderedAnchor === firstAnchor) return;
-    let frame = 0;
-    const waitForHeadings = () => {
-      if (window.document.getElementById(firstAnchor)) setRenderedAnchor(firstAnchor);
-      else frame = window.requestAnimationFrame(waitForHeadings);
-    };
-    waitForHeadings();
-    return () => window.cancelAnimationFrame(frame);
-  }, [firstAnchor, renderedAnchor]);
-
-  if (items.length < 2 || renderedAnchor !== firstAnchor) return null;
-
-  return (
-    <nav
-      aria-label={t("Wiki.onThisPage")}
-      className="sticky top-8 hidden max-h-[calc(100dvh-4rem)] flex-col self-start @min-[58rem]/wiki:flex"
-    >
-      <TocItems items={items} />
-    </nav>
-  );
-}

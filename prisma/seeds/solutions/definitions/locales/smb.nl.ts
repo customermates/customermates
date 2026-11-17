@@ -295,6 +295,19 @@ export const nl: Strings = {
     appointmentsMonth: "Afspraken deze maand",
   },
   wiki: {
+    onboarding: {
+      title: "Een nieuwe supportklant inwerken",
+      whenToUse: "Wanneer een deal voor beheerde support is gewonnen en de eerste maand met de nieuwe klant begint.",
+      markdown: [
+        "Een gewonnen supportcontract begint met een eerste maand waarin de klant beslist of wij de juiste keuze waren. Deze stappen zorgen dat er niets verloren gaat van wat in het verkoopgesprek is beloofd.",
+        "",
+        "## Stappen",
+        "1. Lees de notities en de documenten van de deal: de netwerkinventaris, de offerte en alles wat na het bezoek is beloofd, zoals in [Opvolging na een locatiebezoek](wiki:followUp).",
+        "2. Controleer of de diensten op de deal kloppen met het aantal werkplekken; [Prijslijst en kortingen](wiki:priceList) legt uit hoe het aantal bedoeld is.",
+        "3. Maak een taak met een gepland tijdstip voor de eerste dag op locatie en één taak voor elke openstaande belofte.",
+        "4. Bel de klant na de eerste maand, noteer de uitkomst in de notities van de deal en maak een taak voor het verlengingsgesprek.",
+      ],
+    },
     guide: {
       title: "Werkgids",
       markdown: [
