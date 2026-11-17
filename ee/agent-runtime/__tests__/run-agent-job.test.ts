@@ -154,6 +154,31 @@ describe("running an agent job on the workspace's own key", () => {
     expect([...keys.rows.values()][0].lastUsedAt).toEqual(NOW);
   });
 
+  it("marks the start of a second attempt in the transcript and keeps what the first one recorded", async () => {
+    const { jobs, loop, run } = await world();
+    const job = jobs.add({ runtime: "ownKey" });
+    loop.mockImplementationOnce(() => new Promise(() => undefined));
+
+    void run(job.id);
+    await vi.waitFor(() => expect(loop).toHaveBeenCalledTimes(1));
+    await jobs.appendEventsUnscoped({
+      id: job.id,
+      companyId: COMPANY,
+      attempt: 1,
+      events: [{ type: "message", at: NOW.toISOString(), role: "user", text: "Do the thing" }],
+    });
+    const stuck = jobs.jobs.get(job.id);
+    if (stuck) jobs.jobs.set(job.id, { ...stuck, timeoutAt: new Date(NOW.getTime() - 1000) });
+    await jobs.sweepTimeoutsUnscoped({ now: NOW, maxAttempts: 2 });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+
+    const transcript = jobs.events.get(job.id) as Array<{ type: string; attempt?: number; at?: string }>;
+    expect(transcript.map((event) => event.type)).toEqual(["message", "attempt", "message", "finish"]);
+    expect(transcript[1]).toEqual({ type: "attempt", at: NOW.toISOString(), attempt: 2 });
+    expect(jobs.jobs.get(job.id)).toMatchObject({ status: "succeeded", attempts: 2, startedAttempts: 2 });
+  });
+
   it("runs a step without a model on the only key's default model and sets cache breakpoints for Anthropic only", async () => {
     const { jobs, keys, createModel, loop, run } = await world();
 

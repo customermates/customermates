@@ -61,6 +61,14 @@ function TranscriptEvent({ event }: { event: AgentTranscriptEvent }) {
           {event.text ? <p className="text-sm whitespace-pre-wrap">{event.text}</p> : null}
         </div>
       );
+    case "attempt":
+      return (
+        <div className="border-t border-border pt-2" data-transcript-event="attempt">
+          <p className="text-xs font-medium text-muted-foreground">
+            {`${t("AgentJobs.transcript.attempt", { attempt: event.attempt })} · ${time}`}
+          </p>
+        </div>
+      );
   }
 }
 

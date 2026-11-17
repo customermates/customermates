@@ -562,10 +562,8 @@ describeDatabase("PrismaAgentJobRepo", () => {
       true,
     );
     expect(await repo().finishUnscoped({ ...finish, attempt: 2 })).toBe(true);
-    expect(((await row(job.id)).transcript as Array<{ text: string }>).map((entry) => entry.text)).toEqual([
-      "first",
-      "second",
-    ]);
+    const stored = (await row(job.id)).transcript as Array<{ type: string; text?: string }>;
+    expect(stored.map((entry) => entry.text ?? entry.type)).toEqual(["first", "attempt", "second"]);
   });
 
   it("keeps every event when transcript appends arrive at the same time", async () => {
@@ -691,6 +689,31 @@ describeDatabase("PrismaAgentJobRepo", () => {
       expect(await sweep(later)).toMatchObject({ requeued: started === 1, started: true });
     }
     expect(await row(job.id)).toMatchObject({ status: "timedOut", attempts: 5, startedAttempts: 2 });
+  });
+
+  it("marks the transcript where a further attempt starts and keeps the events before it", async () => {
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const later = new Date(now.getTime() + HOUR);
+    const job = await enqueue();
+    const claim = (at: Date) =>
+      repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now: at, timeoutAt: at });
+    const start = (attempt: number, at: Date) =>
+      repo().startUnscoped({ id: job.id, companyId, attempt, now: at, timeoutAt: at });
+    const first = { type: "message", at: now.toISOString(), role: "user", text: "Summarise the deal" };
+
+    await claim(now);
+    expect(await start(1, now)).toBe(true);
+    expect((await row(job.id)).transcript).toBeNull();
+    await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 1, events: [first], maxEvents: 200 });
+    await repo().sweepTimeoutsUnscoped({ now: later, maxAttempts: 2, limit: 500 });
+
+    await claim(later);
+    expect(await start(1, later)).toBe(false);
+    expect(await start(2, later)).toBe(true);
+    const marked = [first, { type: "attempt", at: later.toISOString(), attempt: 2 }];
+    expect(await row(job.id)).toMatchObject({ status: "running", startedAttempts: 2, transcript: marked });
+    expect(await start(2, later)).toBe(false);
+    expect((await row(job.id)).transcript).toEqual(marked);
   });
 
   it("finds the hosted jobs that have waited in the queue past a moment, oldest first", async () => {

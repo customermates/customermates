@@ -894,6 +894,7 @@
     "tokens": "{input} in, {output} out",
     "transcript": {
       "assistant": "Agent",
+      "attempt": "Attempt {attempt}: started again after the previous attempt ran out of time",
       "called": "Called {name}",
       "empty": "No steps were recorded.",
       "finish": {

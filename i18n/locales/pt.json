@@ -894,6 +894,7 @@
     "tokens": "{input} de entrada, {output} de saída",
     "transcript": {
       "assistant": "Agente",
+      "attempt": "Tentativa {attempt}: reiniciada depois que a anterior ultrapassou o limite de tempo",
       "called": "Chamou {name}",
       "empty": "Nenhuma etapa foi registrada.",
       "finish": {

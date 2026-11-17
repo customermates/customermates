@@ -894,6 +894,7 @@
     "tokens": "{input} en entrée, {output} en sortie",
     "transcript": {
       "assistant": "Agent",
+      "attempt": "Tentative {attempt} : relancée après que la précédente a dépassé la limite de temps",
       "called": "{name} appelé",
       "empty": "Aucune étape n’a été enregistrée.",
       "finish": {

@@ -125,10 +125,15 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return args.attempt === undefined || job.attempts === args.attempt ? job : null;
   }
 
-  startUnscoped(args: { id: string; companyId: string; attempt?: number }): Promise<boolean> {
+  startUnscoped(args: { id: string; companyId: string; attempt?: number; now?: Date }): Promise<boolean> {
     const job = this.live(args);
     if (!job || job.status !== "claimed") return Promise.resolve(false);
-    this.jobs.set(job.id, { ...job, status: "running", startedAttempts: job.startedAttempts + 1 });
+    const startedAttempts = job.startedAttempts + 1;
+    this.jobs.set(job.id, { ...job, status: "running", startedAttempts });
+    if (startedAttempts > 1) {
+      const marker = { type: "attempt", at: (args.now ?? new Date()).toISOString(), attempt: startedAttempts };
+      this.events.set(job.id, [...(this.events.get(job.id) ?? []), marker]);
+    }
     return Promise.resolve(true);
   }
 

@@ -100,6 +100,28 @@ describe("QueuedAgentJobRunnerRepo", () => {
     expect(await repo.start(job.id, RUNNER, 2)).toBeNull();
   });
 
+  it("marks the transcript when the runner confirms a further attempt, and not on the first", async () => {
+    const { jobs, repo } = setup();
+    const first = jobs.add({ runtime: "runner", status: "claimed", runnerId: RUNNER.id, attempts: 1 });
+    const retried = jobs.add({
+      runtime: "runner",
+      status: "claimed",
+      runnerId: RUNNER.id,
+      attempts: 3,
+      startedAttempts: 1,
+    });
+    jobs.events.set(retried.id, [{ type: "message", at: AT, role: "assistant", text: "Working" }]);
+
+    await repo.start(first.id, RUNNER, 1);
+    await repo.start(retried.id, RUNNER, 3);
+
+    expect(jobs.events.get(first.id)).toBeUndefined();
+    expect(jobs.events.get(retried.id)).toEqual([
+      { type: "message", at: AT, role: "assistant", text: "Working" },
+      { type: "attempt", at: NOW.toISOString(), attempt: 2 },
+    ]);
+  });
+
   it("shows a job only to the runner that holds it, inside its own workspace", async () => {
     const { jobs, repo } = setup();
     const timeoutAt = new Date(NOW.getTime() + 60_000);
