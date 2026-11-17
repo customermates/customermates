@@ -3,6 +3,7 @@ import type { ClientName, FoundClient } from "./types.js";
 import { execFile } from "node:child_process";
 
 import { CLIENT_NAMES } from "./types.js";
+import { commandPlan } from "./windows-command.js";
 
 export type VersionProbe = (binary: string) => Promise<string | null>;
 
@@ -19,15 +20,20 @@ export function versionFromOutput(output: string): string | null {
     .split("\n")
     .find((line) => line.trim() !== "")
     ?.trim();
-  if (!firstLine) return null;
-  return (VERSION_PATTERN.exec(firstLine)?.[0] ?? firstLine).slice(0, VERSION_MAX_LENGTH);
+  return firstLine ? (VERSION_PATTERN.exec(firstLine)?.[0].slice(0, VERSION_MAX_LENGTH) ?? null) : null;
 }
 
 export const probeVersion: VersionProbe = (binary) =>
   new Promise((resolve) => {
-    execFile(binary, ["--version"], { timeout: VERSION_TIMEOUT_MS }, (error, stdout) => {
-      resolve(error ? null : versionFromOutput(String(stdout)));
-    });
+    const plan = commandPlan(binary, ["--version"], process.env);
+    execFile(
+      plan.command,
+      plan.args,
+      { timeout: VERSION_TIMEOUT_MS, windowsHide: true, windowsVerbatimArguments: plan.verbatim },
+      (error, stdout) => {
+        resolve(error ? null : versionFromOutput(String(stdout)));
+      },
+    );
   });
 
 export async function discoverClients(
@@ -44,6 +50,10 @@ export async function discoverClients(
   return found.filter((client): client is FoundClient => client !== null);
 }
 
+export function usableClients(found: readonly FoundClient[], wanted: ClientName | null): FoundClient[] {
+  return wanted ? found.filter((client) => client.name === wanted) : [...found];
+}
+
 export function chooseClient(found: readonly FoundClient[], wanted: ClientName | null): FoundClient | null {
-  return wanted ? (found.find((client) => client.name === wanted) ?? null) : (found[0] ?? null);
+  return usableClients(found, wanted)[0] ?? null;
 }

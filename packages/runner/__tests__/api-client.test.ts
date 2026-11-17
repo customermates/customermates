@@ -40,7 +40,7 @@ describe("runner API client", () => {
 
   it("returns the claimed job on 200 and no body on 204", async () => {
     const claimed = {
-      job: { id: JOB_ID, prompt: "p", promptUntrusted: false, timeoutAt: "2026-11-17T10:00:00.000Z" },
+      job: { id: JOB_ID, attempt: 1, prompt: "p", promptUntrusted: false, confirmWithinSeconds: 60 },
       mcp: { url: "https://app/mcp", token: "t" },
     };
     server.on("/api/v1/runner/jobs/claim", { status: 200, body: claimed });
@@ -51,16 +51,21 @@ describe("runner API client", () => {
     expect(server.requests[0].body).toEqual({});
   });
 
-  it("posts events and the result to the job's own paths", async () => {
-    server.on(`/api/v1/runner/jobs/${JOB_ID}/events`, { status: 200, body: { ok: true, accepted: 2 } });
+  it("confirms a job and posts events and the result to the job's own paths, each with the attempt", async () => {
+    const event = { type: "message" as const, at: "2026-11-17T09:00:00.000Z", role: "assistant" as const, text: "a" };
+    server.on(`/api/v1/runner/jobs/${JOB_ID}/start`, { status: 200, body: { ok: true, timeoutInSeconds: 600 } });
+    server.on(`/api/v1/runner/jobs/${JOB_ID}/events`, { status: 200, body: { ok: true, accepted: 1 } });
     server.on(`/api/v1/runner/jobs/${JOB_ID}/result`, { status: 200, body: { ok: true } });
 
-    await client().events(JOB_ID, [{ type: "a" }, { type: "b" }]);
-    await client().result(JOB_ID, { status: "succeeded", summary: "done", inputTokens: 3 });
+    const started = await client().start(JOB_ID, 2);
+    await client().events(JOB_ID, 2, [event]);
+    await client().result(JOB_ID, 2, { status: "succeeded", summary: "done", inputTokens: 3 });
 
+    expect(started.body).toEqual({ ok: true, timeoutInSeconds: 600 });
     expect(server.requests.map((request) => [request.path, request.body])).toEqual([
-      [`/api/v1/runner/jobs/${JOB_ID}/events`, { events: [{ type: "a" }, { type: "b" }] }],
-      [`/api/v1/runner/jobs/${JOB_ID}/result`, { status: "succeeded", summary: "done", inputTokens: 3 }],
+      [`/api/v1/runner/jobs/${JOB_ID}/start`, { attempt: 2 }],
+      [`/api/v1/runner/jobs/${JOB_ID}/events`, { attempt: 2, events: [event] }],
+      [`/api/v1/runner/jobs/${JOB_ID}/result`, { attempt: 2, status: "succeeded", summary: "done", inputTokens: 3 }],
     ]);
   });
 

@@ -1,32 +1,70 @@
-import type { Outcome } from "../types.js";
+import type { Outcome, TranscriptEvent } from "../types.js";
 import type { ClientAdapter, Observer, PrepareInput } from "./adapter.js";
 
 import { join } from "node:path";
 
-import { MCP_SERVER_NAME, numberOf, recordOf, textOf } from "./adapter.js";
+import {
+  MCP_SERVER_NAME,
+  listOf,
+  messageEvent,
+  numberOf,
+  recordOf,
+  textOf,
+  toolCallEvent,
+  toolResultEvent,
+} from "./adapter.js";
 
 export const CLAUDE_MCP_FILE = "mcp.json";
 
+function resultText(content: unknown): unknown {
+  if (typeof content === "string") return content;
+  const texts = listOf(content).flatMap((block) => {
+    const text = textOf(recordOf(block).text);
+    return text ? [text] : [];
+  });
+  return texts.length > 0 ? texts.join("\n") : content;
+}
+
 function createObserver(): Observer {
   let outcome: Outcome = { isError: false };
+  const names = new Map<string, string>();
   return {
-    observe(event) {
-      if (event.type !== "result") return;
-      const usage = recordOf(event.usage);
+    observe(line, at) {
+      if (line.type === "assistant") {
+        return listOf(recordOf(line.message).content).flatMap((entry): TranscriptEvent[] => {
+          const block = recordOf(entry);
+          const text = textOf(block.text);
+          if (block.type === "text" && text) return [messageEvent(at, text)];
+          if (block.type !== "tool_use") return [];
+          names.set(String(block.id), String(block.name));
+          return [toolCallEvent(at, block.id, block.name, block.input)];
+        });
+      }
+      if (line.type === "user") {
+        return listOf(recordOf(line.message).content).flatMap((entry): TranscriptEvent[] => {
+          const block = recordOf(entry);
+          if (block.type !== "tool_result") return [];
+          const id = block.tool_use_id;
+          return [toolResultEvent(at, id, names.get(String(id)), block.is_error !== true, resultText(block.content))];
+        });
+      }
+      if (line.type !== "result") return [];
+      const usage = recordOf(line.usage);
       const input =
         (numberOf(usage.input_tokens) ?? 0) +
         (numberOf(usage.cache_creation_input_tokens) ?? 0) +
         (numberOf(usage.cache_read_input_tokens) ?? 0);
-      const failed = event.is_error === true || (typeof event.subtype === "string" && event.subtype !== "success");
+      const failed = line.is_error === true || (typeof line.subtype === "string" && line.subtype !== "success");
       outcome = {
-        summary: textOf(event.result),
+        summary: textOf(line.result),
         isError: failed,
-        errorText: failed ? (textOf(event.result) ?? textOf(event.subtype)) : undefined,
+        errorText: failed ? (textOf(line.result) ?? textOf(line.subtype)) : undefined,
         inputTokens: input > 0 || usage.input_tokens !== undefined ? input : undefined,
         outputTokens: numberOf(usage.output_tokens),
-        costUsd: numberOf(event.total_cost_usd),
       };
+      return [];
     },
+    flush: () => [],
     outcome: () => outcome,
   };
 }
@@ -46,6 +84,9 @@ export const claudeAdapter: ClientAdapter = {
         "--verbose",
         "--mcp-config",
         join(configDir, CLAUDE_MCP_FILE),
+        "--strict-mcp-config",
+        "--setting-sources",
+        options.settingSources,
         "--permission-mode",
         options.permissionMode,
         "--allowedTools",

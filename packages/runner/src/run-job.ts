@@ -2,18 +2,32 @@ import type { ChildProcess, SpawnOptions } from "node:child_process";
 import type { Readable } from "node:stream";
 import type { ApiClient } from "./api-client.js";
 import type { RunnerOptions } from "./options.js";
-import type { ClaimedJob, FoundClient, JobResult, Logger, Outcome, TranscriptEvent } from "./types.js";
+import type { KillTree } from "./process-tree.js";
+import type {
+  ClaimedJob,
+  FinishReason,
+  FoundClient,
+  JobResult,
+  Logger,
+  Outcome,
+  RunnerJob,
+  StreamLine,
+  TranscriptEvent,
+} from "./types.js";
 
 import { spawn as nodeSpawn } from "node:child_process";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
 
 import { CLIENT_ADAPTERS } from "./clients/index.js";
+import { TOKEN_ENV, TOKEN_FILE_ENV } from "./options.js";
+import { killProcessTree, ownsProcessGroup } from "./process-tree.js";
 import { redactText, redactValue } from "./redact.js";
-import { trimEvent } from "./trim-event.js";
+import { ERROR_MAX, TEXT_MAX, clip } from "./text.js";
 import { promptFor } from "./untrusted.js";
+import { commandPlan } from "./windows-command.js";
 
 export type Spawn = (command: string, args: readonly string[], options: SpawnOptions) => ChildProcess;
 
@@ -21,36 +35,90 @@ export type RunJobDeps = {
   api: ApiClient;
   log: Logger;
   spawn?: Spawn;
-  now?: () => number;
+  killTree?: KillTree;
+  now?: () => Date;
   flushMs?: number;
   killGraceMs?: number;
+  drainMs?: number;
+  retryMs?: number;
   signal?: AbortSignal;
 };
+
+type Confirmation = { timeoutMs: number } | null;
 
 const FLUSH_BATCH = 20;
 const MAX_EVENTS = 5000;
 const STDERR_TAIL = 20;
-const ERROR_MAX = 500;
-const RESULT_ATTEMPTS = 3;
-const TOKEN_ENV_NAMES = ["CUSTOMERMATES_RUNNER_TOKEN"];
+const REPORT_ATTEMPTS = 3;
+const HIDDEN_ENV_NAMES = [TOKEN_ENV, TOKEN_FILE_ENV];
+const FINISH_REASONS: Record<JobResult["status"], FinishReason> = {
+  succeeded: "stop",
+  failed: "error",
+  timedOut: "timeLimit",
+};
+
+export const RUNNER_ERRORS = { timedOut: "timedOut", stopped: "runnerStopped" } as const;
 
 function childEnvironment(extra: Record<string, string>): NodeJS.ProcessEnv {
-  const kept = Object.entries({ ...process.env, ...extra }).filter(([name]) => !TOKEN_ENV_NAMES.includes(name));
+  const kept = Object.entries({ ...process.env, ...extra }).filter(([name]) => !HIDDEN_ENV_NAMES.includes(name));
   return { ...Object.fromEntries(kept), NODE_ENV: process.env.NODE_ENV ?? "production" };
 }
 
-function lineEvent(line: string): TranscriptEvent {
+function streamLine(line: string): StreamLine | null {
   try {
     const parsed: unknown = JSON.parse(line);
-    if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as TranscriptEvent;
+    return parsed !== null && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as StreamLine) : null;
   } catch {
-    return { type: "output", text: line };
+    return null;
   }
-  return { type: "output", text: line };
 }
 
 function pause(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function jobLogger(log: Logger, job: RunnerJob): Logger {
+  return {
+    info: (message, fields) => log.info(message, { job: job.id, ...fields }),
+    warn: (message, fields) => log.warn(message, { job: job.id, ...fields }),
+    error: (message, fields) => log.error(message, { job: job.id, ...fields }),
+  };
+}
+
+async function confirm(job: RunnerJob, api: ApiClient, log: Logger, retryMs: number): Promise<Confirmation> {
+  for (let attempt = 1; attempt <= REPORT_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await api.start(job.id, job.attempt);
+      const seconds = response.body?.timeoutInSeconds;
+      if (response.status === 200 && typeof seconds === "number" && Number.isFinite(seconds))
+        return { timeoutMs: seconds * 1000 };
+      if (response.status < 500 && response.status !== 429) {
+        log.warn("the server did not confirm the job, leaving it", { status: response.status });
+        return null;
+      }
+    } catch (error) {
+      log.warn("could not confirm the job", { attempt, error: String(error) });
+    }
+    if (attempt < REPORT_ATTEMPTS) await pause(retryMs * attempt);
+  }
+  log.error("the job could not be confirmed, it returns to the queue");
+  return null;
+}
+
+async function report(job: RunnerJob, result: JobResult, api: ApiClient, log: Logger, retryMs: number): Promise<void> {
+  for (let attempt = 1; attempt <= REPORT_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await api.result(job.id, job.attempt, result);
+      if (response.status < 500 && response.status !== 429) {
+        if (response.status >= 400) log.warn("the result was not accepted", { status: response.status });
+        return;
+      }
+    } catch (error) {
+      log.warn("could not send the result", { attempt, error: String(error) });
+    }
+    if (attempt < REPORT_ATTEMPTS) await pause(retryMs * attempt);
+  }
+  log.error("the result could not be delivered", { status: result.status });
 }
 
 export async function runJob(
@@ -58,32 +126,32 @@ export async function runJob(
   client: FoundClient,
   options: RunnerOptions,
   deps: RunJobDeps,
-): Promise<JobResult> {
+): Promise<JobResult | null> {
   const { job, mcp } = claimed;
   const spawn = deps.spawn ?? (nodeSpawn as Spawn);
-  const now = deps.now ?? (() => Date.now());
+  const killTree = deps.killTree ?? killProcessTree;
+  const now = deps.now ?? (() => new Date());
   const flushMs = deps.flushMs ?? 1000;
   const killGraceMs = deps.killGraceMs ?? 5000;
+  const drainMs = deps.drainMs ?? 2000;
+  const retryMs = deps.retryMs ?? 500;
   const secrets = [options.token, mcp.token];
   const adapter = CLIENT_ADAPTERS[client.name];
   const observer = adapter.createObserver();
-  const log: Logger = {
-    info: (message, fields) => deps.log.info(message, { job: job.id, ...fields }),
-    warn: (message, fields) => deps.log.warn(message, { job: job.id, ...fields }),
-    error: (message, fields) => deps.log.error(message, { job: job.id, ...fields }),
-  };
+  const log = jobLogger(deps.log, job);
 
-  const remainingMs = Date.parse(job.timeoutAt) - now();
-  if (!Number.isFinite(remainingMs) || remainingMs <= 0) {
-    const result: JobResult = { status: "timedOut", error: "timeout" };
-    await report(job.id, result, deps.api, log);
+  const confirmed = await confirm(job, deps.api, log, retryMs);
+  if (!confirmed) return null;
+  if (confirmed.timeoutMs <= 0) {
+    const result: JobResult = { status: "timedOut", error: RUNNER_ERRORS.timedOut };
+    await report(job, result, deps.api, log, retryMs);
     return result;
   }
 
-  const configDir = await mkdtemp(join(tmpdir(), "customermates-runner-"));
   let closed = false;
   let timedOut = false;
   let stopped = false;
+  let ended = false;
   let stderrLines: string[] = [];
   let eventCount = 0;
   let pending: TranscriptEvent[] = [];
@@ -91,18 +159,36 @@ export async function runJob(
   let flushTimer: NodeJS.Timeout | null = null;
   let child: ChildProcess | null = null;
   let killTimer: NodeJS.Timeout | null = null;
+  let abandonTimer: NodeJS.Timeout | null = null;
+  let abandon: () => void = () => undefined;
+  const abandoned = new Promise<void>((resolve) => {
+    abandon = resolve;
+  });
+  const directories: string[] = [];
+
+  const kill = (signal: NodeJS.Signals) => {
+    if (!child) return;
+    try {
+      killTree(child, signal);
+    } catch (error) {
+      log.warn("could not stop the client", { error: String(error) });
+    }
+  };
 
   const terminate = (reason: "timeout" | "closed" | "shutdown") => {
     if (reason === "timeout") timedOut = true;
     else stopped = true;
-    if (!child || child.exitCode !== null || child.signalCode !== null) return;
-    child.kill("SIGTERM");
-    killTimer = setTimeout(() => child?.kill("SIGKILL"), killGraceMs);
+    if (!child || ended || killTimer) return;
+    kill("SIGTERM");
+    killTimer = setTimeout(() => {
+      kill("SIGKILL");
+      abandonTimer = setTimeout(abandon, drainMs);
+    }, killGraceMs);
   };
 
   const sendBatch = async (batch: TranscriptEvent[]) => {
     try {
-      const response = await deps.api.events(job.id, batch);
+      const response = await deps.api.events(job.id, job.attempt, batch);
       if (response.status === 404 || response.status === 409) {
         closed = true;
         log.warn("server closed the job, stopping the client", { status: response.status });
@@ -124,85 +210,133 @@ export async function runJob(
     return sending;
   };
 
-  const push = (event: TranscriptEvent) => {
-    if (eventCount >= MAX_EVENTS) return;
-    eventCount += 1;
-    const safe = eventCount === MAX_EVENTS ? { type: "transcript_limit", limit: MAX_EVENTS } : event;
-    pending.push(trimEvent(redactValue(safe, secrets) as TranscriptEvent));
+  const push = (events: readonly TranscriptEvent[]) => {
+    for (const event of events) {
+      if (eventCount >= MAX_EVENTS) return;
+      eventCount += 1;
+      pending.push(redactValue(event, secrets) as TranscriptEvent);
+    }
     if (pending.length >= FLUSH_BATCH) void flush();
-    else flushTimer ??= setTimeout(() => void flush(), flushMs);
+    else if (pending.length > 0) flushTimer ??= setTimeout(() => void flush(), flushMs);
   };
 
   const abortListener = () => terminate("shutdown");
   deps.signal?.addEventListener("abort", abortListener, { once: true });
-  const timeoutTimer = setTimeout(() => terminate("timeout"), remainingMs);
+  const timeoutTimer = setTimeout(() => terminate("timeout"), confirmed.timeoutMs);
 
   let exitCode: number | null = null;
   let startFailure: string | null = null;
   try {
+    const temporary = async (prefix: string) => {
+      const directory = await mkdtemp(join(tmpdir(), prefix));
+      directories.push(directory);
+      return directory;
+    };
+    const configDir = await temporary("customermates-runner-");
+    const workDir = options.workdir ?? (await temporary("customermates-work-"));
     const invocation = adapter.prepare({
       prompt: promptFor(job.prompt, job.promptUntrusted),
       mcp,
       options,
       configDir,
+      workDir,
     });
     for (const file of invocation.files) await writeFile(join(configDir, file.name), file.content, { mode: 0o600 });
-    const cwd = options.workdir ?? join(configDir, "work");
-    if (!options.workdir) await mkdir(cwd, { recursive: true });
 
     log.info("starting client", { client: client.name, version: client.version });
-    child = spawn(client.binary, invocation.args, {
-      cwd,
+    const plan = commandPlan(client.binary, invocation.args, process.env);
+    child = spawn(plan.command, plan.args, {
+      cwd: workDir,
       env: childEnvironment({ ...invocation.env }),
       stdio: ["pipe", "pipe", "pipe"],
+      detached: ownsProcessGroup(),
+      windowsHide: true,
+      windowsVerbatimArguments: plan.verbatim,
     });
     const running = child;
 
-    const exited = new Promise<number | null>((resolve) => {
+    const exited = new Promise<void>((resolve) => {
       running.once("error", (error) => {
         stderrLines.push(String(error.message));
-        resolve(null);
+        ended = true;
+        resolve();
       });
-      running.once("close", (code) => resolve(code));
+      running.once("exit", (code) => {
+        exitCode = code;
+        ended = true;
+        abandonTimer ??= setTimeout(abandon, drainMs);
+      });
+      running.once("close", (code) => {
+        exitCode = code ?? exitCode;
+        ended = true;
+        resolve();
+      });
     });
 
+    const readers: Array<{ close(): void }> = [];
     const streamDone = (stream: Readable | null, onLine: (line: string) => void) =>
       new Promise<void>((resolve) => {
         if (!stream) return resolve();
         const lines = createInterface({ input: stream });
+        readers.push(lines);
         lines.on("line", (line) => {
           if (line.trim()) onLine(line);
         });
         lines.once("close", () => resolve());
       });
     const stdoutDone = streamDone(running.stdout, (line) => {
-      const event = lineEvent(line);
-      observer.observe(event);
-      push(event);
+      const parsed = streamLine(line);
+      if (parsed) push(observer.observe(parsed, now().toISOString()));
     });
     const stderrDone = streamDone(running.stderr, (line) => {
       stderrLines = [...stderrLines, line].slice(-STDERR_TAIL);
-      push({ type: "stderr", text: line });
     });
     running.stdin?.on("error", () => undefined);
-    running.stdin?.end(invocation.stdin ?? "");
+    running.stdin?.end(invocation.stdin);
     if (timedOut) terminate("timeout");
     else if (stopped) terminate("shutdown");
 
-    [exitCode] = await Promise.all([exited, stdoutDone, stderrDone]);
+    const drained = await Promise.race([
+      Promise.all([exited, stdoutDone, stderrDone]).then(() => true),
+      abandoned.then(() => false),
+    ]);
+    if (!drained) {
+      log.warn("the client left processes or open output behind, stopping them");
+      kill("SIGKILL");
+      for (const reader of readers) reader.close();
+      running.stdout?.destroy();
+      running.stderr?.destroy();
+    }
   } catch (error) {
     startFailure = redactText(error instanceof Error ? error.message : String(error), secrets);
   } finally {
     clearTimeout(timeoutTimer);
     if (killTimer) clearTimeout(killTimer);
+    if (abandonTimer) clearTimeout(abandonTimer);
     deps.signal?.removeEventListener("abort", abortListener);
-    await flush();
-    await rm(configDir, { recursive: true, force: true });
   }
 
   const result = resultOf(observer.outcome(), { exitCode, timedOut, stopped, stderrLines, secrets, startFailure });
+  if (!closed) {
+    push(observer.flush(now().toISOString()));
+    push([
+      {
+        type: "finish",
+        at: now().toISOString(),
+        reason: stopped && !timedOut ? "cancelled" : FINISH_REASONS[result.status],
+        ...(result.summary === undefined ? {} : { text: result.summary }),
+      },
+    ]);
+  }
+  await flush();
+  for (const directory of directories) {
+    await rm(directory, { recursive: true, force: true }).catch((error: unknown) => {
+      log.warn("could not remove a temporary directory", { error: String(error) });
+    });
+  }
+
   log.info("client finished", { status: result.status, exitCode });
-  if (!closed) await report(job.id, result, deps.api, log);
+  if (!closed) await report(job, result, deps.api, log, retryMs);
   return result;
 }
 
@@ -220,12 +354,11 @@ function resultOf(
   const tokens = {
     ...(outcome.inputTokens === undefined ? {} : { inputTokens: outcome.inputTokens }),
     ...(outcome.outputTokens === undefined ? {} : { outputTokens: outcome.outputTokens }),
-    ...(outcome.costUsd === undefined ? {} : { costUsd: outcome.costUsd }),
   };
   const summary =
-    outcome.summary === undefined ? {} : { summary: redactText(outcome.summary, context.secrets).slice(0, 20_000) };
-  if (context.timedOut) return { status: "timedOut", error: "timeout", ...summary, ...tokens };
-  if (context.stopped) return { status: "failed", error: "runner_stopped", ...summary, ...tokens };
+    outcome.summary === undefined ? {} : { summary: clip(redactText(outcome.summary, context.secrets), TEXT_MAX) };
+  if (context.timedOut) return { status: "timedOut", error: RUNNER_ERRORS.timedOut, ...summary, ...tokens };
+  if (context.stopped) return { status: "failed", error: RUNNER_ERRORS.stopped, ...summary, ...tokens };
   const failed = context.startFailure !== null || outcome.isError || context.exitCode !== 0;
   if (!failed) return { status: "succeeded", ...summary, ...tokens };
   const reason =
@@ -235,24 +368,8 @@ function resultOf(
     (context.exitCode === null ? "the client could not be started" : `the client exited with code ${context.exitCode}`);
   return {
     status: "failed",
-    error: redactText(reason, context.secrets).slice(0, ERROR_MAX),
+    error: clip(redactText(reason, context.secrets), ERROR_MAX),
     ...summary,
     ...tokens,
   };
-}
-
-async function report(jobId: string, result: JobResult, api: ApiClient, log: Logger): Promise<void> {
-  for (let attempt = 1; attempt <= RESULT_ATTEMPTS; attempt += 1) {
-    try {
-      const response = await api.result(jobId, result);
-      if (response.status < 500 && response.status !== 429) {
-        if (response.status >= 400) log.warn("the result was not accepted", { status: response.status });
-        return;
-      }
-    } catch (error) {
-      log.warn("could not send the result", { attempt, error: String(error) });
-    }
-    if (attempt < RESULT_ATTEMPTS) await pause(500 * attempt);
-  }
-  log.error("the result could not be delivered", { status: result.status });
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { binaryFor, chooseClient, discoverClients, versionFromOutput } from "../src/discover.js";
+import { binaryFor, chooseClient, discoverClients, usableClients, versionFromOutput } from "../src/discover.js";
 import { parseOptions } from "../src/options.js";
 import type { FoundClient } from "../src/types.js";
 
@@ -13,23 +13,67 @@ function options(argv: string[], env: Record<string, string | undefined> = {}) {
 }
 
 describe("runner options", () => {
-  it("reads the token and url from the flags", () => {
+  it("reads the token and url from the flags and notes that the token was on the command line", () => {
     expect(options(["--token", TOKEN, "--url", "https://app.customermates.com"])).toMatchObject({
       token: TOKEN,
+      tokenOnCommandLine: true,
       url: "https://app.customermates.com",
       client: null,
       workdir: null,
       permissionMode: "dontAsk",
+      settingSources: "project",
       allowedTools: [],
+      allowShell: false,
       heartbeatMs: 60_000,
     });
   });
 
-  it("falls back to the environment and lets flags win over it", () => {
+  it("takes the token from the environment and lets url flags win over the environment", () => {
     const env = { CUSTOMERMATES_RUNNER_TOKEN: TOKEN, CUSTOMERMATES_URL: "https://env.example.test/" };
 
-    expect(options([], env)).toMatchObject({ token: TOKEN, url: "https://env.example.test" });
+    expect(options([], env)).toMatchObject({
+      token: TOKEN,
+      tokenOnCommandLine: false,
+      url: "https://env.example.test",
+    });
     expect(options(["--url=https://flag.example.test///"], env)).toMatchObject({ url: "https://flag.example.test" });
+    expect(options(["--token", "cmr_other"], env)).toMatchObject({ token: TOKEN, tokenOnCommandLine: false });
+  });
+
+  it("reads the token from a file named by the flag or the environment, before anything else", () => {
+    const url = ["--url", "http://localhost:4000"];
+    const files: Record<string, string> = { "/run/secrets/runner": `${TOKEN}\n` };
+    const read = (path: string) => {
+      const content = files[path];
+      if (content === undefined) throw new Error("ENOENT");
+      return content;
+    };
+    const parse = (argv: string[], env: Record<string, string> = {}) => parseOptions([...argv, ...url], env, read);
+
+    expect(parse(["--token-file", "/run/secrets/runner"])).toMatchObject({
+      ok: true,
+      options: { token: TOKEN, tokenOnCommandLine: false },
+    });
+    expect(
+      parse([], { CUSTOMERMATES_RUNNER_TOKEN_FILE: "/run/secrets/runner", CUSTOMERMATES_RUNNER_TOKEN: "cmr_env" }),
+    ).toMatchObject({ ok: true, options: { token: TOKEN } });
+    expect(parse(["--token-file", "/missing"])).toEqual({
+      ok: false,
+      error: "The token file could not be read: /missing",
+    });
+  });
+
+  it("accepts the setting sources of Claude Code and the shell switch of Codex", () => {
+    const argv = ["--token", TOKEN, "--url", "http://localhost:4000"];
+
+    expect(options([...argv, "--setting-sources", "user,project,local", "--allow-shell"])).toMatchObject({
+      settingSources: "user,project,local",
+      allowShell: true,
+    });
+    expect(options([...argv, "--allow-shell", "--client", "codex"])).toMatchObject({
+      allowShell: true,
+      client: "codex",
+    });
   });
 
   it("accepts a client, a working directory, a permission mode and extra tools", () => {
@@ -89,8 +133,27 @@ describe("client discovery", () => {
     expect(versionFromOutput("2.1.318 (Claude Code)\n")).toBe("2.1.318");
     expect(versionFromOutput("codex-cli 0.166.0\n")).toBe("0.166.0");
     expect(versionFromOutput("\n\n1.2.3-beta.1+build\n")).toBe("1.2.3-beta.1+build");
-    expect(versionFromOutput("some tool")).toBe("some tool");
     expect(versionFromOutput("")).toBeNull();
+  });
+
+  it("does not report a program that answers without a version number as a client", async () => {
+    expect(versionFromOutput("some tool")).toBeNull();
+    expect(versionFromOutput("command not found: codex")).toBeNull();
+
+    const found = await discoverClients({}, (binary) => Promise.resolve(versionFromOutput(`${binary} is not a CLI`)));
+
+    expect(found).toEqual([]);
+  });
+
+  it("reports only the client the runner was told to use", () => {
+    const found: FoundClient[] = [
+      { name: "claude", version: "1", binary: "claude" },
+      { name: "codex", version: "1", binary: "codex" },
+    ];
+
+    expect(usableClients(found, null)).toEqual(found);
+    expect(usableClients(found, "codex")).toEqual([found[1]]);
+    expect(usableClients(found, "gemini")).toEqual([]);
   });
 
   it("lists the clients that answer, in the order claude, codex, gemini", async () => {

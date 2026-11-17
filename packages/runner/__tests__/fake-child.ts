@@ -14,25 +14,40 @@ export type FakeChild = {
   signals: string[];
 };
 
-export function createFakeChild(options: { exitOnSignals?: string[] } = {}): FakeChild {
+export type FakeChildOptions = {
+  exitOnSignals?: string[];
+  holdsOutput?: "untilKilled" | "forever";
+};
+
+export function createFakeChild(options: FakeChildOptions = {}): FakeChild {
   const emitter = new EventEmitter();
   const stdout = new PassThrough();
   const stderr = new PassThrough();
   const stdin = new PassThrough();
   const signals: string[] = [];
   let stdinText = "";
-  let ended = false;
+  let exited = false;
+  let closed = false;
+  let lastCode: number | null = null;
   stdin.setEncoding("utf8");
   stdin.on("data", (chunk: string) => {
     stdinText += chunk;
   });
 
-  const finish = (code: number | null) => {
-    if (ended) return;
-    ended = true;
+  const close = () => {
+    if (closed) return;
+    closed = true;
     stdout.end();
     stderr.end();
-    setImmediate(() => emitter.emit("close", code));
+    setImmediate(() => emitter.emit("close", lastCode));
+  };
+
+  const finish = (code: number | null) => {
+    if (exited) return;
+    exited = true;
+    lastCode = code;
+    setImmediate(() => emitter.emit("exit", code));
+    if (!options.holdsOutput) close();
   };
 
   const child = Object.assign(emitter, {
@@ -47,6 +62,7 @@ export function createFakeChild(options: { exitOnSignals?: string[] } = {}): Fak
         (child as { signalCode: string | null }).signalCode = signal;
         finish(null);
       }
+      if (signal === "SIGKILL" && options.holdsOutput === "untilKilled") close();
       return true;
     },
   }) as unknown as ChildProcess;

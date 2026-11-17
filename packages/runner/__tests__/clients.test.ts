@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type { RunnerOptions } from "../src/options.js";
-import type { TranscriptEvent } from "../src/types.js";
+import type { StreamLine } from "../src/types.js";
 
 import { claudeAdapter } from "../src/clients/claude.js";
 import { codexAdapter } from "../src/clients/codex.js";
@@ -15,28 +15,35 @@ const MCP = {
   token: "job-key-123456",
 };
 const CONFIG_DIR = join("/tmp", "customermates-runner-test");
+const WORK_DIR = join("/tmp", "customermates-work-test");
+const AT = "2026-11-17T09:00:00.000Z";
 
 const OPTIONS: RunnerOptions = {
   token: "runner-token",
+  tokenOnCommandLine: false,
   url: "https://app.example.test",
   client: null,
   workdir: null,
   permissionMode: "dontAsk",
+  settingSources: "project",
   allowedTools: [],
+  allowShell: false,
   heartbeatMs: 60_000,
   help: false,
 };
 
-function observe(adapter: typeof claudeAdapter, events: TranscriptEvent[]) {
+const INPUT = { prompt: "Summarise", mcp: MCP, options: OPTIONS, configDir: CONFIG_DIR, workDir: WORK_DIR };
+
+function observe(adapter: typeof claudeAdapter, lines: StreamLine[]) {
   const observer = adapter.createObserver();
-  for (const event of events) observer.observe(event);
-  return observer.outcome();
+  const events = lines.flatMap((line) => observer.observe(line, AT));
+  return { events: [...events, ...observer.flush(AT)], outcome: observer.outcome() };
 }
 
 describe("Claude Code", () => {
-  const invocation = claudeAdapter.prepare({ prompt: "Summarise", mcp: MCP, options: OPTIONS, configDir: CONFIG_DIR });
+  const invocation = claudeAdapter.prepare(INPUT);
 
-  it("runs claude -p with the stream-json output, the generated MCP config and no stored session", () => {
+  it("runs claude -p with only the generated MCP config, no user settings and no stored session", () => {
     expect(invocation.args).toEqual([
       "-p",
       "--output-format",
@@ -44,6 +51,9 @@ describe("Claude Code", () => {
       "--verbose",
       "--mcp-config",
       join(CONFIG_DIR, "mcp.json"),
+      "--strict-mcp-config",
+      "--setting-sources",
+      "project",
       "--permission-mode",
       "dontAsk",
       "--allowedTools",
@@ -66,22 +76,84 @@ describe("Claude Code", () => {
     expect(JSON.stringify([invocation.args, invocation.env])).not.toContain(MCP.token);
   });
 
-  it("allows extra tools next to the workspace server and passes the permission mode on", () => {
+  it("allows extra tools and other setting sources only when the runner was started with them", () => {
     const custom = claudeAdapter.prepare({
-      prompt: "x",
-      mcp: MCP,
-      options: { ...OPTIONS, permissionMode: "acceptEdits", allowedTools: ["Bash(git:*)", "Read"] },
-      configDir: CONFIG_DIR,
+      ...INPUT,
+      options: {
+        ...OPTIONS,
+        permissionMode: "acceptEdits",
+        settingSources: "user,project,local",
+        allowedTools: ["Bash(git:*)", "Read"],
+      },
     });
 
     expect(custom.args).toContain("acceptEdits");
     expect(custom.args).toContain("mcp__customermates,Bash(git:*),Read");
+    expect(custom.args[custom.args.indexOf("--setting-sources") + 1]).toBe("user,project,local");
   });
 
-  it("reads summary, tokens and cost from the result event", () => {
-    const outcome = observe(claudeAdapter, [
+  it("turns assistant text, tool calls and tool results into transcript events", () => {
+    const { events } = observe(claudeAdapter, [
       { type: "system", subtype: "init" },
-      { type: "assistant", message: { content: [{ type: "text", text: "thinking" }] } },
+      {
+        type: "assistant",
+        message: {
+          content: [
+            { type: "text", text: "Looking at the deals" },
+            { type: "tool_use", id: "toolu_1", name: "mcp__customermates__search_crm_records", input: { q: "open" } },
+          ],
+        },
+      },
+      {
+        type: "user",
+        message: {
+          content: [{ type: "tool_result", tool_use_id: "toolu_1", content: [{ type: "text", text: "3 rows" }] }],
+        },
+      },
+      {
+        type: "user",
+        message: { content: [{ type: "tool_result", tool_use_id: "toolu_2", is_error: true, content: "denied" }] },
+      },
+      { type: "result", subtype: "success", result: "Done" },
+    ]);
+
+    expect(events).toEqual([
+      { type: "message", at: AT, role: "assistant", text: "Looking at the deals" },
+      {
+        type: "toolCall",
+        at: AT,
+        toolCallId: "toolu_1",
+        name: "mcp__customermates__search_crm_records",
+        argumentsDigest: '{"q":"open"}',
+      },
+      {
+        type: "toolResult",
+        at: AT,
+        toolCallId: "toolu_1",
+        name: "mcp__customermates__search_crm_records",
+        ok: true,
+        summary: "3 rows",
+      },
+      { type: "toolResult", at: AT, toolCallId: "toolu_2", name: "tool", ok: false, summary: "denied" },
+    ]);
+  });
+
+  it("cuts tool arguments and results to the stored digest length", () => {
+    const { events } = observe(claudeAdapter, [
+      {
+        type: "assistant",
+        message: { content: [{ type: "tool_use", id: "t", name: "n".repeat(200), input: { text: "y".repeat(900) } }] },
+      },
+      { type: "user", message: { content: [{ type: "tool_result", tool_use_id: "t", content: "z".repeat(900) }] } },
+    ]);
+
+    expect(events[0]).toMatchObject({ type: "toolCall", name: "n".repeat(120) });
+    expect((events[0] as { argumentsDigest: string }).argumentsDigest).toHaveLength(300);
+    expect((events[1] as { summary: string }).summary).toHaveLength(300);
+  });
+
+  it("reads summary and tokens from the result event and ignores the client's cost", () => {
+    const { outcome } = observe(claudeAdapter, [
       {
         type: "result",
         subtype: "success",
@@ -98,71 +170,107 @@ describe("Claude Code", () => {
       errorText: undefined,
       inputTokens: 150,
       outputTokens: 40,
-      costUsd: 0.0123,
     });
   });
 
   it("treats an error result as a failure and keeps its message", () => {
-    const outcome = observe(claudeAdapter, [
+    const { outcome } = observe(claudeAdapter, [
       { type: "result", subtype: "error_max_turns", is_error: true, result: "Ran out of turns" },
     ]);
 
     expect(outcome).toMatchObject({ isError: true, errorText: "Ran out of turns" });
-    expect(observe(claudeAdapter, [{ type: "result", subtype: "error_during_execution" }])).toMatchObject({
+    expect(observe(claudeAdapter, [{ type: "result", subtype: "error_during_execution" }]).outcome).toMatchObject({
       isError: true,
       errorText: "error_during_execution",
     });
   });
 
   it("reports nothing when the stream never produced a result", () => {
-    expect(observe(claudeAdapter, [{ type: "system" }])).toEqual({ isError: false });
+    expect(observe(claudeAdapter, [{ type: "system" }])).toEqual({ events: [], outcome: { isError: false } });
   });
 });
 
 describe("Codex", () => {
-  it("runs codex exec with JSON events, a read-only sandbox and the workspace MCP server from -c overrides", () => {
-    const invocation = codexAdapter.prepare({ prompt: "Summarise", mcp: MCP, options: OPTIONS, configDir: CONFIG_DIR });
+  it("runs codex exec without the user's config and rules, read-only, never asking, with no shell and only the workspace MCP server", () => {
+    const invocation = codexAdapter.prepare(INPUT);
 
     expect(invocation.args).toEqual([
       "exec",
       "--json",
       "--skip-git-repo-check",
       "--ephemeral",
+      "--ignore-user-config",
+      "--ignore-rules",
       "-s",
       "read-only",
+      "-c",
+      'approval_policy="never"',
+      "-c",
+      "features.shell_tool=false",
       "-c",
       `mcp_servers.customermates.url="${MCP.url}"`,
       "-c",
       'mcp_servers.customermates.env_http_headers={ x-api-key = "CUSTOMERMATES_JOB_TOKEN" }',
+      "-C",
+      WORK_DIR,
       "-",
     ]);
     expect(invocation.stdin).toBe("Summarise");
   });
 
+  it("leaves the shell on only when the runner was started with --allow-shell", () => {
+    const invocation = codexAdapter.prepare({ ...INPUT, options: { ...OPTIONS, allowShell: true } });
+
+    expect(invocation.args.join(" ")).not.toContain("shell_tool");
+    expect(invocation.args).toContain("read-only");
+  });
+
   it("passes the job key through the environment, never on the command line", () => {
-    const invocation = codexAdapter.prepare({ prompt: "x", mcp: MCP, options: OPTIONS, configDir: CONFIG_DIR });
+    const invocation = codexAdapter.prepare(INPUT);
 
     expect(invocation.env).toEqual({ CUSTOMERMATES_JOB_TOKEN: MCP.token });
     expect(JSON.stringify(invocation.args)).not.toContain(MCP.token);
     expect(invocation.files).toEqual([]);
   });
 
-  it("works in the chosen directory", () => {
-    const invocation = codexAdapter.prepare({
-      prompt: "x",
-      mcp: MCP,
-      options: { ...OPTIONS, workdir: "/srv/work" },
-      configDir: CONFIG_DIR,
-    });
+  it("works in the directory the runner runs the job in", () => {
+    const invocation = codexAdapter.prepare({ ...INPUT, workDir: "/srv/work" });
 
     expect(invocation.args.slice(-3)).toEqual(["-C", "/srv/work", "-"]);
   });
 
-  it("takes the last agent message as the summary and adds up the usage of every turn", () => {
-    const outcome = observe(codexAdapter, [
+  it("turns agent messages, MCP tool calls and shell commands into transcript events", () => {
+    const call = { id: "item_1", type: "mcp_tool_call", server: "customermates", tool: "read_crm_record" };
+    const { events } = observe(codexAdapter, [
       { type: "thread.started", thread_id: "t" },
+      { type: "item.started", item: { ...call, arguments: { id: "r1" }, status: "in_progress" } },
+      { type: "item.completed", item: { ...call, arguments: { id: "r1" }, status: "completed", result: { ok: 1 } } },
+      {
+        type: "item.completed",
+        item: { id: "item_2", type: "mcp_tool_call", tool: "send_email", status: "failed", error: { message: "no" } },
+      },
+      {
+        type: "item.completed",
+        item: { id: "item_3", type: "command_execution", command: "ls", aggregated_output: "a\nb", exit_code: 2 },
+      },
+      { type: "item.completed", item: { id: "item_4", type: "reasoning", text: "ignored" } },
+      { type: "item.completed", item: { id: "item_5", type: "agent_message", text: "final answer" } },
+    ]);
+
+    expect(events).toEqual([
+      { type: "toolCall", at: AT, toolCallId: "item_1", name: "read_crm_record", argumentsDigest: '{"id":"r1"}' },
+      { type: "toolResult", at: AT, toolCallId: "item_1", name: "read_crm_record", ok: true, summary: '{"ok":1}' },
+      { type: "toolCall", at: AT, toolCallId: "item_2", name: "send_email", argumentsDigest: "" },
+      { type: "toolResult", at: AT, toolCallId: "item_2", name: "send_email", ok: false, summary: '{"message":"no"}' },
+      { type: "toolCall", at: AT, toolCallId: "item_3", name: "shell", argumentsDigest: "ls" },
+      { type: "toolResult", at: AT, toolCallId: "item_3", name: "shell", ok: false, summary: "a\nb" },
+      { type: "message", at: AT, role: "assistant", text: "final answer" },
+    ]);
+  });
+
+  it("takes the last agent message as the summary and adds up the usage of every turn", () => {
+    const { outcome } = observe(codexAdapter, [
       { type: "item.completed", item: { type: "agent_message", text: "first" } },
-      { type: "item.completed", item: { type: "reasoning", text: "ignored" } },
       { type: "turn.completed", usage: { input_tokens: 10, cached_input_tokens: 5, output_tokens: 3 } },
       { type: "item.completed", item: { type: "agent_message", text: "final answer" } },
       { type: "turn.completed", usage: { input_tokens: 20, output_tokens: 4 } },
@@ -172,11 +280,11 @@ describe("Codex", () => {
   });
 
   it("treats a failed turn and an error event as failures", () => {
-    expect(observe(codexAdapter, [{ type: "turn.failed", error: { message: "rate limited" } }])).toMatchObject({
+    expect(observe(codexAdapter, [{ type: "turn.failed", error: { message: "rate limited" } }]).outcome).toMatchObject({
       isError: true,
       errorText: "rate limited",
     });
-    expect(observe(codexAdapter, [{ type: "error", message: "boom" }])).toMatchObject({
+    expect(observe(codexAdapter, [{ type: "error", message: "boom" }]).outcome).toMatchObject({
       isError: true,
       errorText: "boom",
     });
@@ -184,17 +292,12 @@ describe("Codex", () => {
 });
 
 describe("Gemini CLI", () => {
-  const invocation = geminiAdapter.prepare({ prompt: "Summarise", mcp: MCP, options: OPTIONS, configDir: CONFIG_DIR });
+  const invocation = geminiAdapter.prepare(INPUT);
 
-  it("runs gemini with stream-json output and only the workspace MCP server", () => {
-    expect(invocation.args).toEqual([
-      "--output-format",
-      "stream-json",
-      "--allowed-mcp-server-names",
-      "customermates",
-      "-p",
-      "Summarise",
-    ]);
+  it("runs gemini with stream-json output and only the workspace MCP server, the prompt on stdin", () => {
+    expect(invocation.args).toEqual(["--output-format", "stream-json", "--allowed-mcp-server-names", "customermates"]);
+    expect(invocation.stdin).toBe("Summarise");
+    expect(JSON.stringify(invocation.args)).not.toContain("Summarise");
   });
 
   it("points the CLI at a generated settings file that holds the MCP server and the job key", () => {
@@ -205,19 +308,46 @@ describe("Gemini CLI", () => {
     expect(JSON.stringify(invocation.args)).not.toContain(MCP.token);
   });
 
-  it("joins the assistant messages and reads tokens from the result", () => {
-    const outcome = observe(geminiAdapter, [
+  it("joins streamed message parts into one event and reports tool calls and results", () => {
+    const { events } = observe(geminiAdapter, [
       { type: "message", role: "user", content: "ignored" },
+      { type: "message", role: "assistant", content: "Hello ", delta: true },
+      { type: "message", role: "assistant", content: "world", delta: true },
+      { type: "tool_use", tool_name: "search_crm_records", tool_id: "g1", parameters: { q: "x" } },
+      { type: "tool_result", tool_id: "g1", status: "success", output: "1 row" },
+      { type: "tool_result", tool_id: "g2", status: "error", error: { message: "denied" } },
+      { type: "message", role: "assistant", content: "Done", delta: true },
+      { type: "result", status: "success", stats: { input_tokens: 12, output_tokens: 5 } },
+    ]);
+
+    expect(events).toEqual([
+      { type: "message", at: AT, role: "assistant", text: "Hello world" },
+      { type: "toolCall", at: AT, toolCallId: "g1", name: "search_crm_records", argumentsDigest: '{"q":"x"}' },
+      { type: "toolResult", at: AT, toolCallId: "g1", name: "search_crm_records", ok: true, summary: "1 row" },
+      { type: "toolResult", at: AT, toolCallId: "g2", name: "tool", ok: false, summary: "denied" },
+      { type: "message", at: AT, role: "assistant", text: "Done" },
+    ]);
+  });
+
+  it("emits a message that is still pending when the stream ends", () => {
+    const { events } = observe(geminiAdapter, [
+      { type: "message", role: "assistant", content: "Cut off", delta: true },
+    ]);
+
+    expect(events).toEqual([{ type: "message", at: AT, role: "assistant", text: "Cut off" }]);
+  });
+
+  it("joins the assistant messages and reads tokens from the result", () => {
+    const { outcome } = observe(geminiAdapter, [
       { type: "message", role: "assistant", content: "Hello " },
       { type: "message", role: "assistant", content: "world" },
       { type: "result", status: "success", stats: { input_tokens: 12, output_tokens: 5 } },
     ]);
 
     expect(outcome).toMatchObject({ summary: "Hello world", isError: false, inputTokens: 12, outputTokens: 5 });
-    expect(observe(geminiAdapter, [{ type: "result", status: "error", error: { message: "quota" } }])).toMatchObject({
-      isError: true,
-      errorText: "quota",
-    });
+    expect(
+      observe(geminiAdapter, [{ type: "result", status: "error", error: { message: "quota" } }]).outcome,
+    ).toMatchObject({ isError: true, errorText: "quota" });
   });
 });
 

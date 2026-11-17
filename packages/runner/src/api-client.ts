@@ -1,12 +1,19 @@
-import type { ClaimedJob, FoundClient, JobResult, TranscriptEvent } from "./types.js";
+import type { ClaimedJob, FoundClient, JobResult, StartedJob, TranscriptEvent } from "./types.js";
 
 export type ApiResult<T> = { status: number; body: T | null; retryAfterMs: number | null };
 
+export type HeartbeatAnswer = { serverTime?: string };
+
 export type ApiClient = {
-  heartbeat(machine: string, clients: readonly FoundClient[], signal?: AbortSignal): Promise<ApiResult<unknown>>;
+  heartbeat(
+    machine: string,
+    clients: readonly FoundClient[],
+    signal?: AbortSignal,
+  ): Promise<ApiResult<HeartbeatAnswer>>;
   claim(signal?: AbortSignal): Promise<ApiResult<ClaimedJob>>;
-  events(jobId: string, events: readonly TranscriptEvent[]): Promise<ApiResult<unknown>>;
-  result(jobId: string, result: JobResult): Promise<ApiResult<unknown>>;
+  start(jobId: string, attempt: number): Promise<ApiResult<StartedJob>>;
+  events(jobId: string, attempt: number, events: readonly TranscriptEvent[]): Promise<ApiResult<unknown>>;
+  result(jobId: string, attempt: number, result: JobResult): Promise<ApiResult<unknown>>;
 };
 
 type ClientOptions = { baseUrl: string; token: string; fetch?: typeof fetch; version?: string };
@@ -45,6 +52,8 @@ export function createApiClient(options: ClientOptions): ApiClient {
     return { status: response.status, body: parsed, retryAfterMs: retryAfterOf(response) };
   }
 
+  const jobPath = (jobId: string, action: string) => `jobs/${encodeURIComponent(jobId)}/${action}`;
+
   return {
     heartbeat: (machine, clients, signal) =>
       post(
@@ -54,7 +63,8 @@ export function createApiClient(options: ClientOptions): ApiClient {
         signal,
       ),
     claim: (signal) => post("jobs/claim", {}, CLAIM_TIMEOUT_MS, signal),
-    events: (jobId, events) => post(`jobs/${encodeURIComponent(jobId)}/events`, { events }, REQUEST_TIMEOUT_MS),
-    result: (jobId, result) => post(`jobs/${encodeURIComponent(jobId)}/result`, result, REQUEST_TIMEOUT_MS),
+    start: (jobId, attempt) => post(jobPath(jobId, "start"), { attempt }, REQUEST_TIMEOUT_MS),
+    events: (jobId, attempt, events) => post(jobPath(jobId, "events"), { attempt, events }, REQUEST_TIMEOUT_MS),
+    result: (jobId, attempt, result) => post(jobPath(jobId, "result"), { attempt, ...result }, REQUEST_TIMEOUT_MS),
   };
 }

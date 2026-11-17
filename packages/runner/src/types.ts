@@ -3,11 +3,19 @@ export type ClientName = (typeof CLIENT_NAMES)[number];
 
 export type FoundClient = { name: ClientName; version: string; binary: string };
 
-export type RunnerJob = { id: string; prompt: string; promptUntrusted: boolean; timeoutAt: string };
+export type RunnerJob = {
+  id: string;
+  attempt: number;
+  prompt: string;
+  promptUntrusted: boolean;
+  confirmWithinSeconds: number;
+};
 
 export type McpAccess = { url: string; token: string };
 
 export type ClaimedJob = { job: RunnerJob; mcp: McpAccess };
+
+export type StartedJob = { timeoutInSeconds: number };
 
 export type JobStatus = "succeeded" | "failed" | "timedOut";
 
@@ -17,7 +25,6 @@ export type JobResult = {
   error?: string;
   inputTokens?: number;
   outputTokens?: number;
-  costUsd?: number;
 };
 
 export type LogFields = Record<string, unknown>;
@@ -28,7 +35,15 @@ export type Logger = {
   error(message: string, fields?: LogFields): void;
 };
 
-export type TranscriptEvent = Record<string, unknown>;
+export type FinishReason = "stop" | "timeLimit" | "error" | "cancelled";
+
+export type TranscriptEvent =
+  | { type: "message"; at: string; role: "assistant"; text: string }
+  | { type: "toolCall"; at: string; toolCallId: string; name: string; argumentsDigest: string }
+  | { type: "toolResult"; at: string; toolCallId: string; name: string; ok: boolean; summary: string }
+  | { type: "finish"; at: string; reason: FinishReason; text?: string };
+
+export type StreamLine = Record<string, unknown>;
 
 export type Outcome = {
   summary?: string;
@@ -36,5 +51,4 @@ export type Outcome = {
   errorText?: string;
   inputTokens?: number;
   outputTokens?: number;
-  costUsd?: number;
 };

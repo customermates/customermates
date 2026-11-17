@@ -9,11 +9,14 @@ import { backoffDelay, runDaemon } from "../src/daemon.js";
 
 const OPTIONS: RunnerOptions = {
   token: `cmr_${"a".repeat(43)}`,
+  tokenOnCommandLine: false,
   url: "https://app.example.test",
   client: null,
   workdir: null,
   permissionMode: "dontAsk",
+  settingSources: "project",
   allowedTools: [],
+  allowShell: false,
   heartbeatMs: 60_000,
   help: false,
 };
@@ -24,9 +27,10 @@ const CODEX: FoundClient = { name: "codex", version: "0.166.0", binary: "codex" 
 const JOB: ClaimedJob = {
   job: {
     id: "55555555-5555-4555-8555-555555555555",
+    attempt: 1,
     prompt: "p",
     promptUntrusted: false,
-    timeoutAt: "2026-11-17T10:00:00Z",
+    confirmWithinSeconds: 60,
   },
   mcp: { url: "https://app.example.test/mcp", token: "t" },
 };
@@ -120,17 +124,63 @@ describe("the runner loop", () => {
     await runDaemon({ ...OPTIONS, client: "gemini" }, missing.deps, missing.controller.signal);
     expect(missing.claim).not.toHaveBeenCalled();
     expect(missing.ran).toEqual([]);
-    expect(missing.warnings).toContain("no client found on PATH, waiting before taking jobs");
+    expect(missing.warnings).toContain("no usable client found, waiting before taking jobs");
+  });
+
+  it("reports only the client it runs jobs with, and none when that one is missing", async () => {
+    const codex = setup({ clients: [CLAUDE, CODEX] });
+    await runDaemon({ ...OPTIONS, client: "codex" }, codex.deps, codex.controller.signal);
+    expect(codex.heartbeatCalls[0]).toEqual({ machine: "ws-main", clients: ["codex"] });
+
+    const missing = setup({ clients: [CLAUDE] });
+    setTimeout(() => missing.controller.abort(), 20);
+    await runDaemon({ ...OPTIONS, client: "gemini" }, missing.deps, missing.controller.signal);
+    expect(missing.heartbeatCalls[0]).toEqual({ machine: "ws-main", clients: [] });
   });
 
   it("takes no jobs while no client is installed, so another runner can have them", async () => {
-    const { deps, controller, claim, warnings } = setup({ clients: [] });
+    const { deps, controller, claim, warnings, heartbeatCalls } = setup({ clients: [] });
     setTimeout(() => controller.abort(), 20);
 
     await runDaemon(OPTIONS, deps, controller.signal);
 
     expect(claim).not.toHaveBeenCalled();
-    expect(warnings).toContain("no client found on PATH, waiting before taking jobs");
+    expect(heartbeatCalls[0].clients).toEqual([]);
+    expect(warnings).toContain("no usable client found, waiting before taking jobs");
+  });
+
+  it("goes on with the next claim when a job could not be run at all", async () => {
+    const { deps, controller, warnings, claim } = setup({
+      claims: [
+        { status: 200, body: JOB },
+        { status: 200, body: JOB },
+      ],
+    });
+    let runs = 0;
+    deps.runJob = () => {
+      runs += 1;
+      return runs === 1 ? Promise.reject(new Error("disk full")) : Promise.resolve(null);
+    };
+
+    expect(await runDaemon(OPTIONS, deps, controller.signal)).toBe("stopped");
+    expect(runs).toBe(2);
+    expect(claim).toHaveBeenCalledTimes(3);
+    expect(warnings).toContain("the job could not be run");
+  });
+
+  it("says once when the machine's clock is far from the server's, and warns about a token on the command line", async () => {
+    const skewed = setup({
+      heartbeats: [{ status: 200, body: { ok: true, serverTime: "2026-11-17T09:00:00.000Z" } }],
+    });
+    skewed.deps.now = () => Date.parse("2026-11-17T09:05:00.000Z");
+    await runDaemon(OPTIONS, skewed.deps, skewed.controller.signal);
+    expect(skewed.warnings.filter((message) => message.includes("clock"))).toHaveLength(1);
+
+    const exact = setup({ heartbeats: [{ status: 200, body: { ok: true, serverTime: "2026-11-17T09:00:00.000Z" } }] });
+    exact.deps.now = () => Date.parse("2026-11-17T09:00:20.000Z");
+    await runDaemon({ ...OPTIONS, tokenOnCommandLine: true }, exact.deps, exact.controller.signal);
+    expect(exact.warnings.filter((message) => message.includes("clock"))).toEqual([]);
+    expect(exact.warnings.some((message) => message.includes("--token"))).toBe(true);
   });
 
   it("stops with an unauthorized exit when the server rejects the token on the first heartbeat", async () => {
