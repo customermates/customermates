@@ -160,6 +160,7 @@ describe("catalog-backed pricing rendering", () => {
             { label: "API", catalogFact: "apiRequestLimit" },
             { label: "Webhooks", catalogFact: "webhooks" },
             { label: "Automations", catalogFact: "activeAutomationRules" },
+            { label: "Own AI key", catalogFact: "agentOwnKey" },
             { label: "Submissions", catalogFact: "formSubmissionsPerMonth" },
             { label: "No badge", catalogFact: "formBadge" },
           ],
@@ -179,6 +180,7 @@ describe("catalog-backed pricing rendering", () => {
       { label: "API", values: ["30/min, 200/day", true, true, true, true, true] },
       { label: "Webhooks", values: [false, true, true, true, true, true] },
       { label: "Automations", values: ["3", "20", "Unlimited", "Unlimited", "Unlimited", "Unlimited"] },
+      { label: "Own AI key", values: [false, true, true, true, true, true] },
       { label: "Submissions", values: ["50", "Unlimited", "Unlimited", "Unlimited", "Unlimited", "Unlimited"] },
       { label: "No badge", values: [false, true, true, true, true, true] },
     ]);

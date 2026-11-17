@@ -59,6 +59,7 @@ describe("commercial plan catalog", () => {
     });
     expect(getPlanDefinition("starter").entitlements).toEqual({
       agentChat: true,
+      agentOwnKey: true,
       messaging: false,
       includedAccountsPerUser: 0,
       includedRoutinesPerUser: 1,
@@ -74,6 +75,7 @@ describe("commercial plan catalog", () => {
     });
     expect(getPlanDefinition("max").entitlements).toEqual({
       agentChat: true,
+      agentOwnKey: true,
       messaging: true,
       includedAccountsPerUser: 10,
       includedRoutinesPerUser: "unlimited",
@@ -117,12 +119,24 @@ describe("commercial plan catalog", () => {
     ]);
   });
 
+  it("lets every paid plan run agents on the workspace's own provider key and keeps Free off it", () => {
+    expect(PLAN_IDS.map((plan) => [plan, getPlanDefinition(plan).entitlements.agentOwnKey])).toEqual([
+      ["free", false],
+      ["starter", true],
+      ["pro", true],
+      ["business", true],
+      ["max", true],
+      ["enterprise", true],
+    ]);
+  });
+
   it("owns the owner-approved Free plan: not purchasable, no paid features, per-workspace limits", () => {
     expect(PURCHASABLE_PLAN_IDS).not.toContain("free");
     expect(getCommercialOffer("free", "monthly")).toBeNull();
     expect(getPlanDefinition("free")).toMatchObject({ availability: "free", offers: {} });
     expect(getPlanDefinition("free").entitlements).toEqual({
       agentChat: false,
+      agentOwnKey: false,
       messaging: false,
       includedAccountsPerUser: 0,
       includedRoutinesPerUser: 0,
