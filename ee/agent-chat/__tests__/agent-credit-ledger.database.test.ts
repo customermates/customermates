@@ -187,6 +187,40 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(rows).toHaveLength(0);
   });
 
+  it("answers the second of two agent jobs with credits for one with a refusal instead of an exception", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+    const reserveJob = (reservedCredits: number) => {
+      const id = `agent-job:${randomUUID()}:1`;
+      return runWithoutTenant(() =>
+        repo.reserveAgentJobUsageEventUnscoped({
+          id,
+          companyId,
+          userId,
+          sessionId: id,
+          reservedMicrocents: reservedCredits * CREDIT,
+          planSnapshot: "starter",
+          subscriptionStatusSnapshot: "active",
+          allowanceMicrocentsSnapshot: 100 * CREDIT,
+          periodStart: anchor,
+          periodEnd: anchor,
+        }),
+      );
+    };
+
+    expect(await reserveJob(94)).toBe("reserved");
+    const outcomes = await Promise.all([reserveJob(4), reserveJob(4)]);
+
+    expect([...outcomes].sort()).toEqual(["allowance", "reserved"]);
+    expect(await reserveJob(101)).toBe("allowance");
+    const rows = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findMany({ where: { userId }, select: { reservedMicrocents: true, state: true } }),
+    );
+    expect(rows).toHaveLength(2);
+    expect(rows.reduce((total, row) => total + Number(row.reservedMicrocents), 0)).toBe(98 * CREDIT);
+  });
+
   it("counts reserved credits against the period until they settle", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);

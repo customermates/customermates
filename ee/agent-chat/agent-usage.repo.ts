@@ -17,6 +17,21 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
+export type AgentUsageReservationOutcome = "reserved" | "allowance" | "unavailable";
+
+export type AgentUsageReservationEvent = {
+  id: string;
+  companyId: string;
+  userId: string;
+  sessionId: string;
+  reservedMicrocents: number;
+  planSnapshot: SubscriptionPlan;
+  subscriptionStatusSnapshot: SubscriptionStatus;
+  allowanceMicrocentsSnapshot: number;
+  periodStart: Date;
+  periodEnd: Date;
+};
+
 export abstract class AgentUsageRepo {
   abstract getUserCreditUsageUnscoped(
     companyId: string,
@@ -60,6 +75,7 @@ export abstract class AgentUsageRepo {
     },
     creditState?: AgentTurnCreditState,
   ): Promise<boolean>;
+  abstract reserveAgentJobUsageEventUnscoped(event: AgentUsageReservationEvent): Promise<AgentUsageReservationOutcome>;
   abstract releaseUsageReservationUnscoped(args: {
     id: string;
     companyId: string;

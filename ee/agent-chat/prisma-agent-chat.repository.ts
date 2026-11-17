@@ -29,7 +29,12 @@ import type {
   AgentWorkspaceCreditPool,
   WorkspacePlatformReservation,
 } from "./agent-usage.service";
-import type { AgentUsageRepo, AgentUsageReservationExtension } from "@/ee/agent-chat/agent-usage.repo";
+import type {
+  AgentUsageRepo,
+  AgentUsageReservationEvent,
+  AgentUsageReservationExtension,
+  AgentUsageReservationOutcome,
+} from "@/ee/agent-chat/agent-usage.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
 import type { RoutineConversationPurgeRepo } from "@/ee/routines/routine-conversation-purge.repo";
 import type { RoutineRunLinkRepo } from "./routine-run-link.repo";
@@ -2951,10 +2956,24 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     },
     creditState?: AgentTurnCreditState,
   ) {
+    const outcome = await this.reserveUsageEvent(event, creditState);
+    if (outcome === "allowance") throw new Error("Agent credit reservation exceeds the current allowance.");
+    return outcome === "reserved";
+  }
+
+  @BypassTenantGuard
+  reserveAgentJobUsageEventUnscoped(event: AgentUsageReservationEvent): Promise<AgentUsageReservationOutcome> {
+    return this.reserveUsageEvent(event);
+  }
+
+  private async reserveUsageEvent(
+    event: AgentUsageReservationEvent,
+    creditState?: AgentTurnCreditState,
+  ): Promise<AgentUsageReservationOutcome> {
     if (!Number.isSafeInteger(event.reservedMicrocents) || event.reservedMicrocents < 1)
       throw new Error("Agent credit reservation is invalid.");
 
-    return this.withCompanyTransaction(event.companyId, async () => {
+    return this.withCompanyTransaction(event.companyId, async (): Promise<AgentUsageReservationOutcome> => {
       const reservedAt = new Date();
       const preloaded =
         creditState && creditState.readIn !== null && creditState.readIn === getTransactionClient()
@@ -2984,7 +3003,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
           ...(preloaded ? { pool: preloaded.pool } : {}),
         }))
       )
-        throw new Error("Agent credit reservation exceeds the current allowance.");
+        return "allowance";
 
       if (
         !(await this.admitsHostedAiGlobalSpend({
@@ -2992,7 +3011,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
           additionalReservedMicrocents: event.reservedMicrocents,
         }))
       )
-        return false;
+        return "unavailable";
 
       await this.prisma.agentUsageEvent.create({
         data: {
@@ -3008,7 +3027,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         },
       });
 
-      return true;
+      return "reserved";
     });
   }
 

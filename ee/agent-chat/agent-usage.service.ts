@@ -1,4 +1,8 @@
-import type { AgentUsageRepo, AgentUsageReservationExtension } from "./agent-usage.repo";
+import type {
+  AgentUsageRepo,
+  AgentUsageReservationExtension,
+  AgentUsageReservationOutcome,
+} from "./agent-usage.repo";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import { z } from "zod";
 
@@ -565,6 +569,26 @@ export class AgentUsageService {
     return args.creditState
       ? this.repo.reserveUsageEventUnscoped(event, args.creditState)
       : this.repo.reserveUsageEventUnscoped(event);
+  }
+
+  async reserveAgentJobUsage(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    reservation: AgentTurnCreditReservation;
+  }): Promise<AgentUsageReservationOutcome> {
+    return this.repo.reserveAgentJobUsageEventUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      sessionId: args.reservationId,
+      reservedMicrocents: args.reservation.reservedMicrocents,
+      planSnapshot: args.reservation.planSnapshot,
+      subscriptionStatusSnapshot: args.reservation.subscriptionStatusSnapshot,
+      allowanceMicrocentsSnapshot: args.reservation.allowanceMicrocentsSnapshot,
+      periodStart: args.reservation.periodStart,
+      periodEnd: args.reservation.periodEnd,
+    });
   }
 
   async settleReservation(args: {

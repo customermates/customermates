@@ -38,7 +38,7 @@ export class MateAgentJobCredits implements AgentJobCredits {
     private readonly usage: Pick<
       AgentUsageService,
       | "prepareTurn"
-      | "reserveUsage"
+      | "reserveAgentJobUsage"
       | "settleReservation"
       | "releaseReservation"
       | "extendAgentJobReservation"
@@ -61,7 +61,6 @@ export class MateAgentJobCredits implements AgentJobCredits {
     const now = args.now ?? new Date();
     const ceilingMicrocents = agentCreditsToMicrocents(MATE_JOB_MAX_CREDITS_PER_RUN);
     const reservationId = mateJobReservationId(args.jobId, args.attempt);
-    let refusal: unknown = null;
     try {
       for (let attempt = 0; attempt < RESERVE_ATTEMPTS; attempt += 1) {
         const admission = await this.usage.prepareTurn(args.userId, now, {
@@ -74,14 +73,14 @@ export class MateAgentJobCredits implements AgentJobCredits {
             reason: admission.summary.blockedReason === "credits_exhausted" ? "credits" : "unavailable",
           };
         }
-        try {
-          const reserved = await this.usage.reserveUsage({
-            reservationId,
-            companyId: args.companyId,
-            userId: args.userId,
-            reservation: admission.reservation,
-          });
-          if (!reserved) return { ok: false, reason: "unavailable" };
+        const reserved = await this.usage.reserveAgentJobUsage({
+          reservationId,
+          companyId: args.companyId,
+          userId: args.userId,
+          reservation: admission.reservation,
+        });
+        if (reserved === "unavailable") return { ok: false, reason: "unavailable" };
+        if (reserved === "reserved") {
           return {
             ok: true,
             reservation: {
@@ -91,15 +90,13 @@ export class MateAgentJobCredits implements AgentJobCredits {
               ceilingMicrocents,
             },
           };
-        } catch (error) {
-          refusal = error;
         }
       }
+      return { ok: false, reason: "credits" };
     } catch (error) {
-      refusal = error;
+      ErrorReporter.captureException(error);
+      return { ok: false, reason: "unavailable" };
     }
-    ErrorReporter.captureException(refusal);
-    return { ok: false, reason: "unavailable" };
   }
 
   async admitRound(args: ReservationOwner & { now?: Date }): Promise<boolean> {

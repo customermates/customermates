@@ -255,7 +255,7 @@ describe("reserving credits for a Mate agent job", () => {
   function usage(overrides: Record<string, unknown> = {}) {
     return {
       prepareTurn: vi.fn().mockResolvedValue({ summary: { blockedReason: null }, reservation }),
-      reserveUsage: vi.fn().mockResolvedValue(true),
+      reserveAgentJobUsage: vi.fn().mockResolvedValue("reserved"),
       settleReservation: vi.fn().mockResolvedValue(true),
       releaseReservation: vi.fn().mockResolvedValue(undefined),
       extendAgentJobReservation: vi.fn().mockResolvedValue({ disposition: "extended", reservedMicrocents: 2 }),
@@ -292,7 +292,7 @@ describe("reserving credits for a Mate agent job", () => {
       expect.any(Date),
       expect.objectContaining({ creditCeilingMicrocents: CEILING }),
     );
-    expect(service.reserveUsage).toHaveBeenCalledWith(
+    expect(service.reserveAgentJobUsage).toHaveBeenCalledWith(
       expect.objectContaining({ reservationId: "agent-job:job-1:2", companyId: "company-1", userId: "user-1" }),
     );
     expect(mateJobReservationId("job-1", 2)).toBe("agent-job:job-1:2");
@@ -305,7 +305,7 @@ describe("reserving credits for a Mate agent job", () => {
         .fn()
         .mockResolvedValue({ summary: { blockedReason: "subscription_unavailable" }, reservation: null }),
     });
-    const refused = usage({ reserveUsage: vi.fn().mockResolvedValue(false) });
+    const refused = usage({ reserveAgentJobUsage: vi.fn().mockResolvedValue("unavailable") });
 
     expect(await new MateAgentJobCredits(exhausted as never).reserve(args)).toEqual({ ok: false, reason: "credits" });
     expect(await new MateAgentJobCredits(blocked as never).reserve(args)).toEqual({ ok: false, reason: "unavailable" });
@@ -319,26 +319,38 @@ describe("reserving credits for a Mate agent job", () => {
         .fn()
         .mockResolvedValueOnce({ summary: { blockedReason: null }, reservation })
         .mockResolvedValueOnce(exhaustedTurn),
-      reserveUsage: vi.fn().mockRejectedValue(new Error("Agent credit reservation exceeds the current allowance.")),
+      reserveAgentJobUsage: vi.fn().mockResolvedValue("allowance"),
     });
     expect(await new MateAgentJobCredits(takenInBetween as never).reserve(args)).toEqual({
       ok: false,
       reason: "credits",
     });
-    expect(takenInBetween.reserveUsage).toHaveBeenCalledTimes(1);
+    expect(takenInBetween.reserveAgentJobUsage).toHaveBeenCalledTimes(1);
     expect(sentry.captureException).not.toHaveBeenCalled();
 
     const stillEnough = usage({
-      reserveUsage: vi.fn().mockRejectedValueOnce(new Error("exceeds the current allowance")).mockResolvedValue(true),
+      reserveAgentJobUsage: vi.fn().mockResolvedValueOnce("allowance").mockResolvedValue("reserved"),
     });
     expect((await new MateAgentJobCredits(stillEnough as never).reserve(args)).ok).toBe(true);
-    expect(stillEnough.reserveUsage).toHaveBeenCalledTimes(2);
+    expect(stillEnough.reserveAgentJobUsage).toHaveBeenCalledTimes(2);
+    expect(sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("calls it out of credits, without reporting an exception, when the allowance is refused every time", async () => {
+    const twoJobsForOne = usage({ reserveAgentJobUsage: vi.fn().mockResolvedValue("allowance") });
+
+    expect(await new MateAgentJobCredits(twoJobsForOne as never).reserve(args)).toEqual({
+      ok: false,
+      reason: "credits",
+    });
+    expect(twoJobsForOne.prepareTurn).toHaveBeenCalledTimes(2);
+    expect(twoJobsForOne.reserveAgentJobUsage).toHaveBeenCalledTimes(2);
     expect(sentry.captureException).not.toHaveBeenCalled();
   });
 
   it("reports a fault of the credit store and calls it unavailable, never out of credits", async () => {
     const fault = new Error("Can't reach database server");
-    const failingReserve = usage({ reserveUsage: vi.fn().mockRejectedValue(fault) });
+    const failingReserve = usage({ reserveAgentJobUsage: vi.fn().mockRejectedValue(fault) });
     expect(await new MateAgentJobCredits(failingReserve as never).reserve(args)).toEqual({
       ok: false,
       reason: "unavailable",
@@ -352,7 +364,7 @@ describe("reserving credits for a Mate agent job", () => {
       reason: "unavailable",
     });
     expect(sentry.captureException).toHaveBeenCalledWith(fault);
-    expect(failingRead.reserveUsage).not.toHaveBeenCalled();
+    expect(failingRead.reserveAgentJobUsage).not.toHaveBeenCalled();
   });
 
   it("asks the credit ledger before each round, extends by name and closes an interrupted attempt", async () => {

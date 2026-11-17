@@ -18,7 +18,11 @@ import {
   toAgentUsageView,
   type WorkspacePlatformReservation,
 } from "../agent-usage.service";
-import { type AgentUsageRepo, type AgentUsageReservationExtension } from "@/ee/agent-chat/agent-usage.repo";
+import {
+  type AgentUsageRepo,
+  type AgentUsageReservationExtension,
+  type AgentUsageReservationOutcome,
+} from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 import { computeCostMicrocents, promptTokensOf } from "../model-pricing";
@@ -74,6 +78,12 @@ function makeRepo(
     ),
     recordUsageEventUnscoped: vi.fn(() => Promise.resolve()),
     reserveUsageEventUnscoped: vi.fn(() => Promise.resolve(true)),
+    reserveAgentJobUsageEventUnscoped: vi.fn(
+      (): Promise<AgentUsageReservationOutcome> => Promise.resolve("allowance"),
+    ),
+    findAbandonedAgentJobUsageUnscoped: vi.fn(() =>
+      Promise.resolve([{ id: "agent-job:job-1:1", companyId: "company-1", userId: "user-1" }]),
+    ),
     releaseUsageReservationUnscoped: vi.fn(() => Promise.resolve()),
     settleUsageReservationUnscoped: vi.fn(() => Promise.resolve(true)),
     extendAgentJobUsageReservationUnscoped: vi.fn(
@@ -358,6 +368,36 @@ describe("AgentUsageService admission and ledger", () => {
 
     expect(admission.summary.blockedReason).toBe("credits_exhausted");
     expect(admission.reservation).toBeNull();
+  });
+
+  it("hands a job the ledger's own answer to its reservation and lists the reservations jobs left behind", async () => {
+    const repo = makeRepo({ usedMicrocents: 100 * CREDIT });
+    const service = new AgentUsageService(repo);
+    const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
+    if (!admission.reservation) throw new Error("Expected an AI credit reservation.");
+
+    const outcome = await service.reserveAgentJobUsage({
+      reservationId: "agent-job:job-1:1",
+      companyId: "company-1",
+      userId: "user-1",
+      reservation: admission.reservation,
+    });
+
+    expect(outcome).toBe("allowance");
+    expect(repo.reserveAgentJobUsageEventUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "agent-job:job-1:1",
+        sessionId: "agent-job:job-1:1",
+        reservedMicrocents: admission.reservation.reservedMicrocents,
+      }),
+    );
+    expect(repo.reserveUsageEventUnscoped).not.toHaveBeenCalled();
+
+    const reservedBefore = new Date(NOW.getTime() - 12 * 60_000);
+    expect(await service.findAbandonedAgentJobReservations({ reservedBefore, limit: 200 })).toEqual([
+      { reservationId: "agent-job:job-1:1", companyId: "company-1", userId: "user-1" },
+    ]);
+    expect(repo.findAbandonedAgentJobUsageUnscoped).toHaveBeenCalledWith({ reservedBefore, limit: 200 });
   });
 
   it("persists reservation units and entitlement snapshots", async () => {
