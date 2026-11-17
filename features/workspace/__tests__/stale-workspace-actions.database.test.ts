@@ -38,6 +38,7 @@ async function memberFacingActions() {
   const protectedActions = await import("@/app/[locale]/(protected)/actions");
   const dashboard = await import("@/app/[locale]/(protected)/w/[workspace]/dashboard/actions");
   const routines = await import("@/app/[locale]/(protected)/w/[workspace]/routines/actions");
+  const automations = await import("@/app/[locale]/(protected)/w/[workspace]/automations/actions");
   const trash = await import("@/app/[locale]/(protected)/w/[workspace]/trash/actions");
   const inbox = await import("@/app/[locale]/(protected)/w/[workspace]/inbox/actions");
   const workspace = await import("@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions");
@@ -54,7 +55,7 @@ async function memberFacingActions() {
     refreshWidgetsAction: () => dashboard.refreshWidgetsAction(),
     discoverWidgetRecordTypesAction: () => dashboard.discoverWidgetRecordTypesAction({}),
     getWidgetByIdAction: () => dashboard.getWidgetByIdAction({ id }),
-    getRoutinesAction: () => routines.getRoutinesAction(),
+    getAutomationsListAction: () => automations.getAutomationsListAction(),
     getRoutineRunsAction: () => routines.getRoutineRunsAction({ id }),
     getRoutineFilterFieldsAction: () => routines.getRoutineFilterFieldsAction(),
     getTrashAction: () => trash.getTrashAction(),

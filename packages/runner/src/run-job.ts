@@ -35,9 +35,8 @@ const RESULT_ATTEMPTS = 3;
 const TOKEN_ENV_NAMES = ["CUSTOMERMATES_RUNNER_TOKEN"];
 
 function childEnvironment(extra: Record<string, string>): NodeJS.ProcessEnv {
-  return Object.fromEntries(
-    Object.entries({ ...process.env, ...extra }).filter(([name]) => !TOKEN_ENV_NAMES.includes(name)),
-  );
+  const kept = Object.entries({ ...process.env, ...extra }).filter(([name]) => !TOKEN_ENV_NAMES.includes(name));
+  return { ...Object.fromEntries(kept), NODE_ENV: process.env.NODE_ENV ?? "production" };
 }
 
 function lineEvent(line: string): TranscriptEvent {
