@@ -1361,9 +1361,10 @@ test.describe("self-hosted installs", () => {
     await page.goto(appPath(slug, "/dashboard?agentChat=open"));
     await page.waitForLoadState("networkidle");
     await openSidebar(page);
+    // Automations (rules) are part of every install; only the Inbox and Mate are cloud-only.
+    await expect(page.locator("#nav-automations")).toHaveCount(1);
     for (const selector of [
       "#nav-inbox",
-      "#nav-automations",
       "#nav-assistant",
       "[data-nav-plan-tag]",
       "[data-trial-card]",

@@ -207,6 +207,8 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
       }
 
       saved = true;
+      // The modal refuses to close while it is loading, so the spinner ends before the close.
+      this.setIsLoading(false);
       this.toastSuccess("Booking.saved");
       this.close();
       this.onSaved?.();

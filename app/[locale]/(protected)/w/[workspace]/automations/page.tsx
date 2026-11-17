@@ -3,7 +3,6 @@ import { Resource } from "@/generated/prisma";
 import type { Filter } from "@/core/base/base-get.schema";
 
 import {
-  getEntitlementService,
   getGetAgentRuntimeAvailabilityInteractor,
   getGetAutomationsListInteractor,
   getGetPlanUsageInteractor,
@@ -57,7 +56,7 @@ export default async function AutomationsPage({ searchParams }: Props) {
   const kindFilter = kindFilterOf(params);
   const cloud = env.APP_MODE !== "self-hosted";
 
-  const [list, model, runtimes, webhooks, usage, agentDenied] = await Promise.all([
+  const [list, model, runtimes, webhooks, usage] = await Promise.all([
     unwrapPage(
       getGetAutomationsListInteractor().invoke(kindFilter ? { ...listParams, filters: kindFilter } : listParams),
     ),
@@ -65,9 +64,10 @@ export default async function AutomationsPage({ searchParams }: Props) {
     unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke({})),
     getGetWebhooksInteractor().invoke({}),
     cloud ? unwrapPage(getGetPlanUsageInteractor().invoke()) : Promise.resolve(null),
-    cloud && env.APP_MODE !== "demo" ? getEntitlementService().require("agentChat") : Promise.resolve("demo"),
   ]);
-  const agentChat = cloud && agentDenied === null;
+  // The Mate runtime is available only where the agent chat is configured and the plan includes it; the interactor
+  // answers inside the tenant context, which a page has no business entering itself.
+  const agentChat = cloud && env.APP_MODE !== "demo" && runtimes.mate.available;
   const free = usage?.plan === FREE_PLAN_ID;
   const routinesOnly = single(params.kind) === "routine";
 
