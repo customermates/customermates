@@ -194,6 +194,35 @@ test("a runner takes its member's job only after confirming it, and revoking it 
   expect(errors).toEqual([]);
 });
 
+test("the agent runs card names the automation a run belongs to", async ({ page, database, workspace }) => {
+  const errors = collectPageErrors(page);
+  const ruleId = randomUUID();
+  const runId = randomUUID();
+  const jobId = randomUUID();
+  await database.query(
+    `INSERT INTO "AutomationRule" (id,"companyId","ownerUserId",name,enabled,"triggerKind",trigger,effects,"updatedAt")
+     VALUES ($1,$2,$3,$4,true,'recordUpdated'::"AutomationTriggerKind",'{}'::jsonb,'[]'::jsonb,NOW())`,
+    [ruleId, workspace.companyId, workspace.userId, "Follow up on offers"],
+  );
+  await database.query(
+    `INSERT INTO "AutomationRuleRun" (id,"companyId","ruleId","occurrenceKey","triggerKind","scheduledFor","updatedAt")
+     VALUES ($1,$2,$3,$4,'recordUpdated'::"AutomationTriggerKind",NOW(),NOW())`,
+    [runId, workspace.companyId, ruleId, `event:${runId}`],
+  );
+  // A job of an automation carries the id of the run that enqueued it; the rule is found through that run.
+  await database.query(
+    `INSERT INTO "AgentJob" (id,"companyId",runtime,status,"sourceKind","sourceId","ownerUserId",prompt,"finishedAt","updatedAt")
+     VALUES ($1,$2,'runner','succeeded','automation',$3,$4,$5,NOW(),NOW())`,
+    [jobId, workspace.companyId, runId, workspace.userId, "Summarise the open deals"],
+  );
+
+  await page.goto(appPath(workspace.slug, "/settings/agents"));
+  const run = page.locator(`#agent-runs [data-agent-run="${jobId}"]`);
+  await expect(run).toHaveAttribute("data-status", "succeeded");
+  await expect(run.locator(`[data-agent-run-rule="${ruleId}"]`)).toHaveText("Automation: Follow up on offers");
+  expect(errors).toEqual([]);
+});
+
 test("the page lists only the runners of its own workspace", async ({ page, database, workspace }) => {
   const errors = collectPageErrors(page);
   const second = await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
