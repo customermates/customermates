@@ -300,7 +300,7 @@ test("the signup job preselects following up, which writes the job playbook and 
   await clickHydrated(page.locator("#onboarding-playbook-continue"));
 
   await expect(page).toHaveURL(
-    appUrlPattern(await workspaceSlugOf(database, companyId), "/settings/channels\\?from=onboarding$"),
+    appUrlPattern(await workspaceSlugOf(database, companyId), "/settings/connections\\?tab=channels&from=onboarding$"),
   );
   const hint = goal.channelsHint;
   await expect(page.getByRole("heading", { level: 2, name: hint.title, exact: true })).toBeVisible();
@@ -332,7 +332,9 @@ test("the signup job preselects following up, which writes the job playbook and 
     { key: ONBOARDING_CONNECT_KEY, value: JSON.stringify({ channel: "linkedin", at: Date.now() }) },
   );
   await page.goto(appPath(slug, "/settings/channels?account_id=e2e-linkedin&status=CREATION_SUCCESS"));
-  await expect(page).toHaveURL(appUrlPattern(slug, "/settings/channels\\?from=onboarding&connected=linkedin$"));
+  await expect(page).toHaveURL(
+    appUrlPattern(slug, "/settings/connections\\?tab=channels&from=onboarding&connected=linkedin$"),
+  );
   const connected = page.locator("#onboarding-channel-connected");
   await expect(connected).toContainText(hint.connectedLinkedinTitle);
   await expect(connected).toContainText(hint.connectedDescription);

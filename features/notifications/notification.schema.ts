@@ -100,7 +100,8 @@ export type SetNotificationKindOffData = z.output<typeof SetNotificationKindOffS
 
 export type SetNotificationKindOffResult =
   | { status: "off"; kind: NotificationKind; workspaceSlug: string; locale: AppLocale }
-  | { status: "expired" | "invalid" };
+  | { status: "expired" }
+  | { status: "invalid" };
 
 export const SetNotificationPreferencesSchema = z
   .object({ preferences: z.array(NotificationPreferenceSchema).min(1).max(NOTIFICATION_KINDS.length) })

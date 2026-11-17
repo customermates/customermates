@@ -25,9 +25,11 @@ export async function GET(request: Request) {
   try {
     const token = new URL(request.url).searchParams.get("token") ?? "";
     const result = await getSetNotificationKindOffInteractor().invoke({ token });
-    if (!result.ok || result.data.status === "invalid") return text("This link is not valid.", 400);
-    if (result.data.status === "expired") return text("This link has expired.", 410);
-    const { kind, locale, workspaceSlug } = result.data;
+    if (!result.ok) return text("This link is not valid.", 400);
+    const outcome = result.data;
+    if (outcome.status === "invalid") return text("This link is not valid.", 400);
+    if (outcome.status === "expired") return text("This link has expired.", 410);
+    const { kind, locale, workspaceSlug } = outcome;
     const query = new URLSearchParams({ notice: NOTIFICATION_KIND_OFF_NOTICE, kind }).toString();
     const target = `${absoluteWorkspaceUrl(env.BASE_URL, locale, workspaceSlug, "/settings/profile")}?${query}`;
     return NextResponse.redirect(target, { status: 303, headers: PRIVATE_HEADERS });

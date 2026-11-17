@@ -1,3 +1,4 @@
+import type { ComponentProps, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
@@ -20,12 +21,29 @@ import { ConnectionsPageView } from "../connections-page-view";
 let container: HTMLDivElement;
 let root: Root;
 
+type ViewProps = Omit<ComponentProps<typeof ConnectionsPageView>, "children">;
+
 function tabs(prefix: string) {
   return [...document.querySelectorAll<HTMLButtonElement>(`[role="tab"][id^="${prefix}-tab-"]`)];
 }
 
-function render(node: ReturnType<typeof createElement>) {
+function render(node: ReactNode) {
   act(() => root.render(node));
+}
+
+function renderView(props: ViewProps, content = "content") {
+  render(
+    <ConnectionsPageView {...props}>
+      <p>{content}</p>
+    </ConnectionsPageView>,
+  );
+}
+
+function pressArrowRight(tab: HTMLButtonElement | undefined) {
+  act(() => tab?.focus());
+  act(() => {
+    tab?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+  });
 }
 
 beforeEach(() => {
@@ -43,12 +61,9 @@ afterEach(() => {
 
 describe("ConnectionsPageView", () => {
   it("lists the four tabs, marks the open one and shows its content in a labelled panel", () => {
-    render(
-      createElement(
-        ConnectionsPageView,
-        { tabs: ["channels", "apps", "agents", "developers"], tab: "apps", section: null, bleed: false },
-        createElement("p", null, "apps content"),
-      ),
+    renderView(
+      { tabs: ["channels", "apps", "agents", "developers"], tab: "apps", section: null, bleed: false },
+      "apps content",
     );
 
     expect(tabs("connections").map((tab) => tab.textContent)).toEqual([
@@ -66,13 +81,7 @@ describe("ConnectionsPageView", () => {
   });
 
   it("offers only the tabs the person may see", () => {
-    render(
-      createElement(
-        ConnectionsPageView,
-        { tabs: ["apps", "agents"], tab: "apps", section: null, bleed: false },
-        createElement("p", null, "content"),
-      ),
-    );
+    renderView({ tabs: ["apps", "agents"], tab: "apps", section: null, bleed: false });
 
     expect(tabs("connections").map((tab) => tab.textContent)).toEqual([
       "Connections.tabs.apps",
@@ -82,29 +91,22 @@ describe("ConnectionsPageView", () => {
   });
 
   it("opens the next tab through the address, so a tab can be linked and reloaded", async () => {
-    render(
-      createElement(
-        ConnectionsPageView,
-        { tabs: ["channels", "apps", "agents", "developers"], tab: "channels", section: "accounts", bleed: false },
-        createElement("p", null, "content"),
-      ),
-    );
-
-    act(() => tabs("connections")[0]?.focus());
-    act(() => {
-      tabs("connections")[0]?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    renderView({
+      tabs: ["channels", "apps", "agents", "developers"],
+      tab: "channels",
+      section: "accounts",
+      bleed: false,
     });
+
+    pressArrowRight(tabs("connections")[0]);
 
     await vi.waitFor(() => expect(router.push).toHaveBeenCalledWith("/settings/connections?tab=apps"));
   });
 
-  it("shows the sections of the Channels and Developers tabs and keeps the tab when one is chosen", async () => {
-    render(
-      createElement(
-        ConnectionsPageView,
-        { tabs: ["channels", "apps", "agents", "developers"], tab: "developers", section: "keys", bleed: false },
-        createElement("p", null, "keys content"),
-      ),
+  it("shows the sections of the Developers tab and keeps the tab when one is chosen", async () => {
+    renderView(
+      { tabs: ["channels", "apps", "agents", "developers"], tab: "developers", section: "keys", bleed: false },
+      "keys content",
     );
 
     expect(tabs("connections-section").map((tab) => tab.textContent)).toEqual([
@@ -117,10 +119,7 @@ describe("ConnectionsPageView", () => {
       document.querySelector('[role="tablist"][aria-label="Connections.developers.sectionsLabel"]'),
     ).not.toBeNull();
 
-    act(() => tabs("connections-section")[0]?.focus());
-    act(() => {
-      tabs("connections-section")[0]?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-    });
+    pressArrowRight(tabs("connections-section")[0]);
 
     await vi.waitFor(() =>
       expect(router.push).toHaveBeenCalledWith("/settings/connections?tab=developers&section=webhooks"),
@@ -128,13 +127,7 @@ describe("ConnectionsPageView", () => {
   });
 
   it("shows the booking pages as the second section of Channels", () => {
-    render(
-      createElement(
-        ConnectionsPageView,
-        { tabs: ["channels", "apps"], tab: "channels", section: "booking", bleed: false },
-        createElement("p", null, "booking content"),
-      ),
-    );
+    renderView({ tabs: ["channels", "apps"], tab: "channels", section: "booking", bleed: false }, "booking content");
 
     expect(tabs("connections-section").map((tab) => tab.textContent)).toEqual([
       "SettingsNav.channels",
@@ -147,7 +140,7 @@ describe("ConnectionsPageView", () => {
 
 describe("ConnectionAppsTab", () => {
   it("says no apps are connected yet and names the owner and scope while the registry is empty", () => {
-    render(createElement(ConnectionAppsTab));
+    render(<ConnectionAppsTab />);
 
     expect(container.textContent).toContain("Connections.apps.emptyTitle");
     expect(container.textContent).toContain("Connections.apps.emptyBody");
@@ -157,12 +150,12 @@ describe("ConnectionAppsTab", () => {
 
   it("lists each provider with what it enables and a disabled Connect button until it is available", () => {
     render(
-      createElement(ConnectionAppsTab, {
-        providers: [
+      <ConnectionAppsTab
+        providers={[
           { id: "alpha", name: "Alpha", enablesKey: "Connections.apps.enables", available: false },
           { id: "beta", name: "Beta", enablesKey: "Connections.apps.enables", available: true },
-        ],
-      }),
+        ]}
+      />,
     );
 
     const cards = [...container.querySelectorAll<HTMLElement>("[data-connection-provider]")];
@@ -177,7 +170,7 @@ describe("ConnectionAppsTab", () => {
 
 describe("ConnectionAgentsTab", () => {
   it("links to the agent settings page and names its owner and scope", () => {
-    render(createElement(ConnectionAgentsTab));
+    render(<ConnectionAgentsTab />);
 
     expect(container.querySelector("a")?.getAttribute("href")).toBe("/settings/agents");
     expect(container.textContent).toContain("Connections.agents.body");

@@ -115,7 +115,9 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
       await page.goto(companyPath(companyId, "/settings/webhooks"));
       await page.waitForLoadState("networkidle");
       await runRowAction(page, row, receiverUrl, "Show deliveries");
-      await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhook-deliveries\\?"));
+      await expect(page).toHaveURL(
+        companyUrlPattern(companyId, "/settings/connections\\?tab=developers&section=deliveries&"),
+      );
       expect(new URL(page.url()).searchParams.getAll("filters")).toContain(`webhookId:in:${webhookId}`);
     };
     const rows = page.getByRole("row").filter({ hasText: receiverUrl });

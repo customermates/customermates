@@ -55,35 +55,19 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page.locator("[data-sidebar-section]")).toHaveCount(0);
   });
 
-  await test.step("webhooks, deliveries and incoming webhooks are separate pages next to each other in the area nav", async () => {
+  await test.step("channels, apps, agents and the developer tools are one Connections page in the area nav", async () => {
     const workspaceGroup = page.locator('[data-area-nav-group="workspace"]');
     const items = await workspaceGroup
       .locator("a[id^='nav-settings-']")
       .evaluateAll((links) => links.map((link) => link.id));
-    expect(items.slice(items.indexOf("nav-settings-webhooks"), items.indexOf("nav-settings-webhooks") + 3)).toEqual([
-      "nav-settings-webhooks",
-      "nav-settings-webhook-deliveries",
-      "nav-settings-incoming-webhooks",
-    ]);
-    await expect(workspaceGroup.locator("#nav-settings-incoming-webhooks")).toContainText("Incoming webhooks");
-    await page.locator("#nav-settings-webhooks").click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhooks$"));
-    await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);
+    for (const replaced of ["webhooks", "webhook-deliveries", "incoming-webhooks"])
+      expect(items).not.toContain(`nav-settings-${replaced}`);
+    await expect(workspaceGroup.locator("#nav-settings-connections")).toContainText("Connections");
+    await page.locator("#nav-settings-connections").click();
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections"));
     await openSidebar(page);
-    await page.locator("#nav-settings-webhook-deliveries").click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhook-deliveries$"));
-    await openSidebar(page);
-    await expect(page.locator("#nav-settings-webhook-deliveries")).toHaveAttribute("data-active", "true");
-    await expect(page.locator("#nav-settings-webhooks")).toHaveAttribute("data-active", "false");
-    await expect(page.locator("#nav-settings-incoming-webhooks")).toHaveAttribute("data-active", "false");
-    await page.locator("#nav-settings-incoming-webhooks").click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/incoming-webhooks$"));
-    await expect(page.locator("#incoming-webhooks")).toBeVisible();
-    await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);
-    await openSidebar(page);
-    await expect(page.locator("#nav-settings-incoming-webhooks")).toHaveAttribute("data-active", "true");
-    await expect(page.locator("#nav-settings-webhooks")).toHaveAttribute("data-active", "false");
-    await expect(page.locator("#nav-settings-webhook-deliveries")).toHaveAttribute("data-active", "false");
+    await expect(page.locator("#nav-settings-connections")).toHaveAttribute("data-active", "true");
+    await expect(page.locator("#nav-settings-profile")).toHaveAttribute("data-active", "false");
   });
 
   await test.step("Back returns to the page Settings was opened from", async () => {
