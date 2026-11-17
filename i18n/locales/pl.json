@@ -1220,6 +1220,7 @@
       "switchOn": "Włącz",
       "then": "Wtedy",
       "webhook": "Webhook",
+      "webhookNoneSubscribed": "Żaden webhook nie ma jeszcze wybranego zdarzenia automatyzacji. Wybierz je w ustawieniach webhooka.",
       "webhookRestricted": "Twoja rola nie widzi webhooków tego obszaru roboczego, więc ten krok zachowuje swój webhook.",
       "when": "Gdy"
     },
@@ -1413,7 +1414,8 @@
       "model": "Model wybrany tutaj nie jest już dostępny. Wybierz inny.",
       "option": "Opcja użyta tutaj nie jest już dostępna. Wybierz inną.",
       "runner": "Runner wybrany tutaj nie jest już dostępny. Wybierz inny.",
-      "webhook": "Webhook wybrany tutaj jest wyłączony albo już nie istnieje. Wybierz inny."
+      "webhook": "Webhook wybrany tutaj jest wyłączony albo już nie istnieje. Wybierz inny.",
+      "webhookEvent": "Webhook wybrany tutaj nie ma wybranego zdarzenia automatyzacji, więc ten krok zostałby pominięty. Wybierz to zdarzenie w webhooku albo wybierz inny webhook."
     }
   },
   "Booking": {

@@ -1220,6 +1220,7 @@
       "switchOn": "Switch on",
       "then": "Then",
       "webhook": "Webhook",
+      "webhookNoneSubscribed": "No webhook has selected the event for automations yet. Select it in the settings of a webhook.",
       "webhookRestricted": "Your role cannot see the webhooks of this workspace, so this step keeps the webhook it has.",
       "when": "When"
     },
@@ -1413,7 +1414,8 @@
       "model": "The model chosen here is no longer available. Choose another one.",
       "option": "An option used here is no longer available. Choose another one.",
       "runner": "The runner chosen here is no longer available. Choose another one.",
-      "webhook": "The webhook chosen here is switched off or no longer exists. Choose another one."
+      "webhook": "The webhook chosen here is switched off or no longer exists. Choose another one.",
+      "webhookEvent": "The webhook chosen here has not selected the event for automations, so this step would be skipped. Select the event on the webhook or choose another one."
     }
   },
   "Booking": {

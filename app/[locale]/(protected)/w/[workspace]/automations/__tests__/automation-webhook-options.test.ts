@@ -5,7 +5,14 @@ import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { WEBHOOK_OPTION_PAGE_SIZE, loadWebhookOptions } from "../components/automation-webhook-options";
 
 function hook(index: number, overrides: Record<string, unknown> = {}) {
-  return { id: `hook-${index}`, enabled: true, description: null, url: `https://example.test/${index}`, ...overrides };
+  return {
+    id: `hook-${index}`,
+    enabled: true,
+    description: null,
+    url: `https://example.test/${index}`,
+    events: ["automation.rule.fired"],
+    ...overrides,
+  };
 }
 
 function page(items: ReturnType<typeof hook>[], totalPages: number) {
@@ -29,9 +36,21 @@ describe("the webhooks a rule can call", () => {
       [3, WEBHOOK_OPTION_PAGE_SIZE],
     ]);
     expect(options).toEqual([
-      { id: "hook-1", label: "https://example.test/1" },
-      { id: "hook-3", label: "Billing sync" },
-      { id: "hook-4", label: "https://example.test/4" },
+      { id: "hook-1", label: "https://example.test/1", subscribed: true },
+      { id: "hook-3", label: "Billing sync", subscribed: true },
+      { id: "hook-4", label: "https://example.test/4", subscribed: true },
+    ]);
+  });
+
+  it("marks a webhook that has not selected the automation event, so the picker can leave it out", async () => {
+    const hooks = [
+      hook(1, { events: ["record.created"] }),
+      hook(2, { events: ["record.created", "automation.rule.fired"] }),
+    ];
+
+    expect(await loadWebhookOptions(() => Promise.resolve(page(hooks, 1)))).toEqual([
+      { id: "hook-1", label: "https://example.test/1", subscribed: false },
+      { id: "hook-2", label: "https://example.test/2", subscribed: true },
     ]);
   });
 

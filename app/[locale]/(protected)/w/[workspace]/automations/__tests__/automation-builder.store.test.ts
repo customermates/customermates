@@ -359,7 +359,8 @@ describe("AutomationBuilderStore", () => {
   it("refuses to save a step whose webhook is gone, opens that card and leaves the rule untouched", async () => {
     const rule = { ...SAVED, effects: [{ kind: "callWebhook", webhookId: WEBHOOK }] };
     const store = makeStore();
-    store.openForRule({ ...CONTEXT, webhooks: [{ id: OTHER_WEBHOOK, label: "Other" }] }, rule as never, vi.fn());
+    const other = { id: OTHER_WEBHOOK, label: "Other", subscribed: true };
+    store.openForRule({ ...CONTEXT, webhooks: [other] }, rule as never, vi.fn());
 
     expect(store.unavailable).toEqual([{ card: "effects.0", what: "webhook" }]);
     expect(store.unavailableAt("effects.0")).toBe("webhook");
@@ -370,6 +371,18 @@ describe("AutomationBuilderStore", () => {
 
     store.setEffect(0, { kind: "callWebhook", webhookId: OTHER_WEBHOOK });
     expect(store.unavailable).toEqual([]);
+  });
+
+  it("refuses to save a step whose webhook has not selected the automation event", async () => {
+    const rule = { ...SAVED, effects: [{ kind: "callWebhook", webhookId: WEBHOOK }] };
+    const store = makeStore();
+    const silent = { id: WEBHOOK, label: "Silent", subscribed: false };
+    store.openForRule({ ...CONTEXT, webhooks: [silent] }, rule as never, vi.fn());
+
+    expect(store.unavailableAt("effects.0")).toBe("webhookEvent");
+    expect(await store.save()).toBe("unavailable");
+    expect(store.expanded).toBe("effect-0");
+    expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
   });
 
   it("asks for a model before saving an own-key step when the workspace has several keys", async () => {

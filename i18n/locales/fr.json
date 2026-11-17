@@ -1220,6 +1220,7 @@
       "switchOn": "Activer",
       "then": "Alors",
       "webhook": "Webhook",
+      "webhookNoneSubscribed": "Aucun webhook n’a encore sélectionné l’événement des automatisations. Sélectionnez-le dans les paramètres d’un webhook.",
       "webhookRestricted": "Votre rôle ne permet pas de voir les webhooks de cet espace de travail. Cette étape conserve donc son webhook.",
       "when": "Quand"
     },
@@ -1413,7 +1414,8 @@
       "model": "Le modèle choisi ici n’est plus disponible. Choisissez-en un autre.",
       "option": "Une option utilisée ici n’est plus disponible. Choisissez-en une autre.",
       "runner": "Le runner choisi ici n’est plus disponible. Choisissez-en un autre.",
-      "webhook": "Le webhook choisi ici est désactivé ou n’existe plus. Choisissez-en un autre."
+      "webhook": "Le webhook choisi ici est désactivé ou n’existe plus. Choisissez-en un autre.",
+      "webhookEvent": "Le webhook choisi ici n’a pas sélectionné l’événement des automatisations, cette étape serait donc ignorée. Sélectionnez l’événement sur le webhook ou choisissez-en un autre."
     }
   },
   "Booking": {

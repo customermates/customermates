@@ -141,6 +141,8 @@ function unavailableText(t: ReturnType<typeof useTranslations>, what: DraftUnava
       return t("Automations.unavailable.option");
     case "webhook":
       return t("Automations.unavailable.webhook");
+    case "webhookEvent":
+      return t("Automations.unavailable.webhookEvent");
     case "runner":
       return t("Automations.unavailable.runner");
     case "model":

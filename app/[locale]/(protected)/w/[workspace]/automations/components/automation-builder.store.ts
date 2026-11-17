@@ -3,6 +3,7 @@ import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent
 import type { AutomationRuleDto, AutomationRulePreview } from "@/features/automation-rules/automation-rule.schema";
 import type { AutomationBuilderModel } from "./automation-builder-model";
 import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger, DraftUnavailable } from "./automation-draft";
+import type { WebhookOption } from "./automation-webhook-options";
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
@@ -41,7 +42,7 @@ import {
 export type AutomationBuilderContext = {
   model: AutomationBuilderModel;
   runtimes: AgentRuntimeAvailability;
-  webhooks: { id: string; label: string }[] | null;
+  webhooks: WebhookOption[] | null;
   composer: boolean;
   cloud: boolean;
   timezone: string;

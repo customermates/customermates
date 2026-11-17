@@ -1220,6 +1220,7 @@
       "switchOn": "Inschakelen",
       "then": "Dan",
       "webhook": "Webhook",
+      "webhookNoneSubscribed": "Nog geen webhook heeft de gebeurtenis voor automatiseringen geselecteerd. Selecteer die in de instellingen van een webhook.",
       "webhookRestricted": "Je rol mag de webhooks van deze werkruimte niet zien, dus deze stap behoudt de webhook die hij heeft.",
       "when": "Wanneer"
     },
@@ -1413,7 +1414,8 @@
       "model": "Het model dat hier is gekozen, is niet meer beschikbaar. Kies een ander model.",
       "option": "Een optie die hier wordt gebruikt, is niet meer beschikbaar. Kies een andere optie.",
       "runner": "De runner die hier is gekozen, is niet meer beschikbaar. Kies een andere runner.",
-      "webhook": "De webhook die hier is gekozen, is uitgeschakeld of bestaat niet meer. Kies een andere webhook."
+      "webhook": "De webhook die hier is gekozen, is uitgeschakeld of bestaat niet meer. Kies een andere webhook.",
+      "webhookEvent": "De webhook die hier is gekozen, heeft de gebeurtenis voor automatiseringen niet geselecteerd, dus deze stap zou worden overgeslagen. Selecteer de gebeurtenis bij de webhook of kies een andere webhook."
     }
   },
   "Booking": {

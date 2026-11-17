@@ -6,6 +6,7 @@ import type { AutomationRecipe } from "@/features/automation-rules/recipes";
 import type { AutomationListItemDto } from "@/features/automation-rules/automations-list.schema";
 import type { AutomationBuilderContext } from "./automation-builder.store";
 import type { AutomationBuilderModel } from "./automation-builder-model";
+import type { WebhookOption } from "./automation-webhook-options";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { FocusKind } from "@/components/focus/focus-href";
 
@@ -58,7 +59,7 @@ type Props = {
   initial: GetResult<AutomationListItemDto>;
   model: AutomationBuilderModel;
   runtimes: AgentRuntimeAvailability;
-  webhooks: { id: string; label: string }[] | null;
+  webhooks: WebhookOption[] | null;
   composer: boolean;
   cloud: boolean;
   canCreateRoutine: boolean;

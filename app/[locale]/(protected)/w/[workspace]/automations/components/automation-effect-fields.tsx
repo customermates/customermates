@@ -5,8 +5,9 @@ import { useTranslations } from "next-intl";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { AutomationBuilderModel } from "./automation-builder-model";
 import type { DraftEffect, DraftTrigger, DraftUnavailableKind } from "./automation-draft";
+import type { WebhookOption } from "./automation-webhook-options";
 
-import { draftHasRecord, fieldTakesValue, listOf } from "./automation-draft";
+import { draftHasRecord, fieldTakesValue, listOf, pickableWebhooks } from "./automation-draft";
 import { AutomationAgentFields } from "./automation-agent-fields";
 import { Choose, Labeled, UnavailableNote } from "./automation-builder-fields";
 import { CreateRecordEditor, NotifyEditor, SetFieldEditor } from "./automation-effect-editors";
@@ -16,7 +17,7 @@ type Props = {
   trigger: DraftTrigger;
   model: AutomationBuilderModel;
   runtimes: AgentRuntimeAvailability;
-  webhooks: { id: string; label: string }[] | null;
+  webhooks: WebhookOption[] | null;
   flagged: boolean;
   unavailable?: DraftUnavailableKind;
   onChange: (effect: DraftEffect) => void;
@@ -68,15 +69,23 @@ export function AutomationEffectFields({
             {t("Automations.builder.webhookRestricted")}
           </p>
         ) : (
-          <Labeled label={t("Automations.builder.webhook")}>
-            <Choose
-              items={webhooks}
-              label={t("Automations.builder.webhook")}
-              placeholder={t("AutomationRules.builder.choose")}
-              value={effect.webhookId}
-              onChange={(webhookId) => onChange({ ...effect, webhookId })}
-            />
-          </Labeled>
+          <>
+            <Labeled label={t("Automations.builder.webhook")}>
+              <Choose
+                items={pickableWebhooks(webhooks, effect.webhookId)}
+                label={t("Automations.builder.webhook")}
+                placeholder={t("AutomationRules.builder.choose")}
+                value={effect.webhookId}
+                onChange={(webhookId) => onChange({ ...effect, webhookId })}
+              />
+            </Labeled>
+
+            {pickableWebhooks(webhooks, effect.webhookId).length === 0 && (
+              <p className="text-xs text-muted-foreground" data-automation-webhook-none="">
+                {t("Automations.builder.webhookNoneSubscribed")}
+              </p>
+            )}
+          </>
         ))}
 
       {effect.kind === "agent" && (

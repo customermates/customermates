@@ -104,12 +104,12 @@ export type AutomationDraft = {
   effects: DraftEffect[];
 };
 
-export type DraftUnavailableKind = "list" | "field" | "option" | "webhook" | "runner" | "model";
+export type DraftUnavailableKind = "list" | "field" | "option" | "webhook" | "webhookEvent" | "runner" | "model";
 export type DraftUnavailable = { card: string; what: DraftUnavailableKind };
 
 export type DraftReferences = {
   model: AutomationBuilderModel;
-  webhooks: readonly { id: string }[] | null;
+  webhooks: readonly { id: string; subscribed: boolean }[] | null;
   runtimes: {
     ownKey: { available: boolean; models: readonly { id: string }[]; defaultModel?: string | null };
     runner: { reason: string | null; runners: readonly { id: string }[] };
@@ -178,6 +178,13 @@ export function effectsForTrigger(
   return effects.map((effect) =>
     effect.kind === "createRecord" && stale(effect) ? { ...effect, relationId: "" } : effect,
   );
+}
+
+export function pickableWebhooks<T extends { id: string; subscribed: boolean }>(
+  webhooks: readonly T[],
+  chosenId: string,
+): T[] {
+  return webhooks.filter((webhook) => webhook.subscribed || webhook.id === chosenId);
 }
 
 export function fieldTakesValue(field: AutomationBuilderField): boolean {
@@ -581,7 +588,9 @@ function effectUnavailable(
   if (effect.kind === "kept") return keptEffectUnavailable(effect.effect, model, triggerList);
   if (effect.kind === "callWebhook") {
     if (!effect.webhookId || webhooks === null) return null;
-    return webhooks.some((webhook) => webhook.id === effect.webhookId) ? null : "webhook";
+    const webhook = webhooks.find((item) => item.id === effect.webhookId);
+    if (!webhook) return "webhook";
+    return webhook.subscribed ? null : "webhookEvent";
   }
   if (effect.kind === "agent") {
     if (effect.runtime === "runner" && effect.runnerId && runtimes.runner.reason !== "notConfigured")

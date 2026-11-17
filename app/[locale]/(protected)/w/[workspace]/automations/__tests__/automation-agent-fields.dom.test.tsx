@@ -583,6 +583,30 @@ describe("a step card", () => {
     expect(container.textContent).not.toContain("AutomationRules.builder.fixEffect");
   });
 
+  it("offers only webhooks that selected the automation event and says so on a step whose webhook has not", () => {
+    const fires = { id: "fires", label: "Fires", subscribed: true };
+    const silent = { id: "silent", label: "Silent", subscribed: false };
+
+    mount(step({ kind: "callWebhook", webhookId: "" }, { webhooks: [fires, silent] }));
+    expect(offered("")).toEqual(["fires"]);
+    expect(container.querySelector("[data-automation-webhook-none]")).toBeNull();
+
+    mount(
+      step(
+        { kind: "callWebhook", webhookId: "silent" },
+        { webhooks: [fires, silent], flagged: true, unavailable: "webhookEvent" },
+      ),
+    );
+    expect(offered("silent")).toEqual(["fires", "silent"]);
+    expect(container.querySelector('[role="alert"]')?.textContent).toBe("Automations.unavailable.webhookEvent");
+
+    mount(step({ kind: "callWebhook", webhookId: "" }, { webhooks: [silent] }));
+    expect(offered("")).toEqual([]);
+    expect(container.querySelector("[data-automation-webhook-none]")?.textContent).toBe(
+      "Automations.builder.webhookNoneSubscribed",
+    );
+  });
+
   it("explains a webhook step to a member who may not see webhooks instead of showing an empty picker", () => {
     mount(step({ kind: "callWebhook", webhookId: "kept" }, { webhooks: null }));
 

@@ -20,6 +20,7 @@ import {
   emptyDraft,
   fieldTakesValue,
   linkRelationsFor,
+  pickableWebhooks,
   reminderDraft,
   ruleToDraft,
   scalarFor,
@@ -957,7 +958,7 @@ describe("fields the builder offers", () => {
 describe("references that are no longer available", () => {
   const references = (overrides: Partial<DraftReferences> = {}): DraftReferences => ({
     model: MODEL,
-    webhooks: [{ id: WEBHOOK }],
+    webhooks: [{ id: WEBHOOK, subscribed: true }],
     runtimes: {
       ownKey: { available: true, models: [{ id: "m-1" }] },
       runner: { reason: null, runners: [{ id: RUNNER }] },
@@ -1039,6 +1040,17 @@ describe("references that are no longer available", () => {
       { card: "effects.1", what: "runner" },
       { card: "effects.2", what: "model" },
     ]);
+  });
+
+  it("names a webhook that has not selected the automation event, and offers only webhooks that have", () => {
+    const rule = stored({ effects: [{ kind: "callWebhook", webhookId: WEBHOOK }] });
+    const silent = { id: WEBHOOK, subscribed: false };
+    const other = { id: "66666666-6666-4666-8666-777777777777", subscribed: true };
+
+    expect(unavailableOf(rule, { webhooks: [silent, other] })).toEqual([{ card: "effects.0", what: "webhookEvent" }]);
+    expect(unavailableOf(rule, { webhooks: [{ ...silent, subscribed: true }, other] })).toEqual([]);
+    expect(pickableWebhooks([silent, other], "")).toEqual([other]);
+    expect(pickableWebhooks([silent, other], WEBHOOK)).toEqual([silent, other]);
   });
 
   it("does not call a webhook missing when the member may not see webhooks, nor a model when no key is saved", () => {
