@@ -130,10 +130,40 @@ describe("automation conditions", () => {
     expect(
       evaluateCondition(
         condition({ operator: "notEquals", value: { kind: "text", value: "x" } }),
-        value(missing),
+        value(restricted),
         CONTEXT,
       ),
     ).toBe(false);
+  });
+
+  // The record query compiles "ne" and "notIn" as NOT COALESCE(<comparison>, FALSE): a record whose field
+  // is empty matches (features/records/__tests__/record-engine.database.test.ts, "keeps missing and
+  // other-currency values for not-equal filters exactly like notIn"). A condition that cannot become a
+  // subscription filter is evaluated here and has to give the same answer, whatever the trigger.
+  it("matches an empty field for notEquals and notIn like the record query does", () => {
+    const notLost = condition({ operator: "notEquals", value: { kind: "select", value: "lost" } });
+    const notClosed = condition({
+      operator: "notIn",
+      values: [
+        { kind: "select", value: "lost" },
+        { kind: "select", value: "won" },
+      ],
+    });
+    const failed: CalculatedValue = { state: "error", code: "division_by_zero" };
+    for (const empty of [value(missing), new Map<string, CalculatedValue>(), value(failed)]) {
+      expect(evaluateCondition(notLost, empty, CONTEXT)).toBe(true);
+      expect(evaluateCondition(notClosed, empty, CONTEXT)).toBe(true);
+      expect(
+        evaluateCondition(condition({ operator: "equals", value: { kind: "select", value: "lost" } }), empty, CONTEXT),
+      ).toBe(false);
+      expect(
+        evaluateCondition(condition({ operator: "in", values: [{ kind: "select", value: "lost" }] }), empty, CONTEXT),
+      ).toBe(false);
+      expect(evaluateCondition(condition({ operator: "before", relativeDays: 0 }), empty, CONTEXT)).toBe(false);
+    }
+    expect(evaluateCondition(notLost, value(select("lost")), CONTEXT)).toBe(false);
+    expect(evaluateCondition(notLost, value(select("new")), CONTEXT)).toBe(true);
+    expect(evaluateCondition(notClosed, value(select("won")), CONTEXT)).toBe(false);
   });
 
   it("compares dates against a value and against today in the time zone", () => {

@@ -98,7 +98,12 @@ export function evaluateCondition(
   const empty = !result || result.state === "missing";
   if (condition.operator === "empty") return empty;
   if (condition.operator === "notEmpty") return !empty;
-  if (!result || result.state !== "value") return false;
+  if (empty || result.state === "error") {
+    if (condition.operator === "notEquals") return condition.value !== undefined;
+    if (condition.operator === "notIn") return condition.values !== undefined;
+    return false;
+  }
+  if (result.state !== "value") return false;
   const actual = result.value;
   switch (condition.operator) {
     case "equals":

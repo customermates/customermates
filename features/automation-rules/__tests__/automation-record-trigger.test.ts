@@ -2,11 +2,12 @@ import { randomUUID } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import type { RecordField, RecordModel } from "@/features/records/record-model.schema";
+import type { CalculatedValue, RecordField, RecordModel } from "@/features/records/record-model.schema";
 
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { recordEventSubscriptionIsValid } from "@/features/records/record-event-subscription-validation";
 import { RecordEventSubscriptionSchema } from "@/features/records/record-event-subscription.schema";
+import { evaluateConditions } from "../automation-conditions";
 import { AutomationConditionSchema, AutomationTriggerSchema } from "../automation-rule.schema";
 import { fieldChangedFilter, ruleConditionPlan } from "../automation-record-trigger";
 
@@ -169,6 +170,38 @@ describe("a rule's record trigger as a shared record trigger", () => {
         subscription: null,
         residual: [hasName],
       });
+    }
+  });
+
+  // "Stage is not Lost" on a deal with an empty Stage. As a subscription filter it is the record query's
+  // "ne" / "notIn", which match an empty field (record-engine.database.test.ts, "keeps missing and
+  // other-currency values for not-equal filters exactly like notIn"). On the triggers that keep the
+  // condition for the run, evaluateCondition has to say the same.
+  it("answers a not-equal condition on an empty field the same on every trigger", () => {
+    const notLost = condition({ fieldId: STAGE, operator: "notEquals", value: { kind: "select", value: LOST } });
+    const notClosed = condition({
+      fieldId: STAGE,
+      operator: "notIn",
+      values: [
+        { kind: "select", value: LOST },
+        { kind: "select", value: WON },
+      ],
+    });
+    const emptyStage = new Map<string, CalculatedValue>([[STAGE, { state: "missing" }]]);
+    const context = { now: new Date("2026-11-12T10:00:00.000Z"), timeZone: "UTC" };
+
+    const updated = ruleConditionPlan(trigger({ kind: "recordUpdated", typeId: DEAL }), [notLost, notClosed], model());
+    expect(updated.residual).toEqual([]);
+    expect(updated.subscription?.query.filters.map((filter) => filter.operator)).toEqual(["ne", "notIn"]);
+
+    for (const value of [
+      { kind: "dateReached", typeId: DEAL, fieldId: CLOSES, days: 1, direction: "before" },
+      { kind: "formSubmitted", typeId: DEAL },
+      { kind: "webhookReceived", typeId: DEAL },
+    ]) {
+      const { subscription, residual } = ruleConditionPlan(trigger(value), [notLost, notClosed], model());
+      expect(subscription).toBeNull();
+      expect(evaluateConditions(residual, emptyStage, context)).toBe(true);
     }
   });
 
