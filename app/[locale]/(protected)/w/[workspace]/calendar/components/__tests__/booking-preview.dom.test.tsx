@@ -106,7 +106,7 @@ describe("BookingPreview", () => {
       runInAction(() => {
         modal.form.workingHours = Object.fromEntries(
           Object.keys(DEFAULT_WORKING_HOURS).map((day) => [day, []]),
-        ) as typeof modal.form.workingHours;
+        ) as unknown as typeof modal.form.workingHours;
       });
     });
     expect(container.textContent).toContain("PublicBooking.noSlots");
