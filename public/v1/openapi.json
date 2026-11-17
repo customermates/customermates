@@ -106531,6 +106531,77 @@
                       "additionalProperties": false,
                       "description": "Submissions of the last 30 days that could not be saved as a record."
                     },
+                    "duplicates": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "submittedAt": {
+                                "type": "string"
+                              },
+                              "recordId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "The record of the list that already had this email address."
+                              },
+                              "answers": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "label": {
+                                      "type": "string"
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "label",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "submittedAt",
+                              "recordId",
+                              "answers"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "count",
+                        "items"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Submissions of the last 30 days whose email address already had a record in the list. No second record is created; the answers are kept here, the newest 20 with their answers."
+                    },
                     "workspaceName": {
                       "anyOf": [
                         {
@@ -106569,6 +106640,7 @@
                     "peopleLists",
                     "blockingFields",
                     "failures",
+                    "duplicates",
                     "workspaceName",
                     "badge",
                     "allowed",
@@ -106668,7 +106740,7 @@
       "post": {
         "operationId": "saveForm",
         "summary": "Create or update a public form",
-        "description": "Creates the form of a list (typeId, name and config are required) or, with id, updates it; config replaces the stored definition. A list has at most one form. Submissions create a record in the list with the form as its source, as the member who last turned the form on. A submission can find or create a person by email and link it; one person exists per email. When the consent text or the privacy link changes, the consent version increases. Free plan forms accept a monthly number of submissions and show a badge.\n\nRequires: the publicLinks create permission, create access to the list, and public links allowed in the workspace settings to turn a form on.",
+        "description": "Creates the form of a list (typeId, name and config are required) or, with id, updates it; config replaces the stored definition. A list has at most one form. Submissions create a record in the list with the form as its source, as the member who last turned the form on. A submission from an email address that already has a record in the list creates no second record; its answers are kept and listed as duplicates by listFormFields. A submission can find or create a person by email and link it; one person exists per email. When the consent text or the privacy link changes, the consent version increases. Free plan forms accept a monthly number of submissions and show a badge.\n\nRequires: the publicLinks create permission, create access to the list, and public links allowed in the workspace settings to turn a form on.",
         "tags": [
           "forms"
         ],
@@ -107362,7 +107434,7 @@
       "post": {
         "operationId": "disableForm",
         "summary": "Turn a public form off",
-        "description": "Turns the form off at once; its link answers as unavailable. Saving the form again with enabled true turns it back on at the same link.\n\nRequires: the publicLinks create permission.",
+        "description": "Turns the form off at once; its link answers as unavailable. Saving the form again with enabled true turns it back on at the same link.\n\nRequires: the publicLinks create permission and create access to the list.",
         "tags": [
           "forms"
         ],
