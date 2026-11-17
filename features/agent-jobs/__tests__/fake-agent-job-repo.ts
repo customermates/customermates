@@ -17,6 +17,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
   readonly jobs = new Map<string, StoredAgentJob>();
   readonly events = new Map<string, unknown[]>();
   readonly inactiveRuleIds = new Set<string>();
+  private readonly keys = new Map<string, string>();
   private sequence = 0;
 
   constructor(private readonly companyId = COMPANY) {}
@@ -56,8 +57,16 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return job;
   }
 
-  enqueue(data: AgentJobEnqueue): Promise<StoredAgentJob> {
-    return Promise.resolve(this.add(data));
+  async enqueue({ idempotencyKey, ...data }: AgentJobEnqueue): Promise<StoredAgentJob> {
+    const existing = idempotencyKey ? await this.findByIdempotencyKey(idempotencyKey) : null;
+    if (existing) return existing;
+    const job = this.add(data);
+    if (idempotencyKey) this.keys.set(idempotencyKey, job.id);
+    return job;
+  }
+
+  findByIdempotencyKey(idempotencyKey: string): Promise<StoredAgentJob | null> {
+    return Promise.resolve(this.jobs.get(this.keys.get(idempotencyKey) ?? "") ?? null);
   }
 
   findPage(filter: AgentJobFilter): Promise<StoredAgentJobSummary[]> {

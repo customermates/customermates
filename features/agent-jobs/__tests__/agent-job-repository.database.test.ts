@@ -34,6 +34,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
           runtime: "ownKey",
           sourceKind: "automation",
           sourceId: randomUUID(),
+          idempotencyKey: null,
           ruleChain: [],
           ownerUserId: company === companyId ? ownerId : otherOwnerId,
           prompt: "Summarise the deal",
@@ -145,6 +146,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
             runtime: "runner",
             sourceKind: "automation",
             sourceId: randomUUID(),
+            idempotencyKey: null,
             ruleChain: [],
             ownerUserId: doomedOwner,
             prompt: "Summarise the deal",
@@ -580,6 +582,34 @@ describeDatabase("PrismaAgentJobRepo", () => {
     expect(appended.every(Boolean)).toBe(true);
     const stored = ((await row(job.id)).transcript as Array<{ text: string }>).map((entry) => entry.text);
     expect([...stored].sort()).toEqual([...texts].sort());
+  });
+
+  it("keeps one job per idempotency key in a workspace, also when two enqueues race", async () => {
+    const key = `rule:${randomUUID()}:0`;
+
+    const first = await enqueue({ idempotencyKey: key, prompt: "First" });
+    const again = await enqueue({ idempotencyKey: key, prompt: "Replay" });
+    const raced = await Promise.all([1, 2, 3].map(() => enqueue({ idempotencyKey: `${key}-race` })));
+    const otherWorkspace = await enqueue({ idempotencyKey: key }, otherCompanyId);
+    const withoutKey = await Promise.all([enqueue(), enqueue()]);
+
+    expect(again).toMatchObject({ id: first.id, prompt: "First" });
+    expect(new Set(raced.map((job) => job.id)).size).toBe(1);
+    expect(otherWorkspace.id).not.toBe(first.id);
+    expect(withoutKey[0].id).not.toBe(withoutKey[1].id);
+    const stored = await client.query('SELECT 1 FROM "AgentJob" WHERE "idempotencyKey" LIKE $1', [`${key}%`]);
+    expect(stored.rowCount).toBe(3);
+    await asOwner(async () => {
+      expect(await repo().findByIdempotencyKey(key)).toMatchObject({ id: first.id });
+      expect(await repo().findByIdempotencyKey(`${key}-missing`)).toBeNull();
+    });
+    await asOwner(
+      async () => {
+        expect(await repo().findByIdempotencyKey(key)).toMatchObject({ id: otherWorkspace.id });
+      },
+      otherCompanyId,
+      otherOwnerId,
+    );
   });
 
   it("discards only a queued job", async () => {

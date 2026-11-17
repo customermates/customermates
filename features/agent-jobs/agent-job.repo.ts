@@ -37,6 +37,7 @@ export type AgentJobEnqueue = {
   runtime: AgentRuntime;
   sourceKind: string;
   sourceId: string | null;
+  idempotencyKey: string | null;
   ruleChain: string[];
   ownerUserId: string;
   prompt: string;
@@ -90,6 +91,7 @@ export type AgentJobSweepOutcome = AgentJobQueueEntry & {
 
 export abstract class AgentJobRepo {
   abstract enqueue(data: AgentJobEnqueue): Promise<StoredAgentJob>;
+  abstract findByIdempotencyKey(idempotencyKey: string): Promise<StoredAgentJob | null>;
   abstract findPage(filter: AgentJobFilter): Promise<StoredAgentJobSummary[]>;
   abstract findOne(id: string): Promise<StoredAgentJob | null>;
   abstract findUnscoped(companyId: string, id: string): Promise<StoredAgentJob | null>;

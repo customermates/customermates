@@ -53,6 +53,9 @@ export class EnqueueAgentJobInteractor
     if (data.ownerUserId !== this.user.id)
       return failAuthorization(CustomErrorCode.agentJobNotFound, ["ownerUserId"], { reason: "agentJobRefused" });
 
+    const existing = await this.repo.findByIdempotencyKey(data.idempotencyKey);
+    if (existing) return { ok: true as const, data: { jobId: existing.id } };
+
     const refusal = await this.refusal(data);
     if (refusal) return failUnavailable(CustomErrorCode.agentRuntimeUnavailable, ["runtime"], { reason: refusal });
 
@@ -60,6 +63,7 @@ export class EnqueueAgentJobInteractor
       runtime: data.runtime,
       sourceKind: AGENT_JOB_SOURCE_AUTOMATION,
       sourceId: data.runId,
+      idempotencyKey: data.idempotencyKey,
       ruleChain: [...(currentCausation()?.ruleChain ?? [])],
       ownerUserId: data.ownerUserId,
       prompt: composeAgentJobPrompt(data.prompt, data.recordRef),
@@ -67,7 +71,7 @@ export class EnqueueAgentJobInteractor
       model: data.model,
       pinnedRunnerId: data.runnerId,
     });
-    if (HOSTED_RUNTIMES.has(data.runtime)) {
+    if (HOSTED_RUNTIMES.has(job.runtime) && job.status === "queued") {
       await this.tasks.dispatch("run-agent-job", {
         jobId: job.id,
         companyId: job.companyId,

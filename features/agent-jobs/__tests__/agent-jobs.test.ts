@@ -76,6 +76,12 @@ const input = {
   recordRef: { typeId: TYPE, recordId: RECORD },
 };
 
+let effectIndex = 0;
+function fresh() {
+  effectIndex += 1;
+  return Object.assign({}, input, { idempotencyKey: `rule:${RUN}:${effectIndex}` });
+}
+
 function issue(result: unknown) {
   const failed = result as { error?: { issues: Array<{ path: PropertyKey[]; params?: Record<string, unknown> }> } };
   const first = failed.error?.issues[0];
@@ -99,7 +105,7 @@ describe("enqueueing an agent job from an automation", () => {
     );
 
   it("queues a job with the triggering record in its prompt and starts the hosted run", async () => {
-    const outcome = await enqueue(input);
+    const outcome = await enqueue(fresh());
 
     expect(outcome.ok).toBe(true);
     if (!outcome.ok) return;
@@ -126,15 +132,29 @@ describe("enqueueing an agent job from an automation", () => {
     const RULE_A = "00000000-0000-4000-8000-0000000000d1";
     const RULE_B = "00000000-0000-4000-8000-0000000000d2";
 
-    const inRun = await runInCausation({ ruleChain: [RULE_A, RULE_B] }, () => enqueue(input));
-    const outside = await enqueue(input);
+    const inRun = await runInCausation({ ruleChain: [RULE_A, RULE_B] }, () => enqueue(fresh()));
+    const outside = await enqueue(fresh());
 
     expect(inRun.ok && repo.jobs.get(inRun.jobId)?.ruleChain).toEqual([RULE_A, RULE_B]);
     expect(outside.ok && repo.jobs.get(outside.jobId)?.ruleChain).toEqual([]);
   });
 
+  it("returns the job of the same run and effect when a re-claimed run replays the effect", async () => {
+    const replayed = fresh();
+    const first = await enqueue(replayed);
+    // The worker died before the run was settled: the run is claimed again and replays its effects.
+    source.availability.mockResolvedValue(availability({ ownKey: unavailable("noKey") }));
+    const second = await enqueue(replayed);
+    const otherEffect = await enqueue({ ...replayed, idempotencyKey: `${replayed.idempotencyKey}-next` });
+
+    expect(first.ok && second.ok && second.jobId === first.jobId).toBe(true);
+    expect(repo.jobs.size).toBe(1);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(otherEffect).toEqual({ ok: false, reason: "agentRuntimeUnavailable:noKey" });
+  });
+
   it("runs Mate jobs the same way and keeps the untrusted marker of the trigger", async () => {
-    const outcome = await enqueue({ ...input, runtime: "mate", recordRef: null, promptUntrusted: true });
+    const outcome = await enqueue({ ...fresh(), runtime: "mate", recordRef: null, promptUntrusted: true });
 
     expect(outcome.ok).toBe(true);
     if (!outcome.ok) return;
@@ -144,7 +164,7 @@ describe("enqueueing an agent job from an automation", () => {
   });
 
   it("only queues a runner job: the runner consumes it", async () => {
-    const outcome = await enqueue({ ...input, runtime: "runner", runnerId: RUNNER });
+    const outcome = await enqueue({ ...fresh(), runtime: "runner", runnerId: RUNNER });
 
     expect(outcome.ok).toBe(true);
     if (!outcome.ok) return;
@@ -165,7 +185,7 @@ describe("enqueueing an agent job from an automation", () => {
       ["runner", "noRunner"],
     ] as const) {
       source.availability.mockResolvedValue(availability({ [runtime]: unavailable(reason) }));
-      expect(await enqueue({ ...input, runtime, runnerId: null, model: null })).toEqual({
+      expect(await enqueue({ ...fresh(), runtime, runnerId: null, model: null })).toEqual({
         ok: false,
         reason: `agentRuntimeUnavailable:${reason}`,
       });
@@ -175,28 +195,30 @@ describe("enqueueing an agent job from an automation", () => {
   });
 
   it("refuses a model the workspace's keys do not offer and a runner that is not live", async () => {
-    expect(await enqueue({ ...input, model: "gpt-5" })).toEqual({ ok: false, reason: "agentModelUnavailable" });
-    expect(await enqueue({ ...input, model: "claude-sonnet-5-5" })).toMatchObject({ ok: true });
-    expect(await enqueue({ ...input, runtime: "runner", runnerId: "00000000-0000-4000-8000-0000000000c9" })).toEqual({
+    expect(await enqueue({ ...fresh(), model: "gpt-5" })).toEqual({ ok: false, reason: "agentModelUnavailable" });
+    expect(await enqueue({ ...fresh(), model: "claude-sonnet-5-5" })).toMatchObject({ ok: true });
+    expect(await enqueue({ ...fresh(), runtime: "runner", runnerId: "00000000-0000-4000-8000-0000000000c9" })).toEqual({
       ok: false,
       reason: "agentRunnerUnavailable",
     });
   });
 
   it("only queues for the workspace and the owner it runs as", async () => {
-    expect(await enqueue({ ...input, companyId: "00000000-0000-4000-8000-0000000000ff" })).toEqual({
+    expect(await enqueue({ ...fresh(), companyId: "00000000-0000-4000-8000-0000000000ff" })).toEqual({
       ok: false,
       reason: "agentJobRefused",
     });
-    expect(await enqueue({ ...input, ownerUserId: COLLEAGUE })).toEqual({ ok: false, reason: "agentJobRefused" });
+    expect(await enqueue({ ...fresh(), ownerUserId: COLLEAGUE })).toEqual({ ok: false, reason: "agentJobRefused" });
     expect(repo.jobs.size).toBe(0);
   });
 
   it("refuses malformed input without touching the queue", async () => {
     for (const bad of [
-      { ...input, prompt: "  " },
-      { ...input, runtime: "claude" },
-      { ...input, runId: "not-a-uuid" },
+      { ...fresh(), prompt: "  " },
+      { ...fresh(), runtime: "claude" },
+      { ...fresh(), runId: "not-a-uuid" },
+      { ...fresh(), idempotencyKey: "" },
+      input,
     ])
       expect(await enqueue(bad)).toEqual({ ok: false, reason: "agentJobRefused" });
     expect(repo.jobs.size).toBe(0);

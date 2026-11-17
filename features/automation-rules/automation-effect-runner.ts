@@ -3,6 +3,7 @@ import type { RecordMutation } from "@/features/records/record-query.schema";
 import type { z } from "zod";
 import type { EventService } from "@/features/event/event.service";
 import type {
+  AutomationAgentJobInput,
   AutomationAgentPort,
   AutomationNotifyPort,
   AutomationRecordPort,
@@ -95,20 +96,22 @@ export class AutomationEffectRunner {
       case "callWebhook":
         return this.callWebhook(effect, context);
       case "agent":
-        return this.agent(effect, context);
+        return this.agent(effect, index, context);
     }
   }
 
   private async agent(
     effect: Extract<AutomationEffect, { kind: "agent" }>,
+    index: number,
     context: AutomationEffectContext,
   ): Promise<AutomationEffectOutcome> {
     if (!this.agents) return { kind: effect.kind, status: "failed", detail: "agentRuntimeUnavailable" };
     const record = context.recordRef ? await this.records.read(context.recordRef) : null;
     const prompt = renderAutomationTemplate(effect.prompt, { record: record ?? undefined, rule: context.rule });
-    const queued = await this.agents.enqueue({
+    const request: AutomationAgentJobInput & { idempotencyKey: string } = {
       companyId: context.companyId,
       runId: context.runId,
+      idempotencyKey: `rule:${context.runId}:${index}`,
       ownerUserId: context.rule.ownerUserId,
       runtime: effect.runtime,
       prompt,
@@ -116,7 +119,8 @@ export class AutomationEffectRunner {
       model: effect.model ?? null,
       runnerId: effect.runnerId ?? null,
       recordRef: context.recordRef,
-    });
+    };
+    const queued = await this.agents.enqueue(request);
     if (!queued.ok) return { kind: effect.kind, status: "failed", detail: queued.reason };
     return {
       kind: effect.kind,

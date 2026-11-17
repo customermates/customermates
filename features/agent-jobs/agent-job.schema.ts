@@ -132,6 +132,7 @@ export const EnqueueAgentJobSchema = z
   .object({
     companyId: z.uuid(),
     runId: z.uuid(),
+    idempotencyKey: z.string().trim().min(1).max(200),
     ownerUserId: z.uuid(),
     runtime: AgentRuntimeSchema,
     prompt: z.string().trim().min(1).max(AUTOMATION_AGENT_PROMPT_MAX_CHARS),

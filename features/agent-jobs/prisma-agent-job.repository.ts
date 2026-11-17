@@ -11,6 +11,8 @@ import type {
 } from "./agent-job.repo";
 import type { AgentRuntime } from "@/generated/prisma";
 
+import { randomUUID } from "node:crypto";
+
 import { AgentJobStatus, Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -63,9 +65,25 @@ function attemptFence(attempt: number | undefined): { attempts?: number } {
 }
 
 export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo {
-  enqueue(data: AgentJobEnqueue): Promise<StoredAgentJob> {
-    return this.prisma.agentJob.create({
-      data: { ...data, companyId: this.companyId },
+  async enqueue(data: AgentJobEnqueue): Promise<StoredAgentJob> {
+    const id = randomUUID();
+    const { count } = await this.prisma.agentJob.createMany({
+      data: [{ id, ...data, companyId: this.companyId }],
+      skipDuplicates: true,
+    });
+    const job =
+      count === 1
+        ? await this.findOne(id)
+        : data.idempotencyKey
+          ? await this.findByIdempotencyKey(data.idempotencyKey)
+          : null;
+    if (!job) throw new Error("The agent job could not be enqueued");
+    return job;
+  }
+
+  findByIdempotencyKey(idempotencyKey: string): Promise<StoredAgentJob | null> {
+    return this.prisma.agentJob.findFirst({
+      where: { companyId: this.companyId, idempotencyKey },
       select: JOB_SELECT,
     });
   }
