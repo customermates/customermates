@@ -557,7 +557,10 @@ describe("running a rule", () => {
       atHour: 8,
       timezone: "Europe/Berlin",
     };
-    const outcome = async (current: CalculatedValue | undefined, payload: Record<string, unknown>) => {
+    const outcome = async (
+      current: CalculatedValue | undefined,
+      payload: { chain: string[]; fireAt?: string; fieldValue?: string },
+    ) => {
       const store = new FakeAutomationRuleRepo();
       store.addRule({
         id: RULE,

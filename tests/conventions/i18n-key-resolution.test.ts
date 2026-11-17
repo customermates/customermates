@@ -730,18 +730,6 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
   ],
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
-  [
-    `${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: reason.\${run.reason}`,
-    AUTOMATION_KEYS("reason", [
-      "conditionsNotMet",
-      "ownerChanged",
-      "ownerInactive",
-      "ownerMissing",
-      "ownerNotPermitted",
-      "recordUnavailable",
-      "ruleDisabled",
-    ]),
-  ],
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
   [
     `${AUTOMATIONS_DIRECTORY}/automation-builder-modal.tsx :: t :: disabledReason.\${disabledReason}`,
