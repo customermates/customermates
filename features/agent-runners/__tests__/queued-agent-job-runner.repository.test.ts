@@ -112,7 +112,7 @@ describe("QueuedAgentJobRunnerRepo", () => {
     expect(await repo.start(job.id, RUNNER, 2)).toBeNull();
   });
 
-  it("marks the transcript when the runner confirms a further attempt, and not on the first", async () => {
+  it("confirms a first attempt and refuses a job whose earlier attempt had already started", async () => {
     const { jobs, repo } = setup();
     const first = jobs.add({ runtime: "runner", status: "claimed", runnerId: RUNNER.id, attempts: 1 });
     const retried = jobs.add({
@@ -124,14 +124,13 @@ describe("QueuedAgentJobRunnerRepo", () => {
     });
     jobs.events.set(retried.id, [{ type: "message", at: AT, role: "assistant", text: "Working" }]);
 
-    await repo.start(first.id, RUNNER, 1);
-    await repo.start(retried.id, RUNNER, 3);
+    expect(await repo.start(first.id, RUNNER, 1)).not.toBeNull();
+    expect(await repo.start(retried.id, RUNNER, 3)).toBeNull();
 
     expect(jobs.events.get(first.id)).toBeUndefined();
-    expect(jobs.events.get(retried.id)).toEqual([
-      { type: "message", at: AT, role: "assistant", text: "Working" },
-      { type: "attempt", at: NOW.toISOString(), attempt: 2 },
-    ]);
+    expect(jobs.jobs.get(first.id)).toMatchObject({ status: "running", startedAttempts: 1 });
+    expect(jobs.events.get(retried.id)).toEqual([{ type: "message", at: AT, role: "assistant", text: "Working" }]);
+    expect(jobs.jobs.get(retried.id)).toMatchObject({ status: "claimed", startedAttempts: 1 });
   });
 
   it("shows a job only to the runner that holds it, inside its own workspace", async () => {
