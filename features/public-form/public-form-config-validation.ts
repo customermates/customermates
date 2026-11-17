@@ -93,10 +93,19 @@ export function formCannotSaveRecords(config: PublicFormConfig, model: RecordMod
   return requiredFieldPaths(config, model, typeId).length > 0 || personPaths(config, model, typeId).length > 0;
 }
 
-export function invalidFormConfigPaths(config: PublicFormConfig, model: RecordModel, typeId: string): string[] {
+export function invalidFormConfigPaths(
+  config: PublicFormConfig,
+  model: RecordModel,
+  typeId: string,
+  checks: { requiredFields: boolean } = { requiredFields: true },
+): string[] {
   const eligible = new Set(formFieldOptions(model, typeId).map((field) => field.fieldId));
   const unknown = config.fields.flatMap((field, index) =>
     eligible.has(field.fieldId) ? [] : [`config.fields.${index}.fieldId`],
   );
-  return [...unknown, ...requiredFieldPaths(config, model, typeId), ...personPaths(config, model, typeId)];
+  return [
+    ...unknown,
+    ...(checks.requiredFields ? requiredFieldPaths(config, model, typeId) : []),
+    ...personPaths(config, model, typeId),
+  ];
 }

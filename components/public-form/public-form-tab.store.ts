@@ -33,6 +33,7 @@ export class PublicFormTabStore {
   rules: AutomationRuleDto[] = [];
   repairs: DraftRepairs = NO_DRAFT_REPAIRS;
   baseline = "";
+  loaded = "";
   saving = false;
   previewMode: PublicFormPreviewMode = "form";
   readonly withUnsavedChangesGuard = true;
@@ -48,12 +49,14 @@ export class PublicFormTabStore {
       rules: observable.ref,
       repairs: observable.ref,
       baseline: observable,
+      loaded: observable,
       saving: observable,
       previewMode: observable,
       edited: computed,
       hasUnsavedChanges: computed,
       isLoading: computed,
       config: computed,
+      switchesOffOnly: computed,
       canSave: computed,
       preview: computed,
       chain: computed,
@@ -81,8 +84,14 @@ export class PublicFormTabStore {
     return this.draft ? validDraftConfig(this.draft) : null;
   }
 
+  get switchesOffOnly(): boolean {
+    const { editor, draft } = this;
+    if (!editor?.form?.enabled || !draft || draft.enabled) return false;
+    return JSON.stringify({ ...draft, enabled: true }) === this.loaded;
+  }
+
   get canSave(): boolean {
-    return this.edited && this.config !== null && !this.saving;
+    return this.edited && (this.config !== null || this.switchesOffOnly) && !this.saving;
   }
 
   get preview(): PublicFormView | null {
@@ -113,6 +122,7 @@ export class PublicFormTabStore {
       this.draft = repaired.draft;
       this.repairs = repaired.repairs;
       this.baseline = JSON.stringify(stored);
+      this.loaded = JSON.stringify(repaired.draft);
       this.rules = rules;
     });
     return { status: "loaded" };
@@ -155,17 +165,24 @@ export class PublicFormTabStore {
 
   save = async (): Promise<PublicFormSaveOutcome> => {
     const { editor, draft, config } = this;
-    if (!editor || !draft || !config || this.saving) return { status: "skipped" };
+    if (!editor || !draft || this.saving) return { status: "skipped" };
+    const input: UpsertPublicFormData | null =
+      editor.form && this.switchesOffOnly
+        ? { id: editor.form.id, enabled: false }
+        : config
+          ? {
+              ...(editor.form ? { id: editor.form.id } : { typeId: this.typeId, name: draft.title.trim() }),
+              enabled: draft.enabled,
+              config,
+            }
+          : null;
+    if (!input) return { status: "skipped" };
 
     runInAction(() => {
       this.saving = true;
     });
     try {
-      const result = await this.actions.save({
-        ...(editor.form ? { id: editor.form.id } : { typeId: this.typeId, name: draft.title.trim() }),
-        enabled: draft.enabled,
-        config,
-      });
+      const result = await this.actions.save(input);
       if (!result.ok) return { status: "failed", error: result.error };
     } finally {
       runInAction(() => {

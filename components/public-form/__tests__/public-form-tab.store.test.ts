@@ -142,11 +142,49 @@ describe("PublicFormTabStore after the list changed", () => {
     expect(store.config?.person).toBeNull();
     expect(store.edited).toBe(true);
 
-    store.patch({ enabled: false });
     await store.save();
     expect(actions.save).toHaveBeenCalledWith(
-      expect.objectContaining({ enabled: false, config: expect.objectContaining({ person: null }) }),
+      expect.objectContaining({ enabled: true, config: expect.objectContaining({ person: null }) }),
     );
+  });
+
+  it("switches a form off with the id and the switch alone, so nothing else about it is checked", async () => {
+    const { store, actions } = await loaded(editor({ form: withConfig({ person }), peopleLists: [] }));
+
+    store.patch({ enabled: false });
+
+    expect(store.switchesOffOnly).toBe(true);
+    expect(store.canSave).toBe(true);
+    expect(await store.save()).toEqual({ status: "saved" });
+    expect(actions.save).toHaveBeenCalledExactlyOnceWith({ id: FORM_ID, enabled: false });
+  });
+
+  it("can switch a form off even when the draft could not be saved as a form", async () => {
+    const { store, actions } = await loaded();
+    store.patch({ title: "" });
+    expect(store.config).toBeNull();
+    expect(store.switchesOffOnly).toBe(false);
+    expect(await store.save()).toEqual({ status: "skipped" });
+
+    store.patch({ title: "Contact us", enabled: false });
+
+    expect(store.switchesOffOnly).toBe(true);
+    expect(await store.save()).toEqual({ status: "saved" });
+    expect(actions.save).toHaveBeenCalledExactlyOnceWith({ id: FORM_ID, enabled: false });
+  });
+
+  it("sends the definition with the switch when something else changed as well, or when the form is switched on", async () => {
+    const edited = await loaded();
+    edited.store.patch({ title: "Talk to us", enabled: false });
+    await edited.store.save();
+
+    const switchedOn = await loaded(editor({ form: { ...savedForm(), enabled: false } }));
+    switchedOn.store.patch({ enabled: true });
+    await switchedOn.store.save();
+
+    expect(edited.store.switchesOffOnly).toBe(false);
+    expect(edited.actions.save.mock.calls[0][0]).toMatchObject({ enabled: false, config: { title: "Talk to us" } });
+    expect(switchedOn.actions.save.mock.calls[0][0]).toMatchObject({ enabled: true, config: { title: "Contact us" } });
   });
 
   it("does not keep the id of a people list that is gone when other lists remain", async () => {
