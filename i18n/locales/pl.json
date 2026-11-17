@@ -2729,6 +2729,7 @@
     "appProfile": "Profil",
     "appRecords": "Rekordy",
     "appRoutines": "Automatyzacje",
+    "appRunners": "Runnery",
     "appSearch": "Wyszukiwanie globalne",
     "appTrash": "Kosz",
     "appWorkspaces": "Przestrzenie robocze",
@@ -5640,7 +5641,7 @@
       "gemini": "Gemini CLI"
     },
     "clients": "Znalezione CLI",
-    "description": "Runner uruchamia kroki agenta z Twoim własnym Claude Code, Codex lub Gemini CLI na Twojej maszynie. Pobiera zadania z tej przestrzeni roboczej, uruchamia CLI, w którym jesteś zalogowany, i odsyła wynik. Customermates nigdy nie otrzymuje Twojego logowania do CLI.",
+    "description": "Runner uruchamia kroki agenta z Twoim własnym Claude Code, Codex lub Gemini CLI na Twojej maszynie. Pobiera zadania z tej przestrzeni roboczej, uruchamia CLI, w którym masz aktywne logowanie, i odsyła wynik. Customermates nigdy nie otrzymuje Twojego logowania do CLI.",
     "dockerDescription": "Uruchamia tego samego runnera w kontenerze. Zamontuj folder logowania swojego CLI, aby pozostało zalogowane.",
     "dockerTitle": "Uruchom w Dockerze",
     "installDescription": "Wymaga Node 24 oraz Claude Code, Codex lub Gemini CLI, zalogowanego na tej maszynie.",

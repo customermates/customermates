@@ -2729,6 +2729,7 @@
     "appProfile": "Profil",
     "appRecords": "Enregistrements",
     "appRoutines": "Routines",
+    "appRunners": "Runners",
     "appSearch": "Recherche globale",
     "appTrash": "Corbeille",
     "appWorkspaces": "Espaces de travail",
@@ -5640,7 +5641,7 @@
       "gemini": "Gemini CLI"
     },
     "clients": "CLI détectées",
-    "description": "Un runner exécute les étapes d’agent avec votre propre Claude Code, Codex ou Gemini CLI sur votre machine. Il récupère les tâches de cet espace de travail, lance la CLI à laquelle vous êtes connecté et renvoie le résultat. Customermates ne reçoit jamais votre connexion à la CLI.",
+    "description": "Un runner exécute les étapes d’agent avec votre propre Claude Code, Codex ou Gemini CLI sur votre machine. Il récupère les tâches de cet espace de travail, lance la CLI dont vous avez ouvert la session et renvoie le résultat. Customermates ne reçoit jamais votre connexion à la CLI.",
     "dockerDescription": "Lance le même runner dans un conteneur. Montez le dossier de connexion de votre CLI pour qu’elle reste connectée.",
     "dockerTitle": "Lancer avec Docker",
     "installDescription": "Nécessite Node 24 et Claude Code, Codex ou Gemini CLI, connecté sur cette machine.",

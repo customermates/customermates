@@ -1,0 +1,100 @@
+---
+title: "Runner: Agenten mit Ihrem eigenen Claude Code oder Codex"
+description: "Ein Runner führt Agent-Schritte mit Ihrem eigenen Claude Code, Codex oder Gemini CLI auf Ihrem Rechner aus: Voraussetzungen, Start, Timeouts, Widerruf."
+---
+
+Mit einem Runner laufen die Agent-Schritte Ihres Workspace mit Ihrem eigenen Claude Code, Codex oder Gemini CLI auf Ihrem eigenen Rechner. Er ist ein kleines Programm, `customermates-runner`, das Ihren Workspace nach Agent-Aufträgen fragt, die CLI startet, bei der Sie angemeldet sind, alles, was die CLI tut, als Transkript zurückschickt und das Ergebnis meldet. Ihre CLI-Anmeldung bleibt auf Ihrem Rechner: Customermates erhält sie nie. Runner funktionieren in Customermates Cloud und auf selbst gehosteten Instanzen.
+
+Runner verwalten Sie unter **Einstellungen**, **Agenten**, in der Karte **Runner**. Zum Hinzufügen und Widerrufen eines Runners brauchen Sie dieselben Rollenrechte wie für [API-Schlüssel](/docs/api-keys).
+
+## Was macht ein Runner? [#what-does-a-runner-do]
+
+Alle 60 Sekunden meldet er dem Workspace seinen Rechnernamen und welche CLIs er im PATH gefunden hat, mit ihren Versionen. Dazwischen hält er bis zu 25 Sekunden lang eine Anfrage offen, um den nächsten wartenden Auftrag des Workspace abzuholen, und fragt sofort wieder nach. Für einen Auftrag schreibt er eine temporäre MCP-Konfiguration mit der Adresse Ihres Workspace und einem kurzlebigen Schlüssel der Person, der der Auftrag gehört, startet die CLI mit dem Prompt des Auftrags, sendet jeden Schritt der CLI-Ausgabe als Transkript-Ereignis zurück und löscht die Konfiguration, wenn die CLI fertig ist. Danach wartet er auf den nächsten Auftrag.
+
+Die CLI arbeitet als die Person, der der Auftrag gehört, mit deren Berechtigungen in diesem Workspace. Sie kann die Werkzeuge Ihres Workspace über [MCP](/docs/mcp) nutzen und, soweit ihre eigenen Einstellungen und die erlaubten Werkzeuge es zulassen, alles andere auf diesem Rechner, etwa lokale MCP-Server und Dateien.
+
+## Was braucht er? [#what-does-it-need]
+
+- Node 24 oder Docker.
+- Claude Code, Codex oder Gemini CLI, auf diesem Rechner installiert und angemeldet. Ohne CLI bleibt der Runner online, übernimmt aber keine Aufträge, damit ein anderer Runner sie bekommen kann.
+- Eine Netzwerkverbindung von diesem Rechner zu Ihrer Customermates-Adresse. Der Runner stellt nur ausgehende Anfragen, funktioniert also hinter einer Firewall und braucht keinen offenen Port.
+
+## Wie füge ich einen Runner hinzu und starte ihn? [#how-do-i-add-a-runner]
+
+1. Öffnen Sie **Einstellungen**, **Agenten** und klicken Sie auf **Runner hinzufügen**. Geben Sie ihm einen Namen, der den Rechner erkennen lässt.
+2. Kopieren Sie den Token. Er wird nur einmal angezeigt und beginnt mit `cmr_`. Behandeln Sie ihn wie ein Passwort: Wer ihn hat, kann die Runner-Aufträge dieses Workspace abholen.
+3. Starten Sie den Runner auf diesem Rechner, entweder mit Node:
+
+```bash
+npx customermates-runner --token cmr_... --url https://crm.example.com
+```
+
+oder mit Docker, wobei Sie den Anmeldeordner Ihrer CLI einbinden, damit sie angemeldet bleibt:
+
+```bash
+docker run -d --restart unless-stopped \
+  -e CUSTOMERMATES_URL=https://crm.example.com \
+  -e CUSTOMERMATES_RUNNER_TOKEN=cmr_... \
+  -v "$HOME/.claude:/home/node/.claude" \
+  ghcr.io/customermates/runner
+```
+
+Die Adresse ist die, unter der Sie Customermates öffnen; bei einer selbst gehosteten Instanz ist es Ihre eigene `BASE_URL`. Token und Adresse können auch aus `CUSTOMERMATES_RUNNER_TOKEN` und `CUSTOMERMATES_URL` kommen. Nützliche Optionen:
+
+- `--client claude`, `codex` oder `gemini` wählt die CLI, die die Aufträge ausführt. Standard ist die erste gefundene.
+- `--workdir <Ordner>` führt die CLI in diesem Ordner aus. Standardmäßig bekommt jeder Auftrag einen leeren temporären Ordner.
+- `--permission-mode <Modus>` und `--allowed-tools <Werkzeuge>` legen fest, was Claude Code ohne Rückfrage tun darf. Standardmäßig sind nur die Werkzeuge Ihres Workspace erlaubt. Codex läuft in einer schreibgeschützten Sandbox.
+
+Der Runner schreibt seine Logs auf die Standardausgabe und gibt seinen Token nie aus.
+
+## Was sendet der Server, und was sendet er nie? [#what-is-sent]
+
+Der Server sendet den Prompt des Auftrags, ob Außenstehende diesen Prompt beeinflussen können, das Timeout des Auftrags, die MCP-Adresse Ihres Workspace und einen Schlüssel, der einige Minuten nach dem Timeout des Auftrags nicht mehr funktioniert und widerrufen wird, sobald der Auftrag endet. Er sendet nie ein Geheimnis des Workspace, einen Anbieter-Schlüssel oder die Daten eines anderen Auftrags. Der Schlüssel erreicht nur diesen Workspace, und nur als die Person, der der Auftrag gehört.
+
+Der Runner sendet nie Ihre CLI-Anmeldung, Ihre Dateien oder Ihre Umgebung. Er sendet den Rechnernamen, die gefundenen CLIs, die Transkript-Ereignisse (jedes auf 4 KB gekürzt, Token entfernt) und das Ergebnis. Transkripte werden mit dem Auftrag gespeichert. Lassen Sie eine CLI deshalb keine Geheimnisse ausgeben, die nicht sichtbar sein sollen.
+
+Ein Prompt, den Außenstehende beeinflussen können, zum Beispiel einer mit einer Formulareinsendung oder einem eingehenden Webhook, ist im Auftrag markiert. Der Runner umgibt ihn mit derselben Rahmung wie der MCP-Server: Der Text sind Daten, keine Anweisungen, und eine Aufforderung darin, das Verhalten des Agenten zu ändern, wird gemeldet und nicht befolgt.
+
+## Was passiert mit einem Auftrag? [#what-happens-to-a-job]
+
+Ein Auftrag wartet in der Warteschlange, bis ein Runner des Workspace ihn übernimmt. Ein Auftrag, den innerhalb von 15 Minuten kein Runner übernimmt, endet als abgelaufen. Ein übernommener Auftrag, der bis zu seinem Timeout nicht fertig ist, endet ebenfalls als abgelaufen, und der Runner stoppt die CLI in diesem Moment. Scheitert die CLI, endet der Auftrag als fehlgeschlagen, mit dem Grund. Ein Auftrag, der bereits beendet, abgelaufen oder abgebrochen ist, lässt sich durch eine späte Meldung eines Runners nicht mehr ändern, und der Runner stoppt seine CLI, wenn der Workspace es ihm mitteilt.
+
+In einem Workspace können mehrere Runner arbeiten. Jeder Auftrag geht an genau einen von ihnen.
+
+## Woran sehe ich, ob ein Runner online ist? [#is-it-online]
+
+Die Karte **Runner** zeigt zu jedem Runner Rechner, gefundene CLIs und den Zeitpunkt, an dem er zuletzt gesehen wurde, mit einem von vier Zuständen: **Online**, wenn er in den letzten zwei Minuten gesehen wurde, **Offline**, wenn früher, **Nie verbunden**, wenn er sich noch nicht gemeldet hat, und **Widerrufen**.
+
+Warten Agent-Aufträge und wurde seit 10 Minuten kein Runner des Workspace gesehen, erhält die Person, der diese Aufträge gehören, höchstens einmal pro Stunde eine Benachrichtigung der Art **Automatisierungshinweise** mit einem Link zur Karte **Runner**.
+
+## Wie widerrufe ich einen Runner? [#how-do-i-revoke-a-runner]
+
+Klicken Sie beim Runner auf **Widerrufen** und bestätigen Sie. Der Runner kann dann keine Aufträge mehr abholen: Seine nächste Anfrage wird abgelehnt, und das Programm beendet sich. Ein Auftrag, den er gerade ausführt, meldet sich nicht mehr und endet als abgelaufen. Ein Widerruf lässt sich nicht rückgängig machen. Um den Rechner wieder zu nutzen, fügen Sie einen neuen Runner hinzu und starten ihn mit dem neuen Token. Widerrufen Sie einen Runner sofort, wenn sein Token bekannt wird.
+
+## Für Agenten [#for-agents]
+
+Runner sprechen den Workspace über REST an, mit `Authorization: Bearer cmr_...`, dem Token, der beim Hinzufügen des Runners angezeigt wurde. Ein Runner-Token erreicht nur diese vier Endpunkte, beschrieben in der [API-Referenz](/docs/openapi):
+
+- `POST /api/v1/runner/heartbeat` meldet den Rechner und die gefundenen CLIs.
+- `POST /api/v1/runner/jobs/claim` wartet bis zu 25 Sekunden und antwortet mit 200 und einem Auftrag samt MCP-Zugangsdaten, oder mit 204, wenn keiner kam.
+- `POST /api/v1/runner/jobs/{id}/events` hängt Transkript-Ereignisse an und antwortet mit 409, sobald der Auftrag geschlossen ist.
+- `POST /api/v1/runner/jobs/{id}/result` meldet `succeeded`, `failed` oder `timedOut` mit der Endantwort und, wenn die CLI sie meldet, Token und Kosten.
+
+Ein widerrufener Token und ein Workspace, der gelöscht wird, antworten mit 401.
+
+## Häufige Fragen [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Erhält Customermates meine Anmeldung bei Claude Code, Codex oder Gemini?">
+Nein. Der Runner startet die CLI, die Sie selbst auf Ihrem Rechner installiert und angemeldet haben. Der Workspace sendet ihr nur den Prompt und einen kurzlebigen Schlüssel für die MCP-Adresse Ihres Workspace.
+</FaqItem>
+<FaqItem question="Kann jemand außerhalb meines Teams meinen Runner etwas tun lassen?">
+Nur über einen Prompt, den Sie eingerichtet haben. Enthält ein Prompt Text von Außenstehenden, etwa eine Formulareinsendung, markiert der Auftrag das, und der Runner rahmt ihn als Daten, nicht als Anweisungen. Der Schlüssel, den die CLI erhält, erreicht nur diesen Workspace, als die Person, der der Auftrag gehört, und er läuft ab. Standardmäßig darf Claude Code nur die Werkzeuge Ihres Workspace nutzen, und Codex läuft in einer schreibgeschützten Sandbox. Erweitern Sie das nur auf einem Rechner, dem Sie vertrauen.
+</FaqItem>
+<FaqItem question="Was, wenn mein Rechner ausgeschaltet ist?">
+Aufträge warten bis zu 15 Minuten in der Warteschlange und enden dann als abgelaufen. Nach 10 Minuten ohne Runner erhält die Person, der die wartenden Aufträge gehören, eine Benachrichtigung.
+</FaqItem>
+<FaqItem question="Kann ich den Runner auf einem Server laufen lassen?">
+Ja. Jeder Rechner mit Node 24 oder Docker, einer angemeldeten CLI und einer Verbindung zu Ihrer Customermates-Adresse funktioniert, zum Beispiel eine dauerhaft laufende virtuelle Maschine.
+</FaqItem>
+</Faq>
