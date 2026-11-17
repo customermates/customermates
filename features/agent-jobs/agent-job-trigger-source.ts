@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { MESSAGE_RULE_EVENTS } from "@/features/automation-rules/automation-event";
 import { EXTERNAL_TRIGGER_EVENTS } from "@/features/event/external-trigger-events";
-import { isOutsideRecordWrite } from "@/features/records/record-event-cause";
+import { isOutsideRecordWrite, isUntrustedAgentRecordWrite } from "@/features/records/record-event-cause";
 
 const LINKED_RECORD_LIMIT = 5;
 const RULE_HOP_LIMIT = 5;
@@ -46,7 +46,8 @@ function cameFromOutside(event: TriggerEvent): boolean {
   return (
     isMessageEvent(event) ||
     (EXTERNAL_TRIGGER_EVENTS as readonly string[]).includes(event.kind) ||
-    isOutsideRecordWrite(event.via)
+    isOutsideRecordWrite(event.via) ||
+    isUntrustedAgentRecordWrite(event.payload)
   );
 }
 

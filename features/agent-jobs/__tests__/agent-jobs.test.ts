@@ -368,6 +368,20 @@ describe("where the event that started an agent step came from", () => {
     expect(await outside({ [EVENT]: circular })).toBe(false);
   });
 
+  it("is outside for a record that an agent run wrote whose instruction outside text could reach", async () => {
+    const byUntrustedAgent = { cause: { kind: "mutation", routineDepth: 1, untrustedOrigin: true } };
+    const byTrustedAgent = { cause: { kind: "mutation", routineDepth: 1 } };
+
+    expect(await outside({ [EVENT]: recordEvent({ kind: "record.updated", payload: byUntrustedAgent }) })).toBe(true);
+    expect(await outside({ [EVENT]: recordEvent({ kind: "record.updated", payload: byTrustedAgent }) })).toBe(false);
+    expect(await outside({ [EVENT]: recordEvent({ payload: { cause: { untrustedOrigin: false } } }) })).toBe(false);
+    expect(await outside({ [EVENT]: recordEvent({ payload: { untrustedOrigin: true } }) })).toBe(false);
+    const writtenByRule = recordEvent({ kind: "record.updated", causeId: `rule:${EARLIER_RUN}:0` });
+    expect(
+      await outside({ [EVENT]: writtenByRule, [EARLIER_EVENT]: recordEvent({ payload: byUntrustedAgent }) }),
+    ).toBe(true);
+  });
+
   it("marks the job as untrusted although the rule's trigger kind and its instruction are trusted", async () => {
     const repo = new FakeAgentJobRepo();
     const source = { availability: vi.fn().mockResolvedValue(availability()) };

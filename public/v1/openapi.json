@@ -160824,6 +160824,11 @@
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             }
+                          },
+                          "untrustedOrigin": {
+                            "description": "Present when an agent run wrote the record and its instruction carried text from outside the workspace.",
+                            "type": "boolean",
+                            "const": true
                           }
                         },
                         "required": [
@@ -162290,6 +162295,11 @@
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             }
+                          },
+                          "untrustedOrigin": {
+                            "description": "Present when an agent run wrote the record and its instruction carried text from outside the workspace.",
+                            "type": "boolean",
+                            "const": true
                           }
                         },
                         "required": [
@@ -163756,6 +163766,11 @@
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             }
+                          },
+                          "untrustedOrigin": {
+                            "description": "Present when an agent run wrote the record and its instruction carried text from outside the workspace.",
+                            "type": "boolean",
+                            "const": true
                           }
                         },
                         "required": [
@@ -165222,6 +165237,11 @@
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             }
+                          },
+                          "untrustedOrigin": {
+                            "description": "Present when an agent run wrote the record and its instruction carried text from outside the workspace.",
+                            "type": "boolean",
+                            "const": true
                           }
                         },
                         "required": [
@@ -166688,6 +166708,11 @@
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             }
+                          },
+                          "untrustedOrigin": {
+                            "description": "Present when an agent run wrote the record and its instruction carried text from outside the workspace.",
+                            "type": "boolean",
+                            "const": true
                           }
                         },
                         "required": [

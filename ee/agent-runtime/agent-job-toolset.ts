@@ -54,8 +54,8 @@ export type AgentJobToolkitFactory = (args: {
   untrusted: boolean;
 }) => AgentJobToolkit;
 
-export function agentJobCausation(ruleChain: readonly string[]): CausationContext {
-  return { routineDepth: 1, ruleChain: [...ruleChain] };
+export function agentJobCausation(ruleChain: readonly string[], untrusted = false): CausationContext {
+  return { routineDepth: 1, ruleChain: [...ruleChain], ...(untrusted ? { untrustedOrigin: true } : {}) };
 }
 
 export const createAgentJobToolkit: AgentJobToolkitFactory = (args) => {
@@ -73,7 +73,7 @@ export function buildAgentJobTools(args: {
 }): ToolSet {
   const { recorder, maxToolCalls } = args;
   const policy = { untrusted: args.untrusted ?? true, ruleChain: args.ruleChain ?? [] };
-  const causation = agentJobCausation(policy.ruleChain);
+  const causation = agentJobCausation(policy.ruleChain, policy.untrusted);
   const base = args.base ?? getAgentAiTools(AGENT_JOB_TOOL_DEPS, { locale: args.locale, surface: "routine" });
   return Object.fromEntries(
     Object.entries(base).map(([name, definition]) => {

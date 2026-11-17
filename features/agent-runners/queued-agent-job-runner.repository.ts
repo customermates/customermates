@@ -127,6 +127,6 @@ export class QueuedAgentJobRunnerRepo extends AgentJobRunnerRepo {
     if (!job || job.runtime !== "runner" || job.status !== "running") return null;
     if (job.attempts !== args.attempt || job.runnerId !== args.runnerId) return null;
     if (!job.timeoutAt || job.timeoutAt.getTime() <= this.clock().getTime()) return null;
-    return { ruleChain: job.ruleChain };
+    return { ruleChain: job.ruleChain, promptUntrusted: job.promptUntrusted };
   }
 }

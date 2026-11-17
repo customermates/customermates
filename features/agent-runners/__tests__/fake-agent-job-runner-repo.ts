@@ -149,6 +149,6 @@ export class FakeAgentJobRunnerRepo extends AgentJobRunnerRepo {
         candidate.timeoutAt !== null &&
         candidate.timeoutAt.getTime() > this.clock(),
     );
-    return Promise.resolve(job ? { ruleChain: job.ruleChain } : null);
+    return Promise.resolve(job ? { ruleChain: job.ruleChain, promptUntrusted: job.promptUntrusted } : null);
   }
 }

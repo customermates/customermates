@@ -188,7 +188,9 @@ describe("QueuedAgentJobRunnerRepo", () => {
     });
     const key = { companyId: COMPANY, jobId: job.id, attempt: 2, runnerId: RUNNER.id };
 
-    expect(await repo.findRunningAttempt(key)).toEqual({ ruleChain: ["rule-1"] });
+    expect(await repo.findRunningAttempt(key)).toEqual({ ruleChain: ["rule-1"], promptUntrusted: false });
+    jobs.jobs.set(job.id, { ...job, promptUntrusted: true });
+    expect(await repo.findRunningAttempt(key)).toEqual({ ruleChain: ["rule-1"], promptUntrusted: true });
     for (const timeoutAt of [NOW, new Date(NOW.getTime() - 1), null]) {
       jobs.jobs.set(job.id, { ...job, timeoutAt });
       expect(await repo.findRunningAttempt(key)).toBeNull();

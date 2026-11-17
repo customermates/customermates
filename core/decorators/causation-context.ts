@@ -1,6 +1,10 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-export type CausationContext = { routineDepth?: number; ruleChain?: readonly string[] };
+export type CausationContext = {
+  routineDepth?: number;
+  ruleChain?: readonly string[];
+  untrustedOrigin?: boolean;
+};
 
 const causationStorage = new AsyncLocalStorage<CausationContext>();
 

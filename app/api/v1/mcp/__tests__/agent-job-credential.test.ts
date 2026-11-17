@@ -114,6 +114,7 @@ beforeEach(() => {
     jobId: JOB_KEY.jobId,
     attempt: 1,
     ruleChain: RULE_CHAIN,
+    untrusted: false,
   });
 });
 
@@ -127,6 +128,22 @@ describe("a request with the key of a runner job", () => {
     expect(executed[0].causation).toEqual(agentJobCausation(RULE_CHAIN));
     expect(executed[0].job).toMatchObject({ keyId: JOB_KEY.keyId, jobId: JOB_KEY.jobId });
     expect(deps.admit).toHaveBeenCalledWith(JOB_KEY);
+  });
+
+  it("marks a write of a job whose instruction outside text can reach, so a rule it fires gets no trusted job", async () => {
+    deps.admit.mockResolvedValue({
+      keyId: JOB_KEY.keyId,
+      companyId: WORKSPACE,
+      jobId: JOB_KEY.jobId,
+      attempt: 1,
+      ruleChain: RULE_CHAIN,
+      untrusted: true,
+    });
+
+    const result = await call("save_message_draft");
+
+    expect(result).toMatchObject({ status: 200, isError: false });
+    expect(executed[0].causation).toEqual({ routineDepth: 1, ruleChain: RULE_CHAIN, untrustedOrigin: true });
   });
 
   it("counts every tool call against the limit of 25 on the job's key", async () => {

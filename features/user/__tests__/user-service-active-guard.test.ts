@@ -124,7 +124,14 @@ describe("UserService.getActiveUserOrThrow", () => {
 
   it("refuses the key of a runner job everywhere except the MCP request that admitted that job", async () => {
     const options = { apiKey: true, role: API_READER, agentJobKey: { keyId: "job-key-1" } };
-    const admitted = { keyId: "job-key-1", companyId: "company-1", jobId: "job-1", attempt: 1, ruleChain: [] };
+    const admitted = {
+      keyId: "job-key-1",
+      companyId: "company-1",
+      jobId: "job-1",
+      attempt: 1,
+      ruleChain: [],
+      untrusted: false,
+    };
 
     const outside = await serviceFor(Status.active, options)
       .getActiveUserOrThrow()

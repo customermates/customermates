@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { runInCausation } from "@/core/decorators/causation-context";
 
-import { recordCauseBy, splitRecordCause } from "../record-event-cause";
+import { isUntrustedAgentRecordWrite, recordCauseBy, splitRecordCause } from "../record-event-cause";
 import { RecordEventPayloadSchema, RecordOperationCauseSchema } from "../record-event.schema";
 
 const VIA = { kind: "oauthApplication", name: "Claude Desktop" } as const;
@@ -39,6 +39,22 @@ describe("record event cause attribution", () => {
     expect(await runInCausation({ ruleChain: [] }, () => recordCauseBy({}, cause))).toBe(cause);
     expect(await runInCausation(null, () => recordCauseBy({}, cause))).toBe(cause);
     expect(recordCauseBy({}, cause)).toBe(cause);
+  });
+
+  it("marks a cause that an agent run with an untrusted instruction writes, and stores the marker in the payload", async () => {
+    const cause = { kind: "mutation" } as const;
+    const marked = await runInCausation({ routineDepth: 1, untrustedOrigin: true }, () => recordCauseBy({}, cause));
+
+    expect(marked).toEqual({ kind: "mutation", routineDepth: 1, untrustedOrigin: true });
+    expect(splitRecordCause(marked).cause).toEqual(marked);
+    expect(RecordEventPayloadSchema.shape.cause.safeParse(marked).success).toBe(true);
+    expect(isUntrustedAgentRecordWrite({ cause: marked })).toBe(true);
+    expect(await runInCausation({ routineDepth: 1, untrustedOrigin: false }, () => recordCauseBy({}, cause))).toEqual({
+      kind: "mutation",
+      routineDepth: 1,
+    });
+    expect(isUntrustedAgentRecordWrite({ cause })).toBe(false);
+    expect(isUntrustedAgentRecordWrite(null)).toBe(false);
   });
 
   it("lets an explicit routine depth of the cause win over the running context", async () => {

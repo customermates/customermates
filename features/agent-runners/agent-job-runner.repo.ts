@@ -7,7 +7,7 @@ import type {
 
 export type AgentJobRunnerState = { id: string; status: string; attempt: number; timeoutAt: Date | null };
 
-export type AgentJobCredentialRun = { ruleChain: string[] };
+export type AgentJobCredentialRun = { ruleChain: string[]; promptUntrusted: boolean };
 
 export abstract class AgentJobRunnerRepo {
   abstract claimNextForRunner(runner: AuthenticatedAgentRunner): Promise<AgentJobClaim | null>;

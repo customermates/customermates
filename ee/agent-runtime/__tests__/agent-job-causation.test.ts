@@ -10,7 +10,8 @@ import { RoutineAdmission } from "@/ee/routines/routine-admission";
 import { FakeAutomationRuleRepo } from "@/features/automation-rules/__tests__/fake-automation-rule-repo";
 import { AutomationRuleAdmission } from "@/features/automation-rules/automation-rule-admission";
 import { extendAutomationChain } from "@/features/automation-rules/automation-context";
-import { recordCauseBy } from "@/features/records/record-event-cause";
+import { isUntrustedAgentRecordWrite, recordCauseBy } from "@/features/records/record-event-cause";
+import { RecordEventPayloadSchema } from "@/features/records/record-event.schema";
 
 import { AgentJobRecorder } from "../agent-job-recorder";
 import { agentJobCausation, buildAgentJobTools } from "../agent-job-toolset";
@@ -39,13 +40,14 @@ function toolThatStampsItsWriteLikeTheRecordEngine(seen: RecordOperationCause[])
   };
 }
 
-async function causeOfAgentWrite(ruleChain: readonly string[]): Promise<RecordOperationCause> {
+async function causeOfAgentWrite(ruleChain: readonly string[], untrusted = false): Promise<RecordOperationCause> {
   const seen: RecordOperationCause[] = [];
   const tools = buildAgentJobTools({
     locale: "en",
     maxToolCalls: 5,
     recorder: new AgentJobRecorder(() => NOW),
     ruleChain,
+    untrusted,
     base: toolThatStampsItsWriteLikeTheRecordEngine(seen),
   });
   await (tools.mutate_crm_record as unknown as { execute: Execute }).execute({}, { toolCallId: "call-1" });
@@ -110,6 +112,17 @@ describe("record changes made by an agent job", () => {
     expect(await causeOfAgentWrite([])).toEqual({ kind: "mutation", routineDepth: 1 });
     expect(agentJobCausation([RULE_A, RULE_B])).toEqual({ routineDepth: 1, ruleChain: [RULE_A, RULE_B] });
     expect(currentCausation()).toBeUndefined();
+  });
+
+  it("carry a marker when outside text can reach the instruction of the job, and none for a trusted job", async () => {
+    const untrusted = await causeOfAgentWrite([RULE_A], true);
+
+    expect(untrusted).toEqual({ kind: "mutation", ruleChain: [RULE_A], routineDepth: 1, untrustedOrigin: true });
+    expect(isUntrustedAgentRecordWrite(recordUpdated(untrusted).payload)).toBe(true);
+    expect(RecordEventPayloadSchema.safeParse(recordUpdated(untrusted).payload).success).toBe(true);
+    expect(await causeOfAgentWrite([RULE_A], false)).not.toHaveProperty("untrustedOrigin");
+    expect(isUntrustedAgentRecordWrite(recordUpdated(await causeOfAgentWrite([RULE_A])).payload)).toBe(false);
+    expect(agentJobCausation([RULE_A], true)).toEqual({ routineDepth: 1, ruleChain: [RULE_A], untrustedOrigin: true });
   });
 
   it("do not start the rule that enqueued the job again, but may start another rule once", async () => {

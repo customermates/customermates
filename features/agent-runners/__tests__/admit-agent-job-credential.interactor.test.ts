@@ -30,6 +30,7 @@ function setup(job: {
   runnerId?: string;
   ruleChain?: string[];
   timeoutAt?: Date | null;
+  promptUntrusted?: boolean;
 }) {
   const jobs = new FakeAgentJobRunnerRepo(() => NOW.getTime());
   jobs.addJob({
@@ -50,7 +51,12 @@ describe("AdmitAgentJobCredentialInteractor", () => {
       jobId: JOB_ID,
       attempt: 2,
       ruleChain: ["rule-1"],
+      untrusted: false,
     });
+  });
+
+  it("hands over that outside text can reach the instruction of the job", async () => {
+    expect(await setup({ status: "running", promptUntrusted: true }).invoke(KEY)).toMatchObject({ untrusted: true });
   });
 
   it.each(["claimed", "queued", "succeeded", "failed", "timedOut", "cancelled"])(
@@ -78,7 +84,14 @@ describe("AdmitAgentJobCredentialInteractor", () => {
 });
 
 describe("the request context of a job key", () => {
-  const request = { keyId: "key-1", companyId: COMPANY_ID, jobId: JOB_ID, attempt: 2, ruleChain: ["rule-1"] };
+  const request = {
+    keyId: "key-1",
+    companyId: COMPANY_ID,
+    jobId: JOB_ID,
+    attempt: 2,
+    ruleChain: ["rule-1"],
+    untrusted: false,
+  };
 
   it("admits exactly the key the request was admitted for, and nothing outside such a request", async () => {
     expect(admitsAgentJobKey("key-1")).toBe(false);
@@ -96,7 +109,14 @@ describe("the request context of a job key", () => {
 
   it("builds the causation hosted agent jobs run their tool calls in", () => {
     expect(agentJobRequestCausation(request)).toEqual(agentJobCausation(["rule-1"]));
-    expect(agentJobRequestCausation({ ruleChain: [] })).toEqual({ routineDepth: 1, ruleChain: [] });
+    expect(agentJobRequestCausation({ ruleChain: [], untrusted: false })).toEqual({ routineDepth: 1, ruleChain: [] });
+  });
+
+  it("marks the writes of a job whose instruction outside text can reach, like a hosted job does", () => {
+    const untrusted = agentJobRequestCausation({ ...request, untrusted: true });
+
+    expect(untrusted).toEqual({ routineDepth: 1, ruleChain: ["rule-1"], untrustedOrigin: true });
+    expect(untrusted).toEqual(agentJobCausation(["rule-1"], true));
   });
 });
 

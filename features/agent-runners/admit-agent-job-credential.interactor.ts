@@ -25,6 +25,7 @@ export class AdmitAgentJobCredentialInteractor {
       jobId: key.jobId,
       attempt: key.attempt,
       ruleChain: run.ruleChain,
+      untrusted: run.promptUntrusted,
     };
   }
 }
