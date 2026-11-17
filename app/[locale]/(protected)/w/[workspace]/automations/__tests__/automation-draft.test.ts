@@ -121,6 +121,32 @@ function convert(value: AutomationDraft) {
   return result.input;
 }
 
+function savedRule(overrides: Partial<AutomationRuleDto> = {}): AutomationRuleDto {
+  return {
+    id: RULE,
+    ownerUserId: "u",
+    owner: null,
+    name: "Saved",
+    enabled: true,
+    trigger: { kind: "recordCreated", typeId: DEALS },
+    conditions: [],
+    effects: [
+      {
+        kind: "notify",
+        recipients: { ruleOwner: true, assignees: false, userIds: [] },
+        notificationKind: "ruleAlert",
+        title: "{{record.name}}",
+      },
+    ],
+    disabledReason: null,
+    lastRunAt: null,
+    lastRunStatus: null,
+    createdAt: "2026-11-12T08:00:00.000Z",
+    updatedAt: "2026-11-12T08:00:00.000Z",
+    ...overrides,
+  };
+}
+
 describe("the builder model", () => {
   it("offers lists with their usable fields and marks calculated ones read-only", () => {
     expect(MODEL.lists.map((list) => list.label)).toEqual(["Deal", "Action"]);
@@ -198,6 +224,26 @@ describe("turning a draft into a rule", () => {
       fieldId: STAGE,
       timezone: TZ,
     });
+  });
+
+  it("sends the value a multiple choice field changed to as one option", () => {
+    const value = draft({ trigger: { ...draft().trigger, kind: "fieldChanged", fieldId: TAGS, value: "vip" } });
+    const input = convert(value);
+    expect(input.trigger).toEqual({
+      kind: "fieldChanged",
+      typeId: DEALS,
+      fieldId: TAGS,
+      to: { kind: "select", value: "vip" },
+      timezone: TZ,
+    });
+    const parsed = UpsertAutomationRuleSchema.parse(input);
+    if (!parsed.trigger) throw new Error("the draft must produce a trigger");
+    const opened = ruleToDraft(savedRule({ trigger: parsed.trigger }), MODEL, TZ);
+    expect(opened.trigger).toMatchObject({ kind: "fieldChanged", fieldId: TAGS, value: "vip", kept: null });
+    expect(
+      draftToUpsert(draft({ trigger: { ...draft().trigger, kind: "fieldChanged", fieldId: TAGS, value: "nope" } }), MODEL)
+        .ok,
+    ).toBe(false);
   });
 
   it("sends the member's time zone on every trigger that is not a date trigger", () => {
@@ -520,8 +566,13 @@ const TRIGGER_SHAPES: Array<[string, Record<string, unknown>, "editable" | "kept
   ],
   [
     "a multiple choice changes to one option",
-    { kind: "fieldChanged", typeId: DEALS, fieldId: TAGS, to: { kind: "selectList", value: ["vip"] } },
+    { kind: "fieldChanged", typeId: DEALS, fieldId: TAGS, to: { kind: "select", value: "vip" } },
     "editable",
+  ],
+  [
+    "a multiple choice changes to a list of one option",
+    { kind: "fieldChanged", typeId: DEALS, fieldId: TAGS, to: { kind: "selectList", value: ["vip"] } },
+    "kept",
   ],
   [
     "a multiple choice changes to several options",

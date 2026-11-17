@@ -181,6 +181,11 @@ export function scalarFor(field: AutomationBuilderField, text: string, knownOpti
   return null;
 }
 
+function changedToValue(field: AutomationBuilderField, text: string, knownOptionsOnly: boolean): RecordScalar | null {
+  const scalar = scalarFor(field, text, knownOptionsOnly);
+  return scalar && field.valueType === "select" ? { kind: "select", value: text.trim() } : scalar;
+}
+
 function textFor(scalar: RecordScalar | null | undefined): string {
   if (!scalar) return "";
   if (scalar.kind === "selectList") return scalar.value[0] ?? "";
@@ -321,7 +326,7 @@ function triggerShape(
   const field = fieldOfList(model, typeId, draft.fieldId);
   if (!field) return null;
   if (draft.kind === "fieldChanged") {
-    const to = draft.value === "" ? undefined : scalarFor(field, draft.value, knownOptionsOnly);
+    const to = draft.value === "" ? undefined : changedToValue(field, draft.value, knownOptionsOnly);
     if (draft.value !== "" && !to) return null;
     return { kind: "fieldChanged", typeId, fieldId: field.id, ...(to ? { to } : {}) };
   }
