@@ -17,6 +17,7 @@ export type StoredAgentJob = {
   pinnedRunnerId: string | null;
   runnerId: string | null;
   attempts: number;
+  startedAttempts: number;
   queuedAt: Date;
   claimedAt: Date | null;
   startedAt: Date | null;
@@ -86,6 +87,7 @@ export type AgentJobQueueEntry = {
 
 export type AgentJobSweepOutcome = AgentJobQueueEntry & {
   attempts: number;
+  started: boolean;
   requeued: boolean;
 };
 

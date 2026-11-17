@@ -39,6 +39,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
       pinnedRunnerId: null,
       runnerId: null,
       attempts: 0,
+      startedAttempts: 0,
       queuedAt: new Date(Date.UTC(2026, 10, 17, 8, 0, this.sequence)),
       claimedAt: null,
       startedAt: null,
@@ -127,7 +128,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
   startUnscoped(args: { id: string; companyId: string; attempt?: number }): Promise<boolean> {
     const job = this.live(args);
     if (!job || job.status !== "claimed") return Promise.resolve(false);
-    this.jobs.set(job.id, { ...job, status: "running" });
+    this.jobs.set(job.id, { ...job, status: "running", startedAttempts: job.startedAttempts + 1 });
     return Promise.resolve(true);
   }
 
@@ -166,11 +167,12 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     const outcomes: AgentJobSweepOutcome[] = [];
     for (const job of this.jobs.values()) {
       if (!["claimed", "running"].includes(job.status) || !job.timeoutAt || job.timeoutAt >= args.now) continue;
-      const requeued = job.attempts < args.maxAttempts;
+      const started = job.status === "running";
+      const requeued = job.startedAttempts < args.maxAttempts;
       this.jobs.set(
         job.id,
         requeued
-          ? { ...job, status: "queued", queuedAt: args.now, runnerId: null, timeoutAt: null }
+          ? { ...job, status: "queued", queuedAt: started ? args.now : job.queuedAt, runnerId: null, timeoutAt: null }
           : { ...job, status: "timedOut", timeoutAt: null },
       );
       outcomes.push({
@@ -179,6 +181,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
         ownerUserId: job.ownerUserId,
         runtime: job.runtime,
         attempts: job.attempts,
+        started,
         requeued,
       });
     }

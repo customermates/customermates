@@ -37,6 +37,7 @@ const JOB_LIST_SELECT = {
   pinnedRunnerId: true,
   runnerId: true,
   attempts: true,
+  startedAttempts: true,
   queuedAt: true,
   claimedAt: true,
   startedAt: true,
@@ -157,7 +158,12 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }): Promise<boolean> {
     const result = await this.prisma.agentJob.updateMany({
       where: { id: args.id, companyId: args.companyId, status: AgentJobStatus.claimed, ...attemptFence(args.attempt) },
-      data: { status: AgentJobStatus.running, startedAt: args.now, timeoutAt: args.timeoutAt },
+      data: {
+        status: AgentJobStatus.running,
+        startedAt: args.now,
+        timeoutAt: args.timeoutAt,
+        startedAttempts: { increment: 1 },
+      },
     });
     return result.count === 1;
   }
@@ -245,19 +251,28 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }): Promise<AgentJobSweepOutcome[]> {
     const expired = await this.prisma.agentJob.findMany({
       where: { status: { in: LIVE_STATUSES }, timeoutAt: { lt: args.now } },
-      select: { id: true, companyId: true, ownerUserId: true, runtime: true, attempts: true },
+      select: {
+        id: true,
+        companyId: true,
+        ownerUserId: true,
+        runtime: true,
+        attempts: true,
+        startedAttempts: true,
+        status: true,
+      },
       orderBy: { timeoutAt: "asc" },
       take: args.limit,
     });
     const outcomes: AgentJobSweepOutcome[] = [];
-    for (const job of expired) {
-      const requeue = job.attempts < args.maxAttempts;
+    for (const { status, startedAttempts, ...job } of expired) {
+      const started = status === AgentJobStatus.running;
+      const requeue = startedAttempts < args.maxAttempts;
       const result = await this.prisma.agentJob.updateMany({
-        where: { id: job.id, companyId: job.companyId, status: { in: LIVE_STATUSES }, timeoutAt: { lt: args.now } },
+        where: { id: job.id, companyId: job.companyId, status, timeoutAt: { lt: args.now } },
         data: requeue
           ? {
               status: AgentJobStatus.queued,
-              queuedAt: args.now,
+              ...(started ? { queuedAt: args.now } : {}),
               runnerId: null,
               claimedAt: null,
               startedAt: null,
@@ -265,7 +280,7 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
             }
           : { status: AgentJobStatus.timedOut, finishedAt: args.now, timeoutAt: null, error: "timedOut" },
       });
-      if (result.count === 1) outcomes.push({ ...job, requeued: requeue });
+      if (result.count === 1) outcomes.push({ ...job, started, requeued: requeue });
     }
     return outcomes;
   }

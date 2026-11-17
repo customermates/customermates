@@ -481,6 +481,7 @@ CREATE TABLE "AgentJob" (
     "pinnedRunnerId" TEXT,
     "runnerId" TEXT,
     "attempts" INTEGER NOT NULL DEFAULT 0,
+    "startedAttempts" INTEGER NOT NULL DEFAULT 0,
     "queuedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "claimedAt" TIMESTAMP(3),
     "startedAt" TIMESTAMP(3),

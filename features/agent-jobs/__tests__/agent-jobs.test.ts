@@ -466,9 +466,27 @@ describe("sweeping timed-out jobs", () => {
   it("re-queues the first timeout and restarts hosted runs, but leaves a runner job to its runner", async () => {
     const repo = new FakeAgentJobRepo();
     const expired = new Date(NOW.getTime() - 1000);
-    const hosted = repo.add({ runtime: "ownKey", status: "running", attempts: 1, timeoutAt: expired });
-    const runner = repo.add({ runtime: "runner", status: "claimed", attempts: 1, timeoutAt: expired });
-    const mate = repo.add({ runtime: "mate", status: "running", attempts: 2, timeoutAt: expired });
+    const hosted = repo.add({
+      runtime: "ownKey",
+      status: "running",
+      attempts: 1,
+      startedAttempts: 1,
+      timeoutAt: expired,
+    });
+    const runner = repo.add({
+      runtime: "runner",
+      status: "claimed",
+      attempts: 1,
+      queuedAt: new Date(NOW.getTime() - 2 * 60_000),
+      timeoutAt: expired,
+    });
+    const mate = repo.add({
+      runtime: "mate",
+      status: "running",
+      attempts: 2,
+      startedAttempts: 2,
+      timeoutAt: expired,
+    });
     const fresh = repo.add({
       runtime: "ownKey",
       status: "running",
@@ -565,6 +583,79 @@ describe("sweeping timed-out jobs", () => {
   });
 });
 
+describe("a claim that never started", () => {
+  const RUNNER_A = "00000000-0000-4000-8000-0000000000c1";
+  const minutes = (count: number) => new Date(NOW.getTime() + count * 60_000);
+  const sweepAt = (repo: FakeAgentJobRepo, now: Date, settleInterrupted = vi.fn()) =>
+    new SweepAgentJobTimeoutsInteractor(
+      repo,
+      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { settleInterrupted },
+    ).invoke({ now });
+  const claim = (repo: FakeAgentJobRepo, now: Date) =>
+    repo.claimUnscoped({
+      companyId: COMPANY,
+      runtime: "runner",
+      runnerId: RUNNER_A,
+      now,
+      timeoutAt: new Date(now.getTime() + 60_000),
+    });
+
+  it("returns to the queue without using up one of the two attempts", async () => {
+    const repo = new FakeAgentJobRepo();
+    const job = repo.add({ runtime: "runner", queuedAt: NOW });
+
+    for (const at of [0, 2, 4]) {
+      expect(await claim(repo, minutes(at))).toMatchObject({ id: job.id, status: "claimed" });
+      const result = await sweepAt(repo, minutes(at + 1.5));
+      expect(result).toMatchObject({ agentJobsRequeued: 1, agentJobsTimedOut: 0 });
+      expect(repo.jobs.get(job.id)).toMatchObject({ status: "queued", startedAttempts: 0, queuedAt: NOW });
+    }
+    expect(repo.jobs.get(job.id)?.attempts).toBe(3);
+  });
+
+  it("still ends the job after two attempts that did start, each under its own number", async () => {
+    const repo = new FakeAgentJobRepo();
+    const job = repo.add({ runtime: "runner", queuedAt: NOW });
+    const startedRun = async (at: number) => {
+      const claimed = await claim(repo, minutes(at));
+      await repo.startUnscoped({ id: job.id, companyId: COMPANY, attempt: claimed?.attempts });
+      return claimed?.attempts;
+    };
+
+    await claim(repo, minutes(0));
+    await sweepAt(repo, minutes(1.5));
+    expect(await startedRun(2)).toBe(2);
+    expect(await sweepAt(repo, minutes(3.5))).toMatchObject({ agentJobsRequeued: 1, agentJobsTimedOut: 0 });
+    expect(repo.jobs.get(job.id)).toMatchObject({ status: "queued", startedAttempts: 1, queuedAt: minutes(3.5) });
+    expect(await startedRun(4)).toBe(3);
+    expect(await sweepAt(repo, minutes(5.5))).toMatchObject({ agentJobsRequeued: 0, agentJobsTimedOut: 1 });
+    expect(repo.jobs.get(job.id)).toMatchObject({ status: "timedOut", startedAttempts: 2, attempts: 3 });
+  });
+
+  it("does not renew the time a job may wait, so it expires a quarter of an hour after it was queued", async () => {
+    const repo = new FakeAgentJobRepo();
+    const job = repo.add({ runtime: "runner", queuedAt: NOW });
+
+    await claim(repo, minutes(14.5));
+    const result = await sweepAt(repo, minutes(16));
+
+    expect(result).toMatchObject({ agentJobsRequeued: 1, agentJobsExpired: 1 });
+    expect(repo.jobs.get(job.id)).toMatchObject({ status: "timedOut", error: "queueExpired" });
+  });
+
+  it("settles Mate credits only for an attempt that started", async () => {
+    const repo = new FakeAgentJobRepo();
+    const expired = new Date(NOW.getTime() - 1000);
+    repo.add({ runtime: "mate", status: "claimed", attempts: 1, timeoutAt: expired });
+    const settleInterrupted = vi.fn().mockResolvedValue("none");
+
+    await sweepAt(repo, NOW, settleInterrupted);
+
+    expect(settleInterrupted).not.toHaveBeenCalled();
+  });
+});
+
 describe("jobs that wait in the queue", () => {
   const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
   const sweep = (repo: FakeAgentJobRepo, dispatch = vi.fn().mockResolvedValue(undefined)) =>
@@ -590,8 +681,8 @@ describe("jobs that wait in the queue", () => {
     const repo = new FakeAgentJobRepo();
     const RUNNER_A = "00000000-0000-4000-8000-0000000000c1";
     const RUNNER_B = "00000000-0000-4000-8000-0000000000c2";
-    const open = repo.add({ runtime: "runner" });
-    const pinned = repo.add({ runtime: "runner", pinnedRunnerId: RUNNER_A });
+    const open = repo.add({ runtime: "runner", queuedAt: minutesAgo(13) });
+    const pinned = repo.add({ runtime: "runner", pinnedRunnerId: RUNNER_A, queuedAt: minutesAgo(13) });
     const claimAs = (runnerId: string, now = minutesAgo(12)) =>
       repo.claimUnscoped({ companyId: COMPANY, runtime: "runner", runnerId, now, timeoutAt: minutesAgo(1) });
 

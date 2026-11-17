@@ -71,7 +71,7 @@ export class SweepAgentJobTimeoutsInteractor {
   }
 
   private async afterTimeout(job: AgentJobSweepOutcome): Promise<void> {
-    if (job.runtime === "mate") {
+    if (job.runtime === "mate" && job.started) {
       await this.isolated(async () => {
         await this.credits.settleInterrupted({
           jobId: job.id,

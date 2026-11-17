@@ -3092,6 +3092,7 @@ model AgentJob {
   pinnedRunnerId  String?
   runnerId        String?
   attempts        Int            @default(0)
+  startedAttempts Int            @default(0)
   queuedAt        DateTime       @default(now())
   claimedAt       DateTime?
   startedAt       DateTime?
