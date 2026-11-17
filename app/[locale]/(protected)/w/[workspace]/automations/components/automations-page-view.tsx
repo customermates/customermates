@@ -36,10 +36,10 @@ import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
-import { deleteAutomationRuleAction, setAutomationRuleEnabledAction } from "../actions";
-import { upsertRoutineAction } from "../../routines/actions";
+import { deleteAutomationRuleAction } from "../actions";
 import { AutomationBuilderModal } from "./automation-builder-modal";
 import { reminderDraft } from "./automation-draft";
+import { canDeleteAutomation, canToggleAutomation, toggleAutomation } from "./automation-row-actions";
 import { AutomationsPageSkeleton } from "./automations-page-skeleton";
 import { useAutomationColumns } from "./use-automation-columns";
 
@@ -131,27 +131,26 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
 
   const userId = userStore.user?.id;
   const isAdmin = routineModalStore.isAdmin;
-  const canToggle = useCallback(
-    (item: AutomationListItemDto) =>
-      userStore.can(Resource.routines, Action.update) && (item.ownerUserId === userId || (item.enabled && isAdmin)),
-    [isAdmin, userId, userStore],
+  const canUpdate = userStore.can(Resource.routines, Action.update);
+  const canDelete = userStore.can(Resource.routines, Action.delete);
+  const viewer = useMemo(
+    () => ({ userId, isAdmin, canUpdate, canDelete }),
+    [canDelete, canUpdate, isAdmin, userId],
   );
+  const canToggle = useCallback((item: AutomationListItemDto) => canToggleAutomation(item, viewer), [viewer]);
 
   const toggle = useCallback(
     async (item: AutomationListItemDto, enabled: boolean) => {
       setPendingId(item.id);
       try {
-        const result =
-          item.kind === "rule"
-            ? await setAutomationRuleEnabledAction({ id: item.id, enabled })
-            : await upsertRoutineAction({ id: item.id, enabled });
+        const result = await toggleAutomation(item, enabled, viewer);
         if (!result.ok) toastZodErrorTree(result.error);
         await refresh();
       } finally {
         setPendingId(null);
       }
     },
-    [refresh],
+    [refresh, viewer],
   );
 
   const remove = useCallback(
@@ -214,11 +213,11 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
           },
         ]}
         name={item.name}
-        onDelete={() => remove(item)}
+        onDelete={canDeleteAutomation(item, viewer) ? () => remove(item) : undefined}
         onOpen={() => openItem(item)}
       />
     ),
-    [canToggle, openItem, remove, t, toggle],
+    [canToggle, openItem, remove, t, toggle, viewer],
   );
 
   const view = resolveDataViewView(automationsStore.viewMode, automationsStore.canBoard);
