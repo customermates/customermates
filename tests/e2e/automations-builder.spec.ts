@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
-import { e2eAppMode } from "./workspace-switching";
+import { clickHydrated, e2eAppMode } from "./workspace-switching";
 
 const NOTIFY_EFFECT = JSON.stringify([
   {
@@ -16,9 +16,14 @@ const NOTIFY_EFFECT = JSON.stringify([
 ]);
 
 async function openNewAutomation(page: Page) {
-  await page.locator("#automations-add").click();
+  // On Customermates Cloud the add button opens a menu (automation or routine); self-hosted opens the builder directly.
+  await clickHydrated(page.locator("#automations-add"));
   const choice = page.getByRole("menuitem", { name: "Automation", exact: true });
-  if (await choice.isVisible().catch(() => false)) await choice.click();
+  const menuShown = await choice.waitFor({ state: "visible", timeout: 3000 }).then(
+    () => true,
+    () => false,
+  );
+  if (menuShown) await choice.click();
   return page.getByRole("dialog", { name: "New automation" });
 }
 
@@ -56,7 +61,7 @@ test("builds an automation from a recipe and switches it on", async ({ page, dat
   await builder.getByRole("button", { name: "Switch on" }).click();
   await expect(builder).not.toBeVisible();
 
-  await expect(page.getByText("Welcome a form submission", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Welcome a form submission", exact: true })).toBeVisible();
   const saved = await database.query(
     `SELECT enabled, "triggerKind", effects FROM "AutomationRule" WHERE "companyId"=$1 AND name=$2`,
     [companyId, "Welcome a form submission"],
@@ -108,6 +113,7 @@ test("builds from scratch with an agent card whose runtime is unavailable and sh
 });
 
 test("pauses and resumes an automation from the list", async ({ page, database, companyId, workspace }) => {
+  const errors = collectPageErrors(page);
   const ruleId = await insertRule(database, {
     companyId,
     ownerUserId: workspace.userId,
@@ -118,23 +124,26 @@ test("pauses and resumes an automation from the list", async ({ page, database, 
 
   await expect(toggle).toBeVisible();
   await expect(toggle).toBeChecked();
-  await toggle.click();
+  await clickHydrated(toggle);
+  expect(errors).toEqual([]);
   await expect
     .poll(async () => (await database.query('SELECT enabled FROM "AutomationRule" WHERE id=$1', [ruleId])).rows[0])
     .toMatchObject({ enabled: false });
   await expect(toggle).not.toBeChecked();
 
-  await toggle.click();
+  await clickHydrated(toggle);
   await expect
     .poll(async () => (await database.query('SELECT enabled FROM "AutomationRule" WHERE id=$1', [ruleId])).rows[0])
     .toMatchObject({ enabled: true });
 });
 
 test("opens an automation, with its runs, from its row", async ({ page, database, companyId, workspace }) => {
+  const errors = collectPageErrors(page);
   await insertRule(database, { companyId, ownerUserId: workspace.userId, name: "Open me" });
   await page.goto(companyPath(companyId, "/automations"));
 
-  await page.getByText("Open me", { exact: true }).click();
+  await clickHydrated(page.getByRole("button", { name: "Open me", exact: true }));
+  expect(errors).toEqual([]);
   const builder = page.getByRole("dialog", { name: "Edit automation" });
 
   await expect(builder.getByLabel("Name")).toHaveValue("Open me");

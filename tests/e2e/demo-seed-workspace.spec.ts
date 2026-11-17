@@ -294,10 +294,10 @@ test("self-hosted keeps the seeded Inbox and routines out of reach and sends the
   errors,
 }, testInfo) => {
   test.skip(e2eAppMode() !== "self-hosted", "The Inbox and routines are available on Customermates Cloud");
-  for (const path of [appPath(DEMO_SLUG, "/inbox"), appPath(DEMO_SLUG, "/routines")]) {
-    await page.goto(path);
-    await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/dashboard$"));
-  }
+  await page.goto(appPath(DEMO_SLUG, "/inbox"));
+  await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/dashboard$"));
+  await page.goto(appPath(DEMO_SLUG, "/routines"));
+  await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/automations\\?kind=routine$"));
   // The phone sidebar is a closed sheet; the desktop sidebar shows the navigation without either entry.
   if (!testInfo.project.use.isMobile) {
     const navigation = page.locator('[data-sidebar="sidebar"]');

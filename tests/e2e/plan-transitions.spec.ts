@@ -1350,10 +1350,14 @@ test.describe("self-hosted installs", () => {
     test.setTimeout(240_000);
     const errors = collectPageErrors(page);
     const slug = workspace.slug;
-    for (const path of ["/settings/billing", "/inbox", "/routines", "/settings/channels"]) {
+    for (const path of ["/settings/billing", "/inbox"]) {
       await page.goto(appPath(slug, path));
       await expect(page).toHaveURL(appUrlPattern(slug, "/dashboard$"));
     }
+    await page.goto(appPath(slug, "/routines"));
+    await expect(page).toHaveURL(appUrlPattern(slug, "/automations\\?kind=routine$"));
+    await page.goto(appPath(slug, "/settings/channels"));
+    await expect(page).toHaveURL(appUrlPattern(slug, "/settings/connections\\?tab=channels$"));
     await page.goto(appPath(slug, "/dashboard?agentChat=open"));
     await page.waitForLoadState("networkidle");
     await openSidebar(page);

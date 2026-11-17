@@ -65,7 +65,7 @@ test("Connections opens each tab and keeps it in the address", async ({ page, co
       ["Webhook log", "deliveries", "deliveries"],
       ["Incoming webhooks", "incoming", "incoming"],
     ] as const) {
-      await sections.getByRole("tab", { name }).click();
+      await sections.getByRole("tab", { name, exact: true }).click();
       await expect(page).toHaveURL(
         companyUrlPattern(companyId, `/settings/connections\\?tab=developers&section=${section}$`),
       );
