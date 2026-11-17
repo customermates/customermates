@@ -30,8 +30,6 @@ afterAll(async () => {
   for (const cleanup of cleanups) await cleanup();
 });
 
-// Finding 7 of the review of 2026-11-17: the kind of a date candidate has to come from the field, because a
-// date field may store an ISO date-time string as its written value.
 describeDatabase("date candidates of a date-reached rule", () => {
   it("names the declared kind of the field, so a date written as a moment stays one day", async () => {
     const w = await createRestRouteWorkspace();
@@ -110,7 +108,6 @@ describeDatabase("date candidates of a date-reached rule", () => {
       ["2026-11-20", "2026-11-18T07:00:00.000Z"],
     ]);
 
-    // Archiving a field or a list keeps the stored values. A date rule must not go on firing for them.
     await runWithoutTenant(() =>
       prisma.recordFieldDefinition.updateMany({
         where: { companyId: w.companyId, id: closes },

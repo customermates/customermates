@@ -173,10 +173,6 @@ describe("a rule's record trigger as a shared record trigger", () => {
     }
   });
 
-  // "Stage is not Lost" on a deal with an empty Stage. As a subscription filter it is the record query's
-  // "ne" / "notIn", which match an empty field (record-engine.database.test.ts, "keeps missing and
-  // other-currency values for not-equal filters exactly like notIn"). On the triggers that keep the
-  // condition for the run, evaluateCondition has to say the same.
   it("answers a not-equal condition on an empty field the same on every trigger", () => {
     const notLost = condition({ fieldId: STAGE, operator: "notEquals", value: { kind: "select", value: LOST } });
     const notClosed = condition({

@@ -220,8 +220,6 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     expect(left.rows).toEqual([{ id: queued }]);
   });
 
-  // Finding 4 of the review of 2026-11-17: the hundred oldest stale runs of all workspaces were taken, so
-  // one workspace with many stuck runs kept every other workspace's runs from being recovered.
   it("finds stale runs per workspace, oldest first, with the time they were admitted", async () => {
     const insertRun = async (company: string, rule: string, status: string, createdAt: Date, startedAt?: Date) => {
       const id = randomUUID();
@@ -235,7 +233,6 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     };
     const now = new Date("2026-11-17T12:00:00.000Z");
     const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60_000);
-    // The unfinished runs the earlier tests of this file left behind would take the per-workspace slots.
     await client.query(
       `DELETE FROM "AutomationRuleRun" WHERE "companyId" = ANY($1) AND "status" IN ('queued', 'running')`,
       [[companyId, otherCompanyId]],
@@ -321,8 +318,6 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     expect(await state(otherRuleId)).toEqual({ enabled: true, disabledReason: null });
   });
 
-  // Finding 1 of the review of 2026-11-17: Bob owns the three oldest rules and is paused by the downgrade,
-  // Alice is the member the Free plan keeps. Bob's rules must not hold the three Free slots.
   it("gives the plan allowance to rules of active owners and restores the paused ones with the plan", async () => {
     const freeCompanyId = randomUUID();
     const alice = randomUUID();
@@ -353,7 +348,6 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
       expect(await reasons(alices)).toEqual([null, null, null, "planPaused"]);
       for (const id of bobs) expect(subscriptions.pause).toHaveBeenCalledWith(id);
 
-      // Alice switches one of her rules off: the freed slot goes to her paused rule, never to Bob's.
       await client.query(
         `UPDATE "AutomationRule" SET "enabled" = FALSE, "disabledReason" = 'disabledByUser' WHERE "id" = $1`,
         [alices[0]],
@@ -362,24 +356,19 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
       expect(await reasons(alices)).toEqual(["disabledByUser", null, null, null]);
       expect(await reasons(bobs)).toEqual(["planPaused", "planPaused", "planPaused"]);
 
-      // A run of Bob's rule that was queued before the pause finds its owner inactive. That must not turn
-      // the plan pause into "ownerInactive", which no resume restores.
       await runWithoutTenant(() => repo().disableRuleUnscoped(freeCompanyId, bobs[0], "ownerInactive"));
       expect(await state(bobs[0])).toEqual({ enabled: false, disabledReason: "planPaused" });
-      // The same run arriving between the member pause and the rule sync, while the rule is still on.
       await client.query(`UPDATE "AutomationRule" SET "enabled" = TRUE, "disabledReason" = NULL WHERE "id" = $1`, [
         bobs[1],
       ]);
       await runWithoutTenant(() => repo().disableRuleUnscoped(freeCompanyId, bobs[1], "ownerInactive"));
       expect(await state(bobs[1])).toEqual({ enabled: false, disabledReason: "planPaused" });
 
-      // The upgrade resumes Bob, and the plan gives back exactly what it paused.
       await client.query(`UPDATE "User" SET "status" = 'active', "pausedByPlanAt" = NULL WHERE "id" = $1`, [bob]);
       expect(await sync(null)).toEqual({ paused: 0, resumed: 3 });
       expect(await reasons(bobs)).toEqual([null, null, null]);
       expect(await reasons(alices)).toEqual(["disabledByUser", null, null, null]);
 
-      // An owner an administrator deactivated is still released as before.
       await client.query(`UPDATE "User" SET "status" = 'inactive' WHERE "id" = $1`, [bob]);
       await runWithoutTenant(() => repo().disableRuleUnscoped(freeCompanyId, bobs[2], "ownerInactive"));
       expect(await state(bobs[2])).toEqual({ enabled: false, disabledReason: "ownerInactive" });

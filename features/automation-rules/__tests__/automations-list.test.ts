@@ -231,8 +231,6 @@ describe("AutomationsListComposer", () => {
     expect((await composer.getItems({})).map((item) => item.name)).toEqual(["Mine"]);
   });
 
-  // Finding 8 of the review of 2026-11-17: the merged list loads at most 200 rules and 100 routines and
-  // pages them in memory; whatever lies beyond never appeared, and nothing said so.
   it("says how many rules and routines the list leaves out", async () => {
     const within = setup({ routines: [routine("30000000-0000-4000-8000-000000000001")] });
     within.rules.addRule({ id: "20000000-0000-4000-8000-000000000001", trigger: CREATED, effects: [NOTIFY] });

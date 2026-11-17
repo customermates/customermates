@@ -142,10 +142,6 @@ describe("automation conditions", () => {
     ).toBe(false);
   });
 
-  // The record query compiles "ne" and "notIn" as NOT COALESCE(<comparison>, FALSE): a record whose field
-  // is empty matches (features/records/__tests__/record-engine.database.test.ts, "keeps missing and
-  // other-currency values for not-equal filters exactly like notIn"). A condition that cannot become a
-  // subscription filter is evaluated here and has to give the same answer, whatever the trigger.
   it("matches an empty field for notEquals and notIn like the record query does", () => {
     const notLost = condition({ operator: "notEquals", value: { kind: "select", value: "lost" } });
     const notClosed = condition({
@@ -298,8 +294,6 @@ describe("date reached timing", () => {
     expect(parsed).toMatchObject({ atHour: 8, timezone: "UTC" });
   });
 
-  // Finding 6 of the review of 2026-11-17: only the date trigger knew a time zone, every other rule read
-  // "today" as the UTC day. Each trigger may now name the zone, and one helper answers for all of them.
   it("lets every trigger name the time zone that today is read in, and falls back to UTC", () => {
     const triggers = [
       { kind: "recordCreated", typeId: TYPE },
@@ -364,10 +358,6 @@ describe("occurrence keys", () => {
     });
   });
 
-  // Finding 7 of the review of 2026-11-17. A date field may hold an ISO date-time string
-  // (RecordScalarSchema, kind "date": z.union([z.iso.date(), RecordDateTimeSchema]), stored as written).
-  // The sweep guessed the kind from the string, so such a date was treated as a moment (atHour ignored),
-  // and the same day written another way made a new key and fired again inside the seven-day lookback.
   describe("a date that is written in different ways", () => {
     const date = {
       kind: "dateReached" as const,

@@ -212,8 +212,6 @@ describe("automation effects", () => {
     ]);
   });
 
-  // Finding 6 of the review of 2026-11-17: at 00:30 in Berlin it is still the day before in UTC, and a
-  // record rule gave the follow-up a due date one day early.
   it("counts the due date of a record rule from today in the rule's time zone", async () => {
     const effect = {
       kind: "createRecord" as const,
@@ -285,8 +283,6 @@ describe("automation effects", () => {
     });
   });
 
-  // Finding 5 of the review of 2026-11-17: the record is read with the owner's access and its name went to
-  // every chosen member and assignee, in the inbox and by email, with a link some of them cannot open.
   it("leaves the record name and the link out for a member who cannot read the record", async () => {
     const READER = "00000000-0000-4000-8000-000000000013";
     const NAMELESS = "00000000-0000-4000-8000-000000000014";
@@ -506,7 +502,6 @@ describe("running a rule", () => {
   });
 
   it("skips when the conditions are not met", async () => {
-    // A form rule keeps its conditions for the run; a record rule has them checked as subscription filters.
     const runId = (await seedRun(repo, {
       triggerKind: "formSubmitted",
       trigger: { kind: "formSubmitted", typeId: TYPE },
@@ -583,8 +578,6 @@ describe("running a rule", () => {
     expect(repo.runs.get(runId)?.outcome).toMatchObject({ reason: "ownerNotPermitted" });
   });
 
-  // The check the brief asked for: a list or field that was deleted after the rule was saved. A condition
-  // on an archived field used to be read as "empty", so "is empty" and "is not" passed and the steps ran.
   it("fails as invalid instead of running when the rule no longer fits the lists and fields", async () => {
     const outcome = async (ruleOverrides: Record<string, unknown>, model?: Record<string, unknown>) => {
       const store = new FakeAutomationRuleRepo();
@@ -867,10 +860,6 @@ describe("admitting events", () => {
     expect([...repo.runs.values()][1]?.payload).not.toHaveProperty("routineDepth");
   });
 
-  // Finding 3 of the review of 2026-11-17: the rule "deal updated, create a task" and the routine "task
-  // created, the agent updates the deal" started each other without end, one model run per turn, because
-  // the rule guard only knew ruleChain and the routine guard only knew routineDepth. Each single hop stays
-  // allowed; the second routine start is the one that must not happen.
   it("ends the ping-pong between a rule and a routine after one hop each way", async () => {
     seedRule(repo, {
       triggerKind: "recordUpdated",
@@ -916,19 +905,15 @@ describe("admitting events", () => {
       payload: { ...recordEvent({ id }).payload, cause },
     });
 
-    // A person updates the deal: the rule runs and creates a task.
     await admit(recordEvent({ kind: "record.updated", id: UUID("20") }));
     await runLatest();
     expect(causes[0]).toEqual({ kind: "mutation", ruleChain: [RULE] });
-    // The rule's task starts the routine once.
     await routines.admit(taskCreated(causes[0], UUID("21")) as never);
     expect(routineRuns).toHaveBeenCalledTimes(1);
-    // The routine's agent updates the deal: the rule runs once more and creates a second task.
     await admit(recordEvent({ kind: "record.updated", id: UUID("22"), routineDepth: 1 }));
     expect(repo.runs.size).toBe(2);
     await runLatest();
     expect(causes[1]).toEqual({ kind: "mutation", ruleChain: [RULE], routineDepth: 1 });
-    // That task descends from a routine and starts no routine again.
     await routines.admit(taskCreated(causes[1], UUID("23")) as never);
     expect(routineRuns).toHaveBeenCalledTimes(1);
   });
@@ -1131,8 +1116,6 @@ describe("sweeping date-reached rules", () => {
     expect(orphan.runs.get(orphanRun)?.status).toBe("skipped");
   });
 
-  // Finding 4 of the review of 2026-11-17. A run whose worker dies outside the per-effect catch stays
-  // "running" and was handed to the worker again every ten minutes without end.
   const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60 * 1000);
 
   async function stalledRun(store: FakeAutomationRuleRepo, createdMinutesAgo: number, key = "event:stalled") {

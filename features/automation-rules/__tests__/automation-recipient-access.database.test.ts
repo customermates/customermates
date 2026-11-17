@@ -34,9 +34,6 @@ afterAll(async () => {
   for (const cleanup of cleanups) await cleanup();
 });
 
-// Finding 5 of the review of 2026-11-17: a notify step rendered the record name for every recipient. This
-// reader says, per recipient and with the recipient's own role and assignments, whether they may see the
-// record at all and whether they may see its name.
 describeDatabase("record access of the recipients of a notify step", () => {
   const reader = new RecordRecipientAccess(
     (companyId) => createTestRecordRepo(companyId),
