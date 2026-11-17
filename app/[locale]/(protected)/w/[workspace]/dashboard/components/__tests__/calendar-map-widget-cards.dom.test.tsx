@@ -18,7 +18,18 @@ vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component })
 vi.mock("next-intl", () => {
   const t = (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key;
-  t.rich = (key: string) => key;
+  t.rich = (key: string, values?: Record<string, unknown>) => {
+    const swatches = values?.swatches;
+    return typeof swatches === "function" ? (
+      <>
+        {key}
+
+        {(swatches as () => ReactNode)()}
+      </>
+    ) : (
+      key
+    );
+  };
   return { useLocale: () => "en", useTranslations: () => t };
 });
 vi.mock("@/core/stores/root-store.provider", () => ({
@@ -233,9 +244,17 @@ describe("month overview widget", () => {
       }),
     );
     expect(host.querySelectorAll("[data-calendar-day]")).toHaveLength(31);
-    expect(host.querySelector('[data-calendar-day="2026-10-12"]')?.getAttribute("data-heat")).toBe("4");
-    expect(host.querySelector('[data-calendar-day="2026-10-16"]')?.getAttribute("data-heat")).toBe("1");
-    expect(host.querySelector('[data-calendar-day="2026-10-13"]')?.getAttribute("data-heat")).toBe("0");
+    const busiest = must(host.querySelector<HTMLElement>('[data-calendar-day="2026-10-12"]'));
+    const quiet = must(host.querySelector<HTMLElement>('[data-calendar-day="2026-10-16"]'));
+    const empty = must(host.querySelector<HTMLElement>('[data-calendar-day="2026-10-13"]'));
+    expect(busiest.getAttribute("data-heat")).toBe("3");
+    expect(busiest.style.backgroundColor).toBe("var(--chart-primary-1)");
+    expect(quiet.getAttribute("data-heat")).toBe("1");
+    expect(quiet.style.backgroundColor).toBe("var(--chart-primary-3)");
+    expect(empty.getAttribute("data-heat")).toBe("0");
+    expect(empty.style.backgroundColor).toBe("");
+    expect(empty.className).toContain("bg-muted");
+    expect(host.querySelectorAll("[data-calendar-scale] > span")).toHaveLength(4);
     expect(host.querySelector('[data-calendar-day="2026-10-18"]')?.hasAttribute("data-today")).toBe(true);
     expect(host.querySelector('[data-calendar-day="2026-10-18"]')?.getAttribute("tabindex")).toBe("0");
     expect(host.querySelector('[data-slot="card-header"] [data-slot="widget-subtitle"]')?.textContent).toBe(

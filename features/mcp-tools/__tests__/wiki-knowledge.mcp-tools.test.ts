@@ -17,7 +17,12 @@ const calls = vi.hoisted(() => ({
   docs: vi.fn(),
   fetchDoc: vi.fn(),
   fetchRecord: vi.fn(),
+  gaps: vi.fn(),
+  links: vi.fn(),
+  report: vi.fn(),
+  captureException: vi.fn(),
 }));
+vi.mock("@/core/observability/server", () => ({ captureException: calls.captureException }));
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("../mcp-workspace-slug", async (importOriginal) => ({
   ...(await importOriginal<object>()),
@@ -33,6 +38,9 @@ vi.mock("@/core/di", () => ({
   getSearchExternalizedWikiPagesInteractor: () => ({ invoke: calls.search }),
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getGetWikiCatalogInteractor: () => ({ invoke: calls.catalog }),
+  getGetWikiKnowledgeGapsInteractor: () => ({ invoke: calls.gaps }),
+  getGetWikiPageLinksInteractor: () => ({ invoke: calls.links }),
+  getGetWikiLinkReportInteractor: () => ({ invoke: calls.report }),
   getSearchRecordsInteractor: () => ({ invoke: calls.records }),
   getSearchRecordFilesInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { items: [], retrieval: "keyword" } }),
@@ -117,6 +125,15 @@ beforeEach(() => {
   calls.get.mockResolvedValue({ ok: true, data: page });
   calls.catalog.mockResolvedValue({ ok: true, data: catalog });
   calls.accounts.mockResolvedValue({ ok: true, data: [] });
+  calls.gaps.mockResolvedValue({ ok: true, data: { items: [] } });
+  calls.links.mockResolvedValue({
+    ok: true,
+    data: { id, linkedFrom: [], linksTo: [], missing: 0, missingPageIds: [], records: [] },
+  });
+  calls.report.mockResolvedValue({
+    ok: true,
+    data: { pages: 11, orphans: [], orphansTotal: 0, broken: [], brokenTotal: 0, syncing: false },
+  });
 });
 
 describe("read-only Wiki search and fetch compatibility", () => {
@@ -514,5 +531,196 @@ describe("workspace-context Wiki discovery", () => {
   it("propagates unexpected catalog failures", async () => {
     calls.catalog.mockRejectedValue(new Error("catalog unavailable"));
     await expect(getWorkspaceContextTool.execute()).rejects.toThrow("catalog unavailable");
+  });
+});
+
+describe("workspace-context Knowledge Base upkeep", () => {
+  const gap = { query: "refund window", count: 3, firstSeenAt: new Date(), lastSeenAt: new Date() };
+  const wiki = async (input?: { wikiPage: number }) =>
+    (
+      decode(
+        mcpToolResultText(
+          await getWorkspaceContextTool.execute(input ? getWorkspaceContextTool.inputSchema.parse(input) : undefined),
+        ),
+      ) as { wiki: Record<string, unknown> }
+    ).wiki;
+
+  it("counts open questions, orphan pages and pages with dead links for someone who may edit pages", async () => {
+    calls.gaps.mockResolvedValue({ ok: true, data: { items: [gap, { ...gap, query: "invoice address" }] } });
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: { pages: 11, orphans: [], orphansTotal: 4, broken: [], brokenTotal: 1, syncing: false },
+    });
+
+    const result = await wiki();
+
+    expect(result.upkeep).toEqual({ openQuestions: 2, orphanPages: 4, pagesWithDeadLinks: 1 });
+    expect(Object.keys(result)).toEqual(["upkeep", "total", "page", "nextPage", "truncated", "items"]);
+    expect(calls.report).toHaveBeenCalledExactlyOnceWith({});
+  });
+
+  it("names only what is open and says nothing when nothing is", async () => {
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: { pages: 11, orphans: [], orphansTotal: 2, broken: [], brokenTotal: 0, syncing: false },
+    });
+    expect((await wiki()).upkeep).toEqual({ orphanPages: 2 });
+
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: { pages: 11, orphans: [], orphansTotal: 0, broken: [], brokenTotal: 0, syncing: false },
+    });
+    expect(await wiki()).not.toHaveProperty("upkeep");
+  });
+
+  it("leaves the link counts out while links are still being read, because they would be wrong", async () => {
+    calls.gaps.mockResolvedValue({ ok: true, data: { items: [gap] } });
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: { pages: 300, orphans: [], orphansTotal: 180, broken: [], brokenTotal: 3, syncing: true },
+    });
+
+    expect((await wiki()).upkeep).toEqual({ openQuestions: 1 });
+  });
+
+  it("reads the upkeep only with the first catalog page", async () => {
+    calls.gaps.mockResolvedValue({ ok: true, data: { items: [gap] } });
+
+    expect(await wiki({ wikiPage: 2 })).not.toHaveProperty("upkeep");
+    expect(calls.gaps).not.toHaveBeenCalled();
+    expect(calls.report).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["a refused read", () => calls.gaps.mockResolvedValue({ ok: false, error: { issues: [] } })],
+    ["a denied read", () => calls.gaps.mockRejectedValue(new ForbiddenError("denied"))],
+  ])("leaves the upkeep out for a reader after %s, without reading the link report", async (_label, deny) => {
+    deny();
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: { pages: 11, orphans: [], orphansTotal: 4, broken: [], brokenTotal: 1, syncing: false },
+    });
+
+    const result = await wiki();
+
+    expect(result).not.toHaveProperty("upkeep");
+    expect(result).toMatchObject({ total: 11 });
+    expect(calls.report).not.toHaveBeenCalled();
+    expect(calls.captureException).not.toHaveBeenCalled();
+  });
+
+  it("still returns the context when the upkeep cannot be read, and reports the failure", async () => {
+    const failure = new Error("link report unavailable");
+    calls.gaps.mockResolvedValue({ ok: true, data: { items: [gap] } });
+    calls.report.mockRejectedValue(failure);
+
+    const result = await wiki();
+
+    expect(result).not.toHaveProperty("upkeep");
+    expect(result).toMatchObject({ total: 11 });
+    expect(calls.captureException).toHaveBeenCalledExactlyOnceWith(failure, { tags: { kind: "wiki-upkeep" } });
+  });
+
+  it("keeps the open questions when only the link report is refused", async () => {
+    calls.gaps.mockResolvedValue({ ok: true, data: { items: [gap] } });
+    calls.report.mockResolvedValue({ ok: false, error: { issues: [] } });
+
+    expect((await wiki()).upkeep).toEqual({ openQuestions: 1 });
+  });
+});
+
+describe("fetch metadata for Knowledge Base upkeep", () => {
+  const metadata = async (input: { id: string; offset?: number }) => {
+    const result = await fetchTool.execute(input);
+    if (!("structuredContent" in result)) throw new Error("Expected Wiki content.");
+    return result.structuredContent.metadata as Record<string, string>;
+  };
+
+  it("names up to five pages that link to the page on its first chunk", async () => {
+    calls.links.mockResolvedValue({
+      ok: true,
+      data: {
+        id,
+        linkedFrom: Array.from({ length: 7 }, (_, index) => ({
+          id: `00000000-0000-4000-8000-00000000010${index}`,
+          title: `Linking page ${index}`,
+          kind: "knowledge",
+        })),
+        linksTo: [],
+        missing: 0,
+        missingPageIds: [],
+        records: [],
+      },
+    });
+
+    const first = await metadata({ id: `wiki:${id}` });
+
+    expect(calls.links).toHaveBeenCalledExactlyOnceWith({ id });
+    expect(first.incomingWikiLinksTotal).toBe("7");
+    const incoming = JSON.parse(first.incomingWikiLinks) as unknown[];
+    expect(incoming).toHaveLength(5);
+    expect(incoming[0]).toEqual({
+      id: "00000000-0000-4000-8000-000000000100",
+      label: "Linking page 0",
+      url: "http://localhost:4000/w/acme/wiki?page=00000000-0000-4000-8000-000000000100",
+      fetchId: "wiki:00000000-0000-4000-8000-000000000100",
+    });
+  });
+
+  it("does not read incoming links for a later chunk and leaves them out when there are none", async () => {
+    expect(await metadata({ id: `wiki:${id}` })).not.toHaveProperty("incomingWikiLinks");
+
+    calls.links.mockClear();
+    expect(await metadata({ id: `wiki:${id}`, offset: 3 })).not.toHaveProperty("incomingWikiLinks");
+    expect(calls.links).not.toHaveBeenCalled();
+  });
+
+  it("still returns the page when its incoming links cannot be read", async () => {
+    calls.links.mockRejectedValue(new Error("links unavailable"));
+
+    const result = await fetchTool.execute({ id: `wiki:${id}` });
+
+    if (!("structuredContent" in result)) throw new Error("Expected Wiki content.");
+    expect(result.structuredContent.text).toBe("Current content");
+    expect(result.structuredContent.metadata).not.toHaveProperty("incomingWikiLinks");
+    expect(result.structuredContent.metadata).toMatchObject({ incomingWikiLinksIncomplete: "true" });
+    expect(calls.captureException).toHaveBeenCalledExactlyOnceWith(expect.any(Error), {
+      tags: { kind: "wiki-incoming-links" },
+    });
+  });
+
+  it("says when the incoming links are still being read, with or without links read so far", async () => {
+    const linked = { id: "00000000-0000-4000-8000-000000000100", title: "Linking page", kind: "knowledge" };
+    const links = (linkedFrom: unknown[]) => ({
+      ok: true,
+      data: { id, linkedFrom, linksTo: [], missing: 0, missingPageIds: [], records: [], syncing: true },
+    });
+
+    calls.links.mockResolvedValue(links([]));
+    const none = await metadata({ id: `wiki:${id}` });
+    expect(none).toMatchObject({ incomingWikiLinksIncomplete: "true" });
+    expect(none).not.toHaveProperty("incomingWikiLinks");
+
+    calls.links.mockResolvedValue(links([linked]));
+    expect(await metadata({ id: `wiki:${id}` })).toMatchObject({
+      incomingWikiLinksTotal: "1",
+      incomingWikiLinksIncomplete: "true",
+    });
+  });
+
+  it("carries the owner and the verified date when the page has them", async () => {
+    calls.get.mockResolvedValue({
+      ok: true,
+      data: { ...page, owner: "Support team", verifiedAt: new Date("2026-09-14T08:00:00.000Z") },
+    });
+    expect(await metadata({ id: `wiki:${id}` })).toMatchObject({
+      owner: "Support team",
+      verifiedAt: "2026-09-14T08:00:00.000Z",
+    });
+
+    calls.get.mockResolvedValue({ ok: true, data: page });
+    const plain = await metadata({ id: `wiki:${id}` });
+    expect(plain).not.toHaveProperty("owner");
+    expect(plain).not.toHaveProperty("verifiedAt");
   });
 });

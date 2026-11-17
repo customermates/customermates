@@ -138,6 +138,124 @@ describe("Wiki document editing", () => {
     expect(store.hasUnsavedChanges).toBe(false);
   });
 
+  it("leaves the owner alone when only the text changed, so an owner set elsewhere is not overwritten", async () => {
+    const store = new WikiPageStore(rootStore(), { ...page, owner: "Support team" }, vi.fn());
+
+    store.onChange("title", "New title");
+    await store.onSubmit();
+
+    expect(actions.update).toHaveBeenCalledOnce();
+    expect(actions.update.mock.calls[0][0]).not.toHaveProperty("owner");
+  });
+
+  it("keeps a newer verified date when an older snapshot of the same version arrives late", () => {
+    const verifiedAt = new Date("2026-09-11T08:00:00.000Z");
+    const store = new WikiPageStore(rootStore(), { ...page, verifiedAt }, vi.fn());
+
+    store.receivePage({ ...page, verifiedAt: null });
+    expect(store.form.verifiedAt).toEqual(verifiedAt);
+
+    store.receivePage({ ...page, verifiedAt: new Date("2026-09-10T08:00:00.000Z") });
+    expect(store.form.verifiedAt).toEqual(verifiedAt);
+
+    const later = new Date("2026-09-12T08:00:00.000Z");
+    store.receivePage({ ...page, verifiedAt: later });
+    expect(store.form.verifiedAt).toEqual(later);
+  });
+
+  it("saves who looks after a page, trimmed, and clears the owner when the field is emptied", async () => {
+    const owned = { ...page, owner: "Support team" };
+    const store = new WikiPageStore(rootStore(), owned, vi.fn());
+    expect(store.form.owner).toBe("Support team");
+
+    store.onChange("owner", "  Sales team ");
+    await store.onSubmit();
+    expect(actions.update).toHaveBeenLastCalledWith(expect.objectContaining({ id: page.id, owner: "Sales team" }));
+
+    store.load(owned);
+    store.onChange("owner", "   ");
+    await store.onSubmit();
+    expect(actions.update).toHaveBeenLastCalledWith(expect.objectContaining({ owner: null }));
+
+    store.startCreate("Refunds");
+    store.onChange("owner", " Finance ");
+    await store.onSubmit();
+    expect(actions.create).toHaveBeenCalledExactlyOnceWith({
+      pages: [{ title: "Refunds", markdown: "", kind: "knowledge", whenToUse: undefined, owner: "Finance" }],
+      requireEmpty: false,
+    });
+  });
+
+  it("takes a server page whose owner or verified date changed elsewhere", () => {
+    const store = new WikiPageStore(rootStore(), page, vi.fn());
+    const verifiedAt = new Date("2026-09-09T12:00:00.000Z");
+
+    store.receivePage({ ...page, owner: "Support team", verifiedAt });
+
+    expect(store.form.owner).toBe("Support team");
+    expect(store.form.verifiedAt).toEqual(verifiedAt);
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it("marks a saved page as verified without sending its text", async () => {
+    const verifiedAt = new Date("2026-09-11T08:00:00.000Z");
+    actions.update.mockResolvedValue({ ok: true, data: { ...page, verifiedAt } });
+    const onChanged = vi.fn();
+    const store = new WikiPageStore(rootStore(), page, onChanged);
+
+    await store.markVerified();
+
+    expect(actions.update).toHaveBeenCalledExactlyOnceWith({
+      id: page.id,
+      expectedUpdatedAt: page.updatedAt,
+      verified: true,
+    });
+    expect(store.form.verifiedAt).toEqual(verifiedAt);
+    expect(store.form.updatedAt).toEqual(page.updatedAt);
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.isLoading).toBe(false);
+    expect(onChanged).not.toHaveBeenCalled();
+  });
+
+  it("does not verify a page with unsaved edits, a new page or for a reader", async () => {
+    const dirty = new WikiPageStore(rootStore(), page, vi.fn());
+    dirty.onChange("title", "Unsaved title");
+    await dirty.markVerified();
+
+    const draft = new WikiPageStore(rootStore(), page, vi.fn());
+    draft.startCreate();
+    await draft.markVerified();
+
+    await new WikiPageStore(rootStore(false), page, vi.fn()).markVerified();
+
+    expect(actions.update).not.toHaveBeenCalled();
+  });
+
+  it("offers a reload when the page changed before it could be verified", async () => {
+    actions.update.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "conflict",
+        issues: [
+          {
+            code: "custom",
+            customCode: CustomErrorCode.wikiPageConflict,
+            path: ["expectedUpdatedAt"],
+            message: "Conflict",
+          },
+        ],
+      },
+    });
+    const store = new WikiPageStore(rootStore(), page, vi.fn());
+
+    await store.markVerified();
+
+    expect(store.conflict).toBe(true);
+    expect(store.form.verifiedAt).toBeNull();
+    expect(actions.toast).not.toHaveBeenCalled();
+    expect(store.isLoading).toBe(false);
+  });
+
   it("keeps unsaved same-page edits and new drafts through server refreshes", () => {
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     store.onChange("markdown", "My unfinished changes");

@@ -430,9 +430,9 @@ Lire et modifier votre calendrier personnel : options liste les listes avec des
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-Lister, rechercher, lire, créer, mettre à jour, réordonner (déplacer avant ou après une autre page) ou supprimer (déplacer vers la Corbeille) des pages de la Base de connaissances, chacune étant une page de connaissances, une procédure avec un déclencheur « quand l’utiliser », ou l’unique guide opérationnel. Les mises à jour et les suppressions exigent la dernière valeur updatedAt ; create peut exiger atomiquement une Base de connaissances vide.
+Lister, rechercher, lire, créer, mettre à jour, réordonner (déplacer avant ou après une autre page) ou supprimer (déplacer vers la Corbeille) des pages de la Base de connaissances, chacune étant une page de connaissances, une procédure avec un déclencheur « quand l’utiliser », ou l’unique guide opérationnel. Une mise à jour peut modifier des parties d’une page (rechercher et remplacer, ou une section par son ancre) au lieu de la renvoyer en entier, indiquer qui tient la page à jour et la marquer comme vérifiée. links renvoie les pages qui pointent vers une page et celles vers lesquelles elle pointe, ou, pour toute la Base de connaissances, les pages vers lesquelles aucune autre ne pointe et les pages dont des liens mènent à des pages supprimées. Les mises à jour et les suppressions exigent la dernière valeur updatedAt ; create peut exiger atomiquement une Base de connaissances vide.
 
-**Peut supprimer des données.** Obligatoire : `action`. Facultatif : `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Peut supprimer des données.** Obligatoire : `action`. Facultatif : `id`, `query`, `offset`, `anchor`, `maxChars`, `page`, `pageSize`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `edits`, `kind`, `whenToUse`, `owner`, `verified`.
 {/* /mcp-catalog */}
 
 ### Messagerie [#messaging]

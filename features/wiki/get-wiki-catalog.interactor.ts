@@ -48,25 +48,29 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
           ? {
               guide: operating.guide ? this.guide(operating.guide, slug) : null,
               procedures: {
-                items: operating.procedures.map(({ id, title, whenToUse, summary }) => ({
+                items: operating.procedures.map(({ id, title, whenToUse, summary, owner, verifiedAt }) => ({
                   id,
                   title,
                   url: wikiPageUrl(env.BASE_URL, slug, id),
                   whenToUse: whenToUse ?? "",
                   ...(summary ? { summary } : {}),
+                  ...(owner ? { owner } : {}),
+                  ...(verifiedAt ? { verifiedAt } : {}),
                 })),
                 total: operating.proceduresTotal,
                 truncated: operating.proceduresTotal > operating.procedures.length,
               },
             }
           : {}),
-        items: items.map(({ id, title, markdown, summary, createdAt, updatedAt }) => ({
+        items: items.map(({ id, title, markdown, summary, owner, verifiedAt, createdAt, updatedAt }) => ({
           id,
           title,
           createdAt,
           updatedAt,
           excerpt: wikiExcerpt(markdown),
           ...(summary ? { summary } : {}),
+          ...(owner ? { owner } : {}),
+          ...(verifiedAt ? { verifiedAt } : {}),
           url: wikiPageUrl(env.BASE_URL, slug, id),
         })),
         total,

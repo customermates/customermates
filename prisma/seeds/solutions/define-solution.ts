@@ -242,7 +242,13 @@ export type WikiPageSpec = {
   title: string;
   kind: "guide" | "knowledge" | "procedure";
   whenToUse?: string;
+  /**
+   * One line of Markdown per entry. A link to another page of the workspace is written `[text](wiki:<page key>)`, a
+   * link to a list `[text](list:<list key>)`; the seed puts the page or list address in.
+   */
   markdown: readonly string[];
+  /** Keys of the pages a reader goes on to from here; the seed appends them as a list of links under their titles. */
+  related?: readonly string[];
 };
 
 export type MessagingProvider = "google" | "outlook" | "linkedin" | "whatsapp" | "instagram" | "telegram";

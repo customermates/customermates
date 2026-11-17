@@ -249,6 +249,21 @@ export const pl: Strings = {
     tasksMonth: "Otwarte zadania w tym miesiącu",
   },
   wiki: {
+    pilot: {
+      title: "Prowadzenie pilotażu",
+      whenToUse:
+        "Gdy potencjalny klient zgadza się wypróbować produkt na jednej linii produkcyjnej i szansa sprzedaży przechodzi do etapu Pilotaż.",
+      markdown: [
+        "Pilotaż to dowód, którego producent potrzebuje, zanim kupi od młodej firmy. Ustal przed startem, co liczy się jako sukces, inaczej pilotaż nigdy się nie skończy.",
+        "",
+        "## Kroki",
+        "1. Przenieś szansę sprzedaży do etapu Pilotaż, jak opisuje [Sprzedaż prowadzona przez założyciela](wiki:process), i ustaw okres pilotażu w szansie sprzedaży.",
+        "2. Zapisz kryteria sukcesu w notatkach szansy sprzedaży: która linia, które kroki kontroli i który wskaźnik ma się poprawić.",
+        "3. Dołącz umowę pilotażową i wypełniony kwestionariusz bezpieczeństwa do pola Dokumenty szansy sprzedaży.",
+        "4. Ustaw datę następnego kroku na cotygodniowe podsumowanie i zapisuj otwarte pytania jak na stronie [Po demo](wiki:afterDemo).",
+        "5. Przed końcem okresu pilotażu wyślij cennik i umów spotkanie decyzyjne; potem zmień etap na Decyzja.",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

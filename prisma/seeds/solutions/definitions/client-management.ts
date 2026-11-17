@@ -538,6 +538,19 @@ const en = {
     },
   },
   wiki: {
+    quietClient: {
+      title: "When a client goes quiet",
+      whenToUse: "When a client has had no contact for more than four weeks or stops answering our messages.",
+      markdown: [
+        "Clients rarely cancel out of the blue; they go quiet first. These steps bring a quiet client back into a conversation before the next review.",
+        "",
+        "## Steps",
+        "1. Open the client and check it against [What a complete client record holds](wiki:clientRecord): contracts, contacts with their role and the last contact.",
+        "2. Read the linked conversations and the open tasks to see what we last promised.",
+        "3. Call or write to the person who orders day to day, ask one concrete question about the service and update the last contact.",
+        "4. Set the next action date on the client. If a contract is up for review within 60 days, start the [Yearly review](wiki:yearlyReview) now.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -1211,6 +1224,20 @@ const de: Strings = {
     },
   },
   wiki: {
+    quietClient: {
+      title: "Wenn ein Kunde still wird",
+      whenToUse:
+        "Wenn ein Kunde seit mehr als vier Wochen keinen Kontakt hatte oder auf unsere Nachrichten nicht mehr antwortet.",
+      markdown: [
+        "Kunden kündigen selten aus heiterem Himmel; vorher werden sie still. Diese Schritte bringen einen stillen Kunden vor dem nächsten Jahresgespräch wieder ins Gespräch.",
+        "",
+        "## Schritte",
+        "1. Den Kunden öffnen und mit [Was ein vollständiger Kundendatensatz enthält](wiki:clientRecord) abgleichen: Verträge, Kontakte mit Rolle und letzter Kontakt.",
+        "2. Die verknüpften Unterhaltungen und die offenen Aufgaben lesen, um zu sehen, was wir zuletzt zugesagt haben.",
+        "3. Die Person anrufen oder anschreiben, die im Alltag bestellt, eine konkrete Frage zum Service stellen und den letzten Kontakt aktualisieren.",
+        "4. Das Datum der nächsten Aktion am Kunden setzen. Steht ein Vertrag in den nächsten 60 Tagen zur Prüfung an, jetzt das [Jahresgespräch](wiki:yearlyReview) starten.",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2775,12 +2802,18 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
         {
           key: "clientRecord",
           kind: "knowledge",
           title: t.wiki.clientRecord.title,
           markdown: t.wiki.clientRecord.markdown,
+          related: ["spreadsheetMove", "quietClient", "yearlyReview", "agents", "guide"],
         },
         {
           key: "spreadsheetMove",
@@ -2788,6 +2821,7 @@ export default defineSolution<Strings>({
           title: t.wiki.spreadsheetMove.title,
           whenToUse: t.wiki.spreadsheetMove.whenToUse,
           markdown: t.wiki.spreadsheetMove.markdown,
+          related: ["clientRecord", "guide"],
         },
         {
           key: "yearlyReview",
@@ -2795,8 +2829,17 @@ export default defineSolution<Strings>({
           title: t.wiki.yearlyReview.title,
           whenToUse: t.wiki.yearlyReview.whenToUse,
           markdown: t.wiki.yearlyReview.markdown,
+          related: ["clientRecord", "quietClient", "guide"],
         },
-        agentsPage(locale, t.agents),
+        { ...agentsPage(locale, t.agents), related: ["guide"] },
+        {
+          key: "quietClient",
+          kind: "procedure",
+          title: t.wiki.quietClient.title,
+          whenToUse: t.wiki.quietClient.whenToUse,
+          markdown: t.wiki.quietClient.markdown,
+          related: ["guide"],
+        },
       ],
       routines: [
         {

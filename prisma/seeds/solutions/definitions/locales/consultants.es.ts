@@ -249,6 +249,19 @@ export const es: Strings = {
     meetingsMonth: "Reuniones con clientes este mes",
   },
   wiki: {
+    wrapUp: {
+      title: "Cerrar un encargo",
+      whenToUse: "Cuando el taller final de un encargo ya se ha celebrado y el trabajo está listo para cerrarse.",
+      markdown: [
+        "El final de un encargo es el principio de la siguiente conversación. Estos pasos cierran bien el trabajo y mantienen viva la relación.",
+        "",
+        "## Pasos",
+        "1. Pasa el encargo a completado como describe [Cómo avanzan los encargos](wiki:process) y adjunta el informe final a sus documentos.",
+        "2. Compara los días trabajados con la estimación y anota cualquier diferencia en las notas; los días extra siguen las [Tarifas diarias y opciones de honorarios](wiki:rates).",
+        "3. Da las gracias al patrocinador y a la persona que nos recomendó, y actualiza la fuerza de la relación de ambos contactos.",
+        "4. Crea una tarea para retomar el contacto a los tres meses y, antes de esa llamada, sigue [Preparar un briefing de relación](wiki:brief).",
+      ],
+    },
     guide: {
       title: "Guía operativa",
       markdown: [

@@ -189,6 +189,19 @@ export const es: Strings = {
     nextStepsMonth: "Siguientes pasos de este mes",
   },
   wiki: {
+    offerFollowUp: {
+      title: "Hacer seguimiento de una oferta",
+      whenToUse: "Cuando una oferta lleva una semana en manos del cliente y no ha llegado respuesta.",
+      markdown: [
+        "Una oferta sin respuesta rara vez es un no. La mayoría de los dueños están ocupados con su fecha de apertura, así que un mensaje amable suele traer la respuesta.",
+        "",
+        "## Pasos",
+        "1. Lee primero las notas del proyecto y el chat vinculado: las medidas de la [Lista de comprobación de la visita técnica](wiki:siteVisit) y lo último que preguntó el cliente.",
+        "2. Escribe en el mismo chat un mensaje corto que nombre el punto abierto (el precio, la madera o la fecha de instalación) y haga una sola pregunta.",
+        "3. Cambia el estado del chat del contacto a Pendiente del cliente y mueve una semana la fecha del siguiente paso del proyecto.",
+        "4. Si el cliente dice que no, pasa la etapa a Perdido con el motivo, como en el [Proceso de ventas](wiki:process). Una consulta nueva del mismo cliente empieza otra vez con [De chat de WhatsApp a proyecto](wiki:whatsappToOpportunity).",
+      ],
+    },
     guide: {
       title: "Guía operativa",
       markdown: [

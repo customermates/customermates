@@ -400,6 +400,20 @@ export const pt: Strings = {
     },
   },
   wiki: {
+    quietClient: {
+      title: "Quando um cliente fica em silêncio",
+      whenToUse:
+        "Quando um cliente está há mais de quatro semanas sem contato ou para de responder às nossas mensagens.",
+      markdown: [
+        "Clientes raramente cancelam de uma hora para outra; antes disso ficam em silêncio. Estes passos trazem um cliente silencioso de volta à conversa antes da próxima revisão.",
+        "",
+        "## Passos",
+        "1. Abra o cliente e compare com [O que tem em um cadastro de cliente completo](wiki:clientRecord): contratos, contatos com a função e o último contato.",
+        "2. Leia as conversas vinculadas e as tarefas abertas para ver o que prometemos da última vez.",
+        "3. Ligue ou escreva para a pessoa que faz os pedidos no dia a dia, faça uma pergunta concreta sobre o serviço e atualize o último contato.",
+        "4. Defina a data da próxima ação no cliente. Se um contrato tiver revisão nos próximos 60 dias, comece já a [Revisão anual](wiki:yearlyReview).",
+      ],
+    },
     guide: {
       title: "Guia de operação",
       markdown: [

@@ -391,6 +391,20 @@ export const nl: Strings = {
     },
   },
   wiki: {
+    quietClient: {
+      title: "Als een klant stil wordt",
+      whenToUse:
+        "Wanneer een klant al meer dan vier weken geen contact heeft gehad of niet meer op onze berichten reageert.",
+      markdown: [
+        "Klanten zeggen zelden zomaar op; eerst worden ze stil. Met deze stappen breng je een stille klant weer in gesprek vóór het volgende jaargesprek.",
+        "",
+        "## Stappen",
+        "1. Open de klant en vergelijk hem met [Wat een volledig klantrecord bevat](wiki:clientRecord): contracten, contactpersonen met hun rol en het laatste contact.",
+        "2. Lees de gekoppelde gesprekken en de openstaande taken om te zien wat we het laatst hebben beloofd.",
+        "3. Bel of schrijf de persoon die dagelijks bestelt, stel één concrete vraag over de service en werk het laatste contact bij.",
+        "4. Zet de datum van de volgende actie bij de klant. Wordt een contract binnen 60 dagen geëvalueerd, begin dan nu met het [Jaargesprek](wiki:yearlyReview).",
+      ],
+    },
     guide: {
       title: "Werkwijzer",
       markdown: [

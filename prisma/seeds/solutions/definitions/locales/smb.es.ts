@@ -308,6 +308,19 @@ export const es: Strings = {
     appointmentsMonth: "Citas de este mes",
   },
   wiki: {
+    onboarding: {
+      title: "Incorporar a un nuevo cliente de soporte",
+      whenToUse: "Cuando se gana una oportunidad de soporte gestionado y empieza el primer mes con el nuevo cliente.",
+      markdown: [
+        "Un contrato de soporte ganado empieza con un primer mes en el que el cliente decide si fuimos la elección correcta. Estos pasos evitan que se pierda algo de lo prometido en la conversación de venta.",
+        "",
+        "## Pasos",
+        "1. Lee las notas y los documentos de la oportunidad: el inventario de red, la propuesta y todo lo prometido tras la visita, como en [Seguimiento tras una visita](wiki:followUp).",
+        "2. Comprueba que los servicios de la oportunidad coinciden con el número de puestos; [Lista de precios y descuentos](wiki:priceList) explica cómo se entiende la cantidad.",
+        "3. Crea una tarea con hora programada para el primer día en las oficinas del cliente y una tarea por cada promesa pendiente.",
+        "4. Después del primer mes, llama al cliente, anota el resultado en las notas de la oportunidad y crea una tarea para la conversación de renovación.",
+      ],
+    },
     guide: {
       title: "Guía operativa",
       markdown: [

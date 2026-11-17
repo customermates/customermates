@@ -12,11 +12,13 @@ import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import * as ErrorReporter from "@/core/observability/server";
 import {
   getGetRecordInteractor,
   getGetRecordModelInteractor,
   getSearchRecordsInteractor,
   getGetWikiPageInteractor,
+  getGetWikiPageLinksInteractor,
   getReadRecordFileContentInteractor,
   getSearchExternalizedWikiPagesInteractor,
   getSearchRecordFilesInteractor,
@@ -190,6 +192,36 @@ function fetchDoc(locale: ContentLocale, slug: string) {
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
+const WIKI_FETCH_INCOMING_LINKS = 5;
+
+async function incomingWikiLinks(id: string, slug: string) {
+  try {
+    const outcome = await getGetWikiPageLinksInteractor().invoke({ id });
+    if (!outcome.ok) return { incomingWikiLinksIncomplete: "true" };
+    const { linkedFrom, syncing } = outcome.data;
+    if (linkedFrom.length === 0 && !syncing) return null;
+    return {
+      ...(linkedFrom.length > 0
+        ? {
+            incomingWikiLinks: JSON.stringify(
+              linkedFrom.slice(0, WIKI_FETCH_INCOMING_LINKS).map((linked) => ({
+                id: linked.id,
+                label: linked.title,
+                url: wikiPageUrl(env.BASE_URL, slug, linked.id),
+                fetchId: wikiPageFetchId(linked.id),
+              })),
+            ),
+            incomingWikiLinksTotal: String(linkedFrom.length),
+          }
+        : {}),
+      ...(syncing ? { incomingWikiLinksIncomplete: "true" } : {}),
+    };
+  } catch (error) {
+    ErrorReporter.captureException(error, { tags: { kind: "wiki-incoming-links" } });
+    return { incomingWikiLinksIncomplete: "true" };
+  }
+}
+
 async function fetchWiki(id: string, requestedOffset: number) {
   const result = await getGetWikiPageInteractor().invoke({ id });
   if (!result.ok) return mcpInteractorFailure(result.error);
@@ -199,6 +231,7 @@ async function fetchWiki(id: string, requestedOffset: number) {
   const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL, slug);
   let selectedLinks = links.slice(0, 5);
   let outlineTruncated = false;
+  const incoming = requestedOffset === 0 ? await incomingWikiLinks(page.id, slug) : null;
   const outputAt = (offset: number, end: number, outline: WikiOutlineEntry[]) => ({
     id: wikiPageFetchId(page.id),
     title: page.title,
@@ -207,8 +240,11 @@ async function fetchWiki(id: string, requestedOffset: number) {
       source: "wiki",
       kind: page.kind,
       ...(page.whenToUse ? { whenToUse: page.whenToUse } : {}),
+      ...(page.owner ? { owner: page.owner } : {}),
+      ...(page.verifiedAt ? { verifiedAt: page.verifiedAt.toISOString() } : {}),
       createdAt: page.createdAt.toISOString(),
       updatedAt: page.updatedAt.toISOString(),
+      ...(incoming ?? {}),
       outgoingWikiLinks: JSON.stringify(
         selectedLinks.map(({ id: linkedId, label, url, fetchId }) => ({
           id: linkedId,
@@ -430,7 +466,7 @@ export const fetchTool = {
   description:
     "Returns the content behind a result id, including Knowledge Base Markdown for wiki:<uuid> and the extracted text of a file for file:<uuid>. " +
     "Knowledge Base pages can also be read by their exact relative, localized, or same-origin absolute Knowledge Base URL. " +
-    "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; nextOffset is the offset of the following chunk and is null at the end, and metadata.updatedAt differs from the previous chunk's when the page changed between chunks. Knowledge Base Read is required for Knowledge Base pages. " +
+    "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; nextOffset is the offset of the following chunk and is null at the end, and metadata.updatedAt differs from the previous chunk's when the page changed between chunks. The first chunk of a page also names up to five pages that link to it (metadata.incomingWikiLinks, incomingWikiLinksTotal; incomingWikiLinksIncomplete marks a list that is still being read), and metadata.owner and metadata.verifiedAt appear when the page has them: verifiedAt is when someone last confirmed the page, updatedAt when its text last changed. Knowledge Base Read is required for Knowledge Base pages. " +
     "File text arrives in the same bounded chunks between untrusted-content markers and needs read access to the record and field holding the file; metadata names the record and the extraction status, and a file without extractable text returns why. " +
     "An offset starts the chunk at that position, so a search result's offset lands on the matched section; at offset 0 a multi-chunk page or file also returns an outline of its headings with their offsets. " +
     "Compatible with ChatGPT company knowledge and deep research. " +

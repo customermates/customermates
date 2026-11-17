@@ -84,7 +84,7 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       });
       await prisma.wikiPage.update({
         where: { id: FOLLOW_UP },
-        data: { markdown: "Edited fixture" },
+        data: { markdown: "Edited fixture", linksSyncedAt: baseline[0].updatedAt },
       });
       await prisma.wikiPage.create({
         data: {

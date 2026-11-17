@@ -32,11 +32,13 @@ import { CALENDAR_KEY_STEPS, shiftCalendarAnchor } from "@/features/record-calen
 
 import {
   type CalendarHeatLevel,
-  CALENDAR_HEAT_CLASS,
+  CALENDAR_HEAT_EMPTY_CLASS,
   CALENDAR_HEAT_LEVELS,
   calendarHeatLevels,
+  calendarHeatStyle,
   calendarMonthGrid,
 } from "./calendar-widget-view";
+import { useDashboardAccent } from "./dashboard-accent";
 
 export type CalendarDaySelect = (date: CalendarDate, label: string, opener: HTMLElement) => void;
 
@@ -46,16 +48,6 @@ type Props = {
   loadWindow: (window: CalendarWidgetWindow) => Promise<CalendarWidgetPreview>;
   onSelectDay?: CalendarDaySelect;
 };
-
-function heatSwatches() {
-  return (
-    <span className="flex items-center gap-0.5">
-      {CALENDAR_HEAT_LEVELS.map((level) => (
-        <span key={level} className={cn("size-3 rounded-[3px]", CALENDAR_HEAT_CLASS[level])} />
-      ))}
-    </span>
-  );
-}
 
 function useMonthWindow(initial: CalendarWidgetData, loadWindow: Props["loadWindow"]) {
   const initialAnchor = startOfCalendarMonth(initial.window.from);
@@ -108,8 +100,20 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
 }: Props) {
   const t = useTranslations();
   const valueFormat = useRecordValueFormat();
+  const accent = useDashboardAccent();
   const monthLabelId = useId();
   const month = useMonthWindow(initial, loadWindow);
+  const heatSwatches = () => (
+    <span className="flex items-center gap-0.5" data-calendar-scale="">
+      {CALENDAR_HEAT_LEVELS.map((level) => (
+        <span
+          key={level}
+          className={cn("size-3 rounded-[3px]", level === 0 && CALENDAR_HEAT_EMPTY_CLASS)}
+          style={calendarHeatStyle(level, accent)}
+        />
+      ))}
+    </span>
+  );
   const [focusDate, setFocusDate] = useState<CalendarDate | null>(null);
   const buttons = useRef(new Map<CalendarDate, HTMLButtonElement>());
   const data = month.data;
@@ -173,9 +177,13 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
   function dayClass(date: CalendarDate) {
     return cn(
       "flex size-full items-start justify-end rounded-md px-1 py-0.5 text-[11px] font-medium tabular-nums outline-none transition-[box-shadow] focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
-      CALENDAR_HEAT_CLASS[levels.get(date) ?? 0],
+      !levels.get(date) && CALENDAR_HEAT_EMPTY_CLASS,
       date === today && "ring-1 ring-foreground/70 ring-inset",
     );
+  }
+
+  function dayStyle(date: CalendarDate) {
+    return calendarHeatStyle(levels.get(date) ?? 0, accent);
   }
 
   function dayNumber(date: CalendarDate) {
@@ -249,6 +257,7 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
                       data-calendar-day={date}
                       data-heat={levels.get(date) ?? 0}
                       data-today={date === today || undefined}
+                      style={dayStyle(date)}
                       tabIndex={date === activeDate ? 0 : -1}
                       type="button"
                       onClick={(event) => onSelectDay(date, fullDate(date), event.currentTarget)}
@@ -265,6 +274,7 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
                       data-heat={levels.get(date) ?? 0}
                       data-today={date === today || undefined}
                       role="img"
+                      style={dayStyle(date)}
                     >
                       {dayNumber(date)}
                     </div>

@@ -353,6 +353,23 @@ export const pl: Strings = {
     nextSteps: "Następne kroki, najbliższe 14 dni",
   },
   wiki: {
+    qualification: {
+      title: "Pytania kwalifikacyjne",
+      markdown: [
+        "Szansa sprzedaży jest zakwalifikowana, gdy wiemy cztery rzeczy. Zapytaj o nie w pierwszych dwóch rozmowach; bez nich wartość ważona niewiele mówi.",
+        "",
+        "## Cztery pytania",
+        "- **Zastosowanie:** do czego służy sprężone powietrze i ile godzin dziennie pracuje zakład.",
+        "- **Budżet:** wystarczy przedział oraz to, czy pochodzi z budżetu inwestycyjnego, czy z budżetu utrzymania ruchu.",
+        "- **Decyzja:** kto podpisuje, kto ma głos i kiedy chcą zdecydować.",
+        "- **Termin:** co stanie się w zakładzie, jeśli w tym roku nic się nie zmieni.",
+        "",
+        "## Co zrobić z odpowiedziami",
+        "- Zapisz je w notatkach szansy sprzedaży, ustaw oczekiwaną datę zamknięcia i zmień etap na Zakwalifikowana, jak opisują [Etapy sprzedaży](wiki:stages).",
+        "- Na wczesne pytanie o cenę odpowiedz ceną z cennika; [Zasady rabatów i akceptacji](wiki:discounts) przychodzą później.",
+        "- Gdy potem jest wizyta na miejscu, strona [Po wizycie na miejscu](wiki:siteVisit) mówi, co zapisać.",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

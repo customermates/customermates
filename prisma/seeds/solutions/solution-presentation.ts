@@ -14,6 +14,7 @@ import { WidgetKind } from "@/generated/prisma";
 import { dashboardLayouts, type WidgetDefinition } from "../dashboards-layout";
 import { workspaceFixtureId } from "../helpers";
 import type { SolutionContent, ViewSpec, WidgetFilterSpec, WidgetGroupSpec } from "./define-solution";
+import { solutionTranslator } from "./solution-model";
 import type { SolutionWorkspace } from "./solution-workspaces";
 
 export const SOLUTION_VIEW_GROUP = "1f100000";
@@ -385,15 +386,66 @@ export type SolutionWikiRow = {
   markdown: string;
 };
 
+const WIKI_LINK_TOKEN = /\]\((wiki|list):([^)\s]+)\)/gu;
+
+/**
+ * The pages of a workspace with the links between them put in: `(wiki:<key>)` becomes the address of that page,
+ * `(list:<key>)` the address of that list, and a page's related pages follow its text as a list of links. A link to
+ * a page or list the workspace does not have fails the build.
+ */
 export function buildSolutionWiki(workspace: SolutionWorkspace, content: SolutionContent): SolutionWikiRow[] {
   if (content.wiki.filter((page) => page.kind === "guide").length !== 1)
     throw new Error(`${workspace.slug}: the wiki needs exactly one guide`);
-  return content.wiki.map((page, index) => ({
-    id: workspaceFixtureId(SOLUTION_WIKI_GROUP, workspace.tag, index + 1),
-    title: page.title,
-    kind: page.kind,
-    whenToUse: page.kind === "procedure" ? (page.whenToUse ?? null) : null,
-    sortOrder: page.kind === "guide" ? -1 : index,
-    markdown: page.markdown.join("\n"),
-  }));
+  const pages = new Map(
+    content.wiki.map((page, index) => [
+      page.key,
+      { id: workspaceFixtureId(SOLUTION_WIKI_GROUP, workspace.tag, index + 1), title: page.title },
+    ]),
+  );
+  const lists = new Set(content.lists.map((list) => list.key));
+  const relatedHeading = solutionTranslator(workspace.locale)("Common.relatedPages");
+  const pageHref = (key: string, from: string) => {
+    const target = pages.get(key);
+    if (!target || key === from) throw new Error(`${workspace.slug}: wiki page ${from} links to the page ${key}`);
+    return `/wiki?page=${target.id}`;
+  };
+  const listHref = (key: string, from: string) => {
+    if (!lists.has(key)) throw new Error(`${workspace.slug}: wiki page ${from} links to the unknown list ${key}`);
+    return `/records/${presetId(workspace.companyId, key)}`;
+  };
+  return content.wiki.map((page, index) => {
+    const text = page.markdown
+      .join("\n")
+      .replace(
+        WIKI_LINK_TOKEN,
+        (_token, kind: string, key: string) =>
+          `](${kind === "wiki" ? pageHref(key, page.key) : listHref(key, page.key)})`,
+      );
+    const related = (page.related ?? []).map(
+      (key) => `- [${pages.get(key)?.title ?? key}](${pageHref(key, page.key)})`,
+    );
+    return {
+      id: workspaceFixtureId(SOLUTION_WIKI_GROUP, workspace.tag, index + 1),
+      title: page.title,
+      kind: page.kind,
+      whenToUse: page.kind === "procedure" ? (page.whenToUse ?? null) : null,
+      sortOrder: page.kind === "guide" ? -1 : index,
+      markdown: related.length > 0 ? `${text}\n\n## ${relatedHeading}\n${related.join("\n")}` : text,
+    };
+  });
+}
+
+/** For each page key, the keys of the pages its text and its related pages link to. */
+export function solutionWikiLinks(content: SolutionContent): Map<string, Set<string>> {
+  return new Map(
+    content.wiki.map((page) => [
+      page.key,
+      new Set([
+        ...[...page.markdown.join("\n").matchAll(WIKI_LINK_TOKEN)]
+          .filter(([, kind]) => kind === "wiki")
+          .map(([, , key]) => key),
+        ...(page.related ?? []),
+      ]),
+    ]),
+  );
 }
