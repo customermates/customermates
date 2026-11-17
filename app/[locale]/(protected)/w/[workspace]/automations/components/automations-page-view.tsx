@@ -37,9 +37,9 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 import { deleteAutomationRuleAction, getAutomationRoutineAction } from "../actions";
 import { AutomationBuilderModal } from "./automation-builder-modal";
-import { reminderDraft } from "./automation-draft";
 import { openFocusedRoutine } from "./automation-focus";
 import { showsRoutinesOnly } from "./automation-kind-filter";
+import { type AutomationsPrefill, prefillOpening } from "./automation-prefill";
 import {
   type AutomationViewer,
   canDeleteAutomation,
@@ -50,10 +50,7 @@ import { AutomationsPageSkeleton } from "./automations-page-skeleton";
 import { AutomationsTruncatedNotice } from "./automations-truncated-notice";
 import { useAutomationColumns } from "./use-automation-columns";
 
-export type AutomationsPrefill =
-  | { kind: "new"; typeId: string }
-  | { kind: "remind"; typeId: string; fieldId: string }
-  | null;
+export type { AutomationsPrefill };
 
 type Props = {
   initial: GetResult<AutomationListItemDto>;
@@ -108,17 +105,15 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     [automationBuilderStore, context, refreshAfterSave],
   );
 
+  const canCreate = automationsStore.canCreate;
+
   useEffect(() => {
     if (!prefill || prefillApplied.current) return;
     prefillApplied.current = true;
     const ctx = context();
-    if (!ctx.model.lists.some((list) => list.id === prefill.typeId)) return;
-    if (prefill.kind === "remind") {
-      automationBuilderStore.openForCreate(ctx, refreshAfterSave, {
-        draft: reminderDraft(ctx.model, { typeId: prefill.typeId, fieldId: prefill.fieldId, timezone: ctx.timezone }),
-      });
-    } else openNew(prefill.typeId);
-  }, [automationBuilderStore, context, openNew, prefill, refreshAfterSave]);
+    const opening = prefillOpening(prefill, { canCreate, model: ctx.model, timezone: ctx.timezone });
+    if (opening) automationBuilderStore.openForCreate(ctx, refreshAfterSave, opening);
+  }, [automationBuilderStore, canCreate, context, prefill, refreshAfterSave]);
 
   const openItem = useCallback(
     (item: AutomationListItemDto, pane: "preview" | "runs" = "preview") => {

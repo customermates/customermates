@@ -48,7 +48,7 @@ import { RecordCalendarView } from "./record-calendar-view";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { RecordMassActions } from "./record-mass-actions";
 import { automationOffers } from "./record-offers";
-import { Resource } from "@/generated/prisma";
+import { canStartAutomation } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-prefill";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
@@ -154,7 +154,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const handleImport = useCallback(() => setImportOpen(true), []);
   const configureLabel = t("RecordModel.configureList", { list: store.type?.pluralLabel ?? t("RecordModel.records") });
   const modelFields = store.presentation.model.fields;
-  const canUseAutomations = root.userStore.canAccess(Resource.routines);
+  const canUseAutomations = canStartAutomation(root.userStore);
   const offers = useMemo(
     () => automationOffers({ canUseAutomations, typeId: presentation.typeId, fields: modelFields }),
     [canUseAutomations, modelFields, presentation.typeId],
