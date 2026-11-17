@@ -866,8 +866,8 @@
       "noKey": "Brak klucza dostawcy dla tego uruchomienia",
       "ownerInactive": "Właściciel automatyzacji nie jest już aktywny",
       "provider": "Dostawca zwrócił błąd ({code})",
-      "timeLimit": "Zatrzymano po przekroczeniu limitu czasu",
       "timedOut": "Uruchomienie trwało zbyt długo",
+      "timeLimit": "Zatrzymano po przekroczeniu limitu czasu",
       "toolLimit": "Zatrzymano po przekroczeniu limitu wywołań narzędzi"
     },
     "loadFailed": "Nie udało się załadować uruchomień agentów. Spróbuj ponownie.",
@@ -3093,8 +3093,8 @@
   },
   "DocsSidebar": {
     "apiKeys": "Klucze API",
-    "appAssistant": "Asystent",
     "appAgents": "Agenty",
+    "appAssistant": "Asystent",
     "appAutomations": "Automatyzacje",
     "appCalendar": "Kalendarz",
     "appCompany": "Firma",

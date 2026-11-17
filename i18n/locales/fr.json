@@ -866,8 +866,8 @@
       "noKey": "Aucune clé de fournisseur pour cette exécution",
       "ownerInactive": "Le propriétaire de l’automatisation n’est plus actif",
       "provider": "Le fournisseur a renvoyé une erreur ({code})",
-      "timeLimit": "Arrêtée à la limite de temps",
       "timedOut": "L’exécution a pris trop de temps",
+      "timeLimit": "Arrêtée à la limite de temps",
       "toolLimit": "Arrêtée à la limite d’appels d’outils"
     },
     "loadFailed": "Les exécutions d’agent n’ont pas pu être chargées. Réessayez.",
@@ -3093,8 +3093,8 @@
   },
   "DocsSidebar": {
     "apiKeys": "Clés API",
-    "appAssistant": "Assistant",
     "appAgents": "Agents",
+    "appAssistant": "Assistant",
     "appAutomations": "Automatisations",
     "appCalendar": "Calendrier",
     "appCompany": "Entreprise",

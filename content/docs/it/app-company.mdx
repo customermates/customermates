@@ -185,7 +185,9 @@ Per leggerlo serve accesso in lettura **Tutti** su **Registro attività**. Le mo
 
 ## Webhook [#webhooks-tab]
 
-[Webhook](app:settings/webhooks), una sezione della scheda **Sviluppatori** di [Connessioni](app:settings/connections), invia gli eventi dello spazio di lavoro ai propri sistemi; payload, firme e nuovi tentativi sono in [Webhook](/docs/webhooks). Per aprirlo serve accesso in lettura **Tutti** su **API e webhook**; per aggiungere serve **Crea**, per modificare **Modifica**, per eliminare **Elimina**. Disponibile su ogni piano a pagamento e in self-hosting, non su Free.
+[Webhook](app:settings/webhooks) invia gli eventi dello spazio di lavoro ai propri sistemi; payload, firme e nuovi tentativi sono in [Webhook](/docs/webhooks).
+
+È una sezione della scheda **Sviluppatori** di [Connessioni](app:settings/connections). Per aprirlo serve accesso in lettura **Tutti** su **API e webhook**; per aggiungere serve **Crea**, per modificare **Modifica**, per eliminare **Elimina**. Disponibile su ogni piano a pagamento e in self-hosting, non su Free.
 
 Clicca su [Aggiungi](app:settings/webhooks?focus=add), oppure su una riga per modificare. La finestra **Webhook** ha **URL**, **Descrizione**, **Eventi**, **Segreto**, **Intestazioni personalizzate**, **Modello del corpo** e **Attivato**. Per gli eventi sui record si scelgono anche le liste e i filtri, e **Membro di cui usare i permessi**: le consegne usano i permessi attuali di quel membro, e solo un amministratore può scegliere un altro. Deselezionare **Attivato** mette in pausa le consegne senza eliminare il webhook. Senza **Modifica**, il segreto e i valori delle intestazioni compaiono come `********`. **Elimina** chiede conferma; le consegne passate restano. La ricerca in [Filtri](app:settings/webhooks?focus=filter) trova l’URL.
 

@@ -866,8 +866,8 @@
       "noKey": "Kein Anbieter-Schlüssel für diesen Lauf",
       "ownerInactive": "Die Person, der die Automatisierung gehört, ist nicht mehr aktiv",
       "provider": "Der Anbieter hat einen Fehler gemeldet ({code})",
-      "timeLimit": "Am Zeitlimit gestoppt",
       "timedOut": "Der Lauf hat zu lange gedauert",
+      "timeLimit": "Am Zeitlimit gestoppt",
       "toolLimit": "Am Limit der Werkzeugaufrufe gestoppt"
     },
     "loadFailed": "Die Agentenläufe konnten nicht geladen werden. Versuche es noch einmal.",
@@ -3093,8 +3093,8 @@
   },
   "DocsSidebar": {
     "apiKeys": "API-Keys",
-    "appAssistant": "Assistent",
     "appAgents": "Agenten",
+    "appAssistant": "Assistent",
     "appAutomations": "Automatisierungen",
     "appCalendar": "Kalender",
     "appCompany": "Unternehmen",

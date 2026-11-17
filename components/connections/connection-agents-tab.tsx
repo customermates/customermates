@@ -22,7 +22,7 @@ export async function ConnectionAgentsTab() {
   const [keys, runners, availability, runs] = await Promise.all([
     unwrapPage(getGetAgentProviderKeysInteractor().invoke()),
     unwrapPage(getGetAgentRunnersInteractor().invoke()),
-    unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke()),
+    unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke({})),
     recentRuns(),
   ]);
 

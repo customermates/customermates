@@ -866,8 +866,8 @@
       "noKey": "No provider key for this run",
       "ownerInactive": "The owner of the automation is no longer active",
       "provider": "The provider returned an error ({code})",
-      "timeLimit": "Stopped at the time limit",
       "timedOut": "The run took too long",
+      "timeLimit": "Stopped at the time limit",
       "toolLimit": "Stopped at the tool call limit"
     },
     "loadFailed": "The agent runs could not be loaded. Try again.",
@@ -3093,8 +3093,8 @@
   },
   "DocsSidebar": {
     "apiKeys": "API Keys",
-    "appAssistant": "Assistant",
     "appAgents": "Agents",
+    "appAssistant": "Assistant",
     "appAutomations": "Automations",
     "appCalendar": "Calendar",
     "appCompany": "Company",

@@ -866,8 +866,8 @@
       "noKey": "Geen sleutel van een aanbieder voor deze uitvoering",
       "ownerInactive": "De eigenaar van de automatisering is niet meer actief",
       "provider": "De aanbieder gaf een fout terug ({code})",
-      "timeLimit": "Gestopt bij de tijdslimiet",
       "timedOut": "De uitvoering duurde te lang",
+      "timeLimit": "Gestopt bij de tijdslimiet",
       "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
     },
     "loadFailed": "De agentuitvoeringen konden niet worden geladen. Probeer het opnieuw.",
@@ -3093,8 +3093,8 @@
   },
   "DocsSidebar": {
     "apiKeys": "API-sleutels",
-    "appAssistant": "Assistent",
     "appAgents": "Agents",
+    "appAssistant": "Assistent",
     "appAutomations": "Automatiseringen",
     "appCalendar": "Agenda",
     "appCompany": "Bedrijf",

@@ -185,7 +185,9 @@ La lire exige l’accès en lecture **Tous** sur **Journal d’activité**. Les 
 
 ## Webhooks [#webhooks-tab]
 
-[Webhooks](app:settings/webhooks), une section de l’onglet **Développeurs** de [Connexions](app:settings/connections), envoie les évènements de l’espace de travail à vos systèmes ; les charges utiles, les signatures et les nouvelles tentatives sont décrites dans [Webhooks](/docs/webhooks). L’ouvrir exige l’accès en lecture **Tous** sur **API et webhooks** ; ajouter exige **Créer**, modifier **Modifier**, supprimer **Supprimer**. Disponible avec toutes les formules payantes et en auto-hébergement, pas sur Free.
+[Webhooks](app:settings/webhooks) envoie les évènements de l’espace de travail à vos systèmes ; les charges utiles, les signatures et les nouvelles tentatives sont décrites dans [Webhooks](/docs/webhooks).
+
+C’est une section de l’onglet **Développeurs** de [Connexions](app:settings/connections). L’ouvrir exige l’accès en lecture **Tous** sur **API et webhooks** ; ajouter exige **Créer**, modifier **Modifier**, supprimer **Supprimer**. Disponible avec toutes les formules payantes et en auto-hébergement, pas sur Free.
 
 Cliquez sur [Ajouter](app:settings/webhooks?focus=add), ou sur une ligne pour la modifier. La boîte de dialogue **Webhook** comporte **URL**, **Description**, **Évènements**, **Secret**, **En-têtes personnalisés**, **Modèle de corps** et **Activé**. Pour les évènements d’enregistrement, vous choisissez aussi les listes et les filtres, ainsi que **Membre dont les droits sont utilisés** : les livraisons utilisent les autorisations actuelles de ce membre, et seul un administrateur peut choisir quelqu’un d’autre. Décocher **Activé** met les livraisons en pause sans supprimer le webhook. Sans **Modifier**, le secret et les valeurs des en-têtes s’affichent sous la forme `********`. **Supprimer** demande une confirmation ; les livraisons passées sont conservées. La recherche dans [Filtrer](app:settings/webhooks?focus=filter) porte sur l’URL.
 
