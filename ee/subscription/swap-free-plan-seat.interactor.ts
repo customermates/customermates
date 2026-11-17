@@ -1,6 +1,8 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
+import type { HandOverPublicEndpointsService } from "@/features/workspace/hand-over-public-endpoints.service";
 import type { FreePlanMemberRepo } from "./free-plan-member.repo";
+import type { FreePlanPauseService } from "./free-plan-pause.service";
 
 import { z } from "zod";
 import { Resource, Status } from "@/generated/prisma";
@@ -32,6 +34,8 @@ export class SwapFreePlanSeatInteractor extends AuthenticatedInteractor<SwapFree
   constructor(
     private readonly repo: FreePlanMemberRepo,
     private readonly eventService: EventService,
+    private readonly planPauses: Pick<FreePlanPauseService, "syncUnscoped">,
+    private readonly handOverEndpoints: Pick<HandOverPublicEndpointsService, "invoke">,
   ) {
     super();
   }
@@ -55,6 +59,8 @@ export class SwapFreePlanSeatInteractor extends AuthenticatedInteractor<SwapFree
       .map((member) => member.id);
     await this.repo.pauseMembersForPlanUnscoped({ companyId: this.companyId, userIds: pausing, now, noticeSent: true });
     await this.repo.resumeMembersForPlanUnscoped({ companyId: this.companyId, userIds: [target.id] });
+    await this.handOverEndpoints.invoke({ companyId: this.companyId, fromUserIds: pausing, toUserId: target.id });
+    await this.planPauses.syncUnscoped(this.companyId, now);
 
     try {
       await this.eventService.publish(DomainEvent.USER_UPDATED, {

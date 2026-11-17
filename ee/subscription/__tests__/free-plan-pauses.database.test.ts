@@ -329,6 +329,20 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
       "planSeatSwapRequiresAdmin",
     );
 
+    const ownersRule = await runWithoutTenant(() =>
+      prisma.automationRule.create({
+        data: {
+          companyId: w.companyId,
+          ownerUserId: w.owner.id,
+          name: "Follow up on new messages",
+          triggerKind: "messageReceived",
+          trigger: { kind: "messageReceived", channel: "any" },
+          effects: [],
+        },
+        select: { id: true },
+      }),
+    );
+
     tenantUser = w.asTenant(w.owner, w.adminRoleId, true);
     const swapped = await getSwapFreePlanSeatInteractor().invoke({ userId: w.earliestAdmin.id });
     expect(swapped).toMatchObject({
@@ -342,6 +356,14 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
     expect(after.get(w.owner.id)?.pausedByPlanAt).toBeInstanceOf(Date);
     expect(after.get(w.owner.id)?.planPauseNoticeSentAt).toBeInstanceOf(Date);
     expect(await runWithoutTenant(() => getUserRepo().countActiveMembersUnscoped(w.companyId))).toBe(1);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.automationRule.findUnique({
+          where: { id: ownersRule.id },
+          select: { enabled: true, disabledReason: true },
+        }),
+      ),
+    ).toEqual({ enabled: false, disabledReason: "planPaused" });
   });
 
   it("refuses to create a webhook on Free and stops delivery until a paid plan", async () => {

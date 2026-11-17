@@ -242,4 +242,48 @@ describeDatabase("leaving a workspace in which the membership is inactive", { ti
     expect(await users.resumeMembersForPlanUnscoped({ companyId: fixture.companies.paused })).toBe(0);
     expect(await membership("paused")).toMatchObject({ status: "pendingAuthorization", leftAt: null });
   });
+
+  it("clears a pause that an earlier removal left behind when the person asks to join again", async () => {
+    const { PermissionService } = await import("@/core/base/permission.service");
+    const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+    const users = new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo());
+    const stale = new Date("2026-10-01T08:00:00.000Z");
+    await client.query(
+      'UPDATE "User" SET "pausedByPlanAt" = $3, "planPauseNoticeSentAt" = $3 WHERE "companyId" = $1 AND "email" = $2 AND "leftAt" IS NOT NULL',
+      [fixture.companies.deactivated, fixture.email, stale],
+    );
+
+    const { runInTransaction } = await import("@/core/decorators/transaction-runner");
+    const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+    await runWithoutTenant(() =>
+      runInTransaction(
+        () =>
+          users.registerExistingCompany({
+            email: fixture.email,
+            firstName: "Ben",
+            lastName: "Leaver",
+            avatarUrl: null,
+            agreeToTerms: true,
+            companyId: fixture.companies.deactivated,
+          }),
+        { companyId: fixture.companies.deactivated },
+      ),
+    );
+
+    expect(await membership("deactivated")).toEqual({
+      status: "pendingAuthorization",
+      leftAt: null,
+      pausedByPlanAt: null,
+      planPauseNoticeSentAt: null,
+    });
+    expect(await users.resumeMembersForPlanUnscoped({ companyId: fixture.companies.deactivated })).toBe(0);
+
+    await client.query('UPDATE "User" SET "pausedByPlanAt" = $3 WHERE "companyId" = $1 AND "email" = $2', [
+      fixture.companies.deactivated,
+      fixture.email,
+      stale,
+    ]);
+    expect(await users.resumeMembersForPlanUnscoped({ companyId: fixture.companies.deactivated })).toBe(0);
+    expect(await membership("deactivated")).toMatchObject({ status: "pendingAuthorization", leftAt: null });
+  });
 });

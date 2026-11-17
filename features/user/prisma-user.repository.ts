@@ -550,6 +550,8 @@ export class PrismaUserRepo
             leftAt: null,
             roleId: null,
             agentCreditActivatedAt: null,
+            pausedByPlanAt: null,
+            planPauseNoticeSentAt: null,
           },
         })
       : await this.prisma.user.create({
@@ -1236,6 +1238,7 @@ export class PrismaUserRepo
       const where = {
         companyId: args.companyId,
         leftAt: null,
+        status: Status.inactive,
         pausedByPlanAt: { not: null },
         ...(args.userIds ? { id: { in: args.userIds } } : {}),
       };

@@ -29,6 +29,7 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     save: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
     pause: vi.fn().mockResolvedValue(undefined),
+    pauseUnscoped: vi.fn().mockResolvedValue(undefined),
     resume: vi.fn().mockResolvedValue(undefined),
   };
   const repo = (scoped?: string) => new PrismaAutomationRuleRepo(subscriptions as never, scoped);
@@ -284,6 +285,13 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     expect(await runWithoutTenant(() => repo().disableOwnerRulesUnscoped(companyId, ownerId, "ownerInactive"))).toBe(2);
     expect(await state(ruleId)).toEqual({ enabled: false, disabledReason: "ownerInactive" });
     expect(await state(otherRuleId)).toEqual({ enabled: true, disabledReason: null });
+    const [pausedCompany, pausedIds] = subscriptions.pauseUnscoped.mock.lastCall as [string, string[]];
+    expect(pausedCompany).toBe(companyId);
+    expect([...pausedIds].sort()).toEqual([ruleId, secondRuleId].sort());
+
+    subscriptions.pauseUnscoped.mockClear();
+    expect(await runWithoutTenant(() => repo().disableOwnerRulesUnscoped(companyId, ownerId, "ownerInactive"))).toBe(0);
+    expect(subscriptions.pauseUnscoped).not.toHaveBeenCalled();
   });
 
   it("pauses the newest rules above the plan limit and brings them back within a larger one", async () => {
@@ -356,13 +364,16 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
       expect(await reasons(alices)).toEqual(["disabledByUser", null, null, null]);
       expect(await reasons(bobs)).toEqual(["planPaused", "planPaused", "planPaused"]);
 
+      subscriptions.pauseUnscoped.mockClear();
       await runWithoutTenant(() => repo().disableRuleUnscoped(freeCompanyId, bobs[0], "ownerInactive"));
       expect(await state(bobs[0])).toEqual({ enabled: false, disabledReason: "planPaused" });
+      expect(subscriptions.pauseUnscoped).not.toHaveBeenCalled();
       await client.query(`UPDATE "AutomationRule" SET "enabled" = TRUE, "disabledReason" = NULL WHERE "id" = $1`, [
         bobs[1],
       ]);
       await runWithoutTenant(() => repo().disableRuleUnscoped(freeCompanyId, bobs[1], "ownerInactive"));
       expect(await state(bobs[1])).toEqual({ enabled: false, disabledReason: "planPaused" });
+      expect(subscriptions.pauseUnscoped).toHaveBeenCalledExactlyOnceWith(freeCompanyId, [bobs[1]]);
 
       await client.query(`UPDATE "User" SET "status" = 'active', "pausedByPlanAt" = NULL WHERE "id" = $1`, [bob]);
       expect(await sync(null)).toEqual({ paused: 0, resumed: 3 });

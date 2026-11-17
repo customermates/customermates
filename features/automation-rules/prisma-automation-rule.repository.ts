@@ -395,18 +395,26 @@ export class PrismaAutomationRuleRepo
       (await this.prisma.automationRule.count({
         where: { id: ruleId, companyId, owner: { pausedByPlanAt: { not: null } } },
       })) > 0;
-    await this.prisma.automationRule.updateMany({
+    const { count } = await this.prisma.automationRule.updateMany({
       where: { id: ruleId, companyId, enabled: true },
       data: { enabled: false, disabledReason: pausedByPlan ? AUTOMATION_DISABLED_REASON_PLAN_PAUSED : reason },
     });
+    if (count > 0) await this.subscriptions.pauseUnscoped(companyId, [ruleId]);
   }
 
   @BypassTenantGuard
   async disableOwnerRulesUnscoped(companyId: string, ownerUserId: string, reason: string): Promise<number> {
-    const result = await this.prisma.automationRule.updateMany({
+    const enabled = await this.prisma.automationRule.findMany({
       where: { companyId, ownerUserId, enabled: true },
+      select: { id: true },
+    });
+    if (enabled.length === 0) return 0;
+    const ids = enabled.map((rule) => rule.id);
+    const result = await this.prisma.automationRule.updateMany({
+      where: { companyId, id: { in: ids }, enabled: true },
       data: { enabled: false, disabledReason: reason },
     });
+    await this.subscriptions.pauseUnscoped(companyId, ids);
     return result.count;
   }
 

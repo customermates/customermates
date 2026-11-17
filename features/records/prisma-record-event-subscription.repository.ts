@@ -140,6 +140,15 @@ export class PrismaRecordEventSubscriptionRepo
     });
   }
 
+  @BypassTenantGuard
+  async pauseUnscoped(companyId: string, ids: string[]) {
+    if (!ids.length) return;
+    await this.prisma.recordEventSubscription.updateMany({
+      where: { companyId, id: { in: ids }, enabled: true },
+      data: { enabled: false, revision: { increment: 1 } },
+    });
+  }
+
   async resume(id: string) {
     await this.prisma.recordEventSubscription.updateMany({
       where: { companyId: this.companyId, id },

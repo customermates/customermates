@@ -1271,7 +1271,13 @@ export const getFreePlanPauseService = () =>
   );
 export const getSyncFreePlanPausesInteractor = () =>
   new SyncFreePlanPausesInteractor(getUserRepo(), getFreePlanPauseService(), getEmailService());
-export const getSwapFreePlanSeatInteractor = () => new SwapFreePlanSeatInteractor(getUserRepo(), getEventService());
+export const getSwapFreePlanSeatInteractor = () =>
+  new SwapFreePlanSeatInteractor(
+    getUserRepo(),
+    getEventService(),
+    getFreePlanPauseService(),
+    getHandOverPublicEndpointsService(),
+  );
 export const getGetPlanPauseStateInteractor = () => new GetPlanPauseStateInteractor(getUserRepo());
 const getIntegrationRequestLimiter = () =>
   new IntegrationRequestLimiter(
