@@ -17,6 +17,8 @@ import {
   auth,
   bindApiKeyToCompany,
   deleteApiKeysForIdentities,
+  issueExpiringApiKey,
+  revokeApiKeysNamed,
   revokeMembershipCredentials,
 } from "@/core/auth/better-auth";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
@@ -173,6 +175,28 @@ export class AuthService {
 
   async revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
     return revokeMembershipCredentials(authUserId, companyId);
+  }
+
+  async createExpiringApiKey(args: {
+    ownerEmail: string;
+    companyId: string;
+    name: string;
+    expiresAt: Date;
+  }): Promise<{ id: string; key: string } | null> {
+    const identity = await runWithoutTenant(() =>
+      prisma.authUser.findFirst({ where: { email: args.ownerEmail.toLowerCase() }, select: { id: true } }),
+    );
+    if (!identity) return null;
+    return issueExpiringApiKey({
+      authUserId: identity.id,
+      companyId: args.companyId,
+      name: args.name,
+      expiresAt: args.expiresAt,
+    });
+  }
+
+  revokeApiKeysNamed(companyId: string, name: string): Promise<number> {
+    return revokeApiKeysNamed(companyId, name);
   }
 
   async signInWithEmail(args: {

@@ -1371,8 +1371,11 @@
       "addressLookupUnavailable": "Die Adresssuche ist gerade nicht verfügbar. Gib die Adresse selbst ein oder versuche es später erneut.",
       "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
+      "agentJobClosed": "Dieser Auftrag ist bereits beendet, abgelaufen oder abgebrochen.",
+      "agentJobNotFound": "Dieser Auftrag wurde für diesen Runner nicht gefunden.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
       "agentModelUnavailable": "Dieses Assistant-Modell ist nicht verfügbar.",
+      "agentRunnerNotFound": "Dieser Runner wurde in diesem Workspace nicht gefunden.",
       "agentServiceUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
       "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
@@ -5626,6 +5629,43 @@
     "thursday": "Donnerstag",
     "tuesday": "Dienstag",
     "wednesday": "Mittwoch"
+  },
+  "Runners": {
+    "add": "Runner hinzufügen",
+    "addDescription": "Gib den Rechner an, auf dem der Runner läuft. Du erhältst einmalig einen Token, mit dem der Runner die Agent-Aufträge dieses Workspace abholt.",
+    "addTitle": "Runner hinzufügen",
+    "clientNames": {
+      "claude": "Claude Code",
+      "codex": "Codex",
+      "gemini": "Gemini CLI"
+    },
+    "clients": "Gefundene CLIs",
+    "description": "Mit einem Runner laufen Agent-Schritte mit deinem eigenen Claude Code, Codex oder Gemini CLI auf deinem Rechner. Er holt Aufträge aus diesem Workspace ab, führt die CLI aus, bei der du angemeldet bist, und meldet das Ergebnis zurück. Customermates erhält nie deine CLI-Anmeldung.",
+    "dockerDescription": "Startet denselben Runner in einem Container. Binde den Anmeldeordner deiner CLI ein, damit sie angemeldet bleibt.",
+    "dockerTitle": "Mit Docker starten",
+    "installDescription": "Benötigt Node 24 und Claude Code, Codex oder Gemini CLI, auf diesem Rechner angemeldet.",
+    "installTitle": "Mit Node starten",
+    "lastSeen": "Zuletzt gesehen",
+    "machine": "Rechner",
+    "noClients": "Keine CLI gefunden",
+    "offline": {
+      "body": "Agent-Aufträge warten auf einen Runner, und seit 10 Minuten hat sich keiner verbunden. Starte deinen Runner oder prüfe den Rechner, auf dem er läuft.",
+      "title": "Dein Runner ist offline"
+    },
+    "revoke": "Widerrufen",
+    "revokeDescription": "{name} kann keine Aufträge mehr abholen, und ein laufender Auftrag meldet sich nicht mehr zurück und läuft ab. Das lässt sich nicht rückgängig machen. Füge einen neuen Runner hinzu, um den Rechner erneut zu verbinden.",
+    "revokeTitle": "Diesen Runner widerrufen?",
+    "status": {
+      "neverSeen": "Nie verbunden",
+      "offline": "Offline",
+      "online": "Online",
+      "revoked": "Widerrufen"
+    },
+    "title": "Runner",
+    "toastRevoked": "Runner widerrufen",
+    "tokenCreated": "Runner hinzugefügt. Kopiere den Token jetzt, er wird nur einmal angezeigt.",
+    "tokenLabel": "Runner-Token",
+    "tokenWarning": "Jeder mit diesem Token kann die Runner-Aufträge dieses Workspace abholen. Widerrufe den Runner, falls der Token bekannt wird."
   },
   "ScheduleMeeting": {
     "action": "Termin planen",

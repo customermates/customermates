@@ -3108,3 +3108,58 @@ export const getReceiveIncomingWebhookInteractor = () =>
     incomingWebhookLimiters,
     { authSecret: env.BETTER_AUTH_SECRET },
   );
+
+import { AgentRunnerAuthenticator } from "@/features/agent-runners/agent-runner-authenticator";
+import { AGENT_RUNNER_LIMITS } from "@/features/agent-runners/agent-runner.schema";
+import { AppendAgentJobEventsInteractor } from "@/features/agent-runners/append-agent-job-events.interactor";
+import { AuthAgentJobCredentials } from "@/features/agent-runners/auth-agent-job-credentials";
+import { ClaimAgentJobInteractor } from "@/features/agent-runners/claim-agent-job.interactor";
+import { CreateAgentRunnerInteractor } from "@/features/agent-runners/create-agent-runner.interactor";
+import { FinishAgentJobInteractor } from "@/features/agent-runners/finish-agent-job.interactor";
+import { GetAgentRunnersInteractor } from "@/features/agent-runners/get-agent-runners.interactor";
+import { HeartbeatAgentRunnerInteractor } from "@/features/agent-runners/heartbeat-agent-runner.interactor";
+import { NotConfiguredAgentJobRunnerRepo } from "@/features/agent-runners/not-configured-agent-job-runner.repository";
+import { NotifyRunnerOfflineInteractor } from "@/features/agent-runners/notify-runner-offline.interactor";
+import { PrismaAgentRunnerRepo } from "@/features/agent-runners/prisma-agent-runner.repository";
+import { RevokeAgentRunnerInteractor } from "@/features/agent-runners/revoke-agent-runner.interactor";
+import { getTranslator } from "@/i18n/get-translator";
+
+const getAgentRunnerRepo = () => new PrismaAgentRunnerRepo();
+const getAgentJobRunnerRepo = () => new NotConfiguredAgentJobRunnerRepo();
+const getAgentJobCredentials = () => new AuthAgentJobCredentials(getAuthService(), getUserService(), env.BASE_URL);
+
+const agentRunnerLimiters = {
+  runner: new TokenBucketRateLimiter(
+    AGENT_RUNNER_LIMITS.requestBucket.capacity,
+    AGENT_RUNNER_LIMITS.requestBucket.windowMs,
+  ),
+  visitor: new TokenBucketRateLimiter(
+    AGENT_RUNNER_LIMITS.requestBucket.capacity * 4,
+    AGENT_RUNNER_LIMITS.requestBucket.windowMs,
+  ),
+};
+
+const getAgentRunnerAuthenticator = () => new AgentRunnerAuthenticator(getAgentRunnerRepo(), agentRunnerLimiters);
+
+export const getGetAgentRunnersInteractor = () => new GetAgentRunnersInteractor(getAgentRunnerRepo());
+export const getCreateAgentRunnerInteractor = () =>
+  new CreateAgentRunnerInteractor(getAgentRunnerRepo(), getWorkspacePlanService(), { baseUrl: env.BASE_URL });
+export const getRevokeAgentRunnerInteractor = () => new RevokeAgentRunnerInteractor(getAgentRunnerRepo());
+export const getHeartbeatAgentRunnerInteractor = () =>
+  new HeartbeatAgentRunnerInteractor(getAgentRunnerAuthenticator(), getAgentRunnerRepo());
+export const getClaimAgentJobInteractor = () =>
+  new ClaimAgentJobInteractor(
+    getAgentRunnerAuthenticator(),
+    getAgentRunnerRepo(),
+    getAgentJobRunnerRepo(),
+    getAgentJobCredentials(),
+  );
+export const getAppendAgentJobEventsInteractor = () =>
+  new AppendAgentJobEventsInteractor(getAgentRunnerAuthenticator(), getAgentJobRunnerRepo());
+export const getFinishAgentJobInteractor = () =>
+  new FinishAgentJobInteractor(getAgentRunnerAuthenticator(), getAgentJobRunnerRepo(), getAgentJobCredentials());
+export const getNotifyRunnerOfflineInteractor = () =>
+  new NotifyRunnerOfflineInteractor(getAgentRunnerRepo(), getNotificationService(), async (locale) => {
+    const t = await getTranslator(locale, "Runners.offline");
+    return { title: t("title"), body: t("body") };
+  });

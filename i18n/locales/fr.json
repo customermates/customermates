@@ -1371,8 +1371,11 @@
       "addressLookupUnavailable": "La recherche d’adresse n’est pas disponible pour le moment. Saisissez l’adresse vous-même ou réessayez plus tard.",
       "agentApprovalUnavailable": "Cette demande d’approbation n’est pas disponible ou a expiré.",
       "agentConversationNotFound": "Cette conversation est introuvable ou n’est plus accessible.",
+      "agentJobClosed": "Cette tâche est déjà terminée, expirée ou annulée.",
+      "agentJobNotFound": "Cette tâche est introuvable pour ce runner.",
       "agentLimitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
       "agentModelUnavailable": "Ce modèle de l’Assistant n’est pas disponible.",
+      "agentRunnerNotFound": "Ce runner est introuvable dans cet espace de travail.",
       "agentServiceUnavailable": "L’IA hébergée est temporairement indisponible. Veuillez réessayer plus tard.",
       "agentTurnAlreadyRunning": "Une autre demande de l’assistant est déjà en cours.",
       "apiKeyMaxExpiration": "L’expiration d’une clé API ne peut pas dépasser 365 jours.",
@@ -5626,6 +5629,43 @@
     "thursday": "Jeudi",
     "tuesday": "Mardi",
     "wednesday": "Mercredi"
+  },
+  "Runners": {
+    "add": "Ajouter un runner",
+    "addDescription": "Indiquez la machine sur laquelle le runner tournera. Vous recevez un jeton une seule fois ; le runner l’utilise pour récupérer les tâches d’agent de cet espace de travail.",
+    "addTitle": "Ajouter un runner",
+    "clientNames": {
+      "claude": "Claude Code",
+      "codex": "Codex",
+      "gemini": "Gemini CLI"
+    },
+    "clients": "CLI détectées",
+    "description": "Un runner exécute les étapes d’agent avec votre propre Claude Code, Codex ou Gemini CLI sur votre machine. Il récupère les tâches de cet espace de travail, lance la CLI à laquelle vous êtes connecté et renvoie le résultat. Customermates ne reçoit jamais votre connexion à la CLI.",
+    "dockerDescription": "Lance le même runner dans un conteneur. Montez le dossier de connexion de votre CLI pour qu’elle reste connectée.",
+    "dockerTitle": "Lancer avec Docker",
+    "installDescription": "Nécessite Node 24 et Claude Code, Codex ou Gemini CLI, connecté sur cette machine.",
+    "installTitle": "Lancer avec Node",
+    "lastSeen": "Dernière activité",
+    "machine": "Machine",
+    "noClients": "Aucune CLI détectée",
+    "offline": {
+      "body": "Des tâches d’agent attendent un runner et aucun ne s’est connecté depuis 10 minutes. Démarrez votre runner ou vérifiez la machine sur laquelle il tourne.",
+      "title": "Votre runner est hors ligne"
+    },
+    "revoke": "Révoquer",
+    "revokeDescription": "{name} ne peut plus récupérer de tâches, et une tâche en cours ne renvoie plus rien et expire. Cette action est irréversible. Ajoutez un nouveau runner pour reconnecter la machine.",
+    "revokeTitle": "Révoquer ce runner ?",
+    "status": {
+      "neverSeen": "Jamais connecté",
+      "offline": "Hors ligne",
+      "online": "En ligne",
+      "revoked": "Révoqué"
+    },
+    "title": "Runners",
+    "toastRevoked": "Runner révoqué",
+    "tokenCreated": "Runner ajouté. Copiez le jeton maintenant, il n’est affiché qu’une seule fois.",
+    "tokenLabel": "Jeton du runner",
+    "tokenWarning": "Toute personne disposant de ce jeton peut récupérer les tâches de runner de cet espace de travail. Révoquez le runner si le jeton fuite."
   },
   "ScheduleMeeting": {
     "action": "Planifier une réunion",

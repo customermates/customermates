@@ -32,6 +32,7 @@ const OWNERS: Record<string, string> = {
   AgentCreditAdjustment: "ee/operator/prisma-operator.repository.ts",
   AgentMessage: "ee/agent-chat/prisma-agent-chat.repository.ts",
   AgentRunLease: "ee/agent-chat/prisma-agent-chat.repository.ts",
+  AgentRunner: "features/agent-runners/prisma-agent-runner.repository.ts",
   AgentRunRound: "ee/agent-chat/prisma-agent-chat.repository.ts",
   AgentToolReceipt: "ee/agent-chat/prisma-agent-chat.repository.ts",
   AgentTurnRequest: "ee/agent-chat/prisma-agent-chat.repository.ts",

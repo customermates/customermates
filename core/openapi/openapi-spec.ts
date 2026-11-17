@@ -129,6 +129,7 @@ import { addressApiPaths } from "@/features/addresses/addresses.openapi";
 import { recordFileApiPaths } from "@/features/record-files/record-files.openapi";
 import { publicFormApiPaths } from "@/features/public-form/public-form.openapi";
 import { incomingWebhookApiPaths } from "@/features/incoming-webhook/incoming-webhook.openapi";
+import { agentRunnerApiPaths } from "@/features/agent-runners/agent-runner.openapi";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -156,6 +157,7 @@ export function generateOpenApiSpec() {
       ...recordFileApiPaths,
       ...publicFormApiPaths,
       ...incomingWebhookApiPaths,
+      ...agentRunnerApiPaths,
       ...connectedAccountSettingsApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,
@@ -361,6 +363,12 @@ export function generateOpenApiSpec() {
           name: "x-api-key",
           description:
             "API key authentication. Create an API key in your user profile and include it in the x-api-key header.",
+        },
+        runnerTokenAuth: {
+          type: "http",
+          scheme: "bearer",
+          description:
+            "Runner token authentication. Add a runner under Settings, Agents, copy its token once and send it as `Authorization: Bearer cmr_...`. It only reaches the /v1/runner endpoints.",
         },
         fileLinkToken: {
           type: "apiKey",

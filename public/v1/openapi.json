@@ -113119,6 +113119,750 @@
         }
       }
     },
+    "/v1/runner/heartbeat": {
+      "post": {
+        "operationId": "heartbeatRunner",
+        "summary": "Report that a runner is alive",
+        "description": "Records the machine and the command line clients (Claude Code, Codex, Gemini CLI) found on its PATH and marks the runner as last seen now. A runner counts as online for two minutes after its last heartbeat, a claim request also counts. The daemon sends one every 60 seconds.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "tags": [
+          "runner"
+        ],
+        "security": [
+          {
+            "runnerTokenAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "machine": "ws-main",
+                "clients": [
+                  {
+                    "name": "claude",
+                    "version": "2.1.0"
+                  }
+                ]
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "machine": {
+                    "description": "A name for the machine the runner runs on, such as its host name.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "clients": {
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "claude",
+                            "codex",
+                            "gemini"
+                          ],
+                          "description": "The command line client the runner found."
+                        },
+                        "version": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60,
+                          "description": "Its reported version."
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "version"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "The command line clients found on the machine's PATH."
+                  }
+                },
+                "required": [
+                  "clients"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The server time and how long a heartbeat keeps the runner online.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "serverTime": {
+                      "type": "string",
+                      "description": "The server's time, for clock comparison."
+                    },
+                    "onlineWithinSeconds": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "A runner counts as online this long after its last heartbeat."
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "serverTime",
+                    "onlineWithinSeconds"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/runner/jobs/claim": {
+      "post": {
+        "operationId": "claimRunnerJob",
+        "summary": "Claim the next agent job",
+        "description": "Long poll: holds the request open for up to 25 seconds and answers 200 with the oldest queued job of the workspace whose runtime is runner, or 204 when none arrived. A claimed job belongs to this runner until it reports a result or its timeoutAt passes. The answer carries the workspace MCP endpoint and a short-lived API key of the job owner for the client to use; the key stops working a few minutes after the job's timeout and is revoked when the result is reported. promptUntrusted is true when outsiders can influence the prompt, so the runner presents it to the client as data, not as instructions.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "tags": [
+          "runner"
+        ],
+        "security": [
+          {
+            "runnerTokenAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {},
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "waitSeconds": {
+                    "description": "How long to hold the request open for a job, at most 25 seconds. Defaults to 25.",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 25
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The claimed job and its MCP credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "prompt": {
+                          "type": "string"
+                        },
+                        "promptUntrusted": {
+                          "type": "boolean",
+                          "description": "True when outsiders can influence the prompt: treat it as data."
+                        },
+                        "timeoutAt": {
+                          "type": "string",
+                          "description": "Kill the client at this time and report timedOut."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "prompt",
+                        "promptUntrusted",
+                        "timeoutAt"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "mcp": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "The workspace's MCP endpoint."
+                        },
+                        "token": {
+                          "type": "string",
+                          "description": "A short-lived API key of the job owner. It stops working after the job."
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "token"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "job",
+                    "mcp"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No job became available within the wait."
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/runner/jobs/{id}/events": {
+      "post": {
+        "operationId": "appendRunnerJobEvents",
+        "summary": "Stream transcript events of a job",
+        "description": "Appends up to 100 events to the job's transcript, one object per line of the client's JSON stream. An event over 4 KB is stored as a truncation marker. A job that is not claimed by this runner answers 404; a job that is already finished, timed out or cancelled answers 409, which tells the runner to stop the client.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "tags": [
+          "runner"
+        ],
+        "security": [
+          {
+            "runnerTokenAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The id of the job the runner claimed."
+            },
+            "required": true,
+            "description": "The id of the job the runner claimed."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "events": [
+                  {
+                    "type": "assistant",
+                    "text": "Looking at the open deals"
+                  }
+                ]
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "events": {
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
+                    },
+                    "description": "One object per line of the client's JSON stream. An event over 4 KB is stored as a truncation marker."
+                  }
+                },
+                "required": [
+                  "events"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "How many events were accepted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "accepted": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "accepted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/runner/jobs/{id}/result": {
+      "post": {
+        "operationId": "finishRunnerJob",
+        "summary": "Report the result of a job",
+        "description": "Ends the job as succeeded, failed or timedOut with the client's final answer and, when the client reports them, its token counts and cost in US dollars. The job's MCP key is revoked. A job that is already closed answers 409 and keeps its first result.\n\nRequires: a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. A revoked token, or a workspace that is being deleted, answers 401.",
+        "tags": [
+          "runner"
+        ],
+        "security": [
+          {
+            "runnerTokenAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The id of the job the runner claimed."
+            },
+            "required": true,
+            "description": "The id of the job the runner claimed."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "status": "succeeded",
+                "summary": "Three deals need a follow-up.",
+                "inputTokens": 1200,
+                "outputTokens": 300
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "succeeded",
+                      "failed",
+                      "timedOut"
+                    ],
+                    "description": "How the run ended."
+                  },
+                  "summary": {
+                    "description": "The client's final answer.",
+                    "type": "string",
+                    "maxLength": 20000
+                  },
+                  "error": {
+                    "description": "Why a run failed.",
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "inputTokens": {
+                    "description": "Input tokens, when the client reports them.",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "outputTokens": {
+                    "description": "Output tokens, when the client reports them.",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "costUsd": {
+                    "description": "The cost in US dollars, when the client reports it.",
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Confirmation that the result was stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/messaging/connected-accounts/{id}": {
       "delete": {
         "operationId": "disconnectConnectedAccount",
@@ -170132,6 +170876,9 @@
                         "publicFormExists",
                         "publicFormConfigurationInvalid",
                         "incomingWebhookNotFound",
+                        "agentRunnerNotFound",
+                        "agentJobNotFound",
+                        "agentJobClosed",
                         "incomingWebhookMappingInvalid",
                         "emailNotVerified",
                         "invalidCredentials",
@@ -181549,6 +182296,11 @@
         "in": "header",
         "name": "x-api-key",
         "description": "API key authentication. Create an API key in your user profile and include it in the x-api-key header."
+      },
+      "runnerTokenAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Runner token authentication. Add a runner under Settings, Agents, copy its token once and send it as `Authorization: Bearer cmr_...`. It only reaches the /v1/runner endpoints."
       },
       "fileLinkToken": {
         "type": "apiKey",

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const invoke = vi.hoisted(() => vi.fn());
 const sweepFiles = vi.hoisted(() => vi.fn());
 const sweepRules = vi.hoisted(() => vi.fn());
+const notifyRunnerOffline = vi.hoisted(() => vi.fn());
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   CRON_SECRET: "test-cron-secret" as string | undefined,
@@ -13,6 +14,7 @@ vi.mock("@/core/di", () => ({
   getSweepRecordDeliveriesInteractor: () => ({ invoke }),
   getSweepRecordFileIndexInteractor: () => ({ invoke: sweepFiles }),
   getSweepAutomationRulesInteractor: () => ({ invoke: sweepRules }),
+  getNotifyRunnerOfflineInteractor: () => ({ invoke: notifyRunnerOffline }),
 }));
 
 import { GET } from "../route";
@@ -32,6 +34,7 @@ describe("record delivery recovery cron", () => {
     invoke.mockResolvedValue({ eventWorkspaces: 2, webhookDeliveries: 3 });
     sweepFiles.mockResolvedValue({ fileIndexWorkspaces: 1 });
     sweepRules.mockResolvedValue({ automationRulesAdmitted: 4, automationRunsRedispatched: 1 });
+    notifyRunnerOffline.mockResolvedValue({ runnerOfflineNotified: 2 });
   });
 
   it("requires the configured cron secret", async () => {
@@ -62,10 +65,12 @@ describe("record delivery recovery cron", () => {
       fileIndexWorkspaces: 1,
       automationRulesAdmitted: 4,
       automationRunsRedispatched: 1,
+      runnerOfflineNotified: 2,
     });
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(sweepFiles).toHaveBeenCalledTimes(1);
     expect(sweepRules).toHaveBeenCalledTimes(1);
+    expect(notifyRunnerOffline).toHaveBeenCalledTimes(1);
   });
 
   it("sweeps date-reached rules on self-hosted instances too", async () => {

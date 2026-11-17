@@ -1371,8 +1371,11 @@
       "addressLookupUnavailable": "Wyszukiwanie adresów jest teraz niedostępne. Wpisz adres samodzielnie lub spróbuj ponownie później.",
       "agentApprovalUnavailable": "Ta prośba o zatwierdzenie jest niedostępna lub wygasła.",
       "agentConversationNotFound": "Nie znaleziono tej rozmowy lub nie masz już do niej dostępu.",
+      "agentJobClosed": "To zadanie jest już zakończone, wygasło lub zostało anulowane.",
+      "agentJobNotFound": "Nie znaleziono tego zadania dla tego runnera.",
       "agentLimitReached": "Zostało za mało kredytów AI, aby rozpocząć kolejne zapytanie.",
       "agentModelUnavailable": "Ten model Asystenta jest niedostępny.",
+      "agentRunnerNotFound": "Nie znaleziono tego runnera w tej przestrzeni roboczej.",
       "agentServiceUnavailable": "Hostowana usługa AI jest tymczasowo niedostępna. Spróbuj ponownie później.",
       "agentTurnAlreadyRunning": "Asystent obsługuje już inne zapytanie.",
       "apiKeyMaxExpiration": "Klucz API nie może wygasać później niż za 365 dni.",
@@ -5626,6 +5629,43 @@
     "thursday": "Czwartek",
     "tuesday": "Wtorek",
     "wednesday": "Środa"
+  },
+  "Runners": {
+    "add": "Dodaj runnera",
+    "addDescription": "Podaj maszynę, na której będzie działać runner. Token otrzymasz tylko raz; runner używa go do pobierania zadań agenta z tej przestrzeni roboczej.",
+    "addTitle": "Dodaj runnera",
+    "clientNames": {
+      "claude": "Claude Code",
+      "codex": "Codex",
+      "gemini": "Gemini CLI"
+    },
+    "clients": "Znalezione CLI",
+    "description": "Runner uruchamia kroki agenta z Twoim własnym Claude Code, Codex lub Gemini CLI na Twojej maszynie. Pobiera zadania z tej przestrzeni roboczej, uruchamia CLI, w którym jesteś zalogowany, i odsyła wynik. Customermates nigdy nie otrzymuje Twojego logowania do CLI.",
+    "dockerDescription": "Uruchamia tego samego runnera w kontenerze. Zamontuj folder logowania swojego CLI, aby pozostało zalogowane.",
+    "dockerTitle": "Uruchom w Dockerze",
+    "installDescription": "Wymaga Node 24 oraz Claude Code, Codex lub Gemini CLI, zalogowanego na tej maszynie.",
+    "installTitle": "Uruchom z Node",
+    "lastSeen": "Ostatnio widziany",
+    "machine": "Maszyna",
+    "noClients": "Nie znaleziono CLI",
+    "offline": {
+      "body": "Zadania agenta czekają na runnera, a żaden nie połączył się w ciągu ostatnich 10 minut. Uruchom runnera lub sprawdź maszynę, na której działa.",
+      "title": "Twój runner jest offline"
+    },
+    "revoke": "Unieważnij",
+    "revokeDescription": "{name} nie może już pobierać zadań, a trwające zadanie przestaje raportować i wygasa. Tego nie można cofnąć. Dodaj nowego runnera, aby ponownie połączyć maszynę.",
+    "revokeTitle": "Unieważnić tego runnera?",
+    "status": {
+      "neverSeen": "Nigdy nie połączony",
+      "offline": "Offline",
+      "online": "Online",
+      "revoked": "Unieważniony"
+    },
+    "title": "Runnery",
+    "toastRevoked": "Runner unieważniony",
+    "tokenCreated": "Runner dodany. Skopiuj token teraz, jest pokazywany tylko raz.",
+    "tokenLabel": "Token runnera",
+    "tokenWarning": "Każdy, kto ma ten token, może pobierać zadania runnera z tej przestrzeni roboczej. Unieważnij runnera, jeśli token wycieknie."
   },
   "ScheduleMeeting": {
     "action": "Zaplanuj spotkanie",

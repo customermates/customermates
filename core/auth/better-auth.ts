@@ -384,6 +384,31 @@ export async function bindApiKeyToCompany(keyId: string, authUserId: string, com
   return bound.count === 1;
 }
 
+export async function issueExpiringApiKey(args: {
+  authUserId: string;
+  companyId: string;
+  name: string;
+  expiresAt: Date;
+}): Promise<{ id: string; key: string }> {
+  const created = await auth.api.createApiKey({
+    body: { name: args.name, userId: args.authUserId, expiresIn: API_KEY_MIN_EXPIRATION_DAYS * 24 * 60 * 60 },
+  });
+  const bound = await prisma.apikey.updateMany({
+    where: { id: created.id, referenceId: args.authUserId, companyId: null },
+    data: { companyId: args.companyId, expiresAt: args.expiresAt },
+  });
+  if (bound.count !== 1) {
+    await prisma.apikey.deleteMany({ where: { id: created.id } });
+    throw new Error("API key could not be bound to its workspace");
+  }
+  return { id: created.id, key: created.key };
+}
+
+export async function revokeApiKeysNamed(companyId: string, name: string): Promise<number> {
+  const removed = await prisma.apikey.deleteMany({ where: { companyId, name } });
+  return removed.count;
+}
+
 export async function revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
   const apiKeys = await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
     where: { referenceId: authUserId, companyId },

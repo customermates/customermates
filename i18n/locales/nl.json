@@ -1371,8 +1371,11 @@
       "addressLookupUnavailable": "Adres zoeken is momenteel niet beschikbaar. Voer het adres zelf in of probeer het later opnieuw.",
       "agentApprovalUnavailable": "Dit goedkeuringsverzoek is niet beschikbaar of verlopen.",
       "agentConversationNotFound": "Dit gesprek is niet gevonden of niet meer toegankelijk.",
+      "agentJobClosed": "Deze taak is al afgerond, verlopen of geannuleerd.",
+      "agentJobNotFound": "Deze taak is niet gevonden voor deze runner.",
       "agentLimitReached": "Er zijn niet genoeg AI-credits over om nog een verzoek te starten.",
       "agentModelUnavailable": "Dat model van de Assistent is niet beschikbaar.",
+      "agentRunnerNotFound": "Deze runner is niet gevonden in deze werkruimte.",
       "agentServiceUnavailable": "Gehoste AI is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
       "agentTurnAlreadyRunning": "Er loopt al een ander verzoek van de Assistent.",
       "apiKeyMaxExpiration": "De verlooptermijn van een API-sleutel mag niet meer dan 365 dagen zijn.",
@@ -5626,6 +5629,43 @@
     "thursday": "Donderdag",
     "tuesday": "Dinsdag",
     "wednesday": "Woensdag"
+  },
+  "Runners": {
+    "add": "Runner toevoegen",
+    "addDescription": "Geef de machine op waarop de runner draait. Je krijgt het token één keer; de runner gebruikt het om de agenttaken van deze werkruimte op te halen.",
+    "addTitle": "Een runner toevoegen",
+    "clientNames": {
+      "claude": "Claude Code",
+      "codex": "Codex",
+      "gemini": "Gemini CLI"
+    },
+    "clients": "Gevonden CLI’s",
+    "description": "Met een runner draaien agentstappen met je eigen Claude Code, Codex of Gemini CLI op je machine. Hij haalt taken uit deze werkruimte op, voert de CLI uit waarin je bent ingelogd en meldt het resultaat terug. Customermates ontvangt nooit je CLI-login.",
+    "dockerDescription": "Draait dezelfde runner in een container. Koppel de loginmap van je CLI zodat die ingelogd blijft.",
+    "dockerTitle": "Draaien met Docker",
+    "installDescription": "Vereist Node 24 en Claude Code, Codex of Gemini CLI, ingelogd op die machine.",
+    "installTitle": "Draaien met Node",
+    "lastSeen": "Laatst gezien",
+    "machine": "Machine",
+    "noClients": "Geen CLI gevonden",
+    "offline": {
+      "body": "Agenttaken wachten op een runner en er heeft zich de afgelopen 10 minuten geen verbonden. Start je runner of controleer de machine waarop hij draait.",
+      "title": "Je runner is offline"
+    },
+    "revoke": "Intrekken",
+    "revokeDescription": "{name} kan geen taken meer ophalen, en een lopende taak meldt niets meer terug en verloopt. Dit kan niet ongedaan worden gemaakt. Voeg een nieuwe runner toe om de machine opnieuw te verbinden.",
+    "revokeTitle": "Deze runner intrekken?",
+    "status": {
+      "neverSeen": "Nooit verbonden",
+      "offline": "Offline",
+      "online": "Online",
+      "revoked": "Ingetrokken"
+    },
+    "title": "Runners",
+    "toastRevoked": "Runner ingetrokken",
+    "tokenCreated": "Runner toegevoegd. Kopieer het token nu, het wordt maar één keer getoond.",
+    "tokenLabel": "Runner-token",
+    "tokenWarning": "Iedereen met dit token kan de runnertaken van deze werkruimte ophalen. Trek de runner in als het token uitlekt."
   },
   "ScheduleMeeting": {
     "action": "Afspraak plannen",

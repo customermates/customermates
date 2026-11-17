@@ -1371,8 +1371,11 @@
       "addressLookupUnavailable": "Address search is not available right now. Enter the address yourself or try again later.",
       "agentApprovalUnavailable": "This approval request is unavailable or has expired.",
       "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
+      "agentJobClosed": "This job is already finished, timed out or cancelled.",
+      "agentJobNotFound": "This job was not found for this runner.",
       "agentLimitReached": "Not enough AI credits remain to start another request.",
       "agentModelUnavailable": "That Assistant model is not available.",
+      "agentRunnerNotFound": "This runner was not found in this workspace.",
       "agentServiceUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "agentTurnAlreadyRunning": "Another Assistant turn is already running.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
@@ -5626,6 +5629,43 @@
     "thursday": "Thursday",
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
+  },
+  "Runners": {
+    "add": "Add runner",
+    "addDescription": "Name the machine the runner will run on. You receive a token once, and the runner uses it to pick up the agent jobs of this workspace.",
+    "addTitle": "Add a runner",
+    "clientNames": {
+      "claude": "Claude Code",
+      "codex": "Codex",
+      "gemini": "Gemini CLI"
+    },
+    "clients": "CLIs found",
+    "description": "A runner lets agent steps run with your own Claude Code, Codex or Gemini CLI on your machine. It picks up jobs from this workspace, runs the CLI you are signed in to and reports back. Customermates never receives your CLI login.",
+    "dockerDescription": "Runs the same runner in a container. Mount the login folder of your CLI so it stays signed in.",
+    "dockerTitle": "Run with Docker",
+    "installDescription": "Needs Node 24 and one of Claude Code, Codex or Gemini CLI, signed in on that machine.",
+    "installTitle": "Run with Node",
+    "lastSeen": "Last seen",
+    "machine": "Machine",
+    "noClients": "No CLI found",
+    "offline": {
+      "body": "Agent jobs are waiting for a runner, and none has connected in the last 10 minutes. Start your runner or check the machine it runs on.",
+      "title": "Your runner is offline"
+    },
+    "revoke": "Revoke",
+    "revokeDescription": "{name} can no longer pick up jobs, and a job it is running stops reporting and times out. This cannot be undone. Add a new runner to connect the machine again.",
+    "revokeTitle": "Revoke this runner?",
+    "status": {
+      "neverSeen": "Never connected",
+      "offline": "Offline",
+      "online": "Online",
+      "revoked": "Revoked"
+    },
+    "title": "Runners",
+    "toastRevoked": "Runner revoked",
+    "tokenCreated": "Runner added. Copy the token now, it is shown only once.",
+    "tokenLabel": "Runner token",
+    "tokenWarning": "Anyone with this token can pick up the runner jobs of this workspace. Revoke the runner if the token leaks."
   },
   "ScheduleMeeting": {
     "action": "Schedule meeting",
