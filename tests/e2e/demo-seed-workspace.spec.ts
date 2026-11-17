@@ -298,7 +298,7 @@ test("self-hosted keeps the seeded Inbox and routines out of reach and sends the
   await page.goto(appPath(DEMO_SLUG, "/inbox"));
   await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/dashboard$"));
   await page.goto(appPath(DEMO_SLUG, "/routines"));
-  await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/automations\\?kind=routine$"));
+  await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/automations\\?filters=automationKind%3Ain%3Aroutine$"));
   // The phone sidebar is a closed sheet; the desktop sidebar shows the navigation without either entry.
   if (!testInfo.project.use.isMobile) {
     const navigation = page.locator('[data-sidebar="sidebar"]');

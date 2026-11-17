@@ -345,7 +345,7 @@ export function PublicBookingView({
 
             {loadingMore ? (
               <p className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
-                <Spinner aria-hidden className="size-3" />
+                <Spinner aria-hidden aria-label={t("PublicBooking.loadingMore")} className="size-3" />
 
                 {t("PublicBooking.loadingMore")}
               </p>

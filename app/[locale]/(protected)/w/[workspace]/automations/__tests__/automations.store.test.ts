@@ -22,7 +22,7 @@ function makeStore() {
   } as unknown as RootStore);
 }
 
-const PAGE = { page: 1, pageSize: 25, total: 0, totalPages: 1 };
+const PAGE = { page: 1, pageSize: 25 as const, total: 0, totalPages: 1 };
 
 describe("the automations list store", () => {
   it("remembers that the server cut the list short, and forgets it when the next result is complete", () => {
@@ -36,6 +36,16 @@ describe("the automations list store", () => {
     expect(store.truncated).toBe(false);
 
     store.setItems({ items: [], pagination: PAGE, truncated: false });
+    expect(store.truncated).toBe(false);
+  });
+
+  it("reads the count of automations the server left out", () => {
+    const store = makeStore();
+
+    store.setItems({ items: [], pagination: PAGE, notShown: { rules: 0, routines: 3 } });
+    expect(store.truncated).toBe(true);
+
+    store.setItems({ items: [], pagination: PAGE, notShown: { rules: 0, routines: 0 } });
     expect(store.truncated).toBe(false);
   });
 

@@ -1355,7 +1355,7 @@ test.describe("self-hosted installs", () => {
       await expect(page).toHaveURL(appUrlPattern(slug, "/dashboard$"));
     }
     await page.goto(appPath(slug, "/routines"));
-    await expect(page).toHaveURL(appUrlPattern(slug, "/automations\\?kind=routine$"));
+    await expect(page).toHaveURL(appUrlPattern(slug, "/automations\\?filters=automationKind%3Ain%3Aroutine$"));
     await page.goto(appPath(slug, "/settings/channels"));
     await expect(page).toHaveURL(appUrlPattern(slug, "/settings/connections\\?tab=channels$"));
     await page.goto(appPath(slug, "/dashboard?agentChat=open"));

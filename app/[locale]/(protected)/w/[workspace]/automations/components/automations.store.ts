@@ -2,7 +2,10 @@ import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
-import type { AutomationListItemDto } from "@/features/automation-rules/automations-list.schema";
+import type {
+  AutomationListItemDto,
+  AutomationListNotShown,
+} from "@/features/automation-rules/automations-list.schema";
 
 import { makeObservable, observable } from "mobx";
 
@@ -12,7 +15,10 @@ import { actionData } from "@/core/utils/action-data";
 
 import { getAutomationsListAction } from "../actions";
 
-export type AutomationsListResult = GetResult<AutomationListItemDto> & { truncated?: boolean };
+export type AutomationsListResult = GetResult<AutomationListItemDto> & {
+  truncated?: boolean;
+  notShown?: AutomationListNotShown;
+};
 
 export class AutomationsStore extends BaseDataViewStore<AutomationListItemDto> {
   truncated = false;
@@ -38,7 +44,9 @@ export class AutomationsStore extends BaseDataViewStore<AutomationListItemDto> {
 
   override setItems(args: AutomationsListResult): void {
     super.setItems(args);
-    if (!args.grouping?.partial) this.truncated = args.truncated === true;
+    if (args.grouping?.partial) return;
+    const notShown = (args.notShown?.rules ?? 0) + (args.notShown?.routines ?? 0);
+    this.truncated = args.truncated === true || notShown > 0;
   }
 
   protected async refreshAction(params?: GetQueryParams) {

@@ -448,7 +448,7 @@ describe("RoutineModalStore", () => {
         triggerEvents: ["record.updated"],
         recordTrigger: { query, changedFieldIds: [fieldId] },
         recordSources: [{ query, changedFieldIds: [fieldId] }],
-      } as Partial<RoutineDto>),
+      } as unknown as Partial<RoutineDto>),
     );
     store.close();
 
