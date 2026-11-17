@@ -1917,7 +1917,7 @@
     "folderToggleLabel": "Map {folder} synchroniseren",
     "invalidCredentialsToastDescription": "De inloggegevens zijn niet geaccepteerd. Controleer ze en probeer het opnieuw.",
     "invalidCredentialsToastTitle": "Ongeldige inloggegevens",
-    "lastSynced": "Laatst gesynchroniseerd",
+    "lastSynced": "Geschiedenis laatst geïmporteerd",
     "messagingRequiresCloud": "Berichten zijn beschikbaar in Customermates Cloud (Pro-abonnement of hoger).",
     "messagingRequiresPro": "Voor berichten is het Pro-abonnement of hoger nodig. Upgrade om een kanaal te koppelen.",
     "ownerLabel": "Eigenaar",

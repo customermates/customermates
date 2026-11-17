@@ -1917,7 +1917,7 @@
     "folderToggleLabel": "Sincronizar a pasta {folder}",
     "invalidCredentialsToastDescription": "Os dados de login não foram aceitos. Verifique suas credenciais e tente de novo.",
     "invalidCredentialsToastTitle": "Credenciais inválidas",
-    "lastSynced": "Última sincronização",
+    "lastSynced": "Última importação do histórico",
     "messagingRequiresCloud": "As mensagens estão disponíveis no Customermates Cloud (plano Pro ou superior).",
     "messagingRequiresPro": "As mensagens exigem o plano Pro ou superior. Faça upgrade para conectar um canal.",
     "ownerLabel": "Proprietário",

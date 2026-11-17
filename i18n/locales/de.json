@@ -1917,7 +1917,7 @@
     "folderToggleLabel": "Ordner {folder} synchronisieren",
     "invalidCredentialsToastDescription": "Die Anmeldedaten wurden nicht akzeptiert. Überprüfe sie und versuche es erneut.",
     "invalidCredentialsToastTitle": "Ungültige Anmeldedaten",
-    "lastSynced": "Zuletzt synchronisiert",
+    "lastSynced": "Verlauf zuletzt importiert",
     "messagingRequiresCloud": "Messaging ist in Customermates Cloud verfügbar (ab dem Pro-Tarif).",
     "messagingRequiresPro": "Messaging erfordert den Pro-Tarif oder höher. Führe ein Upgrade durch, um einen Kanal zu verbinden.",
     "ownerLabel": "Eigentümer",
