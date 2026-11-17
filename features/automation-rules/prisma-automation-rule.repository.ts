@@ -28,6 +28,8 @@ import {
   AUTOMATION_DISABLED_REASON_PLAN_PAUSED,
 } from "./automation-disabled-reason";
 
+const LAST_RUN_ATTEMPTS = 3;
+
 const RULE_SELECT = {
   id: true,
   companyId: true,
@@ -290,7 +292,7 @@ export class PrismaAutomationRuleRepo
 
   @BypassTenantGuard
   async settleRunUnscoped(settlement: AutomationRunSettlement): Promise<void> {
-    await this.prisma.automationRuleRun.updateMany({
+    const settled = await this.prisma.automationRuleRun.updateMany({
       where: { id: settlement.runId, companyId: settlement.companyId, status: AutomationRunStatus.running },
       data: {
         status: settlement.status,
@@ -299,10 +301,17 @@ export class PrismaAutomationRuleRepo
         finishedAt: settlement.now,
       },
     });
-    await this.prisma.automationRule.updateMany({
-      where: { id: settlement.ruleId, companyId: settlement.companyId },
-      data: { lastRunAt: settlement.now, lastRunStatus: settlement.status },
-    });
+    if (settled.count !== 1) return;
+    const rule = { id: settlement.ruleId, companyId: settlement.companyId };
+    for (let attempt = 0; attempt < LAST_RUN_ATTEMPTS; attempt += 1) {
+      const current = await this.prisma.automationRule.findFirst({ where: rule, select: { updatedAt: true } });
+      if (!current) return;
+      const { count } = await this.prisma.automationRule.updateMany({
+        where: { ...rule, updatedAt: current.updatedAt },
+        data: { lastRunAt: settlement.now, lastRunStatus: settlement.status, updatedAt: current.updatedAt },
+      });
+      if (count === 1) return;
+    }
   }
 
   @BypassTenantGuard

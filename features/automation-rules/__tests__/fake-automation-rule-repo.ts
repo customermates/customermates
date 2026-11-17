@@ -210,15 +210,14 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
 
   settleRunUnscoped(settlement: AutomationRunSettlement) {
     const run = this.runs.get(settlement.runId);
-    if (run?.status === "running") {
-      this.runs.set(settlement.runId, {
-        ...run,
-        status: settlement.status,
-        outcome: settlement.outcome as StoredAutomationRuleRun["outcome"],
-        error: settlement.error,
-        finishedAt: settlement.now,
-      });
-    }
+    if (run?.status !== "running") return Promise.resolve();
+    this.runs.set(settlement.runId, {
+      ...run,
+      status: settlement.status,
+      outcome: settlement.outcome as StoredAutomationRuleRun["outcome"],
+      error: settlement.error,
+      finishedAt: settlement.now,
+    });
     const rule = this.rules.get(settlement.ruleId);
     if (rule) this.rules.set(rule.id, { ...rule, lastRunAt: settlement.now, lastRunStatus: settlement.status });
     return Promise.resolve();

@@ -178,18 +178,34 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     expect(await runWithoutTenant(() => repo().claimRunUnscoped(runId, companyId, now, stale))).toBe(false);
 
     const settlement = { runId, ruleId, status: "applied" as const, outcome: { effects: [] }, error: null, now };
+    const lastRun = async () =>
+      (
+        await client.query<{ lastRunStatus: string | null; lastRunAt: Date | null; updatedAt: Date }>(
+          'SELECT "lastRunStatus", "lastRunAt", "updatedAt" FROM "AutomationRule" WHERE "id" = $1',
+          [ruleId],
+        )
+      ).rows[0];
+    await client.query(`UPDATE "AutomationRule" SET "updatedAt" = '2026-11-01 00:00:00' WHERE "id" = $1`, [ruleId]);
+    const before = await lastRun();
     await runWithoutTenant(() => repo().settleRunUnscoped({ ...settlement, companyId: otherCompanyId }));
     expect((await client.query('SELECT "status" FROM "AutomationRuleRun" WHERE "id" = $1', [runId])).rows[0]).toEqual({
       status: "running",
     });
     expect(await state(ruleId)).toEqual({ enabled: true, disabledReason: null });
+    expect(await lastRun()).toEqual(before);
     await runWithoutTenant(() => repo().settleRunUnscoped({ ...settlement, companyId }));
     expect((await client.query('SELECT "status" FROM "AutomationRuleRun" WHERE "id" = $1', [runId])).rows[0]).toEqual({
       status: "applied",
     });
-    expect(
-      (await client.query('SELECT "lastRunStatus" FROM "AutomationRule" WHERE "id" = $1', [ruleId])).rows[0],
-    ).toEqual({ lastRunStatus: "applied" });
+    const settled = await lastRun();
+    expect(settled.lastRunStatus).toBe("applied");
+    expect(settled.lastRunAt).toBeInstanceOf(Date);
+    expect(settled.updatedAt).toEqual(before.updatedAt);
+
+    await runWithoutTenant(() =>
+      repo().settleRunUnscoped({ ...settlement, companyId, status: "failed", now: new Date(now.getTime() + 60_000) }),
+    );
+    expect(await lastRun()).toEqual(settled);
   });
 
   it("prunes finished runs of every workspace in batches and keeps unfinished ones", async () => {
