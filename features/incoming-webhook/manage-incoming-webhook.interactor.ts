@@ -107,7 +107,8 @@ export class ManageIncomingWebhookInteractor extends AuthenticatedInteractor<
     const type = model.types.find((entry) => entry.id === typeId && !entry.archived);
     if (!type || !policy.actor || !policy.canReadType(type.id))
       return failNotFound(CustomErrorCode.recordTypeNotFound, ["typeId"]);
-    return { ok: true as const, data: { typeLabel: type.label, fields: formFieldOptions(model, type.id) } };
+    const fields = formFieldOptions(model, type.id).map(({ mustInclude: _mustInclude, ...field }) => field);
+    return { ok: true as const, data: { typeLabel: type.label, fields } };
   }
 
   private async invalidMapping(typeId: string, mapping: IncomingWebhookMapping): Promise<string[] | null> {
