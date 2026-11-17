@@ -352,4 +352,70 @@ describeDatabase("hosted credits of a Mate agent job", () => {
     ).toBe(false);
     expect((await eventOf(reserved.reservation.reservationId))?.state).toBe("reserved");
   });
+
+  it("closes the reservations that a job left behind and leaves the one of a job that still runs", async () => {
+    const { companyId, userId } = await seedActiveSeat();
+    const mate = credits();
+    const now = new Date();
+    const reservedBefore = new Date(now.getTime() - 12 * 60_000);
+    const long = new Date(now.getTime() - 30 * 60_000);
+    const job = async (status: "running" | "succeeded" | "timedOut", attempts = 1) => {
+      const id = randomUUID();
+      await runWithoutTenant(() =>
+        prisma.agentJob.create({
+          data: {
+            id,
+            companyId,
+            ownerUserId: userId,
+            runtime: "mate",
+            status,
+            sourceKind: "automation",
+            prompt: "Do the thing",
+            attempts,
+          },
+        }),
+      );
+      return id;
+    };
+    const hold = async (jobId: string, attempt = 1) => {
+      const reserved = await mate.reserve({ jobId, attempt, companyId, userId });
+      if (!reserved.ok) throw new Error("The credits were not reserved");
+      return reserved.reservation.reservationId;
+    };
+    const backdate = (id: string) =>
+      runWithoutTenant(() => prisma.agentUsageEvent.update({ where: { id }, data: { createdAt: long } }));
+
+    const finished = await hold(await job("succeeded"));
+    const timedOutAfterStart = await hold(await job("timedOut"));
+    await mate.admitRound({ reservationId: timedOutAfterStart, companyId, userId });
+    const stillRunning = await hold(await job("running"));
+    const runningTooLong = await hold(await job("running"));
+    await backdate(runningTooLong);
+    const earlierAttempt = await hold(await job("running", 2), 1);
+    const withoutJob = await hold(randomUUID());
+    const chat = { reservationId: randomUUID(), companyId, userId };
+    const admission = await new AgentUsageService(
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+    ).prepareTurn(userId, now, { model: mate.model });
+    if (!admission.reservation) throw new Error("The chat turn was not admitted");
+    await new AgentUsageService(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())).reserveUsage({
+      ...chat,
+      reservation: admission.reservation,
+    });
+    await backdate(chat.reservationId);
+
+    expect(await mate.closeAbandoned({ reservedBefore, now, limit: 1 })).toBe(1);
+    await mate.closeAbandoned({ reservedBefore, now, limit: 500 });
+
+    expect(await eventOf(finished)).toMatchObject({ state: "released", chargedMicrocents: 0n, settledAt: now });
+    const retained = await eventOf(timedOutAfterStart);
+    expect(retained).toMatchObject({ state: "retained", model: mate.model.modelId });
+    expect(retained?.chargedMicrocents).toBe(retained?.reservedMicrocents);
+    expect((await eventOf(stillRunning))?.state).toBe("reserved");
+    expect((await eventOf(runningTooLong))?.state).toBe("released");
+    expect((await eventOf(earlierAttempt))?.state).toBe("released");
+    expect((await eventOf(withoutJob))?.state).toBe("released");
+    expect((await eventOf(chat.reservationId))?.state).toBe("reserved");
+    expect(await mate.closeAbandoned({ reservedBefore, now, limit: 500 })).toBe(0);
+  });
 });

@@ -6,7 +6,11 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import * as ErrorReporter from "@/core/observability/server";
 import { AGENT_RUNNER_LIMITS } from "@/features/agent-runners/agent-runner.schema";
 
-import { AGENT_JOB_HOSTED_RUNTIMES, AGENT_JOB_QUEUED_REDISPATCH_MS } from "./agent-job.schema";
+import {
+  AGENT_JOB_HOSTED_RUNTIMES,
+  AGENT_JOB_QUEUED_REDISPATCH_MS,
+  AGENT_JOB_RESERVATION_MAX_AGE_MS,
+} from "./agent-job.schema";
 
 const SWEEP_LIMIT = 200;
 
@@ -16,6 +20,7 @@ export type AgentJobSweepResult = {
   agentJobsRedispatched: number;
   agentJobsExpired: number;
   agentJobsCancelled: number;
+  agentJobReservationsClosed: number;
 };
 
 @SystemInteractor
@@ -29,7 +34,7 @@ export class SweepAgentJobTimeoutsInteractor {
       | "cancelQueuedOfInactiveRulesUnscoped"
     >,
     private readonly tasks: Pick<BackgroundTaskService, "dispatch">,
-    private readonly credits: Pick<AgentJobCredits, "settleInterrupted">,
+    private readonly credits: Pick<AgentJobCredits, "settleInterrupted" | "closeAbandoned">,
   ) {}
 
   async invoke(args: { now?: Date } = {}): Promise<AgentJobSweepResult> {
@@ -37,6 +42,7 @@ export class SweepAgentJobTimeoutsInteractor {
     const outcomes = await this.repo.sweepTimeoutsUnscoped({ now, limit: SWEEP_LIMIT });
     for (const job of outcomes) await this.afterTimeout(job);
     const requeued = outcomes.filter((job) => job.requeued).length;
+    const reservationsClosed = await this.closeAbandonedReservations(now);
 
     const cancelled = await this.repo.cancelQueuedOfInactiveRulesUnscoped({ now, limit: SWEEP_LIMIT });
     const expired = await this.repo.expireQueuedUnscoped({
@@ -59,7 +65,21 @@ export class SweepAgentJobTimeoutsInteractor {
       agentJobsRedispatched: redispatched,
       agentJobsExpired: expired,
       agentJobsCancelled: cancelled,
+      agentJobReservationsClosed: reservationsClosed,
     };
+  }
+
+  private async closeAbandonedReservations(now: Date): Promise<number> {
+    try {
+      return await this.credits.closeAbandoned({
+        reservedBefore: new Date(now.getTime() - AGENT_JOB_RESERVATION_MAX_AGE_MS),
+        now,
+        limit: SWEEP_LIMIT,
+      });
+    } catch (error) {
+      ErrorReporter.captureException(error);
+      return 0;
+    }
   }
 
   private async afterTimeout(job: AgentJobSweepOutcome): Promise<void> {

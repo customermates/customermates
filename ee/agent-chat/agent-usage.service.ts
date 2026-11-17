@@ -629,6 +629,14 @@ export class AgentUsageService {
     });
   }
 
+  async findAbandonedAgentJobReservations(args: {
+    reservedBefore: Date;
+    limit: number;
+  }): Promise<Array<{ reservationId: string; companyId: string; userId: string }>> {
+    const abandoned = await this.repo.findAbandonedAgentJobUsageUnscoped(args);
+    return abandoned.map(({ id, companyId, userId }) => ({ reservationId: id, companyId, userId }));
+  }
+
   async releaseReservation(args: { reservationId: string; companyId: string; userId: string; now?: Date }) {
     await this.repo.releaseUsageReservationUnscoped({
       id: args.reservationId,

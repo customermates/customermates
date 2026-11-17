@@ -3221,6 +3221,33 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
   }
 
   @BypassTenantGuard
+  findAbandonedAgentJobUsageUnscoped(args: {
+    reservedBefore: Date;
+    limit: number;
+  }): Promise<Array<{ id: string; companyId: string; userId: string }>> {
+    return this.prisma.$queryRaw<Array<{ id: string; companyId: string; userId: string }>>`
+      SELECT usage."id", usage."companyId", usage."userId"
+      FROM "AgentUsageEvent" usage
+      LEFT JOIN "AgentJob" job
+        ON job."companyId" = usage."companyId"
+        AND job."id" = split_part(usage."id", ':', 2)
+        AND job."attempts"::text = split_part(usage."id", ':', 3)
+      WHERE usage."state" = 'reserved'
+        AND usage."purpose" = 'turn'
+        AND usage."turnRequestId" IS NULL
+        AND usage."userId" IS NOT NULL
+        AND starts_with(usage."id", ${AGENT_JOB_USAGE_SESSION_PREFIX})
+        AND (
+          usage."createdAt" < ${args.reservedBefore}
+          OR job."id" IS NULL
+          OR job."status" IN ('succeeded', 'failed', 'timedOut', 'cancelled')
+        )
+      ORDER BY usage."createdAt" ASC, usage."id" ASC
+      LIMIT ${args.limit}
+    `;
+  }
+
+  @BypassTenantGuard
   async closeInterruptedAgentJobUsageUnscoped(args: {
     id: string;
     companyId: string;

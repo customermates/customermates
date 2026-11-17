@@ -37,7 +37,12 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { encodeAgentJobCursor } from "../agent-job-cursor";
 import { composeAgentJobPrompt } from "../agent-job-prompt";
 import { AutomationRunTriggerSource } from "../agent-job-trigger-source";
-import { AGENT_JOB_PAGE_SIZE, AGENT_JOB_RETENTION_DAYS } from "../agent-job.schema";
+import {
+  AGENT_JOB_MAX_WALL_MS,
+  AGENT_JOB_PAGE_SIZE,
+  AGENT_JOB_RESERVATION_MAX_AGE_MS,
+  AGENT_JOB_RETENTION_DAYS,
+} from "../agent-job.schema";
 import { EnqueueAgentJobInteractor } from "../enqueue-agent-job.interactor";
 import { GetAgentJobInteractor } from "../get-agent-job.interactor";
 import { GetAgentJobsInteractor } from "../get-agent-jobs.interactor";
@@ -51,6 +56,7 @@ const TYPE = "11111111-1111-4111-8111-111111111111";
 const RECORD = "44444444-4444-4444-8444-444444444444";
 const RUNNER = "00000000-0000-4000-8000-0000000000c1";
 const NOW = new Date("2026-11-17T12:00:00.000Z");
+const closeAbandoned = vi.fn().mockResolvedValue(0);
 
 function availability(overrides: Partial<AgentRuntimeAvailability> = {}): AgentRuntimeAvailability {
   const option = { available: true, reason: null, models: [], runners: [] };
@@ -550,7 +556,7 @@ describe("sweeping timed-out jobs", () => {
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const settleInterrupted = vi.fn().mockResolvedValue("retained");
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
       now: NOW,
     });
 
@@ -560,6 +566,7 @@ describe("sweeping timed-out jobs", () => {
       agentJobsRedispatched: 1,
       agentJobsExpired: 0,
       agentJobsCancelled: 0,
+      agentJobReservationsClosed: 0,
     });
     for (const job of [hosted, runner, mate])
       expect(repo.jobs.get(job.id)).toMatchObject({ status: "timedOut", error: "timedOut", finishedAt: NOW });
@@ -586,7 +593,7 @@ describe("sweeping timed-out jobs", () => {
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const settleInterrupted = vi.fn().mockResolvedValue("retained");
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
       now: NOW,
     });
 
@@ -616,7 +623,7 @@ describe("sweeping timed-out jobs", () => {
     });
     sentry.captureException.mockClear();
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
       now: NOW,
     });
 
@@ -632,11 +639,50 @@ describe("sweeping timed-out jobs", () => {
     const later = new Date(NOW.getTime() + 5 * 60_000);
     dispatch.mockClear();
     dispatch.mockResolvedValue(undefined);
-    const next = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+    const next = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
       now: later,
     });
     expect(next.agentJobsRedispatched).toBe(3);
     expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId)).toContain(brokenDispatch.id);
+  });
+});
+
+describe("reservations that a hosted job left behind", () => {
+  it("closes them in every sweep, bounded, with the age limit of one run, and reports how many", async () => {
+    const repo = new FakeAgentJobRepo();
+    const close = vi.fn().mockResolvedValue(3);
+
+    const result = await new SweepAgentJobTimeoutsInteractor(
+      repo,
+      { dispatch: vi.fn() },
+      { settleInterrupted: vi.fn(), closeAbandoned: close },
+    ).invoke({ now: NOW });
+
+    expect(result.agentJobReservationsClosed).toBe(3);
+    expect(close).toHaveBeenCalledWith({
+      reservedBefore: new Date(NOW.getTime() - AGENT_JOB_RESERVATION_MAX_AGE_MS),
+      now: NOW,
+      limit: 200,
+    });
+    expect(AGENT_JOB_RESERVATION_MAX_AGE_MS).toBeGreaterThan(AGENT_JOB_MAX_WALL_MS);
+  });
+
+  it("goes on with the queue when closing them fails", async () => {
+    const repo = new FakeAgentJobRepo();
+    const lost = repo.add({ runtime: "ownKey", queuedAt: new Date(NOW.getTime() - 5 * 60_000) });
+    const failure = new Error("usage service unavailable");
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    sentry.captureException.mockClear();
+
+    const result = await new SweepAgentJobTimeoutsInteractor(
+      repo,
+      { dispatch },
+      { settleInterrupted: vi.fn(), closeAbandoned: vi.fn().mockRejectedValue(failure) },
+    ).invoke({ now: NOW });
+
+    expect(result).toMatchObject({ agentJobReservationsClosed: 0, agentJobsRedispatched: 1 });
+    expect(dispatch).toHaveBeenCalledWith("run-agent-job", expect.objectContaining({ jobId: lost.id }));
+    expect(sentry.captureException).toHaveBeenCalledWith(failure);
   });
 });
 
@@ -647,7 +693,7 @@ describe("a claim that never started", () => {
     new SweepAgentJobTimeoutsInteractor(
       repo,
       { dispatch: vi.fn().mockResolvedValue(undefined) },
-      { settleInterrupted },
+      { settleInterrupted, closeAbandoned },
     ).invoke({ now });
   const claim = (repo: FakeAgentJobRepo, now: Date) =>
     repo.claimUnscoped({
@@ -713,7 +759,9 @@ describe("a claim that never started", () => {
 describe("jobs that wait in the queue", () => {
   const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
   const sweep = (repo: FakeAgentJobRepo, dispatch = vi.fn().mockResolvedValue(undefined)) =>
-    new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted: vi.fn() }).invoke({ now: NOW });
+    new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted: vi.fn(), closeAbandoned }).invoke({
+      now: NOW,
+    });
 
   it("end as timed out once they waited longer than the queue allows, on every runtime", async () => {
     const repo = new FakeAgentJobRepo();

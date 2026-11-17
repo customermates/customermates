@@ -44,6 +44,7 @@ export class MateAgentJobCredits implements AgentJobCredits {
       | "extendAgentJobReservation"
       | "admitAgentJobProviderRound"
       | "closeInterruptedAgentJobReservation"
+      | "findAbandonedAgentJobReservations"
     >,
     model?: AgentModelEntry,
   ) {
@@ -121,6 +122,27 @@ export class MateAgentJobCredits implements AgentJobCredits {
       companyId: args.companyId,
       userId: args.userId,
     });
+  }
+
+  async closeAbandoned(args: { reservedBefore: Date; now: Date; limit: number }): Promise<number> {
+    const abandoned = await this.usage.findAbandonedAgentJobReservations({
+      reservedBefore: args.reservedBefore,
+      limit: args.limit,
+    });
+    let closed = 0;
+    for (const reservation of abandoned) {
+      try {
+        const outcome = await this.usage.closeInterruptedAgentJobReservation({
+          ...reservation,
+          model: this.model.modelId,
+          now: args.now,
+        });
+        if (outcome !== "none") closed += 1;
+      } catch (error) {
+        ErrorReporter.captureException(error);
+      }
+    }
+    return closed;
   }
 
   async settleInterrupted(args: AgentJobCreditsRelease): Promise<"retained" | "released" | "none"> {

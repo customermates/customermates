@@ -86,6 +86,10 @@ export abstract class AgentUsageRepo {
     userId: string;
     now: Date;
   }): Promise<boolean>;
+  abstract findAbandonedAgentJobUsageUnscoped(args: {
+    reservedBefore: Date;
+    limit: number;
+  }): Promise<Array<{ id: string; companyId: string; userId: string }>>;
   abstract closeInterruptedAgentJobUsageUnscoped(args: {
     id: string;
     companyId: string;
