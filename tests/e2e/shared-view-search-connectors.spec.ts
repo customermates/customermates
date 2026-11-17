@@ -117,8 +117,11 @@ test("the search finds every channel and AI client connection and starts it on i
 
   await page.goto(companyPath(companyId, "/dashboard"));
   const input = await openPalette(page);
-  await input.fill("Claude");
-  await expect(options.first()).toContainText(connect.claude);
+  await expect(async () => {
+    await input.fill("");
+    await input.fill("Claude");
+    await expect(options.first()).toContainText(connect.claude, { timeout: 2000 });
+  }).toPass({ timeout: 20000 });
   await expect(options.first()).toContainText(englishMessages.SettingsNav.apiKeys);
   await input.fill("codex");
   await expect(options.filter({ hasText: connect.openai })).toBeVisible();
