@@ -76,7 +76,7 @@ export type AutomationRunSettlement = {
 
 export type StaleAutomationRuleRun = { id: string; companyId: string; createdAt: Date };
 
-export type AutomationDateCandidate = { recordId: string; fieldValue: string };
+export type AutomationDateCandidate = { recordId: string; kind: "date" | "dateTime"; fieldValue: string };
 
 export type AutomationOutboundWebhook = { id: string; enabled: boolean; events: string[] };
 

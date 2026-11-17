@@ -7,8 +7,6 @@ import { AUTOMATION_DATE_LOOKBACK_DAYS } from "./automation-rule.schema";
 
 type DateReachedTrigger = z.output<typeof DateReachedTriggerSchema>;
 
-const DAY_ONLY = /^\d{4}-\d{2}-\d{2}$/;
-
 export type DueDateOccurrence = { recordId: string; fieldValue: string; fireAt: Date; key: string };
 
 export function eventOccurrenceKey(eventId: string): string {
@@ -23,23 +21,31 @@ export function dateOccurrenceKey(
   return `date:${recordId}:${trigger.fieldId}:${fieldValue}:${trigger.direction}${trigger.days}`;
 }
 
+export function normalisedDateValue(candidate: Pick<AutomationDateCandidate, "kind" | "fieldValue">): string | null {
+  if (candidate.kind === "date") {
+    const day = candidate.fieldValue.slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : null;
+  }
+  const instant = new Date(candidate.fieldValue);
+  return Number.isNaN(instant.getTime()) ? null : instant.toISOString();
+}
+
 export function dueDateOccurrences(
   trigger: DateReachedTrigger,
   candidates: readonly AutomationDateCandidate[],
   now: Date,
 ): DueDateOccurrence[] {
   return candidates.flatMap((candidate) => {
-    const fireAt = dateReachedFireAt(trigger, {
-      kind: DAY_ONLY.test(candidate.fieldValue) ? "date" : "dateTime",
-      value: candidate.fieldValue,
-    });
+    const fieldValue = normalisedDateValue(candidate);
+    if (fieldValue === null) return [];
+    const fireAt = dateReachedFireAt(trigger, { kind: candidate.kind, value: fieldValue });
     if (!fireAt || !isDateReachedDue(fireAt, now, AUTOMATION_DATE_LOOKBACK_DAYS)) return [];
     return [
       {
         recordId: candidate.recordId,
-        fieldValue: candidate.fieldValue,
+        fieldValue,
         fireAt,
-        key: dateOccurrenceKey(trigger, candidate.recordId, candidate.fieldValue),
+        key: dateOccurrenceKey(trigger, candidate.recordId, fieldValue),
       },
     ];
   });

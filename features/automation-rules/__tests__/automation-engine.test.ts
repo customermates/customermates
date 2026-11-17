@@ -13,7 +13,12 @@ import {
   localDay,
   shiftDay,
 } from "../automation-date";
-import { dateOccurrenceKey, dueDateOccurrences, eventOccurrenceKey } from "../automation-occurrence";
+import {
+  dateOccurrenceKey,
+  dueDateOccurrences,
+  eventOccurrenceKey,
+  normalisedDateValue,
+} from "../automation-occurrence";
 import {
   AutomationConditionSchema,
   AutomationTriggerSchema,
@@ -317,11 +322,12 @@ describe("occurrence keys", () => {
     const due = dueDateOccurrences(
       date,
       [
-        { recordId: "today", fieldValue: "2026-11-20" },
-        { recordId: "later", fieldValue: "2026-11-25" },
-        { recordId: "week-ago", fieldValue: "2026-11-01" },
-        { recordId: "instant", fieldValue: "2026-11-20T07:00:00.000Z" },
-        { recordId: "broken", fieldValue: "not a date" },
+        { recordId: "today", kind: "date", fieldValue: "2026-11-20" },
+        { recordId: "later", kind: "date", fieldValue: "2026-11-25" },
+        { recordId: "week-ago", kind: "date", fieldValue: "2026-11-01" },
+        { recordId: "instant", kind: "dateTime", fieldValue: "2026-11-20T07:00:00.000Z" },
+        { recordId: "broken", kind: "date", fieldValue: "not a date" },
+        { recordId: "broken-instant", kind: "dateTime", fieldValue: "not a date" },
       ],
       now,
     );
@@ -331,6 +337,48 @@ describe("occurrence keys", () => {
       fieldValue: "2026-11-20",
       fireAt: new Date("2026-11-18T07:00:00.000Z"),
       key: dateOccurrenceKey(date, "today", "2026-11-20"),
+    });
+  });
+
+  // Finding 7 of the review of 2026-11-17. A date field may hold an ISO date-time string
+  // (RecordScalarSchema, kind "date": z.union([z.iso.date(), RecordDateTimeSchema]), stored as written).
+  // The sweep guessed the kind from the string, so such a date was treated as a moment (atHour ignored),
+  // and the same day written another way made a new key and fired again inside the seven-day lookback.
+  describe("a date that is written in different ways", () => {
+    const date = {
+      kind: "dateReached" as const,
+      typeId: TYPE,
+      fieldId: FIELD,
+      days: 2,
+      direction: "before" as const,
+      atHour: 8,
+      timezone: "Europe/Berlin",
+    };
+    const now = new Date("2026-11-18T09:00:00.000Z");
+    const occurrence = (kind: "date" | "dateTime", fieldValue: string) =>
+      dueDateOccurrences(date, [{ recordId: "rec", kind, fieldValue }], now)[0];
+
+    it("reads a date field by its declared kind, at the rule's hour, whatever the spelling", () => {
+      const plain = occurrence("date", "2026-11-20");
+      expect(plain).toMatchObject({ fieldValue: "2026-11-20", fireAt: new Date("2026-11-18T07:00:00.000Z") });
+      for (const spelling of ["2026-11-20T00:00:00.000Z", "2026-11-20T00:00:00+01:00", "2026-11-20T23:30:00-05:00"])
+        expect(occurrence("date", spelling)).toEqual(plain);
+    });
+
+    it("gives one key to the same moment of a date and time field", () => {
+      const utc = occurrence("dateTime", "2026-11-20T07:00:00.000Z");
+      expect(utc).toMatchObject({
+        fieldValue: "2026-11-20T07:00:00.000Z",
+        fireAt: new Date("2026-11-18T07:00:00.000Z"),
+      });
+      expect(occurrence("dateTime", "2026-11-20T08:00:00+01:00")).toEqual(utc);
+      expect(occurrence("dateTime", "2026-11-20T07:00:00Z")).toEqual(utc);
+      expect(occurrence("dateTime", "2026-11-20T07:00:01.000Z")?.key).not.toBe(utc?.key);
+    });
+
+    it("still fires again when the day really changes", () => {
+      expect(occurrence("date", "2026-11-19T10:00:00.000Z")?.key).not.toBe(occurrence("date", "2026-11-20")?.key);
+      expect(normalisedDateValue({ kind: "date", fieldValue: "20261120" })).toBeNull();
     });
   });
 });

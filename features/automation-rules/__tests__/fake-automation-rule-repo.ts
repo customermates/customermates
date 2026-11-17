@@ -18,7 +18,7 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
   rules = new Map<string, StoredAutomationRule>();
   recordTriggers = new Map<string, RuleRecordTrigger>();
   runs = new Map<string, StoredAutomationRuleRun>();
-  candidates: AutomationDateCandidate[] = [];
+  candidates: Array<Omit<AutomationDateCandidate, "kind"> & { kind?: AutomationDateCandidate["kind"] }> = [];
   webhooks = new Map<string, AutomationOutboundWebhook>();
   accessibleAccounts = new Set<string>();
   companyId = "00000000-0000-4000-8000-000000000011";
@@ -234,7 +234,8 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
       this.candidates
         .filter((candidate) => !args.afterRecordId || candidate.recordId > args.afterRecordId)
         .sort((left, right) => left.recordId.localeCompare(right.recordId))
-        .slice(0, args.limit),
+        .slice(0, args.limit)
+        .map((candidate): AutomationDateCandidate => ({ ...candidate, kind: candidate.kind ?? "date" })),
     );
   }
 

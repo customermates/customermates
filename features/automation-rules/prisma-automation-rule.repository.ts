@@ -79,8 +79,17 @@ function candidateWhere(
   };
 }
 
-function candidateOf(row: { recordId: string; lexicalValue: string | null; instantValue: Date | null }) {
-  return { recordId: row.recordId, fieldValue: row.lexicalValue ?? row.instantValue?.toISOString() ?? "" };
+function candidateOf(row: {
+  recordId: string;
+  lexicalValue: string | null;
+  instantValue: Date | null;
+  field: { valueType: string };
+}): AutomationDateCandidate {
+  return {
+    recordId: row.recordId,
+    kind: row.field.valueType === "dateTime" ? "dateTime" : "date",
+    fieldValue: row.lexicalValue ?? row.instantValue?.toISOString() ?? "",
+  };
 }
 
 export class PrismaAutomationRuleRepo
@@ -344,7 +353,7 @@ export class PrismaAutomationRuleRepo
         ...candidateWhere(args.companyId, args),
         ...(args.afterRecordId ? { recordId: { gt: args.afterRecordId } } : {}),
       },
-      select: { recordId: true, lexicalValue: true, instantValue: true },
+      select: { recordId: true, lexicalValue: true, instantValue: true, field: { select: { valueType: true } } },
       orderBy: { recordId: "asc" },
       take: args.limit,
     });

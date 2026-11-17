@@ -980,7 +980,7 @@ describe("sweeping date-reached rules", () => {
       triggerKind: "dateReached",
       trigger: { ...trigger, days: 2, direction: "after", timezone: "UTC" },
     });
-    repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-10T07:00:00.000Z" }];
+    repo.candidates = [{ recordId: RECORD, kind: "dateTime", fieldValue: "2026-11-10T07:00:00.000Z" }];
     await expect(sweep.invoke(new Date("2026-11-12T06:59:00.000Z"))).resolves.toMatchObject({
       automationRulesAdmitted: 0,
     });
