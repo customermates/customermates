@@ -32,7 +32,7 @@ describe("BookingAvailability", () => {
       [["2026-11-17T10:00:00.000Z", "2026-11-17T10:30:00.000Z"]],
     );
 
-    const slots = await subject.slots(LINK, NOW, new Date("2026-11-17T00:00:00.000Z"), 1);
+    const { slots } = await subject.slots(LINK, NOW, new Date("2026-11-17T00:00:00.000Z"), 1);
     const starts = slots.map((slot) => slot.startsAt.slice(11, 16));
 
     expect(starts[0]).toBe("08:00");
@@ -45,9 +45,59 @@ describe("BookingAvailability", () => {
   it("applies the minimum notice to today's slots", async () => {
     const { subject } = availability();
 
-    const slots = await subject.slots(LINK, new Date("2026-11-16T08:10:00.000Z"), undefined, 1);
+    const { slots } = await subject.slots(LINK, new Date("2026-11-16T08:10:00.000Z"), undefined, 1);
 
     expect(slots[0].startsAt).toBe("2026-11-16T09:30:00.000Z");
+  });
+
+  async function everySlot(link: BookingLinkRow, days: number) {
+    const { subject } = availability();
+    const starts: string[] = [];
+    let requests = 0;
+    let from: string | null | undefined;
+    do {
+      const page = await subject.slots(link, NOW, from ? new Date(from) : undefined, days);
+      starts.push(...page.slots.map((slot) => slot.startsAt));
+      from = page.nextFrom;
+      requests += 1;
+    } while (from && requests < 100);
+    return { starts, requests, open: from !== null };
+  }
+
+  it("says where the next range starts until the horizon is reached, so a 90-day page can be read to its end", async () => {
+    const { starts, requests, open } = await everySlot({ ...LINK, horizonDays: 90 }, 31);
+
+    expect(open).toBe(false);
+    expect(requests).toBeGreaterThan(2);
+    expect(new Set(starts).size).toBe(starts.length);
+    expect(starts).toEqual([...starts].sort());
+    expect(starts.at(-1)?.slice(0, 10)).toBe("2027-02-12");
+    expect(starts).toHaveLength(65 * 16);
+  });
+
+  it("continues after the last slot it returned when one range holds more than a request carries", async () => {
+    const dense = { ...LINK, durationMinutes: 15, horizonDays: 90 } as BookingLinkRow;
+    const { subject } = availability();
+
+    const first = await subject.slots(dense, NOW, undefined, 31);
+    const second = await subject.slots(dense, NOW, new Date(first.nextFrom ?? ""), 31);
+    const all = await everySlot(dense, 31);
+
+    expect(first.slots).toHaveLength(500);
+    expect(first.nextFrom).not.toBeNull();
+    expect(second.slots[0].startsAt).toBe(first.nextFrom);
+    expect(second.slots[0].startsAt > (first.slots.at(-1)?.startsAt ?? "")).toBe(true);
+    expect(new Set(all.starts).size).toBe(all.starts.length);
+    expect(all.starts.at(-1)?.slice(0, 10)).toBe("2027-02-12");
+  });
+
+  it("ends the paging when the range already reaches the horizon", async () => {
+    const { subject } = availability();
+
+    const page = await subject.slots(LINK, NOW, undefined, 31);
+
+    expect(page.nextFrom).toBeNull();
+    expect(page.slots.at(-1)?.startsAt.slice(0, 10)).toBe("2026-11-27");
   });
 
   it("knows whether a start is still open, including one a reservation just took", async () => {

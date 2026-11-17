@@ -84,7 +84,7 @@ Desative **Aceitar agendamentos** para pausar uma página sem excluí-la. Exclui
 
 ### O que acontece quando alguém agenda? [#booking-page-visitors]
 
-O visitante vê os horários livres do seu calendário sincronizado, no próprio fuso horário. O tempo ocupado esconde horários, e dois agendamentos não podem se sobrepor, porque o horário é reservado primeiro. O visitante informa nome e e-mail, responde às suas perguntas e confirma. Em seguida, o app cria o evento de calendário com o visitante como participante (o Google ou a Microsoft envia o convite), encontra ou cria a pessoa pelo e-mail, cria o registro do agendamento e vincula o evento aos dois. Todo agendamento também produz o evento `form.submitted` com o agendamento como conteúdo, ao qual as regras podem reagir.
+O visitante vê os horários livres do seu calendário sincronizado, no próprio fuso horário. O calendário vai até onde a página permite, e os meses seguintes são carregados quando o visitante avança. O tempo ocupado esconde horários, e dois agendamentos não podem se sobrepor, porque o horário é reservado primeiro. O visitante informa nome e e-mail, responde às suas perguntas e confirma. Em seguida, o app cria o evento de calendário com o visitante como participante (o Google ou a Microsoft envia o convite), encontra ou cria a pessoa pelo e-mail, cria o registro do agendamento e vincula o evento aos dois. Todo agendamento também produz o evento `form.submitted` com o agendamento como conteúdo, ao qual as regras podem reagir.
 
 As páginas de agendamento se protegem sozinhas: limites de requisições por visitante e por link, um campo isca oculto (honeypot), no máximo 3 agendamentos futuros por endereço de e-mail e por página e limites para o tamanho dos dados enviados.
 

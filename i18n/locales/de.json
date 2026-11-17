@@ -4807,6 +4807,7 @@
     "honeypot": "Dieses Feld leer lassen",
     "joinLink": "Videoanruf beitreten",
     "loadFailed": "Die freien Zeiten konnten nicht geladen werden. Lade die Seite neu und versuche es erneut.",
+    "loadingMore": "Weitere Zeiten werden geladen",
     "minutes": "{minutes} Min.",
     "name": "Dein Name",
     "noSlots": "In den nächsten Wochen gibt es keine freien Zeiten.",

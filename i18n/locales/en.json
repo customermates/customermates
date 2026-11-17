@@ -4807,6 +4807,7 @@
     "honeypot": "Leave this field empty",
     "joinLink": "Join the video call",
     "loadFailed": "The available times could not be loaded. Reload the page to try again.",
+    "loadingMore": "Loading more times",
     "minutes": "{minutes} min",
     "name": "Your name",
     "noSlots": "There are no free times in the next weeks.",

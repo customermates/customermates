@@ -84,7 +84,7 @@ Zet **Boekingen accepteren** uit om een pagina te pauzeren zonder hem te verwijd
 
 ### Wat gebeurt er als iemand boekt? [#booking-page-visitors]
 
-De bezoeker ziet vrije tijden uit je gesynchroniseerde agenda, in zijn eigen tijdzone. Bezette tijd verbergt tijdvakken, en twee boekingen kunnen elkaar niet overlappen, omdat een tijd eerst wordt gereserveerd. De bezoeker vult naam en e-mailadres in, beantwoordt je vragen en bevestigt. De app maakt dan de agenda-afspraak aan met de bezoeker als deelnemer (Google of Microsoft verstuurt de uitnodiging), zoekt of maakt de persoon aan op basis van het e-mailadres, maakt het boekingsrecord aan en koppelt de afspraak aan beide. Elke boeking levert ook de gebeurtenis `form.submitted` op, met de boeking als inhoud, waarop regels kunnen reageren.
+De bezoeker ziet vrije tijden uit je gesynchroniseerde agenda, in zijn eigen tijdzone. De kalender reikt zo ver vooruit als de pagina toelaat, en latere maanden worden geladen wanneer de bezoeker verder bladert. Bezette tijd verbergt tijdvakken, en twee boekingen kunnen elkaar niet overlappen, omdat een tijd eerst wordt gereserveerd. De bezoeker vult naam en e-mailadres in, beantwoordt je vragen en bevestigt. De app maakt dan de agenda-afspraak aan met de bezoeker als deelnemer (Google of Microsoft verstuurt de uitnodiging), zoekt of maakt de persoon aan op basis van het e-mailadres, maakt het boekingsrecord aan en koppelt de afspraak aan beide. Elke boeking levert ook de gebeurtenis `form.submitted` op, met de boeking als inhoud, waarop regels kunnen reageren.
 
 Boekingspagina's beschermen zichzelf: limieten per bezoeker en per link, een verborgen lokveld (honeypot), maximaal 3 aankomende boekingen per e-mailadres per pagina en limieten op de grootte van de invoer.
 

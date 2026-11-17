@@ -196,6 +196,7 @@ export type PublicBookingPage = {
   title: string;
   description: string | null;
   durationMinutes: number;
+  horizonDays: number;
   timeZone: string;
   workspaceName: string | null;
   hostName: string;
@@ -207,7 +208,12 @@ export type PublicBookingPage = {
 export type PublicBookingPageResult = { status: "available"; page: PublicBookingPage } | PublicBlocked;
 
 export type PublicBookingSlotsResult =
-  | { status: "available"; timeZone: string; slots: Array<{ startsAt: string; endsAt: string }> }
+  | {
+      status: "available";
+      timeZone: string;
+      slots: Array<{ startsAt: string; endsAt: string }>;
+      nextFrom: string | null;
+    }
   | PublicBlocked;
 
 export type PublicBookingSubmitResult =

@@ -23,12 +23,12 @@ export class ReadPublicBookingSlotsInteractor {
       async (link): Promise<PublicBookingSlotsResult> => ({
         status: "available",
         timeZone: link.timeZone,
-        slots: await this.availability.slots(
+        ...(await this.availability.slots(
           link,
-          new Date(),
+          this.access.now(),
           query.data.from ? new Date(query.data.from) : undefined,
           query.data.days,
-        ),
+        )),
       }),
     );
   }

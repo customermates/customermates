@@ -84,7 +84,7 @@ Desactiva **Aceptar reservas** para pausar una página sin eliminarla. Eliminar 
 
 ### ¿Qué pasa cuando alguien reserva? [#booking-page-visitors]
 
-El visitante ve los horarios libres de tu calendario sincronizado, en su propia zona horaria. El tiempo ocupado oculta horarios, y dos reservas no pueden solaparse porque primero se reserva el horario. El visitante escribe su nombre y su correo, responde a tus preguntas y confirma. Entonces la aplicación crea el evento de calendario con el visitante como asistente (Google o Microsoft envía la invitación), busca o crea a la persona por su correo, crea el registro de la reserva y vincula el evento a ambos. Cada reserva también produce el evento `form.submitted` con la reserva como contenido, al que las reglas pueden reaccionar.
+El visitante ve los horarios libres de tu calendario sincronizado, en su propia zona horaria. El calendario llega tan lejos como permite la página, y los meses siguientes se cargan cuando el visitante avanza. El tiempo ocupado oculta horarios, y dos reservas no pueden solaparse porque primero se reserva el horario. El visitante escribe su nombre y su correo, responde a tus preguntas y confirma. Entonces la aplicación crea el evento de calendario con el visitante como asistente (Google o Microsoft envía la invitación), busca o crea a la persona por su correo, crea el registro de la reserva y vincula el evento a ambos. Cada reserva también produce el evento `form.submitted` con la reserva como contenido, al que las reglas pueden reaccionar.
 
 Las páginas de reserva se protegen solas: límites de solicitudes por visitante y por enlace, un campo trampa oculto (honeypot), un máximo de 3 reservas próximas por dirección de correo y página, y límites en el tamaño de los datos enviados.
 

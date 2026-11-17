@@ -4807,6 +4807,7 @@
     "honeypot": "Deixe este campo em branco",
     "joinLink": "Entrar na videochamada",
     "loadFailed": "Não foi possível carregar os horários disponíveis. Recarregue a página para tentar novamente.",
+    "loadingMore": "Carregando mais horários",
     "minutes": "{minutes} min",
     "name": "Seu nome",
     "noSlots": "Não há horários livres nas próximas semanas.",

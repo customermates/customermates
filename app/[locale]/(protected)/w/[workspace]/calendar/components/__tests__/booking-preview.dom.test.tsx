@@ -22,7 +22,16 @@ vi.mock("@/app/[locale]/(public)/book/[token]/actions", () => ({
   submitPublicBookingAction: harness.submit,
 }));
 vi.mock("@/components/ui/calendar", () => ({
-  Calendar: () => createElement("div", { "data-day-picker": "" }),
+  Calendar: ({ endMonth, onMonthChange }: { endMonth?: Date; onMonthChange?: (month: Date) => void }) =>
+    createElement(
+      "div",
+      { "data-day-picker": "", "data-end-month": endMonth?.toISOString() },
+      createElement("button", {
+        type: "button",
+        "data-later-month": "",
+        onClick: () => onMonthChange?.(new Date(Date.now() + 70 * 86_400_000)),
+      }),
+    ),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => void action(),
@@ -30,6 +39,7 @@ vi.mock("@/core/errors/report-application-error", () => ({
 }));
 
 import { BookingPreview } from "../booking/booking-preview";
+import { PublicBookingView } from "@/app/[locale]/(public)/book/[token]/public-booking-view";
 import { DEFAULT_WORKING_HOURS } from "@/ee/calendar/working-hours";
 
 import { READY_SETUP, bookingForm } from "./booking-fixtures";
@@ -121,6 +131,8 @@ describe("BookingPreview", () => {
     });
     const form = container.querySelector<HTMLElement>("[data-booking-form]");
     expect(form).not.toBeNull();
+    expect(form?.tagName).toBe("DIV");
+    expect(container.querySelector("form")).toBeNull();
     expect(form?.querySelector<HTMLInputElement>("#booking-name")?.disabled).toBe(true);
     expect(form?.querySelector<HTMLInputElement>("#booking-email")?.disabled).toBe(true);
     expect(form?.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true);
@@ -131,5 +143,76 @@ describe("BookingPreview", () => {
     expect(harness.submit).not.toHaveBeenCalled();
   });
 });
-    expect(form?.tagName).toBe("DIV");
-    expect(container.querySelector("form")).toBeNull();
+
+describe("PublicBookingView on the live page", () => {
+  const DAY_MS = 86_400_000;
+  const LIVE_PAGE = {
+    title: "Intro call",
+    description: null,
+    durationMinutes: 30,
+    horizonDays: 90,
+    timeZone: "UTC",
+    workspaceName: "Acme",
+    hostName: "Test User",
+    withVideo: false,
+    questions: [],
+    renderToken: "render",
+  };
+  const slotIn = (days: number) => {
+    const startsAt = new Date(Date.now() + days * DAY_MS).toISOString();
+    return { startsAt, endsAt: new Date(Date.parse(startsAt) + 30 * 60_000).toISOString() };
+  };
+  const settle = () => act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+
+  async function renderLive() {
+    await act(async () => {
+      root.render(createElement(PublicBookingView, { page: LIVE_PAGE, token: "tok_abcdefghijklmnop" }));
+      await Promise.resolve();
+    });
+    await settle();
+  }
+
+  it("loads the first range, then the later ranges once the visitor moves to a month beyond it", async () => {
+    const second = new Date(Date.now() + 31 * DAY_MS).toISOString();
+    const third = new Date(Date.now() + 62 * DAY_MS).toISOString();
+    harness.readSlots
+      .mockResolvedValueOnce({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: second })
+      .mockResolvedValueOnce({ status: "available", timeZone: "UTC", slots: [slotIn(40)], nextFrom: third })
+      .mockResolvedValueOnce({ status: "available", timeZone: "UTC", slots: [slotIn(75)], nextFrom: null });
+
+    await renderLive();
+
+    expect(harness.readSlots).toHaveBeenCalledExactlyOnceWith({ token: "tok_abcdefghijklmnop", days: 31 });
+    expect(slotButtons()).toHaveLength(1);
+    const horizon = Date.parse(container.querySelector<HTMLElement>("[data-day-picker]")?.dataset.endMonth ?? "");
+    expect(Math.round((horizon - Date.now()) / DAY_MS)).toBe(90);
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-later-month]")?.click());
+    await settle();
+
+    expect(harness.readSlots.mock.calls.map(([input]) => input.from)).toEqual([undefined, second, third]);
+    expect(container.querySelector("[data-booking-calendar]")?.getAttribute("aria-busy")).toBe("false");
+  });
+
+  it("keeps looking in later ranges when the first weeks have no free time", async () => {
+    const second = new Date(Date.now() + 31 * DAY_MS).toISOString();
+    harness.readSlots
+      .mockResolvedValueOnce({ status: "available", timeZone: "UTC", slots: [], nextFrom: second })
+      .mockResolvedValueOnce({ status: "available", timeZone: "UTC", slots: [slotIn(45)], nextFrom: null });
+
+    await renderLive();
+
+    expect(harness.readSlots).toHaveBeenCalledTimes(2);
+    expect(container.textContent).not.toContain("PublicBooking.noSlots");
+    expect(slotButtons()).toHaveLength(1);
+  });
+
+  it("submits through a real form on the live page", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    await renderLive();
+
+    act(() => slotButtons()[0].click());
+
+    expect(container.querySelector("[data-booking-form]")?.tagName).toBe("FORM");
+  });
+});

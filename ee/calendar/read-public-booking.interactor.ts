@@ -28,6 +28,7 @@ export class ReadPublicBookingInteractor {
           title: link.title,
           description: link.description,
           durationMinutes: link.durationMinutes,
+          horizonDays: link.horizonDays,
           timeZone: link.timeZone,
           workspaceName: link.workspaceName,
           hostName: link.hostName,

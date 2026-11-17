@@ -4807,6 +4807,7 @@
     "honeypot": "Laissez ce champ vide",
     "joinLink": "Rejoindre la visioconférence",
     "loadFailed": "Les créneaux disponibles n’ont pas pu être chargés. Rechargez la page pour réessayer.",
+    "loadingMore": "Chargement d’autres créneaux",
     "minutes": "{minutes} min",
     "name": "Votre nom",
     "noSlots": "Aucun créneau libre dans les prochaines semaines.",

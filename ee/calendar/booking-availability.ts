@@ -10,6 +10,8 @@ const MINUTE_MS = 60_000;
 const DAY_MS = 86_400_000;
 const SLOT_LIMIT = 500;
 
+export type BookingSlotPage = { slots: FreeSlot[]; nextFrom: string | null };
+
 export function bookingRules(link: BookingLinkRow): FreeSlotRules {
   return {
     workingHours: storedWorkingHours(link.workingHours),
@@ -28,16 +30,22 @@ export class BookingAvailability {
     private reservations: Pick<BookingReservationRepo, "busyForOwner">,
   ) {}
 
-  async slots(link: BookingLinkRow, now: Date, from?: Date, days?: number): Promise<FreeSlot[]> {
+  async slots(link: BookingLinkRow, now: Date, from?: Date, days?: number): Promise<BookingSlotPage> {
     const rules = bookingRules(link);
     const bounds = freeSlotWindow(rules, now);
     const start = from && from > bounds.earliest ? from : bounds.earliest;
     const end = new Date(Math.min(bounds.latest.getTime(), start.getTime() + (days ?? 14) * DAY_MS));
-    if (start >= end) return [];
+    if (start >= end) return { slots: [], nextFrom: null };
 
     const busy = await this.busyBetween(start, end, link);
+    const found = computeFreeSlots({ rules, now, busy, from: start, to: end, limit: SLOT_LIMIT + 1 });
+    const overflow = found[SLOT_LIMIT];
+    const covered = overflow ? new Date(overflow.startsAt) : new Date(end.getTime() + 1);
 
-    return computeFreeSlots({ rules, now, busy, from: start, to: end, limit: SLOT_LIMIT });
+    return {
+      slots: overflow ? found.slice(0, SLOT_LIMIT) : found,
+      nextFrom: covered <= bounds.latest ? covered.toISOString() : null,
+    };
   }
 
   async isOpen(link: BookingLinkRow, now: Date, startsAt: Date): Promise<boolean> {

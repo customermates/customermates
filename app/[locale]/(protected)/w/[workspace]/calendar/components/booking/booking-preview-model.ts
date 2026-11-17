@@ -33,6 +33,7 @@ export function bookingPreviewPage(
     title: form.title.trim() || fallbackTitle,
     description: form.description.trim() || null,
     durationMinutes: form.durationMinutes,
+    horizonDays: form.horizonDays,
     timeZone: form.timeZone,
     workspaceName: null,
     hostName,

@@ -4807,6 +4807,7 @@
     "honeypot": "Zostaw to pole puste",
     "joinLink": "Dołącz do wideorozmowy",
     "loadFailed": "Nie udało się wczytać dostępnych terminów. Odśwież stronę i spróbuj ponownie.",
+    "loadingMore": "Wczytywanie kolejnych terminów",
     "minutes": "{minutes} min",
     "name": "Twoje imię i nazwisko",
     "noSlots": "W najbliższych tygodniach nie ma wolnych terminów.",
