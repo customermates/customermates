@@ -27,6 +27,7 @@ vi.mock("../components/automation-item-sentence", () => ({
   automationItemSentence: (item: { name: string }) => `sentence of ${item.name}`,
 }));
 
+import { AutomationsTruncatedNotice } from "../components/automations-truncated-notice";
 import { useAutomationColumns } from "../components/use-automation-columns";
 
 const OWNER = "00000000-0000-4000-8000-000000000010";
@@ -161,5 +162,22 @@ describe("automation list columns", () => {
 
     render({ entry: item(), onToggle: vi.fn(), pendingId: "20000000-0000-4000-8000-000000000001" });
     expect(container.querySelector<HTMLButtonElement>("[data-automation-switch]")?.disabled).toBe(true);
+  });
+});
+
+describe("the notice above a list that was cut short", () => {
+  it("says the list is not complete when the server reports it", () => {
+    act(() => root.render(<AutomationsTruncatedNotice truncated />));
+
+    const notice = container.querySelector("[data-automations-truncated]");
+    expect(notice?.textContent).toContain("Automations.truncated");
+    expect(notice?.querySelector('[role="alert"]')).not.toBeNull();
+  });
+
+  it("stays away for a complete list", () => {
+    act(() => root.render(<AutomationsTruncatedNotice truncated={false} />));
+
+    expect(container.querySelector("[data-automations-truncated]")).toBeNull();
+    expect(container.textContent).toBe("");
   });
 });

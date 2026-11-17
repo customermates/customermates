@@ -1400,6 +1400,7 @@
       "scratchBody": "Een lege keten. Kies een trigger en voeg dan stappen toe.",
       "usesAgent": "Gebruikt een agent"
     },
+    "truncated": "Deze lijst bevat hoogstens {rules} automatiseringen en {routines} routines, en je werkruimte heeft er meer. De niet getoonde blijven gewoon lopen.",
     "unavailable": {
       "blockedStep": "“{step}” gebruikt iets dat niet meer beschikbaar is. Kies een vervanging of verwijder de stap.",
       "blockedTrigger": "De trigger gebruikt iets dat niet meer beschikbaar is. Kies een vervanging.",

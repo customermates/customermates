@@ -1400,6 +1400,7 @@
       "scratchBody": "Una cadena vacía. Elige un disparador y añade pasos.",
       "usesAgent": "Usa un agente"
     },
+    "truncated": "Esta lista contiene como máximo {rules} automatizaciones y {routines} rutinas, y tu espacio de trabajo tiene más. Las que no aparecen siguen funcionando.",
     "unavailable": {
       "blockedStep": "«{step}» usa algo que ya no está disponible. Elige una alternativa o quita el paso.",
       "blockedTrigger": "El disparador usa algo que ya no está disponible. Elige una alternativa.",

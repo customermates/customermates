@@ -1400,6 +1400,7 @@
       "scratchBody": "Eine leere Kette. Wähle einen Auslöser und füge dann Schritte hinzu.",
       "usesAgent": "Nutzt einen Agenten"
     },
+    "truncated": "Diese Liste fasst höchstens {rules} Automatisierungen und {routines} Routinen, und dein Arbeitsbereich hat mehr. Die nicht aufgeführten laufen weiter.",
     "unavailable": {
       "blockedStep": "„{step}“ verwendet etwas, das nicht mehr verfügbar ist. Wähle einen Ersatz oder entferne den Schritt.",
       "blockedTrigger": "Der Auslöser verwendet etwas, das nicht mehr verfügbar ist. Wähle einen Ersatz.",

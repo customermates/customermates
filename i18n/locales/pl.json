@@ -1400,6 +1400,7 @@
       "scratchBody": "Pusty łańcuch. Wybierz wyzwalacz, a potem dodaj kroki.",
       "usesAgent": "Używa agenta"
     },
+    "truncated": "Ta lista mieści najwyżej {rules} automatyzacji i {routines} rutyn, a Twój obszar roboczy ma ich więcej. Te, których tu nie ma, nadal działają.",
     "unavailable": {
       "blockedStep": "„{step}” używa czegoś, co nie jest już dostępne. Wybierz zamiennik albo usuń krok.",
       "blockedTrigger": "Wyzwalacz używa czegoś, co nie jest już dostępne. Wybierz zamiennik.",

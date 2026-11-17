@@ -1400,6 +1400,7 @@
       "scratchBody": "Una catena vuota. Scegli un trigger, poi aggiungi passaggi.",
       "usesAgent": "Usa un agente"
     },
+    "truncated": "Questo elenco contiene al massimo {rules} automazioni e {routines} routine, e il tuo spazio di lavoro ne ha di più. Quelle non elencate continuano a funzionare.",
     "unavailable": {
       "blockedStep": "«{step}» usa qualcosa che non è più disponibile. Scegli un’alternativa o rimuovi il passaggio.",
       "blockedTrigger": "Il trigger usa qualcosa che non è più disponibile. Scegli un’alternativa.",

@@ -1400,6 +1400,7 @@
       "scratchBody": "Une chaîne vide. Choisissez un déclencheur, puis ajoutez des étapes.",
       "usesAgent": "Utilise un agent"
     },
+    "truncated": "Cette liste contient au plus {rules} automatisations et {routines} routines, et votre espace de travail en compte davantage. Celles qui ne sont pas affichées continuent de s’exécuter.",
     "unavailable": {
       "blockedStep": "« {step} » utilise un élément qui n’est plus disponible. Choisissez-en un autre ou supprimez l’étape.",
       "blockedTrigger": "Le déclencheur utilise un élément qui n’est plus disponible. Choisissez-en un autre.",

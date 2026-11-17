@@ -1,7 +1,10 @@
 import type { TableColumn } from "@/core/base/base-data-view.store";
+import type { GetResult } from "@/core/base/base-get.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { AutomationListItemDto } from "@/features/automation-rules/automations-list.schema";
+
+import { makeObservable, observable } from "mobx";
 
 import { Resource } from "@/generated/prisma";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -9,9 +12,15 @@ import { actionData } from "@/core/utils/action-data";
 
 import { getAutomationsListAction } from "../actions";
 
+export type AutomationsListResult = GetResult<AutomationListItemDto> & { truncated?: boolean };
+
 export class AutomationsStore extends BaseDataViewStore<AutomationListItemDto> {
+  truncated = false;
+
   constructor(rootStore: RootStore) {
     super(rootStore, Resource.routines);
+
+    makeObservable(this, { truncated: observable });
   }
 
   get columnsDefinition(): TableColumn[] {
@@ -25,6 +34,11 @@ export class AutomationsStore extends BaseDataViewStore<AutomationListItemDto> {
       { uid: "owner", sortable: false },
       { uid: "createdAt", sortable: true },
     ];
+  }
+
+  override setItems(args: AutomationsListResult): void {
+    super.setItems(args);
+    if (!args.grouping?.partial) this.truncated = args.truncated === true;
   }
 
   protected async refreshAction(params?: GetQueryParams) {

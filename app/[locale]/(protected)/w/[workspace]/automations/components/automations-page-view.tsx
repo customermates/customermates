@@ -45,6 +45,7 @@ import {
   toggleAutomation,
 } from "./automation-row-actions";
 import { AutomationsPageSkeleton } from "./automations-page-skeleton";
+import { AutomationsTruncatedNotice } from "./automations-truncated-notice";
 import { useAutomationColumns } from "./use-automation-columns";
 
 export type AutomationsPrefill =
@@ -374,6 +375,8 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   return (
     <>
       <h1 className="sr-only">{t("AutomationRules.title")}</h1>
+
+      <AutomationsTruncatedNotice truncated={automationsStore.truncated === true} />
 
       <DataViewLayout
         showPagination={pageState === "content" && view !== "board" && !automationsStore.isGrouped}

@@ -1400,6 +1400,7 @@
       "scratchBody": "Uma cadeia vazia. Escolha um gatilho e depois adicione etapas.",
       "usesAgent": "Usa um agente"
     },
+    "truncated": "Esta lista comporta no máximo {rules} automações e {routines} rotinas, e seu espaço de trabalho tem mais. As que não aparecem continuam sendo executadas.",
     "unavailable": {
       "blockedStep": "“{step}” usa algo que não está mais disponível. Escolha uma alternativa ou remova a etapa.",
       "blockedTrigger": "O gatilho usa algo que não está mais disponível. Escolha uma alternativa.",

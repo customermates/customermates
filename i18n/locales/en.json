@@ -1400,6 +1400,7 @@
       "scratchBody": "An empty chain. Pick a trigger, then add steps.",
       "usesAgent": "Uses an agent"
     },
+    "truncated": "This list holds at most {rules} automations and {routines} routines, and your workspace has more. The ones not listed still run.",
     "unavailable": {
       "blockedStep": "“{step}” uses something that is no longer available. Choose a replacement or remove the step.",
       "blockedTrigger": "The trigger uses something that is no longer available. Choose a replacement.",
