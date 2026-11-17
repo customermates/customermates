@@ -3484,7 +3484,7 @@
     "body": "Zodra je toegang weer actief is, ververs je deze pagina om verder te gaan.",
     "otherWorkspaces": "Je andere werkruimtes blijven zoals ze zijn. Wissel in het werkruimtemenu naar een van die werkruimtes.",
     "subtitle": "Een beheerder van deze werkruimte kan de toegang opnieuw activeren",
-    "supportBody": "Het abonnement van deze werkruimte is beëindigd en de toegang van alle leden is gedeactiveerd, ook die van alle beheerders. Niemand kan vanuit de werkruimte het abonnement verlengen of leden opnieuw activeren. Neem contact op met ons supportteam om de toegang te herstellen en ververs daarna deze pagina.",
+    "supportBody": "De toegang van alle leden van deze werkruimte is gedeactiveerd, ook die van alle beheerders, bijvoorbeeld omdat het abonnement is beëindigd. Niemand kan vanuit de werkruimte het abonnement verlengen of leden opnieuw activeren. Neem contact op met ons supportteam om de toegang te herstellen en ververs daarna deze pagina.",
     "supportSubtitle": "Alleen ons supportteam kan de toegang herstellen",
     "title": "Je toegang tot {workspace} is niet actief"
   },

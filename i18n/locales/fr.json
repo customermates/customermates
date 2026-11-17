@@ -3484,7 +3484,7 @@
     "body": "Une fois votre accès réactivé, actualisez cette page pour continuer.",
     "otherWorkspaces": "Vos autres espaces de travail restent inchangés. Passez à l’un d’eux depuis le menu de l’espace de travail.",
     "subtitle": "Un administrateur de cet espace de travail peut le réactiver",
-    "supportBody": "L’abonnement de cet espace de travail a pris fin et l’accès de tous les membres a été désactivé, y compris celui de tous les administrateurs. Personne ne peut renouveler l’abonnement ni réactiver des membres depuis l’espace de travail. Contactez notre assistance pour rétablir l’accès, puis actualisez cette page.",
+    "supportBody": "L’accès de tous les membres de cet espace de travail est désactivé, y compris celui de tous les administrateurs, par exemple parce que son abonnement a pris fin. Personne ne peut renouveler l’abonnement ni réactiver des membres depuis l’espace de travail. Contactez notre assistance pour rétablir l’accès, puis actualisez cette page.",
     "supportSubtitle": "Seule notre assistance peut le rétablir",
     "title": "Votre accès à {workspace} est inactif"
   },

@@ -3484,7 +3484,7 @@
     "body": "Quando il tuo accesso sarà di nuovo attivo, aggiorna questa pagina per continuare.",
     "otherWorkspaces": "Gli altri tuoi spazi di lavoro restano invariati. Passa a uno di essi dal menu dello spazio di lavoro.",
     "subtitle": "Un amministratore di questo spazio di lavoro può riattivarlo",
-    "supportBody": "L’abbonamento di questo spazio di lavoro è terminato e l’accesso di tutti i membri è stato disattivato, compreso quello di tutti gli amministratori. Nessuno può rinnovare l’abbonamento o riattivare i membri dall’interno dello spazio di lavoro. Contatta il nostro team di assistenza per ripristinare l’accesso, quindi aggiorna questa pagina.",
+    "supportBody": "L’accesso di tutti i membri di questo spazio di lavoro è disattivato, compreso quello di tutti gli amministratori, per esempio perché il suo abbonamento è terminato. Nessuno può rinnovare l’abbonamento o riattivare i membri dall’interno dello spazio di lavoro. Contatta il nostro team di assistenza per ripristinare l’accesso, quindi aggiorna questa pagina.",
     "supportSubtitle": "Solo il nostro team di assistenza può ripristinarlo",
     "title": "Il tuo accesso a {workspace} è inattivo"
   },

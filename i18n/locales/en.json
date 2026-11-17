@@ -3484,7 +3484,7 @@
     "body": "Once your access is active again, refresh this page to continue.",
     "otherWorkspaces": "Your other workspaces stay as they are. Switch to one of them in the workspace menu.",
     "subtitle": "An administrator of this workspace can reactivate it",
-    "supportBody": "The subscription of this workspace ended, and the access of every member was deactivated, including all administrators. Nobody can renew the subscription or reactivate members from inside the workspace. Contact our support team to restore access, then refresh this page.",
+    "supportBody": "The access of every member of this workspace is deactivated, including all administrators, for example because its subscription ended. Nobody can renew the subscription or reactivate members from inside the workspace. Contact our support team to restore access, then refresh this page.",
     "supportSubtitle": "Only our support team can restore it",
     "title": "Your access to {workspace} is inactive"
   },

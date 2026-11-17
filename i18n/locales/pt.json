@@ -3484,7 +3484,7 @@
     "body": "Quando seu acesso voltar a ficar ativo, atualize esta página para continuar.",
     "otherWorkspaces": "Seus outros espaços de trabalho continuam como estão. Mude para um deles no menu de espaços de trabalho.",
     "subtitle": "Um administrador deste espaço de trabalho pode reativá-lo",
-    "supportBody": "A assinatura deste espaço de trabalho terminou e o acesso de todos os membros foi desativado, inclusive o de todos os administradores. Ninguém consegue renovar a assinatura nem reativar membros de dentro do espaço de trabalho. Entre em contato com nossa equipe de suporte para restabelecer o acesso e depois atualize esta página.",
+    "supportBody": "O acesso de todos os membros deste espaço de trabalho está desativado, inclusive o de todos os administradores, por exemplo porque a assinatura dele terminou. Ninguém consegue renovar a assinatura nem reativar membros de dentro do espaço de trabalho. Entre em contato com nossa equipe de suporte para restabelecer o acesso e depois atualize esta página.",
     "supportSubtitle": "Só nossa equipe de suporte pode restabelecê-lo",
     "title": "Seu acesso a {workspace} está inativo"
   },

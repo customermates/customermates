@@ -292,11 +292,8 @@ test("the consent screen of a workspace's MCP URL explains why the workspace can
     await expect(
       page.getByRole("heading", { level: 1, name: "Connect Claude to Paused Agency", exact: true }),
     ).toBeVisible();
-    await expect(
-      page.getByText(
-        englishMessages.McpConsentWorkspace.fixed.unavailable.inactive.replace("{workspace}", "Paused Agency"),
-      ),
-    ).toBeVisible();
+    // The only member of this workspace is inactive, so no administrator is left who could reactivate it.
+    await expect(page.getByText(englishMessages.InactiveCard.supportBody)).toBeVisible();
     await expect(page.locator(`#mcp-consent-fixed-workspace-${paused.companyId}`)).toContainText(
       englishMessages.McpConsentWorkspace.unavailable.inactive,
     );

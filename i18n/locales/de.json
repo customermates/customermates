@@ -3484,7 +3484,7 @@
     "body": "Sobald dein Zugriff wieder aktiv ist, aktualisiere diese Seite, um weiterzumachen.",
     "otherWorkspaces": "Deine anderen Workspaces bleiben unverändert. Wechsle im Workspace-Menü zu einem von ihnen.",
     "subtitle": "Ein Administrator dieses Workspaces kann ihn reaktivieren",
-    "supportBody": "Das Abonnement dieses Workspaces ist beendet, und der Zugriff aller Mitglieder wurde deaktiviert, auch der aller Administratoren. Aus dem Workspace heraus kann niemand das Abonnement erneuern oder Mitglieder reaktivieren. Kontaktiere unser Support-Team, um den Zugriff wiederherzustellen, und aktualisiere danach diese Seite.",
+    "supportBody": "Der Zugriff aller Mitglieder dieses Workspaces ist deaktiviert, auch der aller Administratoren, zum Beispiel weil sein Abonnement beendet ist. Aus dem Workspace heraus kann niemand das Abonnement erneuern oder Mitglieder reaktivieren. Kontaktiere unser Support-Team, um den Zugriff wiederherzustellen, und aktualisiere danach diese Seite.",
     "supportSubtitle": "Nur unser Support-Team kann ihn wiederherstellen",
     "title": "Dein Zugriff auf {workspace} ist inaktiv"
   },

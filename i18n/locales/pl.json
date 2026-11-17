@@ -3484,7 +3484,7 @@
     "body": "Gdy Twój dostęp znów będzie aktywny, odśwież tę stronę, aby kontynuować.",
     "otherWorkspaces": "Twoje pozostałe przestrzenie robocze pozostają bez zmian. Przełącz się na jedną z nich w menu przestrzeni roboczych.",
     "subtitle": "Administrator tej przestrzeni roboczej może ją ponownie aktywować",
-    "supportBody": "Subskrypcja tej przestrzeni roboczej wygasła, a dostęp wszystkich członków został dezaktywowany, także wszystkich administratorów. Nikt nie może odnowić subskrypcji ani ponownie aktywować członków z poziomu przestrzeni roboczej. Skontaktuj się z naszym zespołem wsparcia, aby przywrócić dostęp, a następnie odśwież tę stronę.",
+    "supportBody": "Dostęp wszystkich członków tej przestrzeni roboczej jest dezaktywowany, także wszystkich administratorów, na przykład dlatego, że jej subskrypcja wygasła. Nikt nie może odnowić subskrypcji ani ponownie aktywować członków z poziomu przestrzeni roboczej. Skontaktuj się z naszym zespołem wsparcia, aby przywrócić dostęp, a następnie odśwież tę stronę.",
     "supportSubtitle": "Tylko nasz zespół wsparcia może go przywrócić",
     "title": "Twój dostęp do {workspace} jest nieaktywny"
   },

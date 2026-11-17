@@ -3484,7 +3484,7 @@
     "body": "Cuando tu acceso vuelva a estar activo, actualiza esta página para continuar.",
     "otherWorkspaces": "Tus otros espacios de trabajo no cambian. Cambia a uno de ellos desde el menú del espacio de trabajo.",
     "subtitle": "Un administrador de este espacio de trabajo puede reactivarlo",
-    "supportBody": "La suscripción de este espacio de trabajo terminó y se desactivó el acceso de todos los miembros, incluido el de todos los administradores. Nadie puede renovar la suscripción ni reactivar miembros desde dentro del espacio de trabajo. Contacta con nuestro equipo de soporte para recuperar el acceso y después actualiza esta página.",
+    "supportBody": "El acceso de todos los miembros de este espacio de trabajo está desactivado, incluido el de todos los administradores, por ejemplo porque su suscripción terminó. Nadie puede renovar la suscripción ni reactivar miembros desde dentro del espacio de trabajo. Contacta con nuestro equipo de soporte para recuperar el acceso y después actualiza esta página.",
     "supportSubtitle": "Solo nuestro equipo de soporte puede restablecerlo",
     "title": "Tu acceso a {workspace} está inactivo"
   },
