@@ -40,7 +40,8 @@ import { GetAutomationRulesInteractor } from "../get-automation-rules.interactor
 import { PreviewAutomationRuleInteractor } from "../preview-automation-rule.interactor";
 import { SetAutomationRuleEnabledInteractor } from "../set-automation-rule-enabled.interactor";
 import { UpsertAutomationRuleInteractor } from "../upsert-automation-rule.interactor";
-import { FakeAutomationRuleRepo, FakeDateCandidateReader } from "./fake-automation-rule-repo";
+import { FakeAutomationRuleRepo } from "./fake-automation-rule-repo";
+import { FakeDateCandidateReader } from "./fake-date-candidate-reader";
 
 const COMPANY = "00000000-0000-4000-8000-000000000011";
 const OWNER = "00000000-0000-4000-8000-000000000010";

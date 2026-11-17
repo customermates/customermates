@@ -39,7 +39,7 @@ import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-sugge
 import type { RoutineConversationPurgeRepo } from "@/ee/routines/routine-conversation-purge.repo";
 import type { RoutineRunLinkRepo } from "./routine-run-link.repo";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
-import { AGENT_JOB_USAGE_SESSION_PREFIX } from "./agent-job-usage-session";
+import { AGENT_JOB_USAGE_SESSION_PREFIX, agentJobUsageSessionId } from "./agent-job-usage-session";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
 import type { AgentContextAttachment } from "./agent-context";
@@ -3240,30 +3240,36 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
   }
 
   @BypassTenantGuard
-  findAbandonedAgentJobUsageUnscoped(args: {
+  async findAbandonedAgentJobUsageUnscoped(args: {
     reservedBefore: Date;
     limit: number;
   }): Promise<Array<{ id: string; companyId: string; userId: string }>> {
-    return this.prisma.$queryRaw<Array<{ id: string; companyId: string; userId: string }>>`
-      SELECT usage."id", usage."companyId", usage."userId"
-      FROM "AgentUsageEvent" usage
-      LEFT JOIN "AgentJob" job
-        ON job."companyId" = usage."companyId"
-        AND job."id" = split_part(usage."id", ':', 2)
-        AND job."attempts"::text = split_part(usage."id", ':', 3)
-      WHERE usage."state" = 'reserved'
-        AND usage."purpose" = 'turn'
-        AND usage."turnRequestId" IS NULL
-        AND usage."userId" IS NOT NULL
-        AND starts_with(usage."id", ${AGENT_JOB_USAGE_SESSION_PREFIX})
-        AND (
-          usage."createdAt" < ${args.reservedBefore}
-          OR job."id" IS NULL
-          OR job."status" IN ('succeeded', 'failed', 'timedOut', 'cancelled')
-        )
-      ORDER BY usage."createdAt" ASC, usage."id" ASC
-      LIMIT ${args.limit}
-    `;
+    const reserved = await this.prisma.agentUsageEvent.findMany({
+      where: {
+        state: "reserved",
+        purpose: "turn",
+        turnRequestId: null,
+        userId: { not: null },
+        id: { startsWith: AGENT_JOB_USAGE_SESSION_PREFIX },
+      },
+      select: { id: true, companyId: true, userId: true, createdAt: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: args.limit,
+    });
+    const recent = reserved.filter((usage) => usage.createdAt >= args.reservedBefore);
+    const jobIds = [...new Set(recent.map((usage) => usage.id.split(":")[1]).filter(Boolean))];
+    const jobs = jobIds.length
+      ? await this.prisma.agentJob.findMany({
+          where: { id: { in: jobIds }, status: { in: ["queued", "claimed", "running"] } },
+          select: { id: true, companyId: true, attempts: true },
+        })
+      : [];
+    const live = new Set(jobs.map((job) => `${job.companyId}:${agentJobUsageSessionId(job.id, job.attempts)}`));
+    return reserved.flatMap((usage) => {
+      if (usage.userId === null) return [];
+      const abandoned = usage.createdAt < args.reservedBefore || !live.has(`${usage.companyId}:${usage.id}`);
+      return abandoned ? [{ id: usage.id, companyId: usage.companyId, userId: usage.userId }] : [];
+    });
   }
 
   @BypassTenantGuard
