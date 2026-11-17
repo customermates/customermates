@@ -200,6 +200,7 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
         companyId: args.companyId,
         status: AgentJobStatus.claimed,
         startedAttempts: 0,
+        timeoutAt: { gt: args.now },
         ...attemptFence(args.attempt),
       },
       data: {

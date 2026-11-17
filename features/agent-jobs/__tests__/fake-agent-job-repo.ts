@@ -140,6 +140,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
   startUnscoped(args: { id: string; companyId: string; attempt?: number; now?: Date }): Promise<boolean> {
     const job = this.live(args);
     if (!job || job.status !== "claimed" || job.startedAttempts > 0) return Promise.resolve(false);
+    if (args.now && !(job.timeoutAt && job.timeoutAt.getTime() > args.now.getTime())) return Promise.resolve(false);
     this.jobs.set(job.id, { ...job, status: "running", startedAttempts: 1 });
     return Promise.resolve(true);
   }

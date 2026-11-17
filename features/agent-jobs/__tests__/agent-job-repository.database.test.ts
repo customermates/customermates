@@ -799,12 +799,34 @@ describeDatabase("PrismaAgentJobRepo", () => {
     expect(await claim(later, later)).toBeNull();
   });
 
+  it("refuses to start a claimed job at or after the moment its confirmation was due, in the same statement", async () => {
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const confirmBy = new Date(now.getTime() + 60_000);
+    const job = await enqueue({ runtime: "runner" });
+    await repo().claimUnscoped({ companyId, runtime: "runner", jobId: job.id, runnerId, now, timeoutAt: confirmBy });
+    const start = (at: Date) =>
+      repo().startUnscoped({ id: job.id, companyId, attempt: 1, now: at, timeoutAt: new Date(at.getTime() + HOUR) });
+
+    expect(await start(new Date(confirmBy.getTime() + 1))).toBe(false);
+    expect(await start(confirmBy)).toBe(false);
+    expect(await row(job.id)).toMatchObject({ status: "claimed", startedAttempts: 0, timeoutAt: confirmBy });
+
+    const inTime = new Date(confirmBy.getTime() - 1);
+    expect(await start(inTime)).toBe(true);
+    expect(await row(job.id)).toMatchObject({
+      status: "running",
+      startedAttempts: 1,
+      timeoutAt: new Date(inTime.getTime() + HOUR),
+    });
+  });
+
   it("never starts a job twice, also when a started job were to reach the queue again", async () => {
     const now = new Date("2026-11-17T12:00:00.000Z");
     const later = new Date(now.getTime() + HOUR);
     const job = await enqueue();
+    const confirmBy = (at: Date) => new Date(at.getTime() + 60_000);
     const claim = (at: Date) =>
-      repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now: at, timeoutAt: at });
+      repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now: at, timeoutAt: confirmBy(at) });
     const start = (attempt: number, at: Date) =>
       repo().startUnscoped({ id: job.id, companyId, attempt, now: at, timeoutAt: at });
 

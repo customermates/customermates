@@ -65,7 +65,8 @@ describeDatabase("transcript of a hosted agent job", () => {
         pinnedRunnerId: null,
       }),
     );
-    await repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now, timeoutAt: now });
+    const confirmBy = new Date(now.getTime() + 60_000);
+    await repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now, timeoutAt: confirmBy });
     await repo().startUnscoped({ id: job.id, companyId, attempt: 1, now, timeoutAt: now });
 
     const recorder = new AgentJobRecorder(() => now);
