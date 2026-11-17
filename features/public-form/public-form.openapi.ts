@@ -92,7 +92,7 @@ export const publicFormApiPaths = {
       summary: "Turn a public form off",
       description:
         "Turns the form off at once; its link answers as unavailable. Saving the form again with enabled true turns it back on at the same link.",
-      requires: "the publicLinks create permission.",
+      requires: "the publicLinks create permission and create access to the list.",
       tag: "forms",
       input: DisablePublicFormSchema,
       output: PublicFormDtoSchema,

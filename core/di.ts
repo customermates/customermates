@@ -3194,10 +3194,20 @@ export const getPrunePublicFormSubmissionsInteractor = () =>
   new PrunePublicFormSubmissionsInteractor(getPublicFormRepo());
 
 export const getListPublicFormsInteractor = () =>
-  new ListPublicFormsInteractor(getPublicFormRepo(), getPublicFormQuota(), getPublicFormSettings());
+  new ListPublicFormsInteractor(
+    getPublicFormRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
 
 export const getGetPublicFormInteractor = () =>
-  new GetPublicFormInteractor(getPublicFormRepo(), getPublicFormQuota(), getPublicFormSettings());
+  new GetPublicFormInteractor(
+    getPublicFormRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
 
 export const getUpsertPublicFormInteractor = () =>
   new UpsertPublicFormInteractor(
@@ -3209,7 +3219,12 @@ export const getUpsertPublicFormInteractor = () =>
   );
 
 export const getDisablePublicFormInteractor = () =>
-  new DisablePublicFormInteractor(getPublicFormRepo(), getPublicFormQuota(), getPublicFormSettings());
+  new DisablePublicFormInteractor(
+    getPublicFormRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
 
 export const getGetPublicFormEditorInteractor = () =>
   new GetPublicFormEditorInteractor(

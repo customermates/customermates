@@ -1,4 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
+import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { PublicFormSettings } from "./public-form-dto";
 import type { PublicFormQuota } from "./public-form-quota";
 import type { PublicFormRepo } from "./public-form.repo";
@@ -17,6 +18,7 @@ import { ListPublicFormsSchema, PublicFormListResultSchema } from "./public-form
 export class ListPublicFormsInteractor extends AuthenticatedInteractor<ListPublicFormsData, PublicFormListResult> {
   constructor(
     private repo: PublicFormRepo,
+    private policy: RecordAccessPolicy,
     private quota: PublicFormQuota,
     private settings: PublicFormSettings,
   ) {
@@ -26,11 +28,14 @@ export class ListPublicFormsInteractor extends AuthenticatedInteractor<ListPubli
   @Validate(ListPublicFormsSchema)
   @ValidateOutput(PublicFormListResultSchema)
   async invoke(data: ListPublicFormsData): Validated<PublicFormListResult> {
-    const [forms, usage] = await Promise.all([
+    const [forms, usage, policy] = await Promise.all([
       this.repo.listForms(data.typeId),
       readPublicFormUsage(this.repo, this.quota, this.settings.now?.() ?? new Date()),
+      this.policy.load(),
     ]);
-    const items = forms.flatMap((form) => toPublicFormDto(form, usage, this.settings) ?? []);
+    const items = forms
+      .filter((form) => policy.actor && policy.allowed(form.typeId, "create"))
+      .flatMap((form) => toPublicFormDto(form, usage, this.settings) ?? []);
     return { ok: true as const, data: { items } };
   }
 }

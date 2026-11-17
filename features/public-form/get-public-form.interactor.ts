@@ -1,4 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
+import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { PublicFormSettings } from "./public-form-dto";
 import type { PublicFormQuota } from "./public-form-quota";
 import type { PublicFormRepo } from "./public-form.repo";
@@ -8,7 +9,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Resource } from "@/generated/prisma";
 
@@ -19,6 +20,7 @@ import { GetPublicFormSchema, PublicFormDtoSchema } from "./public-form.schema";
 export class GetPublicFormInteractor extends AuthenticatedInteractor<GetPublicFormData, PublicFormDto> {
   constructor(
     private repo: PublicFormRepo,
+    private policy: RecordAccessPolicy,
     private quota: PublicFormQuota,
     private settings: PublicFormSettings,
   ) {
@@ -28,8 +30,10 @@ export class GetPublicFormInteractor extends AuthenticatedInteractor<GetPublicFo
   @Validate(GetPublicFormSchema)
   @ValidateOutput(PublicFormDtoSchema)
   async invoke(data: GetPublicFormData): Validated<PublicFormDto> {
-    const form = await this.repo.findForm(data.id);
+    const [form, policy] = await Promise.all([this.repo.findForm(data.id), this.policy.load()]);
     if (!form) return failNotFound(CustomErrorCode.publicFormNotFound, ["id"]);
+    if (!policy.actor || !policy.allowed(form.typeId, "create"))
+      return failAuthorization(CustomErrorCode.permissionDenied, ["id"]);
     const usage = await readPublicFormUsage(this.repo, this.quota, this.settings.now?.() ?? new Date());
     const dto = toPublicFormDto(form, usage, this.settings);
     if (!dto) return failNotFound(CustomErrorCode.publicFormNotFound, ["id"]);

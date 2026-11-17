@@ -287,6 +287,39 @@ describe("UpsertPublicFormInteractor", () => {
     expect(failureCodeOf(result)).toBe(CustomErrorCode.publicFormConfigurationInvalid);
   });
 
+  it("saves a form that is switched off without the required field check, and keeps the other checks", async () => {
+    const blocking = withField(SIZE_FIELD, { required: true, multiple: true });
+    const formRepo = repo(stored());
+
+    const off = await interactor(formRepo, { model: blocking }).invoke({
+      id: FORM_ID,
+      enabled: false,
+      config: withoutName,
+    });
+    const on = await interactor(repo(stored()), { model: blocking }).invoke({
+      id: FORM_ID,
+      enabled: true,
+      config: withoutName,
+    });
+    const unknownField = await interactor(repo(stored())).invoke({
+      id: FORM_ID,
+      enabled: false,
+      config: createConfig({
+        fields: [
+          { fieldId: "00000000-0000-4000-8000-0000000000aa", label: "Gone", helpText: null, required: false },
+        ],
+      }),
+    });
+
+    expect(off.ok).toBe(true);
+    expect(formRepo.updateForm).toHaveBeenCalledWith(
+      FORM_ID,
+      expect.objectContaining({ enabled: false, config: withoutName }),
+    );
+    expect(failureCodeOf(on)).toBe(CustomErrorCode.publicFormConfigurationInvalid);
+    expect(failureCodeOf(unknownField)).toBe(CustomErrorCode.publicFormConfigurationInvalid);
+  });
+
   it("still switches off a saved form whose definition no longer fits the list", async () => {
     const stale = stored({
       config: createConfig({
@@ -312,8 +345,17 @@ describe("UpsertPublicFormInteractor", () => {
 });
 
 describe("DisablePublicFormInteractor", () => {
-  const build = (formRepo = repo(stored())) =>
-    new DisablePublicFormInteractor(formRepo as never, UNLIMITED_PUBLIC_FORM_QUOTA, settings);
+  const build = (formRepo = repo(stored()), allowed = true) =>
+    new DisablePublicFormInteractor(formRepo as never, policy(allowed) as never, UNLIMITED_PUBLIC_FORM_QUOTA, settings);
+
+  it("refuses a member who may not create records in the form's list, like saving does", async () => {
+    const formRepo = repo(stored());
+
+    const result = await build(formRepo, false).invoke({ id: FORM_ID });
+
+    expect(failureCodeOf(result)).toBe(CustomErrorCode.permissionDenied);
+    expect(formRepo.updateForm).not.toHaveBeenCalled();
+  });
 
   it("turns the form off", async () => {
     const formRepo = repo(stored());
@@ -348,16 +390,52 @@ describe("ListPublicFormsInteractor and GetPublicFormInteractor", () => {
       stored({ id: "00000000-0000-4000-8000-0000000000f9", config: {} }),
     ]);
 
-    const result = await new ListPublicFormsInteractor(formRepo as never, UNLIMITED_PUBLIC_FORM_QUOTA, settings).invoke(
-      {},
-    );
+    const result = await new ListPublicFormsInteractor(
+      formRepo as never,
+      policy() as never,
+      UNLIMITED_PUBLIC_FORM_QUOTA,
+      settings,
+    ).invoke({});
 
     expect(result.ok && result.data.items.map((item) => item.id)).toEqual([FORM_ID]);
+  });
+
+  it("lists only the forms of lists the member may create records in", async () => {
+    const otherType = "00000000-0000-4000-8000-0000000000e1";
+    const formRepo = repo(stored());
+    formRepo.listForms.mockResolvedValue([
+      stored(),
+      stored({ id: "00000000-0000-4000-8000-0000000000e2", typeId: otherType }),
+    ]);
+    const onlyOwnList = {
+      load: () => Promise.resolve({ actor: { id: USER_ID }, allowed: (typeId: string) => typeId === TYPE_ID }),
+    };
+
+    const result = await new ListPublicFormsInteractor(
+      formRepo as never,
+      onlyOwnList as never,
+      UNLIMITED_PUBLIC_FORM_QUOTA,
+      settings,
+    ).invoke({});
+
+    expect(result.ok && result.data.items.map((item) => item.id)).toEqual([FORM_ID]);
+  });
+
+  it("refuses to read the form of a list the member may not create records in", async () => {
+    const result = await new GetPublicFormInteractor(
+      repo(stored()) as never,
+      policy(false) as never,
+      UNLIMITED_PUBLIC_FORM_QUOTA,
+      settings,
+    ).invoke({ id: FORM_ID });
+
+    expect(failureCodeOf(result)).toBe(CustomErrorCode.permissionDenied);
   });
 
   it("reads one form with its link and counters", async () => {
     const result = await new GetPublicFormInteractor(
       repo(stored()) as never,
+      policy() as never,
       UNLIMITED_PUBLIC_FORM_QUOTA,
       settings,
     ).invoke({
