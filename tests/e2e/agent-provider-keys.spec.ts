@@ -35,7 +35,8 @@ test("an administrator adds, tests and removes a provider key and the key is nev
     const ownKey = page.locator('#agent-runtimes [data-agent-runtime="ownKey"]');
     await expect(ownKey).toHaveAttribute("data-available", "false");
     await expect(ownKey).toContainText(runtime.reasons.noKey);
-    await expect(page.locator("#agent-runners")).toContainText(runtime.runnersEmpty);
+    await expect(page.locator("[data-agent-runners-card]")).toContainText(englishMessages.Runners.title);
+    await expect(page.locator("[data-agent-runner]")).toHaveCount(0);
     await expect(page.locator("#agent-runs")).toContainText(englishMessages.AgentJobs.empty);
   });
 
