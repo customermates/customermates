@@ -6,6 +6,8 @@ import { randomUUID } from "node:crypto";
 import { appPath, pagePath } from "./app-paths";
 import { mintApiKey } from "./api-key";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { openItemMenu } from "./item-actions";
+import { openSidebar } from "./sidebar";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import { e2eAppMode, setActiveWorkspace, signInLogin } from "./workspace-switching";
 
@@ -55,6 +57,7 @@ test("a workspace whose trial ended continues on Free with usage, upgrade prompt
 
   await page.goto(pagePath(page, "/dashboard"));
   await expect(page).toHaveURL(/\/dashboard$/);
+  await openSidebar(page);
   const card = page.locator("[data-free-plan-card]");
   await expect(card).toContainText("This workspace is on Free");
   await expect(card.getByRole("link", { name: "Upgrade to Starter" })).toBeVisible();
@@ -172,7 +175,7 @@ test("a three-person trial workspace drops to Free: two are paused, one can be s
       await paused.close();
     }
 
-    await page.getByRole("button", { name: "More actions for Morgan Lee" }).click();
+    await openItemMenu(page, page.getByRole("button", { name: "More actions for Morgan Lee" }));
     await page.getByRole("menuitem", { name: "Hand over the active seat" }).click();
     const dialog = page.locator("[data-slot='confirm-dialog']");
     await expect(dialog).toContainText("Give Morgan Lee the active seat?");
