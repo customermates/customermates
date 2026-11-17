@@ -1,4 +1,6 @@
 import type { AutomationRunStatus, AutomationTriggerKind, Prisma, Status } from "@/generated/prisma";
+import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordAccessMap, RecordQuery } from "@/features/records/record-query.schema";
 import type { RuleRecordTrigger } from "./automation-record-trigger";
 import type { AutomationRunCursor } from "./automation-run-cursor";
 
@@ -78,6 +80,14 @@ export type StaleAutomationRuleRun = { id: string; companyId: string; createdAt:
 
 export type AutomationDateCandidate = { recordId: string; kind: "date" | "dateTime"; fieldValue: string };
 
+export type AutomationReadableRecords = {
+  companyId: string;
+  query: RecordQuery;
+  model: RecordModel;
+  access: RecordAccessMap;
+  recordIds: string[];
+};
+
 export type AutomationOutboundWebhook = { id: string; enabled: boolean; events: string[] };
 
 export abstract class AutomationRuleRepo {
@@ -131,6 +141,7 @@ export abstract class AutomationRuleRepo {
     afterRecordId?: string;
     limit: number;
   }): Promise<AutomationDateCandidate[]>;
+  abstract findReadableRecordIdsUnscoped(args: AutomationReadableRecords): Promise<Set<string>>;
   abstract findOccurrencesCompanyWide(companyId: string, ruleId: string, keys: string[]): Promise<Set<string>>;
   abstract deleteRunsBeforeUnscoped(before: Date, limit: number): Promise<number>;
   abstract disableRuleUnscoped(companyId: string, ruleId: string, reason: string): Promise<void>;

@@ -40,7 +40,7 @@ import { DiscardAutomationRuleRunInteractor } from "../discard-automation-rule-r
 import { PruneAutomationRuleRunsInteractor } from "../prune-automation-rule-runs.interactor";
 import { RunAutomationRuleInteractor } from "../run-automation-rule.interactor";
 import { SweepAutomationRulesInteractor } from "../sweep-automation-rules.interactor";
-import { FakeAutomationRuleRepo } from "./fake-automation-rule-repo";
+import { FakeAutomationRuleRepo, FakeDateCandidateReader } from "./fake-automation-rule-repo";
 
 const COMPANY = "00000000-0000-4000-8000-000000000011";
 const OWNER = "00000000-0000-4000-8000-000000000010";
@@ -1067,8 +1067,25 @@ describe("sweeping date-reached rules", () => {
     repo = new FakeAutomationRuleRepo();
     dispatch = vi.fn().mockResolvedValue(undefined);
     const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
-    sweep = new SweepAutomationRulesInteractor(repo, { dispatch } as never, discard);
+    sweep = new SweepAutomationRulesInteractor(repo, new FakeDateCandidateReader(repo), { dispatch } as never, discard);
     seedRule(repo, { triggerKind: "dateReached", trigger });
+  });
+
+  it("admits a run only for records the rule's owner may read", async () => {
+    const hidden = "44444444-4444-4444-8444-444444444445";
+    repo.candidates = [
+      { recordId: RECORD, fieldValue: "2026-11-13" },
+      { recordId: hidden, fieldValue: "2026-11-13" },
+    ];
+    repo.unreadableRecords.add(hidden);
+    const reader = new FakeDateCandidateReader(repo);
+    const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
+    const scoped = new SweepAutomationRulesInteractor(repo, reader, { dispatch } as never, discard);
+    await expect(scoped.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 1,
+    });
+    expect([...repo.runs.values()].map((run) => run.recordId)).toEqual([RECORD]);
+    expect(reader.queries[0]).toMatchObject({ companyId: COMPANY, userId: OWNER, typeId: TYPE, fieldId: NEXT_STEP });
   });
 
   it("pages through every rule and every candidate instead of stopping at the first page", async () => {
@@ -1079,7 +1096,13 @@ describe("sweeping date-reached rules", () => {
       fieldValue: "2026-11-13",
     }));
     const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
-    const paged = new SweepAutomationRulesInteractor(repo, { dispatch } as never, discard, { rules: 2, candidates: 2 });
+    const paged = new SweepAutomationRulesInteractor(
+      repo,
+      new FakeDateCandidateReader(repo),
+      { dispatch } as never,
+      discard,
+      { rules: 2, candidates: 2 },
+    );
     await expect(paged.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toMatchObject({
       automationRulesAdmitted: 4 * 5,
     });
@@ -1182,6 +1205,7 @@ describe("sweeping date-reached rules", () => {
     });
     const discardSweep = new SweepAutomationRulesInteractor(
       orphan,
+      new FakeDateCandidateReader(orphan),
       { dispatch } as never,
       new DiscardAutomationRuleRunInteractor(orphan, () => NOW),
     );
@@ -1287,6 +1311,7 @@ describe("sweeping date-reached rules", () => {
     const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
     const isolated = new SweepAutomationRulesInteractor(
       repo,
+      new FakeDateCandidateReader(repo),
       { dispatch: refusing } as never,
       discard,
       undefined,

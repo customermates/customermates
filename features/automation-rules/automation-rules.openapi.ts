@@ -159,7 +159,7 @@ export const automationRuleApiPaths = {
             triggerKind: "dateReached",
             typeId: DEAL_TYPE_ID,
             recordId: RECORD_ID,
-            occurrenceKey: `date:${RECORD_ID}:${CLOSE_FIELD_ID}:2026-11-14:before2`,
+            occurrenceKey: `date:${RECORD_ID}:${CLOSE_FIELD_ID}:before2`,
             effects: [{ kind: "notify", status: "applied", detail: "1" }],
             reason: null,
             error: null,

@@ -40,7 +40,7 @@ import { GetAutomationRulesInteractor } from "../get-automation-rules.interactor
 import { PreviewAutomationRuleInteractor } from "../preview-automation-rule.interactor";
 import { SetAutomationRuleEnabledInteractor } from "../set-automation-rule-enabled.interactor";
 import { UpsertAutomationRuleInteractor } from "../upsert-automation-rule.interactor";
-import { FakeAutomationRuleRepo } from "./fake-automation-rule-repo";
+import { FakeAutomationRuleRepo, FakeDateCandidateReader } from "./fake-automation-rule-repo";
 
 const COMPANY = "00000000-0000-4000-8000-000000000011";
 const OWNER = "00000000-0000-4000-8000-000000000010";
@@ -532,6 +532,34 @@ describe("reading rules", () => {
     expect((await run("00000000-0000-4000-8000-0000000000ff")).ok).toBe(false);
   });
 
+  it("keeps the date of the record out of the occurrence key a run shows", async () => {
+    for (const fieldValue of ["2026-11-14", "2026-11-14T09:30:00.000Z"]) {
+      await repo.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey: `date:${RECORD}:${CLOSE}:${fieldValue}:before2`,
+        triggerKind: "dateReached",
+        typeId: DEALS,
+        recordId: RECORD,
+        payload: { chain: [], fieldValue },
+        depth: 0,
+        scheduledFor: NOW,
+      });
+    }
+    const runs = new GetAutomationRuleRunsInteractor(repo);
+    const page = await runWithTenant(mockUser, () => runs.invoke({ id: RULE } as never));
+    if (!page.ok) throw new Error("expected the run history");
+    const dated = page.data.runs.filter((item) => item.triggerKind === "dateReached");
+    expect(dated.map((item) => item.occurrenceKey)).toEqual([
+      `date:${RECORD}:${CLOSE}:before2`,
+      `date:${RECORD}:${CLOSE}:before2`,
+    ]);
+    expect(JSON.stringify(dated)).not.toContain("2026-11-14");
+    expect([...repo.runs.values()].map((item) => item.occurrenceKey)).toContain(
+      `date:${RECORD}:${CLOSE}:2026-11-14:before2`,
+    );
+  });
+
   it("pages through the runs newest first with a cursor and refuses a broken cursor", async () => {
     const times = Array.from({ length: 30 }, (_, index) => new Date(NOW.getTime() - index * 60_000));
     for (const [index, createdAt] of times.entries()) {
@@ -575,7 +603,7 @@ describe("previewing a date rule", () => {
   function preview(record: { values: Map<string, CalculatedValue> } | null = null) {
     const records = recordsPort();
     records.read.mockResolvedValue(record);
-    return new PreviewAutomationRuleInteractor(repo, records as never, () => NOW);
+    return new PreviewAutomationRuleInteractor(repo, records as never, new FakeDateCandidateReader(repo), () => NOW);
   }
   const run = (instance: PreviewAutomationRuleInteractor, input: unknown) =>
     runWithTenant(mockUser, () => instance.invoke(input as never));
@@ -588,6 +616,25 @@ describe("previewing a date rule", () => {
     ];
     const result = await run(preview(), { rule: { trigger: reminder.trigger } });
     expect(result).toMatchObject({ ok: true, data: { supported: true, total: 2, alreadyFired: 0 } });
+  });
+
+  it("counts and lists only records the caller may read, with or without conditions", async () => {
+    const hidden = "44444444-4444-4444-8444-444444444445";
+    repo.candidates = [
+      { recordId: RECORD, fieldValue: "2026-11-14" },
+      { recordId: hidden, fieldValue: "2026-11-14" },
+    ];
+    repo.unreadableRecords.add(hidden);
+    const plain = await run(preview(), { rule: { trigger: reminder.trigger } });
+    expect(plain).toMatchObject({ ok: true, data: { total: 1, recordIds: [RECORD], alreadyFired: 0 } });
+    const won = new Map<string, CalculatedValue>([[STAGE, { state: "value", value: { kind: "select", value: "won" } }]]);
+    const filtered = await run(preview({ values: won }), {
+      rule: {
+        trigger: reminder.trigger,
+        conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } }],
+      },
+    });
+    expect(filtered).toMatchObject({ ok: true, data: { total: 1, recordIds: [RECORD] } });
   });
 
   it("leaves out records that already fired and records that miss a condition", async () => {

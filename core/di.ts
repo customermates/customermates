@@ -2878,6 +2878,7 @@ import { upgradeOfferValues } from "@/ee/subscription/plan-upgrade-offer";
 import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
 import { AutomationEffectRunner } from "@/features/automation-rules/automation-effect-runner";
 import { RecordRecipientAccess } from "@/features/automation-rules/automation-recipient-access";
+import { ReadableDateCandidates } from "@/features/automation-rules/automation-date-candidates";
 import { GetAgentRuntimeAvailabilityInteractor } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
 import { PrismaAgentJobRepo } from "@/features/agent-jobs/prisma-agent-job.repository";
 import { EnqueueAgentJobInteractor } from "@/features/agent-jobs/enqueue-agent-job.interactor";
@@ -3031,8 +3032,14 @@ export const getSetAutomationRuleEnabledInteractor = () =>
   new SetAutomationRuleEnabledInteractor(getAutomationRuleRepo(), getAutomationPlanLimits(), getAgentJobRepo());
 export const getDeleteAutomationRuleInteractor = () =>
   new DeleteAutomationRuleInteractor(getAutomationRuleRepo(), getAgentJobRepo());
+const getReadableDateCandidates = () =>
+  new ReadableDateCandidates(
+    (companyId) => createPrismaRecordRepo(companyId),
+    getRecordRecipientRepo(),
+    getAutomationRuleRepo(),
+  );
 export const getPreviewAutomationRuleInteractor = () =>
-  new PreviewAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort());
+  new PreviewAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort(), getReadableDateCandidates());
 export const getRunAutomationRuleInteractor = () =>
   new RunAutomationRuleInteractor(getAutomationRuleRepo(), getAutomationEffectRunner(), getRecordAutomationPort());
 export const getDiscardAutomationRuleRunInteractor = () =>
@@ -3040,6 +3047,7 @@ export const getDiscardAutomationRuleRunInteractor = () =>
 export const getSweepAutomationRulesInteractor = () =>
   new SweepAutomationRulesInteractor(
     getAutomationRuleRepo(),
+    getReadableDateCandidates(),
     getBackgroundTaskService(),
     getDiscardAutomationRuleRunInteractor(),
   );

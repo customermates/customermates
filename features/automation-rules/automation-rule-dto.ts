@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { StoredAutomationRule, StoredAutomationRuleRun } from "./automation-rule.repo";
 import type { AutomationRuleDto, AutomationRuleRunDto } from "./automation-rule.schema";
 
+import { publicOccurrenceKey } from "./automation-occurrence";
 import {
   AutomationConditionSchema,
   AutomationEffectOutcomeSchema,
@@ -42,7 +43,7 @@ export function toAutomationRuleRunDto(run: StoredAutomationRuleRun): Automation
     triggerKind: run.triggerKind,
     typeId: run.typeId,
     recordId: run.recordId,
-    occurrenceKey: run.occurrenceKey,
+    occurrenceKey: publicOccurrenceKey(run.occurrenceKey),
     effects: outcome.success ? outcome.data.effects : [],
     reason: outcome.success ? (outcome.data.reason ?? null) : null,
     error: run.error,

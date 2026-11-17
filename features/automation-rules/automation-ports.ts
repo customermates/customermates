@@ -1,6 +1,7 @@
 import type { CalculatedValue, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordMutation } from "@/features/records/record-query.schema";
 import type { NotifyMembersInput } from "@/features/notifications/notification.schema";
+import type { AutomationDateCandidate } from "./automation-rule.repo";
 import type { AgentRuntimeKind } from "./automation-rule.schema";
 
 export type AutomationRecordView = {
@@ -19,6 +20,21 @@ export type AutomationRecordPort = {
   model(): Promise<RecordModelView>;
   read(ref: RecordRef): Promise<AutomationRecordView | null>;
   mutate(input: { idempotencyKey: string; mutation: RecordMutation }): Promise<AutomationMutationResult>;
+};
+
+export type AutomationDateCandidateQuery = {
+  companyId: string;
+  userId: string;
+  typeId: string;
+  fieldId: string;
+  from: Date;
+  to: Date;
+  afterRecordId?: string;
+  limit: number;
+};
+
+export type AutomationDateCandidateReader = {
+  readable(query: AutomationDateCandidateQuery): Promise<AutomationDateCandidate[]>;
 };
 
 export type AutomationRecipientAccess = "name" | "record" | "none";

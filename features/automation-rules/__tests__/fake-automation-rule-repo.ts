@@ -9,16 +9,36 @@ import type {
   StoredAutomationRule,
   StoredAutomationRuleRun,
 } from "../automation-rule.repo";
+import type { AutomationDateCandidateQuery, AutomationDateCandidateReader } from "../automation-ports";
 import type { RuleRecordTrigger } from "../automation-record-trigger";
 import type { AutomationRunCursor } from "../automation-run-cursor";
 
 import { AutomationRuleRepo } from "../automation-rule.repo";
+
+export class FakeDateCandidateReader implements AutomationDateCandidateReader {
+  readonly queries: AutomationDateCandidateQuery[] = [];
+
+  constructor(private readonly repo: FakeAutomationRuleRepo) {}
+
+  async readable(query: AutomationDateCandidateQuery): Promise<AutomationDateCandidate[]> {
+    this.queries.push(query);
+    const candidates = await this.repo.findDateCandidatesCompanyWide({
+      afterRecordId: query.afterRecordId,
+      limit: Number.MAX_SAFE_INTEGER,
+    });
+    const permitted = await this.repo.findReadableRecordIdsUnscoped({
+      recordIds: candidates.map((candidate) => candidate.recordId),
+    });
+    return candidates.filter((candidate) => permitted.has(candidate.recordId)).slice(0, query.limit);
+  }
+}
 
 export class FakeAutomationRuleRepo extends AutomationRuleRepo {
   rules = new Map<string, StoredAutomationRule>();
   recordTriggers = new Map<string, RuleRecordTrigger>();
   runs = new Map<string, StoredAutomationRuleRun>();
   candidates: Array<Omit<AutomationDateCandidate, "kind"> & { kind?: AutomationDateCandidate["kind"] }> = [];
+  unreadableRecords = new Set<string>();
   webhooks = new Map<string, AutomationOutboundWebhook>();
   accessibleAccounts = new Set<string>();
   companyId = "00000000-0000-4000-8000-000000000011";
@@ -237,6 +257,10 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
         .slice(0, args.limit)
         .map((candidate): AutomationDateCandidate => ({ ...candidate, kind: candidate.kind ?? "date" })),
     );
+  }
+
+  findReadableRecordIdsUnscoped(args: { recordIds: string[] }) {
+    return Promise.resolve(new Set(args.recordIds.filter((recordId) => !this.unreadableRecords.has(recordId))));
   }
 
   findOccurrencesCompanyWide(_companyId: string, ruleId: string, keys: string[]) {

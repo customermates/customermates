@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import type { Validated } from "@/core/validation/validation.utils";
-import type { AutomationRecordPort } from "./automation-ports";
+import type { AutomationDateCandidateReader, AutomationRecordPort } from "./automation-ports";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationRulePreview, PreviewAutomationRuleData } from "./automation-rule.schema";
 
@@ -39,6 +39,7 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
   constructor(
     private readonly repo: AutomationRuleRepo,
     private readonly records: AutomationRecordPort,
+    private readonly candidates: AutomationDateCandidateReader,
     private readonly clock: () => Date = () => new Date(),
   ) {
     super();
@@ -69,8 +70,9 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
     const dateTrigger = trigger.data;
     const now = this.clock();
     const window = dateReachedCandidateWindow(dateTrigger, now, AUTOMATION_DATE_LOOKBACK_DAYS);
-    const candidates = await this.repo.findDateCandidatesCompanyWide({
+    const candidates = await this.candidates.readable({
       companyId: this.user.companyId,
+      userId: this.user.id,
       typeId: dateTrigger.typeId,
       fieldId: dateTrigger.fieldId,
       from: window.from,

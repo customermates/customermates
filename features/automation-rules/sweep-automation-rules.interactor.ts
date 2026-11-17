@@ -1,4 +1,5 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { AutomationDateCandidateReader } from "./automation-ports";
 import type { AutomationRuleRepo, StaleAutomationRuleRun, StoredAutomationRule } from "./automation-rule.repo";
 import type { DiscardAutomationRuleRunInteractor } from "./discard-automation-rule-run.interactor";
 
@@ -31,6 +32,7 @@ type SweepResult = {
 export class SweepAutomationRulesInteractor {
   constructor(
     private readonly repo: AutomationRuleRepo,
+    private readonly candidates: AutomationDateCandidateReader,
     private readonly background: Pick<BackgroundTaskService, "dispatch">,
     private readonly discard: Pick<DiscardAutomationRuleRunInteractor, "invoke">,
     private readonly pages = { rules: RULE_PAGE, candidates: CANDIDATE_PAGE },
@@ -73,8 +75,9 @@ export class SweepAutomationRulesInteractor {
     let admitted = 0;
     let afterRecordId: string | undefined;
     for (;;) {
-      const candidates = await this.repo.findDateCandidatesCompanyWide({
+      const candidates = await this.candidates.readable({
         companyId: rule.companyId,
+        userId: rule.ownerUserId,
         typeId: dateTrigger.typeId,
         fieldId: dateTrigger.fieldId,
         from: window.from,

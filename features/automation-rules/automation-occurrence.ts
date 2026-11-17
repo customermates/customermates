@@ -22,6 +22,13 @@ export function dateOccurrenceKey(
   return `date:${recordId}:${trigger.fieldId}:${fieldValue}:${trigger.direction}${trigger.days}`;
 }
 
+export function publicOccurrenceKey(key: string): string {
+  if (!key.startsWith("date:")) return key;
+  const parts = key.split(":");
+  if (parts.length < 5) return "date";
+  return ["date", parts[1], parts[2], parts.at(-1)].join(":");
+}
+
 export function normalisedDateValue(candidate: Pick<AutomationDateCandidate, "kind" | "fieldValue">): string | null {
   if (candidate.kind === "date") {
     const day = candidate.fieldValue.slice(0, 10);

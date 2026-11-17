@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 
-import type { Prisma } from "@/generated/prisma";
 import type { PlanRulePauseRepo } from "@/ee/subscription/plan-rule-pause.repo";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
 import type { RuleRecordTrigger } from "./automation-record-trigger";
@@ -8,6 +7,7 @@ import type { AutomationRunCursor } from "./automation-run-cursor";
 import type {
   AutomationDateCandidate,
   AutomationOutboundWebhook,
+  AutomationReadableRecords,
   AutomationRuleWrite,
   AutomationRunAdmission,
   AutomationRunSettlement,
@@ -18,10 +18,11 @@ import type {
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationRuleLabelRepo } from "./automation-rule-label.repo";
 
-import { AutomationRunStatus, Status } from "@/generated/prisma";
+import { AutomationRunStatus, Prisma, Status } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere } from "@/ee/messaging/messaging-access";
+import { compileRecordQuery } from "@/features/records/record-query";
 import {
   AUTOMATION_DISABLED_REASON_OWNER_INACTIVE,
   AUTOMATION_DISABLED_REASON_PLAN_PAUSED,
@@ -359,6 +360,16 @@ export class PrismaAutomationRuleRepo
       take: args.limit,
     });
     return rows.map(candidateOf);
+  }
+
+  @BypassTenantGuard
+  async findReadableRecordIdsUnscoped(args: AutomationReadableRecords): Promise<Set<string>> {
+    if (args.recordIds.length === 0) return new Set();
+    const readable = compileRecordQuery(args.companyId, args.query, args.model, args.access).matching;
+    const rows = await this.prisma.$queryRaw<Array<{ id: string }>>(
+      Prisma.sql`SELECT matching.id FROM (${readable}) matching WHERE matching.id = ANY(${args.recordIds}::text[])`,
+    );
+    return new Set(rows.map((row) => row.id));
   }
 
   @BypassTenantGuard
