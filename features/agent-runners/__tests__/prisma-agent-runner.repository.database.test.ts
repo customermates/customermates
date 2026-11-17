@@ -122,7 +122,7 @@ describeDatabase("PrismaAgentRunnerRepo", { timeout: 60_000 }, () => {
     const runner = await addRunner(mine, null);
 
     expect(await asAdmin(other, () => new PrismaAgentRunnerRepo().findRunner(runner.id))).toBeNull();
-    expect(await asAdmin(mine, () => new PrismaAgentRunnerRepo().findRunner(runner.id))).toEqual({
+    expect(await asAdmin(mine, () => new PrismaAgentRunnerRepo().findRunner(runner.id))).toMatchObject({
       id: runner.id,
       revokedAt: null,
     });

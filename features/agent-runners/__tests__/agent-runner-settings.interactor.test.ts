@@ -2,7 +2,8 @@ import type { WorkspacePlanService } from "@/ee/subscription/workspace-plan.serv
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { Action, Resource } from "@/generated/prisma";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
@@ -180,6 +181,28 @@ describe("RevokeAgentRunnerInteractor", () => {
     expect(second).toEqual({ ok: true, data: { id: RUNNER_ID, revokedAt: NOW.toISOString() } });
     expect(repo.runners.get(RUNNER_ID)?.revokedAt).toEqual(NOW);
     expect(cancelled).toHaveLength(1);
+  });
+
+  it("lets a member revoke only their own runner, and an admin any runner of the workspace", async () => {
+    const repo = new FakeAgentRunnerRepo();
+    repo.addRunner({ createdById: "99999999-9999-4999-8999-999999999999" });
+    const { revocation, cancelled } = revocationFor(repo);
+    const admin = mockUser.role;
+    const member = createMockUserWithPermissions([{ resource: Resource.api, action: Action.delete }]).role;
+
+    mockUser.role = member;
+    const refused = await new RevokeAgentRunnerInteractor(repo, revocation, () => NOW)
+      .invoke({ id: RUNNER_ID })
+      .finally(() => {
+        mockUser.role = admin;
+      });
+
+    expect(refused.ok).toBe(false);
+    expect(repo.runners.get(RUNNER_ID)?.revokedAt).toBeNull();
+    expect(cancelled).toHaveLength(0);
+
+    const allowed = await new RevokeAgentRunnerInteractor(repo, revocation, () => NOW).invoke({ id: RUNNER_ID });
+    expect(allowed).toEqual({ ok: true, data: { id: RUNNER_ID, revokedAt: NOW.toISOString() } });
   });
 
   it("cancels the runner's jobs and revokes the keys of the ones that were live", async () => {

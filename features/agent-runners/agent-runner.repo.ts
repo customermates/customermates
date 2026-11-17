@@ -32,7 +32,7 @@ export type AgentRunnerLiveJob = { id: string; attempts: number };
 export abstract class AgentRunnerRepo {
   abstract listRunners(): Promise<StoredAgentRunner[]>;
   abstract createRunner(data: { name: string; tokenHash: string }): Promise<StoredAgentRunner>;
-  abstract findRunner(id: string): Promise<Pick<StoredAgentRunner, "id" | "revokedAt"> | null>;
+  abstract findRunner(id: string): Promise<Pick<StoredAgentRunner, "id" | "revokedAt" | "createdById"> | null>;
   abstract revokeRunnerUnscoped(args: { companyId: string; id: string; at: Date }): Promise<boolean>;
   abstract findUnrevokedRunnerIdsOfUnscoped(args: { companyId: string; createdById: string }): Promise<string[]>;
   abstract findRunnerByTokenHashUnscoped(tokenHash: string): Promise<AgentRunnerLookup | null>;

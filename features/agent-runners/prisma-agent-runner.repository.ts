@@ -44,10 +44,10 @@ export class PrismaAgentRunnerRepo extends TenantRepository implements AgentRunn
     });
   }
 
-  findRunner(id: string): Promise<Pick<StoredAgentRunner, "id" | "revokedAt"> | null> {
+  findRunner(id: string): Promise<Pick<StoredAgentRunner, "id" | "revokedAt" | "createdById"> | null> {
     return this.prisma.agentRunner.findFirst({
       where: { id, companyId: this.companyId },
-      select: { id: true, revokedAt: true },
+      select: { id: true, revokedAt: true, createdById: true },
     });
   }
 

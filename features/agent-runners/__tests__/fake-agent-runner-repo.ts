@@ -74,10 +74,10 @@ export class FakeAgentRunnerRepo extends AgentRunnerRepo {
     return Promise.resolve(runner);
   }
 
-  findRunner(id: string): Promise<Pick<StoredAgentRunner, "id" | "revokedAt"> | null> {
+  findRunner(id: string): Promise<Pick<StoredAgentRunner, "id" | "revokedAt" | "createdById"> | null> {
     const runner = this.runners.get(id);
     if (!runner || runner.companyId !== COMPANY_ID) return Promise.resolve(null);
-    return Promise.resolve({ id: runner.id, revokedAt: runner.revokedAt });
+    return Promise.resolve({ id: runner.id, revokedAt: runner.revokedAt, createdById: runner.createdById });
   }
 
   revokeRunnerUnscoped(args: { companyId: string; id: string; at: Date }): Promise<boolean> {

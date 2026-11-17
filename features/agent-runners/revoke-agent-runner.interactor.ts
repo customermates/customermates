@@ -30,6 +30,8 @@ export class RevokeAgentRunnerInteractor extends AuthenticatedInteractor<
   async invoke(data: RevokeAgentRunnerData): Validated<RevokeAgentRunnerResult> {
     const runner = await this.repo.findRunner(data.id);
     if (!runner) return failNotFound(CustomErrorCode.agentRunnerNotFound, ["id"]);
+    if (runner.createdById !== this.user.id && !this.user.role?.isSystemRole)
+      return failNotFound(CustomErrorCode.agentRunnerNotFound, ["id"]);
     if (runner.revokedAt) return { ok: true, data: { id: data.id, revokedAt: runner.revokedAt.toISOString() } };
 
     const at = this.clock();
