@@ -30,6 +30,8 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Action, Resource } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -92,10 +94,11 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     [cloud, composer, model, runtimes, webhooks],
   );
   const refresh = useCallback(() => automationsStore.refresh(), [automationsStore]);
+  const refreshAfterSave = useCallback(() => runUserAction(refresh), [refresh]);
 
   const openNew = useCallback(
-    (typeId?: string) => automationBuilderStore.openForCreate(context(), () => void refresh(), { typeId }),
-    [automationBuilderStore, context, refresh],
+    (typeId?: string) => automationBuilderStore.openForCreate(context(), refreshAfterSave, { typeId }),
+    [automationBuilderStore, context, refreshAfterSave],
   );
 
   useEffect(() => {
@@ -104,24 +107,26 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     const ctx = context();
     if (!ctx.model.lists.some((list) => list.id === prefill.typeId)) return;
     if (prefill.kind === "remind") {
-      automationBuilderStore.openForCreate(ctx, () => void refresh(), {
+      automationBuilderStore.openForCreate(ctx, refreshAfterSave, {
         draft: reminderDraft(ctx.model, { typeId: prefill.typeId, fieldId: prefill.fieldId, timezone: ctx.timezone }),
       });
     } else openNew(prefill.typeId);
-  }, [automationBuilderStore, context, openNew, prefill, refresh]);
+  }, [automationBuilderStore, context, openNew, prefill, refreshAfterSave]);
 
   const openItem = useCallback(
     (item: AutomationListItemDto, pane: "preview" | "runs" = "preview") => {
       if (item.rule) {
-        automationBuilderStore.openForRule(context(), item.rule, () => void refresh(), { pane });
+        automationBuilderStore.openForRule(context(), item.rule, refreshAfterSave, { pane });
         return;
       }
-      if (!item.routine) return;
-      void routineModalStore.openForEdit(item.routine).then(() => {
+      const { routine } = item;
+      if (!routine) return;
+      runUserAction(async () => {
+        await routineModalStore.openForEdit(routine);
         if (pane === "runs") routineModalStore.setActiveTab("runs");
       });
     },
-    [automationBuilderStore, context, refresh, routineModalStore],
+    [automationBuilderStore, context, refreshAfterSave, routineModalStore],
   );
 
   const userId = userStore.user?.id;
@@ -184,7 +189,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     model,
     pendingId,
     canToggle,
-    onToggle: (item, enabled) => void toggle(item, enabled),
+    onToggle: (item, enabled) => runUserAction(() => toggle(item, enabled)),
   });
 
   const rowActions = useCallback(
@@ -197,7 +202,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
                   key: "toggle",
                   label: item.enabled ? t("Automations.rowActions.pause") : t("Automations.rowActions.resume"),
                   icon: item.enabled ? Pause : Play,
-                  onSelect: () => void toggle(item, !item.enabled),
+                  onSelect: () => runUserAction(() => toggle(item, !item.enabled)),
                 },
               ]
             : []),
@@ -225,16 +230,27 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     request: automationsStore.dataRequest,
     total: automationsStore.pagination?.total,
   });
-  const descriptor = { title: t("AutomationRules.emptyTitle"), body: t("AutomationRules.emptyBody") };
+  const routinesOnly = (automationsStore.filters ?? []).some(
+    (filter) =>
+      filter.field === FilterFieldKey.automationKind.toString() &&
+      filter.operator === FilterOperatorKey.in &&
+      filter.value.length === 1 &&
+      filter.value[0] === "routine",
+  );
+  const descriptor = routinesOnly
+    ? { title: t("RoutinesCard.emptyTitle"), body: t("RoutinesCard.emptyBody") }
+    : { title: t("AutomationRules.emptyTitle"), body: t("AutomationRules.emptyBody") };
 
   const onRoutineRecipe = useCallback(
     (recipe: AutomationRecipe, text: { title: string; prompt: string }) => {
       automationBuilderStore.close();
-      void routineModalStore.openForCreate({
-        name: text.title,
-        prompt: text.prompt,
-        cron: recipe.trigger.kind === "schedule" ? recipe.trigger.cron : undefined,
-      });
+      runUserAction(() =>
+        routineModalStore.openForCreate({
+          name: text.title,
+          prompt: text.prompt,
+          cron: recipe.trigger.kind === "schedule" ? recipe.trigger.cron : undefined,
+        }),
+      );
     },
     [automationBuilderStore, routineModalStore],
   );
@@ -264,7 +280,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
       <DataViewToolbar
         addLabel={t("AutomationRules.new")}
         addMenu={addMenu}
-        anchorScope="automations"
+        anchorScope="routines"
         searchLabel={t("Common.filters.searchFields.routines")}
         store={automationsStore}
         onAdd={() => openNew()}
@@ -357,6 +373,8 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
 
   return (
     <>
+      <h1 className="sr-only">{t("AutomationRules.title")}</h1>
+
       <DataViewLayout
         showPagination={pageState === "content" && view !== "board" && !automationsStore.isGrouped}
         store={automationsStore}

@@ -1,21 +1,29 @@
 ---
 title: "Automations: Rules Without AI, Reminders and Notifications"
-description: "Automations run when something happens and it matches, without AI: build one with When, If and Then, get reminders, the Notifications page and emails."
+description: "Automations run on their own: build a chain of When, If and Then cards, start from a recipe or a sentence, and add an agent step where judgement is needed."
 ---
 
-An automation is a rule that runs without AI: when something happens and it matches, Customermates does what you set up. It can create a follow-up task, set a field, tell you or your team on the Notifications page and by email, or call a webhook. Automations work on every plan and on self-hosted instances. On a self-hosted instance, date rules and digest emails run only after you set up the two scheduled calls described in [Self-hosting](/docs/self-hosting#scheduled-jobs). They are not [Routines](app:routines): a routine lets Mate work on its own, an automation does exactly what its three cards say and nothing else.
+An automation is a chain of steps that runs on its own: when something happens and it matches, Customermates does what you set up. Most steps are exact: create a follow-up task, set a field, tell you or your team on the Notifications page and by email, or call a webhook. One step, **Ask an agent**, lets an AI agent do the part that needs judgement, such as drafting a reply. Automations without an agent step are free, work on every plan and run on self-hosted instances. On a self-hosted instance, date rules and digest emails run only after you set up the two scheduled calls described in [Self-hosting](/docs/self-hosting#scheduled-jobs).
 
-The **Automations** page sits next to **Routines** in the sidebar. Who sees it follows the **Routines and automations** row of their role in [Roles](app:settings/roles) (on a self-hosted instance the row is called **Automations**): **Read access** **All** shows every automation in the workspace, **Assigned** only your own, and **None** hides the page. Creating needs **Create**.
+The **Automations** page is one list for everything that runs on its own: automations and [Routines](/docs/app-routines), which let Mate work on a schedule or when a record changes (Customermates Cloud only). Each row shows what it does as a sentence, what it **Runs on** (**Free** for exact steps, **Mate**, **Own key** or **Own runner** when an agent is involved), its last run, its runs in the last 30 days and a switch to pause or resume it. Search, filter by type, status or what it runs on, and save views like in any other list. The old Routines page redirects here. Who sees the page follows the **Routines and automations** row of their role in [Roles](app:settings/roles) (on a self-hosted instance the row is called **Automations**): **Read access** **All** shows every automation in the workspace, **Assigned** only your own, and **None** hides the page. Creating needs **Create**.
 
 ## How do I create an automation? [#how-do-i-create-an-automation]
 
-Open **Automations** and click **New automation**, or click **Automate this list** in the toolbar of any list to start with that list already chosen. Give it a **Name** and fill the three cards, then save. A saved automation is switched on.
+Open **Automations** and click **New automation**, or click **Automate this list** in the toolbar of any list to start with that list already chosen. On Customermates Cloud with Mate, **New automation** opens a menu with **Automation** and **Routine (Mate on a schedule)**.
 
-- **When** chooses the list and what starts the rule: **A record is created**, **A record is updated**, **A field changes** (optionally **To value**, so it only fires when the field changes to that value) or **A date is reached**.
-- **If (optional)** adds conditions on the record that started the rule: **is**, **is not**, **is empty**, **is not empty**, **is before today plus** or **is after today plus** a number of days. All conditions must match.
-- **Then** lists what happens, in order: **Set a field**, **Create a record**, **Notify** or **Call a webhook**. **Create a record** is how an automation makes a follow-up: choose the list the new record goes into, the **Title field** and **Title**, the **Due date field** and **Due in days**, whether to **Assign to me**, and how to **Link to the triggering record as**. In titles and details, `{{record.name}}` is replaced by the name of the record and `{{rule.name}}` by the name of the automation.
+The builder opens on a start screen. With Mate you can write a sentence under **Tell Mate what should happen when …** and click **Draft it**: Mate returns a draft for you to check, and nothing is saved until you click **Switch on**. Under it, or as a grid when you do not use Mate, are the recipes: **Answer new enquiries**, **Follow up after an offer**, **Remind before a renewal**, **Welcome a form submission**, **Chase missing documents**, **Weekly review** (a routine, Cloud only) and **Won or lost reason**. A recipe is a complete chain; where it needs a list or a field it cannot know, its card asks you to choose. **Start from scratch** opens an empty chain.
 
-Rules for form submissions, incoming webhooks and arriving messages exist too. You create them with `manage_rules` over MCP or REST, and the page lists them; a trigger or action the builder cannot edit shows a note and stays as it is.
+The chain is one column of cards that reads top to bottom like a sentence. Click a card to open its fields in place, and click the **+** between cards to add a step from the palette, which you can search. Give it a **Name**, choose **Active** or **Paused** at the top and click **Switch on** (**Save** for an automation that already exists). On the right, **Preview** shows what a date reminder would do on your current records, and **Runs** lists the history.
+
+- **When** chooses what starts the chain: **A record is created**, **A record is updated**, **A field changes** (optionally **To value**, so it only fires when the field changes to that value), **A date is reached**, **A message is received**, **A form is submitted** or **A webhook is received**.
+- **If** adds conditions on the record that started the chain: **is**, **is not**, **is empty**, **is not empty**, **is before today plus** or **is after today plus** a number of days. All conditions must match.
+- **Then** lists what happens, in order: **Set a field**, **Create a record**, **Notify**, **Call a webhook** or **Ask an agent**. **Create a record** is how an automation makes a follow-up: choose the list the new record goes into, the **Title field** and **Title**, the **Due date field** and **Due in days**, whether to **Assign to me**, and how to **Link to the triggering record as**. In titles and details, `{{record.name}}` is replaced by the name of the record and `{{rule.name}}` by the name of the automation.
+
+A rule that is limited to one form or one incoming webhook is set with `manage_rules` over MCP or REST; opening it here shows a note and keeps that part as it is.
+
+### How does the Ask an agent step work? [#ask-an-agent]
+
+An **Ask an agent** card holds what the agent should do, in plain words, and where it runs: **Mate** (Customermates Cloud, uses AI credits), **Your own key** (a provider key you saved) or **Your own runner** (a machine you control). A way of running that is not set up yet shows why, for example that no key or no runner is connected yet, with a link to **Settings, Connections, Agents**. With your own key you can pick a model; with a runner, a specific one. The record that started the chain is handed to the agent as context, and `{{record.name}}` and `{{rule.name}}` work in the instruction.
 
 ## How do I get a reminder before a date? [#how-do-i-get-a-reminder-before-a-date]
 
@@ -29,7 +37,7 @@ An automation runs as its owner, with the owner's permissions: it can never do m
 
 A run happens once per record and trigger. What an automation changes never starts the same automation again, and a chain stops after two rules, so two automations cannot start each other forever. If an action fails, the actions after it do not run.
 
-Click **History** on an automation to see its runs, newest first. Each run shows its status (**Queued**, **Running**, **Done**, **Skipped** or **Failed**), the result of every action and a link to **Open the record**. A skipped run says why: the conditions were not met, the automation was off, the record is gone or not readable for the owner, the owner changed, or the owner is no longer active or no longer has access to automations.
+Open an automation and choose its **Runs** tab, or choose **Run history** in the row menu, to see its runs, newest first. Each run shows its status (**Queued**, **Running**, **Done**, **Skipped** or **Failed**), the result of every action and a link to **Open the record**. A skipped run says why: the conditions were not met, the automation was off, the record is gone or not readable for the owner, the owner changed, or the owner is no longer active or no longer has access to automations.
 
 Deleting an automation removes it and its run history for good, so switch it off instead if you may need it again.
 

@@ -57,7 +57,11 @@ function setup(options: { scope?: "all" | "own"; routines?: RoutineDto[] | null 
         countRunsSince: () => Promise.resolve(routineRuns),
       } as unknown as Pick<GetRoutinesRepo, "getItems" | "countRunsSince">)
     : null;
-  const permissions = { readScope: () => options.scope ?? "all", userId: OWNER } as unknown as PermissionService;
+  const permissions = {
+    readScope: () => options.scope ?? "all",
+    userId: OWNER,
+    user: { displayLanguage: null, formattingLocale: "system" },
+  } as unknown as PermissionService;
   const composer = new AutomationsListComposer(rules, source, permissions, () => NOW);
   return { rules, routineRuns, composer };
 }

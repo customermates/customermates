@@ -907,10 +907,6 @@
     "active": "Włącz lub wyłącz {name}",
     "automate": "Zautomatyzuj tę listę",
     "builder": {
-      "action": "Działanie",
-      "active": "Aktywna",
-      "addCondition": "Dodaj warunek",
-      "addEffect": "Dodaj działanie",
       "after": "po",
       "anyField": "Dowolne pole",
       "assignToOwner": "Przypisz do mnie",
@@ -933,7 +929,6 @@
       "fixConditions": "Uzupełnij każdy warunek albo go usuń.",
       "fixEffect": "Uzupełnij to działanie.",
       "fixTrigger": "Uzupełnij wyzwalacz: wybierz pole i poprawną wartość.",
-      "if": "Jeśli (opcjonalnie)",
       "incomplete": "Ta automatyzacja nie jest jeszcze kompletna.",
       "keptEffect": "Tego działania ({kind}) nie można tu edytować i pozostaje bez zmian.",
       "keptTrigger": "Tego wyzwalacza nie można tu edytować i pozostaje bez zmian.",
@@ -946,7 +941,6 @@
       "notificationKind": "Pojawia się w dzwonku jako",
       "operator": "Warunek",
       "placeholders": "W tytułach i szczegółach {recordName} zastępuje nazwa rekordu, a {ruleName} nazwa tej automatyzacji.",
-      "then": "Wtedy",
       "timezone": "Strefa czasowa",
       "title": "Tytuł",
       "titleEdit": "Edytuj automatyzację",
@@ -955,8 +949,7 @@
       "toAssignees": "Powiadom przypisane osoby",
       "toOwner": "Powiadom mnie",
       "toValue": "Na wartość (opcjonalnie)",
-      "value": "Wartość",
-      "when": "Gdy"
+      "value": "Wartość"
     },
     "deleteMessage": "Usunąć „{name}” wraz z historią? Tego nie można cofnąć.",
     "deleteTitle": "Usuń automatyzację",
@@ -968,6 +961,7 @@
     },
     "edit": "Edytuj",
     "effect": {
+      "agent": "Poprosić agenta",
       "callWebhook": "Wywołaj webhook",
       "createRecord": "Utwórz rekord",
       "notify": "Powiadom",
@@ -1019,7 +1013,6 @@
       "running": "W toku",
       "skipped": "Pominięta"
     },
-    "subtitle": "Reguły bez AI: gdy coś się wydarzy i pasuje, wykonaj to.",
     "summary": {
       "dateReached": "{direction, select, before {{days, plural, =0 {W dniu daty {field} w {list}} one {# dzień przed {field} w {list}} few {# dni przed {field} w {list}} many {# dni przed {field} w {list}} other {# dnia przed {field} w {list}}}} other {{days, plural, =0 {W dniu daty {field} w {list}} one {# dzień po {field} w {list}} few {# dni po {field} w {list}} many {# dni po {field} w {list}} other {# dnia po {field} w {list}}}}}",
       "fieldChanged": "Gdy zmieni się {field} w {list}",
@@ -1033,9 +1026,237 @@
     "trigger": {
       "dateReached": "Nadchodzi data",
       "fieldChanged": "Zmienia się pole",
+      "formSubmitted": "Zostaje wysłany formularz",
       "messageReceived": "Nadchodzi wiadomość",
       "recordCreated": "Powstaje rekord",
-      "recordUpdated": "Rekord zostaje zmieniony"
+      "recordUpdated": "Rekord zostaje zmieniony",
+      "webhookReceived": "Nadchodzi webhook"
+    }
+  },
+  "Automations": {
+    "agent": {
+      "anyRunner": "Dowolny runner online",
+      "defaultModel": "Domyślny model klucza",
+      "model": "Model",
+      "openSettings": "Otwórz Ustawienia, Połączenia, Agenci",
+      "prompt": "Co ma zrobić agent?",
+      "promptPlaceholder": "Na przykład: napisz krótką, życzliwą odpowiedź i zapisz ją do sprawdzenia.",
+      "reason": {
+        "noKey": "Dla tego obszaru roboczego nie zapisano jeszcze klucza dostawcy.",
+        "noRunner": "Z tym obszarem roboczym nie połączono jeszcze żadnego runnera.",
+        "notConfigured": "Ten sposób uruchamiania agenta nie jest jeszcze skonfigurowany.",
+        "plan": "Twój plan nie obejmuje tego sposobu uruchamiania agenta.",
+        "selfHosted": "Mate jest funkcją chmury i nie jest dostępna, jeśli sam hostujesz Customermates."
+      },
+      "runner": "Runner",
+      "runnerOffline": "{name} (niedostępny)",
+      "runtime": {
+        "mate": "Mate",
+        "ownKey": "Twój własny klucz",
+        "runner": "Twój własny runner"
+      },
+      "runtimeHint": {
+        "mate": "Działa w Customermates i zużywa kredyty AI.",
+        "ownKey": "Działa z Twoim własnym kluczem dostawcy.",
+        "runner": "Działa na maszynie, którą kontrolujesz."
+      },
+      "runtimeLabel": "Gdzie działa agent",
+      "unavailable": "Jeszcze niedostępne"
+    },
+    "builder": {
+      "active": "Aktywna",
+      "addStep": "Dodaj krok",
+      "anyList": "Dowolna lista",
+      "composedNotice": "Mate przygotowała to na podstawie Twojego zdania. Nic nie jest zapisane, dopóki jej nie włączysz.",
+      "if": "Jeśli",
+      "needsStep": "Dodaj co najmniej jeden krok, który coś robi.",
+      "panesLabel": "Podgląd i uruchomienia",
+      "paused": "Wstrzymana",
+      "previewTab": "Podgląd",
+      "removeStep": "Usuń krok",
+      "runsTab": "Uruchomienia",
+      "switchOn": "Włącz",
+      "then": "Wtedy",
+      "webhook": "Webhook",
+      "when": "Gdy"
+    },
+    "columns": {
+      "enabled": "Aktywna",
+      "runs30d": "Uruchomienia, 30 dni",
+      "runsOn": "Działa na",
+      "sentence": "Co robi"
+    },
+    "filters": {
+      "kind": {
+        "routine": "Rutyna",
+        "rule": "Automatyzacja"
+      },
+      "status": {
+        "active": "Aktywna",
+        "paused": "Wstrzymana"
+      }
+    },
+    "kind": {
+      "routine": "Rutyna"
+    },
+    "neverRun": "Jeszcze nie uruchomiona",
+    "new": {
+      "automation": "Automatyzacja",
+      "routine": "Rutyna (Mate według harmonogramu)"
+    },
+    "palette": {
+      "agent": {
+        "hint": "Daj agentowi zadanie prostymi słowami",
+        "title": "Poproś agenta"
+      },
+      "callWebhook": {
+        "hint": "Wyślij rekord do innego narzędzia",
+        "title": "Wywołaj webhook"
+      },
+      "condition": {
+        "hint": "Kontynuuj tylko, gdy wartość pasuje",
+        "title": "Jeśli pole pasuje"
+      },
+      "createRecord": {
+        "hint": "Zadanie, klienta, transakcję lub kontakt",
+        "title": "Utwórz rekord"
+      },
+      "empty": "Żaden krok nie pasuje do wyszukiwania.",
+      "groups": {
+        "agent": "Agent",
+        "condition": "Warunek",
+        "integrations": "Integracje",
+        "people": "Osoby",
+        "record": "Rekord"
+      },
+      "notify": {
+        "hint": "Dzwonek i e-mail, tak jak ustawiła to dana osoba",
+        "title": "Powiadom kogoś"
+      },
+      "search": "Szukaj kroków",
+      "setField": {
+        "hint": "Zmień wartość w rekordzie",
+        "title": "Ustaw pole"
+      },
+      "title": "Dodaj krok"
+    },
+    "preview": {
+      "alreadyFired": "{count, plural, one {# rekord został już obsłużony} few {# rekordy zostały już obsłużone} many {# rekordów zostało już obsłużonych} other {# rekordu zostało już obsłużonych}}",
+      "incomplete": "Uzupełnij wyzwalacz, aby zobaczyć, co zrobiłaby ta automatyzacja.",
+      "note": "Na podstawie Twoich bieżących rekordów. Nic nie zostało zmienione.",
+      "record": "Otwórz pasujący rekord",
+      "title": "Podgląd",
+      "unsupported": "Podgląd jest dostępny dla przypomnień o dacie. Pozostałe wyzwalacze działają, gdy coś się wydarzy, więc nie ma jeszcze czego sprawdzać wstecz.",
+      "wouldRun": "{count, plural, =0 {Nie uruchomiłaby się} one {Uruchomiłaby się # raz} few {Uruchomiłaby się # razy} many {Uruchomiłaby się # razy} other {Uruchomiłaby się # razy}} w ciągu ostatnich {days} dni"
+    },
+    "recipes": {
+      "answerEnquiries": {
+        "description": "Gdy zostanie wysłany formularz, poproś agenta o przygotowanie odpowiedzi w Twoim tonie i powiadomienie Cię do sprawdzenia.",
+        "effects": {
+          "agent": "Przygotuj odpowiedź dla {record} w moim tonie. Odpowiedz na zadane pytanie, pisz krótko i życzliwie i zapisz ją jako szkic do sprawdzenia. Niczego nie wysyłaj.",
+          "notify": "Sprawdź odpowiedź dla {record}"
+        },
+        "title": "Odpowiadanie na nowe zapytania"
+      },
+      "chaseDocuments": {
+        "description": "7 dni po dacie prośby utwórz zadanie przypomnienia o dokumentach i powiadom właściciela.",
+        "effects": {
+          "action": "Przypomnij o dokumentach dla {record}",
+          "notify": "Wciąż brakuje dokumentów: {record}"
+        },
+        "title": "Przypominanie o brakujących dokumentach"
+      },
+      "followUpAfterOffer": {
+        "description": "Gdy zmieni się etap, utwórz zadanie kontaktowe na za 3 dni i powiadom właściciela.",
+        "effects": {
+          "action": "Skontaktuj się w sprawie {record}",
+          "notify": "Oferta wysłana: {record}"
+        },
+        "title": "Kontakt po ofercie"
+      },
+      "remindBeforeRenewal": {
+        "description": "30 dni przed końcem umowy utwórz zadanie odnowienia i powiadom właściciela.",
+        "effects": {
+          "action": "Odnowienie: {record}",
+          "notify": "Zbliża się odnowienie: {record}"
+        },
+        "title": "Przypomnienie przed odnowieniem"
+      },
+      "weeklyReview": {
+        "description": "W każdy poniedziałek o 8:00 poproś Mate o listę klientów bez terminowego następnego kroku i powiadom siebie.",
+        "effects": {
+          "agent": "Wypisz klientów, którzy nie mają terminowego następnego kroku. Przy każdym podaj klienta, ostatni kontakt i proponowany następny krok. Powiadom mnie tą listą."
+        },
+        "title": "Przegląd tygodnia"
+      },
+      "welcomeSubmission": {
+        "description": "Gdy zostanie wysłany formularz, utwórz zadanie powitalne na jutro i powiadom właściciela.",
+        "effects": {
+          "action": "Powitaj {record}",
+          "notify": "Nowe zgłoszenie: {record}"
+        },
+        "title": "Powitanie po wysłaniu formularza"
+      },
+      "wonOrLostReason": {
+        "description": "Gdy etap zostanie ustawiony bez powodu, poproś właściciela o dodanie powodu.",
+        "effects": {
+          "notify": "Dodaj powód do {record}"
+        },
+        "title": "Powód wygranej lub przegranej"
+      }
+    },
+    "rowActions": {
+      "history": "Historia uruchomień",
+      "pause": "Wstrzymaj",
+      "resume": "Wznów"
+    },
+    "runs": {
+      "unsaved": "Uruchomienia pojawią się tutaj, gdy automatyzacja zostanie zapisana i włączona."
+    },
+    "runs30d": "{count, plural, one {# uruchomienie} few {# uruchomienia} many {# uruchomień} other {# uruchomienia}}",
+    "runsOn": {
+      "free": "Bezpłatnie",
+      "mate": "Mate",
+      "ownKey": "Własny klucz",
+      "runner": "Własny runner"
+    },
+    "sentence": {
+      "aField": "pole",
+      "aList": "listę",
+      "effect": {
+        "agent": "poprosić Twojego agenta, aby {prompt}",
+        "callWebhook": "wywołać webhook",
+        "createRecord": "utworzyć element w {list}",
+        "kept": "wykonać krok pozostawiony bez zmian",
+        "notifyAssignees": "powiadomić przypisane osoby",
+        "notifyBoth": "powiadomić właściciela i przypisane osoby",
+        "notifyOwner": "powiadomić właściciela",
+        "setField": "ustawić {field}"
+      },
+      "if": "jeśli {condition}",
+      "otherTrigger": "Gdy wydarzy się coś innego",
+      "routineEvent": "Gdy {event}, poprosić Mate, aby {prompt}",
+      "routineSchedule": "{schedule}, poprosić Mate, aby {prompt}",
+      "somethingForYou": "coś dla Ciebie zrobił"
+    },
+    "start": {
+      "compose": "Przygotuj",
+      "composerLabel": "Powiedz Mate, co ma się stać, gdy …",
+      "composerNote": "Mate przygotowuje kroki. Nic nie jest zapisane, dopóki jej nie włączysz.",
+      "composerPlaceholder": "… przyjdzie nowe zapytanie, przypomnij mi następnego ranka, żeby na nie odpowiedzieć",
+      "exact": "Dokładne kroki, bez AI",
+      "noAgent": "Nie skonfigurowano jeszcze żadnego sposobu uruchamiania agenta, więc kroki z agentem nie będą działać.",
+      "recipesBody": "Każda receptura to kompletny łańcuch. Zmień, co chcesz, nadaj nazwę i włącz.",
+      "recipesTitle": "Zacznij od receptury",
+      "refusal": {
+        "invalid": "Szkic nie pasował do Twojego obszaru roboczego. Spróbuj podać nazwę listy lub pola.",
+        "unavailable": "Mate jest teraz niedostępna. Wybierz recepturę lub zacznij od zera.",
+        "unclear": "Mate nie zrozumiała, co ma się stać. Powiedz, co ją uruchamia i co ma zrobić.",
+        "unsupported": "Automatyzacja jeszcze tego nie potrafi. Opisz to jako wyzwalacz i dokładne kroki."
+      },
+      "scratch": "Zacznij od zera",
+      "scratchBody": "Pusty łańcuch. Wybierz wyzwalacz, a potem dodaj kroki.",
+      "usesAgent": "Używa agenta"
     }
   },
   "Booking": {
@@ -1756,6 +1977,9 @@
       "fields": {
         "adProvider": "Dostawca reklam",
         "auditSource": "Źródło",
+        "automationKind": "Rodzaj",
+        "automationRunsOn": "Działa na",
+        "automationStatus": "Status",
         "calendarId": "Kalendarz",
         "connectedAccountId": "Kanał",
         "createdAt": "Utworzono",
@@ -2692,13 +2916,13 @@
       "allTab": {
         "activity": "Cała aktywność",
         "auditEntries": "Wszystkie wpisy",
+        "automations": "Wszystkie automatyzacje",
         "conversations": "Wszystkie rozmowy",
         "deliveries": "Wszystkie dostarczenia",
         "incomingWebhooks": "Wszystkie przychodzące webhooki",
         "members": "Wszyscy członkowie",
         "records": "Wszystkie: {list}",
         "roles": "Wszystkie role",
-        "routines": "Wszystkie automatyzacje",
         "users": "Wszyscy użytkownicy",
         "webhooks": "Wszystkie webhooki",
         "workspaces": "Wszystkie przestrzenie robocze"

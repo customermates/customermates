@@ -17,6 +17,7 @@ type CardProps = {
   expanded: boolean;
   invalid?: boolean;
   removeLabel?: string;
+  openHint?: string;
   onToggle: () => void;
   onRemove?: () => void;
   children: ReactNode;
@@ -30,6 +31,7 @@ export function AutomationCard({
   expanded,
   invalid,
   removeLabel,
+  openHint,
   onToggle,
   onRemove,
   children,
@@ -48,6 +50,7 @@ export function AutomationCard({
         aria-controls={bodyId}
         aria-expanded={expanded}
         className="flex w-full items-start gap-3 rounded-xl p-3 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        title={openHint}
         type="button"
         onClick={onToggle}
       >

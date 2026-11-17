@@ -907,10 +907,6 @@
     "active": "{name} aan- of uitzetten",
     "automate": "Deze lijst automatiseren",
     "builder": {
-      "action": "Actie",
-      "active": "Actief",
-      "addCondition": "Voorwaarde toevoegen",
-      "addEffect": "Actie toevoegen",
       "after": "na",
       "anyField": "Elk veld",
       "assignToOwner": "Aan mij toewijzen",
@@ -933,7 +929,6 @@
       "fixConditions": "Vul elke voorwaarde in of verwijder haar.",
       "fixEffect": "Vul deze actie in.",
       "fixTrigger": "Vul de trigger in: kies een veld en een geldige waarde.",
-      "if": "Als (optioneel)",
       "incomplete": "Deze automatisering is nog niet compleet.",
       "keptEffect": "Deze actie ({kind}) kan hier niet worden bewerkt en blijft zoals ze is.",
       "keptTrigger": "Deze trigger kan hier niet worden bewerkt en blijft zoals hij is.",
@@ -946,7 +941,6 @@
       "notificationKind": "Verschijnt in de bel als",
       "operator": "Voorwaarde",
       "placeholders": "In titels en details wordt {recordName} vervangen door de naam van het record en {ruleName} door de naam van deze automatisering.",
-      "then": "Dan",
       "timezone": "Tijdzone",
       "title": "Titel",
       "titleEdit": "Automatisering bewerken",
@@ -955,8 +949,7 @@
       "toAssignees": "De toegewezen personen op de hoogte stellen",
       "toOwner": "Mij op de hoogte stellen",
       "toValue": "Naar waarde (optioneel)",
-      "value": "Waarde",
-      "when": "Wanneer"
+      "value": "Waarde"
     },
     "deleteMessage": "“{name}” en de geschiedenis verwijderen? Dit kan niet ongedaan worden gemaakt.",
     "deleteTitle": "Automatisering verwijderen",
@@ -968,6 +961,7 @@
     },
     "edit": "Bewerken",
     "effect": {
+      "agent": "Een agent vragen",
       "callWebhook": "Een webhook aanroepen",
       "createRecord": "Een record aanmaken",
       "notify": "Melden",
@@ -1019,7 +1013,6 @@
       "running": "Bezig",
       "skipped": "Overgeslagen"
     },
-    "subtitle": "Regels zonder AI: als er iets gebeurt en het past, doe dan dit.",
     "summary": {
       "dateReached": "{direction, select, before {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag voor {field} in {list}} other {# dagen voor {field} in {list}}}} other {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag na {field} in {list}} other {# dagen na {field} in {list}}}}}",
       "fieldChanged": "Wanneer {field} verandert in {list}",
@@ -1033,9 +1026,237 @@
     "trigger": {
       "dateReached": "Een datum is bereikt",
       "fieldChanged": "Een veld verandert",
+      "formSubmitted": "Er wordt een formulier verstuurd",
       "messageReceived": "Er komt een bericht binnen",
       "recordCreated": "Er wordt een record aangemaakt",
-      "recordUpdated": "Een record wordt bijgewerkt"
+      "recordUpdated": "Een record wordt bijgewerkt",
+      "webhookReceived": "Er komt een webhook binnen"
+    }
+  },
+  "Automations": {
+    "agent": {
+      "anyRunner": "Een willekeurige online runner",
+      "defaultModel": "Standaardmodel van de sleutel",
+      "model": "Model",
+      "openSettings": "Instellingen, Verbindingen, Agents openen",
+      "prompt": "Wat moet de agent doen?",
+      "promptPlaceholder": "Bijvoorbeeld: schrijf een korte, vriendelijke reactie en bewaar die ter controle.",
+      "reason": {
+        "noKey": "Voor deze werkruimte is nog geen sleutel van een aanbieder opgeslagen.",
+        "noRunner": "Er is nog geen runner met deze werkruimte verbonden.",
+        "notConfigured": "Deze manier om een agent uit te voeren is nog niet ingesteld.",
+        "plan": "Je abonnement bevat deze manier om een agent uit te voeren niet.",
+        "selfHosted": "Mate is een Cloud-functie en niet beschikbaar als je Customermates zelf host."
+      },
+      "runner": "Runner",
+      "runnerOffline": "{name} (niet verbonden)",
+      "runtime": {
+        "mate": "Mate",
+        "ownKey": "Je eigen sleutel",
+        "runner": "Je eigen runner"
+      },
+      "runtimeHint": {
+        "mate": "Draait bij Customermates en gebruikt AI-tegoed.",
+        "ownKey": "Draait met je eigen sleutel van de aanbieder.",
+        "runner": "Draait op een machine die jij beheert."
+      },
+      "runtimeLabel": "Waar de agent draait",
+      "unavailable": "Nog niet beschikbaar"
+    },
+    "builder": {
+      "active": "Actief",
+      "addStep": "Stap toevoegen",
+      "anyList": "Elke lijst",
+      "composedNotice": "Mate heeft dit uit je zin opgesteld. Er wordt niets opgeslagen tot je het inschakelt.",
+      "if": "Als",
+      "needsStep": "Voeg minstens één stap toe die iets doet.",
+      "panesLabel": "Voorbeeld en uitvoeringen",
+      "paused": "Gepauzeerd",
+      "previewTab": "Voorbeeld",
+      "removeStep": "Stap verwijderen",
+      "runsTab": "Uitvoeringen",
+      "switchOn": "Inschakelen",
+      "then": "Dan",
+      "webhook": "Webhook",
+      "when": "Wanneer"
+    },
+    "columns": {
+      "enabled": "Actief",
+      "runs30d": "Uitvoeringen, 30 dagen",
+      "runsOn": "Draait op",
+      "sentence": "Wat het doet"
+    },
+    "filters": {
+      "kind": {
+        "routine": "Routine",
+        "rule": "Automatisering"
+      },
+      "status": {
+        "active": "Actief",
+        "paused": "Gepauzeerd"
+      }
+    },
+    "kind": {
+      "routine": "Routine"
+    },
+    "neverRun": "Nog niet uitgevoerd",
+    "new": {
+      "automation": "Automatisering",
+      "routine": "Routine (Mate volgens een schema)"
+    },
+    "palette": {
+      "agent": {
+        "hint": "Geef een agent een taak in gewone woorden",
+        "title": "Een agent vragen"
+      },
+      "callWebhook": {
+        "hint": "Het record naar een andere tool sturen",
+        "title": "Een webhook aanroepen"
+      },
+      "condition": {
+        "hint": "Alleen doorgaan als een waarde past",
+        "title": "Als een veld past"
+      },
+      "createRecord": {
+        "hint": "Een taak, een klant, een deal of een contact",
+        "title": "Een record aanmaken"
+      },
+      "empty": "Geen stap past bij je zoekopdracht.",
+      "groups": {
+        "agent": "Agent",
+        "condition": "Voorwaarde",
+        "integrations": "Integraties",
+        "people": "Mensen",
+        "record": "Record"
+      },
+      "notify": {
+        "hint": "Bel en e-mail, zoals die persoon het heeft ingesteld",
+        "title": "Iemand waarschuwen"
+      },
+      "search": "Stappen zoeken",
+      "setField": {
+        "hint": "Een waarde in het record wijzigen",
+        "title": "Een veld instellen"
+      },
+      "title": "Een stap toevoegen"
+    },
+    "preview": {
+      "alreadyFired": "{count, plural, one {# record is al uitgevoerd} other {# records zijn al uitgevoerd}}",
+      "incomplete": "Maak de trigger compleet om te zien wat deze automatisering zou doen.",
+      "note": "Gebaseerd op je huidige records. Er is niets gewijzigd.",
+      "record": "Een passend record openen",
+      "title": "Voorbeeld",
+      "unsupported": "Een voorbeeld is er voor herinneringen op een datum. De andere triggers werken wanneer er iets gebeurt, dus er valt nog niets terug te kijken.",
+      "wouldRun": "{count, plural, =0 {Zou niet zijn uitgevoerd} one {Zou # keer zijn uitgevoerd} other {Zou # keer zijn uitgevoerd}} in de afgelopen {days} dagen"
+    },
+    "recipes": {
+      "answerEnquiries": {
+        "description": "Laat je agent bij een verstuurd formulier een antwoord in jouw toon opstellen en je waarschuwen om het te controleren.",
+        "effects": {
+          "agent": "Stel een antwoord aan {record} op in mijn toon. Beantwoord de gestelde vraag, hou het kort en vriendelijk en bewaar het als concept ter controle. Verstuur niets.",
+          "notify": "Het antwoord aan {record} controleren"
+        },
+        "title": "Nieuwe aanvragen beantwoorden"
+      },
+      "chaseDocuments": {
+        "description": "7 dagen na een aanvraagdatum een taak aanmaken om de documenten na te vragen en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "De documenten van {record} nabellen",
+          "notify": "Documenten ontbreken nog: {record}"
+        },
+        "title": "Ontbrekende documenten nabellen"
+      },
+      "followUpAfterOffer": {
+        "description": "Als de fase verandert, een opvolgtaak over 3 dagen aanmaken en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "Opvolgen bij {record}",
+          "notify": "Offerte verstuurd: {record}"
+        },
+        "title": "Opvolgen na een offerte"
+      },
+      "remindBeforeRenewal": {
+        "description": "30 dagen voor het einde van een contract een verlengingstaak aanmaken en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "Verlenging: {record}",
+          "notify": "Verlenging komt eraan: {record}"
+        },
+        "title": "Herinneren voor een verlenging"
+      },
+      "weeklyReview": {
+        "description": "Elke maandag om 8:00 Mate vragen klanten zonder gedateerde volgende stap op te sommen en jou waarschuwen.",
+        "effects": {
+          "agent": "Som de klanten op die geen gedateerde volgende stap hebben. Noem bij elke klant de klant, het laatste contact en een voorgestelde volgende stap. Waarschuw me met de lijst."
+        },
+        "title": "Wekelijkse terugblik"
+      },
+      "welcomeSubmission": {
+        "description": "Bij een verstuurd formulier een welkomsttaak voor morgen aanmaken en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "{record} welkom heten",
+          "notify": "Nieuwe inzending: {record}"
+        },
+        "title": "Een formulierinzending welkom heten"
+      },
+      "wonOrLostReason": {
+        "description": "Als de fase zonder reden wordt ingesteld, de verantwoordelijke waarschuwen om er een toe te voegen.",
+        "effects": {
+          "notify": "Een reden toevoegen aan {record}"
+        },
+        "title": "Reden van gewonnen of verloren"
+      }
+    },
+    "rowActions": {
+      "history": "Uitvoeringsgeschiedenis",
+      "pause": "Pauzeren",
+      "resume": "Hervatten"
+    },
+    "runs": {
+      "unsaved": "Uitvoeringen verschijnen hier zodra de automatisering is opgeslagen en ingeschakeld."
+    },
+    "runs30d": "{count, plural, one {# uitvoering} other {# uitvoeringen}}",
+    "runsOn": {
+      "free": "Gratis",
+      "mate": "Mate",
+      "ownKey": "Eigen sleutel",
+      "runner": "Eigen runner"
+    },
+    "sentence": {
+      "aField": "een veld",
+      "aList": "een lijst",
+      "effect": {
+        "agent": "je agent vragen om {prompt}",
+        "callWebhook": "een webhook aanroepen",
+        "createRecord": "een item aanmaken in {list}",
+        "kept": "een ongewijzigde stap uitvoeren",
+        "notifyAssignees": "de toegewezen mensen waarschuwen",
+        "notifyBoth": "de verantwoordelijke en de toegewezen mensen waarschuwen",
+        "notifyOwner": "de verantwoordelijke waarschuwen",
+        "setField": "{field} instellen"
+      },
+      "if": "als {condition}",
+      "otherTrigger": "Wanneer er iets anders gebeurt",
+      "routineEvent": "Wanneer {event}, Mate vragen om {prompt}",
+      "routineSchedule": "{schedule}, Mate vragen om {prompt}",
+      "somethingForYou": "iets voor je te doen"
+    },
+    "start": {
+      "compose": "Opstellen",
+      "composerLabel": "Vertel Mate wat er moet gebeuren wanneer …",
+      "composerNote": "Mate stelt de stappen op. Er wordt niets opgeslagen tot je het inschakelt.",
+      "composerPlaceholder": "… er een nieuwe aanvraag binnenkomt, herinner me de volgende ochtend eraan om te antwoorden",
+      "exact": "Exacte stappen, geen AI",
+      "noAgent": "Er is nog geen manier ingesteld om een agent uit te voeren, dus agentstappen draaien niet.",
+      "recipesBody": "Elk recept is een complete keten. Pas aan wat je wilt, geef het een naam en schakel het in.",
+      "recipesTitle": "Beginnen met een recept",
+      "refusal": {
+        "invalid": "Het concept paste niet bij je werkruimte. Probeer de lijst of het veld te noemen.",
+        "unavailable": "Mate is nu niet beschikbaar. Kies een recept of begin helemaal opnieuw.",
+        "unclear": "Mate begreep niet wat er moet gebeuren. Zeg wat het in gang zet en wat het moet doen.",
+        "unsupported": "Dat kan een automatisering nog niet. Beschrijf het als een trigger en exacte stappen."
+      },
+      "scratch": "Helemaal opnieuw beginnen",
+      "scratchBody": "Een lege keten. Kies een trigger en voeg dan stappen toe.",
+      "usesAgent": "Gebruikt een agent"
     }
   },
   "Booking": {
@@ -1756,6 +1977,9 @@
       "fields": {
         "adProvider": "Advertentieaanbieder",
         "auditSource": "Bron",
+        "automationKind": "Soort",
+        "automationRunsOn": "Draait op",
+        "automationStatus": "Status",
         "calendarId": "Agenda",
         "connectedAccountId": "Kanaal",
         "createdAt": "Aangemaakt op",
@@ -2692,13 +2916,13 @@
       "allTab": {
         "activity": "Alle activiteit",
         "auditEntries": "Alle vermeldingen",
+        "automations": "Alle automatiseringen",
         "conversations": "Alle gesprekken",
         "deliveries": "Alle leveringen",
         "incomingWebhooks": "Alle inkomende webhooks",
         "members": "Alle leden",
         "records": "Alle {list}",
         "roles": "Alle rollen",
-        "routines": "Alle routines",
         "users": "Alle gebruikers",
         "webhooks": "Alle webhooks",
         "workspaces": "Alle werkruimtes"

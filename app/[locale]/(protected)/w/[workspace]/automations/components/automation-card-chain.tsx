@@ -66,6 +66,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
         icon={Zap}
         invalid={store.isFlagged("trigger")}
         kindLabel={t("Automations.builder.when")}
+        openHint={t("AutomationRules.edit")}
         sentence={triggerSentence(form.trigger, model, t)}
         onToggle={() => store.toggleCard("trigger")}
       >
@@ -87,6 +88,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
             icon={Filter}
             invalid={store.isFlagged(`conditions.${index}`)}
             kindLabel={t("Automations.builder.if")}
+            openHint={t("AutomationRules.edit")}
             removeLabel={t("Automations.builder.removeStep")}
             sentence={conditionSentence(condition, form.trigger, model, t)}
             onRemove={() => store.removeCondition(index)}
@@ -113,6 +115,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
             icon={EFFECT_ICONS[effect.kind] ?? Zap}
             invalid={store.isFlagged(`effects.${index}`)}
             kindLabel={t("Automations.builder.then")}
+            openHint={t("AutomationRules.edit")}
             removeLabel={t("Automations.builder.removeStep")}
             sentence={effectSentence(effect, model, form.trigger, t)}
             onRemove={() => store.removeEffect(index)}

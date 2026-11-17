@@ -14,6 +14,7 @@ import {
   Hash,
   Image as ImageIcon,
   Inbox,
+  Repeat,
   Keyboard,
   KeyRound,
   Languages,
@@ -212,6 +213,14 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     kind: "page",
     icon: CalendarDays,
     target: { href: "/calendar" },
+  },
+  {
+    id: "page.routines",
+    labelKey: "NavigationBar.routines",
+    kind: "page",
+    icon: Repeat,
+    target: { href: "/automations?kind=routine" },
+    requires: { resource: Resource.routines, cloudOnly: true },
   },
   {
     id: "page.automations",

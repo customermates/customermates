@@ -907,10 +907,6 @@
     "active": "Attiva o disattiva {name}",
     "automate": "Automatizza questo elenco",
     "builder": {
-      "action": "Azione",
-      "active": "Attiva",
-      "addCondition": "Aggiungi una condizione",
-      "addEffect": "Aggiungi un’azione",
       "after": "dopo",
       "anyField": "Qualsiasi campo",
       "assignToOwner": "Assegna a me",
@@ -933,7 +929,6 @@
       "fixConditions": "Completa ogni condizione o rimuovila.",
       "fixEffect": "Completa questa azione.",
       "fixTrigger": "Completa il trigger: scegli un campo e un valore valido.",
-      "if": "Se (facoltativo)",
       "incomplete": "Questa automazione non è ancora completa.",
       "keptEffect": "Questa azione ({kind}) non si può modificare qui e resta invariata.",
       "keptTrigger": "Questo trigger non si può modificare qui e resta invariato.",
@@ -946,7 +941,6 @@
       "notificationKind": "Appare nella campanella come",
       "operator": "Condizione",
       "placeholders": "Nei titoli e nei dettagli {recordName} viene sostituito dal nome del record e {ruleName} dal nome di questa automazione.",
-      "then": "Allora",
       "timezone": "Fuso orario",
       "title": "Titolo",
       "titleEdit": "Modifica automazione",
@@ -955,8 +949,7 @@
       "toAssignees": "Avvisa le persone assegnate",
       "toOwner": "Avvisami",
       "toValue": "Al valore (facoltativo)",
-      "value": "Valore",
-      "when": "Quando"
+      "value": "Valore"
     },
     "deleteMessage": "Eliminare «{name}» e la sua cronologia? L’operazione non si può annullare.",
     "deleteTitle": "Elimina automazione",
@@ -968,6 +961,7 @@
     },
     "edit": "Modifica",
     "effect": {
+      "agent": "Chiedere a un agente",
       "callWebhook": "Chiama un webhook",
       "createRecord": "Crea un record",
       "notify": "Notifica",
@@ -1019,7 +1013,6 @@
       "running": "In corso",
       "skipped": "Saltata"
     },
-    "subtitle": "Regole senza IA: quando succede qualcosa e corrisponde, allora si fa questo.",
     "summary": {
       "dateReached": "{direction, select, before {{days, plural, =0 {Nella data di {field} in {list}} one {# giorno prima di {field} in {list}} other {# giorni prima di {field} in {list}}}} other {{days, plural, =0 {Nella data di {field} in {list}} one {# giorno dopo {field} in {list}} other {# giorni dopo {field} in {list}}}}}",
       "fieldChanged": "Quando {field} cambia in {list}",
@@ -1033,9 +1026,237 @@
     "trigger": {
       "dateReached": "Si raggiunge una data",
       "fieldChanged": "Un campo cambia",
+      "formSubmitted": "Viene inviato un modulo",
       "messageReceived": "Arriva un messaggio",
       "recordCreated": "Viene creato un record",
-      "recordUpdated": "Un record viene aggiornato"
+      "recordUpdated": "Un record viene aggiornato",
+      "webhookReceived": "Arriva un webhook"
+    }
+  },
+  "Automations": {
+    "agent": {
+      "anyRunner": "Qualsiasi runner online",
+      "defaultModel": "Modello predefinito della chiave",
+      "model": "Modello",
+      "openSettings": "Apri Impostazioni, Connessioni, Agenti",
+      "prompt": "Che cosa deve fare l’agente?",
+      "promptPlaceholder": "Per esempio: scrivi una risposta breve e cordiale e salvala per la revisione.",
+      "reason": {
+        "noKey": "Per questo spazio di lavoro non è ancora salvata nessuna chiave del fornitore.",
+        "noRunner": "A questo spazio di lavoro non è ancora collegato nessun runner.",
+        "notConfigured": "Questo modo di eseguire un agente non è ancora configurato.",
+        "plan": "Il tuo piano non include questo modo di eseguire un agente.",
+        "selfHosted": "Mate è una funzione del Cloud e non è disponibile se ospiti Customermates in autonomia."
+      },
+      "runner": "Runner",
+      "runnerOffline": "{name} (non in linea)",
+      "runtime": {
+        "mate": "Mate",
+        "ownKey": "La tua chiave",
+        "runner": "Il tuo runner"
+      },
+      "runtimeHint": {
+        "mate": "Viene eseguito su Customermates e usa crediti IA.",
+        "ownKey": "Viene eseguito con la tua chiave del fornitore.",
+        "runner": "Viene eseguito su una macchina che controlli tu."
+      },
+      "runtimeLabel": "Dove viene eseguito l’agente",
+      "unavailable": "Non ancora disponibile"
+    },
+    "builder": {
+      "active": "Attiva",
+      "addStep": "Aggiungi un passaggio",
+      "anyList": "Qualsiasi elenco",
+      "composedNotice": "Mate l’ha preparata dalla tua frase. Non viene salvato nulla finché non la attivi.",
+      "if": "Se",
+      "needsStep": "Aggiungi almeno un passaggio che faccia qualcosa.",
+      "panesLabel": "Anteprima ed esecuzioni",
+      "paused": "In pausa",
+      "previewTab": "Anteprima",
+      "removeStep": "Rimuovi il passaggio",
+      "runsTab": "Esecuzioni",
+      "switchOn": "Attiva",
+      "then": "Allora",
+      "webhook": "Webhook",
+      "when": "Quando"
+    },
+    "columns": {
+      "enabled": "Attiva",
+      "runs30d": "Esecuzioni, 30 giorni",
+      "runsOn": "Eseguita su",
+      "sentence": "Che cosa fa"
+    },
+    "filters": {
+      "kind": {
+        "routine": "Routine",
+        "rule": "Automazione"
+      },
+      "status": {
+        "active": "Attiva",
+        "paused": "In pausa"
+      }
+    },
+    "kind": {
+      "routine": "Routine"
+    },
+    "neverRun": "Non ancora eseguita",
+    "new": {
+      "automation": "Automazione",
+      "routine": "Routine (Mate secondo un programma)"
+    },
+    "palette": {
+      "agent": {
+        "hint": "Dai un compito a un agente con parole semplici",
+        "title": "Chiedi a un agente"
+      },
+      "callWebhook": {
+        "hint": "Invia il record a un altro strumento",
+        "title": "Chiama un webhook"
+      },
+      "condition": {
+        "hint": "Continua solo quando un valore corrisponde",
+        "title": "Se un campo corrisponde"
+      },
+      "createRecord": {
+        "hint": "Un’attività, un cliente, una trattativa o un contatto",
+        "title": "Crea un record"
+      },
+      "empty": "Nessun passaggio corrisponde alla tua ricerca.",
+      "groups": {
+        "agent": "Agente",
+        "condition": "Condizione",
+        "integrations": "Integrazioni",
+        "people": "Persone",
+        "record": "Record"
+      },
+      "notify": {
+        "hint": "Campanella ed e-mail, come l’ha impostato la persona",
+        "title": "Avvisa qualcuno"
+      },
+      "search": "Cerca passaggi",
+      "setField": {
+        "hint": "Cambia un valore del record",
+        "title": "Imposta un campo"
+      },
+      "title": "Aggiungi un passaggio"
+    },
+    "preview": {
+      "alreadyFired": "{count, plural, one {# record è già stato elaborato} other {# record sono già stati elaborati}}",
+      "incomplete": "Completa il trigger per vedere che cosa farebbe questa automazione.",
+      "note": "In base ai tuoi record attuali. Non è stato modificato nulla.",
+      "record": "Apri un record corrispondente",
+      "title": "Anteprima",
+      "unsupported": "L’anteprima è disponibile per i promemoria su una data. Gli altri trigger agiscono quando succede qualcosa, quindi non c’è ancora nulla da guardare indietro.",
+      "wouldRun": "{count, plural, =0 {Non sarebbe stata eseguita} one {Sarebbe stata eseguita # volta} other {Sarebbe stata eseguita # volte}} negli ultimi {days} giorni"
+    },
+    "recipes": {
+      "answerEnquiries": {
+        "description": "Quando viene inviato un modulo, chiedi al tuo agente di preparare una risposta nel tuo tono e di avvisarti per la revisione.",
+        "effects": {
+          "agent": "Prepara una risposta a {record} nel mio tono. Rispondi alla domanda posta, resta breve e cordiale e salvala come bozza da rivedere. Non inviare nulla.",
+          "notify": "Rivedi la risposta a {record}"
+        },
+        "title": "Rispondere alle nuove richieste"
+      },
+      "chaseDocuments": {
+        "description": "7 giorni dopo una data di richiesta, creare un’attività per sollecitare i documenti e avvisare la persona responsabile.",
+        "effects": {
+          "action": "Sollecita i documenti di {record}",
+          "notify": "Documenti ancora mancanti: {record}"
+        },
+        "title": "Sollecitare i documenti mancanti"
+      },
+      "followUpAfterOffer": {
+        "description": "Quando cambia la fase, creare un’attività di follow-up tra 3 giorni e avvisare la persona responsabile.",
+        "effects": {
+          "action": "Follow-up su {record}",
+          "notify": "Offerta inviata: {record}"
+        },
+        "title": "Follow-up dopo un’offerta"
+      },
+      "remindBeforeRenewal": {
+        "description": "30 giorni prima della fine di un contratto, creare un’attività di rinnovo e avvisare la persona responsabile.",
+        "effects": {
+          "action": "Rinnovo: {record}",
+          "notify": "Rinnovo in arrivo: {record}"
+        },
+        "title": "Promemoria prima di un rinnovo"
+      },
+      "weeklyReview": {
+        "description": "Ogni lunedì alle 8:00, chiedere a Mate di elencare i clienti senza un prossimo passo con data e avvisarti.",
+        "effects": {
+          "agent": "Elenca i clienti che non hanno un prossimo passo con data. Per ciascuno indica il cliente, l’ultimo contatto e un prossimo passo suggerito. Avvisami con l’elenco."
+        },
+        "title": "Revisione settimanale"
+      },
+      "welcomeSubmission": {
+        "description": "Quando viene inviato un modulo, creare un’attività di benvenuto per domani e avvisare la persona responsabile.",
+        "effects": {
+          "action": "Dai il benvenuto a {record}",
+          "notify": "Nuovo invio: {record}"
+        },
+        "title": "Dare il benvenuto a un invio di modulo"
+      },
+      "wonOrLostReason": {
+        "description": "Quando la fase viene impostata senza un motivo, avvisare la persona responsabile di aggiungerne uno.",
+        "effects": {
+          "notify": "Aggiungi un motivo a {record}"
+        },
+        "title": "Motivo di vinta o persa"
+      }
+    },
+    "rowActions": {
+      "history": "Cronologia delle esecuzioni",
+      "pause": "Metti in pausa",
+      "resume": "Riprendi"
+    },
+    "runs": {
+      "unsaved": "Le esecuzioni compaiono qui quando l’automazione è salvata e attivata."
+    },
+    "runs30d": "{count, plural, one {# esecuzione} other {# esecuzioni}}",
+    "runsOn": {
+      "free": "Gratis",
+      "mate": "Mate",
+      "ownKey": "Chiave propria",
+      "runner": "Runner proprio"
+    },
+    "sentence": {
+      "aField": "un campo",
+      "aList": "un elenco",
+      "effect": {
+        "agent": "chiedere al tuo agente di {prompt}",
+        "callWebhook": "chiamare un webhook",
+        "createRecord": "creare un elemento in {list}",
+        "kept": "eseguire un passaggio mantenuto così com’è",
+        "notifyAssignees": "avvisare le persone assegnate",
+        "notifyBoth": "avvisare la persona responsabile e le persone assegnate",
+        "notifyOwner": "avvisare la persona responsabile",
+        "setField": "impostare {field}"
+      },
+      "if": "se {condition}",
+      "otherTrigger": "Quando succede qualcos’altro",
+      "routineEvent": "Quando {event}, chiedere a Mate di {prompt}",
+      "routineSchedule": "{schedule}, chiedere a Mate di {prompt}",
+      "somethingForYou": "fare qualcosa per te"
+    },
+    "start": {
+      "compose": "Preparala",
+      "composerLabel": "Di’ a Mate che cosa deve succedere quando …",
+      "composerNote": "Mate prepara i passaggi. Non viene salvato nulla finché non la attivi.",
+      "composerPlaceholder": "… arriva una nuova richiesta, ricordami la mattina dopo di rispondere",
+      "exact": "Passaggi esatti, senza IA",
+      "noAgent": "Non è ancora configurato nessun modo di eseguire un agente, quindi i passaggi con agente non verranno eseguiti.",
+      "recipesBody": "Ogni ricetta è una catena completa. Cambia quello che vuoi, dalle un nome e attivala.",
+      "recipesTitle": "Parti da una ricetta",
+      "refusal": {
+        "invalid": "La bozza non si adattava al tuo spazio di lavoro. Prova a indicare l’elenco o il campo.",
+        "unavailable": "Mate non è disponibile al momento. Scegli una ricetta o parti da zero.",
+        "unclear": "Mate non ha capito che cosa deve succedere. Di’ che cosa la fa partire e che cosa deve fare.",
+        "unsupported": "Un’automazione non può ancora farlo. Descrivila come un trigger e passaggi esatti."
+      },
+      "scratch": "Parti da zero",
+      "scratchBody": "Una catena vuota. Scegli un trigger, poi aggiungi passaggi.",
+      "usesAgent": "Usa un agente"
     }
   },
   "Booking": {
@@ -1756,6 +1977,9 @@
       "fields": {
         "adProvider": "Provider pubblicitario",
         "auditSource": "Origine",
+        "automationKind": "Tipo",
+        "automationRunsOn": "Viene eseguita su",
+        "automationStatus": "Stato",
         "calendarId": "Calendario",
         "connectedAccountId": "Canale",
         "createdAt": "Creato il",
@@ -2692,13 +2916,13 @@
       "allTab": {
         "activity": "Tutte le attività",
         "auditEntries": "Tutte le voci",
+        "automations": "Tutte le automazioni",
         "conversations": "Tutte le conversazioni",
         "deliveries": "Tutte le consegne",
         "incomingWebhooks": "Tutti i webhook in entrata",
         "members": "Tutti i membri",
         "records": "Tutti: {list}",
         "roles": "Tutti i ruoli",
-        "routines": "Tutte le routine",
         "users": "Tutti gli utenti",
         "webhooks": "Tutti i webhook",
         "workspaces": "Tutte le aree di lavoro"

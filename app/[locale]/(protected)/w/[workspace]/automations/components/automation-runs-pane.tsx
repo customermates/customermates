@@ -16,7 +16,7 @@ import { IntlLink } from "@/i18n/navigation";
 import { getAutomationRuleRunsAction } from "../actions";
 import { AUTOMATION_STATUS_VARIANT } from "./automation-status-variant";
 
-export function AutomationRunsPane({ ruleId }: { ruleId: string | undefined }) {
+export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefined; name: string }) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const [runs, setRuns] = useState<AutomationRuleRunDto[]>([]);
@@ -55,7 +55,14 @@ export function AutomationRunsPane({ ruleId }: { ruleId: string | undefined }) {
   if (!ruleId) return <p className="text-sm text-muted-foreground">{t("Automations.runs.unsaved")}</p>;
 
   return (
-    <div className="flex flex-col gap-3" data-automation-runs="">
+    <div
+      aria-label={t("AutomationRules.history.open")}
+      className="flex flex-col gap-3"
+      data-automation-runs=""
+      role="region"
+    >
+      <h3 className="text-sm font-semibold">{t("AutomationRules.history.title", { name: name.trim() })}</h3>
+
       {!loading && runs.length === 0 && (
         <p className="text-sm text-muted-foreground">{t("AutomationRules.history.empty")}</p>
       )}

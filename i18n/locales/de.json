@@ -907,10 +907,6 @@
     "active": "{name} ein- oder ausschalten",
     "automate": "Diese Liste automatisieren",
     "builder": {
-      "action": "Aktion",
-      "active": "Aktiv",
-      "addCondition": "Bedingung hinzufügen",
-      "addEffect": "Aktion hinzufügen",
       "after": "nach",
       "anyField": "Beliebiges Feld",
       "assignToOwner": "Mir zuweisen",
@@ -933,7 +929,6 @@
       "fixConditions": "Vervollständige jede Bedingung oder entferne sie.",
       "fixEffect": "Vervollständige diese Aktion.",
       "fixTrigger": "Vervollständige den Auslöser: Wähle ein Feld und einen gültigen Wert.",
-      "if": "Falls (optional)",
       "incomplete": "Diese Automatisierung ist noch nicht vollständig.",
       "keptEffect": "Diese Aktion ({kind}) lässt sich hier nicht bearbeiten und bleibt unverändert.",
       "keptTrigger": "Dieser Auslöser lässt sich hier nicht bearbeiten und bleibt unverändert.",
@@ -946,7 +941,6 @@
       "notificationKind": "Erscheint in der Glocke als",
       "operator": "Bedingung",
       "placeholders": "In Titeln und Details wird {recordName} durch den Namen des Datensatzes ersetzt und {ruleName} durch den Namen dieser Automatisierung.",
-      "then": "Dann",
       "timezone": "Zeitzone",
       "title": "Titel",
       "titleEdit": "Automatisierung bearbeiten",
@@ -955,8 +949,7 @@
       "toAssignees": "Die zugewiesenen Personen benachrichtigen",
       "toOwner": "Mich benachrichtigen",
       "toValue": "Auf den Wert (optional)",
-      "value": "Wert",
-      "when": "Wenn"
+      "value": "Wert"
     },
     "deleteMessage": "„{name}“ samt Verlauf löschen? Das lässt sich nicht rückgängig machen.",
     "deleteTitle": "Automatisierung löschen",
@@ -968,6 +961,7 @@
     },
     "edit": "Bearbeiten",
     "effect": {
+      "agent": "Agenten fragen",
       "callWebhook": "Webhook aufrufen",
       "createRecord": "Datensatz anlegen",
       "notify": "Benachrichtigen",
@@ -1019,7 +1013,6 @@
       "running": "Läuft",
       "skipped": "Übersprungen"
     },
-    "subtitle": "Regeln ohne KI: Wenn etwas passiert und es passt, wird das ausgeführt.",
     "summary": {
       "dateReached": "{direction, select, before {{days, plural, =0 {Am Datum von {field} in {list}} one {# Tag vor {field} in {list}} other {# Tage vor {field} in {list}}}} other {{days, plural, =0 {Am Datum von {field} in {list}} one {# Tag nach {field} in {list}} other {# Tage nach {field} in {list}}}}}",
       "fieldChanged": "Wenn sich {field} in {list} ändert",
@@ -1033,9 +1026,237 @@
     "trigger": {
       "dateReached": "Ein Datum ist erreicht",
       "fieldChanged": "Ein Feld ändert sich",
+      "formSubmitted": "Ein Formular wird abgeschickt",
       "messageReceived": "Eine Nachricht geht ein",
       "recordCreated": "Ein Datensatz wird angelegt",
-      "recordUpdated": "Ein Datensatz wird geändert"
+      "recordUpdated": "Ein Datensatz wird geändert",
+      "webhookReceived": "Ein Webhook geht ein"
+    }
+  },
+  "Automations": {
+    "agent": {
+      "anyRunner": "Beliebiger verfügbarer Runner",
+      "defaultModel": "Standardmodell des Schlüssels",
+      "model": "Modell",
+      "openSettings": "Einstellungen, Verbindungen, Agenten öffnen",
+      "prompt": "Was soll der Agent tun?",
+      "promptPlaceholder": "Zum Beispiel: Verfasse eine kurze, freundliche Antwort und speichere sie zur Prüfung.",
+      "reason": {
+        "noKey": "Für diesen Arbeitsbereich ist noch kein Anbieter-Schlüssel gespeichert.",
+        "noRunner": "Mit diesem Arbeitsbereich ist noch kein Runner verbunden.",
+        "notConfigured": "Diese Art, einen Agenten auszuführen, ist noch nicht eingerichtet.",
+        "plan": "Dein Tarif enthält diese Art, einen Agenten auszuführen, nicht.",
+        "selfHosted": "Mate gibt es nur in der Cloud und nicht, wenn du Customermates selbst betreibst."
+      },
+      "runner": "Runner",
+      "runnerOffline": "{name} (nicht verbunden)",
+      "runtime": {
+        "mate": "Mate",
+        "ownKey": "Dein eigener Schlüssel",
+        "runner": "Dein eigener Runner"
+      },
+      "runtimeHint": {
+        "mate": "Läuft bei Customermates und verbraucht KI-Guthaben.",
+        "ownKey": "Läuft mit deinem eigenen Anbieter-Schlüssel.",
+        "runner": "Läuft auf einem Rechner, den du kontrollierst."
+      },
+      "runtimeLabel": "Wo der Agent läuft",
+      "unavailable": "Noch nicht verfügbar"
+    },
+    "builder": {
+      "active": "Aktiv",
+      "addStep": "Schritt hinzufügen",
+      "anyList": "Jede Liste",
+      "composedNotice": "Mate hat das aus deinem Satz entworfen. Nichts wird gespeichert, bis du es einschaltest.",
+      "if": "Falls",
+      "needsStep": "Füge mindestens einen Schritt hinzu, der etwas tut.",
+      "panesLabel": "Vorschau und Läufe",
+      "paused": "Pausiert",
+      "previewTab": "Vorschau",
+      "removeStep": "Schritt entfernen",
+      "runsTab": "Läufe",
+      "switchOn": "Einschalten",
+      "then": "Dann",
+      "webhook": "Webhook",
+      "when": "Wenn"
+    },
+    "columns": {
+      "enabled": "Aktiv",
+      "runs30d": "Läufe, 30 Tage",
+      "runsOn": "Läuft auf",
+      "sentence": "Was sie tut"
+    },
+    "filters": {
+      "kind": {
+        "routine": "Routine",
+        "rule": "Automatisierung"
+      },
+      "status": {
+        "active": "Aktiv",
+        "paused": "Pausiert"
+      }
+    },
+    "kind": {
+      "routine": "Routine"
+    },
+    "neverRun": "Noch nicht ausgeführt",
+    "new": {
+      "automation": "Automatisierung",
+      "routine": "Routine (Mate nach Zeitplan)"
+    },
+    "palette": {
+      "agent": {
+        "hint": "Gib einem Agenten eine Aufgabe in einfachen Worten",
+        "title": "Agenten fragen"
+      },
+      "callWebhook": {
+        "hint": "Den Datensatz an ein anderes Tool senden",
+        "title": "Webhook aufrufen"
+      },
+      "condition": {
+        "hint": "Nur weitermachen, wenn ein Wert passt",
+        "title": "Wenn ein Feld passt"
+      },
+      "createRecord": {
+        "hint": "Eine Aufgabe, einen Kunden, einen Deal oder einen Kontakt",
+        "title": "Datensatz anlegen"
+      },
+      "empty": "Kein Schritt passt zu deiner Suche.",
+      "groups": {
+        "agent": "Agent",
+        "condition": "Bedingung",
+        "integrations": "Integrationen",
+        "people": "Personen",
+        "record": "Datensatz"
+      },
+      "notify": {
+        "hint": "Glocke und E-Mail, wie die Person es eingestellt hat",
+        "title": "Jemanden benachrichtigen"
+      },
+      "search": "Schritte suchen",
+      "setField": {
+        "hint": "Einen Wert im Datensatz ändern",
+        "title": "Feld setzen"
+      },
+      "title": "Schritt hinzufügen"
+    },
+    "preview": {
+      "alreadyFired": "{count, plural, one {# Datensatz ist schon gelaufen} other {# Datensätze sind schon gelaufen}}",
+      "incomplete": "Vervollständige den Auslöser, um zu sehen, was diese Automatisierung tun würde.",
+      "note": "Auf Basis deiner aktuellen Datensätze. Es wurde nichts geändert.",
+      "record": "Passenden Datensatz öffnen",
+      "title": "Vorschau",
+      "unsupported": "Eine Vorschau gibt es für Erinnerungen zu einem Datum. Die anderen Auslöser laufen, wenn etwas passiert, daher gibt es noch nichts Zurückliegendes.",
+      "wouldRun": "{count, plural, =0 {Wäre nicht gelaufen} one {Wäre # Mal gelaufen} other {Wäre # Mal gelaufen}} in den letzten {days} Tagen"
+    },
+    "recipes": {
+      "answerEnquiries": {
+        "description": "Wenn ein Formular abgeschickt wird, lass deinen Agenten eine Antwort in deinem Ton entwerfen und dich zur Prüfung benachrichtigen.",
+        "effects": {
+          "agent": "Entwirf eine Antwort an {record} in meinem Ton. Beantworte die gestellte Frage, halte sie kurz und freundlich und speichere sie als Entwurf zur Prüfung. Sende nichts.",
+          "notify": "Antwort an {record} prüfen"
+        },
+        "title": "Neue Anfragen beantworten"
+      },
+      "chaseDocuments": {
+        "description": "7 Tage nach einem Anfragedatum eine Aufgabe zum Nachfordern der Unterlagen anlegen und die Besitzerin oder den Besitzer benachrichtigen.",
+        "effects": {
+          "action": "Unterlagen von {record} nachfordern",
+          "notify": "Unterlagen fehlen noch: {record}"
+        },
+        "title": "Fehlende Unterlagen nachfordern"
+      },
+      "followUpAfterOffer": {
+        "description": "Wenn sich die Phase ändert, eine Nachfass-Aufgabe in 3 Tagen anlegen und die Besitzerin oder den Besitzer benachrichtigen.",
+        "effects": {
+          "action": "Bei {record} nachfassen",
+          "notify": "Angebot gesendet: {record}"
+        },
+        "title": "Nach einem Angebot nachfassen"
+      },
+      "remindBeforeRenewal": {
+        "description": "30 Tage vor Vertragsende eine Aufgabe zur Verlängerung anlegen und die Besitzerin oder den Besitzer benachrichtigen.",
+        "effects": {
+          "action": "Verlängerung: {record}",
+          "notify": "Verlängerung steht an: {record}"
+        },
+        "title": "Vor einer Verlängerung erinnern"
+      },
+      "weeklyReview": {
+        "description": "Jeden Montag um 8:00 Mate bitten, Kunden ohne datierten nächsten Schritt aufzulisten, und dich benachrichtigen.",
+        "effects": {
+          "agent": "Liste die Kunden auf, die keinen datierten nächsten Schritt haben. Nenne zu jedem den Kunden, den letzten Kontakt und einen Vorschlag für den nächsten Schritt. Benachrichtige mich mit der Liste."
+        },
+        "title": "Wochenrückblick"
+      },
+      "welcomeSubmission": {
+        "description": "Wenn ein Formular abgeschickt wird, eine Willkommensaufgabe für morgen anlegen und die Besitzerin oder den Besitzer benachrichtigen.",
+        "effects": {
+          "action": "{record} willkommen heißen",
+          "notify": "Neue Einsendung: {record}"
+        },
+        "title": "Eine Formulareinsendung begrüßen"
+      },
+      "wonOrLostReason": {
+        "description": "Wenn die Phase ohne Grund gesetzt wird, die Besitzerin oder den Besitzer bitten, einen Grund zu ergänzen.",
+        "effects": {
+          "notify": "Grund bei {record} ergänzen"
+        },
+        "title": "Grund für Gewonnen oder Verloren"
+      }
+    },
+    "rowActions": {
+      "history": "Laufverlauf",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen"
+    },
+    "runs": {
+      "unsaved": "Läufe erscheinen hier, sobald die Automatisierung gespeichert und eingeschaltet ist."
+    },
+    "runs30d": "{count, plural, one {# Lauf} other {# Läufe}}",
+    "runsOn": {
+      "free": "Kostenlos",
+      "mate": "Mate",
+      "ownKey": "Eigener Schlüssel",
+      "runner": "Eigener Runner"
+    },
+    "sentence": {
+      "aField": "ein Feld",
+      "aList": "eine Liste",
+      "effect": {
+        "agent": "deinen Agenten bitten, {prompt}",
+        "callWebhook": "einen Webhook aufrufen",
+        "createRecord": "ein Element in {list} anlegen",
+        "kept": "einen unverändert belassenen Schritt ausführen",
+        "notifyAssignees": "die Zugewiesenen benachrichtigen",
+        "notifyBoth": "die Besitzerin oder den Besitzer und die Zugewiesenen benachrichtigen",
+        "notifyOwner": "die Besitzerin oder den Besitzer benachrichtigen",
+        "setField": "{field} setzen"
+      },
+      "if": "wenn {condition}",
+      "otherTrigger": "Wenn etwas anderes passiert",
+      "routineEvent": "Wenn {event}, Mate bitten, {prompt}",
+      "routineSchedule": "{schedule}, Mate bitten, {prompt}",
+      "somethingForYou": "etwas für dich zu erledigen"
+    },
+    "start": {
+      "compose": "Entwerfen",
+      "composerLabel": "Sag Mate, was passieren soll, wenn …",
+      "composerNote": "Mate entwirft die Schritte. Nichts wird gespeichert, bis du es einschaltest.",
+      "composerPlaceholder": "… eine neue Anfrage eingeht, erinnere mich am nächsten Morgen daran, sie zu beantworten",
+      "exact": "Genaue Schritte, keine KI",
+      "noAgent": "Es ist noch keine Möglichkeit eingerichtet, einen Agenten auszuführen, daher laufen Agent-Schritte nicht.",
+      "recipesBody": "Jedes Rezept ist eine vollständige Kette. Ändere, was du willst, gib ihr einen Namen und schalte sie ein.",
+      "recipesTitle": "Mit einem Rezept starten",
+      "refusal": {
+        "invalid": "Der Entwurf passte nicht zu deinem Arbeitsbereich. Nenne am besten die Liste oder das Feld.",
+        "unavailable": "Mate ist gerade nicht verfügbar. Wähle ein Rezept oder starte von null.",
+        "unclear": "Mate konnte nicht erkennen, was passieren soll. Sag, was es auslöst und was es tun soll.",
+        "unsupported": "Das kann eine Automatisierung noch nicht. Beschreibe es als Auslöser und genaue Schritte."
+      },
+      "scratch": "Von Grund auf neu",
+      "scratchBody": "Eine leere Kette. Wähle einen Auslöser und füge dann Schritte hinzu.",
+      "usesAgent": "Nutzt einen Agenten"
     }
   },
   "Booking": {
@@ -1756,6 +1977,9 @@
       "fields": {
         "adProvider": "Anzeigen-Anbieter",
         "auditSource": "Quelle",
+        "automationKind": "Typ",
+        "automationRunsOn": "Läuft auf",
+        "automationStatus": "Status",
         "calendarId": "Kalender",
         "connectedAccountId": "Kanal",
         "createdAt": "Erstellt am",
@@ -2692,13 +2916,13 @@
       "allTab": {
         "activity": "Alle Aktivitäten",
         "auditEntries": "Alle Einträge",
+        "automations": "Alle Automatisierungen",
         "conversations": "Alle Unterhaltungen",
         "deliveries": "Alle Zustellungen",
         "incomingWebhooks": "Alle eingehenden Webhooks",
         "members": "Alle Mitglieder",
         "records": "Alle {list}",
         "roles": "Alle Rollen",
-        "routines": "Alle Routinen",
         "users": "Alle Benutzer",
         "webhooks": "Alle Webhooks",
         "workspaces": "Alle Workspaces"

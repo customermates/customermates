@@ -12,6 +12,7 @@ import { BaseGetRepo } from "@/core/base/base-get.repo";
 import { compareSortValues, defaultValidateFilters, FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale";
 
 import { toAutomationRuleDto } from "./automation-rule-dto";
 import {
@@ -107,8 +108,6 @@ function matchesFilter(filter: Filter, item: AutomationListItemDto): boolean {
 }
 
 export class AutomationsListComposer extends BaseGetRepo<AutomationListItemDto> {
-  private readonly intl = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
-
   constructor(
     private readonly rules: Pick<AutomationRuleRepo, "findRules" | "countRunsSince">,
     private readonly routines: Pick<GetRoutinesRepo, "getItems" | "countRunsSince"> | null,
@@ -160,10 +159,17 @@ export class AutomationsListComposer extends BaseGetRepo<AutomationListItemDto> 
     const read = sort ? SORT_VALUES[sort.field] : undefined;
     const direction = sort?.direction ?? "desc";
     const column = read ?? SORT_VALUES.createdAt;
+    const collator = this.collator();
     return [...matching].sort(
       (left, right) =>
-        compareSortValues([column(left)], [column(right)], direction, this.intl) || left.id.localeCompare(right.id),
+        compareSortValues([column(left)], [column(right)], direction, collator) ||
+        (left.id < right.id ? -1 : left.id > right.id ? 1 : 0),
     );
+  }
+
+  override collator(): Pick<Intl.Collator, "compare"> {
+    const { user } = this.permissions;
+    return new Intl.Collator(resolveUserFormattingTag(user, resolveUserLocale(user)));
   }
 
   async getItems(params: GetQueryParams): Promise<AutomationListItemDto[]> {

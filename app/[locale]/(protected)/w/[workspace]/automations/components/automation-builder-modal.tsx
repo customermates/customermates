@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { Switch } from "@/components/ui/switch";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AUTOMATION_RULE_NAME_MAX_CHARS } from "@/features/automation-rules/automation-rule.schema";
 
 import { AutomationCardChain } from "./automation-card-chain";
@@ -31,6 +33,7 @@ type Props = {
 
 export const AutomationBuilderModal = observer(function AutomationBuilderModal({ store, onRoutineRecipe }: Props) {
   const t = useTranslations();
+  const intlStore = useHydratedIntlStore();
   const { form } = store;
   const starting = store.screen === "start";
 
@@ -81,6 +84,16 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
                 </div>
               </div>
 
+              {store.rule && (
+                <p className="text-xs text-muted-foreground">
+                  {store.rule.lastRunAt
+                    ? t("AutomationRules.lastRun", {
+                        time: intlStore.formatRelativeTime(new Date(store.rule.lastRunAt)),
+                      })
+                    : t("AutomationRules.neverRun")}
+                </p>
+              )}
+
               {!form.enabled && disabledReason && (
                 <p className="text-xs text-warning-soft-foreground" data-automation-paused-reason={disabledReason}>
                   {t(`AutomationRules.disabledReason.${disabledReason}`)}
@@ -116,7 +129,7 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
                   </SegmentedControlPanel>
 
                   <SegmentedControlPanel className="mt-0" value="runs">
-                    <AutomationRunsPane ruleId={form.id} />
+                    <AutomationRunsPane name={form.name} ruleId={form.id} />
                   </SegmentedControlPanel>
                 </SegmentedControl>
               </div>
@@ -126,7 +139,12 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
                   {t("Common.actions.cancel")}
                 </Button>
 
-                <Button data-automation-save="" disabled={store.isLoading} type="button" onClick={() => void save()}>
+                <Button
+                  data-automation-save=""
+                  disabled={store.isLoading}
+                  type="button"
+                  onClick={() => runUserAction(save)}
+                >
                   {!store.isExisting && form.enabled ? t("Automations.builder.switchOn") : t("Common.actions.save")}
                 </Button>
               </div>

@@ -11,6 +11,7 @@ import { recipeText } from "@/components/automations/automation-recipe-text";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { COMPOSE_SENTENCE_MAX_CHARS } from "@/ee/automation-compose/compose-automation.schema";
 import { availableRecipes } from "@/features/automation-rules/recipes";
 import { IntlLink } from "@/i18n/navigation";
@@ -60,7 +61,7 @@ export const AutomationStartScreen = observer(function AutomationStartScreen({ s
           className="flex flex-col gap-3"
           onSubmit={(event) => {
             event.preventDefault();
-            void store.compose();
+            runUserAction(() => store.compose());
           }}
         >
           <label className="flex items-center gap-2 text-sm font-medium" htmlFor="automation-composer">

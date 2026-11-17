@@ -669,7 +669,10 @@ const AUTOMATION_KEYS = (group: string, names: readonly string[]) =>
   names.map((name) => `AutomationRules.${group}.${name}`);
 const NOTIFICATION_KEYS = (group: string, names: readonly string[]) =>
   names.map((name) => `Notifications.${group}.${name}`);
-const AUTOMATION_EFFECT_KINDS = ["callWebhook", "createRecord", "notify", "setField"] as const;
+const AUTOMATIONS_KEYS = (group: string, names: readonly string[]) =>
+  names.map((name) => `Automations.${group}.${name}`);
+const AUTOMATION_RUNTIME_NAMES = ["mate", "ownKey", "runner"] as const;
+const AUTOMATION_EFFECT_KINDS = ["agent", "callWebhook", "createRecord", "notify", "setField"] as const;
 const AUTOMATION_RUN_STATUSES = ["applied", "failed", "queued", "running", "skipped"] as const;
 const AUTOMATION_TRIGGER_KINDS = [
   "dateReached",
@@ -681,20 +684,54 @@ const AUTOMATION_TRIGGER_KINDS = [
 const NOTIFICATION_KIND_NAMES = ["dueToday", "replyReceived", "ruleAlert"] as const;
 const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string[]]> = [
   [`${AUTOMATIONS_DIRECTORY}/automation-builder-fields.tsx :: t :: builder.boolean.\${option}`, AUTOMATION_KEYS("builder.boolean", ["false", "true"])],
-  [`${AUTOMATIONS_DIRECTORY}/automation-effects-editor.tsx :: t :: effect.\${kind}`, AUTOMATION_KEYS("effect", ["createRecord", "notify", "setField"])],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-agent-fields.tsx :: t :: agent.reason.\${reason}`,
+    AUTOMATIONS_KEYS("agent.reason", ["noKey", "noRunner", "notConfigured", "plan", "selfHosted"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-agent-fields.tsx :: t :: agent.runtime.\${runtime}`,
+    AUTOMATIONS_KEYS("agent.runtime", AUTOMATION_RUNTIME_NAMES),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-agent-fields.tsx :: t :: agent.runtimeHint.\${runtime}`,
+    AUTOMATIONS_KEYS("agent.runtimeHint", AUTOMATION_RUNTIME_NAMES),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/use-automation-columns.tsx :: t :: runsOn.\${row.original.runsOn}`,
+    AUTOMATIONS_KEYS("runsOn", ["free", ...AUTOMATION_RUNTIME_NAMES]),
+  ],
+  [
+    "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: filters.kind.${kind}",
+    AUTOMATIONS_KEYS("filters.kind", ["routine", "rule"]),
+  ],
+  [
+    "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: filters.status.${status}",
+    AUTOMATIONS_KEYS("filters.status", ["active", "paused"]),
+  ],
+  [
+    "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: runsOn.${runsOn}",
+    AUTOMATIONS_KEYS("runsOn", ["free", ...AUTOMATION_RUNTIME_NAMES]),
+  ],
   [
     `${AUTOMATIONS_DIRECTORY}/automation-effect-editors.tsx :: t :: notificationKind.\${kind}`,
     AUTOMATION_KEYS("notificationKind", ["dueToday", "replyReceived", "ruleAlert"]),
   ],
   [
-    `${AUTOMATIONS_DIRECTORY}/automation-conditions-editor.tsx :: t :: operator.\${operator}`,
+    `${AUTOMATIONS_DIRECTORY}/automation-condition-fields.tsx :: t :: operator.\${operator}`,
     AUTOMATION_KEYS("operator", ["after", "before", "empty", "equals", "notEmpty", "notEquals"]),
   ],
-  [`${AUTOMATIONS_DIRECTORY}/automation-trigger-editor.tsx :: t :: trigger.\${kind}`, AUTOMATION_KEYS("trigger", AUTOMATION_TRIGGER_KINDS)],
-  [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
-  [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
   [
-    `${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: reason.\${run.reason}`,
+    `${AUTOMATIONS_DIRECTORY}/automation-draft-sentence.ts :: t :: operator.\${condition.operator}`,
+    AUTOMATION_KEYS("operator", ["after", "before", "empty", "equals", "notEmpty", "notEquals"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-trigger-editor.tsx :: t :: trigger.\${kind}`,
+    AUTOMATION_KEYS("trigger", [...AUTOMATION_TRIGGER_KINDS, "formSubmitted", "webhookReceived"]),
+  ],
+  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
+  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: reason.\${run.reason}`,
     AUTOMATION_KEYS("reason", [
       "conditionsNotMet",
       "ownerChanged",
@@ -705,16 +742,10 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
       "ruleDisabled",
     ]),
   ],
-  [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
+  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
   [
-    `${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: disabledReason.\${rule.disabledReason}`,
+    `${AUTOMATIONS_DIRECTORY}/automation-builder-modal.tsx :: t :: disabledReason.\${disabledReason}`,
     AUTOMATION_KEYS("disabledReason", ["disabledByUser", "ownerInactive", "ownerMissing", "planPaused"]),
-  ],
-  [`${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
-  [`${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: status.\${rule.lastRunStatus}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
-  [
-    `${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: summary.\${trigger.kind}`,
-    AUTOMATION_KEYS("summary", [...AUTOMATION_TRIGGER_KINDS, "formSubmitted", "webhookReceived"]),
   ],
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: emailMode.\${mode}`, NOTIFICATION_KEYS("emailMode", ["digest", "instant", "off"])],
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: kindHelp.\${preference.kind}`, NOTIFICATION_KEYS("kindHelp", NOTIFICATION_KIND_NAMES)],
@@ -881,8 +912,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-run-trigger-card.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-runs-pane.tsx :: t :: RoutineRunStatus.${run.status}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-runs-pane.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/use-routine-columns.tsx :: t :: Common.userStatuses.${owner.status}",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/use-routine-columns.tsx :: t :: RoutineRunStatus.${row.original.lastRunStatus}",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns.tsx :: t :: Common.userStatuses.${owner.status}",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns.tsx :: t :: RoutineRunStatus.${lastRunStatus}",
   "app/[locale]/(public)/auth/error/error-page-content.tsx :: t :: ErrorCard.${errorKey}",
   "app/[locale]/(public)/auth/social-error-toast.tsx :: t :: AuthSocialErrors.${key}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.badgeKey}",

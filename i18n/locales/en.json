@@ -907,10 +907,6 @@
     "active": "Switch {name} on or off",
     "automate": "Automate this list",
     "builder": {
-      "action": "Action",
-      "active": "Active",
-      "addCondition": "Add a condition",
-      "addEffect": "Add an action",
       "after": "after",
       "anyField": "Any field",
       "assignToOwner": "Assign to me",
@@ -933,7 +929,6 @@
       "fixConditions": "Complete every condition or remove it.",
       "fixEffect": "Complete this action.",
       "fixTrigger": "Complete the trigger: choose a field and a valid value.",
-      "if": "If (optional)",
       "incomplete": "This automation is not complete yet.",
       "keptEffect": "This action ({kind}) cannot be edited here and stays as it is.",
       "keptTrigger": "This trigger cannot be edited here and stays as it is.",
@@ -946,7 +941,6 @@
       "notificationKind": "Appears in the bell as",
       "operator": "Condition",
       "placeholders": "In titles and details, {recordName} is replaced by the name of the record and {ruleName} by the name of this automation.",
-      "then": "Then",
       "timezone": "Time zone",
       "title": "Title",
       "titleEdit": "Edit automation",
@@ -955,8 +949,7 @@
       "toAssignees": "Tell the people it is assigned to",
       "toOwner": "Tell me",
       "toValue": "To value (optional)",
-      "value": "Value",
-      "when": "When"
+      "value": "Value"
     },
     "deleteMessage": "Delete “{name}” and its run history? This cannot be undone.",
     "deleteTitle": "Delete automation",
@@ -968,6 +961,7 @@
     },
     "edit": "Edit",
     "effect": {
+      "agent": "Ask an agent",
       "callWebhook": "Call a webhook",
       "createRecord": "Create a record",
       "notify": "Notify",
@@ -1019,7 +1013,6 @@
       "running": "Running",
       "skipped": "Skipped"
     },
-    "subtitle": "Rules that run without AI: when something happens and it matches, do this.",
     "summary": {
       "dateReached": "{direction, select, before {{days, plural, =0 {On the date of {field} in {list}} one {# day before {field} in {list}} other {# days before {field} in {list}}}} other {{days, plural, =0 {On the date of {field} in {list}} one {# day after {field} in {list}} other {# days after {field} in {list}}}}}",
       "fieldChanged": "When {field} changes in {list}",
@@ -1033,9 +1026,237 @@
     "trigger": {
       "dateReached": "A date is reached",
       "fieldChanged": "A field changes",
+      "formSubmitted": "A form is submitted",
       "messageReceived": "A message is received",
       "recordCreated": "A record is created",
-      "recordUpdated": "A record is updated"
+      "recordUpdated": "A record is updated",
+      "webhookReceived": "A webhook is received"
+    }
+  },
+  "Automations": {
+    "agent": {
+      "anyRunner": "Any online runner",
+      "defaultModel": "Default model of the key",
+      "model": "Model",
+      "openSettings": "Open Settings, Connections, Agents",
+      "prompt": "What should the agent do?",
+      "promptPlaceholder": "For example: Draft a short, friendly reply and save it for review.",
+      "reason": {
+        "noKey": "No provider key is saved for this workspace yet.",
+        "noRunner": "No runner is connected to this workspace yet.",
+        "notConfigured": "This way of running an agent is not set up yet.",
+        "plan": "Your plan does not include this way of running an agent.",
+        "selfHosted": "Mate is a Cloud feature and is not available when you host Customermates yourself."
+      },
+      "runner": "Runner",
+      "runnerOffline": "{name} (offline)",
+      "runtime": {
+        "mate": "Mate",
+        "ownKey": "Your own key",
+        "runner": "Your own runner"
+      },
+      "runtimeHint": {
+        "mate": "Runs on Customermates and uses AI credits.",
+        "ownKey": "Runs with your own provider key.",
+        "runner": "Runs on a machine you control."
+      },
+      "runtimeLabel": "Where the agent runs",
+      "unavailable": "Not available yet"
+    },
+    "builder": {
+      "active": "Active",
+      "addStep": "Add a step",
+      "anyList": "Any list",
+      "composedNotice": "Mate drafted this from your sentence. Nothing is saved until you switch it on.",
+      "if": "If",
+      "needsStep": "Add at least one step that does something.",
+      "panesLabel": "Preview and runs",
+      "paused": "Paused",
+      "previewTab": "Preview",
+      "removeStep": "Remove step",
+      "runsTab": "Runs",
+      "switchOn": "Switch on",
+      "then": "Then",
+      "webhook": "Webhook",
+      "when": "When"
+    },
+    "columns": {
+      "enabled": "Active",
+      "runs30d": "Runs, 30 days",
+      "runsOn": "Runs on",
+      "sentence": "What it does"
+    },
+    "filters": {
+      "kind": {
+        "routine": "Routine",
+        "rule": "Automation"
+      },
+      "status": {
+        "active": "Active",
+        "paused": "Paused"
+      }
+    },
+    "kind": {
+      "routine": "Routine"
+    },
+    "neverRun": "Not run yet",
+    "new": {
+      "automation": "Automation",
+      "routine": "Routine (Mate on a schedule)"
+    },
+    "palette": {
+      "agent": {
+        "hint": "Give an agent a task in plain words",
+        "title": "Ask an agent"
+      },
+      "callWebhook": {
+        "hint": "Send the record to another tool",
+        "title": "Call a webhook"
+      },
+      "condition": {
+        "hint": "Continue only when a value fits",
+        "title": "If a field matches"
+      },
+      "createRecord": {
+        "hint": "A to-do, a client, a deal or a contact",
+        "title": "Create a record"
+      },
+      "empty": "No step matches your search.",
+      "groups": {
+        "agent": "Agent",
+        "condition": "Condition",
+        "integrations": "Integrations",
+        "people": "People",
+        "record": "Record"
+      },
+      "notify": {
+        "hint": "Bell and email, as they have set it",
+        "title": "Notify someone"
+      },
+      "search": "Search steps",
+      "setField": {
+        "hint": "Change a value on the record",
+        "title": "Set a field"
+      },
+      "title": "Add a step"
+    },
+    "preview": {
+      "alreadyFired": "{count, plural, one {# record has already run} other {# records have already run}}",
+      "incomplete": "Complete the trigger to see what this automation would do.",
+      "note": "Based on your current records. Nothing has been changed.",
+      "record": "Open a matching record",
+      "title": "Preview",
+      "unsupported": "A preview is available for reminders on a date. The other triggers run when something happens, so there is nothing to look back on yet.",
+      "wouldRun": "{count, plural, =0 {Would not have run} one {Would have run # time} other {Would have run # times}} in the last {days} days"
+    },
+    "recipes": {
+      "answerEnquiries": {
+        "description": "When a form is submitted, ask your agent to draft a reply in your tone and notify you to review it.",
+        "effects": {
+          "agent": "Draft a reply to {record} in my tone. Answer the question they asked, keep it short and friendly, and save it as a draft for review. Do not send anything.",
+          "notify": "Review the reply to {record}"
+        },
+        "title": "Answer new enquiries"
+      },
+      "chaseDocuments": {
+        "description": "7 days after a request date, create an Action to chase the documents and notify the owner.",
+        "effects": {
+          "action": "Chase the documents of {record}",
+          "notify": "Documents still missing: {record}"
+        },
+        "title": "Chase missing documents"
+      },
+      "followUpAfterOffer": {
+        "description": "When the stage changes, create a follow-up Action due in 3 days and notify the owner.",
+        "effects": {
+          "action": "Follow up on {record}",
+          "notify": "Offer sent: {record}"
+        },
+        "title": "Follow up after an offer"
+      },
+      "remindBeforeRenewal": {
+        "description": "30 days before a contract ends, create a renewal Action and notify the owner.",
+        "effects": {
+          "action": "Renewal: {record}",
+          "notify": "Renewal coming up: {record}"
+        },
+        "title": "Remind before a renewal"
+      },
+      "weeklyReview": {
+        "description": "Every Monday at 8:00, ask Mate to list clients without a dated next step and notify you.",
+        "effects": {
+          "agent": "List the clients that have no dated next step. For each one, name the client, the last contact and a suggested next step. Notify me with the list."
+        },
+        "title": "Weekly review"
+      },
+      "welcomeSubmission": {
+        "description": "When a form is submitted, create a welcome Action for tomorrow and notify the owner.",
+        "effects": {
+          "action": "Welcome {record}",
+          "notify": "New submission: {record}"
+        },
+        "title": "Welcome a form submission"
+      },
+      "wonOrLostReason": {
+        "description": "When the stage is set without a reason, notify the owner to add one.",
+        "effects": {
+          "notify": "Add a reason to {record}"
+        },
+        "title": "Won or lost reason"
+      }
+    },
+    "rowActions": {
+      "history": "Run history",
+      "pause": "Pause",
+      "resume": "Resume"
+    },
+    "runs": {
+      "unsaved": "Runs appear here once the automation is saved and switched on."
+    },
+    "runs30d": "{count, plural, one {# run} other {# runs}}",
+    "runsOn": {
+      "free": "Free",
+      "mate": "Mate",
+      "ownKey": "Own key",
+      "runner": "Own runner"
+    },
+    "sentence": {
+      "aField": "a field",
+      "aList": "a list",
+      "effect": {
+        "agent": "ask your agent to {prompt}",
+        "callWebhook": "call a webhook",
+        "createRecord": "create a {list}",
+        "kept": "run a step that is kept as it is",
+        "notifyAssignees": "notify the assignees",
+        "notifyBoth": "notify the owner and the assignees",
+        "notifyOwner": "notify the owner",
+        "setField": "set {field}"
+      },
+      "if": "if {condition}",
+      "otherTrigger": "When something else happens",
+      "routineEvent": "When {event}, ask Mate to {prompt}",
+      "routineSchedule": "{schedule}, ask Mate to {prompt}",
+      "somethingForYou": "do something for you"
+    },
+    "start": {
+      "compose": "Draft it",
+      "composerLabel": "Tell Mate what should happen when …",
+      "composerNote": "Mate drafts the steps. Nothing is saved until you switch it on.",
+      "composerPlaceholder": "… a new enquiry arrives, remind me the next morning to answer it",
+      "exact": "Exact steps, no AI",
+      "noAgent": "No way to run an agent is set up yet, so agent steps will not run.",
+      "recipesBody": "Each recipe is a complete chain. Change anything, give it a name, switch it on.",
+      "recipesTitle": "Start from a recipe",
+      "refusal": {
+        "invalid": "The draft did not fit your workspace. Try naming the list or the field.",
+        "unavailable": "Mate is not available right now. Pick a recipe or start from scratch.",
+        "unclear": "Mate could not tell what should happen. Say what sets it off and what it should do.",
+        "unsupported": "An automation cannot do that yet. Describe it as a trigger and exact steps."
+      },
+      "scratch": "Start from scratch",
+      "scratchBody": "An empty chain. Pick a trigger, then add steps.",
+      "usesAgent": "Uses an agent"
     }
   },
   "Booking": {
@@ -1756,6 +1977,9 @@
       "fields": {
         "adProvider": "Ad provider",
         "auditSource": "Source",
+        "automationKind": "Type",
+        "automationRunsOn": "Runs on",
+        "automationStatus": "Status",
         "calendarId": "Calendar",
         "connectedAccountId": "Channel",
         "createdAt": "Created at",
@@ -2692,13 +2916,13 @@
       "allTab": {
         "activity": "All activity",
         "auditEntries": "All entries",
+        "automations": "All automations",
         "conversations": "All conversations",
         "deliveries": "All deliveries",
         "incomingWebhooks": "All incoming webhooks",
         "members": "All members",
         "records": "All {list}",
         "roles": "All roles",
-        "routines": "All routines",
         "users": "All users",
         "webhooks": "All webhooks",
         "workspaces": "All workspaces"

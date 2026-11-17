@@ -75,8 +75,13 @@ export function useAutomationColumns({
         header: t("Common.table.columns.lastRunAt"),
         cell: ({ row }) => {
           const { lastRunAt, lastRunStatus } = row.original;
-          if (!lastRunAt || !lastRunStatus)
-            return <span className="text-subdued text-sm">{t("Automations.neverRun")}</span>;
+          if (!lastRunAt || !lastRunStatus) {
+            return (
+              <span className="text-subdued text-sm">
+                {row.original.kind === "routine" ? t("RoutineDetail.never") : t("Automations.neverRun")}
+              </span>
+            );
+          }
           return (
             <span className="flex items-center gap-2">
               <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[lastRunStatus]}>
