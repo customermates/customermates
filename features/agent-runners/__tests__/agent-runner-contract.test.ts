@@ -593,7 +593,6 @@ describe("reporting the result", () => {
   });
 
   it("stores a timeout under the code the labels know, whatever the runner calls it", async () => {
-
     for (const error of [undefined, "timedOut", "runnerStopped"]) {
       const timedOut = setup();
       timedOut.jobs.addJob({ status: "running", runnerId: RUNNER_ID, attempts: 1 });

@@ -370,24 +370,26 @@ describe("running a job", () => {
     expect(await running).toMatchObject({ status: "succeeded", summary: "fine" });
   });
 
-  it.each([
-    ["answers 503", () => Promise.resolve({ status: 503, body: null, retryAfterMs: null })],
-    ["cannot be reached", () => Promise.reject(new Error("network down"))],
-  ])("sends a batch of events a second time when the server %s", async (_name, firstAnswer) => {
-    const { deps, api, posted, started } = setup();
-    mockOf(api, "events").mockImplementationOnce(firstAnswer);
+  it.each(["answers 503", "cannot be reached"] as const)(
+    "sends a batch a second time when the server %s",
+    async (failure) => {
+      const { deps, api, posted, started } = setup();
+      if (failure === "answers 503")
+        mockOf(api, "events").mockResolvedValueOnce({ status: 503, body: null, retryAfterMs: null });
+      else mockOf(api, "events").mockRejectedValueOnce(new Error("network down"));
 
-    const running = runJob(claimed(), CLAUDE, OPTIONS, deps);
-    const child = await started();
-    child.stdout(assistant("working"), success("fine"));
-    child.exit(0);
-    await running;
+      const running = runJob(claimed(), CLAUDE, OPTIONS, deps);
+      const child = await started();
+      child.stdout(assistant("working"), success("fine"));
+      child.exit(0);
+      await running;
 
-    const sent = mockOf(api, "events").mock.calls.map((call) => call[2] as TranscriptEvent[]);
-    expect(sent).toHaveLength(2);
-    expect(sent[1]).toEqual(sent[0]);
-    expect(posted.flat().map((event) => event.type)).toEqual(["message", "finish"]);
-  });
+      const sent = mockOf(api, "events").mock.calls.map((call) => call[2] as TranscriptEvent[]);
+      expect(sent).toHaveLength(2);
+      expect(sent[1]).toEqual(sent[0]);
+      expect(posted.flat().map((event) => event.type)).toEqual(["message", "finish"]);
+    },
+  );
 
   it("gives up on a batch after the second try and does not repeat one the server refuses as invalid", async () => {
     const down = setup({ eventsStatus: 503 });
@@ -520,12 +522,15 @@ describe("timeouts and closed jobs", () => {
   it("does not start the client and reports runnerStopped when the stop signal arrives during the confirmation", async () => {
     const { calls, deps, api, posted } = setup();
     const controller = new AbortController();
-    mockOf(api, "start").mockImplementation(() => {
-      controller.abort();
-      return Promise.resolve({ status: 200, body: { ok: true, timeoutInSeconds: 60 }, retryAfterMs: null });
-    });
+    const confirming: ApiClient = {
+      ...api,
+      start: () => {
+        controller.abort();
+        return Promise.resolve({ status: 200, body: { timeoutInSeconds: 60 }, retryAfterMs: null });
+      },
+    };
 
-    const result = await runJob(claimed(), CLAUDE, OPTIONS, { ...deps, signal: controller.signal });
+    const result = await runJob(claimed(), CLAUDE, OPTIONS, { ...deps, api: confirming, signal: controller.signal });
 
     expect(calls).toEqual([]);
     expect(result).toEqual({ status: "failed", error: "runnerStopped" });

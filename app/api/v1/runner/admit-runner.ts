@@ -18,8 +18,7 @@ function rateLimited(retryAfterSeconds: number): ApiRateLimitExceededError {
 }
 
 const BODY_REFUSALS: Record<AgentRunnerBodyRefusal, string> = {
-  lengthRequired:
-    "Send the request body with a Content-Length header. A body without a declared length is not read.",
+  lengthRequired: "Send the request body with a Content-Length header. A body without a declared length is not read.",
   bodyTooLarge: `The request body is larger than ${AGENT_RUNNER_LIMITS.maxBodyBytes / 1024} KB.`,
 };
 

@@ -71,7 +71,13 @@ describe("runner API client", () => {
 
   it("declares the length of every body, which the server requires before it reads one", async () => {
     const event = { type: "message" as const, at: "2026-11-17T09:00:00.000Z", role: "assistant" as const, text: "ä" };
-    for (const path of ["heartbeat", "jobs/claim", `jobs/${JOB_ID}/start`, `jobs/${JOB_ID}/events`, `jobs/${JOB_ID}/result`])
+    for (const path of [
+      "heartbeat",
+      "jobs/claim",
+      `jobs/${JOB_ID}/start`,
+      `jobs/${JOB_ID}/events`,
+      `jobs/${JOB_ID}/result`,
+    ])
       server.on(`/api/v1/runner/${path}`, { status: 200, body: { ok: true } });
 
     await client().heartbeat("ws-main", []);
