@@ -112,6 +112,7 @@ export const PROTECTED_ROUTES = [
   "/w/:workspace/records/:typeId/:recordId",
   "/w/:workspace/routines",
   "/w/:workspace/settings/activity",
+  "/w/:workspace/settings/agents",
   "/w/:workspace/settings/api-keys",
   "/w/:workspace/settings/billing",
   "/w/:workspace/settings/booking",

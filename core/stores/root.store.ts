@@ -5,6 +5,8 @@ import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/w/[workspace
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/company-invite/invite-by-email.store";
 import { IncomingWebhookModalStore } from "@/components/incoming-webhook/incoming-webhook-modal.store";
 import { IncomingWebhooksStore } from "@/components/incoming-webhook/incoming-webhooks.store";
+import { AgentRunnerModalStore } from "@/components/agent-runners/agent-runner-modal.store";
+import { AgentRunnersStore } from "@/components/agent-runners/agent-runners.store";
 import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
 import { AddPickerStore } from "@/app/components/navigation/add-picker.store";
 import { ViewPickerStore } from "@/components/data-view/views/view-picker.store";
@@ -93,6 +95,8 @@ export class RootStore {
   private _webhookDeliveriesStore?: WebhookDeliveriesStore;
   private _webhooksStore?: WebhooksStore;
   private _incomingWebhooksStore?: IncomingWebhooksStore;
+  private _agentRunnersStore?: AgentRunnersStore;
+  private _agentRunnerModalStore?: AgentRunnerModalStore;
   private _routinesStore?: RoutinesStore;
   private _trashStore?: TrashStore;
   private _notificationsStore?: NotificationsStore;
@@ -399,6 +403,14 @@ export class RootStore {
 
   get incomingWebhooksStore() {
     return (this._incomingWebhooksStore ??= new IncomingWebhooksStore(this));
+  }
+
+  get agentRunnersStore() {
+    return (this._agentRunnersStore ??= new AgentRunnersStore(this));
+  }
+
+  get agentRunnerModalStore() {
+    return (this._agentRunnerModalStore ??= new AgentRunnerModalStore(this));
   }
 
   get webhookDeliveriesStore() {

@@ -5,6 +5,7 @@ export type SettingsSlug =
   | "workspaces"
   | "channels"
   | "api-keys"
+  | "agents"
   | "general"
   | "members"
   | "roles"
