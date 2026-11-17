@@ -1224,6 +1224,7 @@
         "api-keys": "tokens, API, MCP, desarrollador, claves de acceso, conectores, Claude, ChatGPT, Codex, Gemini, Cursor, IA, servidor MCP, n8n, integración",
         "billing": "plan, suscripción, facturas, pago, precios, mejorar plan, recibo, factura",
         "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendarios, sincronización de bandeja, sincronización de calendario, sincronización de correo, SMTP, IMAP, Office 365, Sales Navigator",
+        "connections": "conexiones, integraciones, apps, agentes, canales, claves de API, webhooks, desarrolladores, conectar, cuentas vinculadas",
         "general": "nombre del espacio de trabajo, renombrar espacio de trabajo, salir del espacio de trabajo",
         "incoming-webhooks": "webhooks entrantes, recibir datos, dirección secreta, URL del webhook, enviar JSON, crear registros desde otras herramientas, herramienta de formularios, Zapier, Make, n8n",
         "members": "equipo, usuarios, personas, compañeros, invitar, asientos, licencias",
