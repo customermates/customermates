@@ -743,7 +743,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
   "app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.description",
   "app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.title",
-  "app/[locale]/(protected)/w/[workspace]/inbox/components/draft-review-deck.tsx :: t :: Common.providers.${thread.provider}",
+  "app/[locale]/(protected)/w/[workspace]/inbox/components/draft-review-deck.tsx :: t :: Common.providers.${item.thread.provider}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",

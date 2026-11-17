@@ -68,6 +68,7 @@ export class DraftReviewStore extends BaseStore {
       open: action,
       close: action,
       keep: action,
+      bringToFront: action,
       startEdit: action,
       cancelEdit: action,
       setEditBody: action,
@@ -158,6 +159,12 @@ export class DraftReviewStore extends BaseStore {
     this.keptIds.add(item.draft.id);
     this.queue = this.queue.slice(1);
     this.keptCount += 1;
+  };
+
+  bringToFront = (draftId: string) => {
+    const index = this.queue.findIndex((entry) => entry.draft.id === draftId);
+    if (index <= 0 || this.busy || this.editing) return;
+    this.queue = [this.queue[index], ...this.queue.slice(0, index), ...this.queue.slice(index + 1)];
   };
 
   private refuse = (result: { error: unknown }) => {

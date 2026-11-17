@@ -2,12 +2,13 @@
 
 import type { ReviewDraft } from "@/ee/messaging/outbound/list-review-drafts.interactor";
 import type { PanInfo } from "framer-motion";
+import type { ReactNode } from "react";
 
 import { useEffect } from "react";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, ArrowRight, LoaderCircle, Paperclip, Pencil, Send, Trash2 } from "lucide-react";
+import { Clock, LoaderCircle, Paperclip, Pencil, Send, Trash2 } from "lucide-react";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -16,6 +17,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,15 +30,18 @@ import { splitQuotedText } from "@/ee/messaging/email-quote";
 import { isDraftThreadId, isEmailProvider } from "@/ee/messaging/provider";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { deriveThreadDisplay, messageSenderName } from "@/ee/messaging/thread-display";
+import { MessageSurface } from "@/features/messaging/message-surface";
 import { MessageText } from "@/features/messaging/message-text";
 
 import { deckShortcutAllowed } from "./draft-review-shortcuts";
 
-const SWIPE_DISTANCE = 120;
-const SWIPE_VELOCITY = 600;
+const SWIPE_DISTANCE = 110;
+const SWIPE_VELOCITY = 700;
+const HISTORY_SHOWN = 2;
+const PEEKING_CARDS = 2;
 const SIGNATURE_DELIMITER = /\n-- ?(?:\n|$)/;
 
-function historyPreview(message: ReviewDraft["history"][number]): string | null {
+export function historyPreview(message: ReviewDraft["history"][number]): string | null {
   const body = message.bodyText?.trim();
   const visible = body
     ? splitQuotedText(body)
@@ -48,104 +53,168 @@ function historyPreview(message: ReviewDraft["history"][number]): string | null 
   return visible || message.subject?.trim() || null;
 }
 
-const DraftCard = observer(function DraftCard({ item }: { item: ReviewDraft }) {
+function useRecipient(item: ReviewDraft) {
   const t = useTranslations();
-  const intlStore = useHydratedIntlStore();
-  const { draftReviewStore: store } = useRootStore();
-  const { draft, thread, history } = item;
-  const view = deriveThreadDisplay(thread, t);
-  const ProviderIcon = getProviderIcon(thread.provider);
-  const email = isEmailProvider(thread.provider);
-  const subject = email ? draft.subject?.trim() || thread.subject?.trim() || null : null;
-  const recipientName = (email && !view.isGroup && view.displayNameSecondary) || view.displayName;
-  const attachmentCount = draft.attachmentsMeta.length;
+  const view = deriveThreadDisplay(item.thread, t);
+  const email = isEmailProvider(item.thread.provider);
+  const name = (email && !view.isGroup && view.displayNameSecondary) || view.displayName;
+  const subject = email ? item.draft.subject?.trim() || item.thread.subject?.trim() || null : null;
+
+  return { name, subject, avatarUrl: view.avatarUrl };
+}
+
+function ProviderMark({ item, className }: { item: ReviewDraft; className?: string }) {
+  const t = useTranslations();
+  const ProviderIcon = getProviderIcon(item.thread.provider);
+  const label = t(`Common.providers.${item.thread.provider}`);
 
   return (
-    <div className="flex min-h-0 flex-col gap-4" data-draft-review-card={draft.id}>
-      <div className="flex items-center gap-3">
-        <Avatar name={recipientName} size="lg" src={view.avatarUrl} />
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <ProviderIcon aria-label={label} className={cn("size-3.5 shrink-0", className)} />
+      </TooltipTrigger>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <span className="truncate text-sm font-semibold">{recipientName}</span>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <ProviderIcon
-                  aria-label={t(`Common.providers.${thread.provider}`)}
-                  className="text-muted-foreground size-3.5 shrink-0"
-                />
-              </TooltipTrigger>
+function RecipientHeader({ item }: { item: ReviewDraft }) {
+  const t = useTranslations();
+  const { name, avatarUrl } = useRecipient(item);
+  const newConversation = isDraftThreadId(item.thread.unipileThreadId);
 
-              <TooltipContent>{t(`Common.providers.${thread.provider}`)}</TooltipContent>
-            </Tooltip>
+  return (
+    <div className="flex min-w-0 items-center gap-3 p-4 pb-3">
+      <Avatar name={name} size="lg" src={avatarUrl} />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate text-sm font-semibold">{name}</span>
+
+          <ProviderMark item={item} />
+        </div>
+
+        <p className="text-muted-foreground truncate text-xs">
+          {newConversation ? t("Inbox.draftReview.newConversation") : null}
+
+          {newConversation && item.accountLabel ? " · " : null}
+
+          {item.accountLabel ? t("Inbox.draftReview.from", { account: item.accountLabel }) : null}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const HistoryBubble = observer(function HistoryBubble({
+  item,
+  message,
+}: {
+  item: ReviewDraft;
+  message: ReviewDraft["history"][number];
+}) {
+  const t = useTranslations();
+  const intlStore = useHydratedIntlStore();
+  const { userStore } = useRootStore();
+  const { name, avatarUrl } = useRecipient(item);
+  const outbound = message.direction === "outbound";
+  const me = userStore.user;
+  const sender = outbound ? t("Inbox.senderYou") : (messageSenderName(message) ?? name);
+
+  return (
+    <li className={cn("flex gap-2", outbound ? "flex-row-reverse" : "flex-row")}>
+      <div className="flex shrink-0 flex-col justify-end pb-5">
+        <Avatar
+          name={outbound ? [me?.firstName, me?.lastName] : sender}
+          src={outbound ? (me?.avatarUrl ?? undefined) : avatarUrl}
+        />
+      </div>
+
+      <div className={cn("flex min-w-0 max-w-[85%] flex-col gap-1", outbound ? "items-end" : "items-start")}>
+        <MessageSurface isEmail={false} isOutbound={outbound}>
+          <div className="px-3 py-2">
+            <p className="line-clamp-2">{historyPreview(message) ?? t("Inbox.attachmentUnsupported")}</p>
+          </div>
+        </MessageSurface>
+
+        <p className="flex items-center gap-1.5 px-1">
+          <span className="text-foreground/80 max-w-48 truncate text-xs font-medium">{sender}</span>
+
+          <time suppressHydrationWarning className="text-muted-foreground text-[11px] whitespace-nowrap">
+            {intlStore.formatRelativeTime(message.sentAt)}
+          </time>
+        </p>
+      </div>
+    </li>
+  );
+});
+
+const DraftBubble = observer(function DraftBubble({ item }: { item: ReviewDraft }) {
+  const t = useTranslations();
+  const { draftReviewStore: store } = useRootStore();
+  const { subject } = useRecipient(item);
+  const attachmentCount = item.draft.attachmentsMeta.length;
+
+  return (
+    <div className="flex justify-end pl-8">
+      <MessageSurface isEmail isOutbound className="border-primary/30 w-full border border-dashed">
+        <div className="flex flex-col gap-2 px-3.5 py-3" data-draft-review-body="">
+          <div className="flex items-center justify-between gap-2">
+            {subject ? <span className="min-w-0 truncate font-semibold">{subject}</span> : <span />}
+
+            <Badge variant="secondary">{t("Inbox.draftReview.draftBadge")}</Badge>
           </div>
 
-          <p className="text-muted-foreground truncate text-xs">
-            {isDraftThreadId(thread.unipileThreadId) ? t("Inbox.draftReview.newConversation") : null}
+          {store.editing ? (
+            <Textarea
+              autoFocus
+              aria-label={t("Inbox.draftReview.editLabel")}
+              className="max-h-64 min-h-32"
+              disabled={store.busy}
+              value={store.editBody}
+              onChange={(event) => store.setEditBody(event.target.value)}
+            />
+          ) : (
+            <MessageText text={item.draft.bodyText ?? ""} />
+          )}
 
-            {isDraftThreadId(thread.unipileThreadId) && item.accountLabel ? " · " : null}
+          {attachmentCount > 0 && (
+            <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
+              <Paperclip aria-hidden className="size-3" />
 
-            {item.accountLabel ? t("Inbox.draftReview.from", { account: item.accountLabel }) : null}
-          </p>
+              {t("Inbox.draftReview.attachments", { count: attachmentCount })}
+            </p>
+          )}
         </div>
-      </div>
-
-      {history.length > 0 && (
-        <ol aria-label={t("Inbox.draftReview.earlier")} className="flex flex-col gap-2">
-          {history.map((message) => (
-            <li key={message.id} className="text-muted-foreground text-xs">
-              <p className="flex gap-1.5">
-                <span className="text-foreground font-medium">
-                  {message.direction === "outbound" ? t("Inbox.youPrefix") : `${messageSenderName(message) ?? ""}:`}
-                </span>
-
-                <time suppressHydrationWarning>{intlStore.formatRelativeTime(message.sentAt)}</time>
-              </p>
-
-              <p className="line-clamp-2">{historyPreview(message) ?? t("Inbox.attachmentUnsupported")}</p>
-            </li>
-          ))}
-        </ol>
-      )}
-
-      <div className="rounded-lg border border-border-strong bg-muted/50 p-4 text-sm" data-draft-review-body="">
-        {subject && <p className="mb-2 font-semibold">{subject}</p>}
-
-        {store.editing ? (
-          <Textarea
-            autoFocus
-            aria-label={t("Inbox.draftReview.editLabel")}
-            className="max-h-64 min-h-32"
-            disabled={store.busy}
-            value={store.editBody}
-            onChange={(event) => store.setEditBody(event.target.value)}
-          />
-        ) : (
-          <MessageText text={draft.bodyText ?? ""} />
-        )}
-
-        {attachmentCount > 0 && (
-          <p className="text-muted-foreground mt-3 flex items-center gap-1.5 text-xs">
-            <Paperclip aria-hidden className="size-3" />
-
-            {t("Inbox.draftReview.attachments", { count: attachmentCount })}
-          </p>
-        )}
-      </div>
+      </MessageSurface>
     </div>
   );
 });
 
-const SwipeSurface = observer(function SwipeSurface({ item }: { item: ReviewDraft }) {
+function SwipeStamp({ children, tone }: { children: ReactNode; tone: "send" | "keep" }) {
+  return (
+    <span
+      className={cn(
+        "bg-background flex items-center gap-2 rounded-lg border-2 px-4 py-2 text-base font-semibold shadow-sm",
+        tone === "send"
+          ? "border-success/40 text-success-soft-foreground -rotate-6"
+          : "border-border-strong text-muted-foreground rotate-6",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+const DraftCard = observer(function DraftCard({ item }: { item: ReviewDraft }) {
   const t = useTranslations();
   const { draftReviewStore: store } = useRootStore();
   const reducedMotion = useReducedMotion();
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-240, 0, 240], reducedMotion ? [0, 0, 0] : [-4, 0, 4]);
-  const sendHint = useTransform(x, [24, SWIPE_DISTANCE], [0, 1]);
-  const keepHint = useTransform(x, [-SWIPE_DISTANCE, -24], [1, 0]);
-  const restHint = useTransform(x, [-48, -24, 24, 48], [0, 1, 1, 0]);
+  const rotate = useTransform(x, [-260, 0, 260], reducedMotion ? [0, 0, 0] : [-6, 0, 6]);
+  const sendOpacity = useTransform(x, [20, SWIPE_DISTANCE], [0, 1]);
+  const keepOpacity = useTransform(x, [-SWIPE_DISTANCE, -20], [1, 0]);
   const draggable = !store.editing && !store.busy;
 
   function settle(_event: unknown, info: PanInfo) {
@@ -157,48 +226,214 @@ const SwipeSurface = observer(function SwipeSurface({ item }: { item: ReviewDraf
   }
 
   return (
-    <>
+    <motion.div
+      dragSnapToOrigin
+      animate={{ opacity: 1, y: 0 }}
+      className={cn("relative touch-pan-y", draggable && "cursor-grab active:cursor-grabbing")}
+      data-draft-review-card={item.draft.id}
+      drag={draggable ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.8}
+      initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+      style={{ x, rotate }}
+      transition={{ duration: 0.18 }}
+      onDragEnd={settle}
+    >
+      <div className="bg-card border-border-strong overflow-hidden rounded-2xl border shadow-md">
+        <RecipientHeader item={item} />
+
+        <div className="bg-muted/60 flex flex-col gap-3 p-4">
+          {item.history.length > 0 && (
+            <ol aria-label={t("Inbox.draftReview.earlier")} className="flex flex-col gap-3">
+              {item.history.slice(-HISTORY_SHOWN).map((message) => (
+                <HistoryBubble key={message.id} item={item} message={message} />
+              ))}
+            </ol>
+          )}
+
+          <DraftBubble item={item} />
+        </div>
+      </div>
+
       <motion.div
-        dragSnapToOrigin
-        animate={{ opacity: 1, scale: 1 }}
-        className={cn("touch-pan-y", draggable && "cursor-grab active:cursor-grabbing")}
-        drag={draggable ? "x" : false}
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.7}
-        initial={reducedMotion ? false : { opacity: 0, scale: 0.98 }}
-        style={{ x, rotate }}
-        transition={{ duration: 0.18 }}
-        onDragEnd={settle}
+        aria-hidden
+        className="bg-success/10 border-success/40 pointer-events-none absolute inset-0 z-20 flex items-start justify-center rounded-2xl border-2 pt-24"
+        style={{ opacity: sendOpacity }}
       >
-        <DraftCard item={item} />
+        <SwipeStamp tone="send">
+          <Send className="size-4" />
+
+          {t("Inbox.draftReview.send")}
+        </SwipeStamp>
       </motion.div>
 
-      <div className={cn("relative min-h-6 text-xs", store.editing && "invisible")}>
-        <motion.p className="text-muted-foreground max-sm:hidden" style={{ opacity: restHint }}>
-          {t("Inbox.draftReview.hint")}
-        </motion.p>
-
-        <motion.p
-          aria-hidden
-          className="pointer-events-none absolute inset-0 flex items-center justify-end gap-1.5 font-semibold text-success-soft-foreground"
-          style={{ opacity: sendHint }}
-        >
-          {t("Inbox.draftReview.send")}
-
-          <ArrowRight aria-hidden className="size-3.5" />
-        </motion.p>
-
-        <motion.p
-          aria-hidden
-          className="pointer-events-none absolute inset-0 flex items-center gap-1.5 font-semibold text-muted-foreground"
-          style={{ opacity: keepHint }}
-        >
-          <ArrowLeft aria-hidden className="size-3.5" />
+      <motion.div
+        aria-hidden
+        className="bg-foreground/5 border-border-strong pointer-events-none absolute inset-0 z-20 flex items-start justify-center rounded-2xl border-2 pt-24"
+        style={{ opacity: keepOpacity }}
+      >
+        <SwipeStamp tone="keep">
+          <Clock className="size-4" />
 
           {t("Inbox.draftReview.keep")}
-        </motion.p>
-      </div>
-    </>
+        </SwipeStamp>
+      </motion.div>
+    </motion.div>
+  );
+});
+
+const CardStack = observer(function CardStack({ item }: { item: ReviewDraft }) {
+  const { draftReviewStore: store } = useRootStore();
+  const peeking = store.queue.slice(1, 1 + PEEKING_CARDS);
+
+  return (
+    <div className="relative">
+      {peeking.map((entry, index) => (
+        <div
+          key={entry.draft.id}
+          aria-hidden
+          className="bg-card border-border absolute inset-x-0 top-0 h-full rounded-2xl border shadow-xs"
+          style={{
+            transform: `translateY(${(index + 1) * 10}px) scale(${1 - (index + 1) * 0.04})`,
+            transformOrigin: "bottom center",
+            opacity: 1 - (index + 1) * 0.3,
+          }}
+        />
+      ))}
+
+      <DraftCard key={item.draft.id} item={item} />
+    </div>
+  );
+});
+
+function RoundAction({
+  children,
+  label,
+  onClick,
+  size = "lg",
+  variant = "secondary",
+  disabled = false,
+}: {
+  children: ReactNode;
+  label: string;
+  onClick: () => void;
+  size?: "sm" | "lg";
+  variant?: "default" | "secondary" | "ghostDestructive";
+  disabled?: boolean;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          aria-label={label}
+          className={cn("rounded-full", size === "lg" ? "size-14 shadow-sm" : "size-10")}
+          disabled={disabled}
+          variant={variant}
+          onClick={onClick}
+        >
+          {children}
+        </Button>
+      </TooltipTrigger>
+
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+const DecisionButtons = observer(function DecisionButtons() {
+  const t = useTranslations();
+  const { draftReviewStore: store } = useRootStore();
+
+  return (
+    <div className="flex items-center justify-center gap-4">
+      <RoundAction
+        disabled={store.busy}
+        label={t("Inbox.draftReview.discard")}
+        size="sm"
+        variant="ghostDestructive"
+        onClick={() => runUserAction(() => store.discard())}
+      >
+        <Trash2 aria-hidden className="size-4" />
+      </RoundAction>
+
+      <RoundAction disabled={store.busy} label={t("Inbox.draftReview.keep")} onClick={store.keep}>
+        <Clock aria-hidden className="size-5" />
+      </RoundAction>
+
+      <RoundAction
+        disabled={!store.canSend}
+        label={t("Inbox.draftReview.send")}
+        variant="default"
+        onClick={() => runUserAction(() => store.send())}
+      >
+        {store.busy ? (
+          <LoaderCircle aria-hidden className="size-5 animate-spin" />
+        ) : (
+          <Send aria-hidden className="size-5" />
+        )}
+      </RoundAction>
+
+      <RoundAction disabled={store.busy} label={t("Inbox.compose.draftEdit")} size="sm" onClick={store.startEdit}>
+        <Pencil aria-hidden className="size-4" />
+      </RoundAction>
+    </div>
+  );
+});
+
+function QueueRow({ item, active, onSelect }: { item: ReviewDraft; active: boolean; onSelect: () => void }) {
+  const t = useTranslations();
+  const { name, avatarUrl } = useRecipient(item);
+
+  return (
+    <li>
+      <button
+        aria-current={active ? "true" : undefined}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-lg p-2.5 text-left transition-colors motion-reduce:transition-none",
+          active ? "bg-selected" : "hover:bg-accent",
+        )}
+        type="button"
+        onClick={onSelect}
+      >
+        <Avatar name={name} size="lg" src={avatarUrl} />
+
+        <span className="min-w-0 flex-1">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate text-sm font-medium">{name}</span>
+
+            <ProviderMark className="text-muted-foreground size-3" item={item} />
+          </span>
+
+          <span className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
+            <span className="font-semibold">{t("Inbox.draftReview.draftBadge")}: </span>
+
+            {historyPreview(item.draft) ?? ""}
+          </span>
+        </span>
+      </button>
+    </li>
+  );
+}
+
+const DraftQueue = observer(function DraftQueue() {
+  const t = useTranslations();
+  const { draftReviewStore: store } = useRootStore();
+
+  return (
+    <ol
+      aria-label={t("Inbox.draftReview.queue")}
+      className="flex flex-col gap-1 max-md:hidden"
+      data-draft-review-queue=""
+    >
+      {store.queue.map((entry, index) => (
+        <QueueRow
+          key={entry.draft.id}
+          active={index === 0}
+          item={entry}
+          onSelect={() => store.bringToFront(entry.draft.id)}
+        />
+      ))}
+    </ol>
   );
 });
 
@@ -228,14 +463,21 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
   }, [isOpen, store]);
 
   const reviewed = store.sentCount + store.keptCount;
+  const reviewing = store.status === "ready" && item !== null;
 
   return (
-    <AppModal titleInContent open={isOpen} size="xl" title={t("Inbox.draftReview.title")} onClose={store.close}>
+    <AppModal
+      titleInContent
+      open={isOpen}
+      size={reviewing ? "3xl" : "lg"}
+      title={t("Inbox.draftReview.title")}
+      onClose={store.close}
+    >
       <AppCard data-draft-review="">
         <AppCardHeader>
           <AppModalTitle className="min-w-0 text-base font-semibold">{t("Inbox.draftReview.title")}</AppModalTitle>
 
-          {store.status === "ready" && item && (
+          {reviewing && (
             <span className="text-muted-foreground shrink-0 text-xs tabular-nums" data-draft-review-progress="">
               {t("Inbox.draftReview.progress", { count: store.remaining })}
             </span>
@@ -247,7 +489,7 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
             <div aria-busy="true" aria-label={t("PageState.loading")} className="flex flex-col gap-4" role="status">
               <Skeleton className="h-8 w-48" />
 
-              <Skeleton className="h-36" />
+              <Skeleton className="h-48 rounded-2xl" />
             </div>
           ) : store.status === "error" ? (
             <div className="flex flex-col items-start gap-3">
@@ -258,7 +500,23 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
               </Button>
             </div>
           ) : item ? (
-            <SwipeSurface key={item.draft.id} item={item} />
+            <div className="grid min-h-0 gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
+              <DraftQueue />
+
+              <div className="flex min-w-0 flex-col gap-8 pb-3">
+                <CardStack item={item} />
+
+                {!store.editing && (
+                  <>
+                    <DecisionButtons />
+
+                    <p className="text-muted-foreground text-center text-xs max-sm:hidden">
+                      {t("Inbox.draftReview.hint")}
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col gap-1 py-6" data-draft-review-done="">
               <p className="text-sm font-semibold">
@@ -274,63 +532,15 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
           )}
         </AppCardBody>
 
-        {store.status === "ready" && item ? (
-          store.editing ? (
-            <FormFooterActions
-              dirty={store.editDirty}
-              saving={store.busy}
-              store={null}
-              onCancel={store.cancelEdit}
-              onSave={store.saveEdit}
-            />
-          ) : (
-            <AppCardFooter className="justify-between">
-              <div className="flex items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      aria-label={t("Inbox.draftReview.discard")}
-                      disabled={store.busy}
-                      size="icon"
-                      variant="ghostDestructive"
-                      onClick={() => runUserAction(() => store.discard())}
-                    >
-                      <Trash2 aria-hidden className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("Inbox.draftReview.discard")}</TooltipContent>
-                </Tooltip>
-
-                <Button disabled={store.busy} variant="ghost" onClick={store.startEdit}>
-                  <Pencil aria-hidden className="size-4" />
-
-                  {t("Inbox.compose.draftEdit")}
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2 max-md:*:flex-1">
-                <Button disabled={store.busy} variant="secondary" onClick={store.keep}>
-                  <ArrowLeft aria-hidden className="size-4" />
-
-                  {t("Inbox.draftReview.keep")}
-                </Button>
-
-                <Button disabled={!store.canSend} onClick={() => runUserAction(() => store.send())}>
-                  {store.busy ? (
-                    <LoaderCircle aria-hidden className="size-4 animate-spin" />
-                  ) : (
-                    <Send aria-hidden className="size-4" />
-                  )}
-
-                  {t("Inbox.draftReview.send")}
-
-                  <ArrowRight aria-hidden className="size-4 max-sm:hidden" />
-                </Button>
-              </div>
-            </AppCardFooter>
-          )
-        ) : (
+        {reviewing && store.editing ? (
+          <FormFooterActions
+            dirty={store.editDirty}
+            saving={store.busy}
+            store={null}
+            onCancel={store.cancelEdit}
+            onSave={store.saveEdit}
+          />
+        ) : reviewing ? null : (
           <AppCardFooter>
             <Button variant="secondary" onClick={store.close}>
               {t("Common.actions.close")}

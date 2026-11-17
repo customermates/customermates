@@ -2823,6 +2823,7 @@
       "discard": "Descartar rascunho",
       "doneBody": "Enviados: {sent}. Guardados para depois: {kept}.",
       "doneTitle": "Todos os rascunhos revisados",
+      "draftBadge": "Rascunho",
       "earlier": "Antes nesta conversa",
       "editLabel": "Texto do rascunho",
       "emptyBody": "Os rascunhos salvos por você, pelo Mate ou pelo seu agente de IA esperam aqui até você enviá-los.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "Não foi possível carregar seus rascunhos.",
       "newConversation": "Nova conversa",
       "progress": "{count, plural, one {# rascunho restante} other {# rascunhos restantes}}",
+      "queue": "Rascunhos aguardando revisão",
       "send": "Enviar",
       "title": "Revisar rascunhos"
     },

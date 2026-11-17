@@ -2823,6 +2823,7 @@
       "discard": "Elimina bozza",
       "doneBody": "Inviate: {sent}. Tenute per dopo: {kept}.",
       "doneTitle": "Tutte le bozze controllate",
+      "draftBadge": "Bozza",
       "earlier": "In precedenza in questa conversazione",
       "editLabel": "Testo della bozza",
       "emptyBody": "Le bozze salvate da te, da Mate o dal tuo agente IA aspettano qui finché non le invii.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "Non è stato possibile caricare le bozze.",
       "newConversation": "Nuova conversazione",
       "progress": "{count, plural, one {# bozza rimasta} other {# bozze rimaste}}",
+      "queue": "Bozze in attesa di controllo",
       "send": "Invia",
       "title": "Controlla le bozze"
     },

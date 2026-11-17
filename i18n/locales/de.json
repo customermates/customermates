@@ -2823,6 +2823,7 @@
       "discard": "Entwurf verwerfen",
       "doneBody": "Gesendet: {sent}. Für später behalten: {kept}.",
       "doneTitle": "Alle Entwürfe geprüft",
+      "draftBadge": "Entwurf",
       "earlier": "Bisher in dieser Unterhaltung",
       "editLabel": "Entwurfstext",
       "emptyBody": "Entwürfe von dir, Mate oder deinem eigenen KI-Agenten warten hier, bis du sie sendest.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "Deine Entwürfe konnten nicht geladen werden.",
       "newConversation": "Neue Unterhaltung",
       "progress": "{count, plural, one {Noch # Entwurf} other {Noch # Entwürfe}}",
+      "queue": "Entwürfe, die auf Prüfung warten",
       "send": "Senden",
       "title": "Entwürfe prüfen"
     },

@@ -2823,6 +2823,7 @@
       "discard": "Odrzuć szkic",
       "doneBody": "Wysłane: {sent}. Zostawione na później: {kept}.",
       "doneTitle": "Wszystkie szkice sprawdzone",
+      "draftBadge": "Szkic",
       "earlier": "Wcześniej w tej rozmowie",
       "editLabel": "Treść szkicu",
       "emptyBody": "Szkice zapisane przez Ciebie, Mate lub Twojego agenta AI czekają tutaj, aż je wyślesz.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "Nie udało się wczytać szkiców.",
       "newConversation": "Nowa rozmowa",
       "progress": "{count, plural, one {Pozostał # szkic} few {Pozostały # szkice} many {Pozostało # szkiców} other {Pozostało # szkicu}}",
+      "queue": "Szkice czekające na sprawdzenie",
       "send": "Wyślij",
       "title": "Sprawdź szkice"
     },

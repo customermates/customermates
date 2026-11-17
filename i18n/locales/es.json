@@ -2823,6 +2823,7 @@
       "discard": "Descartar borrador",
       "doneBody": "Enviados: {sent}. Guardados para después: {kept}.",
       "doneTitle": "Todos los borradores revisados",
+      "draftBadge": "Borrador",
       "earlier": "Antes en esta conversación",
       "editLabel": "Texto del borrador",
       "emptyBody": "Los borradores guardados por ti, por Mate o por tu propio agente de IA esperan aquí hasta que los envíes.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "No se pudieron cargar tus borradores.",
       "newConversation": "Conversación nueva",
       "progress": "{count, plural, one {Queda # borrador} other {Quedan # borradores}}",
+      "queue": "Borradores pendientes de revisión",
       "send": "Enviar",
       "title": "Revisar borradores"
     },

@@ -2823,6 +2823,7 @@
       "discard": "Supprimer le brouillon",
       "doneBody": "Envoyés : {sent}. Gardés pour plus tard : {kept}.",
       "doneTitle": "Tous les brouillons sont revus",
+      "draftBadge": "Brouillon",
       "earlier": "Plus tôt dans cette conversation",
       "editLabel": "Texte du brouillon",
       "emptyBody": "Les brouillons enregistrés par vous, Mate ou votre propre agent IA attendent ici jusqu'à leur envoi.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "Vos brouillons n'ont pas pu être chargés.",
       "newConversation": "Nouvelle conversation",
       "progress": "{count, plural, one {# brouillon restant} other {# brouillons restants}}",
+      "queue": "Brouillons en attente de revue",
       "send": "Envoyer",
       "title": "Revoir les brouillons"
     },

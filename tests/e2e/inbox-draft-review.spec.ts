@@ -84,6 +84,20 @@ test("reviews saved drafts one by one: send, keep for later, edit and send", asy
   await expect(deck.locator("[data-draft-review-body]")).toContainText("Third draft prepared by an agent");
   await expect(deck.getByText("New conversation · from draft-sender@example.test")).toBeVisible();
 
+  const queue = deck.getByRole("list", { name: "Drafts waiting for review" });
+  await expect(queue.getByRole("button")).toHaveCount(3);
+  await queue.getByRole("button").nth(2).click();
+  await expect(deck.locator(`[data-draft-review-card="${first.id}"]`)).toBeVisible();
+  await expect(queue.getByRole("button").first()).toHaveAttribute("aria-current", "true");
+  for (const [index, expected] of [
+    [1, third],
+    [2, second],
+    [1, third],
+  ] as const) {
+    await queue.getByRole("button").nth(index).click();
+    await expect(deck.locator(`[data-draft-review-card="${expected.id}"]`)).toBeVisible();
+  }
+
   await deck.getByRole("button", { name: "Edit", exact: true }).click();
   const editor = deck.getByRole("textbox", { name: "Draft text" });
   await editor.fill("Third draft, rewritten before sending");

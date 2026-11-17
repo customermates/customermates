@@ -2823,6 +2823,7 @@
       "discard": "Discard draft",
       "doneBody": "Sent: {sent}. Kept for later: {kept}.",
       "doneTitle": "All drafts reviewed",
+      "draftBadge": "Draft",
       "earlier": "Earlier in this conversation",
       "editLabel": "Draft text",
       "emptyBody": "Drafts saved by you, Mate or your own AI agent wait here until you send them.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "Your drafts could not be loaded.",
       "newConversation": "New conversation",
       "progress": "{count, plural, one {# draft left} other {# drafts left}}",
+      "queue": "Drafts waiting for review",
       "send": "Send",
       "title": "Review drafts"
     },

@@ -2823,6 +2823,7 @@
       "discard": "Concept verwijderen",
       "doneBody": "Verzonden: {sent}. Bewaard voor later: {kept}.",
       "doneTitle": "Alle concepten bekeken",
+      "draftBadge": "Concept",
       "earlier": "Eerder in dit gesprek",
       "editLabel": "Concepttekst",
       "emptyBody": "Concepten van jou, Mate of je eigen AI-agent wachten hier tot je ze verstuurt.",
@@ -2833,6 +2834,7 @@
       "loadFailed": "Je concepten konden niet worden geladen.",
       "newConversation": "Nieuw gesprek",
       "progress": "{count, plural, one {Nog # concept} other {Nog # concepten}}",
+      "queue": "Concepten die op beoordeling wachten",
       "send": "Versturen",
       "title": "Concepten bekijken"
     },

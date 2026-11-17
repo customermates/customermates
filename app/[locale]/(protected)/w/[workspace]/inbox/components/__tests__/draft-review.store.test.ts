@@ -250,6 +250,17 @@ describe("draft review queue", () => {
     expect(store.current?.draft.bodyText).toBe("Body of reply");
   });
 
+  it("brings a draft picked from the queue to the front without changing the order of the others", async () => {
+    const { store } = await opened([entry("a"), entry("b"), entry("c")]);
+
+    store.bringToFront("c");
+    expect(store.queue.map((item) => item.draft.id)).toEqual(["c", "a", "b"]);
+
+    store.startEdit();
+    store.bringToFront("b");
+    expect(store.current?.draft.id).toBe("c");
+  });
+
   it("discards a draft with the revision it showed", async () => {
     const { store } = await opened([entry("first"), entry("second")]);
     actions.discardDraftAction.mockResolvedValue({ ok: true, data: { threadId: "thread-first" } });
