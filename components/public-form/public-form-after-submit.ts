@@ -64,7 +64,11 @@ function recipientsOf(rules: readonly AutomationRuleDto[]): AfterSubmitRecipient
     }
   }
   return notifies
-    ? { owners: [...owners].sort((left, right) => left.localeCompare(right)), assignees, members: members.size }
+    ? {
+        owners: [...owners].sort((left, right) => (left < right ? -1 : left > right ? 1 : 0)),
+        assignees,
+        members: members.size,
+      }
     : null;
 }
 

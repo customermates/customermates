@@ -24,6 +24,7 @@ const redirectOnlyPages = [
   "dashboard/page.tsx",
   "open/[area]/[preset]/page.tsx",
   "open/[area]/[preset]/[recordId]/page.tsx",
+  "w/[workspace]/settings/(account)/booking/page.tsx",
 ] as const;
 const protectedLoaders = protectedPages
   .filter((page) => !(redirectOnlyPages as readonly string[]).includes(page))

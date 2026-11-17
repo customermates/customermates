@@ -32,7 +32,7 @@ export function groupBookingLinks(links: readonly WorkspaceBookingLinkDto[]): Bo
   return {
     own: links.filter((link) => link.own),
     others: [...owners.entries()]
-      .sort(([left], [right]) => left.localeCompare(right))
+      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
       .map(([ownerName, items]) => ({ ownerName, links: items })),
   };
 }
