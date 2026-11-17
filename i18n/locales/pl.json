@@ -874,6 +874,7 @@
       "queueExpired": "Żaden runner ani agent nie podjął uruchomienia w ciągu 15 minut",
       "ruleInactive": "Automatyzację wyłączono lub usunięto przed rozpoczęciem uruchomienia",
       "runnerFailed": "CLI na runnerze zakończyło się błędem",
+      "runnerFailedDetail": "CLI na runnerze zakończyło się błędem: {detail}",
       "runnerRevoked": "Runner został unieważniony",
       "runnerStopped": "Runner został zatrzymany w trakcie uruchomienia",
       "timedOut": "Uruchomienie trwało zbyt długo",

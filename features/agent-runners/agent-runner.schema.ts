@@ -40,6 +40,7 @@ export const AGENT_RUNNER_JOB_ERRORS = {
   ownerApiAccess: "ownerApiAccess",
   planRequired: "planApiAccess",
   failed: "runnerFailed",
+  stopped: "runnerStopped",
   timedOut: "timedOut",
 } as const;
 
@@ -187,7 +188,11 @@ export const AgentJobResultBodySchema = z
     attempt: AttemptSchema,
     status: z.enum(AGENT_RUNNER_OUTCOME_STATUSES).describe("How the run ended."),
     summary: storableText(AGENT_RUNNER_LIMITS.summaryMaxLength).optional().describe("The client's final answer."),
-    error: storableText(AGENT_RUNNER_LIMITS.errorMaxLength).optional().describe("Why a run failed."),
+    error: storableText(AGENT_RUNNER_LIMITS.errorMaxLength)
+      .optional()
+      .describe(
+        "Why a run failed: the code runnerStopped or timedOut, or the client's own message. A message is stored with the job's content, so only the job's owner and workspace admins read it; everyone else sees the code runnerFailed.",
+      ),
     inputTokens: z.number().int().min(0).optional().describe("Input tokens, when the client reports them."),
     outputTokens: z.number().int().min(0).optional().describe("Output tokens, when the client reports them."),
   })
@@ -285,7 +290,12 @@ export type AgentJobClaim = {
 
 export type AgentJobOutcome = {
   status: AgentRunnerOutcomeStatus;
-  result: { text: string; reason: (typeof AGENT_JOB_FINISH_REASONS)[number]; toolCalls: number } | null;
+  result: {
+    text: string;
+    reason: (typeof AGENT_JOB_FINISH_REASONS)[number];
+    toolCalls: number;
+    errorText?: string;
+  } | null;
   inputTokens: number | null;
   outputTokens: number | null;
   error: string | null;

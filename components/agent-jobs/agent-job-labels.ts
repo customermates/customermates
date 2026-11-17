@@ -1,6 +1,8 @@
 import type { useTranslations } from "next-intl";
 import type { AgentJobFinishReason, AgentJobStatusValue } from "@/features/agent-jobs/agent-job.schema";
 
+import { agentJobErrorParts } from "@/features/agent-jobs/agent-job-dto";
+
 type Translator = ReturnType<typeof useTranslations>;
 
 export function agentJobStatusLabel(t: Translator, status: AgentJobStatusValue): string {
@@ -39,7 +41,9 @@ export function agentJobFinishLabel(t: Translator, reason: AgentJobFinishReason)
   }
 }
 
-export function agentJobErrorLabel(t: Translator, code: string): string {
+export function agentJobErrorLabel(t: Translator, error: string): string {
+  const { code, detail } = agentJobErrorParts(error);
+  if (detail !== null) return t("AgentJobs.errors.runnerFailedDetail", { detail });
   switch (code) {
     case "creditsExhausted":
       return t("AgentJobs.errors.creditsExhausted");

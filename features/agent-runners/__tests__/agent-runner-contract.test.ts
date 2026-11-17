@@ -12,7 +12,8 @@ vi.mock("next-intl/server", () => ({
 
 import { AGENT_JOB_MAX_WALL_MS } from "@/features/agent-jobs/agent-job.schema";
 import { AgentJobResultSchema, AgentTranscriptEventSchema } from "@/features/agent-jobs/agent-job.schema";
-import { toAgentJobDetail } from "@/features/agent-jobs/agent-job-dto";
+import { agentJobErrorParts, toAgentJobDetail, toAgentJobSummary } from "@/features/agent-jobs/agent-job-dto";
+import { agentJobErrorLabel } from "@/components/agent-jobs/agent-job-labels";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { AppendAgentJobEventsInteractor } from "../append-agent-job-events.interactor";
@@ -33,6 +34,7 @@ const OTHER_RUNNER = "99999999-9999-4999-8999-999999999999";
 const OTHER_JOB = "88888888-8888-4888-8888-888888888888";
 const OTHER_MEMBER = "77777777-7777-4777-8777-777777777777";
 const MESSAGE = { type: "message", at: AT, role: "assistant", text: "hello" };
+const STDERR_LINE = "Error: ENOENT: no such file, open '/home/ada/.claude/settings.json'";
 
 function setup() {
   const runners = new FakeAgentRunnerRepo();
@@ -516,25 +518,95 @@ describe("reporting the result", () => {
     expect(s.credentials.revoked).toEqual([{ companyId: COMPANY_ID, jobId: JOB_ID, attempt: 1 }]);
   });
 
-  it("stores a failure with its message and a timeout under the code the labels know", async () => {
+  it("stores a failure under a code and keeps the client's own message with the result", async () => {
     const failed = setup();
     failed.jobs.addJob({ status: "claimed", runnerId: RUNNER_ID, attempts: 1 });
-    await finisher(failed).invoke(failed.jobRequest({ attempt: 1, status: "failed", error: "claude exited with 1" }));
-    expect(failed.jobs.jobs[0].outcome).toMatchObject({
+    await finisher(failed).invoke(failed.jobRequest({ attempt: 1, status: "failed", error: STDERR_LINE }));
+    expect(failed.jobs.jobs[0].outcome).toEqual({
       status: "failed",
-      error: "claude exited with 1",
-      result: { text: "", reason: "error", toolCalls: 0 },
+      error: "runnerFailed",
+      result: { text: "", reason: "error", toolCalls: 0, errorText: STDERR_LINE },
+      inputTokens: null,
+      outputTokens: null,
     });
+    expect(AgentJobResultSchema.safeParse(failed.jobs.jobs[0].outcome?.result).success).toBe(true);
 
-    const timedOut = setup();
-    timedOut.jobs.addJob({ status: "running", runnerId: RUNNER_ID, attempts: 1 });
-    await finisher(timedOut).invoke(timedOut.jobRequest({ attempt: 1, status: "timedOut" }));
-    expect(timedOut.jobs.jobs[0].outcome).toMatchObject({
-      status: "timedOut",
-      error: "timedOut",
-      result: { reason: "timeLimit" },
-    });
-    expect(timedOut.credentials.revoked).toHaveLength(1);
+    for (const [error, code] of [
+      ["runnerStopped", "runnerStopped"],
+      ["runnerFailed", "runnerFailed"],
+      [undefined, "runnerFailed"],
+      ["  ", "runnerFailed"],
+    ] as const) {
+      const s = setup();
+      s.jobs.addJob({ status: "running", runnerId: RUNNER_ID, attempts: 1 });
+      await finisher(s).invoke(s.jobRequest({ attempt: 1, status: "failed", ...(error ? { error } : {}) }));
+      expect(s.jobs.jobs[0].outcome).toMatchObject({ status: "failed", error: code });
+      expect(s.jobs.jobs[0].outcome?.result).toEqual({ text: "", reason: "error", toolCalls: 0 });
+    }
+  });
+
+  it("shows the client's message to a reader of the content and only the code to everyone else", async () => {
+    const s = setup();
+    s.jobs.addJob({ status: "running", runnerId: RUNNER_ID, attempts: 1 });
+    await finisher(s).invoke(s.jobRequest({ attempt: 1, status: "failed", summary: "Half done", error: STDERR_LINE }));
+    const outcome = s.jobs.jobs[0].outcome;
+    const stored = {
+      id: JOB_ID,
+      runtime: "runner",
+      status: "failed",
+      attempts: 1,
+      error: outcome?.error,
+      result: outcome?.result,
+      transcript: [],
+      prompt: "Summarise the open deals",
+      promptUntrusted: false,
+      createdAt: NOW,
+      costMicrocents: null,
+    } as never;
+
+    const restricted = [toAgentJobDetail(stored, false), toAgentJobSummary(stored, false)];
+    expect(restricted.map((job) => job.error)).toEqual(["runnerFailed", "runnerFailed"]);
+    expect(JSON.stringify(restricted)).not.toContain("/home/ada");
+    expect(JSON.stringify(restricted)).not.toContain("Half done");
+
+    const readable = toAgentJobDetail(stored);
+    expect(readable.error).toBe(`runnerFailed: ${STDERR_LINE}`);
+    expect(readable.result).toEqual({ text: "Half done", reason: "error", toolCalls: 0 });
+    expect(toAgentJobSummary(stored).error).toBe(`runnerFailed: ${STDERR_LINE}`);
+  });
+
+  it("labels a failure with the client's message, and a bare code as before", () => {
+    const t = ((key: string, values?: Record<string, string>) =>
+      values ? `${key}(${Object.values(values).join(",")})` : key) as unknown as Parameters<
+      typeof agentJobErrorLabel
+    >[0];
+
+    expect(agentJobErrorParts(`runnerFailed: ${STDERR_LINE}`)).toEqual({ code: "runnerFailed", detail: STDERR_LINE });
+    expect(agentJobErrorParts("runnerFailed")).toEqual({ code: "runnerFailed", detail: null });
+    expect(agentJobErrorParts("rate_limit: slow down")).toEqual({ code: "rate_limit: slow down", detail: null });
+    expect(agentJobErrorLabel(t, `runnerFailed: ${STDERR_LINE}`)).toBe(
+      `AgentJobs.errors.runnerFailedDetail(${STDERR_LINE})`,
+    );
+    expect(agentJobErrorLabel(t, "runnerFailed")).toBe("AgentJobs.errors.runnerFailed");
+    expect(agentJobErrorLabel(t, "runnerStopped")).toBe("AgentJobs.errors.runnerStopped");
+    expect(agentJobErrorLabel(t, "rate_limit: slow down")).toBe("AgentJobs.errors.provider(rate_limit: slow down)");
+  });
+
+  it("stores a timeout under the code the labels know, whatever the runner calls it", async () => {
+
+    for (const error of [undefined, "timedOut", "runnerStopped"]) {
+      const timedOut = setup();
+      timedOut.jobs.addJob({ status: "running", runnerId: RUNNER_ID, attempts: 1 });
+      await finisher(timedOut).invoke(
+        timedOut.jobRequest({ attempt: 1, status: "timedOut", ...(error ? { error } : {}) }),
+      );
+      expect(timedOut.jobs.jobs[0].outcome).toMatchObject({
+        status: "timedOut",
+        error: "timedOut",
+        result: { reason: "timeLimit" },
+      });
+      expect(timedOut.credentials.revoked).toHaveLength(1);
+    }
   });
 
   it("refuses a cost: a runner job has no Customermates cost", async () => {

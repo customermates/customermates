@@ -2,7 +2,27 @@ import type { TenantUser } from "@/features/user/user.schema";
 import type { AgentJobDetail, AgentJobResult, AgentJobSummary, AgentTranscriptEvent } from "./agent-job.schema";
 import type { StoredAgentJob, StoredAgentJobSummary } from "./agent-job.repo";
 
+import { z } from "zod";
+
 import { AgentJobResultSchema, AgentTranscriptEventSchema } from "./agent-job.schema";
+
+export const AGENT_JOB_ERROR_TEXT_KEY = "errorText";
+export const AGENT_JOB_DETAILED_ERROR = "runnerFailed";
+
+const ERROR_DETAIL_SEPARATOR = ": ";
+const StoredErrorTextSchema = z.object({ [AGENT_JOB_ERROR_TEXT_KEY]: z.string().trim().min(1) });
+
+export function agentJobErrorParts(error: string): { code: string; detail: string | null } {
+  const prefix = `${AGENT_JOB_DETAILED_ERROR}${ERROR_DETAIL_SEPARATOR}`;
+  if (!error.startsWith(prefix) || error.length === prefix.length) return { code: error, detail: null };
+  return { code: AGENT_JOB_DETAILED_ERROR, detail: error.slice(prefix.length) };
+}
+
+function errorWithText(job: Pick<StoredAgentJobSummary, "error" | "result">): string | null {
+  if (job.error !== AGENT_JOB_DETAILED_ERROR) return job.error;
+  const stored = StoredErrorTextSchema.safeParse(job.result);
+  return stored.success ? `${job.error}${ERROR_DETAIL_SEPARATOR}${stored.data[AGENT_JOB_ERROR_TEXT_KEY]}` : job.error;
+}
 
 function parsedResult(value: StoredAgentJob["result"]): AgentJobResult | null {
   const parsed = AgentJobResultSchema.safeParse(value);
@@ -37,7 +57,7 @@ export function toAgentJobSummary(job: StoredAgentJobSummary, withContent = true
     inputTokens: job.inputTokens,
     outputTokens: job.outputTokens,
     costMicrocents: job.costMicrocents === null ? null : Number(job.costMicrocents),
-    error: job.error,
+    error: withContent ? errorWithText(job) : job.error,
     result: withContent ? parsedResult(job.result) : null,
     startedAt: job.startedAt?.toISOString() ?? null,
     finishedAt: job.finishedAt?.toISOString() ?? null,

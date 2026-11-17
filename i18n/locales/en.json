@@ -874,6 +874,7 @@
       "queueExpired": "No runner or agent picked the run up within 15 minutes",
       "ruleInactive": "The automation was turned off or deleted before the run started",
       "runnerFailed": "The CLI on the runner failed",
+      "runnerFailedDetail": "The CLI on the runner failed: {detail}",
       "runnerRevoked": "The runner was revoked",
       "runnerStopped": "The runner was stopped during the run",
       "timedOut": "The run took too long",

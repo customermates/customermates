@@ -12,6 +12,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import * as ErrorReporter from "@/core/observability/server";
+import { AGENT_JOB_ERROR_TEXT_KEY } from "@/features/agent-jobs/agent-job-dto";
 
 import { jobClosed, jobNotFound } from "./agent-runner-failures";
 import {
@@ -22,14 +23,33 @@ import {
 
 const FINISH_REASONS = { succeeded: "stop", failed: "error", timedOut: "timeLimit" } as const;
 const DEFAULT_ERRORS = { failed: AGENT_RUNNER_JOB_ERRORS.failed, timedOut: AGENT_RUNNER_JOB_ERRORS.timedOut } as const;
+const REPORTED_CODES: ReadonlySet<string> = new Set([
+  AGENT_RUNNER_JOB_ERRORS.failed,
+  AGENT_RUNNER_JOB_ERRORS.stopped,
+  AGENT_RUNNER_JOB_ERRORS.timedOut,
+]);
+
+function failureOf(data: AgentJobResultBody): { code: string | null; text?: string } {
+  if (data.status === "succeeded") return { code: null };
+  const fallback = DEFAULT_ERRORS[data.status];
+  if (data.error === undefined || data.error.trim() === "") return { code: fallback };
+  if (REPORTED_CODES.has(data.error)) return { code: data.status === "timedOut" ? fallback : data.error };
+  return { code: fallback, text: data.error };
+}
 
 export function agentRunnerOutcome(data: AgentJobResultBody, toolCalls: number): AgentJobOutcome {
+  const failure = failureOf(data);
   return {
     status: data.status,
-    result: { text: data.summary ?? "", reason: FINISH_REASONS[data.status], toolCalls },
+    result: {
+      text: data.summary ?? "",
+      reason: FINISH_REASONS[data.status],
+      toolCalls,
+      ...(failure.text === undefined ? {} : { [AGENT_JOB_ERROR_TEXT_KEY]: failure.text }),
+    },
     inputTokens: data.inputTokens ?? null,
     outputTokens: data.outputTokens ?? null,
-    error: data.status === "succeeded" ? null : (data.error ?? DEFAULT_ERRORS[data.status]),
+    error: failure.code,
   };
 }
 

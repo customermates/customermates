@@ -874,6 +874,7 @@
       "queueExpired": "Nenhum runner ou agente assumiu a execução em 15 minutos",
       "ruleInactive": "A automação foi desativada ou excluída antes de a execução começar",
       "runnerFailed": "A CLI no runner falhou",
+      "runnerFailedDetail": "A CLI no runner falhou: {detail}",
       "runnerRevoked": "O runner foi revogado",
       "runnerStopped": "O runner foi interrompido durante a execução",
       "timedOut": "A execução demorou demais",

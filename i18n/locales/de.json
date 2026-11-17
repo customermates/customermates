@@ -874,6 +874,7 @@
       "queueExpired": "Innerhalb von 15 Minuten hat kein Runner oder Agent den Lauf übernommen",
       "ruleInactive": "Die Automatisierung wurde vor dem Start des Laufs ausgeschaltet oder gelöscht",
       "runnerFailed": "Die CLI auf dem Runner ist fehlgeschlagen",
+      "runnerFailedDetail": "Die CLI auf dem Runner ist fehlgeschlagen: {detail}",
       "runnerRevoked": "Der Runner wurde widerrufen",
       "runnerStopped": "Der Runner wurde während des Laufs gestoppt",
       "timedOut": "Der Lauf hat zu lange gedauert",

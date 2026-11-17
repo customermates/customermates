@@ -874,6 +874,7 @@
       "queueExpired": "Geen runner of agent heeft de uitvoering binnen 15 minuten opgepakt",
       "ruleInactive": "De automatisering is uitgezet of verwijderd voordat de uitvoering begon",
       "runnerFailed": "De CLI op de runner is mislukt",
+      "runnerFailedDetail": "De CLI op de runner is mislukt: {detail}",
       "runnerRevoked": "De runner is ingetrokken",
       "runnerStopped": "De runner is tijdens de uitvoering gestopt",
       "timedOut": "De uitvoering duurde te lang",
