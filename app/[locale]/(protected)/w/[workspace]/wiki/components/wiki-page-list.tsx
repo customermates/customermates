@@ -59,7 +59,7 @@ export function WikiPageList({ nodes, visible, truncated, onSelect }: Props) {
                     >
                       <span
                         aria-hidden="true"
-                        className={cn("size-2 shrink-0 rounded-full", WIKI_GRAPH_KIND_DOT[page.kind])}
+                        className={cn("size-2.5 shrink-0 rounded-full", WIKI_GRAPH_KIND_DOT[page.kind])}
                       />
 
                       <span className="min-w-0 break-words">{page.title}</span>

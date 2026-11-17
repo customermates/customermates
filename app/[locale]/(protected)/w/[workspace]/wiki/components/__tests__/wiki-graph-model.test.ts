@@ -7,7 +7,8 @@ import { WIKI_GRAPH_ASPECT } from "@/features/wiki/wiki-graph-frame";
 import {
   WIKI_GRAPH_FIT_PADDING,
   WIKI_GRAPH_KIND_DOT,
-  WIKI_GRAPH_KIND_FILL,
+  WIKI_GRAPH_KIND_NODE,
+  WIKI_GRAPH_NODE_RADII,
   WIKI_GRAPH_WORLD_HEIGHT,
   WIKI_GRAPH_WORLD_WIDTH,
   WIKI_KIND_CHIP,
@@ -17,6 +18,7 @@ import {
   wikiGraphNeighbours,
   wikiGraphNodeRadius,
   wikiGraphNodeScale,
+  wikiGraphPeakInbound,
   wikiGraphToUnit,
   wikiGraphVisibleIds,
   wikiGraphWorldPoint,
@@ -44,27 +46,50 @@ describe("Knowledge Base map model", () => {
     expect(wikiGraphWorldPoint({ x: 0.5, y: 0.25 })).toEqual({ x: WIKI_GRAPH_WORLD_WIDTH / 2, y: 250 });
   });
 
-  it("shows each page kind in the colour of its chip", () => {
+  it("shows each page kind as a soft tint with a ring in the colour of its chip", () => {
     expect(WIKI_KIND_CHIP).toEqual({ guide: "ink", procedure: "info", knowledge: "secondary" });
-    expect(WIKI_GRAPH_KIND_FILL).toEqual({
-      guide: "fill-foreground",
-      procedure: "fill-info",
-      knowledge: "fill-muted-foreground",
+    expect(WIKI_GRAPH_KIND_NODE).toEqual({
+      guide: { tint: "fill-background", ring: "stroke-foreground" },
+      procedure: { tint: "fill-info/15", ring: "stroke-info" },
+      knowledge: { tint: "fill-muted", ring: "stroke-muted-foreground/70" },
     });
     expect(WIKI_GRAPH_KIND_DOT).toEqual({
-      guide: "bg-foreground",
-      procedure: "bg-info",
-      knowledge: "bg-muted-foreground",
+      guide: "border-2 border-foreground bg-background",
+      procedure: "border border-info bg-info/15",
+      knowledge: "border border-muted-foreground/70 bg-muted",
     });
   });
 
-  it("sizes nodes by inbound links and keeps the guide large", () => {
-    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 0 })).toBe(4);
-    expect(wikiGraphNodeRadius({ kind: "procedure", inbound: 25 })).toBe(13);
-    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 400 })).toBe(14);
-    expect(wikiGraphNodeRadius({ kind: "guide", inbound: 0 })).toBe(11);
+  it("draws pages in three sizes, measured against the most linked page of the workspace", () => {
+    const { small, medium, large } = WIKI_GRAPH_NODE_RADII;
+    expect([small, medium, large]).toEqual([7, 9.5, 12]);
+    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 6 }, 10)).toBe(large);
+    expect(wikiGraphNodeRadius({ kind: "procedure", inbound: 3 }, 10)).toBe(medium);
+    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 2 }, 10)).toBe(small);
+    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 40 }, 40)).toBe(large);
+    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 10 }, 40)).toBe(medium);
+  });
+
+  it("keeps a page with at most one incoming link small and the guide large in any workspace", () => {
+    const { small, large } = WIKI_GRAPH_NODE_RADII;
+    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 0 }, 0)).toBe(small);
+    expect(wikiGraphNodeRadius({ kind: "procedure", inbound: 1 }, 1)).toBe(small);
+    expect(wikiGraphNodeRadius({ kind: "knowledge", inbound: 2 }, 2)).toBe(large);
+    expect(wikiGraphNodeRadius({ kind: "guide", inbound: 0 }, 40)).toBe(large);
     expect(wikiGraphNodeScale(0.5)).toBe(0.5);
     expect(wikiGraphNodeScale(4)).toBe(2);
+  });
+
+  it("measures the most linked page without the guide, which every page links to", () => {
+    expect(
+      wikiGraphPeakInbound([
+        { kind: "guide", inbound: 30 },
+        { kind: "knowledge", inbound: 4 },
+        { kind: "procedure", inbound: 7 },
+      ]),
+    ).toBe(7);
+    expect(wikiGraphPeakInbound([{ kind: "guide", inbound: 3 }])).toBe(0);
+    expect(wikiGraphPeakInbound([])).toBe(0);
   });
 
   it("builds undirected neighbour sets", () => {
@@ -140,7 +165,7 @@ describe("Knowledge Base map model", () => {
 
   describe("titles", () => {
     const alpha = node({ id: "a", title: "Alpha page title", inbound: 2 });
-    const bravo = node({ id: "b", title: "Bravo page title", inbound: 1, x: 0.53 });
+    const bravo = node({ id: "b", title: "Bravo page title", inbound: 1, x: 0.54 });
     const all = new Set(["a", "b"]);
 
     it("draws the title of the more linked page when two titles would cover each other", () => {
@@ -173,7 +198,7 @@ describe("Knowledge Base map model", () => {
 
     it("gives the guide its title before a more linked page", () => {
       const guide = node({ id: "g", title: "Operating Guide", kind: "guide" });
-      const busy = node({ id: "k", title: "Bravo page title", inbound: 9, x: 0.53 });
+      const busy = node({ id: "k", title: "Bravo page title", inbound: 9, x: 0.54 });
       expect(
         wikiGraphLabelIds([guide, busy], { zoom: 1, focusId: null, focus: null, visible: new Set(["g", "k"]) }),
       ).toEqual(new Set(["g"]));

@@ -224,7 +224,7 @@ export function WikiGraphView({ graph, positions, query, found, selectedId, canP
     controls: false as const,
     label: (
       <span className="flex items-center gap-1.5">
-        {value && <span aria-hidden="true" className={cn("size-2 rounded-full", WIKI_GRAPH_KIND_DOT[value])} />}
+        {value && <span aria-hidden="true" className={cn("size-2.5 rounded-full", WIKI_GRAPH_KIND_DOT[value])} />}
 
         <span className="truncate">{label}</span>
 

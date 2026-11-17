@@ -148,9 +148,14 @@ describe("WikiGraphView", () => {
     await render();
     expect(container.querySelectorAll("[data-wiki-graph-node]")).toHaveLength(4);
     expect(container.querySelectorAll("line")).toHaveLength(3);
-    expect(nodeButton("Operating Guide")?.querySelector("circle.fill-foreground")).not.toBeNull();
-    expect(nodeButton("Refunds")?.querySelector("circle.fill-info")).not.toBeNull();
-    expect(nodeButton("Pricing")?.querySelector("circle.fill-muted-foreground")).not.toBeNull();
+    const face = (title: string) => nodeButton(title)?.querySelector<SVGCircleElement>("[data-wiki-graph-kind]");
+    expect(face("Operating Guide")?.getAttribute("class")).toBe("fill-background stroke-foreground");
+    expect(face("Refunds")?.getAttribute("class")).toBe("fill-info/15 stroke-info");
+    expect(face("Pricing")?.getAttribute("class")).toBe("fill-muted stroke-muted-foreground/70");
+    expect(nodeButton("Operating Guide")?.querySelectorAll("circle.fill-foreground")).toHaveLength(1);
+    expect(nodeButton("Refunds")?.querySelector("circle.fill-foreground")).toBeNull();
+    expect(face("Operating Guide")?.getAttribute("r")).toBe("12");
+    expect(face("Refunds")?.getAttribute("r")).toBe("7");
     expect(nodeButton("Pricing")?.dataset.wikiGraphPinned).toBe("true");
     expect(nodeButton("Pricing")?.querySelector("[data-wiki-graph-pin]")).not.toBeNull();
     expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBeUndefined();
@@ -215,7 +220,8 @@ describe("WikiGraphView", () => {
 
     await render({ selectedId: REFUNDS });
     expect(nodeButton("Refunds")?.getAttribute("aria-pressed")).toBe("true");
-    expect(nodeButton("Refunds")?.querySelectorAll("circle")).toHaveLength(2);
+    expect(nodeButton("Refunds")?.querySelectorAll("circle")).toHaveLength(3);
+    expect(nodeButton("Pricing")?.querySelectorAll("circle")).toHaveLength(2);
     expect(nodeButton("Pricing")?.getAttribute("aria-pressed")).toBe("false");
     expect(dimmed("Archive")).toBe(true);
     expect(dimmed("Pricing")).toBe(false);

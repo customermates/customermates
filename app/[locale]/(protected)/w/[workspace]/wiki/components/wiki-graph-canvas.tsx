@@ -10,18 +10,22 @@ import { Pin } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 
 import {
-  WIKI_GRAPH_KIND_FILL,
+  WIKI_GRAPH_KIND_NODE,
   WIKI_GRAPH_LABEL_FONT_SIZE,
   wikiGraphLabel,
   wikiGraphLabelIds,
   wikiGraphNodeRadius,
   wikiGraphNodeScale,
+  wikiGraphPeakInbound,
   wikiGraphWorldPoint,
 } from "./wiki-graph-model";
 
 export type WikiGraphCanvasNode = WikiGraphNode & { pinned: boolean };
 
 const PIN_SIZE = 13;
+const RING_WIDTH = 1.5;
+const GUIDE_RING_WIDTH = 2.5;
+const GUIDE_CORE_SHARE = 0.35;
 
 type Props = {
   svgRef: Ref<SVGSVGElement>;
@@ -64,6 +68,7 @@ export function WikiGraphCanvas({
   const strokeWidth = 1 / transform.k;
   const fontSize = WIKI_GRAPH_LABEL_FONT_SIZE / transform.k;
   const nodeScale = wikiGraphNodeScale(transform.k);
+  const peak = useMemo(() => wikiGraphPeakInbound(nodes), [nodes]);
   const labelZoom = Math.round(transform.k * 20) / 20;
   const labelled = useMemo(
     () => wikiGraphLabelIds(nodes, { zoom: labelZoom, focusId, focus, visible }),
@@ -114,7 +119,7 @@ export function WikiGraphCanvas({
         <g>
           {nodes.map((node) => {
             const point = wikiGraphWorldPoint(node);
-            const radius = wikiGraphNodeRadius(node) / nodeScale;
+            const radius = wikiGraphNodeRadius(node, peak) / nodeScale;
             const selected = node.id === selectedId;
             const faded = dimmed(node.id);
             const pinSize = PIN_SIZE / transform.k;
@@ -143,11 +148,16 @@ export function WikiGraphCanvas({
                   />
                 )}
 
+                <circle className="fill-background" r={radius} />
+
                 <circle
-                  className={cn(WIKI_GRAPH_KIND_FILL[node.kind], "stroke-background")}
+                  className={cn(WIKI_GRAPH_KIND_NODE[node.kind].tint, WIKI_GRAPH_KIND_NODE[node.kind].ring)}
+                  data-wiki-graph-kind={node.kind}
                   r={radius}
-                  strokeWidth={strokeWidth * 1.5}
+                  strokeWidth={strokeWidth * (node.kind === "guide" ? GUIDE_RING_WIDTH : RING_WIDTH)}
                 />
+
+                {node.kind === "guide" && <circle className="fill-foreground" r={radius * GUIDE_CORE_SHARE} />}
 
                 {node.pinned && (
                   <Pin
@@ -170,7 +180,7 @@ export function WikiGraphCanvas({
           {nodes.map((node) => {
             if (!labelled.has(node.id)) return null;
             const point = wikiGraphWorldPoint(node);
-            const radius = wikiGraphNodeRadius(node) / nodeScale;
+            const radius = wikiGraphNodeRadius(node, peak) / nodeScale;
             const emphasised = node.kind === "guide" || node.id === selectedId;
             return (
               <text

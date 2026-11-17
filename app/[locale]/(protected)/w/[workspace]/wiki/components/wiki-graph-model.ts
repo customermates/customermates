@@ -24,21 +24,32 @@ export const WIKI_KIND_CHIP: Record<WikiPageKind, ChipColor | "ink"> = {
   knowledge: "secondary",
 };
 
-export const WIKI_GRAPH_KIND_FILL: Record<WikiPageKind, string> = {
-  guide: "fill-foreground",
-  procedure: "fill-info",
-  knowledge: "fill-muted-foreground",
+export const WIKI_GRAPH_KIND_NODE: Record<WikiPageKind, { tint: string; ring: string }> = {
+  guide: { tint: "fill-background", ring: "stroke-foreground" },
+  procedure: { tint: "fill-info/15", ring: "stroke-info" },
+  knowledge: { tint: "fill-muted", ring: "stroke-muted-foreground/70" },
 };
 
 export const WIKI_GRAPH_KIND_DOT: Record<WikiPageKind, string> = {
-  guide: "bg-foreground",
-  procedure: "bg-info",
-  knowledge: "bg-muted-foreground",
+  guide: "border-2 border-foreground bg-background",
+  procedure: "border border-info bg-info/15",
+  knowledge: "border border-muted-foreground/70 bg-muted",
 };
 
-export function wikiGraphNodeRadius(node: Pick<WikiGraphNode, "kind" | "inbound">): number {
-  if (node.kind === "guide") return 11;
-  return Math.min(14, 4 + Math.sqrt(node.inbound) * 1.8);
+export const WIKI_GRAPH_NODE_RADII = { small: 7, medium: 9.5, large: 12 } as const;
+const LARGE_SHARE = 0.6;
+const MEDIUM_SHARE = 0.25;
+const SIZED_FROM_INBOUND = 2;
+
+export function wikiGraphPeakInbound(nodes: ReadonlyArray<Pick<WikiGraphNode, "kind" | "inbound">>): number {
+  return nodes.reduce((peak, node) => (node.kind === "guide" ? peak : Math.max(peak, node.inbound)), 0);
+}
+
+export function wikiGraphNodeRadius(node: Pick<WikiGraphNode, "kind" | "inbound">, peak: number): number {
+  if (node.kind === "guide") return WIKI_GRAPH_NODE_RADII.large;
+  if (node.inbound < SIZED_FROM_INBOUND) return WIKI_GRAPH_NODE_RADII.small;
+  if (node.inbound >= peak * LARGE_SHARE) return WIKI_GRAPH_NODE_RADII.large;
+  return node.inbound >= peak * MEDIUM_SHARE ? WIKI_GRAPH_NODE_RADII.medium : WIKI_GRAPH_NODE_RADII.small;
 }
 
 export function wikiGraphNodeScale(zoom: number): number {
@@ -156,11 +167,12 @@ export function wikiGraphLabelIds(
   },
 ): Set<string> {
   const scale = wikiGraphNodeScale(context.zoom);
+  const peak = wikiGraphPeakInbound(nodes);
   const placed = nodes.map((node) => {
     const point = wikiGraphWorldPoint(node);
     const x = point.x * context.zoom;
     const y = point.y * context.zoom;
-    const radius = (wikiGraphNodeRadius(node) / scale) * context.zoom;
+    const radius = (wikiGraphNodeRadius(node, peak) / scale) * context.zoom;
     const width = wikiGraphLabel(node.title).length * LABEL_CHARACTER_WIDTH + LABEL_PADDING * 2;
     const top = y + radius + LABEL_GAP;
     return { node, x, y, radius, left: x - width / 2, right: x + width / 2, top, bottom: top + LABEL_HEIGHT };

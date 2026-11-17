@@ -72,7 +72,7 @@ describe("Knowledge Base page list for narrow screens", () => {
     const { container } = render();
 
     expect(container.querySelector("a")?.getAttribute("href")).toBe(`/wiki?page=${GUIDE}`);
-    expect(container.querySelector("a span.bg-foreground")).not.toBeNull();
+    expect(container.querySelector("a span.border-foreground.bg-background")).not.toBeNull();
   });
 
   it("opens the page sheet on a plain click and leaves a modified click to the browser", () => {

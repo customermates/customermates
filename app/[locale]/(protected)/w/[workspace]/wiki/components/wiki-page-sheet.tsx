@@ -124,7 +124,7 @@ function LinkedPages({
               >
                 <span
                   aria-hidden="true"
-                  className={cn("size-2 shrink-0 rounded-full", WIKI_GRAPH_KIND_DOT[item.kind])}
+                  className={cn("size-2.5 shrink-0 rounded-full", WIKI_GRAPH_KIND_DOT[item.kind])}
                 />
 
                 <span className="truncate">{item.title}</span>
