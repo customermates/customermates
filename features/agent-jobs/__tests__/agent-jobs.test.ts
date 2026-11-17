@@ -365,6 +365,66 @@ describe("reading the run history", () => {
     expect(everyone.ok && everyone.data.jobs).toHaveLength(2);
   });
 
+  it("shows what a run read and wrote only to its owner and to administrators", async () => {
+    const content = {
+      status: "succeeded" as const,
+      prompt: "Summarise the inbox of the owner",
+      promptUntrusted: true,
+      result: { text: "Three mails from the bank", reason: "stop", toolCalls: 1 },
+      inputTokens: 900,
+      transcript: [
+        {
+          type: "toolResult",
+          at: "2026-11-17T08:00:02.000Z",
+          toolCallId: "c1",
+          name: "get_messaging_threads",
+          ok: true,
+          summary: "Your statement is ready",
+        },
+      ],
+    };
+    const ofOwner = repo.add({ ...content, ownerUserId: OWNER });
+    const ofColleague = repo.add({ ...content, ownerUserId: COLLEAGUE });
+    const reader = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]);
+    const colleague = { ...reader, id: COLLEAGUE, companyId: COMPANY };
+
+    // A member who may read all automations, looking at the run of someone else's automation.
+    const foreign = await detail(ofOwner.id, colleague);
+    expect(foreign.ok && foreign.data).toMatchObject({
+      id: ofOwner.id,
+      status: "succeeded",
+      inputTokens: 900,
+      promptUntrusted: true,
+      prompt: "",
+      transcript: [],
+      result: null,
+      restricted: true,
+    });
+    expect(JSON.stringify(foreign)).not.toContain("bank");
+    expect(JSON.stringify(foreign)).not.toContain("statement");
+    expect(JSON.stringify(foreign)).not.toContain("inbox");
+
+    const own = await detail(ofColleague.id, colleague);
+    expect(own.ok && own.data).toMatchObject({ prompt: content.prompt, result: content.result });
+    expect(own.ok && own.data.transcript).toHaveLength(1);
+    expect(own.ok && own.data.restricted).toBeUndefined();
+
+    const listed = await list({}, colleague);
+    expect(listed.ok && listed.data.jobs.map((job) => [job.id, job.result?.text ?? null])).toEqual([
+      [ofColleague.id, "Three mails from the bank"],
+      [ofOwner.id, null],
+    ]);
+
+    // The default test user is an administrator and owns the first job.
+    const admin = await detail(ofColleague.id);
+    expect(admin.ok && admin.data.transcript).toHaveLength(1);
+    expect(admin.ok && admin.data).toMatchObject({ prompt: content.prompt, result: content.result });
+    const adminList = await list({});
+    expect(adminList.ok && adminList.data.jobs.every((job) => job.result?.text === "Three mails from the bank")).toBe(
+      true,
+    );
+  });
+
   it("returns the transcript of one run and drops entries it cannot read", async () => {
     const job = repo.add({
       status: "succeeded",

@@ -13,7 +13,7 @@ import { fail } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { decodeAgentJobCursor, encodeAgentJobCursor } from "./agent-job-cursor";
-import { toAgentJobSummary } from "./agent-job-dto";
+import { mayReadAgentJobContent, toAgentJobSummary } from "./agent-job-dto";
 import { AGENT_JOB_PAGE_SIZE, AgentJobPageSchema, GetAgentJobsSchema } from "./agent-job.schema";
 
 @AllowInDemoMode
@@ -41,7 +41,7 @@ export class GetAgentJobsInteractor extends AuthenticatedInteractor<GetAgentJobs
     return {
       ok: true as const,
       data: {
-        jobs: page.map(toAgentJobSummary),
+        jobs: page.map((job) => toAgentJobSummary(job, mayReadAgentJobContent(this.user, job))),
         nextCursor:
           rows.length > AGENT_JOB_PAGE_SIZE && last
             ? encodeAgentJobCursor({ createdAt: last.createdAt, id: last.id })

@@ -1,3 +1,4 @@
+import type { TenantUser } from "@/features/user/user.schema";
 import type { AgentJobDetail, AgentJobResult, AgentJobSummary, AgentTranscriptEvent } from "./agent-job.schema";
 import type { StoredAgentJob, StoredAgentJobSummary } from "./agent-job.repo";
 
@@ -16,7 +17,14 @@ function parsedTranscript(value: StoredAgentJob["transcript"]): AgentTranscriptE
   });
 }
 
-export function toAgentJobSummary(job: StoredAgentJobSummary): AgentJobSummary {
+export function mayReadAgentJobContent(
+  user: Pick<TenantUser, "id" | "role">,
+  job: Pick<StoredAgentJobSummary, "ownerUserId">,
+): boolean {
+  return job.ownerUserId === user.id || user.role?.isSystemRole === true;
+}
+
+export function toAgentJobSummary(job: StoredAgentJobSummary, withContent = true): AgentJobSummary {
   return {
     id: job.id,
     runtime: job.runtime,
@@ -30,14 +38,23 @@ export function toAgentJobSummary(job: StoredAgentJobSummary): AgentJobSummary {
     outputTokens: job.outputTokens,
     costMicrocents: job.costMicrocents === null ? null : Number(job.costMicrocents),
     error: job.error,
-    result: parsedResult(job.result),
+    result: withContent ? parsedResult(job.result) : null,
     startedAt: job.startedAt?.toISOString() ?? null,
     finishedAt: job.finishedAt?.toISOString() ?? null,
     createdAt: job.createdAt.toISOString(),
   };
 }
 
-export function toAgentJobDetail(job: StoredAgentJob): AgentJobDetail {
+export function toAgentJobDetail(job: StoredAgentJob, withContent = true): AgentJobDetail {
+  if (!withContent) {
+    return {
+      ...toAgentJobSummary(job, false),
+      prompt: "",
+      promptUntrusted: job.promptUntrusted,
+      transcript: [],
+      restricted: true,
+    };
+  }
   return {
     ...toAgentJobSummary(job),
     prompt: job.prompt,

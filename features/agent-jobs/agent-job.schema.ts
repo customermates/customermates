@@ -107,6 +107,7 @@ export const AgentJobDetailSchema = AgentJobSummarySchema.extend({
   prompt: z.string(),
   promptUntrusted: z.boolean(),
   transcript: z.array(AgentTranscriptEventSchema),
+  restricted: z.boolean().optional(),
 });
 export type AgentJobDetail = Data<typeof AgentJobDetailSchema>;
 
