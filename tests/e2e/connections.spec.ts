@@ -51,6 +51,10 @@ test("Connections opens each tab and keeps it in the address", async ({ page, co
     await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections\\?tab=agents$"));
     await expect(page.locator("[data-connection-tab='agents']")).toBeVisible();
     await expect(page.locator("[data-connection-scope='agents']")).toContainText("Owner: this workspace");
+    // A fresh workspace has no runner: the card says so instead of ending under its heading.
+    await expect(page.locator("[data-agent-runners-card] [data-agent-runners-empty]")).toHaveText(
+      "You have no runner yet. Add one to run agent steps with your own CLI.",
+    );
   });
 
   await test.step("Developers holds the keys, webhooks, deliveries and incoming webhooks as sections", async () => {
@@ -272,6 +276,16 @@ test("a member without API access opens Connections and is offered only the tabs
         await member.page.waitForLoadState("networkidle");
         await expect(member.page.locator("[data-connections-page]")).toBeVisible();
       }
+    });
+
+    await test.step("on Agents, when it is offered, the runners card says that the role may not see runners", async () => {
+      const agents = tabs.getByRole("tab", { name: "Agents" });
+      if ((await agents.count()) === 0) return;
+      await agents.click();
+      await expect(member.page.locator("[data-agent-runners-card] [data-agent-runners-withheld]")).toHaveText(
+        "Your role cannot see runners, so none are listed here.",
+      );
+      await expect(member.page.locator("[data-agent-runners-empty]")).toHaveCount(0);
     });
 
     expect(member.errors).toEqual([]);

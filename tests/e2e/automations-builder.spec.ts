@@ -207,8 +207,49 @@ test("redirects the old Routines page to the Automations list filtered to routin
   // The shortcut becomes the list's own filter, so removing the filter also removes it from the address.
   await expect.poll(() => new URL(page.url()).searchParams.get("kind")).toBeNull();
   await expect.poll(() => new URL(page.url()).searchParams.getAll("filters")).toEqual(["automationKind:in:routine"]);
-  // The rest of an old link survives the redirect.
-  expect(new URL(page.url()).searchParams.get("focus")).toBe("routine:00000000-0000-4000-8000-000000000001");
+  // The rest of an old link survives the redirect: the page looks the routine up by id. This id belongs to no
+  // routine, so the page says that it was not found, and the link is used up like any other focus link.
+  await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeVisible();
+  await expect.poll(() => new URL(page.url()).searchParams.get("focus")).toBeNull();
+  await expect(page.getByRole("dialog", { name: "Routine", exact: true })).toHaveCount(0);
+});
+
+test("a member who can only read automations is not handed a prefilled builder that cannot save", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  const model = await page.request.post("/api/v1/model/read", { data: {} });
+  const { revision, types } = (await model.json()) as {
+    revision: number;
+    types: { id: string; archived: boolean; embedded: boolean }[];
+  };
+  const typeId = types.find((type) => !type.archived && !type.embedded)?.id;
+  expect(typeId).toBeTruthy();
+  const saved = await page.request.post("/api/v1/roles/save", {
+    data: {
+      name: `Automations read only ${randomUUID().slice(0, 6)}`,
+      description: "May read routines and automations, nothing else",
+      permissions: [{ resource: "routines", actions: ["readAll"] }],
+      recordGrants: [],
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+    },
+  });
+  expect(saved.status(), await saved.text()).toBe(200);
+  const roleId = ((await saved.json()) as { role: { id: string } }).role.id;
+  const member = await secondUser(browser, database, companyId, testInfo, roleId);
+  try {
+    // The address the list toolbar used to offer ("Automate this list") to everyone who can read automations.
+    await member.page.goto(companyPath(companyId, `/automations?new=${typeId}`));
+    await expect(member.page.getByRole("heading", { name: "Automations", level: 1 })).toBeAttached();
+    await member.page.waitForLoadState("networkidle");
+    await expect(member.page.getByRole("dialog", { name: "New automation" })).toHaveCount(0);
+    expect(member.errors).toEqual([]);
+  } finally {
+    await member.close();
+  }
 });
 
 async function roleWithoutApiAccess(page: Page) {
@@ -260,14 +301,35 @@ test("a member with automation access but no API access opens Automations withou
       await expect(existing).not.toBeVisible();
     });
 
-    await test.step("a webhook step says that the role cannot see webhooks instead of an empty picker", async () => {
+    await test.step("Call a webhook is switched off in the palette and says that the role cannot see webhooks", async () => {
       const builder = await openNewAutomation(member.page);
       await builder.locator("[data-automation-scratch]").click();
       await builder.getByRole("button", { name: "Add a step" }).last().click();
-      await builder.locator('[data-automation-palette-item="callWebhook"]').click();
+      const item = builder.locator('[data-automation-palette-item="callWebhook"]');
+      await expect(item).toBeDisabled();
+      await expect(item.locator("[data-automation-palette-reason]")).toHaveText(
+        "Your role cannot see the webhooks of this workspace.",
+      );
+    });
+
+    await test.step("an agent step names an administrator instead of linking to settings the role cannot open", async () => {
+      const builder = member.page.getByRole("dialog", { name: "New automation" });
+      await builder.locator('[data-automation-palette-item="agent"]').click();
       const card = builder.locator('[data-automation-card="effect-0"]');
-      await expect(card.locator("[data-automation-webhook-restricted]")).toBeVisible();
-      await expect(card.getByRole("combobox")).toHaveCount(0);
+      await card.locator('[data-agent-runtime="runner"]').click();
+      // The member has no runner, so this way of running is not set up and the card says what to do about it.
+      const reason = card.locator("[data-agent-reason]");
+      await expect(reason.locator("[data-agent-settings-ask]")).toHaveText(
+        "An administrator can set this up under Settings, Connections, Agents.",
+      );
+      await expect(reason.getByRole("link")).toHaveCount(0);
+    });
+
+    await test.step("removing the step moves the focus to the add button, not to nowhere", async () => {
+      const builder = member.page.getByRole("dialog", { name: "New automation" });
+      await builder.getByRole("button", { name: "Remove step" }).click();
+      await expect(builder.locator('[data-automation-card="effect-0"]')).toHaveCount(0);
+      await expect(builder.getByRole("button", { name: "Add a step" }).last()).toBeFocused();
     });
 
     expect(member.errors).toEqual([]);
