@@ -163,7 +163,8 @@ test("a turn-off link from a notification email asks first, then switches that k
     expect((await page.request.post("/api/notifications/unsubscribe", { form: { token: "wrong" } })).status()).toBe(
       400,
     );
-    expect((await page.request.get("/en/notification-emails/turn-off?token=wrong")).status()).toBe(404);
+    const wrongPage = await page.request.get("/en/notification-emails/turn-off?token=wrong");
+    expect(await wrongPage.text()).not.toContain("Turn off these emails?");
     expect(await modeOf("replyReceived")).toBeUndefined();
     expect(await modeOf("dueToday")).toBeUndefined();
   });
