@@ -32,6 +32,7 @@ import {
   draftToPreviewInput,
   draftToUpsert,
   draftUnavailable,
+  effectsForTrigger,
   emptyChainDraft,
   ruleToDraft,
   seedToDraft,
@@ -317,6 +318,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
 
   patchTrigger = (patch: Partial<DraftTrigger>) => {
     this.form.trigger = { ...this.form.trigger, ...patch };
+    if (this.model) this.form.effects = effectsForTrigger(this.form.effects, this.form.trigger, this.model);
     this.schedulePreview();
   };
 

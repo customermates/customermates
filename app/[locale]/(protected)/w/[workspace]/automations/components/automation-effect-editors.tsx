@@ -4,14 +4,14 @@ import { useId } from "react";
 import { useTranslations } from "next-intl";
 
 import type { AutomationBuilderField, AutomationBuilderModel } from "./automation-builder-model";
-import type { DraftCreateRecord, DraftNotify, DraftSetField } from "./automation-draft";
+import type { DraftCreateRecord, DraftNotify, DraftSetField, DraftTrigger } from "./automation-draft";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AUTOMATION_NOTIFY_KINDS } from "@/features/automation-rules/automation-rule.schema";
 
-import { fieldOfList, listOf } from "./automation-draft";
+import { fieldOfList, linkRelationsFor, listOf } from "./automation-draft";
 import { Choose, DATE_FIELD_TYPES, Labeled, ValueInput } from "./automation-builder-fields";
 
 function SwitchRow({
@@ -96,24 +96,18 @@ export function NotifyEditor({
 export function CreateRecordEditor({
   effect,
   model,
-  hasRecord,
-  triggerTypeId,
+  trigger,
   onChange,
 }: {
   effect: DraftCreateRecord;
   model: AutomationBuilderModel;
-  hasRecord: boolean;
-  triggerTypeId: string;
+  trigger: DraftTrigger;
   onChange: (effect: DraftCreateRecord) => void;
 }) {
   const t = useTranslations();
   const list = listOf(model, effect.typeId);
   const writable = (list?.fields ?? []).filter((field) => field.writable);
-  const relations = model.relationships.filter(
-    (relation) =>
-      (relation.sourceTypeId === effect.typeId && relation.targetTypeId === triggerTypeId) ||
-      (relation.targetTypeId === effect.typeId && relation.sourceTypeId === triggerTypeId),
-  );
+  const relations = linkRelationsFor(model, effect.typeId, trigger);
   const choose = t("AutomationRules.builder.choose");
   return (
     <div className="flex flex-col gap-3">
@@ -167,7 +161,7 @@ export function CreateRecordEditor({
           </Labeled>
         )}
 
-        {hasRecord && relations.length > 0 && (
+        {relations.length > 0 && (
           <Labeled label={t("AutomationRules.builder.linkTo")}>
             <Choose
               items={[

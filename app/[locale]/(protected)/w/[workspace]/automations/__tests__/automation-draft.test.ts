@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { AutomationRuleDto } from "@/features/automation-rules/automation-rule.schema";
 import type { AutomationBuilderModel } from "../components/automation-builder-model";
-import type { AutomationDraft, DraftCondition, DraftReferences } from "../components/automation-draft";
+import type { AutomationDraft, DraftCondition, DraftEffect, DraftReferences } from "../components/automation-draft";
 
 import { automationModelIssues } from "@/features/automation-rules/automation-model-validation";
 import { UpsertAutomationRuleSchema } from "@/features/automation-rules/automation-rule.schema";
@@ -15,9 +15,11 @@ import {
   draftToPreviewInput,
   draftToUpsert,
   draftUnavailable,
+  effectsForTrigger,
   emptyChainDraft,
   emptyDraft,
   fieldTakesValue,
+  linkRelationsFor,
   reminderDraft,
   ruleToDraft,
   scalarFor,
@@ -350,6 +352,32 @@ describe("turning a draft into a rule", () => {
       { kind: "setField", fields: [{ fieldId: STAGE, value: { kind: "select", value: "won" } }] },
     ]);
     expect(UpsertAutomationRuleSchema.safeParse(input).success).toBe(true);
+  });
+
+  it("refuses a link that does not join the two lists and drops it when the trigger no longer fits", () => {
+    const task: DraftEffect = {
+      kind: "createRecord",
+      typeId: TASKS,
+      titleFieldId: TITLE,
+      title: "Call",
+      dueFieldId: "",
+      dueDays: "",
+      assignToOwner: true,
+      relationId: RELATION,
+    };
+    const onTasks = draft({ trigger: { ...draft().trigger, typeId: TASKS }, effects: [task] });
+    expect(draftToUpsert(onTasks, MODEL)).toEqual({ ok: false, issues: ["effects.0"] });
+    expect(effectsForTrigger([task], onTasks.trigger, MODEL)).toEqual([{ ...task, relationId: "" }]);
+    expect(effectsForTrigger([task], { ...draft().trigger, kind: "messageReceived" }, MODEL)).toEqual([
+      { ...task, relationId: "" },
+    ]);
+    expect(convert({ ...onTasks, effects: effectsForTrigger([task], onTasks.trigger, MODEL) }).effects).toMatchObject([
+      { kind: "createRecord", typeId: TASKS },
+    ]);
+    const fitting = [task];
+    expect(effectsForTrigger(fitting, draft().trigger, MODEL)).toBe(fitting);
+    expect(linkRelationsFor(MODEL, TASKS, draft().trigger).map((relation) => relation.id)).toEqual([RELATION]);
+    expect(linkRelationsFor(MODEL, TASKS, onTasks.trigger)).toEqual([]);
   });
 
   it("refuses a calculated field as a target and record effects on a message rule", () => {

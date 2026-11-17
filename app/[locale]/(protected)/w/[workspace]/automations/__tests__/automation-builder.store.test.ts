@@ -32,6 +32,7 @@ const TITLE = "22222222-2222-4222-8222-666666666666";
 const RULE = "00000000-0000-4000-8000-0000000000a1";
 const WEBHOOK = "66666666-6666-4666-8666-666666666666";
 const OTHER_WEBHOOK = "66666666-6666-4666-8666-777777777777";
+const RELATION = "55555555-5555-4555-8555-555555555555";
 
 function field(id: string, typeId: string, valueType: string, extra: Record<string, unknown> = {}) {
   return {
@@ -60,7 +61,16 @@ const MODEL = toAutomationBuilderModel({
     field(CLOSE, DEALS, "date"),
     field(TITLE, TASKS, "text"),
   ],
-  relationships: [],
+  relationships: [
+    {
+      id: RELATION,
+      sourceTypeId: TASKS,
+      targetTypeId: DEALS,
+      sourceLabel: "Deal",
+      targetLabel: "Actions",
+      archived: false,
+    },
+  ],
 } as unknown as RecordModelView);
 
 const CONTEXT: AutomationBuilderContext = {
@@ -408,6 +418,33 @@ describe("AutomationBuilderStore", () => {
     store.addCondition(0);
 
     expect(store.form.conditions).toEqual([{ fieldId: NAME, operator: "equals", value: "", values: [], kept: null }]);
+  });
+
+  it("drops the link of a create step when the trigger moves to a list or an event the link does not fit", () => {
+    const { store } = open();
+    store.startFromScratch();
+    store.addEffect("createRecord", 0);
+    const linked = () => {
+      const step = store.form.effects[0];
+      if (step?.kind !== "createRecord") throw new Error("expected a create step");
+      store.setEffect(0, { ...step, typeId: TASKS, titleFieldId: TITLE, relationId: RELATION });
+    };
+    const link = () => {
+      const step = store.form.effects[0];
+      return step?.kind === "createRecord" ? step.relationId : undefined;
+    };
+
+    linked();
+    store.patchTrigger({ fieldIds: [NAME] });
+    expect(link()).toBe(RELATION);
+
+    store.patchTrigger({ typeId: TASKS, fieldId: "", fieldIds: [], value: "" });
+    expect(link()).toBe("");
+
+    store.patchTrigger({ typeId: DEALS });
+    linked();
+    store.patchTrigger({ kind: "messageReceived", fieldId: "", fieldIds: [], value: "" });
+    expect(link()).toBe("");
   });
 
   it("previews a date reminder once the trigger is complete, after a short delay", async () => {

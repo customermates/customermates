@@ -49,13 +49,7 @@ export function AutomationEffectFields({
       {effect.kind === "notify" && <NotifyEditor effect={effect} hasRecord={hasRecord} onChange={onChange} />}
 
       {effect.kind === "createRecord" && (
-        <CreateRecordEditor
-          effect={effect}
-          hasRecord={hasRecord}
-          model={model}
-          triggerTypeId={trigger.typeId}
-          onChange={onChange}
-        />
+        <CreateRecordEditor effect={effect} model={model} trigger={trigger} onChange={onChange} />
       )}
 
       {effect.kind === "setField" && (

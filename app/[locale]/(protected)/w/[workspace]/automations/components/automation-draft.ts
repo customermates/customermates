@@ -1,5 +1,10 @@
 import type { RecordScalar } from "@/features/records/record-model.schema";
-import type { AutomationBuilderField, AutomationBuilderList, AutomationBuilderModel } from "./automation-builder-model";
+import type {
+  AutomationBuilderField,
+  AutomationBuilderList,
+  AutomationBuilderModel,
+  AutomationBuilderRelationship,
+} from "./automation-builder-model";
 import type {
   AgentRuntimeKind,
   AutomationCondition,
@@ -142,6 +147,37 @@ export function draftHasRecord(trigger: DraftTrigger): boolean {
   if (trigger.kind === "messageReceived") return false;
   if (trigger.kind === "formSubmitted" || trigger.kind === "webhookReceived") return Boolean(trigger.typeId);
   return true;
+}
+
+function relationJoins(relation: AutomationBuilderRelationship, listId: string, triggerTypeId: string): boolean {
+  return (
+    (relation.sourceTypeId === listId && relation.targetTypeId === triggerTypeId) ||
+    (relation.targetTypeId === listId && relation.sourceTypeId === triggerTypeId)
+  );
+}
+
+export function linkRelationsFor(
+  model: AutomationBuilderModel,
+  listId: string,
+  trigger: DraftTrigger,
+): AutomationBuilderRelationship[] {
+  if (!draftHasRecord(trigger) || !trigger.typeId) return [];
+  return model.relationships.filter((relation) => relationJoins(relation, listId, trigger.typeId));
+}
+
+export function effectsForTrigger(
+  effects: DraftEffect[],
+  trigger: DraftTrigger,
+  model: AutomationBuilderModel,
+): DraftEffect[] {
+  const stale = (effect: DraftEffect) =>
+    effect.kind === "createRecord" &&
+    effect.relationId !== "" &&
+    !linkRelationsFor(model, effect.typeId, trigger).some((relation) => relation.id === effect.relationId);
+  if (!effects.some(stale)) return effects;
+  return effects.map((effect) =>
+    effect.kind === "createRecord" && stale(effect) ? { ...effect, relationId: "" } : effect,
+  );
 }
 
 export function fieldTakesValue(field: AutomationBuilderField): boolean {
@@ -432,7 +468,7 @@ function toEffect(
   const offset = Number(draft.dueDays === "" ? "0" : draft.dueDays);
   if (draft.dueFieldId && (!due?.writable || !DATE_TYPES.has(due.valueType) || !Number.isInteger(offset))) return null;
   const relation = model.relationships.find((item) => item.id === draft.relationId);
-  if (draft.relationId && (!relation || !triggerType)) return null;
+  if (draft.relationId && (!relation || !triggerType || !relationJoins(relation, list.id, triggerType))) return null;
   return {
     kind: "createRecord",
     typeId: list.id,
