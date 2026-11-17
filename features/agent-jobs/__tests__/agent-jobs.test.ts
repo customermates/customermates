@@ -556,7 +556,11 @@ describe("sweeping timed-out jobs", () => {
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const settleInterrupted = vi.fn().mockResolvedValue("retained");
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
+    const result = await new SweepAgentJobTimeoutsInteractor(
+      repo,
+      { dispatch },
+      { settleInterrupted, closeAbandoned },
+    ).invoke({
       now: NOW,
     });
 
@@ -593,7 +597,11 @@ describe("sweeping timed-out jobs", () => {
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const settleInterrupted = vi.fn().mockResolvedValue("retained");
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
+    const result = await new SweepAgentJobTimeoutsInteractor(
+      repo,
+      { dispatch },
+      { settleInterrupted, closeAbandoned },
+    ).invoke({
       now: NOW,
     });
 
@@ -623,7 +631,11 @@ describe("sweeping timed-out jobs", () => {
     });
     sentry.captureException.mockClear();
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
+    const result = await new SweepAgentJobTimeoutsInteractor(
+      repo,
+      { dispatch },
+      { settleInterrupted, closeAbandoned },
+    ).invoke({
       now: NOW,
     });
 
@@ -639,7 +651,11 @@ describe("sweeping timed-out jobs", () => {
     const later = new Date(NOW.getTime() + 5 * 60_000);
     dispatch.mockClear();
     dispatch.mockResolvedValue(undefined);
-    const next = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted, closeAbandoned }).invoke({
+    const next = await new SweepAgentJobTimeoutsInteractor(
+      repo,
+      { dispatch },
+      { settleInterrupted, closeAbandoned },
+    ).invoke({
       now: later,
     });
     expect(next.agentJobsRedispatched).toBe(3);

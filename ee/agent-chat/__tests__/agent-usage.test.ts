@@ -78,9 +78,7 @@ function makeRepo(
     ),
     recordUsageEventUnscoped: vi.fn(() => Promise.resolve()),
     reserveUsageEventUnscoped: vi.fn(() => Promise.resolve(true)),
-    reserveAgentJobUsageEventUnscoped: vi.fn(
-      (): Promise<AgentUsageReservationOutcome> => Promise.resolve("allowance"),
-    ),
+    reserveAgentJobUsageEventUnscoped: vi.fn((): Promise<AgentUsageReservationOutcome> => Promise.resolve("allowance")),
     findAbandonedAgentJobUsageUnscoped: vi.fn(() =>
       Promise.resolve([{ id: "agent-job:job-1:1", companyId: "company-1", userId: "user-1" }]),
     ),

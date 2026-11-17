@@ -1,8 +1,4 @@
-import type {
-  AgentUsageRepo,
-  AgentUsageReservationExtension,
-  AgentUsageReservationOutcome,
-} from "./agent-usage.repo";
+import type { AgentUsageRepo, AgentUsageReservationExtension, AgentUsageReservationOutcome } from "./agent-usage.repo";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import { z } from "zod";
 

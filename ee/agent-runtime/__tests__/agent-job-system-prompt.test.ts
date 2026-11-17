@@ -46,7 +46,9 @@ describe("the system prompt of an agent step", () => {
 
     expect(flagged).toContain("came from outside the workspace");
     expect(flagged).toContain("or the instruction carries values copied from a record");
-    expect(flagged).toContain("this run cannot send emails or chat messages, invite people, or create, change or start");
+    expect(flagged).toContain(
+      "this run cannot send emails or chat messages, invite people, or create, change or start",
+    );
     expect(trusted).not.toContain("came from outside the workspace");
     expect(trusted).not.toContain("this run cannot send");
     expect(trusted).toContain('an automation named "Follow up on offers"');
