@@ -5,7 +5,7 @@ import { createElement } from "react";
 import type { NotificationKind } from "@/generated/prisma";
 import type { EmailService } from "@/features/email/email.service";
 import type { NotificationMailer } from "./notification-mailer";
-import type { NotificationRecipient, PendingEmailNotification } from "./notification.repo";
+import type { NotificationRecipient, NotificationRepo, PendingEmailNotification } from "./notification.repo";
 
 import NotificationEmail from "@/components/emails/notification-email";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
@@ -16,7 +16,11 @@ import { formattingTagFor } from "@/i18n/locale-registry";
 import { resolveUserLocale } from "@/i18n/user-locale";
 
 import { NOTIFICATION_DIGEST_ITEM_LIMIT, NOTIFICATIONS_PATH } from "./notification.schema";
-import { notificationUnsubscribeSecret, signNotificationUnsubscribe } from "./notification-unsubscribe-token";
+import {
+  NO_PREFERENCE_VERSION,
+  notificationUnsubscribeSecret,
+  signNotificationUnsubscribe,
+} from "./notification-unsubscribe-token";
 
 const UNSUBSCRIBE_PATH = "/api/notifications/unsubscribe";
 const MANAGE_PATH = "/settings/profile";
@@ -34,6 +38,7 @@ export class EmailNotificationMailer implements NotificationMailer {
   constructor(
     private readonly emailService: Pick<EmailService, "send" | "isConfigured">,
     private readonly authSecret: string | undefined,
+    private readonly preferences: Pick<NotificationRepo, "findPreferenceVersionsUnscoped">,
     private readonly clock: () => Date = () => new Date(),
   ) {}
 
@@ -68,6 +73,10 @@ export class EmailNotificationMailer implements NotificationMailer {
     const sources = distinct(notifications.map((item) => item.sourceRuleName ?? kindLabel(item.kind)));
     const kinds = distinct(notifications.map((item) => item.kind));
     const secret = notificationUnsubscribeSecret(this.authSecret);
+    const versions =
+      secret && first
+        ? await this.preferences.findPreferenceVersionsUnscoped(first.companyId, recipient.id)
+        : new Map<NotificationKind, number>();
     const turnOffLinks =
       secret && first
         ? kinds.map((kind) => ({
@@ -75,7 +84,12 @@ export class EmailNotificationMailer implements NotificationMailer {
             href: `${env.BASE_URL.replace(/\/+$/u, "")}${UNSUBSCRIBE_PATH}?token=${encodeURIComponent(
               signNotificationUnsubscribe(
                 secret,
-                { userId: recipient.id, companyId: first.companyId, kind },
+                {
+                  userId: recipient.id,
+                  companyId: first.companyId,
+                  kind,
+                  preferenceVersion: versions.get(kind) ?? NO_PREFERENCE_VERSION,
+                },
                 this.clock(),
               ),
             )}`,

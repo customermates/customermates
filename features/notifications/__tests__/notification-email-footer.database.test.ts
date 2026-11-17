@@ -64,6 +64,37 @@ describeDatabase("the notification email footer data", { timeout: 60_000 }, () =
     expect(stored.has(w.admin.id)).toBe(false);
   });
 
+  it("reads when the member last changed each kind, which changes with every change of that kind only", async () => {
+    const w = await seed();
+    const repo = new PrismaNotificationRepo();
+    const versions = () => runWithoutTenant(() => repo.findPreferenceVersionsUnscoped(w.companyId, w.member.id));
+    const storedAt = async (kind: "dueToday" | "ruleAlert") =>
+      (
+        await runWithoutTenant(() =>
+          prisma.notificationPreference.findUniqueOrThrow({
+            where: { companyId_userId_kind: { companyId: w.companyId, userId: w.member.id, kind } },
+          }),
+        )
+      ).updatedAt.getTime();
+
+    expect([...(await versions())]).toEqual([]);
+
+    await runWithoutTenant(() => repo.saveEmailModeUnscoped(w.companyId, w.member.id, "ruleAlert", "off"));
+    await runWithoutTenant(() => repo.saveEmailModeUnscoped(w.companyId, w.member.id, "dueToday", "instant"));
+    const first = await versions();
+    expect(first.get("ruleAlert")).toBe(await storedAt("ruleAlert"));
+    expect(first.get("dueToday")).toBe(await storedAt("dueToday"));
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await runWithoutTenant(() => repo.saveEmailModeUnscoped(w.companyId, w.member.id, "ruleAlert", "instant"));
+    const second = await versions();
+    expect(second.get("ruleAlert")).toBeGreaterThan(first.get("ruleAlert") ?? 0);
+    expect(second.get("dueToday")).toBe(first.get("dueToday"));
+    expect([...(await runWithoutTenant(() => repo.findPreferenceVersionsUnscoped(w.companyId, w.admin.id)))]).toEqual(
+      [],
+    );
+  });
+
   it("names the automation rule behind a notification and nothing for one that has none", async () => {
     const w = await seed();
     const rule = await runWithoutTenant(() =>

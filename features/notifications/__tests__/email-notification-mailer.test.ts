@@ -42,12 +42,26 @@ function notification(overrides: Partial<Parameters<EmailNotificationMailer["sen
   };
 }
 
+function preferenceVersions(versions: Partial<Record<"dueToday" | "replyReceived" | "ruleAlert", number>> = {}) {
+  return {
+    findPreferenceVersionsUnscoped: vi.fn((_companyId: string, _userId: string) =>
+      Promise.resolve(new Map(Object.entries(versions)) as Map<"dueToday" | "replyReceived" | "ruleAlert", number>),
+    ),
+  };
+}
+
 async function sent(
   run: (mailer: EmailNotificationMailer) => Promise<boolean>,
   authSecret: string | undefined = AUTH_SECRET,
+  versions: Parameters<typeof preferenceVersions>[0] = {},
 ) {
   const send = vi.fn().mockResolvedValue(true);
-  const mailer = new EmailNotificationMailer({ send, isConfigured: () => true }, authSecret, () => NOW);
+  const mailer = new EmailNotificationMailer(
+    { send, isConfigured: () => true },
+    authSecret,
+    preferenceVersions(versions),
+    () => NOW,
+  );
   await run(mailer);
   const message = send.mock.calls[0][0] as { subject: string; react: ReactElement };
   return { message, props: message.react.props as Record<string, any> };
@@ -85,6 +99,7 @@ describe("the notification email footer", () => {
       userId: ME,
       companyId: COMPANY,
       kind: "replyReceived",
+      preferenceVersion: 0,
     });
     expect(props.manage).toEqual({
       label: "Manage notifications",
@@ -158,7 +173,12 @@ describe("the notification email footer", () => {
 
   it("gives the same set of notifications the same delivery key, whatever their order and number", async () => {
     const send = vi.fn().mockResolvedValue(true);
-    const mailer = new EmailNotificationMailer({ send, isConfigured: () => true }, AUTH_SECRET, () => NOW);
+    const mailer = new EmailNotificationMailer(
+      { send, isConfigured: () => true },
+      AUTH_SECRET,
+      preferenceVersions(),
+      () => NOW,
+    );
     const many = Array.from({ length: 12 }, (_, index) =>
       notification({ id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}` }),
     );
@@ -186,9 +206,34 @@ describe("the notification email footer", () => {
     expect(props.manage.href).toBe("http://localhost:4000/de/w/ws-1/settings/profile");
   });
 
+  it("signs the time of the member's last change of each kind into its turn-off link", async () => {
+    const changedAt = Date.parse("2026-11-10T07:00:00.000Z");
+    const { props } = await sent(
+      (mailer) =>
+        mailer.sendDigest(recipient(), [
+          notification({ kind: "dueToday" }),
+          notification({ id: "00000000-0000-4000-8000-0000000000a2", kind: "ruleAlert" }),
+        ]),
+      AUTH_SECRET,
+      { ruleAlert: changedAt },
+    );
+
+    const versions = props.turnOffLinks.map(
+      (link: { href: string }) =>
+        (verifyNotificationUnsubscribe(SECRET, new URL(link.href).searchParams.get("token") ?? "", NOW) as any)
+          .preferenceVersion,
+    );
+    expect(versions).toEqual([0, changedAt]);
+  });
+
   it("returns false without calling the mail service on a server that has no mail provider", async () => {
     const send = vi.fn().mockRejectedValue(new Error("RESEND_API_KEY is not configured"));
-    const mailer = new EmailNotificationMailer({ send, isConfigured: () => false }, AUTH_SECRET, () => NOW);
+    const mailer = new EmailNotificationMailer(
+      { send, isConfigured: () => false },
+      AUTH_SECRET,
+      preferenceVersions(),
+      () => NOW,
+    );
 
     expect(mailer.isConfigured()).toBe(false);
     await expect(mailer.sendInstant(recipient(), notification())).resolves.toBe(false);

@@ -8,7 +8,11 @@ import { resolveUserLocale } from "@/i18n/user-locale";
 
 import { SetNotificationKindOffSchema } from "./notification.schema";
 import { effectiveEmailMode } from "./notification.service";
-import { notificationUnsubscribeSecret, verifyNotificationUnsubscribe } from "./notification-unsubscribe-token";
+import {
+  NO_PREFERENCE_VERSION,
+  notificationUnsubscribeSecret,
+  verifyNotificationUnsubscribe,
+} from "./notification-unsubscribe-token";
 
 export function maskEmailAddress(email: string): string {
   const at = email.lastIndexOf("@");
@@ -33,13 +37,20 @@ export class SetNotificationKindOffInteractor {
     if (grant.status !== "valid") return { ok: true as const, data: { status: grant.status } };
     const [recipient] = await this.repo.findRecipientsUnscoped(grant.companyId, [grant.userId]);
     if (!recipient) return { ok: true as const, data: { status: "invalid" } };
-    if (confirmed) await this.repo.saveEmailModeUnscoped(grant.companyId, grant.userId, grant.kind, "off");
-    const preferences = (await this.repo.findPreferencesUnscoped(grant.companyId, [grant.userId])).get(grant.userId);
+    const [preferences, versions] = await Promise.all([
+      this.repo.findPreferencesUnscoped(grant.companyId, [grant.userId]),
+      this.repo.findPreferenceVersionsUnscoped(grant.companyId, grant.userId),
+    ]);
+    const alreadyOff = effectiveEmailMode(preferences.get(grant.userId), grant.kind) === "off";
+    const current = versions.get(grant.kind) ?? NO_PREFERENCE_VERSION;
+    if (!alreadyOff && current !== grant.preferenceVersion) return { ok: true as const, data: { status: "expired" } };
+    if (confirmed && !alreadyOff)
+      await this.repo.saveEmailModeUnscoped(grant.companyId, grant.userId, grant.kind, "off");
     const viewer = await this.viewerEmail();
     return {
       ok: true as const,
       data: {
-        status: effectiveEmailMode(preferences, grant.kind) === "off" ? "off" : "pending",
+        status: alreadyOff || confirmed ? "off" : "pending",
         kind: grant.kind,
         workspaceSlug: recipient.workspaceSlug,
         workspaceName: recipient.workspaceName,

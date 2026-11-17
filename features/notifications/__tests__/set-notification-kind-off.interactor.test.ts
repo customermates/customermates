@@ -18,8 +18,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const AUTH_SECRET = "auth-secret";
 const SECRET = notificationUnsubscribeSecret(AUTH_SECRET) as string;
 
-function signed(kind: "dueToday" | "replyReceived" | "ruleAlert" = "ruleAlert") {
-  return signNotificationUnsubscribe(SECRET, { userId: ME, companyId: COMPANY, kind }, NOW);
+function signed(kind: "dueToday" | "replyReceived" | "ruleAlert" = "ruleAlert", preferenceVersion?: number) {
+  return signNotificationUnsubscribe(SECRET, { userId: ME, companyId: COMPANY, kind, preferenceVersion }, NOW);
 }
 
 let repo: FakeNotificationRepo;
@@ -171,6 +171,50 @@ describe("turning a notification kind off from an email link", () => {
 
     expect(await interactor().invoke({ token, confirmed: true })).toEqual({ ok: true, data: { status: "expired" } });
     expect(repo.unscopedSaves).toEqual([]);
+  });
+
+  it("no longer works once the member switched the kind on again, and lands on the expired page", async () => {
+    const token = signed("ruleAlert");
+    await interactor().invoke({ token, confirmed: true });
+    expect(repo.preferences.get(ME)?.get("ruleAlert")).toBe("off");
+
+    repo.currentUserId = ME;
+    repo.clock = new Date(NOW.getTime() + DAY_MS);
+    await repo.savePreferences([{ kind: "ruleAlert", emailMode: "instant" }]);
+    repo.unscopedSaves = [];
+
+    expect(await interactor().invoke({ token, confirmed: false })).toEqual({ ok: true, data: { status: "expired" } });
+    expect(await interactor().invoke({ token, confirmed: true })).toEqual({ ok: true, data: { status: "expired" } });
+    expect(repo.unscopedSaves).toEqual([]);
+    expect(repo.preferences.get(ME)?.get("ruleAlert")).toBe("instant");
+  });
+
+  it("accepts the link of a mail that was sent after the member's last change", async () => {
+    repo.currentUserId = ME;
+    repo.clock = new Date(NOW.getTime() - DAY_MS);
+    await repo.savePreferences([{ kind: "ruleAlert", emailMode: "instant" }]);
+    const version = repo.clock.getTime();
+
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "expired" },
+    });
+    expect(await interactor().invoke({ token: signed("ruleAlert", version), confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "off", ...DETAILS },
+    });
+  });
+
+  it("still shows the kind as off when the used link is opened again, though the change it made is newer than the link", async () => {
+    const token = signed("ruleAlert");
+    repo.clock = new Date(NOW.getTime() + 60_000);
+    await interactor().invoke({ token, confirmed: true });
+
+    expect(await interactor().invoke({ token, confirmed: false })).toEqual({
+      ok: true,
+      data: { status: "off", ...DETAILS },
+    });
+    expect(repo.unscopedSaves).toHaveLength(1);
   });
 
   it("changes nothing when the person is no longer an active member of that workspace", async () => {

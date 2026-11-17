@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   NOTIFICATION_UNSUBSCRIBE_DAYS,
   notificationUnsubscribeSecret,
+  preferenceVersionOf,
   signNotificationUnsubscribe,
   verifyNotificationUnsubscribe,
 } from "../notification-unsubscribe-token";
@@ -26,7 +27,29 @@ describe("notification unsubscribe tokens", () => {
   });
 
   it("verify with the user, workspace and kind they were signed for", () => {
-    expect(verifyNotificationUnsubscribe(SECRET, token(), NOW)).toEqual({ status: "valid", ...CLAIMS });
+    expect(verifyNotificationUnsubscribe(SECRET, token(), NOW)).toEqual({
+      status: "valid",
+      ...CLAIMS,
+      preferenceVersion: 0,
+    });
+  });
+
+  it("carry the time of the member's last change of that kind, which cannot be altered", () => {
+    const version = Date.parse("2026-11-10T07:00:00.123Z");
+    const signed = signNotificationUnsubscribe(SECRET, { ...CLAIMS, preferenceVersion: version }, NOW);
+    const parts = signed.split(".");
+
+    expect(verifyNotificationUnsubscribe(SECRET, signed, NOW)).toEqual({
+      status: "valid",
+      ...CLAIMS,
+      preferenceVersion: version,
+    });
+    expect(preferenceVersionOf(new Date(version))).toBe(version);
+    expect(preferenceVersionOf(null)).toBe(0);
+    for (const forged of ["0", String(version + 1), `0${version}`]) {
+      const changed = parts.map((part, index) => (index === 4 ? forged : part)).join(".");
+      expect(verifyNotificationUnsubscribe(SECRET, changed, NOW)).toEqual({ status: "invalid" });
+    }
   });
 
   it("are valid for thirty days and expired from the thirtieth day on", () => {
@@ -45,7 +68,7 @@ describe("notification unsubscribe tokens", () => {
 
   it("refuse a token whose user, workspace, kind or expiry was changed", () => {
     const parts = token().split(".");
-    const [expiresAt, userId, companyId, kind, signature] = parts;
+    const [expiresAt, userId, companyId, kind, , signature] = parts;
     const swap = (index: number, value: string) => parts.map((part, i) => (i === index ? value : part)).join(".");
 
     expect(verifyNotificationUnsubscribe(SECRET, swap(1, COMPANY), NOW).status).toBe("invalid");
@@ -54,13 +77,13 @@ describe("notification unsubscribe tokens", () => {
     expect(verifyNotificationUnsubscribe(SECRET, swap(0, String(Number(expiresAt) + 86400)), NOW).status).toBe(
       "invalid",
     );
-    expect(verifyNotificationUnsubscribe(SECRET, swap(4, "0".repeat(64)), NOW).status).toBe("invalid");
+    expect(verifyNotificationUnsubscribe(SECRET, swap(5, "0".repeat(64)), NOW).status).toBe("invalid");
     expect([userId, companyId, kind, signature].every(Boolean)).toBe(true);
   });
 
   it("refuse a kind nothing produces even when it is signed", () => {
     const expiresAt = String(Math.floor((NOW.getTime() + DAY_MS) / 1000));
-    const forged = [expiresAt, USER, COMPANY, "everything", "0".repeat(64)].join(".");
+    const forged = [expiresAt, USER, COMPANY, "everything", "0", "0".repeat(64)].join(".");
     expect(verifyNotificationUnsubscribe(SECRET, forged, NOW)).toEqual({ status: "invalid" });
   });
 

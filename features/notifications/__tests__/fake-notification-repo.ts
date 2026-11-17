@@ -30,6 +30,7 @@ export class FakeNotificationRepo extends NotificationRepo {
   rows: Row[] = [];
   members: NotificationRecipient[] = [];
   preferences = new Map<string, Map<NotificationKind, NotificationEmailMode>>();
+  preferenceVersions = new Map<string, Map<NotificationKind, number>>();
   ruleNames = new Map<string, string>();
   unscopedSaves: { companyId: string; userId: string; kind: NotificationKind; emailMode: NotificationEmailMode }[] = [];
   currentUserId = "";
@@ -77,7 +78,10 @@ export class FakeNotificationRepo extends NotificationRepo {
 
   savePreferences(preferences: NotificationPreferenceRow[]) {
     const own = this.preferences.get(this.currentUserId) ?? new Map<NotificationKind, NotificationEmailMode>();
-    for (const preference of preferences) own.set(preference.kind, preference.emailMode);
+    for (const preference of preferences) {
+      own.set(preference.kind, preference.emailMode);
+      this.touchPreference(this.currentUserId, preference.kind);
+    }
     this.preferences.set(this.currentUserId, own);
     return Promise.resolve();
   }
@@ -110,8 +114,19 @@ export class FakeNotificationRepo extends NotificationRepo {
     const own = this.preferences.get(userId) ?? new Map<NotificationKind, NotificationEmailMode>();
     own.set(kind, emailMode);
     this.preferences.set(userId, own);
+    this.touchPreference(userId, kind);
     this.unscopedSaves.push({ companyId, userId, kind, emailMode });
     return Promise.resolve();
+  }
+
+  touchPreference(userId: string, kind: NotificationKind, at: Date = this.clock) {
+    const own = this.preferenceVersions.get(userId) ?? new Map<NotificationKind, number>();
+    own.set(kind, at.getTime());
+    this.preferenceVersions.set(userId, own);
+  }
+
+  findPreferenceVersionsUnscoped(_companyId: string, userId: string) {
+    return Promise.resolve(new Map(this.preferenceVersions.get(userId) ?? []));
   }
 
   private pending(row: Row): PendingEmailNotification {

@@ -23,6 +23,7 @@ import {
   NOTIFICATION_DIGEST_LIMIT,
   NOTIFICATION_KINDS,
 } from "./notification.schema";
+import { preferenceVersionOf } from "./notification-unsubscribe-token";
 
 const NOTIFICATION_SELECT = {
   id: true,
@@ -176,6 +177,15 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
       byUser.set(row.userId, modes);
     }
     return byUser;
+  }
+
+  @BypassTenantGuard
+  async findPreferenceVersionsUnscoped(companyId: string, userId: string): Promise<Map<NotificationKind, number>> {
+    const rows = await this.prisma.notificationPreference.findMany({
+      where: { companyId, userId },
+      select: { kind: true, updatedAt: true },
+    });
+    return new Map(rows.map((row) => [row.kind, preferenceVersionOf(row.updatedAt)]));
   }
 
   @BypassTenantGuard

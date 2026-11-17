@@ -82,6 +82,7 @@ export abstract class NotificationRepo {
     companyId: string,
     userIds: string[],
   ): Promise<Map<string, Map<NotificationKind, NotificationEmailMode>>>;
+  abstract findPreferenceVersionsUnscoped(companyId: string, userId: string): Promise<Map<NotificationKind, number>>;
   abstract findNotificationsUnscoped(companyId: string, ids: string[]): Promise<PendingEmailNotification[]>;
   abstract markEmailedUnscoped(companyId: string, ids: string[], now: Date, delivery: EmailDelivery): Promise<void>;
   abstract countInstantEmailsSinceUnscoped(

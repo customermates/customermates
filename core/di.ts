@@ -2942,7 +2942,8 @@ import { SetNotificationPreferencesInteractor } from "@/features/notifications/s
 
 const getNotificationRepo = () => new PrismaNotificationRepo();
 const getNotificationPauseRepo = () => new PrismaNotificationPauseRepo();
-const getNotificationMailer = () => new EmailNotificationMailer(getEmailService(), env.BETTER_AUTH_SECRET);
+const getNotificationMailer = () =>
+  new EmailNotificationMailer(getEmailService(), env.BETTER_AUTH_SECRET, getNotificationRepo());
 export const getNotificationService = () =>
   new NotificationService(getNotificationRepo(), getNotificationMailer(), () => new Date(), getNotificationPauseRepo());
 export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
