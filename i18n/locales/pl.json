@@ -1176,6 +1176,7 @@
   "Automations": {
     "agent": {
       "anyRunner": "Dowolny runner online",
+      "askAdmin": "Administrator może to skonfigurować w sekcji Ustawienia, Połączenia, Agenci.",
       "defaultModel": "Domyślny model klucza",
       "model": "Model",
       "openSettings": "Otwórz Ustawienia, Połączenia, Agenci",

@@ -27,10 +27,29 @@ type Props = {
   runtimes: AgentRuntimeAvailability;
   flagged: boolean;
   ownRule?: boolean;
+  canOpenSettings?: boolean;
   onChange: (effect: DraftAgent) => void;
 };
 
-function RuntimeReason({ runtime, runtimes }: { runtime: AgentRuntimeKind; runtimes: AgentRuntimeAvailability }) {
+export function AgentSettingsLink({ canOpen }: { canOpen: boolean }) {
+  const t = useTranslations();
+  if (!canOpen) return <span data-agent-settings-ask="">{t("Automations.agent.askAdmin")}</span>;
+  return (
+    <IntlLink className="underline" href={AGENT_SETTINGS_HREF}>
+      {t("Automations.agent.openSettings")}
+    </IntlLink>
+  );
+}
+
+function RuntimeReason({
+  runtime,
+  runtimes,
+  canOpenSettings,
+}: {
+  runtime: AgentRuntimeKind;
+  runtimes: AgentRuntimeAvailability;
+  canOpenSettings: boolean;
+}) {
   const t = useTranslations();
   const option = runtimes[runtime];
   if (option.available) return null;
@@ -39,14 +58,19 @@ function RuntimeReason({ runtime, runtimes }: { runtime: AgentRuntimeKind; runti
     <p className="flex flex-wrap gap-x-1 text-xs text-warning-soft-foreground" data-agent-reason={reason} role="status">
       <span>{t(`Automations.agent.reason.${reason}`)}</span>
 
-      <IntlLink className="underline" href={AGENT_SETTINGS_HREF}>
-        {t("Automations.agent.openSettings")}
-      </IntlLink>
+      <AgentSettingsLink canOpen={canOpenSettings} />
     </p>
   );
 }
 
-export function AutomationAgentFields({ effect, runtimes, flagged, ownRule = true, onChange }: Props) {
+export function AutomationAgentFields({
+  effect,
+  runtimes,
+  flagged,
+  ownRule = true,
+  canOpenSettings = true,
+  onChange,
+}: Props) {
   const t = useTranslations();
   const option = runtimes[effect.runtime];
   const ownerRunner = effect.runtime === "runner" && !ownRule;
@@ -101,7 +125,7 @@ export function AutomationAgentFields({ effect, runtimes, flagged, ownRule = tru
           {t("Automations.agent.ownerRunner")}
         </p>
       ) : (
-        <RuntimeReason runtime={effect.runtime} runtimes={runtimes} />
+        <RuntimeReason canOpenSettings={canOpenSettings} runtime={effect.runtime} runtimes={runtimes} />
       )}
 
       {effect.runtime === "ownKey" && (option.models.length > 0 || effect.model !== "") && (

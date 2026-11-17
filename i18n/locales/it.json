@@ -1176,6 +1176,7 @@
   "Automations": {
     "agent": {
       "anyRunner": "Qualsiasi runner online",
+      "askAdmin": "Un amministratore può configurarlo in Impostazioni, Connessioni, Agenti.",
       "defaultModel": "Modello predefinito della chiave",
       "model": "Modello",
       "openSettings": "Apri Impostazioni, Connessioni, Agenti",

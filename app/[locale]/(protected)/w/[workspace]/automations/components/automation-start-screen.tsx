@@ -14,9 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { COMPOSE_SENTENCE_MAX_CHARS } from "@/ee/automation-compose/compose-automation.schema";
 import { availableRecipes } from "@/features/automation-rules/recipes";
-import { IntlLink } from "@/i18n/navigation";
 
-import { AGENT_SETTINGS_HREF } from "./automation-agent-fields";
+import { AgentSettingsLink } from "./automation-agent-fields";
 import { recipeToDraft } from "./automation-recipe-draft";
 
 function refusalText(t: ReturnType<typeof useTranslations>, reason: string): string {
@@ -175,9 +174,7 @@ export const AutomationStartScreen = observer(function AutomationStartScreen({ s
           <p className="flex flex-wrap gap-x-1 text-xs text-muted-foreground">
             <span>{t("Automations.start.noAgent")}</span>
 
-            <IntlLink className="underline" href={AGENT_SETTINGS_HREF}>
-              {t("Automations.agent.openSettings")}
-            </IntlLink>
+            <AgentSettingsLink canOpen={store.canOpenAgentSettings} />
           </p>
         )}
       </div>

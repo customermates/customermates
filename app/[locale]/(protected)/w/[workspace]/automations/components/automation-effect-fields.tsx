@@ -21,6 +21,7 @@ type Props = {
   flagged: boolean;
   unavailable?: DraftUnavailableKind;
   ownRule?: boolean;
+  canOpenAgentSettings?: boolean;
   onChange: (effect: DraftEffect) => void;
 };
 
@@ -33,6 +34,7 @@ export function AutomationEffectFields({
   flagged,
   unavailable,
   ownRule = true,
+  canOpenAgentSettings = true,
   onChange,
 }: Props) {
   const t = useTranslations();
@@ -92,6 +94,7 @@ export function AutomationEffectFields({
 
       {effect.kind === "agent" && (
         <AutomationAgentFields
+          canOpenSettings={canOpenAgentSettings}
           effect={effect}
           flagged={flagged}
           ownRule={ownRule}

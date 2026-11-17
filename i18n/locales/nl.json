@@ -1176,6 +1176,7 @@
   "Automations": {
     "agent": {
       "anyRunner": "Een willekeurige online runner",
+      "askAdmin": "Een beheerder kan dit instellen onder Instellingen, Verbindingen, Agents.",
       "defaultModel": "Standaardmodel van de sleutel",
       "model": "Model",
       "openSettings": "Instellingen, Verbindingen, Agents openen",

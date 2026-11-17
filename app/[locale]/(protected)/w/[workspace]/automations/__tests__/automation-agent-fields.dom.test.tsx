@@ -156,6 +156,23 @@ describe("the Ask an agent card", () => {
     expect(AGENT_SETTINGS_HREF).toBe("/settings/connections?tab=agents");
   });
 
+  it("says who can set a runtime up, without a link, to a member who cannot open that settings tab", () => {
+    mount(
+      <AutomationAgentFields
+        canOpenSettings={false}
+        effect={blankAgentEffect("ownKey")}
+        flagged={false}
+        runtimes={runtimes()}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const reason = container.querySelector("[data-agent-reason]");
+    expect(reason?.querySelector("a")).toBeNull();
+    expect(reason?.querySelector("[data-agent-settings-ask]")?.textContent).toBe("Automations.agent.askAdmin");
+    expect(reason?.textContent).toContain("Automations.agent.reason.noKey");
+  });
+
   it("shows the reason of every unavailable runtime in turn, and none for an available one", () => {
     const reasons = {
       mate: "selfHosted",

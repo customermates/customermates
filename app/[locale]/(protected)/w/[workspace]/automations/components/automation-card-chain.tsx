@@ -181,6 +181,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
             onToggle={() => store.toggleCard(`effect-${index}`)}
           >
             <AutomationEffectFields
+              canOpenAgentSettings={store.canOpenAgentSettings}
               effect={effect}
               flagged={store.isFlagged(`effects.${index}`)}
               model={model}

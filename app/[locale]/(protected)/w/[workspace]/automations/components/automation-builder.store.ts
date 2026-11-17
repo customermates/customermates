@@ -190,6 +190,11 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     return this.isExisting && !this.isOwner && this.isAdmin && this.form.enabled && this.allows(Action.update);
   }
 
+  get canOpenAgentSettings(): boolean {
+    const { userStore } = this.rootStore;
+    return userStore.can(Resource.company, Action.readOwn) || userStore.can(Resource.company, Action.readAll);
+  }
+
   get canAddCondition(): boolean {
     return this.form.conditions.length < AUTOMATION_CONDITION_LIMIT;
   }

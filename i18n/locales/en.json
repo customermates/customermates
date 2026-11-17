@@ -1176,6 +1176,7 @@
   "Automations": {
     "agent": {
       "anyRunner": "Any online runner",
+      "askAdmin": "An administrator can set this up under Settings, Connections, Agents.",
       "defaultModel": "Default model of the key",
       "model": "Model",
       "openSettings": "Open Settings, Connections, Agents",

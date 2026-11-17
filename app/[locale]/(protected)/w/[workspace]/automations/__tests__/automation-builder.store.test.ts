@@ -5,6 +5,7 @@ import type { AutomationBuilderContext } from "../components/automation-builder.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { noAgentRuntimes } from "@/features/automation-rules/agent-runtime-availability";
+import { Action, Resource } from "@/generated/prisma";
 
 const actions = vi.hoisted(() => ({
   composeAutomationAction: vi.fn(),
@@ -242,6 +243,22 @@ describe("AutomationBuilderStore", () => {
 
     member.openForCreate(CONTEXT, vi.fn(), { typeId: DEALS });
     expect(member.isReadOnly).toBe(false);
+  });
+
+  it("knows whether the member can open Settings, Connections, Agents, which needs workspace settings", () => {
+    const granted = new Set<string>([`${Resource.routines}:${Action.create}`]);
+    const store = new AutomationBuilderStore({
+      registerModalStore: vi.fn(),
+      userStore: {
+        user: { id: "u", role: { isSystemRole: false } },
+        can: (resource: string, action: string) => granted.has(`${resource}:${action}`),
+      },
+      localeStore: { getTranslation: (key: string) => key },
+    } as unknown as RootStore);
+
+    expect(store.canOpenAgentSettings).toBe(false);
+    granted.add(`${Resource.company}:${Action.readAll}`);
+    expect(store.canOpenAgentSettings).toBe(true);
   });
 
   it("lets an admin pause someone else's rule through the enable action, and only pause it", async () => {

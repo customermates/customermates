@@ -1176,6 +1176,7 @@
   "Automations": {
     "agent": {
       "anyRunner": "Cualquier runner en línea",
+      "askAdmin": "Un administrador puede configurarlo en Ajustes, Conexiones, Agentes.",
       "defaultModel": "Modelo predeterminado de la clave",
       "model": "Modelo",
       "openSettings": "Abrir Ajustes, Conexiones, Agentes",
