@@ -823,6 +823,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/upsell/plan-upsell-notice.tsx :: t :: Subscription.planNames.${plan}",
   "app/components/upsell/payment-failed-banner.tsx :: t :: Subscription.planNames.${plan}",
   "app/components/upsell/routine-allowance-notice.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/routines-paused-notice.tsx :: t :: Subscription.planNames.${FREE_PLAN_UPGRADE_PLAN}",
   "app/components/app-sidebar.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/contact-compose-popover.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",

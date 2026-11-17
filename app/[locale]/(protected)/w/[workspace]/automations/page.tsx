@@ -10,8 +10,11 @@ import {
   getGetRecordModelInteractor,
   getGetWebhooksInteractor,
 } from "@/core/di";
+import { FreePlanFeatureOverlay } from "@/app/components/upsell/free-plan-feature-overlay";
 import { RoutineAllowanceNotice } from "@/app/components/upsell/routine-allowance-notice";
+import { RoutinesPausedNotice } from "@/app/components/upsell/routines-paused-notice";
 import { PageContainer } from "@/components/shared/page-container";
+import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
@@ -65,27 +68,41 @@ export default async function AutomationsPage({ searchParams }: Props) {
     cloud && env.APP_MODE !== "demo" ? getEntitlementService().require("agentChat") : Promise.resolve("demo"),
   ]);
   const agentChat = cloud && agentDenied === null;
+  const free = usage?.plan === FREE_PLAN_ID;
+  const routinesOnly = single(params.kind) === "routine";
+
+  const view = (
+    <AutomationsPageView
+      canCreateRoutine={agentChat && !free}
+      cloud={agentChat}
+      composer={agentChat}
+      initial={list}
+      model={toAutomationBuilderModel(model)}
+      prefill={prefillOf(params)}
+      runtimes={runtimes}
+      webhooks={
+        webhooks.ok
+          ? webhooks.data.items
+              .filter((hook) => hook.enabled)
+              .map((hook) => ({ id: hook.id, label: hook.description ?? hook.url }))
+          : []
+      }
+    />
+  );
+
+  if (free && routinesOnly) {
+    return (
+      <PageContainer padded={false}>
+        <FreePlanFeatureOverlay feature="routines">{view}</FreePlanFeatureOverlay>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer padded={false}>
-      {usage && <RoutineAllowanceNotice plan={usage.plan} />}
+      {free ? <RoutinesPausedNotice /> : usage && <RoutineAllowanceNotice plan={usage.plan} />}
 
-      <AutomationsPageView
-        canCreateRoutine={agentChat}
-        cloud={agentChat}
-        composer={agentChat}
-        initial={list}
-        model={toAutomationBuilderModel(model)}
-        prefill={prefillOf(params)}
-        runtimes={runtimes}
-        webhooks={
-          webhooks.ok
-            ? webhooks.data.items
-                .filter((hook) => hook.enabled)
-                .map((hook) => ({ id: hook.id, label: hook.description ?? hook.url }))
-            : []
-        }
-      />
+      {view}
     </PageContainer>
   );
 }
