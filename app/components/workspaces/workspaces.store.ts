@@ -102,16 +102,28 @@ export class WorkspacesStore extends BaseStore {
 
   leaveCurrent = async (): Promise<boolean> => {
     const current = this.current;
-    if (this.isNavigating || !current) return false;
+    return current ? this.leaveActive(current.companyId) : false;
+  };
 
-    const result = await this.whileLoading(() => leaveWorkspaceAction({ companyId: current.companyId }));
+  leaveActive = async (companyId: string): Promise<boolean> => {
+    const target = this.items.find((workspace) => workspace.companyId === companyId);
+    if (this.isNavigating || target?.status !== Status.active) return false;
+
+    const result = await this.whileLoading(() =>
+      target.isCurrent
+        ? leaveWorkspaceAction({ companyId })
+        : leaveInactiveWorkspaceAction({ companyId, status: Status.active }),
+    );
     if (!result.ok) {
-      if (result.code === CustomErrorCode.workspaceChanged) this.showUnavailable();
-      else toastZodErrorTree(result.error);
+      if (result.code !== CustomErrorCode.workspaceChanged && result.code !== CustomErrorCode.workspaceNotFound)
+        toastZodErrorTree(result.error);
+      else if (target.isCurrent) this.showUnavailable();
+      else this.reload();
       return false;
     }
 
-    this.enter("/dashboard");
+    if (target.isCurrent) this.enter("/dashboard");
+    else this.reload();
     return true;
   };
 

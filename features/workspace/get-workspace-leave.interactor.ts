@@ -10,11 +10,11 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { WORKSPACE_LEAVE_REFUSALS, workspaceLeaveRefusal } from "./member-removal-refusal";
 
-const OutputSchema = z.object({
+export const WorkspaceLeaveSchema = z.object({
   companyId: z.string(),
   refusal: z.enum(WORKSPACE_LEAVE_REFUSALS).nullable(),
 });
-export type WorkspaceLeave = Data<typeof OutputSchema>;
+export type WorkspaceLeave = Data<typeof WorkspaceLeaveSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -26,7 +26,7 @@ export class GetWorkspaceLeaveInteractor extends AuthenticatedInteractor<void, W
     super();
   }
 
-  @ValidateOutput(OutputSchema)
+  @ValidateOutput(WorkspaceLeaveSchema)
   async invoke(): Validated<WorkspaceLeave> {
     const refusal = await workspaceLeaveRefusal(this.user, { members: this.repo, roles: this.roleRepo });
 

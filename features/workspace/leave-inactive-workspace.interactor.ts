@@ -23,7 +23,10 @@ import {
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { workspaceLeaveRefusal } from "./member-removal-refusal";
 
-const Schema = z.object({ companyId: z.uuid() });
+const Schema = z.object({
+  companyId: z.uuid(),
+  status: z.enum([Status.inactive, Status.active]).optional(),
+});
 export type LeaveInactiveWorkspaceData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ companyId: z.string() });
@@ -46,9 +49,10 @@ export class LeaveInactiveWorkspaceInteractor {
     if (!session) return failAuthorization(CustomErrorCode.permissionDenied);
 
     const { email } = session.user;
+    const expected = data.status ?? Status.inactive;
     const membership = await this.memberships.findMembershipUnscoped(email, data.companyId);
     if (!membership) return failNotFound(CustomErrorCode.workspaceNotFound, ["companyId"]);
-    if (membership.status !== Status.inactive) return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
+    if (membership.status !== expected) return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
 
     const { companyId } = membership;
 
@@ -56,7 +60,7 @@ export class LeaveInactiveWorkspaceInteractor {
       const refused = await runInTransaction(
         async () => {
           const member = await this.repo.findMemberCompanyWide({ id: membership.id });
-          if (!member || member.leftAt || member.status !== Status.inactive)
+          if (!member || member.leftAt || member.status !== expected)
             return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
 
           const blocked = await workspaceLeaveRefusal(member, { members: this.repo, roles: this.roleRepo });
@@ -78,7 +82,7 @@ export class LeaveInactiveWorkspaceInteractor {
 
       await this.departure.complete({
         companyId,
-        member: { id: membership.id, email: membership.email, status: Status.inactive },
+        member: { id: membership.id, email: membership.email, status: expected },
         loginId: session.user.id,
       });
 

@@ -319,6 +319,7 @@ import { GetWorkspaceDeletionInteractor } from "@/features/workspace/get-workspa
 import { GetTrialEligibilityInteractor } from "@/features/workspace/get-trial-eligibility.interactor";
 import { GetWorkspaceLeaveInteractor } from "@/features/workspace/get-workspace-leave.interactor";
 import { ListMyWorkspacesInteractor } from "@/features/workspace/list-my-workspaces.interactor";
+import { ListWorkspaceLeavesInteractor } from "@/features/workspace/list-workspace-leaves.interactor";
 import { RemoveWorkspaceMemberInteractor } from "@/features/workspace/remove-workspace-member.interactor";
 import { RenameWorkspaceInteractor } from "@/features/workspace/rename-workspace.interactor";
 import { UpdateWorkspaceSlugInteractor } from "@/features/workspace/update-workspace-slug.interactor";
@@ -1464,6 +1465,9 @@ export const getLeaveInactiveWorkspaceInteractor = () =>
   );
 
 export const getGetWorkspaceLeaveInteractor = () => new GetWorkspaceLeaveInteractor(getUserRepo(), getRoleRepo());
+
+export const getListWorkspaceLeavesInteractor = () =>
+  new ListWorkspaceLeavesInteractor(getAuthService(), getUserRepo());
 
 export const getDeleteWorkspaceInteractor = () =>
   new DeleteWorkspaceInteractor(

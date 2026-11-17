@@ -338,4 +338,56 @@ describeDatabase("leaving a workspace in which the membership is inactive", { ti
     expect(await users.resumeMembersForPlanUnscoped({ companyId: fixture.companies.deactivated })).toBe(0);
     expect(await membership("deactivated")).toMatchObject({ status: "pendingAuthorization", leftAt: null });
   });
+
+  it("lets an active member leave a workspace its subscription locked, without opening it, and keeps its only admin", async () => {
+    const locked = fixture.companies.pending;
+    const memberRole = await client.query<{ id: string }>(
+      'SELECT "id" FROM "UserRole" WHERE "companyId" = $1 AND "isSystemRole" = FALSE',
+      [locked],
+    );
+    await client.query(
+      'UPDATE "User" SET "status" = \'active\', "roleId" = $3 WHERE "companyId" = $1 AND "email" = $2',
+      [locked, fixture.email, memberRole.rows[0].id],
+    );
+    await client.query('UPDATE "Subscription" SET "status" = \'unPaid\' WHERE "companyId" = $1', [locked]);
+
+    const { getLeaveInactiveWorkspaceInteractor, getListWorkspaceLeavesInteractor } = await import("@/core/di");
+    asSession();
+    const { data: leaves } = await getListWorkspaceLeavesInteractor().invoke();
+    expect(leaves).toEqual(
+      expect.arrayContaining([
+        { companyId: fixture.companies.own, refusal: "lastAdmin" },
+        { companyId: locked, refusal: null },
+      ]),
+    );
+    expect(leaves.map((leave) => leave.companyId)).not.toContain(fixture.companies.paused);
+
+    expect(await failureCodes(locked)).toEqual([CustomErrorCode.workspaceChanged]);
+    expect(await membership("pending")).toMatchObject({ status: "active", leftAt: null });
+
+    asSession();
+    const refused = await getLeaveInactiveWorkspaceInteractor().invoke({
+      companyId: fixture.companies.own,
+      status: "active",
+    });
+    expect(refused.ok ? "left" : interactorFailureCodes(refused.error)).toEqual([CustomErrorCode.workspaceLastAdmin]);
+    expect(await membership("own")).toMatchObject({ status: "active", leftAt: null });
+
+    asSession();
+    expect(await getLeaveInactiveWorkspaceInteractor().invoke({ companyId: locked, status: "active" })).toEqual({
+      ok: true,
+      data: { companyId: locked },
+    });
+
+    expect(await membership("pending")).toMatchObject({ status: "inactive", leftAt: expect.any(Date) });
+    const events = await departureEvents("pending");
+    expect(events).toHaveLength(1);
+    expect(events[0].payload).toEqual({
+      changes: {
+        leftAt: { previous: null, current: expect.any(String) },
+        status: { previous: "active", current: "inactive" },
+      },
+    });
+    expect(await membership("own")).toMatchObject({ status: "active", leftAt: null });
+  });
 });

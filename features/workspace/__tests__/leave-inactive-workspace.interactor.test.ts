@@ -191,6 +191,63 @@ describe("LeaveInactiveWorkspaceInteractor", () => {
     });
   });
 
+  it("ends an active membership of a workspace the person is not working in, with all that a regular leave does", async () => {
+    membership = membershipWith(Status.active);
+
+    const result = await interactor().invoke({ companyId: COMPANY_ID, status: Status.active });
+
+    expect(result).toEqual({ ok: true, data: { companyId: COMPANY_ID } });
+    expect(repo.leaveCompanyWide).toHaveBeenCalledExactlyOnceWith("member-1");
+    expect(authService.revokeMembershipCredentials).toHaveBeenCalledExactlyOnceWith("login-1", COMPANY_ID);
+    expect(releaseRoutines.invoke).toHaveBeenCalledExactlyOnceWith({ companyId: COMPANY_ID, ownerUserId: "member-1" });
+    expect(subscriptions.updateSubscriptionQuantityOrThrow).toHaveBeenCalledExactlyOnceWith("ls-1", 1);
+    expect(events.publish).toHaveBeenCalledExactlyOnceWith("user.updated", {
+      entityId: "member-1",
+      payload: {
+        changes: {
+          leftAt: { previous: null, current: expect.any(String) },
+          status: { previous: Status.active, current: Status.inactive },
+        },
+      },
+    });
+  });
+
+  it("keeps the last active admin in a workspace they are not working in", async () => {
+    membership = membershipWith(Status.active, adminRole);
+    roleRepo.hasAnotherActiveSystemRoleUser.mockResolvedValue(false);
+
+    const result = await interactor().invoke({ companyId: COMPANY_ID, status: Status.active });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceLastAdmin]);
+    expectNothingWritten();
+  });
+
+  it.each([
+    ["inactive", Status.inactive],
+    ["waiting for approval", Status.pendingAuthorization],
+  ])("refuses a membership that is %s when the page showed it as active", async (_case, status) => {
+    membership = membershipWith(status);
+
+    const result = await interactor().invoke({ companyId: COMPANY_ID, status: Status.active });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceChanged]);
+    expect(repo.findMemberCompanyWide).not.toHaveBeenCalled();
+    expectNothingWritten();
+  });
+
+  it("refuses when the membership stopped being active by the time the lock is held", async () => {
+    membership = membershipWith(Status.active);
+    repo.findMemberCompanyWide.mockResolvedValue({ ...membershipWith(Status.inactive), leftAt: null });
+
+    const result = await interactor().invoke({ companyId: COMPANY_ID, status: Status.active });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceChanged]);
+    expectNothingWritten();
+  });
+
   it.each([
     ["active", Status.active],
     ["waiting for approval", Status.pendingAuthorization],

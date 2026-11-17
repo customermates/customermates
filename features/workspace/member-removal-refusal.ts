@@ -23,8 +23,10 @@ type RefusalChecks = {
   roles: Pick<UpdateUserRoleRepo, "hasAnotherActiveSystemRoleUser">;
 };
 
+type LeavingMember = { id: string; status: Status; role?: { isSystemRole: boolean } | null };
+
 export async function workspaceLeaveRefusal(
-  member: Pick<RemovableWorkspaceMember, "id" | "status" | "role">,
+  member: LeavingMember,
   checks: RefusalChecks,
 ): Promise<WorkspaceLeaveRefusal | null> {
   if (await checks.members.strandsLastPlatformOperatorCompanyWide(member.id)) return "platformOperator";

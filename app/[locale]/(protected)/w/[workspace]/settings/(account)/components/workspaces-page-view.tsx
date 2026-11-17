@@ -1,6 +1,6 @@
 "use client";
 
-import type { WorkspaceLeaveRefusal } from "@/features/workspace/member-removal-refusal";
+import type { WorkspaceLeave } from "@/features/workspace/get-workspace-leave.interactor";
 import type { WorkspaceInactiveReason, WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { observer } from "mobx-react-lite";
@@ -30,13 +30,14 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { roleDisplayName } from "@/features/role/role-display-name";
 
 type Props = {
-  leaveRefusal: WorkspaceLeaveRefusal | null;
+  leaves: WorkspaceLeave[];
   workspaces: WorkspaceSummary[];
 };
 
-const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props) => {
+const WorkspacesPageViewContent = observer(({ leaves, workspaces }: Props) => {
   const t = useTranslations();
   const { appMode, createWorkspaceModalStore, workspacesStore } = useRootStore();
+  const [activeLeave, setActiveLeave] = useState<{ companyId: string; name: string } | null>(null);
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const [inactiveLeave, setInactiveLeave] = useState<{
     companyId: string;
@@ -46,9 +47,6 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
   const [confirmingInactiveLeave, setConfirmingInactiveLeave] = useState(false);
   const { canCreate } = workspacesStore;
   const fallback = t("Workspaces.fallbackName");
-  const current = workspaces.find((workspace) => workspace.isCurrent) ?? null;
-  const currentName = workspaceDisplayName(current?.name, fallback);
-  const canLeaveCurrent = appMode !== "demo" && current?.status === Status.active;
 
   const topBarActions = useMemo(
     () =>
@@ -88,6 +86,15 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
                     : t("Workspaces.memberCount", { count: workspace.activeMemberCount });
                 const details = [role, members].filter(Boolean).join(" · ");
                 const plan = appMode === "self-hosted" ? null : workspacePlanChip(workspace.subscription, t);
+                const leave =
+                  appMode === "demo" || workspace.status !== Status.active
+                    ? null
+                    : (leaves.find((entry) => entry.companyId === workspace.companyId) ?? null);
+                const otherLeaveId = `settings-workspaces-leave-${workspace.companyId}`;
+                const confirmLeave = (leaving: string) => {
+                  setActiveLeave({ companyId: workspace.companyId, name: leaving });
+                  setConfirmingLeave(true);
+                };
 
                 return (
                   <li
@@ -120,56 +127,69 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
                         </AppChip>
                       ) : null}
 
-                      {workspace.isCurrent ? (
-                        canLeaveCurrent ? (
-                          <LeaveWorkspaceButton
-                            id="settings-workspaces-leave"
-                            label={t("Workspaces.leaveShort")}
-                            refusal={leaveRefusal}
-                            onClick={() => setConfirmingLeave(true)}
-                          />
-                        ) : null
-                      ) : (
-                        <>
-                          <Button
-                            aria-label={t("Workspaces.switchTo", { name })}
-                            size="sm"
-                            type="button"
-                            variant="secondary"
-                            onClick={() => workspacesStore.requestSwitch(workspace.companyId)}
-                          >
-                            {t("Workspaces.switch")}
-                          </Button>
-
-                          {appMode !== "demo" && workspace.status === Status.inactive ? (
-                            <Button
-                              aria-label={t("Workspaces.leaveNamed", { name })}
-                              data-slot="leave-inactive-workspace"
-                              size="sm"
-                              type="button"
-                              variant="ghostDestructive"
-                              onClick={() => {
-                                setInactiveLeave({
-                                  companyId: workspace.companyId,
-                                  name,
-                                  reason: workspace.inactiveReason,
-                                });
-                                setConfirmingInactiveLeave(true);
-                              }}
-                            >
-                              {t("Workspaces.leaveShort")}
-                            </Button>
-                          ) : null}
-                        </>
+                      {workspace.isCurrent ? null : (
+                        <Button
+                          aria-label={t("Workspaces.switchTo", { name })}
+                          size="sm"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => workspacesStore.requestSwitch(workspace.companyId)}
+                        >
+                          {t("Workspaces.switch")}
+                        </Button>
                       )}
+
+                      {leave && workspace.isCurrent ? (
+                        <LeaveWorkspaceButton
+                          id="settings-workspaces-leave"
+                          label={t("Workspaces.leaveShort")}
+                          refusal={leave.refusal}
+                          onClick={() => confirmLeave(workspaceDisplayName(workspace.name, fallback))}
+                        />
+                      ) : null}
+
+                      {leave && !workspace.isCurrent ? (
+                        <LeaveWorkspaceButton
+                          ariaLabel={t("Workspaces.leaveNamed", { name })}
+                          id={otherLeaveId}
+                          label={t("Workspaces.leaveShort")}
+                          refusal={leave.refusal}
+                          variant="ghostDestructive"
+                          onClick={() => confirmLeave(name)}
+                        />
+                      ) : null}
+
+                      {appMode !== "demo" && !workspace.isCurrent && workspace.status === Status.inactive ? (
+                        <Button
+                          aria-label={t("Workspaces.leaveNamed", { name })}
+                          data-slot="leave-inactive-workspace"
+                          size="sm"
+                          type="button"
+                          variant="ghostDestructive"
+                          onClick={() => {
+                            setInactiveLeave({
+                              companyId: workspace.companyId,
+                              name,
+                              reason: workspace.inactiveReason,
+                            });
+                            setConfirmingInactiveLeave(true);
+                          }}
+                        >
+                          {t("Workspaces.leaveShort")}
+                        </Button>
+                      ) : null}
                     </div>
 
-                    {workspace.isCurrent && canLeaveCurrent ? (
+                    {leave && workspace.isCurrent ? (
                       <LeaveWorkspaceReason
                         className="basis-full"
                         id="settings-workspaces-leave"
-                        refusal={leaveRefusal}
+                        refusal={leave.refusal}
                       />
+                    ) : null}
+
+                    {leave && !workspace.isCurrent ? (
+                      <LeaveWorkspaceReason className="basis-full" id={otherLeaveId} refusal={leave.refusal} />
                     ) : null}
                   </li>
                 );
@@ -181,7 +201,8 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
 
       <LeaveWorkspaceDialog
         anchorScope="settings-workspaces-leave-confirm"
-        name={currentName}
+        companyId={activeLeave?.companyId ?? null}
+        name={activeLeave?.name ?? fallback}
         open={confirmingLeave}
         onClose={() => setConfirmingLeave(false)}
       />

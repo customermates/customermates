@@ -571,7 +571,7 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  private async strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }) {
+  async strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }) {
     return strandsLastPlatformOperator(this.prisma, ending);
   }
 
