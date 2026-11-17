@@ -7,6 +7,7 @@ import type { AutomationRulePreview, PreviewAutomationRuleData } from "./automat
 
 import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { roleReadScope } from "@/core/base/permission.service";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -48,7 +49,10 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
   @Validate(PreviewAutomationRuleSchema)
   @ValidateOutput(AutomationRulePreviewSchema)
   async invoke(data: PreviewAutomationRuleData): Validated<AutomationRulePreview> {
-    const stored = data.id ? await this.repo.findRule(data.id) : null;
+    const found = data.id ? await this.repo.findRule(data.id) : null;
+    const visible =
+      found && (roleReadScope(this.user.role, Resource.routines) === "all" || found.ownerUserId === this.user.id);
+    const stored = visible ? found : null;
     if (data.id && !stored) return failNotFound(CustomErrorCode.automationRuleNotFound, ["id"]);
     const trigger = AutomationTriggerSchema.safeParse(data.rule?.trigger ?? stored?.trigger);
     if (!trigger.success) return fail(CustomErrorCode.automationRuleInvalid, ["trigger"]);
@@ -65,21 +69,26 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
       automationModelIssues(definition, model)[0] ??
       (data.rule ? automationConditionIssues(definition, model)[0] : undefined);
     if (modelIssue) return fail(CustomErrorCode.automationRuleInvalid, modelIssue.split("."));
-    if (trigger.data.kind !== "dateReached")
-      return { ok: true as const, data: { supported: false, total: 0, recordIds: [], alreadyFired: 0 } };
+    if (trigger.data.kind !== "dateReached") {
+      return {
+        ok: true as const,
+        data: { supported: false, total: 0, recordIds: [], alreadyFired: 0, truncated: false },
+      };
+    }
 
     const dateTrigger = trigger.data;
     const now = this.clock();
     const window = dateReachedCandidateWindow(dateTrigger, now, AUTOMATION_DATE_LOOKBACK_DAYS);
-    const candidates = await this.candidates.readable({
+    const readable = await this.candidates.readable({
       companyId: this.user.companyId,
       userId: this.user.id,
       typeId: dateTrigger.typeId,
       fieldId: dateTrigger.fieldId,
       from: window.from,
       to: window.to,
-      limit: CANDIDATE_LIMIT,
+      limit: CANDIDATE_LIMIT + 1,
     });
+    const candidates = readable.slice(0, CANDIDATE_LIMIT);
     const due = dueDateOccurrences(dateTrigger, candidates, now);
     const fired = stored
       ? await this.repo.findOccurrencesCompanyWide(
@@ -106,6 +115,7 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
         total: matching.length,
         recordIds: matching.slice(0, SAMPLE_LIMIT),
         alreadyFired: due.length - open.length,
+        truncated: readable.length > CANDIDATE_LIMIT,
       },
     };
   }

@@ -448,5 +448,8 @@ export const AutomationRulePreviewSchema = z.object({
   total: z.number().int().nonnegative(),
   recordIds: z.array(z.uuid()).max(50),
   alreadyFired: z.number().int().nonnegative(),
+  truncated: z
+    .boolean()
+    .describe("True when more records are in reach than one preview looks at, so total is a lower bound."),
 });
 export type AutomationRulePreview = z.infer<typeof AutomationRulePreviewSchema>;

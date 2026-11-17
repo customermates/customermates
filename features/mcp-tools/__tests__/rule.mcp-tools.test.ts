@@ -170,7 +170,7 @@ describe("manage_rules", () => {
   it("previews a saved rule or an inline date rule", async () => {
     spies.preview.mockResolvedValue({
       ok: true,
-      data: { supported: true, total: 1, recordIds: [RULE], alreadyFired: 0 },
+      data: { supported: true, total: 1, recordIds: [RULE], alreadyFired: 0, truncated: true },
     });
     const dateTrigger = { kind: "dateReached", typeId: TYPE, fieldId: FIELD, days: 1, direction: "before" };
     await run({ action: "preview", id: RULE });
@@ -183,7 +183,7 @@ describe("manage_rules", () => {
         conditions: undefined,
       },
     });
-    expect(structured(inline)).toMatchObject({ supported: true, total: 1 });
+    expect(structured(inline)).toMatchObject({ supported: true, total: 1, truncated: true });
   });
 
   it("returns the interactor's refusal as a tool failure", async () => {

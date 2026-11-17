@@ -77,9 +77,10 @@ const ManageRulesOutputSchema = z
     supported: z.boolean().optional(),
     recordIds: z.array(z.string()).optional(),
     alreadyFired: z.number().optional(),
+    truncated: z.boolean().optional(),
   })
   .describe(
-    "list returns items, total, page and pageSize; runs returns runs and nextCursor (null on the last page); get, create, update, enable and disable return the rule with its trigger, conditions and effects; delete returns deleted and id; preview returns supported, total, recordIds (at most 50) and alreadyFired.",
+    "list returns items, total, page and pageSize; runs returns runs and nextCursor (null on the last page); get, create, update, enable and disable return the rule with its trigger, conditions and effects; delete returns deleted and id; preview returns supported, total, recordIds (at most 50), alreadyFired and truncated (true when more records are in reach than one preview looks at, so total is a lower bound).",
   );
 
 export const manageRulesTool = {

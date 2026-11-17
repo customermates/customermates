@@ -703,6 +703,34 @@ describe("previewing a date rule", () => {
     expect(filtered).toMatchObject({ ok: true, data: { total: 1, recordIds: [RECORD] } });
   });
 
+  it("says when it looked at only the first two hundred records", async () => {
+    const candidate = (index: number) => ({
+      recordId: `44444444-4444-4444-8444-${String(index).padStart(12, "0")}`,
+      fieldValue: "2026-11-14",
+    });
+    repo.candidates = Array.from({ length: 200 }, (_, index) => candidate(index));
+    const exact = await run(preview(), { rule: { trigger: reminder.trigger } });
+    expect(exact).toMatchObject({ ok: true, data: { total: 200, truncated: false } });
+    repo.candidates.push(candidate(200));
+    const cut = await run(preview(), { rule: { trigger: reminder.trigger } });
+    expect(cut).toMatchObject({ ok: true, data: { total: 200, truncated: true } });
+    expect(cut.ok && cut.data.recordIds).toHaveLength(50);
+  });
+
+  it("answers not found for the id of a rule the caller may not see", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], triggerKind: "dateReached", typeId: DEALS });
+    repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-14" }];
+    const own = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
+      id: COLLEAGUE,
+      companyId: COMPANY,
+    };
+    const hidden = await runWithTenant(own, () => preview().invoke({ id: RULE } as never));
+    expect(hidden.ok).toBe(false);
+    expect(issueOf(hidden as never)).toEqual({ path: ["id"], error: CustomErrorCode.automationRuleNotFound });
+    expect((await run(preview(), { id: RULE })).ok).toBe(true);
+  });
+
   it("leaves out records that already fired and records that miss a condition", async () => {
     const stored = repo.addRule({
       id: RULE,
