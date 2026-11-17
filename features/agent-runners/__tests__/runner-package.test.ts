@@ -7,6 +7,7 @@ import { MCP_UNTRUSTED_CONTENT_INSTRUCTION } from "@/features/mcp-tools/server-i
 
 import { AgentTranscriptEventSchema } from "@/features/agent-jobs/agent-job.schema";
 
+import { CODEX_FEATURES_READ_FROM } from "../../../packages/runner/src/clients/codex";
 import { CLIENT_ADAPTERS } from "../../../packages/runner/src/clients/index";
 import { RUNNER_ERRORS } from "../../../packages/runner/src/run-job";
 import { ERROR_MAX, TEXT_MAX } from "../../../packages/runner/src/text";
@@ -134,12 +135,27 @@ describe("the customermates-runner package", () => {
     ).toBe(true);
   });
 
-  it("ships a Dockerfile that builds the package and runs it as a non-root user", () => {
+  it("ships a Dockerfile that builds the package and runs it as a non-root user under an init process", () => {
     const dockerfile = read("Dockerfile");
 
     expect(dockerfile).toContain("FROM node:24");
     expect(dockerfile).toContain("USER node");
-    expect(dockerfile).toContain('ENTRYPOINT ["node", "/app/dist/cli.js"]');
+    expect(dockerfile).toContain("apt-get install -y --no-install-recommends tini");
+    expect(dockerfile).toContain('ENTRYPOINT ["/usr/bin/tini", "--", "node", "/app/dist/cli.js"]');
     expect(existsSync(join(PACKAGE_ROOT, "src", "cli.ts"))).toBe(true);
+  });
+
+  it("installs each CLI in the image in exactly the version the README says the flags were checked against", () => {
+    const packages = /ARG CLIENT_PACKAGES="([^"]+)"/u.exec(read("Dockerfile"))?.[1].split(" ") ?? [];
+    const readme = read("README.md");
+
+    expect(packages).toEqual([
+      "@anthropic-ai/claude-code@2.1.326",
+      `@openai/codex@${CODEX_FEATURES_READ_FROM}`,
+      "@google/gemini-cli@0.68.0",
+    ]);
+    expect(readme).toContain(
+      `checked against the help of Claude Code 2.1.326, Codex CLI ${CODEX_FEATURES_READ_FROM} and Gemini CLI 0.68.0`,
+    );
   });
 });

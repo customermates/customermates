@@ -27,7 +27,7 @@ docker run -d --restart unless-stopped \
   ghcr.io/customermates/runner
 ```
 
-The image contains Node, the runner and the three CLIs. It has no login: mount the login folder of the CLI you use (`~/.claude` and `~/.claude.json` for Claude Code, `~/.codex` for Codex, `~/.gemini` for Gemini CLI) or pass the CLI's own API key variable. On macOS Claude Code keeps its login in the Keychain, not in `~/.claude`, so the mount carries no login into the container: pass `ANTHROPIC_API_KEY` or a token from `claude setup-token` in `CLAUDE_CODE_OAUTH_TOKEN` instead. Build the image with `docker build -t customermates-runner packages/runner`; the build argument `CLIENT_PACKAGES` chooses which CLIs are installed.
+The image contains Node, the runner and the three CLIs. It has no login: mount the login folder of the CLI you use (`~/.claude` and `~/.claude.json` for Claude Code, `~/.codex` for Codex, `~/.gemini` for Gemini CLI) or pass the CLI's own API key variable. On macOS Claude Code keeps its login in the Keychain, not in `~/.claude`, so the mount carries no login into the container: pass `ANTHROPIC_API_KEY` or a token from `claude setup-token` in `CLAUDE_CODE_OAUTH_TOKEN` instead. Build the image with `docker build -t customermates-runner packages/runner`; the build argument `CLIENT_PACKAGES` chooses which CLIs are installed and in which version. By default it installs exactly the versions the flags below were checked against: Claude Code 2.1.326, Codex CLI 0.169.0 and Gemini CLI 0.68.0. The runner starts under `tini` as the init process of the container, so a stop reaches the runner and processes a CLI leaves behind are reaped.
 
 ## Options
 
@@ -79,7 +79,7 @@ The CLI runs as the account that started the runner. Read this before you run a 
 - Gemini CLI is started with only the workspace's MCP server allowed. Its own built-in tools follow your Gemini settings.
 - The runner token and the CLI logins sit in your account on that machine. A CLI that you allow to run commands can read them. For strict separation run the runner in the Docker image or under its own user account.
 - Windows: the runner starts CLIs installed with npm (`.cmd` files) through `cmd.exe`. This path is covered by unit tests of the command line it builds, not by a test run on Windows. Stopping a job there uses `taskkill /T /F`.
-- The flags above were checked against the help of Claude Code 2.1.326 and Codex CLI 0.169.0. An older version may not know every flag; the job then fails with the CLI's own message.
+- The flags above were checked against the help of Claude Code 2.1.326, Codex CLI 0.169.0 and Gemini CLI 0.68.0, the versions the Docker image installs. Another version may not know every flag; the job then fails with the CLI's own message.
 
 ## Stop or revoke
 
