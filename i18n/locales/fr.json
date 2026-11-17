@@ -1256,6 +1256,7 @@
       },
       "callWebhook": {
         "hint": "Envoyer l’enregistrement à un autre outil",
+        "restricted": "Votre rôle ne permet pas de voir les webhooks de cet espace de travail.",
         "title": "Appeler un webhook"
       },
       "condition": {

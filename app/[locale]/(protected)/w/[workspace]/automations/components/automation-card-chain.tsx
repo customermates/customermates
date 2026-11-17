@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import type { AutomationPaletteKind } from "@/components/automations/automation-palette";
+import type { AutomationPaletteKind, AutomationPaletteReasons } from "@/components/automations/automation-palette";
 import type { AutomationBuilderStore } from "./automation-builder.store";
 
 import { Bell, Filter, ListPlus, Pencil, Sparkles, Webhook, Zap } from "lucide-react";
@@ -15,6 +15,7 @@ import { AutomationPalette } from "@/components/automations/automation-palette";
 import { AutomationConditionFields } from "./automation-condition-fields";
 import { conditionSentence, effectSentence, triggerSentence } from "./automation-draft-sentence";
 import { AutomationEffectFields } from "./automation-effect-fields";
+import { paletteAvailability } from "./automation-palette-availability";
 import { AutomationTriggerEditor } from "./automation-trigger-editor";
 import { draftHasRecord } from "./automation-draft";
 
@@ -49,11 +50,15 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
 
   const hasRecord = draftHasRecord(form.trigger);
   const conditionCount = form.conditions.length;
-  const disabled = new Set<AutomationPaletteKind>();
-  if (!hasRecord || !store.canAddCondition) disabled.add("condition");
-  if (!hasRecord) disabled.add("setField");
-  if (!store.canAddEffect)
-    for (const kind of ["setField", "createRecord", "notify", "callWebhook", "agent"] as const) disabled.add(kind);
+  const { disabled, restricted } = paletteAvailability({
+    hasRecord,
+    canAddCondition: store.canAddCondition,
+    canAddEffect: store.canAddEffect,
+    webhooksVisible: context.webhooks !== null,
+  });
+  const reasons: AutomationPaletteReasons = restricted.includes("callWebhook")
+    ? { callWebhook: t("Automations.palette.callWebhook.restricted") }
+    : {};
 
   const pick = (kind: AutomationPaletteKind, position: number) => {
     if (kind === "condition") {
@@ -88,6 +93,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
         {palette?.index === position && (
           <AutomationPalette
             disabled={disabled}
+            reasons={reasons}
             onClose={() => dismissPalette(position)}
             onPick={(kind) => pick(kind, position)}
           />

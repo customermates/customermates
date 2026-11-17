@@ -468,7 +468,7 @@ describe("the trigger card", () => {
 });
 
 describe("the step palette and the keyboard", () => {
-  function chainStore() {
+  function chainStore(webhooks: [] | null = []) {
     const store = new AutomationBuilderStore({
       registerModalStore: vi.fn(),
       userStore: { user: { id: "u", role: { isSystemRole: false } }, can: vi.fn(() => true) },
@@ -476,7 +476,7 @@ describe("the step palette and the keyboard", () => {
     } as unknown as RootStore);
     act(() => {
       store.openForCreate(
-        { model: MODEL, runtimes: runtimes(), webhooks: [], composer: false, cloud: false, timezone: "UTC" },
+        { model: MODEL, runtimes: runtimes(), webhooks, composer: false, cloud: false, timezone: "UTC" },
         vi.fn(),
         { typeId: DEALS },
       );
@@ -514,6 +514,28 @@ describe("the step palette and the keyboard", () => {
     });
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(outer).toHaveBeenCalledTimes(1);
+  });
+
+  it("switches Call a webhook off, with the reason, for a member who cannot see webhooks", () => {
+    const item = () => container.querySelector<HTMLButtonElement>('[data-automation-palette-item="callWebhook"]');
+
+    const restricted = chainStore(null);
+    mount(<AutomationCardChain store={restricted} />);
+    act(() => connectors()[0]?.click());
+    expect(item()?.disabled).toBe(true);
+    expect(item()?.querySelector("[data-automation-palette-reason]")?.textContent).toBe(
+      "Automations.palette.callWebhook.restricted",
+    );
+    expect(item()?.textContent).not.toContain("Automations.palette.callWebhook.hint");
+    act(() => item()?.click());
+    expect(restricted.form.effects).toEqual([]);
+
+    const visible = chainStore([]);
+    mount(<AutomationCardChain store={visible} />);
+    act(() => connectors()[0]?.click());
+    expect(item()?.disabled).toBe(false);
+    expect(item()?.querySelector("[data-automation-palette-reason]")).toBeNull();
+    expect(item()?.textContent).toContain("Automations.palette.callWebhook.hint");
   });
 
   it("puts the focus on the card that was just added", () => {

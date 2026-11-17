@@ -1256,6 +1256,7 @@
       },
       "callWebhook": {
         "hint": "Het record naar een andere tool sturen",
+        "restricted": "Je rol mag de webhooks van deze werkruimte niet zien.",
         "title": "Een webhook aanroepen"
       },
       "condition": {

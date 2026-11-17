@@ -1256,6 +1256,7 @@
       },
       "callWebhook": {
         "hint": "Den Datensatz an ein anderes Tool senden",
+        "restricted": "Deine Rolle darf die Webhooks dieses Arbeitsbereichs nicht sehen.",
         "title": "Webhook aufrufen"
       },
       "condition": {

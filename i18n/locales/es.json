@@ -1256,6 +1256,7 @@
       },
       "callWebhook": {
         "hint": "Enviar el registro a otra herramienta",
+        "restricted": "Tu rol no puede ver los webhooks de este espacio de trabajo.",
         "title": "Llamar a un webhook"
       },
       "condition": {

@@ -1256,6 +1256,7 @@
       },
       "callWebhook": {
         "hint": "Wyślij rekord do innego narzędzia",
+        "restricted": "Twoja rola nie widzi webhooków tego obszaru roboczego.",
         "title": "Wywołaj webhook"
       },
       "condition": {

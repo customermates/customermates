@@ -1256,6 +1256,7 @@
       },
       "callWebhook": {
         "hint": "Enviar o registro para outra ferramenta",
+        "restricted": "Sua função não pode ver os webhooks deste espaço de trabalho.",
         "title": "Chamar um webhook"
       },
       "condition": {

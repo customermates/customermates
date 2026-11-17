@@ -66,13 +66,16 @@ function groupLabel(t: Translate, group: Group): string {
   }
 }
 
+export type AutomationPaletteReasons = Partial<Record<AutomationPaletteKind, string>>;
+
 type Props = {
   disabled: ReadonlySet<AutomationPaletteKind>;
+  reasons?: AutomationPaletteReasons;
   onPick: (kind: AutomationPaletteKind) => void;
   onClose: () => void;
 };
 
-export function AutomationPalette({ disabled, onPick, onClose }: Props) {
+export function AutomationPalette({ disabled, reasons, onPick, onClose }: Props) {
   const t = useTranslations();
   const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
@@ -138,6 +141,7 @@ export function AutomationPalette({ disabled, onPick, onClose }: Props) {
             {kinds.map((kind) => {
               const Icon = ITEMS[kind].icon;
               const text = itemText(t, kind);
+              const reason = disabled.has(kind) ? reasons?.[kind] : undefined;
               return (
                 <button
                   key={kind}
@@ -152,7 +156,13 @@ export function AutomationPalette({ disabled, onPick, onClose }: Props) {
                   <span className="flex flex-col">
                     <span className="font-medium">{text.title}</span>
 
-                    <span className="text-xs text-muted-foreground">{text.hint}</span>
+                    {reason ? (
+                      <span className="text-xs text-muted-foreground" data-automation-palette-reason="">
+                        {reason}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">{text.hint}</span>
+                    )}
                   </span>
                 </button>
               );

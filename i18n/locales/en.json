@@ -1256,6 +1256,7 @@
       },
       "callWebhook": {
         "hint": "Send the record to another tool",
+        "restricted": "Your role cannot see the webhooks of this workspace.",
         "title": "Call a webhook"
       },
       "condition": {
