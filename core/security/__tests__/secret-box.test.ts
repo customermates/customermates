@@ -17,9 +17,9 @@ function sealVersionOne(plain: string, secret: string): string {
   const key = new Uint8Array(hkdfSync("sha256", secret, "", "customermates-secret-box-v1", 32));
   const iv = new Uint8Array(randomBytes(12));
   const cipher = createCipheriv("aes-256-gcm", key, iv, { authTagLength: 16 });
-  const data = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
+  const data = `${cipher.update(plain, "utf8", "base64url")}${cipher.final("base64url")}`;
   const part = (value: Uint8Array) => Buffer.from(value).toString("base64url");
-  return ["v1", part(iv), part(cipher.getAuthTag()), part(data)].join(".");
+  return ["v1", part(iv), cipher.getAuthTag().toString("base64url"), data].join(".");
 }
 
 function failureOf(run: () => unknown): string | null {

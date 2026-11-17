@@ -94,7 +94,7 @@ async function run(
   setupResult: ReturnType<typeof setup>,
   overrides: Partial<Parameters<typeof runAgentJobLoop>[0]> = {},
 ) {
-  const onStep = vi.fn().mockResolvedValue(undefined);
+  const onStep = vi.fn().mockResolvedValue({ held: true });
   const outcome = await runAgentJobLoop({
     model: setupResult.model,
     system: "system",
@@ -447,6 +447,16 @@ describe("the agent job loop", () => {
     expect(outcome.kind).toBe("failed");
     if (outcome.kind !== "failed") return;
     expect((outcome.error as Error).message).toBe("transcript store unavailable");
+    expect(outcome.steps).toHaveLength(1);
+    expect(world.model.doGenerateCalls).toHaveLength(1);
+  });
+
+  it("stops before the next provider call once the job is no longer held by this attempt", async () => {
+    const world = setup([toolCallStep("query_crm_records", { typeId: "deals" }), textStep("never reached")]);
+
+    const { outcome } = await run(world, { onStep: vi.fn().mockResolvedValue({ held: false }) });
+
+    expect(outcome).toMatchObject({ kind: "stopped", code: "takenOver" });
     expect(outcome.steps).toHaveLength(1);
     expect(world.model.doGenerateCalls).toHaveLength(1);
   });

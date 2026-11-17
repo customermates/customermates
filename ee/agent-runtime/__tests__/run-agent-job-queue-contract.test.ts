@@ -30,12 +30,13 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import type { AgentJobLoopOutcome } from "../run-agent-job-loop";
+import type { AgentJobLoopInput, AgentJobLoopOutcome } from "../run-agent-job-loop";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { sealSecret } from "@/core/security/secret-box";
 import { FakeAgentJobRepo } from "@/features/agent-jobs/__tests__/fake-agent-job-repo";
 import { FakeAgentProviderKeyRepo } from "@/ee/agent-keys/__tests__/fake-agent-provider-key-repo";
+import { agentProviderKeyBinding } from "@/ee/agent-keys/agent-provider-key-binding";
 import { RunAgentJobInteractor } from "../run-agent-job.interactor";
 
 const NOW = new Date("2026-11-17T12:00:00.000Z");
@@ -43,15 +44,15 @@ const STEP = {
   tokens: { inputTokens: 1000, outputTokens: 100, cacheReadTokens: 0, cacheWriteTokens: 0 },
   providerMetadata: undefined,
 };
-const FINISHED: AgentJobLoopOutcome = { kind: "finished", text: "Done.", reason: "stop", steps: [STEP] };
+const FINISHED: AgentJobLoopOutcome = { kind: "finished", text: "Done.", reason: "stop", steps: [STEP], auxiliary: [] };
 
-async function world(loop: (jobs: FakeAgentJobRepo) => Promise<AgentJobLoopOutcome>) {
+async function world(loop: (jobs: FakeAgentJobRepo, input: AgentJobLoopInput) => Promise<AgentJobLoopOutcome>) {
   const jobs = new FakeAgentJobRepo();
   const keys = new FakeAgentProviderKeyRepo();
   await keys.upsert({
     provider: "anthropic",
     label: "Production",
-    keyCiphertext: sealSecret("sk-ant-api03-SECRETVALUE-9876"),
+    keyCiphertext: sealSecret("sk-ant-api03-SECRETVALUE-9876", agentProviderKeyBinding(COMPANY, "anthropic")),
     keyLast4: "9876",
     defaultModel: "claude-haiku-5-5",
     validatedAt: NOW,
@@ -62,9 +63,10 @@ async function world(loop: (jobs: FakeAgentJobRepo) => Promise<AgentJobLoopOutco
     keys,
     { findRunUnscoped: vi.fn().mockResolvedValue(null) } as never,
     { reserve: vi.fn(), settle: vi.fn(), release: vi.fn() } as never,
+    { allowed: vi.fn().mockResolvedValue(true) },
     vi.fn().mockReturnValue({ fake: "model" }),
     toolkit,
-    (() => loop(jobs)) as never,
+    ((input: AgentJobLoopInput) => loop(jobs, input)) as never,
     () => NOW,
   );
   const run = (jobId: string) => runWithTenant(mockUser, () => interactor.invoke({ jobId } as never));
@@ -90,6 +92,26 @@ describe("a hosted agent job and the queue", () => {
 
     expect(jobs.jobs.get(jobId)).toMatchObject({ status: "claimed", attempts: 2, finishedAt: null, result: null });
     expect(jobs.events.get(jobId) ?? []).toEqual([]);
+  });
+
+  it("stops working after the step in which another attempt took the job over", async () => {
+    let jobId = "";
+    const held: boolean[] = [];
+    const { jobs, run } = await world(async (repo, input) => {
+      held.push((await input.onStep(STEP)).held);
+      const stale = repo.jobs.get(jobId);
+      if (!stale) throw new Error("The job is missing");
+      repo.jobs.set(jobId, { ...stale, status: "queued" });
+      await repo.claimUnscoped({ companyId: COMPANY, runtime: "ownKey", jobId, now: NOW, timeoutAt: NOW });
+      held.push((await input.onStep(STEP)).held);
+      return { kind: "stopped", code: "takenOver", steps: [STEP, STEP], auxiliary: [] };
+    });
+    jobId = jobs.add({ runtime: "ownKey" }).id;
+
+    await run(jobId);
+
+    expect(held).toEqual([true, false]);
+    expect(jobs.jobs.get(jobId)).toMatchObject({ status: "claimed", attempts: 2, finishedAt: null, error: null });
   });
 
   it("builds the tools of a run with the rule chain stored on the job", async () => {

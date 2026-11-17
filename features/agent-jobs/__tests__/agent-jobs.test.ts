@@ -476,9 +476,11 @@ describe("sweeping timed-out jobs", () => {
       timeoutAt: new Date(NOW.getTime() + 1000),
     });
     const dispatch = vi.fn().mockResolvedValue(undefined);
-    const release = vi.fn().mockResolvedValue(undefined);
+    const settleInterrupted = vi.fn().mockResolvedValue("retained");
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+      now: NOW,
+    });
 
     expect(result).toEqual({
       agentJobsTimedOut: 1,
@@ -497,8 +499,8 @@ describe("sweeping timed-out jobs", () => {
       companyId: COMPANY,
       ownerUserId: OWNER,
     });
-    expect(release).toHaveBeenCalledTimes(1);
-    expect(release).toHaveBeenCalledWith({ jobId: mate.id, attempt: 2, companyId: COMPANY, userId: OWNER });
+    expect(settleInterrupted).toHaveBeenCalledTimes(1);
+    expect(settleInterrupted).toHaveBeenCalledWith({ jobId: mate.id, attempt: 2, companyId: COMPANY, userId: OWNER });
   });
 
   it("starts a hosted job again that stayed queued past the grace, and leaves fresh and runner jobs alone", async () => {
@@ -509,9 +511,11 @@ describe("sweeping timed-out jobs", () => {
     const justQueued = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(1) });
     const waitingForRunner = repo.add({ runtime: "runner", queuedAt: minutesAgo(6) });
     const dispatch = vi.fn().mockResolvedValue(undefined);
-    const release = vi.fn().mockResolvedValue(undefined);
+    const settleInterrupted = vi.fn().mockResolvedValue("retained");
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+      now: NOW,
+    });
 
     expect(result).toMatchObject({ agentJobsTimedOut: 0, agentJobsRequeued: 0, agentJobsRedispatched: 2 });
     expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId).sort()).toEqual(
@@ -519,10 +523,10 @@ describe("sweeping timed-out jobs", () => {
     );
     expect(repo.jobs.get(justQueued.id)?.status).toBe("queued");
     expect(repo.jobs.get(waitingForRunner.id)?.status).toBe("queued");
-    expect(release).not.toHaveBeenCalled();
+    expect(settleInterrupted).not.toHaveBeenCalled();
   });
 
-  it("keeps going when the release or the restart of one job fails", async () => {
+  it("keeps going when settling the credits or the restart of one job fails", async () => {
     const repo = new FakeAgentJobRepo();
     const expired = new Date(NOW.getTime() - 1000);
     const brokenRelease = repo.add({ runtime: "mate", status: "running", attempts: 1, timeoutAt: expired });
@@ -531,13 +535,15 @@ describe("sweeping timed-out jobs", () => {
     const lost = repo.add({ runtime: "ownKey", queuedAt: new Date(NOW.getTime() - 5 * 60_000) });
     const releaseFailure = new Error("usage service unavailable");
     const dispatchFailure = new Error("workflow start failed");
-    const release = vi.fn().mockRejectedValue(releaseFailure);
+    const settleInterrupted = vi.fn().mockRejectedValue(releaseFailure);
     const dispatch = vi.fn().mockImplementation((_id: string, payload: { jobId: string }) => {
       return payload.jobId === brokenDispatch.id ? Promise.reject(dispatchFailure) : Promise.resolve();
     });
     sentry.captureException.mockClear();
 
-    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+      now: NOW,
+    });
 
     expect(result).toMatchObject({ agentJobsTimedOut: 0, agentJobsRequeued: 3, agentJobsRedispatched: 1 });
     expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId)).toEqual([
@@ -551,7 +557,9 @@ describe("sweeping timed-out jobs", () => {
     const later = new Date(NOW.getTime() + 5 * 60_000);
     dispatch.mockClear();
     dispatch.mockResolvedValue(undefined);
-    const next = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: later });
+    const next = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted }).invoke({
+      now: later,
+    });
     expect(next.agentJobsRedispatched).toBe(4);
     expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId)).toContain(brokenDispatch.id);
   });
@@ -560,7 +568,7 @@ describe("sweeping timed-out jobs", () => {
 describe("jobs that wait in the queue", () => {
   const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
   const sweep = (repo: FakeAgentJobRepo, dispatch = vi.fn().mockResolvedValue(undefined)) =>
-    new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release: vi.fn() }).invoke({ now: NOW });
+    new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { settleInterrupted: vi.fn() }).invoke({ now: NOW });
 
   it("end as timed out once they waited longer than the queue allows, on every runtime", async () => {
     const repo = new FakeAgentJobRepo();

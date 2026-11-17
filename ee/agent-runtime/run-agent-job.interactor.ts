@@ -237,7 +237,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       wallMs: AGENT_JOB_MAX_WALL_MS,
       ...(budget ? { limits: budget.limits, admitRound: budget.admitRound } : {}),
       ...(prepared.anthropicCache ? { anthropicCache: true } : {}),
-      onStep: () => this.flush(job, recorder),
+      onStep: async () => ({ held: await this.flush(job, recorder) }),
     });
   }
 
@@ -351,8 +351,8 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     }
   }
 
-  private async flush(job: StoredAgentJob, recorder: AgentJobRecorder): Promise<void> {
-    await this.repo.appendEventsUnscoped({
+  private flush(job: StoredAgentJob, recorder: AgentJobRecorder): Promise<boolean> {
+    return this.repo.appendEventsUnscoped({
       id: job.id,
       companyId: job.companyId,
       attempt: job.attempts,

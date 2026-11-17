@@ -59,7 +59,7 @@ export type AgentJobLoopInput = {
   limits?: AgentJobLoopLimits;
   admitRound?: (round: AgentJobRound) => Promise<AgentJobRoundAdmission>;
   anthropicCache?: boolean;
-  onStep: (step: AgentJobStepUsage) => Promise<void>;
+  onStep: (step: AgentJobStepUsage) => Promise<{ held: boolean }>;
 };
 
 type Ended = { steps: AgentJobStepUsage[]; auxiliary: ClassifierCharge[] };
@@ -180,6 +180,7 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
       ...(input.limits?.reasoning ? { reasoning: input.limits.reasoning } : {}),
       prepareStep: async ({ messages, stepNumber }) => {
         if (callbackFailure) throw callbackFailure.error;
+        if (halt) throw HALTED;
         const reportOnly = refused || stepNumber >= AGENT_JOB_MAX_STEPS - 1;
         if (reportOnly) stopped = "toolLimit";
         const activeTools = reportOnly ? [] : input.activeToolNames();
@@ -211,7 +212,7 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
             input.recorder.message("assistant", step.text);
           }
           const usage = steps.at(-1);
-          if (usage) await input.onStep(usage);
+          if (usage && !(await input.onStep(usage)).held) halt ??= "takenOver";
         }),
     });
     if (callbackFailure) return { kind: "failed", error: callbackFailure.error, ...ended() };
@@ -223,9 +224,10 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
       ...ended(),
     };
   } catch (error) {
-    if (error === HALTED && halt === "creditLimit")
-      return { kind: "finished", text: lastText, reason: "creditLimit", ...ended() };
-    if (error === HALTED && halt) return { kind: "stopped", code: halt, ...ended() };
+    if (error === HALTED && halt) {
+      if (halt === "creditLimit") return { kind: "finished", text: lastText, reason: "creditLimit", ...ended() };
+      return { kind: "stopped", code: halt, ...ended() };
+    }
     if (isTimeout(error)) return { kind: "finished", text: lastText, reason: "timeLimit", ...ended() };
     if (agentJobErrorStatus(error) !== null) return { kind: "failed", error, steps, auxiliary };
     return { kind: "failed", error, ...ended() };

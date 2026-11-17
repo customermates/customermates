@@ -10,7 +10,7 @@ const KNOWN_ERROR_CLASSES = [
   "TypeValidationError",
 ] as const;
 
-export type AgentJobStopCode = "hostedAiUnavailable" | "contextLimit";
+export type AgentJobStopCode = "hostedAiUnavailable" | "contextLimit" | "takenOver";
 
 export function agentJobErrorStatus(error: unknown): number | null {
   if (typeof error !== "object" || error === null) return null;

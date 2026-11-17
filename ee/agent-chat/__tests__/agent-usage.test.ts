@@ -18,7 +18,7 @@ import {
   toAgentUsageView,
   type WorkspacePlatformReservation,
 } from "../agent-usage.service";
-import { type AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
+import { type AgentUsageRepo, type AgentUsageReservationExtension } from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 import { computeCostMicrocents, promptTokensOf } from "../model-pricing";
@@ -76,6 +76,14 @@ function makeRepo(
     reserveUsageEventUnscoped: vi.fn(() => Promise.resolve(true)),
     releaseUsageReservationUnscoped: vi.fn(() => Promise.resolve()),
     settleUsageReservationUnscoped: vi.fn(() => Promise.resolve(true)),
+    extendAgentJobUsageReservationUnscoped: vi.fn(
+      (): Promise<AgentUsageReservationExtension> =>
+        Promise.resolve({ disposition: "extended", reservedMicrocents: 0 }),
+    ),
+    admitAgentJobProviderRoundUnscoped: vi.fn(() => Promise.resolve(true)),
+    closeInterruptedAgentJobUsageUnscoped: vi.fn(
+      (): Promise<"retained" | "released" | "none"> => Promise.resolve("none"),
+    ),
     admitsHostedAiRetrievalUnscoped: vi.fn(() => Promise.resolve(true)),
     getWorkspaceCreditPoolUnscoped: vi.fn(() =>
       Promise.resolve({

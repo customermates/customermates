@@ -33,7 +33,7 @@ export class SweepAgentJobTimeoutsInteractor {
       | "cancelQueuedOfInactiveRulesUnscoped"
     >,
     private readonly tasks: Pick<BackgroundTaskService, "dispatch">,
-    private readonly credits: AgentJobCredits,
+    private readonly credits: Pick<AgentJobCredits, "settleInterrupted">,
   ) {}
 
   async invoke(args: { now?: Date } = {}): Promise<AgentJobSweepResult> {
@@ -72,14 +72,14 @@ export class SweepAgentJobTimeoutsInteractor {
 
   private async afterTimeout(job: AgentJobSweepOutcome): Promise<void> {
     if (job.runtime === "mate") {
-      await this.isolated(() =>
-        this.credits.release({
+      await this.isolated(async () => {
+        await this.credits.settleInterrupted({
           jobId: job.id,
           attempt: job.attempts,
           companyId: job.companyId,
           userId: job.ownerUserId,
-        }),
-      );
+        });
+      });
     }
     if (job.requeued && isHosted(job)) await this.isolated(() => this.dispatch(job));
   }
