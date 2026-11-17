@@ -14,6 +14,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { IntlLink } from "@/i18n/navigation";
 
 import { getAutomationRuleRunsAction } from "../actions";
+import { effectDetailText, runErrorText } from "./automation-run-texts";
 import { AUTOMATION_STATUS_VARIANT } from "./automation-status-variant";
 
 export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefined; name: string }) {
@@ -89,16 +90,21 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
             {run.effects.map((effect, index) => {
               const kind = t(`AutomationRules.effect.${effect.kind}`);
               const outcome = t(`AutomationRules.outcome.${effect.status}`);
-              const detail = effect.detail && effect.status !== "applied" ? ` (${effect.detail})` : "";
+              const detail =
+                effect.detail && effect.status !== "applied" ? ` · ${effectDetailText(t, effect.detail)}` : "";
 
               return (
-                <p key={index} className="text-xs text-muted-foreground">
+                <p key={index} className="text-xs text-muted-foreground" data-automation-run-effect={effect.status}>
                   {`${kind}: ${outcome}${detail}`}
                 </p>
               );
             })}
 
-            {run.error && run.effects.length === 0 && <p className="text-xs text-destructive">{run.error}</p>}
+            {run.error && run.effects.length === 0 && (
+              <p className="text-xs text-destructive" data-automation-run-error="">
+                {runErrorText(t, run.error)}
+              </p>
+            )}
           </li>
         ))}
       </ul>

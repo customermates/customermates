@@ -1071,6 +1071,19 @@
     },
     "deleteMessage": "“{name}” en de geschiedenis verwijderen? Dit kan niet ongedaan worden gemaakt.",
     "deleteTitle": "Automatisering verwijderen",
+    "detail": {
+      "agentJobRefused": "De agent kon niet worden gestart.",
+      "agentModelUnavailable": "Het gekozen model is niet meer beschikbaar.",
+      "agentRunnerUnavailable": "De gekozen runner is niet meer beschikbaar.",
+      "noRecipients": "Er was niemand om te informeren.",
+      "previousEffectFailed": "Een eerdere stap is mislukt, dus deze is niet uitgevoerd.",
+      "recordMissing": "Het record is weg of niet leesbaar voor de eigenaar.",
+      "ruleInvalid": "De automatisering is niet meer geldig. Open haar, controleer de stappen en sla haar opnieuw op.",
+      "unexpectedError": "Er ging iets mis aan onze kant.",
+      "webhookDisabled": "De webhook is uitgeschakeld.",
+      "webhookMissing": "De webhook bestaat niet meer.",
+      "webhookNotSubscribed": "De webhook heeft de gebeurtenis voor automatiseringen niet geselecteerd."
+    },
     "disabledReason": {
       "disabledByUser": "Uitgezet.",
       "ownerInactive": "Uitgezet omdat de eigenaar geen actief lid meer is.",

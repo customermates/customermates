@@ -1071,6 +1071,19 @@
     },
     "deleteMessage": "¿Eliminar «{name}» y su historial? No se puede deshacer.",
     "deleteTitle": "Eliminar automatización",
+    "detail": {
+      "agentJobRefused": "No se pudo iniciar el agente.",
+      "agentModelUnavailable": "El modelo elegido ya no está disponible.",
+      "agentRunnerUnavailable": "El runner elegido ya no está disponible.",
+      "noRecipients": "No había nadie a quien avisar.",
+      "previousEffectFailed": "Un paso anterior falló, así que este no se ejecutó.",
+      "recordMissing": "El registro ya no existe o el propietario no puede leerlo.",
+      "ruleInvalid": "La automatización ya no es válida. Ábrela, revisa sus pasos y guárdala de nuevo.",
+      "unexpectedError": "Algo salió mal por nuestra parte.",
+      "webhookDisabled": "El webhook está desactivado.",
+      "webhookMissing": "El webhook ya no existe.",
+      "webhookNotSubscribed": "El webhook no ha seleccionado el evento de las automatizaciones."
+    },
     "disabledReason": {
       "disabledByUser": "Desactivada.",
       "ownerInactive": "Desactivada porque su propietario ya no es un miembro activo.",

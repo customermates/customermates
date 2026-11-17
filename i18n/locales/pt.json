@@ -1071,6 +1071,19 @@
     },
     "deleteMessage": "Excluir “{name}” e o histórico dela? Isso não pode ser desfeito.",
     "deleteTitle": "Excluir automação",
+    "detail": {
+      "agentJobRefused": "Não foi possível iniciar o agente.",
+      "agentModelUnavailable": "O modelo escolhido não está mais disponível.",
+      "agentRunnerUnavailable": "O runner escolhido não está mais disponível.",
+      "noRecipients": "Não havia ninguém para notificar.",
+      "previousEffectFailed": "Uma etapa anterior falhou, então esta não foi executada.",
+      "recordMissing": "O registro não existe mais ou não pode ser lido pelo proprietário.",
+      "ruleInvalid": "A automação não é mais válida. Abra-a, confira as etapas e salve-a de novo.",
+      "unexpectedError": "Algo deu errado do nosso lado.",
+      "webhookDisabled": "O webhook está desativado.",
+      "webhookMissing": "O webhook não existe mais.",
+      "webhookNotSubscribed": "O webhook não selecionou o evento das automações."
+    },
     "disabledReason": {
       "disabledByUser": "Desativada.",
       "ownerInactive": "Desativada porque o proprietário não é mais um membro ativo.",

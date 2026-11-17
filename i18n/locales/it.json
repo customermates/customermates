@@ -1071,6 +1071,19 @@
     },
     "deleteMessage": "Eliminare «{name}» e la sua cronologia? L’operazione non si può annullare.",
     "deleteTitle": "Elimina automazione",
+    "detail": {
+      "agentJobRefused": "Non è stato possibile avviare l’agente.",
+      "agentModelUnavailable": "Il modello scelto non è più disponibile.",
+      "agentRunnerUnavailable": "Il runner scelto non è più disponibile.",
+      "noRecipients": "Non c’era nessuno da avvisare.",
+      "previousEffectFailed": "Un passaggio precedente non è riuscito, quindi questo non è stato eseguito.",
+      "recordMissing": "Il record non esiste più o non è leggibile per il proprietario.",
+      "ruleInvalid": "L’automazione non è più valida. Aprila, controlla i passaggi e salvala di nuovo.",
+      "unexpectedError": "Qualcosa è andato storto da parte nostra.",
+      "webhookDisabled": "Il webhook è disattivato.",
+      "webhookMissing": "Il webhook non esiste più.",
+      "webhookNotSubscribed": "Il webhook non ha selezionato l’evento delle automazioni."
+    },
     "disabledReason": {
       "disabledByUser": "Disattivata.",
       "ownerInactive": "Disattivata perché il proprietario non è più un membro attivo.",

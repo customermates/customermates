@@ -1071,6 +1071,19 @@
     },
     "deleteMessage": "„{name}“ samt Verlauf löschen? Das lässt sich nicht rückgängig machen.",
     "deleteTitle": "Automatisierung löschen",
+    "detail": {
+      "agentJobRefused": "Der Agent konnte nicht gestartet werden.",
+      "agentModelUnavailable": "Das gewählte Modell ist nicht mehr verfügbar.",
+      "agentRunnerUnavailable": "Der gewählte Runner ist nicht mehr verfügbar.",
+      "noRecipients": "Es gab niemanden zu benachrichtigen.",
+      "previousEffectFailed": "Ein früherer Schritt ist fehlgeschlagen, deshalb lief dieser nicht.",
+      "recordMissing": "Der Datensatz ist weg oder für die Eigentümerin oder den Eigentümer nicht lesbar.",
+      "ruleInvalid": "Die Automatisierung ist nicht mehr gültig. Öffne sie, prüfe ihre Schritte und speichere sie erneut.",
+      "unexpectedError": "Auf unserer Seite ist etwas schiefgelaufen.",
+      "webhookDisabled": "Der Webhook ist ausgeschaltet.",
+      "webhookMissing": "Den Webhook gibt es nicht mehr.",
+      "webhookNotSubscribed": "Der Webhook hat das Ereignis für Automatisierungen nicht ausgewählt."
+    },
     "disabledReason": {
       "disabledByUser": "Ausgeschaltet.",
       "ownerInactive": "Ausgeschaltet, weil die Eigentümerin oder der Eigentümer kein aktives Mitglied mehr ist.",

@@ -1071,6 +1071,19 @@
     },
     "deleteMessage": "Delete “{name}” and its run history? This cannot be undone.",
     "deleteTitle": "Delete automation",
+    "detail": {
+      "agentJobRefused": "The agent could not be started.",
+      "agentModelUnavailable": "The chosen model is no longer available.",
+      "agentRunnerUnavailable": "The chosen runner is no longer available.",
+      "noRecipients": "There was nobody to notify.",
+      "previousEffectFailed": "An earlier step failed, so this one did not run.",
+      "recordMissing": "The record is gone or not readable for the owner.",
+      "ruleInvalid": "The automation is no longer valid. Open it, check its steps and save it again.",
+      "unexpectedError": "Something went wrong on our side.",
+      "webhookDisabled": "The webhook is switched off.",
+      "webhookMissing": "The webhook no longer exists.",
+      "webhookNotSubscribed": "The webhook has not selected the event for automations."
+    },
     "disabledReason": {
       "disabledByUser": "Switched off.",
       "ownerInactive": "Switched off because its owner is no longer an active member.",

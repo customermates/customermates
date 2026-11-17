@@ -1071,6 +1071,19 @@
     },
     "deleteMessage": "Supprimer « {name} » et son historique ? Cette action est irréversible.",
     "deleteTitle": "Supprimer l’automatisation",
+    "detail": {
+      "agentJobRefused": "L’agent n’a pas pu être démarré.",
+      "agentModelUnavailable": "Le modèle choisi n’est plus disponible.",
+      "agentRunnerUnavailable": "Le runner choisi n’est plus disponible.",
+      "noRecipients": "Il n’y avait personne à notifier.",
+      "previousEffectFailed": "Une étape précédente a échoué, celle-ci n’a donc pas été exécutée.",
+      "recordMissing": "L’enregistrement a disparu ou n’est pas lisible pour le propriétaire.",
+      "ruleInvalid": "L’automatisation n’est plus valide. Ouvrez-la, vérifiez ses étapes et enregistrez-la de nouveau.",
+      "unexpectedError": "Une erreur s’est produite de notre côté.",
+      "webhookDisabled": "Le webhook est désactivé.",
+      "webhookMissing": "Le webhook n’existe plus.",
+      "webhookNotSubscribed": "Le webhook n’a pas sélectionné l’événement des automatisations."
+    },
     "disabledReason": {
       "disabledByUser": "Désactivée.",
       "ownerInactive": "Désactivée, car son propriétaire n’est plus un membre actif.",
