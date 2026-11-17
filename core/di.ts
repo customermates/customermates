@@ -2852,6 +2852,8 @@ import { GetAutomationRuleRunsInteractor } from "@/features/automation-rules/get
 import { GetAutomationRuleInteractor } from "@/features/automation-rules/get-automation-rule.interactor";
 import { GetAutomationRulesInteractor } from "@/features/automation-rules/get-automation-rules.interactor";
 import { AutomationsListComposer } from "@/features/automation-rules/automations-list.composer";
+import { ComposeAutomationInteractor } from "@/ee/automation-compose/compose-automation.interactor";
+import { HostedComposeModelCaller } from "@/ee/automation-compose/hosted-compose-model-caller";
 import { GetAutomationsListInteractor } from "@/features/automation-rules/get-automations-list.interactor";
 import { PreviewAutomationRuleInteractor } from "@/features/automation-rules/preview-automation-rule.interactor";
 import { RecordAutomationPort } from "@/features/automation-rules/record-automation.port";
@@ -2908,6 +2910,8 @@ const getAutomationsListComposer = () =>
     env.APP_MODE === "self-hosted" ? null : getRoutineRepo(),
     getPermissionService(),
   );
+export const getComposeAutomationInteractor = () =>
+  new ComposeAutomationInteractor(getRecordAutomationPort(), getEntitlementService(), new HostedComposeModelCaller());
 export const getGetAutomationsListInteractor = () =>
   new GetAutomationsListInteractor(
     getAutomationsListComposer(),

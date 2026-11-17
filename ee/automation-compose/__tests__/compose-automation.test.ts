@@ -1,0 +1,227 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { createMockUser } from "@/tests/helpers/mock-user";
+import {
+  MOCK_ENV_MODULE,
+  MOCK_PRISMA_DB_MODULE,
+  MOCK_ZOD_MODULE,
+  createMockDiModule,
+} from "@/tests/helpers/interactor-test-setup";
+
+const mode = vi.hoisted(() => ({ value: "cloud" as string }));
+const mockUser = createMockUser({
+  id: "00000000-0000-4000-8000-000000000010",
+  companyId: "00000000-0000-4000-8000-000000000011",
+});
+
+vi.mock("@/env", () => ({
+  env: {
+    ...MOCK_ENV_MODULE.env,
+    get APP_MODE() {
+      return mode.value;
+    },
+  },
+}));
+vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: (namespace?: string) => {
+    const t = (key: string) => (namespace ? `${namespace}.${key}` : key);
+    return Promise.resolve(Object.assign(t, { raw: t }));
+  },
+  getLocale: () => Promise.resolve("en"),
+}));
+
+import type { RecordModelView } from "@/features/records/record-model.schema";
+import type { ComposeModelCall } from "../compose-model-caller";
+
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { ComposeModelCaller } from "../compose-model-caller";
+import { ComposeAutomationInteractor } from "../compose-automation.interactor";
+import { compactRecordModel, composeSystemPrompt } from "../compose-automation.prompt";
+
+const DEALS = "11111111-1111-4111-8111-111111111111";
+const TASKS = "11111111-1111-4111-8111-222222222222";
+const STAGE = "22222222-2222-4222-8222-222222222222";
+const TITLE = "22222222-2222-4222-8222-444444444444";
+const NOW = new Date("2026-11-16T09:00:00.000Z");
+
+const MODEL = {
+  revision: 1,
+  types: [
+    { id: DEALS, label: "Deal", archived: false, embedded: false, position: 0, primaryFieldId: null },
+    { id: TASKS, label: "Action", archived: false, embedded: false, position: 1, primaryFieldId: TITLE },
+  ],
+  fields: [
+    {
+      id: STAGE,
+      typeId: DEALS,
+      label: "Stage",
+      valueType: "select",
+      behavior: { kind: "input" },
+      archived: false,
+      required: false,
+      position: 0,
+      options: [
+        { id: "offer", label: "Offer sent" },
+        { id: "won", label: "Won" },
+      ],
+    },
+    {
+      id: TITLE,
+      typeId: TASKS,
+      label: "Title",
+      valueType: "text",
+      behavior: { kind: "input" },
+      archived: false,
+      required: false,
+      position: 0,
+      options: [],
+    },
+  ],
+  relationships: [],
+} as unknown as RecordModelView;
+
+class FakeCaller extends ComposeModelCaller {
+  calls: ComposeModelCall<unknown>[] = [];
+  constructor(private readonly output: unknown) {
+    super();
+  }
+  call<T>(call: ComposeModelCall<T>): Promise<T | null> {
+    this.calls.push(call as ComposeModelCall<unknown>);
+    return Promise.resolve(this.output as T | null);
+  }
+}
+
+const NOTIFY = {
+  kind: "notify",
+  recipients: { ruleOwner: true, assignees: false, userIds: [] },
+  notificationKind: "ruleAlert",
+  title: "{{record.name}}",
+};
+
+const DRAFT = {
+  status: "draft",
+  draft: {
+    name: "Offer follow-up",
+    trigger: { kind: "fieldChanged", typeId: DEALS, fieldId: STAGE, to: { kind: "select", value: "offer" } },
+    conditions: [],
+    effects: [NOTIFY],
+  },
+};
+
+function build(output: unknown, entitlement: unknown = null) {
+  const caller = new FakeCaller(output);
+  const entitlements = { require: vi.fn().mockResolvedValue(entitlement) };
+  const records = { model: vi.fn().mockResolvedValue(MODEL) };
+  const interactor = new ComposeAutomationInteractor(records, entitlements as never, caller, () => NOW);
+  const compose = (sentence: string) => runWithTenant(mockUser, () => interactor.invoke({ sentence }));
+  return { caller, entitlements, records, compose };
+}
+
+describe("composing an automation with Mate", () => {
+  beforeEach(() => {
+    mode.value = "cloud";
+  });
+
+  it("returns a validated draft and writes nothing", async () => {
+    const { compose, records } = build(DRAFT);
+    const result = await compose("When a deal moves to Offer sent, notify me");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toMatchObject({
+      status: "draft",
+      draft: { name: "Offer follow-up", enabled: true, effects: [NOTIFY] },
+    });
+    expect(records.model).toHaveBeenCalledOnce();
+  });
+
+  it("sends the workspace model, today and the sentence to the model", async () => {
+    const { compose, caller } = build(DRAFT);
+    await compose("Remind me about renewals");
+    const call = caller.calls[0];
+    expect(call?.system).toContain("Today is 2026-11-16.");
+    expect(call?.system).toContain(DEALS);
+    expect(call?.system).toContain("Offer sent");
+    expect(call?.prompt).toContain("Remind me about renewals");
+  });
+
+  it("runs every agent step on Mate whatever the model asked for", async () => {
+    const draft = {
+      ...DRAFT,
+      draft: {
+        ...DRAFT.draft,
+        effects: [{ kind: "agent", runtime: "runner", prompt: "Draft a reply", model: "x", runnerId: "r" }],
+      },
+    };
+    const result = await build(draft).compose("Draft replies");
+    expect(result.ok && result.data.status === "draft" ? result.data.draft.effects : null).toEqual([
+      { kind: "agent", runtime: "mate", prompt: "Draft a reply" },
+    ]);
+  });
+
+  it("refuses a draft that points at a field the workspace does not have", async () => {
+    const invalid = {
+      ...DRAFT,
+      draft: {
+        ...DRAFT.draft,
+        trigger: { ...DRAFT.draft.trigger, fieldId: "99999999-9999-4999-8999-999999999999" },
+      },
+    };
+    const result = await build(invalid).compose("Anything");
+    expect(result).toEqual({ ok: true, data: { status: "refused", reason: "invalid" } });
+  });
+
+  it("passes on the model's refusal reasons", async () => {
+    const unclear = await build({ status: "refused", reason: "unclear" }).compose("Do things");
+    const unsupported = await build({ status: "refused", reason: "unsupported" }).compose("Wait 3 days");
+    expect(unclear).toEqual({ ok: true, data: { status: "refused", reason: "unclear" } });
+    expect(unsupported).toEqual({ ok: true, data: { status: "refused", reason: "unsupported" } });
+  });
+
+  it("reports the assistant as unavailable when the model returns nothing", async () => {
+    const result = await build(null).compose("Anything");
+    expect(result).toEqual({ ok: true, data: { status: "refused", reason: "unavailable" } });
+  });
+
+  it("is unavailable on self-hosted, without calling the model", async () => {
+    mode.value = "self-hosted";
+    const { compose, caller, entitlements } = build(DRAFT);
+    expect(await compose("Anything")).toEqual({ ok: true, data: { status: "refused", reason: "unavailable" } });
+    expect(caller.calls).toHaveLength(0);
+    expect(entitlements.require).not.toHaveBeenCalled();
+  });
+
+  it("stops at the agent chat entitlement before spending anything", async () => {
+    const denial = { ok: false, error: { issues: [] } };
+    const { compose, caller, records } = build(DRAFT, denial);
+    expect(await compose("Anything")).toBe(denial);
+    expect(caller.calls).toHaveLength(0);
+    expect(records.model).not.toHaveBeenCalled();
+  });
+
+  it("rejects an empty or oversized sentence", async () => {
+    const { compose } = build(DRAFT);
+    expect((await compose("   ")).ok).toBe(false);
+    expect((await compose("x".repeat(601))).ok).toBe(false);
+  });
+});
+
+describe("the composer prompt", () => {
+  it("lists only live lists, their fields and options", () => {
+    const compact = compactRecordModel({
+      ...MODEL,
+      types: [...MODEL.types, { id: "arch", label: "Old", archived: true, embedded: false, position: 3 }],
+    } as unknown as RecordModelView);
+    expect(compact.lists.map((list) => list.label)).toEqual(["Deal", "Action"]);
+    expect(compact.lists[0]?.fields[0]).toMatchObject({
+      id: STAGE,
+      options: [
+        { id: "offer", label: "Offer sent" },
+        { id: "won", label: "Won" },
+      ],
+    });
+    expect(composeSystemPrompt(MODEL, "2026-11-16")).toContain("never invent an id");
+  });
+});
