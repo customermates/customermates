@@ -91,7 +91,10 @@ describe("NotifyRunnerOfflineInteractor", () => {
     const result = await interactor.invoke({ now: NOW });
 
     expect(result).toEqual({ runnerOfflineNotified: 3 });
-    expect(copy.mock.calls.map(([locale]) => locale)).toEqual(["de", "en", "fr"]);
+    expect(copy).toHaveBeenCalledTimes(3);
+    expect(copy).toHaveBeenNthCalledWith(1, "de");
+    expect(copy).toHaveBeenNthCalledWith(2, "en");
+    expect(copy).toHaveBeenNthCalledWith(3, "fr");
     expect(notify.mock.calls.map(([input]) => [input.companyId, input.recipients, input.title])).toEqual([
       [COMPANY_ID, [OWNER_ID, SECOND_OWNER], "title:de"],
       [COMPANY_ID, [THIRD_OWNER], "title:en"],

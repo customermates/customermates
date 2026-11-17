@@ -18,10 +18,12 @@ export async function startFakeServer(): Promise<FakeServer> {
   const replies = new Map<string, FakeReply | ((request: RecordedRequest) => FakeReply)>();
 
   const server = createServer((req, res) => {
-    const chunks: Buffer[] = [];
-    req.on("data", (chunk: Buffer) => chunks.push(chunk));
+    let text = "";
+    req.setEncoding("utf8");
+    req.on("data", (chunk: string) => {
+      text += chunk;
+    });
     req.on("end", () => {
-      const text = Buffer.concat(chunks).toString("utf8");
       const recorded: RecordedRequest = {
         method: req.method ?? "",
         path: req.url ?? "",

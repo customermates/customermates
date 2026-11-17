@@ -20,9 +20,12 @@ export function createFakeChild(options: { exitOnSignals?: string[] } = {}): Fak
   const stderr = new PassThrough();
   const stdin = new PassThrough();
   const signals: string[] = [];
-  const stdinChunks: Buffer[] = [];
+  let stdinText = "";
   let ended = false;
-  stdin.on("data", (chunk: Buffer) => stdinChunks.push(chunk));
+  stdin.setEncoding("utf8");
+  stdin.on("data", (chunk: string) => {
+    stdinText += chunk;
+  });
 
   const finish = (code: number | null) => {
     if (ended) return;
@@ -50,7 +53,7 @@ export function createFakeChild(options: { exitOnSignals?: string[] } = {}): Fak
 
   return {
     child,
-    stdinText: () => Buffer.concat(stdinChunks).toString("utf8"),
+    stdinText: () => stdinText,
     stdout: (...lines) => lines.forEach((line) => stdout.write(`${line}\n`)),
     stderr: (...lines) => lines.forEach((line) => stderr.write(`${line}\n`)),
     exit: (code) => {

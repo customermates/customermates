@@ -33,5 +33,5 @@ export function statusOf(result: { ok: true } | InteractorFailure): number {
 }
 
 export function codeOf(result: { ok: true } | InteractorFailure): string | undefined {
-  return result.ok ? undefined : (result.error.issues[0]?.params as { error?: string } | undefined)?.error;
+  return result.ok ? undefined : (result.error.issues[0] as { params?: { error?: string } } | undefined)?.params?.error;
 }
