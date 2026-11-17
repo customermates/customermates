@@ -27,6 +27,7 @@ import {
   AGENT_JOB_TRANSCRIPT_MAX_EVENTS,
   AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS,
 } from "@/features/agent-jobs/agent-job.schema";
+import { clipText } from "@/features/agent-jobs/agent-job-text";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 
@@ -270,7 +271,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       attempt: job.attempts,
       status,
       result: {
-        text: outcome.text.slice(0, AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS),
+        text: clipText(outcome.text, AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS),
         reason: outcome.reason,
         toolCalls: recorder.toolCalls,
       },

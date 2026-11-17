@@ -4,10 +4,11 @@ import {
   AGENT_JOB_SUMMARY_MAX_CHARS,
   AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS,
 } from "@/features/agent-jobs/agent-job.schema";
+import { clipText, storableText } from "@/features/agent-jobs/agent-job-text";
 
 function clip(text: string, max: number): string {
-  const flat = text.replace(/\s+/g, " ").trim();
-  return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat;
+  const flat = storableText(text).replace(/\s+/g, " ").trim();
+  return flat.length > max ? `${clipText(flat, max - 1)}…` : flat;
 }
 
 export class AgentJobRecorder {
@@ -26,7 +27,7 @@ export class AgentJobRecorder {
       type: "message",
       at: this.at(),
       role,
-      text: text.slice(0, AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS),
+      text: clipText(text, AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS),
     });
   }
 
@@ -56,7 +57,7 @@ export class AgentJobRecorder {
       type: "finish",
       at: this.at(),
       reason,
-      ...(text ? { text: text.slice(0, AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS) } : {}),
+      ...(text ? { text: clipText(text, AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS) } : {}),
     });
   }
 
