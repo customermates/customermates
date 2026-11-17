@@ -24,6 +24,10 @@ function log(message: string, details: Record<string, unknown>) {
 }
 
 export class EmailService {
+  isConfigured(): boolean {
+    return env.NODE_ENV !== "production" || Boolean(env.RESEND_API_KEY);
+  }
+
   async send(args: SendArgs): Promise<boolean> {
     if (env.NODE_ENV !== "production") {
       log("EMAIL (local only)", {

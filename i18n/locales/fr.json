@@ -4033,6 +4033,7 @@
     "markAllRead": "Tout marquer comme lu",
     "preferences": {
       "description": "La page des notifications affiche toujours tout. Choisissez ici à quelle fréquence chaque type de cet espace de travail vous parvient aussi par e-mail.",
+      "emailNotConfigured": "L’envoi d’e-mails n’est pas configuré sur ce serveur : les notifications vous parviennent donc uniquement sur la page des notifications. La personne qui gère le serveur peut configurer l’envoi d’e-mails.",
       "kind": "Type",
       "kindOffNotice": "Les e-mails « {kind} » sont désactivés.",
       "modeLabel": "E-mail pour {kind}",

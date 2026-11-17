@@ -4033,6 +4033,7 @@
     "markAllRead": "Alles als gelezen markeren",
     "preferences": {
       "description": "De pagina Meldingen toont altijd alles. Kies hier hoe vaak elke soort uit deze werkruimte je ook per e-mail bereikt.",
+      "emailNotConfigured": "Op deze server is geen e-mailverzending ingesteld, dus meldingen bereiken je alleen op de pagina Meldingen. Wie de server beheert, kan e-mailverzending instellen.",
       "kind": "Soort",
       "kindOffNotice": "E-mails over “{kind}” staan uit.",
       "modeLabel": "E-mail voor {kind}",

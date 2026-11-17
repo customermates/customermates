@@ -2946,12 +2946,28 @@ export const getNotificationService = () =>
   new NotificationService(getNotificationRepo(), getNotificationMailer(), () => new Date(), getNotificationPauseRepo());
 export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
 export const getMarkNotificationsReadInteractor = () => new MarkNotificationsReadInteractor(getNotificationRepo());
+const notificationClock = () => new Date();
 export const getGetNotificationPreferencesInteractor = () =>
-  new GetNotificationPreferencesInteractor(getNotificationRepo(), getNotificationPauseRepo());
+  new GetNotificationPreferencesInteractor(
+    getNotificationRepo(),
+    getNotificationPauseRepo(),
+    notificationClock,
+    getEmailService(),
+  );
 export const getSetNotificationPreferencesInteractor = () =>
-  new SetNotificationPreferencesInteractor(getNotificationRepo(), getNotificationPauseRepo());
+  new SetNotificationPreferencesInteractor(
+    getNotificationRepo(),
+    getNotificationPauseRepo(),
+    notificationClock,
+    getEmailService(),
+  );
 export const getSetNotificationPauseInteractor = () =>
-  new SetNotificationPauseInteractor(getNotificationRepo(), getNotificationPauseRepo());
+  new SetNotificationPauseInteractor(
+    getNotificationRepo(),
+    getNotificationPauseRepo(),
+    notificationClock,
+    getEmailService(),
+  );
 export const getSetNotificationKindOffInteractor = () =>
   new SetNotificationKindOffInteractor(
     getNotificationRepo(),

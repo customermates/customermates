@@ -11,7 +11,11 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-import { notificationPreferencesDto } from "./notification-preferences-dto";
+import {
+  type NotificationMail,
+  CONFIGURED_NOTIFICATION_MAIL,
+  notificationPreferencesDto,
+} from "./notification-preferences-dto";
 import { NotificationPreferencesSchema } from "./notification.schema";
 
 const NoInputSchema = z.object({}).strict();
@@ -26,6 +30,7 @@ export class GetNotificationPreferencesInteractor extends AuthenticatedInteracto
     private readonly repo: NotificationRepo,
     private readonly pauses: NotificationPauseRepo,
     private readonly clock: () => Date = () => new Date(),
+    private readonly mail: NotificationMail = CONFIGURED_NOTIFICATION_MAIL,
   ) {
     super();
   }
@@ -33,6 +38,9 @@ export class GetNotificationPreferencesInteractor extends AuthenticatedInteracto
   @Validate(NoInputSchema)
   @ValidateOutput(NotificationPreferencesSchema)
   async invoke(): Validated<NotificationPreferencesDto> {
-    return { ok: true as const, data: await notificationPreferencesDto(this.repo, this.pauses, this.clock()) };
+    return {
+      ok: true as const,
+      data: await notificationPreferencesDto(this.repo, this.pauses, this.clock(), this.mail),
+    };
   }
 }

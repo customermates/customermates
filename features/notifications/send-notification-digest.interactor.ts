@@ -31,6 +31,7 @@ export class SendNotificationDigestInteractor {
   ) {}
 
   async invoke(now = new Date()): Promise<{ notificationDigests: number }> {
+    if (!this.mailer.isConfigured()) return { notificationDigests: 0 };
     const startedAt = this.elapsedClock();
     const since = new Date(now.getTime() - 2 * NOTIFICATION_DIGEST_WINDOW_HOURS * HOUR_MS);
     const instantFallbackBefore = new Date(now.getTime() - NOTIFICATION_INSTANT_FALLBACK_MINUTES * MINUTE_MS);

@@ -61,8 +61,9 @@ function member(id: string) {
   };
 }
 
-function mailer(result = true) {
+function mailer(result = true, configured = true) {
   return {
+    isConfigured: vi.fn().mockReturnValue(configured),
     sendInstant: vi.fn().mockResolvedValue(result),
     sendDigest: vi.fn().mockResolvedValue(result),
   };
@@ -96,6 +97,21 @@ describe("notifying members", () => {
     expect(repo.rows.map((row) => row.userId).sort()).toEqual([ME, COLLEAGUE].sort());
     expect(mail.sendInstant).toHaveBeenCalledTimes(2);
     expect(repo.rows.every((row) => row.emailedAt?.getTime() === NOW.getTime())).toBe(true);
+  });
+
+  it("stores the notification and tries no mail on a server without a mail provider, so nothing waits for one", async () => {
+    repo.preferences.set(COLLEAGUE, new Map([["ruleAlert", "digest"]]));
+    const mail = mailer(true, false);
+    const service = new NotificationService(repo, mail, () => NOW);
+
+    await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE] })).resolves.toEqual({ created: 2, emailed: 0 });
+
+    expect(mail.sendInstant).not.toHaveBeenCalled();
+    expect(repo.rows.map((row) => row.emailedAt?.getTime())).toEqual([NOW.getTime(), NOW.getTime()]);
+    expect(repo.rows.every((row) => row.emailedInstantly !== true)).toBe(true);
+    const digest = await new SendNotificationDigestInteractor(repo, mail).invoke(new Date(NOW.getTime() + 3_600_000));
+    expect(digest).toEqual({ notificationDigests: 0 });
+    expect(mail.sendDigest).not.toHaveBeenCalled();
   });
 
   it("does not email digest or switched-off kinds immediately", async () => {
@@ -402,7 +418,12 @@ describe("the inbox", () => {
     const read = new GetNotificationPreferencesInteractor(repo, pauses, () => NOW);
     const write = new SetNotificationPreferencesInteractor(repo, pauses, () => NOW);
     const before = await asMe(() => read.invoke());
-    expect(before).toMatchObject({ ok: true, data: { pausedUntil: null } });
+    expect(before).toMatchObject({ ok: true, data: { pausedUntil: null, emailConfigured: true } });
+    const withoutMail = { isConfigured: () => false };
+    const unconfigured = await asMe(() =>
+      new GetNotificationPreferencesInteractor(repo, pauses, () => NOW, withoutMail).invoke(),
+    );
+    expect(unconfigured).toMatchObject({ ok: true, data: { emailConfigured: false } });
     if (!before.ok) return;
     expect(before.data.preferences.map((item) => item.kind)).toEqual(NOTIFICATION_KINDS);
     expect(before.data.preferences.find((item) => item.kind === "dueToday")?.emailMode).toBe("digest");

@@ -32,10 +32,14 @@ function deliveryKey(notifications: PendingEmailNotification[]): string {
 
 export class EmailNotificationMailer implements NotificationMailer {
   constructor(
-    private readonly emailService: Pick<EmailService, "send">,
+    private readonly emailService: Pick<EmailService, "send" | "isConfigured">,
     private readonly authSecret: string | undefined,
     private readonly clock: () => Date = () => new Date(),
   ) {}
+
+  isConfigured(): boolean {
+    return this.emailService.isConfigured();
+  }
 
   sendInstant(recipient: NotificationRecipient, notification: PendingEmailNotification): Promise<boolean> {
     return this.send(recipient, [notification], "instant");
@@ -50,6 +54,7 @@ export class EmailNotificationMailer implements NotificationMailer {
     notifications: PendingEmailNotification[],
     mode: "instant" | "digest",
   ): Promise<boolean> {
+    if (!this.isConfigured()) return false;
     const locale = resolveUserLocale(recipient);
     const t = await getTranslator(locale, "NotificationEmail");
     const kindLabels = await getTranslator(locale, "Notifications");

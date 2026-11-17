@@ -47,7 +47,7 @@ async function sent(
   authSecret: string | undefined = AUTH_SECRET,
 ) {
   const send = vi.fn().mockResolvedValue(true);
-  const mailer = new EmailNotificationMailer({ send }, authSecret, () => NOW);
+  const mailer = new EmailNotificationMailer({ send, isConfigured: () => true }, authSecret, () => NOW);
   await run(mailer);
   const message = send.mock.calls[0][0] as { subject: string; react: ReactElement };
   return { message, props: message.react.props as Record<string, any> };
@@ -158,7 +158,7 @@ describe("the notification email footer", () => {
 
   it("gives the same set of notifications the same delivery key, whatever their order and number", async () => {
     const send = vi.fn().mockResolvedValue(true);
-    const mailer = new EmailNotificationMailer({ send }, AUTH_SECRET, () => NOW);
+    const mailer = new EmailNotificationMailer({ send, isConfigured: () => true }, AUTH_SECRET, () => NOW);
     const many = Array.from({ length: 12 }, (_, index) =>
       notification({ id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}` }),
     );
@@ -184,6 +184,16 @@ describe("the notification email footer", () => {
     expect(props.turnOffLinks[0].label).toBe("Diese Art ausschalten");
     expect(props.manage.label).toBe("Benachrichtigungen verwalten");
     expect(props.manage.href).toBe("http://localhost:4000/de/w/ws-1/settings/profile");
+  });
+
+  it("returns false without calling the mail service on a server that has no mail provider", async () => {
+    const send = vi.fn().mockRejectedValue(new Error("RESEND_API_KEY is not configured"));
+    const mailer = new EmailNotificationMailer({ send, isConfigured: () => false }, AUTH_SECRET, () => NOW);
+
+    expect(mailer.isConfigured()).toBe(false);
+    await expect(mailer.sendInstant(recipient(), notification())).resolves.toBe(false);
+    await expect(mailer.sendDigest(recipient(), [notification()])).resolves.toBe(false);
+    expect(send).not.toHaveBeenCalled();
   });
 
   it("still sends the manage link when no signing secret is configured", async () => {

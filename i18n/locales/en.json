@@ -4033,6 +4033,7 @@
     "markAllRead": "Mark all as read",
     "preferences": {
       "description": "The Notifications page always shows everything. Choose here how often each kind from this workspace also reaches you by email.",
+      "emailNotConfigured": "Email is not configured on this server, so notifications reach you on the Notifications page only. The person who runs the server can set up email delivery.",
       "kind": "Kind",
       "kindOffNotice": "Emails for “{kind}” are turned off.",
       "modeLabel": "Email for {kind}",

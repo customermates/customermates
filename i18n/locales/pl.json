@@ -4033,6 +4033,7 @@
     "markAllRead": "Oznacz wszystkie jako przeczytane",
     "preferences": {
       "description": "Strona Powiadomienia zawsze pokazuje wszystko. Tutaj ustawiasz, jak często każdy rodzaj z tej przestrzeni roboczej dociera do Ciebie także e-mailem.",
+      "emailNotConfigured": "Na tym serwerze nie skonfigurowano wysyłki e-maili, dlatego powiadomienia docierają do Ciebie tylko na stronie Powiadomienia. Osoba prowadząca serwer może skonfigurować wysyłkę e-maili.",
       "kind": "Rodzaj",
       "kindOffNotice": "E-maile „{kind}” zostały wyłączone.",
       "modeLabel": "E-mail dla: {kind}",

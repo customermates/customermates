@@ -76,6 +76,22 @@ export function NotificationPreferencesCard({ initial }: Props) {
     if (until && until !== pausedUntil) savePause(until);
   };
 
+  if (initial.emailConfigured === false) {
+    return (
+      <AppCard className="max-w-3xl">
+        <AppCardHeader className="flex-col items-start gap-1">
+          <h2 className="text-base font-semibold">{t("Notifications.preferences.title")}</h2>
+        </AppCardHeader>
+
+        <AppCardBody>
+          <p className="text-sm text-muted-foreground" data-notification-email-unconfigured="">
+            {t("Notifications.preferences.emailNotConfigured")}
+          </p>
+        </AppCardBody>
+      </AppCard>
+    );
+  }
+
   return (
     <AppCard className="max-w-3xl">
       <AppCardHeader className="flex-col items-start gap-1">

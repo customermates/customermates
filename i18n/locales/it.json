@@ -4033,6 +4033,7 @@
     "markAllRead": "Segna tutte come lette",
     "preferences": {
       "description": "La pagina Notifiche mostra sempre tutto. Scegli qui con quale frequenza ogni tipo di questo spazio di lavoro ti arriva anche via e-mail.",
+      "emailNotConfigured": "Su questo server l’invio di e-mail non è configurato, quindi le notifiche ti arrivano solo nella pagina Notifiche. Chi gestisce il server può configurare l’invio di e-mail.",
       "kind": "Tipo",
       "kindOffNotice": "Le e-mail «{kind}» sono disattivate.",
       "modeLabel": "E-mail per {kind}",

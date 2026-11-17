@@ -102,6 +102,7 @@ export type NotificationPreferenceDto = z.infer<typeof NotificationPreferenceSch
 export const NotificationPreferencesSchema = z.object({
   preferences: z.array(NotificationPreferenceSchema),
   pausedUntil: z.string().nullable(),
+  emailConfigured: z.boolean(),
 });
 export type NotificationPreferencesDto = z.infer<typeof NotificationPreferencesSchema>;
 

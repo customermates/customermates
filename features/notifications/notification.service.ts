@@ -76,6 +76,7 @@ export class NotificationService {
   }
 
   private async modeOf(companyId: string, userIds: string[], preferences: Preferences, now: Date): Promise<ModeOf> {
+    if (!this.mailer.isConfigured()) return () => "off";
     const paused = this.pauses ? await this.pauses.findUnscoped(companyId, userIds) : new Map<string, Date>();
     return (userId, kind) =>
       isNotificationPaused(paused.get(userId), now) ? "off" : effectiveEmailMode(preferences.get(userId), kind);

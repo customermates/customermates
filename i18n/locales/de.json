@@ -4033,6 +4033,7 @@
     "markAllRead": "Alle als gelesen markieren",
     "preferences": {
       "description": "Die Seite Benachrichtigungen zeigt immer alles. Hier legst du fest, wie oft dich jede Art aus diesem Workspace zusätzlich per E-Mail erreicht.",
+      "emailNotConfigured": "Auf diesem Server ist kein E-Mail-Versand eingerichtet, deshalb erreichen dich Benachrichtigungen nur auf der Seite Benachrichtigungen. Wer den Server betreibt, kann den E-Mail-Versand einrichten.",
       "kind": "Art",
       "kindOffNotice": "E-Mails zu „{kind}“ sind ausgeschaltet.",
       "modeLabel": "E-Mail für {kind}",

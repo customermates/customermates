@@ -116,6 +116,24 @@ afterEach(() => {
 });
 
 describe("NotificationPreferencesCard", () => {
+  it("says that email is not configured instead of offering email choices on a server without a mail provider", async () => {
+    await act(async () => {
+      root.render(
+        createElement(NotificationPreferencesCard, {
+          initial: { ...result(MODES).data, emailConfigured: false } as never,
+        }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector("[data-notification-email-unconfigured]")?.textContent).toBe(
+      "Notifications.preferences.emailNotConfigured",
+    );
+    expect(container.querySelectorAll("[data-notification-kind]")).toHaveLength(0);
+    expect(container.querySelectorAll('[role="tab"]')).toHaveLength(0);
+    expect(container.querySelector("#notification-pause")).toBeNull();
+  });
+
   it("shows one row per kind with three choices and the mode each kind has", async () => {
     await render();
 
