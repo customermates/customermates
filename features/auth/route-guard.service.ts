@@ -12,6 +12,8 @@ import { Action, Status } from "@/generated/prisma";
 import type { Resource, Subscription } from "@/generated/prisma";
 
 import { redirectTo } from "./auth-outcome";
+
+import { IMPLICIT_READ_RESOURCES } from "@/features/role/resource-access";
 import { accountStateRedirect } from "./account-state";
 import { mustVerifyEmail } from "./email-verification-grace";
 import { isSubscriptionLocked } from "@/ee/subscription/entitlements";
@@ -57,6 +59,7 @@ export function accessRedirectForAccountState(
   const user = resolution.user;
   if (!user) return redirectTo("/auth/signin");
   if (user.role?.isSystemRole) return null;
+  if (IMPLICIT_READ_RESOURCES.some((implicit) => implicit === options.resource)) return null;
 
   const hasRequiredPermission =
     user.role?.permissions.some(
