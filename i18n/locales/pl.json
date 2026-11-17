@@ -1374,6 +1374,7 @@
     }
   },
   "Booking": {
+    "chooseCalendar": "Wybierz kalendarz",
     "closed": "Zamknięte",
     "days": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
     "demoNote": "Strony rezerwacji wymagają połączonego kalendarza i nie są dostępne w przestrzeni roboczej demo.",
@@ -1407,6 +1408,7 @@
     "minutes": "{minutes} min",
     "new": "Nowa strona rezerwacji",
     "newTitle": "Nowa strona rezerwacji",
+    "noCalendar": "Kalendarz tej strony już nie istnieje, na przykład dlatego, że jego konto zostało odłączone. Odwiedzający widzą stronę jako niedostępną, dopóki nie zostanie wybrany kalendarz. Dokonane już rezerwacje pozostają.",
     "notice": "{hours, plural, =0 {Bez minimalnego wyprzedzenia} one {# godzina wcześniej} few {# godziny wcześniej} many {# godzin wcześniej} other {# godziny wcześniej}}",
     "open": "Otwórz stronę",
     "pagePreviewHint": "Tak odwiedzający widzą tę stronę. Terminy wynikają z Twoich godzin pracy; zajęte terminy w Twoim kalendarzu liczą się dopiero na opublikowanej stronie.",
@@ -1417,6 +1419,7 @@
     "panelLocked": "Strony rezerwacji wymagają planu z wiadomościami i dostępu do skrzynki odbiorczej.",
     "panelOwner": "Strony rezerwacji użytkownika {owner}",
     "panelTitle": "Strony rezerwacji",
+    "panelUnavailable": "Niedostępna",
     "panelYours": "Twoje strony rezerwacji",
     "paused": "Wstrzymana",
     "removeQuestion": "Usuń pytanie",

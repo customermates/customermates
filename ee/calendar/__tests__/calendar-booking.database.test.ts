@@ -140,6 +140,58 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     expect(await w.as(w.admin, () => repo.countOwn())).toBe(0);
   });
 
+  it("keeps a booking page, its public address and its bookings when its calendar account is disconnected", async () => {
+    const w = await workspace();
+    const { account, calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const token = `token-gone-${randomUUID().slice(0, 12)}`;
+    const link = await w.as(w.admin, () => repo.create(token, linkData(calendar.id)));
+    const booked = await w.as(w.admin, () => repo.reserve(reservation(link.id), open));
+    await w.as(w.admin, () =>
+      repo.confirm(booked?.id ?? "", {
+        calendarEventId: null as never,
+        personTypeId: null,
+        personRecordId: null,
+        recordTypeId: null,
+        recordId: null,
+      }),
+    );
+
+    await runWithoutTenant(() => prisma.connectedAccount.delete({ where: { id: account.id } }));
+
+    const [kept] = await w.as(w.admin, () => repo.list());
+    expect(kept).toMatchObject({ id: link.id, token, calendarId: null, calendarName: null, enabled: true });
+    expect((await w.as(w.admin, () => repo.listWorkspace())).map((row) => row.calendarId)).toEqual([null]);
+    expect(await runWithoutTenant(() => prisma.booking.count({ where: { bookingLinkId: link.id } }))).toBe(1);
+    expect(await runWithoutTenant(() => repo.findByTokenUnscoped(token))).toBeNull();
+    expect(await w.as(w.admin, () => repo.update(link.id, { enabled: false }))).toMatchObject({
+      calendarId: null,
+      enabled: false,
+    });
+
+    const again = await connectCalendar(w);
+    const chosen = await w.as(w.admin, () => repo.update(link.id, { calendarId: again.calendar.id, enabled: true }));
+    expect(chosen).toMatchObject({ id: link.id, token, calendarId: again.calendar.id, calendarName: "Work" });
+    expect(await runWithoutTenant(() => repo.findByTokenUnscoped(token))).toMatchObject({
+      id: link.id,
+      calendarId: again.calendar.id,
+      accountUsable: true,
+    });
+  });
+
+  it("keeps a booking page when only its calendar is deleted at the provider", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await w.as(w.admin, () =>
+      repo.create(`token-cal-${randomUUID().slice(0, 12)}`, linkData(calendar.id)),
+    );
+
+    await runWithoutTenant(() => prisma.calendar.delete({ where: { id: calendar.id } }));
+
+    expect(await w.as(w.admin, () => repo.find(link.id))).toMatchObject({ id: link.id, calendarId: null });
+  });
+
   it("lists the links of the whole workspace with their owners and never those of another workspace", async () => {
     const w = await workspace();
     const elsewhere = await workspace();

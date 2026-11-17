@@ -212,6 +212,34 @@ describe("BookingPanel", () => {
     expect(container.querySelector("[data-page-state]")?.textContent).toContain("Booking.empty");
   });
 
+  it("keeps a page whose calendar is gone, says it is unavailable and lets its owner choose a calendar", async () => {
+    const orphan = bookingLink({ calendarId: null, calendarName: null, upcomingBookings: 2 });
+    const others = bookingLink({ ...ADA, calendarId: null, calendarName: null, enabled: true });
+    await renderPanel(ready([orphan, others]));
+
+    const own = row(orphan.id);
+    expect(own.querySelector("[data-booking-calendar-missing]")?.textContent).toContain("Booking.noCalendar");
+    expect(own.textContent).toContain("Booking.panelUnavailable");
+    expect(own.textContent).not.toContain("Booking.panelActive");
+    expect(own.textContent).toContain('Booking.upcoming:{"count":2}');
+    const choose = buttonWithText(own, "Booking.chooseCalendar");
+    act(() => choose.click());
+    expect(harness.modal.start).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: orphan.id }), choose);
+
+    const other = row(others.id);
+    expect(other.querySelector("[data-booking-calendar-missing]")).not.toBeNull();
+    expect(
+      [...other.querySelectorAll("button")].some((button) => button.textContent?.includes("Booking.chooseCalendar")),
+    ).toBe(false);
+  });
+
+  it("shows no calendar warning on a page that has its calendar", async () => {
+    await renderPanel(ready());
+
+    expect(container.querySelector("[data-booking-calendar-missing]")).toBeNull();
+    expect(row(MINE.id).textContent).toContain("Booking.panelActive");
+  });
+
   it("explains a missing calendar and does not allow a new page", async () => {
     await renderPanel(ready([], { ...READY_SETUP, blockedReason: "noCalendar" }));
 

@@ -1374,6 +1374,7 @@
     }
   },
   "Booking": {
+    "chooseCalendar": "Choisir un agenda",
     "closed": "Fermé",
     "days": "{days, plural, one {# jour} other {# jours}}",
     "demoNote": "Les pages de réservation nécessitent un agenda connecté et ne sont pas disponibles dans l’espace de travail de démo.",
@@ -1407,6 +1408,7 @@
     "minutes": "{minutes} min",
     "new": "Nouvelle page de réservation",
     "newTitle": "Nouvelle page de réservation",
+    "noCalendar": "L’agenda de cette page n’existe plus, par exemple parce que son compte a été déconnecté. Les visiteurs voient la page comme indisponible tant qu’aucun agenda n’est choisi. Les réservations déjà prises sont conservées.",
     "notice": "{hours, plural, =0 {Aucun préavis minimum} one {# heure à l’avance} other {# heures à l’avance}}",
     "open": "Ouvrir la page",
     "pagePreviewHint": "Voici comment les visiteurs voient cette page. Les horaires suivent vos heures de travail ; les créneaux occupés de votre agenda ne comptent que sur la page publiée.",
@@ -1417,6 +1419,7 @@
     "panelLocked": "Les pages de réservation nécessitent une offre avec messagerie et l’accès à la boîte de réception.",
     "panelOwner": "Pages de réservation de {owner}",
     "panelTitle": "Pages de réservation",
+    "panelUnavailable": "Indisponible",
     "panelYours": "Vos pages de réservation",
     "paused": "En pause",
     "removeQuestion": "Retirer la question",

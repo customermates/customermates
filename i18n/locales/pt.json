@@ -1374,6 +1374,7 @@
     }
   },
   "Booking": {
+    "chooseCalendar": "Escolher um calendário",
     "closed": "Fechado",
     "days": "{days, plural, one {# dia} other {# dias}}",
     "demoNote": "As páginas de agendamento precisam de um calendário conectado e não estão disponíveis no espaço de trabalho de demonstração.",
@@ -1407,6 +1408,7 @@
     "minutes": "{minutes} min",
     "new": "Nova página de agendamento",
     "newTitle": "Nova página de agendamento",
+    "noCalendar": "O calendário desta página não existe mais, por exemplo porque a conta dele foi desconectada. Os visitantes veem a página como indisponível até que um calendário seja escolhido. Os agendamentos já feitos permanecem.",
     "notice": "{hours, plural, =0 {Sem antecedência mínima} one {# hora de antecedência} other {# horas de antecedência}}",
     "open": "Abrir página",
     "pagePreviewHint": "É assim que os visitantes veem esta página. Os horários seguem seu horário de trabalho; os horários ocupados do seu calendário só valem na página publicada.",
@@ -1417,6 +1419,7 @@
     "panelLocked": "As páginas de agendamento exigem um plano com mensagens e acesso à caixa de entrada.",
     "panelOwner": "Páginas de agendamento de {owner}",
     "panelTitle": "Páginas de agendamento",
+    "panelUnavailable": "Indisponível",
     "panelYours": "Suas páginas de agendamento",
     "paused": "Pausada",
     "removeQuestion": "Remover pergunta",

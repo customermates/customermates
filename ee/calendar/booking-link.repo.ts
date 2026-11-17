@@ -1,7 +1,7 @@
 import type { BookingLinkRow, WorkspaceBookingLinkRow } from "./booking.schema";
 
 export type BookingLinkWrite = {
-  calendarId: string;
+  calendarId: string | null;
   title: string;
   description: string | null;
   durationMinutes: number;
@@ -21,6 +21,7 @@ export type BookingLinkWrite = {
 };
 
 export type BookingLinkLookup = BookingLinkRow & {
+  calendarId: string;
   hostName: string;
   workspaceName: string | null;
   companyDeleting: boolean;

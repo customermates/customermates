@@ -109,7 +109,7 @@ CREATE TABLE "BookingLink" (
     "id" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "calendarId" TEXT NOT NULL,
+    "calendarId" TEXT,
     "token" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -379,7 +379,7 @@ ALTER TABLE "BookingLink" ADD CONSTRAINT "BookingLink_companyId_fkey" FOREIGN KE
 ALTER TABLE "BookingLink" ADD CONSTRAINT "BookingLink_companyId_userId_fkey" FOREIGN KEY ("companyId", "userId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BookingLink" ADD CONSTRAINT "BookingLink_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "Calendar"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "BookingLink" ADD CONSTRAINT "BookingLink_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "Calendar"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Booking" ADD CONSTRAINT "Booking_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -557,10 +557,10 @@ CREATE TABLE "NotificationPause" (
     CONSTRAINT "NotificationPause_pkey" PRIMARY KEY ("companyId","userId")
 );
 
--- AddForeignKey
 -- CreateIndex
 CREATE INDEX "NotificationPause_userId_idx" ON "NotificationPause"("userId");
 
+-- AddForeignKey
 ALTER TABLE "NotificationPause" ADD CONSTRAINT "NotificationPause_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey

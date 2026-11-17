@@ -56,6 +56,22 @@ const BookingRow = observer(function BookingRow({
 
       <p className="text-xs text-muted-foreground">{t("Booking.upcoming", { count: link.upcomingBookings })}</p>
 
+      {link.calendarId === null ? (
+        <Alert
+          action={
+            link.own ? (
+              <Button size="sm" variant="secondary" onClick={(event) => onEdit(link, event.currentTarget)}>
+                {t("Booking.chooseCalendar")}
+              </Button>
+            ) : undefined
+          }
+          data-booking-calendar-missing=""
+          description={t("Booking.noCalendar")}
+          role="status"
+          variant="warning"
+        />
+      ) : null}
+
       <CopyableCode value={link.url} />
 
       <div className="flex flex-wrap items-center gap-2">
@@ -68,7 +84,11 @@ const BookingRow = observer(function BookingRow({
         />
 
         <span className="text-xs text-muted-foreground">
-          {link.enabled ? t("Booking.panelActive") : t("Booking.paused")}
+          {link.calendarId === null
+            ? t("Booking.panelUnavailable")
+            : link.enabled
+              ? t("Booking.panelActive")
+              : t("Booking.paused")}
         </span>
 
         <div className="ml-auto flex items-center gap-1">

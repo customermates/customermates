@@ -1374,6 +1374,7 @@
     }
   },
   "Booking": {
+    "chooseCalendar": "Agenda kiezen",
     "closed": "Gesloten",
     "days": "{days, plural, one {# dag} other {# dagen}}",
     "demoNote": "Boekingspagina's hebben een gekoppelde agenda nodig en zijn niet beschikbaar in de demowerkruimte.",
@@ -1407,6 +1408,7 @@
     "minutes": "{minutes} min",
     "new": "Nieuwe boekingspagina",
     "newTitle": "Nieuwe boekingspagina",
+    "noCalendar": "De agenda van deze pagina is er niet meer, bijvoorbeeld omdat het account is losgekoppeld. Bezoekers zien de pagina als niet beschikbaar totdat er een agenda is gekozen. Boekingen die al zijn gemaakt, blijven staan.",
     "notice": "{hours, plural, =0 {Geen minimale aanlooptijd} one {# uur vooraf} other {# uur vooraf}}",
     "open": "Pagina openen",
     "pagePreviewHint": "Zo zien bezoekers deze pagina. De tijden volgen je werktijden; bezette tijden in je agenda gelden pas op de echte pagina.",
@@ -1417,6 +1419,7 @@
     "panelLocked": "Boekingspagina's vereisen een abonnement met berichten en toegang tot de inbox.",
     "panelOwner": "Boekingspagina's van {owner}",
     "panelTitle": "Boekingspagina's",
+    "panelUnavailable": "Niet beschikbaar",
     "panelYours": "Jouw boekingspagina's",
     "paused": "Gepauzeerd",
     "removeQuestion": "Vraag verwijderen",

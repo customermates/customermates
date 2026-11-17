@@ -52,7 +52,7 @@ function linkSelect(now: Date) {
 type LinkRecord = Prisma.BookingLinkGetPayload<{ select: ReturnType<typeof linkSelect> }>;
 
 function toRow({ calendar, _count, ...link }: LinkRecord): BookingLinkRow {
-  return { ...link, calendarName: calendar.name, upcomingBookings: _count.bookings };
+  return { ...link, calendarName: calendar?.name ?? null, upcomingBookings: _count.bookings };
 }
 
 function writeData(data: Partial<BookingLinkWrite>): Prisma.BookingLinkUncheckedUpdateInput {
@@ -145,6 +145,7 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
         user: { select: { firstName: true, lastName: true } },
         calendar: {
           select: {
+            id: true,
             name: true,
             unipileCalendarId: true,
             connectedAccount: { select: { id: true, provider: true, status: true, unipileAccountId: true } },
@@ -152,12 +153,13 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
         },
       },
     });
-    if (!row) return null;
+    if (!row?.calendar) return null;
 
     const { company, user, calendar, _count, ...link } = row;
 
     return {
       ...link,
+      calendarId: calendar.id,
       calendarName: calendar.name,
       upcomingBookings: _count.bookings,
       hostName: `${user.firstName} ${user.lastName}`.trim(),

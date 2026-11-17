@@ -1374,6 +1374,7 @@
     }
   },
   "Booking": {
+    "chooseCalendar": "Scegli un calendario",
     "closed": "Chiuso",
     "days": "{days, plural, one {# giorno} other {# giorni}}",
     "demoNote": "Le pagine di prenotazione richiedono un calendario collegato e non sono disponibili nello spazio di lavoro demo.",
@@ -1407,6 +1408,7 @@
     "minutes": "{minutes} min",
     "new": "Nuova pagina di prenotazione",
     "newTitle": "Nuova pagina di prenotazione",
+    "noCalendar": "Il calendario di questa pagina non c’è più, ad esempio perché il suo account è stato scollegato. I visitatori vedono la pagina come non disponibile finché non viene scelto un calendario. Le prenotazioni già fatte restano.",
     "notice": "{hours, plural, =0 {Nessun preavviso minimo} one {# ora di anticipo} other {# ore di anticipo}}",
     "open": "Apri pagina",
     "pagePreviewHint": "Così i visitatori vedono questa pagina. Gli orari seguono il tuo orario di lavoro; gli impegni del tuo calendario valgono solo sulla pagina pubblicata.",
@@ -1417,6 +1419,7 @@
     "panelLocked": "Le pagine di prenotazione richiedono un piano con messaggistica e accesso alla posta in arrivo.",
     "panelOwner": "Pagine di prenotazione di {owner}",
     "panelTitle": "Pagine di prenotazione",
+    "panelUnavailable": "Non disponibile",
     "panelYours": "Le tue pagine di prenotazione",
     "paused": "In pausa",
     "removeQuestion": "Rimuovi domanda",

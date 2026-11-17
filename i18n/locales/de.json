@@ -1374,6 +1374,7 @@
     }
   },
   "Booking": {
+    "chooseCalendar": "Kalender wählen",
     "closed": "Geschlossen",
     "days": "{days, plural, one {# Tag} other {# Tage}}",
     "demoNote": "Buchungsseiten brauchen einen verbundenen Kalender und sind im Demo-Workspace nicht verfügbar.",
@@ -1407,6 +1408,7 @@
     "minutes": "{minutes} Min.",
     "new": "Neue Buchungsseite",
     "newTitle": "Neue Buchungsseite",
+    "noCalendar": "Der Kalender dieser Seite ist nicht mehr da, zum Beispiel weil sein Konto getrennt wurde. Besucher sehen die Seite als nicht verfügbar, bis ein Kalender gewählt ist. Bereits gebuchte Termine bleiben.",
     "notice": "{hours, plural, =0 {Kein Mindestvorlauf} one {# Stunde im Voraus} other {# Stunden im Voraus}}",
     "open": "Seite öffnen",
     "pagePreviewHint": "So sehen Besucher diese Seite. Die Zeiten folgen deinen Arbeitszeiten; belegte Zeiten deines Kalenders gelten erst auf der echten Seite.",
@@ -1417,6 +1419,7 @@
     "panelLocked": "Buchungsseiten brauchen einen Tarif mit Nachrichten und Zugriff auf den Posteingang.",
     "panelOwner": "Buchungsseiten von {owner}",
     "panelTitle": "Buchungsseiten",
+    "panelUnavailable": "Nicht verfügbar",
     "panelYours": "Deine Buchungsseiten",
     "paused": "Pausiert",
     "removeQuestion": "Frage entfernen",

@@ -93,6 +93,12 @@ export type BookingLinkIdData = z.infer<typeof BookingLinkIdSchema>;
 
 export const BookingLinkSchema = LinkFieldsSchema.extend({
   id: z.uuid(),
+  calendarId: z
+    .uuid()
+    .nullable()
+    .describe(
+      "Null when the calendar is gone, for example after its account was disconnected. Visitors then see the page as unavailable until the owner chooses a calendar; bookings already made stay.",
+    ),
   token: z.string(),
   url: z.string(),
   calendarName: z.string().nullable(),
@@ -120,7 +126,7 @@ export type BookingLinkRow = {
   id: string;
   companyId: string;
   userId: string;
-  calendarId: string;
+  calendarId: string | null;
   calendarName: string | null;
   token: string;
   title: string;

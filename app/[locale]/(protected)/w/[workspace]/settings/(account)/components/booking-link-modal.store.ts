@@ -63,12 +63,14 @@ function emptyForm(setup: BookingSetup): BookingLinkForm {
 export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
   setup: BookingSetup = EMPTY_SETUP;
   onSaved: (() => void) | null = null;
+  calendarMissing = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore, emptyForm(EMPTY_SETUP), Resource.inboxMessages);
 
     makeObservable(this, {
       setup: observable.ref,
+      calendarMissing: observable,
       configure: action,
       start: action,
     });
@@ -98,13 +100,14 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
   }
 
   start = (link?: BookingLinkDto, invoker?: HTMLElement | null) => {
+    this.calendarMissing = link ? link.calendarId === null : false;
     this.onInitOrRefresh(
       link
         ? {
             id: link.id,
             title: link.title,
             description: link.description ?? "",
-            calendarId: link.calendarId,
+            calendarId: link.calendarId ?? "",
             durationMinutes: link.durationMinutes,
             bufferMinutes: link.bufferMinutes,
             minNoticeMinutes: link.minNoticeMinutes,

@@ -52,7 +52,7 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
       return fail(CustomErrorCode.bookingLinkLimitReached, [], { limit: BOOKING_LINK_LIMIT_PER_USER });
 
     const merged = {
-      calendarId: changes.calendarId ?? current?.calendarId ?? "",
+      calendarId: changes.calendarId ?? current?.calendarId ?? null,
       title: changes.title ?? current?.title ?? "",
       description: changes.description !== undefined ? changes.description : (current?.description ?? null),
       durationMinutes: changes.durationMinutes ?? current?.durationMinutes ?? 30,
@@ -75,7 +75,7 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
     } satisfies BookingLinkWrite;
 
     if (!current || changes.calendarId) {
-      const calendar = await this.access.findOwnCalendar(merged.calendarId);
+      const calendar = merged.calendarId ? await this.access.findOwnCalendar(merged.calendarId) : null;
       if (!calendar) return failNotFound(CustomErrorCode.calendarNotFound, ["calendarId"]);
       if (calendar.accountStatus !== ConnectedAccountStatus.ok)
         return fail(CustomErrorCode.calendarNeedsReconnect, ["calendarId"]);

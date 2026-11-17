@@ -294,6 +294,35 @@ describe("SaveBookingLinkInteractor", () => {
     expect(repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ enabled: false, title: "Intro call" }));
   });
 
+  it("reads a link whose calendar is gone and still lets its owner pause it without choosing a calendar", async () => {
+    const orphan = { ...ROW, calendarId: null, calendarName: null };
+    const { save, list, repo, access } = build({
+      repo: { find: vi.fn().mockResolvedValue(orphan), list: vi.fn().mockResolvedValue([orphan]) },
+    });
+
+    const listed = await run(() => list.invoke());
+    const paused = await run(() => save.invoke({ id: LINK_ID, enabled: false }));
+
+    expect(listed.ok && listed.data.items[0]).toMatchObject({ id: LINK_ID, calendarId: null, calendarName: null });
+    expect(paused.ok).toBe(true);
+    expect(access.findOwnCalendar).not.toHaveBeenCalled();
+    expect(repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ calendarId: null, enabled: false }));
+  });
+
+  it("checks the calendar the owner chooses for a link that lost its calendar", async () => {
+    const orphan = { ...ROW, calendarId: null, calendarName: null };
+    const find = vi.fn().mockResolvedValue(orphan);
+    const chosen = build({ repo: { find } });
+    const foreign = build({ repo: { find }, access: { findOwnCalendar: vi.fn().mockResolvedValue(null) } });
+
+    expect((await run(() => chosen.save.invoke({ id: LINK_ID, calendarId: CALENDAR_ID }))).ok).toBe(true);
+    expect(chosen.access.findOwnCalendar).toHaveBeenCalledWith(CALENDAR_ID);
+    expect(chosen.repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ calendarId: CALENDAR_ID }));
+    expect(code(await run(() => foreign.save.invoke({ id: LINK_ID, calendarId: CALENDAR_ID })))).toBe(
+      CustomErrorCode.calendarNotFound,
+    );
+  });
+
   it("answers not found when updating a link the caller does not own", async () => {
     const { save } = build({ repo: { find: vi.fn().mockResolvedValue(null) } });
 

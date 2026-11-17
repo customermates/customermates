@@ -79,7 +79,7 @@ export const BookingLinkModal = observer(() => {
 
                 <FormTextarea id="description" label={t("Booking.fields.description")} rows={2} />
 
-                {setup.calendars.length > 1 ? (
+                {setup.calendars.length > 1 || store.calendarMissing ? (
                   <FormSelect
                     required
                     id="calendarId"
