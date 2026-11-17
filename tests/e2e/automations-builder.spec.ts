@@ -312,17 +312,19 @@ test("a member with automation access but no API access opens Automations withou
       );
     });
 
-    await test.step("an agent step names an administrator instead of linking to settings the role cannot open", async () => {
+    let agentSettingsHref = "";
+    await test.step("an agent step that is not set up links to the agent settings", async () => {
       const builder = member.page.getByRole("dialog", { name: "New automation" });
       await builder.locator('[data-automation-palette-item="agent"]').click();
       const card = builder.locator('[data-automation-card="effect-0"]');
       await card.locator('[data-agent-runtime="runner"]').click();
       // The member has no runner, so this way of running is not set up and the card says what to do about it.
+      // Reading the workspace settings is part of every role, so the card links to them: the sentence that names an
+      // administrator is only for a member who cannot open them, and no role is like that.
       const reason = card.locator("[data-agent-reason]");
-      await expect(reason.locator("[data-agent-settings-ask]")).toHaveText(
-        "An administrator can set this up under Settings, Connections, Agents.",
-      );
-      await expect(reason.getByRole("link")).toHaveCount(0);
+      await expect(reason.getByRole("link")).toHaveAttribute("href", /\/settings\/connections\?tab=agents$/);
+      await expect(reason.locator("[data-agent-settings-ask]")).toHaveCount(0);
+      agentSettingsHref = (await reason.getByRole("link").getAttribute("href")) ?? "";
     });
 
     await test.step("removing the step moves the focus to the add button, not to nowhere", async () => {
@@ -330,6 +332,20 @@ test("a member with automation access but no API access opens Automations withou
       await builder.getByRole("button", { name: "Remove step" }).click();
       await expect(builder.locator('[data-automation-card="effect-0"]')).toHaveCount(0);
       await expect(builder.getByRole("button", { name: "Add a step" }).last()).toBeFocused();
+    });
+
+    await test.step("the linked agent settings open for this role and say that it cannot see runners", async () => {
+      // A second tab, so the unsaved automation in the builder does not ask before the page is left.
+      const settings = await member.page.context().newPage();
+      const settingsErrors = collectPageErrors(settings);
+      await settings.goto(agentSettingsHref);
+      await expect(settings).toHaveURL(/\/settings\/connections\?tab=agents$/);
+      await expect(settings.locator("[data-connection-tab='agents']")).toBeVisible();
+      await expect(settings.locator("[data-agent-runners-card] [data-agent-runners-withheld]")).toHaveText(
+        "Your role cannot see runners, so none are listed here.",
+      );
+      expect(settingsErrors).toEqual([]);
+      await settings.close();
     });
 
     expect(member.errors).toEqual([]);
