@@ -2234,6 +2234,54 @@
     "visibilityShared": "Compartida",
     "visibilityUpdateFailed": "No se pudo actualizar la visibilidad. Inténtalo de nuevo."
   },
+  "Connections": {
+    "agents": {
+      "body": "Los agentes trabajan en este espacio de trabajo con sus propias claves y límites. Los configuras en su propia página.",
+      "open": "Abrir los ajustes de agentes",
+      "title": "Agentes"
+    },
+    "apps": {
+      "comingSoon": "Llega en la próxima versión",
+      "connect": "Conectar",
+      "emptyBody": "Las apps que conectes más adelante aparecerán aquí, con quién las conectó y a qué pueden acceder.",
+      "emptyTitle": "Aún no hay apps conectadas",
+      "enables": "Permite",
+      "providersTitle": "Apps disponibles"
+    },
+    "channels": {
+      "bookingGroup": "Calendario: {name}",
+      "noCalendar": "Sin calendario",
+      "sectionsLabel": "Secciones de canales",
+      "selfHostedBody": "Los canales de correo, LinkedIn, WhatsApp y calendario usan el servicio de conexión alojado y no están disponibles si alojas tú mismo.",
+      "selfHostedTitle": "Los canales necesitan Customermates Cloud"
+    },
+    "description": "Todo lo que conecta Customermates con tus canales, apps, agentes y sistemas, con el propietario de cada conexión y a qué puede acceder.",
+    "developers": {
+      "sectionsLabel": "Secciones para desarrolladores"
+    },
+    "owner": {
+      "user": "Propietario: la persona que la conectó",
+      "workspace": "Propietario: este espacio de trabajo"
+    },
+    "scope": {
+      "accounts": "Alcance: privado para su propietario, salvo que se comparta con el espacio de trabajo",
+      "agents": "Alcance: solo el acceso y los límites que definas",
+      "apps": "Alcance: solo lo que permites al conectar",
+      "booking": "Alcance: quien tenga el enlace puede reservar en el calendario de su propietario",
+      "deliveries": "Alcance: cada intento de entrega de los webhooks de este espacio de trabajo",
+      "incoming": "Alcance: permite que otros sistemas creen o actualicen registros en la lista que elijas",
+      "keys": "Alcance: lee y escribe los datos de este espacio de trabajo a través de la API",
+      "webhooks": "Alcance: envía los eventos de este espacio de trabajo a las direcciones que añadas"
+    },
+    "tabs": {
+      "agents": "Agentes",
+      "apps": "Apps",
+      "channels": "Canales",
+      "developers": "Desarrolladores"
+    },
+    "tabsLabel": "Tipos de conexión",
+    "title": "Conexiones"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Abrir en la bandeja de entrada",
     "calendarAllDay": "Todo el día",
@@ -3541,10 +3589,13 @@
     "cta": "Abrir Customermates",
     "digestIntro": "Estas novedades te esperan en Customermates:",
     "digestSubject": "Novedades en Customermates",
+    "footerReason": "{count, plural, one {Recibes este correo porque {sources} te envió una notificación.} other {Recibes este correo porque {sources} te enviaron una notificación.}}",
     "greeting": "Hola {firstName},",
     "instantIntro": "Hay algo que requiere tu atención en Customermates:",
-    "preferencesHint": "Tú eliges con qué frecuencia recibes estos correos, por tipo de notificación, en Perfil, Notificaciones.",
-    "title": "Novedades de tu espacio de trabajo"
+    "manageNotifications": "Gestionar notificaciones",
+    "title": "Novedades de tu espacio de trabajo",
+    "turnOffKind": "Desactivar este tipo",
+    "turnOffNamedKind": "Desactivar: {kind}"
   },
   "Notifications": {
     "dayToday": "Hoy",
@@ -3572,6 +3623,14 @@
     "markAllRead": "Marcar todo como leído",
     "preferences": {
       "description": "La página Notificaciones siempre lo muestra todo. Elige aquí con qué frecuencia cada tipo te llega también por correo.",
+      "kind": "Tipo",
+      "kindOffNotice": "Los correos de «{kind}» están desactivados.",
+      "modeLabel": "Correo para {kind}",
+      "pause": "Pausar todos los correos hasta",
+      "pauseDate": "Fecha hasta la que los correos están en pausa",
+      "pauseHelp": "Mientras dure la pausa, ninguna notificación te llega por correo. Tus elecciones de arriba vuelven cuando abras esta página a partir de ese día.",
+      "pauseOff": "Tus elecciones de correo han vuelto.",
+      "pauseOn": "Todos los correos están en pausa hasta el {date}.",
       "title": "Correos de notificación"
     },
     "unread": "Sin leer"
@@ -5714,6 +5773,7 @@
     "apiKeys": "Claves de API y conectores",
     "billing": "Facturación",
     "channels": "Canales y calendarios",
+    "connections": "Conexiones",
     "deliveries": "Registro de webhooks",
     "general": "General",
     "incomingWebhooks": "Webhooks entrantes",

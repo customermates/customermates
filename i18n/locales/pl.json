@@ -2234,6 +2234,54 @@
     "visibilityShared": "Udostępnione",
     "visibilityUpdateFailed": "Nie udało się zmienić widoczności. Spróbuj ponownie."
   },
+  "Connections": {
+    "agents": {
+      "body": "Agenci pracują w tej przestrzeni roboczej z własnymi kluczami i limitami. Konfigurujesz ich na osobnej stronie.",
+      "open": "Otwórz ustawienia agentów",
+      "title": "Agenci"
+    },
+    "apps": {
+      "comingSoon": "Dostępne w następnym wydaniu",
+      "connect": "Połącz",
+      "emptyBody": "Aplikacje, które połączysz później, pojawią się tutaj razem z osobą, która je połączyła, i tym, do czego mają dostęp.",
+      "emptyTitle": "Brak połączonych aplikacji",
+      "enables": "Umożliwia",
+      "providersTitle": "Dostępne aplikacje"
+    },
+    "channels": {
+      "bookingGroup": "Kalendarz: {name}",
+      "noCalendar": "Brak kalendarza",
+      "sectionsLabel": "Sekcje kanałów",
+      "selfHostedBody": "Kanały e-mail, LinkedIn, WhatsApp i kalendarza korzystają z hostowanej usługi połączeń i nie są dostępne przy self-hostingu.",
+      "selfHostedTitle": "Kanały wymagają Customermates Cloud"
+    },
+    "description": "Wszystko, co łączy Customermates z Twoimi kanałami, aplikacjami, agentami i systemami, z właścicielem każdego połączenia i tym, do czego ma dostęp.",
+    "developers": {
+      "sectionsLabel": "Sekcje dla deweloperów"
+    },
+    "owner": {
+      "user": "Właściciel: osoba, która je połączyła",
+      "workspace": "Właściciel: ta przestrzeń robocza"
+    },
+    "scope": {
+      "accounts": "Zakres: prywatne dla właściciela, chyba że udostępnione przestrzeni roboczej",
+      "agents": "Zakres: tylko dostęp i limity, które ustawisz",
+      "apps": "Zakres: tylko to, na co zezwolisz przy łączeniu",
+      "booking": "Zakres: każdy z linkiem może zarezerwować termin w kalendarzu właściciela",
+      "deliveries": "Zakres: każda próba dostarczenia webhooków tej przestrzeni roboczej",
+      "incoming": "Zakres: pozwala innym systemom tworzyć lub aktualizować rekordy na wybranej liście",
+      "keys": "Zakres: odczytuje i zapisuje dane tej przestrzeni roboczej przez API",
+      "webhooks": "Zakres: wysyła zdarzenia tej przestrzeni roboczej na dodane przez Ciebie adresy"
+    },
+    "tabs": {
+      "agents": "Agenci",
+      "apps": "Aplikacje",
+      "channels": "Kanały",
+      "developers": "Deweloperzy"
+    },
+    "tabsLabel": "Rodzaje połączeń",
+    "title": "Połączenia"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Otwórz w skrzynce odbiorczej",
     "calendarAllDay": "Cały dzień",
@@ -3541,10 +3589,13 @@
     "cta": "Otwórz Customermates",
     "digestIntro": "Te nowości czekają na Ciebie w Customermates:",
     "digestSubject": "Nowości w Customermates",
+    "footerReason": "{count, plural, one {Dostajesz tego e-maila z powodu powiadomienia: {sources}.} few {Dostajesz tego e-maila z powodu powiadomienia: {sources}.} many {Dostajesz tego e-maila z powodu powiadomienia: {sources}.} other {Dostajesz tego e-maila z powodu powiadomienia: {sources}.}}",
     "greeting": "Cześć {firstName},",
     "instantIntro": "W Customermates coś wymaga Twojej uwagi:",
-    "preferencesHint": "To, jak często dostajesz te e-maile, ustawiasz osobno dla każdego rodzaju powiadomień w sekcji Profil, Powiadomienia.",
-    "title": "Nowości z Twojego obszaru roboczego"
+    "manageNotifications": "Zarządzaj powiadomieniami",
+    "title": "Nowości z Twojego obszaru roboczego",
+    "turnOffKind": "Wyłącz ten rodzaj",
+    "turnOffNamedKind": "Wyłącz: {kind}"
   },
   "Notifications": {
     "dayToday": "Dzisiaj",
@@ -3572,6 +3623,14 @@
     "markAllRead": "Oznacz wszystkie jako przeczytane",
     "preferences": {
       "description": "Strona Powiadomienia zawsze pokazuje wszystko. Tutaj ustawiasz, jak często każdy rodzaj dociera do Ciebie także e-mailem.",
+      "kind": "Rodzaj",
+      "kindOffNotice": "E-maile „{kind}” zostały wyłączone.",
+      "modeLabel": "E-mail dla: {kind}",
+      "pause": "Wstrzymaj wszystkie e-maile do",
+      "pauseDate": "Data, do której e-maile są wstrzymane",
+      "pauseHelp": "Gdy wstrzymanie trwa, żadne powiadomienie nie dociera do Ciebie e-mailem. Twoje wybory powyżej wracają, gdy otworzysz tę stronę w tym dniu lub później.",
+      "pauseOff": "Twoje ustawienia e-maili zostały przywrócone.",
+      "pauseOn": "Wszystkie e-maile są wstrzymane do {date}.",
       "title": "E-maile z powiadomieniami"
     },
     "unread": "Nieprzeczytane"
@@ -5714,6 +5773,7 @@
     "apiKeys": "Klucze API i konektory",
     "billing": "Rozliczenia",
     "channels": "Kanały i kalendarze",
+    "connections": "Połączenia",
     "deliveries": "Dziennik webhooków",
     "general": "Ogólne",
     "incomingWebhooks": "Przychodzące webhooki",

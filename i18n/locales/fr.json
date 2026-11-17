@@ -2234,6 +2234,54 @@
     "visibilityShared": "Partagé",
     "visibilityUpdateFailed": "Impossible de mettre à jour la visibilité. Réessayez."
   },
+  "Connections": {
+    "agents": {
+      "body": "Les agents travaillent dans cet espace de travail avec leurs propres clés et limites. Vous les configurez sur leur propre page.",
+      "open": "Ouvrir les réglages des agents",
+      "title": "Agents"
+    },
+    "apps": {
+      "comingSoon": "Disponible dans la prochaine version",
+      "connect": "Connecter",
+      "emptyBody": "Les applications que vous connecterez plus tard apparaîtront ici, avec la personne qui les a connectées et ce qu’elles peuvent atteindre.",
+      "emptyTitle": "Aucune application connectée",
+      "enables": "Permet",
+      "providersTitle": "Applications disponibles"
+    },
+    "channels": {
+      "bookingGroup": "Agenda : {name}",
+      "noCalendar": "Aucun agenda",
+      "sectionsLabel": "Sections des canaux",
+      "selfHostedBody": "Les canaux e-mail, LinkedIn, WhatsApp et agenda utilisent le service de connexion hébergé et ne sont pas disponibles en auto-hébergement.",
+      "selfHostedTitle": "Les canaux nécessitent Customermates Cloud"
+    },
+    "description": "Tout ce qui relie Customermates à vos canaux, applications, agents et systèmes, avec le propriétaire de chaque connexion et ce qu’elle peut atteindre.",
+    "developers": {
+      "sectionsLabel": "Sections pour développeurs"
+    },
+    "owner": {
+      "user": "Propriétaire : la personne qui l’a connecté",
+      "workspace": "Propriétaire : cet espace de travail"
+    },
+    "scope": {
+      "accounts": "Portée : privé pour son propriétaire, sauf partage avec l’espace de travail",
+      "agents": "Portée : uniquement l’accès et les limites que vous définissez",
+      "apps": "Portée : uniquement ce que vous autorisez à la connexion",
+      "booking": "Portée : toute personne disposant du lien peut réserver dans l’agenda de son propriétaire",
+      "deliveries": "Portée : chaque tentative d’envoi des webhooks de cet espace de travail",
+      "incoming": "Portée : permet à d’autres systèmes de créer ou de modifier des enregistrements dans la liste choisie",
+      "keys": "Portée : lit et écrit les données de cet espace de travail via l’API",
+      "webhooks": "Portée : envoie les événements de cet espace de travail aux adresses que vous ajoutez"
+    },
+    "tabs": {
+      "agents": "Agents",
+      "apps": "Applications",
+      "channels": "Canaux",
+      "developers": "Développeurs"
+    },
+    "tabsLabel": "Types de connexions",
+    "title": "Connexions"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Ouvrir dans la boîte de réception",
     "calendarAllDay": "Toute la journée",
@@ -3541,10 +3589,13 @@
     "cta": "Ouvrir Customermates",
     "digestIntro": "Ces nouveautés vous attendent dans Customermates :",
     "digestSubject": "Nouveautés dans Customermates",
+    "footerReason": "{count, plural, one {Vous recevez cet e-mail parce que {sources} vous a envoyé une notification.} other {Vous recevez cet e-mail parce que {sources} vous ont envoyé une notification.}}",
     "greeting": "Bonjour {firstName},",
     "instantIntro": "Quelque chose demande votre attention dans Customermates :",
-    "preferencesHint": "Vous choisissez la fréquence de ces e-mails, par type de notification, sous Profil, Notifications.",
-    "title": "Du nouveau dans votre espace de travail"
+    "manageNotifications": "Gérer les notifications",
+    "title": "Du nouveau dans votre espace de travail",
+    "turnOffKind": "Désactiver ce type",
+    "turnOffNamedKind": "Désactiver : {kind}"
   },
   "Notifications": {
     "dayToday": "Aujourd’hui",
@@ -3572,6 +3623,14 @@
     "markAllRead": "Tout marquer comme lu",
     "preferences": {
       "description": "La page des notifications affiche toujours tout. Choisissez ici à quelle fréquence chaque type vous parvient aussi par e-mail.",
+      "kind": "Type",
+      "kindOffNotice": "Les e-mails « {kind} » sont désactivés.",
+      "modeLabel": "E-mail pour {kind}",
+      "pause": "Suspendre tous les e-mails jusqu’au",
+      "pauseDate": "Date jusqu’à laquelle les e-mails sont suspendus",
+      "pauseHelp": "Pendant la suspension, aucune notification ne vous parvient par e-mail. Vos choix ci-dessus reviennent quand vous ouvrez cette page à partir de ce jour.",
+      "pauseOff": "Vos choix d’e-mail sont rétablis.",
+      "pauseOn": "Tous les e-mails sont suspendus jusqu’au {date}.",
       "title": "E-mails de notification"
     },
     "unread": "Non lue"
@@ -5714,6 +5773,7 @@
     "apiKeys": "Clés API et connecteurs",
     "billing": "Facturation",
     "channels": "Canaux et agendas",
+    "connections": "Connexions",
     "deliveries": "Journal des webhooks",
     "general": "Général",
     "incomingWebhooks": "Webhooks entrants",

@@ -2234,6 +2234,54 @@
     "visibilityShared": "Gedeeld",
     "visibilityUpdateFailed": "Zichtbaarheid kon niet worden bijgewerkt. Probeer het opnieuw."
   },
+  "Connections": {
+    "agents": {
+      "body": "Agents werken in deze werkruimte met eigen sleutels en limieten. Je stelt ze in op hun eigen pagina.",
+      "open": "Agentinstellingen openen",
+      "title": "Agents"
+    },
+    "apps": {
+      "comingSoon": "Komt in de volgende release",
+      "connect": "Koppelen",
+      "emptyBody": "Apps die je later koppelt, verschijnen hier met wie ze heeft gekoppeld en waar ze bij kunnen.",
+      "emptyTitle": "Nog geen apps gekoppeld",
+      "enables": "Maakt mogelijk",
+      "providersTitle": "Beschikbare apps"
+    },
+    "channels": {
+      "bookingGroup": "Agenda: {name}",
+      "noCalendar": "Geen agenda",
+      "sectionsLabel": "Onderdelen van kanalen",
+      "selfHostedBody": "E-mail-, LinkedIn-, WhatsApp- en agendakanalen gebruiken de gehoste koppelingsdienst en zijn niet beschikbaar bij zelf hosten.",
+      "selfHostedTitle": "Kanalen hebben Customermates Cloud nodig"
+    },
+    "description": "Alles wat Customermates koppelt aan je kanalen, apps, agents en systemen, met de eigenaar van elke koppeling en waar die bij kan.",
+    "developers": {
+      "sectionsLabel": "Onderdelen voor ontwikkelaars"
+    },
+    "owner": {
+      "user": "Eigenaar: de persoon die het heeft gekoppeld",
+      "workspace": "Eigenaar: deze werkruimte"
+    },
+    "scope": {
+      "accounts": "Bereik: privé voor de eigenaar, tenzij gedeeld met de werkruimte",
+      "agents": "Bereik: alleen de toegang en limieten die je instelt",
+      "apps": "Bereik: alleen wat je toestaat bij het koppelen",
+      "booking": "Bereik: iedereen met de link kan boeken in de agenda van de eigenaar",
+      "deliveries": "Bereik: elke bezorgpoging van de webhooks van deze werkruimte",
+      "incoming": "Bereik: laat andere systemen records in de gekozen lijst aanmaken of bijwerken",
+      "keys": "Bereik: leest en schrijft de gegevens van deze werkruimte via de API",
+      "webhooks": "Bereik: stuurt de gebeurtenissen van deze werkruimte naar de adressen die je toevoegt"
+    },
+    "tabs": {
+      "agents": "Agents",
+      "apps": "Apps",
+      "channels": "Kanalen",
+      "developers": "Ontwikkelaars"
+    },
+    "tabsLabel": "Soorten koppelingen",
+    "title": "Koppelingen"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Openen in inbox",
     "calendarAllDay": "Hele dag",
@@ -3541,10 +3589,13 @@
     "cta": "Customermates openen",
     "digestIntro": "Dit nieuws wacht op je in Customermates:",
     "digestSubject": "Nieuws in Customermates",
+    "footerReason": "{count, plural, one {Je krijgt deze e-mail omdat {sources} je een melding heeft gestuurd.} other {Je krijgt deze e-mail omdat {sources} je een melding hebben gestuurd.}}",
     "greeting": "Hallo {firstName},",
     "instantIntro": "In Customermates heeft iets je aandacht nodig:",
-    "preferencesHint": "Hoe vaak je deze e-mails krijgt, kies je per soort melding onder Profiel, Meldingen.",
-    "title": "Nieuws uit je werkruimte"
+    "manageNotifications": "Meldingen beheren",
+    "title": "Nieuws uit je werkruimte",
+    "turnOffKind": "Deze soort uitzetten",
+    "turnOffNamedKind": "{kind} uitzetten"
   },
   "Notifications": {
     "dayToday": "Vandaag",
@@ -3572,6 +3623,14 @@
     "markAllRead": "Alles als gelezen markeren",
     "preferences": {
       "description": "De pagina Meldingen toont altijd alles. Kies hier hoe vaak elke soort je ook per e-mail bereikt.",
+      "kind": "Soort",
+      "kindOffNotice": "E-mails over “{kind}” staan uit.",
+      "modeLabel": "E-mail voor {kind}",
+      "pause": "Alle e-mails pauzeren tot",
+      "pauseDate": "Datum tot wanneer e-mails gepauzeerd zijn",
+      "pauseHelp": "Zolang het gepauzeerd is, bereikt geen melding je per e-mail. Je keuzes hierboven komen terug zodra je deze pagina op of na die dag opent.",
+      "pauseOff": "Je e-mailkeuzes zijn terug.",
+      "pauseOn": "Alle e-mails zijn gepauzeerd tot {date}.",
       "title": "E-mails over meldingen"
     },
     "unread": "Ongelezen"
@@ -5714,6 +5773,7 @@
     "apiKeys": "API-sleutels & connectoren",
     "billing": "Facturering",
     "channels": "Kanalen & agenda's",
+    "connections": "Koppelingen",
     "deliveries": "Webhooklog",
     "general": "Algemeen",
     "incomingWebhooks": "Inkomende webhooks",

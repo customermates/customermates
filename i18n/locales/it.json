@@ -2234,6 +2234,54 @@
     "visibilityShared": "Condiviso",
     "visibilityUpdateFailed": "Impossibile aggiornare la visibilità. Riprova."
   },
+  "Connections": {
+    "agents": {
+      "body": "Gli agenti lavorano in questo spazio di lavoro con chiavi e limiti propri. Li configuri nella loro pagina.",
+      "open": "Apri le impostazioni degli agenti",
+      "title": "Agenti"
+    },
+    "apps": {
+      "comingSoon": "In arrivo con la prossima versione",
+      "connect": "Collega",
+      "emptyBody": "Le app che collegherai in seguito compariranno qui, con la persona che le ha collegate e ciò a cui possono accedere.",
+      "emptyTitle": "Nessuna app collegata",
+      "enables": "Abilita",
+      "providersTitle": "App disponibili"
+    },
+    "channels": {
+      "bookingGroup": "Calendario: {name}",
+      "noCalendar": "Nessun calendario",
+      "sectionsLabel": "Sezioni dei canali",
+      "selfHostedBody": "I canali e-mail, LinkedIn, WhatsApp e calendario usano il servizio di connessione ospitato e non sono disponibili con il self-hosting.",
+      "selfHostedTitle": "I canali richiedono Customermates Cloud"
+    },
+    "description": "Tutto ciò che collega Customermates ai tuoi canali, alle app, agli agenti e ai sistemi, con il proprietario di ogni connessione e ciò che può raggiungere.",
+    "developers": {
+      "sectionsLabel": "Sezioni per sviluppatori"
+    },
+    "owner": {
+      "user": "Proprietario: la persona che l’ha collegato",
+      "workspace": "Proprietario: questo spazio di lavoro"
+    },
+    "scope": {
+      "accounts": "Ambito: privato per il proprietario, salvo condivisione con lo spazio di lavoro",
+      "agents": "Ambito: solo l’accesso e i limiti che imposti",
+      "apps": "Ambito: solo ciò che consenti al momento del collegamento",
+      "booking": "Ambito: chiunque abbia il link può prenotare nel calendario del proprietario",
+      "deliveries": "Ambito: ogni tentativo di consegna dei webhook di questo spazio di lavoro",
+      "incoming": "Ambito: permette ad altri sistemi di creare o aggiornare record nella lista scelta",
+      "keys": "Ambito: legge e scrive i dati di questo spazio di lavoro tramite l’API",
+      "webhooks": "Ambito: invia gli eventi di questo spazio di lavoro agli indirizzi che aggiungi"
+    },
+    "tabs": {
+      "agents": "Agenti",
+      "apps": "App",
+      "channels": "Canali",
+      "developers": "Sviluppatori"
+    },
+    "tabsLabel": "Tipi di connessione",
+    "title": "Connessioni"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Apri nella posta in arrivo",
     "calendarAllDay": "Tutto il giorno",
@@ -3541,10 +3589,13 @@
     "cta": "Apri Customermates",
     "digestIntro": "Queste novità ti aspettano in Customermates:",
     "digestSubject": "Novità in Customermates",
+    "footerReason": "{count, plural, one {Ricevi questa e-mail perché {sources} ti ha inviato una notifica.} other {Ricevi questa e-mail perché {sources} ti hanno inviato una notifica.}}",
     "greeting": "Ciao {firstName},",
     "instantIntro": "In Customermates c’è qualcosa che richiede la tua attenzione:",
-    "preferencesHint": "Quanto spesso ricevere queste e-mail lo scegli per tipo di notifica in Profilo, Notifiche.",
-    "title": "Novità dal tuo spazio di lavoro"
+    "manageNotifications": "Gestisci le notifiche",
+    "title": "Novità dal tuo spazio di lavoro",
+    "turnOffKind": "Disattiva questo tipo",
+    "turnOffNamedKind": "Disattiva: {kind}"
   },
   "Notifications": {
     "dayToday": "Oggi",
@@ -3572,6 +3623,14 @@
     "markAllRead": "Segna tutte come lette",
     "preferences": {
       "description": "La pagina Notifiche mostra sempre tutto. Scegli qui con quale frequenza ogni tipo ti arriva anche via e-mail.",
+      "kind": "Tipo",
+      "kindOffNotice": "Le e-mail «{kind}» sono disattivate.",
+      "modeLabel": "E-mail per {kind}",
+      "pause": "Sospendi tutte le e-mail fino al",
+      "pauseDate": "Data fino alla quale le e-mail sono sospese",
+      "pauseHelp": "Durante la sospensione nessuna notifica ti arriva via e-mail. Le tue scelte qui sopra tornano quando apri questa pagina da quel giorno in poi.",
+      "pauseOff": "Le tue scelte per le e-mail sono di nuovo attive.",
+      "pauseOn": "Tutte le e-mail sono sospese fino al {date}.",
       "title": "E-mail di notifica"
     },
     "unread": "Da leggere"
@@ -5714,6 +5773,7 @@
     "apiKeys": "Chiavi API e connettori",
     "billing": "Fatturazione",
     "channels": "Canali e calendari",
+    "connections": "Connessioni",
     "deliveries": "Log dei webhook",
     "general": "Generale",
     "incomingWebhooks": "Webhook in entrata",

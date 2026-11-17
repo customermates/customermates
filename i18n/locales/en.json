@@ -2234,6 +2234,54 @@
     "visibilityShared": "Shared",
     "visibilityUpdateFailed": "Couldn't update visibility. Try again."
   },
+  "Connections": {
+    "agents": {
+      "body": "Agents work in this workspace with their own keys and limits. You set them up on their own page.",
+      "open": "Open agent settings",
+      "title": "Agents"
+    },
+    "apps": {
+      "comingSoon": "Coming in the next release",
+      "connect": "Connect",
+      "emptyBody": "Apps you connect later show up here with who connected them and what they can reach.",
+      "emptyTitle": "No apps connected yet",
+      "enables": "Enables",
+      "providersTitle": "Available apps"
+    },
+    "channels": {
+      "bookingGroup": "Calendar: {name}",
+      "noCalendar": "No calendar",
+      "sectionsLabel": "Channel sections",
+      "selfHostedBody": "Email, LinkedIn, WhatsApp and calendar channels use the hosted connection service and are not available when you self-host.",
+      "selfHostedTitle": "Channels need Customermates Cloud"
+    },
+    "description": "Everything that links Customermates to your channels, apps, agents and systems, with who owns each connection and what it can reach.",
+    "developers": {
+      "sectionsLabel": "Developer sections"
+    },
+    "owner": {
+      "user": "Owner: the person who connected it",
+      "workspace": "Owner: this workspace"
+    },
+    "scope": {
+      "accounts": "Scope: private to its owner unless shared with the workspace",
+      "agents": "Scope: only the access and limits you set",
+      "apps": "Scope: only what you allow when you connect",
+      "booking": "Scope: anyone with the link can book into its owner’s calendar",
+      "deliveries": "Scope: every delivery attempt of this workspace’s webhooks",
+      "incoming": "Scope: lets other systems create or update records in the list you choose",
+      "keys": "Scope: reads and writes this workspace’s data through the API",
+      "webhooks": "Scope: sends this workspace’s events to the addresses you add"
+    },
+    "tabs": {
+      "agents": "Agents",
+      "apps": "Apps",
+      "channels": "Channels",
+      "developers": "Developers"
+    },
+    "tabsLabel": "Connection types",
+    "title": "Connections"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Open in inbox",
     "calendarAllDay": "All day",
@@ -3541,10 +3589,13 @@
     "cta": "Open Customermates",
     "digestIntro": "These updates are waiting for you in Customermates:",
     "digestSubject": "New updates in Customermates",
+    "footerReason": "{count, plural, one {You get this because {sources} notified you.} other {You get this because {sources} notified you.}}",
     "greeting": "Hi {firstName},",
     "instantIntro": "Something needs your attention in Customermates:",
-    "preferencesHint": "You choose how often you get these emails, per kind of notification, under Profile, Notifications.",
-    "title": "News from your workspace"
+    "manageNotifications": "Manage notifications",
+    "title": "News from your workspace",
+    "turnOffKind": "Turn off this kind",
+    "turnOffNamedKind": "Turn off {kind}"
   },
   "Notifications": {
     "dayToday": "Today",
@@ -3572,6 +3623,14 @@
     "markAllRead": "Mark all as read",
     "preferences": {
       "description": "The Notifications page always shows everything. Choose here how often each kind also reaches you by email.",
+      "kind": "Kind",
+      "kindOffNotice": "Emails for “{kind}” are turned off.",
+      "modeLabel": "Email for {kind}",
+      "pause": "Pause all emails until",
+      "pauseDate": "Date until which emails are paused",
+      "pauseHelp": "While paused, no notification reaches you by email. Your choices above come back when you open this page on or after that day.",
+      "pauseOff": "Your email choices are back.",
+      "pauseOn": "All emails are paused until {date}.",
       "title": "Notification emails"
     },
     "unread": "Unread"
@@ -5714,6 +5773,7 @@
     "apiKeys": "API keys & connectors",
     "billing": "Billing",
     "channels": "Channels & calendars",
+    "connections": "Connections",
     "deliveries": "Webhook log",
     "general": "General",
     "incomingWebhooks": "Incoming webhooks",
