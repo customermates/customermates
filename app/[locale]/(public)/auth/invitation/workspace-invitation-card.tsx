@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { WorkspaceInactiveReason } from "@/features/workspace/workspace.schema";
 
 import { useState } from "react";
 import { LogOut } from "lucide-react";
@@ -11,6 +12,8 @@ import { joinedWorkspacePath } from "./joined-workspace-path";
 import { WorkspaceInvitationStore } from "./workspace-invitation.store";
 import { joinWorkspaceAction } from "../actions";
 
+import { LeaveInactiveWorkspaceDialog } from "@/app/components/workspaces/leave-inactive-workspace-dialog";
+import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
@@ -24,7 +27,9 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { signOutWithOnboardingIntentAction } from "@/app/[locale]/actions";
 
 type Props = {
+  companyId: string;
   email: string;
+  inactiveReason: WorkspaceInactiveReason | null;
   invitationIntent: string;
   inviterName: string;
   membershipStatus: Status | null;
@@ -32,7 +37,9 @@ type Props = {
 };
 
 export function WorkspaceInvitationCard({
+  companyId,
   email,
+  inactiveReason,
   invitationIntent,
   inviterName,
   membershipStatus,
@@ -43,6 +50,8 @@ export function WorkspaceInvitationCard({
   const { appMode, workspacesStore } = rootStore;
   const [termsStore] = useState(() => new WorkspaceInvitationStore(rootStore));
   const [pendingAction, setPendingAction] = useState<"join" | "signOut" | null>(null);
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const canLeave = appMode !== "demo" && membershipStatus === Status.inactive;
 
   async function handleJoin() {
     if (pendingAction) return;
@@ -76,6 +85,18 @@ export function WorkspaceInvitationCard({
 
   const workspace = workspaceName?.trim() ?? "";
   const named = Boolean(workspace);
+  const displayName = workspaceDisplayName(workspaceName, t("Workspaces.fallbackName"));
+  const inactiveContent =
+    inactiveReason === "pausedByPlan"
+      ? { title: t("PlanPausedCard.title"), body: t("PlanPausedCard.body", { workspace: displayName }) }
+      : inactiveReason === "noActiveAdmin"
+        ? { title: t("WorkspaceInvitation.inactive.title"), body: t("InactiveCard.supportBody") }
+        : {
+            title: t("WorkspaceInvitation.inactive.title"),
+            body: named
+              ? t("WorkspaceInvitation.inactive.bodyNamed", { workspace })
+              : t("WorkspaceInvitation.inactive.body"),
+          };
   const content =
     membershipStatus === Status.active
       ? {
@@ -94,13 +115,7 @@ export function WorkspaceInvitationCard({
             action: t("WorkspaceInvitation.pending.action"),
           }
         : membershipStatus === Status.inactive
-          ? {
-              title: t("WorkspaceInvitation.inactive.title"),
-              body: named
-                ? t("WorkspaceInvitation.inactive.bodyNamed", { workspace })
-                : t("WorkspaceInvitation.inactive.body"),
-              action: null,
-            }
+          ? { ...inactiveContent, action: null }
           : {
               title: named
                 ? t("WorkspaceInvitation.join.titleNamed", { workspace })
@@ -167,7 +182,31 @@ export function WorkspaceInvitationCard({
 
           {t("WorkspaceInvitation.otherAccount")}
         </Button>
+
+        {canLeave ? (
+          <Button
+            className="w-full"
+            disabled={pendingAction !== null}
+            id="workspace-invitation-leave"
+            variant="ghostDestructive"
+            onClick={() => setConfirmingLeave(true)}
+          >
+            {t("Workspaces.leave")}
+          </Button>
+        ) : null}
       </AppCardFooter>
+
+      {canLeave ? (
+        <LeaveInactiveWorkspaceDialog
+          stayOnPage
+          anchorScope="workspace-invitation-leave-confirm"
+          companyId={companyId}
+          name={displayName}
+          open={confirmingLeave}
+          reason={inactiveReason}
+          onClose={() => setConfirmingLeave(false)}
+        />
+      ) : null}
     </AppCard>
   );
 }

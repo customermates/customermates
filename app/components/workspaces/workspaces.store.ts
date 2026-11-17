@@ -115,7 +115,7 @@ export class WorkspacesStore extends BaseStore {
     return true;
   };
 
-  leaveInactive = async (companyId: string): Promise<boolean> => {
+  leaveInactive = async (companyId: string, options: { stayOnPage?: boolean } = {}): Promise<boolean> => {
     const target = this.items.find((workspace) => workspace.companyId === companyId);
     if (this.isNavigating || target?.status !== Status.inactive) return false;
 
@@ -127,7 +127,7 @@ export class WorkspacesStore extends BaseStore {
       return false;
     }
 
-    if (target.isCurrent) this.enter("/dashboard");
+    if (target.isCurrent && !options.stayOnPage) this.enter("/dashboard");
     else this.reload();
     return true;
   };

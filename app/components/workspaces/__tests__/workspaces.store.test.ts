@@ -202,6 +202,20 @@ describe("WorkspacesStore", () => {
     expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledTimes(1);
   });
 
+  it("stays on the invitation page after leaving the inactive workspace this tab shows, so the person can ask to join again", async () => {
+    const { store, navigationGuard } = storeFor();
+    openPage("/de/auth/invitation", "?intent=signed-intent");
+    store.setWorkspaces([workspace("a", { isCurrent: true, status: "inactive" }), workspace("b")]);
+    actions.leaveInactiveWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "a" } });
+
+    await expect(store.leaveInactive("a", { stayOnPage: true })).resolves.toBe(true);
+
+    expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ companyId: "a" });
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledExactlyOnceWith(
+      "/de/auth/invitation?intent=signed-intent",
+    );
+  });
+
   it("leaves an inactive workspace from the list of an active one and reloads that list", async () => {
     const { store, navigationGuard } = storeFor();
     openPage("/de/w/workspace-a/settings/workspaces", "?from=menu");

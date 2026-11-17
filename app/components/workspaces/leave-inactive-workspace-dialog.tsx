@@ -14,11 +14,12 @@ type Props = {
   name: string;
   open: boolean;
   reason: WorkspaceInactiveReason | null;
+  stayOnPage?: boolean;
   onClose: () => void;
 };
 
 export const LeaveInactiveWorkspaceDialog = observer(
-  ({ anchorScope, companyId, name, open, reason, onClose }: Props) => {
+  ({ anchorScope, companyId, name, open, reason, stayOnPage = false, onClose }: Props) => {
     const t = useTranslations();
     const { workspacesStore } = useRootStore();
     const description =
@@ -37,7 +38,7 @@ export const LeaveInactiveWorkspaceDialog = observer(
         title={t("Workspaces.leaveConfirmTitle", { name })}
         onCancel={onClose}
         onConfirm={async () => {
-          if (!companyId || !(await workspacesStore.leaveInactive(companyId))) onClose();
+          if (!companyId || !(await workspacesStore.leaveInactive(companyId, { stayOnPage }))) onClose();
         }}
       />
     );
