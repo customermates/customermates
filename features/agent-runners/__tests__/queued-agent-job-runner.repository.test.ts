@@ -16,7 +16,12 @@ const AT = "2026-11-17T09:00:05.000Z";
 
 function setup(jobs = new FakeAgentJobRepo()) {
   const queries: Array<{ companyId: string; ownerUserId: string; runnerId: string; limit: number }> = [];
+  const released: Array<{ companyId: string; jobId: string; runnerId: string; attempt: number }> = [];
   const runners = {
+    releaseClaimedJobUnscoped: (args: (typeof released)[number]) => {
+      released.push(args);
+      return Promise.resolve(true);
+    },
     findClaimableJobIdsUnscoped: (args: (typeof queries)[number]) => {
       queries.push(args);
       const claimable = [...jobs.jobs.values()].filter(
@@ -30,7 +35,7 @@ function setup(jobs = new FakeAgentJobRepo()) {
       return Promise.resolve(claimable.slice(0, args.limit).map((job) => job.id));
     },
   };
-  return { jobs, queries, repo: new QueuedAgentJobRunnerRepo(jobs, runners, () => NOW) };
+  return { jobs, queries, released, repo: new QueuedAgentJobRunnerRepo(jobs, runners, () => NOW) };
 }
 
 describe("QueuedAgentJobRunnerRepo", () => {
@@ -87,6 +92,16 @@ describe("QueuedAgentJobRunnerRepo", () => {
     jobs.claimUnscoped = (claim) => (claim.jobId === first.id ? Promise.resolve(null) : claimUnscoped(claim));
 
     expect((await repo.claimNextForRunner(RUNNER))?.id).toBe(second.id);
+  });
+
+  it("releases a claim only as the runner and for the attempt that hold it", async () => {
+    const { repo, released } = setup();
+
+    expect(await repo.releaseClaim("00000000-0000-4000-8000-0000000000aa", RUNNER, 3)).toBe(true);
+
+    expect(released).toEqual([
+      { companyId: COMPANY, jobId: "00000000-0000-4000-8000-0000000000aa", runnerId: RUNNER.id, attempt: 3 },
+    ]);
   });
 
   it("starts the claimed attempt with the full run time and refuses another attempt", async () => {

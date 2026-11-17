@@ -11,6 +11,7 @@ export type AgentJobCredentialRun = { ruleChain: string[] };
 
 export abstract class AgentJobRunnerRepo {
   abstract claimNextForRunner(runner: AuthenticatedAgentRunner): Promise<AgentJobClaim | null>;
+  abstract releaseClaim(jobId: string, runner: AuthenticatedAgentRunner, attempt: number): Promise<boolean>;
   abstract findForRunner(jobId: string, runner: AuthenticatedAgentRunner): Promise<AgentJobRunnerState | null>;
   abstract start(jobId: string, runner: AuthenticatedAgentRunner, attempt: number): Promise<Date | null>;
   abstract appendTranscript(

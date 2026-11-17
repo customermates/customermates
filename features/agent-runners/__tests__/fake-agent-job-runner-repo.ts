@@ -84,6 +84,15 @@ export class FakeAgentJobRunnerRepo extends AgentJobRunnerRepo {
     });
   }
 
+  releaseClaim(jobId: string, runner: AuthenticatedAgentRunner, attempt: number): Promise<boolean> {
+    const job = this.jobs.find((candidate) => candidate.id === jobId && candidate.runnerId === runner.id);
+    if (!job || job.status !== "claimed" || job.attempts !== attempt) return Promise.resolve(false);
+    job.status = "queued";
+    job.runnerId = null;
+    job.timeoutAt = null;
+    return Promise.resolve(true);
+  }
+
   findForRunner(jobId: string, runner: AuthenticatedAgentRunner): Promise<AgentJobRunnerState | null> {
     const job = this.jobs.find((candidate) => candidate.id === jobId && candidate.runnerId === runner.id);
     return Promise.resolve(

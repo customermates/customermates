@@ -24,6 +24,7 @@ export class FakeAgentRunnerRepo extends AgentRunnerRepo {
   claimable: string[] = [];
   claimableQueries: Array<{ companyId: string; ownerUserId: string; runnerId: string; limit: number }> = [];
   liveJobs: AgentRunnerLiveJob[] = [];
+  released: Array<{ companyId: string; jobId: string; runnerId: string; attempt: number }> = [];
 
   addRunner(overrides: Partial<AgentRunnerLookup> = {}): { token: string; runner: AgentRunnerLookup } {
     const token = generateAgentRunnerToken();
@@ -123,6 +124,16 @@ export class FakeAgentRunnerRepo extends AgentRunnerRepo {
 
   findLiveJobsOfRunnerUnscoped(): Promise<AgentRunnerLiveJob[]> {
     return Promise.resolve(this.liveJobs);
+  }
+
+  releaseClaimedJobUnscoped(args: {
+    companyId: string;
+    jobId: string;
+    runnerId: string;
+    attempt: number;
+  }): Promise<boolean> {
+    this.released.push(args);
+    return Promise.resolve(true);
   }
 
   findWaitingOwnersUnscoped(args: { seenSince: Date }): Promise<AgentRunnerWaitingOwner[]> {

@@ -12,6 +12,7 @@ import type {
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import * as ErrorReporter from "@/core/observability/server";
 import { AGENT_JOB_MAX_WALL_MS } from "@/features/agent-jobs/agent-job.schema";
 
 import {
@@ -44,8 +45,8 @@ const OutputSchema = AgentJobClaimResultSchema.nullable().describe("Null when no
 export class ClaimAgentJobInteractor {
   constructor(
     private readonly runners: Pick<AgentRunnerRepo, "touchRunnerUnscoped">,
-    private readonly jobs: Pick<AgentJobRunnerRepo, "claimNextForRunner" | "finish">,
-    private readonly credentials: Pick<AgentJobCredentials, "issue">,
+    private readonly jobs: Pick<AgentJobRunnerRepo, "claimNextForRunner" | "releaseClaim" | "finish">,
+    private readonly credentials: Pick<AgentJobCredentials, "issue" | "revoke">,
     private readonly timing: AgentRunnerTiming = REAL_AGENT_RUNNER_TIMING,
   ) {}
 
@@ -62,14 +63,33 @@ export class ClaimAgentJobInteractor {
       if (signal?.aborted) return { ok: true, data: null };
       const claim = await this.jobs.claimNextForRunner(runner);
       if (claim) {
-        if (signal?.aborted) return { ok: true, data: null };
+        if (signal?.aborted) return this.undelivered(runner, claim, false);
         const delivered = await this.deliver(runner, claim);
+        if (delivered && signal?.aborted) return this.undelivered(runner, claim, true);
         if (delivered) return { ok: true, data: delivered };
         continue;
       }
       if (this.timing.now() + AGENT_RUNNER_LIMITS.claimPollMs > startedAt + waitMs) return { ok: true, data: null };
       await this.timing.sleep(AGENT_RUNNER_LIMITS.claimPollMs, signal);
     }
+  }
+
+  private async undelivered(
+    runner: AuthenticatedAgentRunner,
+    claim: AgentJobClaim,
+    keyIssued: boolean,
+  ): Promise<{ ok: true; data: null }> {
+    await this.jobs.releaseClaim(claim.id, runner, claim.attempt);
+    if (keyIssued) {
+      await this.credentials
+        .revoke({ companyId: claim.companyId, jobId: claim.id, attempt: claim.attempt })
+        .catch((error: unknown) => {
+          ErrorReporter.captureException(error, {
+            tags: { kind: "agent-job-credentials-revoke", companyId: claim.companyId },
+          });
+        });
+    }
+    return { ok: true, data: null };
   }
 
   private async deliver(runner: AuthenticatedAgentRunner, claim: AgentJobClaim): Promise<AgentJobClaimResult | null> {

@@ -221,7 +221,7 @@ describe("claiming a job", () => {
     expect(s.jobs.jobs[0].status).toBe("queued");
   });
 
-  it("issues no key for a claim whose connection closed while it was taken", async () => {
+  it("issues no key for a claim whose connection closed while it was taken, and puts the job back in the queue", async () => {
     const s = setup();
     s.jobs.addJob();
     const { interactor } = claimer(s);
@@ -236,10 +236,43 @@ describe("claiming a job", () => {
 
     expect(result).toEqual({ ok: true, data: null });
     expect(s.credentials.issued).toEqual([]);
-    expect(s.jobs.jobs[0]).toMatchObject({
-      status: "claimed",
-      timeoutAt: new Date(NOW.getTime() + AGENT_RUNNER_LIMITS.claimConfirmMs),
-    });
+    expect(s.credentials.revoked).toEqual([]);
+    expect(s.jobs.jobs[0]).toMatchObject({ status: "queued", runnerId: null, timeoutAt: null, attempts: 1 });
+  });
+
+  it("takes the key back and puts the job back in the queue when the connection closed while the key was issued", async () => {
+    const s = setup();
+    s.jobs.addJob();
+    const { interactor } = claimer(s);
+    const controller = new AbortController();
+    const issue = s.credentials.issue.bind(s.credentials);
+    s.credentials.issue = (args) => {
+      controller.abort();
+      return issue(args);
+    };
+
+    const result = await interactor.invoke(s.request({ signal: controller.signal }));
+
+    expect(result).toEqual({ ok: true, data: null });
+    expect(s.credentials.issued).toHaveLength(1);
+    expect(s.credentials.revoked).toEqual([{ companyId: COMPANY_ID, jobId: JOB_ID, attempt: 1 }]);
+    expect(s.jobs.jobs[0]).toMatchObject({ status: "queued", runnerId: null, timeoutAt: null });
+  });
+
+  it("still answers when the key of a released claim cannot be taken back", async () => {
+    const s = setup();
+    s.jobs.addJob();
+    s.credentials.revokeFails = true;
+    const { interactor } = claimer(s);
+    const controller = new AbortController();
+    const issue = s.credentials.issue.bind(s.credentials);
+    s.credentials.issue = (args) => {
+      controller.abort();
+      return issue(args);
+    };
+
+    expect(await interactor.invoke(s.request({ signal: controller.signal }))).toEqual({ ok: true, data: null });
+    expect(s.jobs.jobs[0].status).toBe("queued");
   });
 
   it("honours a shorter wait and polls once for no wait", async () => {

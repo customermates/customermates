@@ -22,7 +22,7 @@ type Jobs = Pick<
 export class QueuedAgentJobRunnerRepo extends AgentJobRunnerRepo {
   constructor(
     private readonly jobs: Jobs,
-    private readonly runners: Pick<AgentRunnerRepo, "findClaimableJobIdsUnscoped">,
+    private readonly runners: Pick<AgentRunnerRepo, "findClaimableJobIdsUnscoped" | "releaseClaimedJobUnscoped">,
     private readonly clock: () => Date = () => new Date(),
   ) {
     super();
@@ -58,6 +58,15 @@ export class QueuedAgentJobRunnerRepo extends AgentJobRunnerRepo {
       };
     }
     return null;
+  }
+
+  releaseClaim(jobId: string, runner: AuthenticatedAgentRunner, attempt: number): Promise<boolean> {
+    return this.runners.releaseClaimedJobUnscoped({
+      companyId: runner.companyId,
+      jobId,
+      runnerId: runner.id,
+      attempt,
+    });
   }
 
   async findForRunner(jobId: string, runner: AuthenticatedAgentRunner): Promise<AgentJobRunnerState | null> {

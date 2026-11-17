@@ -257,6 +257,44 @@ describeDatabase("the jobs a runner may take", { timeout: 60_000 }, () => {
     expect(await jobStatus(job.id)).toMatchObject({ status: "claimed", runnerId: memberRunner.id });
   });
 
+  it("puts a claimed job back in the queue only for the runner and the attempt that hold it, and lets it be claimed again", async () => {
+    const w = await workspace();
+    const other = await workspace();
+    const runner = await addRunner(w, 1_000);
+    const sibling = await addRunner(w, 1_000);
+    const job = await queueRunnerJob(w);
+    const started = await queueRunnerJob(w, { status: "running", runnerId: runner.id, attempts: 1 });
+    const repo = new QueuedAgentJobRunnerRepo(new PrismaAgentJobRepo(), new PrismaAgentRunnerRepo());
+    const asRunner = (id: string, companyId = w.companyId) => ({
+      id,
+      companyId,
+      name: "Runner",
+      createdById: w.admin.id,
+    });
+    const claim = await repo.claimNextForRunner(asRunner(runner.id));
+    expect(claim).toMatchObject({ id: job.id, attempt: 1 });
+
+    expect(await repo.releaseClaim(job.id, asRunner(sibling.id), 1)).toBe(false);
+    expect(await repo.releaseClaim(job.id, asRunner(runner.id), 2)).toBe(false);
+    expect(await repo.releaseClaim(job.id, asRunner(runner.id, other.companyId), 1)).toBe(false);
+    expect(await repo.releaseClaim(started.id, asRunner(runner.id), 1)).toBe(false);
+    expect(await jobStatus(job.id)).toMatchObject({ status: "claimed", runnerId: runner.id });
+    expect(await jobStatus(started.id)).toMatchObject({ status: "running", runnerId: runner.id });
+
+    expect(await repo.releaseClaim(job.id, asRunner(runner.id), 1)).toBe(true);
+    const released = await runWithoutTenant(() => prisma.agentJob.findUnique({ where: { id: job.id } }));
+    expect(released).toMatchObject({
+      status: "queued",
+      runnerId: null,
+      claimedAt: null,
+      timeoutAt: null,
+      attempts: 1,
+      startedAttempts: 0,
+    });
+
+    expect(await repo.claimNextForRunner(asRunner(sibling.id))).toMatchObject({ id: job.id, attempt: 2 });
+  });
+
   it("lists the claimed and running jobs of one runner with their attempt", async () => {
     const w = await workspace();
     const runner = await addRunner(w, 1_000);

@@ -45,5 +45,11 @@ export abstract class AgentRunnerRepo {
     limit: number;
   }): Promise<string[]>;
   abstract findLiveJobsOfRunnerUnscoped(args: { companyId: string; runnerId: string }): Promise<AgentRunnerLiveJob[]>;
+  abstract releaseClaimedJobUnscoped(args: {
+    companyId: string;
+    jobId: string;
+    runnerId: string;
+    attempt: number;
+  }): Promise<boolean>;
   abstract findWaitingOwnersUnscoped(args: { seenSince: Date }): Promise<AgentRunnerWaitingOwner[]>;
 }
