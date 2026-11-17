@@ -166,7 +166,12 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(repo.leaveCompanyWide).toHaveBeenCalledWith(member.id);
     expect(events.publish).toHaveBeenCalledWith("user.updated", {
       entityId: member.id,
-      payload: { changes: { status: { previous: Status.active, current: Status.inactive } } },
+      payload: {
+        changes: {
+          removedAt: { previous: null, current: expect.any(String) },
+          status: { previous: Status.active, current: Status.inactive },
+        },
+      },
     });
     expect(authService.revokeMembershipCredentials).toHaveBeenCalledWith("login-nora", COMPANY_ID);
     expect(channelRemoval.deleteForBillingOrThrow).toHaveBeenCalledWith("mailbox-1", "ownerInactive");
@@ -282,13 +287,16 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(emailService.send).not.toHaveBeenCalled();
   });
 
-  it("removes an inactive member without announcing a status change", async () => {
+  it("records the removal of an inactive member in the activity, without a status change", async () => {
     member = memberRow({ status: Status.inactive });
 
     expect(await removeAs()).toMatchObject({ ok: true, data: { previousStatus: Status.inactive } });
 
-    expect(order).toEqual(["left", "revoked", "disconnected", "moved", "mailed"]);
-    expect(events.publish).not.toHaveBeenCalled();
+    expect(order).toEqual(["left", "announced", "revoked", "disconnected", "moved", "mailed"]);
+    expect(events.publish).toHaveBeenCalledExactlyOnceWith("user.updated", {
+      entityId: member.id,
+      payload: { changes: { removedAt: { previous: null, current: expect.any(String) } } },
+    });
     expect(sentMail().to).toBe("nora@example.com");
   });
 

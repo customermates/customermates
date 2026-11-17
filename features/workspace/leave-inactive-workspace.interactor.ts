@@ -66,7 +66,7 @@ export class LeaveInactiveWorkspaceInteractor {
           if (!(await this.repo.leaveCompanyWide(member.id)))
             return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
           try {
-            await this.departure.announce(member);
+            await this.departure.announce(member, "left");
           } catch (error) {
             return unwoundFailure(error);
           }

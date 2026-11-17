@@ -25,6 +25,13 @@ export type WorkspaceDeparture = {
   successorUserId?: string;
 };
 
+export type WorkspaceDepartureKind = "left" | "removed";
+
+export const WORKSPACE_DEPARTURE_FIELDS = {
+  left: "leftAt",
+  removed: "removedAt",
+} as const satisfies Record<WorkspaceDepartureKind, string>;
+
 export class WorkspaceDepartureService {
   constructor(
     private readonly authService: AuthService,
@@ -40,8 +47,16 @@ export class WorkspaceDepartureService {
     private readonly runners: Pick<AgentRunnerRevocation, "revokeOfMember">,
   ) {}
 
-  async announce(member: Pick<WorkspaceDeparture["member"], "id" | "status">): Promise<void> {
-    const changes = calculateChanges({ status: member.status }, { status: Status.inactive });
+  async announce(
+    member: Pick<WorkspaceDeparture["member"], "id" | "status">,
+    kind: WorkspaceDepartureKind,
+    at: Date = new Date(),
+  ): Promise<void> {
+    const departure =
+      member.status === Status.pendingAuthorization
+        ? {}
+        : { [WORKSPACE_DEPARTURE_FIELDS[kind]]: { previous: null, current: at.toISOString() } };
+    const changes = { ...departure, ...calculateChanges({ status: member.status }, { status: Status.inactive }) };
     if (Object.keys(changes).length)
       await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: member.id, payload: { changes } });
   }

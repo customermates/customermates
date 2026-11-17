@@ -163,7 +163,12 @@ describe("LeaveWorkspaceInteractor", () => {
     expect(runnerRevocations.at(-1)).toEqual({ companyId: COMPANY_ID, userId: "member-1" });
     expect(events.publish).toHaveBeenCalledWith("user.updated", {
       entityId: "member-1",
-      payload: { changes: { status: { previous: Status.active, current: Status.inactive } } },
+      payload: {
+        changes: {
+          leftAt: { previous: null, current: expect.any(String) },
+          status: { previous: Status.active, current: Status.inactive },
+        },
+      },
     });
   });
 

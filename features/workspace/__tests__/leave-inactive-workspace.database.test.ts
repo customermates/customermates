@@ -63,6 +63,14 @@ describeDatabase("leaving a workspace in which the membership is inactive", { ti
     return result.rows[0] ?? null;
   }
 
+  async function departureEvents(workspace: Workspace) {
+    const result = await client.query<{ actorId: string | null; subjectId: string; payload: unknown }>(
+      'SELECT e."actorId", e."subjectId", e."payload" FROM "EventLog" e JOIN "User" u ON u."id" = e."subjectId" AND u."companyId" = e."companyId" WHERE e."companyId" = $1 AND u."email" = $2 AND e."kind" = \'user.updated\'',
+      [fixture.companies[workspace], fixture.email],
+    );
+    return result.rows;
+  }
+
   async function lastUsedCompanyId() {
     const authUser = await client.query<{ companyId: string | null }>(
       'SELECT "companyId" FROM "AuthUser" WHERE "id" = $1',
@@ -196,6 +204,12 @@ describeDatabase("leaving a workspace in which the membership is inactive", { ti
       pausedByPlanAt: expect.any(Date),
     });
     expect(await membership("pending")).toMatchObject({ status: "pendingAuthorization", leftAt: null });
+
+    const events = await departureEvents("deactivated");
+    expect(events).toHaveLength(1);
+    expect(events[0].actorId).toBe(events[0].subjectId);
+    expect(events[0].payload).toEqual({ changes: { leftAt: { previous: null, current: expect.any(String) } } });
+    expect(await departureEvents("paused")).toEqual([]);
 
     const { getListMyWorkspacesInteractor } = await import("@/core/di");
     asSession();

@@ -94,7 +94,7 @@ export class RemoveWorkspaceMemberInteractor extends AuthenticatedInteractor<
 
         if (!(await this.repo.leaveCompanyWide(member.id))) return refuse("left", path);
         try {
-          await this.departure.announce(member);
+          await this.departure.announce(member, "removed");
         } catch (error) {
           return unwoundFailure(error);
         }

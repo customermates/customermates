@@ -175,12 +175,20 @@ describe("LeaveInactiveWorkspaceInteractor", () => {
     expect(memberships.setLastUsedCompanyUnscoped).toHaveBeenCalledExactlyOnceWith("login-1", null);
   });
 
-  it("frees no seat, releases no routine and writes no status change, because the member was inactive already", async () => {
+  it("frees no seat and releases no routine, because the member was inactive already", async () => {
     await interactor().invoke({ companyId: COMPANY_ID });
 
     expect(releaseRoutines.invoke).not.toHaveBeenCalled();
     expect(subscriptions.updateSubscriptionQuantityOrThrow).not.toHaveBeenCalled();
-    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("writes the departure into the workspace's activity, without a status change", async () => {
+    await interactor().invoke({ companyId: COMPANY_ID });
+
+    expect(events.publish).toHaveBeenCalledExactlyOnceWith("user.updated", {
+      entityId: "member-1",
+      payload: { changes: { leftAt: { previous: null, current: expect.any(String) } } },
+    });
   });
 
   it.each([
