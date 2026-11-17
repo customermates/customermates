@@ -389,4 +389,61 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
       await client.query('DELETE FROM "Company" WHERE "id" = $1', [freeCompanyId]);
     }
   });
+
+  it("keeps the plan-paused rules of a member who left switched off after the member rejoins", async () => {
+    const leaverCompanyId = randomUUID();
+    const leaver = randomUUID();
+    const colleague = randomUUID();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [leaverCompanyId]);
+    for (const [id, status, pausedByPlanAt] of [
+      [leaver, "inactive", new Date()],
+      [colleague, "inactive", new Date()],
+    ] as const) {
+      await client.query(
+        `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "pausedByPlanAt", "updatedAt")
+         VALUES ($1, $2, 'Rule', 'Owner', $3, $4::"Status", $5, CURRENT_TIMESTAMP)`,
+        [id, `rule-${id}@example.invalid`, leaverCompanyId, status, pausedByPlanAt],
+      );
+    }
+    const paused = randomUUID();
+    const byUser = randomUUID();
+    const colleagues = randomUUID();
+    for (const [id, owner] of [
+      [paused, leaver],
+      [byUser, leaver],
+      [colleagues, colleague],
+    ] as const)
+      await insertRule(id, leaverCompanyId, owner);
+    await client.query(
+      `UPDATE "AutomationRule" SET "enabled" = FALSE, "disabledReason" = 'planPaused' WHERE "id" = ANY($1)`,
+      [[paused, colleagues]],
+    );
+    await client.query(
+      `UPDATE "AutomationRule" SET "enabled" = FALSE, "disabledReason" = 'disabledByUser' WHERE "id" = $1`,
+      [byUser],
+    );
+
+    try {
+      expect(await runWithoutTenant(() => repo().releasePlanPausedOwnerRulesUnscoped(otherCompanyId, leaver))).toBe(0);
+      expect(await state(paused)).toEqual({ enabled: false, disabledReason: "planPaused" });
+      expect(await runWithoutTenant(() => repo().releasePlanPausedOwnerRulesUnscoped(leaverCompanyId, leaver))).toBe(1);
+      expect(await state(paused)).toEqual({ enabled: false, disabledReason: "ownerInactive" });
+      expect(await state(byUser)).toEqual({ enabled: false, disabledReason: "disabledByUser" });
+      expect(await state(colleagues)).toEqual({ enabled: false, disabledReason: "planPaused" });
+
+      await client.query(`UPDATE "User" SET "status" = 'active', "pausedByPlanAt" = NULL WHERE "companyId" = $1`, [
+        leaverCompanyId,
+      ]);
+      expect(await runWithoutTenant(() => repo(leaverCompanyId).syncRulesToPlanLimitCompanyWide(null))).toEqual({
+        paused: 0,
+        resumed: 1,
+      });
+      expect(await state(paused)).toEqual({ enabled: false, disabledReason: "ownerInactive" });
+      expect(await state(colleagues)).toEqual({ enabled: true, disabledReason: null });
+    } finally {
+      await client.query('DELETE FROM "AutomationRule" WHERE "companyId" = $1', [leaverCompanyId]);
+      await client.query('DELETE FROM "User" WHERE "companyId" = $1', [leaverCompanyId]);
+      await client.query('DELETE FROM "Company" WHERE "id" = $1', [leaverCompanyId]);
+    }
+  });
 });

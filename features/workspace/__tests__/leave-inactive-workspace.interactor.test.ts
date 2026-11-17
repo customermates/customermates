@@ -28,6 +28,7 @@ const OTHER_COMPANY_ID = "00000000-0000-4000-8000-000000000002";
 const EMAIL = "ben@example.com";
 const adminRole = createMockUser().role;
 const memberRole = adminRole ? { ...adminRole, isSystemRole: false } : null;
+const releasePlanPausedRules = vi.fn().mockResolvedValue(0);
 
 function membershipWith(status: Status, role = memberRole) {
   return createMockUser({ id: "member-1", companyId: COMPANY_ID, email: EMAIL, status, role });
@@ -77,6 +78,7 @@ describe("LeaveInactiveWorkspaceInteractor", () => {
       channelRemoval as never,
       new HandOverPublicEndpointsService(forms as never, webhooks as never),
       { revokeOfMember: () => Promise.resolve(0) },
+      { releasePlanPausedOwnerRulesUnscoped: releasePlanPausedRules },
     );
     return new LeaveInactiveWorkspaceInteractor(
       authService as never,
@@ -246,6 +248,12 @@ describe("LeaveInactiveWorkspaceInteractor", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceChanged]);
     expectNothingWritten();
+  });
+
+  it("takes the plan pause off the leaver's rules, so a later plan sync cannot switch them on", async () => {
+    await interactor().invoke({ companyId: COMPANY_ID });
+
+    expect(releasePlanPausedRules).toHaveBeenCalledExactlyOnceWith(COMPANY_ID, "member-1");
   });
 
   it.each([

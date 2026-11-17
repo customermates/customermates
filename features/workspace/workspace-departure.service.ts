@@ -1,5 +1,6 @@
 import type { AgentRunnerRevocation } from "@/features/agent-runners/agent-runner-revocation";
 import type { AuthService } from "@/features/auth/auth.service";
+import type { AutomationRuleRepo } from "@/features/automation-rules/automation-rule.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
@@ -45,6 +46,7 @@ export class WorkspaceDepartureService {
     private readonly channelRemoval: Pick<DeleteAccountForBillingService, "deleteForBillingOrThrow">,
     private readonly handOverEndpoints: Pick<HandOverPublicEndpointsService, "invoke">,
     private readonly runners: Pick<AgentRunnerRevocation, "revokeOfMember">,
+    private readonly rules: Pick<AutomationRuleRepo, "releasePlanPausedOwnerRulesUnscoped">,
   ) {}
 
   async announce(
@@ -73,6 +75,7 @@ export class WorkspaceDepartureService {
       await this.releaseOwnerRoutines.invoke({ companyId, ownerUserId: member.id });
       await this.updateSubscriptionQuantity();
     }
+    await this.rules.releasePlanPausedOwnerRulesUnscoped(companyId, member.id);
   }
 
   private async handOverPublicEndpoints(companyId: string, leaverId: string, preferredId?: string): Promise<void> {

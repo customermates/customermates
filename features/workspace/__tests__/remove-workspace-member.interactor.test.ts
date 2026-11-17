@@ -92,6 +92,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
       channelRemoval as never,
       new HandOverPublicEndpointsService(forms as never, webhooks as never),
       { revokeOfMember: () => Promise.resolve(0) },
+      { releasePlanPausedOwnerRulesUnscoped: () => Promise.resolve(0) },
     );
     return new RemoveWorkspaceMemberInteractor(
       repo as never,

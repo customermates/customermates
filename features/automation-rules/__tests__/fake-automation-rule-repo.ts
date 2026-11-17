@@ -299,6 +299,17 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve(count);
   }
 
+  releasePlanPausedOwnerRulesUnscoped(companyId: string, ownerUserId: string) {
+    let count = 0;
+    for (const rule of this.rules.values()) {
+      if (rule.companyId !== companyId || rule.ownerUserId !== ownerUserId) continue;
+      if (rule.enabled || rule.disabledReason !== "planPaused") continue;
+      this.rules.set(rule.id, { ...rule, disabledReason: "ownerInactive" });
+      count += 1;
+    }
+    return Promise.resolve(count);
+  }
+
   syncRulesToPlanLimitCompanyWide(limit: number | null) {
     const oldestFirst = (left: StoredAutomationRule, right: StoredAutomationRule) =>
       left.createdAt.getTime() - right.createdAt.getTime() || left.id.localeCompare(right.id);

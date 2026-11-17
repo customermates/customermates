@@ -72,6 +72,7 @@ describe("LeaveWorkspaceInteractor", () => {
       channelRemoval as never,
       new HandOverPublicEndpointsService(forms as never, webhooks as never),
       runners,
+      { releasePlanPausedOwnerRulesUnscoped: () => Promise.resolve(0) },
     );
     return new LeaveWorkspaceInteractor(authService as never, repo as never, roleRepo as never, departure);
   }

@@ -1450,6 +1450,7 @@ export const getWorkspaceDepartureService = () =>
     getDeleteAccountForBillingService(),
     getHandOverPublicEndpointsService(),
     getAgentRunnerRevocation(),
+    getAutomationRuleRepo(),
   );
 
 export const getLeaveWorkspaceInteractor = () =>

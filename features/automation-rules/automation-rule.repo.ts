@@ -147,6 +147,7 @@ export abstract class AutomationRuleRepo {
   abstract deleteRunsBeforeUnscoped(before: Date, limit: number): Promise<number>;
   abstract disableRuleUnscoped(companyId: string, ruleId: string, reason: string): Promise<void>;
   abstract disableOwnerRulesUnscoped(companyId: string, ownerUserId: string, reason: string): Promise<number>;
+  abstract releasePlanPausedOwnerRulesUnscoped(companyId: string, ownerUserId: string): Promise<number>;
   abstract syncRulesToPlanLimitCompanyWide(limit: number | null): Promise<{ paused: number; resumed: number }>;
   abstract canUserAccessConnectedAccountUnscoped(
     companyId: string,

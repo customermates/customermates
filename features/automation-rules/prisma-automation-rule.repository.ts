@@ -438,6 +438,15 @@ export class PrismaAutomationRuleRepo
   }
 
   @BypassTenantGuard
+  async releasePlanPausedOwnerRulesUnscoped(companyId: string, ownerUserId: string): Promise<number> {
+    const { count } = await this.prisma.automationRule.updateMany({
+      where: { companyId, ownerUserId, enabled: false, disabledReason: AUTOMATION_DISABLED_REASON_PLAN_PAUSED },
+      data: { disabledReason: AUTOMATION_DISABLED_REASON_OWNER_INACTIVE },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
   async syncRulesToPlanLimitCompanyWide(limit: number | null): Promise<{ paused: number; resumed: number }> {
     const companyId = this.companyId;
     return this.withCompanyTransaction(companyId, async () => {
