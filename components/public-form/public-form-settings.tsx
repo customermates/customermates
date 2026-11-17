@@ -122,7 +122,7 @@ function PersonSettings({ draft, editor, onChange }: Pick<Props, "draft" | "edit
               id="public-form-person-name-field"
               items={current.nameFields.map((field) => ({ value: field.fieldId, label: field.label }))}
               label={t("PublicForm.builder.personNameField")}
-              value={draft.personNameFieldId || current.nameFields[0].fieldId}
+              value={draft.personNameFieldId}
               onValueChange={(value) => onChange({ personNameFieldId: value })}
             />
           ) : null}

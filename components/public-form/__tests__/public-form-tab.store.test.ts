@@ -179,6 +179,27 @@ describe("PublicFormTabStore after the list changed", () => {
     expect(store.edited).toBe(true);
   });
 
+  it("keeps a stored person without a name field empty, also through a save of another edit", async () => {
+    const { store, actions } = await loaded(editor({ form: withConfig({ person: { ...person, nameFieldId: null } }) }));
+
+    expect(store.draft?.personNameFieldId).toBe("");
+    expect(store.repairs.person).toBeNull();
+    expect(store.edited).toBe(false);
+
+    store.patch({ title: "Talk to us" });
+    expect(await store.save()).toEqual({ status: "saved" });
+
+    expect(actions.save.mock.calls[0][0].config.person).toEqual({ ...person, nameFieldId: null });
+  });
+
+  it("offers the primary name field once the person is switched on for the first time", async () => {
+    const { store } = await loaded(editor({ form: withConfig({ person: null }) }));
+
+    store.patch({ personEnabled: true });
+
+    expect(store.config?.person).toMatchObject({ nameFieldId: PEOPLE_NAME_FIELD });
+  });
+
   it("names a question whose field left the list and keeps the form unedited", async () => {
     const gone = { fieldId: "60000000-0000-4000-8000-000000000099", label: "Budget", helpText: null, required: false };
     const { store } = await loaded(editor({ form: withConfig({ fields: [...savedForm().config.fields, gone] }) }));

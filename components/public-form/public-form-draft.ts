@@ -140,9 +140,7 @@ export function initialDraft(editor: PublicFormEditor, texts: DraftTexts): FormD
     personEnabled: person !== null,
     personTypeId: person?.typeId ?? firstPeople?.typeId ?? "",
     personRelationshipId: person?.relationshipId ?? firstPeople?.relationships[0]?.id ?? "",
-    personNameFieldId:
-      person?.nameFieldId ??
-      defaultNameField(person ? editor.peopleLists.find((list) => list.typeId === person.typeId) : firstPeople),
+    personNameFieldId: person ? (person.nameFieldId ?? "") : defaultNameField(firstPeople),
     emailLabel: person?.emailLabel ?? texts.emailLabel,
     nameLabel: person?.nameLabel ?? texts.nameLabel,
     consentEnabled: config !== null && config.consent !== null,

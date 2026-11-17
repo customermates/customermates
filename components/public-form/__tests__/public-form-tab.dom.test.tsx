@@ -354,6 +354,42 @@ describe("PublicFormTab when the list changed", () => {
     expect(field<HTMLButtonElement>("#footer-save").disabled).toBe(false);
   });
 
+  it("shows no name field when the stored person has none and the chosen one when it has", async () => {
+    const person = {
+      typeId: "40000000-0000-4000-8000-000000000002",
+      relationshipId: "70000000-0000-4000-8000-000000000001",
+      emailLabel: "Email",
+      nameLabel: "Your name",
+      nameFieldId: null as string | null,
+    };
+    const lists = [
+      {
+        ...editor().peopleLists[0],
+        nameFields: [
+          { fieldId: "60000000-0000-4000-8000-000000000004", label: "Full name", primary: true },
+          { fieldId: "60000000-0000-4000-8000-000000000005", label: "Nickname", primary: false },
+        ],
+      },
+    ];
+    const withPerson = (nameFieldId: string | null) =>
+      editor({
+        form: savedForm({ config: { ...savedForm().config, person: { ...person, nameFieldId } } }),
+        peopleLists: lists,
+      });
+
+    const empty = await renderTab(build(withPerson(null)));
+
+    expect(field("#public-form-person-name-field").textContent).toBe("");
+    expect(empty.store.config?.person?.nameFieldId).toBeNull();
+    expect(harness.footerDirty).toBe(false);
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    await renderTab(build(withPerson("60000000-0000-4000-8000-000000000005")));
+
+    expect(field("#public-form-person-name-field").textContent).toBe("Nickname");
+  });
+
   it("shows a required field no form can ask for and the submissions that could not be saved", async () => {
     await renderTab(
       build(
