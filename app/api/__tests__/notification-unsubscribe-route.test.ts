@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 const invoke = vi.hoisted(() => vi.fn());
 
@@ -41,13 +42,18 @@ describe("GET /api/notifications/unsubscribe", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
-  it("answers 400 when the token is missing or the interactor refuses it", async () => {
-    invoke.mockResolvedValue({ ok: false, error: new Error("invalid") });
+  it("answers 400 with the shared failure body when the token is missing", async () => {
+    invoke.mockResolvedValue({
+      ok: false,
+      error: new z.ZodError([{ code: "custom", path: ["token"], message: "Required" }]),
+    });
 
     const response = await GET(request(""));
 
     expect(invoke).toHaveBeenCalledWith({ token: "" });
     expect(response.status).toBe(400);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect((await response.json()).error.kind).toBe("validation");
   });
 
   it("answers 410 for an expired link", async () => {

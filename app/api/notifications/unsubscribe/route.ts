@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { handleError } from "@/core/api/structured-interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 import { getSetNotificationKindOffInteractor } from "@/core/di";
 import { absoluteWorkspaceUrl } from "@/core/navigation/workspace-paths";
 import { env } from "@/env";
@@ -25,7 +25,11 @@ export async function GET(request: Request) {
   try {
     const token = new URL(request.url).searchParams.get("token") ?? "";
     const result = await getSetNotificationKindOffInteractor().invoke({ token });
-    if (!result.ok) return text("This link is not valid.", 400);
+    if (!result.ok) {
+      const response = interactorFailureResponse(result.error);
+      for (const [name, value] of Object.entries(PRIVATE_HEADERS)) response.headers.set(name, value);
+      return response;
+    }
     const outcome = result.data;
     if (outcome.status === "invalid") return text("This link is not valid.", 400);
     if (outcome.status === "expired") return text("This link has expired.", 410);
