@@ -89,6 +89,19 @@ describe("record delivery recovery cron", () => {
     expect(sweepAgentJobs.mock.invocationCallOrder[0]).toBeLessThan(notifyRunnerOffline.mock.invocationCallOrder[0]);
   });
 
+  it("still recovers agent jobs when another sweep fails, and reports the failed one", async () => {
+    sweepRules.mockRejectedValue(new Error("date sweep timed out"));
+
+    await expect(GET(request("Bearer test-cron-secret"))).rejects.toThrow(
+      "Sweeps failed: automationRules (date sweep timed out)",
+    );
+
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(sweepFiles).toHaveBeenCalledTimes(1);
+    expect(sweepAgentJobs).toHaveBeenCalledTimes(1);
+    expect(notifyRunnerOffline).toHaveBeenCalledTimes(1);
+  });
+
   it("sweeps date-reached rules on self-hosted instances too", async () => {
     mockEnv.APP_MODE = "self-hosted";
     await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toMatchObject({
