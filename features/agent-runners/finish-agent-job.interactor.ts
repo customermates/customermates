@@ -1,12 +1,11 @@
 import type { Validated } from "@/core/validation/validation.utils";
 import type { AgentJobCredentials } from "./agent-job-credentials";
 import type { AgentJobRunnerRepo } from "./agent-job-runner.repo";
-import type { AgentRunnerAuthenticator } from "./agent-runner-authenticator";
 import type {
   AgentJobFinishResult,
   AgentJobOutcome,
   AgentJobResultBody,
-  AgentRunnerJobRequest,
+  AgentJobResultRequest,
 } from "./agent-runner.schema";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
@@ -15,12 +14,10 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import * as ErrorReporter from "@/core/observability/server";
 
 import { jobClosed, jobNotFound } from "./agent-runner-failures";
-import { readAgentRunnerBody } from "./agent-runner-request";
 import {
   AGENT_RUNNER_JOB_ERRORS,
   AgentJobFinishResultSchema,
-  AgentJobResultBodySchema,
-  AgentRunnerJobRequestSchema,
+  AgentJobResultRequestSchema,
 } from "./agent-runner.schema";
 
 const FINISH_REASONS = { succeeded: "stop", failed: "error", timedOut: "timeLimit" } as const;
@@ -39,24 +36,18 @@ export function agentRunnerOutcome(data: AgentJobResultBody, toolCalls: number):
 @SystemInteractor
 export class FinishAgentJobInteractor {
   constructor(
-    private readonly authenticator: AgentRunnerAuthenticator,
     private readonly jobs: Pick<AgentJobRunnerRepo, "findForRunner" | "finish">,
     private readonly credentials: Pick<AgentJobCredentials, "toolCalls" | "revoke">,
   ) {}
 
-  @Validate(AgentRunnerJobRequestSchema)
+  @Validate(AgentJobResultRequestSchema)
   @ValidateOutput(AgentJobFinishResultSchema)
-  async invoke(data: AgentRunnerJobRequest): Validated<AgentJobFinishResult> {
-    const authentication = await this.authenticator.authenticate(data);
-    if (!authentication.ok) return authentication.failure;
-    const body = await readAgentRunnerBody(data, AgentJobResultBodySchema);
-    if (!body.ok) return body;
-
-    const { runner } = authentication;
+  async invoke(data: AgentJobResultRequest): Validated<AgentJobFinishResult> {
+    const { runner } = data.admission;
     const state = await this.jobs.findForRunner(data.jobId, runner);
     if (!state) return jobNotFound();
 
-    const attempt = { companyId: runner.companyId, jobId: state.id, attempt: body.data.attempt };
+    const attempt = { companyId: runner.companyId, jobId: state.id, attempt: data.attempt };
     const report = (error: unknown) => {
       ErrorReporter.captureException(error, {
         tags: { kind: "agent-job-credentials-revoke", companyId: runner.companyId },
@@ -66,12 +57,7 @@ export class FinishAgentJobInteractor {
       report(error);
       return 0;
     });
-    const finished = await this.jobs.finish(
-      state.id,
-      runner,
-      body.data.attempt,
-      agentRunnerOutcome(body.data, toolCalls),
-    );
+    const finished = await this.jobs.finish(state.id, runner, data.attempt, agentRunnerOutcome(data, toolCalls));
     await this.credentials.revoke(attempt).catch(report);
     if (!finished) return jobClosed();
     return { ok: true, data: { ok: true } };

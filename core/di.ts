@@ -3237,6 +3237,7 @@ export const getReceiveIncomingWebhookInteractor = () =>
   );
 
 import { AdmitAgentJobCredentialInteractor } from "@/features/agent-runners/admit-agent-job-credential.interactor";
+import { AgentRunnerAdmission } from "@/features/agent-runners/agent-runner-admission";
 import { AgentRunnerAuthenticator } from "@/features/agent-runners/agent-runner-authenticator";
 import { AgentRunnerRevocation } from "@/features/agent-runners/agent-runner-revocation";
 import { StartAgentJobInteractor } from "@/features/agent-runners/start-agent-job.interactor";
@@ -3280,23 +3281,16 @@ export const getCreateAgentRunnerInteractor = () =>
   new CreateAgentRunnerInteractor(getAgentRunnerRepo(), getWorkspacePlanService(), { baseUrl: env.BASE_URL });
 export const getRevokeAgentRunnerInteractor = () =>
   new RevokeAgentRunnerInteractor(getAgentRunnerRepo(), getAgentRunnerRevocation());
-export const getStartAgentJobInteractor = () =>
-  new StartAgentJobInteractor(getAgentRunnerAuthenticator(), getAgentJobRunnerRepo());
+export const getAgentRunnerAdmission = () => new AgentRunnerAdmission(getAgentRunnerAuthenticator());
+export const getStartAgentJobInteractor = () => new StartAgentJobInteractor(getAgentJobRunnerRepo());
 export const getAdmitAgentJobCredentialInteractor = () =>
   new AdmitAgentJobCredentialInteractor(getAgentJobRunnerRepo());
-export const getHeartbeatAgentRunnerInteractor = () =>
-  new HeartbeatAgentRunnerInteractor(getAgentRunnerAuthenticator(), getAgentRunnerRepo());
+export const getHeartbeatAgentRunnerInteractor = () => new HeartbeatAgentRunnerInteractor(getAgentRunnerRepo());
 export const getClaimAgentJobInteractor = () =>
-  new ClaimAgentJobInteractor(
-    getAgentRunnerAuthenticator(),
-    getAgentRunnerRepo(),
-    getAgentJobRunnerRepo(),
-    getAgentJobCredentials(),
-  );
-export const getAppendAgentJobEventsInteractor = () =>
-  new AppendAgentJobEventsInteractor(getAgentRunnerAuthenticator(), getAgentJobRunnerRepo());
+  new ClaimAgentJobInteractor(getAgentRunnerRepo(), getAgentJobRunnerRepo(), getAgentJobCredentials());
+export const getAppendAgentJobEventsInteractor = () => new AppendAgentJobEventsInteractor(getAgentJobRunnerRepo());
 export const getFinishAgentJobInteractor = () =>
-  new FinishAgentJobInteractor(getAgentRunnerAuthenticator(), getAgentJobRunnerRepo(), getAgentJobCredentials());
+  new FinishAgentJobInteractor(getAgentJobRunnerRepo(), getAgentJobCredentials());
 export const getNotifyRunnerOfflineInteractor = () =>
   new NotifyRunnerOfflineInteractor(getAgentRunnerRepo(), getNotificationService(), async (locale) => {
     const t = await getTranslator(locale, "Runners.offline");

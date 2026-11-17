@@ -112,7 +112,6 @@ export const AgentRunnerHeartbeatBodySchema = z
       .describe("The command line clients the runner can start: found on the machine and answering with a version."),
   })
   .strict();
-export type AgentRunnerHeartbeatBody = Data<typeof AgentRunnerHeartbeatBodySchema>;
 
 export const AgentJobClaimBodySchema = z
   .object({
@@ -125,7 +124,6 @@ export const AgentJobClaimBodySchema = z
       .describe("How long to hold the request open for a job, at most 25 seconds. Defaults to 25."),
   })
   .strict();
-export type AgentJobClaimBody = Data<typeof AgentJobClaimBodySchema>;
 
 const AttemptSchema = z
   .number()
@@ -134,7 +132,6 @@ const AttemptSchema = z
   .describe("The attempt number the claim answered with. A job that was requeued and claimed again has a higher one.");
 
 export const AgentJobStartBodySchema = z.object({ attempt: AttemptSchema }).strict();
-export type AgentJobStartBody = Data<typeof AgentJobStartBodySchema>;
 
 const EventTimeSchema = z.iso.datetime({ offset: true }).describe("When the client produced the event.");
 const ToolCallIdSchema = storableText(120);
@@ -183,7 +180,6 @@ export const AgentJobEventsBodySchema = z
       ),
   })
   .strict();
-export type AgentJobEventsBody = Data<typeof AgentJobEventsBodySchema>;
 
 export const AgentJobResultBodySchema = z
   .object({
@@ -197,22 +193,40 @@ export const AgentJobResultBodySchema = z
   .strict();
 export type AgentJobResultBody = Data<typeof AgentJobResultBodySchema>;
 
-export type AgentRunnerBodyReader = () => Promise<unknown>;
+export type AuthenticatedAgentRunner = { id: string; companyId: string; name: string; createdById: string };
 
-const RunnerRequestSchema = z.object({
-  authorization: z.string().max(512).nullable(),
-  visitor: z.string().max(128).nullable().optional(),
-  readBody: z.custom<AgentRunnerBodyReader>((value) => typeof value === "function"),
+export class AdmittedAgentRunner {
+  constructor(readonly runner: AuthenticatedAgentRunner) {}
+}
+
+const AdmissionSchema = z.object({ admission: z.instanceof(AdmittedAgentRunner) });
+const JobIdSchema = z.object({ jobId: z.uuid() });
+const SignalSchema = z.object({
   signal: z.custom<AbortSignal>((value) => value instanceof AbortSignal).optional(),
 });
 
-const JobIdSchema = z.object({ jobId: z.uuid() });
+export const AgentRunnerHeartbeatRequestSchema = AgentRunnerHeartbeatBodySchema.extend(AdmissionSchema.shape);
+export type AgentRunnerHeartbeatRequest = Data<typeof AgentRunnerHeartbeatRequestSchema>;
 
-export const AgentRunnerRequestSchema = RunnerRequestSchema;
-export type AgentRunnerRequest = Data<typeof AgentRunnerRequestSchema>;
+export const AgentJobClaimRequestSchema = AgentJobClaimBodySchema.extend(AdmissionSchema.shape).extend(
+  SignalSchema.shape,
+);
+export type AgentJobClaimRequest = Data<typeof AgentJobClaimRequestSchema>;
 
-export const AgentRunnerJobRequestSchema = RunnerRequestSchema.extend(JobIdSchema.shape);
-export type AgentRunnerJobRequest = Data<typeof AgentRunnerJobRequestSchema>;
+export const AgentJobStartRequestSchema = AgentJobStartBodySchema.extend(AdmissionSchema.shape).extend(
+  JobIdSchema.shape,
+);
+export type AgentJobStartRequest = Data<typeof AgentJobStartRequestSchema>;
+
+export const AgentJobEventsRequestSchema = AgentJobEventsBodySchema.extend(AdmissionSchema.shape).extend(
+  JobIdSchema.shape,
+);
+export type AgentJobEventsRequest = Data<typeof AgentJobEventsRequestSchema>;
+
+export const AgentJobResultRequestSchema = AgentJobResultBodySchema.extend(AdmissionSchema.shape).extend(
+  JobIdSchema.shape,
+);
+export type AgentJobResultRequest = Data<typeof AgentJobResultRequestSchema>;
 
 export const AgentRunnerHeartbeatResultSchema = z.object({
   ok: z.literal(true),
@@ -273,5 +287,3 @@ export type AgentJobOutcome = {
   outputTokens: number | null;
   error: string | null;
 };
-
-export type AuthenticatedAgentRunner = { id: string; companyId: string; name: string; createdById: string };

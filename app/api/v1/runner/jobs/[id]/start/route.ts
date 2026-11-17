@@ -1,12 +1,24 @@
 import type { NextRequest } from "next/server";
 
-import { getStartAgentJobInteractor } from "@/core/di";
+import { NextResponse } from "next/server";
 
-import { runnerRequest } from "../../../runner-request";
+import { getStartAgentJobInteractor } from "@/core/di";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
+import { mapRequestJsonError } from "@/core/api/request-json-error";
+
+import { admitRunner } from "../../../admit-runner";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  return runnerRequest(request, (input) => getStartAgentJobInteractor().invoke({ ...input, jobId: id }));
+  try {
+    const { id } = await params;
+    const admission = await admitRunner(request.headers);
+    const data = await request.json().catch(mapRequestJsonError);
+    const result = await getStartAgentJobInteractor().invoke({ ...data, jobId: id, admission });
+    if (!result.ok) return interactorFailureResponse(result.error);
+    return NextResponse.json(result.data);
+  } catch (error) {
+    return handleError(error);
+  }
 }

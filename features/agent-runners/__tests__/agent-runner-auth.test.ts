@@ -11,7 +11,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
-import { CustomErrorCode } from "@/core/validation/validation.types";
+import { Status } from "@/generated/prisma";
 
 import {
   AGENT_RUNNER_TOKEN_PREFIX,
@@ -19,9 +19,9 @@ import {
   generateAgentRunnerToken,
   hashAgentRunnerToken,
 } from "../agent-runner-token";
+import { AgentRunnerAdmission } from "../agent-runner-admission";
 import { AgentRunnerAuthenticator } from "../agent-runner-authenticator";
-
-import { Status } from "@/generated/prisma";
+import { AGENT_RUNNER_LIMITS, AdmittedAgentRunner } from "../agent-runner.schema";
 
 import {
   COMPANY_ID,
@@ -29,12 +29,12 @@ import {
   OWNER_ID,
   RUNNER_ID,
   bearer,
-  codeOf,
   makeLimiters,
   makeRevocation,
-  statusOf,
 } from "./agent-runner-fixtures";
 import { FakeAgentRunnerRepo } from "./fake-agent-runner-repo";
+
+const UNAUTHENTICATED = { ok: false, reason: "unauthenticated" };
 
 describe("runner tokens", () => {
   it("issues a prefixed random token of 32 bytes that differs on every call", () => {
@@ -99,54 +99,41 @@ describe("AgentRunnerAuthenticator", () => {
   });
 
   it.each([Status.inactive, Status.pendingAuthorization])(
-    "answers 401 and revokes the runner when the member who added it is %s",
+    "refuses and revokes the runner when the member who added it is %s",
     async (status) => {
       const { repo, authenticator, revocation } = setup();
       const { token } = repo.addRunner({ createdBy: { status } });
 
       const result = await authenticator.authenticate({ authorization: bearer(token) });
 
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(statusOf(result.failure)).toBe(401);
-        expect(codeOf(result.failure)).toBe(CustomErrorCode.notAuthenticated);
-      }
+      expect(result).toEqual(UNAUTHENTICATED);
       expect(revocation.revoked).toEqual([{ companyId: COMPANY_ID, runnerId: RUNNER_ID, at: NOW }]);
     },
   );
 
-  it("answers 401 for a missing, malformed or unknown token", async () => {
+  it("refuses a missing, malformed or unknown token", async () => {
     const { repo, authenticator } = setup();
     repo.addRunner();
 
-    for (const authorization of [null, "Bearer nope", bearer(generateAgentRunnerToken())]) {
-      const result = await authenticator.authenticate({ authorization });
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(statusOf(result.failure)).toBe(401);
-        expect(codeOf(result.failure)).toBe(CustomErrorCode.notAuthenticated);
-      }
-    }
+    for (const authorization of [null, "Bearer nope", bearer(generateAgentRunnerToken())])
+      expect(await authenticator.authenticate({ authorization })).toEqual(UNAUTHENTICATED);
   });
 
-  it("answers 401 for a revoked runner and for a workspace that is being deleted", async () => {
-    const { repo, authenticator } = setup();
+  it("refuses a revoked runner and a workspace that is being deleted, without revoking again", async () => {
+    const { repo, authenticator, revocation } = setup();
     const revoked = repo.addRunner({ revokedAt: new Date("2026-11-16T11:00:00.000Z") });
-    const revokedResult = await authenticator.authenticate({ authorization: bearer(revoked.token) });
-    expect(revokedResult.ok).toBe(false);
-    if (!revokedResult.ok) expect(statusOf(revokedResult.failure)).toBe(401);
+    expect(await authenticator.authenticate({ authorization: bearer(revoked.token) })).toEqual(UNAUTHENTICATED);
 
     const deleting = repo.addRunner({
       id: "66666666-6666-4666-8666-666666666666",
       companyId: OTHER_COMPANY_ID,
       company: { deletingAt: new Date("2026-11-16T11:00:00.000Z") },
     });
-    const deletingResult = await authenticator.authenticate({ authorization: bearer(deleting.token) });
-    expect(deletingResult.ok).toBe(false);
-    if (!deletingResult.ok) expect(statusOf(deletingResult.failure)).toBe(401);
+    expect(await authenticator.authenticate({ authorization: bearer(deleting.token) })).toEqual(UNAUTHENTICATED);
+    expect(revocation.revoked).toEqual([]);
   });
 
-  it("limits requests per runner token and answers 429", async () => {
+  it("limits requests per runner token and says when to retry", async () => {
     const repo = new FakeAgentRunnerRepo();
     const limiters = { runner: new TokenBucketRateLimiter(2, 60_000), visitor: makeLimiters().visitor };
     const authenticator = new AgentRunnerAuthenticator(repo, limiters, makeRevocation());
@@ -156,11 +143,8 @@ describe("AgentRunnerAuthenticator", () => {
     expect((await authenticator.authenticate({ authorization: bearer(token) })).ok).toBe(true);
     const limited = await authenticator.authenticate({ authorization: bearer(token) });
 
-    expect(limited.ok).toBe(false);
-    if (!limited.ok) {
-      expect(statusOf(limited.failure)).toBe(429);
-      expect(codeOf(limited.failure)).toBe(CustomErrorCode.apiRateLimitReached);
-    }
+    expect(limited).toMatchObject({ ok: false, reason: "rateLimited" });
+    expect(limited.ok === false && limited.reason === "rateLimited" && limited.retryAfterSeconds).toBeGreaterThan(0);
   });
 
   it("limits unauthenticated requests per visitor before it looks anything up", async () => {
@@ -168,14 +152,67 @@ describe("AgentRunnerAuthenticator", () => {
     const lookup = vi.spyOn(repo, "findRunnerByTokenHashUnscoped");
     const limiters = { runner: makeLimiters().runner, visitor: new TokenBucketRateLimiter(1, 60_000) };
     const authenticator = new AgentRunnerAuthenticator(repo, limiters, makeRevocation());
-    const status = async (visitor: string) => {
+    const reason = async (visitor: string) => {
       const result = await authenticator.authenticate({ authorization: bearer(generateAgentRunnerToken()), visitor });
-      return result.ok ? 200 : statusOf(result.failure);
+      return result.ok ? "ok" : result.reason;
     };
 
-    expect(await status("abc")).toBe(401);
-    expect(await status("abc")).toBe(429);
-    expect(await status("other")).toBe(401);
+    expect(await reason("abc")).toBe("unauthenticated");
+    expect(await reason("abc")).toBe("rateLimited");
+    expect(await reason("other")).toBe("unauthenticated");
     expect(lookup).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("AgentRunnerAdmission", () => {
+  const RUNNER = { id: RUNNER_ID, companyId: COMPANY_ID, name: "Office laptop", createdById: OWNER_ID };
+
+  function admission(outcome: Awaited<ReturnType<AgentRunnerAuthenticator["authenticate"]>>) {
+    const authenticate = vi.fn().mockResolvedValue(outcome);
+    return { authenticate, admission: new AgentRunnerAdmission({ authenticate }) };
+  }
+
+  it("hands out the proof of admission for an authenticated runner", async () => {
+    const { admission: service, authenticate } = admission({ ok: true, runner: RUNNER });
+
+    const outcome = await service.admit({ authorization: "Bearer x", visitor: "v", contentLength: "120" });
+
+    expect(outcome.ok && outcome.admission).toBeInstanceOf(AdmittedAgentRunner);
+    expect(outcome.ok && outcome.admission.runner).toEqual(RUNNER);
+    expect(authenticate).toHaveBeenCalledWith({ authorization: "Bearer x", visitor: "v", contentLength: "120" });
+  });
+
+  it("passes on why a runner was not authenticated, with the time to retry", async () => {
+    const unknown = admission({ ok: false, reason: "unauthenticated" });
+    const limited = admission({ ok: false, reason: "rateLimited", retryAfterSeconds: 7 });
+
+    expect(await unknown.admission.admit({ authorization: "Bearer nope" })).toEqual({
+      ok: false,
+      reason: "unauthenticated",
+    });
+    expect(await limited.admission.admit({ authorization: "Bearer x" })).toEqual({
+      ok: false,
+      reason: "rateLimited",
+      retryAfterSeconds: 7,
+    });
+  });
+
+  it("refuses a body that declares more than the cap, and tells a stranger only that the token is unknown", async () => {
+    const over = String(AGENT_RUNNER_LIMITS.maxBodyBytes + 1);
+    const atCap = String(AGENT_RUNNER_LIMITS.maxBodyBytes);
+    const authenticated = admission({ ok: true, runner: RUNNER });
+    const unknown = admission({ ok: false, reason: "unauthenticated" });
+
+    expect(await authenticated.admission.admit({ authorization: "Bearer x", contentLength: over })).toEqual({
+      ok: false,
+      reason: "bodyTooLarge",
+    });
+    expect(await unknown.admission.admit({ authorization: "Bearer nope", contentLength: over })).toEqual({
+      ok: false,
+      reason: "unauthenticated",
+    });
+    expect((await authenticated.admission.admit({ authorization: "Bearer x", contentLength: atCap })).ok).toBe(true);
+    expect((await authenticated.admission.admit({ authorization: "Bearer x" })).ok).toBe(true);
+    expect((await authenticated.admission.admit({ authorization: "Bearer x", contentLength: "abc" })).ok).toBe(true);
   });
 });

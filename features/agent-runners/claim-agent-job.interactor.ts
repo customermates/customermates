@@ -2,11 +2,10 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { AgentJobCredentials } from "./agent-job-credentials";
 import type { AgentJobRunnerRepo } from "./agent-job-runner.repo";
 import type { AgentRunnerRepo } from "./agent-runner.repo";
-import type { AgentRunnerAuthenticator } from "./agent-runner-authenticator";
 import type {
   AgentJobClaim,
+  AgentJobClaimRequest,
   AgentJobClaimResult,
-  AgentRunnerRequest,
   AuthenticatedAgentRunner,
 } from "./agent-runner.schema";
 
@@ -15,13 +14,11 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AGENT_JOB_MAX_WALL_MS } from "@/features/agent-jobs/agent-job.schema";
 
-import { readAgentRunnerBody } from "./agent-runner-request";
 import {
   AGENT_RUNNER_JOB_ERRORS,
   AGENT_RUNNER_LIMITS,
-  AgentJobClaimBodySchema,
+  AgentJobClaimRequestSchema,
   AgentJobClaimResultSchema,
-  AgentRunnerRequestSchema,
 } from "./agent-runner.schema";
 
 export type AgentRunnerTiming = { now(): number; sleep(ms: number, signal?: AbortSignal): Promise<void> };
@@ -46,24 +43,18 @@ const OutputSchema = AgentJobClaimResultSchema.nullable().describe("Null when no
 @SystemInteractor
 export class ClaimAgentJobInteractor {
   constructor(
-    private readonly authenticator: AgentRunnerAuthenticator,
     private readonly runners: Pick<AgentRunnerRepo, "touchRunnerUnscoped">,
     private readonly jobs: Pick<AgentJobRunnerRepo, "claimNextForRunner" | "finish">,
     private readonly credentials: Pick<AgentJobCredentials, "issue">,
     private readonly timing: AgentRunnerTiming = REAL_AGENT_RUNNER_TIMING,
   ) {}
 
-  @Validate(AgentRunnerRequestSchema)
+  @Validate(AgentJobClaimRequestSchema)
   @ValidateOutput(OutputSchema)
-  async invoke(data: AgentRunnerRequest): Validated<Data<typeof OutputSchema>> {
-    const authentication = await this.authenticator.authenticate(data);
-    if (!authentication.ok) return authentication.failure;
-    const body = await readAgentRunnerBody(data, AgentJobClaimBodySchema);
-    if (!body.ok) return body;
-
-    const { runner } = authentication;
+  async invoke(data: AgentJobClaimRequest): Validated<Data<typeof OutputSchema>> {
+    const { runner } = data.admission;
     const { signal } = data;
-    const waitMs = (body.data.waitSeconds ?? AGENT_RUNNER_LIMITS.claimMaxWaitSeconds) * 1000;
+    const waitMs = (data.waitSeconds ?? AGENT_RUNNER_LIMITS.claimMaxWaitSeconds) * 1000;
     const startedAt = this.timing.now();
     await this.runners.touchRunnerUnscoped(runner.id, new Date(startedAt));
 

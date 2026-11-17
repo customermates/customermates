@@ -1,5 +1,4 @@
 import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
-import type { InteractorFailure } from "@/core/validation/validation.utils";
 import type { AgentRunnerRepo } from "./agent-runner.repo";
 import type { AgentRunnerRevocation } from "./agent-runner-revocation";
 import type { AuthenticatedAgentRunner } from "./agent-runner.schema";
@@ -7,8 +6,6 @@ import type { AuthenticatedAgentRunner } from "./agent-runner.schema";
 import { Status } from "@/generated/prisma";
 
 import { admitAll } from "@/core/network/public-access";
-import { fail, failRateLimit } from "@/core/validation/interactor-failure-server";
-import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { agentRunnerTokenFromHeader, hashAgentRunnerToken } from "./agent-runner-token";
 
@@ -18,7 +15,10 @@ export type AgentRunnerLimiters = { runner: TokenBucketRateLimiter; visitor: Tok
 
 export type AgentRunnerAuthentication =
   | { ok: true; runner: AuthenticatedAgentRunner }
-  | { ok: false; failure: InteractorFailure };
+  | { ok: false; reason: "unauthenticated" }
+  | { ok: false; reason: "rateLimited"; retryAfterSeconds: number };
+
+const UNAUTHENTICATED: AgentRunnerAuthentication = { ok: false, reason: "unauthenticated" };
 
 export class AgentRunnerAuthenticator {
   constructor(
@@ -32,22 +32,22 @@ export class AgentRunnerAuthenticator {
     const visitorLimited = admitAll([
       [this.limiters.visitor, credentials.visitor ? `visitor:${credentials.visitor}` : null],
     ]);
-    if (visitorLimited) return { ok: false, failure: await failRateLimit(CustomErrorCode.apiRateLimitReached) };
+    if (visitorLimited)
+      return { ok: false, reason: "rateLimited", retryAfterSeconds: visitorLimited.retryAfterSeconds };
 
     const token = agentRunnerTokenFromHeader(credentials.authorization);
-    if (!token) return { ok: false, failure: await fail(CustomErrorCode.notAuthenticated) };
+    if (!token) return UNAUTHENTICATED;
 
     const stored = await this.repo.findRunnerByTokenHashUnscoped(hashAgentRunnerToken(token));
-    if (!stored || stored.revokedAt || stored.company.deletingAt)
-      return { ok: false, failure: await fail(CustomErrorCode.notAuthenticated) };
+    if (!stored || stored.revokedAt || stored.company.deletingAt) return UNAUTHENTICATED;
 
     if (stored.createdBy.status !== Status.active) {
       await this.revocation.revoke({ companyId: stored.companyId, runnerId: stored.id, at: this.clock() });
-      return { ok: false, failure: await fail(CustomErrorCode.notAuthenticated) };
+      return UNAUTHENTICATED;
     }
 
     const runnerLimited = admitAll([[this.limiters.runner, `runner:${stored.id}`]]);
-    if (runnerLimited) return { ok: false, failure: await failRateLimit(CustomErrorCode.apiRateLimitReached) };
+    if (runnerLimited) return { ok: false, reason: "rateLimited", retryAfterSeconds: runnerLimited.retryAfterSeconds };
 
     return {
       ok: true,

@@ -22,16 +22,7 @@ import { HeartbeatAgentRunnerInteractor } from "../heartbeat-agent-runner.intera
 import { StartAgentJobInteractor } from "../start-agent-job.interactor";
 import { AGENT_RUNNER_LIMITS } from "../agent-runner.schema";
 
-import {
-  COMPANY_ID,
-  JOB_ID,
-  OWNER_ID,
-  RUNNER_ID,
-  codeOf,
-  makeAuthenticator,
-  runnerRequest,
-  statusOf,
-} from "./agent-runner-fixtures";
+import { COMPANY_ID, JOB_ID, OWNER_ID, RUNNER_ID, admitted, codeOf, statusOf } from "./agent-runner-fixtures";
 import { FakeAgentJobCredentials } from "./fake-agent-job-credentials";
 import { FakeAgentJobRunnerRepo } from "./fake-agent-job-runner-repo";
 import { FakeAgentRunnerRepo } from "./fake-agent-runner-repo";
@@ -47,25 +38,18 @@ function setup() {
   const runners = new FakeAgentRunnerRepo();
   const jobs = new FakeAgentJobRunnerRepo(() => NOW.getTime());
   const credentials = new FakeAgentJobCredentials();
-  const { token } = runners.addRunner();
-  const authenticator = makeAuthenticator(runners);
-  const bodyReads = { count: 0 };
-  const request = (body: unknown = {}) => ({
-    ...runnerRequest(token, body),
-    readBody: () => {
-      bodyReads.count += 1;
-      return Promise.resolve(body);
-    },
-  });
-  const jobRequest = (body: unknown = {}, jobId = JOB_ID) => ({ ...request(body), jobId });
-  return { runners, jobs, credentials, authenticator, token, request, jobRequest, bodyReads };
+  runners.addRunner();
+  const admission = admitted();
+  const request = (body: object = {}) => ({ ...body, admission }) as never;
+  const jobRequest = (body: object = {}, jobId = JOB_ID) => ({ ...body, admission, jobId }) as never;
+  return { runners, jobs, credentials, request, jobRequest };
 }
 
 type Setup = ReturnType<typeof setup>;
 
 describe("heartbeat", () => {
   function heartbeat(s: Setup) {
-    return new HeartbeatAgentRunnerInteractor(s.authenticator, s.runners, () => NOW);
+    return new HeartbeatAgentRunnerInteractor(s.runners, () => NOW);
   }
 
   it("records the machine and the clients found and answers with the server time", async () => {
@@ -109,13 +93,12 @@ describe("heartbeat", () => {
     expect(s.runners.heartbeats).toEqual([]);
   });
 
-  it("answers 401 for a bad token without reading the body", async () => {
+  it("accepts only a runner the admission step produced, never one named in the body", async () => {
     const s = setup();
+    const forged = { id: RUNNER_ID, companyId: COMPANY_ID, name: "x", createdById: OWNER_ID };
 
-    const result = await heartbeat(s).invoke({ ...s.request({ clients: [] }), authorization: "Bearer nope" });
-
-    expect(statusOf(result)).toBe(401);
-    expect(s.bodyReads.count).toBe(0);
+    for (const admission of [{ runner: forged }, forged, undefined, null])
+      expect(statusOf(await heartbeat(s).invoke({ clients: [], admission } as never))).toBe(400);
     expect(s.runners.heartbeats).toEqual([]);
   });
 });
@@ -132,7 +115,7 @@ describe("claiming a job", () => {
       },
     };
     return {
-      interactor: new ClaimAgentJobInteractor(s.authenticator, s.runners, s.jobs, s.credentials, timing),
+      interactor: new ClaimAgentJobInteractor(s.runners, s.jobs, s.credentials, timing),
       sleeps,
       nowMs,
     };
@@ -230,7 +213,7 @@ describe("claiming a job", () => {
       return answer;
     };
 
-    const result = await interactor.invoke({ ...s.request(), signal: controller.signal });
+    const result = await interactor.invoke(s.request({ signal: controller.signal }));
 
     expect(result).toEqual({ ok: true, data: null });
     expect(s.jobs.claimPolls).toBe(1);
@@ -249,7 +232,7 @@ describe("claiming a job", () => {
       return claim(runner);
     };
 
-    const result = await interactor.invoke({ ...s.request(), signal: controller.signal });
+    const result = await interactor.invoke(s.request({ signal: controller.signal }));
 
     expect(result).toEqual({ ok: true, data: null });
     expect(s.credentials.issued).toEqual([]);
@@ -294,21 +277,11 @@ describe("claiming a job", () => {
     expect(s.jobs.jobs[0].outcome).toMatchObject({ error, result: null });
     expect(s.jobs.claimPolls).toBe(2);
   });
-
-  it("answers 401 before it claims anything for a revoked runner", async () => {
-    const s = setup();
-    s.jobs.addJob();
-    s.runners.markRevoked(RUNNER_ID, NOW);
-    const { interactor } = claimer(s);
-
-    expect(statusOf(await interactor.invoke(s.request()))).toBe(401);
-    expect(s.jobs.jobs[0].status).toBe("queued");
-  });
 });
 
 describe("confirming a claimed job", () => {
   function starter(s: Setup, now = NOW) {
-    return new StartAgentJobInteractor(s.authenticator, s.jobs, () => now);
+    return new StartAgentJobInteractor(s.jobs, () => now);
   }
 
   it("moves the claimed job to running and answers the time that is left", async () => {
@@ -369,7 +342,7 @@ describe("confirming a claimed job", () => {
 
 describe("transcript events", () => {
   function appender(s: Setup) {
-    return new AppendAgentJobEventsInteractor(s.authenticator, s.jobs);
+    return new AppendAgentJobEventsInteractor(s.jobs);
   }
 
   it("appends events in the shape the workspace reads and drops unknown keys", async () => {
@@ -458,7 +431,7 @@ describe("transcript events", () => {
 
 describe("reporting the result", () => {
   function finisher(s: Setup) {
-    return new FinishAgentJobInteractor(s.authenticator, s.jobs, s.credentials);
+    return new FinishAgentJobInteractor(s.jobs, s.credentials);
   }
 
   it("stores a success in the shape the workspace reads, with the server's tool call count and no cost", async () => {

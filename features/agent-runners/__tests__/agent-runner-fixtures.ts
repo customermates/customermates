@@ -1,9 +1,11 @@
 import type { InteractorFailure } from "@/core/validation/validation.utils";
+import type { AuthenticatedAgentRunner } from "../agent-runner.schema";
 
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
 
 import { AgentRunnerAuthenticator } from "../agent-runner-authenticator";
+import { AdmittedAgentRunner } from "../agent-runner.schema";
 
 import type { FakeAgentRunnerRepo } from "./fake-agent-runner-repo";
 
@@ -42,12 +44,18 @@ export function makeAuthenticator(
   return new AgentRunnerAuthenticator(repo, limiters, revocation, clock);
 }
 
-export function bearer(token: string): string {
-  return `Bearer ${token}`;
+export function admitted(overrides: Partial<AuthenticatedAgentRunner> = {}): AdmittedAgentRunner {
+  return new AdmittedAgentRunner({
+    id: RUNNER_ID,
+    companyId: COMPANY_ID,
+    name: "Office laptop",
+    createdById: OWNER_ID,
+    ...overrides,
+  });
 }
 
-export function runnerRequest(token: string, body: unknown = {}) {
-  return { authorization: bearer(token), readBody: () => Promise.resolve(body) };
+export function bearer(token: string): string {
+  return `Bearer ${token}`;
 }
 
 export function statusOf(result: { ok: true } | InteractorFailure): number {
