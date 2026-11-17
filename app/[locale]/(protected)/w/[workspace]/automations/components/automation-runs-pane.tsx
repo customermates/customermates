@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import type { AutomationRuleRunDto } from "@/features/automation-rules/automation-rule.schema";
@@ -24,9 +24,13 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const generation = useRef(0);
+
   const load = useCallback(
-    (cursor: string | null, active: () => boolean) => {
+    (cursor: string | null) => {
       if (!ruleId) return;
+      const started = generation.current;
+      const active = () => generation.current === started;
       setLoading(true);
       void actionDataOrNull(getAutomationRuleRunsAction({ id: ruleId, ...(cursor ? { cursor } : {}) }))
         .then((page) => {
@@ -44,13 +48,11 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
   );
 
   useEffect(() => {
-    let current = true;
+    generation.current += 1;
     setRuns([]);
     setNextCursor(null);
-    load(null, () => current);
-    return () => {
-      current = false;
-    };
+    setLoading(false);
+    load(null);
   }, [load]);
 
   if (!ruleId) return <p className="text-sm text-muted-foreground">{t("Automations.runs.unsaved")}</p>;
@@ -117,7 +119,7 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
 
       {!loading && nextCursor && (
         <div>
-          <Button size="sm" variant="secondary" onClick={() => load(nextCursor, () => true)}>
+          <Button size="sm" variant="secondary" onClick={() => load(nextCursor)}>
             {t("Common.actions.loadMore")}
           </Button>
         </div>
