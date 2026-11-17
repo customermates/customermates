@@ -284,20 +284,23 @@ describe("confirming a claimed job", () => {
     return new StartAgentJobInteractor(s.jobs, () => now);
   }
 
-  it("moves the claimed job to running and answers the time that is left", async () => {
+  const CONFIRM_BY = new Date(NOW.getTime() + AGENT_RUNNER_LIMITS.claimConfirmMs);
+
+  it("moves the claimed job to running and gives the runner 20 seconds less than the server keeps the job open", async () => {
     const s = setup();
-    s.jobs.addJob({ status: "claimed", runnerId: RUNNER_ID, attempts: 1 });
+    s.jobs.addJob({ status: "claimed", runnerId: RUNNER_ID, attempts: 1, timeoutAt: CONFIRM_BY });
 
     const result = await starter(s).invoke(s.jobRequest({ attempt: 1 }));
 
-    expect(result).toEqual({ ok: true, data: { ok: true, timeoutInSeconds: 600 } });
+    expect(AGENT_RUNNER_LIMITS.reportMarginMs).toBe(20_000);
+    expect(result).toEqual({ ok: true, data: { ok: true, timeoutInSeconds: 580 } });
     expect(s.jobs.jobs[0]).toMatchObject({
       status: "running",
       timeoutAt: new Date(NOW.getTime() + AGENT_JOB_MAX_WALL_MS),
     });
   });
 
-  it("answers the remaining time again when the confirmation is repeated", async () => {
+  it("answers the remaining time again when the confirmation is repeated, and none once only the margin is left", async () => {
     const s = setup();
     s.jobs.addJob({
       status: "running",
@@ -306,15 +309,39 @@ describe("confirming a claimed job", () => {
       timeoutAt: new Date(NOW.getTime() + 90_500),
     });
 
-    const result = await starter(s).invoke(s.jobRequest({ attempt: 1 }));
+    expect(await starter(s).invoke(s.jobRequest({ attempt: 1 }))).toEqual({
+      ok: true,
+      data: { ok: true, timeoutInSeconds: 70 },
+    });
 
-    expect(result).toEqual({ ok: true, data: { ok: true, timeoutInSeconds: 90 } });
+    s.jobs.jobs[0].timeoutAt = new Date(NOW.getTime() + 15_000);
+    expect(await starter(s).invoke(s.jobRequest({ attempt: 1 }))).toEqual({
+      ok: true,
+      data: { ok: true, timeoutInSeconds: 0 },
+    });
+  });
+
+  it("refuses a claim whose confirmation deadline has passed and leaves it for the queue", async () => {
+    for (const timeoutAt of [NOW, new Date(NOW.getTime() - 1), null]) {
+      const s = setup();
+      s.jobs.addJob({ status: "claimed", runnerId: RUNNER_ID, attempts: 1, timeoutAt });
+
+      const result = await starter(s).invoke(s.jobRequest({ attempt: 1 }));
+
+      expect(statusOf(result)).toBe(409);
+      expect(codeOf(result)).toBe(CustomErrorCode.agentJobClosed);
+      expect(s.jobs.jobs[0]).toMatchObject({ status: "claimed", timeoutAt });
+    }
+
+    const s = setup();
+    s.jobs.addJob({ status: "claimed", runnerId: RUNNER_ID, attempts: 1, timeoutAt: new Date(NOW.getTime() + 1) });
+    expect((await starter(s).invoke(s.jobRequest({ attempt: 1 }))).ok).toBe(true);
   });
 
   it("answers 409 for an earlier attempt, a requeued job and a closed job", async () => {
     for (const job of [
-      { status: "claimed", attempts: 2 },
-      { status: "running", attempts: 2 },
+      { status: "claimed", attempts: 2, timeoutAt: CONFIRM_BY },
+      { status: "running", attempts: 2, timeoutAt: CONFIRM_BY },
       { status: "cancelled", attempts: 1 },
       { status: "timedOut", attempts: 1 },
     ]) {

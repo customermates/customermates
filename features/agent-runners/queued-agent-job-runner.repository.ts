@@ -112,6 +112,7 @@ export class QueuedAgentJobRunnerRepo extends AgentJobRunnerRepo {
     const job = await this.jobs.findUnscoped(args.companyId, args.jobId);
     if (!job || job.runtime !== "runner" || job.status !== "running") return null;
     if (job.attempts !== args.attempt || job.runnerId !== args.runnerId) return null;
+    if (!job.timeoutAt || job.timeoutAt.getTime() <= this.clock().getTime()) return null;
     return { ruleChain: job.ruleChain };
   }
 }

@@ -24,6 +24,7 @@ export const AGENT_RUNNER_LIMITS = {
   claimPollMs: 1_500,
   claimCandidates: 5,
   claimConfirmMs: 60_000,
+  reportMarginMs: 20_000,
   onlineWithinMs: 2 * 60_000,
   offlineAfterMs: 10 * 60_000,
   queuedExpiryMs: 15 * 60_000,
@@ -260,7 +261,9 @@ export const AgentJobStartResultSchema = z.object({
   timeoutInSeconds: z
     .number()
     .int()
-    .describe("Stop the client after this many seconds from now and report timedOut. Count it on a local timer."),
+    .describe(
+      "Stop the client after this many seconds from now and report timedOut. Count it on a local timer. It ends 20 seconds before the server's own deadline, so the report arrives before the server closes the job.",
+    ),
 });
 export type AgentJobStartResult = Data<typeof AgentJobStartResultSchema>;
 

@@ -88,7 +88,7 @@ export const agentRunnerApiPaths = {
       operationId: "startRunnerJob",
       summary: "Confirm a claimed job and start it",
       description:
-        "Tells the server that the runner received the job. The job moves from claimed to running, its key starts to work and its ten minutes begin. The answer gives the time left in seconds; the runner counts it on a local timer, so a wrong clock on its machine does not matter. Repeating the call for a running attempt answers the time that is left. A job that is not claimed by this runner answers 404; a job that is closed, or was claimed again as another attempt, answers 409.",
+        "Tells the server that the runner received the job. The job moves from claimed to running, its key starts to work and its ten minutes begin. The answer gives the time the client may run in seconds, 20 seconds less than the server keeps the job open, so the runner's own timedOut report arrives in time; the runner counts it on a local timer, so a wrong clock on its machine does not matter. Repeating the call for a running attempt answers the time that is left. A job that is not claimed by this runner answers 404; a job that is closed, was claimed again as another attempt, or was not confirmed within confirmWithinSeconds, answers 409. The job's key stops working when the server's time for the job is over.",
       input: AgentJobStartBodySchema,
       example: { attempt: 1 },
       output: AgentJobStartResultSchema,

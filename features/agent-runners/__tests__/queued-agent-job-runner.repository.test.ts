@@ -173,10 +173,16 @@ describe("QueuedAgentJobRunnerRepo", () => {
       runnerId: RUNNER.id,
       attempts: 2,
       ruleChain: ["rule-1"],
+      timeoutAt: new Date(NOW.getTime() + 1),
     });
     const key = { companyId: COMPANY, jobId: job.id, attempt: 2, runnerId: RUNNER.id };
 
     expect(await repo.findRunningAttempt(key)).toEqual({ ruleChain: ["rule-1"] });
+    for (const timeoutAt of [NOW, new Date(NOW.getTime() - 1), null]) {
+      jobs.jobs.set(job.id, { ...job, timeoutAt });
+      expect(await repo.findRunningAttempt(key)).toBeNull();
+    }
+    jobs.jobs.set(job.id, job);
     expect(await repo.findRunningAttempt({ ...key, attempt: 1 })).toBeNull();
     expect(await repo.findRunningAttempt({ ...key, runnerId: OTHER_RUNNER.id })).toBeNull();
     expect(await repo.findRunningAttempt({ ...key, companyId: FOREIGN_RUNNER.companyId })).toBeNull();

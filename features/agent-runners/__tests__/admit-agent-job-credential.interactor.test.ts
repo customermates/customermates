@@ -22,9 +22,23 @@ import { FakeAgentJobRunnerRepo } from "./fake-agent-job-runner-repo";
 
 const KEY = { keyId: "key-1", companyId: COMPANY_ID, jobId: JOB_ID, attempt: 2, runnerId: RUNNER_ID };
 
-function setup(job: { status: string; attempts?: number; runnerId?: string; ruleChain?: string[] }) {
-  const jobs = new FakeAgentJobRunnerRepo();
-  jobs.addJob({ runnerId: RUNNER_ID, attempts: 2, ruleChain: ["rule-1"], ...job });
+const NOW = new Date("2026-11-17T09:00:00.000Z");
+
+function setup(job: {
+  status: string;
+  attempts?: number;
+  runnerId?: string;
+  ruleChain?: string[];
+  timeoutAt?: Date | null;
+}) {
+  const jobs = new FakeAgentJobRunnerRepo(() => NOW.getTime());
+  jobs.addJob({
+    runnerId: RUNNER_ID,
+    attempts: 2,
+    ruleChain: ["rule-1"],
+    timeoutAt: new Date(NOW.getTime() + 60_000),
+    ...job,
+  });
   return new AdmitAgentJobCredentialInteractor(jobs);
 }
 
@@ -45,6 +59,13 @@ describe("AdmitAgentJobCredentialInteractor", () => {
       expect(await setup({ status }).invoke(KEY)).toBeNull();
     },
   );
+
+  it("refuses the key once the job is past its time limit, before any sweep closed it", async () => {
+    expect(await setup({ status: "running", timeoutAt: new Date(NOW.getTime() + 1) }).invoke(KEY)).not.toBeNull();
+    expect(await setup({ status: "running", timeoutAt: NOW }).invoke(KEY)).toBeNull();
+    expect(await setup({ status: "running", timeoutAt: new Date(NOW.getTime() - 1) }).invoke(KEY)).toBeNull();
+    expect(await setup({ status: "running", timeoutAt: null }).invoke(KEY)).toBeNull();
+  });
 
   it("refuses the key of an earlier attempt, of another runner, of another workspace and one without a workspace", async () => {
     expect(await setup({ status: "running", attempts: 3 }).invoke(KEY)).toBeNull();

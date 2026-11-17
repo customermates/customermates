@@ -136,7 +136,9 @@ export class FakeAgentJobRunnerRepo extends AgentJobRunnerRepo {
         candidate.companyId === args.companyId &&
         candidate.status === "running" &&
         candidate.attempts === args.attempt &&
-        candidate.runnerId === args.runnerId,
+        candidate.runnerId === args.runnerId &&
+        candidate.timeoutAt !== null &&
+        candidate.timeoutAt.getTime() > this.clock(),
     );
     return Promise.resolve(job ? { ruleChain: job.ruleChain } : null);
   }
