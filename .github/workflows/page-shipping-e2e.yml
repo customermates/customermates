@@ -37,7 +37,8 @@ jobs:
           set -euo pipefail
 
           server_log="$RUNNER_TEMP/page-shipping-server.log"
-          yarn next start -H 127.0.0.1 -p 4499 >"$server_log" 2>&1 &
+          # Like the Docker image: the production server serves the built content and does not regenerate it on start.
+          _FUMADOCS_MDX=1 yarn next start -H 127.0.0.1 -p 4499 >"$server_log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
 

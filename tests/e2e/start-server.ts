@@ -56,6 +56,10 @@ const child = spawn(
       HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
       HOSTED_AI_PROVIDER_WORK_PAUSED: "true",
       NEXT_TELEMETRY_DISABLED: "1",
+      // Like the Docker image: a production server serves the built content, so fumadocs must not regenerate its
+      // sources on start. Regenerating reads a git date per content file and kept the server busy for 20 to 40 s on
+      // a CI runner, long enough for the first test of a shard to time out.
+      ...(mode === "start" ? { _FUMADOCS_MDX: "1" } : {}),
       CRM_E2E_PROVIDER_DIRECTORY: environment.providerDirectory,
       // The network guard blocks GeoNames, so postal codes stay off unless the run serves its own directory.
       POSTAL_CODE_DATA_URL: process.env.POSTAL_CODE_DATA_URL || "off",

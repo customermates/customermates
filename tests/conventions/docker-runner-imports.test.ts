@@ -120,4 +120,12 @@ describe("Docker runner stage", () => {
     expect(readFileSync(fumadocsNext, "utf8")).toMatch(/process\.env\._FUMADOCS_MDX !== ["']1["']/u);
     expect(stage).toMatch(/^ENV\s+_FUMADOCS_MDX=1\s*$/mu);
   });
+
+  // The browser suite and the page crawl start the same production server. Without the guard the content plugin reads
+  // a git date for every content file on each start, which kept a CI runner busy for 20 to 40 s and timed out the
+  // first test of a shard.
+  it("sets the same guard for the production servers the test suites start", () => {
+    expect(source("tests/e2e/start-server.ts")).toMatch(/mode === "start" \? \{ _FUMADOCS_MDX: "1" \}/u);
+    expect(source(".github/workflows/page-shipping-e2e.yml")).toMatch(/_FUMADOCS_MDX=1 yarn next start/u);
+  });
 });
