@@ -274,10 +274,24 @@ export function reminderDraft(
   };
 }
 
+function withToday(trigger: AutomationTrigger, timezone: string): AutomationTrigger {
+  if (trigger.kind === "dateReached" || trigger.timezone || !timezone) return trigger;
+  return { ...trigger, timezone };
+}
+
 function toTrigger(
   draft: DraftTrigger,
   model: AutomationBuilderModel,
   knownOptionsOnly = true,
+): AutomationTrigger | null {
+  const trigger = triggerShape(draft, model, knownOptionsOnly);
+  return trigger ? withToday(trigger, draft.timezone) : null;
+}
+
+function triggerShape(
+  draft: DraftTrigger,
+  model: AutomationBuilderModel,
+  knownOptionsOnly: boolean,
 ): AutomationTrigger | null {
   const { typeId } = draft;
   if (draft.kind === "other") return draft.kept;
@@ -707,13 +721,13 @@ function triggerToDraft(trigger: AutomationTrigger, model: AutomationBuilderMode
     days: trigger.kind === "dateReached" ? String(trigger.days) : base.days,
     direction: trigger.kind === "dateReached" ? trigger.direction : base.direction,
     atHour: trigger.kind === "dateReached" ? String(trigger.atHour) : base.atHour,
-    timezone: trigger.kind === "dateReached" ? trigger.timezone : base.timezone,
+    timezone: trigger.timezone ?? base.timezone,
     kept: null,
   };
   const offered =
     (DRAFT_TRIGGER_KINDS as readonly string[]).includes(trigger.kind) && !("sourceId" in trigger && trigger.sourceId);
   if (offered) {
-    if (equal(toTrigger(candidate, model, false), trigger)) return candidate;
+    if (equal(toTrigger(candidate, model, false), withToday(trigger, candidate.timezone))) return candidate;
     const missing = triggerUnavailable(candidate, model);
     if (missing === "list" || missing === "field") return candidate;
   }

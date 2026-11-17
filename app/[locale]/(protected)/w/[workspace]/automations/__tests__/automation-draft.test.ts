@@ -12,6 +12,7 @@ import {
   blankAgentEffect,
   blankCondition,
   conditionOperatorsFor,
+  draftToPreviewInput,
   draftToUpsert,
   draftUnavailable,
   emptyChainDraft,
@@ -183,6 +184,7 @@ describe("turning a draft into a rule", () => {
       typeId: DEALS,
       fieldId: STAGE,
       to: { kind: "select", value: "won" },
+      timezone: TZ,
     });
     expect(
       draftToUpsert(
@@ -194,7 +196,20 @@ describe("turning a draft into a rule", () => {
       kind: "fieldChanged",
       typeId: DEALS,
       fieldId: STAGE,
+      timezone: TZ,
     });
+  });
+
+  it("sends the member's time zone on every trigger that is not a date trigger", () => {
+    const base = draft().trigger;
+    const kinds = ["recordCreated", "recordUpdated", "messageReceived", "formSubmitted", "webhookReceived"] as const;
+    for (const kind of kinds) {
+      const input = convert(draft({ trigger: { ...base, kind } }));
+      expect(input.trigger, kind).toMatchObject({ kind, timezone: TZ });
+      expect(UpsertAutomationRuleSchema.safeParse(input).success, kind).toBe(true);
+    }
+    const preview = draftToPreviewInput(draft({ conditions: [blankCondition(CLOSE, "before")] }), MODEL);
+    expect(preview?.trigger).toMatchObject({ kind: "recordUpdated", timezone: TZ });
   });
 
   it("builds a reminder on a date field and refuses other fields, bad offsets and bad hours", () => {
@@ -300,10 +315,11 @@ describe("turning a draft into a rule", () => {
       false,
     );
     const notifyOwner = convert(message);
-    expect(notifyOwner.trigger).toEqual({ kind: "messageReceived", channel: "any" });
+    expect(notifyOwner.trigger).toEqual({ kind: "messageReceived", channel: "any", timezone: TZ });
     expect(convert({ ...message, trigger: { ...message.trigger, channel: "email" } }).trigger).toEqual({
       kind: "messageReceived",
       channel: "email",
+      timezone: TZ,
     });
     const assignees = draft({
       trigger: { ...draft().trigger, kind: "messageReceived" },
@@ -394,8 +410,29 @@ describe("opening a saved rule", () => {
     const opened = ruleToDraft({ ...rule, trigger, conditions: [] }, MODEL, TZ);
     expect(opened.trigger.kind).toBe("other");
     const saved = convert({ ...opened, name: "Renamed" });
-    expect(saved.trigger).toEqual(trigger);
+    expect(saved.trigger).toEqual({ ...trigger, timezone: TZ });
     expect(saved.name).toBe("Renamed");
+  });
+
+  it("keeps the time zone a rule already carries and reads today in the member's zone when it has none", () => {
+    const own = "America/New_York";
+    const editable = { kind: "recordCreated" as const, typeId: DEALS, timezone: own };
+    const openedEditable = ruleToDraft({ ...rule, trigger: editable, conditions: [] }, MODEL, TZ);
+    expect(openedEditable.trigger).toMatchObject({ kind: "recordCreated", timezone: own });
+    expect(convert(openedEditable).trigger).toEqual(editable);
+
+    const kept = { kind: "formSubmitted" as const, sourceId: "77777777-7777-4777-8777-777777777777", timezone: own };
+    const openedKept = ruleToDraft(
+      { ...rule, trigger: kept, conditions: [], effects: rule.effects.slice(0, 1) },
+      MODEL,
+      TZ,
+    );
+    expect(openedKept.trigger.kind).toBe("other");
+    expect(convert(openedKept).trigger).toEqual(kept);
+
+    const bare = ruleToDraft({ ...rule, trigger: { kind: "recordCreated", typeId: DEALS }, conditions: [] }, MODEL, TZ);
+    expect(bare.trigger).toMatchObject({ kind: "recordCreated", timezone: TZ });
+    expect(convert(bare).trigger).toEqual({ kind: "recordCreated", typeId: DEALS, timezone: TZ });
   });
 
   it("edits a form or webhook trigger with an optional list", () => {
@@ -405,9 +442,9 @@ describe("opening a saved rule", () => {
       TZ,
     );
     expect(anyForm.trigger).toMatchObject({ kind: "formSubmitted", typeId: "" });
-    expect(convert(anyForm).trigger).toEqual({ kind: "formSubmitted" });
+    expect(convert(anyForm).trigger).toEqual({ kind: "formSubmitted", timezone: TZ });
     const listed = { ...anyForm, trigger: { ...anyForm.trigger, kind: "webhookReceived" as const, typeId: DEALS } };
-    expect(convert(listed).trigger).toEqual({ kind: "webhookReceived", typeId: DEALS });
+    expect(convert(listed).trigger).toEqual({ kind: "webhookReceived", typeId: DEALS, timezone: TZ });
     expect(draftToUpsert({ ...listed, trigger: { ...listed.trigger, typeId: "missing" } }, MODEL)).toEqual({
       ok: false,
       issues: ["trigger"],
@@ -710,7 +747,7 @@ describe("opening a rule and saving it with only a new name", () => {
       id: RULE,
       name: "Renamed in the builder",
       enabled: true,
-      trigger: rule.trigger,
+      trigger: rule.trigger.kind === "dateReached" ? rule.trigger : { ...rule.trigger, timezone: TZ },
       conditions: [],
       effects: rule.effects,
     });

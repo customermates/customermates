@@ -160,7 +160,7 @@ describe("opening a recipe in the builder", () => {
     expect(draft.effects[0]).toMatchObject({ kind: "agent", runtime: "mate", prompt: "First {{record.name}}" });
     const converted = draftToUpsert(draft, MODEL);
     expect(converted.ok).toBe(true);
-    if (converted.ok) expect(converted.input.trigger).toEqual({ kind: "formSubmitted" });
+    if (converted.ok) expect(converted.input.trigger).toEqual({ kind: "formSubmitted", timezone: TZ });
   });
 
   it("sets the due offset on the new Action when its list has exactly one writable date field", () => {
