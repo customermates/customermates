@@ -3218,14 +3218,14 @@ import { CreateAgentRunnerInteractor } from "@/features/agent-runners/create-age
 import { FinishAgentJobInteractor } from "@/features/agent-runners/finish-agent-job.interactor";
 import { GetAgentRunnersInteractor } from "@/features/agent-runners/get-agent-runners.interactor";
 import { HeartbeatAgentRunnerInteractor } from "@/features/agent-runners/heartbeat-agent-runner.interactor";
-import { NotConfiguredAgentJobRunnerRepo } from "@/features/agent-runners/not-configured-agent-job-runner.repository";
+import { QueuedAgentJobRunnerRepo } from "@/features/agent-runners/queued-agent-job-runner.repository";
 import { NotifyRunnerOfflineInteractor } from "@/features/agent-runners/notify-runner-offline.interactor";
 import { PrismaAgentRunnerRepo } from "@/features/agent-runners/prisma-agent-runner.repository";
 import { RevokeAgentRunnerInteractor } from "@/features/agent-runners/revoke-agent-runner.interactor";
 import { getTranslator } from "@/i18n/get-translator";
 
 const getAgentRunnerRepo = () => new PrismaAgentRunnerRepo();
-const getAgentJobRunnerRepo = () => new NotConfiguredAgentJobRunnerRepo();
+const getAgentJobRunnerRepo = () => new QueuedAgentJobRunnerRepo(getAgentJobRepo());
 const getAgentJobCredentials = () => new AuthAgentJobCredentials(getAuthService(), getUserService(), env.BASE_URL);
 
 const agentRunnerLimiters = {

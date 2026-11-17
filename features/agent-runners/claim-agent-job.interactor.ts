@@ -47,7 +47,7 @@ export class ClaimAgentJobInteractor {
     await this.runners.touchRunnerUnscoped(runner.id, new Date(startedAt));
 
     for (;;) {
-      const claim = await this.jobs.claimNextForRunner(runner.id);
+      const claim = await this.jobs.claimNextForRunner(runner);
       if (claim) return { ok: true, data: await this.deliver(runner, claim) };
       if (this.timing.now() + AGENT_RUNNER_LIMITS.claimPollMs > startedAt + waitMs) return { ok: true, data: null };
       await this.timing.sleep(AGENT_RUNNER_LIMITS.claimPollMs);
@@ -62,7 +62,7 @@ export class ClaimAgentJobInteractor {
       expiresAt: new Date(claim.timeoutAt.getTime() + AGENT_RUNNER_LIMITS.mcpTokenGraceMs),
     });
     if (!credentials) {
-      await this.jobs.finish(claim.id, runner.id, {
+      await this.jobs.finish(claim.id, runner, {
         status: "failed",
         result: null,
         inputTokens: null,

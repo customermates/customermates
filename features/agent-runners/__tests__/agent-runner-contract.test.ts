@@ -160,9 +160,9 @@ describe("claiming a job", () => {
     const s = setup();
     const { interactor, sleeps, nowMs } = claimer(s);
     const claim = s.jobs.claimNextForRunner.bind(s.jobs);
-    s.jobs.claimNextForRunner = (runnerId: string) => {
+    s.jobs.claimNextForRunner = (runner) => {
       if (s.jobs.claimPolls === 2) s.jobs.addJob();
-      return claim(runnerId);
+      return claim(runner);
     };
 
     const result = await interactor.invoke(s.request() as never);

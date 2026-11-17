@@ -1,4 +1,9 @@
-import type { AgentJobClaim, AgentJobOutcome, AgentJobRunnerState } from "../agent-runner.schema";
+import type {
+  AgentJobClaim,
+  AgentJobOutcome,
+  AgentJobRunnerState,
+  AuthenticatedAgentRunner,
+} from "../agent-runner.schema";
 
 import { AgentJobRunnerRepo } from "../agent-job-runner.repo";
 
@@ -46,12 +51,12 @@ export class FakeAgentJobRunnerRepo extends AgentJobRunnerRepo {
     return job;
   }
 
-  claimNextForRunner(runnerId: string): Promise<AgentJobClaim | null> {
+  claimNextForRunner(runner: AuthenticatedAgentRunner): Promise<AgentJobClaim | null> {
     this.claimPolls += 1;
     const job = this.jobs.find((candidate) => candidate.status === "queued");
     if (!job) return Promise.resolve(null);
     job.status = "claimed";
-    job.runnerId = runnerId;
+    job.runnerId = runner.id;
     job.attempts += 1;
     job.timeoutAt = new Date(this.clock() + this.jobTimeoutMs);
     return Promise.resolve({
@@ -64,17 +69,17 @@ export class FakeAgentJobRunnerRepo extends AgentJobRunnerRepo {
     });
   }
 
-  findForRunner(jobId: string, runnerId: string): Promise<AgentJobRunnerState | null> {
-    const job = this.jobs.find((candidate) => candidate.id === jobId && candidate.runnerId === runnerId);
+  findForRunner(jobId: string, runner: AuthenticatedAgentRunner): Promise<AgentJobRunnerState | null> {
+    const job = this.jobs.find((candidate) => candidate.id === jobId && candidate.runnerId === runner.id);
     return Promise.resolve(job ? { id: job.id, status: job.status } : null);
   }
 
-  appendTranscript(jobId: string, _runnerId: string, events: Record<string, unknown>[]): Promise<void> {
+  appendTranscript(jobId: string, _runner: AuthenticatedAgentRunner, events: Record<string, unknown>[]): Promise<void> {
     this.jobs.find((candidate) => candidate.id === jobId)?.transcript.push(...events);
     return Promise.resolve();
   }
 
-  finish(jobId: string, _runnerId: string, outcome: AgentJobOutcome): Promise<void> {
+  finish(jobId: string, _runner: AuthenticatedAgentRunner, outcome: AgentJobOutcome): Promise<void> {
     const job = this.jobs.find((candidate) => candidate.id === jobId);
     if (job) {
       job.status = outcome.status;

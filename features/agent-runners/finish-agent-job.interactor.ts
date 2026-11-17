@@ -41,11 +41,11 @@ export class FinishAgentJobInteractor {
     if (!authentication.ok) return authentication.failure;
 
     const { runner } = authentication;
-    const state = await this.jobs.findForRunner(data.jobId, runner.id);
+    const state = await this.jobs.findForRunner(data.jobId, runner);
     if (!state) return jobNotFound();
     if (!ACTIVE_JOB_STATUSES.has(state.status)) return jobClosed();
 
-    await this.jobs.finish(state.id, runner.id, outcomeOf(data));
+    await this.jobs.finish(state.id, runner, outcomeOf(data));
     await this.credentials.revoke({ companyId: runner.companyId, jobId: state.id }).catch((error: unknown) => {
       ErrorReporter.captureException(error, {
         tags: { kind: "agent-job-credentials-revoke", companyId: runner.companyId },

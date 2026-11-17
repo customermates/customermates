@@ -28,11 +28,11 @@ export class AppendAgentJobEventsInteractor {
     const authentication = await this.authenticator.authenticate(data);
     if (!authentication.ok) return authentication.failure;
 
-    const state = await this.jobs.findForRunner(data.jobId, authentication.runner.id);
+    const state = await this.jobs.findForRunner(data.jobId, authentication.runner);
     if (!state) return jobNotFound();
     if (!ACTIVE_JOB_STATUSES.has(state.status)) return jobClosed();
 
-    await this.jobs.appendTranscript(state.id, authentication.runner.id, data.events.map(trimAgentJobEvent));
+    await this.jobs.appendTranscript(state.id, authentication.runner, data.events.map(trimAgentJobEvent));
     return { ok: true, data: { ok: true, accepted: data.events.length } };
   }
 }
