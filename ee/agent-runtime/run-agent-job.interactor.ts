@@ -89,7 +89,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       timeoutAt,
     });
     if (!claimed) return { ok: true as const, data: { status: "skipped" } };
-    await this.repo.startUnscoped({ id: jobId, companyId, now: started, timeoutAt });
+    await this.repo.startUnscoped({ id: jobId, companyId, attempt: claimed.attempts, now: started, timeoutAt });
 
     return { ok: true as const, data: { status: await this.run(claimed) } };
   }
@@ -212,6 +212,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     await this.repo.finishUnscoped({
       id: job.id,
       companyId: job.companyId,
+      attempt: job.attempts,
       status,
       result: {
         text: outcome.text.slice(0, AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS),
@@ -243,6 +244,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     await this.repo.finishUnscoped({
       id: job.id,
       companyId: job.companyId,
+      attempt: job.attempts,
       status: "failed",
       result: null,
       error: code,
@@ -303,6 +305,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     await this.repo.appendEventsUnscoped({
       id: job.id,
       companyId: job.companyId,
+      attempt: job.attempts,
       events: recorder.drain(),
       maxEvents: AGENT_JOB_TRANSCRIPT_MAX_EVENTS,
     });

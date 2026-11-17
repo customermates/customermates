@@ -62,6 +62,7 @@ export type AgentJobClaim = {
 export type AgentJobFinish = {
   id: string;
   companyId: string;
+  attempt?: number;
   status: AgentJobFinishedStatus;
   result: Prisma.InputJsonValue | null;
   error: string | null;
@@ -86,13 +87,20 @@ export abstract class AgentJobRepo {
   abstract findOne(id: string): Promise<StoredAgentJob | null>;
   abstract findUnscoped(companyId: string, id: string): Promise<StoredAgentJob | null>;
   abstract claimUnscoped(claim: AgentJobClaim): Promise<StoredAgentJob | null>;
-  abstract startUnscoped(args: { id: string; companyId: string; now: Date; timeoutAt: Date }): Promise<boolean>;
+  abstract startUnscoped(args: {
+    id: string;
+    companyId: string;
+    attempt?: number;
+    now: Date;
+    timeoutAt: Date;
+  }): Promise<boolean>;
   abstract appendEventsUnscoped(args: {
     id: string;
     companyId: string;
+    attempt?: number;
     events: Prisma.InputJsonValue[];
     maxEvents: number;
-  }): Promise<void>;
+  }): Promise<boolean>;
   abstract finishUnscoped(args: AgentJobFinish): Promise<boolean>;
   abstract discardQueuedUnscoped(args: { id: string; companyId: string; error: string; now: Date }): Promise<boolean>;
   abstract sweepTimeoutsUnscoped(args: {

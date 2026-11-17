@@ -318,6 +318,81 @@ describeDatabase("PrismaAgentJobRepo", () => {
     expect((await row(job.id)).transcript).toHaveLength(4);
   });
 
+  it("refuses the start, the transcript and the result of an attempt the job has moved on from", async () => {
+    const job = await enqueue();
+    const now = new Date();
+    const timeoutAt = new Date(now.getTime() + HOUR);
+    const claim = () => repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now, timeoutAt });
+    const event = (text: string) => ({ type: "message", at: "t", role: "assistant", text });
+    const finish = {
+      id: job.id,
+      companyId,
+      status: "succeeded" as const,
+      result: { text: "late", reason: "stop", toolCalls: 0 },
+      error: null,
+      inputTokens: null,
+      outputTokens: null,
+      costMicrocents: null,
+      now,
+    };
+
+    const first = await claim();
+    expect(first?.attempts).toBe(1);
+    await repo().startUnscoped({ id: job.id, companyId, attempt: 1, now, timeoutAt });
+    await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 1, events: [event("first")], maxEvents: 10 });
+    // The sweep hands the job to a second attempt while the first is still alive.
+    await age(job.id, { status: "queued" });
+    const second = await claim();
+    expect(second?.attempts).toBe(2);
+
+    expect(await repo().startUnscoped({ id: job.id, companyId, attempt: 1, now, timeoutAt })).toBe(false);
+    expect(
+      await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 1, events: [event("stale")], maxEvents: 10 }),
+    ).toBe(false);
+    expect(await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 1, events: [], maxEvents: 10 })).toBe(
+      false,
+    );
+    expect(await repo().finishUnscoped({ ...finish, attempt: 1 })).toBe(false);
+    expect(await row(job.id)).toMatchObject({ status: "claimed", attempts: 2, finishedAt: null });
+
+    expect(await repo().startUnscoped({ id: job.id, companyId, attempt: 2, now, timeoutAt })).toBe(true);
+    expect(
+      await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 2, events: [event("second")], maxEvents: 10 }),
+    ).toBe(true);
+    expect(await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 2, events: [], maxEvents: 10 })).toBe(
+      true,
+    );
+    expect(await repo().finishUnscoped({ ...finish, attempt: 2 })).toBe(true);
+    expect(((await row(job.id)).transcript as Array<{ text: string }>).map((entry) => entry.text)).toEqual([
+      "first",
+      "second",
+    ]);
+  });
+
+  it("keeps every event when transcript appends arrive at the same time", async () => {
+    const job = await enqueue();
+    const now = new Date();
+    const timeoutAt = new Date(now.getTime() + HOUR);
+    await repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now, timeoutAt });
+    const texts = Array.from({ length: 12 }, (_, index) => `m${index}`);
+
+    const appended = await Promise.all(
+      texts.map((text) =>
+        repo().appendEventsUnscoped({
+          id: job.id,
+          companyId,
+          attempt: 1,
+          events: [{ type: "message", at: "t", role: "assistant", text }],
+          maxEvents: 50,
+        }),
+      ),
+    );
+
+    expect(appended.every(Boolean)).toBe(true);
+    const stored = ((await row(job.id)).transcript as Array<{ text: string }>).map((entry) => entry.text);
+    expect([...stored].sort()).toEqual([...texts].sort());
+  });
+
   it("discards only a queued job", async () => {
     const queued = await enqueue();
     const running = await enqueue();

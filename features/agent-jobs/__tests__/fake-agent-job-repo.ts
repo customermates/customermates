@@ -101,22 +101,33 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return Promise.resolve(claimed);
   }
 
-  startUnscoped(args: { id: string; companyId: string }): Promise<boolean> {
+  private live(args: { id: string; companyId: string; attempt?: number }): StoredAgentJob | null {
     const job = this.jobs.get(args.id);
-    if (!job || job.companyId !== args.companyId || job.status !== "claimed") return Promise.resolve(false);
+    if (!job || job.companyId !== args.companyId || !["claimed", "running"].includes(job.status)) return null;
+    return args.attempt === undefined || job.attempts === args.attempt ? job : null;
+  }
+
+  startUnscoped(args: { id: string; companyId: string; attempt?: number }): Promise<boolean> {
+    const job = this.live(args);
+    if (!job || job.status !== "claimed") return Promise.resolve(false);
     this.jobs.set(job.id, { ...job, status: "running" });
     return Promise.resolve(true);
   }
 
-  appendEventsUnscoped(args: { id: string; events: unknown[] }): Promise<void> {
+  appendEventsUnscoped(args: {
+    id: string;
+    companyId: string;
+    attempt?: number;
+    events: unknown[];
+  }): Promise<boolean> {
+    if (!this.live(args)) return Promise.resolve(false);
     this.events.set(args.id, [...(this.events.get(args.id) ?? []), ...args.events]);
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 
   finishUnscoped(args: AgentJobFinish): Promise<boolean> {
-    const job = this.jobs.get(args.id);
-    if (!job || job.companyId !== args.companyId || !["claimed", "running"].includes(job.status))
-      return Promise.resolve(false);
+    const job = this.live(args);
+    if (!job) return Promise.resolve(false);
     this.jobs.set(job.id, {
       ...job,
       status: args.status,

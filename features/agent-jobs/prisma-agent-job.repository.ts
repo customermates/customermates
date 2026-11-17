@@ -46,6 +46,10 @@ const FINISHED_STATUSES = [
   AgentJobStatus.cancelled,
 ];
 
+function attemptFence(attempt: number | undefined): { attempts?: number } {
+  return attempt === undefined ? {} : { attempts: attempt };
+}
+
 export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo {
   enqueue(data: AgentJobEnqueue): Promise<StoredAgentJob> {
     return this.prisma.agentJob.create({
@@ -114,9 +118,15 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }
 
   @BypassTenantGuard
-  async startUnscoped(args: { id: string; companyId: string; now: Date; timeoutAt: Date }): Promise<boolean> {
+  async startUnscoped(args: {
+    id: string;
+    companyId: string;
+    attempt?: number;
+    now: Date;
+    timeoutAt: Date;
+  }): Promise<boolean> {
     const result = await this.prisma.agentJob.updateMany({
-      where: { id: args.id, companyId: args.companyId, status: AgentJobStatus.claimed },
+      where: { id: args.id, companyId: args.companyId, status: AgentJobStatus.claimed, ...attemptFence(args.attempt) },
       data: { status: AgentJobStatus.running, startedAt: args.now, timeoutAt: args.timeoutAt },
     });
     return result.count === 1;
@@ -126,27 +136,54 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   async appendEventsUnscoped(args: {
     id: string;
     companyId: string;
+    attempt?: number;
     events: Prisma.InputJsonValue[];
     maxEvents: number;
-  }): Promise<void> {
-    if (args.events.length === 0) return;
-    const job = await this.prisma.agentJob.findFirst({
-      where: { id: args.id, companyId: args.companyId, status: { in: LIVE_STATUSES } },
-      select: { transcript: true },
-    });
-    if (!job) return;
-    const existing = Array.isArray(job.transcript) ? (job.transcript as Prisma.InputJsonValue[]) : [];
-    const merged = [...existing, ...args.events].slice(-args.maxEvents);
-    await this.prisma.agentJob.updateMany({
-      where: { id: args.id, companyId: args.companyId, status: { in: LIVE_STATUSES } },
-      data: { transcript: merged },
-    });
+  }): Promise<boolean> {
+    if (args.events.length === 0) {
+      const live = await this.prisma.agentJob.count({
+        where: {
+          id: args.id,
+          companyId: args.companyId,
+          status: { in: LIVE_STATUSES },
+          ...attemptFence(args.attempt),
+        },
+      });
+      return live === 1;
+    }
+    const attempt = args.attempt ?? null;
+    const updated = await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "AgentJob" job SET
+        "transcript" = (
+          SELECT COALESCE(jsonb_agg(kept."value" ORDER BY kept."position"), '[]'::jsonb)
+          FROM (
+            SELECT entry."value", entry."position"
+            FROM jsonb_array_elements(
+              (CASE WHEN jsonb_typeof(job."transcript") = 'array' THEN job."transcript" ELSE '[]'::jsonb END)
+              || ${JSON.stringify(args.events)}::jsonb
+            ) WITH ORDINALITY AS entry("value", "position")
+            ORDER BY entry."position" DESC
+            LIMIT ${args.maxEvents}::int
+          ) kept
+        ),
+        "updatedAt" = NOW()
+      WHERE job."id" = ${args.id}
+        AND job."companyId" = ${args.companyId}
+        AND job."status" IN ('claimed', 'running')
+        AND (${attempt}::int IS NULL OR job."attempts" = ${attempt}::int)
+    `);
+    return updated === 1;
   }
 
   @BypassTenantGuard
   async finishUnscoped(args: AgentJobFinish): Promise<boolean> {
     const result = await this.prisma.agentJob.updateMany({
-      where: { id: args.id, companyId: args.companyId, status: { in: LIVE_STATUSES } },
+      where: {
+        id: args.id,
+        companyId: args.companyId,
+        status: { in: LIVE_STATUSES },
+        ...attemptFence(args.attempt),
+      },
       data: {
         status: args.status,
         finishedAt: args.now,
