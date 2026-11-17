@@ -20,7 +20,12 @@ import {
 import { buildSolutionRecordData } from "./solution-data";
 import { buildSolutionMessaging } from "./solution-messaging";
 import { buildSolutionModel } from "./solution-model";
-import { buildSolutionViews, buildSolutionWidgets, buildSolutionWiki } from "./solution-presentation";
+import {
+  buildSolutionViews,
+  buildSolutionWidgets,
+  buildSolutionWiki,
+  solutionWikiLinks,
+} from "./solution-presentation";
 import { findSolutionWorkspace } from "./solution-workspaces";
 
 /** Labels that would claim a capability the product does not have (invoicing, reminders, forecasting, outreach). */
@@ -69,7 +74,7 @@ function structure(content: SolutionContent) {
     ]),
     views: content.views.map((view) => ({ ...view, name: null })),
     widgets: content.dashboard.widgets.map((widget) => ({ ...widget, title: null })),
-    wiki: content.wiki.map((page) => [page.key, page.kind, page.markdown.length]),
+    wiki: content.wiki.map((page) => [page.key, page.kind, page.markdown.length, page.related ?? []]),
     messaging: content.messaging
       ? {
           accounts: content.messaging.accounts,
@@ -273,9 +278,34 @@ export function validateSolutionDefinition(
         );
       }
       if (page.kind !== "procedure" && page.whenToUse) problems.push(`${locale}: only procedures have whenToUse`);
-      if (page.kind === "guide" && new TextEncoder().encode(markdown).byteLength > WIKI_GUIDE_CONTEXT_MAX_BYTES)
-        problems.push(`${locale}: the guide exceeds ${WIKI_GUIDE_CONTEXT_MAX_BYTES} bytes`);
     }
+    const builtGuide = buildSolutionWiki(workspace, content).find((page) => page.kind === "guide");
+    if (new TextEncoder().encode(builtGuide?.markdown ?? "").byteLength > WIKI_GUIDE_CONTEXT_MAX_BYTES)
+      problems.push(`${locale}: the guide with its links exceeds ${WIKI_GUIDE_CONTEXT_MAX_BYTES} bytes`);
+    const wikiLinks = solutionWikiLinks(content);
+    const linkedTo = new Set([...wikiLinks.values()].flatMap((targets) => [...targets]));
+    const neighbours = new Map<string, Set<string>>(content.wiki.map((page) => [page.key, new Set<string>()]));
+    for (const [source, targets] of wikiLinks) {
+      for (const target of targets) {
+        neighbours.get(source)?.add(target);
+        neighbours.get(target)?.add(source);
+      }
+    }
+    for (const page of content.wiki) {
+      if (page.kind === "guide") continue;
+      if ((wikiLinks.get(page.key)?.size ?? 0) === 0)
+        problems.push(`${locale}: wiki page ${page.key} links to no other page`);
+      if (!linkedTo.has(page.key)) problems.push(`${locale}: no other wiki page links to ${page.key}`);
+    }
+    const reached = new Set<string>();
+    const queue = content.wiki.filter((page) => page.kind === "guide").map((page) => page.key);
+    for (let key = queue.shift(); key !== undefined; key = queue.shift()) {
+      if (reached.has(key)) continue;
+      reached.add(key);
+      queue.push(...(neighbours.get(key) ?? []));
+    }
+    for (const page of content.wiki)
+      if (!reached.has(page.key)) problems.push(`${locale}: wiki page ${page.key} is not connected to the guide`);
     if (content.messaging && !RESERVED_HOST.test(new URL(content.messaging.website).hostname))
       problems.push(`${locale}: website ${content.messaging.website} is not reserved`);
   }

@@ -2021,6 +2021,10 @@
       "widgetLayoutOverlap": "Ta pozycja nakłada się na inny widżet. Wybierz wolne miejsce na 12-kolumnowej siatce lub pomiń układ, aby widżet został umieszczony automatycznie.",
       "widgetLayoutTooSmall": "Ten widżet jest za mały: wykresy i liczby potrzebują co najmniej 2 wierszy, a osie czasu aktywności 2 kolumn i 6 wierszy.",
       "widgetNotFound": "Nie znaleziono ID widżetu lub brak do niego dostępu.",
+      "wikiEditInvalid": "Ta zmiana jest nieprawidłowa. Wyślij find z replace, anchor z markdown albo samo markdown, i markdown albo edits, nie oba.",
+      "wikiEditSectionNotFound": "Strona nie ma sekcji z tą kotwicą. Konspekt strony podaje kotwice jej sekcji.",
+      "wikiEditTextAmbiguous": "Tekst do zastąpienia występuje więcej niż raz. Dodaj więcej otaczającego tekstu, aby pasował do jednego miejsca.",
+      "wikiEditTextNotFound": "Tekstu do zastąpienia nie ma na stronie. Skopiuj go dokładnie ze świeżego odczytu strony.",
       "wikiGuideExists": "Ta Baza wiedzy ma już Przewodnik operacyjny. Zaktualizuj istniejący przewodnik.",
       "wikiNotEmpty": "Ta czynność wymaga pustej Bazy wiedzy.",
       "wikiPageConflict": "Ta strona Bazy wiedzy zmieniła się po jej otwarciu. Załaduj ją ponownie i spróbuj jeszcze raz.",
@@ -6817,6 +6821,7 @@
     "showDeliveries": "Pokaż dostawy"
   },
   "Wiki": {
+    "changed": "Ostatnia zmiana",
     "conflict": "Ta strona została zmieniona. Twoje zmiany nadal tu są. Odśwież, aby użyć najnowszej wersji.",
     "copyLink": "Kopiuj link do strony",
     "delete": "Usuń stronę",
@@ -6824,6 +6829,44 @@
     "emptyBody": "Przekaż Mate i połączonym narzędziom AI wiedzę o firmie, procesy i wskazówki, których potrzebują.",
     "emptyBodyReadOnly": "Nie utworzono jeszcze żadnych stron Bazy wiedzy.",
     "emptyTitle": "Twoja Baza wiedzy jest pusta",
+    "graph": {
+      "canvasLabel": "Mapa stron Bazy wiedzy i powiązań między nimi",
+      "filter": {
+        "all": "Wszystkie strony",
+        "knowledge": "Wiedza",
+        "label": "Pokaż strony według typu",
+        "procedure": "Procedury"
+      },
+      "fit": "Dopasuj mapę do okna",
+      "label": "Mapa Bazy wiedzy",
+      "legend": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją otworzyć.",
+      "legendEdit": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją otworzyć, przeciągnij ją, aby przypiąć ją w miejscu.",
+      "linkedFrom": "Linki z",
+      "linkedFromCount": "{count, plural, one {Linki z # strony} few {Linki z # stron} many {Linki z # stron} other {Linki z # strony}}",
+      "linksFailed": "Nie udało się wczytać linków tej strony.",
+      "linksTo": "Prowadzi do",
+      "loadFailed": "Nie udało się wczytać stron Bazy wiedzy.",
+      "missingLinks": "{count, plural, one {# link prowadzi do usuniętej strony} few {# linki prowadzą do usuniętych stron} many {# linków prowadzi do usuniętych stron} other {# linku prowadzi do usuniętych stron}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Brak stron",
+      "noMatches": "Żadna strona nie pasuje do filtra.",
+      "pin": "Przypnij na mapie",
+      "pinHelp": "Zatrzymuje tę stronę w jej miejscu na mapie. Możesz też przeciągnąć stronę, aby ją przypiąć.",
+      "pinned": "Przypięta",
+      "pinnedHelp": "Ta strona zachowuje swoje miejsce, gdy mapa układa się na nowo.",
+      "records": "Powiązane rekordy",
+      "search": "Znajdź stronę",
+      "segments": {
+        "details": "Szczegóły",
+        "links": "Linki",
+        "page": "Strona"
+      },
+      "sheetSegments": "Sekcje strony",
+      "syncing": "Linki są jeszcze wczytywane. Odśwież stronę, aby zobaczyć wszystkie.",
+      "truncated": "Pokazano pierwsze {count} stron. Wyszukaj i naciśnij Enter, aby otworzyć dowolną inną stronę.",
+      "unpin": "Odepnij",
+      "unpinHelp": "Mapa znów sama ustawi tę stronę."
+    },
     "kind": {
       "guide": "Przewodnik operacyjny",
       "guideDescription": "Wspólne zasady i ton dla każdego zapytania. Jeden na przestrzeń roboczą.",
@@ -6843,8 +6886,11 @@
     "next": "Następna",
     "noResults": "Brak pasujących stron.",
     "onThisPage": "Na tej stronie",
-    "page": "Strona {current} z {total}",
-    "pageActions": "Akcje strony",
+    "owner": {
+      "help": "Osoba, zespół lub agent, który dba o aktualność tej strony. Agenci widzą to przy stronie.",
+      "label": "Opiekun",
+      "placeholder": "Na przykład zespół wsparcia"
+    },
     "pagesLabel": "Strony Bazy wiedzy",
     "pageTitle": "Tytuł strony",
     "previous": "Poprzednia",
@@ -6876,10 +6922,17 @@
       "title": "Propozycje"
     },
     "reload": "Odśwież stronę",
-    "search": "Szukaj stron…",
     "unavailableBody": "Ta strona została usunięta lub nie masz do niej dostępu. Wybierz inną stronę.",
     "unavailableTitle": "Strona niedostępna",
     "untitled": "Strona bez tytułu",
+    "verified": {
+      "help": "Zapisuje, że dziś sprawdzono tę stronę i nadal jest poprawna.",
+      "label": "Ostatnio sprawdzona",
+      "mark": "Oznacz jako sprawdzoną",
+      "never": "Jeszcze nie sprawdzona",
+      "on": "Sprawdzona {date}",
+      "saveFirst": "Zapisz zmiany, zanim oznaczysz stronę jako sprawdzoną."
+    },
     "websiteImport": {
       "faqHeading": "Najczęściej zadawane pytania",
       "source": "Źródło: {url} · pobrano {date}"

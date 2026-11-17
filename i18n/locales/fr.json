@@ -2021,6 +2021,10 @@
       "widgetLayoutOverlap": "Cette position chevauche un autre widget. Choisissez un emplacement libre dans la grille de 12 colonnes ou omettez la disposition pour le placer automatiquement.",
       "widgetLayoutTooSmall": "Ce widget est trop petit : les graphiques et les chiffres nécessitent au moins 2 lignes, les fils d’activité 2 colonnes et 6 lignes.",
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
+      "wikiEditInvalid": "Cette modification n’est pas valide. Envoyez find avec replace, anchor avec markdown ou markdown seul, et soit markdown soit edits, pas les deux.",
+      "wikiEditSectionNotFound": "La page n’a aucune section avec cette ancre. Le plan de la page indique les ancres de ses sections.",
+      "wikiEditTextAmbiguous": "Le texte à remplacer apparaît plusieurs fois. Ajoutez du texte autour pour qu’il ne corresponde qu’à un seul endroit.",
+      "wikiEditTextNotFound": "Le texte à remplacer est introuvable sur la page. Copiez-le exactement depuis une lecture récente de la page.",
       "wikiGuideExists": "Cette base de connaissances a déjà un guide opérationnel. Mettez à jour le guide existant.",
       "wikiNotEmpty": "Cette action nécessite une base de connaissances vide.",
       "wikiPageConflict": "Cette page de la base de connaissances a été modifiée après son ouverture. Rechargez-la et réessayez.",
@@ -6817,6 +6821,7 @@
     "showDeliveries": "Afficher les livraisons"
   },
   "Wiki": {
+    "changed": "Dernière modification",
     "conflict": "Cette page a changé. Vos modifications sont toujours là. Rechargez pour utiliser la dernière version.",
     "copyLink": "Copier le lien de la page",
     "delete": "Supprimer la page",
@@ -6824,6 +6829,44 @@
     "emptyBody": "Donnez à Mate et aux outils d’IA connectés les connaissances, processus et consignes dont ils ont besoin.",
     "emptyBodyReadOnly": "Aucune page de la base de connaissances n’a encore été créée.",
     "emptyTitle": "La base de connaissances de votre espace de travail est vide",
+    "graph": {
+      "canvasLabel": "Carte des pages de la base de connaissances et de leurs liens",
+      "filter": {
+        "all": "Toutes les pages",
+        "knowledge": "Connaissances",
+        "label": "Afficher les pages par type",
+        "procedure": "Procédures"
+      },
+      "fit": "Ajuster la carte à la fenêtre",
+      "label": "Carte de la base de connaissances",
+      "legend": "Les grands cercles sont des pages vers lesquelles pointent plus de pages. Cliquez sur une page pour l’ouvrir.",
+      "legendEdit": "Les grands cercles sont des pages vers lesquelles pointent plus de pages. Cliquez sur une page pour l’ouvrir, faites-la glisser pour l’épingler à sa place.",
+      "linkedFrom": "Liée depuis",
+      "linkedFromCount": "{count, plural, one {Liée depuis # page} other {Liée depuis # pages}}",
+      "linksFailed": "Les liens de cette page n’ont pas pu être chargés.",
+      "linksTo": "Pointe vers",
+      "loadFailed": "Les pages de la base de connaissances n’ont pas pu être chargées.",
+      "missingLinks": "{count, plural, one {# lien pointe vers une page supprimée} other {# liens pointent vers des pages supprimées}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Aucune page",
+      "noMatches": "Aucune page ne correspond au filtre.",
+      "pin": "Épingler sur la carte",
+      "pinHelp": "Garde cette page à sa place sur la carte. Vous pouvez aussi faire glisser une page pour l’épingler.",
+      "pinned": "Épinglée",
+      "pinnedHelp": "Cette page garde sa place quand la carte se réorganise.",
+      "records": "Enregistrements liés",
+      "search": "Trouver une page",
+      "segments": {
+        "details": "Détails",
+        "links": "Liens",
+        "page": "Page"
+      },
+      "sheetSegments": "Sections de la page",
+      "syncing": "Les liens sont encore en cours de lecture. Rechargez la page pour les voir tous.",
+      "truncated": "Les {count} premières pages sont affichées. Recherchez et appuyez sur Entrée pour ouvrir une autre page.",
+      "unpin": "Retirer l’épingle",
+      "unpinHelp": "La carte replace cette page elle-même."
+    },
     "kind": {
       "guide": "Guide opérationnel",
       "guideDescription": "Règles et ton communs à chaque demande. Un par espace de travail.",
@@ -6843,8 +6886,11 @@
     "next": "Suivant",
     "noResults": "Aucune page correspondante.",
     "onThisPage": "Sur cette page",
-    "page": "Page {current} sur {total}",
-    "pageActions": "Actions de la page",
+    "owner": {
+      "help": "La personne, l’équipe ou l’agent qui tient cette page à jour. Les agents le voient avec la page.",
+      "label": "Responsable",
+      "placeholder": "Par exemple l’équipe support"
+    },
     "pagesLabel": "Pages de la base de connaissances",
     "pageTitle": "Titre de la page",
     "previous": "Précédent",
@@ -6876,10 +6922,17 @@
       "title": "Propositions"
     },
     "reload": "Recharger la page",
-    "search": "Rechercher des pages…",
     "unavailableBody": "Cette page a été supprimée ou vous n’y avez pas accès. Choisissez une autre page.",
     "unavailableTitle": "Page indisponible",
     "untitled": "Page sans titre",
+    "verified": {
+      "help": "Indique que vous avez vérifié cette page aujourd’hui et qu’elle est toujours correcte.",
+      "label": "Dernière vérification",
+      "mark": "Marquer comme vérifiée",
+      "never": "Pas encore vérifiée",
+      "on": "Vérifiée le {date}",
+      "saveFirst": "Enregistrez vos modifications avant de marquer la page comme vérifiée."
+    },
     "websiteImport": {
       "faqHeading": "Questions fréquentes",
       "source": "Source : {url} · consultée le {date}"

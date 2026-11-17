@@ -325,6 +325,19 @@ const en = {
     meetingsMonth: "Client meetings this month",
   },
   wiki: {
+    wrapUp: {
+      title: "Closing an engagement",
+      whenToUse: "When the final workshop of an engagement is done and the work is ready to be closed.",
+      markdown: [
+        "The end of an engagement is the start of the next conversation. These steps close the work cleanly and keep the relationship warm.",
+        "",
+        "## Steps",
+        "1. Move the engagement to Completed as [How engagements move](wiki:process) describes and attach the final report to its documents.",
+        "2. Compare the days worked with the estimate and write any difference into the notes; extra days follow [Day rates and fee options](wiki:rates).",
+        "3. Thank the sponsor and the person who referred us, and update the relationship strength of both contacts.",
+        "4. Create a task to check in after three months, and [prepare a relationship brief](wiki:brief) before that call.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -995,6 +1008,19 @@ const de: Strings = {
     meetingsMonth: "Kundentermine im Monat",
   },
   wiki: {
+    wrapUp: {
+      title: "Ein Mandat abschließen",
+      whenToUse: "Wenn der Abschlussworkshop eines Mandats gelaufen ist und die Arbeit abgeschlossen werden kann.",
+      markdown: [
+        "Das Ende eines Mandats ist der Anfang des nächsten Gesprächs. Diese Schritte schließen die Arbeit sauber ab und halten die Beziehung warm.",
+        "",
+        "## Schritte",
+        "1. Das Mandat wie in [So entwickeln sich Mandate](wiki:process) beschrieben auf abgeschlossen setzen und den Abschlussbericht an seine Dokumente hängen.",
+        "2. Die geleisteten Tage mit der Schätzung vergleichen und eine Abweichung in den Notizen festhalten; für zusätzliche Tage gelten die [Tagessätze und Honorarvarianten](wiki:rates).",
+        "3. Dem Auftraggeber und der Person danken, die uns empfohlen hat, und bei beiden Kontakten die Beziehungsstärke aktualisieren.",
+        "4. Eine Aufgabe für ein Gespräch nach drei Monaten anlegen und davor ein [Beziehungsbriefing vorbereiten](wiki:brief).",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2516,17 +2542,43 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "process", kind: "knowledge", title: t.wiki.process.title, markdown: t.wiki.process.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "process",
+          kind: "knowledge",
+          title: t.wiki.process.title,
+          markdown: t.wiki.process.markdown,
+          related: ["brief", "rates", "wrapUp", "agents", "guide"],
+        },
         {
           key: "brief",
           kind: "procedure",
           title: t.wiki.brief.title,
           whenToUse: t.wiki.brief.whenToUse,
           markdown: t.wiki.brief.markdown,
+          related: ["process", "guide"],
         },
-        { key: "rates", kind: "knowledge", title: t.wiki.rates.title, markdown: t.wiki.rates.markdown },
-        agentsPage(locale, t.agents),
+        {
+          key: "rates",
+          kind: "knowledge",
+          title: t.wiki.rates.title,
+          markdown: t.wiki.rates.markdown,
+          related: ["process", "guide"],
+        },
+        { ...agentsPage(locale, t.agents), related: ["guide"] },
+        {
+          key: "wrapUp",
+          kind: "procedure",
+          title: t.wiki.wrapUp.title,
+          whenToUse: t.wiki.wrapUp.whenToUse,
+          markdown: t.wiki.wrapUp.markdown,
+          related: ["guide"],
+        },
       ],
       apiKeys: agentApiKeys([74, 36, 11]),
       messaging: {

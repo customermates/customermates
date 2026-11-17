@@ -14,12 +14,14 @@ import type { WikiImportPageRepo, WikiImportProvenance } from "./wiki-import-pag
 import type { GetWikiSuggestionSignalRepo } from "./get-wiki-suggestion-signal.repo";
 import type { WikiIndexClaimRepo } from "./wiki-index-claim.repo";
 import type { PurgeWikiPageProposalsRepo } from "./purge-wiki-page-proposals.repo";
+import type { WikiLinkSyncCandidate, WikiLinkSyncPage, WikiLinkSyncRepo } from "./wiki-link-sync.repo";
 import type { WikiIndexClaim } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 
 import { Prisma, Resource } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
-import { WIKI_CATALOG_PAGE_SIZE, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
+import { applyWikiPageEdits } from "./wiki-page-edits";
+import { WIKI_CATALOG_PAGE_SIZE, canonicalWikiMarkdown, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
 import { promptWikiSummary } from "./wiki-summary";
 import { UNCLAIMED_WIKI_INDEX_PAGE, legacyIndexedWikiPage, staleWikiIndexPage } from "./wiki-index-sql";
 
@@ -42,7 +44,8 @@ export class PrismaWikiPageRepo
     StartWikiHomepageSetupRepo,
     WikiImportPageRepo,
     GetWikiSuggestionSignalRepo,
-    WikiIndexClaimRepo
+    WikiIndexClaimRepo,
+    WikiLinkSyncRepo
 {
   constructor(
     private readonly permissions: PermissionService,
@@ -104,6 +107,8 @@ export class PrismaWikiPageRepo
       markdown: true,
       kind: true,
       whenToUse: true,
+      owner: true,
+      verifiedAt: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -141,6 +146,8 @@ export class PrismaWikiPageRepo
       title: true,
       kind: true,
       whenToUse: true,
+      owner: true,
+      verifiedAt: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -161,7 +168,7 @@ export class PrismaWikiPageRepo
 
   async listPages({ page, pageSize, kind }: RepoArgs<GetWikiPagesRepo, "listPages">) {
     const where = { companyId: this.companyId, deletedAt: null, ...(kind ? { kind } : {}) };
-    const [items, total] = await Promise.all([
+    const [pages, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
         select: this.summarySelect,
@@ -171,6 +178,18 @@ export class PrismaWikiPageRepo
       }),
       this.prisma.wikiPage.count({ where }),
     ]);
+    const lengths =
+      pages.length === 0
+        ? []
+        : await this.prisma.$queryRaw<Array<{ id: string; chars: number }>>(Prisma.sql`
+            SELECT p."id",
+              (char_length(p."markdown")
+                + char_length(regexp_replace(p."markdown", '[^\\U00010000-\\U0010FFFF]+', '', 'g')))::integer AS "chars"
+            FROM "WikiPage" p
+            WHERE p."companyId" = ${this.companyId} AND p."id" IN (${Prisma.join(pages.map((item) => item.id))})
+          `);
+    const chars = new Map(lengths.map((row) => [row.id, row.chars]));
+    const items = pages.map((summary) => ({ ...summary, chars: chars.get(summary.id) ?? 0 }));
     return { items, total, page, pageSize };
   }
 
@@ -220,6 +239,31 @@ export class PrismaWikiPageRepo
     const updated = await this.prisma.$executeRaw(Prisma.sql`
       UPDATE "WikiPage" SET "summary" = ${args.summary}, "summaryContentHash" = ${args.contentHash}
       WHERE "id" = ${args.pageId} AND "companyId" = ${this.companyId} AND "updatedAt" = ${args.pageUpdatedAt}
+    `);
+    return updated === 1;
+  }
+
+  async listLinkSyncCandidates(): Promise<WikiLinkSyncCandidate[]> {
+    return this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, deletedAt: null },
+      select: { id: true, updatedAt: true, linksSyncedAt: true },
+      orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
+    });
+  }
+
+  async loadPagesForLinkSync(ids: string[]): Promise<WikiLinkSyncPage[]> {
+    if (ids.length === 0) return [];
+    return this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, deletedAt: null, id: { in: ids } },
+      select: { id: true, markdown: true, updatedAt: true },
+    });
+  }
+
+  async markLinksSynced(pageId: string, pageUpdatedAt: Date): Promise<boolean> {
+    const updated = await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "WikiPage" SET "linksSyncedAt" = ${pageUpdatedAt}
+      WHERE "id" = ${pageId} AND "companyId" = ${this.companyId} AND "updatedAt" = ${pageUpdatedAt}
+        AND "linksSyncedAt" IS DISTINCT FROM ${pageUpdatedAt}
     `);
     return updated === 1;
   }
@@ -332,6 +376,7 @@ export class PrismaWikiPageRepo
             markdown: page.markdown,
             kind: wikiPageKindFields(page).kind,
             whenToUse: wikiPageKindFields(page).whenToUse,
+            owner: page.owner || null,
             sortOrder: page.kind === "guide" ? -1 : undefined,
             createdAt: new Date(createdAt + index),
           },
@@ -348,17 +393,25 @@ export class PrismaWikiPageRepo
     if (previous.updatedAt.getTime() !== data.expectedUpdatedAt.getTime()) return { status: "conflict" as const };
 
     const title = data.title?.trim() ?? previous.title;
-    const markdown = data.markdown ?? previous.markdown;
+    let markdown = data.markdown ?? previous.markdown;
+    if (data.edits) {
+      const edited = applyWikiPageEdits(previous.markdown, data.edits);
+      if (!edited.ok) return { status: "invalid-edit" as const, error: edited.error, index: edited.index };
+      const canonical = canonicalWikiMarkdown(edited.markdown);
+      if (!canonical.ok) return { status: "invalid" as const, error: canonical.error };
+      markdown = canonical.markdown;
+    }
     const kind = data.kind ?? previous.kind;
     const whenToUse = kind === "procedure" ? (data.whenToUse ?? previous.whenToUse) : null;
-    if (
-      title === previous.title &&
-      markdown === previous.markdown &&
-      kind === previous.kind &&
-      whenToUse === previous.whenToUse
-    )
+    const owner = data.owner === undefined ? previous.owner : data.owner || null;
+    const contentChanged =
+      title !== previous.title ||
+      markdown !== previous.markdown ||
+      kind !== previous.kind ||
+      whenToUse !== previous.whenToUse;
+    if (!contentChanged && owner === previous.owner && !data.verified)
       return { status: "unchanged" as const, previous, page: previous };
-    const invalid = wikiPageKindIssue({ kind, whenToUse, markdown });
+    const invalid = contentChanged ? wikiPageKindIssue({ kind, whenToUse, markdown }) : null;
     if (invalid) return { status: "invalid" as const, error: invalid };
     if (kind === "guide" && previous.kind !== "guide" && (await this.guideExists(previous.id)))
       return { status: "guide-exists" as const };
@@ -375,8 +428,12 @@ export class PrismaWikiPageRepo
         markdown,
         kind,
         whenToUse,
+        owner,
+        ...(data.verified ? { verifiedAt: new Date() } : {}),
         ...(kind !== previous.kind ? { sortOrder: kind === "guide" ? -1 : 2147483647 } : {}),
-        updatedAt: new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1)),
+        updatedAt: contentChanged
+          ? new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1))
+          : previous.updatedAt,
       },
     });
     if (updated.count !== 1) {

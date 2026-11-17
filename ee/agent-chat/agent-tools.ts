@@ -30,7 +30,7 @@ import { getTranslator } from "@/i18n/get-translator";
 import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 import { agentToolResultText } from "./agent-budget-policy";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
-import { hostedToolInputGuard } from "./agent-hosted-guards";
+import { hostedToolInput, hostedToolInputGuard } from "./agent-hosted-guards";
 import { agentViewToolMismatch } from "./agent-page-context";
 import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
@@ -628,7 +628,7 @@ function crmTool(
       const execute = async () => {
         const proposes = mcp.name === "manage_data_views" && surface !== undefined && !isUnattendedSurface(surface);
         const outcome = await executeMcpTool(hostedMcpTool(proposes ? proposingManageDataViewsTool : mcp, rankers), [
-          input,
+          hostedToolInput(mcp.name, input, resultMaxChars),
         ]);
         if (configurationApply) return outcome;
         if (mcp.name === "mutate_crm_record" && outcome.ok) {

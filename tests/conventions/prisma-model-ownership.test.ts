@@ -130,6 +130,8 @@ const OWNERS: Record<string, string> = {
   WikiPage: "features/wiki/prisma-wiki-page.repository.ts",
   WikiPageProposal: "features/wiki/prisma-wiki-page-proposal.repository.ts",
   WikiPageSection: "features/wiki/prisma-wiki-section.repository.ts",
+  WikiPageLink: "features/wiki/prisma-wiki-graph.repository.ts",
+  WikiGraphLayout: "features/wiki/prisma-wiki-graph.repository.ts",
   WikiSourceDocument: "ee/wiki-crawl/prisma-wiki-website-crawl.repository.ts",
   WikiWebsiteCrawl: "ee/wiki-crawl/prisma-wiki-website-crawl.repository.ts",
   WorkspaceSetup: "ee/workspace-setup/prisma-workspace-setup.repository.ts",

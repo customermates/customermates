@@ -309,6 +309,19 @@ export const pl: Strings = {
     },
   },
   wiki: {
+    proposal: {
+      title: "Przygotowanie oferty",
+      whenToUse: "Gdy pierwsza rozmowa poszła dobrze, a klient prosi o pisemną ofertę z zakresem i ceną.",
+      markdown: [
+        "Oferta powtarza to, co powiedział klient, i dodaje jasną cenę. Piszę ją w ciągu dwóch dni roboczych od rozmowy, póki jest jeszcze świeża.",
+        "",
+        "## Kroki",
+        "1. Przeczytaj notatki z rozmowy zapisane w zapytaniu; strona [Po pierwszej rozmowie](wiki:afterCall) podaje, co powinno się tam znaleźć.",
+        "2. Oszacuj dni na każdą część pracy i weź stawkę dzienną ze strony [Moje stawki i warunki](wiki:rates).",
+        "3. Wpisz do oferty zakres, liczbę dni, honorarium i termin rozpoczęcia, dołącz ją do zapytania i wyślij e-mailem.",
+        "4. Przenieś zapytanie do etapu Oferta wysłana zgodnie ze stroną [Etapy zapytania](wiki:stages) i ustaw datę następnego działania na tydzień później.",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

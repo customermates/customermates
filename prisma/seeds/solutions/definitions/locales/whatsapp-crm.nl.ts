@@ -175,6 +175,19 @@ export const nl: Strings = {
     nextStepsMonth: "Volgende stappen deze maand",
   },
   wiki: {
+    offerFollowUp: {
+      title: "Een offerte opvolgen",
+      whenToUse: "Wanneer een offerte een week bij de klant ligt en er geen antwoord is gekomen.",
+      markdown: [
+        "Een offerte zonder antwoord is zelden een nee. De meeste eigenaren zijn druk met hun openingsdatum, dus één vriendelijk bericht levert meestal het antwoord op.",
+        "",
+        "## Stappen",
+        "1. Lees eerst de projectnotities en de gekoppelde chat: de maten uit de [Checklist voor de opmeting](wiki:siteVisit) en de laatste vraag van de klant.",
+        "2. Schrijf in dezelfde chat één kort bericht dat het open punt noemt (de prijs, het hout of de montagedatum) en één vraag stelt.",
+        "3. Zet de chatstatus van de contactpersoon op Wacht op klant en schuif de datum van de volgende stap van het project een week op.",
+        "4. Zegt de klant nee, zet de fase dan met de reden op Verloren, zoals in het [Verkoopproces](wiki:process). Een nieuwe aanvraag van dezelfde klant begint opnieuw met [Van WhatsApp-chat naar project](wiki:whatsappToOpportunity).",
+      ],
+    },
     guide: {
       title: "Werkhandleiding",
       markdown: [

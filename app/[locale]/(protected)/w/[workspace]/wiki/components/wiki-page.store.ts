@@ -19,6 +19,8 @@ type WikiPageForm = {
   markdown: string;
   kind: WikiPageKind;
   whenToUse: string;
+  owner: string;
+  verifiedAt: Date | null;
   updatedAt: Date | null;
 };
 
@@ -30,9 +32,20 @@ function pageForm(page: WikiPageDto | null): WikiPageForm {
         markdown: page.markdown,
         kind: page.kind,
         whenToUse: page.whenToUse ?? "",
+        owner: page.owner ?? "",
+        verifiedAt: page.verifiedAt ?? null,
         updatedAt: page.updatedAt,
       }
-    : { id: null, title: "", markdown: "", kind: "knowledge", whenToUse: "", updatedAt: null };
+    : {
+        id: null,
+        title: "",
+        markdown: "",
+        kind: "knowledge",
+        whenToUse: "",
+        owner: "",
+        verifiedAt: null,
+        updatedAt: null,
+      };
 }
 
 export class WikiPageStore extends BaseFormStore<WikiPageForm> {
@@ -79,6 +92,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       reload: action,
       onSubmit: action,
       delete: action,
+      markVerified: action,
     });
   }
 
@@ -147,10 +161,19 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       samePage &&
       page &&
       this.form.updatedAt?.getTime() === page.updatedAt.getTime() &&
+      (page.verifiedAt?.getTime() ?? 0) < (this.form.verifiedAt?.getTime() ?? 0)
+    )
+      return;
+    if (
+      samePage &&
+      page &&
+      this.form.updatedAt?.getTime() === page.updatedAt.getTime() &&
       this.form.title === page.title &&
       this.form.markdown === page.markdown &&
       this.form.kind === page.kind &&
-      this.form.whenToUse === (page.whenToUse ?? "")
+      this.form.whenToUse === (page.whenToUse ?? "") &&
+      this.form.owner === (page.owner ?? "") &&
+      (this.form.verifiedAt?.getTime() ?? null) === (page.verifiedAt?.getTime() ?? null)
     )
       return;
     this.load(page);
@@ -234,9 +257,20 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
             markdown: this.form.markdown,
             kind: this.form.kind,
             whenToUse,
+            ...(this.form.owner.trim() === this.savedState.owner.trim()
+              ? {}
+              : { owner: this.form.owner.trim() || null }),
           })
         : await createWikiPagesAction({
-            pages: [{ title: this.form.title, markdown: this.form.markdown, kind: this.form.kind, whenToUse }],
+            pages: [
+              {
+                title: this.form.title,
+                markdown: this.form.markdown,
+                kind: this.form.kind,
+                whenToUse,
+                owner: this.form.owner.trim() || undefined,
+              },
+            ],
             requireEmpty: false,
           });
 
@@ -260,6 +294,29 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
 
       const page = Array.isArray(result.data) ? result.data[0] : result.data;
       this.completeMutation(page, creating ? previousSelection : undefined);
+    } finally {
+      if (generation === this.viewGeneration) this.setIsLoading(false);
+    }
+  };
+
+  markVerified = async (): Promise<void> => {
+    if (!this.canManage || !this.form.id || !this.form.updatedAt || this.isLoading || this.hasUnsavedChanges) return;
+    const generation = this.viewGeneration;
+    this.setIsLoading(true);
+    try {
+      const result = await updateWikiPageAction({
+        id: this.form.id,
+        expectedUpdatedAt: this.form.updatedAt,
+        verified: true,
+      });
+      if (generation !== this.viewGeneration) return;
+      if (!result.ok) {
+        const conflict = result.failure.kind === "conflict";
+        this.setConflict(conflict);
+        this.setError(conflict ? undefined : serializedFailureErrorTree(result.failure));
+        return;
+      }
+      this.load(result.data);
     } finally {
       if (generation === this.viewGeneration) this.setIsLoading(false);
     }

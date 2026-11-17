@@ -120,7 +120,7 @@ export function buildMcpServerInstructions(toolNames: Iterable<string>): string 
 
   if (names.has("manage_wiki_pages")) {
     paragraphs.push(
-      "manage_wiki_pages lists and searches Knowledge Base pages, reads a page in chunks, and creates, updates, or deletes pages. A search hit's offset is valid for get, not for fetch. Read actions require Knowledge Base Read; mutations require Knowledge Base Manage; updates and deletes require the current updatedAt value.",
+      "manage_wiki_pages lists and searches Knowledge Base pages, reads a page in chunks, reports the links between pages, and creates, updates, or deletes pages. A search hit's offset is valid for get, not for fetch. Read actions require Knowledge Base Read; mutations require Knowledge Base Manage; updates and deletes require the current updatedAt value. For work across the whole Knowledge Base, list with pageSize 100 returns every page with its length (chars), and get with maxChars up to 20000 reads a long page in few chunks when the client holds results of that size. Section anchors come from the outline of a get or from a search hit. Change part of a page with update edits instead of resending its markdown, set verified true once a page is checked against its sources, and read links before renaming, splitting or deleting a page so the pages that link to it can be corrected.",
     );
   }
 

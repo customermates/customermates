@@ -382,6 +382,23 @@ export const pt: Strings = {
     nextSteps: "Próximos passos, próximos 14 dias",
   },
   wiki: {
+    qualification: {
+      title: "Perguntas de qualificação",
+      markdown: [
+        "Uma oportunidade está qualificada quando sabemos quatro coisas. Pergunte por elas nas duas primeiras conversas; sem elas, o valor ponderado diz pouco.",
+        "",
+        "## As quatro perguntas",
+        "- **Aplicação:** para que o ar comprimido é usado e quantas horas por dia a planta opera.",
+        "- **Orçamento:** uma faixa basta, e se ele sai do orçamento de investimento ou do de manutenção.",
+        "- **Decisão:** quem assina, quem opina e até quando querem decidir.",
+        "- **Momento:** o que acontece na planta se nada mudar neste ano.",
+        "",
+        "## O que fazer com as respostas",
+        "- Escreva-as nas notas da oportunidade, defina a previsão de fechamento e passe a etapa para Qualificada, como em [Etapas de vendas](wiki:stages).",
+        "- Responda a uma pergunta antecipada sobre preço com o preço de tabela; as [Regras de desconto e aprovação](wiki:discounts) vêm depois.",
+        "- Quando houver uma visita técnica em seguida, [Depois de uma visita técnica](wiki:siteVisit) diz o que registrar.",
+      ],
+    },
     guide: {
       title: "Guia de uso",
       markdown: [

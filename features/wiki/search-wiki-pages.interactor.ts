@@ -24,7 +24,7 @@ import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 
 import { externalizeWikiPageLinks } from "./wiki-markdown-links";
 import type { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
-import { boundedWikiSectionLabel, wikiSectionOffsetIn } from "./wiki-markdown-sections";
+import { boundedWikiSectionLabel, wikiSectionAnchorAt, wikiSectionOffsetIn } from "./wiki-markdown-sections";
 import { wikiExcerpt } from "./wiki-content";
 import { wikiSectionSnippet } from "./wiki-section-snippet";
 import { WikiPageSearchResultSchema, WikiPageSearchSchema } from "./wiki.schema";
@@ -271,6 +271,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
   ): WikiSearchResult {
     const { markdown, ...item } = page;
     const offset = section?.offset ?? 0;
+    const anchor = section ? (wikiSectionAnchorAt(markdown, offset) ?? section.anchor) : "";
     const located = {
       ...item,
       snippet: section ? wikiSectionSnippet(section.text, query) : wikiExcerpt(markdown),
@@ -278,7 +279,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       ...(section && section.headingPath.length > 0
         ? {
             section: boundedWikiSectionLabel(section.headingPath.join(" > ")),
-            ...(section.anchor ? { anchor: section.anchor } : {}),
+            ...(anchor ? { anchor } : {}),
           }
         : {}),
     };

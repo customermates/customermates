@@ -331,6 +331,19 @@ export const pt: Strings = {
     },
   },
   wiki: {
+    proposal: {
+      title: "Escrever uma proposta",
+      whenToUse: "Quando uma primeira ligação foi bem e o cliente pede uma proposta por escrito com escopo e preço.",
+      markdown: [
+        "Uma proposta repete o que o cliente disse e acrescenta um preço claro. Escrevo em até dois dias úteis depois da ligação, enquanto a conversa ainda está fresca.",
+        "",
+        "## Passos",
+        "1. Leia as notas da solicitação feitas na ligação; [Depois de uma primeira ligação](wiki:afterCall) lista o que deve estar lá.",
+        "2. Estime os dias de cada parte do trabalho e use a diária de [Minhas diárias e condições](wiki:rates).",
+        "3. Escreva na proposta o escopo, os dias, o valor e a data de início, anexe à solicitação e envie por e-mail.",
+        "4. Mova a solicitação para Proposta enviada, como em [Etapas de uma solicitação](wiki:stages), e defina a data da próxima ação para uma semana depois.",
+      ],
+    },
     guide: {
       title: "Guia operacional",
       markdown: [

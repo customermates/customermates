@@ -2021,6 +2021,10 @@
       "widgetLayoutOverlap": "Deze positie overlapt met een andere widget. Kies een vrije plek in het raster van 12 kolommen of laat de lay-out weg om de widget automatisch te plaatsen.",
       "widgetLayoutTooSmall": "Deze widget is te klein: grafieken en getallen hebben minstens 2 rijen nodig, activiteitentijdlijnen 2 kolommen en 6 rijen.",
       "widgetNotFound": "Widget-ID niet gevonden of niet toegankelijk.",
+      "wikiEditInvalid": "Deze wijziging is niet geldig. Stuur find met replace, anchor met markdown of alleen markdown, en markdown of edits, niet allebei.",
+      "wikiEditSectionNotFound": "De pagina heeft geen sectie met dit anker. De opbouw van de pagina noemt de ankers van haar secties.",
+      "wikiEditTextAmbiguous": "De te vervangen tekst komt meer dan één keer voor. Neem meer omliggende tekst mee zodat hij op één plek past.",
+      "wikiEditTextNotFound": "De te vervangen tekst staat niet op de pagina. Kopieer hem precies uit een verse lezing van de pagina.",
       "wikiGuideExists": "Deze kennisbank heeft al een werkhandleiding. Werk in plaats daarvan de bestaande handleiding bij.",
       "wikiNotEmpty": "Deze actie vereist een lege kennisbank.",
       "wikiPageConflict": "Deze kennisbankpagina is gewijzigd nadat je deze opende. Laad de pagina opnieuw en probeer het nogmaals.",
@@ -6817,6 +6821,7 @@
     "showDeliveries": "Bezorgingen tonen"
   },
   "Wiki": {
+    "changed": "Laatst gewijzigd",
     "conflict": "Deze pagina is gewijzigd. Je wijzigingen staan er nog. Laad opnieuw om de nieuwste versie te gebruiken.",
     "copyLink": "Paginalink kopiëren",
     "delete": "Pagina verwijderen",
@@ -6824,6 +6829,44 @@
     "emptyBody": "Geef Mate en gekoppelde AI-tools de bedrijfskennis, processen en richtlijnen die ze nodig hebben.",
     "emptyBodyReadOnly": "Er zijn nog geen Kennisbank-pagina's aangemaakt.",
     "emptyTitle": "Je Kennisbank is leeg",
+    "graph": {
+      "canvasLabel": "Kaart van de Kennisbank-pagina's en hun koppelingen",
+      "filter": {
+        "all": "Alle pagina's",
+        "knowledge": "Kennis",
+        "label": "Pagina's per type tonen",
+        "procedure": "Procedures"
+      },
+      "fit": "Kaart in het venster passen",
+      "label": "Kaart van de Kennisbank",
+      "legend": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen.",
+      "legendEdit": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen, sleep haar om haar op haar plek vast te zetten.",
+      "linkedFrom": "Gekoppeld vanuit",
+      "linkedFromCount": "{count, plural, one {Gekoppeld vanuit # pagina} other {Gekoppeld vanuit # pagina's}}",
+      "linksFailed": "De koppelingen van deze pagina konden niet worden geladen.",
+      "linksTo": "Verwijst naar",
+      "loadFailed": "De pagina's van de Kennisbank konden niet worden geladen.",
+      "missingLinks": "{count, plural, one {# koppeling wijst naar een verwijderde pagina} other {# koppelingen wijzen naar verwijderde pagina's}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "Geen pagina's",
+      "noMatches": "Geen pagina past bij het filter.",
+      "pin": "Vastzetten op de kaart",
+      "pinHelp": "Houdt deze pagina op haar plek op de kaart. Je kunt een pagina ook slepen om haar vast te zetten.",
+      "pinned": "Vastgezet",
+      "pinnedHelp": "Deze pagina houdt haar plek wanneer de kaart zich opnieuw ordent.",
+      "records": "Gekoppelde records",
+      "search": "Pagina zoeken",
+      "segments": {
+        "details": "Details",
+        "links": "Koppelingen",
+        "page": "Pagina"
+      },
+      "sheetSegments": "Onderdelen van de pagina",
+      "syncing": "Links worden nog ingelezen. Laad de pagina opnieuw om ze allemaal te zien.",
+      "truncated": "De eerste {count} pagina's worden getoond. Zoek en druk op Enter om een andere pagina te openen.",
+      "unpin": "Losmaken",
+      "unpinHelp": "De kaart plaatst deze pagina weer zelf."
+    },
     "kind": {
       "guide": "Werkhandleiding",
       "guideDescription": "Gedeelde regels en toon voor elk verzoek. Eén per werkruimte.",
@@ -6843,8 +6886,11 @@
     "next": "Volgende",
     "noResults": "Geen passende pagina's.",
     "onThisPage": "Op deze pagina",
-    "page": "Pagina {current} van {total}",
-    "pageActions": "Pagina-acties",
+    "owner": {
+      "help": "De persoon, het team of de agent die deze pagina actueel houdt. Agents zien dit bij de pagina.",
+      "label": "Eigenaar",
+      "placeholder": "Bijvoorbeeld supportteam"
+    },
     "pagesLabel": "Kennisbank-pagina's",
     "pageTitle": "Paginatitel",
     "previous": "Vorige",
@@ -6876,10 +6922,17 @@
       "title": "Voorstellen"
     },
     "reload": "Pagina opnieuw laden",
-    "search": "Pagina's zoeken…",
     "unavailableBody": "Deze pagina is verwijderd of je hebt er geen toegang toe. Kies een andere pagina.",
     "unavailableTitle": "Pagina niet beschikbaar",
     "untitled": "Pagina zonder titel",
+    "verified": {
+      "help": "Legt vast dat je deze pagina vandaag hebt gecontroleerd en dat ze nog klopt.",
+      "label": "Laatst gecontroleerd",
+      "mark": "Markeren als gecontroleerd",
+      "never": "Nog niet gecontroleerd",
+      "on": "Gecontroleerd op {date}",
+      "saveFirst": "Sla je wijzigingen op voordat je de pagina als gecontroleerd markeert."
+    },
     "websiteImport": {
       "faqHeading": "Veelgestelde vragen",
       "source": "Bron: {url} · opgehaald op {date}"

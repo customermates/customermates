@@ -233,6 +233,21 @@ export const nl: Strings = {
     tasksMonth: "Openstaande taken deze maand",
   },
   wiki: {
+    pilot: {
+      title: "Een pilot begeleiden",
+      whenToUse:
+        "Wanneer een prospect het product op één productielijn wil proberen en de verkoopkans naar de fase Pilot gaat.",
+      markdown: [
+        "Een pilot is het bewijs dat een fabrikant nodig heeft voordat hij bij een jong bedrijf koopt. Spreek vóór de start af wat als succes telt, anders eindigt hij nooit.",
+        "",
+        "## Stappen",
+        "1. Zet de verkoopkans op Pilot zoals beschreven in [Verkoopproces van de oprichter](wiki:process) en vul de pilotperiode in op de verkoopkans.",
+        "2. Zet de succescriteria in de notities van de verkoopkans: welke lijn, welke inspectiestappen en welk cijfer beter moet worden.",
+        "3. Voeg de pilotovereenkomst en de ingevulde beveiligingsvragenlijst toe aan het veld Documenten van de verkoopkans.",
+        "4. Stel een datum voor de volgende stap in voor een wekelijks overleg en noteer open vragen zoals in [Na een demo](wiki:afterDemo).",
+        "5. Verstuur vóór het einde van de pilotperiode de prijzen en plan het beslismoment; zet daarna de fase op Beslissing.",
+      ],
+    },
     guide: {
       title: "Werkwijzer",
       markdown: [

@@ -7,11 +7,15 @@ import type { MoveWikiPageData } from "@/features/wiki/move-wiki-page.interactor
 import type { UpdateWikiPageData } from "@/features/wiki/update-wiki-page.interactor";
 import type { WikiPageListData, WikiPageSearchData } from "@/features/wiki/wiki.schema";
 import type { WikiPageProposalIdData } from "@/features/wiki/wiki-page-proposal.schema";
+import type { GetWikiPageLinksData, PinWikiGraphNodeData } from "@/features/wiki/wiki-graph.schema";
 
 import {
   getApproveWikiPageProposalInteractor,
   getCreateWikiPagesInteractor,
+  getGetWikiGraphInteractor,
+  getGetWikiPageLinksInteractor,
   getGetWikiPageProposalsInteractor,
+  getPinWikiGraphNodeInteractor,
   getRejectWikiPageProposalInteractor,
   getDeleteWikiPageInteractor,
   getGetWikiPageInteractor,
@@ -70,4 +74,16 @@ export async function approveWikiPageProposalAction(data: WikiPageProposalIdData
 
 export async function rejectWikiPageProposalAction(data: WikiPageProposalIdData) {
   return serializeTypedResult(getRejectWikiPageProposalInteractor().invoke(data));
+}
+
+export async function getWikiGraphAction() {
+  return serializeTypedResult(getGetWikiGraphInteractor().invoke({}));
+}
+
+export async function getWikiPageLinksAction(data: GetWikiPageLinksData) {
+  return serializeTypedResult(getGetWikiPageLinksInteractor().invoke(data));
+}
+
+export async function pinWikiGraphNodeAction(data: PinWikiGraphNodeData) {
+  return serializeTypedResult(getPinWikiGraphNodeInteractor().invoke(data));
 }

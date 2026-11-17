@@ -9,6 +9,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { describeAgentTool } from "../agent-activity";
 import {
@@ -372,19 +373,32 @@ describe("gated-tools", () => {
     }
   });
 
-  it("treats Knowledge Base gaps as an approval-free read", () => {
+  it.each(["gaps", "links"])("treats Knowledge Base %s as an approval-free read", (action) => {
     const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages");
     if (!wiki) throw new Error("manage_wiki_pages is not registered.");
-    expect(approvalNeeded(wiki, { action: "gaps" })).toBe(false);
-    expect(isReadOnlyAgentToolCall("manage_wiki_pages", wiki, { action: "gaps" })).toBe(true);
-    expect(describeInternalTool("manage_wiki_pages", { action: "gaps" })).toMatchObject({
+    expect(approvalNeeded(wiki, { action })).toBe(false);
+    expect(isReadOnlyAgentToolCall("manage_wiki_pages", wiki, { action })).toBe(true);
+    expect(describeInternalTool("manage_wiki_pages", { action })).toMatchObject({
       kind: "records.read",
       resource: "wiki",
       risk: "read",
     });
-    expect(
-      requiresApprovalOnSurface(internalToolIdentity("manage_wiki_pages"), wiki, { action: "gaps" }, "routine"),
-    ).toBe(false);
+    expect(requiresApprovalOnSurface(internalToolIdentity("manage_wiki_pages"), wiki, { action }, "routine")).toBe(
+      false,
+    );
+  });
+
+  it("names every read action of the Knowledge Base tool, so a new one is never gated by omission", () => {
+    const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages");
+    if (!wiki) throw new Error("manage_wiki_pages is not registered.");
+    const actions: readonly string[] = manageWikiPagesTool.inputSchema.shape.action.options;
+    const writes = ["create", "update", "move", "delete"];
+
+    expect(actions.filter((action) => !writes.includes(action)).sort()).toEqual(
+      ["gaps", "get", "links", "list", "search"].sort(),
+    );
+    for (const action of actions.filter((candidate) => !writes.includes(candidate)))
+      expect(isReadOnlyAgentToolCall("manage_wiki_pages", wiki, { action }), action).toBe(true);
   });
 
   it("keeps known read tools ungated", () => {

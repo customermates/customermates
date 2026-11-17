@@ -178,6 +178,19 @@ export const es: Strings = {
     chatsMonth: "Conversaciones de LinkedIn este mes",
   },
   wiki: {
+    callPrep: {
+      title: "De una conversación de LinkedIn a una llamada",
+      whenToUse: "Cuando un prospecto responde con interés real y una llamada o reunión es el siguiente paso natural.",
+      markdown: [
+        "Una respuesta todavía no es una reunión. Estos pasos convierten una buena conversación de LinkedIn en una llamada agendada sin presionar al prospecto.",
+        "",
+        "## Pasos",
+        "1. Comprueba que la conversación está vinculada a la oportunidad; [Vincular una conversación de LinkedIn](wiki:linking) explica cómo.",
+        "2. Propón dos horarios en el chat, con el tono de [Solicitudes de conexión y primeros mensajes](wiki:firstMessages): una pregunta, ningún folleto.",
+        "3. Cuando la llamada esté agendada, pasa la oportunidad a Reunión programada como en [Etapas de una oportunidad](wiki:stages) y actualiza el estado de conexión del prospecto.",
+        "4. Añade una tarea para la llamada con su fecha y escribe en las notas de la oportunidad las dos cosas que quieres averiguar.",
+      ],
+    },
     guide: {
       title: "Guía de uso",
       markdown: [

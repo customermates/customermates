@@ -2021,6 +2021,10 @@
       "widgetLayoutOverlap": "This position overlaps another widget. Choose a free spot on the 12-column grid or leave the layout out to place the widget automatically.",
       "widgetLayoutTooSmall": "This widget is too small: charts and numbers need at least 2 rows, activity timelines 2 columns and 6 rows.",
       "widgetNotFound": "Widget ID not found or not accessible.",
+      "wikiEditInvalid": "This edit is not valid. Send find with replace, anchor with markdown, or markdown alone, and either markdown or edits, not both.",
+      "wikiEditSectionNotFound": "The page has no section with this anchor. The outline of the page names the anchors of its sections.",
+      "wikiEditTextAmbiguous": "The text to replace occurs more than once. Include more of the surrounding text so it matches one place.",
+      "wikiEditTextNotFound": "The text to replace was not found on the page. Copy it exactly from a fresh read of the page.",
       "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",
       "wikiNotEmpty": "This action requires an empty Knowledge Base.",
       "wikiPageConflict": "This Knowledge Base page changed after you opened it. Reload it and try again.",
@@ -6817,6 +6821,7 @@
     "showDeliveries": "Show deliveries"
   },
   "Wiki": {
+    "changed": "Last changed",
     "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
     "copyLink": "Copy page link",
     "delete": "Delete page",
@@ -6824,6 +6829,44 @@
     "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
     "emptyBodyReadOnly": "No Knowledge Base pages have been created yet.",
     "emptyTitle": "Your Knowledge Base is empty",
+    "graph": {
+      "canvasLabel": "Map of Knowledge Base pages and the links between them",
+      "filter": {
+        "all": "All pages",
+        "knowledge": "Knowledge",
+        "label": "Show pages by type",
+        "procedure": "Procedures"
+      },
+      "fit": "Fit the map to the window",
+      "label": "Knowledge Base map",
+      "legend": "Larger circles are pages that more pages link to. Click a page to open it.",
+      "legendEdit": "Larger circles are pages that more pages link to. Click a page to open it, drag it to pin it in place.",
+      "linkedFrom": "Linked from",
+      "linkedFromCount": "{count, plural, one {Linked from # page} other {Linked from # pages}}",
+      "linksFailed": "The links of this page could not be loaded.",
+      "linksTo": "Links to",
+      "loadFailed": "The Knowledge Base pages could not be loaded.",
+      "missingLinks": "{count, plural, one {# link points to a deleted page} other {# links point to deleted pages}}",
+      "nodeLabel": "{title} ({kind})",
+      "noLinks": "No pages",
+      "noMatches": "No page matches the filter.",
+      "pin": "Pin on the map",
+      "pinHelp": "Keep this page where it is on the map. You can also drag a page to pin it.",
+      "pinned": "Pinned",
+      "pinnedHelp": "This page keeps its place when the map rearranges.",
+      "records": "Linked records",
+      "search": "Find a page",
+      "segments": {
+        "details": "Details",
+        "links": "Links",
+        "page": "Page"
+      },
+      "sheetSegments": "Page sections",
+      "syncing": "Links are still being read. Reload the page to see all of them.",
+      "truncated": "Showing the first {count} pages. Search and press Enter to open any other page.",
+      "unpin": "Release pin",
+      "unpinHelp": "Let the map place this page again."
+    },
     "kind": {
       "guide": "Operating Guide",
       "guideDescription": "Shared rules and tone for every request. One per workspace.",
@@ -6843,8 +6886,11 @@
     "next": "Next",
     "noResults": "No matching pages.",
     "onThisPage": "On this page",
-    "page": "Page {current} of {total}",
-    "pageActions": "Page actions",
+    "owner": {
+      "help": "The person, team or agent that keeps this page current. Agents see it next to the page.",
+      "label": "Maintained by",
+      "placeholder": "For example Support team"
+    },
     "pagesLabel": "Knowledge Base pages",
     "pageTitle": "Page title",
     "previous": "Previous",
@@ -6876,10 +6922,17 @@
       "title": "Proposals"
     },
     "reload": "Reload page",
-    "search": "Search pages…",
     "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",
     "unavailableTitle": "Page unavailable",
     "untitled": "Untitled page",
+    "verified": {
+      "help": "Record that you checked this page today and it is still correct.",
+      "label": "Last verified",
+      "mark": "Mark as verified",
+      "never": "Not verified yet",
+      "on": "Verified {date}",
+      "saveFirst": "Save your changes before marking the page as verified."
+    },
     "websiteImport": {
       "faqHeading": "Frequently asked questions",
       "source": "Source: {url} · fetched {date}"

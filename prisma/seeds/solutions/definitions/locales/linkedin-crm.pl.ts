@@ -178,6 +178,20 @@ export const pl: Strings = {
     chatsMonth: "Rozmowy na LinkedIn w tym miesiącu",
   },
   wiki: {
+    callPrep: {
+      title: "Od rozmowy na LinkedIn do spotkania",
+      whenToUse:
+        "Gdy potencjalny klient odpowiada z prawdziwym zainteresowaniem, a rozmowa lub spotkanie jest naturalnym kolejnym krokiem.",
+      markdown: [
+        "Odpowiedź to jeszcze nie spotkanie. Te kroki zamieniają dobrą rozmowę na LinkedIn w umówioną rozmowę, bez naciskania na potencjalnego klienta.",
+        "",
+        "## Kroki",
+        "1. Sprawdź, czy rozmowa jest powiązana z szansą sprzedaży; strona [Powiązanie rozmowy z LinkedIn](wiki:linking) pokazuje, jak to zrobić.",
+        "2. Zaproponuj na czacie dwa terminy, w tonie strony [Zaproszenia do kontaktu i pierwsze wiadomości](wiki:firstMessages): jedno pytanie, żadnej broszury.",
+        "3. Gdy rozmowa jest umówiona, przenieś szansę sprzedaży do etapu Spotkanie umówione zgodnie ze stroną [Etapy szansy sprzedaży](wiki:stages) i zaktualizuj status kontaktu.",
+        "4. Dodaj zadanie na rozmowę z jej datą i zapisz w notatkach szansy sprzedaży dwie rzeczy, których chcesz się dowiedzieć.",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

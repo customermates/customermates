@@ -178,6 +178,20 @@ export const nl: Strings = {
     chatsMonth: "LinkedIn-gesprekken deze maand",
   },
   wiki: {
+    callPrep: {
+      title: "Van een LinkedIn-gesprek naar een afspraak",
+      whenToUse:
+        "Wanneer een prospect met echte interesse reageert en een gesprek of afspraak de logische volgende stap is.",
+      markdown: [
+        "Een reactie is nog geen afspraak. Met deze stappen wordt een goed LinkedIn-gesprek een geplande afspraak, zonder de prospect onder druk te zetten.",
+        "",
+        "## Stappen",
+        "1. Controleer of het gesprek aan de verkoopkans is gekoppeld; [Een LinkedIn-gesprek koppelen](wiki:linking) laat zien hoe.",
+        "2. Stel in de chat twee tijdstippen voor, in de toon van [Connectieverzoeken en eerste berichten](wiki:firstMessages): één vraag, geen brochure.",
+        "3. Staat de afspraak, zet de verkoopkans dan op Afspraak gepland zoals in [Fases van een verkoopkans](wiki:stages) en werk de connectiestatus van de prospect bij.",
+        "4. Maak een taak aan voor de afspraak met de datum en schrijf de twee dingen die je wilt weten in de notities van de verkoopkans.",
+      ],
+    },
     guide: {
       title: "Werkwijzer",
       markdown: [

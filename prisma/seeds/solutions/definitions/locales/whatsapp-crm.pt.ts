@@ -178,6 +178,19 @@ export const pt: Strings = {
     nextStepsMonth: "Próximos passos neste mês",
   },
   wiki: {
+    offerFollowUp: {
+      title: "Acompanhar um orçamento enviado",
+      whenToUse: "Quando um orçamento está com o cliente há uma semana e nenhuma resposta chegou.",
+      markdown: [
+        "Um orçamento sem resposta raramente é um não. A maioria dos donos está ocupada com a data de inauguração, então uma mensagem simpática costuma trazer a resposta.",
+        "",
+        "## Passos",
+        "1. Leia primeiro as notas do projeto e o chat vinculado: as medidas do [Checklist da visita técnica](wiki:siteVisit) e a última pergunta do cliente.",
+        "2. Escreva no mesmo chat uma mensagem curta que cite o ponto em aberto (o preço, a madeira ou a data da instalação) e faça uma única pergunta.",
+        "3. Defina o status do chat do contato como Aguardando o cliente e adie em uma semana a data do próximo passo do projeto.",
+        "4. Se o cliente disser não, passe a etapa para Perdido com o motivo, como no [Processo de vendas](wiki:process). Um novo pedido do mesmo cliente começa de novo com [Do chat de WhatsApp ao projeto](wiki:whatsappToOpportunity).",
+      ],
+    },
     guide: {
       title: "Guia operacional",
       markdown: [

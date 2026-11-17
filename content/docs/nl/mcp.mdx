@@ -438,9 +438,9 @@ Verplicht: `action`. Optioneel: `id`, `typeId`, `name`, `enabled`, `config`.
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-Toon, zoek, lees, maak, wijzig, orden (verplaats voor of na een andere pagina) of verwijder (verplaats naar de Prullenbak) Kennisbank-pagina's, elk een kennispagina, een procedure met een trigger voor wanneer je die gebruikt, of de ene Werkhandleiding. Updates en verwijderingen vragen de nieuwste updatedAt-waarde; create kan atomair eisen dat de Kennisbank leeg is.
+Toon, zoek, lees, maak, wijzig, orden (verplaats voor of na een andere pagina) of verwijder (verplaats naar de Prullenbak) Kennisbank-pagina's, elk een kennispagina, een procedure met een trigger voor wanneer je die gebruikt, of de ene Werkhandleiding. Een update kan delen van een pagina wijzigen (zoeken en vervangen, of een sectie via het anker) in plaats van de hele pagina opnieuw te sturen, vastleggen wie de pagina actueel houdt en de pagina als gecontroleerd markeren. links geeft de pagina's die naar een pagina verwijzen en de pagina's waarnaar die verwijst, of voor de hele Kennisbank de pagina's waarnaar geen andere pagina verwijst en de pagina's met links naar verwijderde pagina's. Updates en verwijderingen vragen de nieuwste updatedAt-waarde; create kan atomair eisen dat de Kennisbank leeg is.
 
-**Kan gegevens verwijderen.** Verplicht: `action`. Optioneel: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Kan gegevens verwijderen.** Verplicht: `action`. Optioneel: `id`, `query`, `offset`, `anchor`, `maxChars`, `page`, `pageSize`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `edits`, `kind`, `whenToUse`, `owner`, `verified`.
 {/* /mcp-catalog */}
 
 ### Berichten [#messaging]

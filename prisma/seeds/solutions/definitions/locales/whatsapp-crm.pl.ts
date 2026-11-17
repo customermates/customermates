@@ -171,6 +171,19 @@ export const pl: Strings = {
     nextStepsMonth: "Następne kroki w tym miesiącu",
   },
   wiki: {
+    offerFollowUp: {
+      title: "Przypomnienie o wysłanej ofercie",
+      whenToUse: "Gdy oferta leży u klienta od tygodnia i nie przyszła żadna odpowiedź.",
+      markdown: [
+        "Oferta bez odpowiedzi rzadko oznacza odmowę. Większość właścicieli jest zajęta terminem otwarcia, dlatego jedna uprzejma wiadomość zwykle przynosi odpowiedź.",
+        "",
+        "## Kroki",
+        "1. Najpierw przeczytaj notatki zlecenia i powiązany czat: wymiary z [Listy kontrolnej wizji lokalnej](wiki:siteVisit) i ostatnie pytanie klienta.",
+        "2. Napisz w tym samym czacie krótką wiadomość, która nazywa otwartą sprawę (cenę, drewno lub termin montażu) i zadaje jedno pytanie.",
+        "3. Ustaw status czatu kontaktu na Czeka na klienta i przesuń datę następnego kroku w zleceniu o tydzień.",
+        "4. Jeśli klient odmówi, ustaw etap Przegrana z powodem, jak opisuje [Proces sprzedaży](wiki:process). Nowe zapytanie tego samego klienta zaczyna się znowu od strony [Od czatu WhatsApp do zlecenia](wiki:whatsappToOpportunity).",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

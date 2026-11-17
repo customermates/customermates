@@ -355,6 +355,8 @@ const FOREIGN_ICON_LIBRARY =
   /^(?:@tabler\/icons|react-icons|@heroicons|@radix-ui\/react-icons|@phosphor-icons|react-feather)/;
 
 const INLINE_SVG_EXEMPTIONS: Allowlist = {
+  "app/[locale]/(protected)/w/[workspace]/wiki/components/wiki-graph-canvas.tsx":
+    "data graphic (the Knowledge Base map of pages and links), not an icon",
   "components/ai-connection/ai-client-logo.tsx": "third-party brand mark, not part of the icon set",
   "app/components/agent-chat/usage-ring.tsx": "data graphic (usage progress ring), not an icon",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx": "illustration, not an icon",

@@ -453,6 +453,139 @@ describe("managed Wiki retrieval tools", () => {
     expect(calls.get).toHaveBeenCalledOnce();
   });
 
+  describe("routine proposals from edits to parts of a page", () => {
+    const stored = { ...page, markdown: "Intro.\n\n## Pricing\n\nStandard plan: 20 EUR." };
+    const proposeOk = () =>
+      calls.propose.mockResolvedValue({
+        ok: true,
+        data: [{ id: PROPOSAL_ID, action: "update", pageId: PAGE_ID, title: null }],
+      });
+    const routineTools = () =>
+      getAgentAiTools({ ...dependencies(), conversationId: CONVERSATION_ID }, { surface: "routine" });
+
+    it("proposes the whole page with the edits applied, so a manager reviews the result", async () => {
+      proposeOk();
+      calls.get.mockResolvedValue({ ok: true, data: stored });
+
+      const outcome = await execute(routineTools().manage_wiki_pages, {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+        edits: [{ find: "20 EUR", replace: "25 EUR" }, { markdown: "## Changelog\n\nPrice raised." }],
+        owner: "Support team",
+        verified: true,
+      });
+
+      expect(outcome.ok).toBe(true);
+      expect(decode(outcome.result)).toMatchObject({
+        status: "pending_review",
+        note: expect.stringContaining("The owner and the verified mark are not part of a proposal"),
+      });
+      expect(calls.get).toHaveBeenCalledExactlyOnceWith({ id: PAGE_ID });
+      expect(calls.propose).toHaveBeenCalledOnce();
+      const [proposal] = calls.propose.mock.calls[0] as [Record<string, unknown>];
+      expect(proposal).toMatchObject({
+        action: "update",
+        id: PAGE_ID,
+        conversationId: CONVERSATION_ID,
+        markdown: "Intro.\n\n## Pricing\n\nStandard plan: 25 EUR.\n\n## Changelog\n\nPrice raised.",
+      });
+      expect(proposal).not.toHaveProperty("edits");
+      expect(proposal).not.toHaveProperty("owner");
+      expect(proposal).not.toHaveProperty("verified");
+      expect(calls.update).not.toHaveBeenCalled();
+    });
+
+    it("adds no note about an owner or a verified mark when none was sent", async () => {
+      proposeOk();
+      calls.get.mockResolvedValue({ ok: true, data: stored });
+
+      const outcome = await execute(routineTools().manage_wiki_pages, {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+        edits: [{ find: "20 EUR", replace: "25 EUR" }],
+        verified: false,
+      });
+
+      expect(outcome.ok).toBe(true);
+      expect((decode(outcome.result) as { note: string }).note).not.toContain("left out");
+    });
+
+    it("refuses edits made against an older version of the page", async () => {
+      calls.get.mockResolvedValue({ ok: true, data: { ...stored, updatedAt: new Date("2026-09-14T12:00:00Z") } });
+
+      const outcome = await execute(routineTools().manage_wiki_pages, {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+        edits: [{ find: "20 EUR", replace: "25 EUR" }],
+      });
+
+      expect(outcome.ok).toBe(false);
+      expect(calls.propose).not.toHaveBeenCalled();
+    });
+
+    it("refuses an edit that does not fit the page and names it", async () => {
+      calls.get.mockResolvedValue({ ok: true, data: stored });
+
+      const outcome = await execute(routineTools().manage_wiki_pages, {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+        edits: [
+          { find: "20 EUR", replace: "25 EUR" },
+          { anchor: "refunds", markdown: "Text." },
+        ],
+      });
+
+      expect(outcome.ok).toBe(false);
+      expect(outcome.result).toContain("wikiEditSectionNotFound");
+      expect(calls.propose).not.toHaveBeenCalled();
+    });
+
+    it("says that an owner or a verified mark alone cannot be proposed", async () => {
+      const outcomes = [
+        await execute(routineTools().manage_wiki_pages, {
+          action: "update",
+          id: PAGE_ID,
+          expectedUpdatedAt: page.updatedAt.toISOString(),
+          verified: true,
+        }),
+        await execute(routineTools().manage_wiki_pages, {
+          action: "update",
+          id: PAGE_ID,
+          expectedUpdatedAt: page.updatedAt.toISOString(),
+          owner: "Support team",
+        }),
+      ];
+
+      for (const outcome of outcomes) {
+        expect(outcome.ok).toBe(false);
+        expect(outcome.result).toContain("owner and verified cannot be proposed");
+      }
+      expect(calls.get).not.toHaveBeenCalled();
+      expect(calls.propose).not.toHaveBeenCalled();
+    });
+
+    it("passes a whole new markdown on unchanged, without reading the page", async () => {
+      proposeOk();
+
+      await execute(routineTools().manage_wiki_pages, {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+        markdown: "Proposed edit",
+        owner: "Support team",
+      });
+
+      expect(calls.get).not.toHaveBeenCalled();
+      const [proposal] = calls.propose.mock.calls[0] as [Record<string, unknown>];
+      expect(proposal).toMatchObject({ action: "update", markdown: "Proposed edit" });
+      expect(proposal).not.toHaveProperty("owner");
+    });
+  });
+
   it("tells an unattended run without a conversation, such as an agent step, that it cannot change pages and still lets it read", async () => {
     const tools = getAgentAiTools(dependencies(), { surface: "routine" });
     const description = (tools.manage_wiki_pages as { description?: string }).description ?? "";

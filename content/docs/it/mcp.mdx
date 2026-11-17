@@ -438,9 +438,9 @@ Obbligatorio: `action`. Facoltativo: `id`, `typeId`, `name`, `enabled`, `config`
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-Elenca, cerca, leggi, crea, aggiorna, riordina (sposta prima o dopo un’altra pagina) o elimina (sposta nel Cestino) le pagine della Base di conoscenza, ciascuna una pagina di conoscenza, una procedura con un trigger «quando usarla» o l’unica Guida operativa. Aggiornamenti ed eliminazioni richiedono il valore updatedAt più recente; create può richiedere in modo atomico una Base di conoscenza vuota.
+Elenca, cerca, leggi, crea, aggiorna, riordina (sposta prima o dopo un’altra pagina) o elimina (sposta nel Cestino) le pagine della Base di conoscenza, ciascuna una pagina di conoscenza, una procedura con un trigger «quando usarla» o l’unica Guida operativa. Un aggiornamento può modificare parti di una pagina (trova e sostituisci, o una sezione tramite la sua ancora) invece di reinviarla per intero, indicare chi tiene aggiornata la pagina e contrassegnarla come verificata. links restituisce le pagine che rimandano a una pagina e quelle a cui essa rimanda oppure, per l’intera Base di conoscenza, le pagine a cui nessun’altra rimanda e le pagine con link a pagine eliminate. Aggiornamenti ed eliminazioni richiedono il valore updatedAt più recente; create può richiedere in modo atomico una Base di conoscenza vuota.
 
-**Può eliminare dati.** Obbligatorio: `action`. Facoltativo: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Può eliminare dati.** Obbligatorio: `action`. Facoltativo: `id`, `query`, `offset`, `anchor`, `maxChars`, `page`, `pageSize`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `edits`, `kind`, `whenToUse`, `owner`, `verified`.
 {/* /mcp-catalog */}
 
 ### Messaggistica [#messaging]

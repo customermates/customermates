@@ -1,4 +1,5 @@
 import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
+import { slugifyHeading } from "@/core/utils/search-text";
 
 const WIKI_OUTLINE_MAX_ENTRIES = 30;
 export const WIKI_SECTION_MAX_LENGTH = 160;
@@ -89,6 +90,31 @@ export function wikiMarkdownSections(markdown: string): WikiMarkdownSection[] {
   }
   sections.push({ ...current, end: markdown.length });
   return sections.filter((section) => section.level > 0 || markdown.slice(section.offset, section.end).trim());
+}
+
+export type WikiAnchoredSection = WikiMarkdownSection & { anchor: string };
+
+export function wikiAnchoredSections(markdown: string): WikiAnchoredSection[] {
+  const sections = wikiMarkdownSections(markdown).filter((section) => section.level > 0);
+  const plain = sections.map((section) => slugifyHeading(section.path.at(-1) ?? ""));
+  const taken = new Set(plain);
+  const seen = new Set<string>();
+  return sections.map((section, index) => {
+    const slug = plain[index];
+    if (!slug || !seen.has(slug)) {
+      seen.add(slug);
+      return { ...section, anchor: slug };
+    }
+    let count = 2;
+    while (taken.has(`${slug}-${count}`)) count += 1;
+    const anchor = `${slug}-${count}`;
+    taken.add(anchor);
+    return { ...section, anchor };
+  });
+}
+
+export function wikiSectionAnchorAt(markdown: string, offset: number): string | null {
+  return wikiAnchoredSections(markdown).find((section) => section.offset === offset)?.anchor || null;
 }
 
 export function wikiOutline(markdown: string): WikiOutlineEntry[] {

@@ -242,6 +242,21 @@ export const pt: Strings = {
     tasksMonth: "Tarefas abertas no mês",
   },
   wiki: {
+    pilot: {
+      title: "Conduzir um piloto",
+      whenToUse:
+        "Quando um prospect aceita testar o produto em uma linha de produção e a oportunidade passa para Piloto.",
+      markdown: [
+        "Um piloto é a prova de que uma indústria precisa antes de comprar de uma empresa jovem. Combine o que conta como sucesso antes de começar, ou ele nunca termina.",
+        "",
+        "## Passos",
+        "1. Passe a oportunidade para Piloto, como descrito em [Processo de vendas do fundador](wiki:process), e defina o período do piloto na oportunidade.",
+        "2. Escreva os critérios de sucesso nas notas da oportunidade: qual linha, quais etapas de inspeção e qual número precisa melhorar.",
+        "3. Anexe o acordo de piloto e o questionário de segurança respondido ao campo Documentos da oportunidade.",
+        "4. Defina uma data do próximo passo para um acompanhamento semanal e anote as dúvidas em aberto como em [Depois de uma demo](wiki:afterDemo).",
+        "5. Antes do fim do período do piloto, envie os preços e marque a reunião de decisão; depois passe a etapa para Decisão.",
+      ],
+    },
     guide: {
       title: "Guia operacional",
       markdown: [
