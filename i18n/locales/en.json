@@ -853,6 +853,112 @@
       "workingOnRequest": "Working on your request…"
     }
   },
+  "AgentJobs": {
+    "credits": "Credits used: {credits}",
+    "description": "What your agents did, with the tools they called.",
+    "empty": "No agent has run yet.",
+    "errors": {
+      "creditLimit": "Stopped when the credits for this run were used up",
+      "creditsExhausted": "Not enough AI credits",
+      "hostedAiUnavailable": "Hosted AI was not available",
+      "keyUnreadable": "The provider key could not be read",
+      "modelUnavailable": "No provider key offers this model",
+      "noKey": "No provider key for this run",
+      "ownerInactive": "The owner of the automation is no longer active",
+      "provider": "The provider returned an error ({code})",
+      "timeLimit": "Stopped at the time limit",
+      "timedOut": "The run took too long",
+      "toolLimit": "Stopped at the tool call limit"
+    },
+    "loadFailed": "The agent runs could not be loaded. Try again.",
+    "status": {
+      "cancelled": "Cancelled",
+      "claimed": "Starting",
+      "failed": "Failed",
+      "queued": "Queued",
+      "running": "Running",
+      "succeeded": "Completed",
+      "timedOut": "Timed out"
+    },
+    "title": "Recent agent runs",
+    "tokens": "{input} in, {output} out",
+    "transcript": {
+      "assistant": "Agent",
+      "called": "Called {name}",
+      "empty": "No steps were recorded.",
+      "finish": {
+        "cancelled": "Cancelled",
+        "creditLimit": "Stopped when credits ran out",
+        "error": "Failed",
+        "stop": "Finished",
+        "timeLimit": "Stopped at the time limit",
+        "toolLimit": "Stopped at the tool call limit"
+      },
+      "label": "Transcript of the run",
+      "result": "Result of {name}",
+      "resultFailed": "{name} did not complete",
+      "untrusted": "This run started from outside the workspace, so the agent treated the record as data.",
+      "user": "Instruction"
+    }
+  },
+  "AgentKeys": {
+    "add": "Add key",
+    "checkedAt": "Last checked",
+    "endsIn": "Ends in {last4}",
+    "fields": {
+      "apiKey": "API key",
+      "apiKeyDescription": "Paste the key from your provider's console. It is checked with the provider, stored encrypted and never shown again.",
+      "defaultModel": "Default model",
+      "defaultModelDescription": "Used when an agent step does not name a model.",
+      "label": "Label",
+      "labelPlaceholder": "Production",
+      "provider": "Provider"
+    },
+    "intro": "Agents carry out the agent steps of your automations. They can run on Mate, on your own AI key or on a runner on your own machine. Keys are stored encrypted and never shown again.",
+    "keysDescription": "Your own API key from Anthropic, OpenAI or Google. Agent steps set to your own key run on it and the provider bills you directly.",
+    "keysEmpty": "No provider key yet.",
+    "keysTitle": "Provider keys",
+    "lastUsedAt": "Last used",
+    "modalTitle": "Add a provider key",
+    "planRequired": "Running agents on your own key is included in the paid plans.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "A key for a provider that already has one replaces it.",
+    "test": "Test",
+    "testSucceeded": "The provider accepted this key."
+  },
+  "AgentRuntime": {
+    "available": "Available",
+    "description": "Agent steps can run on any of these once it is available in this workspace.",
+    "lastSeen": "Last seen {at}",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "Your own key",
+      "runner": "Your own runner"
+    },
+    "neverSeen": "Never seen",
+    "offline": "Offline",
+    "online": "Online",
+    "reasons": {
+      "noKey": "Add a provider key",
+      "noRunner": "No runner online",
+      "notConfigured": "Not available",
+      "plan": "Not in your plan",
+      "selfHosted": "Needs the cloud"
+    },
+    "runnersDescription": "Machines that run Claude Code or Codex for this workspace. Each runner signs in with its own token and login.",
+    "runnersEmpty": "No runner is connected.",
+    "runnersTitle": "Runners",
+    "summary": {
+      "mate": "The hosted agent of Customermates, paid with your AI credits.",
+      "ownKey": "An agent in our cloud that uses your provider key. The provider bills you.",
+      "runner": "Claude Code or Codex on your own machine, under your own login."
+    },
+    "title": "Where agents run"
+  },
   "ApiKeyModal": {
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
     "addTitle": "Add an API key",
@@ -1444,6 +1550,7 @@
       },
       "settings": {
         "activity": "audit log, history, changes, log, Activity, audit log, who changed what",
+        "agents": "agents, agent step, AI key, own key, Anthropic, OpenAI, Google, runner, Claude Code, Codex, agent runs, provider keys",
         "api-keys": "tokens, API, MCP, developer, access keys, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP server, n8n, integration",
         "billing": "plan, subscription, invoices, payment, pricing, upgrade, receipt",
         "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendars, inbox sync, calendar sync, email sync, SMTP, IMAP, Office 365, Sales Navigator",
@@ -6002,6 +6109,7 @@
   "SettingsNav": {
     "account": "Account",
     "activity": "Audit log",
+    "agents": "Agents",
     "apiKeys": "API keys & connectors",
     "billing": "Billing",
     "channels": "Channels & calendars",

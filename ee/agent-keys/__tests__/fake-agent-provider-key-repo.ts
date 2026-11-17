@@ -52,6 +52,19 @@ export class FakeAgentProviderKeyRepo implements AgentProviderKeyRepo {
     return Promise.resolve(this.rows.delete(id));
   }
 
+  findSealed(id: string): Promise<SealedAgentProviderKey | null> {
+    const row = this.rows.get(id);
+    return Promise.resolve(row && row.companyId === this.companyId ? row : null);
+  }
+
+  markValidated(id: string, at: Date): Promise<StoredAgentProviderKey | null> {
+    const row = this.rows.get(id);
+    if (!row || row.companyId !== this.companyId) return Promise.resolve(null);
+    const next = { ...row, validatedAt: at };
+    this.rows.set(id, next);
+    return Promise.resolve(this.visible(next));
+  }
+
   findSealedUnscoped(companyId: string, provider: AgentProviderId): Promise<SealedAgentProviderKey | null> {
     return Promise.resolve(
       [...this.rows.values()].find((row) => row.companyId === companyId && row.provider === provider) ?? null,

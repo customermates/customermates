@@ -29,6 +29,8 @@ export abstract class AgentProviderKeyRepo {
   abstract findAll(): Promise<StoredAgentProviderKey[]>;
   abstract upsert(data: AgentProviderKeyWrite): Promise<StoredAgentProviderKey>;
   abstract delete(id: string): Promise<boolean>;
+  abstract findSealed(id: string): Promise<SealedAgentProviderKey | null>;
+  abstract markValidated(id: string, at: Date): Promise<StoredAgentProviderKey | null>;
   abstract findSealedUnscoped(companyId: string, provider: AgentProviderId): Promise<SealedAgentProviderKey | null>;
   abstract touchLastUsedUnscoped(companyId: string, id: string, at: Date): Promise<void>;
 }

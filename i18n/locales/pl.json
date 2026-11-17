@@ -853,6 +853,112 @@
       "workingOnRequest": "Pracuję nad Twoją prośbą…"
     }
   },
+  "AgentJobs": {
+    "credits": "Zużyte kredyty: {credits}",
+    "description": "Co zrobiły Twoje agenty i jakich narzędzi użyły.",
+    "empty": "Żaden agent jeszcze nie działał.",
+    "errors": {
+      "creditLimit": "Zatrzymano, gdy skończyły się kredyty tego uruchomienia",
+      "creditsExhausted": "Za mało kredytów AI",
+      "hostedAiUnavailable": "Hostowane AI było niedostępne",
+      "keyUnreadable": "Nie udało się odczytać klucza dostawcy",
+      "modelUnavailable": "Żaden klucz dostawcy nie obsługuje tego modelu",
+      "noKey": "Brak klucza dostawcy dla tego uruchomienia",
+      "ownerInactive": "Właściciel automatyzacji nie jest już aktywny",
+      "provider": "Dostawca zwrócił błąd ({code})",
+      "timeLimit": "Zatrzymano po przekroczeniu limitu czasu",
+      "timedOut": "Uruchomienie trwało zbyt długo",
+      "toolLimit": "Zatrzymano po przekroczeniu limitu wywołań narzędzi"
+    },
+    "loadFailed": "Nie udało się załadować uruchomień agentów. Spróbuj ponownie.",
+    "status": {
+      "cancelled": "Anulowano",
+      "claimed": "Uruchamianie",
+      "failed": "Niepowodzenie",
+      "queued": "W kolejce",
+      "running": "W toku",
+      "succeeded": "Zakończono",
+      "timedOut": "Przekroczono czas"
+    },
+    "title": "Ostatnie uruchomienia agentów",
+    "tokens": "{input} na wejściu, {output} na wyjściu",
+    "transcript": {
+      "assistant": "Agent",
+      "called": "Wywołano {name}",
+      "empty": "Nie zapisano żadnych kroków.",
+      "finish": {
+        "cancelled": "Anulowano",
+        "creditLimit": "Zatrzymano, gdy skończyły się kredyty",
+        "error": "Niepowodzenie",
+        "stop": "Zakończono",
+        "timeLimit": "Zatrzymano po przekroczeniu limitu czasu",
+        "toolLimit": "Zatrzymano po przekroczeniu limitu wywołań narzędzi"
+      },
+      "label": "Zapis uruchomienia",
+      "result": "Wynik: {name}",
+      "resultFailed": "{name} nie zakończyło się",
+      "untrusted": "To uruchomienie zostało wywołane spoza przestrzeni roboczej, więc agent potraktował rekord jak dane.",
+      "user": "Polecenie"
+    }
+  },
+  "AgentKeys": {
+    "add": "Dodaj klucz",
+    "checkedAt": "Ostatnio sprawdzono",
+    "endsIn": "Kończy się na {last4}",
+    "fields": {
+      "apiKey": "Klucz API",
+      "apiKeyDescription": "Wklej klucz z konsoli swojego dostawcy. Jest sprawdzany u dostawcy, zapisywany w postaci zaszyfrowanej i nigdy więcej nie jest pokazywany.",
+      "defaultModel": "Model domyślny",
+      "defaultModelDescription": "Używany, gdy krok agenta nie podaje modelu.",
+      "label": "Etykieta",
+      "labelPlaceholder": "Produkcja",
+      "provider": "Dostawca"
+    },
+    "intro": "Agenty wykonują kroki agenta w Twoich automatyzacjach. Mogą działać na Mate, z Twoim własnym kluczem AI lub na runnerze na Twoim własnym komputerze. Klucze są zapisywane w postaci zaszyfrowanej i nigdy więcej nie są pokazywane.",
+    "keysDescription": "Twój własny klucz API od Anthropic, OpenAI lub Google. Kroki agenta ustawione na Twój klucz działają na nim, a dostawca rozlicza się bezpośrednio z Tobą.",
+    "keysEmpty": "Brak klucza dostawcy.",
+    "keysTitle": "Klucze dostawców",
+    "lastUsedAt": "Ostatnio użyto",
+    "modalTitle": "Dodaj klucz dostawcy",
+    "planRequired": "Uruchamianie agentów z własnym kluczem jest wliczone w plany płatne.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "Klucz dostawcy, który już ma klucz, zastępuje go.",
+    "test": "Testuj",
+    "testSucceeded": "Dostawca zaakceptował ten klucz."
+  },
+  "AgentRuntime": {
+    "available": "Dostępne",
+    "description": "Kroki agenta mogą działać w każdej z tych opcji, gdy tylko jest dostępna w tej przestrzeni roboczej.",
+    "lastSeen": "Ostatnio widziany {at}",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "Twój własny klucz",
+      "runner": "Twój własny runner"
+    },
+    "neverSeen": "Nigdy nie widziany",
+    "offline": "Offline",
+    "online": "Online",
+    "reasons": {
+      "noKey": "Dodaj klucz dostawcy",
+      "noRunner": "Brak runnera online",
+      "notConfigured": "Niedostępne",
+      "plan": "Nie ma w Twoim planie",
+      "selfHosted": "Wymaga chmury"
+    },
+    "runnersDescription": "Komputery, które uruchamiają Claude Code lub Codex dla tej przestrzeni roboczej. Każdy runner loguje się własnym tokenem i własnym loginem.",
+    "runnersEmpty": "Żaden runner nie jest połączony.",
+    "runnersTitle": "Runnery",
+    "summary": {
+      "mate": "Hostowany agent Customermates, opłacany Twoimi kredytami AI.",
+      "ownKey": "Agent w naszej chmurze, który używa klucza Twojego dostawcy. Dostawca rozlicza się z Tobą.",
+      "runner": "Claude Code lub Codex na Twoim własnym komputerze, z Twoim własnym loginem."
+    },
+    "title": "Gdzie działają agenty"
+  },
   "ApiKeyModal": {
     "addDescription": "Utwórz klucz do własnej integracji lub wybierz klienta AI, aby przejść przez konfigurację krok po kroku.",
     "addTitle": "Dodaj klucz API",
@@ -1444,6 +1550,7 @@
       },
       "settings": {
         "activity": "dziennik audytu, historia, zmiany, dziennik, aktywność, kto co zmienił",
+        "agents": "agenty, krok agenta, klucz AI, własny klucz, Anthropic, OpenAI, Google, runner, Claude Code, Codex, uruchomienia agentów, klucze dostawców",
         "api-keys": "tokeny, API, MCP, deweloper, klucze dostępu, konektory, Claude, ChatGPT, Codex, Gemini, Cursor, AI, serwer MCP, n8n, integracja",
         "billing": "plan, subskrypcja, faktury, płatność, cennik, zmiana planu, paragon, rachunek",
         "channels": "połączone konta, konta e-mail, LinkedIn, WhatsApp, integracje, Google, Kalendarz Google, Gmail, Microsoft, Outlook, Instagram, Telegram, kalendarze, synchronizacja skrzynki, synchronizacja kalendarza, synchronizacja poczty, SMTP, IMAP, Office 365, Sales Navigator",
@@ -6002,6 +6109,7 @@
   "SettingsNav": {
     "account": "Konto",
     "activity": "Dziennik audytu",
+    "agents": "Agenty",
     "apiKeys": "Klucze API i konektory",
     "billing": "Rozliczenia",
     "channels": "Kanały i kalendarze",

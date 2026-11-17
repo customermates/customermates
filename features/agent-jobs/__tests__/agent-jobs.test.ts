@@ -36,6 +36,7 @@ import { AGENT_JOB_PAGE_SIZE, AGENT_JOB_RETENTION_DAYS } from "../agent-job.sche
 import { EnqueueAgentJobInteractor } from "../enqueue-agent-job.interactor";
 import { GetAgentJobInteractor } from "../get-agent-job.interactor";
 import { GetAgentJobsInteractor } from "../get-agent-jobs.interactor";
+import { GetAgentRunnersInteractor } from "../get-agent-runners.interactor";
 import { PruneAgentJobsInteractor } from "../prune-agent-jobs.interactor";
 import { SweepAgentJobTimeoutsInteractor } from "../sweep-agent-job-timeouts.interactor";
 import { DiscardAgentJobInteractor } from "../discard-agent-job.interactor";
@@ -91,7 +92,9 @@ describe("enqueueing an agent job from an automation", () => {
   });
 
   const enqueue = (data: unknown, user = mockUser) =>
-    runWithTenant(user, () => new EnqueueAgentJobInteractor(repo, source, { dispatch }).enqueue(data as never));
+    runWithTenant(user, () =>
+      new EnqueueAgentJobInteractor(repo, source as never, { dispatch } as never).enqueue(data as never),
+    );
 
   it("queues a job with the triggering record in its prompt and starts the hosted run", async () => {
     const outcome = await enqueue(input);
@@ -275,6 +278,30 @@ describe("reading the run history", () => {
       prompt: "Do the thing",
     });
     expect((await detail("00000000-0000-4000-8000-0000000000fe")).ok).toBe(false);
+  });
+});
+
+describe("listing the runners of the workspace", () => {
+  it("marks a runner online for two minutes after it was last seen", async () => {
+    const seen = (secondsAgo: number) => new Date(NOW.getTime() - secondsAgo * 1000);
+    const repo = {
+      findActive: vi.fn().mockResolvedValue([
+        { id: RUNNER, name: "ws-main", machine: "ubuntu-vm", lastSeenAt: seen(30) },
+        { id: "00000000-0000-4000-8000-0000000000c2", name: "laptop", machine: null, lastSeenAt: seen(600) },
+        { id: "00000000-0000-4000-8000-0000000000c3", name: "new", machine: null, lastSeenAt: null },
+      ]),
+    };
+
+    const result = await runWithTenant(mockUser, () => new GetAgentRunnersInteractor(repo, () => NOW).invoke());
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.runners.map((runner) => [runner.name, runner.machine, runner.online])).toEqual([
+      ["ws-main", "ubuntu-vm", true],
+      ["laptop", null, false],
+      ["new", null, false],
+    ]);
+    expect(result.data.runners[2].lastSeenAt).toBeNull();
   });
 });
 

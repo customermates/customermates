@@ -853,6 +853,112 @@
       "workingOnRequest": "Trabalhando no seu pedido…"
     }
   },
+  "AgentJobs": {
+    "credits": "Créditos usados: {credits}",
+    "description": "O que seus agentes fizeram, com as ferramentas que chamaram.",
+    "empty": "Nenhum agente foi executado ainda.",
+    "errors": {
+      "creditLimit": "Interrompida quando os créditos desta execução acabaram",
+      "creditsExhausted": "Créditos de IA insuficientes",
+      "hostedAiUnavailable": "A IA hospedada não estava disponível",
+      "keyUnreadable": "Não foi possível ler a chave do provedor",
+      "modelUnavailable": "Nenhuma chave de provedor oferece este modelo",
+      "noKey": "Nenhuma chave de provedor para esta execução",
+      "ownerInactive": "O proprietário da automação não está mais ativo",
+      "provider": "O provedor retornou um erro ({code})",
+      "timeLimit": "Interrompida no limite de tempo",
+      "timedOut": "A execução demorou demais",
+      "toolLimit": "Interrompida no limite de chamadas de ferramentas"
+    },
+    "loadFailed": "Não foi possível carregar as execuções dos agentes. Tente novamente.",
+    "status": {
+      "cancelled": "Cancelada",
+      "claimed": "Iniciando",
+      "failed": "Falhou",
+      "queued": "Na fila",
+      "running": "Em andamento",
+      "succeeded": "Concluída",
+      "timedOut": "Tempo esgotado"
+    },
+    "title": "Execuções recentes dos agentes",
+    "tokens": "{input} de entrada, {output} de saída",
+    "transcript": {
+      "assistant": "Agente",
+      "called": "Chamou {name}",
+      "empty": "Nenhuma etapa foi registrada.",
+      "finish": {
+        "cancelled": "Cancelada",
+        "creditLimit": "Interrompida quando os créditos acabaram",
+        "error": "Falhou",
+        "stop": "Concluída",
+        "timeLimit": "Interrompida no limite de tempo",
+        "toolLimit": "Interrompida no limite de chamadas de ferramentas"
+      },
+      "label": "Transcrição da execução",
+      "result": "Resultado de {name}",
+      "resultFailed": "{name} não foi concluído",
+      "untrusted": "Esta execução começou fora do espaço de trabalho, então o agente tratou o registro como dados.",
+      "user": "Instrução"
+    }
+  },
+  "AgentKeys": {
+    "add": "Adicionar chave",
+    "checkedAt": "Última verificação",
+    "endsIn": "Termina em {last4}",
+    "fields": {
+      "apiKey": "Chave de API",
+      "apiKeyDescription": "Cole a chave do console do seu provedor. Ela é verificada com o provedor, guardada criptografada e nunca mais é exibida.",
+      "defaultModel": "Modelo padrão",
+      "defaultModelDescription": "Usado quando uma etapa de agente não indica um modelo.",
+      "label": "Rótulo",
+      "labelPlaceholder": "Produção",
+      "provider": "Provedor"
+    },
+    "intro": "Os agentes executam as etapas de agente das suas automações. Eles podem rodar no Mate, com a sua própria chave de IA ou em um runner na sua própria máquina. As chaves são guardadas criptografadas e nunca mais são exibidas.",
+    "keysDescription": "Sua própria chave de API da Anthropic, OpenAI ou Google. As etapas de agente configuradas com a sua chave rodam nela e o provedor cobra de você diretamente.",
+    "keysEmpty": "Ainda não há chave de provedor.",
+    "keysTitle": "Chaves de provedor",
+    "lastUsedAt": "Último uso",
+    "modalTitle": "Adicionar uma chave de provedor",
+    "planRequired": "Executar agentes com a sua própria chave está incluído nos planos pagos.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "Uma chave de um provedor que já tem uma a substitui.",
+    "test": "Testar",
+    "testSucceeded": "O provedor aceitou esta chave."
+  },
+  "AgentRuntime": {
+    "available": "Disponível",
+    "description": "As etapas de agente podem rodar em qualquer uma destas opções quando ela estiver disponível neste espaço de trabalho.",
+    "lastSeen": "Visto pela última vez {at}",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "Sua própria chave",
+      "runner": "Seu próprio runner"
+    },
+    "neverSeen": "Nunca visto",
+    "offline": "Offline",
+    "online": "Online",
+    "reasons": {
+      "noKey": "Adicione uma chave de provedor",
+      "noRunner": "Nenhum runner online",
+      "notConfigured": "Indisponível",
+      "plan": "Não incluído no seu plano",
+      "selfHosted": "Requer a nuvem"
+    },
+    "runnersDescription": "Máquinas que executam o Claude Code ou o Codex para este espaço de trabalho. Cada runner entra com seu próprio token e seu próprio login.",
+    "runnersEmpty": "Nenhum runner conectado.",
+    "runnersTitle": "Runners",
+    "summary": {
+      "mate": "O agente hospedado do Customermates, pago com seus créditos de IA.",
+      "ownKey": "Um agente na nossa nuvem que usa a chave do seu provedor. O provedor cobra de você.",
+      "runner": "Claude Code ou Codex na sua própria máquina, com o seu próprio login."
+    },
+    "title": "Onde os agentes rodam"
+  },
   "ApiKeyModal": {
     "addDescription": "Crie uma chave para a sua própria integração ou escolha um cliente de IA para uma configuração guiada.",
     "addTitle": "Adicionar uma chave de API",
@@ -1444,6 +1550,7 @@
       },
       "settings": {
         "activity": "log de auditoria, histórico, alterações, log, Atividade, log de auditoria, quem alterou o quê",
+        "agents": "agentes, etapa de agente, chave de IA, chave própria, Anthropic, OpenAI, Google, runner, Claude Code, Codex, execuções de agentes, chaves de provedor",
         "api-keys": "tokens, API, MCP, desenvolvedor, chaves de acesso, conectores, Claude, ChatGPT, Codex, Gemini, Cursor, IA, servidor MCP, n8n, integração",
         "billing": "plano, assinatura, faturas, pagamento, preços, upgrade, recibo, cobrança",
         "channels": "contas conectadas, contas de e-mail, LinkedIn, WhatsApp, integrações, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, calendários, sincronização da caixa de entrada, sincronização do calendário, sincronização de e-mail, SMTP, IMAP, Office 365, Sales Navigator",
@@ -6002,6 +6109,7 @@
   "SettingsNav": {
     "account": "Conta",
     "activity": "Registro de auditoria",
+    "agents": "Agentes",
     "apiKeys": "Chaves de API e conectores",
     "billing": "Faturamento",
     "channels": "Canais e calendários",

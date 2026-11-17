@@ -32,6 +32,7 @@ export class PrismaAgentProviderKeyRepo extends TenantRepository implements Agen
       where: { companyId_provider: { companyId: this.companyId, provider: data.provider } },
       create: { ...data, companyId: this.companyId, createdById: this.user.id },
       update: {
+        companyId: this.companyId,
         label: data.label,
         keyCiphertext: data.keyCiphertext,
         keyLast4: data.keyLast4,
@@ -47,6 +48,19 @@ export class PrismaAgentProviderKeyRepo extends TenantRepository implements Agen
   async delete(id: string): Promise<boolean> {
     const result = await this.prisma.agentProviderKey.deleteMany({ where: { id, companyId: this.companyId } });
     return result.count === 1;
+  }
+
+  findSealed(id: string): Promise<SealedAgentProviderKey | null> {
+    return this.prisma.agentProviderKey.findFirst({ where: { id, companyId: this.companyId }, select: SEALED_SELECT });
+  }
+
+  async markValidated(id: string, at: Date): Promise<StoredAgentProviderKey | null> {
+    const result = await this.prisma.agentProviderKey.updateMany({
+      where: { id, companyId: this.companyId },
+      data: { validatedAt: at },
+    });
+    if (result.count !== 1) return null;
+    return this.prisma.agentProviderKey.findFirst({ where: { id, companyId: this.companyId }, select: KEY_SELECT });
   }
 
   @BypassTenantGuard

@@ -853,6 +853,112 @@
       "workingOnRequest": "Deine Anfrage wird bearbeitet…"
     }
   },
+  "AgentJobs": {
+    "credits": "Verbrauchte Credits: {credits}",
+    "description": "Was deine Agenten getan haben, mit den Werkzeugen, die sie aufgerufen haben.",
+    "empty": "Noch kein Agent gelaufen.",
+    "errors": {
+      "creditLimit": "Gestoppt, als die Credits dieses Laufs aufgebraucht waren",
+      "creditsExhausted": "Nicht genügend KI-Credits",
+      "hostedAiUnavailable": "Die gehostete KI war nicht verfügbar",
+      "keyUnreadable": "Der Anbieter-Schlüssel konnte nicht gelesen werden",
+      "modelUnavailable": "Kein Anbieter-Schlüssel bietet dieses Modell",
+      "noKey": "Kein Anbieter-Schlüssel für diesen Lauf",
+      "ownerInactive": "Die Person, der die Automatisierung gehört, ist nicht mehr aktiv",
+      "provider": "Der Anbieter hat einen Fehler gemeldet ({code})",
+      "timeLimit": "Am Zeitlimit gestoppt",
+      "timedOut": "Der Lauf hat zu lange gedauert",
+      "toolLimit": "Am Limit der Werkzeugaufrufe gestoppt"
+    },
+    "loadFailed": "Die Agentenläufe konnten nicht geladen werden. Versuche es noch einmal.",
+    "status": {
+      "cancelled": "Abgebrochen",
+      "claimed": "Startet",
+      "failed": "Fehlgeschlagen",
+      "queued": "In Warteschlange",
+      "running": "Läuft",
+      "succeeded": "Erledigt",
+      "timedOut": "Zeitüberschreitung"
+    },
+    "title": "Letzte Agentenläufe",
+    "tokens": "{input} ein, {output} aus",
+    "transcript": {
+      "assistant": "Agent",
+      "called": "{name} aufgerufen",
+      "empty": "Es wurden keine Schritte aufgezeichnet.",
+      "finish": {
+        "cancelled": "Abgebrochen",
+        "creditLimit": "Gestoppt, als die Credits aufgebraucht waren",
+        "error": "Fehlgeschlagen",
+        "stop": "Abgeschlossen",
+        "timeLimit": "Am Zeitlimit gestoppt",
+        "toolLimit": "Am Limit der Werkzeugaufrufe gestoppt"
+      },
+      "label": "Protokoll des Laufs",
+      "result": "Ergebnis von {name}",
+      "resultFailed": "{name} wurde nicht abgeschlossen",
+      "untrusted": "Dieser Lauf wurde von außerhalb des Workspaces gestartet, deshalb hat der Agent den Datensatz als Daten behandelt.",
+      "user": "Anweisung"
+    }
+  },
+  "AgentKeys": {
+    "add": "Schlüssel hinzufügen",
+    "checkedAt": "Zuletzt geprüft",
+    "endsIn": "Endet auf {last4}",
+    "fields": {
+      "apiKey": "API-Schlüssel",
+      "apiKeyDescription": "Füge den Schlüssel aus der Konsole deines Anbieters ein. Er wird beim Anbieter geprüft, verschlüsselt gespeichert und nie wieder angezeigt.",
+      "defaultModel": "Standardmodell",
+      "defaultModelDescription": "Wird verwendet, wenn ein Agent-Schritt kein Modell nennt.",
+      "label": "Bezeichnung",
+      "labelPlaceholder": "Produktion",
+      "provider": "Anbieter"
+    },
+    "intro": "Agenten führen die Agent-Schritte deiner Automatisierungen aus. Sie können auf Mate, mit deinem eigenen KI-Schlüssel oder auf einem Runner auf deinem eigenen Rechner laufen. Schlüssel werden verschlüsselt gespeichert und nie wieder angezeigt.",
+    "keysDescription": "Dein eigener API-Schlüssel von Anthropic, OpenAI oder Google. Agent-Schritte mit deinem eigenen Schlüssel laufen darauf, und der Anbieter rechnet direkt mit dir ab.",
+    "keysEmpty": "Noch kein Anbieter-Schlüssel.",
+    "keysTitle": "Anbieter-Schlüssel",
+    "lastUsedAt": "Zuletzt verwendet",
+    "modalTitle": "Anbieter-Schlüssel hinzufügen",
+    "planRequired": "Agenten mit deinem eigenen Schlüssel auszuführen ist in den kostenpflichtigen Tarifen enthalten.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "Ein Schlüssel für einen Anbieter, der schon einen hat, ersetzt diesen.",
+    "test": "Testen",
+    "testSucceeded": "Der Anbieter hat diesen Schlüssel akzeptiert."
+  },
+  "AgentRuntime": {
+    "available": "Verfügbar",
+    "description": "Agent-Schritte können auf jeder dieser Möglichkeiten laufen, sobald sie in diesem Workspace verfügbar ist.",
+    "lastSeen": "Zuletzt gesehen {at}",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "Dein eigener Schlüssel",
+      "runner": "Dein eigener Runner"
+    },
+    "neverSeen": "Noch nie gesehen",
+    "offline": "Offline",
+    "online": "Online",
+    "reasons": {
+      "noKey": "Anbieter-Schlüssel hinzufügen",
+      "noRunner": "Kein Runner online",
+      "notConfigured": "Nicht verfügbar",
+      "plan": "Nicht in deinem Tarif",
+      "selfHosted": "Braucht die Cloud"
+    },
+    "runnersDescription": "Rechner, die Claude Code oder Codex für diesen Workspace ausführen. Jeder Runner meldet sich mit eigenem Token und eigenem Login an.",
+    "runnersEmpty": "Kein Runner verbunden.",
+    "runnersTitle": "Runner",
+    "summary": {
+      "mate": "Der gehostete Agent von Customermates, bezahlt mit deinen KI-Credits.",
+      "ownKey": "Ein Agent in unserer Cloud, der deinen Anbieter-Schlüssel nutzt. Der Anbieter rechnet mit dir ab.",
+      "runner": "Claude Code oder Codex auf deinem eigenen Rechner, mit deinem eigenen Login."
+    },
+    "title": "Wo Agenten laufen"
+  },
   "ApiKeyModal": {
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
     "addTitle": "API-Key hinzufügen",
@@ -1444,6 +1550,7 @@
       },
       "settings": {
         "activity": "Audit-Log, Verlauf, Änderungen, Protokoll, Aktivität, Audit-Log, Änderungsprotokoll, wer hat was geändert",
+        "agents": "Agenten, Agent-Schritt, KI-Schlüssel, eigener Schlüssel, Anthropic, OpenAI, Google, Runner, Claude Code, Codex, Agentenläufe, Anbieter-Schlüssel",
         "api-keys": "Token, API, MCP, Entwickler, Zugangsschlüssel, Konnektoren, Connectors, Claude, ChatGPT, Codex, Gemini, Cursor, KI, MCP-Server, n8n, Integration",
         "billing": "Tarif, Abonnement, Rechnungen, Zahlung, Preise, Upgrade, Beleg, Rechnung",
         "channels": "verbundene Konten, E-Mail-Konten, LinkedIn, WhatsApp, Integrationen, Google, Google Kalender, Gmail, Microsoft, Outlook, Instagram, Telegram, Kalender, Postfach-Synchronisierung, Kalender-Synchronisierung, E-Mail-Synchronisierung, SMTP, IMAP, Office 365, Sales Navigator",
@@ -6002,6 +6109,7 @@
   "SettingsNav": {
     "account": "Konto",
     "activity": "Audit-Log",
+    "agents": "Agenten",
     "apiKeys": "API-Schlüssel & Konnektoren",
     "billing": "Abrechnung",
     "channels": "Kanäle & Kalender",

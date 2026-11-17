@@ -31,13 +31,14 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { openSecret } from "@/core/security/secret-box";
+import { openSecret, sealSecret } from "@/core/security/secret-box";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AgentOwnKeyPlan } from "../agent-own-key-plan";
 import { DeleteAgentProviderKeyInteractor } from "../delete-agent-provider-key.interactor";
 import { FetchAgentProviderKeyValidator } from "../fetch-agent-provider-key-validator";
 import { GetAgentProviderKeysInteractor } from "../get-agent-provider-keys.interactor";
 import { SaveAgentProviderKeyInteractor } from "../save-agent-provider-key.interactor";
+import { TestAgentProviderKeyInteractor } from "../test-agent-provider-key.interactor";
 import { FakeAgentProviderKeyRepo } from "./fake-agent-provider-key-repo";
 
 const NOW = new Date("2026-11-17T09:00:00.000Z");
@@ -207,6 +208,64 @@ describe("listing and removing provider keys", () => {
     const again = await remove(saved.id);
     expect(again.ok).toBe(false);
     expect(issueOf(again as never).error).toBe(CustomErrorCode.agentProviderKeyNotFound);
+  });
+});
+
+describe("testing a saved provider key", () => {
+  async function saved() {
+    const repo = new FakeAgentProviderKeyRepo();
+    const stored = await repo.upsert({
+      provider: "openai",
+      label: "OpenAI",
+      keyCiphertext: sealSecret("sk-openai-stored-4321"),
+      keyLast4: "4321",
+      defaultModel: null,
+      validatedAt: new Date("2026-11-01T00:00:00.000Z"),
+    });
+    return { repo, stored };
+  }
+
+  const test = (repo: FakeAgentProviderKeyRepo, check: unknown, id: string) =>
+    runWithTenant(mockUser, () =>
+      new TestAgentProviderKeyInteractor(repo, { check } as never, () => NOW).invoke({ id } as never),
+    );
+
+  it("opens the stored key, asks the provider again and stamps the new validation time", async () => {
+    const { repo, stored } = await saved();
+    const check = vi.fn().mockResolvedValue("valid");
+
+    const result = await test(repo, check, stored.id);
+
+    expect(check).toHaveBeenCalledWith("openai", "sk-openai-stored-4321");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toMatchObject({ id: stored.id, last4: "4321", validatedAt: NOW.toISOString() });
+    expect(JSON.stringify(result.data)).not.toContain("sk-openai-stored");
+  });
+
+  it("keeps the old validation time when the provider rejects the key or cannot be reached", async () => {
+    const { repo, stored } = await saved();
+
+    const rejected = await test(repo, vi.fn().mockResolvedValue("invalid"), stored.id);
+    expect(issueOf(rejected as never)).toEqual({ path: ["id"], error: CustomErrorCode.agentProviderKeyInvalid });
+    const offline = await test(repo, vi.fn().mockResolvedValue("unreachable"), stored.id);
+    expect(issueOf(offline as never)).toEqual({ path: ["id"], error: CustomErrorCode.agentProviderKeyUnreachable });
+    expect((await repo.findSealed(stored.id))?.validatedAt).toEqual(new Date("2026-11-01T00:00:00.000Z"));
+  });
+
+  it("reports an unknown key and a key that cannot be opened with the current secret", async () => {
+    const { repo, stored } = await saved();
+    const check = vi.fn();
+
+    const missing = await test(repo, check, "00000000-0000-4000-8000-0000000000fe");
+    expect(issueOf(missing as never).error).toBe(CustomErrorCode.agentProviderKeyNotFound);
+
+    const row = await repo.findSealed(stored.id);
+    if (!row) throw new Error("The key is missing");
+    repo.rows.set(row.id, { ...row, keyCiphertext: "v1.garbage.garbage.garbage" });
+    const unreadable = await test(repo, check, stored.id);
+    expect(issueOf(unreadable as never).error).toBe(CustomErrorCode.agentProviderKeyInvalid);
+    expect(check).not.toHaveBeenCalled();
   });
 });
 

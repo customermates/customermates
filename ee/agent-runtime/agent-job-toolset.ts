@@ -1,10 +1,12 @@
 import type { ToolSet } from "ai";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
+import type { McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 import type { AgentJobRecorder } from "./agent-job-recorder";
 
 import { getAgentAiTools } from "@/ee/agent-chat/agent-tools";
 import { LOAD_TOOLSET_TOOL_NAME, isAgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 import { onDemandToolsetOfTool } from "@/ee/agent-chat/agent-toolsets";
+import { mcpMessageFailure } from "@/features/mcp-tools/utils";
 
 import { summarizeAgentJobToolOutput } from "./agent-job-tool-output";
 
@@ -12,11 +14,16 @@ const AGENT_JOB_RESULT_MAX_CHARS = 6000;
 const UNATTENDED = "Not available in an agent run: nobody can answer or approve.";
 const TOOL_LIMIT_RESULT = "The tool call limit of this run is reached. Stop, and report what is done and what remains.";
 
+function unattendedFailure(): McpToolExecutionResult {
+  const { text, failure } = mcpMessageFailure(UNATTENDED);
+  return { ok: false, result: text, failure };
+}
+
 export const AGENT_JOB_TOOL_DEPS: AgentToolDeps = {
   runUiCommand: () => Promise.resolve({ ok: false, result: UNATTENDED }),
   requestApproval: () => Promise.resolve("reject"),
   resolveApprovalContext: (_toolName, input) => Promise.resolve({ ok: true, input }),
-  createSupportTicket: () => Promise.resolve({ ok: false, result: UNATTENDED }),
+  createSupportTicket: () => Promise.resolve(unattendedFailure()),
   runExactlyOnce: (_toolCallId, _toolName, run) => run(),
   runInCallerContext: (run) => run(),
   resultMaxChars: AGENT_JOB_RESULT_MAX_CHARS,

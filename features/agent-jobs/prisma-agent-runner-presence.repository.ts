@@ -6,7 +6,7 @@ export class PrismaAgentRunnerPresenceRepo extends TenantRepository implements A
   findActive(): Promise<AgentRunnerPresence[]> {
     return this.prisma.agentRunner.findMany({
       where: { companyId: this.companyId, revokedAt: null },
-      select: { id: true, name: true, lastSeenAt: true },
+      select: { id: true, name: true, machine: true, lastSeenAt: true },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
   }

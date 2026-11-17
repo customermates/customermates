@@ -70,6 +70,9 @@ import { ScheduleMeetingModalStore } from "@/app/components/schedule-meeting/sch
 import { BookingLinkModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/booking-link-modal.store";
 import { WorkspacesStore } from "@/app/components/workspaces/workspaces.store";
 
+import { AgentKeyModalStore } from "@/components/agent-keys/agent-key-modal.store";
+import { AgentKeysStore } from "@/components/agent-keys/agent-keys.store";
+import { AgentRunsStore } from "@/components/agent-jobs/agent-runs.store";
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
 import { NavigationGuardController } from "./navigation-guard.controller";
@@ -79,6 +82,8 @@ export class RootStore {
   public readonly navigationGuard = new NavigationGuardController();
 
   private _apiKeysStore?: ApiKeysStore;
+  private _agentKeysStore?: AgentKeysStore;
+  private _agentRunsStore?: AgentRunsStore;
   private _connectedAccountsStore?: ConnectedAccountsStore;
   private _connectedAccountModalStore?: ConnectedAccountModalStore;
   private _connectUpsellModalStore?: ConnectUpsellModalStore;
@@ -135,6 +140,7 @@ export class RootStore {
   private _scheduleMeetingModalStore?: ScheduleMeetingModalStore;
   private _bookingLinkModalStore?: BookingLinkModalStore;
   private _createApiKeyModalStore?: ApiKeyModalStore;
+  private _agentKeyModalStore?: AgentKeyModalStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
   private _recordWorkspaceStore?: RecordWorkspaceStore;
@@ -243,6 +249,18 @@ export class RootStore {
 
   get apiKeysStore() {
     return (this._apiKeysStore ??= new ApiKeysStore(this));
+  }
+
+  get agentKeyModalStore() {
+    return (this._agentKeyModalStore ??= new AgentKeyModalStore(this));
+  }
+
+  get agentKeysStore() {
+    return (this._agentKeysStore ??= new AgentKeysStore(this));
+  }
+
+  get agentRunsStore() {
+    return (this._agentRunsStore ??= new AgentRunsStore(this));
   }
 
   get connectedAccountsStore() {

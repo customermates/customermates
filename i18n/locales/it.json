@@ -853,6 +853,112 @@
       "workingOnRequest": "Elaborazione della tua richiesta…"
     }
   },
+  "AgentJobs": {
+    "credits": "Crediti usati: {credits}",
+    "description": "Cosa hanno fatto i tuoi agenti, con gli strumenti che hanno chiamato.",
+    "empty": "Nessun agente è ancora stato eseguito.",
+    "errors": {
+      "creditLimit": "Interrotta quando i crediti di questa esecuzione sono finiti",
+      "creditsExhausted": "Crediti IA insufficienti",
+      "hostedAiUnavailable": "L’IA ospitata non era disponibile",
+      "keyUnreadable": "La chiave del fornitore non si è potuta leggere",
+      "modelUnavailable": "Nessuna chiave di fornitore offre questo modello",
+      "noKey": "Nessuna chiave di fornitore per questa esecuzione",
+      "ownerInactive": "Il proprietario dell’automazione non è più attivo",
+      "provider": "Il fornitore ha restituito un errore ({code})",
+      "timeLimit": "Interrotta al limite di tempo",
+      "timedOut": "L’esecuzione ha impiegato troppo tempo",
+      "toolLimit": "Interrotta al limite di chiamate agli strumenti"
+    },
+    "loadFailed": "Non è stato possibile caricare le esecuzioni degli agenti. Riprova.",
+    "status": {
+      "cancelled": "Annullata",
+      "claimed": "In avvio",
+      "failed": "Non riuscita",
+      "queued": "In coda",
+      "running": "In corso",
+      "succeeded": "Completata",
+      "timedOut": "Tempo scaduto"
+    },
+    "title": "Ultime esecuzioni degli agenti",
+    "tokens": "{input} in ingresso, {output} in uscita",
+    "transcript": {
+      "assistant": "Agente",
+      "called": "Chiamato {name}",
+      "empty": "Non è stato registrato nessun passaggio.",
+      "finish": {
+        "cancelled": "Annullata",
+        "creditLimit": "Interrotta quando i crediti sono finiti",
+        "error": "Non riuscita",
+        "stop": "Conclusa",
+        "timeLimit": "Interrotta al limite di tempo",
+        "toolLimit": "Interrotta al limite di chiamate agli strumenti"
+      },
+      "label": "Trascrizione dell’esecuzione",
+      "result": "Risultato di {name}",
+      "resultFailed": "{name} non è stato completato",
+      "untrusted": "Questa esecuzione è partita dall’esterno dello spazio di lavoro, quindi l’agente ha trattato il record come dati.",
+      "user": "Istruzione"
+    }
+  },
+  "AgentKeys": {
+    "add": "Aggiungi chiave",
+    "checkedAt": "Ultimo controllo",
+    "endsIn": "Termina con {last4}",
+    "fields": {
+      "apiKey": "Chiave API",
+      "apiKeyDescription": "Incolla la chiave dalla console del tuo fornitore. Viene verificata presso il fornitore, salvata cifrata e non viene mai più mostrata.",
+      "defaultModel": "Modello predefinito",
+      "defaultModelDescription": "Usato quando un passaggio dell’agente non indica un modello.",
+      "label": "Etichetta",
+      "labelPlaceholder": "Produzione",
+      "provider": "Fornitore"
+    },
+    "intro": "Gli agenti eseguono i passaggi agente delle tue automazioni. Possono girare su Mate, con la tua chiave IA o su un runner sul tuo computer. Le chiavi vengono salvate cifrate e non vengono mai più mostrate.",
+    "keysDescription": "La tua chiave API di Anthropic, OpenAI o Google. I passaggi agente impostati sulla tua chiave girano su di essa e il fornitore ti fattura direttamente.",
+    "keysEmpty": "Ancora nessuna chiave di fornitore.",
+    "keysTitle": "Chiavi dei fornitori",
+    "lastUsedAt": "Ultimo utilizzo",
+    "modalTitle": "Aggiungi una chiave di fornitore",
+    "planRequired": "L’esecuzione di agenti con la tua chiave è inclusa nei piani a pagamento.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "Una chiave per un fornitore che ne ha già una la sostituisce.",
+    "test": "Prova",
+    "testSucceeded": "Il fornitore ha accettato questa chiave."
+  },
+  "AgentRuntime": {
+    "available": "Disponibile",
+    "description": "I passaggi agente possono girare su ciascuna di queste opzioni quando è disponibile in questo spazio di lavoro.",
+    "lastSeen": "Visto l’ultima volta {at}",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "La tua chiave",
+      "runner": "Il tuo runner"
+    },
+    "neverSeen": "Mai visto",
+    "offline": "Offline",
+    "online": "Online",
+    "reasons": {
+      "noKey": "Aggiungi una chiave di fornitore",
+      "noRunner": "Nessun runner online",
+      "notConfigured": "Non disponibile",
+      "plan": "Non incluso nel tuo piano",
+      "selfHosted": "Richiede il cloud"
+    },
+    "runnersDescription": "Computer che eseguono Claude Code o Codex per questo spazio di lavoro. Ogni runner accede con il proprio token e il proprio login.",
+    "runnersEmpty": "Nessun runner collegato.",
+    "runnersTitle": "Runner",
+    "summary": {
+      "mate": "L’agente ospitato di Customermates, pagato con i tuoi crediti IA.",
+      "ownKey": "Un agente nel nostro cloud che usa la chiave del tuo fornitore. Il fornitore ti fattura.",
+      "runner": "Claude Code o Codex sul tuo computer, con il tuo login."
+    },
+    "title": "Dove girano gli agenti"
+  },
   "ApiKeyModal": {
     "addDescription": "Crea una chiave per la tua integrazione oppure scegli un client IA per la configurazione guidata.",
     "addTitle": "Aggiungi una chiave API",
@@ -1444,6 +1550,7 @@
       },
       "settings": {
         "activity": "registro di audit, cronologia, modifiche, Attività, registro di controllo, chi ha cambiato cosa",
+        "agents": "agenti, passaggio agente, chiave IA, chiave propria, Anthropic, OpenAI, Google, runner, Claude Code, Codex, esecuzioni degli agenti, chiavi dei fornitori",
         "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso, connettori, Claude, ChatGPT, Codex, Gemini, Cursor, IA, server MCP, n8n, integrazione",
         "billing": "piano, abbonamento, fatture, pagamento, prezzi, upgrade, ricevuta, fattura",
         "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni, Google, Calendario Google, Gmail, Microsoft, Outlook, Instagram, Telegram, calendari, sincronizzazione posta, sincronizzazione calendario, sincronizzazione email, SMTP, IMAP, Office 365, Sales Navigator",
@@ -6002,6 +6109,7 @@
   "SettingsNav": {
     "account": "Account",
     "activity": "Registro attività",
+    "agents": "Agenti",
     "apiKeys": "Chiavi API e connettori",
     "billing": "Fatturazione",
     "channels": "Canali e calendari",

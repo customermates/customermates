@@ -14,7 +14,8 @@ export type SettingsSlug =
   | "activity"
   | "webhooks"
   | "webhook-deliveries"
-  | "incoming-webhooks";
+  | "incoming-webhooks"
+  | "agents";
 
 export function settingsHref(slug: SettingsSlug) {
   return `/settings/${slug}`;

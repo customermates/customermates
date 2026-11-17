@@ -853,6 +853,112 @@
       "workingOnRequest": "Bezig met je verzoek…"
     }
   },
+  "AgentJobs": {
+    "credits": "Verbruikte credits: {credits}",
+    "description": "Wat je agents deden, met de tools die ze aanriepen.",
+    "empty": "Er is nog geen agent uitgevoerd.",
+    "errors": {
+      "creditLimit": "Gestopt toen de credits van deze uitvoering op waren",
+      "creditsExhausted": "Niet genoeg AI-credits",
+      "hostedAiUnavailable": "De gehoste AI was niet beschikbaar",
+      "keyUnreadable": "De sleutel van de aanbieder kon niet worden gelezen",
+      "modelUnavailable": "Geen sleutel van een aanbieder biedt dit model",
+      "noKey": "Geen sleutel van een aanbieder voor deze uitvoering",
+      "ownerInactive": "De eigenaar van de automatisering is niet meer actief",
+      "provider": "De aanbieder gaf een fout terug ({code})",
+      "timeLimit": "Gestopt bij de tijdslimiet",
+      "timedOut": "De uitvoering duurde te lang",
+      "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
+    },
+    "loadFailed": "De agentuitvoeringen konden niet worden geladen. Probeer het opnieuw.",
+    "status": {
+      "cancelled": "Geannuleerd",
+      "claimed": "Wordt gestart",
+      "failed": "Mislukt",
+      "queued": "In de wachtrij",
+      "running": "Bezig",
+      "succeeded": "Afgerond",
+      "timedOut": "Time-out"
+    },
+    "title": "Recente agentuitvoeringen",
+    "tokens": "{input} in, {output} uit",
+    "transcript": {
+      "assistant": "Agent",
+      "called": "{name} aangeroepen",
+      "empty": "Er zijn geen stappen vastgelegd.",
+      "finish": {
+        "cancelled": "Geannuleerd",
+        "creditLimit": "Gestopt toen de credits op waren",
+        "error": "Mislukt",
+        "stop": "Afgerond",
+        "timeLimit": "Gestopt bij de tijdslimiet",
+        "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
+      },
+      "label": "Transcript van de uitvoering",
+      "result": "Resultaat van {name}",
+      "resultFailed": "{name} is niet voltooid",
+      "untrusted": "Deze uitvoering is van buiten de werkruimte gestart, daarom behandelde de agent het record als gegevens.",
+      "user": "Opdracht"
+    }
+  },
+  "AgentKeys": {
+    "add": "Sleutel toevoegen",
+    "checkedAt": "Laatst gecontroleerd",
+    "endsIn": "Eindigt op {last4}",
+    "fields": {
+      "apiKey": "API-sleutel",
+      "apiKeyDescription": "Plak de sleutel uit de console van je aanbieder. Hij wordt bij de aanbieder gecontroleerd, versleuteld opgeslagen en nooit meer getoond.",
+      "defaultModel": "Standaardmodel",
+      "defaultModelDescription": "Gebruikt wanneer een agentstap geen model noemt.",
+      "label": "Label",
+      "labelPlaceholder": "Productie",
+      "provider": "Aanbieder"
+    },
+    "intro": "Agents voeren de agentstappen van je automatiseringen uit. Ze kunnen draaien op Mate, op je eigen AI-sleutel of op een runner op je eigen machine. Sleutels worden versleuteld opgeslagen en nooit meer getoond.",
+    "keysDescription": "Je eigen API-sleutel van Anthropic, OpenAI of Google. Agentstappen die op je eigen sleutel staan, draaien daarop en de aanbieder rekent direct met je af.",
+    "keysEmpty": "Nog geen sleutel van een aanbieder.",
+    "keysTitle": "Sleutels van aanbieders",
+    "lastUsedAt": "Laatst gebruikt",
+    "modalTitle": "Sleutel van een aanbieder toevoegen",
+    "planRequired": "Agents uitvoeren op je eigen sleutel zit in de betaalde pakketten.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "Een sleutel voor een aanbieder die er al een heeft, vervangt die.",
+    "test": "Testen",
+    "testSucceeded": "De aanbieder heeft deze sleutel geaccepteerd."
+  },
+  "AgentRuntime": {
+    "available": "Beschikbaar",
+    "description": "Agentstappen kunnen op elk van deze opties draaien zodra die in deze werkruimte beschikbaar is.",
+    "lastSeen": "Laatst gezien {at}",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "Je eigen sleutel",
+      "runner": "Je eigen runner"
+    },
+    "neverSeen": "Nooit gezien",
+    "offline": "Offline",
+    "online": "Online",
+    "reasons": {
+      "noKey": "Voeg een sleutel van een aanbieder toe",
+      "noRunner": "Geen runner online",
+      "notConfigured": "Niet beschikbaar",
+      "plan": "Niet in je pakket",
+      "selfHosted": "Heeft de cloud nodig"
+    },
+    "runnersDescription": "Machines die Claude Code of Codex voor deze werkruimte uitvoeren. Elke runner meldt zich aan met een eigen token en eigen login.",
+    "runnersEmpty": "Er is geen runner verbonden.",
+    "runnersTitle": "Runners",
+    "summary": {
+      "mate": "De gehoste agent van Customermates, betaald met je AI-credits.",
+      "ownKey": "Een agent in onze cloud die de sleutel van je aanbieder gebruikt. De aanbieder rekent met je af.",
+      "runner": "Claude Code of Codex op je eigen machine, met je eigen login."
+    },
+    "title": "Waar agents draaien"
+  },
   "ApiKeyModal": {
     "addDescription": "Maak een sleutel voor je eigen integratie of kies een AI-client voor begeleide installatie.",
     "addTitle": "Een API-sleutel toevoegen",
@@ -1444,6 +1550,7 @@
       },
       "settings": {
         "activity": "auditlog, geschiedenis, wijzigingen, logboek, activiteit, auditlog, wie heeft wat gewijzigd",
+        "agents": "agents, agentstap, AI-sleutel, eigen sleutel, Anthropic, OpenAI, Google, runner, Claude Code, Codex, agentuitvoeringen, sleutels van aanbieders",
         "api-keys": "tokens, API, MCP, ontwikkelaar, toegangssleutels, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP-server, n8n, integratie",
         "billing": "abonnement, facturen, betaling, prijzen, upgraden, bon",
         "channels": "gekoppelde accounts, e-mailaccounts, LinkedIn, WhatsApp, integraties, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, agenda's, inboxsynchronisatie, agendasynchronisatie, e-mailsynchronisatie, SMTP, IMAP, Office 365, Sales Navigator",
@@ -6002,6 +6109,7 @@
   "SettingsNav": {
     "account": "Account",
     "activity": "Auditlog",
+    "agents": "Agents",
     "apiKeys": "API-sleutels & connectoren",
     "billing": "Facturering",
     "channels": "Kanalen & agenda's",

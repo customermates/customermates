@@ -8,8 +8,7 @@ import type { AgentProviderKeyRepo } from "@/ee/agent-keys/agent-provider-key.re
 
 import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 import { agentProviderModels } from "@/ee/agent-keys/agent-provider-models";
-
-export const AGENT_RUNNER_ONLINE_WINDOW_MS = 2 * 60 * 1000;
+import { isAgentRunnerOnline } from "@/features/agent-jobs/agent-runner.schema";
 
 type PlanSource = { plan(): Promise<{ plan: PlanId | null }> };
 
@@ -48,11 +47,11 @@ export class AgentRuntimeAvailabilityAdapter implements AgentRuntimeAvailability
   }
 
   private async runner(): Promise<AgentRuntimeAvailability["runner"]> {
-    const since = this.clock().getTime() - AGENT_RUNNER_ONLINE_WINDOW_MS;
+    const now = this.clock();
     const runners = (await this.runners.findActive()).map((runner) => ({
       id: runner.id,
       name: runner.name,
-      online: runner.lastSeenAt !== null && runner.lastSeenAt.getTime() >= since,
+      online: isAgentRunnerOnline(runner.lastSeenAt, now),
     }));
     const online = runners.some((runner) => runner.online);
     return { available: online, reason: online ? null : "noRunner", models: [], runners };

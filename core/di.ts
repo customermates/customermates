@@ -2849,6 +2849,7 @@ import { PrismaAgentRunnerPresenceRepo } from "@/features/agent-jobs/prisma-agen
 import { EnqueueAgentJobInteractor } from "@/features/agent-jobs/enqueue-agent-job.interactor";
 import { GetAgentJobsInteractor } from "@/features/agent-jobs/get-agent-jobs.interactor";
 import { GetAgentJobInteractor } from "@/features/agent-jobs/get-agent-job.interactor";
+import { GetAgentRunnersInteractor } from "@/features/agent-jobs/get-agent-runners.interactor";
 import { DiscardAgentJobInteractor } from "@/features/agent-jobs/discard-agent-job.interactor";
 import { SweepAgentJobTimeoutsInteractor } from "@/features/agent-jobs/sweep-agent-job-timeouts.interactor";
 import { PruneAgentJobsInteractor } from "@/features/agent-jobs/prune-agent-jobs.interactor";
@@ -2858,6 +2859,7 @@ import { FetchAgentProviderKeyValidator } from "@/ee/agent-keys/fetch-agent-prov
 import { GetAgentProviderKeysInteractor } from "@/ee/agent-keys/get-agent-provider-keys.interactor";
 import { SaveAgentProviderKeyInteractor } from "@/ee/agent-keys/save-agent-provider-key.interactor";
 import { DeleteAgentProviderKeyInteractor } from "@/ee/agent-keys/delete-agent-provider-key.interactor";
+import { TestAgentProviderKeyInteractor } from "@/ee/agent-keys/test-agent-provider-key.interactor";
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { AgentRuntimeAvailabilityAdapter } from "@/ee/agent-runtime/agent-runtime-availability-source";
 import { createOwnKeyModel } from "@/ee/agent-runtime/create-own-key-model";
@@ -2995,6 +2997,7 @@ export const getGetAgentRuntimeAvailabilityInteractor = () =>
   new GetAgentRuntimeAvailabilityInteractor(getAgentRuntimeAvailabilitySource());
 export const getGetAgentJobsInteractor = () => new GetAgentJobsInteractor(getAgentJobRepo());
 export const getGetAgentJobInteractor = () => new GetAgentJobInteractor(getAgentJobRepo());
+export const getGetAgentRunnersInteractor = () => new GetAgentRunnersInteractor(new PrismaAgentRunnerPresenceRepo());
 export const getRunAgentJobInteractor = () =>
   new RunAgentJobInteractor(
     getAgentJobRepo(),
@@ -3017,6 +3020,8 @@ export const getSaveAgentProviderKeyInteractor = () =>
   );
 export const getDeleteAgentProviderKeyInteractor = () =>
   new DeleteAgentProviderKeyInteractor(getAgentProviderKeyRepo());
+export const getTestAgentProviderKeyInteractor = () =>
+  new TestAgentProviderKeyInteractor(getAgentProviderKeyRepo(), new FetchAgentProviderKeyValidator());
 
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
 import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";

@@ -41,5 +41,8 @@ export type SaveAgentProviderKeyInput = z.input<typeof SaveAgentProviderKeySchem
 export const DeleteAgentProviderKeySchema = z.object({ id: z.uuid() }).strict();
 export type DeleteAgentProviderKeyData = z.infer<typeof DeleteAgentProviderKeySchema>;
 
+export const TestAgentProviderKeySchema = z.object({ id: z.uuid() }).strict();
+export type TestAgentProviderKeyData = z.infer<typeof TestAgentProviderKeySchema>;
+
 export const DeleteAgentProviderKeyResultSchema = z.object({ id: z.uuid() });
 export type DeleteAgentProviderKeyResult = Data<typeof DeleteAgentProviderKeyResultSchema>;

@@ -1,19 +1,39 @@
 import { Resource } from "@/generated/prisma";
 
-import { AgentRunnersPageView } from "@/components/agent-runners/agent-runners-page-view";
-import { getGetAgentRunnersInteractor } from "@/core/di";
-import { requireAccess } from "@/features/auth/next/require";
+import {
+  getGetAgentJobsInteractor,
+  getGetAgentProviderKeysInteractor,
+  getGetAgentRunnersInteractor,
+  getGetAgentRuntimeAvailabilityInteractor,
+} from "@/core/di";
+import { AgentsPageView } from "@/components/agent-keys/agents-page-view";
 import { PageContainer } from "@/components/shared/page-container";
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
+import { requireAccess } from "@/features/auth/next/require";
 
-export default async function AgentsSettingsPage() {
-  await requireAccess({ resource: Resource.api });
+async function recentRuns() {
+  try {
+    return await unwrapPage(getGetAgentJobsInteractor().invoke({}));
+  } catch (error) {
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return null;
+    throw error;
+  }
+}
 
-  const { runners } = await unwrapPage(getGetAgentRunnersInteractor().invoke());
+export default async function WorkspaceAgentsPage() {
+  await requireAccess({ resource: Resource.company });
+
+  const [keys, runners, availability, runs] = await Promise.all([
+    unwrapPage(getGetAgentProviderKeysInteractor().invoke()),
+    unwrapPage(getGetAgentRunnersInteractor().invoke()),
+    unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke()),
+    recentRuns(),
+  ]);
 
   return (
     <PageContainer>
-      <AgentRunnersPageView runners={runners} />
+      <AgentsPageView availability={availability} keys={keys.keys} runners={runners.runners} runs={runs} />
     </PageContainer>
   );
 }

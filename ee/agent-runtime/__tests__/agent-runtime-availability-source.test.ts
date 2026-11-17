@@ -5,7 +5,8 @@ import type { AppMode } from "@/core/config/environment";
 
 import { AgentOwnKeyPlan } from "@/ee/agent-keys/agent-own-key-plan";
 import { AgentRuntimeAvailabilitySchema } from "@/features/automation-rules/agent-runtime-availability";
-import { AGENT_RUNNER_ONLINE_WINDOW_MS, AgentRuntimeAvailabilityAdapter } from "../agent-runtime-availability-source";
+import { AGENT_RUNNER_ONLINE_WINDOW_MS } from "@/features/agent-jobs/agent-runner.schema";
+import { AgentRuntimeAvailabilityAdapter } from "../agent-runtime-availability-source";
 
 const NOW = new Date("2026-11-17T12:00:00.000Z");
 const RUNNER_A = "00000000-0000-4000-8000-0000000000c1";
@@ -19,6 +20,9 @@ type Options = {
   runners?: Array<{ id: string; name: string; lastSeenAt: Date | null }>;
 };
 
+const withMachine = (runners: NonNullable<Options["runners"]>) =>
+  runners.map((runner) => ({ ...runner, machine: null }));
+
 function adapter(options: Options = {}) {
   const plans = { plan: () => Promise.resolve({ plan: options.plan === undefined ? ("pro" as const) : options.plan }) };
   return new AgentRuntimeAvailabilityAdapter(
@@ -27,7 +31,7 @@ function adapter(options: Options = {}) {
     plans,
     new AgentOwnKeyPlan(plans),
     { findAll: vi.fn().mockResolvedValue(options.keys ?? []) },
-    { findActive: vi.fn().mockResolvedValue(options.runners ?? []) },
+    { findActive: vi.fn().mockResolvedValue(withMachine(options.runners ?? [])) },
     () => NOW,
   );
 }
