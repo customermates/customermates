@@ -908,7 +908,7 @@ describe("sweeping date-reached rules", () => {
     const queued = (await seedRun(repo, { id: UUID("b1") })) as string;
     const orphan = new FakeAutomationRuleRepo();
     const orphanRun = (await seedRun(orphan, { ownerUserId: null })) as string;
-    const old = new Date("2026-11-12T07:00:00.000Z");
+    const old = new Date(NOW.getTime() - 5 * 60 * 1000);
     for (const [store, id] of [
       [repo, queued],
       [orphan, orphanRun],
@@ -930,6 +930,129 @@ describe("sweeping date-reached rules", () => {
     );
     await discardSweep.invoke(NOW);
     expect(orphan.runs.get(orphanRun)?.status).toBe("skipped");
+  });
+
+  // Finding 4 of the review of 2026-11-17. A run whose worker dies outside the per-effect catch stays
+  // "running" and was handed to the worker again every ten minutes without end.
+  const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60 * 1000);
+
+  async function stalledRun(store: FakeAutomationRuleRepo, createdMinutesAgo: number, key = "event:stalled") {
+    const id = (await store.admitRunUnscoped({
+      companyId: store.companyId,
+      ruleId: RULE,
+      occurrenceKey: key,
+      triggerKind: "dateReached",
+      typeId: TYPE,
+      recordId: RECORD,
+      payload: { chain: [] },
+      depth: 0,
+      scheduledFor: NOW,
+    })) as string;
+    const run = store.runs.get(id);
+    if (run) {
+      store.runs.set(id, {
+        ...run,
+        status: "running",
+        createdAt: minutesAgo(createdMinutesAgo),
+        startedAt: minutesAgo(11),
+      });
+    }
+    return id;
+  }
+
+  it("tries a run that stayed running again while it is younger than half an hour", async () => {
+    const runId = await stalledRun(repo, 25);
+    dispatch.mockClear();
+    await expect(sweep.invoke(NOW)).resolves.toMatchObject({
+      automationRunsRedispatched: 1,
+      automationRunsAbandoned: 0,
+    });
+    expect(dispatch).toHaveBeenCalledWith("run-automation-rule", { runId, companyId: COMPANY, ownerUserId: OWNER });
+    expect(repo.runs.get(runId)?.status).toBe("running");
+  });
+
+  it("gives up on a run that is still unfinished half an hour after it was admitted", async () => {
+    const running = await stalledRun(repo, 31);
+    const queued = (await seedRun(repo, { id: RULE, triggerKind: "dateReached", trigger })) as string;
+    const waiting = repo.runs.get(queued);
+    if (waiting) repo.runs.set(queued, { ...waiting, createdAt: minutesAgo(45) });
+    dispatch.mockClear();
+
+    await expect(sweep.invoke(NOW)).resolves.toMatchObject({
+      automationRunsRedispatched: 0,
+      automationRunsAbandoned: 2,
+    });
+    expect(dispatch).not.toHaveBeenCalled();
+    for (const id of [running, queued]) {
+      expect(repo.runs.get(id)).toMatchObject({ status: "failed", error: "runAbandoned", finishedAt: NOW });
+      expect(repo.runs.get(id)?.outcome).toEqual({ effects: [] });
+    }
+    expect(repo.rules.get(RULE)).toMatchObject({ enabled: true, lastRunStatus: "failed" });
+    await expect(sweep.invoke(new Date(NOW.getTime() + 10 * 60 * 1000))).resolves.toMatchObject({
+      automationRunsRedispatched: 0,
+      automationRunsAbandoned: 0,
+    });
+  });
+
+  it("leaves a run alone that a worker picked up in the meantime", async () => {
+    const runId = await stalledRun(repo, 31);
+    vi.spyOn(repo, "claimRunUnscoped").mockResolvedValueOnce(false);
+    await expect(sweep.invoke(NOW)).resolves.toMatchObject({ automationRunsAbandoned: 0 });
+    expect(repo.runs.get(runId)?.status).toBe("running");
+  });
+
+  it("takes stale runs of every workspace instead of the hundred oldest of one", async () => {
+    const OTHER_COMPANY = "00000000-0000-4000-8000-000000000099";
+    for (let index = 0; index < 120; index += 1) await stalledRun(repo, 20, `event:poisoned-${index}`);
+    seedRule(repo, { id: RULE_B, companyId: OTHER_COMPANY, triggerKind: "dateReached", trigger });
+    const neighbour = await stalledRun(repo, 15, "event:neighbour");
+    const run = repo.runs.get(neighbour);
+    if (run) repo.runs.set(neighbour, { ...run, companyId: OTHER_COMPANY, ruleId: RULE_B });
+    dispatch.mockClear();
+
+    await expect(sweep.invoke(NOW)).resolves.toMatchObject({ automationRunsRedispatched: 21 });
+    expect(dispatch).toHaveBeenCalledWith("run-automation-rule", {
+      runId: neighbour,
+      companyId: OTHER_COMPANY,
+      ownerUserId: OWNER,
+    });
+  });
+
+  it("keeps going after a date rule or a stale run throws", async () => {
+    seedRule(repo, { id: RULE_B, triggerKind: "dateReached", trigger });
+    repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-13" }];
+    const first = await stalledRun(repo, 20, "event:first");
+    const second = await stalledRun(repo, 19, "event:second");
+    const candidates = vi.spyOn(repo, "findDateCandidatesCompanyWide");
+    candidates.mockRejectedValueOnce(new Error("model unavailable"));
+    const refusing = vi.fn((_task: string, payload: { runId: string }) =>
+      payload.runId === first ? Promise.reject(new Error("queue refused")) : Promise.resolve(undefined),
+    );
+    const report = vi.fn();
+    const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
+    const isolated = new SweepAutomationRulesInteractor(
+      repo,
+      { dispatch: refusing } as never,
+      discard,
+      undefined,
+      report,
+    );
+
+    await expect(isolated.invoke(new Date("2026-11-12T08:00:00.000Z"))).resolves.toEqual({
+      automationRulesAdmitted: 1,
+      automationRunsRedispatched: 1,
+      automationRunsAbandoned: 0,
+    });
+    expect(candidates).toHaveBeenCalledTimes(2);
+    expect(refusing).toHaveBeenCalledWith("run-automation-rule", {
+      runId: second,
+      companyId: COMPANY,
+      ownerUserId: OWNER,
+    });
+    expect(report.mock.calls.map(([, failure]) => failure)).toEqual([
+      { companyId: COMPANY, ruleId: RULE },
+      { companyId: COMPANY, runId: first },
+    ]);
   });
 });
 

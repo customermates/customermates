@@ -197,16 +197,24 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve();
   }
 
-  findStaleRunsUnscoped(queuedBefore: Date, runningBefore: Date, limit: number) {
+  findStaleRunsUnscoped(queuedBefore: Date, runningBefore: Date, limits: { companies: number; perCompany: number }) {
+    const oldestFirst = (left: StoredAutomationRuleRun, right: StoredAutomationRuleRun) =>
+      left.createdAt.getTime() - right.createdAt.getTime() || left.id.localeCompare(right.id);
+    const stale = [...this.runs.values()]
+      .filter(
+        (run) =>
+          (run.status === "queued" && run.createdAt < queuedBefore) ||
+          (run.status === "running" && run.startedAt !== null && run.startedAt < runningBefore),
+      )
+      .sort(oldestFirst);
+    const companies = [...new Set(stale.map((run) => run.companyId))].slice(0, limits.companies);
     return Promise.resolve(
-      [...this.runs.values()]
-        .filter(
-          (run) =>
-            (run.status === "queued" && run.createdAt < queuedBefore) ||
-            (run.status === "running" && run.startedAt !== null && run.startedAt < runningBefore),
-        )
-        .slice(0, limit)
-        .map((run) => ({ id: run.id, companyId: run.companyId })),
+      companies.flatMap((companyId) =>
+        stale
+          .filter((run) => run.companyId === companyId)
+          .slice(0, limits.perCompany)
+          .map((run) => ({ id: run.id, companyId: run.companyId, createdAt: run.createdAt })),
+      ),
     );
   }
 

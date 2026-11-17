@@ -74,6 +74,8 @@ export type AutomationRunSettlement = {
   now: Date;
 };
 
+export type StaleAutomationRuleRun = { id: string; companyId: string; createdAt: Date };
+
 export type AutomationDateCandidate = { recordId: string; fieldValue: string };
 
 export type AutomationOutboundWebhook = { id: string; enabled: boolean; events: string[] };
@@ -117,8 +119,8 @@ export abstract class AutomationRuleRepo {
   abstract findStaleRunsUnscoped(
     queuedBefore: Date,
     runningBefore: Date,
-    limit: number,
-  ): Promise<{ id: string; companyId: string }[]>;
+    limits: { companies: number; perCompany: number },
+  ): Promise<StaleAutomationRuleRun[]>;
   abstract findDateRulesUnscoped(args: { afterId?: string; limit: number }): Promise<StoredAutomationRule[]>;
   abstract findDateCandidatesCompanyWide(args: {
     companyId: string;

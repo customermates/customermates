@@ -220,6 +220,59 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     expect(left.rows).toEqual([{ id: queued }]);
   });
 
+  // Finding 4 of the review of 2026-11-17: the hundred oldest stale runs of all workspaces were taken, so
+  // one workspace with many stuck runs kept every other workspace's runs from being recovered.
+  it("finds stale runs per workspace, oldest first, with the time they were admitted", async () => {
+    const insertRun = async (company: string, rule: string, status: string, createdAt: Date, startedAt?: Date) => {
+      const id = randomUUID();
+      await client.query(
+        `INSERT INTO "AutomationRuleRun"
+           ("id", "companyId", "ruleId", "occurrenceKey", "status", "triggerKind", "scheduledFor", "startedAt", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5::"AutomationRunStatus", 'messageReceived'::"AutomationTriggerKind", $6, $7, $6, CURRENT_TIMESTAMP)`,
+        [id, company, rule, `stale:${id}`, status, createdAt, startedAt ?? null],
+      );
+      return id;
+    };
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60_000);
+    // The unfinished runs the earlier tests of this file left behind would take the per-workspace slots.
+    await client.query(
+      `DELETE FROM "AutomationRuleRun" WHERE "companyId" = ANY($1) AND "status" IN ('queued', 'running')`,
+      [[companyId, otherCompanyId]],
+    );
+    const stuck = [
+      await insertRun(companyId, ruleId, "running", minutesAgo(40), minutesAgo(12)),
+      await insertRun(companyId, ruleId, "running", minutesAgo(30), minutesAgo(11)),
+      await insertRun(companyId, ruleId, "queued", minutesAgo(20)),
+    ];
+    const neighbour = await insertRun(otherCompanyId, otherRuleId, "queued", minutesAgo(5));
+    const fresh = [
+      await insertRun(companyId, ruleId, "queued", minutesAgo(1)),
+      await insertRun(companyId, ruleId, "running", minutesAgo(50), minutesAgo(3)),
+      await insertRun(otherCompanyId, otherRuleId, "applied", minutesAgo(50), minutesAgo(49)),
+    ];
+    const mine = [...stuck, neighbour, ...fresh];
+
+    const found = await runWithoutTenant(() =>
+      repo().findStaleRunsUnscoped(minutesAgo(2), minutesAgo(10), { companies: 1000, perCompany: 2 }),
+    );
+    expect(found.filter((run) => mine.includes(run.id))).toEqual([
+      { id: stuck[0], companyId, createdAt: minutesAgo(40) },
+      { id: stuck[1], companyId, createdAt: minutesAgo(30) },
+      { id: neighbour, companyId: otherCompanyId, createdAt: minutesAgo(5) },
+    ]);
+    const all = await runWithoutTenant(() =>
+      repo().findStaleRunsUnscoped(minutesAgo(2), minutesAgo(10), { companies: 1000, perCompany: 1000 }),
+    );
+    expect(
+      all
+        .filter((run) => mine.includes(run.id))
+        .map((run) => run.id)
+        .sort(),
+    ).toEqual([...stuck, neighbour].sort());
+    await client.query('DELETE FROM "AutomationRuleRun" WHERE "id" = ANY($1)', [mine]);
+  });
+
   it("finds enabled rules of one workspace by id or trigger", async () => {
     const found = await runWithoutTenant(() =>
       repo().findEnabledRulesUnscoped({ companyId, ids: [ruleId, otherRuleId], triggerKind: "messageReceived" }),

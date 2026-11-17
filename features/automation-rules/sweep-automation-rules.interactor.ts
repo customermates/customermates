@@ -1,18 +1,31 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { AutomationRuleRepo, StoredAutomationRule } from "./automation-rule.repo";
+import type { AutomationRuleRepo, StaleAutomationRuleRun, StoredAutomationRule } from "./automation-rule.repo";
 import type { DiscardAutomationRuleRunInteractor } from "./discard-automation-rule-run.interactor";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { captureException } from "@/core/observability/server";
 
 import { dateReachedCandidateWindow } from "./automation-date";
 import { dueDateOccurrences } from "./automation-occurrence";
 import { AUTOMATION_DATE_LOOKBACK_DAYS, AutomationTriggerSchema } from "./automation-rule.schema";
+import { AUTOMATION_RUN_STALE_MS } from "./run-automation-rule.interactor";
 
 const RULE_PAGE = 500;
 const CANDIDATE_PAGE = 2000;
-const STALE_BATCH_LIMIT = 100;
+const STALE_COMPANY_LIMIT = 50;
+const STALE_RUNS_PER_COMPANY = 20;
 const STALE_QUEUED_MS = 2 * 60 * 1000;
-const STALE_RUNNING_MS = 10 * 60 * 1000;
+
+export const AUTOMATION_RUN_GIVE_UP_MS = 30 * 60 * 1000;
+export const AUTOMATION_RUN_ABANDONED_ERROR = "runAbandoned";
+
+type SweepFailure = { companyId: string; ruleId?: string; runId?: string };
+
+type SweepResult = {
+  automationRulesAdmitted: number;
+  automationRunsRedispatched: number;
+  automationRunsAbandoned: number;
+};
 
 @SystemInteractor
 export class SweepAutomationRulesInteractor {
@@ -21,12 +34,18 @@ export class SweepAutomationRulesInteractor {
     private readonly background: Pick<BackgroundTaskService, "dispatch">,
     private readonly discard: Pick<DiscardAutomationRuleRunInteractor, "invoke">,
     private readonly pages = { rules: RULE_PAGE, candidates: CANDIDATE_PAGE },
+    private readonly report: (error: unknown, failure: SweepFailure) => void = (error, failure) =>
+      captureException(error, { tags: { kind: "automation-rule-sweep", ...failure } }),
   ) {}
 
-  async invoke(now = new Date()): Promise<{ automationRulesAdmitted: number; automationRunsRedispatched: number }> {
+  async invoke(now = new Date()): Promise<SweepResult> {
     const admitted = await this.admitDateRules(now);
-    const redispatched = await this.redispatchStale(now);
-    return { automationRulesAdmitted: admitted, automationRunsRedispatched: redispatched };
+    const stale = await this.recoverStale(now);
+    return {
+      automationRulesAdmitted: admitted,
+      automationRunsRedispatched: stale.redispatched,
+      automationRunsAbandoned: stale.abandoned,
+    };
   }
 
   private async admitDateRules(now: Date): Promise<number> {
@@ -34,7 +53,13 @@ export class SweepAutomationRulesInteractor {
     let afterId: string | undefined;
     for (;;) {
       const rules = await this.repo.findDateRulesUnscoped({ afterId, limit: this.pages.rules });
-      for (const rule of rules) admitted += await this.admitDateRule(rule, now);
+      for (const rule of rules) {
+        try {
+          admitted += await this.admitDateRule(rule, now);
+        } catch (error) {
+          this.report(error, { companyId: rule.companyId, ruleId: rule.id });
+        }
+      }
       if (rules.length < this.pages.rules) return admitted;
       afterId = rules.at(-1)?.id;
     }
@@ -89,23 +114,49 @@ export class SweepAutomationRulesInteractor {
     }
   }
 
-  private async redispatchStale(now: Date): Promise<number> {
+  private async recoverStale(now: Date): Promise<{ redispatched: number; abandoned: number }> {
     const stale = await this.repo.findStaleRunsUnscoped(
       new Date(now.getTime() - STALE_QUEUED_MS),
-      new Date(now.getTime() - STALE_RUNNING_MS),
-      STALE_BATCH_LIMIT,
+      new Date(now.getTime() - AUTOMATION_RUN_STALE_MS),
+      { companies: STALE_COMPANY_LIMIT, perCompany: STALE_RUNS_PER_COMPANY },
     );
     let redispatched = 0;
+    let abandoned = 0;
     for (const run of stale) {
-      const found = await this.repo.findRunUnscoped(run.companyId, run.id);
-      const ownerUserId = found?.rule?.ownerUserId;
-      if (!ownerUserId) {
-        await this.discard.invoke({ runId: run.id, companyId: run.companyId, reason: "ownerMissing" });
-        continue;
+      try {
+        const outcome = await this.recoverRun(run, now);
+        if (outcome === "redispatched") redispatched += 1;
+        if (outcome === "abandoned") abandoned += 1;
+      } catch (error) {
+        this.report(error, { companyId: run.companyId, runId: run.id });
       }
-      redispatched += 1;
-      await this.background.dispatch("run-automation-rule", { runId: run.id, companyId: run.companyId, ownerUserId });
     }
-    return redispatched;
+    return { redispatched, abandoned };
+  }
+
+  private async recoverRun(run: StaleAutomationRuleRun, now: Date): Promise<"redispatched" | "abandoned" | "left"> {
+    const found = await this.repo.findRunUnscoped(run.companyId, run.id);
+    if (!found) return "left";
+    if (now.getTime() - run.createdAt.getTime() > AUTOMATION_RUN_GIVE_UP_MS) {
+      const staleBefore = new Date(now.getTime() - AUTOMATION_RUN_STALE_MS);
+      if (!(await this.repo.claimRunUnscoped(run.id, run.companyId, now, staleBefore))) return "left";
+      await this.repo.settleRunUnscoped({
+        runId: run.id,
+        companyId: run.companyId,
+        ruleId: found.run.ruleId,
+        status: "failed",
+        outcome: { effects: [] },
+        error: AUTOMATION_RUN_ABANDONED_ERROR,
+        now,
+      });
+      return "abandoned";
+    }
+    const ownerUserId = found.rule?.ownerUserId;
+    if (!ownerUserId) {
+      await this.discard.invoke({ runId: run.id, companyId: run.companyId, reason: "ownerMissing" });
+      return "left";
+    }
+    await this.background.dispatch("run-automation-rule", { runId: run.id, companyId: run.companyId, ownerUserId });
+    return "redispatched";
   }
 }

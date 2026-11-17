@@ -11,6 +11,7 @@ import type {
   AutomationRuleWrite,
   AutomationRunAdmission,
   AutomationRunSettlement,
+  StaleAutomationRuleRun,
   StoredAutomationRule,
   StoredAutomationRuleRun,
 } from "./automation-rule.repo";
@@ -286,18 +287,36 @@ export class PrismaAutomationRuleRepo
   }
 
   @BypassTenantGuard
-  async findStaleRunsUnscoped(queuedBefore: Date, runningBefore: Date, limit: number) {
-    return this.prisma.automationRuleRun.findMany({
-      where: {
-        OR: [
-          { status: AutomationRunStatus.queued, createdAt: { lt: queuedBefore } },
-          { status: AutomationRunStatus.running, startedAt: { lt: runningBefore } },
-        ],
-      },
-      select: { id: true, companyId: true },
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      take: limit,
+  async findStaleRunsUnscoped(
+    queuedBefore: Date,
+    runningBefore: Date,
+    limits: { companies: number; perCompany: number },
+  ): Promise<StaleAutomationRuleRun[]> {
+    const stale: Prisma.AutomationRuleRunWhereInput = {
+      OR: [
+        { status: AutomationRunStatus.queued, createdAt: { lt: queuedBefore } },
+        { status: AutomationRunStatus.running, startedAt: { lt: runningBefore } },
+      ],
+    };
+    const companies = await this.prisma.automationRuleRun.groupBy({
+      by: ["companyId"],
+      where: stale,
+      _min: { createdAt: true },
+      orderBy: [{ _min: { createdAt: "asc" } }, { companyId: "asc" }],
+      take: limits.companies,
     });
+    const runs: StaleAutomationRuleRun[] = [];
+    for (const { companyId } of companies) {
+      runs.push(
+        ...(await this.prisma.automationRuleRun.findMany({
+          where: { companyId, ...stale },
+          select: { id: true, companyId: true, createdAt: true },
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          take: limits.perCompany,
+        })),
+      );
+    }
+    return runs;
   }
 
   @BypassTenantGuard
