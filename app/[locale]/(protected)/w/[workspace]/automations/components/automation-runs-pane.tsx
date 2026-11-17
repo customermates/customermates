@@ -14,6 +14,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { IntlLink } from "@/i18n/navigation";
 
 import { getAutomationRuleRunsAction } from "../actions";
+import { agentJobIdOf, AutomationRunAgentStep } from "./automation-run-agent-step";
 import { effectDetailText, runErrorText, runReasonText } from "./automation-run-texts";
 import { AUTOMATION_STATUS_VARIANT } from "./automation-status-variant";
 
@@ -107,11 +108,16 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
               const outcome = t(`AutomationRules.outcome.${effect.status}`);
               const detail =
                 effect.detail && effect.status !== "applied" ? ` · ${effectDetailText(t, effect.detail)}` : "";
+              const agentJobId = agentJobIdOf(effect);
 
               return (
-                <p key={index} className="text-xs text-muted-foreground" data-automation-run-effect={effect.status}>
-                  {`${kind}: ${outcome}${detail}`}
-                </p>
+                <div key={index} className="flex flex-col gap-1">
+                  <p className="text-xs text-muted-foreground" data-automation-run-effect={effect.status}>
+                    {`${kind}: ${outcome}${detail}`}
+                  </p>
+
+                  {agentJobId && <AutomationRunAgentStep key={agentJobId} jobId={agentJobId} />}
+                </div>
               );
             })}
 

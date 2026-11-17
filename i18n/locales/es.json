@@ -1358,6 +1358,7 @@
       "resume": "Reanudar"
     },
     "runs": {
+      "agentRun": "Mostrar la ejecución del agente",
       "unsaved": "Las ejecuciones aparecen aquí cuando la automatización está guardada y activada."
     },
     "runs30d": "{count, plural, one {# ejecución} other {# ejecuciones}}",

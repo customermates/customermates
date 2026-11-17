@@ -1358,6 +1358,7 @@
       "resume": "Resume"
     },
     "runs": {
+      "agentRun": "Show the agent run",
       "unsaved": "Runs appear here once the automation is saved and switched on."
     },
     "runs30d": "{count, plural, one {# run} other {# runs}}",

@@ -15,13 +15,18 @@ vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children: ReactNode; href: string }) => <a href={href}>{children}</a>,
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({ formatRelativeTime: () => "just now" }),
+  useHydratedIntlStore: () => ({ formatRelativeTime: () => "just now", formatTime: () => "08:00" }),
 }));
+
+const agentActions = vi.hoisted(() => ({ getAgentJobAction: vi.fn() }));
+
+vi.mock("@/components/agent-keys/agent-key-actions", () => agentActions);
 
 import { AutomationRunsPane } from "../components/automation-runs-pane";
 
 const RULE_A = "00000000-0000-4000-8000-0000000000a1";
 const RULE_B = "00000000-0000-4000-8000-0000000000a2";
+const JOB = "99999999-9999-4999-8999-999999999999";
 
 function run(id: string, ruleId: string, reason: string | null = null) {
   return {
@@ -70,6 +75,7 @@ function shownRuns() {
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   actions.getAutomationRuleRunsAction.mockReset();
+  agentActions.getAgentJobAction.mockReset();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -153,6 +159,74 @@ describe("the run history of an automation", () => {
     });
     expect(actions.getAutomationRuleRunsAction).toHaveBeenLastCalledWith({ id: RULE_A, cursor: "next" });
     expect(shownRuns()).toHaveLength(2);
+  });
+
+  it("opens the agent run of an applied agent step, with its status and transcript, and loads it once", async () => {
+    const effects = [
+      { kind: "agent", status: "applied", detail: JOB },
+      { kind: "notify", status: "applied", detail: "2" },
+      { kind: "agent", status: "failed", detail: "agentJobRefused" },
+    ];
+    actions.getAutomationRuleRunsAction.mockResolvedValue({
+      ok: true,
+      data: { runs: [{ ...run("a-1", RULE_A), status: "succeeded", effects }], nextCursor: null },
+    });
+    agentActions.getAgentJobAction.mockResolvedValue({
+      ok: true,
+      data: {
+        id: JOB,
+        status: "succeeded",
+        error: null,
+        promptUntrusted: false,
+        transcript: [{ type: "message", role: "assistant", text: "Drafted the reply", at: "2026-11-17T08:00:02.000Z" }],
+      },
+    });
+
+    await render(RULE_A, "Rule A");
+    const steps = [...container.querySelectorAll("[data-automation-run-agent]")];
+    expect(steps.map((step) => step.getAttribute("data-automation-run-agent"))).toEqual([JOB]);
+    const toggle = steps[0]?.querySelector("button");
+    expect(toggle?.textContent).toBe("Automations.runs.agentRun");
+    expect(toggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(agentActions.getAgentJobAction).not.toHaveBeenCalled();
+
+    const press = () =>
+      act(async () => {
+        toggle?.click();
+        await settle();
+      });
+    await press();
+    expect(agentActions.getAgentJobAction).toHaveBeenCalledWith({ id: JOB });
+    expect(toggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(steps[0]?.textContent).toContain("AgentJobs.status.succeeded");
+    expect(steps[0]?.textContent).toContain("Drafted the reply");
+
+    await press();
+    expect(steps[0]?.textContent).not.toContain("Drafted the reply");
+    await press();
+    expect(steps[0]?.textContent).toContain("Drafted the reply");
+    expect(agentActions.getAgentJobAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("says so when the agent run of a step cannot be loaded", async () => {
+    actions.getAutomationRuleRunsAction.mockResolvedValue({
+      ok: true,
+      data: {
+        runs: [{ ...run("a-1", RULE_A), effects: [{ kind: "agent", status: "applied", detail: JOB }] }],
+        nextCursor: null,
+      },
+    });
+    agentActions.getAgentJobAction.mockResolvedValue({ ok: false, failure: { kind: "not_found", issues: [] } });
+
+    await render(RULE_A, "Rule A");
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>("[data-automation-run-agent] button")?.click();
+      await settle();
+    });
+
+    expect(container.querySelector('[data-automation-run-agent] [role="alert"]')?.textContent).toBe(
+      "AgentJobs.loadFailed",
+    );
   });
 
   it("appends the next page of the automation that is still open", async () => {

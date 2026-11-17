@@ -1358,6 +1358,7 @@
       "resume": "Hervatten"
     },
     "runs": {
+      "agentRun": "Uitvoering van de agent tonen",
       "unsaved": "Uitvoeringen verschijnen hier zodra de automatisering is opgeslagen en ingeschakeld."
     },
     "runs30d": "{count, plural, one {# uitvoering} other {# uitvoeringen}}",

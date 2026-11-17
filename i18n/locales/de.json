@@ -1358,6 +1358,7 @@
       "resume": "Fortsetzen"
     },
     "runs": {
+      "agentRun": "Agentenlauf anzeigen",
       "unsaved": "Läufe erscheinen hier, sobald die Automatisierung gespeichert und eingeschaltet ist."
     },
     "runs30d": "{count, plural, one {# Lauf} other {# Läufe}}",
