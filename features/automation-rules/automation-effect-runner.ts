@@ -6,6 +6,8 @@ import type {
   AutomationAgentJobInput,
   AutomationAgentPort,
   AutomationNotifyPort,
+  AutomationRecipientAccess,
+  AutomationRecipientAccessPort,
   AutomationRecordPort,
   AutomationRecordView,
 } from "./automation-ports";
@@ -64,6 +66,7 @@ export class AutomationEffectRunner {
     private readonly events: Pick<EventService, "publish">,
     private readonly webhooks: Pick<AutomationRuleRepo, "findOutboundWebhookUnscoped">,
     private readonly agents: AutomationAgentPort | null = null,
+    private readonly recipientAccess: AutomationRecipientAccessPort | null = null,
   ) {}
 
   async run(
@@ -218,18 +221,44 @@ export class AutomationEffectRunner {
     if (effect.recipients.ruleOwner) recipients.add(context.rule.ownerUserId);
     if (effect.recipients.assignees) for (const userId of record?.assignedUserIds ?? []) recipients.add(userId);
     if (recipients.size === 0) return { kind, status: "skipped", detail: "noRecipients" };
-    const template = { record: record ? { name: record.name } : undefined, rule: { name: context.rule.name } };
-    const { created } = await this.notifications.notify({
-      companyId: context.companyId,
-      recipients: [...recipients],
-      kind: effect.notificationKind,
-      title: renderAutomationTemplate(effect.title, template).slice(0, 200),
-      body: effect.body ? renderAutomationTemplate(effect.body, template).slice(0, 1000) : null,
-      href: recordHref(context.recordRef),
-      sourceRuleId: context.rule.id,
-      dedupeKey: `rule:${context.runId}:${index}`,
-    });
-    return { kind, status: "applied", detail: String(created) };
+    const groups = await this.recipientGroups([...recipients], context);
+    let total = 0;
+    for (const [access, userIds] of groups) {
+      const named = access === "name" && record ? { name: record.name } : undefined;
+      const template = { record: named, rule: { name: context.rule.name } };
+      const title = renderAutomationTemplate(effect.title, template).trim().slice(0, 200);
+      const { created } = await this.notifications.notify({
+        companyId: context.companyId,
+        recipients: userIds,
+        kind: effect.notificationKind,
+        title: title || context.rule.name.slice(0, 200),
+        body: effect.body ? renderAutomationTemplate(effect.body, template).slice(0, 1000) : null,
+        href: access === "none" ? null : recordHref(context.recordRef),
+        sourceRuleId: context.rule.id,
+        dedupeKey: `rule:${context.runId}:${index}`,
+      });
+      total += created;
+    }
+    return { kind, status: "applied", detail: String(total) };
+  }
+
+  private async recipientGroups(
+    userIds: string[],
+    context: AutomationEffectContext,
+  ): Promise<Map<AutomationRecipientAccess, string[]>> {
+    const ref = context.recordRef;
+    if (!ref) return new Map([["name", userIds]]);
+    const others = userIds.filter((userId) => userId !== context.rule.ownerUserId);
+    const known =
+      others.length && this.recipientAccess
+        ? await this.recipientAccess.recordAccess({ companyId: context.companyId, ref, userIds: others })
+        : new Map<string, AutomationRecipientAccess>();
+    const groups = new Map<AutomationRecipientAccess, string[]>();
+    for (const userId of userIds) {
+      const access = userId === context.rule.ownerUserId ? "name" : (known.get(userId) ?? "none");
+      groups.set(access, [...(groups.get(access) ?? []), userId]);
+    }
+    return groups;
   }
 
   private async callWebhook(

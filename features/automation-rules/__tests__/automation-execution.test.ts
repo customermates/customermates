@@ -27,7 +27,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import type { CalculatedValue } from "@/features/records/record-model.schema";
-import type { AutomationRecordView } from "../automation-ports";
+import type { AutomationRecipientAccess, AutomationRecordView } from "../automation-ports";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { AutomationEffectRunner } from "../automation-effect-runner";
@@ -91,12 +91,18 @@ function ports(record: AutomationRecordView | null = view()) {
       .fn()
       .mockResolvedValue({ id: WEBHOOK, enabled: true, events: ["automation.rule.fired"] }),
   };
+  const recipientAccess = {
+    recordAccess: vi.fn((input: { userIds: readonly string[] }) =>
+      Promise.resolve(new Map<string, AutomationRecipientAccess>(input.userIds.map((userId) => [userId, "name"]))),
+    ),
+  };
   return {
     records,
     notifications,
     events,
     webhooks,
-    runner: new AutomationEffectRunner(records as never, notifications, events, webhooks),
+    recipientAccess,
+    runner: new AutomationEffectRunner(records as never, notifications, events, webhooks, null, recipientAccess),
   };
 }
 
@@ -236,6 +242,94 @@ describe("automation effects", () => {
       sourceRuleId: RULE,
       dedupeKey: "rule:run-00000001:0",
     });
+  });
+
+  // Finding 5 of the review of 2026-11-17: the record is read with the owner's access and its name went to
+  // every chosen member and assignee, in the inbox and by email, with a link some of them cannot open.
+  it("leaves the record name and the link out for a member who cannot read the record", async () => {
+    const READER = "00000000-0000-4000-8000-000000000013";
+    const NAMELESS = "00000000-0000-4000-8000-000000000014";
+    const { notifications, recipientAccess, runner } = ports();
+    recipientAccess.recordAccess.mockResolvedValue(
+      new Map<string, AutomationRecipientAccess>([
+        [READER, "name"],
+        [NAMELESS, "record"],
+        [OTHER_USER, "none"],
+      ]),
+    );
+    notifications.notify.mockResolvedValue({ created: 1 });
+    const effect = {
+      kind: "notify" as const,
+      recipients: { ruleOwner: true, assignees: true, userIds: [READER, NAMELESS] },
+      notificationKind: "ruleAlert" as const,
+      title: "{{record.name}}",
+      body: "Deal {{record.name}} moved ({{rule.name}})",
+    };
+    const { outcomes } = await runner.run([effect], context());
+
+    expect(outcomes).toEqual([{ kind: "notify", status: "applied", detail: "3" }]);
+    expect(recipientAccess.recordAccess).toHaveBeenCalledExactlyOnceWith({
+      companyId: COMPANY,
+      ref: { typeId: TYPE, recordId: RECORD },
+      userIds: [READER, NAMELESS, OTHER_USER],
+    });
+    const shared = { companyId: COMPANY, kind: "ruleAlert", sourceRuleId: RULE, dedupeKey: "rule:run-00000001:0" };
+    expect(notifications.notify.mock.calls.map(([call]) => call)).toEqual([
+      {
+        ...shared,
+        recipients: [READER, OWNER],
+        title: "Acme",
+        body: "Deal Acme moved (Follow up)",
+        href: `/records/${TYPE}/${RECORD}`,
+      },
+      {
+        ...shared,
+        recipients: [NAMELESS],
+        title: "Follow up",
+        body: "Deal  moved (Follow up)",
+        href: `/records/${TYPE}/${RECORD}`,
+      },
+      { ...shared, recipients: [OTHER_USER], title: "Follow up", body: "Deal  moved (Follow up)", href: null },
+    ]);
+  });
+
+  it("checks the link of a notification that does not name the record, and never the owner", async () => {
+    const { notifications, recipientAccess, records, runner } = ports();
+    recipientAccess.recordAccess.mockResolvedValue(new Map<string, AutomationRecipientAccess>([[OTHER_USER, "none"]]));
+    const effect = {
+      kind: "notify" as const,
+      recipients: { ruleOwner: true, assignees: false, userIds: [OTHER_USER] },
+      notificationKind: "ruleAlert" as const,
+      title: "A deal moved",
+    };
+    await runner.run([effect], context());
+    expect(records.read).not.toHaveBeenCalled();
+    expect(notifications.notify.mock.calls.map(([call]) => [call.recipients, call.href])).toEqual([
+      [[OTHER_USER], null],
+      [[OWNER], `/records/${TYPE}/${RECORD}`],
+    ]);
+
+    notifications.notify.mockClear();
+    recipientAccess.recordAccess.mockClear();
+    await runner.run([{ ...effect, recipients: { ruleOwner: true, assignees: false, userIds: [] } }], context());
+    expect(recipientAccess.recordAccess).not.toHaveBeenCalled();
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+  });
+
+  it("tells nobody but the owner about the record when no access check is wired", async () => {
+    const set = ports();
+    const bare = new AutomationEffectRunner(set.records as never, set.notifications, set.events, set.webhooks);
+    const effect = {
+      kind: "notify" as const,
+      recipients: { ruleOwner: true, assignees: true, userIds: [] },
+      notificationKind: "ruleAlert" as const,
+      title: "Due: {{record.name}}",
+    };
+    await bare.run([effect], context());
+    expect(set.notifications.notify.mock.calls.map(([call]) => [call.recipients, call.title, call.href])).toEqual([
+      [[OWNER], "Due: Acme", `/records/${TYPE}/${RECORD}`],
+      [[OTHER_USER], "Due:", null],
+    ]);
   });
 
   it("skips a notification that has nobody to tell", async () => {

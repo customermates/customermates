@@ -2853,6 +2853,7 @@ export const getReadCalendarSubscriptionInteractor = () =>
 import { upgradeOfferValues } from "@/ee/subscription/plan-upgrade-offer";
 import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
 import { AutomationEffectRunner } from "@/features/automation-rules/automation-effect-runner";
+import { RecordRecipientAccess } from "@/features/automation-rules/automation-recipient-access";
 import { GetAgentRuntimeAvailabilityInteractor } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
 import { PrismaAgentJobRepo } from "@/features/agent-jobs/prisma-agent-job.repository";
 import { EnqueueAgentJobInteractor } from "@/features/agent-jobs/enqueue-agent-job.interactor";
@@ -2963,6 +2964,7 @@ const getAutomationEffectRunner = () =>
     getEventService(),
     getAutomationRuleRepo(),
     getEnqueueAgentJobInteractor(),
+    new RecordRecipientAccess((companyId) => createPrismaRecordRepo(companyId), getRecordRecipientRepo()),
   );
 export const getAutomationRuleAdmission = () =>
   new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService(), getRecordRecipientReader());

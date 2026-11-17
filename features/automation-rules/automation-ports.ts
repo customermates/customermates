@@ -21,6 +21,16 @@ export type AutomationRecordPort = {
   mutate(input: { idempotencyKey: string; mutation: RecordMutation }): Promise<AutomationMutationResult>;
 };
 
+export type AutomationRecipientAccess = "name" | "record" | "none";
+
+export type AutomationRecipientAccessPort = {
+  recordAccess(input: {
+    companyId: string;
+    ref: RecordRef;
+    userIds: readonly string[];
+  }): Promise<Map<string, AutomationRecipientAccess>>;
+};
+
 export type AutomationPlanAllowance = { limit: number | null; price: string };
 
 export type AutomationPlanLimits = {
