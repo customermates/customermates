@@ -38,6 +38,7 @@ vi.mock("@/components/ui/select", () => ({
 import { Zap } from "lucide-react";
 
 import { AutomationCard, AutomationConnector } from "@/components/automations/automation-card";
+import { UpsertAutomationRuleSchema } from "@/features/automation-rules/automation-rule.schema";
 import { AutomationPalette } from "@/components/automations/automation-palette";
 
 import { AGENT_SETTINGS_HREF, AutomationAgentFields } from "../components/automation-agent-fields";
@@ -701,6 +702,45 @@ describe("a step card", () => {
       "Automations.builder.webhookRestricted",
     );
     expect(container.querySelector("[data-select]")).toBeNull();
+  });
+
+  it("bounds the notify title and details and the title of a new record as the server does", () => {
+    const lengths = () => [...container.querySelectorAll("input")].map((input) => input.getAttribute("maxlength"));
+    const notify = {
+      kind: "notify" as const,
+      toOwner: true,
+      toAssignees: false,
+      notificationKind: "ruleAlert" as const,
+      title: "x".repeat(200),
+      body: "y".repeat(1000),
+    };
+    const create = {
+      kind: "createRecord" as const,
+      typeId: DEALS,
+      titleFieldId: NAME,
+      title: "x".repeat(200),
+      dueFieldId: "",
+      dueDays: "",
+      assignToOwner: true,
+      relationId: "",
+    };
+
+    mount(step(notify));
+    expect(lengths()).toEqual(["200", "1000"]);
+
+    mount(step(create));
+    expect(lengths()).toEqual(["200"]);
+
+    const base = { name: "Limits", trigger: { kind: "recordCreated" as const, typeId: DEALS } };
+    const accepted = (effect: unknown) => UpsertAutomationRuleSchema.safeParse({ ...base, effects: [effect] }).success;
+    const recipients = { ruleOwner: true, assignees: false, userIds: [] };
+    const sent = { kind: "notify", recipients, title: notify.title, body: notify.body };
+    const made = { kind: "createRecord", typeId: DEALS, title: { fieldId: NAME, text: create.title } };
+    expect(accepted(sent)).toBe(true);
+    expect(accepted({ ...sent, title: `${notify.title}x` })).toBe(false);
+    expect(accepted({ ...sent, body: `${notify.body}y` })).toBe(false);
+    expect(accepted(made)).toBe(true);
+    expect(accepted({ ...made, title: { fieldId: NAME, text: `${create.title}x` } })).toBe(false);
   });
 
   it("offers Set a field only fields a value can be typed for", () => {

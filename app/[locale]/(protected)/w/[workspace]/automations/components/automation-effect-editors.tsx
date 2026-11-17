@@ -9,10 +9,15 @@ import type { DraftCreateRecord, DraftNotify, DraftSetField, DraftTrigger } from
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { AUTOMATION_NOTIFY_KINDS } from "@/features/automation-rules/automation-rule.schema";
+import {
+  AUTOMATION_NOTIFY_KINDS,
+  AUTOMATION_TEMPLATE_MAX_CHARS,
+} from "@/features/automation-rules/automation-rule.schema";
 
 import { fieldOfList, linkRelationsFor, listOf } from "./automation-draft";
 import { Choose, DATE_FIELD_TYPES, FieldRow, Labeled, ValueInput } from "./automation-builder-fields";
+
+export const AUTOMATION_TITLE_MAX_CHARS = 200;
 
 function SwitchRow({
   label,
@@ -47,7 +52,11 @@ export function NotifyEditor({
     <div className="flex flex-col gap-3">
       <FieldRow>
         <Labeled label={t("AutomationRules.builder.title")}>
-          <Input value={effect.title} onChange={(event) => onChange({ ...effect, title: event.target.value })} />
+          <Input
+            maxLength={AUTOMATION_TITLE_MAX_CHARS}
+            value={effect.title}
+            onChange={(event) => onChange({ ...effect, title: event.target.value })}
+          />
         </Labeled>
 
         <Labeled label={t("AutomationRules.builder.notificationKind")}>
@@ -67,7 +76,11 @@ export function NotifyEditor({
       </FieldRow>
 
       <Labeled label={t("AutomationRules.builder.body")}>
-        <Input value={effect.body} onChange={(event) => onChange({ ...effect, body: event.target.value })} />
+        <Input
+          maxLength={AUTOMATION_TEMPLATE_MAX_CHARS}
+          value={effect.body}
+          onChange={(event) => onChange({ ...effect, body: event.target.value })}
+        />
       </Labeled>
 
       <div className="flex flex-wrap items-center gap-6">
@@ -134,7 +147,11 @@ export function CreateRecordEditor({
       </FieldRow>
 
       <Labeled label={t("AutomationRules.builder.title")}>
-        <Input value={effect.title} onChange={(event) => onChange({ ...effect, title: event.target.value })} />
+        <Input
+          maxLength={AUTOMATION_TITLE_MAX_CHARS}
+          value={effect.title}
+          onChange={(event) => onChange({ ...effect, title: event.target.value })}
+        />
       </Labeled>
 
       <FieldRow>
