@@ -12,13 +12,6 @@ const KNOWN_ERROR_CLASSES = [
 
 export type AgentJobStopCode = "hostedAiUnavailable" | "contextLimit";
 
-export class AgentJobStop extends Error {
-  constructor(readonly code: AgentJobStopCode) {
-    super(`The agent job stopped: ${code}`);
-    this.name = "AgentJobStop";
-  }
-}
-
 export function agentJobErrorStatus(error: unknown): number | null {
   if (typeof error !== "object" || error === null) return null;
   const status = (error as { statusCode?: unknown }).statusCode;
@@ -35,7 +28,6 @@ function classOf(error: unknown): string {
 }
 
 export function agentJobFailureCode(error: unknown): string {
-  if (error instanceof AgentJobStop) return error.code;
   const status = agentJobErrorStatus(error);
   return status === null ? classOf(error) : `${classOf(error)}:${status}`;
 }

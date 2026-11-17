@@ -7,7 +7,6 @@ vi.mock("@/core/observability/server", () => sentry);
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentJobStepUsage } from "../run-agent-job-loop";
 
-import { agentJobFailureCode } from "../agent-job-failure";
 import { MateJobBudget } from "../mate-agent-job-budget";
 import { MateAgentJobCredits, mateJobReservationId } from "../mate-agent-job-credits";
 import {
@@ -214,7 +213,7 @@ describe("the credit check before each round of a Mate agent job", () => {
     const { credits, budget } = world();
     const spent = [step(1000, 100, billedMetadata("0.0980"))];
 
-    expect(await budget.admitRound(round(spent))).toEqual({ admitted: false });
+    expect(await budget.admitRound(round(spent))).toEqual({ admitted: false, reason: "creditLimit" });
     expect(credits.extend).not.toHaveBeenCalled();
     expect(credits.admitRound).not.toHaveBeenCalled();
   });
@@ -222,22 +221,22 @@ describe("the credit check before each round of a Mate agent job", () => {
   it("stops the run when the member's allowance cannot cover another round", async () => {
     for (const disposition of ["credit_limit", "run_credit_limit"]) {
       const { budget } = world({ extend: vi.fn().mockResolvedValue({ disposition, ceilingMicrocents: CEILING }) });
-      expect(await budget.admitRound(round([step(1000, 100, billedMetadata("0.0080"))]))).toEqual({ admitted: false });
+      expect(await budget.admitRound(round([step(1000, 100, billedMetadata("0.0080"))]))).toEqual({
+        admitted: false,
+        reason: "creditLimit",
+      });
     }
   });
 
-  it("fails the run as hosted AI unavailable when the provider is paused or the reservation is gone", async () => {
+  it("refuses the round as hosted AI unavailable when the provider is paused or the reservation is gone", async () => {
+    const unavailable = { admitted: false, reason: "hostedAiUnavailable" };
     const paused = world({ admitRound: vi.fn().mockResolvedValue(false) });
-    const error = await paused.budget.admitRound(round()).catch((caught: unknown) => caught);
-    expect(agentJobFailureCode(error)).toBe("hostedAiUnavailable");
+    expect(await paused.budget.admitRound(round())).toEqual(unavailable);
     expect(paused.credits.extend).not.toHaveBeenCalled();
 
     for (const disposition of ["hosted_ai_unavailable", "turn_error"]) {
       const gone = world({ extend: vi.fn().mockResolvedValue({ disposition }) });
-      const failure = await gone.budget
-        .admitRound(round([step(1000, 100, billedMetadata("0.0080"))]))
-        .catch((caught: unknown) => caught);
-      expect(agentJobFailureCode(failure)).toBe("hostedAiUnavailable");
+      expect(await gone.budget.admitRound(round([step(1000, 100, billedMetadata("0.0080"))]))).toEqual(unavailable);
     }
   });
 });

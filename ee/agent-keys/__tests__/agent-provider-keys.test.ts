@@ -35,6 +35,7 @@ import { openSecret, sealSecret, SecretBoxError } from "@/core/security/secret-b
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AgentOwnKeyPlan } from "../agent-own-key-plan";
 import { agentProviderKeyBinding } from "../agent-provider-key-binding";
+import { agentStepProvider, chooseAgentProviderModel } from "../agent-provider-models";
 import { DeleteAgentProviderKeyInteractor } from "../delete-agent-provider-key.interactor";
 import { FetchAgentProviderKeyValidator } from "../fetch-agent-provider-key-validator";
 import { GetAgentProviderKeysInteractor } from "../get-agent-provider-keys.interactor";
@@ -308,6 +309,36 @@ describe("testing a saved provider key", () => {
     } finally {
       mockEnv.SECRET_BOX_KEY = undefined;
     }
+  });
+});
+
+describe("choosing the provider and model of an agent step", () => {
+  it("takes the provider of the step's model and refuses a model no list or no key offers", () => {
+    expect(agentStepProvider(["anthropic", "openai"], "gpt-5")).toEqual({ ok: true, provider: "openai" });
+    expect(agentStepProvider(["anthropic"], "gpt-5")).toEqual({ ok: false, reason: "noKey" });
+    expect(agentStepProvider(["anthropic", "openai"], "mystery-1")).toEqual({ ok: false, reason: "modelUnavailable" });
+    expect(agentStepProvider([], "mystery-1")).toEqual({ ok: false, reason: "modelUnavailable" });
+  });
+
+  it("runs a step without a model only when the workspace has exactly one key, so deleting a key never moves it", () => {
+    expect(agentStepProvider(["google"], null)).toEqual({ ok: true, provider: "google" });
+    expect(agentStepProvider([], null)).toEqual({ ok: false, reason: "noKey" });
+    expect(agentStepProvider(["anthropic", "openai"], null)).toEqual({ ok: false, reason: "modelRequired" });
+    expect(agentStepProvider(["openai", "anthropic"], undefined)).toEqual({ ok: false, reason: "modelRequired" });
+  });
+
+  it("uses the step's model, then the key's default while it is still offered, then the provider's default", () => {
+    expect(chooseAgentProviderModel("openai", "gpt-5", "gpt-4.1")).toEqual({ modelId: "gpt-5", retiredDefault: null });
+    expect(chooseAgentProviderModel("openai", null, "gpt-4.1")).toEqual({ modelId: "gpt-4.1", retiredDefault: null });
+    expect(chooseAgentProviderModel("openai", null, null)).toEqual({ modelId: "gpt-5-mini", retiredDefault: null });
+    expect(chooseAgentProviderModel("openai", null, "gpt-4-turbo")).toEqual({
+      modelId: "gpt-5-mini",
+      retiredDefault: "gpt-4-turbo",
+    });
+    expect(chooseAgentProviderModel("anthropic", null, "gpt-5")).toEqual({
+      modelId: "claude-sonnet-5-5",
+      retiredDefault: "gpt-5",
+    });
   });
 });
 

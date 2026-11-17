@@ -15,6 +15,12 @@ const WIKI_PROPOSAL_RESULT_NOTE =
 const ROUTINE_WIKI_DESCRIPTION_SUFFIX =
   " In a routine, create, update and delete only save a proposal that a manager reviews in the Knowledge Base.";
 
+const UNREVIEWED_WIKI_DESCRIPTION_SUFFIX =
+  " In this run create, update and delete are not available, because nobody can review a proposal here: say in your report what should change in the Knowledge Base instead.";
+
+const UNREVIEWED_WIKI_REFUSAL =
+  "Knowledge Base pages cannot be created, updated or deleted in this run, because nobody can review a proposal here. Nothing was changed. Say in your report what should change.";
+
 function proposalResult(proposals: WikiPageProposalDto[]) {
   return toonResult({
     status: "pending_review",
@@ -33,11 +39,10 @@ function proposalResult(proposals: WikiPageProposalDto[]) {
 export function routineManageWikiPagesTool(conversationId: string | undefined): typeof manageWikiPagesTool {
   return {
     ...manageWikiPagesTool,
-    description: `${manageWikiPagesTool.description}${ROUTINE_WIKI_DESCRIPTION_SUFFIX}`,
+    description: `${manageWikiPagesTool.description}${conversationId ? ROUTINE_WIKI_DESCRIPTION_SUFFIX : UNREVIEWED_WIKI_DESCRIPTION_SUFFIX}`,
     execute: async (params: ManageWikiPagesInput) => {
       if (!isWikiProposalAction(params.action)) return manageWikiPagesTool.execute(params);
-      if (!conversationId)
-        return mcpMessageFailure("This routine has no conversation to attach the proposal to. Nothing was changed.");
+      if (!conversationId) return mcpMessageFailure(UNREVIEWED_WIKI_REFUSAL);
       return runInteractor(
         getProposeWikiPageChangesInteractor().invoke({
           ...params,

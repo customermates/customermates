@@ -102,18 +102,20 @@ async function world() {
   const loop = vi.fn().mockImplementation(() => Promise.resolve(finished()));
   const toolkit = vi.fn().mockReturnValue({ tools: {}, activeToolNames: () => [] });
   const rules = { findRunUnscoped: vi.fn().mockResolvedValue({ rule: { name: "Follow up on offers" } }) };
+  const ownKeyPlan = { allowed: vi.fn().mockResolvedValue(true) };
   const interactor = new RunAgentJobInteractor(
     jobs,
     keys,
     rules as never,
     credits as never,
+    ownKeyPlan,
     createModel,
     toolkit,
     loop as never,
     () => NOW,
   );
   const run = (jobId: string, user = mockUser) => runWithTenant(user, () => interactor.invoke({ jobId } as never));
-  return { jobs, keys, credits, createModel, loop, toolkit, rules, run };
+  return { jobs, keys, credits, ownKeyPlan, createModel, loop, toolkit, rules, run };
 }
 
 describe("running an agent job on the workspace's own key", () => {
@@ -152,8 +154,29 @@ describe("running an agent job on the workspace's own key", () => {
     expect([...keys.rows.values()][0].lastUsedAt).toEqual(NOW);
   });
 
-  it("picks the provider of the requested model and falls back to the oldest key's default model", async () => {
-    const { jobs, keys, createModel, run } = await world();
+  it("runs a step without a model on the only key's default model and sets cache breakpoints for Anthropic only", async () => {
+    const { jobs, keys, createModel, loop, run } = await world();
+
+    await run(jobs.add({ runtime: "ownKey", model: null }).id);
+    expect(createModel).toHaveBeenLastCalledWith("anthropic", PLAIN_KEY, "claude-haiku-5-5");
+    expect(loop.mock.calls[0][0].anthropicCache).toBe(true);
+
+    keys.rows.clear();
+    await keys.upsert({
+      provider: "openai",
+      label: "OpenAI",
+      keyCiphertext: sealSecret("sk-openai-key-1111", agentProviderKeyBinding(COMPANY, "openai")),
+      keyLast4: "1111",
+      defaultModel: null,
+      validatedAt: NOW,
+    });
+    await run(jobs.add({ runtime: "ownKey", model: null }).id);
+    expect(createModel).toHaveBeenLastCalledWith("openai", "sk-openai-key-1111", "gpt-5-mini");
+    expect(loop.mock.calls[1][0].anthropicCache).toBeUndefined();
+  });
+
+  it("picks the provider of the step's model and never picks one for a step without a model when there are several keys", async () => {
+    const { jobs, keys, createModel, loop, run } = await world();
     await keys.upsert({
       provider: "openai",
       label: "OpenAI",
@@ -166,8 +189,48 @@ describe("running an agent job on the workspace's own key", () => {
     await run(jobs.add({ runtime: "ownKey", model: "gpt-5" }).id);
     expect(createModel).toHaveBeenLastCalledWith("openai", "sk-openai-key-1111", "gpt-5");
 
-    await run(jobs.add({ runtime: "ownKey", model: null }).id);
-    expect(createModel).toHaveBeenLastCalledWith("anthropic", PLAIN_KEY, "claude-haiku-5-5");
+    const unpinned = jobs.add({ runtime: "ownKey", model: null });
+    expect(await run(unpinned.id)).toEqual({ ok: true, data: { status: "failed" } });
+    expect(jobs.jobs.get(unpinned.id)).toMatchObject({ status: "failed", error: "modelRequired" });
+    expect(createModel).toHaveBeenCalledTimes(1);
+    expect(loop).toHaveBeenCalledTimes(1);
+
+    const [oldest] = [...keys.rows.values()];
+    keys.rows.delete(oldest.id);
+    const afterDelete = jobs.add({ runtime: "ownKey", model: "claude-haiku-5-5" });
+    await run(afterDelete.id);
+    expect(jobs.jobs.get(afterDelete.id)).toMatchObject({ status: "failed", error: "noKey" });
+    expect(createModel).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to the provider's default model when the key's saved default is no longer offered, and says so", async () => {
+    const { jobs, keys, createModel, run } = await world();
+    const [stored] = [...keys.rows.values()];
+    keys.rows.set(stored.id, { ...stored, defaultModel: "claude-3-opus-20240229" });
+    const job = jobs.add({ runtime: "ownKey", model: null });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+
+    expect(createModel).toHaveBeenCalledWith("anthropic", PLAIN_KEY, "claude-sonnet-5-5");
+    const transcript = jobs.events.get(job.id) as Array<{ type: string; role?: string; text?: string }>;
+    expect(transcript.map((event) => event.type)).toEqual(["message", "message", "finish"]);
+    expect(transcript[1]).toMatchObject({
+      role: "assistant",
+      text: "The default model claude-3-opus-20240229 of this key is no longer offered. This run used claude-sonnet-5-5.",
+    });
+  });
+
+  it("does not open the key when the plan no longer includes running agents on an own key", async () => {
+    const { jobs, ownKeyPlan, createModel, loop, run } = await world();
+    ownKeyPlan.allowed.mockResolvedValue(false);
+    const job = jobs.add({ runtime: "ownKey", model: "claude-haiku-5-5" });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "failed" } });
+
+    expect(ownKeyPlan.allowed).toHaveBeenCalledWith(COMPANY);
+    expect(jobs.jobs.get(job.id)).toMatchObject({ status: "failed", error: "planRequired" });
+    expect(createModel).not.toHaveBeenCalled();
+    expect(loop).not.toHaveBeenCalled();
   });
 
   it("fails a job that names a model no key can run, or has no key at all, before any provider call", async () => {
@@ -428,10 +491,9 @@ describe("running an agent job on Mate", () => {
     const { jobs, credits, loop, run } = await world();
     credits.admitRound.mockResolvedValue(false);
     loop.mockImplementation(async (input: { admitRound: (round: unknown) => Promise<unknown> }) => {
-      const error = await input
-        .admitRound({ steps: [], auxiliary: [], contextBytes: 1_000, measured: null })
-        .catch((caught: unknown) => caught);
-      return failed(error);
+      const admission = await input.admitRound({ steps: [], auxiliary: [], contextBytes: 1_000, measured: null });
+      expect(admission).toEqual({ admitted: false, reason: "hostedAiUnavailable" });
+      return { kind: "stopped", code: "hostedAiUnavailable", steps: [], auxiliary: [] };
     });
     const job = jobs.add({ runtime: "mate" });
 

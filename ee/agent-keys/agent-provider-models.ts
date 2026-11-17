@@ -51,10 +51,33 @@ export function isListedAgentProviderModel(provider: AgentProviderId, modelId: s
   return AGENT_PROVIDER_MODELS[provider].some((model) => model.id === modelId);
 }
 
-export function resolveAgentProviderModel(
+export type AgentProviderModelChoice = { modelId: string; retiredDefault: string | null };
+
+export function chooseAgentProviderModel(
   provider: AgentProviderId,
   requested: string | null | undefined,
   keyDefault: string | null | undefined,
-): string {
-  return requested || keyDefault || AGENT_PROVIDER_DEFAULT_MODEL[provider];
+): AgentProviderModelChoice {
+  if (requested) return { modelId: requested, retiredDefault: null };
+  if (keyDefault && isListedAgentProviderModel(provider, keyDefault))
+    return { modelId: keyDefault, retiredDefault: null };
+  return { modelId: AGENT_PROVIDER_DEFAULT_MODEL[provider], retiredDefault: keyDefault || null };
+}
+
+export type AgentStepProvider =
+  | { ok: true; provider: AgentProviderId }
+  | { ok: false; reason: "modelUnavailable" | "modelRequired" | "noKey" };
+
+export function agentStepProvider(
+  keyProviders: readonly AgentProviderId[],
+  requested: string | null | undefined,
+): AgentStepProvider {
+  if (requested) {
+    const provider = agentProviderOfModel(requested);
+    if (!provider) return { ok: false, reason: "modelUnavailable" };
+    return keyProviders.includes(provider) ? { ok: true, provider } : { ok: false, reason: "noKey" };
+  }
+  if (keyProviders.length === 0) return { ok: false, reason: "noKey" };
+  if (keyProviders.length > 1) return { ok: false, reason: "modelRequired" };
+  return { ok: true, provider: keyProviders[0] };
 }

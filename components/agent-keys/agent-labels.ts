@@ -39,6 +39,19 @@ export function agentRuntimeSummary(t: Translator, runtime: AgentRuntimeKind): s
   }
 }
 
+export function agentRunFailureLabel(t: Translator, code: string): string | null {
+  switch (code) {
+    case "contextLimit":
+      return t("AgentJobs.errors.contextLimit");
+    case "modelRequired":
+      return t("AgentJobs.errors.modelRequired");
+    case "planRequired":
+      return t("AgentJobs.errors.planRequired");
+    default:
+      return null;
+  }
+}
+
 export function agentRuntimeReasonLabel(t: Translator, reason: AgentRuntimeReason | null): string {
   switch (reason) {
     case "selfHosted":

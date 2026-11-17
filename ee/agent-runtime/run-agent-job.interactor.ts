@@ -4,6 +4,7 @@ import type { AgentJobFinish, AgentJobRepo, StoredAgentJob } from "@/features/ag
 import type { AgentJobFinishedStatus, AgentJobFinishReason } from "@/features/agent-jobs/agent-job.schema";
 import type { AutomationRuleRepo } from "@/features/automation-rules/automation-rule.repo";
 import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
+import type { AgentOwnKeyPlan } from "@/ee/agent-keys/agent-own-key-plan";
 import type { AgentProviderKeyRepo } from "@/ee/agent-keys/agent-provider-key.repo";
 import type { AgentJobToolkitFactory } from "./agent-job-toolset";
 import type { MateAgentJobCredits } from "./mate-agent-job-credits";
@@ -18,7 +19,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import * as ErrorReporter from "@/core/observability/server";
 import { openSecret } from "@/core/security/secret-box";
 import { agentProviderKeyBinding } from "@/ee/agent-keys/agent-provider-key-binding";
-import { agentProviderOfModel, resolveAgentProviderModel } from "@/ee/agent-keys/agent-provider-models";
+import { agentStepProvider, chooseAgentProviderModel } from "@/ee/agent-keys/agent-provider-models";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
   AGENT_JOB_MAX_TOOL_CALLS,
@@ -26,6 +27,7 @@ import {
   AGENT_JOB_TRANSCRIPT_MAX_EVENTS,
   AGENT_JOB_TRANSCRIPT_TEXT_MAX_CHARS,
 } from "@/features/agent-jobs/agent-job.schema";
+import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 
 import { agentJobFailureCode } from "./agent-job-failure";
@@ -59,6 +61,8 @@ type Prepared =
       providerOptions?: AgentJobLoopInput["providerOptions"];
       mate: MateRun | null;
       keyId: string | null;
+      anthropicCache: boolean;
+      note: string | null;
     }
   | { ok: false; error: string };
 
@@ -80,6 +84,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     private readonly keys: AgentProviderKeyRepo,
     private readonly rules: Pick<AutomationRuleRepo, "findRunUnscoped">,
     private readonly credits: Pick<MateAgentJobCredits, "reserve" | "settle" | "release" | "admitRound" | "extend">,
+    private readonly ownKeyPlan: Pick<AgentOwnKeyPlan, "allowed">,
     private readonly createModel: OwnKeyModelFactory,
     private readonly toolkit: AgentJobToolkitFactory,
     private readonly loop: typeof runAgentJobLoop = runAgentJobLoop,
@@ -119,9 +124,11 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       if (!prepared.ok) return await this.fail(run, prepared.error);
       run.mate = prepared.mate;
       run.keyId = prepared.keyId;
+      if (prepared.note) recorder.message("assistant", prepared.note);
       const outcome = await this.execute(run, prepared);
       run.steps = outcome.steps;
       run.auxiliary = outcome.auxiliary;
+      if (outcome.kind === "stopped") return await this.fail(run, outcome.code);
       if (outcome.kind === "failed") return await this.fail(run, agentJobFailureCode(outcome.error));
       return await this.complete(run, outcome);
     } catch (error) {
@@ -158,18 +165,23 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
           }),
         },
         keyId: null,
+        anthropicCache: false,
+        note: null,
       };
     }
     return this.prepareOwnKey(job);
   }
 
   private async prepareOwnKey(job: StoredAgentJob): Promise<Prepared> {
+    if (!(await this.ownKeyPlan.allowed(job.companyId))) return { ok: false, error: "planRequired" };
     const stored = await this.keys.findAll();
     const requested = job.model;
-    const provider = requested ? agentProviderOfModel(requested) : (stored[0]?.provider ?? null);
-    if (!provider) return { ok: false, error: requested ? "modelUnavailable" : "noKey" };
-    const row = stored.find((key) => key.provider === provider);
-    if (!row) return { ok: false, error: "noKey" };
+    const step = agentStepProvider(
+      stored.map((key) => key.provider),
+      requested,
+    );
+    if (!step.ok) return { ok: false, error: step.reason };
+    const { provider } = step;
     const sealed = await this.keys.findSealedUnscoped(job.companyId, provider);
     if (!sealed) return { ok: false, error: "noKey" };
     let apiKey: string;
@@ -178,8 +190,20 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     } catch {
       return { ok: false, error: "keyUnreadable" };
     }
-    const modelId = resolveAgentProviderModel(provider, requested, row.defaultModel);
-    return { ok: true, model: this.createModel(provider, apiKey, modelId), mate: null, keyId: sealed.id };
+    const { modelId, retiredDefault } = chooseAgentProviderModel(provider, requested, sealed.defaultModel);
+    return {
+      ok: true,
+      model: this.createModel(provider, apiKey, modelId),
+      mate: null,
+      keyId: sealed.id,
+      anthropicCache: provider === "anthropic",
+      note: retiredDefault ? await this.modelFallbackNote(retiredDefault, modelId) : null,
+    };
+  }
+
+  private async modelFallbackNote(saved: string, used: string): Promise<string> {
+    const t = await getTranslator(resolveUserLocale(this.user));
+    return t("AgentJobs.transcript.modelFallback", { saved, used });
   }
 
   private async execute(run: JobRun, prepared: Extract<Prepared, { ok: true }>): Promise<AgentJobLoopOutcome> {
@@ -212,6 +236,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       maxToolCalls: AGENT_JOB_MAX_TOOL_CALLS,
       wallMs: AGENT_JOB_MAX_WALL_MS,
       ...(budget ? { limits: budget.limits, admitRound: budget.admitRound } : {}),
+      ...(prepared.anthropicCache ? { anthropicCache: true } : {}),
       onStep: () => this.flush(job, recorder),
     });
   }

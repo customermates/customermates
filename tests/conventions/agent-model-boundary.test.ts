@@ -80,7 +80,20 @@ describe("agent model budget boundary", () => {
     expect(interactor).toContain("this.credits.reserve(");
     expect(interactor).toContain("this.credits.settle(");
     expect(interactor).toContain("this.credits.release(");
-    expect(interactor).toContain("outOfBudget");
+    expect(interactor).toContain("new MateJobBudget(this.credits,");
+    expect(interactor).toContain("limits: budget.limits, admitRound: budget.admitRound");
+
+    const budget = readFileSync(`${REPO_ROOT}/ee/agent-runtime/mate-agent-job-budget.ts`, "utf8");
+    expect(budget).toContain("this.credits.admitRound(");
+    expect(budget).toContain("this.credits.extend(");
+    expect(budget).toContain("maxOutputTokens: budget.maxOutputTokens");
+    expect(budget).toContain("maxContextBytes: budget.maxContextBytes");
+
+    const loop = readFileSync(`${REPO_ROOT}/ee/agent-runtime/run-agent-job-loop.ts`, "utf8");
+    expect(loop).toContain("maxOutputTokens: input.limits.maxOutputTokens");
+    expect(loop).toContain("reasoning: input.limits.reasoning");
+    expect(loop).toContain("await input.admitRound(");
+    expect(loop).not.toContain("extends Error");
   });
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {

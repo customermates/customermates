@@ -41,6 +41,7 @@ vi.mock("next-intl", () => ({
 
 import { AgentKeysStore } from "../agent-keys.store";
 import { AgentKeysCard } from "../agent-keys-card";
+import { agentRunFailureLabel } from "../agent-labels";
 import { agentRuntimeWithKeys } from "../agent-runtime-with-keys";
 import { AgentRuntimesCard } from "../agent-runtimes-card";
 
@@ -120,6 +121,17 @@ describe("AgentKeysCard", () => {
     expect(markup).not.toContain('id="agent-key-add"');
     expect(markup).not.toContain("agent-key-test-anthropic");
     expect(markup).not.toContain("agent-key-remove-anthropic");
+  });
+});
+
+describe("agentRunFailureLabel", () => {
+  it("names the failures of a run that have their own text and leaves the others to the caller", () => {
+    const t = ((key: string) => key) as never;
+
+    expect(agentRunFailureLabel(t, "contextLimit")).toBe("AgentJobs.errors.contextLimit");
+    expect(agentRunFailureLabel(t, "modelRequired")).toBe("AgentJobs.errors.modelRequired");
+    expect(agentRunFailureLabel(t, "planRequired")).toBe("AgentJobs.errors.planRequired");
+    expect(agentRunFailureLabel(t, "APICallError:429")).toBeNull();
   });
 });
 

@@ -4,7 +4,6 @@ import type { AgentJobLoopLimits, AgentJobRound, AgentJobRoundAdmission } from "
 
 import { agentRoundReserveMicrocents } from "@/ee/agent-chat/agent-budget-policy";
 
-import { AgentJobStop } from "./agent-job-failure";
 import { mateJobSpentMicrocents } from "./mate-agent-job-settlement";
 
 export class MateJobBudget {
@@ -35,10 +34,10 @@ export class MateJobBudget {
     const { budget, reservationId, ceilingMicrocents } = this.reservation;
     const roundReserveMicrocents = agentRoundReserveMicrocents(budget, round.contextBytes, round.measured);
     const requiredMicrocents = mateJobSpentMicrocents(round.steps, round.auxiliary, budget) + roundReserveMicrocents;
-    if (requiredMicrocents > ceilingMicrocents) return { admitted: false };
+    if (requiredMicrocents > ceilingMicrocents) return { admitted: false, reason: "creditLimit" };
 
     if (!(await this.credits.admitRound({ reservationId, ...this.owner })))
-      throw new AgentJobStop("hostedAiUnavailable");
+      return { admitted: false, reason: "hostedAiUnavailable" };
     if (requiredMicrocents <= this.reservedMicrocents) return { admitted: true, roundReserveMicrocents };
 
     const extension = await this.credits.extend({
@@ -51,8 +50,7 @@ export class MateJobBudget {
       this.reservedMicrocents = extension.reservedMicrocents;
       return { admitted: true, roundReserveMicrocents };
     }
-    if (extension.disposition === "credit_limit" || extension.disposition === "run_credit_limit")
-      return { admitted: false };
-    throw new AgentJobStop("hostedAiUnavailable");
+    const outOfCredits = extension.disposition === "credit_limit" || extension.disposition === "run_credit_limit";
+    return { admitted: false, reason: outOfCredits ? "creditLimit" : "hostedAiUnavailable" };
   };
 }

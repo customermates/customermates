@@ -8,18 +8,20 @@ import type { AgentJobRecorder } from "./agent-job-recorder";
 
 import { generateText, isStepCount } from "ai";
 
+import { AGENT_SYSTEM_CACHE_CONTROL, AGENT_TOOLS_CACHE_CONTROL } from "@/ee/agent-chat/agent-prompt-cache";
+import { onDemandToolsetOfTool } from "@/ee/agent-chat/agent-toolsets";
 import { usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { collectClassifierCharges } from "@/ee/agent-chat/classifier/metered";
 
 import { agentJobToolDefinitions, fitAgentJobContext } from "./agent-job-context";
-import { AgentJobStop, agentJobErrorStatus } from "./agent-job-failure";
+import { type AgentJobStopCode, agentJobErrorStatus } from "./agent-job-failure";
 
 export const AGENT_JOB_MAX_STEPS = 40;
 const PROVIDER_MAX_RETRIES = 1;
 const NO_TOKENS: TokenCounts = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
 const REPORT_NOTE =
   "The limit of this run is reached and no further tool call is possible. Report now what is done and what remains.";
-const ROUND_REFUSED = new Error("The credits of this run do not cover another round.");
+const HALTED = new Error("The agent job was halted before its next round.");
 
 export type AgentJobStepUsage = {
   tokens: TokenCounts;
@@ -40,7 +42,9 @@ export type AgentJobRound = {
   measured: AgentMeasuredContext | null;
 };
 
-export type AgentJobRoundAdmission = { admitted: true; roundReserveMicrocents: number } | { admitted: false };
+export type AgentJobRoundAdmission =
+  | { admitted: true; roundReserveMicrocents: number }
+  | { admitted: false; reason: "creditLimit" | "hostedAiUnavailable" };
 
 export type AgentJobLoopInput = {
   model: LanguageModel;
@@ -54,6 +58,7 @@ export type AgentJobLoopInput = {
   wallMs: number;
   limits?: AgentJobLoopLimits;
   admitRound?: (round: AgentJobRound) => Promise<AgentJobRoundAdmission>;
+  anthropicCache?: boolean;
   onStep: (step: AgentJobStepUsage) => Promise<void>;
 };
 
@@ -61,6 +66,7 @@ type Ended = { steps: AgentJobStepUsage[]; auxiliary: ClassifierCharge[] };
 
 export type AgentJobLoopOutcome =
   | ({ kind: "finished"; text: string; reason: AgentJobFinishReason } & Ended)
+  | ({ kind: "stopped"; code: AgentJobStopCode } & Ended)
   | ({ kind: "failed"; error: unknown } & Ended);
 
 type Execute = (input: unknown, options: { toolCallId: string }) => unknown;
@@ -85,6 +91,7 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
   let measured = null as AgentMeasuredContext | null;
   let definitions = null as Map<string, AgentJobToolDefinition> | null;
   let callbackFailure = null as { error: unknown } | null;
+  let halt = null as "creditLimit" | AgentJobStopCode | null;
 
   const inCallback = async (run: () => void | Promise<void>) => {
     try {
@@ -94,14 +101,23 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
     }
   };
 
+  const cachedTool = input.anthropicCache
+    ? Object.keys(input.tools).findLast((name) => onDemandToolsetOfTool(name) === null)
+    : undefined;
+  const instructions = input.anthropicCache
+    ? { role: "system" as const, content: input.system, providerOptions: AGENT_SYSTEM_CACHE_CONTROL }
+    : input.system;
+
   const tools = Object.fromEntries(
     Object.entries(input.tools).map(([name, definition]) => {
       const execute = (definition as { execute?: Execute }).execute;
-      if (typeof execute !== "function") return [name, definition];
+      const cached = name === cachedTool ? { providerOptions: AGENT_TOOLS_CACHE_CONTROL } : {};
+      if (typeof execute !== "function") return [name, { ...definition, ...cached }];
       return [
         name,
         {
           ...definition,
+          ...cached,
           execute: async (toolInput: unknown, options: { toolCallId: string }) => {
             if (input.recorder.toolCalls >= input.maxToolCalls) refused = true;
             const metered = await collectClassifierCharges(() => Promise.resolve(execute(toolInput, options)));
@@ -138,7 +154,10 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
       tools: activeTools.flatMap((name) => definitions?.get(name) ?? []),
       maxContextBytes: input.limits.maxContextBytes,
     });
-    if (!fitted) throw new AgentJobStop("contextLimit");
+    if (!fitted) {
+      halt = "contextLimit";
+      throw HALTED;
+    }
     roundContextBytes = fitted.contextBytes;
     return fitted.messages;
   };
@@ -151,7 +170,7 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
   try {
     const result = await generateText({
       model: input.model,
-      system: input.system,
+      instructions,
       prompt: input.prompt,
       tools,
       maxRetries: PROVIDER_MAX_RETRIES,
@@ -169,8 +188,8 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
         if (input.admitRound) {
           const admission = await input.admitRound({ steps, auxiliary, contextBytes: roundContextBytes, measured });
           if (!admission.admitted) {
-            stopped = "creditLimit";
-            throw ROUND_REFUSED;
+            halt = admission.reason;
+            throw HALTED;
           }
           roundReserveMicrocents = admission.roundReserveMicrocents;
         }
@@ -204,7 +223,9 @@ export async function runAgentJobLoop(input: AgentJobLoopInput): Promise<AgentJo
       ...ended(),
     };
   } catch (error) {
-    if (error === ROUND_REFUSED) return { kind: "finished", text: lastText, reason: "creditLimit", ...ended() };
+    if (error === HALTED && halt === "creditLimit")
+      return { kind: "finished", text: lastText, reason: "creditLimit", ...ended() };
+    if (error === HALTED && halt) return { kind: "stopped", code: halt, ...ended() };
     if (isTimeout(error)) return { kind: "finished", text: lastText, reason: "timeLimit", ...ended() };
     if (agentJobErrorStatus(error) !== null) return { kind: "failed", error, steps, auxiliary };
     return { kind: "failed", error, ...ended() };

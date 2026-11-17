@@ -225,7 +225,7 @@ describe("the agent job loop", () => {
       .fn()
       .mockImplementation((round: { steps: unknown[]; measured: { promptTokens: number } | null }) => {
         asked.push({ steps: round.steps.length, promptTokens: round.measured?.promptTokens ?? null });
-        return Promise.resolve(asked.length === 1 ? admitted() : { admitted: false });
+        return Promise.resolve(asked.length === 1 ? admitted() : { admitted: false, reason: "creditLimit" });
       });
 
     const { outcome } = await run(world, { admitRound });
@@ -242,10 +242,56 @@ describe("the agent job loop", () => {
   it("does not call the provider at all when the first round is not covered", async () => {
     const world = setup([textStep("never reached")]);
 
-    const { outcome } = await run(world, { admitRound: vi.fn().mockResolvedValue({ admitted: false }) });
+    const { outcome } = await run(world, {
+      admitRound: vi.fn().mockResolvedValue({ admitted: false, reason: "creditLimit" }),
+    });
 
     expect(outcome).toMatchObject({ kind: "finished", reason: "creditLimit", steps: [] });
     expect(world.model.doGenerateCalls).toHaveLength(0);
+  });
+
+  it("stops a hosted run as unavailable, not as out of credits, when a round is refused for that reason", async () => {
+    const world = setup([toolCallStep("query_crm_records", { typeId: "deals" }), textStep("never reached")]);
+    const admitRound = vi
+      .fn()
+      .mockResolvedValueOnce(admitted())
+      .mockResolvedValue({ admitted: false, reason: "hostedAiUnavailable" });
+
+    const { outcome } = await run(world, { admitRound });
+
+    expect(outcome).toMatchObject({ kind: "stopped", code: "hostedAiUnavailable" });
+    expect(outcome.steps).toHaveLength(1);
+    expect(world.model.doGenerateCalls).toHaveLength(1);
+  });
+
+  it("marks the tools and the system prompt as cacheable for an Anthropic key and leaves other runs unmarked", async () => {
+    const cacheOf = (value: unknown) =>
+      (value as { providerOptions?: { anthropic?: unknown } }).providerOptions?.anthropic;
+    const anthropic = setup([toolCallStep("query_crm_records", { typeId: "deals" }), textStep("done")]);
+    await run(anthropic, {
+      anthropicCache: true,
+      activeToolNames: () => agentJobActiveToolNames(anthropic.tools, anthropic.recorder.loadedToolsets),
+    });
+
+    for (const call of anthropic.model.doGenerateCalls) {
+      const sent = call.tools ?? [];
+      expect(sent.map((definition) => definition.name)).toEqual([
+        "query_crm_records",
+        "mutate_crm_record",
+        "load_toolset",
+      ]);
+      expect(cacheOf(sent[2])).toEqual({ cacheControl: { type: "ephemeral", ttl: "1h" } });
+      expect(cacheOf(sent[0])).toBeUndefined();
+      expect(call.prompt[0]).toMatchObject({ role: "system", content: "system" });
+      expect(cacheOf(call.prompt[0])).toEqual({ cacheControl: { type: "ephemeral" } });
+    }
+    expect(anthropic.read).toHaveBeenCalledTimes(1);
+
+    const other = setup([textStep("done")]);
+    await run(other);
+    const [call] = other.model.doGenerateCalls;
+    expect((call.tools ?? []).every((definition) => cacheOf(definition) === undefined)).toBe(true);
+    expect(cacheOf(call.prompt[0])).toBeUndefined();
   });
 
   it("sends the output and reasoning limits of a hosted run and none for a run on the workspace's own key", async () => {
@@ -328,14 +374,12 @@ describe("the agent job loop", () => {
     expect(outcome.steps).toEqual([{ tokens: NO_TOKENS, providerMetadata: undefined, unmeasuredMicrocents: 410_000 }]);
   });
 
-  it("fails a hosted run whose instruction and tools alone exceed the context limit, before any provider call", async () => {
+  it("stops a hosted run whose instruction and tools alone exceed the context limit, before any provider call", async () => {
     const world = setup([textStep("never reached")]);
 
     const { outcome } = await run(world, { limits: { maxOutputTokens: 8192, maxContextBytes: 50 } });
 
-    expect(outcome.kind).toBe("failed");
-    if (outcome.kind !== "failed") return;
-    expect(agentJobFailureCode(outcome.error)).toBe("contextLimit");
+    expect(outcome).toMatchObject({ kind: "stopped", code: "contextLimit", steps: [] });
     expect(world.model.doGenerateCalls).toHaveLength(0);
   });
 

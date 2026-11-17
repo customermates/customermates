@@ -3020,6 +3020,7 @@ export const getRunAgentJobInteractor = () =>
     getAgentProviderKeyRepo(),
     getAutomationRuleRepo(),
     getMateAgentJobCredits(),
+    getAgentOwnKeyPlan(),
     createOwnKeyModel,
     createAgentJobToolkit,
   );
