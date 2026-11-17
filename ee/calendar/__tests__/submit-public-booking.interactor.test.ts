@@ -184,6 +184,7 @@ function build(options: { link?: BookingLinkLookup | null; entitlement?: unknown
     release: vi.fn().mockResolvedValue(undefined),
     countOpenForEmail: vi.fn().mockResolvedValue(0),
     countForVisitorSince: vi.fn().mockResolvedValue(0),
+    countForLinkSince: vi.fn().mockResolvedValue(0),
   };
   const writer = {
     create: vi.fn().mockResolvedValue({
@@ -262,7 +263,7 @@ describe("SubmitPublicBookingInteractor", () => {
         videoLink: true,
         notifyAttendees: true,
         timeZone: "Europe/Berlin",
-        description: "Ada Lovelace <ada@example.com>\nTopic: Pricing",
+        description: "Ada Lovelace <ada@example.com>",
       }),
     );
     expect(records.findOrCreatePerson).toHaveBeenCalledWith({
@@ -348,8 +349,7 @@ describe("SubmitPublicBookingInteractor", () => {
       expect(result.status).toBe("booked");
       const event = writer.create.mock.calls[0][2] as { title: string; description: string };
       expect(event.title).toBe("Intro call - Ada Lovelace");
-      expect(event.description).toBe("Ada Lovelace <ada@example.com>\nTopic: PricingATTENDEE:evil@example.com!");
-      expect(event.description.split("\n")).toHaveLength(2);
+      expect(event.description).toBe("Ada Lovelace <ada@example.com>");
       expect(reservations.reserve).toHaveBeenCalledWith(
         expect.objectContaining({
           inviteeName: "Ada Lovelace",
@@ -381,8 +381,47 @@ describe("SubmitPublicBookingInteractor", () => {
 
       expect(writer.create.mock.calls[0][2]).toMatchObject({
         title: "Intro call - Zoë O'Brien-Müller",
-        description: "Zoë O'Brien-Müller <ada@example.com>\nTopic: Preis: 100 € / Monat",
+        description: "Zoë O'Brien-Müller <ada@example.com>",
       });
+    });
+  });
+
+  describe("what the provider sends to the attendee", () => {
+    it("keeps the visitor's answers out of the invitation and on the booking", async () => {
+      const { interactor, writer, reservations } = build();
+
+      await interactor.invoke({ ...INPUT, answers: { [NOTE]: "Claim your prize at https://evil.example/win" } });
+
+      const event = writer.create.mock.calls[0][2] as { title: string; description: string };
+      expect(`${event.title} ${event.description}`).not.toContain("evil.example");
+      expect(event.description).toBe("Ada Lovelace <ada@example.com>");
+      expect(reservations.reserve).toHaveBeenCalledWith(
+        expect.objectContaining({ answers: { [NOTE]: "Claim your prize at https://evil.example/win" } }),
+        expect.any(Function),
+      );
+    });
+
+    it("takes links out of the name that goes into the title, and keeps the name the visitor typed on the booking", async () => {
+      const { interactor, writer, reservations } = build();
+      const name = "Ada https://evil.example/win www.evil.example evil.example/x <b>";
+
+      await interactor.invoke({ ...INPUT, name });
+
+      const event = writer.create.mock.calls[0][2] as { title: string; description: string };
+      expect(event.title).toBe("Intro call - Ada evil example x b");
+      expect(event.description).toBe("Ada evil example x b <ada@example.com>");
+      expect(reservations.reserve).toHaveBeenCalledWith(
+        expect.objectContaining({ inviteeName: name }),
+        expect.any(Function),
+      );
+    });
+
+    it("sends the page title alone when the name is nothing but a link", async () => {
+      const { interactor, writer } = build();
+
+      await interactor.invoke({ ...INPUT, name: "https://evil.example/win" });
+
+      expect(writer.create.mock.calls[0][2]).toMatchObject({ title: "Intro call", description: "ada@example.com" });
     });
   });
 
@@ -470,9 +509,7 @@ describe("SubmitPublicBookingInteractor", () => {
     expect(writer.create).toHaveBeenCalledWith(
       mockUser.companyId,
       expect.anything(),
-      expect.objectContaining({
-        description: expect.stringContaining("Source: Event\nTeam size: 12.5\nPreferred day: 2026-11-20"),
-      }),
+      expect.objectContaining({ description: "Ada Lovelace <ada@example.com>" }),
     );
   });
 
@@ -574,6 +611,19 @@ describe("SubmitPublicBookingInteractor", () => {
       );
       expect(reservations.reserve).not.toHaveBeenCalled();
       expect(writer.create).not.toHaveBeenCalled();
+    });
+
+    it("stops a page that already took its bookings of the last 24 hours, counted in the database", async () => {
+      const { interactor, reservations, writer } = build();
+      reservations.countForLinkSince.mockResolvedValue(50);
+
+      expect(await interactor.invoke(INPUT)).toEqual({ status: "rateLimited", retryAfterSeconds: 3600 });
+      expect(reservations.countForLinkSince).toHaveBeenCalledWith(link().id, new Date(NOW.getTime() - 86_400_000));
+      expect(reservations.reserve).not.toHaveBeenCalled();
+      expect(writer.create).not.toHaveBeenCalled();
+
+      reservations.countForLinkSince.mockResolvedValue(49);
+      expect((await interactor.invoke(INPUT)).status).toBe("booked");
     });
 
     it("does not count a visitor whose address is unknown", async () => {

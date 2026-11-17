@@ -32,5 +32,6 @@ export abstract class BookingReservationRepo {
   abstract busyForOwner(from: Date, to: Date): Promise<BusyInterval[]>;
   abstract countOpenForEmail(bookingLinkId: string, email: string, now: Date): Promise<number>;
   abstract countForVisitorSince(bookingLinkId: string, ipHash: string, since: Date): Promise<number>;
+  abstract countForLinkSince(bookingLinkId: string, since: Date): Promise<number>;
   abstract deleteExpiredUnscoped(cutoffs: { endedBefore: Date; abandonedBefore: Date }, limit: number): Promise<number>;
 }

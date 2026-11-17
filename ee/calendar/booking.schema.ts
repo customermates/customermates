@@ -15,6 +15,7 @@ export const BOOKING_MAX_HORIZON_DAYS = 90;
 export const BOOKING_MAX_NOTICE_MINUTES = 14 * 24 * 60;
 export const BOOKING_OPEN_PER_EMAIL = 3;
 export const BOOKING_PER_VISITOR_PER_HOUR = 10;
+export const BOOKING_PER_LINK_PER_DAY = 50;
 export const BOOKING_ANSWER_MAX_CHARS = 2000;
 
 export const BookingQuestionSchema = z

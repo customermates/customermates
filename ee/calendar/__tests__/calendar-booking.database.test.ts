@@ -802,6 +802,9 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
     expect(
       await w.as(w.admin, () => repo.countForVisitorSince(link.id, "visitor-a", new Date(Date.now() + 60_000))),
     ).toBe(0);
+    expect(await w.as(w.admin, () => repo.countForLinkSince(link.id, hourAgo))).toBe(3);
+    expect(await w.as(w.admin, () => repo.countForLinkSince(other.id, hourAgo))).toBe(1);
+    expect(await w.as(w.admin, () => repo.countForLinkSince(link.id, new Date(Date.now() + 60_000)))).toBe(0);
   });
 
   it("prunes bookings that ended long ago and abandoned reservations, in batches, and keeps the rest", async () => {

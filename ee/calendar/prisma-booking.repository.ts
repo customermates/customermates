@@ -284,6 +284,12 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     });
   }
 
+  countForLinkSince(bookingLinkId: string, since: Date): Promise<number> {
+    return this.prisma.booking.count({
+      where: { companyId: this.companyId, bookingLinkId, createdAt: { gte: since } },
+    });
+  }
+
   @BypassTenantGuard
   async deleteExpiredUnscoped(cutoffs: { endedBefore: Date; abandonedBefore: Date }, limit: number): Promise<number> {
     const expired = await this.prisma.booking.findMany({

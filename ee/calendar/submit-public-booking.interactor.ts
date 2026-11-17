@@ -23,15 +23,19 @@ import {
   type PublicBookingSubmitResult,
   type SubmitPublicBookingData,
   BOOKING_OPEN_PER_EMAIL,
+  BOOKING_PER_LINK_PER_DAY,
   BOOKING_PER_VISITOR_PER_HOUR,
   SubmitPublicBookingSchema,
 } from "./booking.schema";
+import { bookingInvitation } from "./booking-invitation";
 import { publicQuestions } from "./public-booking-questions";
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
+const DAY_MS = 24 * HOUR_MS;
 const OPEN_BOOKINGS_RETRY_SECONDS = 3600;
 const VISITOR_RETRY_SECONDS = 600;
+const LINK_RETRY_SECONDS = 3600;
 
 async function safely<T>(kind: string, work: () => Promise<T>): Promise<T | null> {
   try {
@@ -114,6 +118,9 @@ export class SubmitPublicBookingInteractor {
       (await this.reservations.countForVisitorSince(link.id, ipHash, hourAgo)) >= BOOKING_PER_VISITOR_PER_HOUR
     )
       return { status: "rateLimited", retryAfterSeconds: VISITOR_RETRY_SECONDS };
+    const dayAgo = new Date(now.getTime() - DAY_MS);
+    if ((await this.reservations.countForLinkSince(link.id, dayAgo)) >= BOOKING_PER_LINK_PER_DAY)
+      return { status: "rateLimited", retryAfterSeconds: LINK_RETRY_SECONDS };
 
     const endsAt = new Date(startsAt.getTime() + link.durationMinutes * MINUTE_MS);
     const reservation = await this.reservations.reserve(
@@ -142,15 +149,10 @@ export class SubmitPublicBookingInteractor {
       accountStatus: "ok",
       accountLabel: null,
     };
-    const description = [
-      `${data.name} <${data.email}>`,
-      ...questions.flatMap((question) =>
-        answers.display[question.fieldId] ? [`${question.label}: ${answers.display[question.fieldId]}`] : [],
-      ),
-    ].join("\n");
+    const invitation = bookingInvitation(link.title, data.name, data.email);
     const written = await this.writer.create(link.companyId, calendar, {
-      title: `${link.title} - ${data.name}`,
-      description,
+      title: invitation.title,
+      description: invitation.description,
       attendeeEmails: [data.email],
       startsAt,
       endsAt,
