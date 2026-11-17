@@ -33,6 +33,8 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { AutomationEffectRunner } from "../automation-effect-runner";
 import { AutomationRuleAdmission } from "../automation-rule-admission";
 import { currentCausation } from "@/core/decorators/causation-context";
+import { RoutineAdmission } from "@/ee/routines/routine-admission";
+import { recordCauseBy } from "@/features/records/record-event-cause";
 import { DiscardAutomationRuleRunInteractor } from "../discard-automation-rule-run.interactor";
 import { PruneAutomationRuleRunsInteractor } from "../prune-automation-rule-runs.interactor";
 import { RunAutomationRuleInteractor } from "../run-automation-rule.interactor";
@@ -458,6 +460,22 @@ describe("running a rule", () => {
     expect(seen).toEqual([[RULE_B, RULE]]);
   });
 
+  it("marks its changes as descending from a routine when a routine's change started it", async () => {
+    const runId = (await seedRun(repo, {
+      effects: [{ kind: "setField", fields: [{ fieldId: STAGE, value: null }] }],
+    })) as string;
+    const started = repo.runs.get(runId);
+    if (started) repo.runs.set(runId, { ...started, payload: { chain: [], routineDepth: 1 } });
+    const seen: unknown[] = [];
+    const set = ports();
+    set.records.mutate.mockImplementation(() => {
+      seen.push(currentCausation());
+      return Promise.resolve({ ok: true, refs: [] });
+    });
+    await run(new RunAutomationRuleInteractor(repo, set.runner, set.records as never, () => NOW), runId);
+    expect(seen).toEqual([{ ruleChain: [RULE], routineDepth: 1 }]);
+  });
+
   it("discards a run whose owner is gone and disables the rule", async () => {
     const runId = (await seedRun(repo)) as string;
     const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
@@ -480,6 +498,7 @@ function recordEvent(input: {
   changed?: string[];
   after?: CalculatedValue;
   ruleChain?: string[];
+  routineDepth?: number;
 }) {
   const fieldId = input.changed?.[0];
   return {
@@ -492,7 +511,11 @@ function recordEvent(input: {
     payload: {
       ref: { typeId: TYPE, recordId: RECORD },
       schemaRevision: 1,
-      cause: { kind: "mutation", ...(input.ruleChain ? { ruleChain: input.ruleChain } : {}) },
+      cause: {
+        kind: "mutation",
+        ...(input.ruleChain ? { ruleChain: input.ruleChain } : {}),
+        ...(input.routineDepth === undefined ? {} : { routineDepth: input.routineDepth }),
+      },
       beforeVersion: null,
       afterVersion: 1,
       changedFieldIds: input.changed ?? [],
@@ -633,6 +656,82 @@ describe("admitting events", () => {
     expect([...repo.runs.values()][0]?.payload).toMatchObject({ chain: [RULE_B] });
     await admit(recordEvent({ ruleChain: [RULE_B, UUID("a4")], id: UUID("8") }));
     expect(repo.runs.size).toBe(1);
+  });
+
+  it("lets a routine's change start a rule and remembers that it came from a routine", async () => {
+    seedRule(repo);
+    matched(matchOf(RULE));
+    await admit(recordEvent({ routineDepth: 1, id: UUID("16") }));
+    expect(repo.runs.size).toBe(1);
+    expect([...repo.runs.values()][0]?.payload).toMatchObject({ chain: [], routineDepth: 1 });
+    await admit(recordEvent({ id: UUID("17") }));
+    expect([...repo.runs.values()][1]?.payload).not.toHaveProperty("routineDepth");
+  });
+
+  // Finding 3 of the review of 2026-11-17: the rule "deal updated, create a task" and the routine "task
+  // created, the agent updates the deal" started each other without end, one model run per turn, because
+  // the rule guard only knew ruleChain and the routine guard only knew routineDepth. Each single hop stays
+  // allowed; the second routine start is the one that must not happen.
+  it("ends the ping-pong between a rule and a routine after one hop each way", async () => {
+    seedRule(repo, {
+      triggerKind: "recordUpdated",
+      trigger: { kind: "recordUpdated", typeId: TYPE, fieldIds: [] },
+      effects: [{ kind: "createRecord", typeId: TASKS, fields: [], assignToRuleOwner: false, assignedUserIds: [] }],
+    });
+    matched(matchOf(RULE));
+    const ROUTINE = UUID("b1");
+    const routineRuns = vi.fn().mockResolvedValue([{ id: UUID("b2"), routineId: ROUTINE, executedByUserId: OWNER }]);
+    const routineReader = {
+      findEventMatches: vi.fn().mockResolvedValue([
+        {
+          subscriptionId: ROUTINE,
+          subscriptionRevision: 1,
+          subscription: { id: ROUTINE, kind: "routine", ownerUserId: OWNER, revision: 1, enabled: true },
+        },
+      ]),
+      readEvent: vi.fn().mockResolvedValue({ event: "record.created" }),
+    };
+    const routines = new RoutineAdmission(
+      {
+        findEventRoutinesUnscoped: () =>
+          Promise.resolve([{ id: ROUTINE, ownerUserId: OWNER, triggerFilters: [], updatedAt: NOW }]),
+        admitEventRoutineRunsUnscoped: routineRuns,
+      },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+      routineReader as never,
+    );
+    const set = ports();
+    const causes: Array<Record<string, unknown>> = [];
+    set.records.mutate.mockImplementation(() => {
+      causes.push(recordCauseBy({}, { kind: "mutation" }));
+      return Promise.resolve({ ok: true, refs: [{ typeId: TASKS, recordId: "created" }] });
+    });
+    const runner = new RunAutomationRuleInteractor(repo, set.runner, set.records as never, () => NOW);
+    const runLatest = async () => {
+      const latest = [...repo.runs.values()].at(-1);
+      if (!latest) throw new Error("No run was admitted");
+      await runWithTenant(mockUser, () => runner.invoke({ runId: latest.id }));
+    };
+    const taskCreated = (cause: Record<string, unknown>, id: string) => ({
+      ...recordEvent({ id, kind: "record.created" }),
+      payload: { ...recordEvent({ id }).payload, cause },
+    });
+
+    // A person updates the deal: the rule runs and creates a task.
+    await admit(recordEvent({ kind: "record.updated", id: UUID("20") }));
+    await runLatest();
+    expect(causes[0]).toEqual({ kind: "mutation", ruleChain: [RULE] });
+    // The rule's task starts the routine once.
+    await routines.admit(taskCreated(causes[0], UUID("21")) as never);
+    expect(routineRuns).toHaveBeenCalledTimes(1);
+    // The routine's agent updates the deal: the rule runs once more and creates a second task.
+    await admit(recordEvent({ kind: "record.updated", id: UUID("22"), routineDepth: 1 }));
+    expect(repo.runs.size).toBe(2);
+    await runLatest();
+    expect(causes[1]).toEqual({ kind: "mutation", ruleChain: [RULE], routineDepth: 1 });
+    // That task descends from a routine and starts no routine again.
+    await routines.admit(taskCreated(causes[1], UUID("23")) as never);
+    expect(routineRuns).toHaveBeenCalledTimes(1);
   });
 
   it("starts message rules only for accounts the owner can access, filtered by channel", async () => {

@@ -24,7 +24,10 @@ export const AUTOMATION_RUN_STALE_MS = 10 * 60 * 1000;
 const Schema = z.object({ runId: z.uuid() }).strict();
 type RunAutomationRuleData = z.infer<typeof Schema>;
 
-const RunPayloadSchema = z.looseObject({ chain: z.array(z.uuid()).max(5).default([]) });
+const RunPayloadSchema = z.looseObject({
+  chain: z.array(z.uuid()).max(5).default([]),
+  routineDepth: z.number().int().nonnegative().optional(),
+});
 
 type RunStatus = "applied" | "skipped" | "failed";
 type RunAutomationRuleOutcome = { status: RunStatus | "missing" | "notClaimed" };
@@ -95,15 +98,20 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
       if (!evaluateConditions(residual, record.values, { now, timeZone }))
         return { status: "skipped", reason: "conditionsNotMet" };
     }
-    const parentChain = RunPayloadSchema.parse(run.payload ?? {}).chain;
-    const { outcomes, failure } = await runInCausation({ ruleChain: extendAutomationChain(parentChain, rule.id) }, () =>
-      this.runner.run(definition.effects, {
-        companyId: this.user.companyId,
-        runId: run.id,
-        rule: { id: rule.id, name: rule.name, ownerUserId: this.user.id, trigger: definition.trigger },
-        recordRef,
-        now,
-      }),
+    const { chain: parentChain, routineDepth } = RunPayloadSchema.parse(run.payload ?? {});
+    const { outcomes, failure } = await runInCausation(
+      {
+        ruleChain: extendAutomationChain(parentChain, rule.id),
+        ...(routineDepth === undefined ? {} : { routineDepth }),
+      },
+      () =>
+        this.runner.run(definition.effects, {
+          companyId: this.user.companyId,
+          runId: run.id,
+          rule: { id: rule.id, name: rule.name, ownerUserId: this.user.id, trigger: definition.trigger },
+          recordRef,
+          now,
+        }),
     );
     return failure === null
       ? { status: "applied", effects: outcomes }

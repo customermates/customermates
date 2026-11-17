@@ -11,7 +11,13 @@ import { describeAutomationEvent, triggerMatchesEvent } from "./automation-event
 import { eventOccurrenceKey } from "./automation-occurrence";
 import { AutomationTriggerSchema } from "./automation-rule.schema";
 
-type Occurrence = { typeId: string | null; recordId: string | null; occurrenceKey: string; chain: string[] };
+type Occurrence = {
+  typeId: string | null;
+  recordId: string | null;
+  occurrenceKey: string;
+  chain: string[];
+  routineDepth?: number;
+};
 
 export class AutomationRuleAdmission implements EventAdmission {
   constructor(
@@ -76,6 +82,7 @@ export class AutomationRuleAdmission implements EventAdmission {
           recordId: ref.recordId,
           occurrenceKey: eventOccurrenceKey(event.id),
           chain,
+          routineDepth: cause.routineDepth,
         });
       }
     }
@@ -94,7 +101,12 @@ export class AutomationRuleAdmission implements EventAdmission {
       triggerKind: rule.triggerKind,
       typeId: occurrence.typeId,
       recordId: occurrence.recordId,
-      payload: { chain: occurrence.chain, eventId: event.id, event: event.kind },
+      payload: {
+        chain: occurrence.chain,
+        eventId: event.id,
+        event: event.kind,
+        ...(occurrence.routineDepth === undefined ? {} : { routineDepth: occurrence.routineDepth }),
+      },
       depth: occurrence.chain.length,
       scheduledFor: this.clock(),
     });
