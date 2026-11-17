@@ -80,14 +80,14 @@ function runnerWith(agents: { enqueue: (input: AutomationAgentJobInput) => Promi
 
 describe("the agent step of a rule", () => {
   let sent: Sent[];
-  let agents: { enqueue: ReturnType<typeof vi.fn> };
+  let agents: { enqueue: (input: AutomationAgentJobInput) => Promise<unknown> };
   beforeEach(() => {
     sent = [];
     agents = {
-      enqueue: vi.fn().mockImplementation((input: Sent) => {
-        sent.push(input);
+      enqueue: (input) => {
+        sent.push(input as Sent);
         return Promise.resolve({ ok: true, jobId: `job-${sent.length}` });
-      }),
+      },
     };
   });
 
