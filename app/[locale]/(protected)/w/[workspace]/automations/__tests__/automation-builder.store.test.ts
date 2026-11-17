@@ -470,7 +470,9 @@ describe("AutomationBuilderStore", () => {
   it("marks a pinned runner as gone for the owner only, not for an admin who looks at a colleague's rule", () => {
     const rule = {
       ...SAVED,
-      effects: [{ kind: "agent", runtime: "runner", prompt: "Check", runnerId: "88888888-8888-4888-8888-888888888888" }],
+      effects: [
+        { kind: "agent", runtime: "runner", prompt: "Check", runnerId: "88888888-8888-4888-8888-888888888888" },
+      ],
     };
     const noRunner = { available: false, reason: "noRunner" as const, models: [], runners: [] };
     const context = { ...CONTEXT, runtimes: { ...noAgentRuntimes(), runner: noRunner } };

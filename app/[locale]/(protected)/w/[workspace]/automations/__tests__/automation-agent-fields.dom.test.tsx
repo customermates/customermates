@@ -190,7 +190,10 @@ describe("the Ask an agent card", () => {
 
   it("says 'runner of the owner' on a colleague's runner step instead of the viewer's own runners", () => {
     const effect = { ...blankAgentEffect("runner"), runnerId: RUNNER };
-    const mine = { ...AVAILABLE, runners: [{ id: "99999999-9999-4999-8999-999999999999", name: "Mine", online: true }] };
+    const mine = {
+      ...AVAILABLE,
+      runners: [{ id: "99999999-9999-4999-8999-999999999999", name: "Mine", online: true }],
+    };
     const show = (ownRule: boolean, availability: AgentRuntimeAvailability) =>
       mount(
         <AutomationAgentFields

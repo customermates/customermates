@@ -9,8 +9,10 @@ import { Action, Resource } from "@/generated/prisma";
 const DEALS = "11111111-1111-4111-8111-111111111111";
 const CLOSE = "22222222-2222-4222-8222-333333333333";
 
+type Toolbar = ReactElement<{ automateHref?: string; menuItems: ReactNode }>;
+
 const harness = vi.hoisted(() => ({
-  toolbar: null as ReactElement<{ automateHref?: string; menuItems: ReactNode }> | null,
+  toolbar: null as Toolbar | null,
   granted: [] as string[],
 }));
 
@@ -33,7 +35,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   }),
 }));
 vi.mock("@/app/components/topbar-actions-context", () => ({
-  useSetTopBarActions: (node: ReactElement<{ automateHref?: string; menuItems: ReactNode }>) => {
+  useSetTopBarActions: (node: Toolbar) => {
     harness.toolbar = node;
   },
 }));
@@ -92,13 +94,18 @@ const presentation = {
   },
 };
 
-function offered(granted: string[]) {
+function renderedToolbar(granted: string[]): Toolbar | null {
   harness.granted = granted;
   harness.toolbar = null;
   renderToStaticMarkup(createElement(RecordsPageView, { presentation } as never));
-  if (!harness.toolbar) throw new Error("the page set no toolbar");
-  const menu = renderToStaticMarkup(createElement("div", null, harness.toolbar.props.menuItems));
-  return { automateHref: harness.toolbar.props.automateHref, menu };
+  return harness.toolbar;
+}
+
+function offered(granted: string[]) {
+  const toolbar = renderedToolbar(granted);
+  if (!toolbar) throw new Error("the page set no toolbar");
+  const menu = renderToStaticMarkup(createElement("div", null, toolbar.props.menuItems));
+  return { automateHref: toolbar.props.automateHref, menu };
 }
 
 beforeEach(() => {

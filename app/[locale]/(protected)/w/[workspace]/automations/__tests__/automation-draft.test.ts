@@ -244,8 +244,10 @@ describe("turning a draft into a rule", () => {
     const opened = ruleToDraft(savedRule({ trigger: parsed.trigger }), MODEL, TZ);
     expect(opened.trigger).toMatchObject({ kind: "fieldChanged", fieldId: TAGS, value: "vip", kept: null });
     expect(
-      draftToUpsert(draft({ trigger: { ...draft().trigger, kind: "fieldChanged", fieldId: TAGS, value: "nope" } }), MODEL)
-        .ok,
+      draftToUpsert(
+        draft({ trigger: { ...draft().trigger, kind: "fieldChanged", fieldId: TAGS, value: "nope" } }),
+        MODEL,
+      ).ok,
     ).toBe(false);
   });
 
