@@ -159,6 +159,11 @@ export const domTestFiles = [
   "components/map/__tests__/map-view.dom.test.tsx",
   "app/**/records/**/components/__tests__/record-calendar-view.dom.test.tsx",
   "app/**/dashboard/components/__tests__/calendar-map-widget-cards.dom.test.tsx",
+  "app/**/calendar/components/__tests__/booking-panel.dom.test.tsx",
+  "app/**/calendar/components/__tests__/booking-preview.dom.test.tsx",
+  "components/public-form/__tests__/public-form-tab.dom.test.tsx",
+  "components/public-form/__tests__/public-form-view.dom.test.tsx",
+  "components/data-view/views/__tests__/share-view-dialog-form-guard.dom.test.tsx",
 ];
 
 export default defineConfig({

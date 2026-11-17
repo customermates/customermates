@@ -1,0 +1,308 @@
+import type { PublicFormEditor } from "@/features/public-form/public-form.schema";
+import type { PublicFormTabActions } from "../public-form-tab.store";
+
+import { describe, expect, it, vi } from "vitest";
+
+import { PublicFormTabStore } from "../public-form-tab.store";
+
+import {
+  COMPANY_FIELD,
+  FORM_ID,
+  NAME_FIELD,
+  NOTE_FIELD,
+  PEOPLE_TYPE,
+  TEXTS,
+  TYPE_ID,
+  editor,
+  rule,
+  savedForm,
+} from "./public-form-fixtures";
+
+const CONSENT_TEXT = "I agree that my details are stored to answer my request.";
+
+function build(data: PublicFormEditor = editor({ form: savedForm() }), rules = [rule()]) {
+  const actions = {
+    loadEditor: vi.fn().mockResolvedValue({ ok: true, data }),
+    save: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+    loadRules: vi.fn().mockResolvedValue({ ok: true, data: { items: rules } }),
+  } satisfies PublicFormTabActions;
+  return { actions, store: new PublicFormTabStore(TYPE_ID, actions) };
+}
+
+async function loaded(data?: PublicFormEditor, rules?: ReturnType<typeof rule>[]) {
+  const built = build(data, rules);
+  await built.store.load(TEXTS);
+  return built;
+}
+
+describe("PublicFormTabStore draft", () => {
+  it("starts from the saved form with its fields in the saved order and nothing edited", async () => {
+    const { store } = await loaded();
+
+    expect(store.draft?.title).toBe("Contact us");
+    expect(store.draft?.fields.map((field) => [field.fieldId, field.included])).toEqual([
+      [NOTE_FIELD, true],
+      [NAME_FIELD, true],
+      [COMPANY_FIELD, false],
+    ]);
+    expect(store.edited).toBe(false);
+    expect(store.canSave).toBe(false);
+  });
+
+  it("starts a new form with the list's required fields and the default texts", async () => {
+    const { store } = await loaded(editor());
+
+    expect(store.draft?.title).toBe("Leads");
+    expect(store.draft?.submitLabel).toBe("Send");
+    expect(store.draft?.successMessage).toBe(TEXTS.successMessage);
+    expect(store.draft?.enabled).toBe(true);
+    expect(store.draft?.consentEnabled).toBe(false);
+  });
+
+  it("marks an edit as unsaved and a return to the saved text as clean again", async () => {
+    const { store } = await loaded();
+
+    store.patch({ title: "Talk to us" });
+    expect(store.edited).toBe(true);
+    expect(store.canSave).toBe(true);
+
+    store.patch({ title: "Contact us" });
+    expect(store.edited).toBe(false);
+  });
+
+  it("keeps an edit that cannot be saved yet marked as unsaved", async () => {
+    const { store } = await loaded();
+
+    store.patch({ title: "" });
+
+    expect(store.config).toBeNull();
+    expect(store.edited).toBe(true);
+    expect(store.canSave).toBe(false);
+  });
+
+  it("changes the enabled switch through the same draft as every other setting", async () => {
+    const { store } = await loaded();
+
+    store.patch({ enabled: false });
+
+    expect(store.draft?.enabled).toBe(false);
+    expect(store.edited).toBe(true);
+  });
+
+  it("moves a question up or down and ignores a move past either end", async () => {
+    const { store } = await loaded();
+
+    store.moveField(1, -1);
+    expect(store.draft?.fields.map((field) => field.fieldId)).toEqual([NAME_FIELD, NOTE_FIELD, COMPANY_FIELD]);
+    store.moveField(0, -1);
+    store.moveField(2, 1);
+    expect(store.draft?.fields.map((field) => field.fieldId)).toEqual([NAME_FIELD, NOTE_FIELD, COMPANY_FIELD]);
+    expect(store.edited).toBe(true);
+  });
+});
+
+describe("PublicFormTabStore consent line", () => {
+  it("adds the consent line with the default sentence in one step", async () => {
+    const { store } = await loaded();
+
+    store.addConsentLine(CONSENT_TEXT);
+
+    expect(store.draft).toMatchObject({ consentEnabled: true, consentText: CONSENT_TEXT });
+    expect(store.config).toBeNull();
+  });
+
+  it("keeps a sentence the person already wrote and removes the line again", async () => {
+    const { store } = await loaded();
+
+    store.patch({ consentText: "My own sentence." });
+    store.addConsentLine(CONSENT_TEXT);
+    expect(store.draft?.consentText).toBe("My own sentence.");
+
+    store.removeConsentLine();
+    expect(store.draft?.consentEnabled).toBe(false);
+  });
+
+  it("becomes saveable once the privacy notice link is added", async () => {
+    const { store } = await loaded();
+
+    store.addConsentLine(CONSENT_TEXT);
+    store.patch({ privacyUrl: "https://example.com/privacy" });
+
+    expect(store.config?.consent).toEqual({ text: CONSENT_TEXT, privacyUrl: "https://example.com/privacy" });
+    expect(store.canSave).toBe(true);
+  });
+});
+
+describe("PublicFormTabStore preview model", () => {
+  it("shows the draft as the visitor will see it and follows every edit", async () => {
+    const { store } = await loaded();
+
+    expect(store.preview).toMatchObject({
+      title: "Contact us",
+      submitLabel: "Send",
+      person: null,
+      consent: null,
+      badge: false,
+    });
+    expect(store.preview?.fields.map((field) => [field.fieldId, field.label, field.helpText, field.required])).toEqual([
+      [NOTE_FIELD, "Note", null, false],
+      [NAME_FIELD, "Name", "Your full name", true],
+    ]);
+
+    store.patch({ title: "Talk to us", submitLabel: "Go" });
+    store.addConsentLine(CONSENT_TEXT);
+    store.patch({ privacyUrl: "https://example.com/privacy" });
+
+    expect(store.preview).toMatchObject({
+      title: "Talk to us",
+      submitLabel: "Go",
+      consent: { text: CONSENT_TEXT, privacyUrl: "https://example.com/privacy" },
+    });
+  });
+
+  it("leaves out a question that is switched off and shows the badge of a free plan", async () => {
+    const { store } = await loaded(
+      editor({ form: savedForm({ usage: { submissionsThisMonth: 1, monthlyLimit: 50, badge: true } }) }),
+    );
+
+    const fields = (store.draft?.fields ?? []).map((field) => ({ ...field, included: field.fieldId === NAME_FIELD }));
+    store.patch({ fields });
+
+    expect(store.preview?.fields.map((field) => field.fieldId)).toEqual([NAME_FIELD]);
+    expect(store.preview?.badge).toBe(true);
+  });
+
+  it("asks for the email, and the name when a label is set, once the person is on", async () => {
+    const { store } = await loaded();
+
+    store.patch({ personEnabled: true });
+
+    expect(store.preview?.person).toEqual({ emailLabel: "Email", nameLabel: "Name" });
+  });
+
+  it("switches the preview between the form and the done message", async () => {
+    const { store } = await loaded();
+
+    expect(store.previewMode).toBe("form");
+    store.setPreviewMode("done");
+    expect(store.previewMode).toBe("done");
+  });
+});
+
+describe("PublicFormTabStore after submit", () => {
+  it("chains the record, the person and who is notified, with the rules that listen to this form", async () => {
+    const { store } = await loaded(editor({ form: savedForm() }), [
+      rule(),
+      rule({
+        id: "80000000-0000-4000-8000-000000000002",
+        name: "Other form",
+        trigger: { kind: "formSubmitted", sourceId: "50000000-0000-4000-8000-0000000000ff" },
+      }),
+    ]);
+    store.patch({ personEnabled: true, personTypeId: PEOPLE_TYPE });
+
+    expect(store.chain).toEqual({
+      createsRecord: true,
+      personListLabel: "People",
+      recipients: { owners: ["Test User"], assignees: false, members: 0 },
+      rules: [
+        {
+          id: "80000000-0000-4000-8000-000000000001",
+          name: "Tell me about new leads",
+          enabled: true,
+          href: "/automations?open=80000000-0000-4000-8000-000000000001",
+        },
+      ],
+    });
+  });
+
+  it("reads no person step while the person is off and survives a failed rules read", async () => {
+    const built = build();
+    built.actions.loadRules.mockRejectedValue(new Error("no access"));
+    await built.store.load(TEXTS);
+
+    expect(built.store.chain).toMatchObject({ personListLabel: null, recipients: null, rules: [] });
+  });
+
+  it("treats a denied rules read as no automations", async () => {
+    const built = build();
+    built.actions.loadRules.mockResolvedValue({ ok: false, error: {} });
+    await built.store.load(TEXTS);
+
+    expect(built.store.chain?.rules).toEqual([]);
+  });
+});
+
+describe("PublicFormTabStore load and save", () => {
+  it("reports a failed load and keeps the editor empty", async () => {
+    const built = build();
+    built.actions.loadEditor.mockResolvedValue({ ok: false, error: { errors: ["x"] } });
+
+    const outcome = await built.store.load(TEXTS);
+
+    expect(outcome).toEqual({ status: "failed", error: { errors: ["x"] } });
+    expect(built.store.editor).toBeNull();
+    expect(built.store.draft).toBeNull();
+  });
+
+  it("keeps the answer of the newest load", async () => {
+    const built = build();
+    let answerFirst: (value: unknown) => void = () => undefined;
+    built.actions.loadEditor.mockImplementationOnce(() => new Promise((resolve) => (answerFirst = resolve)));
+    built.actions.loadEditor.mockResolvedValueOnce({ ok: true, data: editor({ form: savedForm() }) });
+
+    const first = built.store.load(TEXTS);
+    const second = await built.store.load(TEXTS);
+    answerFirst({ ok: true, data: editor() });
+
+    expect(second).toEqual({ status: "loaded" });
+    expect(await first).toEqual({ status: "stale" });
+    expect(built.store.draft?.title).toBe("Contact us");
+  });
+
+  it("saves an existing form by id with the enabled switch and the valid config", async () => {
+    const { store, actions } = await loaded();
+    store.patch({ title: "Talk to us", enabled: false });
+
+    expect(await store.save()).toEqual({ status: "saved" });
+
+    expect(actions.save).toHaveBeenCalledOnce();
+    expect(actions.save.mock.calls[0][0]).toMatchObject({
+      id: FORM_ID,
+      enabled: false,
+      config: { title: "Talk to us" },
+    });
+    expect(store.saving).toBe(false);
+  });
+
+  it("creates the form of a list that has none, named after its title", async () => {
+    const { store, actions } = await loaded(editor());
+    store.patch({ title: "  Sales enquiries  " });
+
+    await store.save();
+
+    expect(actions.save.mock.calls[0][0]).toMatchObject({ typeId: TYPE_ID, name: "Sales enquiries", enabled: true });
+    expect(actions.save.mock.calls[0][0]).not.toHaveProperty("id");
+  });
+
+  it("returns the server's refusal and clears the saving flag", async () => {
+    const { store, actions } = await loaded();
+    actions.save.mockResolvedValue({ ok: false, error: { errors: ["bad"] } });
+
+    expect(await store.save()).toEqual({ status: "failed", error: { errors: ["bad"] } });
+    expect(store.saving).toBe(false);
+  });
+
+  it("does not save an incomplete draft or save twice at once", async () => {
+    const { store, actions } = await loaded();
+
+    store.patch({ title: "" });
+    expect(await store.save()).toEqual({ status: "skipped" });
+
+    store.patch({ title: "Talk to us" });
+    const first = store.save();
+    expect(await store.save()).toEqual({ status: "skipped" });
+    await first;
+    expect(actions.save).toHaveBeenCalledOnce();
+  });
+});
