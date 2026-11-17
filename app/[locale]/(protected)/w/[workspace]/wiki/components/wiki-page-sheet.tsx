@@ -451,6 +451,8 @@ export const WikiPageSheet = observer(function WikiPageSheet({
                     <Alert description={t("Wiki.graph.linksFailed")} variant="destructive" />
                   ) : (
                     <>
+                      {pageLinks.syncing && <p className="text-xs text-muted-foreground">{t("Wiki.graph.syncing")}</p>}
+
                       <LinkedPages
                         items={pageLinks.linkedFrom}
                         title={t("Wiki.graph.linkedFrom")}

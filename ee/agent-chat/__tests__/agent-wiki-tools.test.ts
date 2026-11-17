@@ -477,7 +477,10 @@ describe("managed Wiki retrieval tools", () => {
       });
 
       expect(outcome.ok).toBe(true);
-      expect(decode(outcome.result)).toMatchObject({ status: "pending_review" });
+      expect(decode(outcome.result)).toMatchObject({
+        status: "pending_review",
+        note: expect.stringContaining("The owner and the verified mark are not part of a proposal"),
+      });
       expect(calls.get).toHaveBeenCalledExactlyOnceWith({ id: PAGE_ID });
       expect(calls.propose).toHaveBeenCalledOnce();
       const [proposal] = calls.propose.mock.calls[0] as [Record<string, unknown>];
@@ -491,6 +494,22 @@ describe("managed Wiki retrieval tools", () => {
       expect(proposal).not.toHaveProperty("owner");
       expect(proposal).not.toHaveProperty("verified");
       expect(calls.update).not.toHaveBeenCalled();
+    });
+
+    it("adds no note about an owner or a verified mark when none was sent", async () => {
+      proposeOk();
+      calls.get.mockResolvedValue({ ok: true, data: stored });
+
+      const outcome = await execute(routineTools().manage_wiki_pages, {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+        edits: [{ find: "20 EUR", replace: "25 EUR" }],
+        verified: false,
+      });
+
+      expect(outcome.ok).toBe(true);
+      expect((decode(outcome.result) as { note: string }).note).not.toContain("left out");
     });
 
     it("refuses edits made against an older version of the page", async () => {

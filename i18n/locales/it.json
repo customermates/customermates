@@ -5501,7 +5501,8 @@
         "page": "Pagina"
       },
       "sheetSegments": "Sezioni della pagina",
-      "truncated": "Sono mostrate le prime {count} pagine.",
+      "syncing": "I link sono ancora in lettura. Ricarica la pagina per vederli tutti.",
+      "truncated": "Sono mostrate le prime {count} pagine. Cerca e premi Invio per aprire qualsiasi altra pagina.",
       "unpin": "Togli il blocco",
       "unpinHelp": "La mappa torna a posizionare questa pagina."
     },

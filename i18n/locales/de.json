@@ -5501,7 +5501,8 @@
         "page": "Seite"
       },
       "sheetSegments": "Bereiche der Seite",
-      "truncated": "Die ersten {count} Seiten werden gezeigt.",
+      "syncing": "Links werden noch eingelesen. Lade die Seite neu, um alle zu sehen.",
+      "truncated": "Die ersten {count} Seiten werden gezeigt. Suche und drücke Enter, um eine andere Seite zu öffnen.",
       "unpin": "Pin lösen",
       "unpinHelp": "Die Karte ordnet diese Seite wieder selbst ein."
     },

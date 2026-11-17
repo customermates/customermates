@@ -100,8 +100,8 @@ export function WikiGraphView({ graph, positions, query, found, selectedId, canP
 
   const fit = useCallback(() => {
     interacted.current = false;
-    setTransform(wikiGraphFitTransform(graph.nodes, viewport));
-  }, [graph.nodes, viewport]);
+    setTransform(wikiGraphFitTransform(nodes, viewport));
+  }, [nodes, viewport]);
 
   useLayoutEffect(() => {
     const element = container.current;
@@ -287,13 +287,15 @@ export function WikiGraphView({ graph, positions, query, found, selectedId, canP
       </div>
 
       <p className="pointer-events-none absolute bottom-3 left-3 max-w-xl text-xs text-muted-foreground">
-        {visible.size === 0
-          ? t("Wiki.graph.noMatches")
-          : graph.truncated
-            ? t("Wiki.graph.truncated", { count: graph.nodes.length })
-            : canPin
-              ? t("Wiki.graph.legendEdit")
-              : t("Wiki.graph.legend")}
+        {graph.truncated
+          ? `${t("Wiki.graph.truncated", { count: graph.nodes.length })}${graph.syncing ? ` ${t("Wiki.graph.syncing")}` : ""}`
+          : visible.size === 0
+            ? t("Wiki.graph.noMatches")
+            : graph.syncing
+              ? t("Wiki.graph.syncing")
+              : canPin
+                ? t("Wiki.graph.legendEdit")
+                : t("Wiki.graph.legend")}
       </p>
     </div>
   );

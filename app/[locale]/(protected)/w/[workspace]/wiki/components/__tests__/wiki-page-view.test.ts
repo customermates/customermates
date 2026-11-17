@@ -562,6 +562,38 @@ describe("Knowledge Base view", () => {
       expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${PRICING}`);
     });
 
+    it("opens a page the search found that the map does not show", async () => {
+      const offMap = "10000000-0000-4000-8000-0000000000ff";
+      const answer = (query: string, found: string[], foundQuery = query) =>
+        act(() => {
+          const search = topBar().search;
+          search?.setQuery(query);
+          if (search) {
+            runInAction(() => {
+              search.found = new Set(found);
+              search.foundQuery = foundQuery;
+            });
+          }
+        });
+
+      await mount();
+      answer("page beyond the map", [offMap]);
+      await during(() => topBar().onOpenFirst());
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${offMap}`);
+
+      harness.push.mockClear();
+      await mount({ graph: { ...graph, truncated: true } });
+      answer("pric", [offMap, PRICING]);
+      await during(() => topBar().onOpenFirst());
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${offMap}`);
+
+      harness.push.mockClear();
+      await mount({ graph: { ...graph, truncated: true } });
+      answer("pric", [offMap, PRICING], "an earlier search");
+      await during(() => topBar().onOpenFirst());
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${PRICING}`);
+    });
+
     it("opens nothing on Enter when no page matches", async () => {
       await mount();
       act(() => topBar().search?.setQuery("nothing like this"));

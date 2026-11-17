@@ -25,6 +25,7 @@ vi.mock("next-intl/server", () => ({
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { GetWikiGraphInteractor } from "../get-wiki-graph.interactor";
 import { GetWikiLinkReportInteractor } from "../get-wiki-link-report.interactor";
 import { GetWikiPageLinksInteractor } from "../get-wiki-page-links.interactor";
 import { WIKI_LINK_REPORT_LIMIT } from "../wiki-graph.schema";
@@ -175,8 +176,76 @@ describe("GetWikiPageLinksInteractor", () => {
     const failure = new Error("sync failed");
     const repo = repository({ syncStaleLinks: vi.fn().mockRejectedValue(failure) });
 
-    expect((await links(repo)).ok).toBe(true);
+    const result = await links(repo);
+
+    expect(result.ok && result.data.syncing).toBe(true);
     expect(reporter.captureException).toHaveBeenCalledExactlyOnceWith(failure, { tags: { kind: "wiki-link-sync" } });
+  });
+
+  it("reads changed pages in several rounds and says when some are still unread", async () => {
+    const behind = repository({ syncStaleLinks: vi.fn().mockResolvedValue({ synced: 100, remaining: true }) });
+    const caughtUp = repository({
+      syncStaleLinks: vi
+        .fn()
+        .mockResolvedValueOnce({ synced: 100, remaining: true })
+        .mockResolvedValueOnce({ synced: 40, remaining: false }),
+    });
+
+    const partial = await links(behind);
+    const complete = await links(caughtUp);
+
+    expect(behind.syncStaleLinks).toHaveBeenCalledTimes(5);
+    expect(partial.ok && partial.data.syncing).toBe(true);
+    expect(caughtUp.syncStaleLinks).toHaveBeenCalledTimes(2);
+    expect(complete.ok && complete.data).not.toHaveProperty("syncing");
+  });
+
+  it("stops reading after the first round when the workspace is busy", async () => {
+    const busy = repository({
+      syncStaleLinks: vi.fn().mockResolvedValue({ synced: 0, remaining: true, busy: true }),
+    });
+
+    const result = await links(busy);
+
+    expect(busy.syncStaleLinks).toHaveBeenCalledOnce();
+    expect(result.ok && result.data.syncing).toBe(true);
+  });
+});
+
+describe("GetWikiGraphInteractor", () => {
+  const graph = (repo: ReturnType<typeof repository>) =>
+    runWithTenant(mockUser, () =>
+      new GetWikiGraphInteractor(repo as never, records as never, policy([]) as never).invoke({}),
+    );
+
+  it("still draws the map when its layout cannot be stored because the workspace is busy", async () => {
+    const saveLayout = vi.fn().mockRejectedValue(Object.assign(new Error("lock timeout"), { code: "55P03" }));
+    const repo = repository({
+      loadLayout: vi.fn().mockResolvedValue(null),
+      loadLinks: vi.fn().mockResolvedValue([pageLink(PRICING, GUIDE)]),
+      saveLayout,
+    });
+
+    const result = await graph(repo);
+
+    expect(saveLayout).toHaveBeenCalledOnce();
+    expect(result.ok && result.data.nodes.map((node) => node.id)).toEqual([GUIDE, REFUNDS, PRICING]);
+    expect(result.ok && result.data.links).toEqual([{ source: PRICING, target: GUIDE }]);
+    if (result.ok) {
+      for (const node of result.data.nodes) {
+        expect(node.x).toBeGreaterThanOrEqual(0);
+        expect(node.x).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it("fails when the layout cannot be stored for another reason", async () => {
+    const repo = repository({
+      loadLayout: vi.fn().mockResolvedValue(null),
+      saveLayout: vi.fn().mockRejectedValue(new Error("disk full")),
+    });
+
+    await expect(graph(repo)).rejects.toThrow("disk full");
   });
 });
 

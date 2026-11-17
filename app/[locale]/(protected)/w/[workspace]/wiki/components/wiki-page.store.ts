@@ -161,6 +161,13 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       samePage &&
       page &&
       this.form.updatedAt?.getTime() === page.updatedAt.getTime() &&
+      (page.verifiedAt?.getTime() ?? 0) < (this.form.verifiedAt?.getTime() ?? 0)
+    )
+      return;
+    if (
+      samePage &&
+      page &&
+      this.form.updatedAt?.getTime() === page.updatedAt.getTime() &&
       this.form.title === page.title &&
       this.form.markdown === page.markdown &&
       this.form.kind === page.kind &&
@@ -250,7 +257,9 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
             markdown: this.form.markdown,
             kind: this.form.kind,
             whenToUse,
-            owner: this.form.owner.trim() || null,
+            ...(this.form.owner.trim() === this.savedState.owner.trim()
+              ? {}
+              : { owner: this.form.owner.trim() || null }),
           })
         : await createWikiPagesAction({
             pages: [

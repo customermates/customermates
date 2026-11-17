@@ -179,6 +179,29 @@ describeDatabase("Knowledge Base page upkeep on PostgreSQL", () => {
     expect(ok(await read(page.id)).markdown).toBe(page.markdown);
   });
 
+  it("records an owner and a check on an older procedure that today's rule for steps would refuse", async () => {
+    const [page] = ok(
+      await create([
+        {
+          title: "Refund a customer",
+          markdown: "1. Confirm the order.\n2. Refund within five days.",
+          kind: "procedure",
+          whenToUse: "When a customer asks for a refund.",
+        },
+      ]),
+    );
+    await client.query('UPDATE "WikiPage" SET "markdown" = $2 WHERE "id" = $1', [page.id, "Refund within five days."]);
+
+    const marked = ok(
+      await update({ id: page.id, expectedUpdatedAt: page.updatedAt, owner: "Finance", verified: true }),
+    );
+    const changed = await update({ id: page.id, expectedUpdatedAt: page.updatedAt, title: "Refunds" });
+
+    expect(marked).toMatchObject({ owner: "Finance", updatedAt: page.updatedAt });
+    expect(marked.verifiedAt).toBeInstanceOf(Date);
+    expect(failure(changed)).toMatchObject({ code: CustomErrorCode.wikiProcedureNeedsSteps });
+  });
+
   it("stores who looks after a page on create and update and clears it again", async () => {
     const [page] = ok(await create([{ title: "Pricing", markdown: BODY, owner: "  Sales team " }]));
     expect(page.owner).toBe("Sales team");

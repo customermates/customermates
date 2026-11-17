@@ -5501,7 +5501,8 @@
         "page": "Page"
       },
       "sheetSegments": "Sections de la page",
-      "truncated": "Les {count} premières pages sont affichées.",
+      "syncing": "Les liens sont encore en cours de lecture. Rechargez la page pour les voir tous.",
+      "truncated": "Les {count} premières pages sont affichées. Recherchez et appuyez sur Entrée pour ouvrir une autre page.",
       "unpin": "Retirer l’épingle",
       "unpinHelp": "La carte replace cette page elle-même."
     },

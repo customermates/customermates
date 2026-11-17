@@ -12,6 +12,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 import * as ErrorReporter from "@/core/observability/server";
 import { env } from "@/env";
 
@@ -28,6 +29,7 @@ export async function syncWikiLinksBestEffort(repo: WikiGraphRepo, batches: numb
     for (let batch = 0; batch < batches && remaining; batch += 1) {
       const result = await repo.syncStaleLinks({ baseUrl: env.BASE_URL, limit: WIKI_LINK_SYNC_BATCH_PAGES });
       remaining = result.remaining;
+      if (result.busy) break;
     }
   } catch (error) {
     ErrorReporter.captureException(error, { tags: { kind: "wiki-link-sync" } });
@@ -79,15 +81,18 @@ export class GetWikiGraphInteractor extends AuthenticatedInteractor<GetWikiGraph
     const linksHash = wikiLinksHash(nodeIds, edges);
     let positions = layout?.positions ?? {};
     if (!layout || layout.linksHash !== linksHash || nodeIds.some((id) => !positions[id])) {
-      positions = await this.repo.saveLayout({
-        linksHash,
-        positions: layoutWikiGraph({
-          nodeIds,
-          links: edges,
-          previous: layout?.positions,
-          hubId: shown.find((page) => page.kind === "guide")?.id ?? null,
-        }),
+      const computed = layoutWikiGraph({
+        nodeIds,
+        links: edges,
+        previous: layout?.positions,
+        hubId: shown.find((page) => page.kind === "guide")?.id ?? null,
       });
+      try {
+        positions = await this.repo.saveLayout({ linksHash, positions: computed });
+      } catch (error) {
+        if (!isBusyDatabaseError(error)) throw error;
+        positions = computed;
+      }
     }
 
     const inbound = new Map<string, number>();

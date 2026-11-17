@@ -171,14 +171,25 @@ export class PrismaWikiPageRepo
     const [pages, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
-        select: { ...this.summarySelect, markdown: true },
+        select: this.summarySelect,
         orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }, { id: "asc" }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
       this.prisma.wikiPage.count({ where }),
     ]);
-    const items = pages.map(({ markdown, ...summary }) => ({ ...summary, chars: markdown.length }));
+    const lengths =
+      pages.length === 0
+        ? []
+        : await this.prisma.$queryRaw<Array<{ id: string; chars: number }>>(Prisma.sql`
+            SELECT p."id",
+              (char_length(p."markdown")
+                + char_length(regexp_replace(p."markdown", '[^\\U00010000-\\U0010FFFF]+', '', 'g')))::integer AS "chars"
+            FROM "WikiPage" p
+            WHERE p."companyId" = ${this.companyId} AND p."id" IN (${Prisma.join(pages.map((item) => item.id))})
+          `);
+    const chars = new Map(lengths.map((row) => [row.id, row.chars]));
+    const items = pages.map((summary) => ({ ...summary, chars: chars.get(summary.id) ?? 0 }));
     return { items, total, page, pageSize };
   }
 
@@ -400,7 +411,7 @@ export class PrismaWikiPageRepo
       whenToUse !== previous.whenToUse;
     if (!contentChanged && owner === previous.owner && !data.verified)
       return { status: "unchanged" as const, previous, page: previous };
-    const invalid = wikiPageKindIssue({ kind, whenToUse, markdown });
+    const invalid = contentChanged ? wikiPageKindIssue({ kind, whenToUse, markdown }) : null;
     if (invalid) return { status: "invalid" as const, error: invalid };
     if (kind === "guide" && previous.kind !== "guide" && (await this.guideExists(previous.id)))
       return { status: "guide-exists" as const };

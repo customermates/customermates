@@ -573,6 +573,16 @@ describe("workspace-context Knowledge Base upkeep", () => {
     expect(await wiki()).not.toHaveProperty("upkeep");
   });
 
+  it("leaves the link counts out while links are still being read, because they would be wrong", async () => {
+    calls.gaps.mockResolvedValue({ ok: true, data: { items: [gap] } });
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: { pages: 300, orphans: [], orphansTotal: 180, broken: [], brokenTotal: 3, syncing: true },
+    });
+
+    expect((await wiki()).upkeep).toEqual({ openQuestions: 1 });
+  });
+
   it("reads the upkeep only with the first catalog page", async () => {
     calls.gaps.mockResolvedValue({ ok: true, data: { items: [gap] } });
 
@@ -673,6 +683,29 @@ describe("fetch metadata for Knowledge Base upkeep", () => {
     if (!("structuredContent" in result)) throw new Error("Expected Wiki content.");
     expect(result.structuredContent.text).toBe("Current content");
     expect(result.structuredContent.metadata).not.toHaveProperty("incomingWikiLinks");
+    expect(result.structuredContent.metadata).toMatchObject({ incomingWikiLinksIncomplete: "true" });
+    expect(calls.captureException).toHaveBeenCalledExactlyOnceWith(expect.any(Error), {
+      tags: { kind: "wiki-incoming-links" },
+    });
+  });
+
+  it("says when the incoming links are still being read, with or without links read so far", async () => {
+    const linked = { id: "00000000-0000-4000-8000-000000000100", title: "Linking page", kind: "knowledge" };
+    const links = (linkedFrom: unknown[]) => ({
+      ok: true,
+      data: { id, linkedFrom, linksTo: [], missing: 0, missingPageIds: [], records: [], syncing: true },
+    });
+
+    calls.links.mockResolvedValue(links([]));
+    const none = await metadata({ id: `wiki:${id}` });
+    expect(none).toMatchObject({ incomingWikiLinksIncomplete: "true" });
+    expect(none).not.toHaveProperty("incomingWikiLinks");
+
+    calls.links.mockResolvedValue(links([linked]));
+    expect(await metadata({ id: `wiki:${id}` })).toMatchObject({
+      incomingWikiLinksTotal: "1",
+      incomingWikiLinksIncomplete: "true",
+    });
   });
 
   it("carries the owner and the verified date when the page has them", async () => {

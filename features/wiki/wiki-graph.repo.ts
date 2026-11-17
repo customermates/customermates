@@ -19,7 +19,7 @@ export type WikiStoredLink = {
 
 export type WikiStoredLayout = { linksHash: string; positions: WikiGraphPositions };
 
-export type WikiLinkSyncResult = { synced: number; remaining: boolean };
+export type WikiLinkSyncResult = { synced: number; remaining: boolean; busy?: boolean };
 
 export abstract class WikiGraphRepo {
   abstract syncStaleLinks(args: { baseUrl: string; limit: number }): Promise<WikiLinkSyncResult>;

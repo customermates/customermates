@@ -164,9 +164,11 @@ const WikiPageViewContent = observer(function WikiPageView({
   }, [initialPage, requestedPageId, router, store, tryNavigate]);
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
   const openFirstMatch = useCallback(() => {
-    const first = graph?.nodes.find((node) => visible.has(node.id));
-    if (first) selectPage(first.id);
-  }, [graph, selectPage, visible]);
+    const ranked = search.foundQuery === search.query.trim() ? search.found.values().next().value : undefined;
+    const onMap = graph?.nodes.find((node) => visible.has(node.id))?.id;
+    const first = graph?.truncated ? (ranked ?? onMap) : (onMap ?? ranked);
+    if (first) selectPage(first);
+  }, [graph, search.found, search.foundQuery, search.query, selectPage, visible]);
   const topBar = useMemo(
     () => (
       <WikiPageActions

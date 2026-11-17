@@ -72,10 +72,11 @@ async function wikiUpkeep() {
     const gaps = await getGetWikiKnowledgeGapsInteractor().invoke();
     if (!gaps.ok) return undefined;
     const report = await getGetWikiLinkReportInteractor().invoke({});
+    const links = report.ok && !report.data.syncing ? report.data : null;
     const upkeep = {
       ...(gaps.data.items.length > 0 ? { openQuestions: gaps.data.items.length } : {}),
-      ...(report.ok && report.data.orphansTotal > 0 ? { orphanPages: report.data.orphansTotal } : {}),
-      ...(report.ok && report.data.brokenTotal > 0 ? { pagesWithDeadLinks: report.data.brokenTotal } : {}),
+      ...(links && links.orphansTotal > 0 ? { orphanPages: links.orphansTotal } : {}),
+      ...(links && links.brokenTotal > 0 ? { pagesWithDeadLinks: links.brokenTotal } : {}),
     };
     return Object.keys(upkeep).length > 0 ? upkeep : undefined;
   } catch (error) {
@@ -138,7 +139,7 @@ export const getWorkspaceContextTool = {
     "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, not the complete page. " +
     "wiki.nextPage is the wikiPage value of the following catalog page. wiki is omitted without Knowledge Base Read. " +
     "A page's owner and verifiedAt (when someone last confirmed it is correct) appear when set. " +
-    "For someone who may edit pages, wiki.upkeep on the first page counts what is open, and is omitted when nothing is: openQuestions the Knowledge Base could not answer, orphanPages that no other page links to and pagesWithDeadLinks that link to a page that no longer exists. " +
+    "For someone who may edit pages, wiki.upkeep on the first page counts what is open, and is omitted when nothing is: openQuestions the Knowledge Base could not answer, orphanPages that no other page links to and pagesWithDeadLinks that link to a page that no longer exists; the two link counts are left out while links of recently changed pages are still being read. " +
     WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({

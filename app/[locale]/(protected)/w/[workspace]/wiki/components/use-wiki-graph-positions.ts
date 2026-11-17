@@ -18,8 +18,27 @@ export type WikiGraphPositions = {
   pin: (id: string, place: { x: number; y: number } | null, origin: WikiGraphPlace) => Promise<void>;
 };
 
+function unconfirmedPlaces(
+  places: Record<string, WikiGraphPlace>,
+  graph: WikiGraph | null,
+): Record<string, WikiGraphPlace> {
+  const nodes = new Map((graph?.nodes ?? []).map((node) => [node.id, node] as const));
+  const kept: Record<string, WikiGraphPlace> = {};
+  for (const [id, place] of Object.entries(places)) {
+    const node = nodes.get(id);
+    if (!node || !place.pinned) continue;
+    if (!(node.pinned && node.x === place.x && node.y === place.y)) kept[id] = place;
+  }
+  return kept;
+}
+
 export function useWikiGraphPositions(graph: WikiGraph | null): WikiGraphPositions {
   const [places, setPlaces] = useState<Record<string, WikiGraphPlace>>({});
+  const [placedOn, setPlacedOn] = useState(graph);
+  if (placedOn !== graph) {
+    setPlacedOn(graph);
+    setPlaces((current) => unconfirmedPlaces(current, graph));
+  }
   const nodes = useMemo<WikiGraphCanvasNode[]>(
     () =>
       (graph?.nodes ?? []).map((node) => {

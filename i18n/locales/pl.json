@@ -5501,7 +5501,8 @@
         "page": "Strona"
       },
       "sheetSegments": "Sekcje strony",
-      "truncated": "Pokazano pierwsze {count} stron.",
+      "syncing": "Linki są jeszcze wczytywane. Odśwież stronę, aby zobaczyć wszystkie.",
+      "truncated": "Pokazano pierwsze {count} stron. Wyszukaj i naciśnij Enter, aby otworzyć dowolną inną stronę.",
       "unpin": "Odepnij",
       "unpinHelp": "Mapa znów sama ustawi tę stronę."
     },

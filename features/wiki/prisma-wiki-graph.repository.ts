@@ -12,6 +12,7 @@ import type { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { extractWikiLinkTargets } from "./wiki-link-targets";
 
@@ -46,7 +47,12 @@ export class PrismaWikiGraphRepo extends TenantRepository implements WikiGraphRe
     const pages = await this.pages.loadPagesForLinkSync(batch.map((page) => page.id));
     let synced = 0;
     for (const page of pages) {
-      const targets = extractWikiLinkTargets(page.markdown, { baseUrl, workspaceSlug, pageId: page.id });
+      let targets: ReturnType<typeof extractWikiLinkTargets> = { pages: [], records: [], lists: [] };
+      try {
+        targets = extractWikiLinkTargets(page.markdown, { baseUrl, workspaceSlug, pageId: page.id });
+      } catch (error) {
+        ErrorReporter.captureException(error, { tags: { kind: "wiki-link-extract" }, extra: { pageId: page.id } });
+      }
       let written: boolean;
       try {
         written = await runInTransaction(
@@ -82,7 +88,7 @@ export class PrismaWikiGraphRepo extends TenantRepository implements WikiGraphRe
           { companyId: this.companyId, companyLockWait: SYNC_LOCK_WAIT_MS },
         );
       } catch (error) {
-        if (isBusyDatabaseError(error)) return { synced, remaining: true };
+        if (isBusyDatabaseError(error)) return { synced, remaining: true, busy: true };
         throw error;
       }
       if (written) synced += 1;

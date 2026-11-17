@@ -15,7 +15,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { syncWikiLinksBestEffort } from "./get-wiki-graph.interactor";
+import { syncWikiLinksBestEffort, WIKI_LINK_SYNC_MAX_BATCHES } from "./get-wiki-graph.interactor";
 import { wikiGraphRecordTypes } from "./wiki-graph-records";
 import { GetWikiPageLinksSchema, WikiPageLinksSchema } from "./wiki-graph.schema";
 
@@ -35,7 +35,7 @@ export class GetWikiPageLinksInteractor extends AuthenticatedInteractor<GetWikiP
   async invoke(data: GetWikiPageLinksData): Validated<WikiPageLinks> {
     const [page] = await this.repo.loadPagesByIds([data.id]);
     if (!page) return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
-    await syncWikiLinksBestEffort(this.repo, 1);
+    const syncing = await syncWikiLinksBestEffort(this.repo, WIKI_LINK_SYNC_MAX_BATCHES);
 
     const { outgoing, incomingPageIds } = await this.repo.loadLinksOfPage(page.id);
     const outgoingPageIds = outgoing.filter((link) => link.targetKind === "page").map((link) => link.targetId);
@@ -80,6 +80,7 @@ export class GetWikiPageLinksInteractor extends AuthenticatedInteractor<GetWikiP
         missing: missingPageIds.length,
         missingPageIds,
         records,
+        ...(syncing ? { syncing: true } : {}),
       },
     };
   }

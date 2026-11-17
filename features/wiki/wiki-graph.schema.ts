@@ -64,6 +64,10 @@ export const WikiPageLinksSchema = z.object({
   missing: z.number().int().min(0),
   missingPageIds: z.array(z.uuid()).describe("The linked page ids that no longer name a live page."),
   records: z.array(WikiPageRecordLinksSchema),
+  syncing: z
+    .boolean()
+    .optional()
+    .describe("true while links of recently changed pages are still being read, so linkedFrom may miss some."),
 });
 export type WikiPageLinks = Data<typeof WikiPageLinksSchema>;
 

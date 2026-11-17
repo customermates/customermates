@@ -5501,7 +5501,8 @@
         "page": "Pagina"
       },
       "sheetSegments": "Onderdelen van de pagina",
-      "truncated": "De eerste {count} pagina's worden getoond.",
+      "syncing": "Links worden nog ingelezen. Laad de pagina opnieuw om ze allemaal te zien.",
+      "truncated": "De eerste {count} pagina's worden getoond. Zoek en druk op Enter om een andere pagina te openen.",
       "unpin": "Losmaken",
       "unpinHelp": "De kaart plaatst deze pagina weer zelf."
     },

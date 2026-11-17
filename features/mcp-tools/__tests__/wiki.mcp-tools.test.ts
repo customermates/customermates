@@ -25,7 +25,10 @@ const calls = vi.hoisted(() => ({
   report: vi.fn(),
 }));
 
+const reporter = vi.hoisted(() => ({ captureException: vi.fn() }));
+
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/observability/server", () => reporter);
 vi.mock("../mcp-workspace-slug", async (importOriginal) => ({
   ...(await importOriginal<object>()),
   mcpWorkspaceSlug: () => Promise.resolve("acme"),
@@ -832,8 +835,27 @@ describe("manage_wiki_pages links", () => {
 
     calls.links.mockRejectedValue(new Error("links unavailable"));
     const result = decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID })));
-    expect(result).toMatchObject({ id: PAGE_ID, markdownChunk: "Body" });
+    expect(result).toMatchObject({ id: PAGE_ID, markdownChunk: "Body", linkedFromIncomplete: true });
     expect(result).not.toHaveProperty("linkedFrom");
+    expect(reporter.captureException).toHaveBeenCalledExactlyOnceWith(expect.any(Error), {
+      tags: { kind: "wiki-incoming-links" },
+    });
+  });
+
+  it("says when the links of a page are still being read, on a read and on the links of the page", async () => {
+    calls.get.mockResolvedValue({ ok: true, data: page("Body") });
+    calls.links.mockResolvedValue({
+      ok: true,
+      data: { id: PAGE_ID, linkedFrom: [], linksTo: [], missing: 0, missingPageIds: [], records: [], syncing: true },
+    });
+
+    const read = decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID })));
+    const links = decode(mcpToolResultText(await run({ action: "links", id: PAGE_ID }))) as { hint: string };
+
+    expect(read).toMatchObject({ linkedFromIncomplete: true });
+    expect(read).not.toHaveProperty("linkedFrom");
+    expect(links).toMatchObject({ syncing: true });
+    expect(links.hint).toContain("still being read");
   });
 
   it("returns the links of one page: linking pages, linked pages, dead links and record lists", async () => {

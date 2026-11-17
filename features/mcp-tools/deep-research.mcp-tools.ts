@@ -12,6 +12,7 @@ import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import * as ErrorReporter from "@/core/observability/server";
 import {
   getGetRecordInteractor,
   getGetRecordModelInteractor,
@@ -196,20 +197,28 @@ const WIKI_FETCH_INCOMING_LINKS = 5;
 async function incomingWikiLinks(id: string, slug: string) {
   try {
     const outcome = await getGetWikiPageLinksInteractor().invoke({ id });
-    if (!outcome.ok || outcome.data.linkedFrom.length === 0) return null;
+    if (!outcome.ok) return { incomingWikiLinksIncomplete: "true" };
+    const { linkedFrom, syncing } = outcome.data;
+    if (linkedFrom.length === 0 && !syncing) return null;
     return {
-      incomingWikiLinks: JSON.stringify(
-        outcome.data.linkedFrom.slice(0, WIKI_FETCH_INCOMING_LINKS).map((linked) => ({
-          id: linked.id,
-          label: linked.title,
-          url: wikiPageUrl(env.BASE_URL, slug, linked.id),
-          fetchId: wikiPageFetchId(linked.id),
-        })),
-      ),
-      incomingWikiLinksTotal: String(outcome.data.linkedFrom.length),
+      ...(linkedFrom.length > 0
+        ? {
+            incomingWikiLinks: JSON.stringify(
+              linkedFrom.slice(0, WIKI_FETCH_INCOMING_LINKS).map((linked) => ({
+                id: linked.id,
+                label: linked.title,
+                url: wikiPageUrl(env.BASE_URL, slug, linked.id),
+                fetchId: wikiPageFetchId(linked.id),
+              })),
+            ),
+            incomingWikiLinksTotal: String(linkedFrom.length),
+          }
+        : {}),
+      ...(syncing ? { incomingWikiLinksIncomplete: "true" } : {}),
     };
-  } catch {
-    return null;
+  } catch (error) {
+    ErrorReporter.captureException(error, { tags: { kind: "wiki-incoming-links" } });
+    return { incomingWikiLinksIncomplete: "true" };
   }
 }
 
@@ -457,7 +466,7 @@ export const fetchTool = {
   description:
     "Returns the content behind a result id, including Knowledge Base Markdown for wiki:<uuid> and the extracted text of a file for file:<uuid>. " +
     "Knowledge Base pages can also be read by their exact relative, localized, or same-origin absolute Knowledge Base URL. " +
-    "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; nextOffset is the offset of the following chunk and is null at the end, and metadata.updatedAt differs from the previous chunk's when the page changed between chunks. The first chunk of a page also names up to five pages that link to it (metadata.incomingWikiLinks, incomingWikiLinksTotal), and metadata.owner and metadata.verifiedAt appear when the page has them: verifiedAt is when someone last confirmed the page, updatedAt when its text last changed. Knowledge Base Read is required for Knowledge Base pages. " +
+    "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; nextOffset is the offset of the following chunk and is null at the end, and metadata.updatedAt differs from the previous chunk's when the page changed between chunks. The first chunk of a page also names up to five pages that link to it (metadata.incomingWikiLinks, incomingWikiLinksTotal; incomingWikiLinksIncomplete marks a list that is still being read), and metadata.owner and metadata.verifiedAt appear when the page has them: verifiedAt is when someone last confirmed the page, updatedAt when its text last changed. Knowledge Base Read is required for Knowledge Base pages. " +
     "File text arrives in the same bounded chunks between untrusted-content markers and needs read access to the record and field holding the file; metadata names the record and the extraction status, and a file without extractable text returns why. " +
     "An offset starts the chunk at that position, so a search result's offset lands on the matched section; at offset 0 a multi-chunk page or file also returns an outline of its headings with their offsets. " +
     "Compatible with ChatGPT company knowledge and deep research. " +

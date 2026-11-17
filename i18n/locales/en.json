@@ -5501,7 +5501,8 @@
         "page": "Page"
       },
       "sheetSegments": "Page sections",
-      "truncated": "Showing the first {count} pages.",
+      "syncing": "Links are still being read. Reload the page to see all of them.",
+      "truncated": "Showing the first {count} pages. Search and press Enter to open any other page.",
       "unpin": "Release pin",
       "unpinHelp": "Let the map place this page again."
     },

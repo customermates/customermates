@@ -59739,6 +59739,10 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "syncing": {
+                      "description": "true while links of recently changed pages are still being read, so linkedFrom may miss some.",
+                      "type": "boolean"
                     }
                   },
                   "required": [

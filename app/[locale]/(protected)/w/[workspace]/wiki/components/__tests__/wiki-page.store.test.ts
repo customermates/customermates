@@ -133,10 +133,34 @@ describe("Wiki document editing", () => {
       markdown: page.markdown,
       kind: "knowledge",
       whenToUse: undefined,
-      owner: null,
     });
     expect(store.form.updatedAt).toEqual(latest.updatedAt);
     expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it("leaves the owner alone when only the text changed, so an owner set elsewhere is not overwritten", async () => {
+    const store = new WikiPageStore(rootStore(), { ...page, owner: "Support team" }, vi.fn());
+
+    store.onChange("title", "New title");
+    await store.onSubmit();
+
+    expect(actions.update).toHaveBeenCalledOnce();
+    expect(actions.update.mock.calls[0][0]).not.toHaveProperty("owner");
+  });
+
+  it("keeps a newer verified date when an older snapshot of the same version arrives late", () => {
+    const verifiedAt = new Date("2026-09-11T08:00:00.000Z");
+    const store = new WikiPageStore(rootStore(), { ...page, verifiedAt }, vi.fn());
+
+    store.receivePage({ ...page, verifiedAt: null });
+    expect(store.form.verifiedAt).toEqual(verifiedAt);
+
+    store.receivePage({ ...page, verifiedAt: new Date("2026-09-10T08:00:00.000Z") });
+    expect(store.form.verifiedAt).toEqual(verifiedAt);
+
+    const later = new Date("2026-09-12T08:00:00.000Z");
+    store.receivePage({ ...page, verifiedAt: later });
+    expect(store.form.verifiedAt).toEqual(later);
   });
 
   it("saves who looks after a page, trimmed, and clears the owner when the field is emptied", async () => {

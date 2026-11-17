@@ -14,6 +14,7 @@ import {
   getSearchWikiKnowledgeInteractor,
   getUpdateWikiPageInteractor,
 } from "@/core/di";
+import * as ErrorReporter from "@/core/observability/server";
 import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE } from "@/features/wiki/wiki-page-chunk";
 import { extractWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
@@ -247,6 +248,10 @@ const ManageWikiPagesOutputSchema = z.looseObject({
     .optional()
     .describe("Pages that link to this page; a rename, split or delete of the page affects them."),
   linkedFromTotal: z.number().optional(),
+  linkedFromIncomplete: z
+    .boolean()
+    .optional()
+    .describe("The pages that link to this page could not all be read yet, so linkedFrom may miss some."),
   linksTo: z.array(z.looseObject({ id: z.string(), title: z.string() })).optional(),
   missingPageIds: z.array(z.string()).optional().describe("Linked page ids that no longer name a live page."),
   records: z.array(z.looseObject({ id: z.string(), pluralLabel: z.string() })).optional(),
@@ -475,16 +480,24 @@ function wikiAnchorSection(markdown: string, anchor: string) {
 async function wikiIncomingLinks(id: string): Promise<Record<string, unknown> | undefined> {
   try {
     const outcome = await getGetWikiPageLinksInteractor().invoke({ id });
-    if (!outcome.ok || outcome.data.linkedFrom.length === 0) return undefined;
+    if (!outcome.ok) return { linkedFromIncomplete: true };
+    const { linkedFrom, syncing } = outcome.data;
+    if (linkedFrom.length === 0 && !syncing) return undefined;
     return {
-      linkedFrom: outcome.data.linkedFrom.slice(0, WIKI_MCP_LINKED_FROM).map(({ id: pageId, title }) => ({
-        id: pageId,
-        title,
-      })),
-      linkedFromTotal: outcome.data.linkedFrom.length,
+      ...(linkedFrom.length > 0
+        ? {
+            linkedFrom: linkedFrom.slice(0, WIKI_MCP_LINKED_FROM).map(({ id: pageId, title }) => ({
+              id: pageId,
+              title,
+            })),
+            linkedFromTotal: linkedFrom.length,
+          }
+        : {}),
+      ...(syncing ? { linkedFromIncomplete: true } : {}),
     };
-  } catch {
-    return undefined;
+  } catch (error) {
+    ErrorReporter.captureException(error, { tags: { kind: "wiki-incoming-links" } });
+    return { linkedFromIncomplete: true };
   }
 }
 
@@ -495,7 +508,7 @@ export const manageWikiPagesTool = {
     "Knowledge Base of company facts, processes, voice and support guidance. " +
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
     "list: 5 per page, or pageSize up to 100, guide pinned first, remaining pages in saved order; chars is the length of a page's Markdown. search: hasMore marks further pages; total is a lower bound unless totalIsExact. Returns snippets, section offsets and section anchors, plus didYouMean when a misspelled word was corrected. " +
-    "get: one Markdown chunk of up to 5,500 characters, or maxChars up to 20,000 (outline at 0, each heading with its section anchor); nextOffset is the offset of the following chunk and null at the end; updatedAt changes when the page changed between chunks; anchor reads one section. An anchor is unique within its page: a repeated heading takes -2, -3 and so on. The first chunk names up to 8 pages that link to this page (linkedFrom, linkedFromTotal). owner and verifiedAt appear when set; verifiedAt is when someone last confirmed the page, updatedAt when its text last changed. " +
+    "get: one Markdown chunk of up to 5,500 characters, or maxChars up to 20,000 (outline at 0, each heading with its section anchor); nextOffset is the offset of the following chunk and null at the end; updatedAt changes when the page changed between chunks; anchor reads one section. An anchor is unique within its page: a repeated heading takes -2, -3 and so on. The first chunk names up to 8 pages that link to this page (linkedFrom, linkedFromTotal); linkedFromIncomplete and, on links, syncing mark a list that is still being read. owner and verifiedAt appear when set; verifiedAt is when someone last confirmed the page, updatedAt when its text last changed. " +
     "links: with id, the pages that link to the page (linkedFrom), the pages it links to (linksTo), linked page ids that no longer exist (missingPageIds) and the record lists it links into; without id, the pages no other page links to (orphans) and the pages with links to deleted pages (broken), 50 each with totals. " +
     "update: edits change parts of a page (find and replace one exact text, replace or insert beside a section by its anchor, or add at the start or end) without resending the whole markdown; the result carries totalChars, and a page holds at most 65,535 characters. " +
     "move: places page id before or after targetId in the saved order; the Operating Guide stays pinned first, so it can neither move nor serve as targetId. " +
@@ -595,6 +608,7 @@ export const manageWikiPagesTool = {
             count,
             list,
           })),
+          ...(links.syncing ? { syncing: true, hint: WIKI_LINKS_SYNCING } : {}),
         }),
       );
     }

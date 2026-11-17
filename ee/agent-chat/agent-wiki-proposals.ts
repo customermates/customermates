@@ -29,19 +29,28 @@ const ROUTINE_WIKI_DESCRIPTION_SUFFIX =
 const ROUTINE_WIKI_METADATA_ONLY =
   "In a routine, owner and verified cannot be proposed. Nothing was changed; propose a change to the title, text, kind or whenToUse instead.";
 
-function proposalResult(proposals: WikiPageProposalDto[]) {
-  return toonResult({
-    status: "pending_review",
-    proposals: formatDatesInResponse(
-      proposals.map((proposal) => ({
-        proposalId: proposal.id,
-        action: proposal.action,
-        ...(proposal.pageId ? { pageId: proposal.pageId } : {}),
-        ...(proposal.title ? { title: proposal.title } : {}),
-      })),
-    ),
-    note: WIKI_PROPOSAL_RESULT_NOTE,
-  });
+const WIKI_PROPOSAL_METADATA_LEFT_OUT =
+  " The owner and the verified mark are not part of a proposal and were left out of this one.";
+
+function proposesMetadata(params: ManageWikiPagesInput): boolean {
+  if (params.action === "update") return params.owner !== undefined || params.verified === true;
+  return params.action === "create" && (params.pages ?? []).some((page) => page.owner !== undefined);
+}
+
+function proposalResult(metadataLeftOut: boolean) {
+  return (proposals: WikiPageProposalDto[]) =>
+    toonResult({
+      status: "pending_review",
+      proposals: formatDatesInResponse(
+        proposals.map((proposal) => ({
+          proposalId: proposal.id,
+          action: proposal.action,
+          ...(proposal.pageId ? { pageId: proposal.pageId } : {}),
+          ...(proposal.title ? { title: proposal.title } : {}),
+        })),
+      ),
+      note: `${WIKI_PROPOSAL_RESULT_NOTE}${metadataLeftOut ? WIKI_PROPOSAL_METADATA_LEFT_OUT : ""}`,
+    });
 }
 
 async function proposedUpdate(params: ManageWikiPagesInput) {
@@ -84,7 +93,7 @@ export function routineManageWikiPagesTool(conversationId: string | undefined): 
           ...proposed.params,
           conversationId,
         } as unknown as ProposeWikiPageChangesData),
-        proposalResult,
+        proposalResult(proposesMetadata(params)),
       );
     },
   };

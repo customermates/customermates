@@ -1,6 +1,7 @@
 import type * as TooltipModule from "@/components/ui/tooltip";
 import type { ComponentProps } from "react";
 import type { WikiGraph, WikiGraphNode } from "@/features/wiki/wiki-graph.schema";
+import type { WikiGraphPositions } from "../use-wiki-graph-positions";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -295,5 +296,78 @@ describe("WikiGraphView", () => {
   it("says when the map shows only part of a large Knowledge Base", async () => {
     await render({ source: { ...graph, truncated: true } });
     expect(container.textContent).toContain("Wiki.graph.truncated:4");
+
+    await render({ source: { ...graph, truncated: true }, query: "nothing like this" });
+    expect(container.textContent).toContain("Wiki.graph.truncated:4");
+    expect(container.textContent).not.toContain("Wiki.graph.noMatches");
+
+    await render({ source: { ...graph, truncated: true, syncing: true } });
+    expect(container.textContent).toContain("Wiki.graph.truncated:4 Wiki.graph.syncing");
+  });
+
+  it("says when links are still being read, so a map with few lines is not taken for the whole picture", async () => {
+    await render({ source: { ...graph, syncing: true } });
+    expect(container.textContent).toContain("Wiki.graph.syncing");
+    expect(container.textContent).not.toContain("Wiki.graph.legendEdit");
+
+    await render();
+    expect(container.textContent).not.toContain("Wiki.graph.syncing");
+  });
+
+  it("keeps a dragged page where it was dropped until the map from the server shows the pin", async () => {
+    await render();
+    const svg = container.querySelector("svg");
+    const start = nodeButton("Refunds")?.getAttribute("transform");
+    await act(async () => {
+      nodeButton("Refunds")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
+      svg?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 40, clientY: 40 }));
+      svg?.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, clientX: 40, clientY: 40 }));
+      await settle();
+    });
+    const dropped = nodeButton("Refunds")?.getAttribute("transform");
+    expect(dropped).not.toBe(start);
+
+    await render({ source: { ...graph } });
+    expect(nodeButton("Refunds")?.getAttribute("transform")).toBe(dropped);
+    expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBe("true");
+
+    const confirmed = {
+      ...graph,
+      nodes: graph.nodes.map((node) => (node.id === REFUNDS ? { ...node, x: 0.025, y: 0.04, pinned: true } : node)),
+    };
+    await render({ source: confirmed });
+    expect(nodeButton("Refunds")?.getAttribute("transform")).toBe(dropped);
+  });
+
+  it("puts a released page where a newer map from the server places it", async () => {
+    const probe: { current: WikiGraphPositions | null } = { current: null };
+    function Probe({ source }: { source: WikiGraph }) {
+      probe.current = useWikiGraphPositions(source);
+      return null;
+    }
+    const place = () => {
+      const node = probe.current?.nodes.find((entry) => entry.id === REFUNDS);
+      return node ? { x: node.x, y: node.y, pinned: node.pinned } : null;
+    };
+    const server = place;
+    await act(async () => {
+      root.render(createElement(Probe, { source: graph }));
+      await settle();
+    });
+    const original = server();
+
+    act(() => probe.current?.restore(REFUNDS, { x: 0.3, y: 0.3, pinned: false }));
+    expect(place()).toEqual({ x: 0.3, y: 0.3, pinned: false });
+
+    const rearranged = {
+      ...graph,
+      nodes: graph.nodes.map((node) => (node.id === REFUNDS ? { ...node, x: 0.7, y: 0.6 } : node)),
+    };
+    await act(async () => {
+      root.render(createElement(Probe, { source: rearranged }));
+      await settle();
+    });
+
+    expect(place()).toEqual({ x: 0.7, y: 0.6, pinned: original?.pinned });
   });
 });

@@ -50,6 +50,12 @@ describe("Knowledge Base page search", () => {
     await settle();
     expect(harness.search).toHaveBeenCalledExactlyOnceWith({ query: "refund window", page: 1, pageSize: 25 });
     expect([...store.found]).toEqual([REFUNDS, PRICING]);
+    expect(store.foundQuery).toBe("refund window");
+
+    store.setQuery("refund policy");
+    expect(store.foundQuery).toBe("refund window");
+    store.setQuery("r");
+    expect(store.foundQuery).toBe("");
   });
 
   it("asks once for the last of several quick changes", async () => {

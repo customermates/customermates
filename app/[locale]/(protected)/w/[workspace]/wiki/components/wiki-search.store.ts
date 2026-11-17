@@ -12,6 +12,7 @@ const MINIMUM_CONTENT_QUERY = 2;
 export class WikiSearchStore {
   query = "";
   found: ReadonlySet<string> = NOTHING_FOUND;
+  foundQuery = "";
 
   private generation = 0;
   private debouncer = new Debouncer();
@@ -20,6 +21,7 @@ export class WikiSearchStore {
     makeObservable(this, {
       query: observable,
       found: observable.ref,
+      foundQuery: observable,
       setQuery: action,
       dispose: action,
     });
@@ -32,6 +34,7 @@ export class WikiSearchStore {
     if (query.length < MINIMUM_CONTENT_QUERY) {
       this.debouncer.cancel();
       this.found = NOTHING_FOUND;
+      this.foundQuery = "";
       return;
     }
     this.debouncer.run(() => void this.search(query, generation));
@@ -48,6 +51,7 @@ export class WikiSearchStore {
       if (notifyIfWorkspaceChanged(response) || generation !== this.generation) return;
       runInAction(() => {
         this.found = response.ok ? new Set(response.data.items.map((item) => item.id)) : NOTHING_FOUND;
+        this.foundQuery = response.ok ? query : "";
       });
     } catch (error: unknown) {
       if (notifyIfWorkspaceChanged(error) || generation !== this.generation) return;
