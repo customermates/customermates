@@ -16,6 +16,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import * as ErrorReporter from "@/core/observability/server";
 import { openSecret } from "@/core/security/secret-box";
+import { agentProviderKeyBinding } from "@/ee/agent-keys/agent-provider-key-binding";
 import { agentProviderOfModel, resolveAgentProviderModel } from "@/ee/agent-keys/agent-provider-models";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
@@ -151,7 +152,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     if (!sealed) return { ok: false, error: "noKey" };
     let apiKey: string;
     try {
-      apiKey = openSecret(sealed.keyCiphertext);
+      apiKey = openSecret(sealed.keyCiphertext, agentProviderKeyBinding(job.companyId, provider));
     } catch {
       return { ok: false, error: "keyUnreadable" };
     }

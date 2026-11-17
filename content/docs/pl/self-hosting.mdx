@@ -64,7 +64,8 @@ Zarejestruj się, wybierz **Utwórz nową przestrzeń roboczą** i przejdź prze
 ## Jakie zmienne środowiskowe trafiają do .env? [#env-values]
 
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: użytkownik, hasło i nazwa bazy danych (w szablonie: `postgres`, `change-this-password`, `customermates`). Ustaw je przed pierwszym startem. PostgreSQL stosuje je raz, gdy tworzy wolumen bazy danych, więc późniejsza zmiana w `.env` nie zmienia istniejącej bazy, a aplikacja nie może się wtedy połączyć.
-- `BETTER_AUTH_SECRET`: długi losowy ciąg, który podpisuje sesje logowania. Późniejsza zmiana wylogowuje wszystkich, więc trzymaj kopię razem z kopiami zapasowymi.
+- `BETTER_AUTH_SECRET`: długi losowy ciąg, który podpisuje sesje logowania. Późniejsza zmiana wylogowuje wszystkich, a gdy `SECRET_BOX_KEY` nie jest ustawiona, sprawia też, że zapisanych kluczy dostawców AI nie da się odczytać, więc trzymaj kopię razem z kopiami zapasowymi.
+- `SECRET_BOX_KEY`: opcjonalna, w szablonie zakomentowana; osobny klucz do szyfrowania zapisanych [kluczy dostawców AI](/docs/app-agents#how-do-i-add-a-provider-key): 32 losowe bajty w base64, na przykład z `openssl rand -base64 32`. Bez niej klucz jest wyprowadzany z `BETTER_AUTH_SECRET`. Klucze dostawców zapisane przed jej ustawieniem pozostają czytelne. Jeśli później ją zmienisz lub usuniesz, zapisanych z nią kluczy dostawców nie da się już odczytać: **Testuj** i uruchomienia agentów to zgłaszają, a każdy klucz zapisujesz ponownie w sekcji **Agenty**.
 - `BASE_URL`: dokładny adres, który ludzie otwierają w przeglądarce, zobacz [Na co ustawić BASE_URL?](#base-url).
 - `APP_PORT`: port hosta, na którym publikowana jest aplikacja, domyślnie `4000`.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: wysyłka e-maili; `RESEND_API_KEY` nie może być pusty. Zobacz [Jak skonfigurować e-mail z Resend i czy mogę użyć SMTP?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).

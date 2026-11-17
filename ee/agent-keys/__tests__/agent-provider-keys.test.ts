@@ -31,9 +31,10 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { openSecret, sealSecret } from "@/core/security/secret-box";
+import { openSecret, sealSecret, SecretBoxError } from "@/core/security/secret-box";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AgentOwnKeyPlan } from "../agent-own-key-plan";
+import { agentProviderKeyBinding } from "../agent-provider-key-binding";
 import { DeleteAgentProviderKeyInteractor } from "../delete-agent-provider-key.interactor";
 import { FetchAgentProviderKeyValidator } from "../fetch-agent-provider-key-validator";
 import { GetAgentProviderKeysInteractor } from "../get-agent-provider-keys.interactor";
@@ -88,8 +89,20 @@ describe("saving a provider key", () => {
 
     const [stored] = [...repo.rows.values()];
     expect(stored.keyCiphertext).not.toContain(PLAIN_KEY);
-    expect(stored.keyCiphertext.startsWith("v1.")).toBe(true);
-    expect(openSecret(stored.keyCiphertext)).toBe(PLAIN_KEY);
+    expect(stored.keyCiphertext.startsWith("v2.")).toBe(true);
+    expect(openSecret(stored.keyCiphertext, agentProviderKeyBinding(mockUser.companyId, "anthropic"))).toBe(PLAIN_KEY);
+  });
+
+  it("binds the sealed key to its workspace and provider, so a copied row cannot be opened elsewhere", async () => {
+    await save({ provider: "anthropic", label: "Production", apiKey: PLAIN_KEY });
+    const [stored] = [...repo.rows.values()];
+
+    expect(() =>
+      openSecret(stored.keyCiphertext, agentProviderKeyBinding("00000000-0000-4000-8000-000000000099", "anthropic")),
+    ).toThrow(SecretBoxError);
+    expect(() => openSecret(stored.keyCiphertext, agentProviderKeyBinding(mockUser.companyId, "openai"))).toThrow(
+      SecretBoxError,
+    );
   });
 
   it("replaces the key of a provider instead of keeping two", async () => {
@@ -217,7 +230,7 @@ describe("testing a saved provider key", () => {
     const stored = await repo.upsert({
       provider: "openai",
       label: "OpenAI",
-      keyCiphertext: sealSecret("sk-openai-stored-4321"),
+      keyCiphertext: sealSecret("sk-openai-stored-4321", agentProviderKeyBinding(mockUser.companyId, "openai")),
       keyLast4: "4321",
       defaultModel: null,
       validatedAt: new Date("2026-11-01T00:00:00.000Z"),
@@ -253,19 +266,48 @@ describe("testing a saved provider key", () => {
     expect((await repo.findSealed(stored.id))?.validatedAt).toEqual(new Date("2026-11-01T00:00:00.000Z"));
   });
 
-  it("reports an unknown key and a key that cannot be opened with the current secret", async () => {
-    const { repo, stored } = await saved();
+  it("reports an unknown key", async () => {
+    const { repo } = await saved();
     const check = vi.fn();
 
     const missing = await test(repo, check, "00000000-0000-4000-8000-0000000000fe");
     expect(issueOf(missing as never).error).toBe(CustomErrorCode.agentProviderKeyNotFound);
+    expect(check).not.toHaveBeenCalled();
+  });
+
+  it("says a key sealed with another server secret must be saved again, instead of calling it invalid", async () => {
+    const { repo, stored } = await saved();
+    const check = vi.fn();
+
+    mockEnv.BETTER_AUTH_SECRET = "a-rotated-test-only-authentication-secret";
+    try {
+      const rotated = await test(repo, check, stored.id);
+      expect(issueOf(rotated as never)).toEqual({ path: ["id"], error: CustomErrorCode.agentProviderKeyUnreadable });
+    } finally {
+      mockEnv.BETTER_AUTH_SECRET = "a-long-test-only-authentication-secret";
+    }
 
     const row = await repo.findSealed(stored.id);
     if (!row) throw new Error("The key is missing");
     repo.rows.set(row.id, { ...row, keyCiphertext: "v1.garbage.garbage.garbage" });
-    const unreadable = await test(repo, check, stored.id);
-    expect(issueOf(unreadable as never).error).toBe(CustomErrorCode.agentProviderKeyInvalid);
+    const garbled = await test(repo, check, stored.id);
+    expect(issueOf(garbled as never).error).toBe(CustomErrorCode.agentProviderKeyUnreadable);
     expect(check).not.toHaveBeenCalled();
+    expect((await repo.findSealed(stored.id))?.validatedAt).toEqual(new Date("2026-11-01T00:00:00.000Z"));
+  });
+
+  it("still tests a key saved before SECRET_BOX_KEY was configured", async () => {
+    const { repo, stored } = await saved();
+    const check = vi.fn().mockResolvedValue("valid");
+
+    mockEnv.SECRET_BOX_KEY = Buffer.alloc(32, 3).toString("base64");
+    try {
+      const result = await test(repo, check, stored.id);
+      expect(result.ok).toBe(true);
+      expect(check).toHaveBeenCalledWith("openai", "sk-openai-stored-4321");
+    } finally {
+      mockEnv.SECRET_BOX_KEY = undefined;
+    }
   });
 });
 

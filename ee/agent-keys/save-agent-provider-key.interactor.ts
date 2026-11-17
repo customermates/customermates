@@ -12,6 +12,7 @@ import { sealSecret, secretLast4 } from "@/core/security/secret-box";
 import { fail, failAuthorization, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { agentProviderKeyBinding } from "./agent-provider-key-binding";
 import { toAgentProviderKeyDto } from "./agent-provider-key-dto";
 import { AgentProviderKeyDtoSchema, SaveAgentProviderKeySchema } from "./agent-provider-key.schema";
 import { isListedAgentProviderModel } from "./agent-provider-models";
@@ -43,7 +44,7 @@ export class SaveAgentProviderKeyInteractor extends AuthenticatedInteractor<
     const saved = await this.repo.upsert({
       provider: data.provider,
       label: data.label,
-      keyCiphertext: sealSecret(data.apiKey),
+      keyCiphertext: sealSecret(data.apiKey, agentProviderKeyBinding(this.user.companyId, data.provider)),
       keyLast4: secretLast4(data.apiKey),
       defaultModel: data.defaultModel ?? null,
       validatedAt: this.now(),

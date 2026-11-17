@@ -211,6 +211,7 @@ export enum CustomErrorCode {
   agentOwnKeyPlanRequired = "agentOwnKeyPlanRequired",
   agentProviderKeyInvalid = "agentProviderKeyInvalid",
   agentProviderKeyUnreachable = "agentProviderKeyUnreachable",
+  agentProviderKeyUnreadable = "agentProviderKeyUnreadable",
   agentProviderKeyNotFound = "agentProviderKeyNotFound",
   agentProviderModelInvalid = "agentProviderModelInvalid",
   agentRuntimeUnavailable = "agentRuntimeUnavailable",

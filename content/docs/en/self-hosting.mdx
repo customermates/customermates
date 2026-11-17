@@ -64,7 +64,8 @@ Register, choose **Create a new workspace** and complete the wizard; your accoun
 ## Which environment variables go into .env? [#env-values]
 
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: database user, password and name (template: `postgres`, `change-this-password`, `customermates`). Set them before the first start. PostgreSQL applies them once, when it creates the database volume, so a later change in `.env` does not change the existing database, and the app can then no longer connect.
-- `BETTER_AUTH_SECRET`: a long random string that signs sign-in sessions. Changing it later signs everyone out, so keep a copy with your backups.
+- `BETTER_AUTH_SECRET`: a long random string that signs sign-in sessions. Changing it later signs everyone out and, unless `SECRET_BOX_KEY` is set, makes the saved AI provider keys unreadable, so keep a copy with your backups.
+- `SECRET_BOX_KEY`: optional, commented out in the template; its own key for encrypting the saved [AI provider keys](/docs/app-agents#how-do-i-add-a-provider-key): 32 random bytes in base64, for example from `openssl rand -base64 32`. Without it the key is derived from `BETTER_AUTH_SECRET`. Provider keys saved before you set it stay readable. If you change or remove it later, the provider keys saved with it can no longer be read: **Test** and agent runs say so, and you save each key again under **Agents**.
 - `BASE_URL`: the exact address people open in the browser, see [What must BASE_URL be set to?](#base-url).
 - `APP_PORT`: the host port the app is published on, `4000` by default.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: email delivery; `RESEND_API_KEY` must not be empty. See [How do I set up email with Resend?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).

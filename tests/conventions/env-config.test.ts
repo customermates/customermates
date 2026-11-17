@@ -367,6 +367,20 @@ describe("self-hosted configuration", () => {
     expect(compose).toMatch(/^\s+CRON_SECRET: \$\{CRON_SECRET:-\}$/mu);
   });
 
+  it("offers the key for stored provider keys without setting it, hands it to the app and documents it", () => {
+    const cloudTemplate = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
+
+    expect(templateVariables).toContain("SECRET_BOX_KEY");
+    expect(activeTemplateVariables).not.toContain("SECRET_BOX_KEY");
+    expect(cloudTemplate).toMatch(/^# SECRET_BOX_KEY=/mu);
+    expect(compose).toMatch(/^\s+SECRET_BOX_KEY: \$\{SECRET_BOX_KEY:-\}$/mu);
+    for (const locale of CONTENT_LOCALES) {
+      const docs = readFileSync(join(REPO_ROOT, "content", "docs", locale, "self-hosting.mdx"), "utf8");
+      expect(docs, `${locale} self-hosting docs`).toContain("- `SECRET_BOX_KEY`");
+      expect(docs, `${locale} self-hosting docs`).toContain("openssl rand -base64 32");
+    }
+  });
+
   it("requires only variables the template sets during setup", () => {
     const required = /REQUIRED_VARS=\(([^)]*)\)/u.exec(setupScript)?.[1].trim().split(/\s+/u) ?? [];
 

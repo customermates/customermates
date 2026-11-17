@@ -171327,6 +171327,7 @@
                         "agentOwnKeyPlanRequired",
                         "agentProviderKeyInvalid",
                         "agentProviderKeyUnreachable",
+                        "agentProviderKeyUnreadable",
                         "agentProviderKeyNotFound",
                         "agentProviderModelInvalid",
                         "agentRuntimeUnavailable",

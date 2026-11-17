@@ -11,6 +11,7 @@ import { openSecret } from "@/core/security/secret-box";
 import { fail, failNotFound, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { agentProviderKeyBinding } from "./agent-provider-key-binding";
 import { toAgentProviderKeyDto } from "./agent-provider-key-dto";
 import { AgentProviderKeyDtoSchema, TestAgentProviderKeySchema } from "./agent-provider-key.schema";
 
@@ -34,9 +35,9 @@ export class TestAgentProviderKeyInteractor extends AuthenticatedInteractor<
 
     let apiKey: string;
     try {
-      apiKey = openSecret(sealed.keyCiphertext);
+      apiKey = openSecret(sealed.keyCiphertext, agentProviderKeyBinding(sealed.companyId, sealed.provider));
     } catch {
-      return fail(CustomErrorCode.agentProviderKeyInvalid, ["id"]);
+      return fail(CustomErrorCode.agentProviderKeyUnreadable, ["id"]);
     }
 
     const check = await this.validator.check(sealed.provider, apiKey);

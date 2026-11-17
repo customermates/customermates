@@ -1,13 +1,35 @@
+import { createCipheriv, hkdfSync, randomBytes } from "node:crypto";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockEnv = vi.hoisted(() => ({
-  BETTER_AUTH_SECRET: "a-long-test-only-authentication-secret",
+  BETTER_AUTH_SECRET: "a-long-test-only-authentication-secret" as string | undefined,
   SECRET_BOX_KEY: undefined as string | undefined,
 }));
 
 vi.mock("@/env", () => ({ env: mockEnv }));
 
 import { openSecret, sealSecret, secretLast4, SecretBoxError } from "../secret-box";
+
+const OWNER = ["agent-provider-key", "company-1", "anthropic"] as const;
+
+function sealVersionOne(plain: string, secret: string): string {
+  const key = new Uint8Array(hkdfSync("sha256", secret, "", "customermates-secret-box-v1", 32));
+  const iv = new Uint8Array(randomBytes(12));
+  const cipher = createCipheriv("aes-256-gcm", key, iv, { authTagLength: 16 });
+  const data = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
+  const part = (value: Uint8Array) => Buffer.from(value).toString("base64url");
+  return ["v1", part(iv), part(cipher.getAuthTag()), part(data)].join(".");
+}
+
+function failureOf(run: () => unknown): string | null {
+  try {
+    run();
+    return null;
+  } catch (error) {
+    return error instanceof SecretBoxError ? error.failure : "other";
+  }
+}
 
 describe("secret box", () => {
   beforeEach(() => {
@@ -16,38 +38,83 @@ describe("secret box", () => {
   });
 
   it("seals and opens a value with a fresh nonce each time", () => {
-    const first = sealSecret("sk-ant-example-0001");
-    const second = sealSecret("sk-ant-example-0001");
+    const first = sealSecret("sk-ant-example-0001", OWNER);
+    const second = sealSecret("sk-ant-example-0001", OWNER);
 
     expect(first).not.toBe(second);
-    expect(first.startsWith("v1.")).toBe(true);
-    expect(openSecret(first)).toBe("sk-ant-example-0001");
-    expect(openSecret(second)).toBe("sk-ant-example-0001");
+    expect(first.startsWith("v2.")).toBe(true);
+    expect(openSecret(first, OWNER)).toBe("sk-ant-example-0001");
+    expect(openSecret(second, OWNER)).toBe("sk-ant-example-0001");
   });
 
-  it("prefers a configured 32 byte key over the derived one and refuses other lengths", () => {
+  it("opens a value only for the owner it was sealed for", () => {
+    const sealed = sealSecret("sk-ant-example-0001", OWNER);
+
+    expect(failureOf(() => openSecret(sealed, ["agent-provider-key", "company-2", "anthropic"]))).toBe("unreadable");
+    expect(failureOf(() => openSecret(sealed, ["agent-provider-key", "company-1", "openai"]))).toBe("unreadable");
+    expect(failureOf(() => sealSecret("value", []))).toBe("configuration");
+    expect(failureOf(() => sealSecret("value", ["agent-provider-key", ""]))).toBe("configuration");
+  });
+
+  it("still opens a value sealed in the first format, which had no owner", () => {
+    const sealed = sealVersionOne("sk-ant-example-0001", "a-long-test-only-authentication-secret");
+
+    expect(openSecret(sealed, OWNER)).toBe("sk-ant-example-0001");
+    expect(openSecret(sealed, ["agent-provider-key", "company-2", "openai"])).toBe("sk-ant-example-0001");
+  });
+
+  it("keeps values sealed before SECRET_BOX_KEY was set readable and seals new ones with the configured key", () => {
+    const before = sealSecret("old value", OWNER);
+    const beforeInFirstFormat = sealVersionOne("older value", "a-long-test-only-authentication-secret");
+
     mockEnv.SECRET_BOX_KEY = Buffer.alloc(32, 7).toString("base64");
-    const sealed = sealSecret("value");
-    expect(openSecret(sealed)).toBe("value");
+    expect(openSecret(before, OWNER)).toBe("old value");
+    expect(openSecret(beforeInFirstFormat, OWNER)).toBe("older value");
+
+    const after = sealSecret("new value", OWNER);
+    expect(openSecret(after, OWNER)).toBe("new value");
+    mockEnv.SECRET_BOX_KEY = undefined;
+    expect(failureOf(() => openSecret(after, OWNER))).toBe("unreadable");
+  });
+
+  it("reports a value sealed with another secret as unreadable, not as malformed", () => {
+    const sealed = sealSecret("value", OWNER);
+
+    mockEnv.BETTER_AUTH_SECRET = "a-rotated-test-only-authentication-secret";
+    expect(failureOf(() => openSecret(sealed, OWNER))).toBe("unreadable");
+
+    mockEnv.SECRET_BOX_KEY = Buffer.alloc(32, 9).toString("base64");
+    expect(failureOf(() => openSecret(sealed, OWNER))).toBe("unreadable");
+  });
+
+  it("refuses a configured key of another length and a server without any secret", () => {
+    mockEnv.SECRET_BOX_KEY = Buffer.alloc(16, 1).toString("base64");
+    expect(() => sealSecret("value", OWNER)).toThrow("32 bytes");
+    expect(failureOf(() => sealSecret("value", OWNER))).toBe("configuration");
 
     mockEnv.SECRET_BOX_KEY = undefined;
-    expect(() => openSecret(sealed)).toThrow(SecretBoxError);
-
-    mockEnv.SECRET_BOX_KEY = Buffer.alloc(16, 1).toString("base64");
-    expect(() => sealSecret("value")).toThrow("32 bytes");
+    const sealed = sealSecret("value", OWNER);
+    mockEnv.BETTER_AUTH_SECRET = undefined;
+    expect(failureOf(() => sealSecret("value", OWNER))).toBe("configuration");
+    expect(failureOf(() => openSecret(sealed, OWNER))).toBe("configuration");
   });
 
   it("rejects tampered and malformed values", () => {
-    const sealed = sealSecret("value");
+    const sealed = sealSecret("value", OWNER);
     const [version, iv, tag, data] = sealed.split(".");
     const flipped = data.startsWith("A") ? `B${data.slice(1)}` : `A${data.slice(1)}`;
 
-    expect(() => openSecret([version, iv, tag, flipped].join("."))).toThrow(SecretBoxError);
+    expect(() => openSecret([version, iv, tag, flipped].join("."), OWNER)).toThrow(SecretBoxError);
     expect(() =>
-      openSecret([version, iv, Buffer.from(tag, "base64url").subarray(0, 4).toString("base64url"), data].join(".")),
+      openSecret(
+        [version, iv, Buffer.from(tag, "base64url").subarray(0, 4).toString("base64url"), data].join("."),
+        OWNER,
+      ),
     ).toThrow(SecretBoxError);
-    expect(() => openSecret("v2.a.b.c")).toThrow("unknown format");
-    expect(() => openSecret("not sealed")).toThrow("unknown format");
+    expect(failureOf(() => openSecret(["v1", iv, tag, data].join("."), OWNER))).toBe("unreadable");
+    expect(() => openSecret("v3.a.b.c", OWNER)).toThrow("unknown format");
+    expect(() => openSecret("not sealed", OWNER)).toThrow("unknown format");
+    expect(failureOf(() => openSecret("not sealed", OWNER))).toBe("format");
   });
 
   it("keeps only the last four characters for display", () => {

@@ -37,6 +37,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { sealSecret } from "@/core/security/secret-box";
 import { FakeAgentJobRepo } from "@/features/agent-jobs/__tests__/fake-agent-job-repo";
 import { FakeAgentProviderKeyRepo } from "@/ee/agent-keys/__tests__/fake-agent-provider-key-repo";
+import { agentProviderKeyBinding } from "@/ee/agent-keys/agent-provider-key-binding";
 import { RunAgentJobInteractor } from "../run-agent-job.interactor";
 
 const NOW = new Date("2026-11-17T12:00:00.000Z");
@@ -67,7 +68,7 @@ async function world() {
   await keys.upsert({
     provider: "anthropic",
     label: "Production",
-    keyCiphertext: sealSecret(PLAIN_KEY),
+    keyCiphertext: sealSecret(PLAIN_KEY, agentProviderKeyBinding(COMPANY, "anthropic")),
     keyLast4: "9876",
     defaultModel: "claude-haiku-5-5",
     validatedAt: NOW,
@@ -138,7 +139,7 @@ describe("running an agent job on the workspace's own key", () => {
     await keys.upsert({
       provider: "openai",
       label: "OpenAI",
-      keyCiphertext: sealSecret("sk-openai-key-1111"),
+      keyCiphertext: sealSecret("sk-openai-key-1111", agentProviderKeyBinding(COMPANY, "openai")),
       keyLast4: "1111",
       defaultModel: null,
       validatedAt: NOW,
@@ -179,6 +180,26 @@ describe("running an agent job on the workspace's own key", () => {
 
     expect(jobs.jobs.get(job.id)).toMatchObject({ status: "failed", error: "keyUnreadable" });
     expect(createModel).not.toHaveBeenCalled();
+  });
+
+  it("still runs on a key saved before SECRET_BOX_KEY was configured and fails as unreadable after the secret changed", async () => {
+    const { jobs, createModel, run } = await world();
+
+    mockEnv.SECRET_BOX_KEY = Buffer.alloc(32, 5).toString("base64");
+    try {
+      const kept = jobs.add({ runtime: "ownKey" });
+      expect(await run(kept.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+      expect(createModel).toHaveBeenLastCalledWith("anthropic", PLAIN_KEY, "claude-haiku-5-5");
+
+      mockEnv.BETTER_AUTH_SECRET = "a-rotated-test-only-authentication-secret";
+      const rotated = jobs.add({ runtime: "ownKey" });
+      await run(rotated.id);
+      expect(jobs.jobs.get(rotated.id)).toMatchObject({ status: "failed", error: "keyUnreadable" });
+      expect(createModel).toHaveBeenCalledTimes(1);
+    } finally {
+      mockEnv.SECRET_BOX_KEY = undefined;
+      mockEnv.BETTER_AUTH_SECRET = "a-long-test-only-authentication-secret";
+    }
   });
 
   it("fails with the provider's error class and never with the key", async () => {
