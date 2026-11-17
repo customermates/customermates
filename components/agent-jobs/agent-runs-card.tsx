@@ -57,6 +57,12 @@ const AgentRunRow = observer(({ job }: { job: AgentJobSummary }) => {
             {job.model ? <span className="truncate text-xs text-muted-foreground">{job.model}</span> : null}
           </span>
 
+          {job.rule ? (
+            <span className="truncate text-xs" data-agent-run-rule={job.rule.id}>
+              {t("AgentJobs.rule", { name: job.rule.name })}
+            </span>
+          ) : null}
+
           <span className="text-xs text-muted-foreground">
             {intlStore.formatNumericalShortDateTime(new Date(job.createdAt))}
           </span>

@@ -5,6 +5,7 @@ import type {
   AgentJobFinish,
   AgentJobQueueEntry,
   AgentJobRepo,
+  AgentJobRunRule,
   AgentJobSweepOutcome,
   StoredAgentJob,
   StoredAgentJobSummary,
@@ -111,6 +112,20 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
 
   findOne(id: string): Promise<StoredAgentJob | null> {
     return this.prisma.agentJob.findFirst({ where: { id, companyId: this.companyId }, select: JOB_SELECT });
+  }
+
+  async findRulesOfRuns(runIds: string[]): Promise<AgentJobRunRule[]> {
+    if (runIds.length === 0) return [];
+    const runs = await this.prisma.automationRuleRun.findMany({
+      where: { id: { in: runIds }, companyId: this.companyId },
+      select: { id: true, rule: { select: { id: true, name: true, ownerUserId: true } } },
+    });
+    return runs.map((run) => ({
+      runId: run.id,
+      ruleId: run.rule.id,
+      name: run.rule.name,
+      ownerUserId: run.rule.ownerUserId,
+    }));
   }
 
   @BypassTenantGuard

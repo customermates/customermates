@@ -529,6 +529,41 @@ describeDatabase("PrismaAgentJobRepo", () => {
     await client.query('DELETE FROM "AutomationRule" WHERE "companyId" = $1', [companyId]);
   });
 
+  it("finds the rule of an automation run with its owner, only inside the caller's workspace", async () => {
+    const rule = randomUUID();
+    const foreignRule = randomUUID();
+    const run = randomUUID();
+    const foreignRun = randomUUID();
+    for (const [id, company, owner, name] of [
+      [rule, companyId, colleagueId, "Offer follow-up"],
+      [foreignRule, otherCompanyId, otherOwnerId, "Elsewhere"],
+    ] as const) {
+      await client.query(
+        `INSERT INTO "AutomationRule" ("id", "companyId", "ownerUserId", "name", "enabled", "triggerKind", "trigger", "effects", "updatedAt")
+         VALUES ($1, $2, $3, $4, true, 'recordUpdated'::"AutomationTriggerKind", '{}'::jsonb, '[]'::jsonb, CURRENT_TIMESTAMP)`,
+        [id, company, owner, name],
+      );
+    }
+    for (const [id, company, ruleId] of [
+      [run, companyId, rule],
+      [foreignRun, otherCompanyId, foreignRule],
+    ] as const) {
+      await client.query(
+        `INSERT INTO "AutomationRuleRun" ("id", "companyId", "ruleId", "occurrenceKey", "triggerKind", "scheduledFor", "updatedAt")
+         VALUES ($1, $2, $3, $4, 'recordUpdated'::"AutomationTriggerKind", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        [id, company, ruleId, `event:${id}`],
+      );
+    }
+
+    try {
+      const found = await asOwner(() => repo().findRulesOfRuns([run, foreignRun, randomUUID(), "not-a-run"]));
+      expect(found).toEqual([{ runId: run, ruleId: rule, name: "Offer follow-up", ownerUserId: colleagueId }]);
+      expect(await asOwner(() => repo().findRulesOfRuns([]))).toEqual([]);
+    } finally {
+      await client.query('DELETE FROM "AutomationRule" WHERE "id" = ANY($1)', [[rule, foreignRule]]);
+    }
+  });
+
   it("runs a claimed job, appends transcript events up to the cap and finishes it once", async () => {
     const job = await enqueue();
     const now = new Date();

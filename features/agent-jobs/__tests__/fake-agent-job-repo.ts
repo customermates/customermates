@@ -5,6 +5,7 @@ import type {
   AgentJobFinish,
   AgentJobQueueEntry,
   AgentJobRepo,
+  AgentJobRunRule,
   AgentJobSweepOutcome,
   StoredAgentJob,
   StoredAgentJobSummary,
@@ -17,6 +18,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
   readonly jobs = new Map<string, StoredAgentJob>();
   readonly events = new Map<string, unknown[]>();
   readonly inactiveRuleIds = new Set<string>();
+  readonly runRules: AgentJobRunRule[] = [];
   private readonly keys = new Map<string, string>();
   private sequence = 0;
 
@@ -90,6 +92,10 @@ export class FakeAgentJobRepo implements AgentJobRepo {
   findOne(id: string): Promise<StoredAgentJob | null> {
     const job = this.jobs.get(id);
     return Promise.resolve(job && job.companyId === this.companyId ? job : null);
+  }
+
+  findRulesOfRuns(runIds: string[]): Promise<AgentJobRunRule[]> {
+    return Promise.resolve(this.runRules.filter((rule) => runIds.includes(rule.runId)));
   }
 
   findUnscoped(companyId: string, id: string): Promise<StoredAgentJob | null> {

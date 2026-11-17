@@ -884,6 +884,7 @@
       "toolLimit": "Arrêtée à la limite d’appels d’outils"
     },
     "loadFailed": "Les exécutions d’agent n’ont pas pu être chargées. Réessayez.",
+    "rule": "Automatisation : {name}",
     "status": {
       "cancelled": "Annulée",
       "claimed": "Démarrage",

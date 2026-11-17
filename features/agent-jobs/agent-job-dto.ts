@@ -1,5 +1,11 @@
 import type { TenantUser } from "@/features/user/user.schema";
-import type { AgentJobDetail, AgentJobResult, AgentJobSummary, AgentTranscriptEvent } from "./agent-job.schema";
+import type {
+  AgentJobDetail,
+  AgentJobResult,
+  AgentJobRule,
+  AgentJobSummary,
+  AgentTranscriptEvent,
+} from "./agent-job.schema";
 import type { StoredAgentJob, StoredAgentJobSummary } from "./agent-job.repo";
 
 import { z } from "zod";
@@ -44,13 +50,18 @@ export function mayReadAgentJobContent(
   return job.ownerUserId === user.id || user.role?.isSystemRole === true;
 }
 
-export function toAgentJobSummary(job: StoredAgentJobSummary, withContent = true): AgentJobSummary {
+export function toAgentJobSummary(
+  job: StoredAgentJobSummary,
+  withContent = true,
+  rule: AgentJobRule | null = null,
+): AgentJobSummary {
   return {
     id: job.id,
     runtime: job.runtime,
     status: job.status,
     sourceKind: job.sourceKind,
     sourceId: job.sourceId,
+    rule,
     model: job.model,
     runnerId: job.runnerId ?? job.pinnedRunnerId,
     attempts: job.attempts,
@@ -65,10 +76,14 @@ export function toAgentJobSummary(job: StoredAgentJobSummary, withContent = true
   };
 }
 
-export function toAgentJobDetail(job: StoredAgentJob, withContent = true): AgentJobDetail {
+export function toAgentJobDetail(
+  job: StoredAgentJob,
+  withContent = true,
+  rule: AgentJobRule | null = null,
+): AgentJobDetail {
   if (!withContent) {
     return {
-      ...toAgentJobSummary(job, false),
+      ...toAgentJobSummary(job, false, rule),
       prompt: "",
       promptUntrusted: job.promptUntrusted,
       transcript: [],
@@ -76,7 +91,7 @@ export function toAgentJobDetail(job: StoredAgentJob, withContent = true): Agent
     };
   }
   return {
-    ...toAgentJobSummary(job),
+    ...toAgentJobSummary(job, true, rule),
     prompt: job.prompt,
     promptUntrusted: job.promptUntrusted,
     transcript: parsedTranscript(job.transcript),

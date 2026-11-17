@@ -884,6 +884,7 @@
       "toolLimit": "Am Limit der Werkzeugaufrufe gestoppt"
     },
     "loadFailed": "Die Agentenläufe konnten nicht geladen werden. Versuche es noch einmal.",
+    "rule": "Automatisierung: {name}",
     "status": {
       "cancelled": "Abgebrochen",
       "claimed": "Startet",

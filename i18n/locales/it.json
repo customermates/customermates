@@ -884,6 +884,7 @@
       "toolLimit": "Interrotta al limite di chiamate agli strumenti"
     },
     "loadFailed": "Non è stato possibile caricare le esecuzioni degli agenti. Riprova.",
+    "rule": "Automazione: {name}",
     "status": {
       "cancelled": "Annullata",
       "claimed": "In avvio",

@@ -86,6 +86,13 @@ export type AgentJobQueueEntry = {
   runtime: AgentRuntime;
 };
 
+export type AgentJobRunRule = {
+  runId: string;
+  ruleId: string;
+  name: string;
+  ownerUserId: string | null;
+};
+
 export type AgentJobSweepOutcome = AgentJobQueueEntry & {
   attempts: number;
   started: boolean;
@@ -97,6 +104,7 @@ export abstract class AgentJobRepo {
   abstract findByIdempotencyKey(idempotencyKey: string): Promise<StoredAgentJob | null>;
   abstract findPage(filter: AgentJobFilter): Promise<StoredAgentJobSummary[]>;
   abstract findOne(id: string): Promise<StoredAgentJob | null>;
+  abstract findRulesOfRuns(runIds: string[]): Promise<AgentJobRunRule[]>;
   abstract findUnscoped(companyId: string, id: string): Promise<StoredAgentJob | null>;
   abstract claimUnscoped(claim: AgentJobClaim): Promise<StoredAgentJob | null>;
   abstract startUnscoped(args: {

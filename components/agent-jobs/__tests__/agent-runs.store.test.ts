@@ -24,6 +24,7 @@ function summary(id: string): AgentJobSummary {
     status: "succeeded",
     sourceKind: "automation",
     sourceId: null,
+    rule: null,
     model: "claude-sonnet-5-5",
     runnerId: null,
     attempts: 1,

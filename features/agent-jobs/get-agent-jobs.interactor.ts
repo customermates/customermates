@@ -14,6 +14,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { decodeAgentJobCursor, encodeAgentJobCursor } from "./agent-job-cursor";
 import { mayReadAgentJobContent, toAgentJobSummary } from "./agent-job-dto";
+import { readableRulesOfJobs } from "./agent-job-rule";
 import { AGENT_JOB_PAGE_SIZE, AgentJobPageSchema, GetAgentJobsSchema } from "./agent-job.schema";
 
 @AllowInDemoMode
@@ -38,10 +39,11 @@ export class GetAgentJobsInteractor extends AuthenticatedInteractor<GetAgentJobs
     });
     const page = rows.slice(0, AGENT_JOB_PAGE_SIZE);
     const last = page.at(-1);
+    const ruleOf = await readableRulesOfJobs(this.repo, this.user, page);
     return {
       ok: true as const,
       data: {
-        jobs: page.map((job) => toAgentJobSummary(job, mayReadAgentJobContent(this.user, job))),
+        jobs: page.map((job) => toAgentJobSummary(job, mayReadAgentJobContent(this.user, job), ruleOf(job))),
         nextCursor:
           rows.length > AGENT_JOB_PAGE_SIZE && last
             ? encodeAgentJobCursor({ createdAt: last.createdAt, id: last.id })

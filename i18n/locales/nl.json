@@ -884,6 +884,7 @@
       "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
     },
     "loadFailed": "De agentuitvoeringen konden niet worden geladen. Probeer het opnieuw.",
+    "rule": "Automatisering: {name}",
     "status": {
       "cancelled": "Geannuleerd",
       "claimed": "Wordt gestart",

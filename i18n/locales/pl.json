@@ -884,6 +884,7 @@
       "toolLimit": "Zatrzymano po przekroczeniu limitu wywołań narzędzi"
     },
     "loadFailed": "Nie udało się załadować uruchomień agentów. Spróbuj ponownie.",
+    "rule": "Automatyzacja: {name}",
     "status": {
       "cancelled": "Anulowano",
       "claimed": "Uruchamianie",

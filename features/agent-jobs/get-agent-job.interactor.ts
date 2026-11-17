@@ -13,6 +13,7 @@ import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { mayReadAgentJobContent, toAgentJobDetail } from "./agent-job-dto";
+import { readableRulesOfJobs } from "./agent-job-rule";
 import { AgentJobDetailSchema, GetAgentJobSchema } from "./agent-job.schema";
 
 @AllowInDemoMode
@@ -29,6 +30,7 @@ export class GetAgentJobInteractor extends AuthenticatedInteractor<GetAgentJobDa
     const visible =
       job && (roleReadScope(this.user.role, Resource.routines) === "all" || job.ownerUserId === this.user.id);
     if (!job || !visible) return failNotFound(CustomErrorCode.agentJobNotFound, ["id"]);
-    return { ok: true as const, data: toAgentJobDetail(job, mayReadAgentJobContent(this.user, job)) };
+    const ruleOf = await readableRulesOfJobs(this.repo, this.user, [job]);
+    return { ok: true as const, data: toAgentJobDetail(job, mayReadAgentJobContent(this.user, job), ruleOf(job)) };
   }
 }

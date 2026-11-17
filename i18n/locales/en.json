@@ -884,6 +884,7 @@
       "toolLimit": "Stopped at the tool call limit"
     },
     "loadFailed": "The agent runs could not be loaded. Try again.",
+    "rule": "Automation: {name}",
     "status": {
       "cancelled": "Cancelled",
       "claimed": "Starting",

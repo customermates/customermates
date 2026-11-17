@@ -884,6 +884,7 @@
       "toolLimit": "Detenida en el límite de llamadas a herramientas"
     },
     "loadFailed": "No se pudieron cargar las ejecuciones de agentes. Inténtalo de nuevo.",
+    "rule": "Automatización: {name}",
     "status": {
       "cancelled": "Cancelada",
       "claimed": "Iniciando",

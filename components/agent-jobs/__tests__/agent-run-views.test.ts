@@ -50,6 +50,7 @@ function summary(overrides: Partial<AgentJobSummary> = {}): AgentJobSummary {
     status: "succeeded",
     sourceKind: "automation",
     sourceId: null,
+    rule: null,
     model: "claude-sonnet-5-5",
     runnerId: null,
     attempts: 1,
@@ -207,6 +208,19 @@ describe("AgentRunsCard", () => {
     expect(markup).toContain("AgentJobs.tokens(input=1200,output=80)");
     expect(markup).toContain('aria-expanded="false"');
     expect(markup).not.toContain("AgentJobs.credits");
+    expect(markup).not.toContain("AgentJobs.rule");
+  });
+
+  it("names the automation a run belongs to when the reader may see it", () => {
+    const rule = { id: "00000000-0000-4000-8000-0000000000d1", name: "Offer follow-up" };
+    const { markup } = renderRuns([
+      summary({ sourceId: "00000000-0000-4000-8000-0000000000b1", rule }),
+      summary({ id: "00000000-0000-4000-8000-0000000000a2", sourceId: "00000000-0000-4000-8000-0000000000b2" }),
+    ]);
+
+    expect(markup.split("AgentJobs.rule(")).toHaveLength(2);
+    expect(markup).toContain("AgentJobs.rule(name=Offer follow-up)");
+    expect(markup).toContain(`data-agent-run-rule="${rule.id}"`);
   });
 
   it("shows the credits a Mate run used and the reason a run failed", () => {

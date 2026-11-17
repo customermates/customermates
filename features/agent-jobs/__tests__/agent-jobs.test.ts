@@ -442,6 +442,45 @@ describe("reading the run history", () => {
     expect(everyone.ok && everyone.data.jobs).toHaveLength(2);
   });
 
+  it("names the rule of an automation run only to a reader who may open that rule", async () => {
+    const rule = "00000000-0000-4000-8000-0000000000d1";
+    const handedRule = "00000000-0000-4000-8000-0000000000d2";
+    const handedRun = "00000000-0000-4000-8000-0000000000a2";
+    const ofRule = repo.add({ ownerUserId: COLLEAGUE, sourceId: RUN });
+    const handedOver = repo.add({ ownerUserId: COLLEAGUE, sourceId: handedRun });
+    const otherSource = repo.add({ ownerUserId: COLLEAGUE, sourceKind: "test", sourceId: RUN });
+    const withoutRun = repo.add({ ownerUserId: COLLEAGUE, sourceId: null });
+    repo.runRules.push(
+      { runId: RUN, ruleId: rule, name: "Offer follow-up", ownerUserId: COLLEAGUE },
+      { runId: handedRun, ruleId: handedRule, name: "Handed over", ownerUserId: OWNER },
+    );
+    const member = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]);
+    const memberUser = { ...member, id: COLLEAGUE, companyId: COMPANY };
+
+    const own = await list({}, memberUser);
+    expect(own.ok && Object.fromEntries(own.data.jobs.map((job) => [job.id, job.rule]))).toEqual({
+      [ofRule.id]: { id: rule, name: "Offer follow-up" },
+      [handedOver.id]: null,
+      [otherSource.id]: null,
+      [withoutRun.id]: null,
+    });
+    const ownDetail = await detail(ofRule.id, memberUser);
+    expect(ownDetail.ok && ownDetail.data.rule).toEqual({ id: rule, name: "Offer follow-up" });
+    const handedDetail = await detail(handedOver.id, memberUser);
+    expect(handedDetail.ok && handedDetail.data.rule).toBeNull();
+    expect(JSON.stringify([own, handedDetail])).not.toContain("Handed over");
+
+    const everyone = await list({});
+    expect(everyone.ok && Object.fromEntries(everyone.data.jobs.map((job) => [job.id, job.rule?.name ?? null]))).toEqual(
+      {
+        [ofRule.id]: "Offer follow-up",
+        [handedOver.id]: "Handed over",
+        [otherSource.id]: null,
+        [withoutRun.id]: null,
+      },
+    );
+  });
+
   it("shows what a run read and wrote only to its owner and to administrators", async () => {
     const content = {
       status: "succeeded" as const,

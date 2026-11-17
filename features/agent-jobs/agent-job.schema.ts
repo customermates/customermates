@@ -84,12 +84,16 @@ export const AgentJobResultSchema = z.object({
 });
 export type AgentJobResult = z.infer<typeof AgentJobResultSchema>;
 
+export const AgentJobRuleSchema = z.object({ id: z.uuid(), name: z.string() });
+export type AgentJobRule = z.infer<typeof AgentJobRuleSchema>;
+
 export const AgentJobSummarySchema = z.object({
   id: z.uuid(),
   runtime: AgentRuntimeSchema,
   status: AgentJobStatusSchema,
   sourceKind: z.string(),
   sourceId: z.string().nullable(),
+  rule: AgentJobRuleSchema.nullable(),
   model: z.string().nullable(),
   runnerId: z.uuid().nullable(),
   attempts: z.number().int(),
