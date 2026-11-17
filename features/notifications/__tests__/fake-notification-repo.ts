@@ -82,9 +82,9 @@ export class FakeNotificationRepo extends NotificationRepo {
     return Promise.resolve();
   }
 
-  insertManyUnscoped(inserts: NotificationInsert[]) {
+  insertManyUnscoped(companyId: string, inserts: NotificationInsert[]) {
     const stored: string[] = [];
-    for (const insert of inserts) {
+    for (const insert of inserts.filter((row) => row.companyId === companyId)) {
       const duplicate =
         insert.dedupeKey !== null &&
         this.rows.some(
@@ -126,10 +126,10 @@ export class FakeNotificationRepo extends NotificationRepo {
 
   markEmailedFailure: Error | null = null;
 
-  markEmailedUnscoped(ids: string[], now: Date, delivery: EmailDelivery) {
+  markEmailedUnscoped(companyId: string, ids: string[], now: Date, delivery: EmailDelivery) {
     if (this.markEmailedFailure) return Promise.reject(this.markEmailedFailure);
     for (const row of this.rows) {
-      if (!ids.includes(row.id)) continue;
+      if (row.companyId !== companyId || !ids.includes(row.id)) continue;
       row.emailedAt = now;
       row.emailedInstantly = delivery === "instant";
     }

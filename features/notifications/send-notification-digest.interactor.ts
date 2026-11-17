@@ -70,6 +70,7 @@ export class SendNotificationDigestInteractor {
     try {
       if (!(await this.mailer.sendDigest(recipient, pending))) return false;
       await this.repo.markEmailedUnscoped(
+        companyId,
         pending.map((item) => item.id),
         now,
         "digest",

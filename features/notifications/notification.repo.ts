@@ -76,14 +76,14 @@ export abstract class NotificationRepo {
     kind: NotificationKind,
     emailMode: NotificationEmailMode,
   ): Promise<void>;
-  abstract insertManyUnscoped(rows: NotificationInsert[]): Promise<string[]>;
+  abstract insertManyUnscoped(companyId: string, rows: NotificationInsert[]): Promise<string[]>;
   abstract findRecipientsUnscoped(companyId: string, userIds: string[]): Promise<NotificationRecipient[]>;
   abstract findPreferencesUnscoped(
     companyId: string,
     userIds: string[],
   ): Promise<Map<string, Map<NotificationKind, NotificationEmailMode>>>;
   abstract findNotificationsUnscoped(companyId: string, ids: string[]): Promise<PendingEmailNotification[]>;
-  abstract markEmailedUnscoped(ids: string[], now: Date, delivery: EmailDelivery): Promise<void>;
+  abstract markEmailedUnscoped(companyId: string, ids: string[], now: Date, delivery: EmailDelivery): Promise<void>;
   abstract countInstantEmailsSinceUnscoped(
     companyId: string,
     userIds: string[],

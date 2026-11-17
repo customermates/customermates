@@ -69,7 +69,7 @@ export class NotificationService {
       dedupeKey: data.dedupeKey ?? null,
       emailedAt: modeOf(recipient.id, data.kind) === "off" ? now : null,
     }));
-    const storedIds = new Set(await this.repo.insertManyUnscoped(rows));
+    const storedIds = new Set(await this.repo.insertManyUnscoped(data.companyId, rows));
     const created = rows.filter((row) => storedIds.has(row.id));
     const emailed = await this.emailInstant(data.companyId, created, recipients, modeOf, now);
     return { created: created.length, emailed };
@@ -117,7 +117,7 @@ export class NotificationService {
         if (!(await this.mailer.sendInstant(recipient, notification))) continue;
         sent += 1;
         allowance.set(row.userId, remaining - 1);
-        await this.repo.markEmailedUnscoped([row.id], now, "instant");
+        await this.repo.markEmailedUnscoped(companyId, [row.id], now, "instant");
       } catch (error) {
         ErrorReporter.captureException(error, { tags: { kind: "notification-email" } });
       }

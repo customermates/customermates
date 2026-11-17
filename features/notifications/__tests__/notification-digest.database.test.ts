@@ -101,7 +101,9 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
     expect(own([onePage])).toEqual([member, admin]);
     expect(onePage.next).toBeNull();
 
-    await runWithoutTenant(() => repo.markEmailedUnscoped([oldest.id, sameMember.id, newest.id], now, "digest"));
+    await runWithoutTenant(() =>
+      repo.markEmailedUnscoped(w.companyId, [oldest.id, sameMember.id, newest.id], now, "digest"),
+    );
     expect(own(await walk(1, beforeOwnRows))).toEqual([]);
     expect(own(await walk(2, atSameMember as Cursor))).toEqual([]);
   });
@@ -135,7 +137,7 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
       cursor = (await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit: 1, after: cursor }))).next;
     expect(cursor).toEqual({ createdAt: boundary.createdAt, id: boundary.id });
 
-    await runWithoutTenant(() => repo.markEmailedUnscoped([boundary.id], now, "digest"));
+    await runWithoutTenant(() => repo.markEmailedUnscoped(w.companyId, [boundary.id], now, "digest"));
     const afterMailed = await runWithoutTenant(() =>
       repo.findDigestUsersUnscoped({ since, limit: 500, after: cursor }),
     );
@@ -234,11 +236,52 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
 
     expect(await count()).toEqual([{ userId: w.admin.id, count: 2 }]);
 
-    await runWithoutTenant(() => repo.markEmailedUnscoped([pending.id], now, "digest"));
+    await runWithoutTenant(() => repo.markEmailedUnscoped(w.companyId, [pending.id], now, "digest"));
     expect(await count()).toEqual([{ userId: w.admin.id, count: 2 }]);
-    await runWithoutTenant(() => repo.markEmailedUnscoped([pending.id], now, "instant"));
+    await runWithoutTenant(() => repo.markEmailedUnscoped(w.companyId, [pending.id], now, "instant"));
     expect(await count()).toEqual([{ userId: w.admin.id, count: 3 }]);
     expect(await runWithoutTenant(() => repo.countInstantEmailsSinceUnscoped(w.companyId, [], minutesAgo(60)))).toEqual(
+      [],
+    );
+  });
+
+  it("marks and reads back only notifications of the workspace it was called for", async () => {
+    const { w, add } = await seed();
+    const other = await createRestRouteWorkspace();
+    cleanups.push(other.cleanup);
+    const own = await add(w.admin.id, minutesAgo(5));
+    const repo = new PrismaNotificationRepo();
+    const emailedAt = (id: string) =>
+      runWithoutTenant(async () => (await prisma.notification.findUniqueOrThrow({ where: { id } })).emailedAt);
+
+    await runWithoutTenant(() => repo.markEmailedUnscoped(other.companyId, [own.id], now, "digest"));
+    expect(await emailedAt(own.id)).toBeNull();
+    await runWithoutTenant(() => repo.markEmailedUnscoped(w.companyId, [own.id], now, "digest"));
+    expect(await emailedAt(own.id)).toEqual(now);
+
+    const row = (id: string, companyId: string, userId: string) => ({
+      id,
+      companyId,
+      userId,
+      kind: "dueToday" as const,
+      title: "Due",
+      body: null,
+      href: null,
+      sourceRuleId: null,
+      dedupeKey: null,
+    });
+    const mine = randomUUID();
+    const foreign = randomUUID();
+    const stored = await runWithoutTenant(() =>
+      repo.insertManyUnscoped(w.companyId, [
+        row(mine, w.companyId, w.admin.id),
+        row(foreign, other.companyId, other.admin.id),
+      ]),
+    );
+
+    expect(stored).toEqual([mine]);
+    expect(await runWithoutTenant(() => prisma.notification.count({ where: { id: foreign } }))).toBe(0);
+    expect(await runWithoutTenant(() => repo.insertManyUnscoped(other.companyId, [row(mine, w.companyId, w.admin.id)]))).toEqual(
       [],
     );
   });

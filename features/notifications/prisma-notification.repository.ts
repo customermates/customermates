@@ -129,11 +129,12 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
-  async insertManyUnscoped(rows: NotificationInsert[]): Promise<string[]> {
-    if (rows.length === 0) return [];
-    await this.prisma.notification.createMany({ data: rows, skipDuplicates: true });
+  async insertManyUnscoped(companyId: string, rows: NotificationInsert[]): Promise<string[]> {
+    const own = rows.filter((row) => row.companyId === companyId);
+    if (own.length === 0) return [];
+    await this.prisma.notification.createMany({ data: own, skipDuplicates: true });
     const stored = await this.prisma.notification.findMany({
-      where: { id: { in: rows.map((row) => row.id) } },
+      where: { companyId, id: { in: own.map((row) => row.id) } },
       select: { id: true },
     });
     return stored.map((row) => row.id);
@@ -184,10 +185,10 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
-  async markEmailedUnscoped(ids: string[], now: Date, delivery: EmailDelivery): Promise<void> {
+  async markEmailedUnscoped(companyId: string, ids: string[], now: Date, delivery: EmailDelivery): Promise<void> {
     if (ids.length === 0) return;
     await this.prisma.notification.updateMany({
-      where: { id: { in: ids } },
+      where: { companyId, id: { in: ids } },
       data: { emailedAt: now, emailedInstantly: delivery === "instant" },
     });
   }
