@@ -6,7 +6,7 @@ import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger, DraftU
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
-import { Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
@@ -18,7 +18,12 @@ import {
   AUTOMATION_EFFECT_LIMIT,
 } from "@/features/automation-rules/automation-rule.schema";
 
-import { composeAutomationAction, previewAutomationRuleAction, upsertAutomationRuleAction } from "../actions";
+import {
+  composeAutomationAction,
+  previewAutomationRuleAction,
+  setAutomationRuleEnabledAction,
+  upsertAutomationRuleAction,
+} from "../actions";
 import {
   blankCondition,
   blankEffect,
@@ -127,6 +132,9 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       composedByMate: observable,
       composerRefusal: observable,
       unavailable: computed,
+      isOwner: computed,
+      isAdmin: computed,
+      canPauseAsAdmin: computed,
       openForCreate: action,
       openForRule: action,
       applyDraft: action,
@@ -154,6 +162,28 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
 
   get isExisting(): boolean {
     return Boolean(this.form.id);
+  }
+
+  get isOwner(): boolean {
+    if (!this.form.id) return true;
+    const ownerUserId = this.rule?.ownerUserId;
+    return Boolean(ownerUserId && ownerUserId === this.rootStore.userStore.user?.id);
+  }
+
+  get isAdmin(): boolean {
+    return Boolean(this.rootStore.userStore.user?.role?.isSystemRole);
+  }
+
+  get canManage(): boolean {
+    return this.isOwner && super.canManage;
+  }
+
+  get isReadOnly(): boolean {
+    return !this.canManage;
+  }
+
+  get canPauseAsAdmin(): boolean {
+    return this.isExisting && !this.isOwner && this.isAdmin && this.form.enabled && this.allows(Action.update);
   }
 
   get canAddCondition(): boolean {
@@ -421,9 +451,35 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     }
   };
 
+  pauseAsAdmin = async (): Promise<boolean> => {
+    const id = this.form.id;
+    if (!id || !this.canPauseAsAdmin || this.isLoading) return false;
+    runInAction(() => {
+      this.isLoading = true;
+    });
+    try {
+      const result = await setAutomationRuleEnabledAction({ id, enabled: false });
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        return false;
+      }
+      const paused = result.data;
+      runInAction(() => {
+        this.rule = paused;
+        this.onInitOrRefresh({ ...this.form, enabled: paused.enabled });
+      });
+      this.onSaved?.(paused);
+      return true;
+    } finally {
+      runInAction(() => {
+        this.isLoading = false;
+      });
+    }
+  };
+
   save = async (): Promise<AutomationSaveOutcome> => {
     const model = this.model;
-    if (!model) return "failed";
+    if (!model || this.isReadOnly) return "failed";
     const unavailable = this.unavailable;
     const converted = draftToUpsert(this.form, model);
     if (unavailable.length > 0 || !converted.ok) {

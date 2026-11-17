@@ -9,6 +9,7 @@ import { noAgentRuntimes } from "@/features/automation-rules/agent-runtime-avail
 const actions = vi.hoisted(() => ({
   composeAutomationAction: vi.fn(),
   previewAutomationRuleAction: vi.fn(),
+  setAutomationRuleEnabledAction: vi.fn(),
   upsertAutomationRuleAction: vi.fn(),
 }));
 
@@ -73,7 +74,7 @@ const CONTEXT: AutomationBuilderContext = {
 
 const SAVED = {
   id: RULE,
-  ownerUserId: null,
+  ownerUserId: "u",
   owner: null,
   name: "Saved",
   enabled: true,
@@ -87,10 +88,13 @@ const SAVED = {
   updatedAt: "2026-11-16T00:00:00.000Z",
 };
 
-function makeStore() {
+function makeStore(viewer: { id?: string; admin?: boolean } = {}) {
   return new AutomationBuilderStore({
     registerModalStore: vi.fn(),
-    userStore: { user: { id: "u", role: { isSystemRole: false } }, can: vi.fn(() => true) },
+    userStore: {
+      user: { id: viewer.id ?? "u", role: { isSystemRole: viewer.admin ?? false } },
+      can: vi.fn(() => true),
+    },
     localeStore: { getTranslation: (key: string) => key },
   } as unknown as RootStore);
 }
@@ -202,6 +206,64 @@ describe("AutomationBuilderStore", () => {
     expect(await store.save()).toBe("incomplete");
     expect(store.isFlagged("effects.0")).toBe(true);
     expect(store.expanded).toBe("effect-0");
+  });
+
+  it("lets the owner edit a rule and shows it read-only to everyone else", async () => {
+    const owner = makeStore();
+    owner.openForRule(CONTEXT, SAVED as never, vi.fn());
+    expect(owner.isOwner).toBe(true);
+    expect(owner.isReadOnly).toBe(false);
+    expect(owner.canPauseAsAdmin).toBe(false);
+
+    const member = makeStore({ id: "someone-else" });
+    member.openForRule(CONTEXT, SAVED as never, vi.fn());
+    member.setName("Renamed by a stranger");
+    expect(member.isOwner).toBe(false);
+    expect(member.isReadOnly).toBe(true);
+    expect(member.canManage).toBe(false);
+    expect(member.canPauseAsAdmin).toBe(false);
+    expect(await member.save()).toBe("failed");
+    expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
+
+    const ownerless = makeStore({ admin: true });
+    ownerless.openForRule(CONTEXT, { ...SAVED, ownerUserId: null } as never, vi.fn());
+    expect(ownerless.isReadOnly).toBe(true);
+
+    member.openForCreate(CONTEXT, vi.fn(), { typeId: DEALS });
+    expect(member.isReadOnly).toBe(false);
+  });
+
+  it("lets an admin pause someone else's rule through the enable action, and only pause it", async () => {
+    const paused = { ...SAVED, enabled: false, disabledReason: "disabledByUser" };
+    actions.setAutomationRuleEnabledAction.mockResolvedValue({ ok: true, data: paused });
+    const onSaved = vi.fn();
+    const admin = makeStore({ id: "admin", admin: true });
+    admin.openForRule(CONTEXT, SAVED as never, onSaved);
+
+    expect(admin.isReadOnly).toBe(true);
+    expect(admin.canPauseAsAdmin).toBe(true);
+    expect(await admin.pauseAsAdmin()).toBe(true);
+
+    expect(actions.setAutomationRuleEnabledAction).toHaveBeenCalledWith({ id: RULE, enabled: false });
+    expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
+    expect(admin.form.enabled).toBe(false);
+    expect(admin.rule).toEqual(paused);
+    expect(admin.hasUnsavedChanges).toBe(false);
+    expect(admin.isOpen).toBe(true);
+    expect(onSaved).toHaveBeenCalledWith(paused);
+    expect(admin.canPauseAsAdmin).toBe(false);
+    expect(await admin.pauseAsAdmin()).toBe(false);
+    expect(actions.setAutomationRuleEnabledAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the rule running and says why when the pause is refused", async () => {
+    actions.setAutomationRuleEnabledAction.mockResolvedValue({ ok: false, error: { errors: [], properties: {} } });
+    const admin = makeStore({ id: "admin", admin: true });
+    admin.openForRule(CONTEXT, SAVED as never, vi.fn());
+
+    expect(await admin.pauseAsAdmin()).toBe(false);
+    expect(admin.form.enabled).toBe(true);
+    expect(admin.isLoading).toBe(false);
   });
 
   it("keeps a red mark on the card it was given to when cards are removed or added", async () => {

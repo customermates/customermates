@@ -12,6 +12,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal } from "@/components/modal/app-modal";
+import { Alert } from "@/components/shared/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
@@ -48,6 +49,9 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
   };
 
   const disabledReason = store.rule?.disabledReason;
+  const readOnly = store.isReadOnly;
+  const owner = store.rule?.owner;
+  const ownerName = owner ? `${owner.firstName} ${owner.lastName}`.trim() : "";
 
   return (
     <AppModal
@@ -73,19 +77,46 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
                     id="automation-name"
                     maxLength={AUTOMATION_RULE_NAME_MAX_CHARS}
                     placeholder={t("AutomationRules.builder.namePlaceholder")}
+                    readOnly={readOnly}
                     value={form.name}
                     onChange={(event) => store.setName(event.target.value)}
                   />
                 </div>
 
                 <div className="flex items-center gap-2 pb-2">
-                  <Switch checked={form.enabled} id="automation-active" onCheckedChange={store.setEnabled} />
+                  <Switch
+                    checked={form.enabled}
+                    disabled={store.isLoading || (readOnly && !store.canPauseAsAdmin)}
+                    id="automation-active"
+                    onCheckedChange={(enabled) => {
+                      if (!readOnly) store.setEnabled(enabled);
+                      else if (!enabled) runUserAction(() => store.pauseAsAdmin());
+                    }}
+                  />
 
                   <Label htmlFor="automation-active">
                     {form.enabled ? t("Automations.builder.active") : t("Automations.builder.paused")}
                   </Label>
                 </div>
               </div>
+
+              {readOnly && (
+                <Alert
+                  data-automation-read-only=""
+                  description={[
+                    store.isOwner
+                      ? t("Automations.builder.readOnlyRole")
+                      : ownerName
+                        ? t("Automations.builder.readOnlyOwner", { owner: ownerName })
+                        : t("Automations.builder.readOnlyNoOwner"),
+                    store.canPauseAsAdmin ? t("Automations.builder.readOnlyAdminPause") : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  title={t("RoutineDetail.readOnlyTitle")}
+                  variant="neutral"
+                />
+              )}
 
               {store.rule && (
                 <p className="text-xs text-muted-foreground">

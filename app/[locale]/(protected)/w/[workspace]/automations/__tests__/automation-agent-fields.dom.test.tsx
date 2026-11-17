@@ -23,6 +23,10 @@ vi.mock("@/components/ui/select", () => ({
   SelectItem: ({ children, value }: { children: ReactNode; value: string }) => <li data-value={value}>{children}</li>,
 }));
 
+import { Zap } from "lucide-react";
+
+import { AutomationCard, AutomationConnector } from "@/components/automations/automation-card";
+
 import { AGENT_SETTINGS_HREF, AutomationAgentFields } from "../components/automation-agent-fields";
 import { toAutomationBuilderModel } from "../components/automation-builder-model";
 import { AutomationConditionFields } from "../components/automation-condition-fields";
@@ -358,6 +362,49 @@ describe("the trigger card", () => {
       />,
     );
     expect(toValue()).toBe(true);
+  });
+});
+
+describe("a card of someone else's automation", () => {
+  const card = (readOnly: boolean) => (
+    <AutomationCard
+      expanded
+      cardId="effect-0"
+      icon={Zap}
+      kindLabel="Then"
+      readOnly={readOnly}
+      removeLabel="Remove step"
+      sentence="notify the owner"
+      onRemove={vi.fn()}
+      onToggle={vi.fn()}
+    >
+      <input aria-label="Title" />
+    </AutomationCard>
+  );
+
+  it("can be opened and read, but every field in it is switched off and it cannot be removed", () => {
+    mount(card(true));
+
+    expect(container.querySelector("fieldset")?.disabled).toBe(true);
+    expect(container.querySelector("input")?.matches(":disabled")).toBe(true);
+    expect(container.querySelector('button[aria-expanded="true"]')?.matches(":disabled")).toBe(false);
+    expect(container.textContent).not.toContain("Remove step");
+  });
+
+  it("stays editable and removable for its owner", () => {
+    mount(card(false));
+
+    expect(container.querySelector("fieldset")?.disabled).toBe(false);
+    expect(container.querySelector("input")?.matches(":disabled")).toBe(false);
+    expect(container.textContent).toContain("Remove step");
+  });
+
+  it("shows the line between cards without the button that adds a step", () => {
+    mount(<AutomationConnector active={false} label="Add a step" />);
+    expect(container.querySelector("button")).toBeNull();
+
+    mount(<AutomationConnector active={false} label="Add a step" onAdd={vi.fn()} />);
+    expect(container.querySelector("button")?.getAttribute("aria-label")).toBe("Add a step");
   });
 });
 

@@ -17,6 +17,7 @@ type CardProps = {
   sentence: string;
   expanded: boolean;
   invalid?: boolean;
+  readOnly?: boolean;
   removeLabel?: string;
   openHint?: string;
   onToggle: () => void;
@@ -42,6 +43,7 @@ export function AutomationCard({
   sentence,
   expanded,
   invalid,
+  readOnly = false,
   removeLabel,
   openHint,
   onToggle,
@@ -85,9 +87,11 @@ export function AutomationCard({
 
       {expanded && (
         <div className="flex flex-col gap-3 border-t p-3" id={bodyId}>
-          {children}
+          <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0" disabled={readOnly}>
+            {children}
+          </fieldset>
 
-          {onRemove && removeLabel && (
+          {onRemove && removeLabel && !readOnly && (
             <div>
               <Button size="sm" type="button" variant="ghostDestructive" onClick={onRemove}>
                 <Trash2 aria-hidden="true" className="size-4" />
@@ -102,22 +106,24 @@ export function AutomationCard({
   );
 }
 
-export function AutomationConnector({ label, active, onAdd }: { label: string; active: boolean; onAdd: () => void }) {
+export function AutomationConnector({ label, active, onAdd }: { label: string; active: boolean; onAdd?: () => void }) {
   return (
     <div className="relative flex h-7 items-center justify-center" data-automation-connector="">
       <span aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border" />
 
-      <Button
-        aria-expanded={active}
-        aria-label={label}
-        className="relative z-10 rounded-full bg-background"
-        size="icon-xs"
-        type="button"
-        variant="secondary"
-        onClick={onAdd}
-      >
-        <Plus aria-hidden="true" className="size-3" />
-      </Button>
+      {onAdd && (
+        <Button
+          aria-expanded={active}
+          aria-label={label}
+          className="relative z-10 rounded-full bg-background"
+          size="icon-xs"
+          type="button"
+          variant="secondary"
+          onClick={onAdd}
+        >
+          <Plus aria-hidden="true" className="size-3" />
+        </Button>
+      )}
     </div>
   );
 }
