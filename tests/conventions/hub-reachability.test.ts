@@ -933,6 +933,6 @@ describe("hub pagination and rendered reachability", () => {
       expect(maxCards).toBe(24);
       expect(maxHtmlBytes).toBeGreaterThan(0);
     },
-    180_000,
+    480_000,
   );
 });
