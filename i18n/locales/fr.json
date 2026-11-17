@@ -4409,7 +4409,7 @@
       "recipientAssignees": "les personnes assignées",
       "recipientMembers": "{count, plural, one {# membre} other {# membres}}",
       "rules": "{count, plural, one {# automatisation réagit à ce formulaire :} other {# automatisations réagissent à ce formulaire :}}",
-      "title": "Après l'envoi"
+      "title": "Une fois le formulaire soumis"
     },
     "badge": "Créé avec Customermates",
     "blockedBody": "Votre message n'a pas pu être envoyé. Réessayez plus tard.",

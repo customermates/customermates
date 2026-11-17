@@ -4409,7 +4409,7 @@
       "recipientAssignees": "de toegewezen personen",
       "recipientMembers": "{count, plural, one {# lid} other {# leden}}",
       "rules": "{count, plural, one {# automatisering reageert op dit formulier:} other {# automatiseringen reageren op dit formulier:}}",
-      "title": "Na het verzenden"
+      "title": "Zodra het formulier is verzonden"
     },
     "badge": "Gemaakt met Customermates",
     "blockedBody": "Je bericht kon niet worden verzonden. Probeer het later opnieuw.",
