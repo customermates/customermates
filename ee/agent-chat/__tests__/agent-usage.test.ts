@@ -75,7 +75,7 @@ function makeRepo(
     recordUsageEventUnscoped: vi.fn(() => Promise.resolve()),
     reserveUsageEventUnscoped: vi.fn(() => Promise.resolve(true)),
     releaseUsageReservationUnscoped: vi.fn(() => Promise.resolve()),
-    settleUsageReservationUnscoped: vi.fn(() => Promise.resolve()),
+    settleUsageReservationUnscoped: vi.fn(() => Promise.resolve(true)),
     admitsHostedAiRetrievalUnscoped: vi.fn(() => Promise.resolve(true)),
     getWorkspaceCreditPoolUnscoped: vi.fn(() =>
       Promise.resolve({
