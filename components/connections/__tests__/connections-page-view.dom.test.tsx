@@ -125,6 +125,55 @@ describe("ConnectionsPageView", () => {
     );
   });
 
+  it("lets both switchers grow to their longest label and scroll sideways instead of cutting labels off", () => {
+    renderView({
+      tabs: ["channels", "apps", "agents", "developers"],
+      tab: "developers",
+      section: "incoming",
+      bleed: false,
+    });
+
+    const lists = [...document.querySelectorAll<HTMLElement>('[role="tablist"]')];
+    expect(lists.map((list) => list.getAttribute("aria-label"))).toEqual([
+      "Connections.tabsLabel",
+      "Connections.developers.sectionsLabel",
+    ]);
+    for (const list of lists) {
+      const rail = list.parentElement?.parentElement;
+      const region = rail?.parentElement;
+      expect(rail?.className).toContain("w-max");
+      expect(rail?.className).toContain("min-w-full");
+      expect(region?.className).toContain("overflow-x-auto");
+      expect(list.parentElement?.className).toContain("flex-1");
+      expect(list.className).toContain("auto-cols-fr");
+    }
+  });
+
+  it("brings the open tab and section into view on a narrow screen", () => {
+    const scrolled: string[] = [];
+    const descriptor = Object.getOwnPropertyDescriptor(Element.prototype, "scrollIntoView");
+    Object.defineProperty(Element.prototype, "scrollIntoView", {
+      configurable: true,
+      writable: true,
+      value(this: Element) {
+        scrolled.push(this.id);
+      },
+    });
+    try {
+      renderView({
+        tabs: ["channels", "apps", "agents", "developers"],
+        tab: "developers",
+        section: "incoming",
+        bleed: false,
+      });
+    } finally {
+      if (descriptor) Object.defineProperty(Element.prototype, "scrollIntoView", descriptor);
+      else Reflect.deleteProperty(Element.prototype, "scrollIntoView");
+    }
+
+    expect(scrolled).toEqual(["connections-tab-developers", "connections-section-tab-incoming"]);
+  });
+
   it("shows no section control for Channels, whose only section is the connected accounts", () => {
     renderView({ tabs: ["channels", "apps"], tab: "channels", section: "accounts", bleed: false }, "accounts content");
 

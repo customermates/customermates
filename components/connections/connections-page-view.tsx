@@ -3,8 +3,10 @@
 import type { ReactNode } from "react";
 import type { ConnectionSection, ConnectionTab } from "@/features/connections/connection-tabs";
 
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 
+import { OverflowRail } from "@/components/shared/overflow-rail";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { connectionSectionsOf, connectionsHref } from "@/features/connections/connection-tabs";
 import { useRouter } from "@/i18n/navigation";
@@ -56,6 +58,13 @@ export function ConnectionsPageView({ tabs, tab, section, bleed, children }: Pro
   const router = useRouter();
   const sections = connectionSectionsOf(tab);
 
+  useEffect(() => {
+    for (const id of [`connections-tab-${tab}`, section ? `connections-section-tab-${section}` : null]) {
+      const active = id ? document.getElementById(id) : null;
+      if (typeof active?.scrollIntoView === "function") active.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+  }, [tab, section]);
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4" data-connections-page="">
       <div className="flex flex-col gap-4 px-4 pt-4 md:px-6 md:pt-6">
@@ -63,26 +72,32 @@ export function ConnectionsPageView({ tabs, tab, section, bleed, children }: Pro
 
         <p className="text-sm text-muted-foreground">{t("Connections.description")}</p>
 
-        <SegmentedControl
-          idPrefix="connections"
-          items={tabs.map((value) => ({ value, label: tabLabel(t, value), controls: "connections-panel" }))}
-          label={t("Connections.tabsLabel")}
-          value={tab}
-          onValueChange={(next) => router.push(connectionsHref(next))}
-        />
+        <OverflowRail ariaLabel={t("Connections.tabsLabel")} bleed={false} observedKey={tabs.length}>
+          <SegmentedControl
+            className="flex-1"
+            idPrefix="connections"
+            items={tabs.map((value) => ({ value, label: tabLabel(t, value), controls: "connections-panel" }))}
+            label={t("Connections.tabsLabel")}
+            value={tab}
+            onValueChange={(next) => router.push(connectionsHref(next))}
+          />
+        </OverflowRail>
 
         {sections.length > 1 && section ? (
-          <SegmentedControl
-            idPrefix="connections-section"
-            items={sections.map((value) => ({
-              value,
-              label: sectionLabel(t, value),
-              controls: "connections-section-panel",
-            }))}
-            label={sectionsLabel(t, tab)}
-            value={section}
-            onValueChange={(next) => router.push(connectionsHref(tab, next))}
-          />
+          <OverflowRail ariaLabel={sectionsLabel(t, tab)} bleed={false} observedKey={tab}>
+            <SegmentedControl
+              className="flex-1"
+              idPrefix="connections-section"
+              items={sections.map((value) => ({
+                value,
+                label: sectionLabel(t, value),
+                controls: "connections-section-panel",
+              }))}
+              label={sectionsLabel(t, tab)}
+              value={section}
+              onValueChange={(next) => router.push(connectionsHref(tab, next))}
+            />
+          </OverflowRail>
         ) : null}
       </div>
 
