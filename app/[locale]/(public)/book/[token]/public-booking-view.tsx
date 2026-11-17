@@ -50,6 +50,30 @@ function Frame({ children, preview = false }: { children: React.ReactNode; previ
 }
 
 export function PublicBookingUnavailable({ rateLimited }: { rateLimited: boolean }) {
+function SlotForm({
+  readOnly,
+  onSubmit,
+  children,
+}: {
+  readOnly: boolean;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  children: React.ReactNode;
+}) {
+  if (readOnly) {
+    return (
+      <div className="flex flex-col gap-4" data-booking-form="">
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <form className="flex flex-col gap-4" data-booking-form="" onSubmit={onSubmit}>
+      {children}
+    </form>
+  );
+}
+
   const t = useTranslations();
 
   return (
@@ -298,11 +322,7 @@ export function PublicBookingView({
       ) : null}
 
       {slot ? (
-        <form
-          className="flex flex-col gap-4"
-          data-booking-form=""
-          onSubmit={(event) => runUserAction(() => submit(event))}
-        >
+        <SlotForm readOnly={readOnly} onSubmit={(event) => runUserAction(() => submit(event))}>
           <p className="text-sm font-medium">{dayLabel(slot.startsAt)}</p>
 
           <div className="space-y-1.5">
@@ -374,7 +394,7 @@ export function PublicBookingView({
 
             {t("PublicBooking.confirm")}
           </Button>
-        </form>
+        </SlotForm>
       ) : null}
     </Frame>
   );

@@ -119,7 +119,7 @@ describe("BookingPreview", () => {
     act(() => {
       slotButtons()[0].click();
     });
-    const form = container.querySelector<HTMLFormElement>("[data-booking-form]");
+    const form = container.querySelector<HTMLElement>("[data-booking-form]");
     expect(form).not.toBeNull();
     expect(form?.querySelector<HTMLInputElement>("#booking-name")?.disabled).toBe(true);
     expect(form?.querySelector<HTMLInputElement>("#booking-email")?.disabled).toBe(true);
@@ -131,3 +131,5 @@ describe("BookingPreview", () => {
     expect(harness.submit).not.toHaveBeenCalled();
   });
 });
+    expect(form?.tagName).toBe("DIV");
+    expect(container.querySelector("form")).toBeNull();
