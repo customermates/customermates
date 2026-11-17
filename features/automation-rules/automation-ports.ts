@@ -14,7 +14,7 @@ export type AutomationRecordView = {
 
 export type AutomationMutationResult =
   | { ok: true; refs: RecordRef[] }
-  | { ok: false; message: string; versionChanged?: boolean };
+  | { ok: false; message: string; versionChanged?: boolean; alreadyApplied?: boolean };
 
 export type AutomationRecordPort = {
   model(): Promise<RecordModelView>;

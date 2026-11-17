@@ -64,6 +64,7 @@ function context(overrides: { runId?: string; trigger?: Record<string, unknown>;
     },
     recordRef: overrides.recordRef === null ? null : { typeId: TYPE, recordId: RECORD },
     now: NOW,
+    admittedAt: NOW,
   };
 }
 

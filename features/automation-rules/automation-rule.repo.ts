@@ -125,6 +125,7 @@ export abstract class AutomationRuleRepo {
     runId: string,
   ): Promise<{ run: StoredAutomationRuleRun; rule: StoredAutomationRule | null } | null>;
   abstract claimRunUnscoped(runId: string, companyId: string, now: Date, staleBefore: Date): Promise<boolean>;
+  abstract saveRunProgressUnscoped(companyId: string, runId: string, outcome: Prisma.InputJsonValue): Promise<void>;
   abstract settleRunUnscoped(settlement: AutomationRunSettlement): Promise<void>;
   abstract findStaleRunsUnscoped(
     queuedBefore: Date,

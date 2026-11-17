@@ -30,9 +30,29 @@ export type AutomationEffectContext = {
   rule: { id: string; name: string; ownerUserId: string; trigger: AutomationTrigger };
   recordRef: RecordRef | null;
   now: Date;
+  admittedAt: Date;
 };
 
+export type AutomationEffectProgress = {
+  done: readonly AutomationEffectOutcome[];
+  save(outcomes: AutomationEffectOutcome[]): Promise<unknown>;
+};
+
+const NO_PROGRESS: AutomationEffectProgress = { done: [], save: () => Promise.resolve() };
+
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+function settledOutcomes(
+  effects: readonly AutomationEffect[],
+  done: readonly AutomationEffectOutcome[],
+): AutomationEffectOutcome[] {
+  const settled: AutomationEffectOutcome[] = [];
+  for (const [index, outcome] of done.entries()) {
+    if (outcome.status === "failed" || effects[index]?.kind !== outcome.kind) break;
+    settled.push(outcome);
+  }
+  return settled;
+}
 
 function recordHref(ref: RecordRef | null): string | null {
   return ref ? `/records/${ref.typeId}/${ref.recordId}` : null;
@@ -49,10 +69,13 @@ function dueAssignment(
   if (field.valueType === "dateTime") {
     return {
       fieldId: due.fieldId,
-      value: { kind: "dateTime", value: new Date(context.now.getTime() + due.offsetDays * DAY_MS).toISOString() },
+      value: {
+        kind: "dateTime",
+        value: new Date(context.admittedAt.getTime() + due.offsetDays * DAY_MS).toISOString(),
+      },
     };
   }
-  const day = shiftDay(localDay(context.now, automationTimeZone(context.rule.trigger)), due.offsetDays);
+  const day = shiftDay(localDay(context.admittedAt, automationTimeZone(context.rule.trigger)), due.offsetDays);
   return { fieldId: due.fieldId, value: { kind: "date", value: day } };
 }
 
@@ -69,24 +92,33 @@ export class AutomationEffectRunner {
   async run(
     effects: readonly AutomationEffect[],
     context: AutomationEffectContext,
+    progress: AutomationEffectProgress = NO_PROGRESS,
   ): Promise<{ outcomes: AutomationEffectOutcome[]; failure: string | null }> {
-    const outcomes: AutomationEffectOutcome[] = [];
+    const outcomes = settledOutcomes(effects, progress.done);
     let failure: string | null = null;
     for (const [index, effect] of effects.entries()) {
+      if (index < outcomes.length) continue;
       if (failure) {
         outcomes.push({ kind: effect.kind, status: "skipped", detail: "previousEffectFailed" });
         continue;
       }
-      const outcome = await this.apply(effect, index, context).catch(
+      const settled = [...outcomes];
+      const outcome = await this.apply(effect, index, context, (claimed) => progress.save([...settled, claimed])).catch(
         (): AutomationEffectOutcome => ({ kind: effect.kind, status: "failed", detail: "unexpectedError" }),
       );
       outcomes.push(outcome);
       if (outcome.status === "failed") failure = outcome.detail ?? "failed";
+      await progress.save([...outcomes]);
     }
     return { outcomes, failure };
   }
 
-  private apply(effect: AutomationEffect, index: number, context: AutomationEffectContext) {
+  private apply(
+    effect: AutomationEffect,
+    index: number,
+    context: AutomationEffectContext,
+    claim: (outcome: AutomationEffectOutcome) => Promise<unknown>,
+  ) {
     switch (effect.kind) {
       case "setField":
         return this.setField(effect, index, context);
@@ -95,7 +127,7 @@ export class AutomationEffectRunner {
       case "notify":
         return this.notify(effect, index, context);
       case "callWebhook":
-        return this.callWebhook(effect, context);
+        return this.callWebhook(effect, context, claim);
       case "agent":
         return this.agent(effect, index, context);
     }
@@ -154,7 +186,7 @@ export class AutomationEffectRunner {
         fields: effect.fields,
       };
       const result = await this.records.mutate({ idempotencyKey: `rule:${context.runId}:${index}`, mutation });
-      if (result.ok) return { kind, status: "applied", recordRef };
+      if (result.ok || result.alreadyApplied) return { kind, status: "applied", recordRef };
       if (!result.versionChanged || attempt >= SET_FIELD_ATTEMPTS)
         return { kind, status: "failed", detail: result.message.slice(0, 300) };
     }
@@ -198,7 +230,10 @@ export class AutomationEffectRunner {
         : {}),
     };
     const result = await this.records.mutate({ idempotencyKey: `rule:${context.runId}:${index}`, mutation });
-    if (!result.ok) return { kind, status: "failed", detail: result.message.slice(0, 300) };
+    if (!result.ok) {
+      if (result.alreadyApplied) return { kind, status: "applied" };
+      return { kind, status: "failed", detail: result.message.slice(0, 300) };
+    }
     return { kind, status: "applied", ...(result.refs[0] ? { recordRef: result.refs[0] } : {}) };
   }
 
@@ -261,6 +296,7 @@ export class AutomationEffectRunner {
   private async callWebhook(
     effect: Extract<AutomationEffect, { kind: "callWebhook" }>,
     context: AutomationEffectContext,
+    claim: (outcome: AutomationEffectOutcome) => Promise<unknown>,
   ): Promise<AutomationEffectOutcome> {
     const kind = effect.kind;
     const webhook = await this.webhooks.findOutboundWebhookUnscoped(context.companyId, effect.webhookId);
@@ -268,6 +304,7 @@ export class AutomationEffectRunner {
     if (!webhook.enabled) return { kind, status: "skipped", detail: "webhook:disabled" };
     if (!webhook.events.includes(DomainEvent.AUTOMATION_RULE_FIRED))
       return { kind, status: "skipped", detail: "webhook:notSubscribed" };
+    await claim({ kind, status: "applied" });
     await this.events.publish(DomainEvent.AUTOMATION_RULE_FIRED, {
       entityId: context.rule.id,
       payload: {

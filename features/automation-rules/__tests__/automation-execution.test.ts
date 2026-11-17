@@ -126,6 +126,7 @@ function context(trigger: Record<string, unknown> = { kind: "recordCreated", typ
     rule: { id: RULE, name: "Follow up", ownerUserId: OWNER, trigger: trigger as never },
     recordRef: { typeId: TYPE, recordId: RECORD },
     now: NOW,
+    admittedAt: NOW,
   };
 }
 
@@ -225,7 +226,7 @@ describe("automation effects", () => {
     const justAfterMidnightInBerlin = new Date("2026-11-12T23:30:00.000Z");
     const dueDay = async (trigger: Record<string, unknown>) => {
       const { records, runner } = ports();
-      await runner.run([effect], { ...context(trigger), now: justAfterMidnightInBerlin });
+      await runner.run([effect], { ...context(trigger), admittedAt: justAfterMidnightInBerlin });
       const call = records.mutate.mock.calls[0]?.[0] as { mutation: { fields: unknown[] } };
       return call.mutation.fields;
     };
@@ -436,6 +437,94 @@ describe("automation effects", () => {
     expect(outcomes[0]).toEqual({ kind: "setField", status: "failed", detail: "unexpectedError" });
     expect(failure).toBe("unexpectedError");
   });
+
+  const setStage = { kind: "setField" as const, fields: [{ fieldId: STAGE, value: null }] };
+  const tellOwner = {
+    ...notify,
+    recipients: { ruleOwner: true, assignees: false, userIds: [] },
+    notificationKind: "ruleAlert" as const,
+  };
+
+  it("continues after the effects an earlier attempt of the same run settled", async () => {
+    const { records, notifications, runner } = ports();
+    const save = vi.fn().mockResolvedValue(undefined);
+    const done = [{ kind: "setField" as const, status: "applied" as const }];
+    const { outcomes, failure } = await runner.run([setStage, tellOwner] as never, context(), { done, save });
+    expect(failure).toBeNull();
+    expect(records.mutate).not.toHaveBeenCalled();
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+    expect(outcomes.map((outcome) => [outcome.kind, outcome.status])).toEqual([
+      ["setField", "applied"],
+      ["notify", "applied"],
+    ]);
+    expect(save).toHaveBeenLastCalledWith(outcomes);
+  });
+
+  it("tries a failed effect of an earlier attempt again, and one that is no longer the same step", async () => {
+    const { records, notifications, runner } = ports();
+    const save = vi.fn().mockResolvedValue(undefined);
+    const failed = [
+      { kind: "setField" as const, status: "failed" as const, detail: "unexpectedError" },
+      { kind: "notify" as const, status: "skipped" as const, detail: "previousEffectFailed" },
+    ];
+    await runner.run([setStage, tellOwner] as never, context(), { done: failed, save });
+    expect(records.mutate).toHaveBeenCalledTimes(1);
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+    const moved = [{ kind: "notify" as const, status: "applied" as const }];
+    await runner.run([setStage, tellOwner] as never, context(), { done: moved, save });
+    expect(records.mutate).toHaveBeenCalledTimes(2);
+  });
+
+  it("counts a write that is refused for its own receipt as applied and goes on", async () => {
+    const { records, notifications, runner } = ports();
+    records.mutate.mockResolvedValue({ ok: false, message: "Idempotency key reused", alreadyApplied: true });
+    const create = { kind: "createRecord" as const, typeId: TASKS, fields: [], assignedUserIds: [] };
+    const { outcomes, failure } = await runner.run([setStage, create, tellOwner] as never, context());
+    expect(failure).toBeNull();
+    expect(outcomes.map((outcome) => outcome.status)).toEqual(["applied", "applied", "applied"]);
+    expect(records.mutate).toHaveBeenCalledTimes(2);
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+  });
+
+  it("publishes the rule event at most once per run and effect", async () => {
+    const { events, runner } = ports();
+    const calls: string[] = [];
+    const stored: Array<{ kind: string; status: string }[]> = [];
+    const save = vi.fn((outcomes: Array<{ kind: string; status: string }>) => {
+      calls.push("save");
+      stored.push(outcomes);
+      return Promise.resolve();
+    });
+    events.publish.mockImplementation(() => {
+      calls.push("publish");
+      return Promise.resolve();
+    });
+    const effect = { kind: "callWebhook" as const, webhookId: WEBHOOK };
+    await runner.run([effect], context(), { done: [], save });
+    expect(calls).toEqual(["save", "publish", "save"]);
+    expect(stored[0]).toEqual([{ kind: "callWebhook", status: "applied" }]);
+    await runner.run([effect], context(), { done: stored[0] as never, save });
+    expect(events.publish).toHaveBeenCalledTimes(1);
+  });
+
+  it("counts a due date from the time the run was admitted, not from the attempt", async () => {
+    const { records, runner } = ports();
+    const effect = {
+      kind: "createRecord" as const,
+      typeId: TASKS,
+      fields: [],
+      assignedUserIds: [],
+      due: { fieldId: NEXT_STEP, offsetDays: 2 },
+    };
+    const admittedAt = new Date("2026-11-12T07:40:00.000Z");
+    for (const now of [NOW, new Date(NOW.getTime() + 11 * 60 * 1000)])
+      await runner.run([effect] as never, { ...context(), now, admittedAt });
+    const dues = records.mutate.mock.calls.map(([input]) => input.mutation.fields.at(-1));
+    expect(dues).toEqual([
+      { fieldId: NEXT_STEP, value: { kind: "dateTime", value: "2026-11-14T07:40:00.000Z" } },
+      { fieldId: NEXT_STEP, value: { kind: "dateTime", value: "2026-11-14T07:40:00.000Z" } },
+    ]);
+  });
 });
 
 function seedRun(repo: FakeAutomationRuleRepo, ruleOverrides: Record<string, unknown> = {}) {
@@ -500,6 +589,50 @@ describe("running a rule", () => {
       repo.runs.set(runId, { ...stuck, status: "running", startedAt: new Date(NOW.getTime() - 11 * 60 * 1000) });
     const { interactor: instance } = interactor();
     await expect(run(instance, runId)).resolves.toEqual({ ok: true, data: { status: "applied" } });
+  });
+
+  it("finishes a reclaimed run whose own first effect made its conditions untrue", async () => {
+    const runId = (await seedRun(repo, {
+      conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } }],
+      triggerKind: "dateReached",
+      trigger: {
+        kind: "dateReached",
+        typeId: TYPE,
+        fieldId: CLOSES,
+        days: 1,
+        direction: "before",
+        atHour: 8,
+        timezone: "UTC",
+      },
+      effects: [
+        { kind: "setField", fields: [{ fieldId: STAGE, value: { kind: "select", value: "lost" } }] },
+        { ...notify, recipients: { ruleOwner: true, assignees: false, userIds: [] }, notificationKind: "ruleAlert" },
+      ],
+    })) as string;
+    const lost = view({
+      values: new Map<string, CalculatedValue>([[STAGE, { state: "value", value: { kind: "select", value: "lost" } }]]),
+    });
+    const fresh = interactor(lost);
+    await expect(run(fresh.interactor, runId)).resolves.toEqual({ ok: true, data: { status: "skipped" } });
+
+    const stuck = repo.runs.get(runId);
+    if (!stuck) throw new Error("expected the run");
+    repo.runs.set(runId, {
+      ...stuck,
+      status: "running",
+      startedAt: new Date(NOW.getTime() - 11 * 60 * 1000),
+      outcome: { effects: [{ kind: "setField", status: "applied" }] },
+    });
+    const reclaimed = interactor(lost);
+    await expect(run(reclaimed.interactor, runId)).resolves.toEqual({ ok: true, data: { status: "applied" } });
+    expect(reclaimed.records.mutate).not.toHaveBeenCalled();
+    expect(reclaimed.notifications.notify).toHaveBeenCalledTimes(1);
+    expect(repo.runs.get(runId)?.outcome).toMatchObject({
+      effects: [
+        { kind: "setField", status: "applied" },
+        { kind: "notify", status: "applied" },
+      ],
+    });
   });
 
   it("skips when the conditions are not met", async () => {

@@ -4,7 +4,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { AutomationEffectRunner } from "./automation-effect-runner";
 import type { AutomationRecordPort, AutomationRecordView } from "./automation-ports";
-import type { AutomationRuleRepo, StoredAutomationRule } from "./automation-rule.repo";
+import type { AutomationRuleRepo, StoredAutomationRule, StoredAutomationRuleRun } from "./automation-rule.repo";
 import type { AutomationEffectOutcome, AutomationTrigger } from "./automation-rule.schema";
 
 import { Resource } from "@/generated/prisma";
@@ -21,6 +21,7 @@ import { currentDateValue } from "./automation-occurrence";
 import { ruleConditionPlan } from "./automation-record-trigger";
 import {
   AutomationConditionSchema,
+  AutomationEffectOutcomeSchema,
   AutomationEffectSchema,
   AutomationTriggerSchema,
   automationTimeZone,
@@ -36,6 +37,8 @@ const RunPayloadSchema = z.looseObject({
   routineDepth: z.number().int().nonnegative().optional(),
   fieldValue: z.string().optional(),
 });
+
+const RunProgressSchema = z.looseObject({ effects: z.array(AutomationEffectOutcomeSchema) });
 
 function admittedDateChanged(
   trigger: AutomationTrigger,
@@ -98,11 +101,7 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     return { ok: true as const, data: { status: settlement.status } };
   }
 
-  private async execute(
-    run: { id: string; typeId: string | null; recordId: string | null; payload: unknown },
-    rule: StoredAutomationRule | null,
-    now: Date,
-  ): Promise<Settlement> {
+  private async execute(run: StoredAutomationRuleRun, rule: StoredAutomationRule | null, now: Date): Promise<Settlement> {
     if (!rule || !rule.enabled) return { status: "skipped", reason: "ruleDisabled" };
     if (rule.ownerUserId !== this.user.id) return { status: "skipped", reason: "ownerChanged" };
     if (!roleCanRead(this.user.role, Resource.routines)) return { status: "skipped", reason: "ownerNotPermitted" };
@@ -114,14 +113,19 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     const model = await this.records.model();
     if (automationModelIssues(definition, model).length > 0) return { status: "failed", error: "ruleInvalid" };
     const { chain: parentChain, routineDepth, fieldValue } = RunPayloadSchema.parse(run.payload ?? {});
-    if (recordRef) {
-      const record = await this.records.read(recordRef);
-      if (!record) return { status: "skipped", reason: "recordUnavailable" };
-      if (admittedDateChanged(definition.trigger, model, record, fieldValue))
-        return { status: "skipped", reason: "dateChanged" };
-      const { residual } = ruleConditionPlan(definition.trigger, definition.conditions, model);
-      if (!evaluateConditions(residual, record.values, { now, timeZone }))
-        return { status: "skipped", reason: "conditionsNotMet" };
+    const progress = RunProgressSchema.safeParse(run.outcome);
+    const companyId = this.user.companyId;
+    if (!progress.success) {
+      if (recordRef) {
+        const record = await this.records.read(recordRef);
+        if (!record) return { status: "skipped", reason: "recordUnavailable" };
+        if (admittedDateChanged(definition.trigger, model, record, fieldValue))
+          return { status: "skipped", reason: "dateChanged" };
+        const { residual } = ruleConditionPlan(definition.trigger, definition.conditions, model);
+        if (!evaluateConditions(residual, record.values, { now, timeZone }))
+          return { status: "skipped", reason: "conditionsNotMet" };
+      }
+      await this.repo.saveRunProgressUnscoped(companyId, run.id, { effects: [] });
     }
     const { outcomes, failure } = await runInCausation(
       {
@@ -129,13 +133,21 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
         ...(routineDepth === undefined ? {} : { routineDepth }),
       },
       () =>
-        this.runner.run(definition.effects, {
-          companyId: this.user.companyId,
-          runId: run.id,
-          rule: { id: rule.id, name: rule.name, ownerUserId: this.user.id, trigger: definition.trigger },
-          recordRef,
-          now,
-        }),
+        this.runner.run(
+          definition.effects,
+          {
+            companyId,
+            runId: run.id,
+            rule: { id: rule.id, name: rule.name, ownerUserId: this.user.id, trigger: definition.trigger },
+            recordRef,
+            now,
+            admittedAt: run.createdAt,
+          },
+          {
+            done: progress.success ? progress.data.effects : [],
+            save: (effects) => this.repo.saveRunProgressUnscoped(companyId, run.id, { effects }),
+          },
+        ),
     );
     return failure === null
       ? { status: "applied", effects: outcomes }

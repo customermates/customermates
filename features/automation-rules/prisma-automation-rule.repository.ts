@@ -281,6 +281,14 @@ export class PrismaAutomationRuleRepo
   }
 
   @BypassTenantGuard
+  async saveRunProgressUnscoped(companyId: string, runId: string, outcome: Prisma.InputJsonValue): Promise<void> {
+    await this.prisma.automationRuleRun.updateMany({
+      where: { id: runId, companyId, status: AutomationRunStatus.running },
+      data: { outcome },
+    });
+  }
+
+  @BypassTenantGuard
   async settleRunUnscoped(settlement: AutomationRunSettlement): Promise<void> {
     await this.prisma.automationRuleRun.updateMany({
       where: { id: settlement.runId, companyId: settlement.companyId, status: AutomationRunStatus.running },

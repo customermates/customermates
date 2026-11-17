@@ -28,7 +28,21 @@ describe("record automation port", () => {
       message: "This record changed.",
       params: { error: CustomErrorCode.recordVersionChanged },
     }).mutate({ idempotencyKey: "rule:run:0", mutation: MUTATION });
-    expect(result).toEqual({ ok: false, message: "This record changed.", versionChanged: true });
+    expect(result).toEqual({
+      ok: false,
+      message: "This record changed.",
+      versionChanged: true,
+      alreadyApplied: false,
+    });
+  });
+
+  it("marks a write refused for its own receipt as already applied", async () => {
+    const result = await port({
+      code: "custom",
+      message: "This key was used for another request.",
+      params: { error: CustomErrorCode.recordIdempotencyConflict },
+    }).mutate({ idempotencyKey: "rule:run:0", mutation: MUTATION });
+    expect(result).toMatchObject({ ok: false, versionChanged: false, alreadyApplied: true });
   });
 
   it("does not mark any other refusal as a changed version", async () => {
@@ -37,7 +51,7 @@ describe("record automation port", () => {
       message: "Not allowed.",
       params: { error: CustomErrorCode.recordProtected },
     }).mutate({ idempotencyKey: "rule:run:0", mutation: MUTATION });
-    expect(result).toEqual({ ok: false, message: "Not allowed.", versionChanged: false });
+    expect(result).toEqual({ ok: false, message: "Not allowed.", versionChanged: false, alreadyApplied: false });
   });
 
   it("returns the refs of a completed write", async () => {

@@ -48,10 +48,12 @@ export class RecordAutomationPort implements AutomationRecordPort {
     });
     if (!result.ok) {
       const issue = result.error.issues[0];
+      const code = issue?.code === "custom" ? issue.params?.error : undefined;
       return {
         ok: false,
         message: issue?.message ?? "mutationFailed",
-        versionChanged: issue?.code === "custom" && issue.params?.error === CustomErrorCode.recordVersionChanged,
+        versionChanged: code === CustomErrorCode.recordVersionChanged,
+        alreadyApplied: code === CustomErrorCode.recordIdempotencyConflict,
       };
     }
     if (result.data.status !== "completed") return { ok: false, message: "mutationPending" };

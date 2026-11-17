@@ -201,6 +201,13 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve(true);
   }
 
+  saveRunProgressUnscoped(_companyId: string, runId: string, outcome: unknown) {
+    const run = this.runs.get(runId);
+    if (run?.status === "running")
+      this.runs.set(runId, { ...run, outcome: structuredClone(outcome) as StoredAutomationRuleRun["outcome"] });
+    return Promise.resolve();
+  }
+
   settleRunUnscoped(settlement: AutomationRunSettlement) {
     const run = this.runs.get(settlement.runId);
     if (run?.status === "running") {
