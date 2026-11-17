@@ -16,6 +16,7 @@ import { randomUUID } from "node:crypto";
 import { AgentJobStatus, Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 import {
   AGENT_JOB_ERROR_QUEUE_EXPIRED,
@@ -118,9 +119,22 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }
 
   @BypassTenantGuard
-  async claimUnscoped(claim: AgentJobClaim): Promise<StoredAgentJob | null> {
+  claimUnscoped(claim: AgentJobClaim): Promise<StoredAgentJob | null> {
+    if (claim.hostedLimit === undefined) return this.claim(claim);
+    return runInTransaction(
+      async () => {
+        const lock = `customermates:agent-job-claim:${claim.companyId}`;
+        await this.prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lock}, 0))`;
+        return this.claim(claim);
+      },
+      { lockCompany: false },
+    );
+  }
+
+  private async claim(claim: AgentJobClaim): Promise<StoredAgentJob | null> {
     const jobId = claim.jobId ?? null;
     const runnerId = claim.runnerId ?? null;
+    const hostedLimit = claim.hostedLimit ?? null;
     const rows = await this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
       WITH claimable AS MATERIALIZED (
         SELECT j."id" FROM "AgentJob" j
@@ -129,6 +143,15 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
           AND j."status" = 'queued'
           AND (${jobId}::text IS NULL OR j."id" = ${jobId})
           AND (${runnerId}::text IS NULL OR j."pinnedRunnerId" IS NULL OR j."pinnedRunnerId" = ${runnerId})
+          AND (
+            ${hostedLimit}::int IS NULL
+            OR (
+              SELECT count(*) FROM "AgentJob" live
+              WHERE live."companyId" = ${claim.companyId}
+                AND live."runtime" IN ('mate', 'ownKey')
+                AND live."status" IN ('claimed', 'running')
+            ) < ${hostedLimit}::int
+          )
         ORDER BY j."createdAt" ASC, j."id" ASC
         LIMIT 1
         FOR UPDATE SKIP LOCKED

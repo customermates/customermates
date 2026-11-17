@@ -272,6 +272,79 @@ describeDatabase("PrismaAgentJobRepo", () => {
     expect(await row(job.id)).toMatchObject({ status: "claimed", attempts: 1 });
   });
 
+  it("claims at most the given number of hosted jobs of one workspace at a time, also when claims race", async () => {
+    const workspace = randomUUID();
+    const owner = randomUUID();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [workspace]);
+    await client.query(
+      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+       VALUES ($1, $2, 'Agent', 'Owner', $3, 'active'::"Status", CURRENT_TIMESTAMP)`,
+      [owner, `agent-${owner}@example.invalid`, workspace],
+    );
+    const queue = (runtime: "ownKey" | "mate" | "runner") =>
+      runWithTenant(createMockUser({ id: owner, companyId: workspace }), () =>
+        repo().enqueue({
+          runtime,
+          sourceKind: "automation",
+          sourceId: randomUUID(),
+          idempotencyKey: null,
+          ruleChain: [],
+          ownerUserId: owner,
+          prompt: "Summarise the deal",
+          promptUntrusted: false,
+          model: null,
+          pinnedRunnerId: null,
+        }),
+      );
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const timeoutAt = new Date(now.getTime() + HOUR);
+    const claim = (job: { id: string; runtime: "ownKey" | "mate" | "runner" }, hostedLimit?: number) =>
+      repo().claimUnscoped({
+        companyId: workspace,
+        runtime: job.runtime,
+        jobId: job.id,
+        now,
+        timeoutAt,
+        ...(hostedLimit === undefined ? {} : { hostedLimit }),
+      });
+
+    try {
+      const first = await queue("ownKey");
+      const second = await queue("mate");
+      expect(await claim(first, 3)).toMatchObject({ id: first.id, status: "claimed" });
+      expect(await claim(second, 3)).toMatchObject({ id: second.id, status: "claimed" });
+      await repo().startUnscoped({ id: second.id, companyId: workspace, attempt: 1, now, timeoutAt });
+
+      const racing = await Promise.all([queue("ownKey"), queue("ownKey"), queue("mate"), queue("ownKey")]);
+      const won = (await Promise.all(racing.map((job) => claim(job, 3)))).filter(Boolean);
+      expect(won).toHaveLength(1);
+      const waiting = racing.filter((job) => job.id !== won[0]?.id);
+      for (const job of waiting) expect(await row(job.id)).toMatchObject({ status: "queued", attempts: 0 });
+
+      const onRunner = await queue("runner");
+      expect(await claim(onRunner)).toMatchObject({ id: onRunner.id, status: "claimed" });
+      const elsewhere = await enqueue();
+      await repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: elsewhere.id, now, timeoutAt });
+
+      expect(await claim(waiting[0], 3)).toBeNull();
+      await repo().finishUnscoped({
+        id: first.id,
+        companyId: workspace,
+        status: "succeeded",
+        result: null,
+        error: null,
+        inputTokens: null,
+        outputTokens: null,
+        costMicrocents: null,
+        now,
+      });
+      expect(await claim(waiting[0], 3)).toMatchObject({ id: waiting[0].id, status: "claimed", attempts: 1 });
+      expect(await claim(waiting[1], 3)).toBeNull();
+    } finally {
+      await client.query('DELETE FROM "Company" WHERE "id" = $1', [workspace]);
+    }
+  });
+
   it("never claims another workspace's job or a job of another runtime", async () => {
     const other = await enqueue({}, otherCompanyId);
     const own = await enqueue({ runtime: "mate" });

@@ -106,7 +106,13 @@ export class FakeAgentJobRepo implements AgentJobRepo {
         (!claim.jobId || candidate.id === claim.jobId) &&
         (!claim.runnerId || !candidate.pinnedRunnerId || candidate.pinnedRunnerId === claim.runnerId),
     );
-    if (!job) return Promise.resolve(null);
+    const liveHosted = [...this.jobs.values()].filter(
+      (candidate) =>
+        candidate.companyId === claim.companyId &&
+        candidate.runtime !== "runner" &&
+        ["claimed", "running"].includes(candidate.status),
+    ).length;
+    if (!job || (claim.hostedLimit !== undefined && liveHosted >= claim.hostedLimit)) return Promise.resolve(null);
     const claimed = {
       ...job,
       status: "claimed" as const,

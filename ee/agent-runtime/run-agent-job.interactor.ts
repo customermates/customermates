@@ -22,6 +22,7 @@ import { agentProviderKeyBinding } from "@/ee/agent-keys/agent-provider-key-bind
 import { agentStepProvider, chooseAgentProviderModel } from "@/ee/agent-keys/agent-provider-models";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
+  AGENT_JOB_MAX_HOSTED_RUNNING_PER_WORKSPACE,
   AGENT_JOB_MAX_TOOL_CALLS,
   AGENT_JOB_MAX_WALL_MS,
   AGENT_JOB_TRANSCRIPT_MAX_EVENTS,
@@ -107,6 +108,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       companyId,
       runtime: job.runtime,
       jobId,
+      hostedLimit: AGENT_JOB_MAX_HOSTED_RUNNING_PER_WORKSPACE,
       now: started,
       timeoutAt,
     });

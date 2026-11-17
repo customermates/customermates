@@ -61,6 +61,7 @@ export type AgentJobClaim = {
   runtime: AgentRuntime;
   jobId?: string;
   runnerId?: string;
+  hostedLimit?: number;
   now: Date;
   timeoutAt: Date;
 };

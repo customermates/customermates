@@ -36,6 +36,7 @@ import type { AgentJobLoopOutcome } from "../run-agent-job-loop";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { sealSecret } from "@/core/security/secret-box";
 import { FakeAgentJobRepo } from "@/features/agent-jobs/__tests__/fake-agent-job-repo";
+import { AGENT_JOB_MAX_HOSTED_RUNNING_PER_WORKSPACE } from "@/features/agent-jobs/agent-job.schema";
 import { FakeAgentProviderKeyRepo } from "@/ee/agent-keys/__tests__/fake-agent-provider-key-repo";
 import { agentProviderKeyBinding } from "@/ee/agent-keys/agent-provider-key-binding";
 import { RunAgentJobInteractor } from "../run-agent-job.interactor";
@@ -152,6 +153,35 @@ describe("running an agent job on the workspace's own key", () => {
     });
     expect(jobs.events.get(job.id)?.map((event) => (event as { type: string }).type)).toEqual(["message", "finish"]);
     expect([...keys.rows.values()][0].lastUsedAt).toEqual(NOW);
+  });
+
+  it("leaves a job queued while five hosted jobs of the workspace run, and runs it once one of them is done", async () => {
+    const { jobs, loop, run } = await world();
+    const busy = Array.from({ length: AGENT_JOB_MAX_HOSTED_RUNNING_PER_WORKSPACE }, (_, index) =>
+      jobs.add({ runtime: index % 2 ? "mate" : "ownKey", status: index % 2 ? "running" : "claimed", attempts: 1 }),
+    );
+    jobs.add({ runtime: "runner", status: "running", attempts: 1 });
+    jobs.add({ runtime: "ownKey", status: "running", attempts: 1, companyId: "00000000-0000-4000-8000-0000000000ff" });
+    const job = jobs.add({ runtime: "ownKey" });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "skipped" } });
+    expect(jobs.jobs.get(job.id)).toMatchObject({ status: "queued", attempts: 0, startedAttempts: 0 });
+    expect(loop).not.toHaveBeenCalled();
+
+    await jobs.finishUnscoped({
+      id: busy[0].id,
+      companyId: COMPANY,
+      status: "succeeded",
+      result: null,
+      error: null,
+      inputTokens: null,
+      outputTokens: null,
+      costMicrocents: null,
+      now: NOW,
+    });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+    expect(loop).toHaveBeenCalledTimes(1);
   });
 
   it("does not run a job a second time whose first run started and then timed out", async () => {
