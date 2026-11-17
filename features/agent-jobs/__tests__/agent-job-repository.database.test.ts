@@ -338,7 +338,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
 
     expect(await claimAs(runnerId, past)).toMatchObject({ id: open.id, runnerId });
     expect(await claimAs(runnerId, past)).toMatchObject({ id: pinned.id, runnerId });
-    await repo().sweepTimeoutsUnscoped({ now, maxAttempts: 2, limit: 500 });
+    await repo().sweepTimeoutsUnscoped({ now, limit: 500 });
 
     expect(await row(open.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: null });
     expect(await row(pinned.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: runnerId });
@@ -532,7 +532,6 @@ describeDatabase("PrismaAgentJobRepo", () => {
 
     const first = await claim();
     expect(first?.attempts).toBe(1);
-    await repo().startUnscoped({ id: job.id, companyId, attempt: 1, now, timeoutAt });
     await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 1, events: [event("first")], maxEvents: 10 });
     await age(job.id, { status: "queued" });
     const second = await claim();
@@ -563,7 +562,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
     );
     expect(await repo().finishUnscoped({ ...finish, attempt: 2 })).toBe(true);
     const stored = (await row(job.id)).transcript as Array<{ type: string; text?: string }>;
-    expect(stored.map((entry) => entry.text ?? entry.type)).toEqual(["first", "attempt", "second"]);
+    expect(stored.map((entry) => entry.text ?? entry.type)).toEqual(["first", "second"]);
   });
 
   it("keeps every event when transcript appends arrive at the same time", async () => {
@@ -633,29 +632,33 @@ describeDatabase("PrismaAgentJobRepo", () => {
     expect(await row(running.id)).toMatchObject({ status: "claimed" });
   });
 
-  it("re-queues an expired job once and then marks it timed out, leaving live ones alone", async () => {
+  it("marks an expired job whose attempt started as timed out, hosted or on a runner, leaving live ones alone", async () => {
     const now = new Date("2026-11-17T12:00:00.000Z");
     const past = new Date(now.getTime() - HOUR);
     const future = new Date(now.getTime() + HOUR);
-    const firstTry = await enqueue();
-    const secondTry = await enqueue();
+    const hosted = await enqueue();
+    const onRunner = await enqueue({ runtime: "runner" });
     const live = await enqueue();
     const queued = await enqueue();
-    await age(firstTry.id, { status: "running", attempts: 1, startedAttempts: 1, timeoutAt: past });
-    await age(secondTry.id, { status: "running", attempts: 2, startedAttempts: 2, timeoutAt: past });
+    await age(hosted.id, { status: "running", attempts: 1, startedAttempts: 1, timeoutAt: past });
+    await age(onRunner.id, { status: "running", attempts: 2, startedAttempts: 1, timeoutAt: past });
     await age(live.id, { status: "running", attempts: 1, startedAttempts: 1, timeoutAt: future });
 
-    const swept = await repo().sweepTimeoutsUnscoped({ now, maxAttempts: 2, limit: 100 });
-    const mine = swept.filter((job) => [firstTry.id, secondTry.id, live.id, queued.id].includes(job.id));
+    const swept = await repo().sweepTimeoutsUnscoped({ now, limit: 100 });
+    const mine = swept.filter((job) => [hosted.id, onRunner.id, live.id, queued.id].includes(job.id));
     expect(mine.map((job) => [job.id, job.requeued, job.runtime, job.attempts, job.started]).sort()).toEqual(
       [
-        [firstTry.id, true, "ownKey", 1, true],
-        [secondTry.id, false, "ownKey", 2, true],
+        [hosted.id, false, "ownKey", 1, true],
+        [onRunner.id, false, "runner", 2, true],
       ].sort(),
     );
-    expect(await row(firstTry.id)).toMatchObject({ status: "queued", timeoutAt: null, queuedAt: now });
-    expect(await row(secondTry.id)).toMatchObject({ status: "timedOut", error: "timedOut" });
-    expect((await row(secondTry.id)).finishedAt).not.toBeNull();
+    for (const job of [hosted, onRunner]) {
+      expect(await row(job.id)).toMatchObject({ status: "timedOut", error: "timedOut", timeoutAt: null });
+      expect((await row(job.id)).finishedAt).toEqual(now);
+    }
+    expect(await repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: hosted.id, now, timeoutAt: future })).toBe(
+      null,
+    );
     expect(await row(live.id)).toMatchObject({ status: "running" });
     expect(await row(queued.id)).toMatchObject({ status: "queued" });
   });
@@ -669,9 +672,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
     const claim = (at: Date, timeoutAt: Date) =>
       repo().claimUnscoped({ companyId, runtime: "runner", jobId: job.id, runnerId, now: at, timeoutAt });
     const sweep = async (at: Date) =>
-      (await repo().sweepTimeoutsUnscoped({ now: at, maxAttempts: 2, limit: 500 })).find(
-        (swept) => swept.id === job.id,
-      );
+      (await repo().sweepTimeoutsUnscoped({ now: at, limit: 500 })).find((swept) => swept.id === job.id);
 
     for (const attempt of [1, 2, 3]) {
       expect(await claim(queuedAt, confirmBy)).toMatchObject({ attempts: attempt, startedAttempts: 0 });
@@ -680,18 +681,17 @@ describeDatabase("PrismaAgentJobRepo", () => {
     }
 
     const later = new Date(now.getTime() + HOUR);
-    for (const started of [1, 2]) {
-      const claimed = await claim(now, later);
-      expect(
-        await repo().startUnscoped({ id: job.id, companyId, attempt: claimed?.attempts, now, timeoutAt: now }),
-      ).toBe(true);
-      expect(await row(job.id)).toMatchObject({ status: "running", attempts: 3 + started, startedAttempts: started });
-      expect(await sweep(later)).toMatchObject({ requeued: started === 1, started: true });
-    }
-    expect(await row(job.id)).toMatchObject({ status: "timedOut", attempts: 5, startedAttempts: 2 });
+    const claimed = await claim(now, later);
+    expect(await repo().startUnscoped({ id: job.id, companyId, attempt: claimed?.attempts, now, timeoutAt: now })).toBe(
+      true,
+    );
+    expect(await row(job.id)).toMatchObject({ status: "running", attempts: 4, startedAttempts: 1 });
+    expect(await sweep(later)).toMatchObject({ requeued: false, started: true });
+    expect(await row(job.id)).toMatchObject({ status: "timedOut", attempts: 4, startedAttempts: 1 });
+    expect(await claim(later, later)).toBeNull();
   });
 
-  it("marks the transcript where a further attempt starts and keeps the events before it", async () => {
+  it("never starts a job twice, also when a started job were to reach the queue again", async () => {
     const now = new Date("2026-11-17T12:00:00.000Z");
     const later = new Date(now.getTime() + HOUR);
     const job = await enqueue();
@@ -699,21 +699,18 @@ describeDatabase("PrismaAgentJobRepo", () => {
       repo().claimUnscoped({ companyId, runtime: "ownKey", jobId: job.id, now: at, timeoutAt: at });
     const start = (attempt: number, at: Date) =>
       repo().startUnscoped({ id: job.id, companyId, attempt, now: at, timeoutAt: at });
-    const first = { type: "message", at: now.toISOString(), role: "user", text: "Summarise the deal" };
 
     await claim(now);
     expect(await start(1, now)).toBe(true);
-    expect((await row(job.id)).transcript).toBeNull();
-    await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 1, events: [first], maxEvents: 200 });
-    await repo().sweepTimeoutsUnscoped({ now: later, maxAttempts: 2, limit: 500 });
-
+    expect(await start(1, now)).toBe(false);
+    await age(job.id, { status: "queued" });
     await claim(later);
-    expect(await start(1, later)).toBe(false);
-    expect(await start(2, later)).toBe(true);
-    const marked = [first, { type: "attempt", at: later.toISOString(), attempt: 2 }];
-    expect(await row(job.id)).toMatchObject({ status: "running", startedAttempts: 2, transcript: marked });
     expect(await start(2, later)).toBe(false);
-    expect((await row(job.id)).transcript).toEqual(marked);
+    expect(await row(job.id)).toMatchObject({ status: "claimed", attempts: 2, startedAttempts: 1 });
+
+    const swept = await repo().sweepTimeoutsUnscoped({ now: new Date(later.getTime() + HOUR), limit: 500 });
+    expect(swept.find((entry) => entry.id === job.id)).toMatchObject({ requeued: false, started: true });
+    expect(await row(job.id)).toMatchObject({ status: "timedOut", transcript: null });
   });
 
   it("finds the hosted jobs that have waited in the queue past a moment, oldest first", async () => {

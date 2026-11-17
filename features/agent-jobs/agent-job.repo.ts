@@ -120,11 +120,7 @@ export abstract class AgentJobRepo {
     attempt: number;
   }): Promise<boolean>;
   abstract discardQueuedUnscoped(args: { id: string; companyId: string; error: string; now: Date }): Promise<boolean>;
-  abstract sweepTimeoutsUnscoped(args: {
-    now: Date;
-    maxAttempts: number;
-    limit: number;
-  }): Promise<AgentJobSweepOutcome[]>;
+  abstract sweepTimeoutsUnscoped(args: { now: Date; limit: number }): Promise<AgentJobSweepOutcome[]>;
   abstract findStaleQueuedUnscoped(args: {
     runtimes: readonly AgentRuntime[];
     queuedBefore: Date;

@@ -6,7 +6,6 @@ import { AGENT_RUNTIMES, AUTOMATION_AGENT_PROMPT_MAX_CHARS } from "@/features/au
 
 export const AGENT_JOB_MAX_TOOL_CALLS = 25;
 export const AGENT_JOB_MAX_WALL_MS = 10 * 60 * 1000;
-export const AGENT_JOB_MAX_ATTEMPTS = 2;
 export const AGENT_JOB_PROMPT_MAX_CHARS = 4 * AUTOMATION_AGENT_PROMPT_MAX_CHARS;
 export const AGENT_JOB_HOSTED_RUNTIMES = ["mate", "ownKey"] as const;
 export const AGENT_JOB_QUEUED_REDISPATCH_MS = 2 * 60 * 1000;

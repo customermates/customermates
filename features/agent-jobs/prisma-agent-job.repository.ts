@@ -156,29 +156,22 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
     now: Date;
     timeoutAt: Date;
   }): Promise<boolean> {
-    const attempt = args.attempt ?? null;
-    const at = args.now.toISOString();
-    const updated = await this.prisma.$executeRaw(Prisma.sql`
-      UPDATE "AgentJob" job SET
-        "status" = 'running',
-        "startedAt" = ${args.now},
-        "timeoutAt" = ${args.timeoutAt},
-        "startedAttempts" = job."startedAttempts" + 1,
-        "transcript" = CASE
-          WHEN job."startedAttempts" >= 1 THEN
-            (CASE WHEN jsonb_typeof(job."transcript") = 'array' THEN job."transcript" ELSE '[]'::jsonb END)
-            || jsonb_build_array(
-              jsonb_build_object('type', 'attempt', 'at', ${at}::text, 'attempt', job."startedAttempts" + 1)
-            )
-          ELSE job."transcript"
-        END,
-        "updatedAt" = ${args.now}
-      WHERE job."id" = ${args.id}
-        AND job."companyId" = ${args.companyId}
-        AND job."status" = 'claimed'
-        AND (${attempt}::int IS NULL OR job."attempts" = ${attempt}::int)
-    `);
-    return updated === 1;
+    const result = await this.prisma.agentJob.updateMany({
+      where: {
+        id: args.id,
+        companyId: args.companyId,
+        status: AgentJobStatus.claimed,
+        startedAttempts: 0,
+        ...attemptFence(args.attempt),
+      },
+      data: {
+        status: AgentJobStatus.running,
+        startedAt: args.now,
+        timeoutAt: args.timeoutAt,
+        startedAttempts: { increment: 1 },
+      },
+    });
+    return result.count === 1;
   }
 
   @BypassTenantGuard
@@ -278,11 +271,7 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }
 
   @BypassTenantGuard
-  async sweepTimeoutsUnscoped(args: {
-    now: Date;
-    maxAttempts: number;
-    limit: number;
-  }): Promise<AgentJobSweepOutcome[]> {
+  async sweepTimeoutsUnscoped(args: { now: Date; limit: number }): Promise<AgentJobSweepOutcome[]> {
     const expired = await this.prisma.agentJob.findMany({
       where: { status: { in: LIVE_STATUSES }, timeoutAt: { lt: args.now } },
       select: {
@@ -299,22 +288,14 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
     });
     const outcomes: AgentJobSweepOutcome[] = [];
     for (const { status, startedAttempts, ...job } of expired) {
-      const started = status === AgentJobStatus.running;
-      const requeue = startedAttempts < args.maxAttempts;
+      const started = status === AgentJobStatus.running || startedAttempts > 0;
       const result = await this.prisma.agentJob.updateMany({
-        where: { id: job.id, companyId: job.companyId, status, timeoutAt: { lt: args.now } },
-        data: requeue
-          ? {
-              status: AgentJobStatus.queued,
-              ...(started ? { queuedAt: args.now } : {}),
-              runnerId: null,
-              claimedAt: null,
-              startedAt: null,
-              timeoutAt: null,
-            }
-          : { status: AgentJobStatus.timedOut, finishedAt: args.now, timeoutAt: null, error: "timedOut" },
+        where: { id: job.id, companyId: job.companyId, status, startedAttempts, timeoutAt: { lt: args.now } },
+        data: started
+          ? { status: AgentJobStatus.timedOut, finishedAt: args.now, timeoutAt: null, error: "timedOut" }
+          : { status: AgentJobStatus.queued, runnerId: null, claimedAt: null, timeoutAt: null },
       });
-      if (result.count === 1) outcomes.push({ ...job, started, requeued: requeue });
+      if (result.count === 1) outcomes.push({ ...job, started, requeued: !started });
     }
     return outcomes;
   }

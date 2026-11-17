@@ -127,13 +127,8 @@ export class FakeAgentJobRepo implements AgentJobRepo {
 
   startUnscoped(args: { id: string; companyId: string; attempt?: number; now?: Date }): Promise<boolean> {
     const job = this.live(args);
-    if (!job || job.status !== "claimed") return Promise.resolve(false);
-    const startedAttempts = job.startedAttempts + 1;
-    this.jobs.set(job.id, { ...job, status: "running", startedAttempts });
-    if (startedAttempts > 1) {
-      const marker = { type: "attempt", at: (args.now ?? new Date()).toISOString(), attempt: startedAttempts };
-      this.events.set(job.id, [...(this.events.get(job.id) ?? []), marker]);
-    }
+    if (!job || job.status !== "claimed" || job.startedAttempts > 0) return Promise.resolve(false);
+    this.jobs.set(job.id, { ...job, status: "running", startedAttempts: 1 });
     return Promise.resolve(true);
   }
 
@@ -188,17 +183,17 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return Promise.resolve(true);
   }
 
-  sweepTimeoutsUnscoped(args: { now: Date; maxAttempts: number }): Promise<AgentJobSweepOutcome[]> {
+  sweepTimeoutsUnscoped(args: { now: Date }): Promise<AgentJobSweepOutcome[]> {
     const outcomes: AgentJobSweepOutcome[] = [];
     for (const job of this.jobs.values()) {
       if (!["claimed", "running"].includes(job.status) || !job.timeoutAt || job.timeoutAt >= args.now) continue;
-      const started = job.status === "running";
-      const requeued = job.startedAttempts < args.maxAttempts;
+      const started = job.status === "running" || job.startedAttempts > 0;
+      const requeued = !started;
       this.jobs.set(
         job.id,
         requeued
-          ? { ...job, status: "queued", queuedAt: started ? args.now : job.queuedAt, runnerId: null, timeoutAt: null }
-          : { ...job, status: "timedOut", timeoutAt: null },
+          ? { ...job, status: "queued", runnerId: null, timeoutAt: null }
+          : { ...job, status: "timedOut", error: "timedOut", finishedAt: args.now, timeoutAt: null },
       );
       outcomes.push({
         id: job.id,
