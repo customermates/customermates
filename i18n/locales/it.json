@@ -1029,6 +1029,10 @@
         "false": "No",
         "true": "Sì"
       },
+      "channel": "Canale",
+      "channelAny": "Qualsiasi canale",
+      "channelChat": "Chat",
+      "channelEmail": "Email",
       "choose": "Scegli…",
       "dateField": "Campo data",
       "days": "Giorni",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Completa questa azione.",
       "fixTrigger": "Completa il trigger: scegli un campo e un valore valido.",
       "incomplete": "Questa automazione non è ancora completa.",
-      "keptEffect": "Questa azione ({kind}) non si può modificare qui e resta invariata.",
-      "keptTrigger": "Questo trigger non si può modificare qui e resta invariato.",
+      "keptCondition": "Questa condizione è stata impostata fuori dall’editor. Non si può modificare qui e resta invariata.",
+      "keptEffect": "Questa azione ({kind}) è stata impostata fuori dall’editor. Non si può modificare qui e resta invariata.",
+      "keptTrigger": "Questo trigger è stato impostato fuori dall’editor. Non si può modificare qui e resta invariato.",
+      "keptTriggerReplace": "Scegli un altro trigger",
       "linkTo": "Collega al record che l’ha attivata come",
       "list": "Elenco",
       "name": "Nome",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "è dopo oggi più",
+      "afterDate": "è dopo il",
       "before": "è prima di oggi più",
+      "beforeDate": "è prima del",
       "empty": "è vuoto",
       "equals": "è",
+      "in": "è uno tra",
       "notEmpty": "non è vuoto",
-      "notEquals": "non è"
+      "notEquals": "non è",
+      "notIn": "non è nessuno tra"
     },
     "outcome": {
       "applied": "eseguito",
@@ -1190,6 +1200,7 @@
       "switchOn": "Attiva",
       "then": "Allora",
       "webhook": "Webhook",
+      "webhookRestricted": "Il tuo ruolo non può vedere i webhook di questo spazio di lavoro, quindi questo passaggio mantiene il suo webhook.",
       "when": "Quando"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Parti da zero",
       "scratchBody": "Una catena vuota. Scegli un trigger, poi aggiungi passaggi.",
       "usesAgent": "Usa un agente"
+    },
+    "unavailable": {
+      "blockedStep": "«{step}» usa qualcosa che non è più disponibile. Scegli un’alternativa o rimuovi il passaggio.",
+      "blockedTrigger": "Il trigger usa qualcosa che non è più disponibile. Scegli un’alternativa.",
+      "field": "Un campo usato qui non è più disponibile. Scegline un altro.",
+      "item": "Non più disponibile",
+      "list": "La lista usata qui non è più disponibile. Scegline un’altra.",
+      "model": "Il modello scelto qui non è più disponibile. Scegline un altro.",
+      "option": "Un’opzione usata qui non è più disponibile. Scegline un’altra.",
+      "runner": "Il runner scelto qui non è più disponibile. Scegline un altro.",
+      "webhook": "Il webhook scelto qui è disattivato o non esiste più. Scegline un altro."
     }
   },
   "Booking": {

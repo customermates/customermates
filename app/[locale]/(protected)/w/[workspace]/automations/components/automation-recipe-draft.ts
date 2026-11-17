@@ -4,7 +4,7 @@ import type { RecipeText } from "@/components/automations/automation-recipe-text
 import type { AutomationBuilderList, AutomationBuilderModel } from "./automation-builder-model";
 import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger } from "./automation-draft";
 
-import { blankAgentEffect, blankEffect, emptyDraft } from "./automation-draft";
+import { blankAgentEffect, blankCondition, blankEffect, emptyDraft } from "./automation-draft";
 
 const DATE_TYPES = new Set(["date", "dateTime"]);
 
@@ -56,7 +56,14 @@ function draftTrigger(recipe: AutomationRecipe, base: DraftTrigger, bindings: Re
     case "stageChanged":
       return { ...base, kind: "fieldChanged", typeId, fieldId: bindings.stageFieldId, value: "" };
     case "stageUpdated":
-      return { ...base, kind: "recordUpdated", typeId, fieldId: bindings.stageFieldId, value: "" };
+      return {
+        ...base,
+        kind: "recordUpdated",
+        typeId,
+        fieldId: "",
+        fieldIds: bindings.stageFieldId ? [bindings.stageFieldId] : [],
+        value: "",
+      };
     case "dateReached":
       return {
         ...base,
@@ -111,11 +118,7 @@ export function recipeToDraft(
 ): AutomationDraft {
   const bindings = bindRecipe(recipe, model);
   const base = emptyDraft(model, { typeId: bindings.typeId || undefined, timezone: options.timezone });
-  const conditions: DraftCondition[] = recipe.conditions.map(() => ({
-    fieldId: bindings.reasonFieldId,
-    operator: "empty",
-    value: "",
-  }));
+  const conditions: DraftCondition[] = recipe.conditions.map(() => blankCondition(bindings.reasonFieldId, "empty"));
   return {
     ...base,
     name: options.text.title,

@@ -1029,6 +1029,10 @@
         "false": "Nein",
         "true": "Ja"
       },
+      "channel": "Kanal",
+      "channelAny": "Jeder Kanal",
+      "channelChat": "Chat",
+      "channelEmail": "E-Mail",
       "choose": "Auswählen …",
       "dateField": "Datumsfeld",
       "days": "Tage",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Vervollständige diese Aktion.",
       "fixTrigger": "Vervollständige den Auslöser: Wähle ein Feld und einen gültigen Wert.",
       "incomplete": "Diese Automatisierung ist noch nicht vollständig.",
-      "keptEffect": "Diese Aktion ({kind}) lässt sich hier nicht bearbeiten und bleibt unverändert.",
-      "keptTrigger": "Dieser Auslöser lässt sich hier nicht bearbeiten und bleibt unverändert.",
+      "keptCondition": "Diese Bedingung wurde außerhalb des Editors festgelegt. Sie lässt sich hier nicht bearbeiten und bleibt unverändert.",
+      "keptEffect": "Diese Aktion ({kind}) wurde außerhalb des Editors festgelegt. Sie lässt sich hier nicht bearbeiten und bleibt unverändert.",
+      "keptTrigger": "Dieser Auslöser wurde außerhalb des Editors festgelegt. Er lässt sich hier nicht bearbeiten und bleibt unverändert.",
+      "keptTriggerReplace": "Anderen Auslöser wählen",
       "linkTo": "Mit dem auslösenden Datensatz verknüpfen als",
       "list": "Liste",
       "name": "Name",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "liegt nach heute plus",
+      "afterDate": "liegt nach",
       "before": "liegt vor heute plus",
+      "beforeDate": "liegt vor",
       "empty": "ist leer",
       "equals": "ist",
+      "in": "ist eines von",
       "notEmpty": "ist nicht leer",
-      "notEquals": "ist nicht"
+      "notEquals": "ist nicht",
+      "notIn": "ist keines von"
     },
     "outcome": {
       "applied": "erledigt",
@@ -1190,6 +1200,7 @@
       "switchOn": "Einschalten",
       "then": "Dann",
       "webhook": "Webhook",
+      "webhookRestricted": "Deine Rolle darf die Webhooks dieses Arbeitsbereichs nicht sehen. Der Schritt behält deshalb seinen Webhook.",
       "when": "Wenn"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Von Grund auf neu",
       "scratchBody": "Eine leere Kette. Wähle einen Auslöser und füge dann Schritte hinzu.",
       "usesAgent": "Nutzt einen Agenten"
+    },
+    "unavailable": {
+      "blockedStep": "„{step}“ verwendet etwas, das nicht mehr verfügbar ist. Wähle einen Ersatz oder entferne den Schritt.",
+      "blockedTrigger": "Der Auslöser verwendet etwas, das nicht mehr verfügbar ist. Wähle einen Ersatz.",
+      "field": "Ein hier verwendetes Feld ist nicht mehr verfügbar. Wähle ein anderes.",
+      "item": "Nicht mehr verfügbar",
+      "list": "Die hier verwendete Liste ist nicht mehr verfügbar. Wähle eine andere.",
+      "model": "Das hier gewählte Modell ist nicht mehr verfügbar. Wähle ein anderes.",
+      "option": "Eine hier verwendete Option ist nicht mehr verfügbar. Wähle eine andere.",
+      "runner": "Der hier gewählte Runner ist nicht mehr verfügbar. Wähle einen anderen.",
+      "webhook": "Der hier gewählte Webhook ist ausgeschaltet oder existiert nicht mehr. Wähle einen anderen."
     }
   },
   "Booking": {

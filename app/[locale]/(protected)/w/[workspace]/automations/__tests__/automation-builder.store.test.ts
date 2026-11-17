@@ -29,6 +29,8 @@ const STAGE = "22222222-2222-4222-8222-222222222222";
 const CLOSE = "22222222-2222-4222-8222-444444444444";
 const TITLE = "22222222-2222-4222-8222-666666666666";
 const RULE = "00000000-0000-4000-8000-0000000000a1";
+const WEBHOOK = "66666666-6666-4666-8666-666666666666";
+const OTHER_WEBHOOK = "66666666-6666-4666-8666-777777777777";
 
 function field(id: string, typeId: string, valueType: string, extra: Record<string, unknown> = {}) {
   return {
@@ -236,6 +238,45 @@ describe("AutomationBuilderStore", () => {
     expect(store.isOpen).toBe(true);
     expect(onSaved).not.toHaveBeenCalled();
     expect(store.isLoading).toBe(false);
+  });
+
+  it("refuses to save a step whose webhook is gone, opens that card and leaves the rule untouched", async () => {
+    const rule = { ...SAVED, effects: [{ kind: "callWebhook", webhookId: WEBHOOK }] };
+    const store = makeStore();
+    store.openForRule({ ...CONTEXT, webhooks: [{ id: OTHER_WEBHOOK, label: "Other" }] }, rule as never, vi.fn());
+
+    expect(store.unavailable).toEqual([{ card: "effects.0", what: "webhook" }]);
+    expect(store.unavailableAt("effects.0")).toBe("webhook");
+    expect(await store.save()).toBe("unavailable");
+    expect(store.isFlagged("effects.0")).toBe(true);
+    expect(store.expanded).toBe("effect-0");
+    expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
+
+    store.setEffect(0, { kind: "callWebhook", webhookId: OTHER_WEBHOOK });
+    expect(store.unavailable).toEqual([]);
+  });
+
+  it("keeps a webhook step as it is for a member who may not see webhooks", async () => {
+    actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: SAVED });
+    const rule = { ...SAVED, effects: [{ kind: "callWebhook", webhookId: WEBHOOK }] };
+    const store = makeStore();
+    store.openForRule({ ...CONTEXT, webhooks: null }, rule as never, vi.fn());
+    store.setName("Renamed");
+
+    expect(store.unavailable).toEqual([]);
+    expect(await store.save()).toBe("saved");
+    expect(actions.upsertAutomationRuleAction).toHaveBeenCalledWith(
+      expect.objectContaining({ effects: [{ kind: "callWebhook", webhookId: WEBHOOK }] }),
+    );
+  });
+
+  it("starts a new condition with a comparison its field can be saved with", () => {
+    const { store } = open();
+    store.startFromScratch();
+
+    store.addCondition(0);
+
+    expect(store.form.conditions).toEqual([{ fieldId: NAME, operator: "equals", value: "", values: [], kept: null }]);
   });
 
   it("previews a date reminder once the trigger is complete, after a short delay", async () => {

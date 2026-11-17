@@ -1029,6 +1029,10 @@
         "false": "Não",
         "true": "Sim"
       },
+      "channel": "Canal",
+      "channelAny": "Qualquer canal",
+      "channelChat": "Chat",
+      "channelEmail": "E-mail",
       "choose": "Escolher…",
       "dateField": "Campo de data",
       "days": "Dias",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Complete esta ação.",
       "fixTrigger": "Complete o gatilho: escolha um campo e um valor válido.",
       "incomplete": "Esta automação ainda não está completa.",
-      "keptEffect": "Esta ação ({kind}) não pode ser editada aqui e permanece como está.",
-      "keptTrigger": "Este gatilho não pode ser editado aqui e permanece como está.",
+      "keptCondition": "Esta condição foi definida fora do editor. Ela não pode ser editada aqui e permanece como está.",
+      "keptEffect": "Esta ação ({kind}) foi definida fora do editor. Ela não pode ser editada aqui e permanece como está.",
+      "keptTrigger": "Este gatilho foi definido fora do editor. Ele não pode ser editado aqui e permanece como está.",
+      "keptTriggerReplace": "Escolher outro gatilho",
       "linkTo": "Vincular ao registro que a disparou como",
       "list": "Lista",
       "name": "Nome",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "é depois de hoje mais",
+      "afterDate": "é depois de",
       "before": "é antes de hoje mais",
+      "beforeDate": "é antes de",
       "empty": "está vazio",
       "equals": "é",
+      "in": "é um de",
       "notEmpty": "não está vazio",
-      "notEquals": "não é"
+      "notEquals": "não é",
+      "notIn": "não é nenhum de"
     },
     "outcome": {
       "applied": "concluído",
@@ -1190,6 +1200,7 @@
       "switchOn": "Ativar",
       "then": "Então",
       "webhook": "Webhook",
+      "webhookRestricted": "Sua função não pode ver os webhooks deste espaço de trabalho, então esta etapa mantém o webhook que já tem.",
       "when": "Quando"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Começar do zero",
       "scratchBody": "Uma cadeia vazia. Escolha um gatilho e depois adicione etapas.",
       "usesAgent": "Usa um agente"
+    },
+    "unavailable": {
+      "blockedStep": "“{step}” usa algo que não está mais disponível. Escolha uma alternativa ou remova a etapa.",
+      "blockedTrigger": "O gatilho usa algo que não está mais disponível. Escolha uma alternativa.",
+      "field": "Um campo usado aqui não está mais disponível. Escolha outro.",
+      "item": "Não está mais disponível",
+      "list": "A lista usada aqui não está mais disponível. Escolha outra.",
+      "model": "O modelo escolhido aqui não está mais disponível. Escolha outro.",
+      "option": "Uma opção usada aqui não está mais disponível. Escolha outra.",
+      "runner": "O runner escolhido aqui não está mais disponível. Escolha outro.",
+      "webhook": "O webhook escolhido aqui está desativado ou não existe mais. Escolha outro."
     }
   },
   "Booking": {

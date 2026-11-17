@@ -1029,6 +1029,10 @@
         "false": "Non",
         "true": "Oui"
       },
+      "channel": "Canal",
+      "channelAny": "Tous les canaux",
+      "channelChat": "Chat",
+      "channelEmail": "E-mail",
       "choose": "Choisir…",
       "dateField": "Champ de date",
       "days": "Jours",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Complétez cette action.",
       "fixTrigger": "Complétez le déclencheur : choisissez un champ et une valeur valide.",
       "incomplete": "Cette automatisation n’est pas encore complète.",
-      "keptEffect": "Cette action ({kind}) ne peut pas être modifiée ici et reste telle quelle.",
-      "keptTrigger": "Ce déclencheur ne peut pas être modifié ici et reste tel quel.",
+      "keptCondition": "Cette condition a été définie en dehors de l’éditeur. Elle ne peut pas être modifiée ici et reste telle quelle.",
+      "keptEffect": "Cette action ({kind}) a été définie en dehors de l’éditeur. Elle ne peut pas être modifiée ici et reste telle quelle.",
+      "keptTrigger": "Ce déclencheur a été défini en dehors de l’éditeur. Il ne peut pas être modifié ici et reste tel quel.",
+      "keptTriggerReplace": "Choisir un autre déclencheur",
       "linkTo": "Lier à l’enregistrement déclencheur comme",
       "list": "Liste",
       "name": "Nom",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "est après aujourd’hui plus",
+      "afterDate": "est après le",
       "before": "est avant aujourd’hui plus",
+      "beforeDate": "est avant le",
       "empty": "est vide",
       "equals": "est",
+      "in": "est parmi",
       "notEmpty": "n’est pas vide",
-      "notEquals": "n’est pas"
+      "notEquals": "n’est pas",
+      "notIn": "n’est pas parmi"
     },
     "outcome": {
       "applied": "effectué",
@@ -1190,6 +1200,7 @@
       "switchOn": "Activer",
       "then": "Alors",
       "webhook": "Webhook",
+      "webhookRestricted": "Votre rôle ne permet pas de voir les webhooks de cet espace de travail. Cette étape conserve donc son webhook.",
       "when": "Quand"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Partir de zéro",
       "scratchBody": "Une chaîne vide. Choisissez un déclencheur, puis ajoutez des étapes.",
       "usesAgent": "Utilise un agent"
+    },
+    "unavailable": {
+      "blockedStep": "« {step} » utilise un élément qui n’est plus disponible. Choisissez-en un autre ou supprimez l’étape.",
+      "blockedTrigger": "Le déclencheur utilise un élément qui n’est plus disponible. Choisissez-en un autre.",
+      "field": "Un champ utilisé ici n’est plus disponible. Choisissez-en un autre.",
+      "item": "N’est plus disponible",
+      "list": "La liste utilisée ici n’est plus disponible. Choisissez-en une autre.",
+      "model": "Le modèle choisi ici n’est plus disponible. Choisissez-en un autre.",
+      "option": "Une option utilisée ici n’est plus disponible. Choisissez-en une autre.",
+      "runner": "Le runner choisi ici n’est plus disponible. Choisissez-en un autre.",
+      "webhook": "Le webhook choisi ici est désactivé ou n’existe plus. Choisissez-en un autre."
     }
   },
   "Booking": {

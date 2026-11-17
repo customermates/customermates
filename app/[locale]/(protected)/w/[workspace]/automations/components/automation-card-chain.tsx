@@ -64,7 +64,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
         cardId="trigger"
         expanded={store.expanded === "trigger"}
         icon={Zap}
-        invalid={store.isFlagged("trigger")}
+        invalid={store.isFlagged("trigger") || store.unavailableAt("trigger") !== undefined}
         kindLabel={t("Automations.builder.when")}
         openHint={t("AutomationRules.edit")}
         sentence={triggerSentence(form.trigger, model, t)}
@@ -74,6 +74,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
           flagged={store.isFlagged}
           model={model}
           trigger={form.trigger}
+          unavailable={store.unavailableAt("trigger")}
           onChange={store.patchTrigger}
         />
       </AutomationCard>
@@ -86,7 +87,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
             cardId={`condition-${index}`}
             expanded={store.expanded === `condition-${index}`}
             icon={Filter}
-            invalid={store.isFlagged(`conditions.${index}`)}
+            invalid={store.isFlagged(`conditions.${index}`) || store.unavailableAt(`conditions.${index}`) !== undefined}
             kindLabel={t("Automations.builder.if")}
             openHint={t("AutomationRules.edit")}
             removeLabel={t("Automations.builder.removeStep")}
@@ -99,6 +100,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
               flagged={store.isFlagged(`conditions.${index}`)}
               model={model}
               typeId={form.trigger.typeId}
+              unavailable={store.unavailableAt(`conditions.${index}`)}
               onChange={(patch) => store.patchCondition(index, patch)}
             />
           </AutomationCard>
@@ -113,7 +115,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
             cardId={`effect-${index}`}
             expanded={store.expanded === `effect-${index}`}
             icon={EFFECT_ICONS[effect.kind] ?? Zap}
-            invalid={store.isFlagged(`effects.${index}`)}
+            invalid={store.isFlagged(`effects.${index}`) || store.unavailableAt(`effects.${index}`) !== undefined}
             kindLabel={t("Automations.builder.then")}
             openHint={t("AutomationRules.edit")}
             removeLabel={t("Automations.builder.removeStep")}
@@ -127,6 +129,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
               model={model}
               runtimes={context.runtimes}
               trigger={form.trigger}
+              unavailable={store.unavailableAt(`effects.${index}`)}
               webhooks={context.webhooks}
               onChange={(next) => store.setEffect(index, next)}
             />

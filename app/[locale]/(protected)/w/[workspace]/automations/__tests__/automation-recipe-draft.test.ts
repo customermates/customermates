@@ -172,8 +172,10 @@ describe("opening a recipe in the builder", () => {
 
   it("adds an empty-field condition for the reason recipe", () => {
     const draft = draftOf("wonOrLostReason");
-    expect(draft.conditions).toEqual([{ fieldId: REASON, operator: "empty", value: "" }]);
-    expect(draft.trigger).toMatchObject({ kind: "recordUpdated", fieldId: STAGE });
+    expect(draft.conditions).toEqual([{ fieldId: REASON, operator: "empty", value: "", values: [], kept: null }]);
+    expect(draft.trigger).toMatchObject({ kind: "recordUpdated", fieldId: "", fieldIds: [STAGE] });
+    const converted = draftToUpsert(draft, MODEL);
+    expect(converted.ok && converted.input.trigger).toMatchObject({ kind: "recordUpdated", fieldIds: [STAGE] });
   });
 
   it("opens every rule recipe without throwing on a workspace without any list", () => {

@@ -1,7 +1,8 @@
 import type { useTranslations } from "next-intl";
 import type { RoutineDto } from "@/ee/routines/routine.schema";
-import type { AutomationBuilderModel } from "./automation-builder-model";
-import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger } from "./automation-draft";
+import type { AutomationCondition } from "@/features/automation-rules/automation-rule.schema";
+import type { AutomationBuilderField, AutomationBuilderModel } from "./automation-builder-model";
+import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger, DraftUnavailable } from "./automation-draft";
 
 import { describeRoutineSchedule } from "@/ee/routines/routine-schedule-preset";
 import { eventLabel } from "@/features/event/event-label";
@@ -53,21 +54,70 @@ export function triggerSentence(trigger: DraftTrigger, model: AutomationBuilderM
   }
 }
 
+function optionLabel(field: AutomationBuilderField | undefined, id: string): string {
+  return field?.options.find((item) => item.id === id)?.label ?? id;
+}
+
+function scalarLabel(scalar: unknown, field: AutomationBuilderField | undefined, t: Translate): string {
+  if (!scalar || typeof scalar !== "object" || !("kind" in scalar) || !("value" in scalar)) return "";
+  const { kind, value } = scalar;
+  if (kind === "boolean")
+    return value === true ? t("AutomationRules.builder.boolean.true") : t("AutomationRules.builder.boolean.false");
+  if (Array.isArray(value)) {
+    return kind === "selectList" || kind === "textList"
+      ? value.map((item) => optionLabel(field, String(item))).join(", ")
+      : "";
+  }
+  if (typeof value !== "string" || kind === "member") return "";
+  if (kind === "select") return optionLabel(field, value);
+  return kind === "date" ? value.slice(0, 10) : value;
+}
+
+function keptConditionParts(kept: AutomationCondition, field: AutomationBuilderField | undefined, t: Translate) {
+  if (kept.operator === "in" || kept.operator === "notIn") {
+    return [
+      kept.operator === "in" ? t("AutomationRules.operator.in") : t("AutomationRules.operator.notIn"),
+      (kept.values ?? []).map((value) => scalarLabel(value, field, t)).join(", "),
+    ];
+  }
+  if (kept.operator === "empty") return [t("AutomationRules.operator.empty")];
+  if (kept.operator === "notEmpty") return [t("AutomationRules.operator.notEmpty")];
+  if (kept.operator === "equals") return [t("AutomationRules.operator.equals"), scalarLabel(kept.value, field, t)];
+  if (kept.operator === "notEquals")
+    return [t("AutomationRules.operator.notEquals"), scalarLabel(kept.value, field, t)];
+  if (kept.value) {
+    return [
+      kept.operator === "before" ? t("AutomationRules.operator.beforeDate") : t("AutomationRules.operator.afterDate"),
+      scalarLabel(kept.value, field, t),
+    ];
+  }
+  return [
+    kept.operator === "before" ? t("AutomationRules.operator.before") : t("AutomationRules.operator.after"),
+    String(kept.relativeDays ?? 0),
+  ];
+}
+
+function conditionParts(condition: DraftCondition, field: AutomationBuilderField | undefined, t: Translate) {
+  if (condition.kept) return keptConditionParts(condition.kept, field, t);
+  if (condition.operator === "in" || condition.operator === "notIn") {
+    return [
+      condition.operator === "in" ? t("AutomationRules.operator.in") : t("AutomationRules.operator.notIn"),
+      condition.values.map((value) => optionLabel(field, value)).join(", "),
+    ];
+  }
+  const needsValue = condition.operator !== "empty" && condition.operator !== "notEmpty";
+  return [t(`AutomationRules.operator.${condition.operator}`), needsValue ? optionLabel(field, condition.value) : ""];
+}
+
 export function conditionSentence(
   condition: DraftCondition,
   trigger: DraftTrigger,
   model: AutomationBuilderModel,
   t: Translate,
 ): string {
-  const field = fieldOfList(model, trigger.typeId, condition.fieldId);
-  const option = field?.options.find((item) => item.id === condition.value)?.label;
-  const needsValue = condition.operator !== "empty" && condition.operator !== "notEmpty";
-  const parts = [
-    field?.label ?? t("Automations.sentence.aField"),
-    t(`AutomationRules.operator.${condition.operator}`),
-    needsValue ? (option ?? condition.value) : "",
-  ].filter(Boolean);
-  return t("Automations.sentence.if", { condition: parts.join(" ") });
+  const field = fieldOfList(model, trigger.typeId, condition.kept?.fieldId ?? condition.fieldId);
+  const parts = [field?.label ?? t("Automations.sentence.aField"), ...conditionParts(condition, field, t)];
+  return t("Automations.sentence.if", { condition: parts.filter(Boolean).join(" ") });
 }
 
 export function effectSentence(
@@ -99,6 +149,26 @@ export function effectSentence(
     default:
       return t("Automations.sentence.effect.kept");
   }
+}
+
+export function unavailableMessage(
+  draft: AutomationDraft,
+  entry: DraftUnavailable | undefined,
+  model: AutomationBuilderModel,
+  t: Translate,
+): string {
+  if (!entry) return t("AutomationRules.builder.incomplete");
+  if (entry.card === "trigger") return t("Automations.unavailable.blockedTrigger");
+  const [group, position] = entry.card.split(".");
+  const index = Number(position);
+  const condition = group === "conditions" ? draft.conditions[index] : undefined;
+  const effect = group === "effects" ? draft.effects[index] : undefined;
+  const step = condition
+    ? conditionSentence(condition, draft.trigger, model, t)
+    : effect
+      ? effectSentence(effect, model, draft.trigger, t)
+      : "";
+  return t("Automations.unavailable.blockedStep", { step });
 }
 
 export function draftSentence(draft: AutomationDraft, model: AutomationBuilderModel, t: Translate, locale: string) {

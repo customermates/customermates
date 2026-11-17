@@ -1,9 +1,12 @@
 "use client";
 
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 
 import type { AutomationBuilderField } from "./automation-builder-model";
+import type { DraftUnavailableKind } from "./automation-draft";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -60,6 +63,78 @@ export function Choose({
       </SelectContent>
     </Select>
   );
+}
+
+export function PickMany({
+  values,
+  items,
+  label,
+  onChange,
+}: {
+  values: string[];
+  items: { id: string; label: string }[];
+  label: string;
+  onChange: (values: string[]) => void;
+}) {
+  const t = useTranslations();
+  const baseId = useId();
+  const stale = values.filter((value) => !items.some((item) => item.id === value));
+  const entries = [...items, ...stale.map((id) => ({ id, label: t("Automations.unavailable.item"), stale: true }))];
+  const toggle = (id: string, checked: boolean) =>
+    onChange(checked ? [...values.filter((value) => value !== id), id] : values.filter((value) => value !== id));
+
+  return (
+    <div
+      aria-label={label}
+      className="flex max-h-40 flex-wrap gap-x-4 gap-y-2 overflow-y-auto rounded-md border border-input p-2"
+      data-automation-pick-many=""
+      role="group"
+    >
+      {entries.map((entry) => {
+        const id = `${baseId}-${entry.id}`;
+        return (
+          <span key={entry.id} className="flex items-center gap-2">
+            <Checkbox
+              checked={values.includes(entry.id)}
+              id={id}
+              onCheckedChange={(checked) => toggle(entry.id, checked === true)}
+            />
+
+            <Label className={"stale" in entry ? "font-normal text-destructive" : "font-normal"} htmlFor={id}>
+              {entry.label}
+            </Label>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+export function UnavailableNote({ what }: { what: DraftUnavailableKind | undefined }) {
+  const t = useTranslations();
+  if (!what) return null;
+  return (
+    <p className="text-xs text-destructive" data-automation-unavailable={what} role="alert">
+      {unavailableText(t, what)}
+    </p>
+  );
+}
+
+function unavailableText(t: ReturnType<typeof useTranslations>, what: DraftUnavailableKind): string {
+  switch (what) {
+    case "list":
+      return t("Automations.unavailable.list");
+    case "field":
+      return t("Automations.unavailable.field");
+    case "option":
+      return t("Automations.unavailable.option");
+    case "webhook":
+      return t("Automations.unavailable.webhook");
+    case "runner":
+      return t("Automations.unavailable.runner");
+    case "model":
+      return t("Automations.unavailable.model");
+  }
 }
 
 export function ValueInput({

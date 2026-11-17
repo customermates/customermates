@@ -1029,6 +1029,10 @@
         "false": "No",
         "true": "Yes"
       },
+      "channel": "Channel",
+      "channelAny": "Any channel",
+      "channelChat": "Chat",
+      "channelEmail": "Email",
       "choose": "Choose…",
       "dateField": "Date field",
       "days": "Days",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Complete this action.",
       "fixTrigger": "Complete the trigger: choose a field and a valid value.",
       "incomplete": "This automation is not complete yet.",
-      "keptEffect": "This action ({kind}) cannot be edited here and stays as it is.",
-      "keptTrigger": "This trigger cannot be edited here and stays as it is.",
+      "keptCondition": "This condition was set outside the builder. It cannot be edited here and stays as it is.",
+      "keptEffect": "This action ({kind}) was set outside the builder. It cannot be edited here and stays as it is.",
+      "keptTrigger": "This trigger was set outside the builder. It cannot be edited here and stays as it is.",
+      "keptTriggerReplace": "Choose a different trigger",
       "linkTo": "Link to the triggering record as",
       "list": "List",
       "name": "Name",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "is after today plus",
+      "afterDate": "is after",
       "before": "is before today plus",
+      "beforeDate": "is before",
       "empty": "is empty",
       "equals": "is",
+      "in": "is any of",
       "notEmpty": "is not empty",
-      "notEquals": "is not"
+      "notEquals": "is not",
+      "notIn": "is none of"
     },
     "outcome": {
       "applied": "done",
@@ -1190,6 +1200,7 @@
       "switchOn": "Switch on",
       "then": "Then",
       "webhook": "Webhook",
+      "webhookRestricted": "Your role cannot see the webhooks of this workspace, so this step keeps the webhook it has.",
       "when": "When"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Start from scratch",
       "scratchBody": "An empty chain. Pick a trigger, then add steps.",
       "usesAgent": "Uses an agent"
+    },
+    "unavailable": {
+      "blockedStep": "“{step}” uses something that is no longer available. Choose a replacement or remove the step.",
+      "blockedTrigger": "The trigger uses something that is no longer available. Choose a replacement.",
+      "field": "A field used here is no longer available. Choose another one.",
+      "item": "No longer available",
+      "list": "The list used here is no longer available. Choose another one.",
+      "model": "The model chosen here is no longer available. Choose another one.",
+      "option": "An option used here is no longer available. Choose another one.",
+      "runner": "The runner chosen here is no longer available. Choose another one.",
+      "webhook": "The webhook chosen here is switched off or no longer exists. Choose another one."
     }
   },
   "Booking": {

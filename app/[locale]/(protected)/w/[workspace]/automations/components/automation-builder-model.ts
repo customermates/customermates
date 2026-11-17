@@ -23,6 +23,7 @@ export type AutomationBuilderList = {
   label: string;
   primaryFieldId: string | null;
   fields: AutomationBuilderField[];
+  unsupportedFieldIds: string[];
 };
 
 export type AutomationBuilderModel = {
@@ -52,6 +53,9 @@ export function toAutomationBuilderModel(model: RecordModelView): AutomationBuil
           currency: field.format?.currency ?? null,
           options: field.options.map((option) => ({ id: option.id, label: option.label })),
         })),
+      unsupportedFieldIds: model.fields
+        .filter((field) => field.typeId === type.id && !field.archived && SKIPPED_TYPES.has(field.valueType))
+        .map((field) => field.id),
     }));
   const listIds = new Set(lists.map((list) => list.id));
   return {

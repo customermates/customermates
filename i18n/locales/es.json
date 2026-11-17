@@ -1029,6 +1029,10 @@
         "false": "No",
         "true": "Sí"
       },
+      "channel": "Canal",
+      "channelAny": "Cualquier canal",
+      "channelChat": "Chat",
+      "channelEmail": "Correo electrónico",
       "choose": "Elegir…",
       "dateField": "Campo de fecha",
       "days": "Días",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Completa esta acción.",
       "fixTrigger": "Completa el disparador: elige un campo y un valor válido.",
       "incomplete": "Esta automatización aún no está completa.",
-      "keptEffect": "Esta acción ({kind}) no se puede editar aquí y se mantiene como está.",
-      "keptTrigger": "Este disparador no se puede editar aquí y se mantiene como está.",
+      "keptCondition": "Esta condición se definió fuera del editor. No se puede editar aquí y se mantiene como está.",
+      "keptEffect": "Esta acción ({kind}) se definió fuera del editor. No se puede editar aquí y se mantiene como está.",
+      "keptTrigger": "Este disparador se definió fuera del editor. No se puede editar aquí y se mantiene como está.",
+      "keptTriggerReplace": "Elegir otro disparador",
       "linkTo": "Vincular al registro que la disparó como",
       "list": "Lista",
       "name": "Nombre",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "es posterior a hoy más",
+      "afterDate": "es posterior al",
       "before": "es anterior a hoy más",
+      "beforeDate": "es anterior al",
       "empty": "está vacío",
       "equals": "es",
+      "in": "es uno de",
       "notEmpty": "no está vacío",
-      "notEquals": "no es"
+      "notEquals": "no es",
+      "notIn": "no es ninguno de"
     },
     "outcome": {
       "applied": "hecho",
@@ -1190,6 +1200,7 @@
       "switchOn": "Activar",
       "then": "Entonces",
       "webhook": "Webhook",
+      "webhookRestricted": "Tu rol no puede ver los webhooks de este espacio de trabajo, así que este paso conserva su webhook.",
       "when": "Cuando"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Empezar desde cero",
       "scratchBody": "Una cadena vacía. Elige un disparador y añade pasos.",
       "usesAgent": "Usa un agente"
+    },
+    "unavailable": {
+      "blockedStep": "«{step}» usa algo que ya no está disponible. Elige una alternativa o quita el paso.",
+      "blockedTrigger": "El disparador usa algo que ya no está disponible. Elige una alternativa.",
+      "field": "Un campo usado aquí ya no está disponible. Elige otro.",
+      "item": "Ya no está disponible",
+      "list": "La lista usada aquí ya no está disponible. Elige otra.",
+      "model": "El modelo elegido aquí ya no está disponible. Elige otro.",
+      "option": "Una opción usada aquí ya no está disponible. Elige otra.",
+      "runner": "El runner elegido aquí ya no está disponible. Elige otro.",
+      "webhook": "El webhook elegido aquí está desactivado o ya no existe. Elige otro."
     }
   },
   "Booking": {

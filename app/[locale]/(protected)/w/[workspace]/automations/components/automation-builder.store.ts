@@ -2,9 +2,9 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { AutomationRuleDto, AutomationRulePreview } from "@/features/automation-rules/automation-rule.schema";
 import type { AutomationBuilderModel } from "./automation-builder-model";
-import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger } from "./automation-draft";
+import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger, DraftUnavailable } from "./automation-draft";
 
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { Resource } from "@/generated/prisma";
 import { BaseModalStore } from "@/core/base/base-modal.store";
@@ -20,9 +20,12 @@ import {
 
 import { composeAutomationAction, previewAutomationRuleAction, upsertAutomationRuleAction } from "../actions";
 import {
+  blankCondition,
   blankEffect,
+  conditionOperatorsFor,
   draftToPreviewInput,
   draftToUpsert,
+  draftUnavailable,
   emptyChainDraft,
   ruleToDraft,
   seedToDraft,
@@ -31,7 +34,7 @@ import {
 export type AutomationBuilderContext = {
   model: AutomationBuilderModel;
   runtimes: AgentRuntimeAvailability;
-  webhooks: { id: string; label: string }[];
+  webhooks: { id: string; label: string }[] | null;
   composer: boolean;
   cloud: boolean;
   timezone: string;
@@ -40,7 +43,15 @@ export type AutomationBuilderContext = {
 export type AutomationBuilderScreen = "start" | "chain";
 export type AutomationBuilderPane = "preview" | "runs";
 export type AutomationPaletteSlot = { index: number };
-export type AutomationSaveOutcome = "saved" | "incomplete" | "failed";
+export type AutomationSaveOutcome = "saved" | "incomplete" | "unavailable" | "failed";
+
+export function automationCardId(issue: string): string | null {
+  if (issue === "trigger") return "trigger";
+  const [group, position] = issue.split(".");
+  if (position === undefined) return null;
+  if (group === "effects") return `effect-${position}`;
+  return group === "conditions" ? `condition-${position}` : null;
+}
 export type AutomationBuilderOpenOptions = { pane?: AutomationBuilderPane; typeId?: string; draft?: AutomationDraft };
 
 export const AUTOMATION_PREVIEW_DELAY_MS = 400;
@@ -49,6 +60,8 @@ const BLANK_TRIGGER: DraftTrigger = {
   kind: "recordCreated",
   typeId: "",
   fieldId: "",
+  fieldIds: [],
+  channel: "any",
   value: "",
   days: "1",
   direction: "before",
@@ -102,6 +115,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       composing: observable,
       composedByMate: observable,
       composerRefusal: observable,
+      unavailable: computed,
       openForCreate: action,
       openForRule: action,
       applyDraft: action,
@@ -138,6 +152,19 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   get canAddEffect(): boolean {
     return this.form.effects.length < AUTOMATION_EFFECT_LIMIT;
   }
+
+  get unavailable(): DraftUnavailable[] {
+    const context = this.context;
+    if (!context) return [];
+    return draftUnavailable(this.form, {
+      model: context.model,
+      webhooks: context.webhooks,
+      runtimes: context.runtimes,
+    });
+  }
+
+  unavailableAt = (card: string): DraftUnavailable["what"] | undefined =>
+    this.unavailable.find((entry) => entry.card === card)?.what;
 
   isFlagged = (key: string): boolean => this.invalid.some((issue) => issue === key || issue.startsWith(`${key}.`));
 
@@ -258,7 +285,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const list = this.model?.lists.find((item) => item.id === this.form.trigger.typeId);
     if (!list || !this.canAddCondition) return;
     const next = [...this.form.conditions];
-    next.splice(at, 0, { fieldId: list.fields[0]?.id ?? "", operator: "equals", value: "" });
+    const field = list.fields[0];
+    next.splice(at, 0, blankCondition(field?.id ?? "", conditionOperatorsFor(field)[0]));
     this.form.conditions = next;
     this.expanded = `condition-${at}`;
     this.palette = null;
@@ -372,16 +400,16 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   save = async (): Promise<AutomationSaveOutcome> => {
     const model = this.model;
     if (!model) return "failed";
+    const unavailable = this.unavailable;
     const converted = draftToUpsert(this.form, model);
-    if (!converted.ok) {
+    if (unavailable.length > 0 || !converted.ok) {
+      const issues = [...unavailable.map((entry) => entry.card), ...(converted.ok ? [] : converted.issues)];
       runInAction(() => {
-        this.invalid = converted.issues;
-        const first = converted.issues[0];
-        if (first?.startsWith("effects.")) this.expanded = `effect-${first.slice("effects.".length)}`;
-        else if (first?.startsWith("conditions.")) this.expanded = `condition-${first.slice("conditions.".length)}`;
-        else if (first === "trigger") this.expanded = "trigger";
+        this.invalid = [...new Set(issues)];
+        const card = automationCardId(unavailable[0]?.card ?? issues[0] ?? "");
+        if (card) this.expanded = card;
       });
-      return "incomplete";
+      return unavailable.length > 0 ? "unavailable" : "incomplete";
     }
     runInAction(() => {
       this.invalid = [];

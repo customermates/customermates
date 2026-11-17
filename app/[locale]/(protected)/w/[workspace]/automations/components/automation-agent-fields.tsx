@@ -78,7 +78,7 @@ export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: P
 
       <RuntimeReason runtime={effect.runtime} runtimes={runtimes} />
 
-      {effect.runtime === "ownKey" && option.models.length > 0 && (
+      {effect.runtime === "ownKey" && (option.models.length > 0 || effect.model !== "") && (
         <Labeled label={t("Automations.agent.model")}>
           <Choose
             items={[{ id: DEFAULT_CHOICE, label: t("Automations.agent.defaultModel") }, ...option.models]}
@@ -90,7 +90,7 @@ export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: P
         </Labeled>
       )}
 
-      {effect.runtime === "runner" && option.runners.length > 0 && (
+      {effect.runtime === "runner" && (option.runners.length > 0 || effect.runnerId !== "") && (
         <Labeled label={t("Automations.agent.runner")}>
           <Choose
             items={[

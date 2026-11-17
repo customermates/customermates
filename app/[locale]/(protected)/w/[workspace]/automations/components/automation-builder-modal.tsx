@@ -21,6 +21,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AUTOMATION_RULE_NAME_MAX_CHARS } from "@/features/automation-rules/automation-rule.schema";
 
 import { AutomationCardChain } from "./automation-card-chain";
+import { unavailableMessage } from "./automation-draft-sentence";
 import { dismissAutomationError, showAutomationError } from "./automation-error-toast";
 import { AutomationPreviewPane } from "./automation-preview-pane";
 import { AutomationRunsPane } from "./automation-runs-pane";
@@ -41,6 +42,8 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
     dismissAutomationError();
     const outcome = await store.save();
     if (outcome === "incomplete") showAutomationError(t("AutomationRules.builder.incomplete"));
+    if (outcome === "unavailable" && store.model)
+      showAutomationError(unavailableMessage(store.form, store.unavailable[0], store.model, t));
     if (outcome === "saved") toast.success(t("Common.notifications.updated"));
   };
 

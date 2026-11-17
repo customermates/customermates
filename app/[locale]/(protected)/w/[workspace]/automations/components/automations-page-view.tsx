@@ -56,7 +56,7 @@ type Props = {
   initial: GetResult<AutomationListItemDto>;
   model: AutomationBuilderModel;
   runtimes: AgentRuntimeAvailability;
-  webhooks: { id: string; label: string }[];
+  webhooks: { id: string; label: string }[] | null;
   composer: boolean;
   cloud: boolean;
   canCreateRoutine: boolean;

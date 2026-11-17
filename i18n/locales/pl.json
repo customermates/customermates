@@ -1029,6 +1029,10 @@
         "false": "Nie",
         "true": "Tak"
       },
+      "channel": "Kanał",
+      "channelAny": "Dowolny kanał",
+      "channelChat": "Czat",
+      "channelEmail": "E-mail",
       "choose": "Wybierz…",
       "dateField": "Pole daty",
       "days": "Dni",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Uzupełnij to działanie.",
       "fixTrigger": "Uzupełnij wyzwalacz: wybierz pole i poprawną wartość.",
       "incomplete": "Ta automatyzacja nie jest jeszcze kompletna.",
-      "keptEffect": "Tego działania ({kind}) nie można tu edytować i pozostaje bez zmian.",
-      "keptTrigger": "Tego wyzwalacza nie można tu edytować i pozostaje bez zmian.",
+      "keptCondition": "Ten warunek ustawiono poza edytorem. Nie można go tu edytować i pozostaje bez zmian.",
+      "keptEffect": "To działanie ({kind}) ustawiono poza edytorem. Nie można go tu edytować i pozostaje bez zmian.",
+      "keptTrigger": "Ten wyzwalacz ustawiono poza edytorem. Nie można go tu edytować i pozostaje bez zmian.",
+      "keptTriggerReplace": "Wybierz inny wyzwalacz",
       "linkTo": "Powiąż z rekordem wyzwalającym jako",
       "list": "Lista",
       "name": "Nazwa",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "jest po dniu dzisiejszym plus",
+      "afterDate": "jest po dniu",
       "before": "jest przed dniem dzisiejszym plus",
+      "beforeDate": "jest przed dniem",
       "empty": "jest puste",
       "equals": "jest",
+      "in": "jest jedną z opcji",
       "notEmpty": "nie jest puste",
-      "notEquals": "nie jest"
+      "notEquals": "nie jest",
+      "notIn": "nie jest żadną z opcji"
     },
     "outcome": {
       "applied": "wykonane",
@@ -1190,6 +1200,7 @@
       "switchOn": "Włącz",
       "then": "Wtedy",
       "webhook": "Webhook",
+      "webhookRestricted": "Twoja rola nie widzi webhooków tego obszaru roboczego, więc ten krok zachowuje swój webhook.",
       "when": "Gdy"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Zacznij od zera",
       "scratchBody": "Pusty łańcuch. Wybierz wyzwalacz, a potem dodaj kroki.",
       "usesAgent": "Używa agenta"
+    },
+    "unavailable": {
+      "blockedStep": "„{step}” używa czegoś, co nie jest już dostępne. Wybierz zamiennik albo usuń krok.",
+      "blockedTrigger": "Wyzwalacz używa czegoś, co nie jest już dostępne. Wybierz zamiennik.",
+      "field": "Pole użyte tutaj nie jest już dostępne. Wybierz inne.",
+      "item": "Już niedostępne",
+      "list": "Lista użyta tutaj nie jest już dostępna. Wybierz inną.",
+      "model": "Model wybrany tutaj nie jest już dostępny. Wybierz inny.",
+      "option": "Opcja użyta tutaj nie jest już dostępna. Wybierz inną.",
+      "runner": "Runner wybrany tutaj nie jest już dostępny. Wybierz inny.",
+      "webhook": "Webhook wybrany tutaj jest wyłączony albo już nie istnieje. Wybierz inny."
     }
   },
   "Booking": {

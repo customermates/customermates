@@ -1029,6 +1029,10 @@
         "false": "Nee",
         "true": "Ja"
       },
+      "channel": "Kanaal",
+      "channelAny": "Elk kanaal",
+      "channelChat": "Chat",
+      "channelEmail": "E-mail",
       "choose": "Kies…",
       "dateField": "Datumveld",
       "days": "Dagen",
@@ -1042,8 +1046,10 @@
       "fixEffect": "Vul deze actie in.",
       "fixTrigger": "Vul de trigger in: kies een veld en een geldige waarde.",
       "incomplete": "Deze automatisering is nog niet compleet.",
-      "keptEffect": "Deze actie ({kind}) kan hier niet worden bewerkt en blijft zoals ze is.",
-      "keptTrigger": "Deze trigger kan hier niet worden bewerkt en blijft zoals hij is.",
+      "keptCondition": "Deze voorwaarde is buiten de editor ingesteld. Ze kan hier niet worden bewerkt en blijft zoals ze is.",
+      "keptEffect": "Deze actie ({kind}) is buiten de editor ingesteld. Ze kan hier niet worden bewerkt en blijft zoals ze is.",
+      "keptTrigger": "Deze trigger is buiten de editor ingesteld. Hij kan hier niet worden bewerkt en blijft zoals hij is.",
+      "keptTriggerReplace": "Een andere trigger kiezen",
       "linkTo": "Koppelen aan het startende record als",
       "list": "Lijst",
       "name": "Naam",
@@ -1097,11 +1103,15 @@
     },
     "operator": {
       "after": "ligt na vandaag plus",
+      "afterDate": "ligt na",
       "before": "ligt voor vandaag plus",
+      "beforeDate": "ligt voor",
       "empty": "is leeg",
       "equals": "is",
+      "in": "is een van",
       "notEmpty": "is niet leeg",
-      "notEquals": "is niet"
+      "notEquals": "is niet",
+      "notIn": "is geen van"
     },
     "outcome": {
       "applied": "uitgevoerd",
@@ -1190,6 +1200,7 @@
       "switchOn": "Inschakelen",
       "then": "Dan",
       "webhook": "Webhook",
+      "webhookRestricted": "Je rol mag de webhooks van deze werkruimte niet zien, dus deze stap behoudt de webhook die hij heeft.",
       "when": "Wanneer"
     },
     "columns": {
@@ -1371,6 +1382,17 @@
       "scratch": "Helemaal opnieuw beginnen",
       "scratchBody": "Een lege keten. Kies een trigger en voeg dan stappen toe.",
       "usesAgent": "Gebruikt een agent"
+    },
+    "unavailable": {
+      "blockedStep": "“{step}” gebruikt iets dat niet meer beschikbaar is. Kies een vervanging of verwijder de stap.",
+      "blockedTrigger": "De trigger gebruikt iets dat niet meer beschikbaar is. Kies een vervanging.",
+      "field": "Een veld dat hier wordt gebruikt, is niet meer beschikbaar. Kies een ander veld.",
+      "item": "Niet meer beschikbaar",
+      "list": "De lijst die hier wordt gebruikt, is niet meer beschikbaar. Kies een andere lijst.",
+      "model": "Het model dat hier is gekozen, is niet meer beschikbaar. Kies een ander model.",
+      "option": "Een optie die hier wordt gebruikt, is niet meer beschikbaar. Kies een andere optie.",
+      "runner": "De runner die hier is gekozen, is niet meer beschikbaar. Kies een andere runner.",
+      "webhook": "De webhook die hier is gekozen, is uitgeschakeld of bestaat niet meer. Kies een andere webhook."
     }
   },
   "Booking": {

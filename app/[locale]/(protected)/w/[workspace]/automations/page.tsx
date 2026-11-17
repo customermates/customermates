@@ -14,7 +14,6 @@ import { RoutineAllowanceNotice } from "@/app/components/upsell/routine-allowanc
 import { RoutinesPausedNotice } from "@/app/components/upsell/routines-paused-notice";
 import { PageContainer } from "@/components/shared/page-container";
 import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
-import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
@@ -24,6 +23,7 @@ import { env } from "@/env";
 
 import { toAutomationBuilderModel } from "./components/automation-builder-model";
 import { canonicalAutomationsSearch, showsRoutinesOnly } from "./components/automation-kind-filter";
+import { loadWebhookOptions } from "./components/automation-webhook-options";
 import { AutomationsPageView, type AutomationsPrefill } from "./components/automations-page-view";
 
 type Props = {
@@ -41,19 +41,6 @@ function prefillOf(params: Record<string, string | string[] | undefined>): Autom
   return created ? { kind: "new", typeId: created } : null;
 }
 
-async function webhookOptions(): Promise<{ id: string; label: string }[]> {
-  try {
-    const webhooks = await getGetWebhooksInteractor().invoke({});
-    if (!webhooks.ok) return [];
-    return webhooks.data.items
-      .filter((hook) => hook.enabled)
-      .map((hook) => ({ id: hook.id, label: hook.description ?? hook.url }));
-  } catch (error) {
-    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return [];
-    throw error;
-  }
-}
-
 export default async function AutomationsPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.routines });
 
@@ -68,7 +55,7 @@ export default async function AutomationsPage({ searchParams }: Props) {
     unwrapPage(getGetAutomationsListInteractor().invoke(listParams)),
     unwrapPage(getGetRecordModelInteractor().invoke({})),
     unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke({})),
-    webhookOptions(),
+    loadWebhookOptions((page, pageSize) => getGetWebhooksInteractor().invoke({ page, pageSize })),
     cloud ? unwrapPage(getGetPlanUsageInteractor().invoke()) : Promise.resolve(null),
   ]);
   const agentChat = cloud && env.APP_MODE !== "demo" && runtimes.mate.available;

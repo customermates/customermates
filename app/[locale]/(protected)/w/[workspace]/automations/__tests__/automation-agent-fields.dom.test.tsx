@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { DraftAgent } from "../components/automation-draft";
 
 import { act } from "react";
@@ -8,7 +9,8 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: { name?: string }) => (values?.name ? `${key}:${values.name}` : key),
+  useTranslations: () => (key: string, values?: { name?: string; kind?: string }) =>
+    values?.name ? `${key}:${values.name}` : values?.kind ? `${key}:${values.kind}` : key,
 }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children: ReactNode; href: string }) => <a href={href}>{children}</a>,
@@ -22,9 +24,52 @@ vi.mock("@/components/ui/select", () => ({
 }));
 
 import { AGENT_SETTINGS_HREF, AutomationAgentFields } from "../components/automation-agent-fields";
-import { blankAgentEffect } from "../components/automation-draft";
+import { toAutomationBuilderModel } from "../components/automation-builder-model";
+import { AutomationConditionFields } from "../components/automation-condition-fields";
+import { blankAgentEffect, blankCondition, emptyDraft } from "../components/automation-draft";
+import { AutomationEffectFields } from "../components/automation-effect-fields";
+import { AutomationTriggerEditor } from "../components/automation-trigger-editor";
 
 const RUNNER = "88888888-8888-4888-8888-888888888888";
+const DEALS = "11111111-1111-4111-8111-111111111111";
+const NAME = "22222222-2222-4222-8222-111111111111";
+const STAGE = "22222222-2222-4222-8222-222222222222";
+const OWNER = "22222222-2222-4222-8222-333333333333";
+const MEETING = "22222222-2222-4222-8222-444444444444";
+
+function field(id: string, valueType: string, extra: Record<string, unknown> = {}) {
+  return {
+    id,
+    typeId: DEALS,
+    label: `field ${valueType}`,
+    valueType,
+    behavior: { kind: "input" },
+    archived: false,
+    required: false,
+    options: [],
+    position: 0,
+    ...extra,
+  };
+}
+
+const MODEL = toAutomationBuilderModel({
+  revision: 1,
+  types: [{ id: DEALS, label: "Deal", archived: false, embedded: false, position: 0, primaryFieldId: NAME }],
+  fields: [
+    field(NAME, "text"),
+    field(STAGE, "select", {
+      options: [
+        { id: "won", label: "Won" },
+        { id: "lost", label: "Lost" },
+      ],
+    }),
+    field(OWNER, "member"),
+    field(MEETING, "dateTime"),
+  ],
+  relationships: [],
+} as unknown as RecordModelView);
+
+const TRIGGER = emptyDraft(MODEL, { typeId: DEALS, timezone: "UTC" }).trigger;
 
 const AVAILABLE = { available: true, reason: null, models: [], runners: [] };
 const UNAVAILABLE = (reason: "selfHosted" | "plan" | "noKey" | "noRunner" | "notConfigured") => ({
@@ -53,6 +98,19 @@ function render(effect: DraftAgent, availability: AgentRuntimeAvailability, onCh
     ),
   );
   return onChange;
+}
+
+function mount(node: ReactNode) {
+  act(() => root.render(node));
+}
+
+function checkboxes() {
+  return [...container.querySelectorAll<HTMLButtonElement>('[role="checkbox"]')];
+}
+
+function offered(selectValue: string) {
+  const select = container.querySelector(`[data-select="${selectValue}"]`);
+  return [...(select?.querySelectorAll("li") ?? [])].map((item) => item.getAttribute("data-value"));
 }
 
 beforeEach(() => {
@@ -145,5 +203,209 @@ describe("the Ask an agent card", () => {
 
     render(effect, runtimes({ mate: AVAILABLE }), onChange, true);
     expect(container.querySelector("textarea")?.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("still shows the picker for a model or runner that is gone, so another one can be chosen", () => {
+    render({ ...blankAgentEffect("runner"), runnerId: RUNNER }, runtimes());
+    expect(offered(RUNNER)).toEqual(["default"]);
+
+    render({ ...blankAgentEffect("ownKey"), model: "m-old" }, runtimes());
+    expect(offered("m-old")).toEqual(["default"]);
+  });
+});
+
+describe("a condition card", () => {
+  it("shows a condition set outside the builder read-only, with a note and nothing to change", () => {
+    const kept = {
+      fieldId: MEETING,
+      operator: "before" as const,
+      value: { kind: "date" as const, value: "2026-12-31" },
+    };
+    mount(
+      <AutomationConditionFields
+        condition={{ ...blankCondition(MEETING, "before"), kept }}
+        flagged={false}
+        model={MODEL}
+        typeId={DEALS}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(container.querySelector('[data-automation-kept="condition"]')?.textContent).toBe(
+      "AutomationRules.builder.keptCondition",
+    );
+    expect(container.querySelectorAll("[data-select], input, button")).toHaveLength(0);
+  });
+
+  it("edits several values of a choice and lets a value that is gone be removed", () => {
+    const onChange = vi.fn();
+    mount(
+      <AutomationConditionFields
+        condition={{ ...blankCondition(STAGE, "in"), values: ["won", "archived"] }}
+        flagged={false}
+        model={MODEL}
+        typeId={DEALS}
+        unavailable="option"
+        onChange={onChange}
+      />,
+    );
+
+    expect(checkboxes().map((box) => box.getAttribute("aria-checked"))).toEqual(["true", "false", "true"]);
+    expect(container.querySelector('[data-automation-unavailable="option"]')?.textContent).toBe(
+      "Automations.unavailable.option",
+    );
+    expect(container.textContent).toContain("Automations.unavailable.item");
+
+    act(() => checkboxes()[1]?.click());
+    expect(onChange).toHaveBeenLastCalledWith({ values: ["won", "archived", "lost"] });
+    act(() => checkboxes()[2]?.click());
+    expect(onChange).toHaveBeenLastCalledWith({ values: ["won"] });
+  });
+
+  it("offers a member or a date and time field only comparisons that can be saved", () => {
+    mount(
+      <AutomationConditionFields
+        condition={blankCondition(OWNER, "empty")}
+        flagged={false}
+        model={MODEL}
+        typeId={DEALS}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(offered("empty")).toEqual(["empty", "notEmpty"]);
+
+    mount(
+      <AutomationConditionFields
+        condition={blankCondition(MEETING, "notEmpty")}
+        flagged={false}
+        model={MODEL}
+        typeId={DEALS}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(offered("notEmpty")).toEqual(["empty", "notEmpty", "before", "after"]);
+  });
+});
+
+describe("the trigger card", () => {
+  it("shows a trigger set outside the builder read-only and offers to replace it", () => {
+    const onChange = vi.fn();
+    const kept = { kind: "formSubmitted" as const, sourceId: "77777777-7777-4777-8777-777777777777" };
+    mount(
+      <AutomationTriggerEditor
+        flagged={() => false}
+        model={MODEL}
+        trigger={{ ...TRIGGER, kind: "other", kept }}
+        onChange={onChange}
+      />,
+    );
+
+    expect(container.querySelector('[data-automation-kept="trigger"]')?.textContent).toBe(
+      "AutomationRules.builder.keptTrigger",
+    );
+    expect(container.querySelectorAll("[data-select], input")).toHaveLength(0);
+
+    act(() => container.querySelector("button")?.click());
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: "recordCreated", kept: null, typeId: DEALS }),
+    );
+  });
+
+  it("edits several fields of an updated-record trigger and the channel of a message trigger", () => {
+    const onChange = vi.fn();
+    mount(
+      <AutomationTriggerEditor
+        flagged={() => false}
+        model={MODEL}
+        trigger={{ ...TRIGGER, kind: "recordUpdated", fieldIds: [STAGE] }}
+        onChange={onChange}
+      />,
+    );
+
+    expect(checkboxes().map((box) => box.getAttribute("aria-checked"))).toEqual(["false", "true", "false", "false"]);
+    act(() => checkboxes()[0]?.click());
+    expect(onChange).toHaveBeenLastCalledWith({ fieldIds: [STAGE, NAME] });
+
+    mount(
+      <AutomationTriggerEditor
+        flagged={() => false}
+        model={MODEL}
+        trigger={{ ...TRIGGER, kind: "messageReceived", channel: "email" }}
+        onChange={onChange}
+      />,
+    );
+    expect(offered("email")).toEqual(["any", "email", "chat"]);
+  });
+
+  it("asks for a target value only where the field can hold one", () => {
+    const toValue = () => container.textContent?.includes("AutomationRules.builder.toValue");
+    mount(
+      <AutomationTriggerEditor
+        flagged={() => false}
+        model={MODEL}
+        trigger={{ ...TRIGGER, kind: "fieldChanged", fieldId: OWNER }}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(toValue()).toBe(false);
+
+    mount(
+      <AutomationTriggerEditor
+        flagged={() => false}
+        model={MODEL}
+        trigger={{ ...TRIGGER, kind: "fieldChanged", fieldId: STAGE }}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(toValue()).toBe(true);
+  });
+});
+
+describe("a step card", () => {
+  const step = (
+    effect: Parameters<typeof AutomationEffectFields>[0]["effect"],
+    extra: Partial<Parameters<typeof AutomationEffectFields>[0]> = {},
+  ) => (
+    <AutomationEffectFields
+      effect={effect}
+      flagged={false}
+      model={MODEL}
+      runtimes={runtimes()}
+      trigger={TRIGGER}
+      webhooks={[]}
+      onChange={vi.fn()}
+      {...extra}
+    />
+  );
+
+  it("says which reference is gone instead of the generic hint", () => {
+    mount(step({ kind: "callWebhook", webhookId: "gone" }, { flagged: true, unavailable: "webhook" }));
+
+    expect(container.querySelector('[role="alert"]')?.textContent).toBe("Automations.unavailable.webhook");
+    expect(container.textContent).not.toContain("AutomationRules.builder.fixEffect");
+  });
+
+  it("explains a webhook step to a member who may not see webhooks instead of showing an empty picker", () => {
+    mount(step({ kind: "callWebhook", webhookId: "kept" }, { webhooks: null }));
+
+    expect(container.querySelector("[data-automation-webhook-restricted]")?.textContent).toBe(
+      "Automations.builder.webhookRestricted",
+    );
+    expect(container.querySelector("[data-select]")).toBeNull();
+  });
+
+  it("offers Set a field only fields a value can be typed for", () => {
+    mount(step({ kind: "setField", fieldId: "", value: "" }));
+
+    expect(offered("")).toEqual([NAME, STAGE]);
+  });
+
+  it("shows a kept step read-only with its note", () => {
+    const effect = { kind: "setField" as const, fields: [{ fieldId: NAME, value: null }] };
+    mount(step({ kind: "kept", effect }));
+
+    expect(container.querySelector('[data-automation-kept="effect"]')?.textContent).toBe(
+      "AutomationRules.builder.keptEffect:setField",
+    );
   });
 });
