@@ -307,10 +307,11 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
   });
 
   it("has an index on the creation time alone for the daily prune", async () => {
-    const rows = await runWithoutTenant(() =>
-      prisma.$queryRaw<
-        Array<{ indexdef: string }>
-      >`SELECT indexdef FROM pg_indexes WHERE tablename = 'Notification' AND indexname = 'Notification_createdAt_idx'`,
+    const rows = await runWithoutTenant(
+      () =>
+        prisma.$queryRaw<
+          Array<{ indexdef: string }>
+        >`SELECT indexdef FROM pg_indexes WHERE tablename = 'Notification' AND indexname = 'Notification_createdAt_idx'`,
     );
 
     expect(rows.map((row) => row.indexdef)).toEqual([expect.stringContaining('("createdAt")')]);
@@ -352,8 +353,8 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
 
     expect(stored).toEqual([mine]);
     expect(await runWithoutTenant(() => prisma.notification.count({ where: { id: foreign } }))).toBe(0);
-    expect(await runWithoutTenant(() => repo.insertManyUnscoped(other.companyId, [row(mine, w.companyId, w.admin.id)]))).toEqual(
-      [],
-    );
+    expect(
+      await runWithoutTenant(() => repo.insertManyUnscoped(other.companyId, [row(mine, w.companyId, w.admin.id)])),
+    ).toEqual([]);
   });
 });

@@ -1,4 +1,4 @@
-import type { NotificationEmailMode, NotificationKind } from "@/generated/prisma";
+import type { NotificationEmailMode, NotificationKind, Prisma } from "@/generated/prisma";
 import type {
   DigestSelection,
   DigestUserPage,
@@ -14,15 +14,11 @@ import type {
   StoredNotification,
 } from "./notification.repo";
 
-import { Prisma, Status } from "@/generated/prisma";
+import { Status } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
-import {
-  DEFAULT_NOTIFICATION_EMAIL_MODES,
-  NOTIFICATION_DIGEST_LIMIT,
-  NOTIFICATION_KINDS,
-} from "./notification.schema";
+import { DEFAULT_NOTIFICATION_EMAIL_MODES, NOTIFICATION_DIGEST_LIMIT, NOTIFICATION_KINDS } from "./notification.schema";
 import { preferenceVersionOf } from "./notification-unsubscribe-token";
 
 const NOTIFICATION_SELECT = {
@@ -257,27 +253,25 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
     now: Date;
     limit: number;
   }): Promise<{ companyId: string; userId: string }[]> {
-    const instantByDefault = NOTIFICATION_KINDS.filter((kind) => DEFAULT_NOTIFICATION_EMAIL_MODES[kind] === "instant");
-    const rows = await this.prisma.$queryRaw<Array<{ companyId: string; userId: string }>>(Prisma.sql`
-      SELECT n."companyId", n."userId"
-      FROM "Notification" n
-      LEFT JOIN "NotificationPreference" p
-        ON p."companyId" = n."companyId" AND p."userId" = n."userId" AND p."kind" = n."kind"
-      LEFT JOIN "NotificationPause" z
-        ON z."companyId" = n."companyId" AND z."userId" = n."userId"
-      WHERE n."emailedAt" IS NULL
-        AND n."readAt" IS NULL
-        AND n."createdAt" >= ${args.since}
-        AND n."createdAt" <= ${args.before}
-        AND (z."until" IS NULL OR z."until" <= ${args.now})
-        AND COALESCE(
-          p."emailMode"::text,
-          CASE WHEN n."kind"::text = ANY(${instantByDefault}::text[]) THEN 'instant' ELSE 'digest' END
-        ) = 'instant'
-      GROUP BY n."companyId", n."userId"
-      ORDER BY MIN(n."createdAt") ASC, n."companyId" ASC, n."userId" ASC
-      LIMIT ${args.limit}
-    `);
+    const instantForMember = NOTIFICATION_KINDS.map(
+      (kind): Prisma.NotificationWhereInput =>
+        DEFAULT_NOTIFICATION_EMAIL_MODES[kind] === "instant"
+          ? { kind, user: { is: { notificationPreferences: { none: { kind, emailMode: { not: "instant" } } } } } }
+          : { kind, user: { is: { notificationPreferences: { some: { kind, emailMode: "instant" } } } } },
+    );
+    const rows = await this.prisma.notification.groupBy({
+      by: ["companyId", "userId"],
+      where: {
+        emailedAt: null,
+        readAt: null,
+        createdAt: { gte: args.since, lte: args.before },
+        user: { is: { notificationPauses: { none: { until: { gt: args.now } } } } },
+        OR: instantForMember,
+      },
+      _min: { createdAt: true },
+      orderBy: [{ _min: { createdAt: "asc" } }, { companyId: "asc" }, { userId: "asc" }],
+      take: args.limit,
+    });
     return rows.map(({ companyId, userId }) => ({ companyId, userId }));
   }
 

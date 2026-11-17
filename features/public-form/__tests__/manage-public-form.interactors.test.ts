@@ -305,9 +305,7 @@ describe("UpsertPublicFormInteractor", () => {
       id: FORM_ID,
       enabled: false,
       config: createConfig({
-        fields: [
-          { fieldId: "00000000-0000-4000-8000-0000000000aa", label: "Gone", helpText: null, required: false },
-        ],
+        fields: [{ fieldId: "00000000-0000-4000-8000-0000000000aa", label: "Gone", helpText: null, required: false }],
       }),
     });
 

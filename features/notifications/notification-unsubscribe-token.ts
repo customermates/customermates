@@ -9,8 +9,7 @@ export const NOTIFICATION_UNSUBSCRIBE_DAYS = 30;
 export const NO_PREFERENCE_VERSION = 0;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const TOKEN_PATTERN =
-  /^(\d{1,12})\.([0-9a-f-]{36})\.([0-9a-f-]{36})\.([A-Za-z]{1,32})\.(\d{1,16})\.([0-9a-f]{64})$/u;
+const TOKEN_PATTERN = /^(\d{1,12})\.([0-9a-f-]{36})\.([0-9a-f-]{36})\.([A-Za-z]{1,32})\.(\d{1,16})\.([0-9a-f]{64})$/u;
 
 export type NotificationUnsubscribeClaims = {
   userId: string;

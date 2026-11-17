@@ -194,10 +194,11 @@ describeDatabase("the member a public form runs as", { timeout: 60_000 }, () => 
 
 describeDatabase("the index the daily prune of form submissions uses", { timeout: 60_000 }, () => {
   it("exists on the creation time alone", async () => {
-    const rows = await runWithoutTenant(() =>
-      prisma.$queryRaw<
-        Array<{ indexdef: string }>
-      >`SELECT indexdef FROM pg_indexes WHERE tablename = 'PublicFormSubmission' AND indexname = 'PublicFormSubmission_createdAt_idx'`,
+    const rows = await runWithoutTenant(
+      () =>
+        prisma.$queryRaw<
+          Array<{ indexdef: string }>
+        >`SELECT indexdef FROM pg_indexes WHERE tablename = 'PublicFormSubmission' AND indexname = 'PublicFormSubmission_createdAt_idx'`,
     );
 
     expect(rows.map((row) => row.indexdef)).toEqual([expect.stringContaining('("createdAt")')]);
@@ -252,9 +253,9 @@ describeDatabase("duplicate public form submissions", { timeout: 60_000 }, () =>
     expect(listed.items[1]).toMatchObject({ recordId: existing.recordId, answers });
     expect(listed.items[0].answers).toEqual([]);
     expect(firstOnly).toMatchObject({ count: 2, items: [{ id: newer }] });
-    expect(await w.as(w.admin, () => repo.duplicateSubmissionsSince(form.id, new Date(Date.now() + DAY_MS), 20))).toEqual(
-      { count: 0, items: [] },
-    );
+    expect(
+      await w.as(w.admin, () => repo.duplicateSubmissionsSince(form.id, new Date(Date.now() + DAY_MS), 20)),
+    ).toEqual({ count: 0, items: [] });
     expect(await other.as(other.admin, () => repo.duplicateSubmissionsSince(form.id, since, 20))).toEqual({
       count: 0,
       items: [],
