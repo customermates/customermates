@@ -126,6 +126,15 @@ describe("Docker runner stage", () => {
   // first test of a shard.
   it("sets the same guard for the production servers the test suites start", () => {
     expect(source("tests/e2e/start-server.ts")).toMatch(/mode === "start" \? \{ _FUMADOCS_MDX: "1" \}/u);
-    expect(source(".github/workflows/page-shipping-e2e.yml")).toMatch(/_FUMADOCS_MDX=1 yarn next start/u);
+    expect(source(".github/workflows/page-shipping-e2e.yml")).toMatch(/_FUMADOCS_MDX=1 node /u);
+  });
+
+  // Next resolves the proxy's rewrite of a missing page against the hostname it was started with. Started on
+  // 127.0.0.1 the rewrite became an HTTP call to localhost, which failed now and then with a 500 instead of a 404.
+  it("starts the page crawl's server on the hostname the browser suite uses", () => {
+    expect(source("tests/e2e/start-server.ts")).toMatch(/"--dns-result-order=ipv4first"/u);
+    expect(source(".github/workflows/page-shipping-e2e.yml")).toMatch(
+      /node --dns-result-order=ipv4first node_modules\/next\/dist\/bin\/next start \\\n\s+--hostname localhost --port 4499 --keepAliveTimeout 30000/u,
+    );
   });
 });

@@ -37,8 +37,11 @@ jobs:
           set -euo pipefail
 
           server_log="$RUNNER_TEMP/page-shipping-server.log"
-          # Like the Docker image: the production server serves the built content and does not regenerate it on start.
-          _FUMADOCS_MDX=1 yarn next start -H 127.0.0.1 -p 4499 >"$server_log" 2>&1 &
+          # Started like tests/e2e/start-server.ts. The guard keeps the server from regenerating the built content, as
+          # in the Docker image. The hostname is the one Next gives the proxy's rewrite of a missing page: started on
+          # 127.0.0.1 that rewrite left the server as an HTTP call to localhost and failed now and then with a 500.
+          _FUMADOCS_MDX=1 node --dns-result-order=ipv4first node_modules/next/dist/bin/next start \
+            --hostname localhost --port 4499 --keepAliveTimeout 30000 >"$server_log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
 
