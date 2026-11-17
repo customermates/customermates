@@ -9,6 +9,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { isSubscriptionLocked } from "@/ee/subscription/entitlements";
+import { WORKSPACE_INACTIVE_REASONS } from "@/features/workspace/workspace.schema";
 import { canConnectMcp } from "./mcp-access";
 
 export const MCP_CONSENT_UNAVAILABLE_REASONS = ["pending", "inactive", "permission", "plan", "terms"] as const;
@@ -18,6 +19,7 @@ export const McpConsentWorkspaceSchema = z.object({
   name: z.string().nullable(),
   isCurrent: z.boolean(),
   unavailableReason: z.enum(MCP_CONSENT_UNAVAILABLE_REASONS).nullable(),
+  inactiveReason: z.enum(WORKSPACE_INACTIVE_REASONS).nullable(),
 });
 export type McpConsentWorkspace = z.infer<typeof McpConsentWorkspaceSchema>;
 type UnavailableReason = (typeof MCP_CONSENT_UNAVAILABLE_REASONS)[number];
@@ -39,6 +41,7 @@ export class ListMcpConsentWorkspacesInteractor {
         name: workspace.name,
         isCurrent: workspace.isCurrent,
         unavailableReason: await this.unavailableReason(workspace),
+        inactiveReason: workspace.inactiveReason,
       })),
     );
 

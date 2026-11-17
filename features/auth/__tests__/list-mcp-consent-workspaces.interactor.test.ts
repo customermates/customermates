@@ -34,6 +34,10 @@ function workspace(companyId: string, overrides: Partial<WorkspaceSummary> = {})
   };
 }
 
+function reason(unavailableReason: string | null) {
+  return { unavailableReason, inactiveReason: null };
+}
+
 describe("ListMcpConsentWorkspacesInteractor", () => {
   const listMyWorkspaces = { invoke: vi.fn() };
   const routeGuardService = { resolveMembershipForConsent: vi.fn() };
@@ -78,17 +82,36 @@ describe("ListMcpConsentWorkspacesInteractor", () => {
     expect(result).toEqual({
       ok: true,
       data: [
-        { companyId: "current", name: "Workspace current", isCurrent: true, unavailableReason: null },
-        { companyId: "api-reader", name: null, isCurrent: false, unavailableReason: null },
-        { companyId: "viewer", name: "Workspace viewer", isCurrent: false, unavailableReason: "permission" },
-        { companyId: "waiting", name: "Workspace waiting", isCurrent: false, unavailableReason: "pending" },
-        { companyId: "deactivated", name: "Workspace deactivated", isCurrent: false, unavailableReason: "inactive" },
-        { companyId: "expired", name: "Workspace expired", isCurrent: false, unavailableReason: "plan" },
-        { companyId: "legal", name: "Workspace legal", isCurrent: false, unavailableReason: "terms" },
+        { companyId: "current", name: "Workspace current", isCurrent: true, ...reason(null) },
+        { companyId: "api-reader", name: null, isCurrent: false, ...reason(null) },
+        { companyId: "viewer", name: "Workspace viewer", isCurrent: false, ...reason("permission") },
+        { companyId: "waiting", name: "Workspace waiting", isCurrent: false, ...reason("pending") },
+        { companyId: "deactivated", name: "Workspace deactivated", isCurrent: false, ...reason("inactive") },
+        { companyId: "expired", name: "Workspace expired", isCurrent: false, ...reason("plan") },
+        { companyId: "legal", name: "Workspace legal", isCurrent: false, ...reason("terms") },
       ],
     });
     expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalledWith("waiting");
     expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalledWith("deactivated");
+  });
+
+  it("says why an inactive membership is inactive: deactivated, paused by the plan or left without an admin", async () => {
+    listMyWorkspaces.invoke.mockResolvedValue({
+      ok: true,
+      data: [
+        workspace("deactivated", { status: Status.inactive, inactiveReason: "deactivated" }),
+        workspace("paused", { status: Status.inactive, inactiveReason: "pausedByPlan" }),
+        workspace("orphaned", { status: Status.inactive, inactiveReason: "noActiveAdmin" }),
+      ],
+    });
+
+    const result = await interactor().invoke();
+
+    expect(result.data.map((item) => [item.companyId, item.unavailableReason, item.inactiveReason])).toEqual([
+      ["deactivated", "inactive", "deactivated"],
+      ["paused", "inactive", "pausedByPlan"],
+      ["orphaned", "inactive", "noActiveAdmin"],
+    ]);
   });
 
   it("returns no workspaces without an interactive session", async () => {

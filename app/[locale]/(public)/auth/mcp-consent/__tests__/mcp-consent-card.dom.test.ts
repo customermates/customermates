@@ -26,13 +26,26 @@ import { McpConsentStore } from "../mcp-consent.store";
 
 import { workspaceAvatarStyle } from "@/app/components/workspaces/workspace-identity";
 
-const crm: McpConsentWorkspace = { companyId: "company-a", name: "CRM", isCurrent: true, unavailableReason: null };
-const taxes: McpConsentWorkspace = { companyId: "company-b", name: "Taxes", isCurrent: false, unavailableReason: null };
+const crm: McpConsentWorkspace = {
+  companyId: "company-a",
+  name: "CRM",
+  isCurrent: true,
+  unavailableReason: null,
+  inactiveReason: null,
+};
+const taxes: McpConsentWorkspace = {
+  companyId: "company-b",
+  name: "Taxes",
+  isCurrent: false,
+  unavailableReason: null,
+  inactiveReason: null,
+};
 const waiting: McpConsentWorkspace = {
   companyId: "company-c",
   name: null,
   isCurrent: false,
   unavailableReason: "pending",
+  inactiveReason: null,
 };
 
 let container: HTMLDivElement;
@@ -231,6 +244,24 @@ describe("McpConsentCard", () => {
         accept: false,
         companyId: "company-b",
       });
+    },
+  );
+
+  it.each([
+    ["deactivated", `McpConsentWorkspace.fixed.unavailable.inactive ${JSON.stringify({ workspace: "Taxes" })}`],
+    [null, `McpConsentWorkspace.fixed.unavailable.inactive ${JSON.stringify({ workspace: "Taxes" })}`],
+    ["pausedByPlan", `PlanPausedCard.body ${JSON.stringify({ workspace: "Taxes" })}`],
+    ["noActiveAdmin", "InactiveCard.supportBody"],
+  ] as const)(
+    "tells a member whose access is inactive (%s) what brings it back, and asks for an admin only when one can help",
+    (inactiveReason, message) => {
+      render([{ ...taxes, unavailableReason: "inactive", inactiveReason }], true);
+
+      expect(container.textContent).toContain(message);
+      const asksForAdmin = container.textContent?.includes("McpConsentWorkspace.fixed.unavailable.inactive");
+      expect(asksForAdmin).toBe(inactiveReason === "deactivated" || inactiveReason === null);
+      expect(fixedWorkspaceRow("company-b")?.textContent).toBe("TTaxesMcpConsentWorkspace.unavailable.inactive");
+      expect(button("McpConsentCard.approve")).toBeUndefined();
     },
   );
 

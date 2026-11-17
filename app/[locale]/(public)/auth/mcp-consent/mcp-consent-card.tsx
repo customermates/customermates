@@ -77,12 +77,23 @@ const McpConsentCardContent = observer((props: Props) => {
     }
   };
 
-  const fixedUnavailableMessage = (reason: McpConsentWorkspace["unavailableReason"], workspace: string) => {
+  const fixedInactiveMessage = (reason: McpConsentWorkspace["inactiveReason"], workspace: string) => {
     switch (reason) {
+      case "pausedByPlan":
+        return t("PlanPausedCard.body", { workspace });
+      case "noActiveAdmin":
+        return t("InactiveCard.supportBody");
+      default:
+        return t("McpConsentWorkspace.fixed.unavailable.inactive", { workspace });
+    }
+  };
+
+  const fixedUnavailableMessage = (choice: McpConsentWorkspace, workspace: string) => {
+    switch (choice.unavailableReason) {
       case "pending":
         return t("McpConsentWorkspace.fixed.unavailable.pending", { workspace });
       case "inactive":
-        return t("McpConsentWorkspace.fixed.unavailable.inactive", { workspace });
+        return fixedInactiveMessage(choice.inactiveReason, workspace);
       case "permission":
         return t("McpConsentWorkspace.fixed.unavailable.permission", { workspace });
       case "plan":
@@ -101,7 +112,7 @@ const McpConsentCardContent = observer((props: Props) => {
   const fixedChoice = fixedWorkspace ? (mcpConsentStore.workspaces[0] ?? null) : null;
   const fixedName = fixedChoice ? workspaceDisplayName(fixedChoice.name, t("Workspaces.fallbackName")) : "";
   const fixedRefusal = fixedChoice
-    ? fixedUnavailableMessage(fixedChoice.unavailableReason, fixedName)
+    ? fixedUnavailableMessage(fixedChoice, fixedName)
     : t("McpConsentWorkspace.fixed.notMember");
 
   return (
