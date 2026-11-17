@@ -65,8 +65,6 @@ export default async function AutomationsPage({ searchParams }: Props) {
     getGetWebhooksInteractor().invoke({}),
     cloud ? unwrapPage(getGetPlanUsageInteractor().invoke()) : Promise.resolve(null),
   ]);
-  // The Mate runtime is available only where the agent chat is configured and the plan includes it; the interactor
-  // answers inside the tenant context, which a page has no business entering itself.
   const agentChat = cloud && env.APP_MODE !== "demo" && runtimes.mate.available;
   const free = usage?.plan === FREE_PLAN_ID;
   const routinesOnly = single(params.kind) === "routine";
