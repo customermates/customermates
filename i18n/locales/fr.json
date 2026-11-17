@@ -1915,7 +1915,7 @@
     "folderToggleLabel": "Synchroniser le dossier {folder}",
     "invalidCredentialsToastDescription": "Les identifiants n’ont pas été acceptés. Vérifiez-les et réessayez.",
     "invalidCredentialsToastTitle": "Identifiants invalides",
-    "lastSynced": "Dernière synchronisation",
+    "lastSynced": "Dernier import de l’historique",
     "messagingRequiresCloud": "La messagerie est disponible sur Customermates Cloud (formule Pro ou supérieure).",
     "messagingRequiresPro": "La messagerie nécessite la formule Pro ou supérieure. Passez à une formule supérieure pour connecter un canal.",
     "ownerLabel": "Propriétaire",

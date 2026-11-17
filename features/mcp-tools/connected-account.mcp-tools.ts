@@ -96,6 +96,7 @@ export const manageConnectedAccountsTool = {
   description:
     "Lists and changes the settings of connected email and chat accounts, as on the Channels & calendars settings page. " +
     "list returns the caller's connected accounts with status, owner, sharing, email folders, the folder ids that sync, the signature and emailSettings. " +
+    "lastSyncedAt is when the account's last history import finished, not when its newest message arrived: new messages arrive continuously and do not change it. " +
     "The other actions change only accounts owned by the caller: set_folders replaces the synced folder ids, and newly enabled folders sync in the background; " +
     "set_signature changes the signature text, emailSettings or both (settings is the complete object; an omitted field keeps its stored value); set_sharing shares all conversations of the account with every member who can read the Inbox, or makes it private again (Business or Enterprise); " +
     "resync fetches the account's history again in the background. " +

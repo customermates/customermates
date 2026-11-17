@@ -1915,7 +1915,7 @@
     "folderToggleLabel": "Synchronizuj folder {folder}",
     "invalidCredentialsToastDescription": "Dane logowania nie zostały zaakceptowane. Sprawdź je i spróbuj ponownie.",
     "invalidCredentialsToastTitle": "Nieprawidłowe dane logowania",
-    "lastSynced": "Ostatnia synchronizacja",
+    "lastSynced": "Ostatni import historii",
     "messagingRequiresCloud": "Wiadomości są dostępne w Customermates Cloud (plan Pro lub wyższy).",
     "messagingRequiresPro": "Wiadomości wymagają planu Pro lub wyższego. Przejdź na wyższy plan, aby połączyć kanał.",
     "ownerLabel": "Właściciel",

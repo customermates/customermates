@@ -1915,7 +1915,7 @@
     "folderToggleLabel": "Sincronizar la carpeta {folder}",
     "invalidCredentialsToastDescription": "No se aceptaron las credenciales. Compruébalas e inténtalo de nuevo.",
     "invalidCredentialsToastTitle": "Credenciales no válidas",
-    "lastSynced": "Última sincronización",
+    "lastSynced": "Última importación del historial",
     "messagingRequiresCloud": "La mensajería está disponible en Customermates Cloud (plan Pro o superior).",
     "messagingRequiresPro": "La mensajería requiere el plan Pro o superior. Cambia a un plan superior para conectar un canal.",
     "ownerLabel": "Propietario",

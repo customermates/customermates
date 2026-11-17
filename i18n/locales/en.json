@@ -1915,7 +1915,7 @@
     "folderToggleLabel": "Sync the {folder} folder",
     "invalidCredentialsToastDescription": "The login details were not accepted. Check your credentials and try again.",
     "invalidCredentialsToastTitle": "Invalid credentials",
-    "lastSynced": "Last synced",
+    "lastSynced": "History last imported",
     "messagingRequiresCloud": "Messaging is available on Customermates Cloud (Pro plan or higher).",
     "messagingRequiresPro": "Messaging requires the Pro plan or higher. Upgrade to connect a channel.",
     "ownerLabel": "Owner",
