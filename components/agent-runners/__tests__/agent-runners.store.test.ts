@@ -36,16 +36,17 @@ function runner(overrides: Partial<AgentRunnerDto> = {}): AgentRunnerDto {
     lastSeenAt: null,
     online: false,
     revokedAt: null,
+    createdById: "33333333-3333-4333-8333-333333333333",
     createdAt: "2026-11-16T10:00:00.000Z",
     ...overrides,
   };
 }
 
-function makeStore() {
+function makeStore(can: (resource: string, action: string) => boolean = () => true) {
   const rootStore = {
     loadingOverlayStore: { isLoading: false, withLoading: <T>(fn: () => Promise<T>) => fn() },
     localeStore: { getTranslation: (key: string) => key },
-    userStore: { user: { id: "u", role: { isSystemRole: true } }, can: () => true },
+    userStore: { user: { id: "u", role: { isSystemRole: true } }, can },
   } as unknown as RootStore;
   return new AgentRunnersStore(rootStore);
 }
@@ -62,6 +63,30 @@ describe("AgentRunnersStore", () => {
     await store.refresh();
 
     expect(store.items.map((item) => item.name)).toEqual(["Office laptop"]);
+  });
+
+  it("lets a member revoke with the delete permission on API & Webhooks and add with the create permission", () => {
+    const deleteOnly = makeStore((resource, action) => resource === "api" && action === "delete");
+    const createOnly = makeStore((resource, action) => resource === "api" && action === "create");
+
+    expect([deleteOnly.canRevoke, deleteOnly.canManage]).toEqual([true, false]);
+    expect([createOnly.canRevoke, createOnly.canManage]).toEqual([false, true]);
+  });
+
+  it("knows whether a runner is left whose state can still change", async () => {
+    const store = makeStore();
+    expect(store.hasLiveRunner).toBe(false);
+
+    harness.refreshAgentRunnersAction.mockResolvedValue({
+      ok: true,
+      data: { runners: [runner({ revokedAt: "2026-11-17T09:00:00.000Z" })] },
+    });
+    await store.refresh();
+    expect(store.hasLiveRunner).toBe(false);
+
+    harness.refreshAgentRunnersAction.mockResolvedValue({ ok: true, data: { runners: [runner()] } });
+    await store.refresh();
+    expect(store.hasLiveRunner).toBe(true);
   });
 
   it("revokes a runner and reloads the list so it shows as revoked", async () => {

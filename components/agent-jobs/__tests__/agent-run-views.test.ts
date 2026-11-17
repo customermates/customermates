@@ -33,7 +33,11 @@ vi.mock("next-intl", () => ({
     ),
 }));
 
+import { AGENT_RUNNER_JOB_ERRORS } from "@/features/agent-runners/agent-runner.schema";
+
+import { RUNNER_ERRORS } from "../../../packages/runner/src/run-job";
 import { AgentRunsStore } from "../agent-runs.store";
+import { agentJobErrorLabel } from "../agent-job-labels";
 import { AgentJobTranscript } from "../agent-job-transcript";
 import { AgentRunsCard } from "../agent-runs-card";
 
@@ -121,6 +125,68 @@ describe("AgentJobTranscript", () => {
     expect(untrusted).toContain("AgentJobs.transcript.untrusted");
     expect(empty).toContain("AgentJobs.transcript.empty");
     expect(empty).not.toContain("<ol");
+  });
+
+  it("says that the steps are kept from a reader who is neither the owner nor an admin, instead of 'nothing recorded'", () => {
+    const restricted = renderToStaticMarkup(
+      createElement(AgentJobTranscript, { job: { transcript: [], promptUntrusted: false, restricted: true } }),
+    );
+
+    expect(restricted).toContain("AgentJobs.transcript.restricted");
+    expect(restricted).toContain("data-transcript-restricted");
+    expect(restricted).not.toContain("AgentJobs.transcript.empty");
+  });
+});
+
+describe("the reason a run ended", () => {
+  const t = ((key: string, values?: Record<string, string>) =>
+    values ? `${key}(${Object.values(values).join(",")})` : key) as unknown as Parameters<typeof agentJobErrorLabel>[0];
+
+  it.each([
+    "queueExpired",
+    "runnerRevoked",
+    "ruleInactive",
+    "ownerApiAccess",
+    "planRequired",
+    "runnerStopped",
+    "runnerFailed",
+    "timedOut",
+    "ownerInactive",
+  ])("names %s in its own words, not as a provider error", (code) => {
+    expect(agentJobErrorLabel(t, code)).toBe(`AgentJobs.errors.${code}`);
+  });
+
+  it("has a label for every code the server and the runner end a runner job with", () => {
+    for (const code of [...Object.values(AGENT_RUNNER_JOB_ERRORS), ...Object.values(RUNNER_ERRORS)])
+      expect(agentJobErrorLabel(t, code)).toBe(`AgentJobs.errors.${code}`);
+  });
+
+  it("still shows an unknown code as what the provider returned", () => {
+    expect(agentJobErrorLabel(t, "the client exited with code 1")).toBe(
+      "AgentJobs.errors.provider(the client exited with code 1)",
+    );
+  });
+
+  it("shows a finished runner job with its answer and tokens and without credits", () => {
+    const { markup } = renderRuns([
+      summary({
+        runtime: "runner",
+        model: null,
+        costMicrocents: null,
+        result: { text: "Three deals need a follow-up.", reason: "stop", toolCalls: 4 },
+      }),
+      summary({
+        id: "00000000-0000-4000-8000-0000000000a3",
+        runtime: "runner",
+        status: "cancelled",
+        error: "runnerRevoked",
+        result: null,
+      }),
+    ]);
+
+    expect(markup).toContain("Three deals need a follow-up.");
+    expect(markup).toContain("AgentJobs.errors.runnerRevoked");
+    expect(markup).not.toContain("AgentJobs.credits");
   });
 });
 

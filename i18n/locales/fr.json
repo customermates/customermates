@@ -866,9 +866,16 @@
       "modelRequired": "Choisissez un modèle pour cette étape : l’espace de travail a plus d’une clé de fournisseur",
       "modelUnavailable": "Aucune clé de fournisseur ne propose ce modèle",
       "noKey": "Aucune clé de fournisseur pour cette exécution",
+      "ownerApiAccess": "Le rôle du propriétaire de l’automatisation n’autorise pas l’accès à l’API",
       "ownerInactive": "Le propriétaire de l’automatisation n’est plus actif",
+      "planApiAccess": "L’offre de l’espace de travail n’inclut pas l’accès à l’API",
       "planRequired": "L’exécution d’agents sur votre propre clé n’est pas incluse dans le forfait actuel",
       "provider": "Le fournisseur a renvoyé une erreur ({code})",
+      "queueExpired": "Aucun runner ni agent n’a pris l’exécution en charge en 15 minutes",
+      "ruleInactive": "L’automatisation a été désactivée ou supprimée avant le début de l’exécution",
+      "runnerFailed": "La CLI du runner a échoué",
+      "runnerRevoked": "Le runner a été révoqué",
+      "runnerStopped": "Le runner a été arrêté pendant l’exécution",
       "timedOut": "L’exécution a pris trop de temps",
       "timeLimit": "Arrêtée à la limite de temps",
       "toolLimit": "Arrêtée à la limite d’appels d’outils"
@@ -899,9 +906,10 @@
       },
       "label": "Transcription de l’exécution",
       "modelFallback": "Le modèle par défaut {saved} de cette clé n’est plus proposé. Cette exécution a utilisé {used}.",
+      "restricted": "Seuls le propriétaire de cette exécution et les administrateurs voient ses étapes et son résultat.",
       "result": "Résultat de {name}",
       "resultFailed": "{name} n’a pas abouti",
-      "untrusted": "Cette exécution a démarré depuis l’extérieur de l’espace de travail, l’agent a donc traité l’enregistrement comme des données.",
+      "untrusted": "La consigne de cette exécution contient du texte venu de l’extérieur de l’espace de travail ou d’un enregistrement, l’agent a donc traité ce texte comme des données et non comme une consigne.",
       "user": "Consigne"
     }
   },
@@ -6033,7 +6041,7 @@
   },
   "Runners": {
     "add": "Ajouter un runner",
-    "addDescription": "Indiquez la machine sur laquelle le runner tournera. Vous recevez un jeton une seule fois ; le runner l’utilise pour récupérer les tâches d’agent de cet espace de travail.",
+    "addDescription": "Indiquez la machine sur laquelle le runner tournera. Vous recevez un jeton une seule fois ; le runner l’utilise pour récupérer vos tâches d’agent dans cet espace de travail.",
     "addTitle": "Ajouter un runner",
     "clientNames": {
       "claude": "Claude Code",
@@ -6041,8 +6049,8 @@
       "gemini": "Gemini CLI"
     },
     "clients": "CLI détectées",
-    "description": "Un runner exécute les étapes d’agent avec votre propre Claude Code, Codex ou Gemini CLI sur votre machine. Il récupère les tâches de cet espace de travail, lance la CLI dont vous avez ouvert la session et renvoie le résultat. Customermates ne reçoit jamais votre connexion à la CLI.",
-    "dockerDescription": "Lance le même runner dans un conteneur. Montez le dossier de connexion de votre CLI pour qu’elle reste connectée.",
+    "description": "Un runner exécute vos étapes d’agent avec votre propre Claude Code, Codex ou Gemini CLI sur votre machine. Il récupère les tâches des automatisations dont vous êtes propriétaire, lance la CLI dont vous avez ouvert la session et renvoie le résultat. Customermates ne reçoit jamais votre connexion à la CLI.",
+    "dockerDescription": "Lance le même runner dans un conteneur. Montez le dossier de connexion de votre CLI pour qu’elle reste connectée. Sous macOS, Claude Code garde sa connexion dans le Trousseau : passez-y sa clé d’API ou son jeton dans une variable.",
     "dockerTitle": "Lancer avec Docker",
     "installDescription": "Nécessite Node 24 et Claude Code, Codex ou Gemini CLI, connecté sur cette machine.",
     "installTitle": "Lancer avec Node",
@@ -6050,11 +6058,11 @@
     "machine": "Machine",
     "noClients": "Aucune CLI détectée",
     "offline": {
-      "body": "Des tâches d’agent attendent un runner et aucun ne s’est connecté depuis 10 minutes. Démarrez votre runner ou vérifiez la machine sur laquelle il tourne.",
+      "body": "Vos tâches d’agent attendent, et aucun de vos runners capables de les prendre ne s’est connecté depuis 10 minutes. Démarrez votre runner ou vérifiez la machine sur laquelle il tourne. Une tâche qui attend plus de 15 minutes se termine en délai dépassé.",
       "title": "Votre runner est hors ligne"
     },
     "revoke": "Révoquer",
-    "revokeDescription": "{name} ne peut plus récupérer de tâches, et une tâche en cours ne renvoie plus rien et expire. Cette action est irréversible. Ajoutez un nouveau runner pour reconnecter la machine.",
+    "revokeDescription": "{name} ne peut plus récupérer de tâches, et les tâches qu’il exécute ou qui l’attendent se terminent comme annulées. Cette action est irréversible. Ajoutez un nouveau runner pour reconnecter la machine.",
     "revokeTitle": "Révoquer ce runner ?",
     "status": {
       "neverSeen": "Jamais connecté",
@@ -6066,7 +6074,7 @@
     "toastRevoked": "Runner révoqué",
     "tokenCreated": "Runner ajouté. Copiez le jeton maintenant, il n’est affiché qu’une seule fois.",
     "tokenLabel": "Jeton du runner",
-    "tokenWarning": "Toute personne disposant de ce jeton peut récupérer les tâches de runner de cet espace de travail. Révoquez le runner si le jeton fuite."
+    "tokenWarning": "Toute personne disposant de ce jeton peut récupérer vos tâches de runner dans cet espace de travail. Révoquez le runner si le jeton fuite."
   },
   "ScheduleMeeting": {
     "action": "Planifier une réunion",

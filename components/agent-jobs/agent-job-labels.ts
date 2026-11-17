@@ -53,6 +53,20 @@ export function agentJobErrorLabel(t: Translator, code: string): string {
       return t("AgentJobs.errors.modelUnavailable");
     case "ownerInactive":
       return t("AgentJobs.errors.ownerInactive");
+    case "ownerApiAccess":
+      return t("AgentJobs.errors.ownerApiAccess");
+    case "planRequired":
+      return t("AgentJobs.errors.planRequired");
+    case "queueExpired":
+      return t("AgentJobs.errors.queueExpired");
+    case "runnerRevoked":
+      return t("AgentJobs.errors.runnerRevoked");
+    case "ruleInactive":
+      return t("AgentJobs.errors.ruleInactive");
+    case "runnerStopped":
+      return t("AgentJobs.errors.runnerStopped");
+    case "runnerFailed":
+      return t("AgentJobs.errors.runnerFailed");
     case "timedOut":
       return t("AgentJobs.errors.timedOut");
     case "toolLimit":

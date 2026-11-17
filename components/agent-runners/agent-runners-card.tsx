@@ -5,7 +5,7 @@ import type { AgentRunnerStatus } from "./agent-runner-status";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
+import { startAgentRunnerRefresh } from "./agent-runner-refresh";
 import { AGENT_RUNNER_BADGE_VARIANTS, agentRunnerStatus } from "./agent-runner-status";
 import { AgentRunnerModal } from "./agent-runner-modal";
 
@@ -25,7 +26,7 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
   const { agentRunnersStore: store, agentRunnerModalStore: modal } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const { showConfirmation } = useDeleteConfirmation();
-  const { canManage } = store;
+  const { canManage, canRevoke, hasLiveRunner } = store;
 
   const statusLabels: Record<AgentRunnerStatus, string> = {
     online: t("Runners.status.online"),
@@ -40,6 +41,14 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
   };
 
   useLayoutEffect(() => store.setItems({ items: runners }), [runners, store]);
+
+  useEffect(() => {
+    if (!hasLiveRunner) return undefined;
+    return startAgentRunnerRefresh(
+      () => store.refresh(),
+      () => document.visibilityState === "visible",
+    );
+  }, [hasLiveRunner, store]);
 
   function revoke(runner: AgentRunnerDto) {
     showConfirmation({
@@ -98,7 +107,7 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
                       : t("Common.never")}
                   </InfoRow>
 
-                  {canManage && status !== "revoked" ? (
+                  {canRevoke && status !== "revoked" ? (
                     <div className="flex justify-end pt-1">
                       <Button size="sm" variant="ghost" onClick={() => revoke(runner)}>
                         {t("Runners.revoke")}

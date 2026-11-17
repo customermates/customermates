@@ -866,9 +866,16 @@
       "modelRequired": "Choose a model for this step: the workspace has more than one provider key",
       "modelUnavailable": "No provider key offers this model",
       "noKey": "No provider key for this run",
+      "ownerApiAccess": "The role of the automation's owner does not allow API access",
       "ownerInactive": "The owner of the automation is no longer active",
+      "planApiAccess": "The workspace plan does not include API access",
       "planRequired": "Running agents on your own key is not included in the current plan",
       "provider": "The provider returned an error ({code})",
+      "queueExpired": "No runner or agent picked the run up within 15 minutes",
+      "ruleInactive": "The automation was turned off or deleted before the run started",
+      "runnerFailed": "The CLI on the runner failed",
+      "runnerRevoked": "The runner was revoked",
+      "runnerStopped": "The runner was stopped during the run",
       "timedOut": "The run took too long",
       "timeLimit": "Stopped at the time limit",
       "toolLimit": "Stopped at the tool call limit"
@@ -899,9 +906,10 @@
       },
       "label": "Transcript of the run",
       "modelFallback": "The default model {saved} of this key is no longer offered. This run used {used}.",
+      "restricted": "Only the owner of this run and admins can see its steps and result.",
       "result": "Result of {name}",
       "resultFailed": "{name} did not complete",
-      "untrusted": "This run started from outside the workspace, so the agent treated the record as data.",
+      "untrusted": "The instruction of this run contains text from outside the workspace or from a record, so the agent treated that text as data, not as an instruction.",
       "user": "Instruction"
     }
   },
@@ -6033,7 +6041,7 @@
   },
   "Runners": {
     "add": "Add runner",
-    "addDescription": "Name the machine the runner will run on. You receive a token once, and the runner uses it to pick up the agent jobs of this workspace.",
+    "addDescription": "Name the machine the runner will run on. You receive a token once, and the runner uses it to pick up your agent jobs in this workspace.",
     "addTitle": "Add a runner",
     "clientNames": {
       "claude": "Claude Code",
@@ -6041,8 +6049,8 @@
       "gemini": "Gemini CLI"
     },
     "clients": "CLIs found",
-    "description": "A runner lets agent steps run with your own Claude Code, Codex or Gemini CLI on your machine. It picks up jobs from this workspace, runs the CLI you are signed in to and reports back. Customermates never receives your CLI login.",
-    "dockerDescription": "Runs the same runner in a container. Mount the login folder of your CLI so it stays signed in.",
+    "description": "A runner lets your agent steps run with your own Claude Code, Codex or Gemini CLI on your machine. It picks up the jobs of the automations you own, runs the CLI you are signed in to and reports back. Customermates never receives your CLI login.",
+    "dockerDescription": "Runs the same runner in a container. Mount the login folder of your CLI so it stays signed in. On macOS Claude Code keeps its login in the Keychain: pass its API key or token as a variable there.",
     "dockerTitle": "Run with Docker",
     "installDescription": "Needs Node 24 and one of Claude Code, Codex or Gemini CLI, signed in on that machine.",
     "installTitle": "Run with Node",
@@ -6050,11 +6058,11 @@
     "machine": "Machine",
     "noClients": "No CLI found",
     "offline": {
-      "body": "Agent jobs are waiting for a runner, and none has connected in the last 10 minutes. Start your runner or check the machine it runs on.",
+      "body": "Your agent jobs are waiting, and no runner of yours that could take them has connected in the last 10 minutes. Start your runner or check the machine it runs on. A job that waits longer than 15 minutes ends as timed out.",
       "title": "Your runner is offline"
     },
     "revoke": "Revoke",
-    "revokeDescription": "{name} can no longer pick up jobs, and a job it is running stops reporting and times out. This cannot be undone. Add a new runner to connect the machine again.",
+    "revokeDescription": "{name} can no longer pick up jobs, and the jobs it is running or that wait for it end as cancelled. This cannot be undone. Add a new runner to connect the machine again.",
     "revokeTitle": "Revoke this runner?",
     "status": {
       "neverSeen": "Never connected",
@@ -6066,7 +6074,7 @@
     "toastRevoked": "Runner revoked",
     "tokenCreated": "Runner added. Copy the token now, it is shown only once.",
     "tokenLabel": "Runner token",
-    "tokenWarning": "Anyone with this token can pick up the runner jobs of this workspace. Revoke the runner if the token leaks."
+    "tokenWarning": "Anyone with this token can pick up your runner jobs in this workspace. Revoke the runner if the token leaks."
   },
   "ScheduleMeeting": {
     "action": "Schedule meeting",

@@ -3,8 +3,8 @@ import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentRunnerDto } from "@/features/agent-runners/agent-runner.schema";
 
-import { action, makeObservable } from "mobx";
-import { Resource } from "@/generated/prisma";
+import { action, computed, makeObservable } from "mobx";
+import { Action, Resource } from "@/generated/prisma";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { actionData } from "@/core/utils/action-data";
@@ -16,7 +16,15 @@ export class AgentRunnersStore extends BaseDataViewStore<AgentRunnerDto> {
   constructor(rootStore: RootStore) {
     super(rootStore, Resource.api);
 
-    makeObservable(this, { revoke: action });
+    makeObservable(this, { revoke: action, canRevoke: computed, hasLiveRunner: computed });
+  }
+
+  get canRevoke(): boolean {
+    return this.rootStore.userStore.can(Resource.api, Action.delete);
+  }
+
+  get hasLiveRunner(): boolean {
+    return this.items.some((runner) => runner.revokedAt === null);
   }
 
   get columnsDefinition(): TableColumn[] {

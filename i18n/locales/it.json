@@ -866,9 +866,16 @@
       "modelRequired": "Scegli un modello per questo passaggio: lo spazio di lavoro ha più di una chiave di fornitore",
       "modelUnavailable": "Nessuna chiave di fornitore offre questo modello",
       "noKey": "Nessuna chiave di fornitore per questa esecuzione",
+      "ownerApiAccess": "Il ruolo del proprietario dell’automazione non consente l’accesso all’API",
       "ownerInactive": "Il proprietario dell’automazione non è più attivo",
+      "planApiAccess": "Il piano dello spazio di lavoro non include l’accesso all’API",
       "planRequired": "L’esecuzione di agenti con la tua chiave non è inclusa nel piano attuale",
       "provider": "Il fornitore ha restituito un errore ({code})",
+      "queueExpired": "Nessun runner o agente ha preso in carico l’esecuzione entro 15 minuti",
+      "ruleInactive": "L’automazione è stata disattivata o eliminata prima dell’avvio dell’esecuzione",
+      "runnerFailed": "La CLI sul runner non è riuscita",
+      "runnerRevoked": "Il runner è stato revocato",
+      "runnerStopped": "Il runner è stato fermato durante l’esecuzione",
       "timedOut": "L’esecuzione ha impiegato troppo tempo",
       "timeLimit": "Interrotta al limite di tempo",
       "toolLimit": "Interrotta al limite di chiamate agli strumenti"
@@ -899,9 +906,10 @@
       },
       "label": "Trascrizione dell’esecuzione",
       "modelFallback": "Il modello predefinito {saved} di questa chiave non è più offerto. Questa esecuzione ha usato {used}.",
+      "restricted": "Solo il proprietario di questa esecuzione e gli amministratori vedono i suoi passaggi e il suo risultato.",
       "result": "Risultato di {name}",
       "resultFailed": "{name} non è stato completato",
-      "untrusted": "Questa esecuzione è partita dall’esterno dello spazio di lavoro, quindi l’agente ha trattato il record come dati.",
+      "untrusted": "L’istruzione di questa esecuzione contiene testo che viene dall’esterno dello spazio di lavoro o da un record, quindi l’agente ha trattato quel testo come dati e non come istruzione.",
       "user": "Istruzione"
     }
   },
@@ -6033,7 +6041,7 @@
   },
   "Runners": {
     "add": "Aggiungi runner",
-    "addDescription": "Indica la macchina su cui girerà il runner. Ricevi un token una sola volta; il runner lo usa per ritirare i lavori dell’agente di questo spazio di lavoro.",
+    "addDescription": "Indica la macchina su cui girerà il runner. Ricevi un token una sola volta; il runner lo usa per ritirare i tuoi lavori dell’agente in questo spazio di lavoro.",
     "addTitle": "Aggiungi un runner",
     "clientNames": {
       "claude": "Claude Code",
@@ -6041,8 +6049,8 @@
       "gemini": "Gemini CLI"
     },
     "clients": "CLI trovate",
-    "description": "Un runner esegue i passaggi dell’agente con il tuo Claude Code, Codex o Gemini CLI sulla tua macchina. Ritira i lavori di questo spazio di lavoro, avvia la CLI a cui hai effettuato l’accesso e riporta il risultato. Customermates non riceve mai il tuo accesso alla CLI.",
-    "dockerDescription": "Avvia lo stesso runner in un container. Monta la cartella di accesso della tua CLI perché resti autenticata.",
+    "description": "Un runner esegue i tuoi passaggi dell’agente con il tuo Claude Code, Codex o Gemini CLI sulla tua macchina. Ritira i lavori delle automazioni di cui sei proprietario, avvia la CLI a cui hai effettuato l’accesso e riporta il risultato. Customermates non riceve mai il tuo accesso alla CLI.",
+    "dockerDescription": "Avvia lo stesso runner in un container. Monta la cartella di accesso della tua CLI perché resti autenticata. Su macOS Claude Code conserva l’accesso nel Portachiavi: lì passa la sua chiave API o il suo token in una variabile.",
     "dockerTitle": "Avvia con Docker",
     "installDescription": "Richiede Node 24 e Claude Code, Codex o Gemini CLI, con l’accesso effettuato su quella macchina.",
     "installTitle": "Avvia con Node",
@@ -6050,11 +6058,11 @@
     "machine": "Macchina",
     "noClients": "Nessuna CLI trovata",
     "offline": {
-      "body": "Dei lavori dell’agente attendono un runner e nessuno si è collegato negli ultimi 10 minuti. Avvia il runner o controlla la macchina su cui gira.",
+      "body": "I tuoi lavori dell’agente sono in attesa e negli ultimi 10 minuti non si è collegato nessun tuo runner che possa prenderli. Avvia il runner o controlla la macchina su cui gira. Un lavoro che attende più di 15 minuti termina per tempo scaduto.",
       "title": "Il tuo runner è offline"
     },
     "revoke": "Revoca",
-    "revokeDescription": "{name} non può più ritirare lavori e un lavoro in corso smette di riferire e scade. L’azione non si può annullare. Aggiungi un nuovo runner per collegare di nuovo la macchina.",
+    "revokeDescription": "{name} non può più ritirare lavori, e i lavori che sta eseguendo o che lo attendono terminano come annullati. L’azione non si può annullare. Aggiungi un nuovo runner per collegare di nuovo la macchina.",
     "revokeTitle": "Revocare questo runner?",
     "status": {
       "neverSeen": "Mai collegato",
@@ -6066,7 +6074,7 @@
     "toastRevoked": "Runner revocato",
     "tokenCreated": "Runner aggiunto. Copia subito il token, viene mostrato una sola volta.",
     "tokenLabel": "Token del runner",
-    "tokenWarning": "Chiunque abbia questo token può ritirare i lavori del runner di questo spazio di lavoro. Revoca il runner se il token viene diffuso."
+    "tokenWarning": "Chiunque abbia questo token può ritirare i tuoi lavori del runner in questo spazio di lavoro. Revoca il runner se il token viene diffuso."
   },
   "ScheduleMeeting": {
     "action": "Pianifica riunione",

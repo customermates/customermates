@@ -1,7 +1,7 @@
 export const RUNNER_DOCKER_IMAGE = "ghcr.io/customermates/runner";
 
 export function runnerNpxCommand(url: string, token: string): string {
-  return `npx customermates-runner --token ${token} --url ${url}`;
+  return `CUSTOMERMATES_RUNNER_TOKEN=${token} npx customermates-runner --url ${url}`;
 }
 
 export function runnerDockerCommand(url: string, token: string): string {
@@ -10,6 +10,7 @@ export function runnerDockerCommand(url: string, token: string): string {
     `-e CUSTOMERMATES_URL=${url}`,
     `-e CUSTOMERMATES_RUNNER_TOKEN=${token}`,
     '-v "$HOME/.claude:/home/node/.claude"',
+    '-v "$HOME/.claude.json:/home/node/.claude.json"',
     RUNNER_DOCKER_IMAGE,
   ].join(" ");
 }

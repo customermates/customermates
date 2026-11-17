@@ -866,9 +866,16 @@
       "modelRequired": "Wähle ein Modell für diesen Schritt: Der Workspace hat mehr als einen Anbieter-Schlüssel",
       "modelUnavailable": "Kein Anbieter-Schlüssel bietet dieses Modell",
       "noKey": "Kein Anbieter-Schlüssel für diesen Lauf",
+      "ownerApiAccess": "Die Rolle der Person, der die Automatisierung gehört, erlaubt keinen API-Zugriff",
       "ownerInactive": "Die Person, der die Automatisierung gehört, ist nicht mehr aktiv",
+      "planApiAccess": "Der Tarif des Workspace enthält keinen API-Zugriff",
       "planRequired": "Agenten mit eigenem Schlüssel sind im aktuellen Tarif nicht enthalten",
       "provider": "Der Anbieter hat einen Fehler gemeldet ({code})",
+      "queueExpired": "Innerhalb von 15 Minuten hat kein Runner oder Agent den Lauf übernommen",
+      "ruleInactive": "Die Automatisierung wurde vor dem Start des Laufs ausgeschaltet oder gelöscht",
+      "runnerFailed": "Die CLI auf dem Runner ist fehlgeschlagen",
+      "runnerRevoked": "Der Runner wurde widerrufen",
+      "runnerStopped": "Der Runner wurde während des Laufs gestoppt",
       "timedOut": "Der Lauf hat zu lange gedauert",
       "timeLimit": "Am Zeitlimit gestoppt",
       "toolLimit": "Am Limit der Werkzeugaufrufe gestoppt"
@@ -899,9 +906,10 @@
       },
       "label": "Protokoll des Laufs",
       "modelFallback": "Das Standardmodell {saved} dieses Schlüssels wird nicht mehr angeboten. Dieser Lauf hat {used} verwendet.",
+      "restricted": "Nur die Person, der dieser Lauf gehört, und Admins sehen seine Schritte und sein Ergebnis.",
       "result": "Ergebnis von {name}",
       "resultFailed": "{name} wurde nicht abgeschlossen",
-      "untrusted": "Dieser Lauf wurde von außerhalb des Workspaces gestartet, deshalb hat der Agent den Datensatz als Daten behandelt.",
+      "untrusted": "Die Anweisung dieses Laufs enthält Text von außerhalb des Workspace oder aus einem Datensatz, deshalb hat der Agent diesen Text als Daten behandelt, nicht als Anweisung.",
       "user": "Anweisung"
     }
   },
@@ -6033,7 +6041,7 @@
   },
   "Runners": {
     "add": "Runner hinzufügen",
-    "addDescription": "Gib den Rechner an, auf dem der Runner läuft. Du erhältst einmalig einen Token, mit dem der Runner die Agent-Aufträge dieses Workspace abholt.",
+    "addDescription": "Gib den Rechner an, auf dem der Runner läuft. Du erhältst einmalig einen Token, mit dem der Runner deine Agent-Aufträge in diesem Workspace abholt.",
     "addTitle": "Runner hinzufügen",
     "clientNames": {
       "claude": "Claude Code",
@@ -6041,8 +6049,8 @@
       "gemini": "Gemini CLI"
     },
     "clients": "Gefundene CLIs",
-    "description": "Mit einem Runner laufen Agent-Schritte mit deinem eigenen Claude Code, Codex oder Gemini CLI auf deinem Rechner. Er holt Aufträge aus diesem Workspace ab, führt die CLI aus, bei der du angemeldet bist, und meldet das Ergebnis zurück. Customermates erhält nie deine CLI-Anmeldung.",
-    "dockerDescription": "Startet denselben Runner in einem Container. Binde den Anmeldeordner deiner CLI ein, damit sie angemeldet bleibt.",
+    "description": "Mit einem Runner laufen deine Agent-Schritte mit deinem eigenen Claude Code, Codex oder Gemini CLI auf deinem Rechner. Er holt die Aufträge der Automatisierungen ab, die dir gehören, führt die CLI aus, bei der du angemeldet bist, und meldet das Ergebnis zurück. Customermates erhält nie deine CLI-Anmeldung.",
+    "dockerDescription": "Startet denselben Runner in einem Container. Binde den Anmeldeordner deiner CLI ein, damit sie angemeldet bleibt. Unter macOS liegt die Anmeldung von Claude Code im Schlüsselbund: Übergib dort den API-Schlüssel oder Token als Variable.",
     "dockerTitle": "Mit Docker starten",
     "installDescription": "Benötigt Node 24 und Claude Code, Codex oder Gemini CLI, auf diesem Rechner angemeldet.",
     "installTitle": "Mit Node starten",
@@ -6050,11 +6058,11 @@
     "machine": "Rechner",
     "noClients": "Keine CLI gefunden",
     "offline": {
-      "body": "Agent-Aufträge warten auf einen Runner, und seit 10 Minuten hat sich keiner verbunden. Starte deinen Runner oder prüfe den Rechner, auf dem er läuft.",
+      "body": "Deine Agent-Aufträge warten, und seit 10 Minuten hat sich kein Runner von dir verbunden, der sie übernehmen könnte. Starte deinen Runner oder prüfe den Rechner, auf dem er läuft. Ein Auftrag, der länger als 15 Minuten wartet, endet mit Zeitüberschreitung.",
       "title": "Dein Runner ist offline"
     },
     "revoke": "Widerrufen",
-    "revokeDescription": "{name} kann keine Aufträge mehr abholen, und ein laufender Auftrag meldet sich nicht mehr zurück und läuft ab. Das lässt sich nicht rückgängig machen. Füge einen neuen Runner hinzu, um den Rechner erneut zu verbinden.",
+    "revokeDescription": "{name} kann keine Aufträge mehr abholen, und die Aufträge, die er gerade ausführt oder die auf ihn warten, enden als abgebrochen. Das lässt sich nicht rückgängig machen. Füge einen neuen Runner hinzu, um den Rechner erneut zu verbinden.",
     "revokeTitle": "Diesen Runner widerrufen?",
     "status": {
       "neverSeen": "Nie verbunden",
@@ -6066,7 +6074,7 @@
     "toastRevoked": "Runner widerrufen",
     "tokenCreated": "Runner hinzugefügt. Kopiere den Token jetzt, er wird nur einmal angezeigt.",
     "tokenLabel": "Runner-Token",
-    "tokenWarning": "Jeder mit diesem Token kann die Runner-Aufträge dieses Workspace abholen. Widerrufe den Runner, falls der Token bekannt wird."
+    "tokenWarning": "Jeder mit diesem Token kann deine Runner-Aufträge in diesem Workspace abholen. Widerrufe den Runner, falls der Token bekannt wird."
   },
   "ScheduleMeeting": {
     "action": "Termin planen",

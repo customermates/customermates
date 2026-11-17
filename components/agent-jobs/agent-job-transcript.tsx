@@ -9,7 +9,7 @@ import { cn } from "@/core/utils/cn";
 
 import { agentJobFinishLabel } from "./agent-job-labels";
 
-type Props = { job: Pick<AgentJobDetail, "transcript" | "promptUntrusted"> };
+type Props = { job: Pick<AgentJobDetail, "transcript" | "promptUntrusted" | "restricted"> };
 
 function TranscriptEvent({ event }: { event: AgentTranscriptEvent }) {
   const t = useTranslations();
@@ -66,6 +66,14 @@ function TranscriptEvent({ event }: { event: AgentTranscriptEvent }) {
 
 export function AgentJobTranscript({ job }: Props) {
   const t = useTranslations();
+
+  if (job.restricted) {
+    return (
+      <p data-transcript-restricted className="text-xs text-muted-foreground">
+        {t("AgentJobs.transcript.restricted")}
+      </p>
+    );
+  }
 
   if (job.transcript.length === 0)
     return <p className="text-xs text-muted-foreground">{t("AgentJobs.transcript.empty")}</p>;

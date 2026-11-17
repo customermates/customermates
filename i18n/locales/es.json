@@ -866,9 +866,16 @@
       "modelRequired": "Elige un modelo para este paso: el espacio de trabajo tiene más de una clave de proveedor",
       "modelUnavailable": "Ninguna clave de proveedor ofrece este modelo",
       "noKey": "No hay clave de proveedor para esta ejecución",
+      "ownerApiAccess": "El rol del propietario de la automatización no permite el acceso a la API",
       "ownerInactive": "El propietario de la automatización ya no está activo",
+      "planApiAccess": "El plan del espacio de trabajo no incluye acceso a la API",
       "planRequired": "Ejecutar agentes con tu propia clave no está incluido en el plan actual",
       "provider": "El proveedor devolvió un error ({code})",
+      "queueExpired": "Ningún runner ni agente se hizo cargo de la ejecución en 15 minutos",
+      "ruleInactive": "La automatización se desactivó o se eliminó antes de que empezara la ejecución",
+      "runnerFailed": "La CLI del runner falló",
+      "runnerRevoked": "El runner fue revocado",
+      "runnerStopped": "El runner se detuvo durante la ejecución",
       "timedOut": "La ejecución tardó demasiado",
       "timeLimit": "Detenida en el límite de tiempo",
       "toolLimit": "Detenida en el límite de llamadas a herramientas"
@@ -899,9 +906,10 @@
       },
       "label": "Transcripción de la ejecución",
       "modelFallback": "El modelo predeterminado {saved} de esta clave ya no se ofrece. Esta ejecución usó {used}.",
+      "restricted": "Solo el propietario de esta ejecución y los administradores ven sus pasos y su resultado.",
       "result": "Resultado de {name}",
       "resultFailed": "{name} no se completó",
-      "untrusted": "Esta ejecución se inició desde fuera del espacio de trabajo, así que el agente trató el registro como datos.",
+      "untrusted": "La instrucción de esta ejecución contiene texto que viene de fuera del espacio de trabajo o de un registro, así que el agente trató ese texto como datos y no como instrucción.",
       "user": "Instrucción"
     }
   },
@@ -6033,7 +6041,7 @@
   },
   "Runners": {
     "add": "Añadir runner",
-    "addDescription": "Indica la máquina en la que se ejecutará el runner. Recibes un token una sola vez; el runner lo usa para recoger las tareas del agente de este espacio de trabajo.",
+    "addDescription": "Indica la máquina en la que se ejecutará el runner. Recibes un token una sola vez; el runner lo usa para recoger tus tareas del agente en este espacio de trabajo.",
     "addTitle": "Añadir un runner",
     "clientNames": {
       "claude": "Claude Code",
@@ -6041,8 +6049,8 @@
       "gemini": "Gemini CLI"
     },
     "clients": "CLI encontradas",
-    "description": "Un runner ejecuta los pasos del agente con tu propio Claude Code, Codex o Gemini CLI en tu máquina. Recoge las tareas de este espacio de trabajo, ejecuta la CLI en la que has iniciado sesión y devuelve el resultado. Customermates nunca recibe tu inicio de sesión de la CLI.",
-    "dockerDescription": "Ejecuta el mismo runner en un contenedor. Monta la carpeta de inicio de sesión de tu CLI para que siga con la sesión iniciada.",
+    "description": "Un runner ejecuta tus pasos del agente con tu propio Claude Code, Codex o Gemini CLI en tu máquina. Recoge las tareas de las automatizaciones de las que eres propietario, ejecuta la CLI en la que has iniciado sesión y devuelve el resultado. Customermates nunca recibe tu inicio de sesión de la CLI.",
+    "dockerDescription": "Ejecuta el mismo runner en un contenedor. Monta la carpeta de inicio de sesión de tu CLI para que siga con la sesión iniciada. En macOS, Claude Code guarda su sesión en el Llavero: pasa ahí su clave de API o su token en una variable.",
     "dockerTitle": "Ejecutar con Docker",
     "installDescription": "Necesita Node 24 y Claude Code, Codex o Gemini CLI, con la sesión iniciada en esa máquina.",
     "installTitle": "Ejecutar con Node",
@@ -6050,11 +6058,11 @@
     "machine": "Máquina",
     "noClients": "No se encontró ninguna CLI",
     "offline": {
-      "body": "Hay tareas del agente esperando un runner y ninguno se ha conectado en los últimos 10 minutos. Inicia tu runner o revisa la máquina en la que se ejecuta.",
+      "body": "Tus tareas del agente están esperando y en los últimos 10 minutos no se ha conectado ningún runner tuyo que pueda hacerse cargo de ellas. Inicia tu runner o revisa la máquina en la que se ejecuta. Una tarea que espera más de 15 minutos termina por tiempo agotado.",
       "title": "Tu runner está sin conexión"
     },
     "revoke": "Revocar",
-    "revokeDescription": "{name} ya no puede recoger tareas, y una tarea en curso deja de informar y caduca. Esta acción no se puede deshacer. Añade un nuevo runner para volver a conectar la máquina.",
+    "revokeDescription": "{name} ya no puede recoger tareas, y las tareas que está ejecutando o que lo esperan terminan como canceladas. Esta acción no se puede deshacer. Añade un nuevo runner para volver a conectar la máquina.",
     "revokeTitle": "¿Revocar este runner?",
     "status": {
       "neverSeen": "Nunca conectado",
@@ -6066,7 +6074,7 @@
     "toastRevoked": "Runner revocado",
     "tokenCreated": "Runner añadido. Copia el token ahora, solo se muestra una vez.",
     "tokenLabel": "Token del runner",
-    "tokenWarning": "Cualquiera con este token puede recoger las tareas de runner de este espacio de trabajo. Revoca el runner si el token se filtra."
+    "tokenWarning": "Cualquiera con este token puede recoger tus tareas de runner en este espacio de trabajo. Revoca el runner si el token se filtra."
   },
   "ScheduleMeeting": {
     "action": "Programar reunión",

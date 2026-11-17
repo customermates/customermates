@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   canManage: true,
+  canRevoke: true,
   items: [] as unknown[],
   add: vi.fn(),
   setItems: vi.fn(),
@@ -25,6 +26,9 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentRunnersStore: {
       canManage: harness.canManage,
+      canRevoke: harness.canRevoke,
+      hasLiveRunner: true,
+      refresh: vi.fn(),
       items: harness.items,
       setItems: harness.setItems,
       revoke: harness.revoke,
@@ -56,6 +60,7 @@ function runner(overrides: Partial<AgentRunnerDto> = {}): AgentRunnerDto {
     lastSeenAt: "2026-11-17T09:00:00.000Z",
     online: true,
     revokedAt: null,
+    createdById: "33333333-3333-4333-8333-333333333333",
     createdAt: "2026-11-16T10:00:00.000Z",
     ...overrides,
   };
@@ -69,6 +74,7 @@ function render(runners: AgentRunnerDto[]) {
 beforeEach(() => {
   vi.clearAllMocks();
   harness.canManage = true;
+  harness.canRevoke = true;
   harness.items = [];
 });
 
@@ -113,14 +119,30 @@ describe("AgentRunnersCard", () => {
     expect(html.match(/Runners\.revoke</g)).toHaveLength(1);
   });
 
-  it("shows neither Add runner nor Revoke to a member who cannot manage them", () => {
+  it("shows neither Add runner nor Revoke to a member who may neither create nor delete", () => {
     harness.canManage = false;
+    harness.canRevoke = false;
 
     const html = render([runner()]);
 
     expect(html).not.toContain("Runners.add<");
     expect(html).not.toContain("Runners.revoke<");
     expect(html).toContain("Office laptop");
+  });
+
+  it("offers Revoke by the delete permission, as the server checks it, not by the create permission", () => {
+    harness.canManage = true;
+    harness.canRevoke = false;
+    const createOnly = render([runner()]);
+
+    harness.canManage = false;
+    harness.canRevoke = true;
+    const deleteOnly = render([runner()]);
+
+    expect(createOnly).toContain("Runners.add<");
+    expect(createOnly).not.toContain("Runners.revoke<");
+    expect(deleteOnly).not.toContain("Runners.add<");
+    expect(deleteOnly).toContain("Runners.revoke<");
   });
 
   it("never puts a token or a token hash on the page", () => {

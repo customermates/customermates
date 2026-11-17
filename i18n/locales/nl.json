@@ -866,9 +866,16 @@
       "modelRequired": "Kies een model voor deze stap: de werkruimte heeft meer dan één sleutel van een aanbieder",
       "modelUnavailable": "Geen sleutel van een aanbieder biedt dit model",
       "noKey": "Geen sleutel van een aanbieder voor deze uitvoering",
+      "ownerApiAccess": "De rol van de eigenaar van de automatisering staat geen API-toegang toe",
       "ownerInactive": "De eigenaar van de automatisering is niet meer actief",
+      "planApiAccess": "Het abonnement van de werkruimte bevat geen API-toegang",
       "planRequired": "Agents op je eigen sleutel draaien zit niet in het huidige pakket",
       "provider": "De aanbieder gaf een fout terug ({code})",
+      "queueExpired": "Geen runner of agent heeft de uitvoering binnen 15 minuten opgepakt",
+      "ruleInactive": "De automatisering is uitgezet of verwijderd voordat de uitvoering begon",
+      "runnerFailed": "De CLI op de runner is mislukt",
+      "runnerRevoked": "De runner is ingetrokken",
+      "runnerStopped": "De runner is tijdens de uitvoering gestopt",
       "timedOut": "De uitvoering duurde te lang",
       "timeLimit": "Gestopt bij de tijdslimiet",
       "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
@@ -899,9 +906,10 @@
       },
       "label": "Transcript van de uitvoering",
       "modelFallback": "Het standaardmodel {saved} van deze sleutel wordt niet meer aangeboden. Deze uitvoering gebruikte {used}.",
+      "restricted": "Alleen de eigenaar van deze uitvoering en beheerders zien de stappen en het resultaat ervan.",
       "result": "Resultaat van {name}",
       "resultFailed": "{name} is niet voltooid",
-      "untrusted": "Deze uitvoering is van buiten de werkruimte gestart, daarom behandelde de agent het record als gegevens.",
+      "untrusted": "De opdracht van deze uitvoering bevat tekst van buiten de werkruimte of uit een record, daarom behandelde de agent die tekst als gegevens en niet als opdracht.",
       "user": "Opdracht"
     }
   },
@@ -6033,7 +6041,7 @@
   },
   "Runners": {
     "add": "Runner toevoegen",
-    "addDescription": "Geef de machine op waarop de runner draait. Je krijgt het token één keer; de runner gebruikt het om de agenttaken van deze werkruimte op te halen.",
+    "addDescription": "Geef de machine op waarop de runner draait. Je krijgt het token één keer; de runner gebruikt het om jouw agenttaken in deze werkruimte op te halen.",
     "addTitle": "Een runner toevoegen",
     "clientNames": {
       "claude": "Claude Code",
@@ -6041,8 +6049,8 @@
       "gemini": "Gemini CLI"
     },
     "clients": "Gevonden CLI’s",
-    "description": "Met een runner draaien agentstappen met je eigen Claude Code, Codex of Gemini CLI op je machine. Hij haalt taken uit deze werkruimte op, voert de CLI uit waarin je bent ingelogd en meldt het resultaat terug. Customermates ontvangt nooit je CLI-login.",
-    "dockerDescription": "Draait dezelfde runner in een container. Koppel de loginmap van je CLI zodat die ingelogd blijft.",
+    "description": "Met een runner draaien jouw agentstappen met je eigen Claude Code, Codex of Gemini CLI op je machine. Hij haalt de taken op van de automatiseringen waarvan jij de eigenaar bent, voert de CLI uit waarin je bent ingelogd en meldt het resultaat terug. Customermates ontvangt nooit je CLI-login.",
+    "dockerDescription": "Draait dezelfde runner in een container. Koppel de loginmap van je CLI zodat die ingelogd blijft. Op macOS bewaart Claude Code de login in de Sleutelhanger: geef daar de API-sleutel of het token als variabele mee.",
     "dockerTitle": "Draaien met Docker",
     "installDescription": "Vereist Node 24 en Claude Code, Codex of Gemini CLI, ingelogd op die machine.",
     "installTitle": "Draaien met Node",
@@ -6050,11 +6058,11 @@
     "machine": "Machine",
     "noClients": "Geen CLI gevonden",
     "offline": {
-      "body": "Agenttaken wachten op een runner en er heeft zich de afgelopen 10 minuten geen verbonden. Start je runner of controleer de machine waarop hij draait.",
+      "body": "Jouw agenttaken wachten, en de afgelopen 10 minuten heeft zich geen runner van jou verbonden die ze kan oppakken. Start je runner of controleer de machine waarop hij draait. Een taak die langer dan 15 minuten wacht, eindigt met een time-out.",
       "title": "Je runner is offline"
     },
     "revoke": "Intrekken",
-    "revokeDescription": "{name} kan geen taken meer ophalen, en een lopende taak meldt niets meer terug en verloopt. Dit kan niet ongedaan worden gemaakt. Voeg een nieuwe runner toe om de machine opnieuw te verbinden.",
+    "revokeDescription": "{name} kan geen taken meer ophalen, en de taken die hij uitvoert of die op hem wachten eindigen als geannuleerd. Dit kan niet ongedaan worden gemaakt. Voeg een nieuwe runner toe om de machine opnieuw te verbinden.",
     "revokeTitle": "Deze runner intrekken?",
     "status": {
       "neverSeen": "Nooit verbonden",
@@ -6066,7 +6074,7 @@
     "toastRevoked": "Runner ingetrokken",
     "tokenCreated": "Runner toegevoegd. Kopieer het token nu, het wordt maar één keer getoond.",
     "tokenLabel": "Runner-token",
-    "tokenWarning": "Iedereen met dit token kan de runnertaken van deze werkruimte ophalen. Trek de runner in als het token uitlekt."
+    "tokenWarning": "Iedereen met dit token kan jouw runnertaken in deze werkruimte ophalen. Trek de runner in als het token uitlekt."
   },
   "ScheduleMeeting": {
     "action": "Afspraak plannen",
