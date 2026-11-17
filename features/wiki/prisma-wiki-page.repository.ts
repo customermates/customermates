@@ -168,16 +168,17 @@ export class PrismaWikiPageRepo
 
   async listPages({ page, pageSize, kind }: RepoArgs<GetWikiPagesRepo, "listPages">) {
     const where = { companyId: this.companyId, deletedAt: null, ...(kind ? { kind } : {}) };
-    const [items, total] = await Promise.all([
+    const [pages, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
-        select: this.summarySelect,
+        select: { ...this.summarySelect, markdown: true },
         orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }, { id: "asc" }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
       this.prisma.wikiPage.count({ where }),
     ]);
+    const items = pages.map(({ markdown, ...summary }) => ({ ...summary, chars: markdown.length }));
     return { items, total, page, pageSize };
   }
 

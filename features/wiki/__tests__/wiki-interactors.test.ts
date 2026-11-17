@@ -468,6 +468,43 @@ describe("SearchWikiPagesInteractor", () => {
     expect(result.data.items[0].offset).toBe(externalized.indexOf("## Approval"));
     expect(result.data.items[0]).not.toHaveProperty("markdown");
   });
+
+  it("names a hit in a repeated heading by that section's own anchor, whatever the index stored", async () => {
+    const repeated = WikiMarkdownSchema.parse(
+      "## Inbox\n\n### Limits\n\nTwenty a day.\n\n## Signals\n\n### Limits\n\nThe finance lead approves five a day.",
+    );
+    const second = {
+      id: "section-limits",
+      pageId: PAGE_ID,
+      offset: repeated.lastIndexOf("### Limits"),
+      headingPath: ["Signals", "Limits"],
+      anchor: "limits",
+      text: "The finance lead approves five a day.",
+    };
+    const result = await runWithTenant(mockUser, () =>
+      new SearchWikiPagesInteractor(
+        {
+          syncStaleSectionsUnlessBusy: vi.fn().mockResolvedValue({ synced: 0, remaining: false }),
+          semanticSections: vi.fn(),
+          getPagesByIds: vi.fn().mockResolvedValue([page({ markdown: repeated })]),
+          getSectionsByIds: vi.fn().mockResolvedValue([second]),
+          fullTextSections: vi.fn().mockResolvedValue({
+            hits: [{ pageId: PAGE_ID, sectionId: second.id, coverage: 1 }],
+            pinned: [],
+            coverage: 1,
+          }),
+        },
+        "stored",
+        null,
+        undefined,
+        new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: () => Promise.resolve("acme") }),
+      ).invoke({ query: "approves", page: 1, pageSize: 5 }),
+    );
+
+    if (!result.ok) throw new Error("Expected a search result.");
+    expect(result.data.items[0]).toMatchObject({ section: "Signals > Limits", anchor: "limits-2" });
+    expect(result.data.items[0].offset).toBe(repeated.lastIndexOf("### Limits"));
+  });
 });
 
 describe("Wiki permission boundary", () => {

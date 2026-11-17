@@ -244,4 +244,23 @@ describeDatabase("Knowledge Base page upkeep on PostgreSQL", () => {
     expect(same).toMatchObject({ owner: "Finance", updatedAt: page.updatedAt });
     expect(published).toEqual([]);
   });
+
+  it("lists each page with the length of its text and without the text itself", async () => {
+    const [short, emoji] = ok(
+      await create([
+        { title: "Short", markdown: "Hello." },
+        { title: "Emoji", markdown: "Launch 🚀 today." },
+      ]),
+    );
+    const stored = ok(await read(emoji.id));
+
+    const { items } = ok(await list());
+
+    expect(items.map(({ id, chars }) => ({ id, chars }))).toEqual([
+      { id: short.id, chars: 6 },
+      { id: emoji.id, chars: stored.markdown.length },
+    ]);
+    expect(stored.markdown.length).toBe(16);
+    for (const item of items) expect(item).not.toHaveProperty("markdown");
+  });
 });

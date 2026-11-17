@@ -181,7 +181,11 @@ export const WikiPageSearchSchema = WikiPagePaginationSchema.extend({
 export type WikiPageSearchData = Data<typeof WikiPageSearchSchema>;
 
 export const WikiPageListResultSchema = z.object({
-  items: z.array(WikiPageSummarySchema),
+  items: z.array(
+    WikiPageSummarySchema.extend({
+      chars: z.number().int().min(0).optional().describe("Length of the page's Markdown in characters."),
+    }),
+  ),
   total: z.number().int().min(0),
   page: z.number().int().min(1),
   pageSize: z.number().int().min(1),

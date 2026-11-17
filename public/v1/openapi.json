@@ -58640,6 +58640,12 @@
                           },
                           "updatedAt": {
                             "type": "string"
+                          },
+                          "chars": {
+                            "description": "Length of the page's Markdown in characters.",
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
                           }
                         },
                         "required": [

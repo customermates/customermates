@@ -173,6 +173,20 @@ describe("applying page edits", () => {
     expect(applied(page, { anchor: "help-first", find: "Old.", replace: "New." })).toBe(page.replace("Old.", "New."));
   });
 
+  it("reaches each of two sections with the same heading by its own anchor", () => {
+    const page = lines("## Inbox", "", "### Limits", "", "Twenty.", "", "## Signals", "", "### Limits", "", "Five.");
+
+    expect(applied(page, { anchor: "limits", markdown: "### Limits\n\nThirty." })).toBe(
+      page.replace("Twenty.", "Thirty."),
+    );
+    expect(applied(page, { anchor: "limits-2", markdown: "### Limits\n\nTen." })).toBe(page.replace("Five.", "Ten."));
+    expect(applied(page, { anchor: "limits-2", find: "Five.", replace: "Six." })).toBe(page.replace("Five.", "Six."));
+    expect(applyWikiPageEdits(page, [{ anchor: "limits-3", markdown: "Text." }])).toMatchObject({
+      ok: false,
+      error: CustomErrorCode.wikiEditSectionNotFound,
+    });
+  });
+
   it("does not take a heading inside a code block for a section", () => {
     const page = lines("## Setup", "", "```", "## Not a heading", "```");
     expect(applyWikiPageEdits(page, [{ anchor: "not-a-heading", markdown: "Text." }])).toMatchObject({

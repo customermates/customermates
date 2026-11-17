@@ -2,11 +2,10 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { slugifyHeading } from "@/core/utils/search-text";
 import { MAX_RICH_TEXT_MARKDOWN_LENGTH } from "@/core/validation/rich-text-document";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { wikiMarkdownSections } from "./wiki-markdown-sections";
+import { wikiAnchoredSections } from "./wiki-markdown-sections";
 
 export const WIKI_PAGE_EDITS_MAX = 20;
 
@@ -48,9 +47,7 @@ export type WikiPageEditFailure = {
 };
 
 function sectionSpan(markdown: string, anchor: string): { offset: number; end: number } | null {
-  const section = wikiMarkdownSections(markdown).find(
-    (candidate) => candidate.level > 0 && slugifyHeading(candidate.path.at(-1) ?? "") === anchor,
-  );
+  const section = wikiAnchoredSections(markdown).find((candidate) => candidate.anchor === anchor);
   return section ? { offset: section.offset, end: section.end } : null;
 }
 
