@@ -9,7 +9,6 @@ describe("connections links", () => {
     expect(CONNECTIONS_HREF).toBe("/settings/connections");
     expect(connectionsHref("apps")).toBe("/settings/connections?tab=apps");
     expect(connectionsHref("channels", "accounts")).toBe("/settings/connections?tab=channels");
-    expect(connectionsHref("channels", "booking")).toBe("/settings/connections?tab=channels&section=booking");
     expect(connectionsHref("developers", "webhooks")).toBe("/settings/connections?tab=developers&section=webhooks");
   });
 });

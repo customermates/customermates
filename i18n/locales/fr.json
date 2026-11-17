@@ -2250,8 +2250,6 @@
       "providersTitle": "Applications disponibles"
     },
     "channels": {
-      "bookingGroup": "Agenda : {name}",
-      "noCalendar": "Aucun agenda",
       "sectionsLabel": "Sections des canaux",
       "selfHostedBody": "Les canaux e-mail, LinkedIn, WhatsApp et agenda utilisent le service de connexion hébergé et ne sont pas disponibles en auto-hébergement.",
       "selfHostedTitle": "Les canaux nécessitent Customermates Cloud"

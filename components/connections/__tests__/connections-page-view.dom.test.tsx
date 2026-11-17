@@ -126,15 +126,11 @@ describe("ConnectionsPageView", () => {
     );
   });
 
-  it("shows the booking pages as the second section of Channels", () => {
-    renderView({ tabs: ["channels", "apps"], tab: "channels", section: "booking", bleed: false }, "booking content");
+  it("shows no section control for Channels, whose only section is the connected accounts", () => {
+    renderView({ tabs: ["channels", "apps"], tab: "channels", section: "accounts", bleed: false }, "accounts content");
 
-    expect(tabs("connections-section").map((tab) => tab.textContent)).toEqual([
-      "SettingsNav.channels",
-      "SettingsNav.booking",
-    ]);
-    expect(tabs("connections-section").map((tab) => tab.dataset.state)).toEqual(["inactive", "active"]);
-    expect(document.querySelector('[aria-label="Connections.channels.sectionsLabel"]')).not.toBeNull();
+    expect(tabs("connections-section")).toEqual([]);
+    expect(container.textContent).toContain("accounts content");
   });
 });
 

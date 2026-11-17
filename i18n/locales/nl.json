@@ -2250,8 +2250,6 @@
       "providersTitle": "Beschikbare apps"
     },
     "channels": {
-      "bookingGroup": "Agenda: {name}",
-      "noCalendar": "Geen agenda",
       "sectionsLabel": "Onderdelen van kanalen",
       "selfHostedBody": "E-mail-, LinkedIn-, WhatsApp- en agendakanalen gebruiken de gehoste koppelingsdienst en zijn niet beschikbaar bij zelf hosten.",
       "selfHostedTitle": "Kanalen hebben Customermates Cloud nodig"

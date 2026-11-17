@@ -24,17 +24,14 @@ test("Connections opens each tab and keeps it in the address", async ({ page, co
   const tabs = page.getByRole("tablist", { name: "Connection types" });
   await expect(tabs.getByRole("tab")).toHaveText(["Channels", "Apps", "Agents", "Developers"]);
 
-  await test.step("Channels holds the accounts and the booking pages, or explains why it cannot on self-hosted", async () => {
+  await test.step("Channels holds the connected accounts, or explains why it cannot on self-hosted", async () => {
     await expect(tabs.getByRole("tab", { name: "Channels" })).toHaveAttribute("data-state", "active");
     if (e2eAppMode() === "self-hosted") {
       await expect(page.getByText("Channels need Customermates Cloud")).toBeVisible();
       return;
     }
-    const sections = page.getByRole("tablist", { name: "Channel sections" });
-    await expect(sections.getByRole("tab")).toHaveText(["Channels & calendars", "Booking pages"]);
-    await sections.getByRole("tab", { name: "Booking pages" }).click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections\\?tab=channels&section=booking$"));
-    await expect(sections.getByRole("tab", { name: "Booking pages" })).toHaveAttribute("data-state", "active");
+    await expect(page.getByRole("tablist", { name: "Channel sections" })).toHaveCount(0);
+    await expect(page.locator("[data-connection-scope='accounts']")).toBeAttached();
   });
 
   await test.step("Apps says no app is connected yet and names its owner and scope", async () => {
@@ -86,7 +83,6 @@ test("the old settings routes open the tab that now holds them and keep their qu
 
   for (const [old, expected] of [
     ["channels", "tab=channels"],
-    ["booking", "tab=channels&section=booking"],
     ["api-keys", "tab=developers"],
     ["webhooks", "tab=developers&section=webhooks"],
     ["webhook-deliveries", "tab=developers&section=deliveries"],

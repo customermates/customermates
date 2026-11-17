@@ -2250,8 +2250,6 @@
       "providersTitle": "Verfügbare Apps"
     },
     "channels": {
-      "bookingGroup": "Kalender: {name}",
-      "noCalendar": "Kein Kalender",
       "sectionsLabel": "Bereiche der Kanäle",
       "selfHostedBody": "E-Mail-, LinkedIn-, WhatsApp- und Kalenderkanäle nutzen den gehosteten Verbindungsdienst und sind beim Self-Hosting nicht verfügbar.",
       "selfHostedTitle": "Kanäle brauchen Customermates Cloud"
