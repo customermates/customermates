@@ -3966,15 +3966,15 @@
     },
     "markAllRead": "Segna tutte come lette",
     "preferences": {
-      "description": "La pagina Notifiche mostra sempre tutto. Scegli qui con quale frequenza ogni tipo ti arriva anche via e-mail.",
+      "description": "La pagina Notifiche mostra sempre tutto. Scegli qui con quale frequenza ogni tipo di questo spazio di lavoro ti arriva anche via e-mail.",
       "kind": "Tipo",
       "kindOffNotice": "Le e-mail «{kind}» sono disattivate.",
       "modeLabel": "E-mail per {kind}",
-      "pause": "Sospendi tutte le e-mail fino al",
+      "pause": "Sospendi le e-mail di questo spazio di lavoro fino al",
       "pauseDate": "Data fino alla quale le e-mail sono sospese",
-      "pauseHelp": "Durante la sospensione nessuna notifica ti arriva via e-mail, su nessun dispositivo. Le tue scelte qui sopra restano come sono e valgono di nuovo da quel giorno.",
+      "pauseHelp": "Durante la sospensione nessuna notifica di questo spazio di lavoro ti arriva via e-mail, su nessun dispositivo. Gli altri spazi di lavoro di cui fai parte non sono interessati. Le tue scelte qui sopra restano come sono e valgono di nuovo da quel giorno.",
       "pauseOff": "Le tue scelte per le e-mail sono di nuovo attive.",
-      "pauseOn": "Tutte le e-mail sono sospese fino al {date}.",
+      "pauseOn": "Le e-mail di questo spazio di lavoro sono sospese fino al {date}.",
       "title": "E-mail di notifica"
     },
     "turnOff": {

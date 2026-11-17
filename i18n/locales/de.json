@@ -3966,15 +3966,15 @@
     },
     "markAllRead": "Alle als gelesen markieren",
     "preferences": {
-      "description": "Die Seite Benachrichtigungen zeigt immer alles. Hier legst du fest, wie oft dich jede Art zusätzlich per E-Mail erreicht.",
+      "description": "Die Seite Benachrichtigungen zeigt immer alles. Hier legst du fest, wie oft dich jede Art aus diesem Workspace zusätzlich per E-Mail erreicht.",
       "kind": "Art",
       "kindOffNotice": "E-Mails zu „{kind}“ sind ausgeschaltet.",
       "modeLabel": "E-Mail für {kind}",
-      "pause": "Alle E-Mails pausieren bis",
+      "pause": "E-Mails aus diesem Workspace pausieren bis",
       "pauseDate": "Datum, bis zu dem E-Mails pausiert sind",
-      "pauseHelp": "Solange pausiert ist, erreicht dich keine Benachrichtigung per E-Mail, auf keinem Gerät. Deine Auswahl oben bleibt erhalten und gilt ab diesem Tag wieder.",
+      "pauseHelp": "Solange pausiert ist, erreicht dich keine Benachrichtigung aus diesem Workspace per E-Mail, auf keinem Gerät. Andere Workspaces, in denen du Mitglied bist, sind nicht betroffen. Deine Auswahl oben bleibt erhalten und gilt ab diesem Tag wieder.",
       "pauseOff": "Deine E-Mail-Auswahl ist wieder aktiv.",
-      "pauseOn": "Alle E-Mails sind bis {date} pausiert.",
+      "pauseOn": "E-Mails aus diesem Workspace sind bis {date} pausiert.",
       "title": "E-Mails zu Benachrichtigungen"
     },
     "turnOff": {

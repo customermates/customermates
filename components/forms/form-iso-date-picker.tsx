@@ -31,6 +31,7 @@ type Props = {
   displayFormat?: DateDisplayFormat;
   dateOnly?: boolean;
   clearable?: boolean;
+  min?: string;
   value?: string;
   onValueChange?: (value: string | undefined) => void;
   onPicked?: () => void;
@@ -38,6 +39,11 @@ type Props = {
   containerClassName?: string;
   inline?: boolean;
 };
+
+function localDayOf(value: string | undefined): Date | undefined {
+  const match = value ? /^(\d{4})-(\d{2})-(\d{2})/u.exec(value) : null;
+  return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : undefined;
+}
 
 export const FormIsoDatePicker = observer(
   ({
@@ -49,6 +55,7 @@ export const FormIsoDatePicker = observer(
     displayFormat = "descriptiveLong",
     dateOnly = true,
     clearable = true,
+    min,
     value: controlledValue,
     onValueChange,
     onPicked,
@@ -134,11 +141,16 @@ export const FormIsoDatePicker = observer(
     }
 
     const timeValue = parsed ? localTimeValue(parsed) : "";
+    const earliest = localDayOf(min);
+    const today = new Date();
+    const presetIsTooEarly = (compute: (today: Date) => Date) =>
+      earliest !== undefined &&
+      compute(new Date(today.getFullYear(), today.getMonth(), today.getDate())).getTime() < earliest.getTime();
 
     const panel = (
       <>
         <Calendar
-          disabled={isLoading}
+          disabled={isLoading || (earliest ? { before: earliest } : false)}
           mode="single"
           month={currentMonth}
           selected={parsed}
@@ -172,7 +184,7 @@ export const FormIsoDatePicker = observer(
           {DATE_PRESETS.map((preset) => (
             <Button
               key={preset.key}
-              disabled={isLoading}
+              disabled={isLoading || presetIsTooEarly(preset.compute)}
               size="sm"
               type="button"
               variant="secondary"

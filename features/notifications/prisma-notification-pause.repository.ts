@@ -1,22 +1,22 @@
+import type { NotificationPauseState } from "./notification-pause";
 import type { NotificationPauseRepo } from "./notification-pause.repo";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
 export class PrismaNotificationPauseRepo extends TenantRepository implements NotificationPauseRepo {
-  async find(): Promise<Date | null> {
-    const row = await this.prisma.notificationPause.findFirst({
+  find(): Promise<NotificationPauseState | null> {
+    return this.prisma.notificationPause.findFirst({
       where: { companyId: this.companyId, userId: this.userId },
-      select: { until: true },
+      select: { until: true, timeZone: true },
     });
-    return row?.until ?? null;
   }
 
-  async save(until: Date): Promise<void> {
+  async save(pause: NotificationPauseState): Promise<void> {
     await this.prisma.notificationPause.upsert({
       where: { companyId_userId: { companyId: this.companyId, userId: this.userId } },
-      create: { companyId: this.companyId, userId: this.userId, until },
-      update: { companyId: this.companyId, until },
+      create: { companyId: this.companyId, userId: this.userId, ...pause },
+      update: { companyId: this.companyId, ...pause },
     });
   }
 

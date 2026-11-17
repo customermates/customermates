@@ -24,11 +24,23 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn()
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatDescriptiveLongDate: (date: Date) => date.toISOString().slice(0, 10) }),
 }));
+vi.mock(import("@/core/utils/time-zone"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  browserTimeZone: () => "America/New_York",
+}));
 vi.mock("@/components/forms/form-iso-date-picker", () => ({
-  FormIsoDatePicker: ({ value, onValueChange }: { value?: string; onValueChange?: (value: string) => void }) =>
+  FormIsoDatePicker: ({
+    min,
+    value,
+    onValueChange,
+  }: {
+    min?: string;
+    value?: string;
+    onValueChange?: (value: string) => void;
+  }) =>
     createElement(
       "button",
-      { type: "button", "data-testid": "pause-until", onClick: () => onValueChange?.("2999-02-01") },
+      { type: "button", "data-testid": "pause-until", "data-min": min, onClick: () => onValueChange?.("2999-02-01") },
       value ?? "",
     ),
 }));
@@ -150,8 +162,9 @@ describe("NotificationPreferencesCard", () => {
     await clickPause();
 
     expect(harness.pause).toHaveBeenCalledTimes(1);
-    const { until } = harness.pause.mock.calls[0][0] as { until: string };
+    const { until, timeZone } = harness.pause.mock.calls[0][0] as { until: string; timeZone: string };
     expect(until).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(timeZone).toBe("America/New_York");
     expect(harness.save).not.toHaveBeenCalled();
     expect(pauseSwitch().getAttribute("aria-checked")).toBe("true");
     expect(container.querySelector('[data-testid="pause-until"]')?.textContent).toBe(until);
@@ -167,7 +180,7 @@ describe("NotificationPreferencesCard", () => {
 
     await clickPause();
 
-    expect(harness.pause).toHaveBeenCalledWith({ until: null });
+    expect(harness.pause).toHaveBeenCalledWith({ until: null, timeZone: "America/New_York" });
     expect(pauseSwitch().getAttribute("aria-checked")).toBe("false");
     expect(harness.success).toHaveBeenCalledWith("Notifications.preferences.pauseOff");
     expect(choiceOf("ruleAlert", "Notifications.emailMode.instant").disabled).toBe(false);
@@ -180,12 +193,17 @@ describe("NotificationPreferencesCard", () => {
     const picker = container.querySelector<HTMLButtonElement>('[data-testid="pause-until"]');
     if (!picker) throw new Error("No date picker");
     expect(picker.textContent).toBe("2999-01-01");
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    expect(picker.dataset.min).toBe(
+      `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`,
+    );
     await act(async () => {
       picker.click();
       await Promise.resolve();
     });
 
-    expect(harness.pause).toHaveBeenCalledWith({ until: "2999-02-01" });
+    expect(harness.pause).toHaveBeenCalledWith({ until: "2999-02-01", timeZone: "America/New_York" });
     expect(container.querySelector('[data-testid="pause-until"]')?.textContent).toBe("2999-02-01");
   });
 

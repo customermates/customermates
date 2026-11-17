@@ -3966,15 +3966,15 @@
     },
     "markAllRead": "Tout marquer comme lu",
     "preferences": {
-      "description": "La page des notifications affiche toujours tout. Choisissez ici à quelle fréquence chaque type vous parvient aussi par e-mail.",
+      "description": "La page des notifications affiche toujours tout. Choisissez ici à quelle fréquence chaque type de cet espace de travail vous parvient aussi par e-mail.",
       "kind": "Type",
       "kindOffNotice": "Les e-mails « {kind} » sont désactivés.",
       "modeLabel": "E-mail pour {kind}",
-      "pause": "Suspendre tous les e-mails jusqu’au",
+      "pause": "Suspendre les e-mails de cet espace de travail jusqu’au",
       "pauseDate": "Date jusqu’à laquelle les e-mails sont suspendus",
-      "pauseHelp": "Pendant la suspension, aucune notification ne vous parvient par e-mail, sur aucun appareil. Vos choix ci-dessus restent tels quels et s’appliquent de nouveau à partir de ce jour.",
+      "pauseHelp": "Pendant la suspension, aucune notification de cet espace de travail ne vous parvient par e-mail, sur aucun appareil. Vos autres espaces de travail ne sont pas concernés. Vos choix ci-dessus restent tels quels et s’appliquent de nouveau à partir de ce jour.",
       "pauseOff": "Vos choix d’e-mail sont rétablis.",
-      "pauseOn": "Tous les e-mails sont suspendus jusqu’au {date}.",
+      "pauseOn": "Les e-mails de cet espace de travail sont suspendus jusqu’au {date}.",
       "title": "E-mails de notification"
     },
     "turnOff": {

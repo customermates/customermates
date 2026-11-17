@@ -551,6 +551,7 @@ CREATE TABLE "NotificationPause" (
     "companyId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "until" TIMESTAMP(3) NOT NULL,
+    "timeZone" TEXT NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "NotificationPause_pkey" PRIMARY KEY ("companyId","userId")

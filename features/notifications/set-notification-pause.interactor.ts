@@ -31,10 +31,10 @@ export class SetNotificationPauseInteractor extends AuthenticatedInteractor<
     const now = this.clock();
     if (data.until === null) await this.pauses.clear();
     else {
-      const end = notificationPauseEnd(data.until);
-      if (!end || !notificationPauseEndIsAllowed(end, now))
+      const end = notificationPauseEnd(data.until, data.timeZone);
+      if (!end || !notificationPauseEndIsAllowed(data.until, data.timeZone, now))
         return { ok: false, error: createZodError(CustomErrorCode.notificationPauseDateInvalid, ["until"]) };
-      await this.pauses.save(end);
+      await this.pauses.save({ until: end, timeZone: data.timeZone });
     }
     return { ok: true as const, data: await notificationPreferencesDto(this.repo, this.pauses, now) };
   }

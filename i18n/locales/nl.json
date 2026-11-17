@@ -3966,15 +3966,15 @@
     },
     "markAllRead": "Alles als gelezen markeren",
     "preferences": {
-      "description": "De pagina Meldingen toont altijd alles. Kies hier hoe vaak elke soort je ook per e-mail bereikt.",
+      "description": "De pagina Meldingen toont altijd alles. Kies hier hoe vaak elke soort uit deze werkruimte je ook per e-mail bereikt.",
       "kind": "Soort",
       "kindOffNotice": "E-mails over “{kind}” staan uit.",
       "modeLabel": "E-mail voor {kind}",
-      "pause": "Alle e-mails pauzeren tot",
+      "pause": "E-mails uit deze werkruimte pauzeren tot",
       "pauseDate": "Datum tot wanneer e-mails gepauzeerd zijn",
-      "pauseHelp": "Zolang het gepauzeerd is, bereikt geen melding je per e-mail, op geen enkel apparaat. Je keuzes hierboven blijven staan en gelden vanaf die dag weer.",
+      "pauseHelp": "Zolang het gepauzeerd is, bereikt geen melding uit deze werkruimte je per e-mail, op geen enkel apparaat. Andere werkruimtes waarvan je lid bent, blijven ongemoeid. Je keuzes hierboven blijven staan en gelden vanaf die dag weer.",
       "pauseOff": "Je e-mailkeuzes zijn terug.",
-      "pauseOn": "Alle e-mails zijn gepauzeerd tot {date}.",
+      "pauseOn": "E-mails uit deze werkruimte zijn gepauzeerd tot {date}.",
       "title": "E-mails over meldingen"
     },
     "turnOff": {

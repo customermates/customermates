@@ -3966,15 +3966,15 @@
     },
     "markAllRead": "Oznacz wszystkie jako przeczytane",
     "preferences": {
-      "description": "Strona Powiadomienia zawsze pokazuje wszystko. Tutaj ustawiasz, jak często każdy rodzaj dociera do Ciebie także e-mailem.",
+      "description": "Strona Powiadomienia zawsze pokazuje wszystko. Tutaj ustawiasz, jak często każdy rodzaj z tej przestrzeni roboczej dociera do Ciebie także e-mailem.",
       "kind": "Rodzaj",
       "kindOffNotice": "E-maile „{kind}” zostały wyłączone.",
       "modeLabel": "E-mail dla: {kind}",
-      "pause": "Wstrzymaj wszystkie e-maile do",
+      "pause": "Wstrzymaj e-maile z tej przestrzeni roboczej do",
       "pauseDate": "Data, do której e-maile są wstrzymane",
-      "pauseHelp": "Gdy wstrzymanie trwa, żadne powiadomienie nie dociera do Ciebie e-mailem, na żadnym urządzeniu. Twoje wybory powyżej zostają bez zmian i obowiązują znów od tego dnia.",
+      "pauseHelp": "Gdy wstrzymanie trwa, żadne powiadomienie z tej przestrzeni roboczej nie dociera do Ciebie e-mailem, na żadnym urządzeniu. Nie dotyczy to innych przestrzeni roboczych, do których należysz. Twoje wybory powyżej zostają bez zmian i obowiązują znów od tego dnia.",
       "pauseOff": "Twoje ustawienia e-maili zostały przywrócone.",
-      "pauseOn": "Wszystkie e-maile są wstrzymane do {date}.",
+      "pauseOn": "E-maile z tej przestrzeni roboczej są wstrzymane do {date}.",
       "title": "E-maile z powiadomieniami"
     },
     "turnOff": {

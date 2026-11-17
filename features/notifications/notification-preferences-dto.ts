@@ -10,13 +10,13 @@ export async function notificationPreferencesDto(
   pauses: NotificationPauseRepo,
   now: Date,
 ): Promise<NotificationPreferencesDto> {
-  const [rows, until] = await Promise.all([repo.findPreferences(), pauses.find()]);
+  const [rows, pause] = await Promise.all([repo.findPreferences(), pauses.find()]);
   const stored = new Map(rows.map((row) => [row.kind, row.emailMode]));
   return {
     preferences: NOTIFICATION_KINDS.map((kind) => ({
       kind,
       emailMode: stored.get(kind) ?? DEFAULT_NOTIFICATION_EMAIL_MODES[kind],
     })),
-    pausedUntil: pausedUntilDay(until, now),
+    pausedUntil: pausedUntilDay(pause, now),
   };
 }

@@ -31,9 +31,9 @@ describeDatabase("the notification pause store", { timeout: 60_000 }, () => {
     const first = new Date("2026-12-01T00:00:00.000Z");
     const later = new Date("2026-12-24T00:00:00.000Z");
 
-    await runWithTenant(w.admin, () => repo.save(first));
-    await runWithTenant(w.admin, () => repo.save(later));
-    expect(await runWithTenant(w.admin, () => repo.find())).toEqual(later);
+    await runWithTenant(w.admin, () => repo.save({ until: first, timeZone: "UTC" }));
+    await runWithTenant(w.admin, () => repo.save({ until: later, timeZone: "Europe/Berlin" }));
+    expect(await runWithTenant(w.admin, () => repo.find())).toEqual({ until: later, timeZone: "Europe/Berlin" });
     expect(await runWithTenant(w.member, () => repo.find())).toBeNull();
 
     const unscoped = await runWithoutTenant(() => repo.findUnscoped(w.companyId, [w.admin.id, w.member.id]));
@@ -41,7 +41,7 @@ describeDatabase("the notification pause store", { timeout: 60_000 }, () => {
     expect(await runWithoutTenant(() => repo.findUnscoped(w.companyId, []))).toEqual(new Map());
 
     await runWithTenant(w.member, () => repo.clear());
-    expect(await runWithTenant(w.admin, () => repo.find())).toEqual(later);
+    expect((await runWithTenant(w.admin, () => repo.find()))?.until).toEqual(later);
     await runWithTenant(w.admin, () => repo.clear());
     expect(await runWithTenant(w.admin, () => repo.find())).toBeNull();
   });

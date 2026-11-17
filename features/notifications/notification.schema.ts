@@ -3,7 +3,10 @@ import type { AppLocale } from "@/i18n/locale-registry";
 
 import { z } from "zod";
 
+import { TimeZoneSchema } from "@/core/utils/time-zone";
 import { NotificationEmailMode, NotificationKind } from "@/generated/prisma";
+
+import { NOTIFICATION_PAUSE_DEFAULT_TIME_ZONE } from "./notification-pause";
 
 export const NOTIFICATION_KINDS = [
   "dueToday",
@@ -108,6 +111,7 @@ export const SetNotificationPauseSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/u)
       .nullable(),
+    timeZone: TimeZoneSchema.default(NOTIFICATION_PAUSE_DEFAULT_TIME_ZONE),
   })
   .strict();
 export type SetNotificationPauseData = z.output<typeof SetNotificationPauseSchema>;

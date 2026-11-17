@@ -15,6 +15,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { NOTIFICATION_EMAIL_MODES } from "@/features/notifications/notification.schema";
 
@@ -54,7 +55,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
 
   const savePause = (until: string | null) => {
     startTransition(async () => {
-      const result = await setNotificationPauseAction({ until });
+      const result = await setNotificationPauseAction({ until, timeZone: browserTimeZone() });
       if (!result.ok) {
         toastZodErrorTree(result.error);
         return;
@@ -145,6 +146,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
                 clearable={false}
                 id="notification-pause-until"
                 label={null}
+                min={addDaysToIso(isoDateOf(new Date()), 1)}
                 placeholder={t("Notifications.preferences.pauseDate")}
                 value={pausedUntil}
                 onValueChange={moveEnd}

@@ -2317,6 +2317,8 @@ model NotificationPause {
   userId    String
   until     DateTime
   updatedAt DateTime @updatedAt
+  /// IANA zone the member chose the end day in; `until` is the start of that day there.
+  timeZone  String
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

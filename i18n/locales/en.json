@@ -3966,15 +3966,15 @@
     },
     "markAllRead": "Mark all as read",
     "preferences": {
-      "description": "The Notifications page always shows everything. Choose here how often each kind also reaches you by email.",
+      "description": "The Notifications page always shows everything. Choose here how often each kind from this workspace also reaches you by email.",
       "kind": "Kind",
       "kindOffNotice": "Emails for “{kind}” are turned off.",
       "modeLabel": "Email for {kind}",
-      "pause": "Pause all emails until",
+      "pause": "Pause emails from this workspace until",
       "pauseDate": "Date until which emails are paused",
-      "pauseHelp": "While paused, no notification reaches you by email, on any device. Your choices above stay as they are and apply again from that day.",
+      "pauseHelp": "While paused, no notification from this workspace reaches you by email, on any device. Other workspaces you belong to are not affected. Your choices above stay as they are and apply again from that day.",
       "pauseOff": "Your email choices are back.",
-      "pauseOn": "All emails are paused until {date}.",
+      "pauseOn": "Emails from this workspace are paused until {date}.",
       "title": "Notification emails"
     },
     "turnOff": {

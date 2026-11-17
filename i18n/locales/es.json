@@ -3966,15 +3966,15 @@
     },
     "markAllRead": "Marcar todo como leído",
     "preferences": {
-      "description": "La página Notificaciones siempre lo muestra todo. Elige aquí con qué frecuencia cada tipo te llega también por correo.",
+      "description": "La página Notificaciones siempre lo muestra todo. Elige aquí con qué frecuencia cada tipo de este espacio de trabajo te llega también por correo.",
       "kind": "Tipo",
       "kindOffNotice": "Los correos de «{kind}» están desactivados.",
       "modeLabel": "Correo para {kind}",
-      "pause": "Pausar todos los correos hasta",
+      "pause": "Pausar los correos de este espacio de trabajo hasta",
       "pauseDate": "Fecha hasta la que los correos están en pausa",
-      "pauseHelp": "Mientras dure la pausa, ninguna notificación te llega por correo, en ningún dispositivo. Tus elecciones de arriba se mantienen y vuelven a aplicarse a partir de ese día.",
+      "pauseHelp": "Mientras dure la pausa, ninguna notificación de este espacio de trabajo te llega por correo, en ningún dispositivo. Tus otros espacios de trabajo no se ven afectados. Tus elecciones de arriba se mantienen y vuelven a aplicarse a partir de ese día.",
       "pauseOff": "Tus elecciones de correo han vuelto.",
-      "pauseOn": "Todos los correos están en pausa hasta el {date}.",
+      "pauseOn": "Los correos de este espacio de trabajo están en pausa hasta el {date}.",
       "title": "Correos de notificación"
     },
     "turnOff": {
