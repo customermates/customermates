@@ -244,7 +244,8 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
 
   disableRuleUnscoped(companyId: string, ruleId: string, reason: string) {
     const rule = this.rules.get(ruleId);
-    if (rule?.companyId === companyId) this.rules.set(ruleId, { ...rule, enabled: false, disabledReason: reason });
+    if (rule?.companyId === companyId && rule.enabled)
+      this.rules.set(ruleId, { ...rule, enabled: false, disabledReason: reason });
     return Promise.resolve();
   }
 
@@ -261,12 +262,18 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
   syncRulesToPlanLimitCompanyWide(limit: number | null) {
     const oldestFirst = (left: StoredAutomationRule, right: StoredAutomationRule) =>
       left.createdAt.getTime() - right.createdAt.getTime() || left.id.localeCompare(right.id);
-    const active = [...this.rules.values()].filter((rule) => rule.enabled).sort(oldestFirst);
-    const excess = limit === null ? [] : active.slice(limit);
+    const enabled = [...this.rules.values()].filter((rule) => rule.enabled).sort(oldestFirst);
+    const kept = new Set(
+      enabled
+        .filter((rule) => rule.owner?.status === "active")
+        .slice(0, limit ?? undefined)
+        .map((rule) => rule.id),
+    );
+    const excess = limit === null ? [] : enabled.filter((rule) => !kept.has(rule.id));
     for (const rule of excess) this.rules.set(rule.id, { ...rule, enabled: false, disabledReason: "planPaused" });
-    const room = limit === null ? Infinity : Math.max(0, limit - (active.length - excess.length));
+    const room = limit === null ? Infinity : Math.max(0, limit - kept.size);
     const resumable = [...this.rules.values()]
-      .filter((rule) => !rule.enabled && rule.disabledReason === "planPaused")
+      .filter((rule) => !rule.enabled && rule.disabledReason === "planPaused" && rule.owner?.status === "active")
       .sort(oldestFirst)
       .slice(0, room);
     for (const rule of resumable) this.rules.set(rule.id, { ...rule, enabled: true, disabledReason: null });

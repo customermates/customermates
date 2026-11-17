@@ -21,7 +21,10 @@ import { AutomationRunStatus, Status } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere } from "@/ee/messaging/messaging-access";
-import { AUTOMATION_DISABLED_REASON_PLAN_PAUSED } from "./automation-disabled-reason";
+import {
+  AUTOMATION_DISABLED_REASON_OWNER_INACTIVE,
+  AUTOMATION_DISABLED_REASON_PLAN_PAUSED,
+} from "./automation-disabled-reason";
 
 const RULE_SELECT = {
   id: true,
@@ -358,9 +361,14 @@ export class PrismaAutomationRuleRepo
 
   @BypassTenantGuard
   async disableRuleUnscoped(companyId: string, ruleId: string, reason: string): Promise<void> {
+    const pausedByPlan =
+      reason === AUTOMATION_DISABLED_REASON_OWNER_INACTIVE &&
+      (await this.prisma.automationRule.count({
+        where: { id: ruleId, companyId, owner: { pausedByPlanAt: { not: null } } },
+      })) > 0;
     await this.prisma.automationRule.updateMany({
-      where: { id: ruleId, companyId },
-      data: { enabled: false, disabledReason: reason },
+      where: { id: ruleId, companyId, enabled: true },
+      data: { enabled: false, disabledReason: pausedByPlan ? AUTOMATION_DISABLED_REASON_PLAN_PAUSED : reason },
     });
   }
 
@@ -378,12 +386,18 @@ export class PrismaAutomationRuleRepo
     const companyId = this.companyId;
     return this.withCompanyTransaction(companyId, async () => {
       const oldestFirst = [{ createdAt: "asc" as const }, { id: "asc" as const }];
-      const active = await this.prisma.automationRule.findMany({
+      const enabled = await this.prisma.automationRule.findMany({
         where: { companyId, enabled: true },
-        select: { id: true },
+        select: { id: true, owner: { select: { status: true } } },
         orderBy: oldestFirst,
       });
-      const excess = limit === null ? [] : active.slice(limit).map((rule) => rule.id);
+      const kept = new Set(
+        enabled
+          .filter((rule) => rule.owner?.status === Status.active)
+          .slice(0, limit ?? undefined)
+          .map((rule) => rule.id),
+      );
+      const excess = limit === null ? [] : enabled.filter((rule) => !kept.has(rule.id)).map((rule) => rule.id);
       if (excess.length) {
         await this.prisma.automationRule.updateMany({
           where: { companyId, id: { in: excess } },
@@ -391,7 +405,7 @@ export class PrismaAutomationRuleRepo
         });
         for (const id of excess) await this.subscriptions.pause(id);
       }
-      const room = limit === null ? undefined : Math.max(0, limit - (active.length - excess.length));
+      const room = limit === null ? undefined : Math.max(0, limit - kept.size);
       const resumable =
         room === 0
           ? []
