@@ -3978,8 +3978,15 @@
       "title": "E-maile z powiadomieniami"
     },
     "turnOff": {
-      "body": "Nie będziesz już otrzymywać e-maili „{kind}”. Możesz je ponownie włączyć w sekcji Profil i preferencje.",
+      "body": "{email} nie będzie już otrzymywać e-maili „{kind}” z {workspace}. Można je ponownie włączyć w sekcji Profil i preferencje.",
       "confirm": "Wyłącz e-maile",
+      "doneBody": "{email} nie otrzymuje już e-maili „{kind}” z {workspace}. Zaloguj się, aby włączyć je ponownie w sekcji Profil i preferencje.",
+      "doneTitle": "Te e-maile są wyłączone",
+      "expiredBody": "Linki w e-mailach z powiadomieniami działają przez 30 dni. Otwórz link z nowszego e-maila albo zaloguj się i zmień swoje e-maile w sekcji Profil i preferencje.",
+      "expiredTitle": "Ten link wygasł",
+      "invalidBody": "Otwórz ponownie link z e-maila z powiadomieniem albo zaloguj się i zmień swoje e-maile w sekcji Profil i preferencje.",
+      "invalidTitle": "Ten link jest nieprawidłowy",
+      "openSettings": "Otwórz Profil i preferencje",
       "title": "Wyłączyć te e-maile?"
     },
     "unread": "Nieprzeczytane"

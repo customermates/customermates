@@ -3978,8 +3978,15 @@
       "title": "E-Mails zu Benachrichtigungen"
     },
     "turnOff": {
-      "body": "Du bekommst dann keine E-Mails mehr zu „{kind}“. Unter Profil & Einstellungen schaltest du sie wieder ein.",
+      "body": "{email} bekommt dann keine E-Mails mehr zu „{kind}“ aus {workspace}. Unter Profil & Einstellungen lassen sie sich wieder einschalten.",
       "confirm": "E-Mails ausschalten",
+      "doneBody": "{email} bekommt keine E-Mails mehr zu „{kind}“ aus {workspace}. Melde dich an, um sie unter Profil & Einstellungen wieder einzuschalten.",
+      "doneTitle": "Diese E-Mails sind ausgeschaltet",
+      "expiredBody": "Links in Benachrichtigungs-E-Mails gelten 30 Tage. Öffne den Link aus einer neueren E-Mail oder melde dich an und ändere deine E-Mails unter Profil & Einstellungen.",
+      "expiredTitle": "Dieser Link ist abgelaufen",
+      "invalidBody": "Öffne den Link aus der Benachrichtigungs-E-Mail noch einmal oder melde dich an und ändere deine E-Mails unter Profil & Einstellungen.",
+      "invalidTitle": "Dieser Link ist ungültig",
+      "openSettings": "Profil & Einstellungen öffnen",
       "title": "Diese E-Mails ausschalten?"
     },
     "unread": "Ungelesen"

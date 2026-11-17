@@ -3978,8 +3978,15 @@
       "title": "E-mails over meldingen"
     },
     "turnOff": {
-      "body": "Je krijgt dan geen e-mails meer over “{kind}”. Onder Profiel & voorkeuren zet je ze weer aan.",
+      "body": "{email} krijgt dan geen e-mails meer over “{kind}” uit {workspace}. Onder Profiel & voorkeuren zijn ze weer aan te zetten.",
       "confirm": "E-mails uitzetten",
+      "doneBody": "{email} krijgt geen e-mails meer over “{kind}” uit {workspace}. Meld je aan om ze onder Profiel & voorkeuren weer aan te zetten.",
+      "doneTitle": "Deze e-mails staan uit",
+      "expiredBody": "Links in meldingsmails werken 30 dagen. Open de link uit een nieuwere e-mail, of meld je aan en pas je e-mails aan onder Profiel & voorkeuren.",
+      "expiredTitle": "Deze link is verlopen",
+      "invalidBody": "Open de link uit de meldingsmail opnieuw, of meld je aan en pas je e-mails aan onder Profiel & voorkeuren.",
+      "invalidTitle": "Deze link is niet geldig",
+      "openSettings": "Profiel & voorkeuren openen",
       "title": "Deze e-mails uitzetten?"
     },
     "unread": "Ongelezen"

@@ -133,15 +133,21 @@ test("a turn-off link from a notification email asks first, then switches that k
     expect(await confirmation.text()).toContain(CONFIRMATION_FORM);
     expect(await modeOf("ruleAlert")).toBeUndefined();
 
-    await test.step("confirming works without a signed-in browser and sends the person to Profile & preferences", async () => {
+    await test.step("confirming works without a signed-in browser and shows a result page that names whose emails are off", async () => {
       const confirmed = await anonymous.post("/api/notifications/unsubscribe", { form: { token }, maxRedirects: 0 });
       expect(confirmed.status()).toBe(303);
       const target = new URL(confirmed.headers().location ?? "", "http://localhost");
-      expect(target.pathname).toMatch(/\/settings\/profile$/);
-      expect(target.searchParams.get("notice")).toBe("notification-kind-off");
-      expect(target.searchParams.get("kind")).toBe("ruleAlert");
+      expect(target.pathname).toMatch(/\/notification-emails\/turn-off$/);
+      expect(target.searchParams.get("token")).toBe(token);
       expect(await modeOf("ruleAlert")).toBe("off");
       expect(await modeOf("dueToday")).toBeUndefined();
+
+      const result = await anonymous.get(`${target.pathname}${target.search}`, { maxRedirects: 0 });
+      expect(result.status()).toBe(200);
+      const resultText = await result.text();
+      expect(resultText).toContain("These emails are turned off");
+      expect(resultText).toContain("•••@");
+      expect(resultText).not.toContain(CONFIRMATION_FORM);
 
       const again = await anonymous.post("/api/notifications/unsubscribe", { form: { token }, maxRedirects: 0 });
       expect(again.status()).toBe(303);
@@ -150,21 +156,35 @@ test("a turn-off link from a notification email asks first, then switches that k
     await anonymous.dispose();
   });
 
-  await test.step("a wrong, altered or expired link is refused and changes nothing", async () => {
-    expect((await page.request.get("/api/notifications/unsubscribe?token=wrong")).status()).toBe(400);
-    expect((await page.request.get("/api/notifications/unsubscribe")).status()).toBe(400);
+  await test.step("a wrong, altered or expired link leads to a page that says so and changes nothing", async () => {
+    const refused = async (path: string, title: string) => {
+      const first = await page.request.get(path, { maxRedirects: 0 });
+      expect(first.status()).toBe(303);
+      expect(new URL(first.headers().location ?? "", "http://localhost").pathname).toMatch(
+        /\/notification-emails\/turn-off$/,
+      );
+      const shown = await page.request.get(path);
+      expect(shown.status()).toBe(200);
+      const text = await shown.text();
+      expect(text).toContain(title);
+      expect(text).not.toContain(CONFIRMATION_FORM);
+    };
+    await refused("/api/notifications/unsubscribe?token=wrong", "This link is not valid");
+    await refused("/api/notifications/unsubscribe", "This link is not valid");
     const altered = unsubscribePath(workspace.companyId, workspace.userId, "dueToday").replace("dueToday", "ruleAlert");
-    expect((await page.request.get(altered)).status()).toBe(400);
+    await refused(altered, "This link is not valid");
     const expired = unsubscribePath(
       workspace.companyId,
       workspace.userId,
       "replyReceived",
       new Date(Date.now() - 31 * DAY_MS),
     );
-    expect((await page.request.get(expired)).status()).toBe(410);
-    expect((await page.request.post("/api/notifications/unsubscribe", { form: { token: "wrong" } })).status()).toBe(
-      400,
-    );
+    await refused(expired, "This link has expired");
+    const wrongConfirmation = await page.request.post("/api/notifications/unsubscribe", {
+      form: { token: "wrong" },
+      maxRedirects: 0,
+    });
+    expect(wrongConfirmation.status()).toBe(303);
     const wrongPage = await page.request.get("/en/notification-emails/turn-off?token=wrong");
     expect(await wrongPage.text()).not.toContain(CONFIRMATION_FORM);
     expect(await modeOf("replyReceived")).toBeUndefined();
@@ -178,7 +198,7 @@ test("a turn-off link from a notification email asks first, then switches that k
     ]);
     await page.goto(unsubscribePath(workspace.companyId, workspace.userId, "ruleAlert"));
     await expect(page.getByRole("heading", { name: "Turn off these emails?" })).toBeVisible();
-    await expect(page.getByText("You will no longer get emails for “Automation alerts”.")).toBeVisible();
+    await expect(page.getByText(/•••@\S+ will no longer get emails for “Automation alerts” from /)).toBeVisible();
     expect(await modeOf("ruleAlert")).toBeUndefined();
     await page.getByRole("button", { name: "Turn off emails" }).click();
     await page.waitForLoadState("networkidle");

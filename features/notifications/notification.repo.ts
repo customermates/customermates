@@ -46,6 +46,7 @@ export type NotificationRecipient = {
   firstName: string;
   displayLanguage: Locale | null;
   workspaceSlug: string;
+  workspaceName: string;
 };
 
 export type PendingEmailNotification = StoredNotification & {

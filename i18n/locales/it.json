@@ -3978,8 +3978,15 @@
       "title": "E-mail di notifica"
     },
     "turnOff": {
-      "body": "Non riceverai più le e-mail «{kind}». Puoi riattivarle in Profilo e preferenze.",
+      "body": "{email} non riceverà più le e-mail «{kind}» di {workspace}. Si possono riattivare in Profilo e preferenze.",
       "confirm": "Disattiva le e-mail",
+      "doneBody": "{email} non riceve più le e-mail «{kind}» di {workspace}. Accedi per riattivarle in Profilo e preferenze.",
+      "doneTitle": "Queste e-mail sono disattivate",
+      "expiredBody": "I link nelle e-mail di notifica valgono 30 giorni. Apri il link di un’e-mail più recente, oppure accedi e modifica le tue e-mail in Profilo e preferenze.",
+      "expiredTitle": "Questo link è scaduto",
+      "invalidBody": "Apri di nuovo il link dell’e-mail di notifica, oppure accedi e modifica le tue e-mail in Profilo e preferenze.",
+      "invalidTitle": "Questo link non è valido",
+      "openSettings": "Apri Profilo e preferenze",
       "title": "Disattivare queste e-mail?"
     },
     "unread": "Da leggere"

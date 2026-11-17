@@ -3978,8 +3978,15 @@
       "title": "Notification emails"
     },
     "turnOff": {
-      "body": "You will no longer get emails for “{kind}”. You can switch them back on under Profile & preferences.",
+      "body": "{email} will no longer get emails for “{kind}” from {workspace}. They can be switched back on under Profile & preferences.",
       "confirm": "Turn off emails",
+      "doneBody": "{email} no longer gets emails for “{kind}” from {workspace}. Sign in to switch them back on under Profile & preferences.",
+      "doneTitle": "These emails are turned off",
+      "expiredBody": "Links in notification emails work for 30 days. Open the link in a newer email, or sign in and change your emails under Profile & preferences.",
+      "expiredTitle": "This link has expired",
+      "invalidBody": "Open the link from the notification email again, or sign in and change your emails under Profile & preferences.",
+      "invalidTitle": "This link is not valid",
+      "openSettings": "Open Profile & preferences",
       "title": "Turn off these emails?"
     },
     "unread": "Unread"

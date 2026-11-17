@@ -148,10 +148,14 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
         email: true,
         firstName: true,
         displayLanguage: true,
-        company: { select: { slug: true } },
+        company: { select: { slug: true, name: true } },
       },
     });
-    return users.map(({ company, ...user }) => ({ ...user, workspaceSlug: company.slug }));
+    return users.map(({ company, ...user }) => ({
+      ...user,
+      workspaceSlug: company.slug,
+      workspaceName: company.name?.trim() || company.slug,
+    }));
   }
 
   @BypassTenantGuard
@@ -224,11 +228,11 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
       take: args.limit,
     });
     const users = new Map(rows.map((row) => [`${row.companyId}:${row.userId}`, row]));
+    const last = rows.at(-1);
     return {
       users: [...users.values()].map(({ companyId, userId }) => ({ companyId, userId })),
       next: rows.length === args.limit && last ? { createdAt: last.createdAt, id: last.id } : null,
     };
-    const last = rows.at(-1);
   }
 
   @BypassTenantGuard

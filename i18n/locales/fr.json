@@ -3978,8 +3978,15 @@
       "title": "E-mails de notification"
     },
     "turnOff": {
-      "body": "Vous ne recevrez plus d’e-mails « {kind} ». Vous pouvez les réactiver dans Profil et préférences.",
+      "body": "{email} ne recevra plus d’e-mails « {kind} » de {workspace}. Ils peuvent être réactivés dans Profil et préférences.",
       "confirm": "Désactiver les e-mails",
+      "doneBody": "{email} ne reçoit plus d’e-mails « {kind} » de {workspace}. Connectez-vous pour les réactiver dans Profil et préférences.",
+      "doneTitle": "Ces e-mails sont désactivés",
+      "expiredBody": "Les liens des e-mails de notification sont valables 30 jours. Ouvrez le lien d’un e-mail plus récent, ou connectez-vous et modifiez vos e-mails dans Profil et préférences.",
+      "expiredTitle": "Ce lien a expiré",
+      "invalidBody": "Ouvrez de nouveau le lien de l’e-mail de notification, ou connectez-vous et modifiez vos e-mails dans Profil et préférences.",
+      "invalidTitle": "Ce lien n’est pas valide",
+      "openSettings": "Ouvrir Profil et préférences",
       "title": "Désactiver ces e-mails ?"
     },
     "unread": "Non lue"

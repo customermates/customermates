@@ -2933,7 +2933,12 @@ export const getSetNotificationPreferencesInteractor = () =>
 export const getSetNotificationPauseInteractor = () =>
   new SetNotificationPauseInteractor(getNotificationRepo(), getNotificationPauseRepo());
 export const getSetNotificationKindOffInteractor = () =>
-  new SetNotificationKindOffInteractor(getNotificationRepo(), env.BETTER_AUTH_SECRET);
+  new SetNotificationKindOffInteractor(
+    getNotificationRepo(),
+    env.BETTER_AUTH_SECRET,
+    () => new Date(),
+    async () => (await getAuthService().getInteractiveSession())?.user.email ?? null,
+  );
 export const getSendNotificationDigestInteractor = () =>
   new SendNotificationDigestInteractor(
     getNotificationRepo(),

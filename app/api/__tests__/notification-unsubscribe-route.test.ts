@@ -10,12 +10,28 @@ import { GET, POST } from "../notifications/unsubscribe/route";
 
 const URL_BASE = "https://app.example.test/api/notifications/unsubscribe";
 
-function link(query: string) {
-  return new Request(`${URL_BASE}${query}`);
+function link(query: string, headers: Record<string, string> = {}) {
+  return new Request(`${URL_BASE}${query}`, { headers });
 }
 
-function confirmation(fields: Record<string, string>) {
-  return new Request(URL_BASE, { method: "POST", body: new URLSearchParams(fields) });
+function confirmation(fields: Record<string, string>, headers: Record<string, string> = {}) {
+  return new Request(URL_BASE, { method: "POST", body: new URLSearchParams(fields), headers });
+}
+
+function outcome(status: "off" | "pending", overrides: Record<string, unknown> = {}) {
+  return {
+    ok: true,
+    data: {
+      status,
+      kind: "ruleAlert",
+      workspaceSlug: "ws-1",
+      workspaceName: "Acme",
+      maskedEmail: "s•••@example.test",
+      viewerIsMember: false,
+      locale: "de",
+      ...overrides,
+    },
+  };
 }
 
 beforeEach(() => {
@@ -24,10 +40,7 @@ beforeEach(() => {
 
 describe("GET /api/notifications/unsubscribe", () => {
   it("changes nothing when a mail scanner follows the link and leads to the confirmation page in the member's language", async () => {
-    invoke.mockResolvedValue({
-      ok: true,
-      data: { status: "pending", kind: "ruleAlert", workspaceSlug: "ws-1", locale: "de" },
-    });
+    invoke.mockResolvedValue(outcome("pending"));
 
     const response = await GET(link("?token=a.b%2Bc"));
 
@@ -40,45 +53,48 @@ describe("GET /api/notifications/unsubscribe", () => {
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
 
-  it("answers 400 for a wrong token", async () => {
-    invoke.mockResolvedValue({ ok: true, data: { status: "invalid" } });
+  it("never leads to the member's settings, even when that member is signed in and the kind is already off", async () => {
+    invoke.mockResolvedValue(outcome("off", { viewerIsMember: true }));
 
-    const response = await GET(link("?token=wrong"));
+    const response = await GET(link("?token=abc"));
 
-    expect(response.status).toBe(400);
-    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("location")).toBe("https://app.example.test/de/notification-emails/turn-off?token=abc");
   });
 
-  it("answers 400 with the shared failure body when the token is missing", async () => {
+  it("sends a wrong or expired link to the localised page in the reader's language instead of plain text", async () => {
+    invoke.mockResolvedValueOnce({ ok: true, data: { status: "invalid" } });
+    invoke.mockResolvedValueOnce({ ok: true, data: { status: "expired" } });
+
+    const wrong = await GET(link("?token=wrong", { "accept-language": "en;q=0.5, fr-CH, de;q=0.8" }));
+    const expired = await GET(link("?token=old"));
+
+    expect(wrong.status).toBe(303);
+    expect(wrong.headers.get("location")).toBe("https://app.example.test/fr/notification-emails/turn-off?token=wrong");
+    expect(wrong.headers.get("content-type")).toBeNull();
+    expect(expired.status).toBe(303);
+    expect(expired.headers.get("location")).toBe("https://app.example.test/en/notification-emails/turn-off?token=old");
+    expect(expired.headers.get("cache-control")).toBe("private, no-store");
+  });
+
+  it("sends a link without a token, or with one too long to be real, to the same page without echoing it", async () => {
     invoke.mockResolvedValue({
       ok: false,
       error: new z.ZodError([{ code: "custom", path: ["token"], message: "Required" }]),
     });
 
-    const response = await GET(link(""));
+    const missing = await GET(link(""));
+    const oversized = await GET(link(`?token=${"x".repeat(300)}`));
 
     expect(invoke).toHaveBeenCalledWith({ token: "", confirmed: false });
-    expect(response.status).toBe(400);
-    expect(response.headers.get("cache-control")).toBe("private, no-store");
-    expect((await response.json()).error.kind).toBe("validation");
-  });
-
-  it("answers 410 for an expired link", async () => {
-    invoke.mockResolvedValue({ ok: true, data: { status: "expired" } });
-
-    const response = await GET(link("?token=old"));
-
-    expect(response.status).toBe(410);
-    expect(response.headers.get("location")).toBeNull();
+    expect(missing.status).toBe(303);
+    expect(missing.headers.get("location")).toBe("https://app.example.test/en/notification-emails/turn-off");
+    expect(oversized.headers.get("location")).toBe("https://app.example.test/en/notification-emails/turn-off");
   });
 });
 
 describe("POST /api/notifications/unsubscribe", () => {
-  it("turns the kind off and redirects to the profile settings with a notice for the toast", async () => {
-    invoke.mockResolvedValue({
-      ok: true,
-      data: { status: "off", kind: "ruleAlert", workspaceSlug: "ws-1", locale: "de" },
-    });
+  it("turns the kind off and shows the signed-in member their settings with a notice for the toast", async () => {
+    invoke.mockResolvedValue(outcome("off", { viewerIsMember: true }));
 
     const response = await POST(confirmation({ token: "abc" }));
 
@@ -90,7 +106,16 @@ describe("POST /api/notifications/unsubscribe", () => {
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
 
-  it("refuses a confirmation without a token, with a wrong one and with an expired one", async () => {
+  it("shows everyone else, signed in or not, the result page that names whose emails were switched off", async () => {
+    invoke.mockResolvedValue(outcome("off"));
+
+    const response = await POST(confirmation({ token: "abc" }));
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("https://app.example.test/de/notification-emails/turn-off?token=abc");
+  });
+
+  it("sends a confirmation without a token, with a wrong one and with an expired one to the localised page", async () => {
     invoke.mockResolvedValueOnce({
       ok: false,
       error: new z.ZodError([{ code: "custom", path: ["token"], message: "Required" }]),
@@ -98,17 +123,19 @@ describe("POST /api/notifications/unsubscribe", () => {
     invoke.mockResolvedValueOnce({ ok: true, data: { status: "invalid" } });
     invoke.mockResolvedValueOnce({ ok: true, data: { status: "expired" } });
 
-    expect((await POST(confirmation({}))).status).toBe(400);
+    const missing = await POST(confirmation({}));
     expect(invoke).toHaveBeenLastCalledWith({ token: "", confirmed: true });
-    expect((await POST(confirmation({ token: "wrong" }))).status).toBe(400);
-    expect((await POST(confirmation({ token: "old" }))).status).toBe(410);
+    const wrong = await POST(confirmation({ token: "wrong" }, { "accept-language": "nl" }));
+    const expired = await POST(confirmation({ token: "old" }));
+
+    expect([missing.status, wrong.status, expired.status]).toEqual([303, 303, 303]);
+    expect(missing.headers.get("location")).toBe("https://app.example.test/en/notification-emails/turn-off");
+    expect(wrong.headers.get("location")).toBe("https://app.example.test/nl/notification-emails/turn-off?token=wrong");
+    expect(expired.headers.get("location")).toBe("https://app.example.test/en/notification-emails/turn-off?token=old");
   });
 
   it("is safe to confirm twice", async () => {
-    invoke.mockResolvedValue({
-      ok: true,
-      data: { status: "off", kind: "dueToday", workspaceSlug: "ws-1", locale: "en" },
-    });
+    invoke.mockResolvedValue(outcome("off", { kind: "dueToday", locale: "en" }));
 
     const first = await POST(confirmation({ token: "abc" }));
     const second = await POST(confirmation({ token: "abc" }));

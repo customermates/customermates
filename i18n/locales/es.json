@@ -3978,8 +3978,15 @@
       "title": "Correos de notificación"
     },
     "turnOff": {
-      "body": "Dejarás de recibir correos de «{kind}». Puedes volver a activarlos en Perfil y preferencias.",
+      "body": "{email} dejará de recibir correos de «{kind}» de {workspace}. Se pueden volver a activar en Perfil y preferencias.",
       "confirm": "Desactivar correos",
+      "doneBody": "{email} ya no recibe correos de «{kind}» de {workspace}. Inicia sesión para volver a activarlos en Perfil y preferencias.",
+      "doneTitle": "Estos correos están desactivados",
+      "expiredBody": "Los enlaces de los correos de notificación valen 30 días. Abre el enlace de un correo más reciente, o inicia sesión y cambia tus correos en Perfil y preferencias.",
+      "expiredTitle": "Este enlace ha caducado",
+      "invalidBody": "Abre de nuevo el enlace del correo de notificación, o inicia sesión y cambia tus correos en Perfil y preferencias.",
+      "invalidTitle": "Este enlace no es válido",
+      "openSettings": "Abrir Perfil y preferencias",
       "title": "¿Desactivar estos correos?"
     },
     "unread": "Sin leer"

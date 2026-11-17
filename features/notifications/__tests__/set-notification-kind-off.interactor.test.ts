@@ -7,7 +7,7 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
-import { SetNotificationKindOffInteractor } from "../set-notification-kind-off.interactor";
+import { SetNotificationKindOffInteractor, maskEmailAddress } from "../set-notification-kind-off.interactor";
 import { notificationUnsubscribeSecret, signNotificationUnsubscribe } from "../notification-unsubscribe-token";
 import { FakeNotificationRepo } from "./fake-notification-repo";
 
@@ -25,15 +25,39 @@ function signed(kind: "dueToday" | "replyReceived" | "ruleAlert" = "ruleAlert") 
 let repo: FakeNotificationRepo;
 let clockNow = NOW;
 
+let viewer: string | null = null;
+
 function interactor(authSecret: string | undefined = AUTH_SECRET) {
-  return new SetNotificationKindOffInteractor(repo, authSecret, () => clockNow);
+  return new SetNotificationKindOffInteractor(
+    repo,
+    authSecret,
+    () => clockNow,
+    () => Promise.resolve(viewer),
+  );
 }
+
+const DETAILS = {
+  kind: "ruleAlert",
+  workspaceSlug: "ws-1",
+  workspaceName: "Acme",
+  maskedEmail: "m•••@example.test",
+  viewerIsMember: false,
+  locale: "de",
+};
 
 beforeEach(() => {
   repo = new FakeNotificationRepo();
   clockNow = NOW;
+  viewer = null;
   repo.members = [
-    { id: ME, email: "me@example.test", firstName: "Sofia", displayLanguage: Locale.de, workspaceSlug: "ws-1" },
+    {
+      id: ME,
+      email: "me@example.test",
+      firstName: "Sofia",
+      displayLanguage: Locale.de,
+      workspaceSlug: "ws-1",
+      workspaceName: "Acme",
+    },
   ];
 });
 
@@ -44,22 +68,50 @@ describe("turning a notification kind off from an email link", () => {
     const first = await interactor().invoke({ token, confirmed: false });
     const second = await interactor().invoke({ token, confirmed: false });
 
-    expect(first).toEqual({
-      ok: true,
-      data: { status: "pending", kind: "ruleAlert", workspaceSlug: "ws-1", locale: "de" },
-    });
+    expect(first).toEqual({ ok: true, data: { status: "pending", ...DETAILS } });
     expect(second).toEqual(first);
     expect(repo.unscopedSaves).toEqual([]);
     expect(repo.preferences.get(ME)?.get("ruleAlert")).toBeUndefined();
   });
 
+  it("names the workspace and only a masked address of the member whose emails the link switches off", async () => {
+    const result = await interactor().invoke({ token: signed("ruleAlert"), confirmed: false });
+
+    expect(result).toMatchObject({ ok: true, data: { workspaceName: "Acme", maskedEmail: "m•••@example.test" } });
+    expect(JSON.stringify(result)).not.toContain("me@example.test");
+    expect(maskEmailAddress("sofia.keller@acme.example")).toBe("s•••@acme.example");
+    expect(maskEmailAddress("no-at-sign")).toBe("•••");
+  });
+
+  it("tells a signed-in member apart from a colleague who opened a forwarded mail", async () => {
+    const token = signed("ruleAlert");
+
+    viewer = "colleague@example.test";
+    expect(await interactor().invoke({ token, confirmed: true })).toMatchObject({
+      ok: true,
+      data: { status: "off", viewerIsMember: false },
+    });
+    viewer = "ME@example.test";
+    expect(await interactor().invoke({ token, confirmed: true })).toMatchObject({
+      ok: true,
+      data: { status: "off", viewerIsMember: true },
+    });
+  });
+
+  it("reports a kind that is already off as off before anyone confirms", async () => {
+    repo.preferences.set(ME, new Map([["ruleAlert", "off"]]));
+
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: false })).toEqual({
+      ok: true,
+      data: { status: "off", ...DETAILS },
+    });
+    expect(repo.unscopedSaves).toEqual([]);
+  });
+
   it("sets the email mode of that kind to off without a session and names where to send the person next", async () => {
     const result = await interactor().invoke({ token: signed("ruleAlert"), confirmed: true });
 
-    expect(result).toEqual({
-      ok: true,
-      data: { status: "off", kind: "ruleAlert", workspaceSlug: "ws-1", locale: "de" },
-    });
+    expect(result).toEqual({ ok: true, data: { status: "off", ...DETAILS } });
     expect(repo.unscopedSaves).toEqual([{ companyId: COMPANY, userId: ME, kind: "ruleAlert", emailMode: "off" }]);
     expect(repo.preferences.get(ME)?.get("ruleAlert")).toBe("off");
   });

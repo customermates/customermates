@@ -33,12 +33,12 @@ export const NOTIFICATION_RECIPIENT_LIMIT = 200;
 export const NOTIFICATION_INBOX_LIMIT = 50;
 export const NOTIFICATION_RETENTION_DAYS = 90;
 export const NOTIFICATION_DIGEST_WINDOW_HOURS = 24;
-export const NOTIFICATION_INSTANT_EMAILS_PER_HOUR = 20;
-export const NOTIFICATION_INSTANT_FALLBACK_MINUTES = 15;
-
 export const NOTIFICATION_DIGEST_LIMIT = 100;
 export const NOTIFICATION_DIGEST_ITEM_LIMIT = 20;
 export const NOTIFICATIONS_PATH = "/notifications";
+export const NOTIFICATION_INSTANT_EMAILS_PER_HOUR = 20;
+export const NOTIFICATION_INSTANT_FALLBACK_MINUTES = 15;
+
 export const NotifyMembersSchema = z
   .object({
     companyId: z.uuid(),
@@ -122,7 +122,15 @@ export const SetNotificationKindOffSchema = z
 export type SetNotificationKindOffData = z.output<typeof SetNotificationKindOffSchema>;
 
 export type SetNotificationKindOffResult =
-  | { status: "off" | "pending"; kind: NotificationKind; workspaceSlug: string; locale: AppLocale }
+  | {
+      status: "off" | "pending";
+      kind: NotificationKind;
+      workspaceSlug: string;
+      workspaceName: string;
+      maskedEmail: string;
+      viewerIsMember: boolean;
+      locale: AppLocale;
+    }
   | { status: "expired" }
   | { status: "invalid" };
 

@@ -3978,8 +3978,15 @@
       "title": "E-mails de notificação"
     },
     "turnOff": {
-      "body": "Você não receberá mais e-mails de “{kind}”. É possível reativá-los em Perfil e preferências.",
+      "body": "{email} não receberá mais e-mails de “{kind}” de {workspace}. É possível reativá-los em Perfil e preferências.",
       "confirm": "Desativar e-mails",
+      "doneBody": "{email} não recebe mais e-mails de “{kind}” de {workspace}. Entre para reativá-los em Perfil e preferências.",
+      "doneTitle": "Estes e-mails estão desativados",
+      "expiredBody": "Os links dos e-mails de notificação valem por 30 dias. Abra o link de um e-mail mais recente ou entre e altere seus e-mails em Perfil e preferências.",
+      "expiredTitle": "Este link expirou",
+      "invalidBody": "Abra novamente o link do e-mail de notificação ou entre e altere seus e-mails em Perfil e preferências.",
+      "invalidTitle": "Este link não é válido",
+      "openSettings": "Abrir Perfil e preferências",
       "title": "Desativar estes e-mails?"
     },
     "unread": "Não lida"

@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import type { NotificationPreferencesDto } from "@/features/notifications/notification.schema";
+
 import { NOTIFICATION_KIND_OFF_NOTICE } from "@/features/notifications/notification.schema";
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -22,13 +24,17 @@ function kindLabel(t: Translate, kind: string | null): string | null {
   }
 }
 
-export function NotificationNoticeToast() {
+type Props = { preferences: NotificationPreferencesDto["preferences"] };
+
+export function NotificationNoticeToast({ preferences }: Props) {
   const t = useTranslations();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (searchParams.get("notice") !== NOTIFICATION_KIND_OFF_NOTICE) return;
-    const label = kindLabel(t, searchParams.get("kind"));
+    const kind = searchParams.get("kind");
+    const isOff = preferences.some((preference) => preference.kind === kind && preference.emailMode === "off");
+    const label = isOff ? kindLabel(t, kind) : null;
 
     const timer = setTimeout(() => {
       if (label) toast.success(t("Notifications.preferences.kindOffNotice", { kind: label }));
@@ -42,7 +48,7 @@ export function NotificationNoticeToast() {
     window.history.replaceState(null, "", query ? `${path}?${query}` : path);
 
     return () => clearTimeout(timer);
-  }, [searchParams, t]);
+  }, [preferences, searchParams, t]);
 
   return null;
 }

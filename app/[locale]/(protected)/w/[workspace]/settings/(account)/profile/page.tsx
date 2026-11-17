@@ -22,7 +22,7 @@ export default async function ProfileSettingsPage() {
 
   return (
     <PageContainer>
-      <NotificationNoticeToast />
+      <NotificationNoticeToast preferences={notificationPreferences.preferences} />
 
       <ProfileSettingsForm emailVerified={emailVerified} userDetails={userDetails} />
 

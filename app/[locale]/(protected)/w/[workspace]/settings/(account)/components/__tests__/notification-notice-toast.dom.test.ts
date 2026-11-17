@@ -18,11 +18,17 @@ import { NotificationNoticeToast } from "../notification-notice-toast";
 let container: HTMLDivElement;
 let root: Root;
 
-async function renderToast(search: string) {
+const KINDS = ["dueToday", "replyReceived", "ruleAlert"] as const;
+
+async function renderToast(search: string, offKinds: readonly string[] = KINDS) {
   harness.search = search;
   window.history.replaceState(null, "", search ? `/settings/profile?${search}` : "/settings/profile");
+  const preferences = KINDS.map((kind) => ({
+    kind,
+    emailMode: offKinds.includes(kind) ? ("off" as const) : ("digest" as const),
+  }));
   await act(async () => {
-    root.render(createElement(NotificationNoticeToast));
+    root.render(createElement(NotificationNoticeToast, { preferences }));
     await Promise.resolve();
   });
   await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
@@ -59,6 +65,13 @@ describe("NotificationNoticeToast", () => {
         `Notifications.preferences.kindOffNotice:Notifications.kinds.${kind}`,
       );
     }
+  });
+
+  it("says nothing when the kind in the address is not switched off in this person's own settings", async () => {
+    await renderToast("notice=notification-kind-off&kind=ruleAlert", ["dueToday"]);
+
+    expect(harness.success).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("");
   });
 
   it("says nothing for another notice, an unknown kind or a plain visit", async () => {
