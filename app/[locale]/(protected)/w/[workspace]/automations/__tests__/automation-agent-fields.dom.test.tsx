@@ -556,6 +556,36 @@ describe("the step palette and the keyboard", () => {
     );
   });
 
+  it("moves the focus to the neighbouring card, or to the last +, after a step is removed", () => {
+    const store = chainStore();
+    act(() => {
+      store.addEffect("notify", 0);
+      store.addEffect("agent", 1);
+      store.addCondition(0);
+    });
+    mount(<AutomationCardChain store={store} />);
+    const header = (card: string) =>
+      container.querySelector<HTMLButtonElement>(`[data-automation-card="${card}"] button[aria-expanded]`);
+    const removeOpenCard = (card: string) => {
+      if (header(card)?.getAttribute("aria-expanded") !== "true") act(() => header(card)?.click());
+      const buttons = [...container.querySelectorAll<HTMLButtonElement>(`[data-automation-card="${card}"] button`)];
+      act(() => buttons.find((button) => button.textContent === "Automations.builder.removeStep")?.click());
+    };
+
+    removeOpenCard("condition-0");
+    expect(store.form.conditions).toHaveLength(0);
+    expect(document.activeElement).toBe(header("effect-0"));
+
+    removeOpenCard("effect-0");
+    expect(store.form.effects.map((effect) => effect.kind)).toEqual(["agent"]);
+    expect(document.activeElement).toBe(header("effect-0"));
+
+    removeOpenCard("effect-0");
+    expect(store.form.effects).toEqual([]);
+    expect(connectors()).toHaveLength(1);
+    expect(document.activeElement).toBe(connectors()[0]);
+  });
+
   it("hands the focus back to the + it was opened from when it is closed without a choice", () => {
     const store = chainStore();
     act(() => store.addEffect("notify", 0));

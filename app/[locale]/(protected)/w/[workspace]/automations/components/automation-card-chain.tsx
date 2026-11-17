@@ -3,6 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { AutomationPaletteKind, AutomationPaletteReasons } from "@/components/automations/automation-palette";
 import type { AutomationBuilderStore } from "./automation-builder.store";
+import type { ChainFocus } from "./automation-chain-focus";
 
 import { Bell, Filter, ListPlus, Pencil, Sparkles, Webhook, Zap } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -12,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { AutomationCard, AutomationConnector } from "@/components/automations/automation-card";
 import { AutomationPalette } from "@/components/automations/automation-palette";
 
+import { focusAfterRemoval } from "./automation-chain-focus";
 import { AutomationConditionFields } from "./automation-condition-fields";
 import { conditionSentence, effectSentence, triggerSentence } from "./automation-draft-sentence";
 import { AutomationEffectFields } from "./automation-effect-fields";
@@ -31,7 +33,7 @@ const EFFECT_ICONS: Record<string, LucideIcon> = {
 export const AutomationCardChain = observer(function AutomationCardChain({ store }: { store: AutomationBuilderStore }) {
   const t = useTranslations();
   const chainRef = useRef<HTMLDivElement>(null);
-  const focusAfterRender = useRef<{ card: string } | { connector: number } | null>(null);
+  const focusAfterRender = useRef<ChainFocus | null>(null);
   const { form, model, context, palette } = store;
 
   useEffect(() => {
@@ -70,6 +72,15 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
       focusAfterRender.current = { card: `effect-${at}` };
       store.addEffect(kind, at);
     }
+  };
+
+  const remove = (group: "condition" | "effect", index: number) => {
+    focusAfterRender.current = focusAfterRemoval(group, index, {
+      conditions: conditionCount,
+      effects: form.effects.length,
+    });
+    if (group === "condition") store.removeCondition(index);
+    else store.removeEffect(index);
   };
 
   const dismissPalette = (position: number) => {
@@ -137,7 +148,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
             readOnly={readOnly}
             removeLabel={t("Automations.builder.removeStep")}
             sentence={conditionSentence(condition, form.trigger, model, t)}
-            onRemove={() => store.removeCondition(index)}
+            onRemove={() => remove("condition", index)}
             onToggle={() => store.toggleCard(`condition-${index}`)}
           >
             <AutomationConditionFields
@@ -166,7 +177,7 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
             readOnly={readOnly}
             removeLabel={t("Automations.builder.removeStep")}
             sentence={effectSentence(effect, model, form.trigger, t)}
-            onRemove={() => store.removeEffect(index)}
+            onRemove={() => remove("effect", index)}
             onToggle={() => store.toggleCard(`effect-${index}`)}
           >
             <AutomationEffectFields
