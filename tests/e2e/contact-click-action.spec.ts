@@ -220,8 +220,8 @@ test("contact chips reuse inline copy actions without reserved space across deta
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(pagePath(page, `/records/${typeId}?viewMode=card&groupBy=system%3AcreatedAt`));
-    const value = page.locator(`[data-chip-column="${fields[0].id}"] [data-slot="contact-value"]`);
-    await expect(value).toBeVisible();
+    const value = page.locator(`[data-chip-column="${fields[0].id}"] [data-slot="contact-value"]:visible`);
+    await expect(value).toHaveCount(1);
     await value.getByRole("button", { name: fields[0].value, exact: true }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
