@@ -105,7 +105,7 @@ export class AutomationEffectRunner {
   ): Promise<AutomationEffectOutcome> {
     if (!this.agents) return { kind: effect.kind, status: "failed", detail: "agentRuntimeUnavailable" };
     const record = context.recordRef ? await this.records.read(context.recordRef) : null;
-    const prompt = renderAutomationTemplate(effect.prompt, { record, rule: context.rule });
+    const prompt = renderAutomationTemplate(effect.prompt, { record: record ?? undefined, rule: context.rule });
     const queued = await this.agents.enqueue({
       companyId: context.companyId,
       runId: context.runId,

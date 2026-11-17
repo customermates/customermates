@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { AGENT_RUNTIMES } from "./automation-rule.schema";
-
 export const AGENT_RUNTIME_UNAVAILABLE_REASONS = ["selfHosted", "plan", "noKey", "noRunner", "notConfigured"] as const;
 
 export const AgentRuntimeOptionSchema = z.object({
@@ -20,8 +18,10 @@ export const AgentRuntimeAvailabilitySchema = z.object({
 export type AgentRuntimeOption = z.infer<typeof AgentRuntimeOptionSchema>;
 export type AgentRuntimeAvailability = z.infer<typeof AgentRuntimeAvailabilitySchema>;
 
+function notConfigured(): AgentRuntimeOption {
+  return { available: false, reason: "notConfigured", models: [], runners: [] };
+}
+
 export function noAgentRuntimes(): AgentRuntimeAvailability {
-  return Object.fromEntries(
-    AGENT_RUNTIMES.map((runtime) => [runtime, { available: false, reason: "notConfigured", models: [], runners: [] }]),
-  ) as AgentRuntimeAvailability;
+  return { mate: notConfigured(), ownKey: notConfigured(), runner: notConfigured() };
 }
