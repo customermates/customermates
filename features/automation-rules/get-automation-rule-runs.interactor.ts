@@ -1,4 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
+import type { AutomationRunRecordReader } from "./automation-ports";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationRuleRunPage, GetAutomationRuleRunsData } from "./automation-rule.schema";
 
@@ -26,7 +27,10 @@ export class GetAutomationRuleRunsInteractor extends AuthenticatedInteractor<
   GetAutomationRuleRunsData,
   AutomationRuleRunPage
 > {
-  constructor(private readonly repo: AutomationRuleRepo) {
+  constructor(
+    private readonly repo: AutomationRuleRepo,
+    private readonly records: AutomationRunRecordReader,
+  ) {
     super();
   }
 
@@ -46,10 +50,15 @@ export class GetAutomationRuleRunsInteractor extends AuthenticatedInteractor<
     });
     const page = rows.slice(0, AUTOMATION_RUN_PAGE_SIZE);
     const last = page.at(-1);
+    const readable = await this.records.readableRecordIds({
+      companyId: this.user.companyId,
+      userId: this.user.id,
+      refs: page.flatMap((run) => (run.typeId && run.recordId ? [{ typeId: run.typeId, recordId: run.recordId }] : [])),
+    });
     return {
       ok: true as const,
       data: {
-        runs: page.map(toAutomationRuleRunDto),
+        runs: page.map((run) => toAutomationRuleRunDto(run, run.recordId !== null && readable.has(run.recordId))),
         nextCursor:
           rows.length > AUTOMATION_RUN_PAGE_SIZE && last
             ? encodeAutomationRunCursor({ createdAt: last.createdAt, id: last.id })

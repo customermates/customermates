@@ -582,7 +582,7 @@ describe("reading rules", () => {
       depth: 0,
       scheduledFor: NOW,
     });
-    const runs = new GetAutomationRuleRunsInteractor(repo);
+    const runs = new GetAutomationRuleRunsInteractor(repo, new FakeDateCandidateReader(repo));
     const run = (id: string, user = mockUser) => runWithTenant(user, () => runs.invoke({ id } as never));
     await expect(run(RULE)).resolves.toMatchObject({
       ok: true,
@@ -611,7 +611,7 @@ describe("reading rules", () => {
         scheduledFor: NOW,
       });
     }
-    const runs = new GetAutomationRuleRunsInteractor(repo);
+    const runs = new GetAutomationRuleRunsInteractor(repo, new FakeDateCandidateReader(repo));
     const page = await runWithTenant(mockUser, () => runs.invoke({ id: RULE } as never));
     if (!page.ok) throw new Error("expected the run history");
     const dated = page.data.runs.filter((item) => item.triggerKind === "dateReached");
@@ -623,6 +623,46 @@ describe("reading rules", () => {
     expect([...repo.runs.values()].map((item) => item.occurrenceKey)).toContain(
       `date:${RECORD}:${CLOSE}:2026-11-14:before2`,
     );
+  });
+
+  it("gives no record, no record id in the key and no due time of a date run whose record the reader may not read", async () => {
+    const hidden = "44444444-4444-4444-8444-4444444444ff";
+    const admit = (recordId: string | null, kind: "dateReached" | "recordCreated", key: string) =>
+      repo.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey: key,
+        triggerKind: kind,
+        typeId: DEALS,
+        recordId,
+        payload: null,
+        depth: 0,
+        scheduledFor: NOW,
+      });
+    await admit(hidden, "dateReached", `date:${hidden}:${CLOSE}:2026-11-14:before2`);
+    await admit(hidden, "recordCreated", "event:hidden");
+    await admit(RECORD, "dateReached", `date:${RECORD}:${CLOSE}:2026-11-14:before2`);
+    await admit(null, "recordCreated", "event:none");
+    repo.unreadableRecords.add(hidden);
+    const reader = new FakeDateCandidateReader(repo);
+    const runs = new GetAutomationRuleRunsInteractor(repo, reader);
+
+    const page = await runWithTenant(mockUser, () => runs.invoke({ id: RULE } as never));
+
+    if (!page.ok) throw new Error("expected the run history");
+    const shown = Object.fromEntries(
+      page.data.runs.map((item) => [item.occurrenceKey, [item.recordId, item.scheduledFor, item.typeId]]),
+    );
+    expect(shown).toEqual({
+      date: [null, null, DEALS],
+      "event:hidden": [null, NOW.toISOString(), DEALS],
+      [`date:${RECORD}:${CLOSE}:before2`]: [RECORD, NOW.toISOString(), DEALS],
+      "event:none": [null, NOW.toISOString(), DEALS],
+    });
+    expect(JSON.stringify(page)).not.toContain(hidden);
+    expect(reader.recordChecks).toHaveLength(1);
+    expect(reader.recordChecks[0]).toMatchObject({ companyId: COMPANY, userId: mockUser.id });
+    expect(reader.recordChecks[0].refs).toHaveLength(3);
   });
 
   it("pages through the runs newest first with a cursor and refuses a broken cursor", async () => {
@@ -642,7 +682,7 @@ describe("reading rules", () => {
     }
     for (const [index, run] of [...repo.runs.values()].entries())
       repo.runs.set(run.id, { ...run, createdAt: times[index] ?? run.createdAt });
-    const runs = new GetAutomationRuleRunsInteractor(repo);
+    const runs = new GetAutomationRuleRunsInteractor(repo, new FakeDateCandidateReader(repo));
     const page = (input: unknown) => runWithTenant(mockUser, () => runs.invoke(input as never));
 
     const first = await page({ id: RULE });

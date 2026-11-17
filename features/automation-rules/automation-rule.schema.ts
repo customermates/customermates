@@ -386,12 +386,20 @@ export const AutomationRuleRunDtoSchema = z.object({
   status: AutomationRunStatusSchema,
   triggerKind: AutomationTriggerKindSchema,
   typeId: z.uuid().nullable(),
-  recordId: z.uuid().nullable(),
-  occurrenceKey: z.string(),
+  recordId: z
+    .uuid()
+    .nullable()
+    .describe("The record the run concerned. Null when the run has no record or the caller may not read it."),
+  occurrenceKey: z
+    .string()
+    .describe("Identifies the occurrence the run handled. It names no record the caller may not read."),
   effects: z.array(AutomationEffectOutcomeSchema),
   reason: z.string().nullable(),
   error: z.string().nullable(),
-  scheduledFor: z.string(),
+  scheduledFor: z
+    .string()
+    .nullable()
+    .describe("When the run was due. Null for a date rule's run whose record the caller may not read."),
   finishedAt: z.string().nullable(),
   createdAt: z.string(),
 });

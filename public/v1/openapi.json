@@ -127477,7 +127477,7 @@
       "post": {
         "operationId": "listRuleRuns",
         "summary": "List a rule's runs",
-        "description": "Returns one rule's run history newest first. Each run has its status (queued, running, applied, skipped or failed), the record it concerned, the outcome of every effect and, when skipped, the reason. Requires: read permission on routines.",
+        "description": "Returns one rule's run history newest first. Each run has its status (queued, running, applied, skipped or failed), the record it concerned, the outcome of every effect and, when skipped, the reason. A run whose record the caller may not read comes without recordId and without the record in occurrenceKey, and a date rule's run then also without scheduledFor. Requires: read permission on routines.",
         "tags": [
           "rules"
         ],
@@ -127615,10 +127615,12 @@
                               {
                                 "type": "null"
                               }
-                            ]
+                            ],
+                            "description": "The record the run concerned. Null when the run has no record or the caller may not read it."
                           },
                           "occurrenceKey": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Identifies the occurrence the run handled. It names no record the caller may not read."
                           },
                           "effects": {
                             "type": "array",
@@ -127696,7 +127698,15 @@
                             ]
                           },
                           "scheduledFor": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "When the run was due. Null for a date rule's run whose record the caller may not read."
                           },
                           "finishedAt": {
                             "anyOf": [

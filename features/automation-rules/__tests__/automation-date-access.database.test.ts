@@ -1,5 +1,8 @@
+import type { TenantUser } from "@/features/user/user.schema";
+
 import { afterAll, describe, expect, it, vi } from "vitest";
 
+import { Action, Resource } from "@/generated/prisma";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 vi.mock("@/env", () => ({
@@ -97,7 +100,7 @@ describeDatabase("a date rule of a member who reads only their own records", () 
     expect(stored.map((run) => run.recordId)).toEqual([own.recordId]);
     expect(stored[0].occurrenceKey).toContain(CLOSES);
 
-    const history = new GetAutomationRuleRunsInteractor(w.rules);
+    const history = new GetAutomationRuleRunsInteractor(w.rules, w.candidates);
     const page = await w.as(member, () => history.invoke({ id: rule.id } as never));
     if (!page.ok) throw new Error("expected the run history");
     expect(page.data.runs.map((run) => run.recordId)).toEqual([own.recordId]);
@@ -105,5 +108,86 @@ describeDatabase("a date rule of a member who reads only their own records", () 
     const shown = JSON.stringify([plain, conditional, page]);
     expect(shown).not.toContain(foreign.recordId);
     expect(JSON.stringify(page)).not.toContain(CLOSES);
+  });
+});
+
+describeDatabase("the run history read by a member who reads every automation but only their own records", () => {
+  const DUE = new Date("2026-11-18T07:00:00.000Z");
+  const CLOSES = "2026-11-20";
+
+  it("gives a foreign record's run without the record, its id in the key or the due time of its date", async () => {
+    const w = await createAutomationWorkspace();
+    cleanups.push(w.cleanup);
+    await w.grant("deal", ["create", "readOwn"]);
+    const reader = {
+      ...w.member,
+      role: {
+        ...w.member.role,
+        permissions: [{ id: "automation-read-all", resource: Resource.routines, action: Action.readAll }],
+      },
+    } as TenantUser;
+    const foreign = await w.createDeal("Foreign deal", CLOSES);
+    const own = await w.createDeal("Member deal", CLOSES, w.member);
+    const rule = await w.as(w.admin, () =>
+      w.rules.saveRule(
+        {
+          name: "Remind the owner before a deal closes",
+          enabled: true,
+          ownerUserId: w.admin.id,
+          triggerKind: "dateReached",
+          typeId: w.typeId,
+          trigger: {
+            kind: "dateReached",
+            typeId: w.typeId,
+            fieldId: w.closesFieldId,
+            days: 2,
+            direction: "before",
+            atHour: 8,
+            timezone: "Europe/Berlin",
+          },
+          conditions: [],
+          effects: [{ kind: "notify", recipients: { ruleOwner: true }, title: "Closes soon" }],
+        },
+        null,
+      ),
+    );
+    const dateKey = (recordId: string) => `date:${recordId}:${w.closesFieldId}:${CLOSES}:before2`;
+    const admit = (recordId: string, triggerKind: "dateReached" | "recordCreated", occurrenceKey: string) =>
+      runWithoutTenant(() =>
+        w.rules.admitRunUnscoped({
+          companyId: w.companyId,
+          ruleId: rule.id,
+          occurrenceKey,
+          triggerKind,
+          typeId: w.typeId,
+          recordId,
+          payload: null,
+          depth: 0,
+          scheduledFor: DUE,
+        }),
+      );
+    const foreignDateRun = await admit(foreign.recordId, "dateReached", dateKey(foreign.recordId));
+    const ownDateRun = await admit(own.recordId, "dateReached", dateKey(own.recordId));
+    const foreignEventRun = await admit(foreign.recordId, "recordCreated", "event:foreign-created");
+
+    const history = new GetAutomationRuleRunsInteractor(w.rules, w.candidates);
+    const page = await w.as(reader, () => history.invoke({ id: rule.id } as never));
+    if (!page.ok) throw new Error("expected the run history");
+    const shown = Object.fromEntries(
+      page.data.runs.map((run) => [run.id, [run.recordId, run.occurrenceKey, run.scheduledFor]]),
+    );
+    expect(shown).toEqual({
+      [String(foreignDateRun)]: [null, "date", null],
+      [String(ownDateRun)]: [own.recordId, `date:${own.recordId}:${w.closesFieldId}:before2`, DUE.toISOString()],
+      [String(foreignEventRun)]: [null, "event:foreign-created", DUE.toISOString()],
+    });
+    expect(JSON.stringify(page)).not.toContain(foreign.recordId);
+
+    const everything = await w.as(w.admin, () => history.invoke({ id: rule.id } as never));
+    if (!everything.ok) throw new Error("expected the run history");
+    expect(everything.data.runs.map((run) => run.recordId).sort()).toEqual(
+      [foreign.recordId, foreign.recordId, own.recordId].sort(),
+    );
+    expect(everything.data.runs.every((run) => run.scheduledFor === DUE.toISOString())).toBe(true);
   });
 });

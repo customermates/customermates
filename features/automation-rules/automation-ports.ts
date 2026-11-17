@@ -37,6 +37,10 @@ export type AutomationDateCandidateReader = {
   readable(query: AutomationDateCandidateQuery): Promise<AutomationDateCandidate[]>;
 };
 
+export type AutomationRunRecordReader = {
+  readableRecordIds(input: { companyId: string; userId: string; refs: readonly RecordRef[] }): Promise<Set<string>>;
+};
+
 export type AutomationRecipientAccess = "name" | "record" | "none";
 
 export type AutomationRecipientAccessPort = {

@@ -22,10 +22,10 @@ export function dateOccurrenceKey(
   return `date:${recordId}:${trigger.fieldId}:${fieldValue}:${trigger.direction}${trigger.days}`;
 }
 
-export function publicOccurrenceKey(key: string): string {
+export function publicOccurrenceKey(key: string, withRecord = true): string {
   if (!key.startsWith("date:")) return key;
   const parts = key.split(":");
-  if (parts.length < 5) return "date";
+  if (parts.length < 5 || !withRecord) return "date";
   return ["date", parts[1], parts[2], parts.at(-1)].join(":");
 }
 

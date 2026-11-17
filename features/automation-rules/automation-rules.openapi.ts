@@ -145,7 +145,7 @@ export const automationRuleApiPaths = {
       operationId: "listRuleRuns",
       summary: "List a rule's runs",
       description:
-        "Returns one rule's run history newest first. Each run has its status (queued, running, applied, skipped or failed), the record it concerned, the outcome of every effect and, when skipped, the reason.",
+        "Returns one rule's run history newest first. Each run has its status (queued, running, applied, skipped or failed), the record it concerned, the outcome of every effect and, when skipped, the reason. A run whose record the caller may not read comes without recordId and without the record in occurrenceKey, and a date rule's run then also without scheduledFor.",
       permission: "read permission on routines",
       input: GetAutomationRuleRunsSchema,
       inputExample: { id: RULE_ID },

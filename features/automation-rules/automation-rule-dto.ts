@@ -34,20 +34,21 @@ export function toAutomationRuleDto(rule: StoredAutomationRule): AutomationRuleD
   };
 }
 
-export function toAutomationRuleRunDto(run: StoredAutomationRuleRun): AutomationRuleRunDto {
+export function toAutomationRuleRunDto(run: StoredAutomationRuleRun, recordReadable: boolean): AutomationRuleRunDto {
   const outcome = OutcomeSchema.safeParse(run.outcome ?? {});
+  const withRecord = recordReadable || run.recordId === null;
   return {
     id: run.id,
     ruleId: run.ruleId,
     status: run.status,
     triggerKind: run.triggerKind,
     typeId: run.typeId,
-    recordId: run.recordId,
-    occurrenceKey: publicOccurrenceKey(run.occurrenceKey),
+    recordId: withRecord ? run.recordId : null,
+    occurrenceKey: publicOccurrenceKey(run.occurrenceKey, withRecord),
     effects: outcome.success ? outcome.data.effects : [],
     reason: outcome.success ? (outcome.data.reason ?? null) : null,
     error: run.error,
-    scheduledFor: run.scheduledFor.toISOString(),
+    scheduledFor: withRecord || run.triggerKind !== "dateReached" ? run.scheduledFor.toISOString() : null,
     finishedAt: run.finishedAt?.toISOString() ?? null,
     createdAt: run.createdAt.toISOString(),
   };

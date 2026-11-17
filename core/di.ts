@@ -3051,7 +3051,8 @@ export const getGetAutomationsListInteractor = () =>
     getQueryParamsPrecheck(),
   );
 export const getGetAutomationRuleInteractor = () => new GetAutomationRuleInteractor(getAutomationRuleRepo());
-export const getGetAutomationRuleRunsInteractor = () => new GetAutomationRuleRunsInteractor(getAutomationRuleRepo());
+export const getGetAutomationRuleRunsInteractor = () =>
+  new GetAutomationRuleRunsInteractor(getAutomationRuleRepo(), getReadableDateCandidates());
 export const getUpsertAutomationRuleInteractor = () =>
   new UpsertAutomationRuleInteractor(
     getAutomationRuleRepo(),
