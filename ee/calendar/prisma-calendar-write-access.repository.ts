@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 
-import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
+import { ConnectedAccountStatus } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 
@@ -11,7 +11,7 @@ import type {
   WritableEventRow,
 } from "./calendar-write-access.repo";
 
-const CALENDAR_PROVIDERS = [MessagingProvider.google, MessagingProvider.outlook];
+import { ownCalendarAccountWhere } from "./own-calendar-account";
 
 const calendarSelect = {
   id: true,
@@ -41,10 +41,6 @@ function toRow({ connectedAccount, ...calendar }: CalendarRow): WritableCalendar
     accountStatus: connectedAccount.status,
     accountLabel: connectedAccount.emailAddress ?? connectedAccount.displayName,
   };
-}
-
-export function ownCalendarAccountWhere(companyId: string, userId: string): Prisma.ConnectedAccountWhereInput {
-  return { companyId, userId, hasCalendar: true, provider: { in: CALENDAR_PROVIDERS } };
 }
 
 export class PrismaCalendarWriteAccessRepo extends TenantRepository implements CalendarWriteAccessRepo {

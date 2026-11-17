@@ -64,9 +64,6 @@ export class BusyTimeReader {
 
     if (!truncated) return intervals;
 
-    return [
-      ...intervals,
-      { startsAt: new Date(from.getTime() - DAY_MS), endsAt: new Date(to.getTime() + DAY_MS) },
-    ];
+    return [...intervals, { startsAt: new Date(from.getTime() - DAY_MS), endsAt: new Date(to.getTime() + DAY_MS) }];
   }
 }

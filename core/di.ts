@@ -98,7 +98,6 @@ import { MeetingRecordService } from "@/ee/calendar/meeting-record.service";
 import { PrismaBookingRepo } from "@/ee/calendar/prisma-booking.repository";
 import { PrismaCalendarEventLinkRepo } from "@/ee/calendar/prisma-calendar-event-link.repository";
 import { PrismaCalendarWriteAccessRepo } from "@/ee/calendar/prisma-calendar-write-access.repository";
-import { PrismaOwnBusyEventsRepo } from "@/ee/calendar/prisma-own-busy-events.repository";
 import { PruneBookingsInteractor } from "@/ee/calendar/prune-bookings.interactor";
 import { PublicBookingAccess } from "@/ee/calendar/public-booking-access";
 import { ReadPublicBookingInteractor } from "@/ee/calendar/read-public-booking.interactor";
@@ -1893,7 +1892,7 @@ const getCalendarWriteAccessRepo = () => new PrismaCalendarWriteAccessRepo();
 const getCalendarEventLinkRepo = () => new PrismaCalendarEventLinkRepo();
 const getBookingRepo = () => new PrismaBookingRepo();
 const getCalendarEventWriter = () => new CalendarEventWriter(getMessagingService(), getCalendarRepo());
-const getBusyTimeReader = () => new BusyTimeReader(new PrismaOwnBusyEventsRepo());
+const getBusyTimeReader = () => new BusyTimeReader(new PrismaPlannerPersonalEventsRepo("own"));
 const getBookingAvailability = () => new BookingAvailability(getBusyTimeReader(), getBookingRepo());
 const getMeetingRecordService = () =>
   new MeetingRecordService({

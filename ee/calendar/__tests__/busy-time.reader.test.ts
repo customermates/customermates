@@ -146,7 +146,7 @@ describe("BusyTimeReader", () => {
   });
 
   it("counts an entry the app created as busy even when the provider marks it free", async () => {
-    expect(await busy([{ ...event({ transparency: "transparent" }), createdByApp: true }])).toEqual([
+    expect(await busy([Object.assign(event({ transparency: "transparent" }), { createdByApp: true })])).toEqual([
       ["2026-11-17T09:00:00.000Z", "2026-11-17T10:00:00.000Z"],
     ]);
   });

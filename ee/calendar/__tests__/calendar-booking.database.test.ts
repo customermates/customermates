@@ -36,7 +36,6 @@ const { PrismaCalendarEventLinkRepo } = await import("../prisma-calendar-event-l
 const { PrismaCalendarRepo } = await import("../prisma-calendar.repository");
 const { PrismaCalendarWriteAccessRepo } = await import("../prisma-calendar-write-access.repository");
 const { PrismaPlannerPersonalEventsRepo } = await import("../prisma-planner-personal-events.repository");
-const { PrismaOwnBusyEventsRepo } = await import("../prisma-own-busy-events.repository");
 const { BusyTimeReader } = await import("../busy-time.reader");
 const { DEFAULT_WORKING_HOURS } = await import("../working-hours");
 const { compileRecordActivityIndex } = await import("@/ee/messaging/activities/record-activity-query");
@@ -485,7 +484,7 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
     ]);
     expect(rows.find((row) => row.title === "day free")?.id).toBe(moved.id);
 
-    const reader = new BusyTimeReader(new PrismaOwnBusyEventsRepo());
+    const reader = new BusyTimeReader(new PrismaPlannerPersonalEventsRepo("own"));
     const read = (from: string, to: string) =>
       w.as(w.admin, async () =>
         (await reader.read(new Date(from), new Date(to), "Europe/Berlin"))
@@ -543,7 +542,7 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
       "2030-01-15T09:00:00.000Z",
       "2030-01-15T11:00:00.000Z",
     ]);
-    expect(await starts(new PrismaOwnBusyEventsRepo())).toEqual(["2030-01-15T09:00:00.000Z"]);
+    expect(await starts(new PrismaPlannerPersonalEventsRepo("own"))).toEqual(["2030-01-15T09:00:00.000Z"]);
   });
 
   it("keeps a meeting the app created busy when the provider marks it free", async () => {
@@ -588,7 +587,7 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
 
     const busy = await w.as(w.admin, async () =>
       (
-        await new BusyTimeReader(new PrismaOwnBusyEventsRepo()).read(
+        await new BusyTimeReader(new PrismaPlannerPersonalEventsRepo("own")).read(
           new Date("2030-01-15T00:00:00.000Z"),
           new Date("2030-01-16T00:00:00.000Z"),
           "Europe/Berlin",
@@ -855,10 +854,11 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
   });
 
   it("has an index on the end time alone for the daily prune of bookings", async () => {
-    const rows = await runWithoutTenant(() =>
-      prisma.$queryRaw<
-        Array<{ indexdef: string }>
-      >`SELECT indexdef FROM pg_indexes WHERE tablename = 'Booking' AND indexname = 'Booking_endsAt_idx'`,
+    const rows = await runWithoutTenant(
+      () =>
+        prisma.$queryRaw<
+          Array<{ indexdef: string }>
+        >`SELECT indexdef FROM pg_indexes WHERE tablename = 'Booking' AND indexname = 'Booking_endsAt_idx'`,
     );
 
     expect(rows.map((row) => row.indexdef)).toEqual([expect.stringContaining('("endsAt")')]);

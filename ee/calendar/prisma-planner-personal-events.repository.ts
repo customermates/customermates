@@ -1,20 +1,45 @@
 import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
-import type { PlannerPersonalEventsRepo } from "@/features/planner/planner.repo";
+import type { PersonalCalendarEvent, PlannerPersonalEventsRepo } from "@/features/planner/planner.repo";
 import type { Prisma } from "@/generated/prisma";
 
+import { BookingStatus } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { calendarAccessWhere, calendarEventAccessWhere } from "@/ee/messaging/messaging-access";
 import { calendarDateInstant } from "@/features/record-calendar/calendar-date";
 import { zonedDayStartText, zonedDayEndText } from "@/features/record-calendar/zoned-time";
-import { expandPlannerEvents } from "./expand-planner-events";
 
-export class PrismaPlannerPersonalEventsRepo extends TenantRepository implements PlannerPersonalEventsRepo {
-  protected calendarWhere(): Prisma.CalendarWhereInput {
-    return calendarAccessWhere(this.companyId, this.userId);
+import type { BusyCalendarEvent, BusyEventSource } from "./busy-time.reader";
+
+import { FREE_TRANSPARENCY } from "./busy-time.reader";
+import { expandPlannerEvents } from "./expand-planner-events";
+import { ownCalendarAccountWhere } from "./own-calendar-account";
+
+export type PersonalEventsScope = "accessible" | "own";
+
+type ScopedEvent = PersonalCalendarEvent & Pick<BusyCalendarEvent, "createdByApp">;
+
+export class PrismaPlannerPersonalEventsRepo
+  extends TenantRepository
+  implements PlannerPersonalEventsRepo, BusyEventSource
+{
+  constructor(private readonly scope: PersonalEventsScope = "accessible") {
+    super();
   }
 
-  protected eventWhere(): Prisma.CalendarEventWhereInput {
-    return calendarEventAccessWhere(this.companyId, this.userId);
+  private calendarWhere(): Prisma.CalendarWhereInput {
+    if (this.scope === "accessible") return calendarAccessWhere(this.companyId, this.userId);
+    return {
+      companyId: this.companyId,
+      connectedAccount: { is: ownCalendarAccountWhere(this.companyId, this.userId) },
+    };
+  }
+
+  private eventWhere(): Prisma.CalendarEventWhereInput {
+    if (this.scope === "accessible") return calendarEventAccessWhere(this.companyId, this.userId);
+    return {
+      companyId: this.companyId,
+      connectedAccount: { is: ownCalendarAccountWhere(this.companyId, this.userId) },
+    };
   }
 
   async calendars() {
@@ -26,7 +51,8 @@ export class PrismaPlannerPersonalEventsRepo extends TenantRepository implements
     });
     return rows.map(({ connectedAccount, ...calendar }) => ({ ...calendar, provider: connectedAccount.provider }));
   }
-  async events(calendarIds: string[], window: CalendarWindow) {
+
+  async events(calendarIds: string[], window: CalendarWindow): Promise<{ events: ScopedEvent[]; truncated: boolean }> {
     if (!calendarIds.length) return { events: [], truncated: false };
     const timedEnd = new Date(zonedDayEndText(window.to, window.timeZone));
     const allDayEnd = new Date(`${window.to}T23:59:59.999Z`);
@@ -77,8 +103,30 @@ export class PrismaPlannerPersonalEventsRepo extends TenantRepository implements
       window,
     );
     return {
-      events: expanded.events,
+      events: this.scope === "own" ? await this.markCreatedByApp(expanded.events) : expanded.events,
       truncated: rows.length > 2000 || expanded.truncated,
     };
+  }
+
+  private async markCreatedByApp(events: PersonalCalendarEvent[]): Promise<ScopedEvent[]> {
+    const markedFree = events
+      .filter((event) => event.transparency?.trim().toLowerCase() === FREE_TRANSPARENCY)
+      .map((event) => event.id);
+    if (!markedFree.length) return events;
+
+    const [linked, booked] = await Promise.all([
+      this.prisma.calendarEventRecordLink.findMany({
+        where: { companyId: this.companyId, calendarEventId: { in: markedFree } },
+        distinct: ["calendarEventId"],
+        select: { calendarEventId: true },
+      }),
+      this.prisma.booking.findMany({
+        where: { companyId: this.companyId, calendarEventId: { in: markedFree }, status: BookingStatus.confirmed },
+        select: { calendarEventId: true },
+      }),
+    ]);
+    const createdByApp = new Set([...linked, ...booked].map((row) => row.calendarEventId));
+
+    return events.map((event) => (createdByApp.has(event.id) ? { ...event, createdByApp: true } : event));
   }
 }

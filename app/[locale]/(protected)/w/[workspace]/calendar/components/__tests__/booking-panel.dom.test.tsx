@@ -244,7 +244,7 @@ describe("BookingPanel", () => {
     await renderPanel(ready());
     expect(container.querySelector("[data-booking-busy-incomplete]")).toBeNull();
 
-    await renderPanel({ ...ready(), busyTimeIncomplete: true });
+    await renderPanel({ status: "ready", links: [MINE, ADA], setup: READY_SETUP, busyTimeIncomplete: true });
     expect(container.querySelector("[data-booking-busy-incomplete]")?.textContent).toContain(
       "Booking.busyTimeIncomplete",
     );
