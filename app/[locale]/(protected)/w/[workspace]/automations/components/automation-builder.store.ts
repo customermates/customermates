@@ -116,6 +116,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   private previewTimer: ReturnType<typeof setTimeout> | undefined;
   private previewGeneration = 0;
   private composeGeneration = 0;
+  private openGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore, BLANK_DRAFT, Resource.routines);
@@ -220,6 +221,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     rule: AutomationRuleDto | null,
     onSaved: (rule: AutomationRuleDto) => void,
   ) {
+    this.openGeneration += 1;
     this.context = context;
     this.onSaved = onSaved;
     this.rule = rule;
@@ -458,6 +460,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   pauseAsAdmin = async (): Promise<boolean> => {
     const id = this.form.id;
     if (!id || !this.canPauseAsAdmin || this.isLoading) return false;
+    const generation = this.openGeneration;
+    const onSaved = this.onSaved;
     runInAction(() => {
       this.isLoading = true;
     });
@@ -468,16 +472,20 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
         return false;
       }
       const paused = result.data;
-      runInAction(() => {
-        this.rule = paused;
-        this.onInitOrRefresh({ ...this.form, enabled: paused.enabled });
-      });
-      this.onSaved?.(paused);
+      if (generation === this.openGeneration) {
+        runInAction(() => {
+          this.rule = paused;
+          this.onInitOrRefresh({ ...this.form, enabled: paused.enabled });
+        });
+      }
+      onSaved?.(paused);
       return true;
     } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
+      if (generation === this.openGeneration) {
+        runInAction(() => {
+          this.isLoading = false;
+        });
+      }
     }
   };
 
@@ -500,32 +508,41 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       });
       return unavailable.length > 0 ? "unavailable" : "incomplete";
     }
+    const generation = this.openGeneration;
+    const onSaved = this.onSaved;
     runInAction(() => {
       this.invalid = [];
       this.isLoading = true;
     });
     try {
       const result = await upsertAutomationRuleAction(converted.input);
+      const current = generation === this.openGeneration;
       if (!result.ok) {
-        this.setError(result.error);
+        if (current) this.setError(result.error);
+        else toastZodErrorTree(result.error);
         return "failed";
       }
       const saved = result.data;
-      runInAction(() => {
-        this.onInitOrRefresh({ ...this.form, id: saved.id });
-        this.rule = saved;
-      });
-      this.onSaved?.(saved);
-      this.close();
+      if (current) {
+        runInAction(() => {
+          this.onInitOrRefresh({ ...this.form, id: saved.id });
+          this.rule = saved;
+        });
+      }
+      onSaved?.(saved);
+      if (current) this.close();
       return "saved";
     } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
+      if (generation === this.openGeneration) {
+        runInAction(() => {
+          this.isLoading = false;
+        });
+      }
     }
   };
 
   protected override prepareToClose(): boolean {
+    this.openGeneration += 1;
     clearTimeout(this.previewTimer);
     this.previewGeneration += 1;
     this.composeGeneration += 1;

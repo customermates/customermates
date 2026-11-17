@@ -113,6 +113,46 @@ describe("AgentRunsStore", () => {
     expect(harness.toastError).toHaveBeenCalledWith("AgentJobs.loadFailed", expect.anything());
   });
 
+  it("does not let a late answer for one run close the run opened after it or stop its spinner", async () => {
+    const answers = new Map<string, (result: unknown) => void>();
+    harness.getAgentJobAction.mockImplementation(
+      ({ id }: { id: string }) => new Promise((resolve) => answers.set(id, resolve)),
+    );
+    const runs = store();
+    runs.setPage({ jobs: [summary("a"), summary("b")], nextCursor: null });
+
+    const first = runs.toggle("a");
+    const second = runs.toggle("b");
+    expect(runs.expandedId).toBe("b");
+    expect(runs.loadingDetailId).toBe("b");
+
+    answers.get("a")?.({ ok: false, failure: { kind: "not_found", issues: [] } });
+    await first;
+    expect(runs.expandedId).toBe("b");
+    expect(runs.loadingDetailId).toBe("b");
+
+    answers.get("b")?.({ ok: true, data: detail("b") });
+    await second;
+    expect(runs.expanded?.id).toBe("b");
+    expect(runs.loadingDetailId).toBeNull();
+  });
+
+  it("drops a transcript that arrives after a new page was set", async () => {
+    let answer: (result: unknown) => void = () => undefined;
+    harness.getAgentJobAction.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+    const runs = store();
+    runs.setPage({ jobs: [summary("a")], nextCursor: null });
+    const opening = runs.toggle("a");
+
+    runs.setPage({ jobs: [summary("a")], nextCursor: null }, { sourceKind: "automation", sourceId: "run-2" });
+    answer({ ok: false, failure: { kind: "not_found", issues: [] } });
+    await opening;
+
+    expect(runs.loadingDetailId).toBeNull();
+    expect(runs.details.size).toBe(0);
+    expect(harness.toastError).not.toHaveBeenCalled();
+  });
+
   it("forgets opened transcripts when a new page is set", async () => {
     harness.getAgentJobAction.mockResolvedValue({ ok: true, data: detail("a") });
     const runs = store();

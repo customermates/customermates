@@ -17,6 +17,7 @@ export class AgentRunsStore extends BaseStore {
   loadingMore = false;
   loadingDetailId: string | null = null;
   private source: AgentRunSource = {};
+  private pageGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -47,7 +48,9 @@ export class AgentRunsStore extends BaseStore {
     this.nextCursor = page.nextCursor;
     this.source = source;
     this.expandedId = null;
+    this.loadingDetailId = null;
     this.details.clear();
+    this.pageGeneration += 1;
   };
 
   loadMore = async () => {
@@ -83,14 +86,16 @@ export class AgentRunsStore extends BaseStore {
       this.expandedId = id;
     });
     if (this.details.has(id)) return;
+    const generation = this.pageGeneration;
     runInAction(() => {
       this.loadingDetailId = id;
     });
     try {
       const result = await getAgentJobAction({ id });
+      if (generation !== this.pageGeneration) return;
       if (!result.ok) {
         runInAction(() => {
-          this.expandedId = null;
+          if (this.expandedId === id) this.expandedId = null;
         });
         this.toastError("AgentJobs.loadFailed");
         return;
@@ -98,7 +103,7 @@ export class AgentRunsStore extends BaseStore {
       runInAction(() => this.details.set(id, result.data));
     } finally {
       runInAction(() => {
-        this.loadingDetailId = null;
+        if (generation === this.pageGeneration && this.loadingDetailId === id) this.loadingDetailId = null;
       });
     }
   };

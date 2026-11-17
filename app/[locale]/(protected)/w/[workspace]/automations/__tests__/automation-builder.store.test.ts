@@ -30,6 +30,7 @@ const STAGE = "22222222-2222-4222-8222-222222222222";
 const CLOSE = "22222222-2222-4222-8222-444444444444";
 const TITLE = "22222222-2222-4222-8222-666666666666";
 const RULE = "00000000-0000-4000-8000-0000000000a1";
+const OTHER_RULE = "00000000-0000-4000-8000-0000000000a2";
 const WEBHOOK = "66666666-6666-4666-8666-666666666666";
 const OTHER_WEBHOOK = "66666666-6666-4666-8666-777777777777";
 const RELATION = "55555555-5555-4555-8555-555555555555";
@@ -354,6 +355,70 @@ describe("AutomationBuilderStore", () => {
     expect(store.isOpen).toBe(true);
     expect(onSaved).not.toHaveBeenCalled();
     expect(store.isLoading).toBe(false);
+  });
+
+  it("does not apply a save answer to another rule that was opened while it was on its way", async () => {
+    let release: (result: unknown) => void = () => undefined;
+    actions.upsertAutomationRuleAction.mockReturnValue(new Promise((resolve) => (release = resolve)));
+    const { store, onSaved } = open();
+    store.startFromScratch();
+    store.setName("Slow save");
+    store.addEffect("notify", 0);
+    const saving = store.save();
+
+    const other = { ...SAVED, id: OTHER_RULE, name: "Other" };
+    const onOtherSaved = vi.fn();
+    store.close();
+    store.openForRule(CONTEXT, other as never, onOtherSaved);
+    release({ ok: true, data: SAVED });
+
+    expect(await saving).toBe("saved");
+    expect(store.isOpen).toBe(true);
+    expect(store.form).toMatchObject({ id: OTHER_RULE, name: "Other" });
+    expect(store.rule).toEqual(other);
+    expect(onSaved).toHaveBeenCalledWith(SAVED);
+    expect(onOtherSaved).not.toHaveBeenCalled();
+  });
+
+  it("does not put the failure of a late save on another rule's form", async () => {
+    let release: (result: unknown) => void = () => undefined;
+    actions.upsertAutomationRuleAction.mockReturnValue(new Promise((resolve) => (release = resolve)));
+    const { store } = open();
+    store.startFromScratch();
+    store.setName("Slow save");
+    store.addEffect("notify", 0);
+    const saving = store.save();
+
+    store.close();
+    store.openForRule(CONTEXT, { ...SAVED, id: OTHER_RULE } as never, vi.fn());
+    release({ ok: false, error: { errors: ["refused"], properties: {} } });
+
+    expect(await saving).toBe("failed");
+    expect(store.error).toBeUndefined();
+    expect(store.isOpen).toBe(true);
+    expect(store.form.id).toBe(OTHER_RULE);
+  });
+
+  it("does not apply the answer of an admin pause to another rule that was opened meanwhile", async () => {
+    let release: (result: unknown) => void = () => undefined;
+    actions.setAutomationRuleEnabledAction.mockReturnValue(new Promise((resolve) => (release = resolve)));
+    const onSaved = vi.fn();
+    const admin = makeStore({ id: "admin", admin: true });
+    admin.openForRule(CONTEXT, SAVED as never, onSaved);
+    const pausing = admin.pauseAsAdmin();
+
+    const other = { ...SAVED, id: OTHER_RULE, name: "Other" };
+    const onOtherSaved = vi.fn();
+    admin.close();
+    admin.openForRule(CONTEXT, other as never, onOtherSaved);
+    const paused = { ...SAVED, enabled: false, disabledReason: "disabledByUser" };
+    release({ ok: true, data: paused });
+
+    expect(await pausing).toBe(true);
+    expect(admin.rule).toEqual(other);
+    expect(admin.form).toMatchObject({ id: OTHER_RULE, enabled: true });
+    expect(onSaved).toHaveBeenCalledWith(paused);
+    expect(onOtherSaved).not.toHaveBeenCalled();
   });
 
   it("refuses to save a step whose webhook is gone, opens that card and leaves the rule untouched", async () => {
