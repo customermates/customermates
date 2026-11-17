@@ -16,6 +16,7 @@ function build() {
       { unipileAccountId: "acc_one", connectionDetails: null },
       { unipileAccountId: "acc_two", connectionDetails: null },
     ]),
+    markStatusRefreshAttemptedUnscoped: vi.fn().mockResolvedValue(undefined),
     updateAccountUnscoped: vi.fn().mockResolvedValue(null),
   };
   const service = {
@@ -33,7 +34,7 @@ describe("periodic connected-account status reconciliation", () => {
   it("refreshes stale cached states independently of history backfill and status webhook delivery", async () => {
     const { repo, service, interactor } = build();
     expect(await interactor.invoke()).toEqual({ refreshed: 2, failed: 0 });
-    expect(repo.findAccountsNeedingStatusRefreshUnscoped).toHaveBeenCalledWith(expect.any(Date));
+    expect(repo.findAccountsNeedingStatusRefreshUnscoped).toHaveBeenCalledWith(expect.any(Date), 100);
     expect(service.getAccount.mock.calls).toEqual([["acc_one"], ["acc_two"]]);
     expect(repo.updateAccountUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -46,14 +47,24 @@ describe("periodic connected-account status reconciliation", () => {
     );
     expect(repo.updateAccountUnscoped.mock.calls[0][0]).not.toHaveProperty("lastSyncedAt");
     expect(repo.updateAccountUnscoped.mock.calls[0][0]).not.toHaveProperty("syncing");
+    expect(repo.markStatusRefreshAttemptedUnscoped).not.toHaveBeenCalled();
   });
 
-  it("keeps failed snapshots unchanged and still checks the remaining accounts", async () => {
+  it("keeps failed snapshots unchanged, records the attempt and still checks the remaining accounts", async () => {
     const { repo, service, interactor } = build();
     service.getAccount.mockRejectedValueOnce(new Error("temporary outage"));
     expect(await interactor.invoke()).toEqual({ refreshed: 1, failed: 1 });
     expect(repo.updateAccountUnscoped).toHaveBeenCalledOnce();
     expect(repo.updateAccountUnscoped).toHaveBeenCalledWith(expect.objectContaining({ unipileAccountId: "acc_two" }));
+    expect(repo.markStatusRefreshAttemptedUnscoped.mock.calls).toEqual([["acc_one", expect.any(Date)]]);
+  });
+
+  it("stops at a provider rate limit and leaves the remaining accounts for the next run", async () => {
+    const { repo, service, interactor } = build();
+    service.getAccount.mockRejectedValueOnce(Object.assign(new Error("rate limited"), { status: 429 }));
+    expect(await interactor.invoke()).toEqual({ refreshed: 0, failed: 1 });
+    expect(service.getAccount).toHaveBeenCalledOnce();
+    expect(repo.updateAccountUnscoped).not.toHaveBeenCalled();
   });
 
   it("clears an obsolete syncing indicator when a missed webhook left the account disconnected", async () => {

@@ -151,7 +151,7 @@ export function deriveAccountFeatures(account: UnipileAccount): {
     };
     const hasMessaging = productStatus(["gmail", "mail", "email", "google_mail", "outlook_mail"]);
     const hasCalendar = productStatus(["calendar", "google_calendar", "outlook_calendar"]);
-    const hasProductStatuses = Object.keys(products ?? {}).length > 0;
+    const hasKnownProducts = hasMessaging !== undefined || hasCalendar !== undefined;
     const mailScope = scopes?.some((scope) =>
       provider === MessagingProvider.google
         ? /^https:\/\/www\.googleapis\.com\/auth\/gmail\./.test(scope) || scope === "https://mail.google.com/"
@@ -164,8 +164,8 @@ export function deriveAccountFeatures(account: UnipileAccount): {
     );
 
     return {
-      hasMessaging: hasProductStatuses ? (hasMessaging ?? false) : (mailScope ?? true),
-      hasCalendar: hasProductStatuses ? (hasCalendar ?? false) : (calendarScope ?? true),
+      hasMessaging: hasKnownProducts ? (hasMessaging ?? false) : (mailScope ?? true),
+      hasCalendar: hasKnownProducts ? (hasCalendar ?? false) : (calendarScope ?? true),
     };
   }
 

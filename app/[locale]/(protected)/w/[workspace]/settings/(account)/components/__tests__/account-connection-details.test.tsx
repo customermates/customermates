@@ -30,6 +30,13 @@ describe("connection details in Settings", () => {
     expect(markup).toContain("Mailbox unavailable &lt;provider&gt;");
   });
 
+  it("names Outlook's mail product in words instead of the provider's key", () => {
+    const markup = render({ status: "running", products: { Mail: "running", Calendar: "running" }, reason: null });
+    expect(markup).toContain("Email");
+    expect(markup).toContain("Calendar");
+    expect(markup).not.toContain("Mail<");
+  });
+
   it("asks for a reconnect only when the whole account is disconnected", () => {
     const markup = render({
       status: "disconnected",

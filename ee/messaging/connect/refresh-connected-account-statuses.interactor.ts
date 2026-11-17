@@ -8,6 +8,7 @@ import { deriveAccountConnection } from "../account-connection";
 import { isUnipileRateLimit } from "../messaging.service";
 
 const STATUS_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+const STATUS_REFRESH_BATCH_SIZE = 100;
 
 @SystemInteractor
 export class RefreshConnectedAccountStatusesInteractor {
@@ -19,13 +20,14 @@ export class RefreshConnectedAccountStatusesInteractor {
   async invoke(): Promise<{ refreshed: number; failed: number }> {
     const accounts = await this.repo.findAccountsNeedingStatusRefreshUnscoped(
       new Date(Date.now() - STATUS_REFRESH_INTERVAL_MS),
+      STATUS_REFRESH_BATCH_SIZE,
     );
     let refreshed = 0;
     let failed = 0;
 
     for (const account of accounts) {
+      const checkedAt = new Date();
       try {
-        const checkedAt = new Date();
         const snapshot = await this.messagingService.getAccount(account.unipileAccountId);
         const connection = deriveAccountConnection(snapshot, undefined, account.connectionDetails, checkedAt);
         const stalled = connection.status !== "ok" && connection.status !== "connecting";
@@ -37,6 +39,7 @@ export class RefreshConnectedAccountStatusesInteractor {
         refreshed += 1;
       } catch (error) {
         failed += 1;
+        await this.repo.markStatusRefreshAttemptedUnscoped(account.unipileAccountId, checkedAt);
         ErrorReporter.captureException(error, { tags: { unipileAccountId: account.unipileAccountId } });
         if (isUnipileRateLimit(error)) break;
       }

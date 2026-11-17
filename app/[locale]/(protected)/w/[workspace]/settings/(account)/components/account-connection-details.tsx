@@ -17,11 +17,13 @@ export function AccountConnectionDetails({ account }: { account: Pick<ConnectedA
         <InfoRow
           key={product}
           label={
-            product === "gmail"
+            product.toLowerCase() === "gmail"
               ? t("ConnectedAccountsCard.channels.gmail")
-              : product === "calendar"
-                ? t("ConnectedAccountsCard.subTypeCalendar")
-                : product
+              : product.toLowerCase() === "mail"
+                ? t("ConnectedAccountsCard.subTypeEmail")
+                : product.toLowerCase() === "calendar"
+                  ? t("ConnectedAccountsCard.subTypeCalendar")
+                  : product
           }
         >
           {status === "running"

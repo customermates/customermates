@@ -95,6 +95,17 @@ describe("Google product connection state", () => {
     ).toMatchObject({ status: "ok", hasMessaging: false, hasCalendar: true });
   });
 
+  it("does not switch off a working account when the provider names its products differently", () => {
+    expect(
+      deriveAccountConnection({
+        id: "acc_renamed_products",
+        provider: "outlook",
+        status: "running",
+        metadata: { products_connection_status: { messages: "running", events: "running" } },
+      }),
+    ).toMatchObject({ status: "ok", hasMessaging: true, hasCalendar: true });
+  });
+
   it("retains compatibility when older provider snapshots omit scopes and products", () => {
     expect(deriveAccountFeatures({ id: "acc_legacy", provider: "google", status: "running" })).toEqual({
       hasMessaging: true,

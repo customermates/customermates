@@ -52,7 +52,6 @@ import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema
 import { channelChange } from "@/features/billing-usage/billing-usage-changes";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
-const STATUS_REFRESH_BATCH_SIZE = 100;
 
 export class PrismaConnectedAccountRepo
   extends TenantRepository
@@ -347,15 +346,26 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async findAccountsNeedingStatusRefreshUnscoped(before: Date) {
+  async findAccountsNeedingStatusRefreshUnscoped(before: Date, limit: number) {
     return this.prisma.connectedAccount.findMany({
       where: {
         status: { not: ConnectedAccountStatus.deleted },
-        OR: [{ statusCheckedAt: null }, { statusCheckedAt: { lt: before } }],
+        AND: [
+          { OR: [{ statusCheckedAt: null }, { statusCheckedAt: { lt: before } }] },
+          { OR: [{ statusAttemptedAt: null }, { statusAttemptedAt: { lt: before } }] },
+        ],
       },
       select: { unipileAccountId: true, connectionDetails: true },
       orderBy: [{ statusCheckedAt: { sort: "asc", nulls: "first" } }, { id: "asc" }],
-      take: STATUS_REFRESH_BATCH_SIZE,
+      take: limit,
+    });
+  }
+
+  @BypassTenantGuard
+  async markStatusRefreshAttemptedUnscoped(unipileAccountId: string, attemptedAt: Date) {
+    await this.prisma.connectedAccount.updateMany({
+      where: { unipileAccountId },
+      data: { statusAttemptedAt: attemptedAt },
     });
   }
 
