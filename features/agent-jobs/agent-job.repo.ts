@@ -15,6 +15,7 @@ export type StoredAgentJob = {
   model: string | null;
   runnerId: string | null;
   attempts: number;
+  queuedAt: Date;
   claimedAt: Date | null;
   startedAt: Date | null;
   finishedAt: Date | null;
@@ -72,11 +73,14 @@ export type AgentJobFinish = {
   now: Date;
 };
 
-export type AgentJobSweepOutcome = {
+export type AgentJobQueueEntry = {
   id: string;
   companyId: string;
   ownerUserId: string;
   runtime: AgentRuntime;
+};
+
+export type AgentJobSweepOutcome = AgentJobQueueEntry & {
   attempts: number;
   requeued: boolean;
 };
@@ -108,5 +112,10 @@ export abstract class AgentJobRepo {
     maxAttempts: number;
     limit: number;
   }): Promise<AgentJobSweepOutcome[]>;
+  abstract findStaleQueuedUnscoped(args: {
+    runtimes: readonly AgentRuntime[];
+    queuedBefore: Date;
+    limit: number;
+  }): Promise<AgentJobQueueEntry[]>;
   abstract deleteFinishedBeforeUnscoped(before: Date, limit: number): Promise<number>;
 }

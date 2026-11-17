@@ -14,8 +14,10 @@ const COMPANY = "00000000-0000-4000-8000-000000000011";
 const COLLEAGUE = "00000000-0000-4000-8000-000000000012";
 
 const mockUser = createMockUser({ id: OWNER, companyId: COMPANY });
+const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/observability/server", () => sentry);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -298,8 +300,8 @@ describe("sweeping timed-out jobs", () => {
 
     const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
 
-    expect(result).toEqual({ agentJobsTimedOut: 1, agentJobsRequeued: 2 });
-    expect(repo.jobs.get(hosted.id)?.status).toBe("queued");
+    expect(result).toEqual({ agentJobsTimedOut: 1, agentJobsRequeued: 2, agentJobsRedispatched: 0 });
+    expect(repo.jobs.get(hosted.id)).toMatchObject({ status: "queued", queuedAt: NOW });
     expect(repo.jobs.get(runner.id)?.status).toBe("queued");
     expect(repo.jobs.get(mate.id)?.status).toBe("timedOut");
     expect(repo.jobs.get(fresh.id)?.status).toBe("running");
@@ -311,6 +313,63 @@ describe("sweeping timed-out jobs", () => {
     });
     expect(release).toHaveBeenCalledTimes(1);
     expect(release).toHaveBeenCalledWith({ jobId: mate.id, attempt: 2, companyId: COMPANY, userId: OWNER });
+  });
+
+  it("starts a hosted job again that stayed queued past the grace, and leaves fresh and runner jobs alone", async () => {
+    const repo = new FakeAgentJobRepo();
+    const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
+    // The dispatch after enqueue was lost: nothing would ever start these two.
+    const lostOwnKey = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(3) });
+    const lostMate = repo.add({ runtime: "mate", queuedAt: minutesAgo(6) });
+    const justQueued = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(1) });
+    const waitingForRunner = repo.add({ runtime: "runner", queuedAt: minutesAgo(6) });
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    const release = vi.fn().mockResolvedValue(undefined);
+
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
+
+    expect(result).toEqual({ agentJobsTimedOut: 0, agentJobsRequeued: 0, agentJobsRedispatched: 2 });
+    expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId).sort()).toEqual(
+      [lostOwnKey.id, lostMate.id].sort(),
+    );
+    expect(repo.jobs.get(justQueued.id)?.status).toBe("queued");
+    expect(repo.jobs.get(waitingForRunner.id)?.status).toBe("queued");
+    expect(release).not.toHaveBeenCalled();
+  });
+
+  it("keeps going when the release or the restart of one job fails", async () => {
+    const repo = new FakeAgentJobRepo();
+    const expired = new Date(NOW.getTime() - 1000);
+    const brokenRelease = repo.add({ runtime: "mate", status: "running", attempts: 1, timeoutAt: expired });
+    const brokenDispatch = repo.add({ runtime: "ownKey", status: "running", attempts: 1, timeoutAt: expired });
+    const healthy = repo.add({ runtime: "ownKey", status: "running", attempts: 1, timeoutAt: expired });
+    const lost = repo.add({ runtime: "ownKey", queuedAt: new Date(NOW.getTime() - 5 * 60_000) });
+    const releaseFailure = new Error("usage service unavailable");
+    const dispatchFailure = new Error("workflow start failed");
+    const release = vi.fn().mockRejectedValue(releaseFailure);
+    const dispatch = vi.fn().mockImplementation((_id: string, payload: { jobId: string }) => {
+      return payload.jobId === brokenDispatch.id ? Promise.reject(dispatchFailure) : Promise.resolve();
+    });
+    sentry.captureException.mockClear();
+
+    const result = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: NOW });
+
+    expect(result).toEqual({ agentJobsTimedOut: 0, agentJobsRequeued: 3, agentJobsRedispatched: 1 });
+    expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId)).toEqual([
+      brokenRelease.id,
+      brokenDispatch.id,
+      healthy.id,
+      lost.id,
+    ]);
+    expect(sentry.captureException.mock.calls.map(([error]) => error)).toEqual([releaseFailure, dispatchFailure]);
+    // The job whose restart failed is still queued: the next sweep starts it once the grace has passed.
+    expect(repo.jobs.get(brokenDispatch.id)).toMatchObject({ status: "queued", queuedAt: NOW });
+    const later = new Date(NOW.getTime() + 5 * 60_000);
+    dispatch.mockClear();
+    dispatch.mockResolvedValue(undefined);
+    const next = await new SweepAgentJobTimeoutsInteractor(repo, { dispatch }, { release }).invoke({ now: later });
+    expect(next.agentJobsRedispatched).toBe(4);
+    expect(dispatch.mock.calls.map(([, payload]) => (payload as { jobId: string }).jobId)).toContain(brokenDispatch.id);
   });
 });
 

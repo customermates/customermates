@@ -3,11 +3,13 @@ import type {
   AgentJobEnqueue,
   AgentJobFilter,
   AgentJobFinish,
+  AgentJobQueueEntry,
   AgentJobRepo,
   AgentJobSweepOutcome,
   StoredAgentJob,
   StoredAgentJobSummary,
 } from "./agent-job.repo";
+import type { AgentRuntime } from "@/generated/prisma";
 
 import { AgentJobStatus, Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -24,6 +26,7 @@ const JOB_LIST_SELECT = {
   model: true,
   runnerId: true,
   attempts: true,
+  queuedAt: true,
   claimedAt: true,
   startedAt: true,
   finishedAt: true,
@@ -225,12 +228,30 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
       const result = await this.prisma.agentJob.updateMany({
         where: { id: job.id, companyId: job.companyId, status: { in: LIVE_STATUSES }, timeoutAt: { lt: args.now } },
         data: requeue
-          ? { status: AgentJobStatus.queued, claimedAt: null, startedAt: null, timeoutAt: null }
+          ? { status: AgentJobStatus.queued, queuedAt: args.now, claimedAt: null, startedAt: null, timeoutAt: null }
           : { status: AgentJobStatus.timedOut, finishedAt: args.now, timeoutAt: null, error: "timedOut" },
       });
       if (result.count === 1) outcomes.push({ ...job, requeued: requeue });
     }
     return outcomes;
+  }
+
+  @BypassTenantGuard
+  findStaleQueuedUnscoped(args: {
+    runtimes: readonly AgentRuntime[];
+    queuedBefore: Date;
+    limit: number;
+  }): Promise<AgentJobQueueEntry[]> {
+    return this.prisma.agentJob.findMany({
+      where: {
+        status: AgentJobStatus.queued,
+        runtime: { in: [...args.runtimes] },
+        queuedAt: { lt: args.queuedBefore },
+      },
+      select: { id: true, companyId: true, ownerUserId: true, runtime: true },
+      orderBy: { queuedAt: "asc" },
+      take: args.limit,
+    });
   }
 
   @BypassTenantGuard

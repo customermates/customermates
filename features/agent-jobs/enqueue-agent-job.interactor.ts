@@ -13,9 +13,14 @@ import { failAuthorization, failUnavailable } from "@/core/validation/interactor
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { composeAgentJobPrompt } from "./agent-job-prompt";
-import { AGENT_JOB_SOURCE_AUTOMATION, EnqueueAgentJobSchema, EnqueuedAgentJobSchema } from "./agent-job.schema";
+import {
+  AGENT_JOB_HOSTED_RUNTIMES,
+  AGENT_JOB_SOURCE_AUTOMATION,
+  EnqueueAgentJobSchema,
+  EnqueuedAgentJobSchema,
+} from "./agent-job.schema";
 
-const HOSTED_RUNTIMES = new Set<EnqueueAgentJobData["runtime"]>(["mate", "ownKey"]);
+const HOSTED_RUNTIMES = new Set<EnqueueAgentJobData["runtime"]>(AGENT_JOB_HOSTED_RUNTIMES);
 
 type EnqueueRefusal = { ok: false; reason: string };
 

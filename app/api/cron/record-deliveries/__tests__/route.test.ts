@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const invoke = vi.hoisted(() => vi.fn());
 const sweepFiles = vi.hoisted(() => vi.fn());
 const sweepRules = vi.hoisted(() => vi.fn());
+const sweepAgentJobs = vi.hoisted(() => vi.fn());
 const notifyRunnerOffline = vi.hoisted(() => vi.fn());
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
@@ -14,6 +15,7 @@ vi.mock("@/core/di", () => ({
   getSweepRecordDeliveriesInteractor: () => ({ invoke }),
   getSweepRecordFileIndexInteractor: () => ({ invoke: sweepFiles }),
   getSweepAutomationRulesInteractor: () => ({ invoke: sweepRules }),
+  getSweepAgentJobTimeoutsInteractor: () => ({ invoke: sweepAgentJobs }),
   getNotifyRunnerOfflineInteractor: () => ({ invoke: notifyRunnerOffline }),
 }));
 
@@ -34,6 +36,7 @@ describe("record delivery recovery cron", () => {
     invoke.mockResolvedValue({ eventWorkspaces: 2, webhookDeliveries: 3 });
     sweepFiles.mockResolvedValue({ fileIndexWorkspaces: 1 });
     sweepRules.mockResolvedValue({ automationRulesAdmitted: 4, automationRunsRedispatched: 1 });
+    sweepAgentJobs.mockResolvedValue({ agentJobsTimedOut: 1, agentJobsRequeued: 2, agentJobsRedispatched: 3 });
     notifyRunnerOffline.mockResolvedValue({ runnerOfflineNotified: 2 });
   });
 
@@ -65,12 +68,25 @@ describe("record delivery recovery cron", () => {
       fileIndexWorkspaces: 1,
       automationRulesAdmitted: 4,
       automationRunsRedispatched: 1,
+      agentJobsTimedOut: 1,
+      agentJobsRequeued: 2,
+      agentJobsRedispatched: 3,
       runnerOfflineNotified: 2,
     });
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(sweepFiles).toHaveBeenCalledTimes(1);
     expect(sweepRules).toHaveBeenCalledTimes(1);
+    expect(sweepAgentJobs).toHaveBeenCalledTimes(1);
     expect(notifyRunnerOffline).toHaveBeenCalledTimes(1);
+  });
+
+  it("recovers agent jobs every five minutes, before it reports runners that are offline", async () => {
+    mockEnv.APP_MODE = "self-hosted";
+    await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toMatchObject({
+      ok: true,
+      agentJobsRequeued: 2,
+    });
+    expect(sweepAgentJobs.mock.invocationCallOrder[0]).toBeLessThan(notifyRunnerOffline.mock.invocationCallOrder[0]);
   });
 
   it("sweeps date-reached rules on self-hosted instances too", async () => {

@@ -3,11 +3,13 @@ import type {
   AgentJobEnqueue,
   AgentJobFilter,
   AgentJobFinish,
+  AgentJobQueueEntry,
   AgentJobRepo,
   AgentJobSweepOutcome,
   StoredAgentJob,
   StoredAgentJobSummary,
 } from "../agent-job.repo";
+import type { AgentRuntime } from "@/generated/prisma";
 
 const COMPANY = "00000000-0000-4000-8000-000000000011";
 
@@ -33,6 +35,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
       model: null,
       runnerId: null,
       attempts: 0,
+      queuedAt: new Date(Date.UTC(2026, 10, 17, 8, 0, this.sequence)),
       claimedAt: null,
       startedAt: null,
       finishedAt: null,
@@ -114,12 +117,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return Promise.resolve(true);
   }
 
-  appendEventsUnscoped(args: {
-    id: string;
-    companyId: string;
-    attempt?: number;
-    events: unknown[];
-  }): Promise<boolean> {
+  appendEventsUnscoped(args: { id: string; companyId: string; attempt?: number; events: unknown[] }): Promise<boolean> {
     if (!this.live(args)) return Promise.resolve(false);
     this.events.set(args.id, [...(this.events.get(args.id) ?? []), ...args.events]);
     return Promise.resolve(true);
@@ -155,7 +153,12 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     for (const job of this.jobs.values()) {
       if (!["claimed", "running"].includes(job.status) || !job.timeoutAt || job.timeoutAt >= args.now) continue;
       const requeued = job.attempts < args.maxAttempts;
-      this.jobs.set(job.id, { ...job, status: requeued ? "queued" : "timedOut", timeoutAt: null });
+      this.jobs.set(
+        job.id,
+        requeued
+          ? { ...job, status: "queued", queuedAt: args.now, timeoutAt: null }
+          : { ...job, status: "timedOut", timeoutAt: null },
+      );
       outcomes.push({
         id: job.id,
         companyId: job.companyId,
@@ -166,6 +169,19 @@ export class FakeAgentJobRepo implements AgentJobRepo {
       });
     }
     return Promise.resolve(outcomes);
+  }
+
+  findStaleQueuedUnscoped(args: {
+    runtimes: readonly AgentRuntime[];
+    queuedBefore: Date;
+    limit: number;
+  }): Promise<AgentJobQueueEntry[]> {
+    const stale = [...this.jobs.values()]
+      .filter((job) => job.status === "queued" && args.runtimes.includes(job.runtime))
+      .filter((job) => job.queuedAt < args.queuedBefore)
+      .slice(0, args.limit)
+      .map(({ id, companyId, ownerUserId, runtime }) => ({ id, companyId, ownerUserId, runtime }));
+    return Promise.resolve(stale);
   }
 
   deleteFinishedBeforeUnscoped(before: Date): Promise<number> {

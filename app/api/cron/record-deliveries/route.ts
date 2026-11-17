@@ -1,5 +1,6 @@
 import {
   getNotifyRunnerOfflineInteractor,
+  getSweepAgentJobTimeoutsInteractor,
   getSweepAutomationRulesInteractor,
   getSweepRecordDeliveriesInteractor,
   getSweepRecordFileIndexInteractor,
@@ -22,6 +23,7 @@ export async function GET(req: Request) {
     ...(await getSweepRecordDeliveriesInteractor().invoke()),
     ...(await getSweepRecordFileIndexInteractor().invoke()),
     ...(await getSweepAutomationRulesInteractor().invoke()),
+    ...(await getSweepAgentJobTimeoutsInteractor().invoke()),
     ...(await getNotifyRunnerOfflineInteractor().invoke()),
   });
 }

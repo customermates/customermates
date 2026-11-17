@@ -51,27 +51,39 @@ describeDatabase("PrismaAgentJobRepo", () => {
       attempts: number;
       runnerId: string | null;
       error: string | null;
+      queuedAt: Date;
       timeoutAt: Date | null;
       finishedAt: Date | null;
       transcript: unknown;
       costMicrocents: string | null;
       inputTokens: number | null;
     }>(
-      'SELECT "status", "attempts", "runnerId", "error", "timeoutAt", "finishedAt", "transcript", "costMicrocents", "inputTokens" FROM "AgentJob" WHERE "id" = $1',
+      'SELECT "status", "attempts", "runnerId", "error", "queuedAt", "timeoutAt", "finishedAt", "transcript", "costMicrocents", "inputTokens" FROM "AgentJob" WHERE "id" = $1',
       [id],
     );
     return rows[0];
   }
 
-  async function age(id: string, patch: { timeoutAt?: Date; finishedAt?: Date; status?: string; attempts?: number }) {
+  async function age(
+    id: string,
+    patch: { timeoutAt?: Date; finishedAt?: Date; status?: string; attempts?: number; queuedAt?: Date },
+  ) {
     await client.query(
       `UPDATE "AgentJob" SET
          "timeoutAt" = COALESCE($2, "timeoutAt"),
          "finishedAt" = COALESCE($3, "finishedAt"),
          "status" = COALESCE($4::"AgentJobStatus", "status"),
-         "attempts" = COALESCE($5, "attempts")
+         "attempts" = COALESCE($5, "attempts"),
+         "queuedAt" = COALESCE($6, "queuedAt")
        WHERE "id" = $1`,
-      [id, patch.timeoutAt ?? null, patch.finishedAt ?? null, patch.status ?? null, patch.attempts ?? null],
+      [
+        id,
+        patch.timeoutAt ?? null,
+        patch.finishedAt ?? null,
+        patch.status ?? null,
+        patch.attempts ?? null,
+        patch.queuedAt ?? null,
+      ],
     );
   }
 
@@ -357,7 +369,13 @@ describeDatabase("PrismaAgentJobRepo", () => {
 
     expect(await repo().startUnscoped({ id: job.id, companyId, attempt: 2, now, timeoutAt })).toBe(true);
     expect(
-      await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 2, events: [event("second")], maxEvents: 10 }),
+      await repo().appendEventsUnscoped({
+        id: job.id,
+        companyId,
+        attempt: 2,
+        events: [event("second")],
+        maxEvents: 10,
+      }),
     ).toBe(true);
     expect(await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 2, events: [], maxEvents: 10 })).toBe(
       true,
@@ -428,11 +446,37 @@ describeDatabase("PrismaAgentJobRepo", () => {
         [secondTry.id, false, "ownKey", 2],
       ].sort(),
     );
-    expect(await row(firstTry.id)).toMatchObject({ status: "queued", timeoutAt: null });
+    expect(await row(firstTry.id)).toMatchObject({ status: "queued", timeoutAt: null, queuedAt: now });
     expect(await row(secondTry.id)).toMatchObject({ status: "timedOut", error: "timedOut" });
     expect((await row(secondTry.id)).finishedAt).not.toBeNull();
     expect(await row(live.id)).toMatchObject({ status: "running" });
     expect(await row(queued.id)).toMatchObject({ status: "queued" });
+  });
+
+  it("finds the hosted jobs that have waited in the queue past a moment, oldest first", async () => {
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60_000);
+    const lost = await enqueue({ runtime: "ownKey" });
+    const lostLonger = await enqueue({ runtime: "mate" });
+    const fresh = await enqueue({ runtime: "ownKey" });
+    const runnerJob = await enqueue({ runtime: "runner" });
+    const claimed = await enqueue({ runtime: "ownKey" });
+    await age(lost.id, { queuedAt: minutesAgo(3) });
+    await age(lostLonger.id, { queuedAt: minutesAgo(9) });
+    await age(fresh.id, { queuedAt: minutesAgo(1) });
+    await age(runnerJob.id, { queuedAt: minutesAgo(9) });
+    await age(claimed.id, { queuedAt: minutesAgo(9), status: "claimed" });
+
+    const stale = await repo().findStaleQueuedUnscoped({
+      runtimes: ["mate", "ownKey"],
+      queuedBefore: minutesAgo(2),
+      limit: 500,
+    });
+    const mine = stale.filter((job) => [lost.id, lostLonger.id, fresh.id, runnerJob.id, claimed.id].includes(job.id));
+    expect(mine).toEqual([
+      { id: lostLonger.id, companyId, ownerUserId: ownerId, runtime: "mate" },
+      { id: lost.id, companyId, ownerUserId: ownerId, runtime: "ownKey" },
+    ]);
   });
 
   it("prunes finished jobs older than the cutoff of every workspace and keeps the rest", async () => {

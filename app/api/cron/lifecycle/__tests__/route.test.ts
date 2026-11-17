@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 23 }, () => vi.fn(() => Promise.resolve())));
+const invokes = vi.hoisted(() => Array.from({ length: 22 }, () => vi.fn(() => Promise.resolve())));
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
@@ -40,13 +40,12 @@ vi.mock("@/core/di", () => ({
   getPruneBookingsInteractor: () => ({ invoke: invokes[18] }),
   getPruneAutomationRuleRunsInteractor: () => ({ invoke: invokes[19] }),
   getPruneNotificationsInteractor: () => ({ invoke: invokes[20] }),
-  getSweepAgentJobTimeoutsInteractor: () => ({ invoke: invokes[21] }),
-  getPruneAgentJobsInteractor: () => ({ invoke: invokes[22] }),
+  getPruneAgentJobsInteractor: () => ({ invoke: invokes[21] }),
 }));
 
 import { GET } from "../route";
 
-const RETENTION_STEPS = [6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+const RETENTION_STEPS = [6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const UNIPILE_STEPS = [3, 4, 5];
 
 function callLifecycle() {
