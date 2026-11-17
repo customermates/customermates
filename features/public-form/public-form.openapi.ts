@@ -1,6 +1,7 @@
 import { structuredOperation } from "@/core/openapi/structured-operation";
 
 import {
+  DisabledPublicFormDtoSchema,
   DisablePublicFormSchema,
   GetPublicFormEditorSchema,
   GetPublicFormSchema,
@@ -95,8 +96,8 @@ export const publicFormApiPaths = {
       requires: "the publicLinks create permission and create access to the list.",
       tag: "forms",
       input: DisablePublicFormSchema,
-      output: PublicFormDtoSchema,
-      outputDescription: "The form, turned off.",
+      output: DisabledPublicFormDtoSchema,
+      outputDescription: "The form, turned off. Its config is null when the stored definition can no longer be read.",
       example: { id: FORM_ID },
     }),
   },

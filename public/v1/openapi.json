@@ -107469,7 +107469,7 @@
         },
         "responses": {
           "200": {
-            "description": "The form, turned off.",
+            "description": "The form, turned off. Its config is null when the stored definition can no longer be read.",
             "content": {
               "application/json": {
                 "schema": {
@@ -107498,217 +107498,225 @@
                       "type": "string"
                     },
                     "config": {
-                      "type": "object",
-                      "properties": {
-                        "title": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 120
-                        },
-                        "description": {
-                          "anyOf": [
-                            {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "title": {
                               "type": "string",
-                              "maxLength": 600
+                              "minLength": 1,
+                              "maxLength": 120
                             },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "submitLabel": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 60
-                        },
-                        "fields": {
-                          "minItems": 1,
-                          "maxItems": 40,
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "fieldId": {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "A field of the list. Only input fields of the supported types can be used."
-                              },
-                              "label": {
-                                "type": "string",
-                                "minLength": 1,
-                                "maxLength": 120,
-                                "description": "The question shown to the visitor."
-                              },
-                              "helpText": {
-                                "anyOf": [
-                                  {
+                            "description": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "maxLength": 600
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "submitLabel": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 60
+                            },
+                            "fields": {
+                              "minItems": 1,
+                              "maxItems": 40,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "fieldId": {
                                     "type": "string",
-                                    "maxLength": 300
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                    "description": "A field of the list. Only input fields of the supported types can be used."
                                   },
-                                  {
-                                    "type": "null"
+                                  "label": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 120,
+                                    "description": "The question shown to the visitor."
+                                  },
+                                  "helpText": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "maxLength": 300
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "description": "Short hint under the input, or null."
+                                  },
+                                  "required": {
+                                    "type": "boolean"
                                   }
+                                },
+                                "required": [
+                                  "fieldId",
+                                  "label",
+                                  "helpText",
+                                  "required"
                                 ],
-                                "description": "Short hint under the input, or null."
+                                "additionalProperties": false
                               },
-                              "required": {
-                                "type": "boolean"
-                              }
+                              "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
                             },
-                            "required": [
-                              "fieldId",
-                              "label",
-                              "helpText",
-                              "required"
-                            ],
-                            "additionalProperties": false
-                          },
-                          "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
-                        },
-                        "person": {
-                          "anyOf": [
-                            {
-                              "type": "object",
-                              "properties": {
-                                "typeId": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                  "description": "The list that holds people. It needs a contact details field."
-                                },
-                                "relationshipId": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                  "description": "A relationship between the form's list and the people list."
-                                },
-                                "emailLabel": {
-                                  "type": "string",
-                                  "minLength": 1,
-                                  "maxLength": 120
-                                },
-                                "nameLabel": {
-                                  "anyOf": [
-                                    {
+                            "person": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "typeId": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                      "description": "The list that holds people. It needs a contact details field."
+                                    },
+                                    "relationshipId": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                      "description": "A relationship between the form's list and the people list."
+                                    },
+                                    "emailLabel": {
                                       "type": "string",
                                       "minLength": 1,
                                       "maxLength": 120
                                     },
-                                    {
-                                      "type": "null"
+                                    "nameLabel": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 120
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ],
+                                      "description": "Label of the optional name input, or null for no name input."
+                                    },
+                                    "nameFieldId": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ],
+                                      "description": "The text field of the people list that receives the name. Null stores no name."
                                     }
+                                  },
+                                  "required": [
+                                    "typeId",
+                                    "relationshipId",
+                                    "emailLabel",
+                                    "nameLabel",
+                                    "nameFieldId"
                                   ],
-                                  "description": "Label of the optional name input, or null for no name input."
+                                  "additionalProperties": false
                                 },
-                                "nameFieldId": {
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "consent": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "text": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 600,
+                                      "description": "The sentence the visitor agrees to. A change creates a new consent version."
+                                    },
+                                    "privacyUrl": {
+                                      "type": "string",
+                                      "maxLength": 2000,
+                                      "format": "uri",
+                                      "description": "Link to the owner's privacy notice."
+                                    }
+                                  },
+                                  "required": [
+                                    "text",
+                                    "privacyUrl"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "success": {
+                              "type": "object",
+                              "properties": {
+                                "message": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 500
+                                },
+                                "redirectUrl": {
                                   "anyOf": [
                                     {
                                       "type": "string",
-                                      "format": "uuid",
-                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      "maxLength": 2000,
+                                      "format": "uri"
                                     },
                                     {
                                       "type": "null"
                                     }
                                   ],
-                                  "description": "The text field of the people list that receives the name. Null stores no name."
+                                  "description": "Where to send the visitor after sending, or null to show the message."
                                 }
                               },
                               "required": [
-                                "typeId",
-                                "relationshipId",
-                                "emailLabel",
-                                "nameLabel",
-                                "nameFieldId"
+                                "message",
+                                "redirectUrl"
                               ],
                               "additionalProperties": false
                             },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "consent": {
-                          "anyOf": [
-                            {
-                              "type": "object",
-                              "properties": {
-                                "text": {
-                                  "type": "string",
-                                  "minLength": 1,
-                                  "maxLength": 600,
-                                  "description": "The sentence the visitor agrees to. A change creates a new consent version."
-                                },
-                                "privacyUrl": {
-                                  "type": "string",
-                                  "maxLength": 2000,
-                                  "format": "uri",
-                                  "description": "Link to the owner's privacy notice."
-                                }
-                              },
-                              "required": [
-                                "text",
-                                "privacyUrl"
-                              ],
-                              "additionalProperties": false
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "success": {
-                          "type": "object",
-                          "properties": {
-                            "message": {
-                              "type": "string",
-                              "minLength": 1,
-                              "maxLength": 500
-                            },
-                            "redirectUrl": {
+                            "locale": {
                               "anyOf": [
                                 {
-                                  "type": "string",
-                                  "maxLength": 2000,
-                                  "format": "uri"
+                                  "type": "string"
                                 },
                                 {
                                   "type": "null"
                                 }
                               ],
-                              "description": "Where to send the visitor after sending, or null to show the message."
+                              "description": "The language of the page, or null to follow the visitor's browser."
                             }
                           },
                           "required": [
-                            "message",
-                            "redirectUrl"
+                            "title",
+                            "description",
+                            "submitLabel",
+                            "fields",
+                            "person",
+                            "consent",
+                            "success",
+                            "locale"
                           ],
                           "additionalProperties": false
                         },
-                        "locale": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ],
-                          "description": "The language of the page, or null to follow the visitor's browser."
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "title",
-                        "description",
-                        "submitLabel",
-                        "fields",
-                        "person",
-                        "consent",
-                        "success",
-                        "locale"
                       ],
-                      "additionalProperties": false
+                      "description": "The form's definition. Null when the stored definition can no longer be read; save the form with a new config to use it again."
                     },
                     "consentVersion": {
                       "type": "integer",

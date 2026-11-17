@@ -114,6 +114,13 @@ export const PublicFormDtoSchema = z
   .strict();
 export type PublicFormDto = z.infer<typeof PublicFormDtoSchema>;
 
+export const DisabledPublicFormDtoSchema = PublicFormDtoSchema.extend({
+  config: PublicFormConfigSchema.nullable().describe(
+    "The form's definition. Null when the stored definition can no longer be read; save the form with a new config to use it again.",
+  ),
+}).strict();
+export type DisabledPublicFormDto = z.infer<typeof DisabledPublicFormDtoSchema>;
+
 export const ListPublicFormsSchema = z
   .object({ typeId: z.uuid().optional().describe("Only the form of this list.") })
   .strict();

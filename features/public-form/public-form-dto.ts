@@ -1,6 +1,6 @@
 import type { PublicFormRepo, StoredPublicForm } from "./public-form.repo";
 import type { PublicFormQuota } from "./public-form-quota";
-import type { PublicFormDto, PublicFormUsage } from "./public-form.schema";
+import type { DisabledPublicFormDto, PublicFormDto, PublicFormUsage } from "./public-form.schema";
 
 import { parsePublicFormConfig } from "./public-form-access";
 import { startOfUtcMonth } from "./public-form-quota";
@@ -25,16 +25,24 @@ export function toPublicFormDto(
   usage: PublicFormUsage,
   settings: PublicFormSettings,
 ): PublicFormDto | null {
+  const dto = toDisabledPublicFormDto(form, usage, settings);
+  return dto.config ? { ...dto, config: dto.config } : null;
+}
+
+export function toDisabledPublicFormDto(
+  form: StoredPublicForm,
+  usage: PublicFormUsage,
+  settings: PublicFormSettings,
+): DisabledPublicFormDto {
   const config = parsePublicFormConfig(form.config);
-  if (!config) return null;
-  const url = publicFormUrl(settings.baseUrl, form.id, settings.authSecret, config.locale);
+  const url = publicFormUrl(settings.baseUrl, form.id, settings.authSecret, config?.locale ?? null);
   return {
     id: form.id,
     typeId: form.typeId,
     name: form.name,
     enabled: form.enabled,
     url,
-    embedSnippet: publicFormEmbedSnippet(url, config.title),
+    embedSnippet: publicFormEmbedSnippet(url, config?.title ?? form.name),
     config,
     consentVersion: form.consentVersion,
     submissionCount: form.submissionCount,

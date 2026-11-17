@@ -373,10 +373,32 @@ describe("DisablePublicFormInteractor", () => {
     expect(result.ok).toBe(true);
   });
 
+  it("switches off a form whose stored definition no longer parses and answers with the form, not with not found", async () => {
+    const formRepo = repo(stored({ config: {} }));
+
+    const result = await build(formRepo).invoke({ id: FORM_ID });
+
+    expect(formRepo.updateForm).toHaveBeenCalledWith(FORM_ID, { enabled: false });
+    expect(result).toMatchObject({
+      ok: true,
+      data: { id: FORM_ID, typeId: TYPE_ID, name: "Contact form", enabled: false, config: null, consentVersion: 2 },
+    });
+    expect(result.ok && result.data.url).toMatch(/^https:\/\/app\.example\.com\/f\//);
+    expect(result.ok && result.data.embedSnippet).toContain('title="Contact form"');
+    expect(result.ok && result.data.usage.submissionsThisMonth).toBe(7);
+  });
+
+  it("answers a readable form with its definition, as before", async () => {
+    const result = await build(repo(stored())).invoke({ id: FORM_ID });
+
+    expect(result.ok && result.data.config).toEqual(createConfig());
+  });
+
   it("answers not found for an unknown form", async () => {
     const result = await build(repo(null)).invoke({ id: FORM_ID });
 
     expect(result.ok).toBe(false);
+    expect(failureCodeOf(result)).toBe(CustomErrorCode.publicFormNotFound);
   });
 });
 
