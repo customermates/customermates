@@ -8,7 +8,15 @@ import type { AutomationDraft } from "../components/automation-draft";
 import { automationModelIssues } from "@/features/automation-rules/automation-model-validation";
 import { UpsertAutomationRuleSchema } from "@/features/automation-rules/automation-rule.schema";
 import { toAutomationBuilderModel } from "../components/automation-builder-model";
-import { draftToUpsert, emptyDraft, reminderDraft, ruleToDraft, scalarFor } from "../components/automation-draft";
+import {
+  blankAgentEffect,
+  draftToUpsert,
+  emptyChainDraft,
+  emptyDraft,
+  reminderDraft,
+  ruleToDraft,
+  scalarFor,
+} from "../components/automation-draft";
 
 const DEALS = "11111111-1111-4111-8111-111111111111";
 const TASKS = "11111111-1111-4111-8111-222222222222";
@@ -312,9 +320,12 @@ describe("opening a saved rule", () => {
     updatedAt: "2026-11-12T08:00:00.000Z",
   };
 
-  it("round-trips through the builder without losing anything, even what it cannot edit", () => {
+  it("round-trips through the builder without losing anything", () => {
     const opened = ruleToDraft(rule, MODEL, TZ);
-    expect(opened.effects.at(-1)).toEqual({ kind: "kept", effect: rule.effects[2] });
+    expect(opened.effects.at(-1)).toEqual({
+      kind: "callWebhook",
+      webhookId: "66666666-6666-4666-8666-666666666666",
+    });
     const saved = convert(opened);
     expect(saved).toEqual({
       id: RULE,
@@ -327,12 +338,66 @@ describe("opening a saved rule", () => {
   });
 
   it("keeps a trigger the builder does not offer and still lets the rest be edited", () => {
-    const form = { ...rule, trigger: { kind: "formSubmitted" as const, typeId: DEALS }, conditions: [] };
-    const opened = ruleToDraft(form, MODEL, TZ);
+    const trigger = {
+      kind: "formSubmitted" as const,
+      typeId: DEALS,
+      sourceId: "77777777-7777-4777-8777-777777777777",
+    };
+    const opened = ruleToDraft({ ...rule, trigger, conditions: [] }, MODEL, TZ);
     expect(opened.trigger.kind).toBe("other");
     const saved = convert({ ...opened, name: "Renamed" });
-    expect(saved.trigger).toEqual({ kind: "formSubmitted", typeId: DEALS });
+    expect(saved.trigger).toEqual(trigger);
     expect(saved.name).toBe("Renamed");
+  });
+
+  it("edits a form or webhook trigger with an optional list", () => {
+    const anyForm = ruleToDraft(
+      { ...rule, trigger: { kind: "formSubmitted" }, conditions: [], effects: rule.effects.slice(0, 1) },
+      MODEL,
+      TZ,
+    );
+    expect(anyForm.trigger).toMatchObject({ kind: "formSubmitted", typeId: "" });
+    expect(convert(anyForm).trigger).toEqual({ kind: "formSubmitted" });
+    const listed = { ...anyForm, trigger: { ...anyForm.trigger, kind: "webhookReceived" as const, typeId: DEALS } };
+    expect(convert(listed).trigger).toEqual({ kind: "webhookReceived", typeId: DEALS });
+    expect(draftToUpsert({ ...listed, trigger: { ...listed.trigger, typeId: "missing" } }, MODEL)).toEqual({
+      ok: false,
+      issues: ["trigger"],
+    });
+  });
+
+  it("opens and saves an agent step with its runtime, model and runner", () => {
+    const runner = "88888888-8888-4888-8888-888888888888";
+    const effects = [
+      { kind: "agent" as const, runtime: "ownKey" as const, prompt: "Summarise {{record.name}}", model: "m-1" },
+      { kind: "agent" as const, runtime: "runner" as const, prompt: "Check it", runnerId: runner },
+      { kind: "agent" as const, runtime: "mate" as const, prompt: "Draft a reply" },
+    ];
+    const opened = ruleToDraft({ ...rule, effects }, MODEL, TZ);
+    expect(opened.effects).toEqual([
+      { kind: "agent", runtime: "ownKey", prompt: "Summarise {{record.name}}", model: "m-1", runnerId: "" },
+      { kind: "agent", runtime: "runner", prompt: "Check it", model: "", runnerId: runner },
+      { kind: "agent", runtime: "mate", prompt: "Draft a reply", model: "", runnerId: "" },
+    ]);
+    expect(convert(opened).effects).toEqual(effects);
+  });
+
+  it("drops a model on a non-own-key step and refuses an empty prompt or a webhook-less step", () => {
+    const stale = {
+      ...draft(),
+      effects: [{ kind: "agent" as const, runtime: "mate" as const, prompt: " Go ", model: "m-1", runnerId: "x" }],
+    };
+    expect(convert(stale).effects).toEqual([{ kind: "agent", runtime: "mate", prompt: "Go" }]);
+    const blank = { ...draft(), effects: [blankAgentEffect("ownKey")] };
+    expect(draftToUpsert(blank, MODEL)).toEqual({ ok: false, issues: ["effects.0"] });
+    const webhook = { ...draft(), effects: [{ kind: "callWebhook" as const, webhookId: "" }] };
+    expect(draftToUpsert(webhook, MODEL)).toEqual({ ok: false, issues: ["effects.0"] });
+  });
+
+  it("starts from scratch with an empty chain that cannot be saved before a step is added", () => {
+    const chain = emptyChainDraft(MODEL, { typeId: DEALS, timezone: TZ });
+    expect(chain.effects).toEqual([]);
+    expect(draftToUpsert({ ...chain, name: "x" }, MODEL)).toEqual({ ok: false, issues: ["effects"] });
   });
 
   it("keeps effects with several recipients as they are", () => {

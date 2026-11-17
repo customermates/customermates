@@ -1,6 +1,7 @@
 import type { RecordScalar } from "@/features/records/record-model.schema";
 import type { AutomationBuilderField, AutomationBuilderModel } from "./automation-builder-model";
 import type {
+  AgentRuntimeKind,
   AutomationCondition,
   AutomationEffect,
   AutomationRuleDto,
@@ -8,7 +9,12 @@ import type {
   UpsertAutomationRuleData,
 } from "@/features/automation-rules/automation-rule.schema";
 
-import { AUTOMATION_DATE_OFFSET_MAX_DAYS } from "@/features/automation-rules/automation-rule.schema";
+import {
+  AGENT_RUNTIMES,
+  AUTOMATION_AGENT_PROMPT_MAX_CHARS,
+  AUTOMATION_DATE_OFFSET_MAX_DAYS,
+} from "@/features/automation-rules/automation-rule.schema";
+import { RECORD_NAME_TOKEN } from "@/features/automation-rules/automation-template";
 
 export const DRAFT_TRIGGER_KINDS = [
   "recordCreated",
@@ -16,6 +22,8 @@ export const DRAFT_TRIGGER_KINDS = [
   "fieldChanged",
   "dateReached",
   "messageReceived",
+  "formSubmitted",
+  "webhookReceived",
 ] as const;
 export type DraftTriggerKind = (typeof DRAFT_TRIGGER_KINDS)[number] | "other";
 
@@ -55,8 +63,10 @@ export type DraftCreateRecord = {
   relationId: string;
 };
 export type DraftSetField = { kind: "setField"; fieldId: string; value: string };
+export type DraftCallWebhook = { kind: "callWebhook"; webhookId: string };
+export type DraftAgent = { kind: "agent"; runtime: AgentRuntimeKind; prompt: string; model: string; runnerId: string };
 export type DraftKept = { kind: "kept"; effect: AutomationEffect };
-export type DraftEffect = DraftNotify | DraftCreateRecord | DraftSetField | DraftKept;
+export type DraftEffect = DraftNotify | DraftCreateRecord | DraftSetField | DraftCallWebhook | DraftAgent | DraftKept;
 
 export type AutomationDraft = {
   id?: string;
@@ -81,7 +91,9 @@ export function fieldOfList(model: AutomationBuilderModel, typeId: string, field
 export function draftHasRecord(trigger: DraftTrigger): boolean {
   if (trigger.kind === "other")
     return trigger.kept !== null && "typeId" in trigger.kept && Boolean(trigger.kept.typeId);
-  return trigger.kind !== "messageReceived";
+  if (trigger.kind === "messageReceived") return false;
+  if (trigger.kind === "formSubmitted" || trigger.kind === "webhookReceived") return Boolean(trigger.typeId);
+  return true;
 }
 
 export function scalarFor(field: AutomationBuilderField, text: string): RecordScalar | null {
@@ -141,6 +153,41 @@ export function emptyDraft(
   };
 }
 
+export function emptyChainDraft(
+  model: AutomationBuilderModel,
+  options: { typeId?: string; timezone: string },
+): AutomationDraft {
+  return { ...emptyDraft(model, options), effects: [] };
+}
+
+export function blankEffect(kind: string, model: AutomationBuilderModel, triggerTypeId: string): DraftEffect {
+  if (kind === "agent") return blankAgentEffect();
+  if (kind === "callWebhook") return { kind: "callWebhook", webhookId: "" };
+  if (kind === "createRecord") {
+    const list = model.lists.find((item) => item.id !== triggerTypeId) ?? model.lists[0];
+    const title = list?.fields.find((field) => field.writable && field.valueType === "text");
+    return {
+      kind: "createRecord",
+      typeId: list?.id ?? "",
+      titleFieldId: title?.id ?? "",
+      title: RECORD_NAME_TOKEN,
+      dueFieldId: "",
+      dueDays: "",
+      assignToOwner: true,
+      relationId: "",
+    };
+  }
+  if (kind === "setField") return { kind: "setField", fieldId: "", value: "" };
+  return {
+    kind: "notify",
+    toOwner: true,
+    toAssignees: false,
+    notificationKind: "ruleAlert",
+    title: RECORD_NAME_TOKEN,
+    body: "",
+  };
+}
+
 export function reminderDraft(
   model: AutomationBuilderModel,
   options: { typeId: string; fieldId: string; timezone: string },
@@ -166,6 +213,10 @@ function toTrigger(draft: DraftTrigger, model: AutomationBuilderModel): Automati
   const { typeId } = draft;
   if (draft.kind === "other") return draft.kept;
   if (draft.kind === "messageReceived") return { kind: "messageReceived", channel: "any" };
+  if (draft.kind === "formSubmitted" || draft.kind === "webhookReceived") {
+    if (typeId && !listOf(model, typeId)) return null;
+    return { kind: draft.kind, ...(typeId ? { typeId } : {}) };
+  }
   if (!listOf(model, typeId)) return null;
   if (draft.kind === "recordCreated") return { kind: "recordCreated", typeId };
   if (draft.kind === "recordUpdated")
@@ -221,6 +272,21 @@ function toEffect(
   trigger: AutomationTrigger | null,
 ): AutomationEffect | null {
   if (draft.kind === "kept") return draft.effect;
+  if (draft.kind === "agent") {
+    const prompt = draft.prompt.trim();
+    if (!prompt || prompt.length > AUTOMATION_AGENT_PROMPT_MAX_CHARS || !AGENT_RUNTIMES.includes(draft.runtime))
+      return null;
+    const model = draft.runtime === "ownKey" ? draft.model.trim() : "";
+    const runnerId = draft.runtime === "runner" ? draft.runnerId.trim() : "";
+    return {
+      kind: "agent",
+      runtime: draft.runtime,
+      prompt,
+      ...(model ? { model } : {}),
+      ...(runnerId ? { runnerId } : {}),
+    };
+  }
+  if (draft.kind === "callWebhook") return draft.webhookId ? { kind: "callWebhook", webhookId: draft.webhookId } : null;
   const triggerType = trigger && "typeId" in trigger ? (trigger.typeId ?? null) : null;
   if (draft.kind === "notify") {
     const assignees = draft.toAssignees && triggerType !== null;
@@ -318,7 +384,21 @@ function conditionToDraft(condition: AutomationCondition, field: AutomationBuild
   };
 }
 
+export function blankAgentEffect(runtime: AgentRuntimeKind = "mate"): DraftAgent {
+  return { kind: "agent", runtime, prompt: "", model: "", runnerId: "" };
+}
+
 function effectToDraft(effect: AutomationEffect, triggerType: string | null): DraftEffect {
+  if (effect.kind === "agent") {
+    return {
+      kind: "agent",
+      runtime: effect.runtime,
+      prompt: effect.prompt,
+      model: effect.model ?? "",
+      runnerId: effect.runnerId ?? "",
+    };
+  }
+  if (effect.kind === "callWebhook") return { kind: "callWebhook", webhookId: effect.webhookId };
   if (effect.kind === "notify" && effect.recipients.userIds.length === 0) {
     return {
       kind: "notify",
@@ -359,8 +439,11 @@ function effectToDraft(effect: AutomationEffect, triggerType: string | null): Dr
 
 export function ruleToDraft(rule: AutomationRuleDto, model: AutomationBuilderModel, timezone: string): AutomationDraft {
   const { trigger } = rule;
-  const typeId = "typeId" in trigger && trigger.typeId ? trigger.typeId : (model.lists[0]?.id ?? "");
-  const supported = (DRAFT_TRIGGER_KINDS as readonly string[]).includes(trigger.kind);
+  const optionalList = trigger.kind === "formSubmitted" || trigger.kind === "webhookReceived";
+  const typeId =
+    "typeId" in trigger && trigger.typeId ? trigger.typeId : optionalList ? "" : (model.lists[0]?.id ?? "");
+  const supported =
+    (DRAFT_TRIGGER_KINDS as readonly string[]).includes(trigger.kind) && !("sourceId" in trigger && trigger.sourceId);
   const fieldId =
     trigger.kind === "fieldChanged" || trigger.kind === "dateReached"
       ? trigger.fieldId
@@ -375,6 +458,7 @@ export function ruleToDraft(rule: AutomationRuleDto, model: AutomationBuilderMod
     enabled: rule.enabled,
     trigger: {
       ...base,
+      typeId: "typeId" in trigger && trigger.typeId ? trigger.typeId : typeId,
       kind: supported ? (trigger.kind as DraftTriggerKind) : "other",
       fieldId,
       value: trigger.kind === "fieldChanged" && field ? textFor(trigger.to) : "",
