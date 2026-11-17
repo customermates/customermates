@@ -2889,7 +2889,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     >`
       UPDATE "AgentUsageEvent" SET "state" = 'released', "chargedMicrocents" = 0,
         "settledAt" = ${args.now}
-      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing', 'fileIndexing', 'wikiSynthesis', 'calculationDraft', 'commandResolve')
+      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing', 'fileIndexing', 'wikiSynthesis', 'calculationDraft', 'commandResolve', 'automationCompose')
         AND "state" = 'reserved'
         AND "createdAt" < ${args.reservedBefore}
         AND (${args.companyId ?? null}::text IS NULL OR "companyId" = ${args.companyId ?? null}::text)
