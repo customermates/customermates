@@ -6,7 +6,12 @@ import type { RunnerOptions } from "../src/options.js";
 import type { StreamLine } from "../src/types.js";
 
 import { claudeAdapter } from "../src/clients/claude.js";
-import { codexAdapter } from "../src/clients/codex.js";
+import {
+  CODEX_FEATURES_READ_FROM,
+  CODEX_OUTSIDE_FEATURES,
+  CODEX_SHELL_FEATURES,
+  codexAdapter,
+} from "../src/clients/codex.js";
 import { geminiAdapter } from "../src/clients/gemini.js";
 import { promptFor, UNTRUSTED_CONTENT_INSTRUCTION, wrapUntrustedPrompt } from "../src/untrusted.js";
 
@@ -33,6 +38,8 @@ const OPTIONS: RunnerOptions = {
 };
 
 const INPUT = { prompt: "Summarise", mcp: MCP, options: OPTIONS, configDir: CONFIG_DIR, workDir: WORK_DIR };
+
+const off = (names: readonly string[]) => names.flatMap((name) => ["-c", `features.${name}=false`]);
 
 function observe(adapter: typeof claudeAdapter, lines: StreamLine[]) {
   const observer = adapter.createObserver();
@@ -206,7 +213,9 @@ describe("Codex", () => {
       "-c",
       'approval_policy="never"',
       "-c",
-      "features.shell_tool=false",
+      'web_search="disabled"',
+      ...off(CODEX_SHELL_FEATURES),
+      ...off(CODEX_OUTSIDE_FEATURES),
       "-c",
       `mcp_servers.customermates.url="${MCP.url}"`,
       "-c",
@@ -218,12 +227,73 @@ describe("Codex", () => {
     expect(invocation.stdin).toBe("Summarise");
   });
 
-  it("leaves the shell on only when the runner was started with --allow-shell", () => {
+  it("switches off every feature of codex features list 0.169.0 that gives the model a tool or a surface outside the job", () => {
+    expect(CODEX_FEATURES_READ_FROM).toBe("0.169.0");
+    expect([...CODEX_SHELL_FEATURES]).toEqual([
+      "shell_tool",
+      "unified_exec",
+      "unified_exec_tty",
+      "shell_snapshot",
+      "write_stdin_approval",
+    ]);
+    expect([...CODEX_OUTSIDE_FEATURES]).toEqual([
+      "apps",
+      "plugins",
+      "plugin_sharing",
+      "remote_plugin",
+      "skill_search",
+      "skill_mcp_dependency_install",
+      "tool_suggest",
+      "workspace_dependencies",
+      "hooks",
+      "view_image",
+      "image_generation",
+      "browser_use",
+      "browser_use_external",
+      "browser_use_full_cdp_access",
+      "browser_annotation_api",
+      "in_app_browser",
+      "in_app_local_automation",
+      "computer_use",
+      "multi_agent",
+      "multi_agent_v2",
+      "goals",
+      "sleep_tool",
+      "code_mode_host",
+      "code_mode_host_grpc",
+      "memories",
+      "daemon_auto_start",
+    ]);
+
+    const args = codexAdapter.prepare(INPUT).args;
+    for (const name of [...CODEX_SHELL_FEATURES, ...CODEX_OUTSIDE_FEATURES])
+      expect(args).toContain(`features.${name}=false`);
+    expect(args).toContain('web_search="disabled"');
+  });
+
+  it("names a feature with -c features.<name>=false, which 0.169.0 accepts for a name it does not know, never with --disable, which refuses one", () => {
+    const args = codexAdapter.prepare(INPUT).args;
+
+    expect(args).not.toContain("--disable");
+    expect(args).not.toContain("--enable");
+    for (const [index, arg] of args.entries())
+      if (arg.startsWith("features.") || arg.startsWith("web_search=")) expect(args[index - 1]).toBe("-c");
+  });
+
+  it("leaves only the shell features on when the runner was started with --allow-shell", () => {
     const invocation = codexAdapter.prepare({ ...INPUT, options: { ...OPTIONS, allowShell: true } });
 
-    expect(invocation.args.join(" ")).not.toContain("shell_tool");
+    for (const name of CODEX_SHELL_FEATURES) expect(invocation.args).not.toContain(`features.${name}=false`);
+    for (const name of CODEX_OUTSIDE_FEATURES) expect(invocation.args).toContain(`features.${name}=false`);
+    expect(invocation.args).toContain('web_search="disabled"');
     expect(invocation.args).toContain("read-only");
   });
+
+  it.todo(
+    "not verified without a client run: which tools 0.169.0 offers the model with these flags (codex features list keeps unified_exec on whatever is passed)",
+  );
+
+  it.todo("not verified without a client run: the workspace MCP tools still work with apps, plugins and hooks off");
 
   it("passes the job key through the environment, never on the command line", () => {
     const invocation = codexAdapter.prepare(INPUT);

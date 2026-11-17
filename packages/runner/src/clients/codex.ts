@@ -14,6 +14,49 @@ import {
 
 const SHELL_TOOL = "shell";
 
+export const CODEX_FEATURES_READ_FROM = "0.169.0";
+
+export const CODEX_SHELL_FEATURES = [
+  "shell_tool",
+  "unified_exec",
+  "unified_exec_tty",
+  "shell_snapshot",
+  "write_stdin_approval",
+] as const;
+
+export const CODEX_OUTSIDE_FEATURES = [
+  "apps",
+  "plugins",
+  "plugin_sharing",
+  "remote_plugin",
+  "skill_search",
+  "skill_mcp_dependency_install",
+  "tool_suggest",
+  "workspace_dependencies",
+  "hooks",
+  "view_image",
+  "image_generation",
+  "browser_use",
+  "browser_use_external",
+  "browser_use_full_cdp_access",
+  "browser_annotation_api",
+  "in_app_browser",
+  "in_app_local_automation",
+  "computer_use",
+  "multi_agent",
+  "multi_agent_v2",
+  "goals",
+  "sleep_tool",
+  "code_mode_host",
+  "code_mode_host_grpc",
+  "memories",
+  "daemon_auto_start",
+] as const;
+
+function withoutFeatures(names: readonly string[]): string[] {
+  return names.flatMap((name) => ["-c", `features.${name}=false`]);
+}
+
 function toolOf(item: Record<string, unknown>): { name: unknown; input: unknown; ok: boolean; output: unknown } | null {
   if (item.type === "mcp_tool_call") {
     const failed = item.status === "failed" || (item.error !== undefined && item.error !== null);
@@ -83,7 +126,10 @@ export const codexAdapter: ClientAdapter = {
       "read-only",
       "-c",
       'approval_policy="never"',
-      ...(options.allowShell ? [] : ["-c", "features.shell_tool=false"]),
+      "-c",
+      'web_search="disabled"',
+      ...(options.allowShell ? [] : withoutFeatures(CODEX_SHELL_FEATURES)),
+      ...withoutFeatures(CODEX_OUTSIDE_FEATURES),
       "-c",
       `mcp_servers.${MCP_SERVER_NAME}.url=${JSON.stringify(mcp.url)}`,
       "-c",
