@@ -80,7 +80,7 @@ Gdy Twoje zadania agenta czekają, a od 10 minut nie był widziany żaden Twój 
 
 ## Jak unieważnić runnera? [#how-do-i-revoke-a-runner]
 
-Kliknij **Unieważnij** przy runnerze i potwierdź. Runner nie może już pobierać zadań: jego następne żądanie zostanie odrzucone, a program się zatrzyma. Zadania, które właśnie wykonuje, oraz te, które czekają właśnie na tego runnera, kończą się jako anulowane, a ich klucze od razu przestają działać. Unieważnienia nie można cofnąć. Aby znów użyć maszyny, dodaj nowego runnera i uruchom go z nowym tokenem. Unieważnij runnera od razu, jeśli jego token wycieknie. Runner zostaje unieważniony także wtedy, gdy członek, który go dodał, opuści przestrzeń roboczą lub zostanie dezaktywowany.
+Kliknij **Unieważnij** przy runnerze i potwierdź. Runner nie może już pobierać zadań: jego następne żądanie zostanie odrzucone, a program się zatrzyma. Zadania, które właśnie wykonuje, oraz te, które czekają właśnie na tego runnera, kończą się jako anulowane, a ich klucze od razu przestają działać. Unieważnienia nie można cofnąć. Aby znów użyć maszyny, dodaj nowego runnera i uruchom go z nowym tokenem. Unieważnij runnera od razu, jeśli jego token wycieknie. Runner zostaje unieważniony także wtedy, gdy członek, który go dodał, opuści przestrzeń roboczą lub zostanie dezaktywowany. Członek wstrzymany przez plan Free zachowuje swoje runnery: w czasie wstrzymania żądania runnera są odrzucane, a program się zatrzymuje, a gdy plan płatny przywróci członka, ten sam token znowu działa.
 
 ## Dla agentów [#for-agents]
 
@@ -92,7 +92,7 @@ Runnery komunikują się z przestrzenią roboczą przez REST z nagłówkiem `Aut
 - `POST /api/v1/runner/jobs/{id}/events` dołącza zdarzenia transkrypcji tej próby i odpowiada 409, gdy zadanie jest zamknięte.
 - `POST /api/v1/runner/jobs/{id}/result` zgłasza `succeeded`, `failed` lub `timedOut` dla tej próby z odpowiedzią końcową oraz, jeśli CLI je podaje, liczbą zużytych tokenów.
 
-Unieważniony token, runner, którego członek opuścił przestrzeń roboczą lub został dezaktywowany, oraz przestrzeń robocza w trakcie usuwania odpowiadają 401.
+Unieważniony token, runner, którego członek opuścił przestrzeń roboczą, został dezaktywowany lub jest wstrzymany przez plan Free, oraz przestrzeń robocza w trakcie usuwania odpowiadają 401.
 
 ## Najczęstsze pytania [#frequently-asked-questions]
 

@@ -77,7 +77,7 @@ export class PrismaAgentRunnerRepo extends TenantRepository implements AgentRunn
         ...RUNNER_SELECT,
         companyId: true,
         company: { select: { deletingAt: true } },
-        createdBy: { select: { status: true } },
+        createdBy: { select: { status: true, pausedByPlanAt: true } },
       },
     });
   }

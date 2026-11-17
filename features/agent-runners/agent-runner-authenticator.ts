@@ -42,7 +42,8 @@ export class AgentRunnerAuthenticator {
     if (!stored || stored.revokedAt || stored.company.deletingAt) return UNAUTHENTICATED;
 
     if (stored.createdBy.status !== Status.active) {
-      await this.revocation.revoke({ companyId: stored.companyId, runnerId: stored.id, at: this.clock() });
+      if (stored.createdBy.pausedByPlanAt === null)
+        await this.revocation.revoke({ companyId: stored.companyId, runnerId: stored.id, at: this.clock() });
       return UNAUTHENTICATED;
     }
 

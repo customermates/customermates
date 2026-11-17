@@ -80,7 +80,7 @@ Quando i tuoi lavori dell’agente sono in attesa e da 10 minuti non è stato vi
 
 ## Come revoco un runner? [#how-do-i-revoke-a-runner]
 
-Fai clic su **Revoca** sul runner e conferma. Il runner non può più ritirare lavori: la sua prossima richiesta viene rifiutata e il programma si ferma. I lavori che sta eseguendo, e quelli che aspettano proprio questo runner, terminano come annullati, e le loro chiavi smettono subito di funzionare. La revoca non si può annullare. Per usare di nuovo la macchina, aggiungi un nuovo runner e avvialo con il nuovo token. Revoca subito un runner se il suo token viene diffuso. Un runner viene revocato anche quando il membro che lo ha aggiunto lascia lo spazio di lavoro o viene disattivato.
+Fai clic su **Revoca** sul runner e conferma. Il runner non può più ritirare lavori: la sua prossima richiesta viene rifiutata e il programma si ferma. I lavori che sta eseguendo, e quelli che aspettano proprio questo runner, terminano come annullati, e le loro chiavi smettono subito di funzionare. La revoca non si può annullare. Per usare di nuovo la macchina, aggiungi un nuovo runner e avvialo con il nuovo token. Revoca subito un runner se il suo token viene diffuso. Un runner viene revocato anche quando il membro che lo ha aggiunto lascia lo spazio di lavoro o viene disattivato. Un membro messo in pausa dal piano Free conserva i suoi runner: durante la pausa le richieste del runner vengono rifiutate e il programma si ferma, e quando un piano a pagamento riporta il membro, lo stesso token funziona di nuovo.
 
 ## Per gli agenti [#for-agents]
 
@@ -92,7 +92,7 @@ I runner parlano con lo spazio di lavoro via REST con `Authorization: Bearer cmr
 - `POST /api/v1/runner/jobs/{id}/events` aggiunge eventi di trascrizione di quel tentativo e risponde 409 quando il lavoro è chiuso.
 - `POST /api/v1/runner/jobs/{id}/result` segnala `succeeded`, `failed` o `timedOut` per quel tentativo con la risposta finale e, se la CLI li riporta, i token consumati.
 
-Un token revocato, un runner il cui membro ha lasciato lo spazio di lavoro o è stato disattivato, e uno spazio di lavoro in eliminazione rispondono 401.
+Un token revocato, un runner il cui membro ha lasciato lo spazio di lavoro, è stato disattivato o è in pausa per il piano Free, e uno spazio di lavoro in eliminazione rispondono 401.
 
 ## Domande frequenti [#frequently-asked-questions]
 

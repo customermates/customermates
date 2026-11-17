@@ -39,7 +39,7 @@ export class FakeAgentRunnerRepo extends AgentRunnerRepo {
       createdAt: new Date("2026-11-16T10:00:00.000Z"),
       companyId: COMPANY_ID,
       company: { deletingAt: null },
-      createdBy: { status: Status.active },
+      createdBy: { status: Status.active, pausedByPlanAt: null },
       ...overrides,
     };
     this.runners.set(runner.id, { ...runner, tokenHash: hashAgentRunnerToken(token) });
@@ -67,7 +67,7 @@ export class FakeAgentRunnerRepo extends AgentRunnerRepo {
       createdAt: new Date("2026-11-16T10:00:00.000Z"),
       companyId: COMPANY_ID,
       company: { deletingAt: null },
-      createdBy: { status: Status.active },
+      createdBy: { status: Status.active, pausedByPlanAt: null },
       tokenHash: data.tokenHash,
     };
     this.runners.set(runner.id, runner);

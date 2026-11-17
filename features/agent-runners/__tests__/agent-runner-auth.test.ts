@@ -102,7 +102,7 @@ describe("AgentRunnerAuthenticator", () => {
     "refuses and revokes the runner when the member who added it is %s",
     async (status) => {
       const { repo, authenticator, revocation } = setup();
-      const { token } = repo.addRunner({ createdBy: { status } });
+      const { token } = repo.addRunner({ createdBy: { status, pausedByPlanAt: null } });
 
       const result = await authenticator.authenticate({ authorization: bearer(token) });
 
@@ -110,6 +110,25 @@ describe("AgentRunnerAuthenticator", () => {
       expect(revocation.revoked).toEqual([{ companyId: COMPANY_ID, runnerId: RUNNER_ID, at: NOW }]);
     },
   );
+
+  it("refuses the runner of a member the plan paused without revoking it, and admits it again when the pause ends", async () => {
+    const { repo, authenticator, revocation } = setup();
+    const { token, runner } = repo.addRunner({
+      createdBy: { status: Status.inactive, pausedByPlanAt: new Date("2026-11-16T12:00:00.000Z") },
+    });
+
+    expect(await authenticator.authenticate({ authorization: bearer(token) })).toEqual(UNAUTHENTICATED);
+    expect(await authenticator.authenticate({ authorization: bearer(token) })).toEqual(UNAUTHENTICATED);
+    expect(revocation.revoked).toEqual([]);
+    expect(repo.runners.get(runner.id)?.revokedAt).toBeNull();
+
+    const stored = repo.runners.get(runner.id);
+    if (stored) stored.createdBy = { status: Status.active, pausedByPlanAt: null };
+    expect(await authenticator.authenticate({ authorization: bearer(token) })).toMatchObject({
+      ok: true,
+      runner: { id: runner.id },
+    });
+  });
 
   it("refuses a missing, malformed or unknown token", async () => {
     const { repo, authenticator } = setup();

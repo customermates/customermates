@@ -80,7 +80,7 @@ When your agent jobs are waiting and none of your runners that could take them h
 
 ## How do I revoke a runner? [#how-do-i-revoke-a-runner]
 
-Click **Revoke** on the runner and confirm. The runner cannot pick up jobs any more: its next request is refused, and the program stops. The jobs it is running, and the jobs that wait for exactly this runner, end as cancelled, and their keys stop working at once. Revoking cannot be undone. To use the machine again, add a new runner and start it with the new token. Revoke a runner at once if its token leaks. A runner is also revoked when the member who added it leaves the workspace or is deactivated.
+Click **Revoke** on the runner and confirm. The runner cannot pick up jobs any more: its next request is refused, and the program stops. The jobs it is running, and the jobs that wait for exactly this runner, end as cancelled, and their keys stop working at once. Revoking cannot be undone. To use the machine again, add a new runner and start it with the new token. Revoke a runner at once if its token leaks. A runner is also revoked when the member who added it leaves the workspace or is deactivated. A member the Free plan paused keeps their runners: during the pause the runner's requests are refused and the program stops, and once a paid plan brings the member back, the same token works again.
 
 ## For agents [#for-agents]
 
@@ -92,7 +92,7 @@ Runners talk to the workspace over REST with `Authorization: Bearer cmr_...`, th
 - `POST /api/v1/runner/jobs/{id}/events` appends transcript events of that attempt and answers 409 once the job is closed.
 - `POST /api/v1/runner/jobs/{id}/result` reports `succeeded`, `failed` or `timedOut` for that attempt with the final answer and, when the CLI reports them, tokens.
 
-A revoked token, a runner whose member left the workspace or was deactivated, and a workspace that is being deleted answer 401.
+A revoked token, a runner whose member left the workspace, was deactivated or is paused by the Free plan, and a workspace that is being deleted answer 401.
 
 ## Frequently asked questions [#frequently-asked-questions]
 

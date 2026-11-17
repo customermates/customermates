@@ -80,7 +80,7 @@ Warten Ihre Agent-Aufträge und wurde seit 10 Minuten keiner Ihrer Runner gesehe
 
 ## Wie widerrufe ich einen Runner? [#how-do-i-revoke-a-runner]
 
-Klicken Sie beim Runner auf **Widerrufen** und bestätigen Sie. Der Runner kann dann keine Aufträge mehr abholen: Seine nächste Anfrage wird abgelehnt, und das Programm beendet sich. Die Aufträge, die er gerade ausführt, und die Aufträge, die auf genau diesen Runner warten, enden als abgebrochen, und ihre Schlüssel funktionieren sofort nicht mehr. Ein Widerruf lässt sich nicht rückgängig machen. Um den Rechner wieder zu nutzen, fügen Sie einen neuen Runner hinzu und starten ihn mit dem neuen Token. Widerrufen Sie einen Runner sofort, wenn sein Token bekannt wird. Ein Runner wird auch widerrufen, wenn das Mitglied, das ihn hinzugefügt hat, den Workspace verlässt oder deaktiviert wird.
+Klicken Sie beim Runner auf **Widerrufen** und bestätigen Sie. Der Runner kann dann keine Aufträge mehr abholen: Seine nächste Anfrage wird abgelehnt, und das Programm beendet sich. Die Aufträge, die er gerade ausführt, und die Aufträge, die auf genau diesen Runner warten, enden als abgebrochen, und ihre Schlüssel funktionieren sofort nicht mehr. Ein Widerruf lässt sich nicht rückgängig machen. Um den Rechner wieder zu nutzen, fügen Sie einen neuen Runner hinzu und starten ihn mit dem neuen Token. Widerrufen Sie einen Runner sofort, wenn sein Token bekannt wird. Ein Runner wird auch widerrufen, wenn das Mitglied, das ihn hinzugefügt hat, den Workspace verlässt oder deaktiviert wird. Ein Mitglied, das der Free-Tarif pausiert hat, behält seine Runner: Während der Pause werden die Anfragen des Runners abgelehnt und das Programm beendet sich, und sobald ein kostenpflichtiger Tarif das Mitglied zurückbringt, funktioniert derselbe Token wieder.
 
 ## Für Agenten [#for-agents]
 
@@ -92,7 +92,7 @@ Runner sprechen den Workspace über REST an, mit `Authorization: Bearer cmr_...`
 - `POST /api/v1/runner/jobs/{id}/events` hängt Transkript-Ereignisse dieses Versuchs an und antwortet mit 409, sobald der Auftrag geschlossen ist.
 - `POST /api/v1/runner/jobs/{id}/result` meldet `succeeded`, `failed` oder `timedOut` für diesen Versuch mit der Endantwort und, wenn die CLI sie meldet, der Token-Zahl.
 
-Ein widerrufener Token, ein Runner, dessen Mitglied den Workspace verlassen hat oder deaktiviert wurde, und ein Workspace, der gelöscht wird, antworten mit 401.
+Ein widerrufener Token, ein Runner, dessen Mitglied den Workspace verlassen hat, deaktiviert wurde oder vom Free-Tarif pausiert ist, und ein Workspace, der gelöscht wird, antworten mit 401.
 
 ## Häufige Fragen [#frequently-asked-questions]
 

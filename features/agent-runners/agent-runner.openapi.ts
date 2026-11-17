@@ -18,7 +18,7 @@ import {
 } from "./agent-runner.schema";
 
 const AUTHENTICATION =
-  "a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read: an unknown token answers 401 and a rate-limited runner 429 without the body being read. Send the body with a Content-Length header: a body without a declared length (a chunked or streamed body) and a body that declares more than 512 KB answer 400 without being read, so no more than 512 KB of a request is ever read. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401.";
+  "a runner token in the Authorization header (`Bearer cmr_...`), shown once when the runner is added under Settings, Agents. The token is checked before the body is read: an unknown token answers 401 and a rate-limited runner 429 without the body being read. Send the body with a Content-Length header: a body without a declared length (a chunked or streamed body) and a body that declares more than 512 KB answer 400 without being read, so no more than 512 KB of a request is ever read. A revoked token, a runner whose member left the workspace or was deactivated, or a workspace that is being deleted, answers 401. A runner whose member the Free plan paused also answers 401, without being revoked: its token works again when the pause ends.";
 
 const JobPathSchema = z.object({ id: z.uuid().describe("The id of the job the runner claimed.") });
 

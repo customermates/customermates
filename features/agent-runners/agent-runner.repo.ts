@@ -15,7 +15,7 @@ export type StoredAgentRunner = {
 export type AgentRunnerLookup = StoredAgentRunner & {
   companyId: string;
   company: { deletingAt: Date | null };
-  createdBy: { status: Status };
+  createdBy: { status: Status; pausedByPlanAt: Date | null };
 };
 
 export type AgentRunnerWaitingOwner = {

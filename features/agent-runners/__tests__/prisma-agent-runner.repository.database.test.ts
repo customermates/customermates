@@ -178,17 +178,20 @@ describeDatabase("PrismaAgentRunnerRepo", { timeout: 60_000 }, () => {
       companyId: w.companyId,
       createdById: w.member.id,
       company: { deletingAt: null },
-      createdBy: { status: "active" },
+      createdBy: { status: "active", pausedByPlanAt: null },
     });
     expect(await repo.findRunnerByTokenHashUnscoped(hashAgentRunnerToken(generateAgentRunnerToken()))).toBeNull();
 
-    await runWithoutTenant(() => prisma.user.update({ where: { id: w.member.id }, data: { status: "inactive" } }));
+    await runWithoutTenant(() =>
+      prisma.user.update({ where: { id: w.member.id }, data: { status: "inactive", pausedByPlanAt: new Date() } }),
+    );
     await runWithoutTenant(() =>
       prisma.company.update({ where: { id: w.companyId }, data: { deletingAt: new Date() } }),
     );
     const later = await repo.findRunnerByTokenHashUnscoped(hashAgentRunnerToken(token));
     expect(later?.company.deletingAt).toBeInstanceOf(Date);
     expect(later?.createdBy.status).toBe("inactive");
+    expect(later?.createdBy.pausedByPlanAt).toBeInstanceOf(Date);
   });
 
   it("records a heartbeat for a live runner and ignores a revoked one", async () => {

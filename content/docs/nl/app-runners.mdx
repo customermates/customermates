@@ -80,7 +80,7 @@ Wachten jouw agenttaken en is er al 10 minuten geen runner van jou gezien die ze
 
 ## Hoe trek ik een runner in? [#how-do-i-revoke-a-runner]
 
-Klik bij de runner op **Intrekken** en bevestig. De runner kan dan geen taken meer ophalen: zijn volgende verzoek wordt geweigerd en het programma stopt. De taken die hij uitvoert, en de taken die op precies deze runner wachten, eindigen als geannuleerd, en hun sleutels werken meteen niet meer. Intrekken kan niet ongedaan worden gemaakt. Wil je de machine opnieuw gebruiken, voeg dan een nieuwe runner toe en start hem met het nieuwe token. Trek een runner meteen in als zijn token uitlekt. Een runner wordt ook ingetrokken wanneer het lid dat hem heeft toegevoegd de werkruimte verlaat of wordt gedeactiveerd.
+Klik bij de runner op **Intrekken** en bevestig. De runner kan dan geen taken meer ophalen: zijn volgende verzoek wordt geweigerd en het programma stopt. De taken die hij uitvoert, en de taken die op precies deze runner wachten, eindigen als geannuleerd, en hun sleutels werken meteen niet meer. Intrekken kan niet ongedaan worden gemaakt. Wil je de machine opnieuw gebruiken, voeg dan een nieuwe runner toe en start hem met het nieuwe token. Trek een runner meteen in als zijn token uitlekt. Een runner wordt ook ingetrokken wanneer het lid dat hem heeft toegevoegd de werkruimte verlaat of wordt gedeactiveerd. Een lid dat door het Free-abonnement is gepauzeerd, houdt zijn runners: tijdens de pauze worden de verzoeken van de runner geweigerd en stopt het programma, en zodra een betaald abonnement het lid terugbrengt, werkt hetzelfde token weer.
 
 ## Voor agents [#for-agents]
 
@@ -92,7 +92,7 @@ Runners praten met de werkruimte via REST met `Authorization: Bearer cmr_...`, h
 - `POST /api/v1/runner/jobs/{id}/events` voegt transcriptgebeurtenissen van die poging toe en antwoordt 409 zodra de taak gesloten is.
 - `POST /api/v1/runner/jobs/{id}/result` meldt `succeeded`, `failed` of `timedOut` voor die poging met het eindantwoord en, als de CLI ze meldt, de verbruikte tokens.
 
-Een ingetrokken token, een runner waarvan het lid de werkruimte heeft verlaten of is gedeactiveerd, en een werkruimte die wordt verwijderd antwoorden 401.
+Een ingetrokken token, een runner waarvan het lid de werkruimte heeft verlaten, is gedeactiveerd of door het Free-abonnement is gepauzeerd, en een werkruimte die wordt verwijderd antwoorden 401.
 
 ## Veelgestelde vragen [#frequently-asked-questions]
 

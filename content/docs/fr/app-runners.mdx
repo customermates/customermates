@@ -80,7 +80,7 @@ Quand vos tâches d’agent attendent et qu’aucun de vos runners capables de l
 
 ## Comment révoquer un runner ? [#how-do-i-revoke-a-runner]
 
-Cliquez sur **Révoquer** sur le runner et confirmez. Le runner ne peut plus récupérer de tâches : sa prochaine requête est refusée et le programme s’arrête. Les tâches qu’il exécute, et celles qui attendent précisément ce runner, se terminent comme annulées, et leurs clés cessent aussitôt de fonctionner. Une révocation est irréversible. Pour réutiliser la machine, ajoutez un nouveau runner et démarrez-le avec le nouveau jeton. Révoquez un runner immédiatement si son jeton fuite. Un runner est aussi révoqué quand le membre qui l’a ajouté quitte l’espace de travail ou est désactivé.
+Cliquez sur **Révoquer** sur le runner et confirmez. Le runner ne peut plus récupérer de tâches : sa prochaine requête est refusée et le programme s’arrête. Les tâches qu’il exécute, et celles qui attendent précisément ce runner, se terminent comme annulées, et leurs clés cessent aussitôt de fonctionner. Une révocation est irréversible. Pour réutiliser la machine, ajoutez un nouveau runner et démarrez-le avec le nouveau jeton. Révoquez un runner immédiatement si son jeton fuite. Un runner est aussi révoqué quand le membre qui l’a ajouté quitte l’espace de travail ou est désactivé. Un membre que la formule Free a mis en pause garde ses runners : pendant la pause, les requêtes du runner sont refusées et le programme s’arrête, et dès qu’une formule payante fait revenir le membre, le même jeton fonctionne de nouveau.
 
 ## Pour les agents [#for-agents]
 
@@ -92,7 +92,7 @@ Les runners parlent à l’espace de travail en REST avec `Authorization: Bearer
 - `POST /api/v1/runner/jobs/{id}/events` ajoute des événements de transcription de cette tentative et répond 409 une fois la tâche close.
 - `POST /api/v1/runner/jobs/{id}/result` signale `succeeded`, `failed` ou `timedOut` pour cette tentative avec la réponse finale et, si la CLI les fournit, les jetons consommés.
 
-Un jeton révoqué, un runner dont le membre a quitté l’espace de travail ou a été désactivé, et un espace de travail en cours de suppression répondent 401.
+Un jeton révoqué, un runner dont le membre a quitté l’espace de travail, a été désactivé ou est mis en pause par la formule Free, et un espace de travail en cours de suppression répondent 401.
 
 ## Questions fréquentes [#frequently-asked-questions]
 

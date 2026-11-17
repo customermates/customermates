@@ -80,7 +80,7 @@ Quando as suas tarefas do agente estão à espera e há 10 minutos não é visto
 
 ## Como revogo um runner? [#how-do-i-revoke-a-runner]
 
-Clique em **Revogar** no runner e confirme. O runner não pode mais buscar tarefas: a sua próxima solicitação é recusada e o programa para. As tarefas que ele está executando, e as que esperam exatamente por esse runner, terminam como canceladas, e as chaves delas deixam de funcionar na hora. A revogação não pode ser desfeita. Para usar a máquina de novo, adicione um novo runner e inicie-o com o novo token. Revogue um runner imediatamente se o token for divulgado. Um runner também é revogado quando o membro que o adicionou sai do espaço de trabalho ou é desativado.
+Clique em **Revogar** no runner e confirme. O runner não pode mais buscar tarefas: a sua próxima solicitação é recusada e o programa para. As tarefas que ele está executando, e as que esperam exatamente por esse runner, terminam como canceladas, e as chaves delas deixam de funcionar na hora. A revogação não pode ser desfeita. Para usar a máquina de novo, adicione um novo runner e inicie-o com o novo token. Revogue um runner imediatamente se o token for divulgado. Um runner também é revogado quando o membro que o adicionou sai do espaço de trabalho ou é desativado. Um membro que o plano Free pausou mantém os seus runners: durante a pausa, as solicitações do runner são recusadas e o programa para, e quando um plano pago traz o membro de volta, o mesmo token volta a funcionar.
 
 ## Para agentes [#for-agents]
 
@@ -92,7 +92,7 @@ Os runners falam com o espaço de trabalho por REST com `Authorization: Bearer c
 - `POST /api/v1/runner/jobs/{id}/events` acrescenta eventos de transcrição dessa tentativa e responde 409 quando a tarefa está encerrada.
 - `POST /api/v1/runner/jobs/{id}/result` informa `succeeded`, `failed` ou `timedOut` para essa tentativa com a resposta final e, se a CLI os informar, os tokens consumidos.
 
-Um token revogado, um runner cujo membro saiu do espaço de trabalho ou foi desativado, e um espaço de trabalho em exclusão respondem 401.
+Um token revogado, um runner cujo membro saiu do espaço de trabalho, foi desativado ou está pausado pelo plano Free, e um espaço de trabalho em exclusão respondem 401.
 
 ## Perguntas frequentes [#frequently-asked-questions]
 
