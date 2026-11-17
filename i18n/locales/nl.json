@@ -3480,6 +3480,8 @@
     "body": "Zodra je toegang weer actief is, ververs je deze pagina om verder te gaan.",
     "otherWorkspaces": "Je andere werkruimtes blijven zoals ze zijn. Wissel in het werkruimtemenu naar een van die werkruimtes.",
     "subtitle": "Een beheerder van deze werkruimte kan de toegang opnieuw activeren",
+    "supportBody": "Het abonnement van deze werkruimte is beëindigd en de toegang van alle leden is gedeactiveerd, ook die van alle beheerders. Niemand kan vanuit de werkruimte het abonnement verlengen of leden opnieuw activeren. Neem contact op met ons supportteam om de toegang te herstellen en ververs daarna deze pagina.",
+    "supportSubtitle": "Alleen ons supportteam kan de toegang herstellen",
     "title": "Je toegang tot {workspace} is niet actief"
   },
   "Inbox": {
@@ -7035,8 +7037,9 @@
     "leaveConfirmDescription": "Je verliest de toegang tot de records, Kennisbank en verbindingen, en je API-sleutels en MCP-verbindingen ervoor werken niet meer. Om terug te komen kun je met een uitnodigingslink opnieuw vragen om deel te nemen, en een beheerder moet je verzoek goedkeuren.",
     "leaveConfirmTitle": "{name} verlaten?",
     "leaveDescription": "Verwijder jezelf uit deze werkruimte. Je andere werkruimtes blijven zoals ze zijn.",
-    "leaveInactiveConfirmDescription": "Je toegang tot deze werkruimte is inactief. Een beheerder kan die opnieuw activeren, en toegang die door Free is gepauzeerd komt terug zodra de werkruimte een betaald abonnement kiest. Verlaten is definitief en beëindigt beide. Je API-sleutels en MCP-verbindingen ervoor worden verwijderd. Om terug te komen kun je met een uitnodigingslink opnieuw vragen om deel te nemen, en een beheerder moet je verzoek goedkeuren.",
+    "leaveInactiveConfirmDescription": "Je toegang tot deze werkruimte is gedeactiveerd, en een beheerder van deze werkruimte kan die opnieuw activeren. Verlaten is definitief: een latere heractivering brengt je niet terug. Je API-sleutels en MCP-verbindingen ervoor worden verwijderd. Om terug te komen kun je met een uitnodigingslink opnieuw vragen om deel te nemen, en een beheerder moet je verzoek goedkeuren.",
     "leaveNamed": "{name} verlaten",
+    "leaveNoAdminConfirmDescription": "Het abonnement van deze werkruimte is beëindigd en de toegang van alle leden is gedeactiveerd. Alleen ons supportteam kan die herstellen. Verlaten is definitief: herstelde toegang brengt je niet terug. Je API-sleutels en MCP-verbindingen ervoor worden verwijderd. Om terug te komen heb je een uitnodigingslink nodig en een beheerder die je verzoek goedkeurt, en deze werkruimte heeft op dit moment geen actieve beheerder.",
     "leavePausedConfirmDescription": "Je toegang is alleen gepauzeerd en komt terug zodra deze werkruimte een betaald abonnement kiest. Verlaten is definitief: een latere upgrade brengt je niet terug. Je API-sleutels en MCP-verbindingen ervoor worden verwijderd. Om terug te komen kun je met een uitnodigingslink opnieuw vragen om deel te nemen, en een beheerder moet je verzoek goedkeuren.",
     "leaveShort": "Verlaten",
     "listDescription": "Elke werkruimte waar je bij hoort. Elk heeft eigen records, leden, API-sleutels en verbindingen.",

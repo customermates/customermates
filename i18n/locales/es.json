@@ -3480,6 +3480,8 @@
     "body": "Cuando tu acceso vuelva a estar activo, actualiza esta página para continuar.",
     "otherWorkspaces": "Tus otros espacios de trabajo no cambian. Cambia a uno de ellos desde el menú del espacio de trabajo.",
     "subtitle": "Un administrador de este espacio de trabajo puede reactivarlo",
+    "supportBody": "La suscripción de este espacio de trabajo terminó y se desactivó el acceso de todos los miembros, incluido el de todos los administradores. Nadie puede renovar la suscripción ni reactivar miembros desde dentro del espacio de trabajo. Contacta con nuestro equipo de soporte para recuperar el acceso y después actualiza esta página.",
+    "supportSubtitle": "Solo nuestro equipo de soporte puede restablecerlo",
     "title": "Tu acceso a {workspace} está inactivo"
   },
   "Inbox": {
@@ -7035,8 +7037,9 @@
     "leaveConfirmDescription": "Pierdes el acceso a sus registros, su base de conocimientos y sus conexiones, y tus claves de API y conexiones MCP asociadas dejan de funcionar. Para volver, puedes pedir unirte de nuevo con un enlace de invitación y un administrador tendrá que aprobar tu solicitud.",
     "leaveConfirmTitle": "¿Salir de {name}?",
     "leaveDescription": "Sal de este espacio de trabajo. Tus otros espacios de trabajo no cambian.",
-    "leaveInactiveConfirmDescription": "Tu acceso a este espacio de trabajo está inactivo. Un administrador puede reactivarlo, y un acceso que el plan Free puso en pausa vuelve cuando el espacio de trabajo elige un plan de pago. Salir es definitivo y pone fin a ambas opciones. Tus claves de API y conexiones MCP asociadas se eliminan. Para volver, puedes pedir unirte de nuevo con un enlace de invitación y un administrador tendrá que aprobar tu solicitud.",
+    "leaveInactiveConfirmDescription": "Tu acceso a este espacio de trabajo está desactivado y un administrador de este espacio de trabajo puede reactivarlo. Salir es definitivo: una reactivación posterior no te hará volver. Tus claves de API y conexiones MCP asociadas se eliminan. Para volver, puedes pedir unirte de nuevo con un enlace de invitación y un administrador tendrá que aprobar tu solicitud.",
     "leaveNamed": "Salir de {name}",
+    "leaveNoAdminConfirmDescription": "La suscripción de este espacio de trabajo terminó y se desactivó el acceso de todos los miembros. Solo nuestro equipo de soporte puede restablecerlo. Salir es definitivo: un acceso restablecido no te hará volver. Tus claves de API y conexiones MCP asociadas se eliminan. Para volver hacen falta un enlace de invitación y un administrador que apruebe tu solicitud, y este espacio de trabajo no tiene ahora ningún administrador activo.",
     "leavePausedConfirmDescription": "Tu acceso solo está en pausa y vuelve en cuanto este espacio de trabajo elige un plan de pago. Salir es definitivo: un cambio posterior a un plan de pago no te hará volver. Tus claves de API y conexiones MCP asociadas se eliminan. Para volver, puedes pedir unirte de nuevo con un enlace de invitación y un administrador tendrá que aprobar tu solicitud.",
     "leaveShort": "Salir",
     "listDescription": "Todos los espacios de trabajo a los que perteneces. Cada uno tiene sus propios registros, miembros, claves de API y conexiones.",

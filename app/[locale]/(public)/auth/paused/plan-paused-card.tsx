@@ -91,11 +91,11 @@ const PlanPausedCardContent = observer(function PlanPausedCard({ ownerName }: Pr
       </AppCardFooter>
 
       <LeaveInactiveWorkspaceDialog
-        pausedByPlan
         anchorScope="plan-paused-leave-confirm"
         companyId={current?.companyId ?? null}
         name={workspace}
         open={confirmingLeave}
+        reason="pausedByPlan"
         onClose={() => setConfirmingLeave(false)}
       />
     </AppCard>

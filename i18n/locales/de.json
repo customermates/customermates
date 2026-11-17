@@ -3480,6 +3480,8 @@
     "body": "Sobald dein Zugriff wieder aktiv ist, aktualisiere diese Seite, um weiterzumachen.",
     "otherWorkspaces": "Deine anderen Workspaces bleiben unverändert. Wechsle im Workspace-Menü zu einem von ihnen.",
     "subtitle": "Ein Administrator dieses Workspaces kann ihn reaktivieren",
+    "supportBody": "Das Abonnement dieses Workspaces ist beendet, und der Zugriff aller Mitglieder wurde deaktiviert, auch der aller Administratoren. Aus dem Workspace heraus kann niemand das Abonnement erneuern oder Mitglieder reaktivieren. Kontaktiere unser Support-Team, um den Zugriff wiederherzustellen, und aktualisiere danach diese Seite.",
+    "supportSubtitle": "Nur unser Support-Team kann ihn wiederherstellen",
     "title": "Dein Zugriff auf {workspace} ist inaktiv"
   },
   "Inbox": {
@@ -7035,8 +7037,9 @@
     "leaveConfirmDescription": "Du verlierst den Zugriff auf seine Datensätze, die Wissensdatenbank und Verbindungen, und deine API-Schlüssel und MCP-Verbindungen dafür funktionieren nicht mehr. Um zurückzukommen, kannst du über einen Einladungslink erneut den Beitritt anfragen, und ein Admin muss deine Anfrage genehmigen.",
     "leaveConfirmTitle": "{name} verlassen?",
     "leaveDescription": "Entferne dich aus diesem Workspace. Deine anderen Workspaces bleiben unverändert.",
-    "leaveInactiveConfirmDescription": "Dein Zugang zu diesem Workspace ist inaktiv. Ein Admin kann ihn reaktivieren, und ein vom Free-Tarif pausierter Zugang kommt zurück, sobald der Workspace einen bezahlten Tarif wählt. Das Verlassen ist endgültig und beendet beides. Deine API-Schlüssel und MCP-Verbindungen dafür werden entfernt. Um zurückzukommen, kannst du über einen Einladungslink erneut den Beitritt anfragen, und ein Admin muss deine Anfrage genehmigen.",
+    "leaveInactiveConfirmDescription": "Dein Zugang zu diesem Workspace ist deaktiviert, und ein Admin dieses Workspaces kann ihn reaktivieren. Das Verlassen ist endgültig: Eine spätere Reaktivierung holt dich nicht zurück. Deine API-Schlüssel und MCP-Verbindungen dafür werden entfernt. Um zurückzukommen, kannst du über einen Einladungslink erneut den Beitritt anfragen, und ein Admin muss deine Anfrage genehmigen.",
     "leaveNamed": "{name} verlassen",
+    "leaveNoAdminConfirmDescription": "Das Abonnement dieses Workspaces ist beendet, und der Zugang aller Mitglieder wurde deaktiviert. Nur unser Support-Team kann ihn wiederherstellen. Das Verlassen ist endgültig: Ein wiederhergestellter Zugang holt dich nicht zurück. Deine API-Schlüssel und MCP-Verbindungen dafür werden entfernt. Zurückkommen kannst du nur über einen Einladungslink und einen Admin, der deine Anfrage genehmigt, und dieser Workspace hat derzeit keinen aktiven Admin.",
     "leavePausedConfirmDescription": "Dein Zugang ist nur pausiert und kommt zurück, sobald dieser Workspace einen bezahlten Tarif wählt. Das Verlassen ist endgültig: Ein späteres Upgrade holt dich nicht zurück. Deine API-Schlüssel und MCP-Verbindungen dafür werden entfernt. Um zurückzukommen, kannst du über einen Einladungslink erneut den Beitritt anfragen, und ein Admin muss deine Anfrage genehmigen.",
     "leaveShort": "Verlassen",
     "listDescription": "Alle Workspaces, zu denen du gehörst. Jeder hat eigene Datensätze, Mitglieder, API-Schlüssel und Verbindungen.",

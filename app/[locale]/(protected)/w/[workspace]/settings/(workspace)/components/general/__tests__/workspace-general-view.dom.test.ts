@@ -33,6 +33,7 @@ const workspace: WorkspaceSummary = {
   name: "Bergmann Steuern",
   slug: "bergmann-steuern",
   status: "active",
+  inactiveReason: null,
   roleName: "Admin",
   isAdmin: true,
   isCurrent: true,

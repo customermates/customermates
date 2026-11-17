@@ -7,7 +7,7 @@ import { Status } from "@/generated/prisma";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { WorkspaceSummarySchema, type WorkspaceSummary } from "./workspace.schema";
+import { WorkspaceSummarySchema, workspaceInactiveReason, type WorkspaceSummary } from "./workspace.schema";
 
 @AllowInDemoMode
 @SystemInteractor
@@ -35,6 +35,7 @@ export class ListMyWorkspacesInteractor {
           name: row.company.name,
           slug: row.company.slug,
           status: row.status,
+          inactiveReason: workspaceInactiveReason(row),
           roleName: row.role?.name ?? null,
           isAdmin: row.role?.isSystemRole ?? false,
           isCurrent: row.companyId === current?.companyId,

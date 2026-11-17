@@ -10,17 +10,23 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 
 import { ListMyWorkspacesInteractor } from "../list-my-workspaces.interactor";
 
-function row(companyId: string, status: Status): WorkspaceMembershipRow {
+function row(
+  companyId: string,
+  status: Status,
+  inactive: { pausedByPlanAt?: Date | null; hasActiveAdmin?: boolean } = {},
+): WorkspaceMembershipRow {
   return {
     id: `member-${companyId}`,
     companyId,
     status,
+    pausedByPlanAt: inactive.pausedByPlanAt ?? null,
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
     role: status === Status.active ? { name: "Admin", isSystemRole: true } : null,
     company: {
       name: `Workspace ${companyId}`,
       slug: `workspace-${companyId}`,
       createdAt: new Date("2025-01-01T00:00:00.000Z"),
+      hasActiveAdmin: inactive.hasActiveAdmin ?? true,
       subscription: {
         status: SubscriptionStatus.trial,
         plan: SubscriptionPlan.pro,
@@ -74,6 +80,29 @@ describe("ListMyWorkspacesInteractor", () => {
       "Workspace active",
       "Workspace pending",
       "Workspace inactive",
+    ]);
+  });
+
+  it("says why a membership is inactive: paused by the Free plan, deactivated, or left without an active admin", async () => {
+    const pausedAt = new Date("2026-11-01T08:00:00.000Z");
+    repo.listWorkspaceMembershipsUnscoped.mockResolvedValue([
+      row("active", Status.active),
+      row("pending", Status.pendingAuthorization, { hasActiveAdmin: false }),
+      row("deactivated", Status.inactive),
+      row("paused", Status.inactive, { pausedByPlanAt: pausedAt }),
+      row("paused-without-admin", Status.inactive, { pausedByPlanAt: pausedAt, hasActiveAdmin: false }),
+      row("subscription-ended", Status.inactive, { hasActiveAdmin: false }),
+    ]);
+
+    const { data } = await interactor().invoke();
+
+    expect(data.map(({ companyId, inactiveReason }) => [companyId, inactiveReason])).toEqual([
+      ["active", null],
+      ["pending", null],
+      ["deactivated", "deactivated"],
+      ["paused", "pausedByPlan"],
+      ["paused-without-admin", "pausedByPlan"],
+      ["subscription-ended", "noActiveAdmin"],
     ]);
   });
 

@@ -628,13 +628,14 @@ export class PrismaUserRepo
 
   @BypassTenantGuard
   async listWorkspaceMembershipsUnscoped(email: string) {
-    return this.prisma.user.findMany({
+    const memberships = await this.prisma.user.findMany({
       where: { email, leftAt: null },
       orderBy: { createdAt: "asc" },
       select: {
         id: true,
         companyId: true,
         status: true,
+        pausedByPlanAt: true,
         createdAt: true,
         role: { select: { name: true, isSystemRole: true } },
         company: {
@@ -645,11 +646,21 @@ export class PrismaUserRepo
             subscription: {
               select: { status: true, plan: true, trialEndDate: true },
             },
+            users: {
+              where: { status: Status.active, leftAt: null, role: { isSystemRole: true } },
+              select: { id: true },
+              take: 1,
+            },
             _count: { select: { users: { where: { status: Status.active } } } },
           },
         },
       },
     });
+
+    return memberships.map(({ company: { users: activeAdmins, ...company }, ...membership }) => ({
+      ...membership,
+      company: { ...company, hasActiveAdmin: activeAdmins.length > 0 },
+    }));
   }
 
   @BypassTenantGuard

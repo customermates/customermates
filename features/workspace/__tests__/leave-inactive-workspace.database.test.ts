@@ -189,6 +189,44 @@ describeDatabase("leaving a workspace in which the membership is inactive", { ti
     expect(await lastUsedCompanyId()).toBe(fixture.companies.deactivated);
   });
 
+  it("tells the list why each membership is inactive, and notices when the workspace has no active admin", async () => {
+    const { getListMyWorkspacesInteractor } = await import("@/core/di");
+    async function reasons() {
+      asSession();
+      const { data } = await getListMyWorkspacesInteractor().invoke();
+      return Object.fromEntries(
+        (Object.keys(fixture.companies) as Workspace[]).map((workspace) => [
+          workspace,
+          data.find((summary) => summary.companyId === fixture.companies[workspace])?.inactiveReason,
+        ]),
+      );
+    }
+
+    expect(await reasons()).toEqual({ own: null, deactivated: "noActiveAdmin", paused: "pausedByPlan", pending: null });
+
+    const adminRole = await client.query<{ id: string }>(
+      'SELECT "id" FROM "UserRole" WHERE "companyId" = $1 AND "isSystemRole" = TRUE',
+      [fixture.companies.deactivated],
+    );
+    const otherAdminId = randomUUID();
+    await client.query(
+      'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "onboardingWizardCompletedAt", "updatedAt") VALUES ($1, $2, \'Anna\', \'Admin\', $3, $4, \'active\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+      [
+        otherAdminId,
+        `inactive-leave-admin-${randomUUID()}@example.invalid`,
+        fixture.companies.deactivated,
+        adminRole.rows[0].id,
+      ],
+    );
+    expect((await reasons()).deactivated).toBe("deactivated");
+
+    await client.query('UPDATE "User" SET "status" = \'inactive\', "leftAt" = CURRENT_TIMESTAMP WHERE "id" = $1', [
+      otherAdminId,
+    ]);
+    expect((await reasons()).deactivated).toBe("noActiveAdmin");
+    await client.query('DELETE FROM "User" WHERE "id" = $1', [otherAdminId]);
+  });
+
   it("ends the membership an admin deactivated, also for the only admin on record, and moves the login on", async () => {
     expect(await leave(fixture.companies.deactivated)).toEqual({
       ok: true,

@@ -40,6 +40,7 @@ function workspace(companyId: string, name: string, overrides: Partial<Workspace
     name,
     slug: name.toLowerCase().replaceAll(" ", "-"),
     status: "active",
+    inactiveReason: null,
     roleName: "Admin",
     isAdmin: true,
     isCurrent: false,
@@ -140,8 +141,12 @@ describe("leaving a workspace in which the membership is inactive", () => {
 
   it("lets a member an admin deactivated leave from the inactive page", async () => {
     mount(createElement(InactiveCard), [
-      workspace(BERGMANN, "Bergmann Steuern", { isCurrent: true, status: "inactive" }),
+      workspace(BERGMANN, "Bergmann Steuern", { isCurrent: true, status: "inactive", inactiveReason: "deactivated" }),
     ]);
+    expect(container?.textContent).toContain("InactiveCard.subtitle");
+    expect(container?.textContent).toContain("InactiveCard.body");
+    expect(container?.textContent).not.toContain("InactiveCard.support");
+    expect(document.getElementById("inactive-contact-support")).toBeNull();
 
     click(document.getElementById("inactive-leave"));
 
@@ -152,6 +157,48 @@ describe("leaving a workspace in which the membership is inactive", () => {
 
     await vi.waitFor(() => expect(navigateDocument).toHaveBeenCalledExactlyOnceWith("/de/dashboard"));
     expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ companyId: BERGMANN });
+  });
+
+  it("sends the person to support instead of an administrator when the workspace has no active admin left", async () => {
+    mount(createElement(InactiveCard), [
+      workspace(BERGMANN, "Bergmann Steuern", { isCurrent: true, status: "inactive", inactiveReason: "noActiveAdmin" }),
+    ]);
+
+    expect(container?.textContent).toContain("InactiveCard.supportSubtitle");
+    expect(container?.textContent).toContain("InactiveCard.supportBody");
+    expect(container?.textContent).not.toContain("InactiveCard.subtitle");
+    expect(container?.textContent).not.toContain("InactiveCard.body");
+    const support = document.getElementById("inactive-contact-support");
+    expect(support?.textContent).toBe("SubscriptionExpiredView.contactSupportCta");
+    expect(support?.getAttribute("href")).toMatch(/^mailto:.+\?subject=SubscriptionExpiredView\.supportEmailSubject$/);
+
+    click(document.getElementById("inactive-leave"));
+
+    await vi.waitFor(() => expect(dialog()?.textContent).toContain("Workspaces.leaveNoAdminConfirmDescription"));
+    expect(dialog()?.textContent).not.toContain("Workspaces.leaveInactiveConfirmDescription");
+  });
+
+  it.each([
+    ["pausedByPlan", "Workspaces.leavePausedConfirmDescription"],
+    ["deactivated", "Workspaces.leaveInactiveConfirmDescription"],
+    ["noActiveAdmin", "Workspaces.leaveNoAdminConfirmDescription"],
+  ] as const)("tells a %s membership in the list its own consequence of leaving", async (inactiveReason, text) => {
+    const workspaces = [
+      workspace(HOFFMANN, "Hoffmann Consulting", { isCurrent: true }),
+      workspace(BERGMANN, "Bergmann Steuern", { status: "inactive", activeMemberCount: null, inactiveReason }),
+    ];
+    mount(createElement(WorkspacesPageView, { leaveRefusal: null, workspaces }), workspaces);
+
+    click(listLeave(BERGMANN));
+
+    await vi.waitFor(() => expect(dialog()?.textContent).toContain("Workspaces.leaveConfirmTitle:Bergmann Steuern"));
+    const descriptions = [
+      "Workspaces.leavePausedConfirmDescription",
+      "Workspaces.leaveInactiveConfirmDescription",
+      "Workspaces.leaveNoAdminConfirmDescription",
+    ];
+    for (const description of descriptions)
+      expect(dialog()?.textContent?.includes(description)).toBe(description === text);
   });
 
   it("offers no leave on these pages while the list does not show an inactive membership", () => {

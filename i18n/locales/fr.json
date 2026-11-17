@@ -3480,6 +3480,8 @@
     "body": "Une fois votre accès réactivé, actualisez cette page pour continuer.",
     "otherWorkspaces": "Vos autres espaces de travail restent inchangés. Passez à l’un d’eux depuis le menu de l’espace de travail.",
     "subtitle": "Un administrateur de cet espace de travail peut le réactiver",
+    "supportBody": "L’abonnement de cet espace de travail a pris fin et l’accès de tous les membres a été désactivé, y compris celui de tous les administrateurs. Personne ne peut renouveler l’abonnement ni réactiver des membres depuis l’espace de travail. Contactez notre assistance pour rétablir l’accès, puis actualisez cette page.",
+    "supportSubtitle": "Seule notre assistance peut le rétablir",
     "title": "Votre accès à {workspace} est inactif"
   },
   "Inbox": {
@@ -7035,8 +7037,9 @@
     "leaveConfirmDescription": "Vous perdez l’accès à ses fiches, à sa base de connaissances et à ses connexions, et vos clés API et connexions MCP associées cessent de fonctionner. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d’invitation, et un administrateur devra approuver votre demande.",
     "leaveConfirmTitle": "Quitter {name} ?",
     "leaveDescription": "Retirez-vous de cet espace de travail. Vos autres espaces de travail restent inchangés.",
-    "leaveInactiveConfirmDescription": "Votre accès à cet espace de travail est inactif. Un administrateur peut le réactiver, et un accès mis en pause par la formule Free revient dès que l’espace de travail choisit une formule payante. Quitter est définitif et met fin aux deux. Vos clés API et connexions MCP associées sont supprimées. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d’invitation, et un administrateur devra approuver votre demande.",
+    "leaveInactiveConfirmDescription": "Votre accès à cet espace de travail est désactivé, et un administrateur de cet espace de travail peut le réactiver. Quitter est définitif : une réactivation ultérieure ne vous fera pas revenir. Vos clés API et connexions MCP associées sont supprimées. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d’invitation, et un administrateur devra approuver votre demande.",
     "leaveNamed": "Quitter {name}",
+    "leaveNoAdminConfirmDescription": "L’abonnement de cet espace de travail a pris fin et l’accès de tous les membres a été désactivé. Seule notre assistance peut le rétablir. Quitter est définitif : un accès rétabli ne vous fera pas revenir. Vos clés API et connexions MCP associées sont supprimées. Pour revenir, il faut un lien d’invitation et un administrateur qui approuve votre demande, et cet espace de travail n’a actuellement aucun administrateur actif.",
     "leavePausedConfirmDescription": "Votre accès est seulement en pause et revient dès que cet espace de travail choisit une formule payante. Quitter est définitif : un passage ultérieur à une formule payante ne vous fera pas revenir. Vos clés API et connexions MCP associées sont supprimées. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d’invitation, et un administrateur devra approuver votre demande.",
     "leaveShort": "Quitter",
     "listDescription": "Tous les espaces de travail dont vous êtes membre. Chacun a ses propres fiches, membres, clés API et connexions.",

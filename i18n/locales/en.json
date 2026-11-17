@@ -3480,6 +3480,8 @@
     "body": "Once your access is active again, refresh this page to continue.",
     "otherWorkspaces": "Your other workspaces stay as they are. Switch to one of them in the workspace menu.",
     "subtitle": "An administrator of this workspace can reactivate it",
+    "supportBody": "The subscription of this workspace ended, and the access of every member was deactivated, including all administrators. Nobody can renew the subscription or reactivate members from inside the workspace. Contact our support team to restore access, then refresh this page.",
+    "supportSubtitle": "Only our support team can restore it",
     "title": "Your access to {workspace} is inactive"
   },
   "Inbox": {
@@ -7035,8 +7037,9 @@
     "leaveConfirmDescription": "You lose access to its records, Knowledge Base and connections, and your API keys and MCP connections for it stop working. To come back, you can ask to join again with an invitation link, and an admin has to approve your request.",
     "leaveConfirmTitle": "Leave {name}?",
     "leaveDescription": "Remove yourself from this workspace. Your other workspaces stay as they are.",
-    "leaveInactiveConfirmDescription": "Your access to this workspace is inactive. An admin can reactivate it, and access that the Free plan paused comes back when the workspace chooses a paid plan. Leaving is final and ends both. Your API keys and MCP connections for it are removed. To come back, you can ask to join again with an invitation link, and an admin has to approve your request.",
+    "leaveInactiveConfirmDescription": "Your access to this workspace is deactivated, and an admin of this workspace can reactivate it. Leaving is final: a later reactivation does not bring you back. Your API keys and MCP connections for it are removed. To come back, you can ask to join again with an invitation link, and an admin has to approve your request.",
     "leaveNamed": "Leave {name}",
+    "leaveNoAdminConfirmDescription": "The subscription of this workspace ended, and the access of every member was deactivated. Only our support team can restore it. Leaving is final: restored access does not bring you back. Your API keys and MCP connections for it are removed. Coming back needs an invitation link and an admin who approves your request, and this workspace has no active admin right now.",
     "leavePausedConfirmDescription": "Your access is only paused and comes back as soon as this workspace chooses a paid plan. Leaving is final: a later upgrade does not bring you back. Your API keys and MCP connections for it are removed. To come back, you can ask to join again with an invitation link, and an admin has to approve your request.",
     "leaveShort": "Leave",
     "listDescription": "Every workspace you belong to. Each one keeps its own records, members, API keys and connections.",

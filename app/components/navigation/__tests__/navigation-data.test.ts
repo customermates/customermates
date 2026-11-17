@@ -11,6 +11,7 @@ const WORKSPACE: WorkspaceSummary = {
   name: "Acme",
   slug: "acme",
   status: "active",
+  inactiveReason: null,
   roleName: "Admin",
   isAdmin: true,
   isCurrent: true,

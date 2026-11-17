@@ -5,12 +5,14 @@ export type WorkspaceMembershipRow = {
   id: string;
   companyId: string;
   status: Status;
+  pausedByPlanAt: Date | null;
   createdAt: Date;
   role: { name: string; isSystemRole: boolean } | null;
   company: {
     name: string | null;
     slug: string;
     createdAt: Date;
+    hasActiveAdmin: boolean;
     subscription: { status: SubscriptionStatus; plan: SubscriptionPlan; trialEndDate: Date | null } | null;
     _count: { users: number };
   };

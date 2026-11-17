@@ -3480,6 +3480,8 @@
     "body": "Quando il tuo accesso sarà di nuovo attivo, aggiorna questa pagina per continuare.",
     "otherWorkspaces": "Gli altri tuoi spazi di lavoro restano invariati. Passa a uno di essi dal menu dello spazio di lavoro.",
     "subtitle": "Un amministratore di questo spazio di lavoro può riattivarlo",
+    "supportBody": "L’abbonamento di questo spazio di lavoro è terminato e l’accesso di tutti i membri è stato disattivato, compreso quello di tutti gli amministratori. Nessuno può rinnovare l’abbonamento o riattivare i membri dall’interno dello spazio di lavoro. Contatta il nostro team di assistenza per ripristinare l’accesso, quindi aggiorna questa pagina.",
+    "supportSubtitle": "Solo il nostro team di assistenza può ripristinarlo",
     "title": "Il tuo accesso a {workspace} è inattivo"
   },
   "Inbox": {
@@ -7035,8 +7037,9 @@
     "leaveConfirmDescription": "Perdi l'accesso ai suoi record, alla base di conoscenza e alle connessioni, e le tue chiavi API e connessioni MCP associate smettono di funzionare. Per tornare, puoi chiedere di nuovo di unirti con un link di invito e un amministratore dovrà approvare la tua richiesta.",
     "leaveConfirmTitle": "Uscire da {name}?",
     "leaveDescription": "Rimuoviti da questo spazio di lavoro. Gli altri tuoi spazi di lavoro restano invariati.",
-    "leaveInactiveConfirmDescription": "Il tuo accesso a questo spazio di lavoro è inattivo. Un amministratore può riattivarlo, e un accesso messo in pausa dal piano Free torna quando lo spazio di lavoro sceglie un piano a pagamento. Uscire è definitivo e mette fine a entrambe le possibilità. Le tue chiavi API e connessioni MCP associate vengono rimosse. Per tornare, puoi chiedere di nuovo di unirti con un link di invito e un amministratore dovrà approvare la tua richiesta.",
+    "leaveInactiveConfirmDescription": "Il tuo accesso a questo spazio di lavoro è disattivato e un amministratore di questo spazio di lavoro può riattivarlo. Uscire è definitivo: una riattivazione successiva non ti fa tornare. Le tue chiavi API e connessioni MCP associate vengono rimosse. Per tornare, puoi chiedere di nuovo di unirti con un link di invito e un amministratore dovrà approvare la tua richiesta.",
     "leaveNamed": "Esci da {name}",
+    "leaveNoAdminConfirmDescription": "L’abbonamento di questo spazio di lavoro è terminato e l’accesso di tutti i membri è stato disattivato. Solo il nostro team di assistenza può ripristinarlo. Uscire è definitivo: un accesso ripristinato non ti fa tornare. Le tue chiavi API e connessioni MCP associate vengono rimosse. Per tornare servono un link di invito e un amministratore che approvi la tua richiesta, e al momento questo spazio di lavoro non ha amministratori attivi.",
     "leavePausedConfirmDescription": "Il tuo accesso è solo in pausa e torna appena questo spazio di lavoro sceglie un piano a pagamento. Uscire è definitivo: un passaggio successivo a un piano a pagamento non ti fa tornare. Le tue chiavi API e connessioni MCP associate vengono rimosse. Per tornare, puoi chiedere di nuovo di unirti con un link di invito e un amministratore dovrà approvare la tua richiesta.",
     "leaveShort": "Esci",
     "listDescription": "Tutti gli spazi di lavoro di cui fai parte. Ognuno ha record, membri, chiavi API e connessioni propri.",

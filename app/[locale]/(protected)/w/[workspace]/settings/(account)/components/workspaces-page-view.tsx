@@ -1,7 +1,7 @@
 "use client";
 
 import type { WorkspaceLeaveRefusal } from "@/features/workspace/member-removal-refusal";
-import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
+import type { WorkspaceInactiveReason, WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -38,7 +38,11 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
   const t = useTranslations();
   const { appMode, createWorkspaceModalStore, workspacesStore } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
-  const [inactiveLeave, setInactiveLeave] = useState<{ companyId: string; name: string } | null>(null);
+  const [inactiveLeave, setInactiveLeave] = useState<{
+    companyId: string;
+    name: string;
+    reason: WorkspaceInactiveReason | null;
+  } | null>(null);
   const [confirmingInactiveLeave, setConfirmingInactiveLeave] = useState(false);
   const { canCreate } = workspacesStore;
   const fallback = t("Workspaces.fallbackName");
@@ -145,7 +149,11 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
                               type="button"
                               variant="ghostDestructive"
                               onClick={() => {
-                                setInactiveLeave({ companyId: workspace.companyId, name });
+                                setInactiveLeave({
+                                  companyId: workspace.companyId,
+                                  name,
+                                  reason: workspace.inactiveReason,
+                                });
                                 setConfirmingInactiveLeave(true);
                               }}
                             >
@@ -183,6 +191,7 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
         companyId={inactiveLeave?.companyId ?? null}
         name={inactiveLeave?.name ?? fallback}
         open={confirmingInactiveLeave}
+        reason={inactiveLeave?.reason ?? null}
         onClose={() => setConfirmingInactiveLeave(false)}
       />
     </div>

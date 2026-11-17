@@ -1,5 +1,7 @@
 "use client";
 
+import type { WorkspaceInactiveReason } from "@/features/workspace/workspace.schema";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -11,22 +13,26 @@ type Props = {
   companyId: string | null;
   name: string;
   open: boolean;
-  pausedByPlan?: boolean;
+  reason: WorkspaceInactiveReason | null;
   onClose: () => void;
 };
 
 export const LeaveInactiveWorkspaceDialog = observer(
-  ({ anchorScope, companyId, name, open, pausedByPlan = false, onClose }: Props) => {
+  ({ anchorScope, companyId, name, open, reason, onClose }: Props) => {
     const t = useTranslations();
     const { workspacesStore } = useRootStore();
+    const description =
+      reason === "pausedByPlan"
+        ? t("Workspaces.leavePausedConfirmDescription")
+        : reason === "noActiveAdmin"
+          ? t("Workspaces.leaveNoAdminConfirmDescription")
+          : t("Workspaces.leaveInactiveConfirmDescription");
 
     return (
       <ConfirmDialog
         anchorScope={anchorScope}
         confirmLabel={t("Workspaces.leaveShort")}
-        description={
-          pausedByPlan ? t("Workspaces.leavePausedConfirmDescription") : t("Workspaces.leaveInactiveConfirmDescription")
-        }
+        description={description}
         open={open}
         title={t("Workspaces.leaveConfirmTitle", { name })}
         onCancel={onClose}

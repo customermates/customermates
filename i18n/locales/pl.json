@@ -3480,6 +3480,8 @@
     "body": "Gdy Twój dostęp znów będzie aktywny, odśwież tę stronę, aby kontynuować.",
     "otherWorkspaces": "Twoje pozostałe przestrzenie robocze pozostają bez zmian. Przełącz się na jedną z nich w menu przestrzeni roboczych.",
     "subtitle": "Administrator tej przestrzeni roboczej może ją ponownie aktywować",
+    "supportBody": "Subskrypcja tej przestrzeni roboczej wygasła, a dostęp wszystkich członków został dezaktywowany, także wszystkich administratorów. Nikt nie może odnowić subskrypcji ani ponownie aktywować członków z poziomu przestrzeni roboczej. Skontaktuj się z naszym zespołem wsparcia, aby przywrócić dostęp, a następnie odśwież tę stronę.",
+    "supportSubtitle": "Tylko nasz zespół wsparcia może go przywrócić",
     "title": "Twój dostęp do {workspace} jest nieaktywny"
   },
   "Inbox": {
@@ -7035,8 +7037,9 @@
     "leaveConfirmDescription": "Tracisz dostęp do jej rekordów, Bazy wiedzy i połączeń, a Twoje klucze API i połączenia MCP dla niej przestają działać. Aby wrócić, możesz poprosić o ponowne dołączenie przez link zaproszenia, a administrator musi zatwierdzić Twoją prośbę.",
     "leaveConfirmTitle": "Opuścić {name}?",
     "leaveDescription": "Usuń siebie z tej przestrzeni roboczej. Twoje pozostałe przestrzenie robocze pozostają bez zmian.",
-    "leaveInactiveConfirmDescription": "Twój dostęp do tej przestrzeni roboczej jest nieaktywny. Administrator może go ponownie aktywować, a dostęp wstrzymany przez plan Free wraca, gdy przestrzeń robocza wybierze płatny plan. Opuszczenie jest ostateczne i kończy obie możliwości. Twoje klucze API i połączenia MCP dla niej zostają usunięte. Aby wrócić, możesz poprosić o ponowne dołączenie przez link zaproszenia, a administrator musi zatwierdzić Twoją prośbę.",
+    "leaveInactiveConfirmDescription": "Twój dostęp do tej przestrzeni roboczej jest dezaktywowany, a administrator tej przestrzeni roboczej może go ponownie aktywować. Opuszczenie jest ostateczne: późniejsza ponowna aktywacja nie przywróci Ci dostępu. Twoje klucze API i połączenia MCP dla niej zostają usunięte. Aby wrócić, możesz poprosić o ponowne dołączenie przez link zaproszenia, a administrator musi zatwierdzić Twoją prośbę.",
     "leaveNamed": "Opuść {name}",
+    "leaveNoAdminConfirmDescription": "Subskrypcja tej przestrzeni roboczej wygasła, a dostęp wszystkich członków został dezaktywowany. Tylko nasz zespół wsparcia może go przywrócić. Opuszczenie jest ostateczne: przywrócony dostęp nie obejmie Ciebie. Twoje klucze API i połączenia MCP dla niej zostają usunięte. Do powrotu potrzebny jest link zaproszenia i administrator, który zatwierdzi Twoją prośbę, a ta przestrzeń robocza nie ma obecnie żadnego aktywnego administratora.",
     "leavePausedConfirmDescription": "Twój dostęp jest tylko wstrzymany i wraca, gdy tylko ta przestrzeń robocza wybierze płatny plan. Opuszczenie jest ostateczne: późniejsze przejście na płatny plan nie przywróci Ci dostępu. Twoje klucze API i połączenia MCP dla niej zostają usunięte. Aby wrócić, możesz poprosić o ponowne dołączenie przez link zaproszenia, a administrator musi zatwierdzić Twoją prośbę.",
     "leaveShort": "Opuść",
     "listDescription": "Wszystkie przestrzenie robocze, do których należysz. Każda ma własne rekordy, członków, klucze API i połączenia.",
