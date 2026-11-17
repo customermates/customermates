@@ -34,9 +34,10 @@ import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
-import { deleteAutomationRuleAction } from "../actions";
+import { deleteAutomationRuleAction, getAutomationRoutineAction } from "../actions";
 import { AutomationBuilderModal } from "./automation-builder-modal";
 import { reminderDraft } from "./automation-draft";
+import { openFocusedRoutine } from "./automation-focus";
 import { showsRoutinesOnly } from "./automation-kind-filter";
 import {
   type AutomationViewer,
@@ -294,8 +295,15 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   useFocusTarget(
     FOCUS_KINDS,
     (target) => {
-      const item = automationsStore.items.find((entry) => entry.id === target.id && entry.routine);
-      if (item) openItem(item);
+      runUserAction(() =>
+        openFocusedRoutine(target.id, {
+          items: automationsStore.items,
+          openItem,
+          loadRoutine: (id) => getAutomationRoutineAction({ id }),
+          openRoutine: (routine) => routineModalStore.openForEdit(routine),
+          onMissing: (error) => toastZodErrorTree(error),
+        }),
+      );
       return true;
     },
     pageState !== "loading",

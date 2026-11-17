@@ -17,6 +17,7 @@ import {
   getGetAutomationRuleRunsInteractor,
   getGetAutomationRulesInteractor,
   getGetAutomationsListInteractor,
+  getGetRoutineByIdInteractor,
   getPreviewAutomationRuleInteractor,
   getSetAutomationRuleEnabledInteractor,
   getUpsertAutomationRuleInteractor,
@@ -53,4 +54,8 @@ export async function previewAutomationRuleAction(data: PreviewAutomationRuleDat
 
 export async function composeAutomationAction(data: ComposeAutomationData) {
   return serializeTypedResult(getComposeAutomationInteractor().invoke(data));
+}
+
+export async function getAutomationRoutineAction(data: { id: string }) {
+  return serializeResult(getGetRoutineByIdInteractor().invoke(data));
 }

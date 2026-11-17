@@ -178,6 +178,25 @@ test.describe("routines in the same list", () => {
     await expect(routine).toBeVisible();
     await expect(routine.locator("#name")).toHaveValue("Weekly client review");
   });
+
+  test("opens a linked routine that the loaded list does not show", async ({ page, database, companyId, workspace }) => {
+    const routineId = randomUUID();
+    await database.query(
+      'INSERT INTO "Routine" (id,"companyId","ownerUserId",name,prompt,enabled,"triggerKind","cronExpression",timezone,"triggerEvents","updatedAt") VALUES ($1,$2,$3,$4,$5,true,\'schedule\',\'0 8 * * 1\',\'Europe/Berlin\',\'{}\',NOW())',
+      [routineId, companyId, workspace.userId, "Linked from a chat", "List clients without a next step."],
+    );
+    await insertRule(database, { companyId, ownerUserId: workspace.userId, name: "The only row shown" });
+
+    // The list is narrowed to automations, so the routine the link points at is not among the loaded rows.
+    await page.goto(
+      companyPath(companyId, `/automations?filters=automationKind:in:rule&focus=${encodeURIComponent(`routine:${routineId}`)}`),
+    );
+
+    await expect(page.getByRole("button", { name: "Linked from a chat", exact: true })).toHaveCount(0);
+    const routine = page.getByRole("dialog", { name: "Routine", exact: true });
+    await expect(routine).toBeVisible();
+    await expect(routine.locator("#name")).toHaveValue("Linked from a chat");
+  });
 });
 
 test("redirects the old Routines page to the Automations list filtered to routines", async ({ page, companyId }) => {
