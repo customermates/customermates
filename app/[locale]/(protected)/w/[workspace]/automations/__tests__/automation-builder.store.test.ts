@@ -352,6 +352,49 @@ describe("AutomationBuilderStore", () => {
     expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
   });
 
+  it("drops a composed draft that arrives after the builder moved on to another rule", async () => {
+    let answer: (value: unknown) => void = () => undefined;
+    actions.composeAutomationAction.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
+    const { store } = open();
+    store.setComposerText("When a deal is created, tell me");
+    const pending = store.compose();
+    expect(store.composing).toBe(true);
+
+    store.close();
+    store.openForRule(CONTEXT, { ...SAVED, name: "Rule B" } as never, vi.fn());
+    expect(store.composing).toBe(false);
+    answer({
+      ok: true,
+      data: {
+        status: "draft",
+        draft: { name: "Composed", enabled: true, trigger: { kind: "recordCreated", typeId: DEALS }, effects: [] },
+      },
+    });
+
+    expect(await pending).toBe("stale");
+    expect(store.form.id).toBe(RULE);
+    expect(store.form.name).toBe("Rule B");
+    expect(store.composedByMate).toBe(false);
+    expect(store.composing).toBe(false);
+  });
+
+  it("drops a composed draft once the user picked a recipe or started from scratch instead", async () => {
+    let answer: (value: unknown) => void = () => undefined;
+    actions.composeAutomationAction.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
+    const { store } = open();
+    store.setComposerText("Tell me about new deals");
+    const pending = store.compose();
+
+    store.startFromScratch();
+    store.setName("My own chain");
+    answer({ ok: true, data: { status: "refused", reason: "unsupported" } });
+
+    expect(await pending).toBe("stale");
+    expect(store.form.name).toBe("My own chain");
+    expect(store.composerRefusal).toBeNull();
+    expect(store.composing).toBe(false);
+  });
+
   it("shows the reason when Mate refuses and ignores an empty sentence", async () => {
     actions.composeAutomationAction.mockResolvedValue({ ok: true, data: { status: "refused", reason: "unsupported" } });
     const { store } = open();

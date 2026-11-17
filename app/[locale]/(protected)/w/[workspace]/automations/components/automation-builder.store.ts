@@ -97,6 +97,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
 
   private previewTimer: ReturnType<typeof setTimeout> | undefined;
   private previewGeneration = 0;
+  private composeGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore, BLANK_DRAFT, Resource.routines);
@@ -188,6 +189,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.composerText = "";
     this.composerRefusal = null;
     this.composedByMate = false;
+    this.composeGeneration += 1;
+    this.composing = false;
     this.onInitOrRefresh({ ...BLANK_DRAFT, ...draft });
     this.open();
     this.schedulePreview(0);
@@ -226,6 +229,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   };
 
   applyDraft = (draft: AutomationDraft, composed = false) => {
+    this.composeGeneration += 1;
+    this.composing = false;
     this.form = { ...BLANK_DRAFT, ...draft };
     this.screen = "chain";
     this.composedByMate = composed;
@@ -365,16 +370,18 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     }
   };
 
-  compose = async (): Promise<"drafted" | "refused" | "failed"> => {
+  compose = async (): Promise<"drafted" | "refused" | "failed" | "stale"> => {
     const context = this.context;
     const sentence = this.composerText.trim();
     if (!context || !sentence || this.composing) return "failed";
+    const generation = ++this.composeGeneration;
     runInAction(() => {
       this.composing = true;
       this.composerRefusal = null;
     });
     try {
       const result = await composeAutomationAction({ sentence });
+      if (generation !== this.composeGeneration || !this.isOpen) return "stale";
       if (!result.ok) {
         if (!notifyIfWorkspaceChanged(result.failure)) toastZodErrorTree(serializedFailureErrorTree(result.failure));
         return "failed";
@@ -388,12 +395,15 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       this.applyDraft(seedToDraft(result.data.draft, context.model, context.timezone), true);
       return "drafted";
     } catch (error) {
+      if (generation !== this.composeGeneration) return "stale";
       reportApplicationError(error);
       return "failed";
     } finally {
-      runInAction(() => {
-        this.composing = false;
-      });
+      if (generation === this.composeGeneration) {
+        runInAction(() => {
+          this.composing = false;
+        });
+      }
     }
   };
 
@@ -439,6 +449,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   protected override prepareToClose(): boolean {
     clearTimeout(this.previewTimer);
     this.previewGeneration += 1;
+    this.composeGeneration += 1;
+    this.composing = false;
     return true;
   }
 }
