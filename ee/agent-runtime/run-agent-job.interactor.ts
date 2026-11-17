@@ -166,7 +166,12 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
   ): Promise<AgentJobLoopOutcome> {
     const ruleName = await this.ruleName(job);
     const locale = resolveUserLocale(this.user);
-    const kit = this.toolkit({ locale, maxToolCalls: AGENT_JOB_MAX_TOOL_CALLS, recorder });
+    const kit = this.toolkit({
+      locale,
+      maxToolCalls: AGENT_JOB_MAX_TOOL_CALLS,
+      recorder,
+      ruleChain: job.ruleChain,
+    });
     const budget = prepared.mate?.budget;
     return this.loop({
       model: prepared.model,

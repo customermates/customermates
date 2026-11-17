@@ -2,7 +2,9 @@ import type { ToolSet } from "ai";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 import type { AgentJobRecorder } from "./agent-job-recorder";
+import type { CausationContext } from "@/core/decorators/causation-context";
 
+import { runInCausation } from "@/core/decorators/causation-context";
 import { getAgentAiTools } from "@/ee/agent-chat/agent-tools";
 import { LOAD_TOOLSET_TOOL_NAME, isAgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 import { onDemandToolsetOfTool } from "@/ee/agent-chat/agent-toolsets";
@@ -47,7 +49,12 @@ export type AgentJobToolkitFactory = (args: {
   locale: string;
   maxToolCalls: number;
   recorder: AgentJobRecorder;
+  ruleChain: readonly string[];
 }) => AgentJobToolkit;
+
+export function agentJobCausation(ruleChain: readonly string[]): CausationContext {
+  return { routineDepth: 1, ruleChain: [...ruleChain] };
+}
 
 export const createAgentJobToolkit: AgentJobToolkitFactory = (args) => {
   const tools = buildAgentJobTools(args);
@@ -58,9 +65,11 @@ export function buildAgentJobTools(args: {
   locale: string;
   maxToolCalls: number;
   recorder: AgentJobRecorder;
+  ruleChain?: readonly string[];
   base?: ToolSet;
 }): ToolSet {
   const { recorder, maxToolCalls } = args;
+  const causation = agentJobCausation(args.ruleChain ?? []);
   const base = args.base ?? getAgentAiTools(AGENT_JOB_TOOL_DEPS, { locale: args.locale, surface: "routine" });
   return Object.fromEntries(
     Object.entries(base).map(([name, definition]) => {
@@ -82,7 +91,7 @@ export function buildAgentJobTools(args: {
               if (typeof toolset === "string" && isAgentOnDemandToolset(toolset)) recorder.loadedToolsets.add(toolset);
             }
             try {
-              const output = await execute(input, options);
+              const output = await runInCausation(causation, () => execute(input, options));
               const outcome = summarizeAgentJobToolOutput(output);
               recorder.toolResult(options.toolCallId, name, outcome.ok, outcome.summary);
               return output;

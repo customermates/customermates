@@ -22,6 +22,7 @@ const JOB_LIST_SELECT = {
   status: true,
   sourceKind: true,
   sourceId: true,
+  ruleChain: true,
   ownerUserId: true,
   model: true,
   runnerId: true,

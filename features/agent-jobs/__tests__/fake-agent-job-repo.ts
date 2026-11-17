@@ -29,6 +29,7 @@ export class FakeAgentJobRepo implements AgentJobRepo {
       status: "queued",
       sourceKind: "automation",
       sourceId: null,
+      ruleChain: [],
       ownerUserId: "00000000-0000-4000-8000-000000000010",
       prompt: "Do the thing",
       promptUntrusted: false,

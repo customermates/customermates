@@ -6,6 +6,7 @@ import type { AgentJobRepo } from "./agent-job.repo";
 import type { EnqueueAgentJobData, EnqueuedAgentJob } from "./agent-job.schema";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { currentCausation } from "@/core/decorators/causation-context";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -59,6 +60,7 @@ export class EnqueueAgentJobInteractor
       runtime: data.runtime,
       sourceKind: AGENT_JOB_SOURCE_AUTOMATION,
       sourceId: data.runId,
+      ruleChain: [...(currentCausation()?.ruleChain ?? [])],
       ownerUserId: data.ownerUserId,
       prompt: composeAgentJobPrompt(data.prompt, data.recordRef),
       promptUntrusted: data.promptUntrusted,

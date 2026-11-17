@@ -31,6 +31,7 @@ vi.mock("next-intl/server", () => ({
 
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 
+import { runInCausation } from "@/core/decorators/causation-context";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { encodeAgentJobCursor } from "../agent-job-cursor";
@@ -119,6 +120,17 @@ describe("enqueueing an agent job from an automation", () => {
       companyId: COMPANY,
       ownerUserId: OWNER,
     });
+  });
+
+  it("stores the rule chain of the run that enqueues the job, and an empty chain outside a rule run", async () => {
+    const RULE_A = "00000000-0000-4000-8000-0000000000d1";
+    const RULE_B = "00000000-0000-4000-8000-0000000000d2";
+
+    const inRun = await runInCausation({ ruleChain: [RULE_A, RULE_B] }, () => enqueue(input));
+    const outside = await enqueue(input);
+
+    expect(inRun.ok && repo.jobs.get(inRun.jobId)?.ruleChain).toEqual([RULE_A, RULE_B]);
+    expect(outside.ok && repo.jobs.get(outside.jobId)?.ruleChain).toEqual([]);
   });
 
   it("runs Mate jobs the same way and keeps the untrusted marker of the trigger", async () => {

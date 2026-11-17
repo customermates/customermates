@@ -9,6 +9,7 @@ export type StoredAgentJob = {
   status: AgentJobStatus;
   sourceKind: string;
   sourceId: string | null;
+  ruleChain: string[];
   ownerUserId: string;
   prompt: string;
   promptUntrusted: boolean;
@@ -35,6 +36,7 @@ export type AgentJobEnqueue = {
   runtime: AgentRuntime;
   sourceKind: string;
   sourceId: string | null;
+  ruleChain: string[];
   ownerUserId: string;
   prompt: string;
   promptUntrusted: boolean;

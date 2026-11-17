@@ -89,4 +89,16 @@ describe("a hosted agent job and the queue", () => {
     expect(jobs.jobs.get(jobId)).toMatchObject({ status: "claimed", attempts: 2, finishedAt: null, result: null });
     expect(jobs.events.get(jobId) ?? []).toEqual([]);
   });
+
+  it("builds the tools of a run with the rule chain stored on the job", async () => {
+    const chain = ["00000000-0000-4000-8000-0000000000d1", "00000000-0000-4000-8000-0000000000d2"];
+    const { jobs, toolkit, run } = await world(() => Promise.resolve(FINISHED));
+    const job = jobs.add({ runtime: "ownKey", ruleChain: chain });
+
+    await run(job.id);
+
+    expect(toolkit).toHaveBeenCalledTimes(1);
+    expect(toolkit.mock.calls[0][0]).toMatchObject({ ruleChain: chain, maxToolCalls: 25 });
+    expect(jobs.jobs.get(job.id)?.status).toBe("succeeded");
+  });
 });

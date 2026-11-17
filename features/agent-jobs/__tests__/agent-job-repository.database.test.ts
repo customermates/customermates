@@ -34,6 +34,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
           runtime: "ownKey",
           sourceKind: "automation",
           sourceId: randomUUID(),
+          ruleChain: [],
           ownerUserId: company === companyId ? ownerId : otherOwnerId,
           prompt: "Summarise the deal",
           promptUntrusted: false,
@@ -143,6 +144,7 @@ describeDatabase("PrismaAgentJobRepo", () => {
             runtime: "runner",
             sourceKind: "automation",
             sourceId: randomUUID(),
+            ruleChain: [],
             ownerUserId: doomedOwner,
             prompt: "Summarise the deal",
             promptUntrusted: false,
@@ -166,12 +168,24 @@ describeDatabase("PrismaAgentJobRepo", () => {
   });
 
   it("writes a queued job for the caller's workspace and reads it back only there", async () => {
-    const job = await enqueue({ prompt: "Check the pipeline" });
-    expect(job).toMatchObject({ companyId, status: "queued", attempts: 0, runtime: "ownKey" });
+    const chain = [randomUUID(), randomUUID()];
+    const job = await enqueue({ prompt: "Check the pipeline", ruleChain: chain });
+    expect(job).toMatchObject({ companyId, status: "queued", attempts: 0, runtime: "ownKey", ruleChain: chain });
+    expect((await enqueue()).ruleChain).toEqual([]);
 
     await asOwner(async () => {
       expect(await repo().findOne(job.id)).toMatchObject({ id: job.id, prompt: "Check the pipeline" });
     });
+    const now = new Date();
+    const claimed = await repo().claimUnscoped({
+      companyId,
+      runtime: "ownKey",
+      jobId: job.id,
+      now,
+      timeoutAt: new Date(now.getTime() + HOUR),
+    });
+    expect(claimed?.ruleChain).toEqual(chain);
+    await age(job.id, { status: "queued" });
     await asOwner(
       async () => {
         expect(await repo().findOne(job.id)).toBeNull();
