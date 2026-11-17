@@ -377,9 +377,9 @@ describe("where the event that started an agent step came from", () => {
     expect(await outside({ [EVENT]: recordEvent({ payload: { cause: { untrustedOrigin: false } } }) })).toBe(false);
     expect(await outside({ [EVENT]: recordEvent({ payload: { untrustedOrigin: true } }) })).toBe(false);
     const writtenByRule = recordEvent({ kind: "record.updated", causeId: `rule:${EARLIER_RUN}:0` });
-    expect(
-      await outside({ [EVENT]: writtenByRule, [EARLIER_EVENT]: recordEvent({ payload: byUntrustedAgent }) }),
-    ).toBe(true);
+    expect(await outside({ [EVENT]: writtenByRule, [EARLIER_EVENT]: recordEvent({ payload: byUntrustedAgent }) })).toBe(
+      true,
+    );
   });
 
   it("marks the job as untrusted although the rule's trigger kind and its instruction are trusted", async () => {
@@ -485,14 +485,14 @@ describe("reading the run history", () => {
     expect(JSON.stringify([own, handedDetail])).not.toContain("Handed over");
 
     const everyone = await list({});
-    expect(everyone.ok && Object.fromEntries(everyone.data.jobs.map((job) => [job.id, job.rule?.name ?? null]))).toEqual(
-      {
-        [ofRule.id]: "Offer follow-up",
-        [handedOver.id]: "Handed over",
-        [otherSource.id]: null,
-        [withoutRun.id]: null,
-      },
-    );
+    expect(
+      everyone.ok && Object.fromEntries(everyone.data.jobs.map((job) => [job.id, job.rule?.name ?? null])),
+    ).toEqual({
+      [ofRule.id]: "Offer follow-up",
+      [handedOver.id]: "Handed over",
+      [otherSource.id]: null,
+      [withoutRun.id]: null,
+    });
   });
 
   it("shows what a run read and wrote only to its owner and to administrators", async () => {

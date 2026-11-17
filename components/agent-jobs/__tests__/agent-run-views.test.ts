@@ -215,7 +215,10 @@ describe("AgentRunsCard", () => {
     const rule = { id: "00000000-0000-4000-8000-0000000000d1", name: "Offer follow-up" };
     const { markup } = renderRuns([
       summary({ sourceId: "00000000-0000-4000-8000-0000000000b1", rule }),
-      summary({ id: "00000000-0000-4000-8000-0000000000a2", sourceId: "00000000-0000-4000-8000-0000000000b2" }),
+      summary({
+        id: "00000000-0000-4000-8000-0000000000a2",
+        sourceId: "00000000-0000-4000-8000-0000000000b2",
+      }),
     ]);
 
     expect(markup.split("AgentJobs.rule(")).toHaveLength(2);

@@ -17,7 +17,13 @@ const rootStore = {
 const active = { unavailableReason: null, inactiveReason: null };
 const crm = { companyId: "company-a", name: "CRM", isCurrent: true, ...active };
 const taxes = { companyId: "company-b", name: "Taxes", isCurrent: false, ...active };
-const waiting = { companyId: "company-c", name: null, isCurrent: false, ...active, unavailableReason: "pending" as const };
+const waiting = {
+  companyId: "company-c",
+  name: null,
+  isCurrent: false,
+  unavailableReason: "pending" as const,
+  inactiveReason: null,
+};
 
 describe("McpConsentStore", () => {
   beforeEach(() => {

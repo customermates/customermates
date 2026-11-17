@@ -25,9 +25,7 @@ export function admitsAgentJobKey(keyId: string): boolean {
   return storage.getStore()?.keyId === keyId;
 }
 
-export function agentJobRequestCausation(
-  request: Pick<AgentJobRequest, "ruleChain" | "untrusted">,
-): CausationContext {
+export function agentJobRequestCausation(request: Pick<AgentJobRequest, "ruleChain" | "untrusted">): CausationContext {
   return {
     routineDepth: 1,
     ruleChain: [...request.ruleChain],
