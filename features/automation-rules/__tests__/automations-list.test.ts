@@ -48,15 +48,16 @@ function routine(id: string, patch: Partial<RoutineDto> = {}): RoutineDto {
   };
 }
 
-function setup(options: { scope?: "all" | "own"; routines?: RoutineDto[] | null } = {}) {
+function setup(options: { scope?: "all" | "own"; routines?: RoutineDto[] | null; routineTotal?: number } = {}) {
   const rules = new FakeAutomationRuleRepo();
   const routines = options.routines === null ? null : (options.routines ?? []);
   const routineRuns = new Map<string, number>();
   const source = routines
     ? ({
         getItems: () => Promise.resolve(routines),
+        getCount: () => Promise.resolve(options.routineTotal ?? routines.length),
         countRunsSince: () => Promise.resolve(routineRuns),
-      } as unknown as Pick<GetRoutinesRepo, "getItems" | "countRunsSince">)
+      } as unknown as Pick<GetRoutinesRepo, "getItems" | "getCount" | "countRunsSince">)
     : null;
   const permissions = {
     readScope: () => options.scope ?? "all",
@@ -228,6 +229,30 @@ describe("AutomationsListComposer", () => {
     });
 
     expect((await composer.getItems({})).map((item) => item.name)).toEqual(["Mine"]);
+  });
+
+  // Finding 8 of the review of 2026-11-17: the merged list loads at most 200 rules and 100 routines and
+  // pages them in memory; whatever lies beyond never appeared, and nothing said so.
+  it("says how many rules and routines the list leaves out", async () => {
+    const within = setup({ routines: [routine("30000000-0000-4000-8000-000000000001")] });
+    within.rules.addRule({ id: "20000000-0000-4000-8000-000000000001", trigger: CREATED, effects: [NOTIFY] });
+    expect(await within.composer.notShown()).toEqual({ rules: 0, routines: 0 });
+
+    const beyond = setup({ routines: [routine("30000000-0000-4000-8000-000000000001")], routineTotal: 104 });
+    for (let index = 0; index < 203; index += 1) {
+      beyond.rules.addRule({
+        id: `20000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+        ownerUserId: index < 3 ? OWNER : COLLEAGUE,
+        trigger: CREATED,
+        effects: [NOTIFY],
+      });
+    }
+    expect(await beyond.composer.notShown()).toEqual({ rules: 3, routines: 4 });
+    expect(await beyond.composer.getCount({})).toBe(201);
+
+    const own = setup({ scope: "own", routines: null });
+    for (const [id, rule] of beyond.rules.rules) own.rules.rules.set(id, rule);
+    expect(await own.composer.notShown()).toEqual({ rules: 0, routines: 0 });
   });
 
   it("declares the sortable and filterable fields the surface offers", async () => {

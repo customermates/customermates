@@ -32,6 +32,8 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AutomationPlanLimitsAdapter } from "../automation-plan-limits";
 import { AUTOMATION_RUN_PAGE_SIZE } from "../automation-rule.schema";
+import { AutomationsListComposer } from "../automations-list.composer";
+import { GetAutomationsListInteractor } from "../get-automations-list.interactor";
 import { DeleteAutomationRuleInteractor } from "../delete-automation-rule.interactor";
 import { GetAutomationRuleRunsInteractor } from "../get-automation-rule-runs.interactor";
 import { GetAutomationRulesInteractor } from "../get-automation-rules.interactor";
@@ -327,6 +329,24 @@ describe("reading rules", () => {
       companyId: COMPANY,
     };
     await expect(run({}, own)).resolves.toMatchObject({ ok: true, data: { total: 1 } });
+  });
+
+  it("returns with the merged list how many rows it leaves out", async () => {
+    const permissions = {
+      readScope: () => "all",
+      userId: OWNER,
+      user: { displayLanguage: null, formattingLocale: "system" },
+    };
+    const routines = {
+      getItems: () => Promise.resolve([]),
+      getCount: () => Promise.resolve(130),
+      countRunsSince: () => Promise.resolve(new Map<string, number>()),
+    };
+    const composer = new AutomationsListComposer(repo, routines as never, permissions as never, () => NOW);
+    const list = new GetAutomationsListInteractor(composer, {} as never, "interactive", {} as never);
+    const result = await runWithTenant(mockUser, () => list.invoke({}));
+    expect(result).toMatchObject({ ok: true, data: { notShown: { rules: 0, routines: 30 } } });
+    expect(result.ok && result.data.items).toHaveLength(2);
   });
 
   it("shows the run history of a visible rule only", async () => {

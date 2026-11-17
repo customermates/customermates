@@ -5,7 +5,7 @@ import type { GetRoutinesRepo } from "@/ee/routines/get-routines.repo";
 import type { RoutineDto } from "@/ee/routines/routine.schema";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationRuleDto } from "./automation-rule.schema";
-import type { AutomationListItemDto, AutomationRunsOn } from "./automations-list.schema";
+import type { AutomationListItemDto, AutomationListNotShown, AutomationRunsOn } from "./automations-list.schema";
 
 import { Resource, type RoutineRunStatus } from "@/generated/prisma";
 import { BaseGetRepo } from "@/core/base/base-get.repo";
@@ -110,7 +110,7 @@ function matchesFilter(filter: Filter, item: AutomationListItemDto): boolean {
 export class AutomationsListComposer extends BaseGetRepo<AutomationListItemDto> {
   constructor(
     private readonly rules: Pick<AutomationRuleRepo, "findRules" | "countRunsSince">,
-    private readonly routines: Pick<GetRoutinesRepo, "getItems" | "countRunsSince"> | null,
+    private readonly routines: Pick<GetRoutinesRepo, "getItems" | "getCount" | "countRunsSince"> | null,
     private readonly permissions: PermissionService,
     private readonly clock: () => Date = () => new Date(),
   ) {
@@ -146,6 +146,18 @@ export class AutomationsListComposer extends BaseGetRepo<AutomationListItemDto> 
       ...ruleDtos.map((rule) => ruleItem(rule, ruleRuns.get(rule.id) ?? 0)),
       ...routineRows.map((routine) => routineItem(routine, routineRuns.get(routine.id) ?? 0)),
     ];
+  }
+
+  async notShown(): Promise<AutomationListNotShown> {
+    const ownRules = this.permissions.readScope(Resource.routines) === "own";
+    const [rulePage, routines] = await Promise.all([
+      this.rules.findRules({ ownerUserId: ownRules ? this.permissions.userId : undefined, page: 1, pageSize: 1 }),
+      this.routines ? this.routines.getCount({}) : Promise.resolve(0),
+    ]);
+    return {
+      rules: Math.max(0, rulePage.total - AUTOMATION_LIST_RULE_CAP),
+      routines: Math.max(0, routines - AUTOMATION_LIST_ROUTINE_CAP),
+    };
   }
 
   private narrow(items: AutomationListItemDto[], params: GetQueryParams): AutomationListItemDto[] {

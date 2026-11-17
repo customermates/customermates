@@ -38,3 +38,9 @@ export const AutomationListItemDtoSchema = z.object({
   routine: RoutineDtoSchema.nullable(),
 });
 export type AutomationListItemDto = Data<typeof AutomationListItemDtoSchema>;
+
+export const AutomationListNotShownSchema = z.object({
+  rules: z.number().int().nonnegative(),
+  routines: z.number().int().nonnegative(),
+});
+export type AutomationListNotShown = Data<typeof AutomationListNotShownSchema>;
