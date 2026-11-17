@@ -1,3 +1,4 @@
+import type { AgentRunnerBodyRefusal } from "@/features/agent-runners/agent-runner-admission";
 import type { AdmittedAgentRunner } from "@/features/agent-runners/agent-runner.schema";
 
 import { getAgentRunnerAdmission } from "@/core/di";
@@ -16,6 +17,18 @@ function rateLimited(retryAfterSeconds: number): ApiRateLimitExceededError {
   return error;
 }
 
+const BODY_REFUSALS: Record<AgentRunnerBodyRefusal, string> = {
+  lengthRequired:
+    "Send the request body with a Content-Length header. A body without a declared length is not read.",
+  bodyTooLarge: `The request body is larger than ${AGENT_RUNNER_LIMITS.maxBodyBytes / 1024} KB.`,
+};
+
+function bodyRefused(message: string): InvalidJsonBodyError {
+  const error = new InvalidJsonBodyError();
+  error.message = message;
+  return error;
+}
+
 export async function admitRunner(headers: Headers): Promise<AdmittedAgentRunner> {
   const outcome = await getAgentRunnerAdmission().admit({
     authorization: headers.get("authorization"),
@@ -24,6 +37,6 @@ export async function admitRunner(headers: Headers): Promise<AdmittedAgentRunner
   });
   if (outcome.ok) return outcome.admission;
   if (outcome.reason === "rateLimited") throw rateLimited(outcome.retryAfterSeconds);
-  if (outcome.reason === "bodyTooLarge") throw new InvalidJsonBodyError();
-  throw new AuthError();
+  if (outcome.reason === "unauthenticated") throw new AuthError();
+  throw bodyRefused(BODY_REFUSALS[outcome.reason]);
 }

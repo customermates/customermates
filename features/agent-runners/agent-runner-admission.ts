@@ -8,14 +8,19 @@ export type AgentRunnerAdmissionRequest = {
   contentLength?: string | null;
 };
 
+export type AgentRunnerBodyRefusal = "lengthRequired" | "bodyTooLarge";
+
 export type AgentRunnerAdmissionOutcome =
   | { ok: true; admission: AdmittedAgentRunner }
-  | { ok: false; reason: "unauthenticated" | "bodyTooLarge" }
+  | { ok: false; reason: "unauthenticated" | AgentRunnerBodyRefusal }
   | { ok: false; reason: "rateLimited"; retryAfterSeconds: number };
 
-export function declaresOversizedBody(contentLength: string | null | undefined): boolean {
-  const declared = Number(contentLength ?? "0");
-  return Number.isFinite(declared) && declared > AGENT_RUNNER_LIMITS.maxBodyBytes;
+const DECLARED_LENGTH = /^\d{1,15}$/;
+
+export function declaredBodyRefusal(contentLength: string | null | undefined): AgentRunnerBodyRefusal | null {
+  if (contentLength === null || contentLength === undefined || !DECLARED_LENGTH.test(contentLength))
+    return "lengthRequired";
+  return Number(contentLength) > AGENT_RUNNER_LIMITS.maxBodyBytes ? "bodyTooLarge" : null;
 }
 
 export class AgentRunnerAdmission {
@@ -24,7 +29,8 @@ export class AgentRunnerAdmission {
   async admit(request: AgentRunnerAdmissionRequest): Promise<AgentRunnerAdmissionOutcome> {
     const authentication = await this.authenticator.authenticate(request);
     if (!authentication.ok) return authentication;
-    if (declaresOversizedBody(request.contentLength)) return { ok: false, reason: "bodyTooLarge" };
+    const refusal = declaredBodyRefusal(request.contentLength);
+    if (refusal) return { ok: false, reason: refusal };
     return { ok: true, admission: new AdmittedAgentRunner(authentication.runner) };
   }
 }

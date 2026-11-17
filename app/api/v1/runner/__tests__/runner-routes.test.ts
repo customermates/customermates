@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError } from "@/core/validation/validation.utils";
+import { AgentRunnerAdmission } from "@/features/agent-runners/agent-runner-admission";
 import { AdmittedAgentRunner } from "@/features/agent-runners/agent-runner.schema";
 
 const mocks = vi.hoisted(() => ({
@@ -121,8 +122,54 @@ describe("runner REST routes", () => {
     const response = await postEvents(request, jobContext);
 
     expect(response.status).toBe(400);
+    const body = (await response.json()) as { error: { issues: Array<{ message: string }> } };
+    expect(body.error.issues[0].message).toBe("The request body is larger than 512 KB.");
     expect(request.bodyUsed).toBe(false);
     expect(mocks.events).not.toHaveBeenCalled();
+  });
+
+  it.each(routes)("answers 400 on %s for a streamed body of any size without reading a byte", async (path, call, interactor) => {
+    const admission = new AgentRunnerAdmission({
+      authenticate: () => Promise.resolve({ ok: true, runner: ADMITTED.runner }),
+    });
+    mocks.admit.mockImplementation((request: Parameters<AgentRunnerAdmission["admit"]>[0]) => admission.admit(request));
+    let pulled = 0;
+    const endless = new ReadableStream<Uint8Array>(
+      {
+        pull(controller) {
+          pulled += 1;
+          controller.enqueue(new Uint8Array(64 * 1024).fill(32));
+        },
+      },
+      { highWaterMark: 0 },
+    );
+    const request = new NextRequest(`http://localhost:4105/api/v1/runner/${path}`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
+      body: endless,
+      duplex: "half",
+    } as ConstructorParameters<typeof NextRequest>[1]);
+
+    const response = await call(request);
+
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as { error: { issues: Array<{ message: string }> } };
+    expect(body.error.issues[0].message).toContain("Content-Length");
+    expect(request.bodyUsed).toBe(false);
+    expect(pulled).toBe(0);
+    expect(interactor).not.toHaveBeenCalled();
+  });
+
+  it("reads a body whose declared length is within the cap", async () => {
+    const admission = new AgentRunnerAdmission({
+      authenticate: () => Promise.resolve({ ok: true, runner: ADMITTED.runner }),
+    });
+    mocks.admit.mockImplementation((request: Parameters<AgentRunnerAdmission["admit"]>[0]) => admission.admit(request));
+
+    const response = await postHeartbeat(post("heartbeat", { clients: [] }, { "content-length": "14" }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.heartbeat).toHaveBeenCalledTimes(1);
   });
 
   it("never lets the body name the admitted runner or the job id", async () => {

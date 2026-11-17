@@ -69,6 +69,24 @@ describe("runner API client", () => {
     ]);
   });
 
+  it("declares the length of every body, which the server requires before it reads one", async () => {
+    const event = { type: "message" as const, at: "2026-11-17T09:00:00.000Z", role: "assistant" as const, text: "ä" };
+    for (const path of ["heartbeat", "jobs/claim", `jobs/${JOB_ID}/start`, `jobs/${JOB_ID}/events`, `jobs/${JOB_ID}/result`])
+      server.on(`/api/v1/runner/${path}`, { status: 200, body: { ok: true } });
+
+    await client().heartbeat("ws-main", []);
+    await client().claim();
+    await client().start(JOB_ID, 1);
+    await client().events(JOB_ID, 1, [event]);
+    await client().result(JOB_ID, 1, { status: "succeeded" });
+
+    expect(server.requests).toHaveLength(5);
+    for (const request of server.requests) {
+      expect(request.headers["transfer-encoding"]).toBeUndefined();
+      expect(request.headers["content-length"]).toBe(String(Buffer.byteLength(JSON.stringify(request.body))));
+    }
+  });
+
   it("reports the status and Retry-After of a refusal without throwing", async () => {
     server.on("/api/v1/runner/heartbeat", { status: 429, body: { error: {} }, headers: { "retry-after": "7" } });
     expect(await client().heartbeat("m", [])).toMatchObject({ status: 429, retryAfterMs: 7000 });

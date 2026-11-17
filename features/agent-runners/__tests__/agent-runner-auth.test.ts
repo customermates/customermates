@@ -186,11 +186,11 @@ describe("AgentRunnerAdmission", () => {
     const unknown = admission({ ok: false, reason: "unauthenticated" });
     const limited = admission({ ok: false, reason: "rateLimited", retryAfterSeconds: 7 });
 
-    expect(await unknown.admission.admit({ authorization: "Bearer nope" })).toEqual({
+    expect(await unknown.admission.admit({ authorization: "Bearer nope", contentLength: "2" })).toEqual({
       ok: false,
       reason: "unauthenticated",
     });
-    expect(await limited.admission.admit({ authorization: "Bearer x" })).toEqual({
+    expect(await limited.admission.admit({ authorization: "Bearer x", contentLength: "2" })).toEqual({
       ok: false,
       reason: "rateLimited",
       retryAfterSeconds: 7,
@@ -212,7 +212,22 @@ describe("AgentRunnerAdmission", () => {
       reason: "unauthenticated",
     });
     expect((await authenticated.admission.admit({ authorization: "Bearer x", contentLength: atCap })).ok).toBe(true);
-    expect((await authenticated.admission.admit({ authorization: "Bearer x" })).ok).toBe(true);
-    expect((await authenticated.admission.admit({ authorization: "Bearer x", contentLength: "abc" })).ok).toBe(true);
+    expect((await authenticated.admission.admit({ authorization: "Bearer x", contentLength: "0" })).ok).toBe(true);
+  });
+
+  it("refuses a body that does not declare its length, so a streamed body is never read", async () => {
+    const authenticated = admission({ ok: true, runner: RUNNER });
+    const unknown = admission({ ok: false, reason: "unauthenticated" });
+
+    for (const contentLength of [undefined, null, "", "abc", "-1", "1e3", " 12", "12, 12", "0x10", "1".repeat(16)]) {
+      expect(await authenticated.admission.admit({ authorization: "Bearer x", contentLength })).toEqual({
+        ok: false,
+        reason: "lengthRequired",
+      });
+    }
+    expect(await unknown.admission.admit({ authorization: "Bearer nope" })).toEqual({
+      ok: false,
+      reason: "unauthenticated",
+    });
   });
 });
