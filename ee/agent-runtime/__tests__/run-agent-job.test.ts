@@ -104,6 +104,7 @@ async function world() {
   const toolkit = vi.fn().mockReturnValue({ tools: {}, activeToolNames: () => [] });
   const rules = { findRunUnscoped: vi.fn().mockResolvedValue({ rule: { name: "Follow up on offers" } }) };
   const ownKeyPlan = { allowed: vi.fn().mockResolvedValue(true) };
+  const tasks = { dispatch: vi.fn().mockResolvedValue(undefined) };
   const interactor = new RunAgentJobInteractor(
     jobs,
     keys,
@@ -112,11 +113,12 @@ async function world() {
     ownKeyPlan,
     createModel,
     toolkit,
+    tasks,
     loop as never,
     () => NOW,
   );
   const run = (jobId: string, user = mockUser) => runWithTenant(user, () => interactor.invoke({ jobId } as never));
-  return { jobs, keys, credits, ownKeyPlan, createModel, loop, toolkit, rules, run };
+  return { jobs, keys, credits, ownKeyPlan, createModel, loop, toolkit, rules, tasks, run };
 }
 
 describe("running an agent job on the workspace's own key", () => {
@@ -182,6 +184,44 @@ describe("running an agent job on the workspace's own key", () => {
 
     expect(await run(job.id)).toEqual({ ok: true, data: { status: "succeeded" } });
     expect(loop).toHaveBeenCalledTimes(1);
+  });
+
+  it("starts the oldest hosted job that waits in the workspace's queue as soon as a run is done", async () => {
+    const { jobs, tasks, run } = await world();
+    const colleague = "00000000-0000-4000-8000-000000000012";
+    const job = jobs.add({ runtime: "ownKey" });
+    jobs.add({ runtime: "runner" });
+    jobs.add({ runtime: "mate", companyId: "00000000-0000-4000-8000-0000000000ff" });
+    const oldest = jobs.add({ runtime: "mate", ownerUserId: colleague });
+    jobs.add({ runtime: "ownKey" });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+
+    expect(tasks.dispatch).toHaveBeenCalledTimes(1);
+    expect(tasks.dispatch).toHaveBeenCalledWith("run-agent-job", {
+      jobId: oldest.id,
+      companyId: COMPANY,
+      ownerUserId: colleague,
+    });
+  });
+
+  it("starts nothing when no hosted job waits, when the run was skipped, and keeps the result when the start fails", async () => {
+    const { jobs, tasks, run } = await world();
+    const alone = jobs.add({ runtime: "ownKey" });
+    jobs.add({ runtime: "runner" });
+    expect(await run(alone.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+    expect(tasks.dispatch).not.toHaveBeenCalled();
+
+    jobs.add({ runtime: "ownKey" });
+    expect(await run(alone.id)).toEqual({ ok: true, data: { status: "skipped" } });
+    expect(tasks.dispatch).not.toHaveBeenCalled();
+
+    const failing = jobs.add({ runtime: "ownKey" });
+    tasks.dispatch.mockRejectedValueOnce(new Error("workflow service down"));
+    expect(await run(failing.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+    expect(jobs.jobs.get(failing.id)).toMatchObject({ status: "succeeded", error: null });
+    expect(tasks.dispatch).toHaveBeenCalledTimes(1);
+    expect(sentry.captureException).toHaveBeenCalledWith(expect.objectContaining({ message: "workflow service down" }));
   });
 
   it("does not run a job a second time whose first run started and then timed out", async () => {

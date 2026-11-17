@@ -3098,6 +3098,7 @@ export const getRunAgentJobInteractor = () =>
     getAgentOwnKeyPlan(),
     createOwnKeyModel,
     createAgentJobToolkit,
+    getBackgroundTaskService(),
   );
 export const getDiscardAgentJobInteractor = () => new DiscardAgentJobInteractor(getAgentJobRepo());
 export const getSweepAgentJobTimeoutsInteractor = () =>

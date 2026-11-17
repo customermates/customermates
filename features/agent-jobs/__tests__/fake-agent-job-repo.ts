@@ -233,6 +233,19 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return Promise.resolve(stale);
   }
 
+  findOldestQueuedUnscoped(args: {
+    companyId: string;
+    runtimes: readonly AgentRuntime[];
+  }): Promise<AgentJobQueueEntry | null> {
+    const [oldest] = [...this.jobs.values()]
+      .filter((job) => job.companyId === args.companyId && job.status === "queued")
+      .filter((job) => args.runtimes.includes(job.runtime))
+      .sort((left, right) => left.queuedAt.getTime() - right.queuedAt.getTime());
+    if (!oldest) return Promise.resolve(null);
+    const { id, companyId, ownerUserId, runtime } = oldest;
+    return Promise.resolve({ id, companyId, ownerUserId, runtime });
+  }
+
   private close(
     matches: (job: StoredAgentJob) => boolean,
     patch: Pick<StoredAgentJob, "status" | "error" | "finishedAt">,

@@ -135,6 +135,10 @@ export abstract class AgentJobRepo {
     queuedBefore: Date;
     limit: number;
   }): Promise<AgentJobQueueEntry[]>;
+  abstract findOldestQueuedUnscoped(args: {
+    companyId: string;
+    runtimes: readonly AgentRuntime[];
+  }): Promise<AgentJobQueueEntry | null>;
   abstract expireQueuedUnscoped(args: { queuedBefore: Date; now: Date; limit: number }): Promise<number>;
   abstract cancelForRunnerUnscoped(args: { companyId: string; runnerId: string; now: Date }): Promise<number>;
   abstract cancelQueuedForRuleUnscoped(args: { companyId: string; ruleId: string; now: Date }): Promise<number>;

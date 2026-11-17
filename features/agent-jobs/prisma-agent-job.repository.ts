@@ -440,6 +440,18 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }
 
   @BypassTenantGuard
+  findOldestQueuedUnscoped(args: {
+    companyId: string;
+    runtimes: readonly AgentRuntime[];
+  }): Promise<AgentJobQueueEntry | null> {
+    return this.prisma.agentJob.findFirst({
+      where: { companyId: args.companyId, status: AgentJobStatus.queued, runtime: { in: [...args.runtimes] } },
+      select: { id: true, companyId: true, ownerUserId: true, runtime: true },
+      orderBy: [{ queuedAt: "asc" }, { id: "asc" }],
+    });
+  }
+
+  @BypassTenantGuard
   async deleteFinishedBeforeUnscoped(before: Date, limit: number): Promise<number> {
     const expired = await this.prisma.agentJob.findMany({
       where: { status: { in: FINISHED_STATUSES }, finishedAt: { lt: before } },

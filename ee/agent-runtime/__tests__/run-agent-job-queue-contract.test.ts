@@ -66,6 +66,7 @@ async function world(loop: (jobs: FakeAgentJobRepo, input: AgentJobLoopInput) =>
     { allowed: vi.fn().mockResolvedValue(true) },
     vi.fn().mockReturnValue({ fake: "model" }),
     toolkit,
+    { dispatch: vi.fn().mockResolvedValue(undefined) },
     ((input: AgentJobLoopInput) => loop(jobs, input)) as never,
     () => NOW,
   );

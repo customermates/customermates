@@ -1,4 +1,5 @@
 import type { LanguageModel } from "ai";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { AgentJobFinish, AgentJobRepo, StoredAgentJob } from "@/features/agent-jobs/agent-job.repo";
 import type { AgentJobFinishedStatus, AgentJobFinishReason } from "@/features/agent-jobs/agent-job.schema";
@@ -22,6 +23,7 @@ import { agentProviderKeyBinding } from "@/ee/agent-keys/agent-provider-key-bind
 import { agentStepProvider, chooseAgentProviderModel } from "@/ee/agent-keys/agent-provider-models";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
+  AGENT_JOB_HOSTED_RUNTIMES,
   AGENT_JOB_MAX_HOSTED_RUNNING_PER_WORKSPACE,
   AGENT_JOB_MAX_TOOL_CALLS,
   AGENT_JOB_MAX_WALL_MS,
@@ -89,6 +91,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     private readonly ownKeyPlan: Pick<AgentOwnKeyPlan, "allowed">,
     private readonly createModel: OwnKeyModelFactory,
     private readonly toolkit: AgentJobToolkitFactory,
+    private readonly tasks: Pick<BackgroundTaskService, "dispatch">,
     private readonly loop: typeof runAgentJobLoop = runAgentJobLoop,
     private readonly clock: () => Date = () => new Date(),
   ) {
@@ -122,7 +125,23 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     });
     if (!startedRun) return { ok: true as const, data: { status: "skipped" } };
 
-    return { ok: true as const, data: { status: await this.run(claimed) } };
+    const status = await this.run(claimed);
+    await this.dispatchNextQueued(companyId);
+    return { ok: true as const, data: { status } };
+  }
+
+  private async dispatchNextQueued(companyId: string): Promise<void> {
+    try {
+      const next = await this.repo.findOldestQueuedUnscoped({ companyId, runtimes: AGENT_JOB_HOSTED_RUNTIMES });
+      if (!next) return;
+      await this.tasks.dispatch("run-agent-job", {
+        jobId: next.id,
+        companyId: next.companyId,
+        ownerUserId: next.ownerUserId,
+      });
+    } catch (error) {
+      ErrorReporter.captureException(error);
+    }
   }
 
   private async run(job: StoredAgentJob): Promise<AgentJobFinishedStatus> {

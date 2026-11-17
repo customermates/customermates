@@ -847,6 +847,55 @@ describeDatabase("PrismaAgentJobRepo", () => {
     ]);
   });
 
+  it("finds the oldest hosted job that waits in one workspace's queue, and none when only others wait", async () => {
+    const workspace = randomUUID();
+    const owner = randomUUID();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [workspace]);
+    await client.query(
+      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+       VALUES ($1, $2, 'Agent', 'Owner', $3, 'active'::"Status", CURRENT_TIMESTAMP)`,
+      [owner, `agent-${owner}@example.invalid`, workspace],
+    );
+    const queue = (runtime: "ownKey" | "mate" | "runner") =>
+      runWithTenant(createMockUser({ id: owner, companyId: workspace }), () =>
+        repo().enqueue({
+          runtime,
+          sourceKind: "automation",
+          sourceId: randomUUID(),
+          idempotencyKey: null,
+          ruleChain: [],
+          ownerUserId: owner,
+          prompt: "Summarise the deal",
+          promptUntrusted: false,
+          model: null,
+          pinnedRunnerId: null,
+        }),
+      );
+    const now = new Date("2026-11-17T12:00:00.000Z");
+    const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60_000);
+    const oldest = () => repo().findOldestQueuedUnscoped({ companyId: workspace, runtimes: ["mate", "ownKey"] });
+
+    try {
+      const onRunner = await queue("runner");
+      const running = await queue("ownKey");
+      await age(onRunner.id, { queuedAt: minutesAgo(9) });
+      await age(running.id, { queuedAt: minutesAgo(8), status: "running" });
+      const elsewhere = await enqueue({ runtime: "mate" });
+      await age(elsewhere.id, { queuedAt: minutesAgo(30) });
+      expect(await oldest()).toBeNull();
+
+      const later = await queue("ownKey");
+      const earlier = await queue("mate");
+      await age(later.id, { queuedAt: minutesAgo(2) });
+      await age(earlier.id, { queuedAt: minutesAgo(5) });
+      expect(await oldest()).toEqual({ id: earlier.id, companyId: workspace, ownerUserId: owner, runtime: "mate" });
+    } finally {
+      await client.query('DELETE FROM "AgentJob" WHERE "companyId" = $1', [workspace]);
+      await client.query('DELETE FROM "User" WHERE "companyId" = $1', [workspace]);
+      await client.query('DELETE FROM "Company" WHERE "id" = $1', [workspace]);
+    }
+  });
+
   it("prunes finished jobs older than the cutoff of every workspace and keeps the rest", async () => {
     const cutoff = new Date("2026-08-01T00:00:00.000Z");
     const old = new Date("2026-05-01T00:00:00.000Z");
