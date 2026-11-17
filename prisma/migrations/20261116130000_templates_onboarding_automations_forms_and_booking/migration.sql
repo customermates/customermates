@@ -547,3 +547,6 @@ ALTER TABLE "NotificationPause" ADD CONSTRAINT "NotificationPause_companyId_fkey
 
 -- AddForeignKey
 ALTER TABLE "NotificationPause" ADD CONSTRAINT "NotificationPause_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AlterEnum
+ALTER TYPE "AgentUsagePurpose" ADD VALUE 'automationCompose';

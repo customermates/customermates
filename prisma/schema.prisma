@@ -1917,6 +1917,7 @@ enum AgentUsagePurpose {
   calculationDraft
   commandResolve
   fileIndexing
+  automationCompose
 }
 
 enum AgentUsageCostSource {
