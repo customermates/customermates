@@ -53,12 +53,12 @@ async function workspace(): Promise<Workspace> {
   return created;
 }
 
-async function connectCalendar(w: Workspace, status: "ok" | "permissions" = "ok") {
+async function connectCalendar(w: Workspace, status: "ok" | "permissions" = "ok", owner: { id: string } = w.admin) {
   return runWithoutTenant(async () => {
     const account = await prisma.connectedAccount.create({
       data: {
         companyId: w.companyId,
-        userId: w.admin.id,
+        userId: owner.id,
         provider: "google",
         status,
         hasCalendar: true,
@@ -138,6 +138,37 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     expect(await w.as(w.member, () => repo.delete(created.id))).toBe(false);
     expect(await w.as(w.admin, () => repo.delete(created.id))).toBe(true);
     expect(await w.as(w.admin, () => repo.countOwn())).toBe(0);
+  });
+
+  it("lists the links of the whole workspace with their owners and never those of another workspace", async () => {
+    const w = await workspace();
+    const elsewhere = await workspace();
+    const mine = await connectCalendar(w);
+    const colleague = await connectCalendar(w, "ok", w.member);
+    const foreign = await connectCalendar(elsewhere);
+    const repo = new PrismaBookingRepo();
+
+    const own = await w.as(w.admin, () => repo.create("token-w1-0123456789abcdef", linkData(mine.calendar.id)));
+    const theirs = await w.as(w.member, () =>
+      repo.create("token-w2-0123456789abcdef", { ...linkData(colleague.calendar.id), title: "Support" }),
+    );
+    await elsewhere.as(elsewhere.admin, () => repo.create("token-w3-0123456789abcdef", linkData(foreign.calendar.id)));
+
+    const workspaceWide = await w.as(w.admin, () => repo.listWorkspace());
+
+    expect(workspaceWide.map((row) => [row.id, row.userId])).toEqual([
+      [own.id, w.admin.id],
+      [theirs.id, w.member.id],
+    ]);
+    expect(workspaceWide.map((row) => row.ownerName)).toEqual([
+      expect.stringContaining("Admin"),
+      expect.stringContaining("Member"),
+    ]);
+    expect(workspaceWide[1]).toMatchObject({ title: "Support", calendarName: "Work", upcomingBookings: 0 });
+    expect((await w.as(w.admin, () => repo.list())).map((row) => row.id)).toEqual([own.id]);
+    expect((await elsewhere.as(elsewhere.admin, () => repo.listWorkspace())).map((row) => row.userId)).toEqual([
+      elsewhere.admin.id,
+    ]);
   });
 
   it("lets only one visitor reserve a start, frees it on release and on cancelled events", async () => {
