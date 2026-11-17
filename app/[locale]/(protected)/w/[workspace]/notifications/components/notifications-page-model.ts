@@ -54,12 +54,13 @@ export function resolveNotificationDayLabel(
 
 export type NotificationPage = { items: NotificationDto[]; nextBefore: string | null };
 
+function sortsAfter(item: NotificationDto, other: NotificationDto) {
+  return item.createdAt < other.createdAt || (item.createdAt === other.createdAt && item.id > other.id);
+}
+
 export function mergeNewestPage(current: NotificationPage, newest: NotificationPage): NotificationPage {
-  const oldestNewest = newest.items.at(-1)?.createdAt;
-  const newestIds = new Set(newest.items.map((item) => item.id));
-  const older = oldestNewest
-    ? current.items.filter((item) => !newestIds.has(item.id) && item.createdAt < oldestNewest)
-    : [];
+  const oldestNewest = newest.items.at(-1);
+  const older = oldestNewest ? current.items.filter((item) => sortsAfter(item, oldestNewest)) : [];
   return {
     items: [...newest.items, ...older],
     nextBefore: older.length > 0 ? current.nextBefore : newest.nextBefore,

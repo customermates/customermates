@@ -126,6 +126,29 @@ describe("page merging", () => {
     expect(merged.nextBefore).toBe(third.createdAt);
   });
 
+  it("keeps the notifications of the same millisecond that sort after the last one of the newest page", () => {
+    const at = "2026-11-16T11:00:00";
+    const [one, two, three, four] = ["b1", "b2", "b3", "b4"].map((id) => notification(id, at));
+    const merged = mergeNewestPage(
+      { items: [first, one, two, three, four, fourth], nextBefore: "cursor-of-d" },
+      { items: [first, { ...one, read: true }, two], nextBefore: "cursor-of-b2" },
+    );
+
+    expect(merged.items.map((item) => item.id)).toEqual(["a", "b1", "b2", "b3", "b4", "d"]);
+    expect(merged.items[1].read).toBe(true);
+    expect(merged.nextBefore).toBe("cursor-of-d");
+  });
+
+  it("drops a notification of the same millisecond that the newest page should have listed", () => {
+    const at = "2026-11-16T11:00:00";
+    const merged = mergeNewestPage(
+      { items: [notification("b1", at), notification("b2", at), notification("b3", at)], nextBefore: null },
+      { items: [notification("b1", at), notification("b3", at)], nextBefore: null },
+    );
+
+    expect(merged.items.map((item) => item.id)).toEqual(["b1", "b3"]);
+  });
+
   it("drops a notification the newest page no longer lists", () => {
     const merged = mergeNewestPage({ items: [first, second], nextBefore: null }, { items: [second], nextBefore: null });
 
