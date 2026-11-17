@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { decodeGetParams } from "@/core/utils/get-params";
 
 import {
@@ -39,7 +41,11 @@ describe("the kind shortcut of the Automations page", () => {
   it("reads routines-only from the filters, not from a URL parameter", () => {
     expect(showsRoutinesOnly([automationKindFilter("routine")])).toBe(true);
     expect(showsRoutinesOnly([automationKindFilter("rule")])).toBe(false);
-    expect(showsRoutinesOnly([{ field: "automationKind", operator: "in", value: ["routine", "rule"] }])).toBe(false);
+    expect(
+      showsRoutinesOnly([
+        { field: FilterFieldKey.automationKind, operator: FilterOperatorKey.in, value: ["routine", "rule"] },
+      ]),
+    ).toBe(false);
     expect(showsRoutinesOnly([])).toBe(false);
     expect(showsRoutinesOnly(undefined)).toBe(false);
   });

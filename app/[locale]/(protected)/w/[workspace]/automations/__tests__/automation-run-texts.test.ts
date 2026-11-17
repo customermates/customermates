@@ -5,11 +5,11 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { APP_LOCALES } from "@/i18n/locale-registry";
+
 import { effectDetailText, runErrorText } from "../components/automation-run-texts";
 
 type Translate = ReturnType<typeof useTranslations>;
-
-const LOCALES = ["en", "de", "fr", "it", "es", "pt", "pl", "nl"] as const;
 
 function catalog(locale: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(process.cwd(), "i18n", "locales", `${locale}.json`), "utf8")) as Record<
@@ -51,7 +51,11 @@ const EFFECT_CODES = [
 ];
 
 describe("the run history texts", () => {
-  it.each(LOCALES)("shows a sentence instead of every known code in %s", (locale) => {
+  it("covers the eight languages of the app", () => {
+    expect(APP_LOCALES).toHaveLength(8);
+  });
+
+  it.each(APP_LOCALES)("shows a sentence instead of every known code in %s", (locale) => {
     const t = translator(catalog(locale));
 
     for (const code of EFFECT_CODES) {
