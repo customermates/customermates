@@ -8,6 +8,7 @@ import { createLogger } from "./logger.js";
 import { HELP_TEXT, parseOptions } from "./options.js";
 import { runJob } from "./run-job.js";
 import { sleep } from "./sleep.js";
+import { installStopSignals } from "./stop-signals.js";
 
 const VERSION = "0.1.0";
 
@@ -25,8 +26,7 @@ async function main(): Promise<number> {
 
   const log = createLogger([options.token]);
   const api = createApiClient({ baseUrl: options.url, token: options.token, version: VERSION });
-  const controller = new AbortController();
-  for (const name of ["SIGINT", "SIGTERM"] as const) process.once(name, () => controller.abort());
+  const signals = installStopSignals(process, (code) => process.exit(code));
 
   const exit = await runDaemon(
     options,
@@ -34,11 +34,12 @@ async function main(): Promise<number> {
       api,
       log,
       discover: () => discoverClients(process.env),
-      runJob: (claimed, client, signal) => runJob(claimed, client, options, { api, log, signal }),
+      runJob: (claimed, client, signal) =>
+        runJob(claimed, client, options, { api, log, signal, forceSignal: signals.force }),
       sleep,
       hostname: hostname(),
     },
-    controller.signal,
+    signals.stop,
   );
   return exit === "unauthorized" ? 1 : 0;
 }

@@ -83,7 +83,7 @@ The CLI runs as the account that started the runner. Read this before you run a 
 
 ## Stop or revoke
 
-Stop the runner with Ctrl+C or by stopping its container; a job in progress is stopped and reported as failed. Revoke the runner under **Settings, Agents** to cut it off for good: its jobs end as cancelled, their keys stop working at once, its next request answers 401 and the runner exits. A runner is also revoked when the member who added it leaves the workspace or is deactivated.
+Stop the runner with Ctrl+C or by stopping its container (SIGINT, SIGTERM and SIGHUP count alike); a job in progress is stopped and reported as failed, and a job that was claimed but not yet started is not started. The CLI gets five seconds to end. A second stop signal kills the CLI and every process it started at once, and a third ends the runner without waiting for the report. Revoke the runner under **Settings, Agents** to cut it off for good: its jobs end as cancelled, their keys stop working at once, its next request answers 401 and the runner exits. A runner is also revoked when the member who added it leaves the workspace or is deactivated.
 
 ## Licence
 

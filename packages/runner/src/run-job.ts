@@ -42,6 +42,7 @@ export type RunJobDeps = {
   drainMs?: number;
   retryMs?: number;
   signal?: AbortSignal;
+  forceSignal?: AbortSignal;
 };
 
 type Confirmation = { timeoutMs: number } | null;
@@ -140,6 +141,10 @@ export async function runJob(
   const observer = adapter.createObserver();
   const log = jobLogger(deps.log, job);
 
+  if (deps.signal?.aborted) {
+    log.warn("the runner is stopping, the job stays in the queue");
+    return null;
+  }
   const confirmed = await confirm(job, deps.api, log, retryMs);
   if (!confirmed) return null;
   if (confirmed.timeoutMs <= 0) {
@@ -182,8 +187,15 @@ export async function runJob(
     kill("SIGTERM");
     killTimer = setTimeout(() => {
       kill("SIGKILL");
-      abandonTimer = setTimeout(abandon, drainMs);
+      abandonTimer ??= setTimeout(abandon, drainMs);
     }, killGraceMs);
+  };
+
+  const forceStop = () => {
+    stopped = true;
+    if (!child || ended) return;
+    kill("SIGKILL");
+    abandonTimer ??= setTimeout(abandon, drainMs);
   };
 
   const sendBatch = async (batch: TranscriptEvent[]) => {
@@ -221,12 +233,15 @@ export async function runJob(
   };
 
   const abortListener = () => terminate("shutdown");
+  const forceListener = () => forceStop();
   deps.signal?.addEventListener("abort", abortListener, { once: true });
+  deps.forceSignal?.addEventListener("abort", forceListener, { once: true });
+  if (deps.signal?.aborted) terminate("shutdown");
   const timeoutTimer = setTimeout(() => terminate("timeout"), confirmed.timeoutMs);
 
   let exitCode: number | null = null;
   let startFailure: string | null = null;
-  try {
+  const runClient = async () => {
     const temporary = async (prefix: string) => {
       const directory = await mkdtemp(join(tmpdir(), prefix));
       directories.push(directory);
@@ -242,6 +257,11 @@ export async function runJob(
       workDir,
     });
     for (const file of invocation.files) await writeFile(join(configDir, file.name), file.content, { mode: 0o600 });
+    if (timedOut) return;
+    if (deps.signal?.aborted || deps.forceSignal?.aborted) {
+      stopped = true;
+      return;
+    }
 
     log.info("starting client", { client: client.name, version: client.version });
     const plan = commandPlan(client.binary, invocation.args, process.env);
@@ -293,8 +313,9 @@ export async function runJob(
     });
     running.stdin?.on("error", () => undefined);
     running.stdin?.end(invocation.stdin);
-    if (timedOut) terminate("timeout");
-    else if (stopped) terminate("shutdown");
+    if (deps.forceSignal?.aborted) forceStop();
+    else if (timedOut) terminate("timeout");
+    else if (stopped || deps.signal?.aborted) terminate("shutdown");
 
     const drained = await Promise.race([
       Promise.all([exited, stdoutDone, stderrDone]).then(() => true),
@@ -307,6 +328,9 @@ export async function runJob(
       running.stdout?.destroy();
       running.stderr?.destroy();
     }
+  };
+  try {
+    if (!deps.signal?.aborted) await runClient();
   } catch (error) {
     startFailure = redactText(error instanceof Error ? error.message : String(error), secrets);
   } finally {
@@ -314,6 +338,7 @@ export async function runJob(
     if (killTimer) clearTimeout(killTimer);
     if (abandonTimer) clearTimeout(abandonTimer);
     deps.signal?.removeEventListener("abort", abortListener);
+    deps.forceSignal?.removeEventListener("abort", forceListener);
   }
 
   const result = resultOf(observer.outcome(), { exitCode, timedOut, stopped, stderrLines, secrets, startFailure });

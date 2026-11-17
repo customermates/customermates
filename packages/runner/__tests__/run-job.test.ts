@@ -467,6 +467,76 @@ describe("timeouts and closed jobs", () => {
     expect(posted.flat().at(-1)).toMatchObject({ type: "finish", reason: "cancelled" });
   });
 
+  it("does not start the client and reports runnerStopped when the stop signal arrives during the confirmation", async () => {
+    const { calls, deps, api, posted } = setup();
+    const controller = new AbortController();
+    mockOf(api, "start").mockImplementation(() => {
+      controller.abort();
+      return Promise.resolve({ status: 200, body: { ok: true, timeoutInSeconds: 60 }, retryAfterMs: null });
+    });
+
+    const result = await runJob(claimed(), CLAUDE, OPTIONS, { ...deps, signal: controller.signal });
+
+    expect(calls).toEqual([]);
+    expect(result).toEqual({ status: "failed", error: "runnerStopped" });
+    expect(resultOf(api)[2]).toEqual(result);
+    expect(posted.flat().at(-1)).toMatchObject({ type: "finish", reason: "cancelled" });
+  });
+
+  it("leaves the job to the queue when the runner is already stopping before the confirmation", async () => {
+    const { calls, deps, api } = setup();
+    const controller = new AbortController();
+    controller.abort();
+
+    const result = await runJob(claimed(), CLAUDE, OPTIONS, { ...deps, signal: controller.signal });
+
+    expect(result).toBeNull();
+    expect(calls).toEqual([]);
+    expect(mockOf(api, "start")).not.toHaveBeenCalled();
+    expect(mockOf(api, "result")).not.toHaveBeenCalled();
+  });
+
+  it("kills the client's process tree at once on a second stop signal, without waiting for the grace time", async () => {
+    const { deps, api, started } = setup({ exitOnSignals: ["SIGKILL"] });
+    const stop = new AbortController();
+    const force = new AbortController();
+
+    const running = runJob(claimed(), CLAUDE, OPTIONS, {
+      ...deps,
+      killGraceMs: 60_000,
+      signal: stop.signal,
+      forceSignal: force.signal,
+    });
+    const child = await started();
+    stop.abort();
+    expect(child.signals).toEqual(["SIGTERM"]);
+    force.abort();
+    const result = await running;
+
+    expect(child.signals).toEqual(["SIGTERM", "SIGKILL"]);
+    expect(result).toEqual({ status: "failed", error: "runnerStopped" });
+    expect(resultOf(api)[2]).toEqual(result);
+  });
+
+  it("stops waiting for a client that survives the forced kill", async () => {
+    const { deps, started } = setup({ exitOnSignals: [] });
+    const stop = new AbortController();
+    const force = new AbortController();
+
+    const running = runJob(claimed(), CLAUDE, OPTIONS, {
+      ...deps,
+      killGraceMs: 60_000,
+      signal: stop.signal,
+      forceSignal: force.signal,
+    });
+    const child = await started();
+    stop.abort();
+    force.abort();
+
+    expect(await running).toEqual({ status: "failed", error: "runnerStopped" });
+    expect(child.signals.slice(0, 2)).toEqual(["SIGTERM", "SIGKILL"]);
+  });
+
   it("retries a result that the server could not take and gives up quietly after three tries", async () => {
     const { deps, api, started } = setup();
     mockOf(api, "result").mockResolvedValue({ status: 503, body: null, retryAfterMs: null });
