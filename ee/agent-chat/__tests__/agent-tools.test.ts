@@ -1657,8 +1657,8 @@ describe("agent tools", () => {
         "start_tour",
         {
           steps: [
-            { targetId: "nav-routines", note: " Routines " },
-            { targetId: "routines-add", note: " Add " },
+            { targetId: "nav-automations", note: " Routines " },
+            { targetId: "automations-add", note: " Add " },
           ],
         },
         6000,
@@ -1667,8 +1667,8 @@ describe("agent tools", () => {
       ok: true,
       input: {
         steps: [
-          { targetId: "nav-routines", note: "Routines" },
-          { targetId: "routines-add", note: "Add" },
+          { targetId: "nav-automations", note: "Routines" },
+          { targetId: "automations-add", note: "Add" },
         ],
       },
     });
@@ -1677,8 +1677,8 @@ describe("agent tools", () => {
         "start_tour",
         {
           steps: [
-            { targetId: "nav-routines", note: "   " },
-            { targetId: "routines-add", note: " Add " },
+            { targetId: "nav-automations", note: "   " },
+            { targetId: "automations-add", note: " Add " },
           ],
         },
         6000,

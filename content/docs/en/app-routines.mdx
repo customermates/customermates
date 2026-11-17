@@ -5,11 +5,11 @@ description: "Routines run Mate on a schedule or when a record changes, using th
 
 A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction and lets Mate work on its own. Routines exist on Customermates Cloud only, because they use the owner's monthly Mate allowance.
 
-Who sees routines follows the **Routines and automations** row of their role in [Roles](app:settings/roles): **Read access** **All** shows every routine in the workspace, **Assigned** only their own, and **None** hides [Routines](app:routines). Creating needs **Create**, editing your own needs **Edit**. Everyone who can see a routine sees its run summaries; the full transcript stays with the person the run executed as.
+Who sees routines follows the **Routines and automations** row of their role in [Roles](app:settings/roles): **Read access** **All** shows every routine in the workspace, **Assigned** only their own, and **None** hides [Routines](app:automations). Creating needs **Create**, editing your own needs **Edit**. Everyone who can see a routine sees its run summaries; the full transcript stays with the person the run executed as.
 
 ## How do I create a routine or automation? [#how-do-i-create-a-routine]
 
-Routines now live in the [Automations](app:routines) list next to automations, and the old Routines page redirects there. Open Automations, open the menu of **New automation** and choose **Routine (Mate on a schedule)**. Enter a **Name** and **Instructions**, choose a trigger and click **Save**. The routine is saved **Active** unless you switch it to **Paused** first. You can also ask Mate to create one; Mate saves it paused unless you ask for it to be active. Find existing routines by searching or filtering in [Filter](app:routines?focus=filter), and switch between table and board under [Appearance](app:routines?focus=display-options).
+Routines now live in the [Automations](app:automations) list next to automations, and the old Routines page redirects there. Open Automations, open the menu of **New automation** and choose **Routine (Mate on a schedule)**. Enter a **Name** and **Instructions**, choose a trigger and click **Save**. The routine is saved **Active** unless you switch it to **Paused** first. You can also ask Mate to create one; Mate saves it paused unless you ask for it to be active. Find existing routines by searching or filtering in [Filter](app:automations?focus=filter), and switch between table and board under [Appearance](app:automations?focus=display-options).
 
 ## What is a routine made of? [#what-is-a-routine-made-of]
 
@@ -44,7 +44,7 @@ Every routine run starts with core CRM tools and loads other tool sets when need
 
 ## Schedules: how do I run a routine every morning or every Monday? [#how-do-schedules-work]
 
-In [Routines](app:routines), open a routine or click [Add](app:routines?focus=add), then under **Repeats** choose **Every 15 minutes**, **Every 30 minutes**, **Every hour**, **Every day**, **Every week** or **Every month**, plus the weekday, day of the month (1 to 28) or time in five-minute steps where needed. The default is every day at 09:00. For hourly and longer presets the schedule is spelled out underneath, followed by **Times are shown in** and the time zone, which comes from the browser the routine was created in (UTC if unknown).
+In [Routines](app:automations), open a routine or click [Add](app:automations?focus=add), then under **Repeats** choose **Every 15 minutes**, **Every 30 minutes**, **Every hour**, **Every day**, **Every week** or **Every month**, plus the weekday, day of the month (1 to 28) or time in five-minute steps where needed. The default is every day at 09:00. For hourly and longer presets the schedule is spelled out underneath, followed by **Times are shown in** and the time zone, which comes from the browser the routine was created in (UTC if unknown).
 
 A schedule that fits no preset, for example weekdays only, and a different time zone can be set only through Mate, an MCP client or the REST API; the dialog then shows **This routine uses a custom schedule** with **Switch to a preset**. The scheduler checks every five minutes, so a run may start a few minutes late, and a run still queued after two minutes is dispatched again.
 

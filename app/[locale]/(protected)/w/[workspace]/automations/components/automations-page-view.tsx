@@ -280,7 +280,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
       <DataViewToolbar
         addLabel={t("AutomationRules.new")}
         addMenu={addMenu}
-        anchorScope="routines"
+        anchorScope="automations"
         searchLabel={t("Common.filters.searchFields.routines")}
         store={automationsStore}
         onAdd={() => openNew()}

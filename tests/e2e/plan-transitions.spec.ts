@@ -1359,7 +1359,7 @@ test.describe("self-hosted installs", () => {
     await openSidebar(page);
     for (const selector of [
       "#nav-inbox",
-      "#nav-routines",
+      "#nav-automations",
       "#nav-assistant",
       "[data-nav-plan-tag]",
       "[data-trial-card]",

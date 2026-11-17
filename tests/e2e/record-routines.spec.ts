@@ -30,7 +30,7 @@ test("persists a routine for a customer-created type and matches only its config
   );
   expect(field.rows).toHaveLength(1);
   await page.goto(companyPath(companyId, "/automations"));
-  await page.locator("#routines-add").click();
+  await page.locator("#automations-add").click();
   await page.getByRole("menuitem", { name: "Routine (Mate on a schedule)" }).click();
   const routine = page.getByRole("dialog", { name: "Routine", exact: true });
   await routine.locator("#name").fill("Project follow-up");

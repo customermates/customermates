@@ -16,7 +16,7 @@ const NOTIFY_EFFECT = JSON.stringify([
 ]);
 
 async function openNewAutomation(page: Page) {
-  await page.locator("#routines-add").click();
+  await page.locator("#automations-add").click();
   const choice = page.getByRole("menuitem", { name: "Automation", exact: true });
   if (await choice.isVisible().catch(() => false)) await choice.click();
   return page.getByRole("dialog", { name: "New automation" });

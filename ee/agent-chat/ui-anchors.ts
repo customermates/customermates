@@ -29,7 +29,7 @@ export type ControlPage = {
 };
 
 export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
-  { scope: "routines", route: "/routines", label: "routines" },
+  { scope: "automations", route: "/automations", label: "automations (rules and routines)" },
   {
     scope: "settings-members",
     route: settingsHref("members"),
@@ -91,9 +91,9 @@ export const FORM_PAGES: FormAnchorPage[] = [
   },
   {
     scope: "routine-modal",
-    route: "/routines",
-    label: "routine dialog (open it first)",
-    opener: "routines-add",
+    route: "/automations",
+    label: "routine dialog (open it first: New, then Routine in its menu)",
+    opener: "automations-add",
     discard: "cancel",
   },
 ];
@@ -482,12 +482,11 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     labelKeys: ["RecordModel.configure"],
   },
   {
-    key: "routines",
-    route: "/routines",
-    description: "Sidebar link to the scheduled assistant routines",
-    labelKeys: ["NavigationBar.routines"],
+    key: "automations",
+    route: "/automations",
+    description: "Sidebar link to Automations, one list of the workspace's rules and scheduled assistant routines",
+    labelKeys: ["NavigationBar.automations"],
     resource: Resource.routines,
-    cloudOnly: true,
   },
   {
     key: "trash",

@@ -29,6 +29,7 @@ describe("suggestionPageId", () => {
     expect(suggestionPageId("/inbox")).toBe("inbox");
     expect(suggestionPageId("/dashboard")).toBe("dashboard");
     expect(suggestionPageId("/routines")).toBe("routines");
+    expect(suggestionPageId("/automations")).toBe("routines");
     expect(suggestionPageId("/wiki")).toBe("wiki");
   });
 

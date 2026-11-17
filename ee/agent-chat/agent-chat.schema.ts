@@ -191,7 +191,8 @@ export type SuggestionPageId = (typeof SUGGESTION_PAGE_IDS)[number];
 export function suggestionPageId(pathname: string): SuggestionPageId {
   if (pathname.startsWith("/settings/channels") || pathname.startsWith("/settings/connections"))
     return "connected-accounts";
-  const first = pathname.split("/")[1] ?? "";
+  const segment = pathname.split("/")[1] ?? "";
+  const first = segment === "automations" ? "routines" : segment;
   return SUGGESTION_PAGE_IDS.includes(first as SuggestionPageId) && first !== "default"
     ? (first as SuggestionPageId)
     : "default";
