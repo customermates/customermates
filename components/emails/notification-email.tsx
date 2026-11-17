@@ -14,6 +14,7 @@ type Props = EmailLayoutSharedProps & {
   greeting: string;
   intro: string;
   items: NotificationEmailItem[];
+  more?: NotificationEmailLink;
   cta: string;
   href: string;
   footerReason: string;
@@ -27,6 +28,7 @@ export default function NotificationEmail({
   greeting,
   intro,
   items,
+  more,
   cta,
   href,
   footerReason,
@@ -51,6 +53,12 @@ export default function NotificationEmail({
           {item.body ? <EmailText className="text-sm text-default-700">{item.body}</EmailText> : null}
         </EmailSection>
       ))}
+
+      {more ? (
+        <EmailText className="text-sm">
+          <EmailLink href={more.href}>{more.label}</EmailLink>
+        </EmailText>
+      ) : null}
 
       <EmailSection>
         <EmailButton href={href}>{cta}</EmailButton>

@@ -3931,6 +3931,7 @@
   "NotificationEmail": {
     "cta": "Customermates openen",
     "digestIntro": "Dit nieuws wacht op je in Customermates:",
+    "digestMore": "{count, plural, one {en nog # melding} other {en nog # meldingen}}",
     "digestSubject": "Nieuws in Customermates",
     "footerReason": "{count, plural, one {Je krijgt deze e-mail omdat {sources} je een melding heeft gestuurd.} other {Je krijgt deze e-mail omdat {sources} je een melding hebben gestuurd.}}",
     "greeting": "Hallo {firstName},",

@@ -22,6 +22,7 @@ const recipient = (displayLanguage: Locale = Locale.en) => ({
   firstName: "Sofia",
   displayLanguage,
   workspaceSlug: "ws-1",
+  workspaceName: "Acme",
 });
 
 function notification(overrides: Partial<Parameters<EmailNotificationMailer["sendInstant"]>[1]> = {}) {
@@ -121,6 +122,57 @@ describe("the notification email footer", () => {
         (verifyNotificationUnsubscribe(SECRET, new URL(link.href).searchParams.get("token") ?? "", NOW) as any).kind,
     );
     expect(kinds).toEqual(["dueToday", "ruleAlert"]);
+  });
+
+  it("opens the record from an instant mail and the Notifications page from a digest", async () => {
+    const instant = await sent((mailer) => mailer.sendInstant(recipient(), notification()));
+    const digest = await sent((mailer) =>
+      mailer.sendDigest(recipient(), [
+        notification(),
+        notification({ id: "00000000-0000-4000-8000-0000000000a2", href: "/records/y" }),
+      ]),
+    );
+
+    expect(instant.props.href).toBe("http://localhost:4000/en/w/ws-1/records/x");
+    expect(digest.props.href).toBe("http://localhost:4000/en/w/ws-1/notifications");
+    expect(digest.props.more).toBeUndefined();
+  });
+
+  it("says how many notifications a long digest leaves out and links them to the Notifications page", async () => {
+    const many = Array.from({ length: 23 }, (_, index) =>
+      notification({ id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`, title: `Item ${index}` }),
+    );
+
+    const english = await sent((mailer) => mailer.sendDigest(recipient(), many));
+    const oneMore = await sent((mailer) => mailer.sendDigest(recipient(), many.slice(0, 21)));
+    const german = await sent((mailer) => mailer.sendDigest(recipient(Locale.de), many));
+
+    expect(english.props.items).toHaveLength(20);
+    expect(english.props.more).toEqual({
+      label: "and 3 more updates",
+      href: "http://localhost:4000/en/w/ws-1/notifications",
+    });
+    expect(oneMore.props.more.label).toBe("and 1 more update");
+    expect(german.props.more.label).toBe("und 3 weitere Neuigkeiten");
+  });
+
+  it("gives the same set of notifications the same delivery key, whatever their order and number", async () => {
+    const send = vi.fn().mockResolvedValue(true);
+    const mailer = new EmailNotificationMailer({ send }, AUTH_SECRET, () => NOW);
+    const many = Array.from({ length: 12 }, (_, index) =>
+      notification({ id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}` }),
+    );
+
+    await mailer.sendDigest(recipient(), many);
+    await mailer.sendDigest(recipient(), [...many].reverse());
+    await mailer.sendDigest(recipient(), many.slice(0, 11));
+    await mailer.sendInstant(recipient(), many[0]);
+    const keys = send.mock.calls.map((call) => call[0].deduplicationKey as string);
+
+    expect(keys[0]).toBe(keys[1]);
+    expect(keys[2]).not.toBe(keys[0]);
+    expect(keys[3]).toBe(`notification:instant:${many[0].id}`);
+    expect(keys.every((key) => key.length <= 256)).toBe(true);
   });
 
   it("writes the footer in the language of the person", async () => {

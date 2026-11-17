@@ -3931,6 +3931,7 @@
   "NotificationEmail": {
     "cta": "Abrir o Customermates",
     "digestIntro": "Estas novidades esperam por você no Customermates:",
+    "digestMore": "{count, plural, one {e mais # novidade} other {e mais # novidades}}",
     "digestSubject": "Novidades no Customermates",
     "footerReason": "{count, plural, one {Você recebe este e-mail porque {sources} enviou uma notificação para você.} other {Você recebe este e-mail porque {sources} enviaram uma notificação para você.}}",
     "greeting": "Olá, {firstName},",

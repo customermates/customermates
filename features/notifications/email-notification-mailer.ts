@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { createElement } from "react";
 
 import type { NotificationKind } from "@/generated/prisma";
@@ -13,14 +15,19 @@ import { getTranslator } from "@/i18n/get-translator";
 import { formattingTagFor } from "@/i18n/locale-registry";
 import { resolveUserLocale } from "@/i18n/user-locale";
 
+import { NOTIFICATION_DIGEST_ITEM_LIMIT, NOTIFICATIONS_PATH } from "./notification.schema";
 import { notificationUnsubscribeSecret, signNotificationUnsubscribe } from "./notification-unsubscribe-token";
 
-const DIGEST_ITEM_LIMIT = 20;
 const UNSUBSCRIBE_PATH = "/api/notifications/unsubscribe";
 const MANAGE_PATH = "/settings/profile";
 
 function distinct<T>(values: T[]): T[] {
   return [...new Set(values)];
+}
+
+function deliveryKey(notifications: PendingEmailNotification[]): string {
+  const ids = notifications.map((item) => item.id);
+  return ids.length === 1 ? ids[0] : createHash("sha256").update(ids.sort().join(",")).digest("hex");
 }
 
 export class EmailNotificationMailer implements NotificationMailer {
@@ -48,7 +55,9 @@ export class EmailNotificationMailer implements NotificationMailer {
     const kindLabels = await getTranslator(locale, "Notifications");
     const layoutCopy = await getEmailLayoutCopy(locale);
     const first = notifications[0];
-    const link = first?.href ?? "/dashboard";
+    const inboxUrl = absoluteWorkspaceUrl(env.BASE_URL, locale, recipient.workspaceSlug, NOTIFICATIONS_PATH);
+    const link = mode === "digest" ? NOTIFICATIONS_PATH : (first?.href ?? "/dashboard");
+    const hidden = notifications.length - NOTIFICATION_DIGEST_ITEM_LIMIT;
     const subject = mode === "instant" && first ? first.title : t("digestSubject");
     const kindLabel = (kind: NotificationKind) => kindLabels(`kinds.${kind}`);
     const sources = distinct(notifications.map((item) => item.sourceRuleName ?? kindLabel(item.kind)));
@@ -76,8 +85,9 @@ export class EmailNotificationMailer implements NotificationMailer {
         greeting: t("greeting", { firstName: recipient.firstName }),
         intro: mode === "instant" ? t("instantIntro") : t("digestIntro"),
         items: notifications
-          .slice(0, DIGEST_ITEM_LIMIT)
+          .slice(0, NOTIFICATION_DIGEST_ITEM_LIMIT)
           .map((item) => ({ title: item.title, ...(item.body ? { body: item.body } : {}) })),
+        ...(hidden > 0 ? { more: { label: t("digestMore", { count: hidden }), href: inboxUrl } } : {}),
         cta: t("cta"),
         href: absoluteWorkspaceUrl(env.BASE_URL, locale, recipient.workspaceSlug, link),
         footerReason: t("footerReason", {
@@ -94,7 +104,7 @@ export class EmailNotificationMailer implements NotificationMailer {
         subject,
         title: t("title"),
       }),
-      deduplicationKey: `notification:${mode}:${notifications.map((item) => item.id).join(",")}`.slice(0, 256),
+      deduplicationKey: `notification:${mode}:${deliveryKey(notifications)}`,
     });
   }
 }
