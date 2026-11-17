@@ -7,6 +7,7 @@ import type { TrashDeletionResult } from "./trash.schema";
 import { Prisma } from "@/generated/prisma";
 import { runInSavepoint, runInTransaction } from "@/core/decorators/transaction-runner";
 import { itemsByHandler } from "./trash-handlers";
+import { TrashPurgeBlockedError } from "./trash-purge-blocked";
 
 const TRASH_ITEM_PURGE_TIMEOUT_MS = 15000;
 
@@ -55,8 +56,15 @@ export async function purgeTrashItems(
   }
   for (const { item, error } of failures.values()) {
     if (error === null) continue;
+    const blocked = error instanceof TrashPurgeBlockedError ? error : null;
     ErrorReporter.captureException(error, {
-      tags: { kind: "trash-purge", companyId: scope.companyId, itemKind: item.kind },
+      ...(blocked?.waitsForTrash ? { level: "warning" as const } : {}),
+      tags: {
+        kind: "trash-purge",
+        companyId: scope.companyId,
+        itemKind: item.kind,
+        ...(blocked ? { reasons: blocked.reasons.join(",") } : {}),
+      },
       extra: { itemId: item.id, system: scope.actorId === null },
     });
   }
