@@ -1,7 +1,8 @@
 import type { RecordFieldView, RecordModelView } from "@/features/records/record-model.schema";
 import type { AutomationCondition, AutomationEffect, AutomationTrigger } from "./automation-rule.schema";
 
-import { fieldChangedFilter } from "./automation-record-trigger";
+import { recordFieldFilterIsValid } from "@/features/records/record-query-validation";
+import { conditionRecordFilter, fieldChangedFilter } from "./automation-record-trigger";
 import { triggerTypeId } from "./automation-rule.schema";
 
 type RuleDefinition = { trigger: AutomationTrigger; conditions: AutomationCondition[]; effects: AutomationEffect[] };
@@ -81,6 +82,27 @@ function effectIssues(model: RecordModelView, triggerType: string | null, effect
     }
     if (effect.kind === "createRecord") return createRecordIssues(model, triggerType, effect, path);
     return [];
+  });
+}
+
+function conditionIssue(condition: AutomationCondition, field: RecordFieldView): "operator" | "value" | null {
+  const relative = condition.relativeDays !== undefined;
+  const temporal = condition.operator === "before" || condition.operator === "after";
+  if ((temporal || relative) && !DATE_TYPES.has(field.valueType)) return "operator";
+  if (relative) return temporal ? null : "operator";
+  return recordFieldFilterIsValid(conditionRecordFilter(condition), field) ? null : "value";
+}
+
+export function automationConditionIssues(
+  rule: Pick<RuleDefinition, "trigger" | "conditions">,
+  model: RecordModelView,
+): string[] {
+  const typeId = triggerTypeId(rule.trigger);
+  if (!typeId) return [];
+  return rule.conditions.flatMap((condition, index) => {
+    const field = fieldOf(model, typeId, condition.fieldId);
+    const issue = field ? conditionIssue(condition, field) : null;
+    return issue ? [`conditions.${index}.${issue}`] : [];
   });
 }
 

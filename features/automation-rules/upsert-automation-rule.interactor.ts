@@ -15,7 +15,7 @@ import { fail, failAuthorization, failConflict, failNotFound } from "@/core/vali
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { AUTOMATION_DISABLED_REASON_BY_USER } from "./automation-disabled-reason";
-import { automationModelIssues } from "./automation-model-validation";
+import { automationConditionIssues, automationModelIssues } from "./automation-model-validation";
 import { ruleConditionPlan } from "./automation-record-trigger";
 import { toAutomationRuleDto } from "./automation-rule-dto";
 import {
@@ -66,7 +66,7 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
     const finalIssue = automationRuleFinalStateIssues(state)[0];
     if (finalIssue) return fail(CustomErrorCode.automationRuleInvalid, [finalIssue]);
     const model = await this.records.model();
-    const modelIssue = automationModelIssues(state, model)[0];
+    const modelIssue = automationModelIssues(state, model)[0] ?? automationConditionIssues(state, model)[0];
     if (modelIssue) return fail(CustomErrorCode.automationRuleInvalid, modelIssue.split("."));
     const steps = await this.resolveSteps(state.effects);
     if (!steps.ok) return fail(steps.issue.code, steps.issue.path, { reason: steps.issue.reason });

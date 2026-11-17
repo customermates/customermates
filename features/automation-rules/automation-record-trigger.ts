@@ -38,18 +38,18 @@ export function fieldChangedFilter(
   return usableFilter(trigger.typeId, { fieldId: trigger.fieldId, operator: "eq", value: trigger.to }, model);
 }
 
+export function conditionRecordFilter(condition: AutomationCondition): RecordFilter {
+  return {
+    fieldId: condition.fieldId,
+    operator: FILTER_OPERATORS[condition.operator],
+    value: condition.value ?? null,
+    ...(condition.values ? { values: condition.values } : {}),
+  };
+}
+
 function conditionFilter(typeId: string, condition: AutomationCondition, model: RecordModelView): RecordFilter | null {
   if (condition.relativeDays !== undefined) return null;
-  return usableFilter(
-    typeId,
-    {
-      fieldId: condition.fieldId,
-      operator: FILTER_OPERATORS[condition.operator],
-      value: condition.value ?? null,
-      ...(condition.values ? { values: condition.values } : {}),
-    },
-    model,
-  );
+  return usableFilter(typeId, conditionRecordFilter(condition), model);
 }
 
 function eventTrigger(trigger: AutomationTrigger): { events: RecordEventKind[]; changedFieldIds: string[] } | null {

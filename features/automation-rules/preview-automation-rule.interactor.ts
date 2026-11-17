@@ -16,7 +16,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { evaluateConditions } from "./automation-conditions";
 import { dateReachedCandidateWindow } from "./automation-date";
-import { automationModelIssues } from "./automation-model-validation";
+import { automationConditionIssues, automationModelIssues } from "./automation-model-validation";
 import { dueDateOccurrences } from "./automation-occurrence";
 import {
   AUTOMATION_DATE_LOOKBACK_DAYS,
@@ -59,10 +59,11 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
       .array(AutomationEffectSchema)
       .catch([])
       .parse(stored?.effects ?? []);
-    const modelIssue = automationModelIssues(
-      { trigger: trigger.data, conditions, effects },
-      await this.records.model(),
-    )[0];
+    const model = await this.records.model();
+    const definition = { trigger: trigger.data, conditions, effects };
+    const modelIssue =
+      automationModelIssues(definition, model)[0] ??
+      (data.rule ? automationConditionIssues(definition, model)[0] : undefined);
     if (modelIssue) return fail(CustomErrorCode.automationRuleInvalid, modelIssue.split("."));
     if (trigger.data.kind !== "dateReached")
       return { ok: true as const, data: { supported: false, total: 0, recordIds: [], alreadyFired: 0 } };

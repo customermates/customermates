@@ -58,7 +58,8 @@ const RECORD = "44444444-4444-4444-8444-444444444444";
 const NOW = new Date("2026-11-12T08:00:00.000Z");
 
 function field(id: string, typeId: string, valueType: string, kind = "input") {
-  return { id, typeId, label: id, valueType, behavior: { kind }, archived: false, required: false, options: [] };
+  const options = valueType === "select" ? ["won", "lost"].map((option) => ({ id: option, label: option })) : [];
+  return { id, typeId, label: id, valueType, behavior: { kind }, archived: false, required: false, options };
 }
 
 const MODEL = {
@@ -164,6 +165,45 @@ describe("saving a rule", () => {
       expect(issueOf(result as never)).toEqual({ path, error: CustomErrorCode.automationRuleInvalid });
     }
     expect(repo.rules.size).toBe(0);
+  });
+
+  it("refuses a condition whose operator or value does not fit the type of its field", async () => {
+    const select = (value: string) => ({ kind: "select", value });
+    for (const [condition, part] of [
+      [{ fieldId: STAGE, operator: "equals", value: { kind: "text", value: "won" } }, "value"],
+      [{ fieldId: STAGE, operator: "equals", value: select("unknown option") }, "value"],
+      [{ fieldId: STAGE, operator: "in", values: [select("won"), { kind: "boolean", value: true }] }, "value"],
+      [{ fieldId: CLOSE, operator: "equals", value: { kind: "decimal", value: "3", currency: null } }, "value"],
+      [{ fieldId: CLOSE, operator: "before", value: { kind: "text", value: "soon" } }, "value"],
+      [{ fieldId: STAGE, operator: "before", relativeDays: 3 }, "operator"],
+      [{ fieldId: STAGE, operator: "after", value: select("won") }, "operator"],
+      [
+        { fieldId: CLOSE, operator: "equals", value: { kind: "date", value: "2026-11-14" }, relativeDays: 2 },
+        "operator",
+      ],
+    ] as const) {
+      const result = await save(upsert(), { ...reminder, conditions: [condition] });
+      expect(result.ok).toBe(false);
+      expect(issueOf(result as never)).toEqual({
+        path: ["conditions", "0", part],
+        error: CustomErrorCode.automationRuleInvalid,
+      });
+    }
+    expect(repo.rules.size).toBe(0);
+  });
+
+  it("accepts conditions that fit their fields, with a value, a list, a relative day or none", async () => {
+    const result = await save(upsert(), {
+      ...reminder,
+      conditions: [
+        { fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } },
+        { fieldId: STAGE, operator: "notIn", values: [{ kind: "select", value: "lost" }] },
+        { fieldId: CLOSE, operator: "after", value: { kind: "date", value: "2026-11-14" } },
+        { fieldId: CLOSE, operator: "before", relativeDays: 7 },
+        { fieldId: CALC, operator: "notEmpty" },
+      ],
+    });
+    expect(result.ok).toBe(true);
   });
 
   it("accepts a task effect linked to the deal through the declared relation", async () => {
@@ -651,7 +691,9 @@ describe("previewing a date rule", () => {
     repo.unreadableRecords.add(hidden);
     const plain = await run(preview(), { rule: { trigger: reminder.trigger } });
     expect(plain).toMatchObject({ ok: true, data: { total: 1, recordIds: [RECORD], alreadyFired: 0 } });
-    const won = new Map<string, CalculatedValue>([[STAGE, { state: "value", value: { kind: "select", value: "won" } }]]);
+    const won = new Map<string, CalculatedValue>([
+      [STAGE, { state: "value", value: { kind: "select", value: "won" } }],
+    ]);
     const filtered = await run(preview({ values: won }), {
       rule: {
         trigger: reminder.trigger,
