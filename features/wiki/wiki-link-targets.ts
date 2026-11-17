@@ -62,7 +62,7 @@ export function extractWikiLinkTargets(
     for (const mark of node.marks ?? []) {
       const href = mark.type === "link" ? mark.attrs?.href : null;
       if (typeof href !== "string") continue;
-      const page = parseWikiPageHref(href, options.baseUrl);
+      const page = parseWikiPageHref(href.split("#", 1)[0] ?? href, options.baseUrl);
       if (page) {
         if (isWikiTargetInWorkspace(page, options.workspaceSlug) && page.id !== options.pageId) pages.add(page.id);
         continue;

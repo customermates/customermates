@@ -51,6 +51,19 @@ describe("link targets of a page", () => {
     });
   });
 
+  it("counts a link to one section of a page as a link to that page", () => {
+    const anchored = [
+      `[a section](/wiki?page=${OTHER}#help-first)`,
+      `[another](${BASE_URL}/w/${SLUG}/wiki?page=${THIRD}#steps)`,
+      `[own section](/wiki?page=${PAGE}#here)`,
+      `[foreign section](/w/beratung/wiki?page=${TYPE}#there)`,
+    ].join(" ");
+    expect(extractWikiLinkTargets(anchored, { baseUrl: BASE_URL, workspaceSlug: SLUG, pageId: PAGE })).toEqual({
+      pages: [OTHER, THIRD],
+      records: [],
+    });
+  });
+
   it("keeps links of another workspace out", () => {
     const foreign = `[page](/w/beratung/wiki?page=${OTHER}) [record](/w/beratung/records/${TYPE}/${RECORD})`;
     expect(extractWikiLinkTargets(foreign, { baseUrl: BASE_URL, workspaceSlug: SLUG })).toEqual({

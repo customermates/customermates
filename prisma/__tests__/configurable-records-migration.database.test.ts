@@ -881,7 +881,13 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(await mateState()).toEqual({
       ...before,
       pages: before.pages.map((page) => ({
-        row: { ...(page.row as Record<string, unknown>), deletedAt: null, summary: null, summaryContentHash: null },
+        row: {
+          ...(page.row as Record<string, unknown>),
+          deletedAt: null,
+          summary: null,
+          summaryContentHash: null,
+          linksSyncedAt: null,
+        },
       })),
     });
     expect(await rows(client, 'SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectId"=$1', [pageId])).toEqual([
