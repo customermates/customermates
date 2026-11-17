@@ -10,8 +10,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { TrashItem, TrashRepo } from "@/features/trash/trash.repo";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { TrashPurgeBlockedError } from "@/features/trash/trash-purge-blocked";
-import { purgeOperationIdOf } from "@/features/trash/trash-purge-marker";
+import { purgeOperationIdOf, TRASH_PURGE_BLOCKED_BY_TRASH } from "@/features/trash/trash-purge-marker";
 import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
 import { RecordJournal } from "./record-journal";
 import { systemRecordAccess } from "./system-record-access";
@@ -30,13 +29,15 @@ function inTrash(model: RecordModel, reference: DeletionReference): boolean {
   return false;
 }
 
-function purgeBlocked(preview: ConfigurationPreview, model: RecordModel): TrashPurgeBlockedError {
+function purgeBlocked(preview: ConfigurationPreview, model: RecordModel): Error {
   const blockers = preview.deletion?.blockers ?? [];
   const reasons = [...new Set([...preview.issues.map((issue) => issue.code), ...blockers.map(({ reason }) => reason)])];
   const waitsForTrash =
     preview.issues.length === 0 && blockers.length > 0 && blockers.every(({ source }) => inTrash(model, source));
-  const failure = unwindFailure(CustomErrorCode.recordConfigurationInvalid);
-  return new TrashPurgeBlockedError(failure.message, reasons, waitsForTrash, { cause: failure.cause });
+  return unwindFailure(CustomErrorCode.recordConfigurationInvalid, "validation", [], {
+    reasons: reasons.join(","),
+    blockedBy: waitsForTrash ? TRASH_PURGE_BLOCKED_BY_TRASH : "model",
+  });
 }
 
 export class ConfigurationSystemPurge {

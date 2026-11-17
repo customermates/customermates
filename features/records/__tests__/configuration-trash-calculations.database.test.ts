@@ -1404,8 +1404,7 @@ describeDatabase("configuration Trash access and permanent deletion", () => {
       ),
     ).rejects.toMatchObject({
       message: "recordConfigurationInvalid",
-      reasons: ["calculation"],
-      waitsForTrash: true,
+      cause: { values: { reasons: "calculation", blockedBy: "trash" } },
     });
 
     await expire(lookup);

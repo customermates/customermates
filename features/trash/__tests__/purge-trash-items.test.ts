@@ -17,11 +17,14 @@ vi.mock("@/core/decorators/transaction-runner", () => ({
   },
 }));
 
+import { unwindFailure } from "@/core/validation/failure-unwind";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { purgeTrashItems } from "../purge-trash-items";
-import { TrashPurgeBlockedError } from "../trash-purge-blocked";
 
 const item = { id: "item-1", kind: "list", targetId: "list-1" } as TrashItem;
 const scope = { companyId: "company-1", actorId: null };
+const blockedPurge = (reasons: string, blockedBy: string) =>
+  unwindFailure(CustomErrorCode.recordConfigurationInvalid, "validation", [], { reasons, blockedBy });
 
 function setup(error: unknown) {
   const trash = { find: vi.fn().mockResolvedValue([item]) };
@@ -37,7 +40,7 @@ describe("reporting a Trash item that could not be purged", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("reports an item that waits for another item in Trash as a warning that names the reason", async () => {
-    const waiting = new TrashPurgeBlockedError("recordConfigurationInvalid", ["calculation"], true);
+    const waiting = blockedPurge("calculation", "trash");
     const { trash, handler } = setup(waiting);
 
     expect(await purgeTrashItems(trash, [handler], [item], scope)).toEqual({
@@ -55,7 +58,7 @@ describe("reporting a Trash item that could not be purged", () => {
   });
 
   it("keeps an item blocked by something outside Trash an error and names every reason", async () => {
-    const blocked = new TrashPurgeBlockedError("recordConfigurationInvalid", ["widget_incompatible", "webhook"], false);
+    const blocked = blockedPurge("widget_incompatible,webhook", "model");
     const { trash, handler } = setup(blocked);
 
     await purgeTrashItems(trash, [handler], [item], scope);
