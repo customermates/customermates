@@ -68,7 +68,7 @@ Użyj `manage_rules` przez [MCP](/docs/mcp), z akcjami `list`, `get`, `runs`, `c
 Nie. Rutyna otwiera rozmowę i pozwala Mate pracować, zużywa limit Mate właściciela i istnieje tylko w Customermates Cloud. Automatyzacja wykonuje stałą regułę gdy, jeśli, wtedy bez AI, w każdym planie i na instancjach self-hosted. Drugi rodzaj opisują [rutyny](/docs/app-routines).
 </FaqItem>
 <FaqItem question="Dlaczego moja automatyzacja nie uruchomiła się dla rekordu?">
-Otwórz **Historię** automatyzacji. Pominięte uruchomienie podaje powód, na przykład niespełnione warunki lub właściciela, który nie jest już aktywny. Reguła daty potrzebuje też daty w polu i uruchamia się raz na rekord i datę.
+Otwórz automatyzację i wybierz kartę **Uruchomienia** albo wybierz **Historia uruchomień** w menu wiersza. Pominięte uruchomienie podaje powód, na przykład niespełnione warunki lub właściciela, który nie jest już aktywny. Reguła daty potrzebuje też daty w polu i uruchamia się raz na rekord i datę.
 </FaqItem>
 <FaqItem question="Czy automatyzacja może wysłać e-mail do klienta?">
 Nie bezpośrednio. Automatyzacja sama nie wysyła e-maili ani wiadomości. Może powiadamiać członków Twojej przestrzeni roboczej, co może do nich dotrzeć także e-mailem, i może wywołać jeden z Twoich webhooków, na przykład aby uruchomić przepływ [n8n](/docs/n8n), który coś wyśle. Wywołanie to zdarzenie `automation.rule.fired`, dostarczane jak każde inne zdarzenie webhooka z ponowieniami i historią, więc webhook musi je mieć wybrane w sekcji [Jakie zdarzenia istnieją?](/docs/webhooks#other-events).

@@ -68,7 +68,7 @@ Usa `manage_rules` por [MCP](/docs/mcp), con las acciones `list`, `get`, `runs`,
 No. Una rutina abre una conversación y deja que Mate trabaje, usa la asignación de Mate del propietario y solo existe en Customermates Cloud. Una automatización ejecuta una regla fija de cuando, si y entonces sin IA, en todos los planes y en instancias autoalojadas. Para el otro tipo, consulta las [rutinas](/docs/app-routines).
 </FaqItem>
 <FaqItem question="¿Por qué mi automatización no se ejecutó para un registro?">
-Abre el **Historial** de la automatización. Una ejecución omitida indica el motivo, por ejemplo condiciones sin cumplir o un propietario que ya no está activo. Una regla de fecha también necesita una fecha en el campo y se dispara una vez por registro y fecha.
+Abre la automatización y elige la pestaña **Ejecuciones**, o elige **Historial de ejecuciones** en el menú de la fila. Una ejecución omitida indica el motivo, por ejemplo condiciones sin cumplir o un propietario que ya no está activo. Una regla de fecha también necesita una fecha en el campo y se dispara una vez por registro y fecha.
 </FaqItem>
 <FaqItem question="¿Puede una automatización enviar un correo a un cliente?">
 No directamente. Una automatización no envía correos ni mensajes por sí misma. Puede notificar a miembros de tu espacio de trabajo, lo que puede llegarles por correo, y puede llamar a uno de tus webhooks, por ejemplo para iniciar un flujo de [n8n](/docs/n8n) que envíe algo. La llamada es el evento `automation.rule.fired`, que se entrega como cualquier otro evento de webhook con reintentos e historial, así que el webhook debe haberlo seleccionado en [¿Qué eventos existen?](/docs/webhooks#other-events).

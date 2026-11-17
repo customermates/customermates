@@ -68,7 +68,7 @@ Gebruik `manage_rules` via [MCP](/docs/mcp), met de acties `list`, `get`, `runs`
 Nee. Een routine opent een gesprek en laat Mate werken, gebruikt het Mate-tegoed van de eigenaar en bestaat alleen op Customermates Cloud. Een automatisering voert een vaste wanneer-als-dan-regel uit zonder AI, op elk pakket en op zelfgehoste instanties. Zie de [routines](/docs/app-routines) voor het andere soort.
 </FaqItem>
 <FaqItem question="Waarom is mijn automatisering niet afgegaan voor een record?">
-Open de **Geschiedenis** van de automatisering. Een overgeslagen uitvoering noemt de reden, zoals voorwaarden die niet klopten of een eigenaar die niet meer actief is. Een datumregel heeft ook een datum in het veld nodig en gaat één keer per record en datum af.
+Open de automatisering en kies het tabblad **Uitvoeringen**, of kies **Uitvoeringsgeschiedenis** in het rijmenu. Een overgeslagen uitvoering noemt de reden, zoals voorwaarden die niet klopten of een eigenaar die niet meer actief is. Een datumregel heeft ook een datum in het veld nodig en gaat één keer per record en datum af.
 </FaqItem>
 <FaqItem question="Kan een automatisering een e-mail naar een klant sturen?">
 Niet rechtstreeks. Een automatisering verstuurt zelf geen e-mails of berichten. Ze kan leden van je werkruimte melden, wat hen ook per e-mail kan bereiken, en een van je webhooks aanroepen, bijvoorbeeld om een [n8n](/docs/n8n)-workflow te starten die iets verstuurt. De aanroep is de gebeurtenis `automation.rule.fired`, die net als elke andere webhookgebeurtenis wordt afgeleverd met nieuwe pogingen en geschiedenis; de webhook moet haar dus hebben geselecteerd onder [Welke gebeurtenissen bestaan er?](/docs/webhooks#other-events).

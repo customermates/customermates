@@ -68,7 +68,7 @@ Use `manage_rules` por [MCP](/docs/mcp), com as ações `list`, `get`, `runs`, `
 Não. Uma rotina abre uma conversa e deixa o Mate trabalhar, usa a franquia do Mate do proprietário e só existe no Customermates Cloud. Uma automação executa uma regra fixa de quando, se e então sem IA, em todos os planos e em instâncias auto-hospedadas. Para o outro tipo, veja as [rotinas](/docs/app-routines).
 </FaqItem>
 <FaqItem question="Por que minha automação não rodou para um registro?">
-Abra o **Histórico** da automação. Uma execução ignorada diz o motivo, por exemplo condições não atendidas ou um proprietário que não está mais ativo. Uma regra de data também precisa de uma data no campo e dispara uma vez por registro e data.
+Abra a automação e escolha a aba **Execuções**, ou escolha **Histórico de execuções** no menu da linha. Uma execução ignorada diz o motivo, por exemplo condições não atendidas ou um proprietário que não está mais ativo. Uma regra de data também precisa de uma data no campo e dispara uma vez por registro e data.
 </FaqItem>
 <FaqItem question="Uma automação pode enviar um e-mail para um cliente?">
 Não diretamente. Uma automação não envia e-mails nem mensagens por si mesma. Ela pode notificar membros do seu espaço de trabalho, o que pode alcançá-los por e-mail, e pode chamar um dos seus webhooks, por exemplo para iniciar um fluxo do [n8n](/docs/n8n) que envie algo. A chamada é o evento `automation.rule.fired`, entregue como qualquer outro evento de webhook com novas tentativas e histórico, então o webhook precisa tê-lo selecionado em [Quais eventos existem?](/docs/webhooks#other-events).

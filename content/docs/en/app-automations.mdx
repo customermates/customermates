@@ -68,7 +68,7 @@ Use `manage_rules` over [MCP](/docs/mcp), with the actions `list`, `get`, `runs`
 No. A routine opens a conversation and lets Mate work, uses the owner's Mate allowance and exists on Customermates Cloud only. An automation runs a fixed when, if and then rule without AI, on every plan and on self-hosted instances. See [Routines](/docs/app-routines) for the other kind.
 </FaqItem>
 <FaqItem question="Why did my automation not run for a record?">
-Open **History** on the automation. A skipped run names the reason, such as unmet conditions or an owner who is no longer active. A date rule also needs a date in the field, and it fires once per record and date.
+Open the automation and choose its **Runs** tab, or choose **Run history** in the row menu. A skipped run names the reason, such as unmet conditions or an owner who is no longer active. A date rule also needs a date in the field, and it fires once per record and date.
 </FaqItem>
 <FaqItem question="Can I send an email to a customer from an automation?">
 Not directly. An automation does not send emails or messages itself. It can notify members of your workspace, which may reach them by email, and it can call one of your webhooks, for example to start an [n8n](/docs/n8n) workflow that sends something. The call is the event `automation.rule.fired`, delivered like any other webhook event with retries and history, so the webhook must have selected it under [Which events exist?](/docs/webhooks#other-events).
