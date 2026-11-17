@@ -4,6 +4,7 @@ import type { AutomationAgentJobInput, AutomationAgentPort } from "@/features/au
 import type { AgentRuntimeAvailabilitySource } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
 import type { AgentJobRepo } from "./agent-job.repo";
 import type { EnqueueAgentJobData, EnqueuedAgentJob } from "./agent-job.schema";
+import type { AgentJobTriggerSource } from "./agent-job-trigger-source";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { currentCausation } from "@/core/decorators/causation-context";
@@ -34,6 +35,7 @@ export class EnqueueAgentJobInteractor
     private readonly repo: AgentJobRepo,
     private readonly availability: AgentRuntimeAvailabilitySource,
     private readonly tasks: Pick<BackgroundTaskService, "dispatch">,
+    private readonly triggers: AgentJobTriggerSource | null = null,
   ) {
     super();
   }
@@ -59,6 +61,9 @@ export class EnqueueAgentJobInteractor
     const refusal = await this.refusal(data);
     if (refusal) return failUnavailable(CustomErrorCode.agentRuntimeUnavailable, ["runtime"], { reason: refusal });
 
+    const message = data.recordRef
+      ? null
+      : ((await this.triggers?.messageOf({ companyId: data.companyId, runId: data.runId })) ?? null);
     const job = await this.repo.enqueue({
       runtime: data.runtime,
       sourceKind: AGENT_JOB_SOURCE_AUTOMATION,
@@ -66,7 +71,7 @@ export class EnqueueAgentJobInteractor
       idempotencyKey: data.idempotencyKey,
       ruleChain: [...(currentCausation()?.ruleChain ?? [])],
       ownerUserId: data.ownerUserId,
-      prompt: composeAgentJobPrompt(data.prompt, data.recordRef),
+      prompt: composeAgentJobPrompt(data.prompt, data.recordRef, message),
       promptUntrusted: data.promptUntrusted,
       model: data.model,
       pinnedRunnerId: data.runnerId,

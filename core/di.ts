@@ -2856,6 +2856,7 @@ import { AutomationEffectRunner } from "@/features/automation-rules/automation-e
 import { GetAgentRuntimeAvailabilityInteractor } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
 import { PrismaAgentJobRepo } from "@/features/agent-jobs/prisma-agent-job.repository";
 import { EnqueueAgentJobInteractor } from "@/features/agent-jobs/enqueue-agent-job.interactor";
+import { AutomationRunTriggerSource } from "@/features/agent-jobs/agent-job-trigger-source";
 import { GetAgentJobsInteractor } from "@/features/agent-jobs/get-agent-jobs.interactor";
 import { GetAgentJobInteractor } from "@/features/agent-jobs/get-agent-job.interactor";
 import { DiscardAgentJobInteractor } from "@/features/agent-jobs/discard-agent-job.interactor";
@@ -2949,7 +2950,12 @@ const getAgentRuntimeAvailabilitySource = () =>
   );
 const getMateAgentJobCredits = () => new MateAgentJobCredits(getAgentUsageService());
 const getEnqueueAgentJobInteractor = () =>
-  new EnqueueAgentJobInteractor(getAgentJobRepo(), getAgentRuntimeAvailabilitySource(), getBackgroundTaskService());
+  new EnqueueAgentJobInteractor(
+    getAgentJobRepo(),
+    getAgentRuntimeAvailabilitySource(),
+    getBackgroundTaskService(),
+    new AutomationRunTriggerSource(getAutomationRuleRepo(), getEventLogRepo(), getThreadRecordsRepo()),
+  );
 const getAutomationEffectRunner = () =>
   new AutomationEffectRunner(
     getRecordAutomationPort(),
