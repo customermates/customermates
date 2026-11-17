@@ -13,6 +13,7 @@ const OTHER_RUNNER = { ...RUNNER, id: "00000000-0000-4000-8000-0000000000c2", na
 const FOREIGN_RUNNER = { ...RUNNER, companyId: "00000000-0000-4000-8000-000000000099", name: "elsewhere" };
 const NOW = new Date("2026-11-17T09:00:00.000Z");
 const AT = "2026-11-17T09:00:05.000Z";
+const CONFIRM_BY = new Date(NOW.getTime() + AGENT_RUNNER_LIMITS.claimConfirmMs);
 
 function setup(jobs = new FakeAgentJobRepo()) {
   const queries: Array<{ companyId: string; ownerUserId: string; runnerId: string; limit: number }> = [];
@@ -103,7 +104,13 @@ describe("QueuedAgentJobRunnerRepo", () => {
 
   it("starts the claimed attempt with the full run time and refuses another attempt", async () => {
     const { jobs, repo } = setup();
-    const job = jobs.add({ runtime: "runner", status: "claimed", runnerId: RUNNER.id, attempts: 2 });
+    const job = jobs.add({
+      runtime: "runner",
+      status: "claimed",
+      runnerId: RUNNER.id,
+      attempts: 2,
+      timeoutAt: CONFIRM_BY,
+    });
 
     expect(await repo.start(job.id, RUNNER, 1)).toBeNull();
     expect(jobs.jobs.get(job.id)?.status).toBe("claimed");
@@ -112,15 +119,39 @@ describe("QueuedAgentJobRunnerRepo", () => {
     expect(await repo.start(job.id, RUNNER, 2)).toBeNull();
   });
 
+  it("does not start a claimed attempt whose confirmation was due at this moment or earlier", async () => {
+    const { jobs, repo } = setup();
+    const due = jobs.add({ runtime: "runner", status: "claimed", runnerId: RUNNER.id, attempts: 1, timeoutAt: NOW });
+    const overdue = jobs.add({
+      runtime: "runner",
+      status: "claimed",
+      runnerId: RUNNER.id,
+      attempts: 1,
+      timeoutAt: new Date(NOW.getTime() - 1),
+    });
+
+    expect(await repo.start(due.id, RUNNER, 1)).toBeNull();
+    expect(await repo.start(overdue.id, RUNNER, 1)).toBeNull();
+    expect(jobs.jobs.get(due.id)).toMatchObject({ status: "claimed", startedAttempts: 0 });
+    expect(jobs.jobs.get(overdue.id)).toMatchObject({ status: "claimed", startedAttempts: 0 });
+  });
+
   it("confirms a first attempt and refuses a job whose earlier attempt had already started", async () => {
     const { jobs, repo } = setup();
-    const first = jobs.add({ runtime: "runner", status: "claimed", runnerId: RUNNER.id, attempts: 1 });
+    const first = jobs.add({
+      runtime: "runner",
+      status: "claimed",
+      runnerId: RUNNER.id,
+      attempts: 1,
+      timeoutAt: CONFIRM_BY,
+    });
     const retried = jobs.add({
       runtime: "runner",
       status: "claimed",
       runnerId: RUNNER.id,
       attempts: 3,
       startedAttempts: 1,
+      timeoutAt: CONFIRM_BY,
     });
     jobs.events.set(retried.id, [{ type: "message", at: AT, role: "assistant", text: "Working" }]);
 
