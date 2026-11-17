@@ -6275,6 +6275,7 @@
                           "whatsapp",
                           "instagram",
                           "telegram",
+                          "facebook",
                           "phone"
                         ],
                         "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -8124,6 +8125,7 @@
                     "whatsapp",
                     "instagram",
                     "telegram",
+                    "facebook",
                     "phone"
                   ],
                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -8182,6 +8184,7 @@
                     "whatsapp",
                     "instagram",
                     "telegram",
+                    "facebook",
                     "phone"
                   ],
                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -11187,6 +11190,7 @@
                     "whatsapp",
                     "instagram",
                     "telegram",
+                    "facebook",
                     "phone"
                   ],
                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -11696,6 +11700,7 @@
                         "whatsapp",
                         "instagram",
                         "telegram",
+                        "facebook",
                         "phone"
                       ],
                       "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -19613,6 +19618,7 @@
                             "whatsapp",
                             "instagram",
                             "telegram",
+                            "facebook",
                             "phone"
                           ],
                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -25428,6 +25434,7 @@
                               "whatsapp",
                               "instagram",
                               "telegram",
+                              "facebook",
                               "phone"
                             ],
                             "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -33115,7 +33122,8 @@
                     "linkedin",
                     "whatsapp",
                     "instagram",
-                    "telegram"
+                    "telegram",
+                    "facebook"
                   ]
                 }
               },
@@ -33730,7 +33738,7 @@
             "maxLength": 200
           },
           "filters": {
-            "description": "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. Use only the operators listed in each field's hint; value-less operators take no value. Example: [{\"field\":\"createdAt\",\"operator\":\"inLastDays\",\"value\":30}]. Filterable fields: state (one of: unread, open, closed, spam; operators: in, notIn), provider (one of: google, outlook, mail, linkedin, whatsapp, instagram, telegram; operators: in, notIn), draft (draft status; value-less operators: hasSome = thread holds an unsent draft, hasNone = it does not), participantContactId (typeId:recordId reference; operators: in, notIn), participants (CRM-link status; value-less operators: allSet = all participants linked, hasUnset = at least one unlinked), connectedAccountId (a connectedAccount uuid; operators: in, notIn), emailFolder (a text value; operators: in, notIn), lastMessageDirection (one of: inbound, outbound; operators: in, notIn), lastMessageSentAt (ISO date string; operators: gt, gte, lt, lte, between, inLastDays, notInLastDays), lastMessageAt (ISO date string; operators: gt, gte, lt, lte, between, inLastDays, notInLastDays). Of the last-message fields, only lastMessageAt counts drafts.",
+            "description": "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. Use only the operators listed in each field's hint; value-less operators take no value. Example: [{\"field\":\"createdAt\",\"operator\":\"inLastDays\",\"value\":30}]. Filterable fields: state (one of: unread, open, closed, spam; operators: in, notIn), provider (one of: google, outlook, mail, linkedin, whatsapp, instagram, telegram, facebook; operators: in, notIn), draft (draft status; value-less operators: hasSome = thread holds an unsent draft, hasNone = it does not), participantContactId (typeId:recordId reference; operators: in, notIn), participants (CRM-link status; value-less operators: allSet = all participants linked, hasUnset = at least one unlinked), connectedAccountId (a connectedAccount uuid; operators: in, notIn), emailFolder (a text value; operators: in, notIn), lastMessageDirection (one of: inbound, outbound; operators: in, notIn), lastMessageSentAt (ISO date string; operators: gt, gte, lt, lte, between, inLastDays, notInLastDays), lastMessageAt (ISO date string; operators: gt, gte, lt, lte, between, inLastDays, notInLastDays). Of the last-message fields, only lastMessageAt counts drafts.",
             "maxItems": 50,
             "type": "array",
             "items": {
@@ -34546,7 +34554,8 @@
                 "linkedin",
                 "whatsapp",
                 "instagram",
-                "telegram"
+                "telegram",
+                "facebook"
               ]
             }
           },
@@ -34639,7 +34648,8 @@
                           "linkedin",
                           "whatsapp",
                           "instagram",
-                          "telegram"
+                          "telegram",
+                          "facebook"
                         ]
                       }
                     }
@@ -41140,7 +41150,8 @@
                     "linkedin",
                     "whatsapp",
                     "instagram",
-                    "telegram"
+                    "telegram",
+                    "facebook"
                   ]
                 }
               },
@@ -41233,7 +41244,8 @@
                               "linkedin",
                               "whatsapp",
                               "instagram",
-                              "telegram"
+                              "telegram",
+                              "facebook"
                             ]
                           }
                         }

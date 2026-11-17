@@ -10,9 +10,9 @@ import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
-import { deriveLinkedinProducts, isEmailProvider } from "../../provider";
+import { deriveLinkedinProducts, facebookPageInboxIds, isEmailProvider } from "../../provider";
 import { BACKFILL_EMAIL_TIMEOUT_MS } from "./paginate";
-import { isUnipileRateLimit } from "../../messaging.service";
+import { isUnipileRateLimit, isUnipileTransientError } from "../../messaging.service";
 import { mapUnipileProvider } from "../../unipile.mappers";
 import { deriveAccountConnection } from "../../account-connection";
 import {
@@ -132,18 +132,27 @@ export class PrepareBackfillInteractor {
   }
 
   private async resolveChatSources(unipileAccountId: string, provider: MessagingProvider): Promise<string[]> {
-    if (provider !== MessagingProvider.linkedin) return [ACCOUNT_WIDE_SOURCE];
+    if (provider !== MessagingProvider.linkedin && provider !== MessagingProvider.facebook)
+      return [ACCOUNT_WIDE_SOURCE];
 
     const items = await this.messagingService
       .listInboxes({ accountId: unipileAccountId })
       .then((page) => page.data ?? [])
-      .catch(() => [] as unknown[]);
+      .catch((error: unknown) => {
+        if (provider !== MessagingProvider.facebook) return [] as unknown[];
+        if (isUnipileRateLimit(error) || isUnipileTransientError(error)) throw error;
+        ErrorReporter.captureException(error, { tags: { unipileAccountId, step: "facebook-page-inboxes" } });
+
+        return [] as unknown[];
+      });
 
     const inboxIds: string[] = [];
     for (const raw of items) {
       const parsed = UnipileInboxSchema.safeParse(raw);
       if (parsed.success && parsed.data.disabled !== true) inboxIds.push(parsed.data.id);
     }
+
+    if (provider === MessagingProvider.facebook) return [ACCOUNT_WIDE_SOURCE, ...facebookPageInboxIds(inboxIds)];
 
     if (inboxIds.length === 0) return [ACCOUNT_WIDE_SOURCE];
 

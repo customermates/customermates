@@ -897,6 +897,7 @@
       "connect": {
         "claude": "Claude koppelen",
         "cursor": "Cursor koppelen",
+        "facebook": "Facebook Messenger koppelen",
         "gemini": "Gemini koppelen",
         "google": "Google koppelen (Gmail en Agenda)",
         "imap": "IMAP-mailbox koppelen",
@@ -961,6 +962,7 @@
         },
         "channels": {
           "connect": "e-mail koppelen, account toevoegen, LinkedIn, WhatsApp",
+          "facebook": "Messenger, Facebook-chat, Facebook-pagina's, Meta, socials",
           "google": "Google Agenda, Google Calendar, Gmail, Google Workspace, e-mail, agenda",
           "imap": "e-mail, mailserver, eigen domein, mailbox",
           "instagram": "Instagram-berichten, Meta, socials",
@@ -1697,6 +1699,7 @@
     },
     "pageNumber": "Pagina {page}",
     "providers": {
+      "facebook": "Messenger",
       "google": "Gmail",
       "instagram": "Instagram",
       "linkedin": "LinkedIn",

@@ -897,6 +897,7 @@
       "connect": {
         "claude": "Collega Claude",
         "cursor": "Collega Cursor",
+        "facebook": "Collega Facebook Messenger",
         "gemini": "Collega Gemini",
         "google": "Collega Google (Gmail e Calendar)",
         "imap": "Collega una casella IMAP",
@@ -961,6 +962,7 @@
         },
         "channels": {
           "connect": "collega email, aggiungi account, LinkedIn, WhatsApp",
+          "facebook": "Messenger, chat Facebook, pagine Facebook, Meta, social",
           "google": "Google Calendar, Calendario Google, Gmail, email, calendario",
           "imap": "email, server di posta, dominio personalizzato, casella di posta",
           "instagram": "messaggi Instagram, Meta, social",
@@ -1697,6 +1699,7 @@
     },
     "pageNumber": "Pagina {page}",
     "providers": {
+      "facebook": "Messenger",
       "google": "Gmail",
       "instagram": "Instagram",
       "linkedin": "LinkedIn",

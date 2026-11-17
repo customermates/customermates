@@ -1,6 +1,8 @@
 import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { AiConnectionProvider } from "@/components/ai-connection/ai-connection.store";
 
+import { isConnectChannelReleased } from "@/ee/messaging/connect/connect-channels";
+
 export const CONNECT_INTENT_PARAM = "connect";
 
 export const CONNECT_INTENT_CHANNELS = [
@@ -13,7 +15,10 @@ export const CONNECT_INTENT_CHANNELS = [
   "linkedin_recruiter",
   "instagram",
   "telegram",
+  "facebook",
 ] as const satisfies readonly ConnectChannel[];
+
+export const RELEASED_CONNECT_INTENT_CHANNELS = CONNECT_INTENT_CHANNELS.filter(isConnectChannelReleased);
 
 export const CONNECT_INTENT_AI_CLIENTS = [
   "claude",
@@ -48,6 +53,7 @@ const CHANNEL_PROVIDER: Record<(typeof CONNECT_INTENT_CHANNELS)[number], string>
   linkedin_recruiter: "linkedin",
   instagram: "instagram",
   telegram: "telegram",
+  facebook: "facebook",
 };
 
 const CHANNEL_PRODUCT: Partial<Record<(typeof CONNECT_INTENT_CHANNELS)[number], string>> = {

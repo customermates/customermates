@@ -5439,10 +5439,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.3.0.tgz#d06bbb384ebcf6c505fde1c3d0ed4ddffe0aaff8"
   integrity sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==
 
-"@unipile/sdk@2.41.0":
-  version "2.41.0"
-  resolved "https://registry.yarnpkg.com/@unipile/sdk/-/sdk-2.41.0.tgz#2f92dd757ce34bd1f4974f8704e5c1ae5f089732"
-  integrity sha512-OeitpQc63QVKLqEbWATkrlQbW/OMSe7zzEYPR5Y/1pZq9AT4LNPdLVr2vmu4Qyy40l6qsE0YGYR35AYO4y4v2A==
+"@unipile/sdk@2.66.0":
+  version "2.66.0"
+  resolved "https://registry.yarnpkg.com/@unipile/sdk/-/sdk-2.66.0.tgz#c495310197d004d0871361f0be065ed0f4b7be88"
+  integrity sha512-/PPFPbtQk5NvmC3+hL+u6I2ki2b9xX3+CSA1kvp0RkTxHsljW5BUJ844J9aFu1VQgNCiOx9mfRxRBneG2PxM3g==
 
 "@upsetjs/venn.js@^2.0.0":
   version "2.0.0"

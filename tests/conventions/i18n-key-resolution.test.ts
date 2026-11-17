@@ -51,7 +51,7 @@ import {
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { PLAN_IDS } from "@/core/commercial/plan-catalog";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
-import { STATIC_COMMANDS } from "@/components/keyboard/command-registry";
+import { STATIC_COMMANDS, UNRELEASED_CHANNEL_COMMAND_IDS } from "@/components/keyboard/command-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 import { TRASH_KINDS } from "@/features/trash/trash.schema";
 
@@ -583,7 +583,12 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
   ["KeyboardShortcuts.actions.${*}", SHORTCUTS.map((entry) => `KeyboardShortcuts.actions.${entry.id}`)],
-  ["CommandPalette.synonyms.${*}", STATIC_COMMANDS.map((entry) => `CommandPalette.synonyms.${entry.id}`)],
+  [
+    "CommandPalette.synonyms.${*}",
+    [...STATIC_COMMANDS.map((entry) => entry.id), ...UNRELEASED_CHANNEL_COMMAND_IDS].map(
+      (id) => `CommandPalette.synonyms.${id}`,
+    ),
+  ],
   ["KeyboardShortcuts.groups.${*}", SHORTCUT_GROUPS.map((group) => `KeyboardShortcuts.groups.${group}`)],
   ["ErrorCard.${*}", ERROR_CARD_DYNAMIC_KEYS],
   ["HomepagePricing.${*}.${*}", HOMEPAGE_PRICING_VARIABLE_KEYS],

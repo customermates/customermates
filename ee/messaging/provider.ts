@@ -58,7 +58,7 @@ export function isDeterministicProvider(provider: RecordIdentityProvider): boole
   return DETERMINISTIC_PROVIDERS.includes(provider);
 }
 
-export const HANDLE_PROVIDERS: ReadonlyArray<MessagingProvider> = ["linkedin", "telegram", "instagram"];
+export const HANDLE_PROVIDERS: ReadonlyArray<MessagingProvider> = ["linkedin", "telegram", "instagram", "facebook"];
 
 export function isHandleProvider(provider: RecordIdentityProvider): boolean {
   return (HANDLE_PROVIDERS as ReadonlyArray<RecordIdentityProvider>).includes(provider);
@@ -81,6 +81,12 @@ export const LINKEDIN_PRODUCT_PRIMARY_INBOX: Record<LinkedinProduct, string> = {
 
 export function deriveLinkedinProducts(inboxIds: string[]): LinkedinProduct[] {
   return LINKEDIN_PRODUCTS.filter((product) => inboxIds.includes(LINKEDIN_PRODUCT_PRIMARY_INBOX[product]));
+}
+
+const FACEBOOK_PAGE_INBOX = /^PAGE_(\d+)_INBOX$/;
+
+export function facebookPageInboxIds(inboxIds: string[]): string[] {
+  return inboxIds.filter((id) => FACEBOOK_PAGE_INBOX.test(id)).sort();
 }
 
 export function isUsableSenderFor(
@@ -111,6 +117,10 @@ export function getProviderProfileUrl(provider: RecordIdentityProvider, value: s
       return `https://t.me/${handle}`;
     case "instagram":
       return `https://www.instagram.com/${handle}`;
+    case "facebook":
+      return /^\d+$/.test(handle)
+        ? `https://www.facebook.com/profile.php?id=${handle}`
+        : `https://www.facebook.com/${handle}`;
     default:
       return null;
   }

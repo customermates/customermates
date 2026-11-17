@@ -897,6 +897,7 @@
       "connect": {
         "claude": "Conectar Claude",
         "cursor": "Conectar Cursor",
+        "facebook": "Conectar Facebook Messenger",
         "gemini": "Conectar Gemini",
         "google": "Conectar Google (Gmail y Calendar)",
         "imap": "Conectar un buzón IMAP",
@@ -961,6 +962,7 @@
         },
         "channels": {
           "connect": "conectar correo, añadir cuenta, LinkedIn, WhatsApp",
+          "facebook": "Messenger, chat de Facebook, páginas de Facebook, Meta, red social",
           "google": "Google Calendar, Calendario de Google, Gmail, Google Workspace, correo, calendario",
           "imap": "correo, servidor de correo, dominio propio, buzón",
           "instagram": "mensajes de Instagram, Meta, red social",
@@ -1697,6 +1699,7 @@
     },
     "pageNumber": "Página {page}",
     "providers": {
+      "facebook": "Messenger",
       "google": "Gmail",
       "instagram": "Instagram",
       "linkedin": "LinkedIn",

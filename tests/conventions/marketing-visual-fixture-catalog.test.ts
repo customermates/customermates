@@ -32,7 +32,7 @@ import {
   NativeRecordIdentity,
 } from "@/components/marketing/visuals/native-visual-primitives";
 import { ASSET_LOCALES } from "@/i18n/locale-registry";
-import { CONNECT_CHANNELS } from "@/ee/messaging/connect/connect-channels";
+import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS } from "@/ee/messaging/connect/connect-channels";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "@/prisma/seeds/members";
 import { solutionContent } from "@/prisma/seeds/solutions/define-solution";
 import { SOLUTION_DEFINITIONS } from "@/prisma/seeds/solutions/definitions";
@@ -189,8 +189,8 @@ describe("marketing visual fixture catalog", () => {
 
   it("keeps the unified-inbox provider set and highlighted conversation tied to product authorities", () => {
     const supportedProviders = new Set(
-      Object.values(CONNECT_CHANNELS).flatMap(({ providers }) =>
-        providers.map((provider) => (provider === "google" ? "gmail" : provider)),
+      CONNECT_CHANNEL_KEYS.flatMap((channel) =>
+        CONNECT_CHANNELS[channel].providers.map((provider) => (provider === "google" ? "gmail" : provider)),
       ),
     );
 

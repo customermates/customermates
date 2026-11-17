@@ -1861,6 +1861,7 @@ export const getProcessUnipileWebhookInteractor = () => {
     "message.receipt.delivery": ignoreEvent,
     "email.new": emailNew,
     "email.new.bounce": emailNew,
+    "email.update": ignoreEvent,
     "email.delete": getProcessEmailDeleteWebhookInteractor(),
     "email.draft.new": ignoreEvent,
     "email.draft.delete": ignoreEvent,
@@ -1892,6 +1893,7 @@ export const getProcessUnipileWebhookInteractor = () => {
     "calendar.event.delete": getProcessCalendarEventDeleteWebhookInteractor(),
     "relation.new": relation,
     "follower.new": ignoreEvent,
+    "blocked.new": ignoreEvent,
   };
 
   return new ProcessUnipileWebhookInteractor(getUnipileWebhookRepo(), handlers);
