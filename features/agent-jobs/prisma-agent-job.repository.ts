@@ -326,31 +326,31 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }
 
   @BypassTenantGuard
-  cancelQueuedOfInactiveRulesUnscoped(args: { now: Date; limit: number }): Promise<number> {
-    return this.prisma.$executeRaw(Prisma.sql`
-      WITH orphaned AS MATERIALIZED (
-        SELECT j."id" FROM "AgentJob" j
-        WHERE j."status" = 'queued'
-          AND j."sourceKind" = ${AGENT_JOB_SOURCE_AUTOMATION}
-          AND cardinality(j."ruleChain") > 0
-          AND NOT EXISTS (
-            SELECT 1 FROM "AutomationRule" rule
-            WHERE rule."companyId" = j."companyId"
-              AND rule."id" = j."ruleChain"[cardinality(j."ruleChain")]
-              AND rule."enabled"
-          )
-        ORDER BY j."queuedAt" ASC
-        LIMIT ${args.limit}::int
-        FOR UPDATE SKIP LOCKED
-      )
-      UPDATE "AgentJob" job SET
-        "status" = 'cancelled',
-        "finishedAt" = ${args.now},
-        "error" = ${AGENT_JOB_ERROR_RULE_INACTIVE},
-        "updatedAt" = ${args.now}
-      FROM orphaned
-      WHERE job."id" = orphaned."id" AND job."status" = 'queued'
-    `);
+  async cancelQueuedOfInactiveRulesUnscoped(args: { now: Date; limit: number }): Promise<number> {
+    const queued = await this.prisma.agentJob.findMany({
+      where: {
+        status: AgentJobStatus.queued,
+        sourceKind: AGENT_JOB_SOURCE_AUTOMATION,
+        ruleChain: { isEmpty: false },
+      },
+      select: { id: true, companyId: true, ruleChain: true },
+      orderBy: { queuedAt: "asc" },
+      take: args.limit,
+    });
+    if (queued.length === 0) return 0;
+    const ruleOf = (job: { ruleChain: string[] }) => job.ruleChain[job.ruleChain.length - 1];
+    const enabled = await this.prisma.automationRule.findMany({
+      where: { id: { in: [...new Set(queued.map(ruleOf))] }, enabled: true },
+      select: { id: true, companyId: true },
+    });
+    const live = new Set(enabled.map((rule) => `${rule.companyId}:${rule.id}`));
+    const orphaned = queued.filter((job) => !live.has(`${job.companyId}:${ruleOf(job)}`)).map((job) => job.id);
+    if (orphaned.length === 0) return 0;
+    const { count } = await this.prisma.agentJob.updateMany({
+      where: { id: { in: orphaned }, status: AgentJobStatus.queued },
+      data: { status: AgentJobStatus.cancelled, finishedAt: args.now, error: AGENT_JOB_ERROR_RULE_INACTIVE },
+    });
+    return count;
   }
 
   @BypassTenantGuard

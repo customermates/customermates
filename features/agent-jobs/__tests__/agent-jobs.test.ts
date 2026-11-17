@@ -144,7 +144,6 @@ describe("enqueueing an agent job from an automation", () => {
   it("returns the job of the same run and effect when a re-claimed run replays the effect", async () => {
     const replayed = fresh();
     const first = await enqueue(replayed);
-    // The worker died before the run was settled: the run is claimed again and replays its effects.
     source.availability.mockResolvedValue(availability({ ownKey: unavailable("noKey") }));
     const second = await enqueue(replayed);
     const otherEffect = await enqueue({ ...replayed, idempotencyKey: `${replayed.idempotencyKey}-next` });
@@ -388,7 +387,6 @@ describe("reading the run history", () => {
     const reader = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]);
     const colleague = { ...reader, id: COLLEAGUE, companyId: COMPANY };
 
-    // A member who may read all automations, looking at the run of someone else's automation.
     const foreign = await detail(ofOwner.id, colleague);
     expect(foreign.ok && foreign.data).toMatchObject({
       id: ofOwner.id,
@@ -415,7 +413,6 @@ describe("reading the run history", () => {
       [ofOwner.id, null],
     ]);
 
-    // The default test user is an administrator and owns the first job.
     const admin = await detail(ofColleague.id);
     expect(admin.ok && admin.data.transcript).toHaveLength(1);
     expect(admin.ok && admin.data).toMatchObject({ prompt: content.prompt, result: content.result });
@@ -507,7 +504,6 @@ describe("sweeping timed-out jobs", () => {
   it("starts a hosted job again that stayed queued past the grace, and leaves fresh and runner jobs alone", async () => {
     const repo = new FakeAgentJobRepo();
     const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
-    // The dispatch after enqueue was lost: nothing would ever start these two.
     const lostOwnKey = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(3) });
     const lostMate = repo.add({ runtime: "mate", queuedAt: minutesAgo(6) });
     const justQueued = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(1) });
@@ -551,7 +547,6 @@ describe("sweeping timed-out jobs", () => {
       lost.id,
     ]);
     expect(sentry.captureException.mock.calls.map(([error]) => error)).toEqual([releaseFailure, dispatchFailure]);
-    // The job whose restart failed is still queued: the next sweep starts it once the grace has passed.
     expect(repo.jobs.get(brokenDispatch.id)).toMatchObject({ status: "queued", queuedAt: NOW });
     const later = new Date(NOW.getTime() + 5 * 60_000);
     dispatch.mockClear();
@@ -594,7 +589,6 @@ describe("jobs that wait in the queue", () => {
 
     expect(await claimAs(RUNNER_A)).toMatchObject({ id: open.id, runnerId: RUNNER_A, pinnedRunnerId: null });
     expect(await claimAs(RUNNER_A)).toMatchObject({ id: pinned.id, runnerId: RUNNER_A });
-    // Runner A crashes: both jobs pass their timeout and the sweep puts them back.
     await sweep(repo);
 
     expect(repo.jobs.get(open.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: null });

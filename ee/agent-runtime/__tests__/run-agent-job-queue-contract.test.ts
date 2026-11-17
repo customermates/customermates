@@ -74,12 +74,14 @@ async function world(loop: (jobs: FakeAgentJobRepo) => Promise<AgentJobLoopOutco
 describe("a hosted agent job and the queue", () => {
   it("cannot close or write into the job once a second attempt holds it", async () => {
     let jobId = "";
-    const { jobs, run } = await world(async (repo) => {
-      // The first attempt outlives its timeout: the sweep re-queues the job and a second attempt claims it.
+    const sweepRequeuesAndSecondAttemptClaims = async (repo: FakeAgentJobRepo) => {
       const stale = repo.jobs.get(jobId);
       if (!stale) throw new Error("The job is missing");
       repo.jobs.set(jobId, { ...stale, status: "queued" });
       await repo.claimUnscoped({ companyId: COMPANY, runtime: "ownKey", jobId, now: NOW, timeoutAt: NOW });
+    };
+    const { jobs, run } = await world(async (repo) => {
+      await sweepRequeuesAndSecondAttemptClaims(repo);
       return FINISHED;
     });
     jobId = jobs.add({ runtime: "ownKey" }).id;

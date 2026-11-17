@@ -328,7 +328,6 @@ describeDatabase("PrismaAgentJobRepo", () => {
 
     expect(await claimAs(runnerId, past)).toMatchObject({ id: open.id, runnerId });
     expect(await claimAs(runnerId, past)).toMatchObject({ id: pinned.id, runnerId });
-    // The runner crashes; both jobs pass their timeout.
     await repo().sweepTimeoutsUnscoped({ now, maxAttempts: 2, limit: 500 });
 
     expect(await row(open.id)).toMatchObject({ status: "queued", runnerId: null, pinnedRunnerId: null });
@@ -525,7 +524,6 @@ describeDatabase("PrismaAgentJobRepo", () => {
     expect(first?.attempts).toBe(1);
     await repo().startUnscoped({ id: job.id, companyId, attempt: 1, now, timeoutAt });
     await repo().appendEventsUnscoped({ id: job.id, companyId, attempt: 1, events: [event("first")], maxEvents: 10 });
-    // The sweep hands the job to a second attempt while the first is still alive.
     await age(job.id, { status: "queued" });
     const second = await claim();
     expect(second?.attempts).toBe(2);

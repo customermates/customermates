@@ -26,8 +26,7 @@ const NOW = new Date("2026-11-17T12:00:00.000Z");
 
 type Execute = (input: unknown, options: { toolCallId: string }) => Promise<unknown>;
 
-// What the record engine stamps on the event of a write: it reads the causation the write runs in.
-function writeTool(seen: RecordOperationCause[]): ToolSet {
+function toolThatStampsItsWriteLikeTheRecordEngine(seen: RecordOperationCause[]): ToolSet {
   return {
     mutate_crm_record: tool({
       description: "Write a record",
@@ -47,7 +46,7 @@ async function causeOfAgentWrite(ruleChain: readonly string[]): Promise<RecordOp
     maxToolCalls: 5,
     recorder: new AgentJobRecorder(() => NOW),
     ruleChain,
-    base: writeTool(seen),
+    base: toolThatStampsItsWriteLikeTheRecordEngine(seen),
   });
   await (tools.mutate_crm_record as unknown as { execute: Execute }).execute({}, { toolCallId: "call-1" });
   return seen[0];
@@ -114,9 +113,8 @@ describe("record changes made by an agent job", () => {
   });
 
   it("do not start the rule that enqueued the job again, but may start another rule once", async () => {
-    // Rule A ran and enqueued the job: the job holds the chain the run executed its effects in.
-    const jobChain = extendAutomationChain([], RULE_A);
-    const cause = await causeOfAgentWrite(jobChain);
+    const chainOfTheRunOfRuleA = extendAutomationChain([], RULE_A);
+    const cause = await causeOfAgentWrite(chainOfTheRunOfRuleA);
     const { admission, startedRules, repo, dispatch } = ruleWorld([RULE_A, RULE_B]);
 
     await admission.admit(recordUpdated(cause) as never);
@@ -135,9 +133,8 @@ describe("record changes made by an agent job", () => {
   });
 
   it("keep the depth limit across an agent hop: a rule started by an agent's change cannot start a third", async () => {
-    // Rule A's agent changed a record, rule B ran on that change and enqueued its own agent job.
-    const jobChain = extendAutomationChain([RULE_A], RULE_B);
-    const cause = await causeOfAgentWrite(jobChain);
+    const chainOfRuleBStartedByTheAgentOfRuleA = extendAutomationChain([RULE_A], RULE_B);
+    const cause = await causeOfAgentWrite(chainOfRuleBStartedByTheAgentOfRuleA);
     const { admission, startedRules, dispatch } = ruleWorld([RULE_A, RULE_B, RULE_C]);
 
     await admission.admit(recordUpdated(cause) as never);
