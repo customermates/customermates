@@ -1081,6 +1081,7 @@
       "previousEffectFailed": "Een eerdere stap is mislukt, dus deze is niet uitgevoerd.",
       "recordMissing": "Het record is weg of niet leesbaar voor de eigenaar.",
       "ruleInvalid": "De automatisering is niet meer geldig. Open haar, controleer de stappen en sla haar opnieuw op.",
+      "runAbandoned": "De uitvoering kon niet binnen 30 minuten worden gestart en is opgegeven.",
       "unexpectedError": "Er ging iets mis aan onze kant.",
       "webhookDisabled": "De webhook is uitgeschakeld.",
       "webhookMissing": "De webhook bestaat niet meer.",

@@ -1081,6 +1081,7 @@
       "previousEffectFailed": "Un passaggio precedente non è riuscito, quindi questo non è stato eseguito.",
       "recordMissing": "Il record non esiste più o non è leggibile per il proprietario.",
       "ruleInvalid": "L’automazione non è più valida. Aprila, controlla i passaggi e salvala di nuovo.",
+      "runAbandoned": "L’esecuzione non è potuta partire entro 30 minuti ed è stata abbandonata.",
       "unexpectedError": "Qualcosa è andato storto da parte nostra.",
       "webhookDisabled": "Il webhook è disattivato.",
       "webhookMissing": "Il webhook non esiste più.",

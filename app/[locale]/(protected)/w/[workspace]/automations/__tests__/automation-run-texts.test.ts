@@ -5,6 +5,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { AUTOMATION_RUN_ABANDONED_ERROR } from "@/features/automation-rules/sweep-automation-rules.interactor";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { effectDetailText, runErrorText, runReasonText } from "../components/automation-run-texts";
@@ -92,7 +93,15 @@ describe("the run history texts", () => {
       expect(text, code).toMatch(/\s/);
     }
     expect(runErrorText(t, "ruleInvalid")).not.toBe("ruleInvalid");
+    expect(runErrorText(t, "runAbandoned")).not.toBe("runAbandoned");
+    expect(runErrorText(t, "runAbandoned")).toMatch(/\s/);
     expect(runErrorText(t, "webhook:missing")).toBe(effectDetailText(t, "webhook:missing"));
+  });
+
+  it("says in English that an abandoned run was given up, with the code the sweep writes", () => {
+    expect(runErrorText(translator(catalog("en")), AUTOMATION_RUN_ABANDONED_ERROR)).toBe(
+      "The run could not be started within 30 minutes and was given up.",
+    );
   });
 
   it("names the cause in English", () => {

@@ -1081,6 +1081,7 @@
       "previousEffectFailed": "An earlier step failed, so this one did not run.",
       "recordMissing": "The record is gone or not readable for the owner.",
       "ruleInvalid": "The automation is no longer valid. Open it, check its steps and save it again.",
+      "runAbandoned": "The run could not be started within 30 minutes and was given up.",
       "unexpectedError": "Something went wrong on our side.",
       "webhookDisabled": "The webhook is switched off.",
       "webhookMissing": "The webhook no longer exists.",

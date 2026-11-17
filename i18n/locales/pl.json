@@ -1081,6 +1081,7 @@
       "previousEffectFailed": "Wcześniejszy krok się nie powiódł, więc ten nie został wykonany.",
       "recordMissing": "Rekord już nie istnieje albo właściciel nie może go odczytać.",
       "ruleInvalid": "Automatyzacja nie jest już poprawna. Otwórz ją, sprawdź kroki i zapisz ponownie.",
+      "runAbandoned": "Uruchomienia nie udało się rozpocząć w ciągu 30 minut i zostało ono porzucone.",
       "unexpectedError": "Coś poszło nie tak po naszej stronie.",
       "webhookDisabled": "Webhook jest wyłączony.",
       "webhookMissing": "Webhook już nie istnieje.",

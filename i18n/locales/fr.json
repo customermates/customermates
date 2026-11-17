@@ -1081,6 +1081,7 @@
       "previousEffectFailed": "Une étape précédente a échoué, celle-ci n’a donc pas été exécutée.",
       "recordMissing": "L’enregistrement a disparu ou n’est pas lisible pour le propriétaire.",
       "ruleInvalid": "L’automatisation n’est plus valide. Ouvrez-la, vérifiez ses étapes et enregistrez-la de nouveau.",
+      "runAbandoned": "L’exécution n’a pas pu démarrer dans les 30 minutes et a été abandonnée.",
       "unexpectedError": "Une erreur s’est produite de notre côté.",
       "webhookDisabled": "Le webhook est désactivé.",
       "webhookMissing": "Le webhook n’existe plus.",

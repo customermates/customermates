@@ -64,5 +64,6 @@ export function runReasonText(t: Translate, reason: string): string {
 }
 
 export function runErrorText(t: Translate, error: string): string {
+  if (error === "runAbandoned") return t("AutomationRules.detail.runAbandoned");
   return error === "ruleInvalid" ? t("AutomationRules.detail.ruleInvalid") : effectDetailText(t, error);
 }

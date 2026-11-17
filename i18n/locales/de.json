@@ -1081,6 +1081,7 @@
       "previousEffectFailed": "Ein früherer Schritt ist fehlgeschlagen, deshalb lief dieser nicht.",
       "recordMissing": "Der Datensatz ist weg oder für die Eigentümerin oder den Eigentümer nicht lesbar.",
       "ruleInvalid": "Die Automatisierung ist nicht mehr gültig. Öffne sie, prüfe ihre Schritte und speichere sie erneut.",
+      "runAbandoned": "Der Lauf konnte nicht innerhalb von 30 Minuten gestartet werden und wurde aufgegeben.",
       "unexpectedError": "Auf unserer Seite ist etwas schiefgelaufen.",
       "webhookDisabled": "Der Webhook ist ausgeschaltet.",
       "webhookMissing": "Den Webhook gibt es nicht mehr.",
