@@ -224,7 +224,7 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
     const repo = getUserRepo();
     const now = new Date();
 
-    expect(await runWithoutTenant(() => repo.findWorkspacesOverFreePlanUnscoped(now, 1))).toContain(w.companyId);
+    expect(await runWithoutTenant(() => repo.findWorkspacesOverFreePlanUnscoped(now, 1, 3))).toContain(w.companyId);
 
     expect(await runWithoutTenant(() => getFreePlanPauseService().syncUnscoped(w.companyId, now))).toEqual({
       paused: 2,
@@ -255,7 +255,7 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
       plan: "free",
       usage: { members: 1, pausedMembers: 2 },
     });
-    expect(await runWithoutTenant(() => repo.findWorkspacesOverFreePlanUnscoped(now, 1))).not.toContain(w.companyId);
+    expect(await runWithoutTenant(() => repo.findWorkspacesOverFreePlanUnscoped(now, 1, 3))).not.toContain(w.companyId);
     expect(await runWithoutTenant(() => getFreePlanPauseService().syncUnscoped(w.companyId, now))).toMatchObject({
       paused: 0,
       routinesPaused: 0,
@@ -286,7 +286,7 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
       });
     });
 
-    expect(await runWithoutTenant(() => repo.findWorkspacesOverFreePlanUnscoped(now, 1))).toContain(w.companyId);
+    expect(await runWithoutTenant(() => repo.findWorkspacesOverFreePlanUnscoped(now, 1, 3))).toContain(w.companyId);
     expect(await runWithoutTenant(() => getFreePlanPauseService().syncUnscoped(w.companyId, now))).toMatchObject({
       paused: 0,
       resumed: 1,
@@ -412,5 +412,61 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
     expect(await runWithoutTenant(() => getUserRepo().findWorkspacesWithPlanPausesUnscoped(new Date()))).not.toContain(
       w.companyId,
     );
+  });
+
+  it("finds a Free workspace whose only excess is active rules, and a paid one whose only pause is a rule", async () => {
+    const w = await workspace();
+    const repo = getUserRepo();
+    const now = new Date();
+    const over = () => runWithoutTenant(() => repo.findWorkspacesOverFreePlanUnscoped(now, 1, 3));
+    const paused = () => runWithoutTenant(() => repo.findWorkspacesWithPlanPausesUnscoped(now));
+    const sync = () => runWithoutTenant(() => getFreePlanPauseService().syncUnscoped(w.companyId, now));
+    await sync();
+    expect(await over()).not.toContain(w.companyId);
+
+    const rules = await runWithoutTenant(() =>
+      Promise.all(
+        [4, 3, 2, 1].map((minutesAgo) =>
+          prisma.automationRule.create({
+            data: {
+              companyId: w.companyId,
+              ownerUserId: w.owner.id,
+              name: `Rule from ${minutesAgo} minutes ago`,
+              triggerKind: "messageReceived",
+              trigger: { kind: "messageReceived", channel: "any" },
+              effects: [],
+              createdAt: new Date(now.getTime() - minutesAgo * 60_000),
+            },
+            select: { id: true },
+          }),
+        ),
+      ),
+    );
+    const state = (id: string) =>
+      runWithoutTenant(() =>
+        prisma.automationRule.findUniqueOrThrow({ where: { id }, select: { enabled: true, disabledReason: true } }),
+      );
+    expect(await over()).toContain(w.companyId);
+    expect(await sync()).toMatchObject({ rulesPaused: 1, rulesResumed: 0 });
+    expect(await state(rules[3].id)).toEqual({ enabled: false, disabledReason: "planPaused" });
+    expect(await state(rules[0].id)).toEqual({ enabled: true, disabledReason: null });
+    expect(await over()).not.toContain(w.companyId);
+
+    await runWithoutTenant(() =>
+      prisma.subscription.update({ where: { companyId: w.companyId }, data: { status: "active", plan: "starter" } }),
+    );
+    expect(await sync()).toMatchObject({ rulesPaused: 0, rulesResumed: 1 });
+    expect(await paused()).not.toContain(w.companyId);
+
+    await runWithoutTenant(() =>
+      prisma.automationRule.update({
+        where: { id: rules[3].id },
+        data: { enabled: false, disabledReason: "planPaused" },
+      }),
+    );
+    expect(await paused()).toContain(w.companyId);
+    expect(await sync()).toMatchObject({ rulesPaused: 0, rulesResumed: 1 });
+    expect(await state(rules[3].id)).toEqual({ enabled: true, disabledReason: null });
+    expect(await paused()).not.toContain(w.companyId);
   });
 });

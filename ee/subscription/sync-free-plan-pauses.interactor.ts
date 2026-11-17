@@ -5,6 +5,7 @@ import type { FreePlanPauseService } from "./free-plan-pause.service";
 import * as ErrorReporter from "@/core/observability/server";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { FREE_PLAN_USAGE_LIMITS } from "@/core/commercial/plan-catalog";
+import { getEntitlements } from "./entitlements";
 import PlanPauseNotice from "@/components/emails/plan-pause-notice";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getTranslator } from "@/i18n/get-translator";
@@ -12,6 +13,9 @@ import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
 
 const NOTICE_BATCH_LIMIT = 200;
+const FREE_PLAN_RULE_ALLOWANCE = getEntitlements("free").activeAutomationRules;
+const FREE_PLAN_ACTIVE_RULES =
+  FREE_PLAN_RULE_ALLOWANCE === "unlimited" ? Number.MAX_SAFE_INTEGER : FREE_PLAN_RULE_ALLOWANCE;
 
 export type SyncFreePlanPausesResult = {
   workspaces: number;
@@ -34,7 +38,11 @@ export class SyncFreePlanPausesInteractor {
 
     const companyIds = options.companyIds ?? [
       ...new Set([
-        ...(await this.repo.findWorkspacesOverFreePlanUnscoped(now, FREE_PLAN_USAGE_LIMITS.maxMembers)),
+        ...(await this.repo.findWorkspacesOverFreePlanUnscoped(
+          now,
+          FREE_PLAN_USAGE_LIMITS.maxMembers,
+          FREE_PLAN_ACTIVE_RULES,
+        )),
         ...(await this.repo.findWorkspacesWithPlanPausesUnscoped(now)),
       ]),
     ];

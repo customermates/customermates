@@ -22,7 +22,7 @@ export type PlanPauseNoticeRecipient = {
 };
 
 export abstract class FreePlanMemberRepo {
-  abstract findWorkspacesOverFreePlanUnscoped(now: Date, maxMembers: number): Promise<string[]>;
+  abstract findWorkspacesOverFreePlanUnscoped(now: Date, maxMembers: number, maxActiveRules: number): Promise<string[]>;
   abstract findWorkspacesWithPlanPausesUnscoped(now: Date): Promise<string[]>;
   abstract findPlanSubscriptionUnscoped(companyId: string): Promise<PlanUsageSubscription | null>;
   abstract findOwnerEmailsUnscoped(companyId: string): Promise<string[]>;

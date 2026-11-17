@@ -43,6 +43,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { AUTOMATION_DISABLED_REASON_PLAN_PAUSED } from "@/features/automation-rules/automation-disabled-reason";
 import { seatChange } from "@/features/billing-usage/billing-usage-changes";
 import { strandsLastPlatformOperator } from "@/features/user/platform-operator-logins";
 
@@ -1106,7 +1107,7 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async findWorkspacesOverFreePlanUnscoped(now: Date, maxMembers: number): Promise<string[]> {
+  async findWorkspacesOverFreePlanUnscoped(now: Date, maxMembers: number, maxActiveRules: number): Promise<string[]> {
     const free = await this.prisma.subscription.findMany({
       where: {
         plan: { not: SubscriptionPlan.enterprise },
@@ -1117,7 +1118,7 @@ export class PrismaUserRepo
     });
     const companyIds = free.map((row) => row.companyId);
     if (companyIds.length === 0) return [];
-    const [crowded, dormant, pending, invites, routines] = await Promise.all([
+    const [crowded, dormant, pending, invites, routines, rules] = await Promise.all([
       this.prisma.user.groupBy({
         by: ["companyId"],
         where: { companyId: { in: companyIds }, status: Status.active, leftAt: null },
@@ -1143,6 +1144,11 @@ export class PrismaUserRepo
         select: { companyId: true },
         distinct: ["companyId"],
       }),
+      this.prisma.automationRule.groupBy({
+        by: ["companyId"],
+        where: { companyId: { in: companyIds }, enabled: true },
+        _count: { _all: true },
+      }),
     ]);
     const staffed = new Set(crowded.map((group) => group.companyId));
     return [
@@ -1152,13 +1158,14 @@ export class PrismaUserRepo
         ...pending.map((row) => row.companyId),
         ...invites.map((row) => row.companyId),
         ...routines.map((row) => row.companyId),
+        ...rules.filter((group) => group._count._all > maxActiveRules).map((group) => group.companyId),
       ]),
     ];
   }
 
   @BypassTenantGuard
   async findWorkspacesWithPlanPausesUnscoped(now: Date): Promise<string[]> {
-    const [members, routines] = await Promise.all([
+    const [members, routines, rules] = await Promise.all([
       this.prisma.user.findMany({
         where: { pausedByPlanAt: { not: null } },
         select: { companyId: true },
@@ -1169,8 +1176,13 @@ export class PrismaUserRepo
         select: { companyId: true },
         distinct: ["companyId"],
       }),
+      this.prisma.automationRule.findMany({
+        where: { enabled: false, disabledReason: AUTOMATION_DISABLED_REASON_PLAN_PAUSED },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
     ]);
-    const companyIds = [...new Set([...members, ...routines].map((row) => row.companyId))];
+    const companyIds = [...new Set([...members, ...routines, ...rules].map((row) => row.companyId))];
     if (companyIds.length === 0) return [];
     const usable = await this.prisma.subscription.findMany({
       where: {
