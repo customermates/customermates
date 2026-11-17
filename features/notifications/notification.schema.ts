@@ -1,4 +1,5 @@
 import type { Data } from "@/core/validation/validation.utils";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 import { z } from "zod";
 
@@ -20,6 +21,7 @@ export const DEFAULT_NOTIFICATION_EMAIL_MODES = {
   replyReceived: "digest",
 } as const satisfies Record<(typeof NOTIFICATION_KINDS)[number], (typeof NOTIFICATION_EMAIL_MODES)[number]>;
 
+export const NOTIFICATION_KIND_OFF_NOTICE = "notification-kind-off";
 export const NOTIFICATION_TITLE_MAX_CHARS = 200;
 export const NOTIFICATION_BODY_MAX_CHARS = 1000;
 export const NOTIFICATION_HREF_MAX_CHARS = 500;
@@ -92,6 +94,13 @@ export type NotificationPreferenceDto = z.infer<typeof NotificationPreferenceSch
 
 export const NotificationPreferencesSchema = z.object({ preferences: z.array(NotificationPreferenceSchema) });
 export type NotificationPreferencesDto = z.infer<typeof NotificationPreferencesSchema>;
+
+export const SetNotificationKindOffSchema = z.object({ token: z.string().min(1).max(256) }).strict();
+export type SetNotificationKindOffData = z.output<typeof SetNotificationKindOffSchema>;
+
+export type SetNotificationKindOffResult =
+  | { status: "off"; kind: NotificationKind; workspaceSlug: string; locale: AppLocale }
+  | { status: "expired" | "invalid" };
 
 export const SetNotificationPreferencesSchema = z
   .object({ preferences: z.array(NotificationPreferenceSchema).min(1).max(NOTIFICATION_KINDS.length) })

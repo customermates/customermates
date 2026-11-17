@@ -2866,10 +2866,11 @@ import { MarkNotificationsReadInteractor } from "@/features/notifications/mark-n
 import { NotificationService } from "@/features/notifications/notification.service";
 import { PruneNotificationsInteractor } from "@/features/notifications/prune-notifications.interactor";
 import { SendNotificationDigestInteractor } from "@/features/notifications/send-notification-digest.interactor";
+import { SetNotificationKindOffInteractor } from "@/features/notifications/set-notification-kind-off.interactor";
 import { SetNotificationPreferencesInteractor } from "@/features/notifications/set-notification-preferences.interactor";
 
 const getNotificationRepo = () => new PrismaNotificationRepo();
-const getNotificationMailer = () => new EmailNotificationMailer(getEmailService());
+const getNotificationMailer = () => new EmailNotificationMailer(getEmailService(), env.BETTER_AUTH_SECRET);
 export const getNotificationService = () => new NotificationService(getNotificationRepo(), getNotificationMailer());
 export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
 export const getMarkNotificationsReadInteractor = () => new MarkNotificationsReadInteractor(getNotificationRepo());
@@ -2877,6 +2878,8 @@ export const getGetNotificationPreferencesInteractor = () =>
   new GetNotificationPreferencesInteractor(getNotificationRepo());
 export const getSetNotificationPreferencesInteractor = () =>
   new SetNotificationPreferencesInteractor(getNotificationRepo());
+export const getSetNotificationKindOffInteractor = () =>
+  new SetNotificationKindOffInteractor(getNotificationRepo(), env.BETTER_AUTH_SECRET);
 export const getSendNotificationDigestInteractor = () =>
   new SendNotificationDigestInteractor(getNotificationRepo(), getNotificationMailer());
 export const getPruneNotificationsInteractor = () => new PruneNotificationsInteractor(getNotificationRepo());

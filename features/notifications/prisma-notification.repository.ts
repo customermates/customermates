@@ -24,7 +24,7 @@ const NOTIFICATION_SELECT = {
   createdAt: true,
 } as const;
 
-const PENDING_SELECT = { ...NOTIFICATION_SELECT, companyId: true, userId: true } as const;
+const PENDING_SELECT = { ...NOTIFICATION_SELECT, companyId: true, userId: true, sourceRuleId: true } as const;
 
 export class PrismaNotificationRepo extends TenantRepository implements NotificationRepo {
   private ownedWhere(): Prisma.NotificationWhereInput {
@@ -83,6 +83,39 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
     }
   }
 
+  private async withRuleNames(
+    companyId: string,
+    rows: (StoredNotification & { companyId: string; userId: string; sourceRuleId: string | null })[],
+  ): Promise<PendingEmailNotification[]> {
+    const ruleIds = [...new Set(rows.flatMap((row) => (row.sourceRuleId ? [row.sourceRuleId] : [])))];
+    const rules =
+      ruleIds.length === 0
+        ? []
+        : await this.prisma.automationRule.findMany({
+            where: { companyId, id: { in: ruleIds } },
+            select: { id: true, name: true },
+          });
+    const names = new Map(rules.map((rule) => [rule.id, rule.name]));
+    return rows.map((row) => ({
+      ...row,
+      sourceRuleName: row.sourceRuleId ? (names.get(row.sourceRuleId) ?? null) : null,
+    }));
+  }
+
+  @BypassTenantGuard
+  async saveEmailModeUnscoped(
+    companyId: string,
+    userId: string,
+    kind: NotificationKind,
+    emailMode: NotificationEmailMode,
+  ): Promise<void> {
+    await this.prisma.notificationPreference.upsert({
+      where: { companyId_userId_kind: { companyId, userId, kind } },
+      create: { companyId, userId, kind, emailMode },
+      update: { emailMode },
+    });
+  }
+
   @BypassTenantGuard
   async insertManyUnscoped(rows: NotificationInsert[]): Promise<string[]> {
     if (rows.length === 0) return [];
@@ -125,12 +158,13 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
-  findNotificationsUnscoped(companyId: string, ids: string[]): Promise<PendingEmailNotification[]> {
-    return this.prisma.notification.findMany({
+  async findNotificationsUnscoped(companyId: string, ids: string[]): Promise<PendingEmailNotification[]> {
+    const rows = await this.prisma.notification.findMany({
       where: { companyId, id: { in: ids } },
       select: PENDING_SELECT,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
+    return this.withRuleNames(companyId, rows);
   }
 
   @BypassTenantGuard
@@ -167,13 +201,14 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
-  findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]> {
-    return this.prisma.notification.findMany({
+  async findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]> {
+    const rows = await this.prisma.notification.findMany({
       where: { companyId, userId, emailedAt: null, readAt: null, createdAt: { gte: since } },
       select: PENDING_SELECT,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: 100,
     });
+    return this.withRuleNames(companyId, rows);
   }
 
   @BypassTenantGuard

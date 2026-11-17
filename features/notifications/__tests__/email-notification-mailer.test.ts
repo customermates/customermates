@@ -1,0 +1,143 @@
+import type { ReactElement } from "react";
+
+import { describe, expect, it, vi } from "vitest";
+
+import { Locale } from "@/generated/prisma";
+import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
+
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+
+import { EmailNotificationMailer } from "../email-notification-mailer";
+import { notificationUnsubscribeSecret, verifyNotificationUnsubscribe } from "../notification-unsubscribe-token";
+
+const COMPANY = "00000000-0000-4000-8000-000000000011";
+const ME = "00000000-0000-4000-8000-000000000010";
+const NOW = new Date("2026-11-17T08:00:00.000Z");
+const AUTH_SECRET = "auth-secret";
+const SECRET = notificationUnsubscribeSecret(AUTH_SECRET) as string;
+
+const recipient = (displayLanguage: Locale = Locale.en) => ({
+  id: ME,
+  email: "me@example.test",
+  firstName: "Sofia",
+  displayLanguage,
+  workspaceSlug: "ws-1",
+});
+
+function notification(overrides: Partial<Parameters<EmailNotificationMailer["sendInstant"]>[1]> = {}) {
+  return {
+    id: "00000000-0000-4000-8000-0000000000a1",
+    companyId: COMPANY,
+    userId: ME,
+    kind: "ruleAlert" as const,
+    title: "Deal went quiet",
+    body: null,
+    href: "/records/x",
+    readAt: null,
+    createdAt: NOW,
+    sourceRuleId: null,
+    sourceRuleName: null,
+    ...overrides,
+  };
+}
+
+async function sent(
+  run: (mailer: EmailNotificationMailer) => Promise<boolean>,
+  authSecret: string | undefined = AUTH_SECRET,
+) {
+  const send = vi.fn().mockResolvedValue(true);
+  const mailer = new EmailNotificationMailer({ send }, authSecret, () => NOW);
+  await run(mailer);
+  const message = send.mock.calls[0][0] as { subject: string; react: ReactElement };
+  return { message, props: message.react.props as Record<string, any> };
+}
+
+describe("the notification email footer", () => {
+  it("names the automation rule as the reason when the notification came from one", async () => {
+    const { props } = await sent((mailer) =>
+      mailer.sendInstant(
+        recipient(),
+        notification({ sourceRuleId: "rule-1", sourceRuleName: "Follow up after 3 days" }),
+      ),
+    );
+
+    expect(props.footerReason).toBe("You get this because Follow up after 3 days notified you.");
+  });
+
+  it("names the kind as the reason when no automation sent it", async () => {
+    const { props } = await sent((mailer) =>
+      mailer.sendInstant(recipient(), notification({ kind: "dueToday", title: "Call Sofia" })),
+    );
+
+    expect(props.footerReason).toBe("You get this because Due today notified you.");
+  });
+
+  it("carries a signed turn-off link for the kind and a link to manage notifications", async () => {
+    const { props } = await sent((mailer) => mailer.sendInstant(recipient(), notification({ kind: "replyReceived" })));
+
+    expect(props.turnOffLinks).toHaveLength(1);
+    expect(props.turnOffLinks[0].label).toBe("Turn off this kind");
+    const url = new URL(props.turnOffLinks[0].href);
+    expect(url.origin + url.pathname).toBe("http://localhost:4000/api/notifications/unsubscribe");
+    expect(verifyNotificationUnsubscribe(SECRET, url.searchParams.get("token") ?? "", NOW)).toEqual({
+      status: "valid",
+      userId: ME,
+      companyId: COMPANY,
+      kind: "replyReceived",
+    });
+    expect(props.manage).toEqual({
+      label: "Manage notifications",
+      href: "http://localhost:4000/en/w/ws-1/settings/profile",
+    });
+  });
+
+  it("lists every source and offers one turn-off link per kind in a digest", async () => {
+    const { props, message } = await sent((mailer) =>
+      mailer.sendDigest(recipient(), [
+        notification({ id: "00000000-0000-4000-8000-0000000000a1", kind: "dueToday" }),
+        notification({
+          id: "00000000-0000-4000-8000-0000000000a2",
+          kind: "ruleAlert",
+          sourceRuleId: "rule-1",
+          sourceRuleName: "Stale deals",
+        }),
+        notification({
+          id: "00000000-0000-4000-8000-0000000000a3",
+          kind: "ruleAlert",
+          sourceRuleId: "rule-1",
+          sourceRuleName: "Stale deals",
+        }),
+      ]),
+    );
+
+    expect(message.subject).toBe("New updates in Customermates");
+    expect(props.footerReason).toBe("You get this because Due today and Stale deals notified you.");
+    expect(props.turnOffLinks.map((link: { label: string }) => link.label)).toEqual([
+      "Turn off Due today",
+      "Turn off Automation alerts",
+    ]);
+    const kinds = props.turnOffLinks.map(
+      (link: { href: string }) =>
+        (verifyNotificationUnsubscribe(SECRET, new URL(link.href).searchParams.get("token") ?? "", NOW) as any).kind,
+    );
+    expect(kinds).toEqual(["dueToday", "ruleAlert"]);
+  });
+
+  it("writes the footer in the language of the person", async () => {
+    const { props } = await sent((mailer) =>
+      mailer.sendInstant(recipient(Locale.de), notification({ kind: "dueToday" })),
+    );
+
+    expect(props.footerReason).toBe("Du bekommst diese E-Mail, weil dich Heute fällig benachrichtigt hat.");
+    expect(props.turnOffLinks[0].label).toBe("Diese Art ausschalten");
+    expect(props.manage.label).toBe("Benachrichtigungen verwalten");
+    expect(props.manage.href).toBe("http://localhost:4000/de/w/ws-1/settings/profile");
+  });
+
+  it("still sends the manage link when no signing secret is configured", async () => {
+    const { props } = await sent((mailer) => mailer.sendInstant(recipient(), notification()), "  ");
+
+    expect(props.turnOffLinks).toEqual([]);
+    expect(props.manage.label).toBe("Manage notifications");
+  });
+});

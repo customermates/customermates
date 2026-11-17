@@ -35,7 +35,12 @@ export type NotificationRecipient = {
   workspaceSlug: string;
 };
 
-export type PendingEmailNotification = StoredNotification & { companyId: string; userId: string };
+export type PendingEmailNotification = StoredNotification & {
+  companyId: string;
+  userId: string;
+  sourceRuleId: string | null;
+  sourceRuleName: string | null;
+};
 
 export type NotificationPreferenceRow = { kind: NotificationKind; emailMode: NotificationEmailMode };
 
@@ -47,6 +52,12 @@ export abstract class NotificationRepo {
   abstract findPreferences(): Promise<NotificationPreferenceRow[]>;
   abstract savePreferences(preferences: NotificationPreferenceRow[]): Promise<void>;
 
+  abstract saveEmailModeUnscoped(
+    companyId: string,
+    userId: string,
+    kind: NotificationKind,
+    emailMode: NotificationEmailMode,
+  ): Promise<void>;
   abstract insertManyUnscoped(rows: NotificationInsert[]): Promise<string[]>;
   abstract findRecipientsUnscoped(companyId: string, userIds: string[]): Promise<NotificationRecipient[]>;
   abstract findPreferencesUnscoped(

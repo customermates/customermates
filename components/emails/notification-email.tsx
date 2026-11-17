@@ -1,11 +1,14 @@
 import enMessages from "@/i18n/locales/en.json";
 import { EmailButton } from "@/components/emails/base/email-button";
 import { EmailLayout, type EmailLayoutSharedProps } from "@/components/emails/base/email-layout";
+import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
 import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 
 type NotificationEmailItem = { title: string; body?: string };
+
+type NotificationEmailLink = { label: string; href: string };
 
 type Props = EmailLayoutSharedProps & {
   greeting: string;
@@ -13,7 +16,9 @@ type Props = EmailLayoutSharedProps & {
   items: NotificationEmailItem[];
   cta: string;
   href: string;
-  preferencesHint: string;
+  footerReason: string;
+  turnOffLinks: NotificationEmailLink[];
+  manage: NotificationEmailLink;
   subject: string;
   title: string;
 };
@@ -24,11 +29,15 @@ export default function NotificationEmail({
   items,
   cta,
   href,
-  preferencesHint,
+  footerReason,
+  turnOffLinks,
+  manage,
   subject,
   title,
   ...layoutProps
 }: Props) {
+  const footerLinks = [...turnOffLinks, manage];
+
   return (
     <EmailLayout {...layoutProps} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
@@ -47,7 +56,17 @@ export default function NotificationEmail({
         <EmailButton href={href}>{cta}</EmailButton>
       </EmailSection>
 
-      <EmailText className="text-sm text-default-700">{preferencesHint}</EmailText>
+      <EmailText className="text-sm text-default-700">{footerReason}</EmailText>
+
+      <EmailText className="text-sm text-default-700">
+        {footerLinks.map((link, index) => (
+          <span key={link.href}>
+            {index > 0 ? " · " : null}
+
+            <EmailLink href={link.href}>{link.label}</EmailLink>
+          </span>
+        ))}
+      </EmailText>
     </EmailLayout>
   );
 }
@@ -61,7 +80,11 @@ NotificationEmail.PreviewProps = {
   items: [{ title: t.title, body: t.digestIntro }],
   cta: t.cta,
   href: "https://app.example.test/records",
-  preferencesHint: t.preferencesHint,
+  footerReason: "You get this because Due today notified you",
+  turnOffLinks: [
+    { label: t.turnOffKind, href: "https://app.example.test/api/notifications/unsubscribe?token=preview" },
+  ],
+  manage: { label: t.manageNotifications, href: "https://app.example.test/settings/profile" },
   subject: t.digestSubject,
   title: t.title,
 } satisfies Props;

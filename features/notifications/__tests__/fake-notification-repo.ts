@@ -16,6 +16,8 @@ export class FakeNotificationRepo extends NotificationRepo {
   rows: Row[] = [];
   members: NotificationRecipient[] = [];
   preferences = new Map<string, Map<NotificationKind, NotificationEmailMode>>();
+  ruleNames = new Map<string, string>();
+  unscopedSaves: { companyId: string; userId: string; kind: NotificationKind; emailMode: NotificationEmailMode }[] = [];
   currentUserId = "";
   currentCompanyId = "";
   clock = new Date("2026-11-12T10:00:00.000Z");
@@ -85,8 +87,22 @@ export class FakeNotificationRepo extends NotificationRepo {
     return Promise.resolve(new Map([...this.preferences].filter(([userId]) => userIds.includes(userId))));
   }
 
+  saveEmailModeUnscoped(companyId: string, userId: string, kind: NotificationKind, emailMode: NotificationEmailMode) {
+    const own = this.preferences.get(userId) ?? new Map<NotificationKind, NotificationEmailMode>();
+    own.set(kind, emailMode);
+    this.preferences.set(userId, own);
+    this.unscopedSaves.push({ companyId, userId, kind, emailMode });
+    return Promise.resolve();
+  }
+
+  private pending(row: Row): PendingEmailNotification {
+    return { ...row, sourceRuleName: row.sourceRuleId ? (this.ruleNames.get(row.sourceRuleId) ?? null) : null };
+  }
+
   findNotificationsUnscoped(companyId: string, ids: string[]): Promise<PendingEmailNotification[]> {
-    return Promise.resolve(this.rows.filter((row) => row.companyId === companyId && ids.includes(row.id)));
+    return Promise.resolve(
+      this.rows.filter((row) => row.companyId === companyId && ids.includes(row.id)).map((row) => this.pending(row)),
+    );
   }
 
   markEmailedUnscoped(ids: string[], now: Date) {
@@ -121,14 +137,16 @@ export class FakeNotificationRepo extends NotificationRepo {
 
   findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]> {
     return Promise.resolve(
-      this.rows.filter(
-        (row) =>
-          row.companyId === companyId &&
-          row.userId === userId &&
-          !row.emailedAt &&
-          !row.readAt &&
-          row.createdAt >= since,
-      ),
+      this.rows
+        .filter(
+          (row) =>
+            row.companyId === companyId &&
+            row.userId === userId &&
+            !row.emailedAt &&
+            !row.readAt &&
+            row.createdAt >= since,
+        )
+        .map((row) => this.pending(row)),
     );
   }
 

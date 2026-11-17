@@ -6,6 +6,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
 
 import { render } from "@react-email/render";
+import { createTranslator } from "next-intl";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
@@ -404,7 +405,15 @@ const EMAIL_PREVIEW_CASES = [
         items: [{ title: "Hoffmann Consulting", body: "Follow-up" }],
         cta: copy.cta,
         href: `${PREVIEW_BASE_URL}/records`,
-        preferencesHint: copy.preferencesHint,
+        footerReason: createTranslator({
+          locale,
+          messages: catalog(locale),
+          namespace: "NotificationEmail",
+        })("footerReason", { count: 1, sources: "Hoffmann Consulting" }),
+        turnOffLinks: [
+          { label: copy.turnOffKind, href: `${PREVIEW_BASE_URL}/api/notifications/unsubscribe?token=preview` },
+        ],
+        manage: { label: copy.manageNotifications, href: `${PREVIEW_BASE_URL}/settings/profile` },
         subject: copy.digestSubject,
         title: copy.title,
       });
