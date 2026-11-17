@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { PublicFormAfterSubmitChain } from "./public-form-after-submit-chain";
@@ -139,8 +141,14 @@ export const PublicFormTab = observer(function PublicFormTab({ store, onClose }:
           <div className="flex min-w-0 flex-col gap-5">
             <p className="text-sm text-muted-foreground">{t("PublicForm.builder.intro", { list: editor.typeLabel })}</p>
 
+  const { navigationGuard } = useRootStore();
             <div className="flex items-center gap-2">
               <Switch
+  useEffect(() => {
+    navigationGuard.register(store);
+    return () => navigationGuard.unregister(store);
+  }, [navigationGuard, store]);
+
                 checked={draft.enabled}
                 id="public-form-enabled"
                 onCheckedChange={(checked) => store.patch({ enabled: checked })}
@@ -181,6 +189,10 @@ export const PublicFormTab = observer(function PublicFormTab({ store, onClose }:
 
             {store.config === null ? (
               <p className="text-xs text-muted-foreground" id="public-form-invalid">
+    if (outcome.status === "skipped" && store.config === null) {
+      toast.error(t("PublicForm.builder.incomplete"));
+      return;
+    }
                 {t("PublicForm.builder.incomplete")}
               </p>
             ) : null}
@@ -196,7 +208,7 @@ export const PublicFormTab = observer(function PublicFormTab({ store, onClose }:
         editable
         anchorScope="public-form"
         creating={!editor.form}
-        dirty={store.edited && store.config !== null}
+        dirty={store.edited}
         saving={store.saving}
         onCancel={onClose}
         onSave={save}

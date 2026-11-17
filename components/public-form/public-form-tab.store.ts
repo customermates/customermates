@@ -35,6 +35,7 @@ export class PublicFormTabStore {
   saving = false;
   previewMode: PublicFormPreviewMode = "form";
   private request = 0;
+  readonly withUnsavedChangesGuard = true;
 
   constructor(
     readonly typeId: string,
@@ -50,6 +51,8 @@ export class PublicFormTabStore {
       edited: computed,
       config: computed,
       canSave: computed,
+      hasUnsavedChanges: computed,
+      isLoading: computed,
       preview: computed,
       chain: computed,
       patch: action,
@@ -66,6 +69,14 @@ export class PublicFormTabStore {
 
   get config(): PublicFormConfig | null {
     return this.draft ? validDraftConfig(this.draft) : null;
+  get hasUnsavedChanges(): boolean {
+    return this.edited;
+  }
+
+  get isLoading(): boolean {
+    return this.saving;
+  }
+
   }
 
   get canSave(): boolean {
