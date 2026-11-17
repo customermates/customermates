@@ -1,10 +1,23 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
+
+vi.mock("@/core/observability/server", () => sentry);
 
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentJobStepUsage } from "../run-agent-job-loop";
 
+import { agentJobFailureCode } from "../agent-job-failure";
+import { MateJobBudget } from "../mate-agent-job-budget";
 import { MateAgentJobCredits, mateJobReservationId } from "../mate-agent-job-credits";
-import { buildMateJobSettlement, mateJobOutOfBudget, mateStepCost, sumStepTokens } from "../mate-agent-job-settlement";
+import {
+  buildMateJobSettlement,
+  mateJobSpentMicrocents,
+  mateStepCost,
+  sumStepTokens,
+} from "../mate-agent-job-settlement";
+
+const CEILING = 10_000_000;
 
 const BUDGET: AgentTurnBudget = {
   modelSpec: "anthropic/claude-haiku-5.5",
@@ -80,9 +93,152 @@ describe("charging a Mate agent job", () => {
     });
   });
 
-  it("stops a run when another round could overspend what was reserved", () => {
-    expect(mateJobOutOfBudget([step(1000, 100, billedMetadata("0.0004"))], BUDGET)).toBe(false);
-    expect(mateJobOutOfBudget([step(1000, 100, billedMetadata("0.0080"))], BUDGET)).toBe(true);
+  it("charges a round without usage evidence at what was reserved for it, as an estimate", () => {
+    const unread: AgentJobStepUsage = { ...step(0, 0), unmeasuredMicrocents: 265_000 };
+    const steps = [step(1000, 100, billedMetadata("0.0004")), unread];
+
+    expect(mateStepCost(unread, BUDGET)).toMatchObject({ costMicrocents: 265_000, measured: false });
+    expect(buildMateJobSettlement(steps, BUDGET)).toMatchObject({
+      costSource: "estimated",
+      costMicrocents: 305_000,
+      chargedMicrocents: 305_000,
+      policyBreach: false,
+    });
+  });
+
+  it("adds what the tools' re-rank calls cost to the charge", () => {
+    const steps = [step(1000, 100, billedMetadata("0.0004"))];
+    const rerank = [
+      { use: "docs_rerank" as const, model: "jev" as const, costMicrocents: 1_500, measured: true, answered: true },
+      { use: "wiki_rerank" as const, model: "jev" as const, costMicrocents: 500, measured: true, answered: false },
+    ];
+
+    expect(mateJobSpentMicrocents(steps, rerank, BUDGET)).toBe(42_000);
+    expect(buildMateJobSettlement(steps, BUDGET, rerank)).toMatchObject({
+      costSource: "measured",
+      costMicrocents: 42_000,
+      chargedMicrocents: 42_000,
+    });
+  });
+});
+
+describe("the credit check before each round of a Mate agent job", () => {
+  const owner = { companyId: "company-1", userId: "user-1" };
+  const reservation = {
+    reservationId: "agent-job:job-1:1",
+    budget: BUDGET,
+    reservedMicrocents: 600_000,
+    ceilingMicrocents: CEILING,
+  };
+  const round = (spent: AgentJobStepUsage[] = [], contextBytes = BUDGET.maxContextBytes) => ({
+    steps: spent,
+    auxiliary: [],
+    contextBytes,
+    measured: null,
+  });
+
+  function world(overrides: Record<string, unknown> = {}) {
+    const credits = {
+      admitRound: vi.fn().mockResolvedValue(true),
+      extend: vi
+        .fn()
+        .mockImplementation(({ requiredMicrocents }: { requiredMicrocents: number }) =>
+          Promise.resolve({ disposition: "extended", reservedMicrocents: requiredMicrocents }),
+        ),
+      ...overrides,
+    };
+    return { credits, budget: new MateJobBudget(credits as never, reservation, owner) };
+  }
+
+  it("passes the model's output, context and reasoning limits to the run", () => {
+    expect(world().budget.limits).toEqual({ maxOutputTokens: 8192, maxContextBytes: 195_000 });
+    const reasoning = new MateJobBudget(
+      world().credits as never,
+      { ...reservation, budget: { ...BUDGET, reasoningEffort: "medium" } },
+      owner,
+    );
+    expect(reasoning.limits).toEqual({ maxOutputTokens: 8192, maxContextBytes: 195_000, reasoning: "medium" });
+  });
+
+  it("admits a round the reservation already covers without extending it", async () => {
+    const { credits, budget } = world();
+
+    const admission = await budget.admitRound(round([step(1000, 100, billedMetadata("0.0004"))]));
+
+    expect(admission).toEqual({ admitted: true, roundReserveMicrocents: 300_000 });
+    expect(credits.admitRound).toHaveBeenCalledWith({ reservationId: "agent-job:job-1:1", ...owner });
+    expect(credits.extend).not.toHaveBeenCalled();
+    expect(budget.settlementBudget.reservedMicrocents).toBe(600_000);
+  });
+
+  it("extends the reservation round by round, so a run can spend up to its ceiling instead of two rounds", async () => {
+    const { credits, budget } = world();
+    const spent = [step(1000, 100, billedMetadata("0.0040")), step(1000, 100, billedMetadata("0.0040"))];
+
+    const admission = await budget.admitRound(round(spent));
+
+    expect(admission).toEqual({ admitted: true, roundReserveMicrocents: 300_000 });
+    expect(credits.extend).toHaveBeenCalledWith({
+      reservationId: "agent-job:job-1:1",
+      ...owner,
+      requiredMicrocents: 1_100_000,
+      ceilingMicrocents: CEILING,
+    });
+    expect(budget.settlementBudget.reservedMicrocents).toBe(1_100_000);
+    expect(buildMateJobSettlement(spent, budget.settlementBudget)).toMatchObject({
+      reservedMicrocents: 1_100_000,
+      chargedMicrocents: 800_000,
+      policyBreach: false,
+    });
+  });
+
+  it("reserves less for a round with a small context than the model's worst case", async () => {
+    const worstCase = 2_650_000;
+    const budget = new MateJobBudget(
+      world().credits as never,
+      { ...reservation, budget: { ...BUDGET, roundReserveMicrocents: worstCase }, reservedMicrocents: 2 * worstCase },
+      owner,
+    );
+
+    const small = await budget.admitRound(round([], 3_000));
+    const full = await budget.admitRound(round());
+
+    expect(full).toEqual({ admitted: true, roundReserveMicrocents: worstCase });
+    expect(small.admitted).toBe(true);
+    if (!small.admitted) return;
+    expect(small.roundReserveMicrocents).toBeLessThan(worstCase / 2);
+    expect(small.roundReserveMicrocents).toBeGreaterThan(0);
+  });
+
+  it("stops the run at its ceiling without asking for more", async () => {
+    const { credits, budget } = world();
+    const spent = [step(1000, 100, billedMetadata("0.0980"))];
+
+    expect(await budget.admitRound(round(spent))).toEqual({ admitted: false });
+    expect(credits.extend).not.toHaveBeenCalled();
+    expect(credits.admitRound).not.toHaveBeenCalled();
+  });
+
+  it("stops the run when the member's allowance cannot cover another round", async () => {
+    for (const disposition of ["credit_limit", "run_credit_limit"]) {
+      const { budget } = world({ extend: vi.fn().mockResolvedValue({ disposition, ceilingMicrocents: CEILING }) });
+      expect(await budget.admitRound(round([step(1000, 100, billedMetadata("0.0080"))]))).toEqual({ admitted: false });
+    }
+  });
+
+  it("fails the run as hosted AI unavailable when the provider is paused or the reservation is gone", async () => {
+    const paused = world({ admitRound: vi.fn().mockResolvedValue(false) });
+    const error = await paused.budget.admitRound(round()).catch((caught: unknown) => caught);
+    expect(agentJobFailureCode(error)).toBe("hostedAiUnavailable");
+    expect(paused.credits.extend).not.toHaveBeenCalled();
+
+    for (const disposition of ["hosted_ai_unavailable", "turn_error"]) {
+      const gone = world({ extend: vi.fn().mockResolvedValue({ disposition }) });
+      const failure = await gone.budget
+        .admitRound(round([step(1000, 100, billedMetadata("0.0080"))]))
+        .catch((caught: unknown) => caught);
+      expect(agentJobFailureCode(failure)).toBe("hostedAiUnavailable");
+    }
   });
 });
 
@@ -103,13 +259,21 @@ describe("reserving credits for a Mate agent job", () => {
       reserveUsage: vi.fn().mockResolvedValue(true),
       settleReservation: vi.fn().mockResolvedValue(true),
       releaseReservation: vi.fn().mockResolvedValue(undefined),
+      extendAgentJobReservation: vi.fn().mockResolvedValue({ disposition: "extended", reservedMicrocents: 2 }),
+      admitAgentJobProviderRound: vi.fn().mockResolvedValue(true),
+      closeInterruptedAgentJobReservation: vi.fn().mockResolvedValue("retained"),
       ...overrides,
     };
   }
 
   const args = { jobId: "job-1", attempt: 2, companyId: "company-1", userId: "user-1" };
+  const exhaustedTurn = { summary: { blockedReason: "credits_exhausted" }, reservation: null };
 
-  it("holds the credits under a name derived from the job and the attempt", async () => {
+  beforeEach(() => {
+    sentry.captureException.mockClear();
+  });
+
+  it("holds the credits under a name derived from the job and the attempt, with the ceiling of one run", async () => {
     const service = usage();
     const credits = new MateAgentJobCredits(service as never);
 
@@ -121,8 +285,14 @@ describe("reserving credits for a Mate agent job", () => {
         reservationId: "agent-job:job-1:2",
         budget: BUDGET,
         reservedMicrocents: BUDGET.reservedMicrocents,
+        ceilingMicrocents: CEILING,
       },
     });
+    expect(service.prepareTurn).toHaveBeenCalledWith(
+      "user-1",
+      expect.any(Date),
+      expect.objectContaining({ creditCeilingMicrocents: CEILING }),
+    );
     expect(service.reserveUsage).toHaveBeenCalledWith(
       expect.objectContaining({ reservationId: "agent-job:job-1:2", companyId: "company-1", userId: "user-1" }),
     );
@@ -130,25 +300,81 @@ describe("reserving credits for a Mate agent job", () => {
   });
 
   it("tells exhausted credits from an unavailable service", async () => {
-    const exhausted = usage({
-      prepareTurn: vi.fn().mockResolvedValue({ summary: { blockedReason: "credits_exhausted" }, reservation: null }),
-    });
+    const exhausted = usage({ prepareTurn: vi.fn().mockResolvedValue(exhaustedTurn) });
     const blocked = usage({
       prepareTurn: vi
         .fn()
         .mockResolvedValue({ summary: { blockedReason: "subscription_unavailable" }, reservation: null }),
     });
     const refused = usage({ reserveUsage: vi.fn().mockResolvedValue(false) });
-    const overAllowance = usage({
-      reserveUsage: vi.fn().mockRejectedValue(new Error("exceeds the current allowance")),
-    });
 
     expect(await new MateAgentJobCredits(exhausted as never).reserve(args)).toEqual({ ok: false, reason: "credits" });
     expect(await new MateAgentJobCredits(blocked as never).reserve(args)).toEqual({ ok: false, reason: "unavailable" });
     expect(await new MateAgentJobCredits(refused as never).reserve(args)).toEqual({ ok: false, reason: "unavailable" });
-    expect(await new MateAgentJobCredits(overAllowance as never).reserve(args)).toEqual({
+    expect(sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("reads the allowance again when another reservation took the credits in between", async () => {
+    const takenInBetween = usage({
+      prepareTurn: vi
+        .fn()
+        .mockResolvedValueOnce({ summary: { blockedReason: null }, reservation })
+        .mockResolvedValueOnce(exhaustedTurn),
+      reserveUsage: vi.fn().mockRejectedValue(new Error("Agent credit reservation exceeds the current allowance.")),
+    });
+    expect(await new MateAgentJobCredits(takenInBetween as never).reserve(args)).toEqual({
       ok: false,
       reason: "credits",
+    });
+    expect(takenInBetween.reserveUsage).toHaveBeenCalledTimes(1);
+    expect(sentry.captureException).not.toHaveBeenCalled();
+
+    const stillEnough = usage({
+      reserveUsage: vi.fn().mockRejectedValueOnce(new Error("exceeds the current allowance")).mockResolvedValue(true),
+    });
+    expect((await new MateAgentJobCredits(stillEnough as never).reserve(args)).ok).toBe(true);
+    expect(stillEnough.reserveUsage).toHaveBeenCalledTimes(2);
+    expect(sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("reports a fault of the credit store and calls it unavailable, never out of credits", async () => {
+    const fault = new Error("Can't reach database server");
+    const failingReserve = usage({ reserveUsage: vi.fn().mockRejectedValue(fault) });
+    expect(await new MateAgentJobCredits(failingReserve as never).reserve(args)).toEqual({
+      ok: false,
+      reason: "unavailable",
+    });
+    expect(sentry.captureException).toHaveBeenCalledWith(fault);
+
+    sentry.captureException.mockClear();
+    const failingRead = usage({ prepareTurn: vi.fn().mockRejectedValue(fault) });
+    expect(await new MateAgentJobCredits(failingRead as never).reserve(args)).toEqual({
+      ok: false,
+      reason: "unavailable",
+    });
+    expect(sentry.captureException).toHaveBeenCalledWith(fault);
+    expect(failingRead.reserveUsage).not.toHaveBeenCalled();
+  });
+
+  it("asks the credit ledger before each round, extends by name and closes an interrupted attempt", async () => {
+    const service = usage();
+    const credits = new MateAgentJobCredits(service as never);
+    const owner = { reservationId: "agent-job:job-1:2", companyId: "company-1", userId: "user-1" };
+
+    expect(await credits.admitRound(owner)).toBe(true);
+    expect(service.admitAgentJobProviderRound).toHaveBeenCalledWith(owner);
+
+    await credits.extend({ ...owner, requiredMicrocents: 900_000, ceilingMicrocents: CEILING });
+    expect(service.extendAgentJobReservation).toHaveBeenCalledWith({
+      ...owner,
+      requiredMicrocents: 900_000,
+      ceilingMicrocents: CEILING,
+    });
+
+    expect(await credits.settleInterrupted(args)).toBe("retained");
+    expect(service.closeInterruptedAgentJobReservation).toHaveBeenCalledWith({
+      ...owner,
+      model: credits.model.modelId,
     });
   });
 

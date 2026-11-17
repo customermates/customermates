@@ -29,7 +29,7 @@ import type {
   AgentWorkspaceCreditPool,
   WorkspacePlatformReservation,
 } from "./agent-usage.service";
-import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
+import type { AgentUsageRepo, AgentUsageReservationExtension } from "@/ee/agent-chat/agent-usage.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
 import type { RoutineConversationPurgeRepo } from "@/ee/routines/routine-conversation-purge.repo";
 import type { RoutineRunLinkRepo } from "./routine-run-link.repo";
@@ -225,13 +225,6 @@ function sumAdjustmentMicrocents(rows: Array<{ deltaMicrocents: bigint }>): numb
   }
   return total;
 }
-
-type AgentUsageReservationExtension =
-  | { disposition: "extended"; reservedMicrocents: number }
-  | { disposition: "credit_limit" }
-  | { disposition: "run_credit_limit"; ceilingMicrocents: number }
-  | { disposition: "hosted_ai_unavailable" }
-  | { disposition: "turn_error" };
 
 export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageRepo, RoutineConversationPurgeRepo {
   constructor(
@@ -1911,14 +1904,6 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     userId: string;
   }): Promise<boolean> {
     return this.withCompanyTransaction(args.companyId, async () => {
-      const now = new Date();
-      const user = await this.findUserForUsageUnscoped(args.userId);
-      if (!user || user.companyId !== args.companyId || user.status !== Status.active || !user.subscription)
-        return false;
-
-      const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
-      if (!entitlement || entitlement.blockedReason) return false;
-
       const reservation = await this.prisma.agentUsageEvent.findFirst({
         where: {
           turnRequestId: args.turnRequestId,
@@ -1934,35 +1919,47 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
           periodEnd: true,
         },
       });
-      if (
-        !reservation ||
-        reservation.periodStart.getTime() !== entitlement.start.getTime() ||
-        reservation.periodEnd.getTime() !== entitlement.resetAt.getTime()
-      )
-        return false;
-
-      const others = await this.prisma.agentUsageEvent.findMany({
-        where: {
-          id: { not: reservation.id },
-          companyId: args.companyId,
-          userId: args.userId,
-          periodStart: entitlement.start,
-          periodEnd: entitlement.resetAt,
-          state: { in: ["reserved", "settled", "retained"] },
-        },
-        select: committedUsageSelect,
-      });
-      const committedElsewhere = sumCommittedAgentMicrocents(others);
-      if (
-        committedElsewhere + agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation") >
-        entitlement.limitMicrocents
-      )
-        return false;
-
-      if (!(await this.admitsHostedAiGlobalSpend({ now }))) return false;
-
-      return true;
+      return this.admitsNextProviderRound(reservation, args);
     });
+  }
+
+  private async admitsNextProviderRound(
+    reservation: { id: string; reservedMicrocents: bigint; periodStart: Date; periodEnd: Date } | null,
+    args: { companyId: string; userId: string },
+  ): Promise<boolean> {
+    const now = new Date();
+    const user = await this.findUserForUsageUnscoped(args.userId);
+    if (!user || user.companyId !== args.companyId || user.status !== Status.active || !user.subscription) return false;
+
+    const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
+    if (!entitlement || entitlement.blockedReason) return false;
+
+    if (
+      !reservation ||
+      reservation.periodStart.getTime() !== entitlement.start.getTime() ||
+      reservation.periodEnd.getTime() !== entitlement.resetAt.getTime()
+    )
+      return false;
+
+    const others = await this.prisma.agentUsageEvent.findMany({
+      where: {
+        id: { not: reservation.id },
+        companyId: args.companyId,
+        userId: args.userId,
+        periodStart: entitlement.start,
+        periodEnd: entitlement.resetAt,
+        state: { in: ["reserved", "settled", "retained"] },
+      },
+      select: committedUsageSelect,
+    });
+    const committedElsewhere = sumCommittedAgentMicrocents(others);
+    if (
+      committedElsewhere + agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation") >
+      entitlement.limitMicrocents
+    )
+      return false;
+
+    return this.admitsHostedAiGlobalSpend({ now });
   }
 
   @BypassTenantGuard
@@ -3057,94 +3054,208 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       if (!reservation) return { disposition: "turn_error" };
       if (!reservation.turnRequest) return { disposition: "turn_error" };
       const conversation = reservation.turnRequest.conversation;
-      const reservedMicrocents = agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation");
       const ceilingMicrocents =
         conversation.routineRuns.length > 0
           ? conversation.creditCeilingMicrocents === null
             ? null
             : agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
           : null;
-      if (
-        ceilingMicrocents !== null &&
-        (reservedMicrocents > ceilingMicrocents || args.requiredMicrocents > ceilingMicrocents)
-      )
-        return { disposition: "run_credit_limit", ceilingMicrocents };
-      if (reservedMicrocents >= args.requiredMicrocents) {
-        return {
+      return this.extendReservedUsage(reservation, ceilingMicrocents, args);
+    });
+  }
+
+  @BypassTenantGuard
+  async extendAgentJobUsageReservationUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    requiredMicrocents: number;
+    ceilingMicrocents: number;
+  }): Promise<AgentUsageReservationExtension> {
+    if (!Number.isSafeInteger(args.requiredMicrocents) || args.requiredMicrocents < 1)
+      throw new Error("Agent credit reservation extension is invalid.");
+    if (!Number.isSafeInteger(args.ceilingMicrocents) || args.ceilingMicrocents < 1)
+      throw new Error("Agent job credit ceiling is invalid.");
+
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const reservation = await this.findReservedAgentJobUsage(args);
+      if (!reservation) return { disposition: "turn_error" };
+      return this.extendReservedUsage(reservation, args.ceilingMicrocents, args);
+    });
+  }
+
+  private findReservedAgentJobUsage(args: { id: string; companyId: string; userId: string }) {
+    if (!args.id.startsWith(AGENT_JOB_USAGE_SESSION_PREFIX)) return Promise.resolve(null);
+    return this.prisma.agentUsageEvent.findFirst({
+      where: {
+        id: args.id,
+        companyId: args.companyId,
+        userId: args.userId,
+        state: "reserved",
+        purpose: "turn",
+        turnRequestId: null,
+      },
+      select: {
+        id: true,
+        reservedMicrocents: true,
+        periodStart: true,
+        periodEnd: true,
+        providerStartedAt: true,
+      },
+    });
+  }
+
+  private async extendReservedUsage(
+    reservation: { id: string; reservedMicrocents: bigint; periodStart: Date; periodEnd: Date },
+    ceilingMicrocents: number | null,
+    args: { companyId: string; userId: string; requiredMicrocents: number },
+  ): Promise<AgentUsageReservationExtension> {
+    const reservedMicrocents = agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation");
+    if (
+      ceilingMicrocents !== null &&
+      (reservedMicrocents > ceilingMicrocents || args.requiredMicrocents > ceilingMicrocents)
+    )
+      return { disposition: "run_credit_limit", ceilingMicrocents };
+    if (reservedMicrocents >= args.requiredMicrocents) {
+      return {
+        disposition: "extended",
+        reservedMicrocents,
+      };
+    }
+
+    const now = new Date();
+    const user = await this.findUserForUsageUnscoped(args.userId);
+    if (!user || user.companyId !== args.companyId || user.status !== Status.active || !user.subscription)
+      return { disposition: "hosted_ai_unavailable" };
+    const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
+    if (
+      !entitlement ||
+      entitlement.blockedReason ||
+      entitlement.start.getTime() !== reservation.periodStart.getTime() ||
+      entitlement.resetAt.getTime() !== reservation.periodEnd.getTime()
+    )
+      return { disposition: "hosted_ai_unavailable" };
+
+    const others = await this.prisma.agentUsageEvent.findMany({
+      where: {
+        companyId: args.companyId,
+        userId: args.userId,
+        periodStart: reservation.periodStart,
+        periodEnd: reservation.periodEnd,
+        state: { in: ["reserved", "settled", "retained"] },
+        id: { not: reservation.id },
+      },
+      select: committedUsageSelect,
+    });
+    const committedElsewhere = sumCommittedAgentMicrocents(others);
+    if (
+      committedElsewhere + args.requiredMicrocents > entitlement.limitMicrocents ||
+      !(await this.admitsMemberCreditCommitment({
+        companyId: args.companyId,
+        userId: args.userId,
+        memberLimitMicrocents: entitlement.limitMicrocents,
+        ownCommittedMicrocents: committedElsewhere,
+        replacedMicrocents: reservedMicrocents,
+        requiredMicrocents: args.requiredMicrocents,
+        periodStart: reservation.periodStart,
+        periodEnd: reservation.periodEnd,
+        now,
+      }))
+    )
+      return { disposition: "credit_limit" };
+
+    if (
+      !(await this.admitsHostedAiGlobalSpend({
+        now,
+        excludeReservationId: reservation.id,
+        additionalReservedMicrocents: args.requiredMicrocents,
+      }))
+    )
+      return { disposition: "hosted_ai_unavailable" };
+
+    const extended = await this.prisma.agentUsageEvent.updateMany({
+      where: {
+        id: reservation.id,
+        companyId: args.companyId,
+        state: "reserved",
+      },
+      data: {
+        reservedMicrocents: args.requiredMicrocents,
+        allowanceMicrocentsSnapshot: entitlement.limitMicrocents,
+        planSnapshot: entitlement.plan,
+        subscriptionStatusSnapshot: user.subscription.status,
+      },
+    });
+    return extended.count === 1
+      ? {
           disposition: "extended",
-          reservedMicrocents,
-        };
-      }
+          reservedMicrocents: args.requiredMicrocents,
+        }
+      : { disposition: "turn_error" };
+  }
 
-      const now = new Date();
-      const user = await this.findUserForUsageUnscoped(args.userId);
-      if (!user || user.companyId !== args.companyId || user.status !== Status.active || !user.subscription)
-        return { disposition: "hosted_ai_unavailable" };
-      const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
-      if (
-        !entitlement ||
-        entitlement.blockedReason ||
-        entitlement.start.getTime() !== reservation.periodStart.getTime() ||
-        entitlement.resetAt.getTime() !== reservation.periodEnd.getTime()
-      )
-        return { disposition: "hosted_ai_unavailable" };
-
-      const others = await this.prisma.agentUsageEvent.findMany({
-        where: {
-          companyId: args.companyId,
-          userId: args.userId,
-          periodStart: reservation.periodStart,
-          periodEnd: reservation.periodEnd,
-          state: { in: ["reserved", "settled", "retained"] },
-          id: { not: reservation.id },
-        },
-        select: committedUsageSelect,
-      });
-      const committedElsewhere = sumCommittedAgentMicrocents(others);
-      if (
-        committedElsewhere + args.requiredMicrocents > entitlement.limitMicrocents ||
-        !(await this.admitsMemberCreditCommitment({
-          companyId: args.companyId,
-          userId: args.userId,
-          memberLimitMicrocents: entitlement.limitMicrocents,
-          ownCommittedMicrocents: committedElsewhere,
-          replacedMicrocents: reservedMicrocents,
-          requiredMicrocents: args.requiredMicrocents,
-          periodStart: reservation.periodStart,
-          periodEnd: reservation.periodEnd,
-          now,
-        }))
-      )
-        return { disposition: "credit_limit" };
-
-      if (
-        !(await this.admitsHostedAiGlobalSpend({
-          now,
-          excludeReservationId: reservation.id,
-          additionalReservedMicrocents: args.requiredMicrocents,
-        }))
-      )
-        return { disposition: "hosted_ai_unavailable" };
-
-      const extended = await this.prisma.agentUsageEvent.updateMany({
+  @BypassTenantGuard
+  async admitAgentJobProviderRoundUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    now: Date;
+  }): Promise<boolean> {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const reservation = await this.findReservedAgentJobUsage(args);
+      if (!reservation) return false;
+      if (!(await this.admitsNextProviderRound(reservation, args))) return false;
+      if (reservation.providerStartedAt) return true;
+      const started = await this.prisma.agentUsageEvent.updateMany({
         where: {
           id: reservation.id,
           companyId: args.companyId,
+          userId: args.userId,
           state: "reserved",
+          providerStartedAt: null,
         },
+        data: { providerStartedAt: args.now },
+      });
+      return started.count === 1;
+    });
+  }
+
+  @BypassTenantGuard
+  async closeInterruptedAgentJobUsageUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    model: string;
+    now: Date;
+  }): Promise<"retained" | "released" | "none"> {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const reservation = await this.findReservedAgentJobUsage(args);
+      if (!reservation) return "none";
+      const where = { id: reservation.id, companyId: args.companyId, userId: args.userId, state: "reserved" as const };
+      if (!reservation.providerStartedAt) {
+        const released = await this.prisma.agentUsageEvent.updateMany({
+          where: { ...where, providerStartedAt: null },
+          data: { state: "released", chargedMicrocents: 0, settledAt: args.now },
+        });
+        return released.count === 1 ? "released" : "none";
+      }
+      const retainedMicrocents = agentMicrocentsFromStorage(
+        reservation.reservedMicrocents,
+        "Interrupted agent job usage reservation",
+      );
+      const retained = await this.prisma.agentUsageEvent.updateMany({
+        where,
         data: {
-          reservedMicrocents: args.requiredMicrocents,
-          allowanceMicrocentsSnapshot: entitlement.limitMicrocents,
-          planSnapshot: entitlement.plan,
-          subscriptionStatusSnapshot: user.subscription.status,
+          state: "retained",
+          model: args.model,
+          costMicrocents: 0,
+          costSource: "estimated",
+          reservedMicrocents: retainedMicrocents,
+          chargedMicrocents: retainedMicrocents,
+          settledAt: args.now,
         },
       });
-      return extended.count === 1
-        ? {
-            disposition: "extended",
-            reservedMicrocents: args.requiredMicrocents,
-          }
-        : { disposition: "turn_error" };
+      return retained.count === 1 ? "retained" : "none";
     });
   }
 

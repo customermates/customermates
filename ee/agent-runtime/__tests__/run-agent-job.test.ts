@@ -58,8 +58,14 @@ const STEP = {
   providerMetadata: undefined,
 };
 
+const CEILING = 10_000_000;
+
 function finished(overrides: Partial<Extract<AgentJobLoopOutcome, { kind: "finished" }>> = {}): AgentJobLoopOutcome {
-  return { kind: "finished", text: "Created one action.", reason: "stop", steps: [STEP], ...overrides };
+  return { kind: "finished", text: "Created one action.", reason: "stop", steps: [STEP], auxiliary: [], ...overrides };
+}
+
+function failed(error: unknown, steps: AgentJobLoopOutcome["steps"] = []): AgentJobLoopOutcome {
+  return { kind: "failed", error, steps, auxiliary: [] };
 }
 
 async function world() {
@@ -76,10 +82,21 @@ async function world() {
   const credits = {
     reserve: vi.fn().mockResolvedValue({
       ok: true,
-      reservation: { reservationId: "agent-job:x:1", budget: BUDGET, reservedMicrocents: BUDGET.reservedMicrocents },
+      reservation: {
+        reservationId: "agent-job:x:1",
+        budget: BUDGET,
+        reservedMicrocents: BUDGET.reservedMicrocents,
+        ceilingMicrocents: CEILING,
+      },
     }),
     settle: vi.fn().mockResolvedValue(true),
     release: vi.fn().mockResolvedValue(undefined),
+    admitRound: vi.fn().mockResolvedValue(true),
+    extend: vi
+      .fn()
+      .mockImplementation(({ requiredMicrocents }: { requiredMicrocents: number }) =>
+        Promise.resolve({ disposition: "extended", reservedMicrocents: requiredMicrocents }),
+      ),
   };
   const createModel = vi.fn().mockReturnValue({ fake: "model" });
   const loop = vi.fn().mockImplementation(() => Promise.resolve(finished()));
@@ -119,7 +136,8 @@ describe("running an agent job on the workspace's own key", () => {
     expect(input.prompt).toBe("Do the thing");
     expect(input.maxToolCalls).toBe(25);
     expect(input.wallMs).toBe(600_000);
-    expect(input.outOfBudget).toBeUndefined();
+    expect(input.admitRound).toBeUndefined();
+    expect(input.limits).toBeUndefined();
 
     expect(jobs.jobs.get(job.id)).toMatchObject({
       status: "succeeded",
@@ -208,7 +226,7 @@ describe("running an agent job on the workspace's own key", () => {
       name: "APICallError",
       statusCode: 401,
     });
-    loop.mockResolvedValue({ kind: "failed", error: failure, steps: [] });
+    loop.mockResolvedValue(failed(failure));
     const job = jobs.add({ runtime: "ownKey" });
 
     expect(await run(job.id)).toEqual({ ok: true, data: { status: "failed" } });
@@ -284,7 +302,8 @@ describe("running an agent job on Mate", () => {
     const input = loop.mock.calls[0][0];
     expect(input.model).toBe("anthropic/claude-haiku-5.5");
     expect(input.providerOptions).toMatchObject({ gateway: { only: ["vertexAnthropic"], zeroDataRetention: true } });
-    expect(typeof input.outOfBudget).toBe("function");
+    expect(typeof input.admitRound).toBe("function");
+    expect(input.limits).toEqual({ maxOutputTokens: 8192, maxContextBytes: 195_000 });
     expect(credits.settle).toHaveBeenCalledWith(
       expect.objectContaining({
         reservationId: "agent-job:x:1",
@@ -303,14 +322,14 @@ describe("running an agent job on Mate", () => {
 
   it("releases the credits when the provider answered nothing and still settles the rounds of a failed run", async () => {
     const { jobs, credits, loop, run } = await world();
-    loop.mockResolvedValueOnce({ kind: "failed", error: new Error("down"), steps: [] });
+    loop.mockResolvedValueOnce(failed(new Error("down")));
     const nothing = jobs.add({ runtime: "mate" });
     await run(nothing.id);
     expect(credits.release).toHaveBeenCalledTimes(1);
     expect(credits.settle).not.toHaveBeenCalled();
     expect(jobs.jobs.get(nothing.id)).toMatchObject({ status: "failed", costMicrocents: 0n });
 
-    loop.mockResolvedValueOnce({ kind: "failed", error: new Error("down"), steps: [STEP] });
+    loop.mockResolvedValueOnce(failed(new Error("down"), [STEP]));
     const partial = jobs.add({ runtime: "mate" });
     await run(partial.id);
     expect(credits.settle).toHaveBeenCalledTimes(1);
@@ -343,5 +362,99 @@ describe("running an agent job on Mate", () => {
     expect(jobs.jobs.get(job.id)).toMatchObject({ status: "succeeded", costMicrocents: null });
     expect(sentry.captureException).toHaveBeenCalled();
     expect(credits.release).toHaveBeenCalledWith({ jobId: job.id, attempt: 1, companyId: COMPANY, userId: OWNER });
+  });
+
+  it("settles against the reservation as the rounds extended it, so a long run is charged in full", async () => {
+    const { jobs, credits, loop, run } = await world();
+    const round = { tokens: STEP.tokens, providerMetadata: undefined, unmeasuredMicrocents: 900_000 };
+    loop.mockImplementation(async (input: { admitRound: (round: unknown) => Promise<unknown> }) => {
+      const admission = await input.admitRound({
+        steps: [round, round],
+        auxiliary: [],
+        contextBytes: BUDGET.maxContextBytes,
+        measured: null,
+      });
+      expect(admission).toEqual({ admitted: true, roundReserveMicrocents: 300_000 });
+      return finished({ steps: [round, round] });
+    });
+    const job = jobs.add({ runtime: "mate" });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+
+    expect(credits.admitRound).toHaveBeenCalledWith({
+      reservationId: "agent-job:x:1",
+      companyId: COMPANY,
+      userId: OWNER,
+    });
+    expect(credits.extend).toHaveBeenCalledWith({
+      reservationId: "agent-job:x:1",
+      companyId: COMPANY,
+      userId: OWNER,
+      requiredMicrocents: 2_100_000,
+      ceilingMicrocents: CEILING,
+    });
+    expect(credits.settle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        settlement: expect.objectContaining({
+          reservedMicrocents: 2_100_000,
+          chargedMicrocents: 1_800_000,
+          policyBreach: false,
+        }),
+      }),
+    );
+    expect(jobs.jobs.get(job.id)?.costMicrocents).toBe(1_800_000n);
+  });
+
+  it("charges the re-rank calls of the run's tools together with its rounds", async () => {
+    const { jobs, credits, loop, run } = await world();
+    const round = { tokens: STEP.tokens, providerMetadata: undefined, unmeasuredMicrocents: 100_000 };
+    loop.mockResolvedValue(
+      finished({
+        steps: [round],
+        auxiliary: [{ use: "docs_rerank", model: "jev", costMicrocents: 2_500, measured: true, answered: true }],
+      }),
+    );
+    const job = jobs.add({ runtime: "mate" });
+
+    await run(job.id);
+
+    expect(credits.settle).toHaveBeenCalledWith(
+      expect.objectContaining({ settlement: expect.objectContaining({ costMicrocents: 102_500 }) }),
+    );
+    expect(jobs.jobs.get(job.id)?.costMicrocents).toBe(102_500n);
+  });
+
+  it("fails as hosted AI unavailable, not as a provider error, when a round is refused for that reason", async () => {
+    const { jobs, credits, loop, run } = await world();
+    credits.admitRound.mockResolvedValue(false);
+    loop.mockImplementation(async (input: { admitRound: (round: unknown) => Promise<unknown> }) => {
+      const error = await input
+        .admitRound({ steps: [], auxiliary: [], contextBytes: 1_000, measured: null })
+        .catch((caught: unknown) => caught);
+      return failed(error);
+    });
+    const job = jobs.add({ runtime: "mate" });
+
+    await run(job.id);
+
+    expect(jobs.jobs.get(job.id)).toMatchObject({ status: "failed", error: "hostedAiUnavailable" });
+    expect(credits.release).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the status and the charge of a run whose record could not be written at the first try", async () => {
+    const { jobs, credits, run } = await world();
+    sentry.captureException.mockClear();
+    const finish = vi.spyOn(jobs, "finishUnscoped").mockRejectedValueOnce(new Error("connection reset"));
+    const job = jobs.add({ runtime: "mate" });
+
+    expect(await run(job.id)).toEqual({ ok: true, data: { status: "succeeded" } });
+
+    expect(finish).toHaveBeenCalledTimes(2);
+    expect(credits.settle).toHaveBeenCalledTimes(1);
+    expect(credits.release).not.toHaveBeenCalled();
+    const stored = jobs.jobs.get(job.id);
+    expect(stored).toMatchObject({ status: "succeeded", error: null, result: { reason: "stop" } });
+    expect(Number(stored?.costMicrocents)).toBeGreaterThan(0);
+    expect(sentry.captureException).toHaveBeenCalledTimes(1);
   });
 });

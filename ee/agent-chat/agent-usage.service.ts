@@ -1,4 +1,4 @@
-import type { AgentUsageRepo } from "./agent-usage.repo";
+import type { AgentUsageRepo, AgentUsageReservationExtension } from "./agent-usage.repo";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import { z } from "zod";
 
@@ -580,6 +580,52 @@ export class AgentUsageService {
       userId: args.userId,
       settlement: args.settlement,
       settledAt: args.now ?? new Date(),
+    });
+  }
+
+  async extendAgentJobReservation(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    requiredMicrocents: number;
+    ceilingMicrocents: number;
+  }): Promise<AgentUsageReservationExtension> {
+    return this.repo.extendAgentJobUsageReservationUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      requiredMicrocents: args.requiredMicrocents,
+      ceilingMicrocents: args.ceilingMicrocents,
+    });
+  }
+
+  async admitAgentJobProviderRound(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    now?: Date;
+  }): Promise<boolean> {
+    return this.repo.admitAgentJobProviderRoundUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      now: args.now ?? new Date(),
+    });
+  }
+
+  async closeInterruptedAgentJobReservation(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    model: string;
+    now?: Date;
+  }): Promise<"retained" | "released" | "none"> {
+    return this.repo.closeInterruptedAgentJobUsageUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      model: args.model,
+      now: args.now ?? new Date(),
     });
   }
 

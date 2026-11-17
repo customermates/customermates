@@ -10,12 +10,22 @@ const KNOWN_ERROR_CLASSES = [
   "TypeValidationError",
 ] as const;
 
-function statusOf(error: unknown): number | null {
+export type AgentJobStopCode = "hostedAiUnavailable" | "contextLimit";
+
+export class AgentJobStop extends Error {
+  constructor(readonly code: AgentJobStopCode) {
+    super(`The agent job stopped: ${code}`);
+    this.name = "AgentJobStop";
+  }
+}
+
+export function agentJobErrorStatus(error: unknown): number | null {
   if (typeof error !== "object" || error === null) return null;
   const status = (error as { statusCode?: unknown }).statusCode;
   if (typeof status === "number") return status;
-  const cause = (error as { cause?: unknown }).cause;
-  return cause && cause !== error ? statusOf(cause) : null;
+  const { cause, lastError } = error as { cause?: unknown; lastError?: unknown };
+  const inner = cause ?? lastError;
+  return inner && inner !== error ? agentJobErrorStatus(inner) : null;
 }
 
 function classOf(error: unknown): string {
@@ -25,6 +35,7 @@ function classOf(error: unknown): string {
 }
 
 export function agentJobFailureCode(error: unknown): string {
-  const status = statusOf(error);
+  if (error instanceof AgentJobStop) return error.code;
+  const status = agentJobErrorStatus(error);
   return status === null ? classOf(error) : `${classOf(error)}:${status}`;
 }

@@ -183,6 +183,156 @@ describeDatabase("hosted credits of a Mate agent job", () => {
     ).toBe(true);
   });
 
+  it("extends the held credits round by round up to the ceiling of one run and settles against the extended amount", async () => {
+    const { companyId, userId } = await seedActiveSeat();
+    const mate = credits();
+    const reserved = await mate.reserve({ jobId: randomUUID(), attempt: 1, companyId, userId });
+    if (!reserved.ok) throw new Error("The credits were not reserved");
+    const { reservationId, reservedMicrocents, ceilingMicrocents, budget } = reserved.reservation;
+    const owner = { reservationId, companyId, userId };
+    expect(ceilingMicrocents).toBe(10_000_000);
+    expect(reservedMicrocents).toBeLessThan(ceilingMicrocents);
+
+    expect(await mate.extend({ ...owner, requiredMicrocents: reservedMicrocents - 1, ceilingMicrocents })).toEqual({
+      disposition: "extended",
+      reservedMicrocents,
+    });
+    expect(await mate.extend({ ...owner, requiredMicrocents: 8_000_000, ceilingMicrocents })).toEqual({
+      disposition: "extended",
+      reservedMicrocents: 8_000_000,
+    });
+    expect((await eventOf(reservationId))?.reservedMicrocents).toBe(8_000_000n);
+    expect(await mate.extend({ ...owner, requiredMicrocents: ceilingMicrocents + 1, ceilingMicrocents })).toEqual({
+      disposition: "run_credit_limit",
+      ceilingMicrocents,
+    });
+    expect((await eventOf(reservationId))?.reservedMicrocents).toBe(8_000_000n);
+
+    const steps = [
+      {
+        tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+        providerMetadata: undefined,
+        unmeasuredMicrocents: 7_400_000,
+      },
+    ];
+    const unextended = buildMateJobSettlement(steps, budget);
+    expect(unextended.policyBreach).toBe(true);
+    expect(await mate.settle({ ...owner, settlement: unextended })).toBe(false);
+    const settlement = buildMateJobSettlement(steps, { ...budget, reservedMicrocents: 8_000_000 });
+    expect(settlement).toMatchObject({ chargedMicrocents: 7_400_000, policyBreach: false });
+    expect(await mate.settle({ ...owner, settlement })).toBe(true);
+    expect(await eventOf(reservationId)).toMatchObject({ state: "settled", chargedMicrocents: 7_400_000n });
+  });
+
+  it("refuses an extension the member's allowance does not cover and one for a reservation that is not a job's", async () => {
+    const { companyId, userId } = await seedActiveSeat();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+    const usage = new AgentUsageService(repo);
+    const mate = new MateAgentJobCredits(usage);
+    const reserved = await mate.reserve({ jobId: randomUUID(), attempt: 1, companyId, userId });
+    if (!reserved.ok) throw new Error("The credits were not reserved");
+    const { reservationId, ceilingMicrocents } = reserved.reservation;
+    const held = await eventOf(reservationId);
+    if (!held) throw new Error("The reservation is missing");
+    await runWithoutTenant(() =>
+      prisma.agentUsageEvent.create({
+        data: {
+          companyId,
+          userId,
+          state: "settled",
+          model: "earlier-usage",
+          costMicrocents: 93_000_000,
+          chargedMicrocents: 93_000_000,
+          reservedMicrocents: 93_000_000,
+          planSnapshot: held.planSnapshot,
+          subscriptionStatusSnapshot: held.subscriptionStatusSnapshot,
+          allowanceMicrocentsSnapshot: held.allowanceMicrocentsSnapshot,
+          periodStart: held.periodStart,
+          periodEnd: held.periodEnd,
+          settledAt: new Date(),
+        },
+      }),
+    );
+
+    expect(
+      await mate.extend({ reservationId, companyId, userId, requiredMicrocents: 7_500_000, ceilingMicrocents }),
+    ).toEqual({ disposition: "credit_limit" });
+    expect((await eventOf(reservationId))?.reservedMicrocents).toBe(held.reservedMicrocents);
+
+    const chat = await seedActiveSeat();
+    const chatOwner = { reservationId: randomUUID(), companyId: chat.companyId, userId: chat.userId };
+    const admission = await usage.prepareTurn(chat.userId, new Date(), { model: mate.model });
+    if (!admission.reservation) throw new Error("The chat turn was not admitted");
+    await usage.reserveUsage({ ...chatOwner, reservation: admission.reservation });
+    expect(await mate.extend({ ...chatOwner, requiredMicrocents: 6_000_000, ceilingMicrocents })).toEqual({
+      disposition: "turn_error",
+    });
+    expect(await mate.admitRound(chatOwner)).toBe(false);
+    expect((await eventOf(chatOwner.reservationId))?.providerStartedAt).toBeNull();
+  });
+
+  it("marks the reservation when the first round starts and refuses a round of a reservation that is closed", async () => {
+    const { companyId, userId } = await seedActiveSeat();
+    const jobId = randomUUID();
+    const mate = credits();
+    const reserved = await mate.reserve({ jobId, attempt: 1, companyId, userId });
+    if (!reserved.ok) throw new Error("The credits were not reserved");
+    const owner = { reservationId: reserved.reservation.reservationId, companyId, userId };
+    expect((await eventOf(owner.reservationId))?.providerStartedAt).toBeNull();
+
+    const startedAt = new Date("2026-11-17T10:00:00.000Z");
+    expect(await mate.admitRound({ ...owner, now: startedAt })).toBe(true);
+    expect((await eventOf(owner.reservationId))?.providerStartedAt).toEqual(startedAt);
+    expect(await mate.admitRound({ ...owner, now: new Date("2026-11-17T10:01:00.000Z") })).toBe(true);
+    expect((await eventOf(owner.reservationId))?.providerStartedAt).toEqual(startedAt);
+
+    await mate.release({ jobId, attempt: 1, companyId, userId });
+    expect(await mate.admitRound(owner)).toBe(false);
+  });
+
+  it("keeps the whole reservation of an attempt that was interrupted after its provider call started", async () => {
+    const { companyId, userId } = await seedActiveSeat();
+    const jobId = randomUUID();
+    const mate = credits();
+    const reserved = await mate.reserve({ jobId, attempt: 1, companyId, userId });
+    if (!reserved.ok) throw new Error("The credits were not reserved");
+    const { reservationId, ceilingMicrocents, budget } = reserved.reservation;
+    const owner = { reservationId, companyId, userId };
+    await mate.admitRound(owner);
+    await mate.extend({ ...owner, requiredMicrocents: 6_200_000, ceilingMicrocents });
+
+    expect(await mate.settleInterrupted({ jobId, attempt: 1, companyId, userId })).toBe("retained");
+
+    expect(await eventOf(reservationId)).toMatchObject({
+      state: "retained",
+      model: mate.model.modelId,
+      costSource: "estimated",
+      reservedMicrocents: 6_200_000n,
+      chargedMicrocents: 6_200_000n,
+    });
+    expect(await mate.settleInterrupted({ jobId, attempt: 1, companyId, userId })).toBe("none");
+    const late = buildMateJobSettlement([], { ...budget, reservedMicrocents: 6_200_000 });
+    expect(await mate.settle({ ...owner, settlement: late })).toBe(false);
+    await mate.release({ jobId, attempt: 1, companyId, userId });
+    expect((await eventOf(reservationId))?.state).toBe("retained");
+  });
+
+  it("gives the credits back for an attempt that was interrupted before any provider call", async () => {
+    const { companyId, userId } = await seedActiveSeat();
+    const jobId = randomUUID();
+    const mate = credits();
+    const reserved = await mate.reserve({ jobId, attempt: 2, companyId, userId });
+    if (!reserved.ok) throw new Error("The credits were not reserved");
+
+    expect(await mate.settleInterrupted({ jobId, attempt: 2, companyId, userId })).toBe("released");
+
+    expect(await eventOf(reserved.reservation.reservationId)).toMatchObject({
+      state: "released",
+      chargedMicrocents: 0n,
+    });
+    expect(await mate.settleInterrupted({ jobId, attempt: 1, companyId, userId })).toBe("none");
+  });
+
   it("does not settle another member's reservation", async () => {
     const mine = await seedActiveSeat();
     const theirs = await seedActiveSeat();

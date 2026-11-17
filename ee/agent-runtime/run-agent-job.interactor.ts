@@ -1,11 +1,12 @@
 import type { LanguageModel } from "ai";
 import type { Validated } from "@/core/validation/validation.utils";
-import type { AgentJobRepo, StoredAgentJob } from "@/features/agent-jobs/agent-job.repo";
+import type { AgentJobFinish, AgentJobRepo, StoredAgentJob } from "@/features/agent-jobs/agent-job.repo";
 import type { AgentJobFinishedStatus, AgentJobFinishReason } from "@/features/agent-jobs/agent-job.schema";
 import type { AutomationRuleRepo } from "@/features/automation-rules/automation-rule.repo";
+import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
 import type { AgentProviderKeyRepo } from "@/ee/agent-keys/agent-provider-key.repo";
 import type { AgentJobToolkitFactory } from "./agent-job-toolset";
-import type { MateAgentJobCredits, MateJobReservation } from "./mate-agent-job-credits";
+import type { MateAgentJobCredits } from "./mate-agent-job-credits";
 import type { OwnKeyModelFactory } from "./create-own-key-model";
 import type { AgentJobLoopInput, AgentJobLoopOutcome, AgentJobStepUsage } from "./run-agent-job-loop";
 
@@ -30,7 +31,8 @@ import { resolveUserLocale } from "@/i18n/user-locale";
 import { agentJobFailureCode } from "./agent-job-failure";
 import { AgentJobRecorder } from "./agent-job-recorder";
 import { buildAgentJobSystemPrompt } from "./agent-job-system-prompt";
-import { buildMateJobSettlement, mateJobOutOfBudget, sumStepTokens } from "./mate-agent-job-settlement";
+import { MateJobBudget } from "./mate-agent-job-budget";
+import { buildMateJobSettlement, sumStepTokens } from "./mate-agent-job-settlement";
 import { runAgentJobLoop } from "./run-agent-job-loop";
 
 const RunAgentJobSchema = z.object({ jobId: z.uuid() }).strict();
@@ -48,15 +50,28 @@ const FINISH_STATUS: Record<AgentJobFinishReason, AgentJobFinishedStatus> = {
   cancelled: "cancelled",
 };
 
+type MateRun = { reservationId: string; budget: MateJobBudget };
+
 type Prepared =
   | {
       ok: true;
       model: LanguageModel;
       providerOptions?: AgentJobLoopInput["providerOptions"];
-      mate: MateJobReservation | null;
+      mate: MateRun | null;
       keyId: string | null;
     }
   | { ok: false; error: string };
+
+type JobRun = {
+  job: StoredAgentJob;
+  recorder: AgentJobRecorder;
+  mate: MateRun | null;
+  keyId: string | null;
+  steps: AgentJobStepUsage[];
+  auxiliary: ClassifierCharge[];
+  cost?: number | null;
+  closing?: AgentJobFinish;
+};
 
 @TenantInteractor()
 export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobData, RunAgentJobOutcome> {
@@ -64,7 +79,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     private readonly repo: AgentJobRepo,
     private readonly keys: AgentProviderKeyRepo,
     private readonly rules: Pick<AutomationRuleRepo, "findRunUnscoped">,
-    private readonly credits: Pick<MateAgentJobCredits, "reserve" | "settle" | "release">,
+    private readonly credits: Pick<MateAgentJobCredits, "reserve" | "settle" | "release" | "admitRound" | "extend">,
     private readonly createModel: OwnKeyModelFactory,
     private readonly toolkit: AgentJobToolkitFactory,
     private readonly loop: typeof runAgentJobLoop = runAgentJobLoop,
@@ -98,20 +113,21 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
   private async run(job: StoredAgentJob): Promise<AgentJobFinishedStatus> {
     const recorder = new AgentJobRecorder(this.clock);
     recorder.message("user", job.prompt);
-    let reservation: MateJobReservation | null = null;
-    let steps: AgentJobStepUsage[] = [];
+    const run: JobRun = { job, recorder, mate: null, keyId: null, steps: [], auxiliary: [] };
     try {
       const prepared = await this.prepare(job);
-      if (!prepared.ok) return await this.fail(job, recorder, prepared.error, steps, null);
-      reservation = prepared.mate;
-      const outcome = await this.execute(job, recorder, prepared);
-      steps = outcome.steps;
-      if (outcome.kind === "failed")
-        return await this.fail(job, recorder, agentJobFailureCode(outcome.error), steps, reservation, prepared.keyId);
-      return await this.complete(job, recorder, outcome, reservation, prepared.keyId);
+      if (!prepared.ok) return await this.fail(run, prepared.error);
+      run.mate = prepared.mate;
+      run.keyId = prepared.keyId;
+      const outcome = await this.execute(run, prepared);
+      run.steps = outcome.steps;
+      run.auxiliary = outcome.auxiliary;
+      if (outcome.kind === "failed") return await this.fail(run, agentJobFailureCode(outcome.error));
+      return await this.complete(run, outcome);
     } catch (error) {
       ErrorReporter.captureException(error);
-      return this.fail(job, recorder, agentJobFailureCode(error), steps, reservation);
+      if (run.closing) return this.close(run, run.closing);
+      return this.fail(run, agentJobFailureCode(error));
     }
   }
 
@@ -134,7 +150,13 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
           budget.servingProvider,
           budget.inferenceRegion,
         ) as AgentJobLoopInput["providerOptions"],
-        mate: reserved.reservation,
+        mate: {
+          reservationId: reserved.reservation.reservationId,
+          budget: new MateJobBudget(this.credits, reserved.reservation, {
+            companyId: job.companyId,
+            userId: this.user.id,
+          }),
+        },
         keyId: null,
       };
     }
@@ -160,11 +182,8 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
     return { ok: true, model: this.createModel(provider, apiKey, modelId), mate: null, keyId: sealed.id };
   }
 
-  private async execute(
-    job: StoredAgentJob,
-    recorder: AgentJobRecorder,
-    prepared: Extract<Prepared, { ok: true }>,
-  ): Promise<AgentJobLoopOutcome> {
+  private async execute(run: JobRun, prepared: Extract<Prepared, { ok: true }>): Promise<AgentJobLoopOutcome> {
+    const { job, recorder } = run;
     const ruleName = await this.ruleName(job);
     const locale = resolveUserLocale(this.user);
     const kit = this.toolkit({
@@ -192,7 +211,7 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       recorder,
       maxToolCalls: AGENT_JOB_MAX_TOOL_CALLS,
       wallMs: AGENT_JOB_MAX_WALL_MS,
-      ...(budget ? { outOfBudget: (steps: readonly AgentJobStepUsage[]) => mateJobOutOfBudget(steps, budget) } : {}),
+      ...(budget ? { limits: budget.limits, admitRound: budget.admitRound } : {}),
       onStep: () => this.flush(job, recorder),
     });
   }
@@ -204,18 +223,16 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
   }
 
   private async complete(
-    job: StoredAgentJob,
-    recorder: AgentJobRecorder,
+    run: JobRun,
     outcome: Extract<AgentJobLoopOutcome, { kind: "finished" }>,
-    reservation: MateJobReservation | null,
-    keyId: string | null,
   ): Promise<AgentJobFinishedStatus> {
+    const { job, recorder } = run;
     const status = FINISH_STATUS[outcome.reason];
     recorder.finish(outcome.reason, outcome.text);
     await this.flush(job, recorder);
-    const cost = await this.settle(job, outcome.steps, reservation);
-    const tokens = sumStepTokens(outcome.steps);
-    await this.repo.finishUnscoped({
+    const cost = await this.settle(run);
+    const tokens = sumStepTokens(run.steps);
+    return this.close(run, {
       id: job.id,
       companyId: job.companyId,
       attempt: job.attempts,
@@ -231,23 +248,15 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       costMicrocents: cost,
       now: this.clock(),
     });
-    if (keyId) await this.keys.touchLastUsedUnscoped(job.companyId, keyId, this.clock());
-    return status;
   }
 
-  private async fail(
-    job: StoredAgentJob,
-    recorder: AgentJobRecorder,
-    code: string,
-    steps: AgentJobStepUsage[],
-    reservation: MateJobReservation | null,
-    keyId: string | null = null,
-  ): Promise<AgentJobFinishedStatus> {
+  private async fail(run: JobRun, code: string): Promise<AgentJobFinishedStatus> {
+    const { job, recorder, steps } = run;
     recorder.finish("error");
     await this.flush(job, recorder);
-    const cost = await this.settle(job, steps, reservation);
+    const cost = await this.settle(run);
     const tokens = sumStepTokens(steps);
-    await this.repo.finishUnscoped({
+    return this.close(run, {
       id: job.id,
       companyId: job.companyId,
       attempt: job.attempts,
@@ -259,16 +268,26 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       costMicrocents: cost,
       now: this.clock(),
     });
-    if (keyId) await this.keys.touchLastUsedUnscoped(job.companyId, keyId, this.clock());
-    return "failed";
   }
 
-  private async settle(
-    job: StoredAgentJob,
-    steps: readonly AgentJobStepUsage[],
-    reservation: MateJobReservation | null,
-  ): Promise<number | null> {
-    if (!reservation) return null;
+  private async close(run: JobRun, finish: AgentJobFinish): Promise<AgentJobFinishedStatus> {
+    run.closing = finish;
+    await this.repo.finishUnscoped(finish);
+    if (run.keyId) {
+      const { keyId } = run;
+      run.keyId = null;
+      await this.keys.touchLastUsedUnscoped(run.job.companyId, keyId, this.clock());
+    }
+    return finish.status;
+  }
+
+  private async settle(run: JobRun): Promise<number | null> {
+    if (run.cost === undefined) run.cost = await this.settleCredits(run);
+    return run.cost;
+  }
+
+  private async settleCredits({ job, mate, steps, auxiliary }: JobRun): Promise<number | null> {
+    if (!mate) return null;
     try {
       if (steps.length === 0) {
         await this.credits.release({
@@ -279,9 +298,9 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
         });
         return 0;
       }
-      const settlement = buildMateJobSettlement(steps, reservation.budget);
+      const settlement = buildMateJobSettlement(steps, mate.budget.settlementBudget, auxiliary);
       const settled = await this.credits.settle({
-        reservationId: reservation.reservationId,
+        reservationId: mate.reservationId,
         companyId: job.companyId,
         userId: this.user.id,
         settlement,

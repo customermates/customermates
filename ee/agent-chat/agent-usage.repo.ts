@@ -10,6 +10,13 @@ import type {
   WorkspacePlatformReservation,
 } from "./agent-usage.service";
 
+export type AgentUsageReservationExtension =
+  | { disposition: "extended"; reservedMicrocents: number }
+  | { disposition: "credit_limit" }
+  | { disposition: "run_credit_limit"; ceilingMicrocents: number }
+  | { disposition: "hosted_ai_unavailable" }
+  | { disposition: "turn_error" };
+
 export abstract class AgentUsageRepo {
   abstract getUserCreditUsageUnscoped(
     companyId: string,
@@ -66,6 +73,26 @@ export abstract class AgentUsageRepo {
     settlement: AgentUsageSettlement;
     settledAt: Date;
   }): Promise<boolean>;
+  abstract extendAgentJobUsageReservationUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    requiredMicrocents: number;
+    ceilingMicrocents: number;
+  }): Promise<AgentUsageReservationExtension>;
+  abstract admitAgentJobProviderRoundUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    now: Date;
+  }): Promise<boolean>;
+  abstract closeInterruptedAgentJobUsageUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    model: string;
+    now: Date;
+  }): Promise<"retained" | "released" | "none">;
   abstract admitsHostedAiRetrievalUnscoped(now: Date): Promise<boolean>;
   abstract getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null>;
   abstract accruePlatformUsageUnscoped(args: {

@@ -1,15 +1,21 @@
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentUsageSettlement } from "@/ee/agent-chat/agent-usage-settlement";
+import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
 import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
 import type { AgentJobStepUsage } from "./run-agent-job-loop";
 
+import { agentAuxiliaryCharge } from "@/ee/agent-chat/agent-classifier-trace";
 import { buildAgentUsageSettlement } from "@/ee/agent-chat/agent-usage-settlement";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 
 type StepCost = { costMicrocents: number; measured: boolean; unreadableReason: string | null };
 
+const NO_USAGE_EVIDENCE = "a provider round reported no usage evidence";
+
 export function mateStepCost(step: AgentJobStepUsage, budget: AgentTurnBudget): StepCost {
+  if (step.unmeasuredMicrocents !== undefined)
+    return { costMicrocents: step.unmeasuredMicrocents, measured: false, unreadableReason: NO_USAGE_EVIDENCE };
   const reading = readAgentProviderCharge(step.providerMetadata, budget.servingProvider);
   if (reading.outcome === "measured")
     return { costMicrocents: reading.charge.costMicrocents, measured: true, unreadableReason: null };
@@ -26,9 +32,15 @@ export function mateStepCost(step: AgentJobStepUsage, budget: AgentTurnBudget): 
   };
 }
 
-export function mateJobOutOfBudget(steps: readonly AgentJobStepUsage[], budget: AgentTurnBudget): boolean {
-  const spent = steps.reduce((total, step) => total + mateStepCost(step, budget).costMicrocents, 0);
-  return spent + budget.roundReserveMicrocents > budget.reservedMicrocents;
+export function mateJobSpentMicrocents(
+  steps: readonly AgentJobStepUsage[],
+  auxiliary: readonly ClassifierCharge[],
+  budget: AgentTurnBudget,
+): number {
+  return (
+    steps.reduce((total, step) => total + mateStepCost(step, budget).costMicrocents, 0) +
+    agentAuxiliaryCharge(auxiliary).costMicrocents
+  );
 }
 
 export function sumStepTokens(steps: readonly AgentJobStepUsage[]): TokenCounts {
@@ -46,19 +58,22 @@ export function sumStepTokens(steps: readonly AgentJobStepUsage[]): TokenCounts 
 export function buildMateJobSettlement(
   steps: readonly AgentJobStepUsage[],
   budget: AgentTurnBudget,
+  auxiliary: readonly ClassifierCharge[] = [],
 ): AgentUsageSettlement {
   const costs = steps.map((step) => mateStepCost(step, budget));
   const measured = costs.every((cost) => cost.measured);
+  const stepsCostMicrocents = costs.reduce((total, cost) => total + cost.costMicrocents, 0);
   return buildAgentUsageSettlement({
     model: budget.modelSpec,
     provider: budget.servingProvider,
     inferenceRegion: budget.inferenceRegion,
     tokens: sumStepTokens(steps),
     reservedMicrocents: budget.reservedMicrocents,
+    auxiliary: agentAuxiliaryCharge(auxiliary),
     providerCharge: {
       billed: steps.length > 0,
-      measuredCostMicrocents: measured ? costs.reduce((total, cost) => total + cost.costMicrocents, 0) : null,
-      estimatedCostMicrocents: measured ? undefined : costs.reduce((total, cost) => total + cost.costMicrocents, 0),
+      measuredCostMicrocents: measured ? stepsCostMicrocents : null,
+      estimatedCostMicrocents: measured ? undefined : stepsCostMicrocents,
       stepTokens: steps.map((step) => step.tokens),
       unreadableReason: costs.find((cost) => cost.unreadableReason)?.unreadableReason ?? null,
     },
