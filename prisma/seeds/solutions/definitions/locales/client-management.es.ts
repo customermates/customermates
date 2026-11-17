@@ -406,6 +406,19 @@ export const es: Strings = {
     },
   },
   wiki: {
+    quietClient: {
+      title: "Cuando un cliente deja de dar señales",
+      whenToUse: "Cuando un cliente lleva más de cuatro semanas sin contacto o deja de responder a nuestros mensajes.",
+      markdown: [
+        "Los clientes rara vez cancelan de un día para otro; antes dejan de dar señales. Estos pasos devuelven a un cliente callado a la conversación antes de la próxima revisión.",
+        "",
+        "## Pasos",
+        "1. Abre el cliente y compáralo con [Qué contiene una ficha de cliente completa](wiki:clientRecord): contratos, contactos con su rol y último contacto.",
+        "2. Lee las conversaciones vinculadas y las tareas abiertas para ver qué prometimos la última vez.",
+        "3. Llama o escribe a la persona que hace los pedidos del día a día, hazle una pregunta concreta sobre el servicio y actualiza el último contacto.",
+        "4. Pon la fecha de la próxima acción en el cliente. Si un contrato se revisa en los próximos 60 días, empieza ya la [Revisión anual](wiki:yearlyReview).",
+      ],
+    },
     guide: {
       title: "Guía operativa",
       markdown: [

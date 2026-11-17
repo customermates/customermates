@@ -221,47 +221,35 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
   const procedure = pages.find(({ title }) => title === seeded?.title);
   if (!seeded || !procedure) throw new Error("The seeded Knowledge Base has no procedure");
   const heading = seeded.markdown.find((line) => line.startsWith("## "))?.slice(3);
+  await page.goto(appPath(DEMO_SLUG, "/wiki"));
   if (testInfo.project.use.isMobile) {
-    await page.goto(appPath(DEMO_SLUG, "/wiki"));
-    const trigger = page.locator("#wiki-document-panel button[aria-expanded]").first();
-    const sheet = page.getByRole("dialog", { name: "Knowledge Base pages" });
-    // A click before hydration can leave the trigger closed on mobile.
-    await expect(async () => {
-      if (!(await sheet.isVisible())) await trigger.click();
-      await expect(sheet).toBeVisible({ timeout: 1000 });
-    }).toPass();
-    await expect(sheet).toHaveAttribute("data-vaul-drawer-direction", "left");
-    await expect.poll(async () => Math.round((await sheet.boundingBox())?.x ?? -1)).toBe(0);
-    await expect
-      .poll(async () => (await sheet.boundingBox())?.height ?? 0)
-      .toBeGreaterThan((page.viewportSize()?.height ?? 0) * 0.9);
-    const title = await sheet.locator('[data-slot="drawer-title"]').boundingBox();
-    const close = await sheet.locator('[data-slot="drawer-close"]').boundingBox();
-    expect(title).not.toBeNull();
-    expect(close).not.toBeNull();
-    expect(
-      Math.abs((title?.y ?? 0) + (title?.height ?? 0) / 2 - (close?.y ?? 0) - (close?.height ?? 0) / 2),
-    ).toBeLessThanOrEqual(2);
-    await sheet.getByText(procedure.title, { exact: true }).first().click();
-    await expect(sheet).not.toBeVisible();
+    // A phone has no room for the map: the pages are a list by kind, and a row opens the same sheet.
+    const list = page.getByRole("navigation", { name: "Knowledge Base pages" });
+    await expect(list).toBeVisible();
+    await expect(page.getByRole("application", { name: /Knowledge Base pages/ })).toHaveCount(0);
+    for (const { title } of pages) await expect(list.getByRole("link", { name: title, exact: true })).toBeVisible();
+    await list.getByRole("link", { name: procedure.title, exact: true }).click();
   } else {
-    await page.goto(appPath(DEMO_SLUG, "/wiki"));
     const map = page.getByRole("application", { name: /Knowledge Base pages/ });
     await expect(map).toBeVisible();
     await expect.poll(() => map.locator("> g").getAttribute("transform")).not.toBe("translate(0 0) scale(1)");
     const node = (title: string) =>
       map.getByRole("button", { name: new RegExp(`^${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\(`) });
     for (const { title } of pages) await expect(node(title)).toBeVisible();
+    // The seeded pages link to each other, so every page hangs on the map by at least one line.
+    expect(await map.locator("line").count()).toBeGreaterThanOrEqual(pages.length - 1);
     await node(procedure.title).click();
-    const drawer = page.getByRole("complementary", { name: new RegExp(procedure.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) });
-    await expect(drawer.getByRole("heading", { name: procedure.title, level: 2 })).toBeVisible();
-    await drawer.getByRole("button", { name: "Open page" }).click();
   }
+  const sheet = page.getByRole("dialog", { name: procedure.title, exact: true });
+  await expect(sheet).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`[?&]page=${procedure.id}`));
-  await expect(page.getByRole("textbox", { name: "Page title", exact: true })).toHaveValue(procedure.title);
-  await expect(page.getByRole("combobox", { name: "Page type" })).toHaveText("Procedure");
-  await expect(page.getByRole("textbox", { name: /When to use/ })).not.toHaveValue("");
-  await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+  await expect(sheet.getByRole("textbox", { name: "Page title", exact: true })).toHaveValue(procedure.title);
+  await expect(sheet.getByRole("heading", { name: heading })).toBeVisible();
+  await sheet.getByRole("tab", { name: "Links", exact: true }).click();
+  await expect(sheet.getByText(/^Linked from · [1-9]/)).toBeVisible();
+  await sheet.getByRole("tab", { name: "Details", exact: true }).click();
+  await expect(sheet.getByRole("combobox", { name: "Page type" })).toHaveText("Procedure");
+  await expect(sheet.getByRole("textbox", { name: /When to use/ })).not.toHaveValue("");
   expect(errors).toEqual([]);
 });
 

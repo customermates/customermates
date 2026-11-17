@@ -243,6 +243,19 @@ export const nl: Strings = {
     meetingsMonth: "Klantafspraken deze maand",
   },
   wiki: {
+    wrapUp: {
+      title: "Een opdracht afsluiten",
+      whenToUse: "Wanneer de afsluitende workshop van een opdracht is geweest en het werk kan worden afgesloten.",
+      markdown: [
+        "Het einde van een opdracht is het begin van het volgende gesprek. Met deze stappen sluit je het werk netjes af en houd je de relatie warm.",
+        "",
+        "## Stappen",
+        "1. Zet de opdracht op afgerond zoals [Hoe opdrachten verlopen](wiki:process) beschrijft en voeg het eindrapport toe aan de documenten.",
+        "2. Vergelijk de gewerkte dagen met de schatting en noteer een verschil in de notities; voor extra dagen gelden de [Dagtarieven en honorariumopties](wiki:rates).",
+        "3. Bedank de opdrachtgever en de persoon die ons heeft aanbevolen, en werk bij beide contactpersonen de relatiesterkte bij.",
+        "4. Maak een taak aan om na drie maanden contact op te nemen en volg vóór dat gesprek [Een relatiebriefing voorbereiden](wiki:brief).",
+      ],
+    },
     guide: {
       title: "Werkwijzer",
       markdown: [

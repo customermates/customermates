@@ -399,6 +399,19 @@ const en = {
     appointmentsMonth: "Appointments this month",
   },
   wiki: {
+    onboarding: {
+      title: "Onboarding a new support customer",
+      whenToUse: "When a managed support deal is won and the first month with the new customer begins.",
+      markdown: [
+        "A won support contract starts with a first month in which the customer decides whether we were the right choice. These steps make sure nothing promised in the sales conversation gets lost.",
+        "",
+        "## Steps",
+        "1. Read the deal notes and the documents attached to the deal: the network inventory, the proposal and everything promised after the visit, as in [Follow-up after a site visit](wiki:followUp).",
+        "2. Check that the services on the deal match the number of workstations; [Price list and discounts](wiki:priceList) says how the quantity is meant.",
+        "3. Create a task with a scheduled time for the first on-site day and one task for each open promise.",
+        "4. After the first month, call the customer, write the result into the deal notes and create a task for the renewal conversation.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -1060,6 +1073,19 @@ const de: Strings = {
     appointmentsMonth: "Termine im Monat",
   },
   wiki: {
+    onboarding: {
+      title: "Einen neuen Betreuungskunden einführen",
+      whenToUse: "Wenn ein Betreuungsvertrag gewonnen ist und der erste Monat mit dem neuen Kunden beginnt.",
+      markdown: [
+        "Ein gewonnener Betreuungsvertrag beginnt mit einem ersten Monat, in dem der Kunde entscheidet, ob wir die richtige Wahl waren. Diese Schritte sorgen dafür, dass keine Zusage aus dem Vertriebsgespräch verloren geht.",
+        "",
+        "## Schritte",
+        "1. Die Notizen und die Dokumente des Deals lesen: das Geräteinventar, das Angebot und alle Zusagen nach dem Termin, wie in [Nachbereitung einer Begehung](wiki:followUp) beschrieben.",
+        "2. Prüfen, ob die Leistungen im Deal zur Anzahl der Arbeitsplätze passen; [Preisliste und Rabatte](wiki:priceList) erklärt, wie die Menge gemeint ist.",
+        "3. Eine Aufgabe mit Termin für den ersten Einsatz vor Ort anlegen und je eine Aufgabe für jede offene Zusage.",
+        "4. Nach dem ersten Monat den Kunden anrufen, das Ergebnis in die Notizen des Deals schreiben und eine Aufgabe für das Verlängerungsgespräch anlegen.",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2582,17 +2608,43 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "process", kind: "knowledge", title: t.wiki.process.title, markdown: t.wiki.process.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "process",
+          kind: "knowledge",
+          title: t.wiki.process.title,
+          markdown: t.wiki.process.markdown,
+          related: ["followUp", "priceList", "onboarding", "agents", "guide"],
+        },
         {
           key: "followUp",
           kind: "procedure",
           title: t.wiki.followUp.title,
           whenToUse: t.wiki.followUp.whenToUse,
           markdown: t.wiki.followUp.markdown,
+          related: ["process", "priceList", "guide"],
         },
-        { key: "priceList", kind: "knowledge", title: t.wiki.priceList.title, markdown: t.wiki.priceList.markdown },
-        agentsPage(locale, t.agents),
+        {
+          key: "priceList",
+          kind: "knowledge",
+          title: t.wiki.priceList.title,
+          markdown: t.wiki.priceList.markdown,
+          related: ["process", "guide"],
+        },
+        { ...agentsPage(locale, t.agents), related: ["guide"] },
+        {
+          key: "onboarding",
+          kind: "procedure",
+          title: t.wiki.onboarding.title,
+          whenToUse: t.wiki.onboarding.whenToUse,
+          markdown: t.wiki.onboarding.markdown,
+          related: ["process", "guide"],
+        },
       ],
       routines: [
         {

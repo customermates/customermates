@@ -362,6 +362,19 @@ const en = {
     chatsMonth: "LinkedIn chats this month",
   },
   wiki: {
+    callPrep: {
+      title: "From a LinkedIn conversation to a call",
+      whenToUse: "When a prospect replies with real interest and a call or meeting is the natural next step.",
+      markdown: [
+        "A reply is not a meeting yet. These steps turn a good LinkedIn conversation into a booked call without pushing the prospect.",
+        "",
+        "## Steps",
+        "1. Check that the conversation is linked to the opportunity; [Linking a LinkedIn conversation](wiki:linking) shows how.",
+        "2. Offer two time slots in the chat, in the tone of [Connection requests and first messages](wiki:firstMessages): one question, no brochure.",
+        "3. Once the call is booked, move the opportunity to Meeting booked as in [Opportunity stages](wiki:stages) and update the prospect's connection status.",
+        "4. Add a task for the call with its date and write the two things you want to learn into the opportunity notes.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -906,6 +919,20 @@ const de: Strings = {
     chatsMonth: "LinkedIn-Gespräche im Monat",
   },
   wiki: {
+    callPrep: {
+      title: "Vom LinkedIn-Gespräch zum Termin",
+      whenToUse:
+        "Wenn ein Interessent mit echtem Interesse antwortet und ein Gespräch oder Termin der nächste Schritt ist.",
+      markdown: [
+        "Eine Antwort ist noch kein Termin. Diese Schritte machen aus einem guten LinkedIn-Gespräch einen vereinbarten Termin, ohne den Interessenten zu drängen.",
+        "",
+        "## Schritte",
+        "1. Prüfen, ob das Gespräch mit der Verkaufschance verknüpft ist; [LinkedIn-Gespräch verknüpfen](wiki:linking) zeigt, wie es geht.",
+        "2. Im Chat zwei Terminvorschläge machen, im Ton von [Kontaktanfragen und erste Nachrichten](wiki:firstMessages): eine Frage, keine Broschüre.",
+        "3. Steht der Termin, die Verkaufschance wie in [Phasen einer Verkaufschance](wiki:stages) auf Termin vereinbart setzen und den Kontaktstatus des Interessenten aktualisieren.",
+        "4. Eine Aufgabe für den Termin mit Datum anlegen und die zwei Dinge, die wir erfahren wollen, in die Notizen der Verkaufschance schreiben.",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2168,22 +2195,43 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "stages", kind: "knowledge", title: t.wiki.stages.title, markdown: t.wiki.stages.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "stages",
+          kind: "knowledge",
+          title: t.wiki.stages.title,
+          markdown: t.wiki.stages.markdown,
+          related: ["linking", "firstMessages", "callPrep", "agents", "guide"],
+        },
         {
           key: "linking",
           kind: "procedure",
           title: t.wiki.linking.title,
           whenToUse: t.wiki.linking.whenToUse,
           markdown: t.wiki.linking.markdown,
+          related: ["stages", "callPrep", "guide"],
         },
         {
           key: "firstMessages",
           kind: "knowledge",
           title: t.wiki.firstMessages.title,
           markdown: t.wiki.firstMessages.markdown,
+          related: ["linking", "callPrep", "guide"],
         },
-        agentsPage(locale, t.agents),
+        { ...agentsPage(locale, t.agents), related: ["guide", "firstMessages"] },
+        {
+          key: "callPrep",
+          kind: "procedure",
+          title: t.wiki.callPrep.title,
+          whenToUse: t.wiki.callPrep.whenToUse,
+          markdown: t.wiki.callPrep.markdown,
+          related: ["guide"],
+        },
       ],
       apiKeys: agentApiKeys([58, 33, 9]),
       files: [

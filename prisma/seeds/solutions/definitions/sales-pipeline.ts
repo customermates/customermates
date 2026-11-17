@@ -510,6 +510,23 @@ const en = {
     nextSteps: "Next steps, next 14 days",
   },
   wiki: {
+    qualification: {
+      title: "Qualification questions",
+      markdown: [
+        "An opportunity is qualified when we know four things. Ask for them in the first two conversations; without them the weighted value means little.",
+        "",
+        "## The four questions",
+        "- **Application:** what the compressed air is used for and how many hours a day the plant runs.",
+        "- **Budget:** a range is enough, and whether it comes from the investment or the maintenance budget.",
+        "- **Decision:** who signs, who has a say, and when they want to decide.",
+        "- **Timing:** what happens at the plant if nothing changes this year.",
+        "",
+        "## What to do with the answers",
+        "- Write them into the opportunity notes, set the expected close date and move the stage to Qualified as in [Sales stages](wiki:stages).",
+        "- Answer an early price question with the list price; the [Discount and approval rules](wiki:discounts) come later.",
+        "- When a site visit follows, [After a site visit](wiki:siteVisit) says what to record.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -1229,6 +1246,23 @@ const de: Strings = {
     nextSteps: "Nächste Schritte, nächste 14 Tage",
   },
   wiki: {
+    qualification: {
+      title: "Fragen zur Qualifizierung",
+      markdown: [
+        "Eine Verkaufschance ist qualifiziert, wenn wir vier Dinge wissen. Danach fragen wir in den ersten beiden Gesprächen; ohne sie sagt der gewichtete Wert wenig.",
+        "",
+        "## Die vier Fragen",
+        "- **Anwendung:** wofür die Druckluft gebraucht wird und wie viele Stunden am Tag die Anlage läuft.",
+        "- **Budget:** eine Spanne genügt, und ob es aus dem Investitions- oder dem Instandhaltungsbudget kommt.",
+        "- **Entscheidung:** wer unterschreibt, wer mitredet und bis wann entschieden werden soll.",
+        "- **Zeitpunkt:** was im Werk passiert, wenn sich dieses Jahr nichts ändert.",
+        "",
+        "## Was mit den Antworten geschieht",
+        "- In die Notizen der Verkaufschance schreiben, das erwartete Abschlussdatum setzen und die Phase wie in den [Vertriebsphasen](wiki:stages) auf Qualifiziert stellen.",
+        "- Eine frühe Preisfrage mit dem Listenpreis beantworten; [Rabatte und Freigaben](wiki:discounts) kommen später.",
+        "- Folgt eine Besichtigung, nennt [Nach einer Besichtigung](wiki:siteVisit), was festzuhalten ist.",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2886,17 +2920,42 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "stages", kind: "knowledge", title: t.wiki.stages.title, markdown: t.wiki.stages.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "stages",
+          kind: "knowledge",
+          title: t.wiki.stages.title,
+          markdown: t.wiki.stages.markdown,
+          related: ["qualification", "siteVisit", "discounts", "agents", "guide"],
+        },
         {
           key: "siteVisit",
           kind: "procedure",
           title: t.wiki.siteVisit.title,
           whenToUse: t.wiki.siteVisit.whenToUse,
           markdown: t.wiki.siteVisit.markdown,
+          related: ["stages", "qualification", "guide"],
         },
-        { key: "discounts", kind: "knowledge", title: t.wiki.discounts.title, markdown: t.wiki.discounts.markdown },
-        agentsPage(locale, t.agents),
+        {
+          key: "discounts",
+          kind: "knowledge",
+          title: t.wiki.discounts.title,
+          markdown: t.wiki.discounts.markdown,
+          related: ["stages", "guide"],
+        },
+        { ...agentsPage(locale, t.agents), related: ["guide"] },
+        {
+          key: "qualification",
+          kind: "knowledge",
+          title: t.wiki.qualification.title,
+          markdown: t.wiki.qualification.markdown,
+          related: ["guide"],
+        },
       ],
       files: [
         quote("haldenCompressor", 9),

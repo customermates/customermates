@@ -409,6 +409,20 @@ const en = {
     },
   },
   wiki: {
+    onboarding: {
+      title: "Onboarding a new client",
+      whenToUse: "When a pitch is won and the first project or retainer with the client is about to start.",
+      markdown: [
+        "A won pitch is a promise. These steps turn it into running work within the first week, so the client meets the team that will deliver.",
+        "",
+        "## Steps",
+        "1. Set the pitch to Won as the [Pitch process](wiki:process) describes and create the project or the retainer, linked to the client and the pitch.",
+        "2. Enter the budget, the hours budget and the production window on the project, or the monthly fee, term and renewal date on the retainer.",
+        "3. Book the kickoff with the client's decision maker and link the email thread to the client.",
+        "4. Create a task for every promise from the pitch, each with an owner and a due date.",
+        "5. Note the renewal date right away; the [Retainer renewal checklist](wiki:renewal) starts 60 days before it.",
+      ],
+    },
     guide: {
       title: "Operating Guide",
       markdown: [
@@ -1088,6 +1102,20 @@ const de: Strings = {
     },
   },
   wiki: {
+    onboarding: {
+      title: "Onboarding eines neuen Kunden",
+      whenToUse: "Wenn ein Pitch gewonnen ist und das erste Projekt oder der erste Retainer mit dem Kunden startet.",
+      markdown: [
+        "Ein gewonnener Pitch ist ein Versprechen. Diese Schritte machen daraus in der ersten Woche laufende Arbeit, damit der Kunde das Team kennenlernt, das liefert.",
+        "",
+        "## Schritte",
+        "1. Den Pitch wie im [Ablauf eines Pitches](wiki:process) beschrieben auf Gewonnen setzen und das Projekt oder den Retainer anlegen, verknüpft mit Kunde und Pitch.",
+        "2. Am Projekt Budget, Stundenbudget und Produktionszeitraum eintragen, am Retainer Monatshonorar, Laufzeit und Verlängerungsdatum.",
+        "3. Den Kickoff mit dem Entscheider beim Kunden vereinbaren und den E-Mail-Verlauf mit dem Kunden verknüpfen.",
+        "4. Für jede Zusage aus dem Pitch eine Aufgabe mit Verantwortlichem und Fälligkeitsdatum anlegen.",
+        "5. Das Verlängerungsdatum gleich notieren; die [Checkliste Retainer-Verlängerung](wiki:renewal) beginnt 60 Tage davor.",
+      ],
+    },
     guide: {
       title: "Leitfaden",
       markdown: [
@@ -2825,14 +2853,26 @@ export default defineSolution<Strings>({
         ],
       },
       wiki: [
-        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
-        { key: "process", kind: "knowledge", title: t.wiki.process.title, markdown: t.wiki.process.markdown },
+        {
+          key: "guide",
+          kind: "guide",
+          title: t.wiki.guide.title,
+          markdown: t.wiki.guide.markdown,
+        },
+        {
+          key: "process",
+          kind: "knowledge",
+          title: t.wiki.process.title,
+          markdown: t.wiki.process.markdown,
+          related: ["afterPitch", "onboarding", "renewal", "agents", "guide"],
+        },
         {
           key: "afterPitch",
           kind: "procedure",
           title: t.wiki.afterPitch.title,
           whenToUse: t.wiki.afterPitch.whenToUse,
           markdown: t.wiki.afterPitch.markdown,
+          related: ["process", "onboarding", "guide"],
         },
         {
           key: "renewal",
@@ -2840,8 +2880,17 @@ export default defineSolution<Strings>({
           title: t.wiki.renewal.title,
           whenToUse: t.wiki.renewal.whenToUse,
           markdown: t.wiki.renewal.markdown,
+          related: ["onboarding", "guide"],
         },
-        agentsPage(locale, t.agents),
+        { ...agentsPage(locale, t.agents), related: ["guide"] },
+        {
+          key: "onboarding",
+          kind: "procedure",
+          title: t.wiki.onboarding.title,
+          whenToUse: t.wiki.onboarding.whenToUse,
+          markdown: t.wiki.onboarding.markdown,
+          related: ["afterPitch", "guide"],
+        },
       ],
       members: (["colleagueA", "colleagueB"] as const).map((key) => ({
         key,

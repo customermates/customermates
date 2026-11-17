@@ -319,6 +319,20 @@ export const pl: Strings = {
     },
   },
   wiki: {
+    onboarding: {
+      title: "Wdrożenie nowego klienta",
+      whenToUse: "Gdy pitch jest wygrany i zaczyna się pierwszy projekt lub retainer z klientem.",
+      markdown: [
+        "Wygrany pitch to obietnica. Te kroki zamieniają ją w pierwszym tygodniu w realną pracę, tak aby klient poznał zespół, który będzie ją wykonywał.",
+        "",
+        "## Kroki",
+        "1. Ustaw pitch na Wygrana zgodnie ze stroną [Proces pitchu](wiki:process) i utwórz projekt lub retainer powiązany z klientem i pitchem.",
+        "2. Wpisz w projekcie budżet, budżet godzin i okres produkcji, a w retainerze opłatę miesięczną, okres i datę odnowienia.",
+        "3. Umów kickoff z osobą decyzyjną po stronie klienta i powiąż wątek e-mail z klientem.",
+        "4. Utwórz zadanie dla każdej obietnicy złożonej w pitchu, z osobą odpowiedzialną i terminem.",
+        "5. Od razu zanotuj datę odnowienia; [Lista kontrolna odnowienia retainera](wiki:renewal) zaczyna się 60 dni wcześniej.",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

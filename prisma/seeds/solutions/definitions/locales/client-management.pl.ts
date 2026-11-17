@@ -391,6 +391,20 @@ export const pl: Strings = {
     },
   },
   wiki: {
+    quietClient: {
+      title: "Gdy klient milknie",
+      whenToUse:
+        "Gdy klient od ponad czterech tygodni nie miał z nami kontaktu albo przestaje odpowiadać na wiadomości.",
+      markdown: [
+        "Klienci rzadko rezygnują z dnia na dzień; najpierw milkną. Te kroki przywracają rozmowę z milczącym klientem przed kolejnym przeglądem.",
+        "",
+        "## Kroki",
+        "1. Otwórz klienta i porównaj go ze stroną [Co zawiera kompletny rekord klienta](wiki:clientRecord): umowy, kontakty z rolą i ostatni kontakt.",
+        "2. Przeczytaj powiązane rozmowy i otwarte zadania, aby sprawdzić, co ostatnio obiecaliśmy.",
+        "3. Zadzwoń lub napisz do osoby, która na co dzień składa zamówienia, zadaj jedno konkretne pytanie o usługę i zaktualizuj ostatni kontakt.",
+        "4. Ustaw datę następnego działania u klienta. Jeśli umowa ma przegląd w ciągu 60 dni, zacznij już [Przegląd roczny](wiki:yearlyReview).",
+      ],
+    },
     guide: {
       title: "Przewodnik",
       markdown: [

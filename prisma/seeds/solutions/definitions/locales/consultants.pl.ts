@@ -230,6 +230,19 @@ export const pl: Strings = {
     meetingsMonth: "Spotkania z klientami w tym miesiącu",
   },
   wiki: {
+    wrapUp: {
+      title: "Zamknięcie zlecenia",
+      whenToUse: "Gdy końcowy warsztat zlecenia już się odbył i pracę można zamknąć.",
+      markdown: [
+        "Koniec zlecenia to początek następnej rozmowy. Te kroki porządnie zamykają pracę i podtrzymują relację z klientem.",
+        "",
+        "## Kroki",
+        "1. Przenieś zlecenie do zakończonych zgodnie ze stroną [Jak przebiegają zlecenia](wiki:process) i dołącz raport końcowy do jego dokumentów.",
+        "2. Porównaj przepracowane dni z szacunkiem i zapisz różnicę w notatkach; dodatkowe dni rozliczamy według strony [Stawki dzienne i warianty honorarium](wiki:rates).",
+        "3. Podziękuj sponsorowi i osobie, która nas poleciła, i zaktualizuj siłę relacji obu kontaktów.",
+        "4. Utwórz zadanie na rozmowę kontrolną po trzech miesiącach, a przed nią skorzystaj ze strony [Przygotuj brief relacji](wiki:brief).",
+      ],
+    },
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [

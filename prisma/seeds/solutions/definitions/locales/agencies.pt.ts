@@ -310,6 +310,20 @@ export const pt: Strings = {
     },
   },
   wiki: {
+    onboarding: {
+      title: "Onboarding de um novo cliente",
+      whenToUse: "Quando um pitch é ganho e o primeiro projeto ou retainer com o cliente está prestes a começar.",
+      markdown: [
+        "Um pitch ganho é uma promessa. Estes passos transformam essa promessa em trabalho em andamento na primeira semana, para que o cliente conheça a equipe que vai entregar.",
+        "",
+        "## Passos",
+        "1. Marque o pitch como Ganho, como descreve o [Processo de pitch](wiki:process), e crie o projeto ou o retainer, vinculado ao cliente e ao pitch.",
+        "2. Preencha no projeto o orçamento, o orçamento de horas e o período de produção, ou no retainer a mensalidade, o prazo e a data de renovação.",
+        "3. Agende o kickoff com quem decide no cliente e vincule a conversa de e-mail ao cliente.",
+        "4. Crie uma tarefa para cada promessa feita no pitch, com responsável e data de vencimento.",
+        "5. Anote já a data de renovação; o [Checklist de renovação de retainer](wiki:renewal) começa 60 dias antes.",
+      ],
+    },
     guide: {
       title: "Guia operacional",
       markdown: [

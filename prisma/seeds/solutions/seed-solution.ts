@@ -434,7 +434,9 @@ async function writeRecords(
 
 /**
  * Writes a workspace's wiki pages under its fixture ids and removes retired ones. A guide the team wrote themselves
- * wins over the seeded guide; pages of other workspaces are never moved, so an id collision fails the transaction.
+ * wins over the seeded guide, and the seeded pages then link to that guide; pages of other workspaces are never moved,
+ * so an id collision fails the transaction. A page keeps its fixed dates when its text changes, so its links are
+ * marked unread and the map reads them again.
  */
 export async function seedSolutionWiki(
   prisma: PrismaClient,
@@ -453,12 +455,18 @@ export async function seedSolutionWiki(
     });
     const created = new Date(createdAt.getTime() + (workspace.team ? 0 : DAY));
     const timeline = { createdAt: created, updatedAt: created };
+    const seededGuide = pages.find((page) => page.kind === "guide");
+    const guideLink = (id: string) => `/wiki?page=${id})`;
+    const linked = (markdown: string) =>
+      foreignGuide && seededGuide
+        ? markdown.replaceAll(guideLink(seededGuide.id), guideLink(foreignGuide.id))
+        : markdown;
     for (const page of pages) {
       if (page.kind === "guide" && foreignGuide) {
         await tx.wikiPage.deleteMany({ where: { companyId, id: page.id } });
         continue;
       }
-      const data = { ...page, companyId, ...timeline };
+      const data = { ...page, markdown: linked(page.markdown), companyId, ...timeline, linksSyncedAt: null };
       const written = await tx.wikiPage.updateMany({ where: { id: page.id, companyId }, data });
       if (written.count === 0) await tx.wikiPage.create({ data });
     }

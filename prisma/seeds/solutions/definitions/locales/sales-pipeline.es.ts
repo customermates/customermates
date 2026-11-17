@@ -383,6 +383,23 @@ export const es: Strings = {
     nextSteps: "Siguientes pasos, próximos 14 días",
   },
   wiki: {
+    qualification: {
+      title: "Preguntas de cualificación",
+      markdown: [
+        "Una oportunidad está cualificada cuando sabemos cuatro cosas. Pregúntalas en las dos primeras conversaciones; sin ellas, el valor ponderado dice poco.",
+        "",
+        "## Las cuatro preguntas",
+        "- **Aplicación:** para qué se usa el aire comprimido y cuántas horas al día funciona la planta.",
+        "- **Presupuesto:** basta con un rango, y si sale del presupuesto de inversión o del de mantenimiento.",
+        "- **Decisión:** quién firma, quién opina y cuándo quieren decidir.",
+        "- **Momento:** qué pasa en la planta si este año no cambia nada.",
+        "",
+        "## Qué hacer con las respuestas",
+        "- Escríbelas en las notas de la oportunidad, indica la fecha de cierre prevista y pasa la etapa a Cualificada como en [Etapas de venta](wiki:stages).",
+        "- Responde a una pregunta temprana sobre el precio con el precio de lista; los [Descuentos y aprobaciones](wiki:discounts) vienen después.",
+        "- Si después hay una visita técnica, [Después de una visita técnica](wiki:siteVisit) dice qué anotar.",
+      ],
+    },
     guide: {
       title: "Guía de funcionamiento",
       markdown: [
