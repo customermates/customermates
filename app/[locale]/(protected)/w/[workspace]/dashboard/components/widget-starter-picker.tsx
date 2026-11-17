@@ -11,7 +11,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/core/utils/cn";
 import { DisplayType } from "@/features/widget/widget.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
-import { CALENDAR_HEAT_CLASS, type CalendarHeatLevel } from "./calendar-widget-view";
+import { CALENDAR_HEAT_EMPTY_CLASS, type CalendarHeatLevel, calendarHeatStyle } from "./calendar-widget-view";
+import { useDashboardAccent } from "./dashboard-accent";
 import { ChartTypeIllustration } from "./widget-display-type-picker";
 
 export type WidgetStarterChoice = { displayType?: DisplayType; calendarLayout?: CalendarWidgetLayout };
@@ -25,7 +26,7 @@ type Props = {
 };
 
 const HEAT_CELLS: CalendarHeatLevel[] = [
-  0, 1, 0, 2, 0, 0, 1, 3, 0, 1, 0, 4, 2, 0, 0, 2, 1, 0, 3, 0, 1, 1, 0, 0, 2, 0, 4, 0,
+  0, 1, 0, 2, 0, 0, 1, 3, 0, 1, 0, 3, 2, 0, 0, 2, 1, 0, 3, 0, 1, 1, 0, 0, 2, 0, 3, 0,
 ];
 const MAP_PINS = [
   { position: "left-[22%] top-[30%]", color: "bg-(--chart-1)" },
@@ -82,6 +83,7 @@ export function CalendarUpcomingIllustration({ className }: { className?: string
 }
 
 export function CalendarMonthIllustration({ className }: { className?: string }) {
+  const accent = useDashboardAccent();
   return (
     <div aria-hidden className={cn("flex items-center justify-center", className)}>
       <div className="grid w-24 grid-cols-7 gap-0.5">
@@ -90,9 +92,10 @@ export function CalendarMonthIllustration({ className }: { className?: string })
             key={index}
             className={cn(
               "aspect-square rounded-[2px]",
-              CALENDAR_HEAT_CLASS[level],
+              level === 0 && CALENDAR_HEAT_EMPTY_CLASS,
               index === 11 && "ring-1 ring-ring",
             )}
+            style={calendarHeatStyle(level, accent)}
           />
         ))}
       </div>

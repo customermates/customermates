@@ -1,16 +1,20 @@
 import type { CalendarWidgetData } from "@/features/widget/record-calendar-widget.schema";
 import type { MapWidgetPoint } from "@/features/widget/record-map-widget.schema";
+import type { WidgetDto } from "@/features/widget/widget.schema";
 
 import { describe, expect, it } from "vitest";
 
 import { ChartColor } from "@/features/widget/widget-display.schema";
 
 import {
+  CALENDAR_HEAT_LEVELS,
   calendarHeatLevels,
+  calendarHeatStyle,
   calendarMonthGrid,
   calendarOverdueDays,
   calendarWidgetEntry,
 } from "../calendar-widget-view";
+import { DEFAULT_DASHBOARD_ACCENT, dashboardAccent } from "../dashboard-accent";
 import {
   MAP_DEFAULT_COLOR,
   MAP_MISSING_GROUP,
@@ -25,7 +29,7 @@ type Day = CalendarWidgetData["days"][number];
 const decimal = (value: string) => ({ state: "value", value: { kind: "decimal", value, currency: "EUR" } }) as const;
 
 describe("month overview", () => {
-  it("scales each day's count into four heat levels and leaves empty days out", () => {
+  it("scales each day's count into three heat levels and leaves empty days out", () => {
     const days: Day[] = [
       { date: "2026-10-01", count: 1, result: { state: "missing" } },
       { date: "2026-10-02", count: 4, result: { state: "missing" } },
@@ -34,7 +38,7 @@ describe("month overview", () => {
     ];
     expect(Object.fromEntries(calendarHeatLevels(days, "count"))).toEqual({
       "2026-10-01": 1,
-      "2026-10-02": 4,
+      "2026-10-02": 3,
       "2026-10-04": 2,
     });
   });
@@ -44,7 +48,66 @@ describe("month overview", () => {
       { date: "2026-10-01", count: 1, result: decimal("1000") },
       { date: "2026-10-02", count: 1, result: decimal("-250") },
     ];
-    expect(Object.fromEntries(calendarHeatLevels(days, "sum"))).toEqual({ "2026-10-01": 4, "2026-10-02": 1 });
+    expect(Object.fromEntries(calendarHeatLevels(days, "sum"))).toEqual({ "2026-10-01": 3, "2026-10-02": 1 });
+  });
+
+  it("spreads the shades over the days even when one busy day dwarfs the rest", () => {
+    const counts = [1, 2, 2, 3, 5, 8, 90];
+    const days: Day[] = counts.map((count, index) => ({
+      date: `2026-10-${String(index + 1).padStart(2, "0")}`,
+      count,
+      result: { state: "missing" },
+    }));
+    expect([...calendarHeatLevels(days, "count").values()]).toEqual([1, 1, 1, 2, 2, 3, 3]);
+  });
+
+  it("shades a month of equal days by what a day holds", () => {
+    const day = (date: string, count: number, result: Day["result"] = { state: "missing" }): Day => ({
+      date: date,
+      count,
+      result,
+    });
+    expect([...calendarHeatLevels([day("2026-10-01", 1), day("2026-10-02", 1)], "count").values()]).toEqual([1, 1]);
+    expect([...calendarHeatLevels([day("2026-10-01", 2), day("2026-10-02", 2)], "count").values()]).toEqual([2, 2]);
+    expect([...calendarHeatLevels([day("2026-10-01", 7)], "count").values()]).toEqual([3]);
+    expect([
+      ...calendarHeatLevels(
+        [day("2026-10-01", 1, decimal("400")), day("2026-10-02", 1, decimal("400"))],
+        "sum",
+      ).values(),
+    ]).toEqual([2, 2]);
+  });
+
+  it("shades the levels in the light, middle and full step of the dashboard's chart colour", () => {
+    expect(CALENDAR_HEAT_LEVELS).toEqual([0, 1, 2, 3]);
+    expect(calendarHeatStyle(0, ChartColor.violet1)).toBeUndefined();
+    expect(calendarHeatStyle(1, ChartColor.violet1)).toEqual({
+      backgroundColor: "var(--chart-violet-3)",
+      color: "var(--chart-violet-text)",
+    });
+    expect(calendarHeatStyle(2, ChartColor.violet2)).toEqual({
+      backgroundColor: "var(--chart-violet-2)",
+      color: "var(--chart-violet-text)",
+    });
+    expect(calendarHeatStyle(3, ChartColor.violet3)).toEqual({
+      backgroundColor: "var(--chart-violet-1)",
+      color: "var(--background)",
+    });
+  });
+
+  it("takes the colour most charts of a dashboard use, and the first chart's on a tie", () => {
+    const chart = (color?: ChartColor) =>
+      ({ kind: "chart", displayOptions: color ? { barColors: [color] } : {} }) as unknown as WidgetDto;
+    const calendar = { kind: "calendar", displayOptions: { showFilters: true } } as unknown as WidgetDto;
+    expect(dashboardAccent([])).toBe(DEFAULT_DASHBOARD_ACCENT);
+    expect(dashboardAccent([calendar])).toBe(DEFAULT_DASHBOARD_ACCENT);
+    expect(dashboardAccent([chart(ChartColor.success1), chart(ChartColor.violet2), chart(ChartColor.violet1)])).toBe(
+      ChartColor.violet2,
+    );
+    expect(dashboardAccent([calendar, chart(ChartColor.secondary1), chart(ChartColor.info1)])).toBe(
+      ChartColor.secondary1,
+    );
+    expect(dashboardAccent([chart(), chart(), chart(ChartColor.warning1)])).toBe(DEFAULT_DASHBOARD_ACCENT);
   });
 
   it("lays out the month from Monday", () => {

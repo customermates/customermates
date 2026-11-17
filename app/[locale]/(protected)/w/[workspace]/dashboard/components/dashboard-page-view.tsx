@@ -30,6 +30,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useTouchInput } from "@/hooks/use-touch-input";
 import { useRouter } from "@/i18n/navigation";
 
+import { DashboardAccentContext, dashboardAccent } from "./dashboard-accent";
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
 import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
 import { WidgetCard } from "./widget-card";
@@ -70,6 +71,7 @@ function layoutGeometry(layout: Layout) {
 const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore, recordWorkspaceStore } = useRootStore();
   const { items, layouts } = widgetsStore;
+  const accent = useMemo(() => dashboardAccent(items), [items]);
   const readOnlyView = widgetsStore.isActiveViewShared;
   const canAddWidget = widgetModalStore.availableKinds.length > 0 && !readOnlyView;
   const navigation = recordWorkspaceStore.navigation;
@@ -325,7 +327,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   }
 
   return (
-    <>
+    <DashboardAccentContext.Provider value={accent}>
       {data && (
         <WidgetDataDrawer
           key={data.opening}
@@ -368,7 +370,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
       </div>
 
       <WidgetModal />
-    </>
+    </DashboardAccentContext.Provider>
   );
 });
 
