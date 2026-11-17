@@ -1,16 +1,15 @@
-import type { RoutineDto } from "@/ee/routines/routine.schema";
 import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
-
-import { getRoutinesAction } from "../actions";
+import type { AutomationListItemDto } from "@/features/automation-rules/automations-list.schema";
 
 import { Resource } from "@/generated/prisma";
-
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { actionData } from "@/core/utils/action-data";
 
-export class RoutinesStore extends BaseDataViewStore<RoutineDto> {
+import { getAutomationsListAction } from "../actions";
+
+export class AutomationsStore extends BaseDataViewStore<AutomationListItemDto> {
   constructor(rootStore: RootStore) {
     super(rootStore, Resource.routines);
   }
@@ -18,16 +17,17 @@ export class RoutinesStore extends BaseDataViewStore<RoutineDto> {
   get columnsDefinition(): TableColumn[] {
     return [
       { uid: "name", sortable: true },
-      { uid: "owner", sortable: false },
-      { uid: "trigger", sortable: false },
-      { uid: "status", sortable: false },
+      { uid: "sentence", sortable: false, label: this.t("Automations.columns.sentence") },
+      { uid: "runsOn", sortable: false, label: this.t("Automations.columns.runsOn") },
       { uid: "lastRunAt", sortable: true },
-      { uid: "nextRunAt", sortable: true },
+      { uid: "runs30d", sortable: true, label: this.t("Automations.columns.runs30d") },
+      { uid: "enabled", sortable: false, label: this.t("Automations.columns.enabled") },
+      { uid: "owner", sortable: false },
       { uid: "createdAt", sortable: true },
     ];
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return actionData(getRoutinesAction(params));
+    return actionData(getAutomationsListAction(params));
   }
 }

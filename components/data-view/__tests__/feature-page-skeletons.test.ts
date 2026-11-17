@@ -8,7 +8,7 @@ import { RolesPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/sett
 import { MembersPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/members-page-skeleton";
 import { WebhookDeliveriesPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhook-deliveries-page-skeleton";
 import { WebhooksPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhooks-page-skeleton";
-import { RoutinesPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routines-page-skeleton";
+import { AutomationsPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automations-page-skeleton";
 import { IncomingWebhooksPageSkeleton } from "@/components/incoming-webhook/incoming-webhooks-page-skeleton";
 
 import { RecordsPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/records-page-skeleton";
@@ -23,7 +23,7 @@ const CASES: Array<[string, Skeleton, string, string]> = [
   ["webhooks", WebhooksPageSkeleton, "plain", "text"],
   ["webhook-deliveries", WebhookDeliveriesPageSkeleton, "plain", "text"],
   ["incoming-webhooks", IncomingWebhooksPageSkeleton, "plain", "text"],
-  ["routines", RoutinesPageSkeleton, "plain", "text"],
+  ["automations", AutomationsPageSkeleton, "plain", "text"],
 ];
 
 describe("feature-owned collection skeletons", () => {

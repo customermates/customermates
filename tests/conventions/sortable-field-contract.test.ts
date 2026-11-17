@@ -9,7 +9,8 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
 
 const STORE_REPOSITORY: Record<string, string> = {
-  "app/[locale]/(protected)/w/[workspace]/routines/components/routines.store.ts": "ee/routines/prisma-routine.repository.ts",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/automations.store.ts":
+    "features/automation-rules/automations-list.composer.ts",
   "app/[locale]/(protected)/w/[workspace]/trash/components/trash.store.ts": "features/trash/prisma-trash.repository.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/users.store.ts": "features/user/prisma-user.repository.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/roles.store.tsx": "features/role/prisma-role.repository.ts",
@@ -30,8 +31,8 @@ const STORE_REPOSITORY: Record<string, string> = {
 const COLUMN_HOOK_STORE: Record<string, string> = {
   "app/[locale]/(protected)/w/[workspace]/trash/components/use-trash-columns.tsx":
     "app/[locale]/(protected)/w/[workspace]/trash/components/trash.store.ts",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/use-routine-columns.tsx":
-    "app/[locale]/(protected)/w/[workspace]/routines/components/routines.store.ts",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns.tsx":
+    "app/[locale]/(protected)/w/[workspace]/automations/components/automations.store.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/use-member-columns.tsx":
     "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/users.store.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/use-role-columns.tsx":

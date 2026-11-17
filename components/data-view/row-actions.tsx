@@ -24,12 +24,14 @@ export const RowActions = observer(function RowActions({
   name,
   contextAction,
   onOpen,
+  extraActions,
   onDelete,
   deleteLabel,
   deleteIcon: DeleteIcon = Trash2,
 }: {
   name: string;
   contextAction?: { label: string; icon: LucideIcon; onSelect: () => void };
+  extraActions?: ReadonlyArray<{ key: string; label: string; icon: LucideIcon; onSelect: () => void }>;
   onOpen?: (returnFocusTo: HTMLElement | null) => void;
   onDelete?: () => unknown;
   deleteLabel?: string;
@@ -74,6 +76,14 @@ export const RowActions = observer(function RowActions({
                 {t("RecordModel.openDetails")}
               </DropdownMenuItem>
             )}
+
+            {extraActions?.map((extra) => (
+              <DropdownMenuItem key={extra.key} onSelect={() => afterClose(extra.onSelect)}>
+                <extra.icon className="size-4" />
+
+                {extra.label}
+              </DropdownMenuItem>
+            ))}
 
             {onDelete && (
               <DropdownMenuItem variant="destructive" onSelect={() => afterClose(() => runUserAction(onDelete))}>

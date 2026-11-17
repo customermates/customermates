@@ -140,7 +140,7 @@ function makeStore(
       },
       can: vi.fn(() => options.canManage ?? true),
     },
-    routinesStore: options.routinesStore ?? {
+    automationsStore: options.routinesStore ?? {
       upsertItem: vi.fn(() => Promise.resolve()),
       removeItem: vi.fn(() => Promise.resolve()),
       refresh: vi.fn(() => Promise.resolve()),
@@ -286,7 +286,7 @@ describe("RoutineModalStore", () => {
 
     await store.deleteById(open.id);
     expect(routineActions.deleteRoutineAction).toHaveBeenLastCalledWith({ id: open.id });
-    expect(routinesStore.removeItem).toHaveBeenCalledWith(open.id);
+    expect(routinesStore.refresh).toHaveBeenCalled();
     expect(store.isOpen).toBe(false);
   });
 
@@ -609,7 +609,6 @@ describe("RoutineModalStore", () => {
     expect(store.form.enabled).toBe(false);
     expect(store.disabledReason).toBe("adminPaused");
     expect(store.isOpen).toBe(true);
-    expect(routinesStore.upsertItem).toHaveBeenCalledWith(paused);
     expect(routinesStore.refresh).toHaveBeenCalledOnce();
   });
 
@@ -637,7 +636,6 @@ describe("RoutineModalStore", () => {
       store.onChange("prompt", saved.prompt);
       await store.onSubmit();
 
-      expect(routinesStore.upsertItem).toHaveBeenCalledWith(saved);
       expect(routinesStore.refresh).toHaveBeenCalledOnce();
       expect(store.isOpen).toBe(false);
     },
@@ -658,7 +656,6 @@ describe("RoutineModalStore", () => {
 
     await expect(store.delete()).resolves.toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
 
-    expect(routinesStore.removeItem).toHaveBeenCalledWith("30000000-0000-4000-8000-000000000001");
     expect(routinesStore.refresh).toHaveBeenCalledOnce();
     expect(store.isOpen).toBe(false);
   });

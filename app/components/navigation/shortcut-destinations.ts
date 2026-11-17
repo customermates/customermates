@@ -10,7 +10,7 @@ const PAGE_ITEMS: ReadonlyArray<[string, ShortcutDestination]> = [
   ["dashboard", "dashboard"],
   ["wiki", "wiki"],
   ["inbox", "inbox"],
-  ["routines", "routines"],
+  ["automations", "routines"],
   ["configure-records", "configure"],
 ];
 

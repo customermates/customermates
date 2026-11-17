@@ -332,6 +332,17 @@ function toEffect(
   };
 }
 
+export type DraftPreviewInput = { trigger: AutomationTrigger; conditions: AutomationCondition[] };
+
+export function draftToPreviewInput(draft: AutomationDraft, model: AutomationBuilderModel): DraftPreviewInput | null {
+  const trigger = toTrigger(draft.trigger, model);
+  if (!trigger) return null;
+  const typeId = "typeId" in trigger ? trigger.typeId : undefined;
+  const conditions = draft.conditions.map((condition) => (typeId ? toCondition(condition, model, typeId) : null));
+  if (conditions.some((condition) => condition === null)) return null;
+  return { trigger, conditions: conditions.filter((condition) => condition !== null) };
+}
+
 export type DraftConversion = { ok: true; input: UpsertAutomationRuleData } | { ok: false; issues: string[] };
 
 export function draftToUpsert(draft: AutomationDraft, model: AutomationBuilderModel): DraftConversion {
@@ -475,4 +486,36 @@ export function ruleToDraft(rule: AutomationRuleDto, model: AutomationBuilderMod
       effectToDraft(effect, "typeId" in trigger && trigger.typeId ? trigger.typeId : null),
     ),
   };
+}
+
+export type AutomationDraftSeed = Pick<UpsertAutomationRuleData, "name" | "enabled" | "conditions"> & {
+  trigger: AutomationTrigger;
+  effects: AutomationEffect[];
+};
+
+export function seedToDraft(
+  seed: AutomationDraftSeed,
+  model: AutomationBuilderModel,
+  timezone: string,
+): AutomationDraft {
+  const opened = ruleToDraft(
+    {
+      id: "",
+      ownerUserId: null,
+      owner: null,
+      name: seed.name ?? "",
+      enabled: seed.enabled ?? true,
+      trigger: seed.trigger,
+      conditions: seed.conditions ?? [],
+      effects: seed.effects,
+      disabledReason: null,
+      lastRunAt: null,
+      lastRunStatus: null,
+      createdAt: "",
+      updatedAt: "",
+    },
+    model,
+    timezone,
+  );
+  return { ...opened, id: undefined };
 }

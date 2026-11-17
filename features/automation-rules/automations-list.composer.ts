@@ -178,7 +178,7 @@ export class AutomationsListComposer extends BaseGetRepo<AutomationListItemDto> 
     return this.narrow(await this.load(), params).length;
   }
 
-  getSortableFields(): SortableField[] {
+  getSortableFields() {
     return [
       { field: "name", resolvedFields: ["name"], collate: true },
       { field: "kind", resolvedFields: ["kind"] },

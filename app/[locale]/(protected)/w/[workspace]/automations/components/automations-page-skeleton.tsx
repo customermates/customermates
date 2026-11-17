@@ -1,15 +1,11 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import type { DataViewSkeletonSpec } from "@/components/data-view/data-view-skeleton";
+import type { DataViewView } from "@/components/data-view/data-view-state";
 
-export function AutomationsPageSkeleton() {
-  return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
-      <Skeleton className="h-6 w-40" />
+import { DataViewSkeleton } from "@/components/data-view/data-view-skeleton";
 
-      <Skeleton className="h-4 w-80 max-w-full" />
+type Props = { animated?: boolean; view?: DataViewView };
 
-      {[0, 1, 2].map((item) => (
-        <Skeleton key={item} className="h-24 w-full rounded-xl" />
-      ))}
-    </div>
-  );
+export function AutomationsPageSkeleton({ animated = true, view = "table" }: Props) {
+  const spec: DataViewSkeletonSpec = view === "table" ? { tableVariant: "plain", view } : { identity: "text", view };
+  return <DataViewSkeleton data-automations-page-skeleton animated={animated} spec={spec} />;
 }

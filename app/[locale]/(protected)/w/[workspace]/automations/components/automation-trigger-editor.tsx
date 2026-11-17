@@ -8,7 +8,7 @@ import type { AutomationDraft, DraftTriggerKind } from "./automation-draft";
 import { Input } from "@/components/ui/input";
 
 import { DRAFT_TRIGGER_KINDS, fieldOfList, listOf } from "./automation-draft";
-import { Choose, DATE_FIELD_TYPES, Labeled, Section, TimeZonePicker, ValueInput } from "./automation-builder-fields";
+import { Choose, DATE_FIELD_TYPES, Labeled, TimeZonePicker, ValueInput } from "./automation-builder-fields";
 
 type Props = {
   trigger: AutomationDraft["trigger"];
@@ -21,13 +21,17 @@ export function AutomationTriggerEditor({ trigger, model, flagged, onChange }: P
   const t = useTranslations();
   const choose = t("AutomationRules.builder.choose");
   const recordKind = trigger.kind !== "messageReceived" && trigger.kind !== "other";
+  const optionalList = trigger.kind === "formSubmitted" || trigger.kind === "webhookReceived";
   const triggerFields = (listOf(model, trigger.typeId)?.fields ?? []).filter(
     (field) => trigger.kind !== "dateReached" || DATE_FIELD_TYPES.has(field.valueType),
   );
-  const listItems = model.lists.map((list) => ({ id: list.id, label: list.label }));
+  const listItems = [
+    ...(optionalList ? [{ id: "none", label: t("Automations.builder.anyList") }] : []),
+    ...model.lists.map((list) => ({ id: list.id, label: list.label })),
+  ];
 
   return (
-    <Section title={t("AutomationRules.builder.when")}>
+    <div className="flex flex-col gap-3">
       {trigger.kind === "other" ? (
         <p className="text-sm text-muted-foreground">{t("AutomationRules.builder.keptTrigger")}</p>
       ) : (
@@ -48,8 +52,8 @@ export function AutomationTriggerEditor({ trigger, model, flagged, onChange }: P
                 items={listItems}
                 label={t("AutomationRules.builder.list")}
                 placeholder={choose}
-                value={trigger.typeId}
-                onChange={(typeId) => onChange({ typeId, fieldId: "", value: "" })}
+                value={trigger.typeId || (optionalList ? "none" : "")}
+                onChange={(typeId) => onChange({ typeId: typeId === "none" ? "" : typeId, fieldId: "", value: "" })}
               />
             </Labeled>
           )}
@@ -132,6 +136,6 @@ export function AutomationTriggerEditor({ trigger, model, flagged, onChange }: P
       )}
 
       {flagged("trigger") && <p className="text-xs text-destructive">{t("AutomationRules.builder.fixTrigger")}</p>}
-    </Section>
+    </div>
   );
 }

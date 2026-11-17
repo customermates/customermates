@@ -43,7 +43,8 @@ import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/w/[workspace]
 import { ProfileSettingsStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings.store";
 import { UserStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/user.store";
 import { RoutineModalStore } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routine-modal.store";
-import { RoutinesStore } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routines.store";
+import { AutomationBuilderStore } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder.store";
+import { AutomationsStore } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automations.store";
 import { TrashStore } from "@/app/[locale]/(protected)/w/[workspace]/trash/components/trash.store";
 import { NotificationsStore } from "@/app/[locale]/(protected)/w/[workspace]/notifications/components/notifications.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/w/[workspace]/subscription-expired/components/subscription-expired.store";
@@ -97,7 +98,8 @@ export class RootStore {
   private _incomingWebhooksStore?: IncomingWebhooksStore;
   private _agentRunnersStore?: AgentRunnersStore;
   private _agentRunnerModalStore?: AgentRunnerModalStore;
-  private _routinesStore?: RoutinesStore;
+  private _automationsStore?: AutomationsStore;
+  private _automationBuilderStore?: AutomationBuilderStore;
   private _trashStore?: TrashStore;
   private _notificationsStore?: NotificationsStore;
   private _widgetsGridStore?: WidgetsStore;
@@ -377,8 +379,12 @@ export class RootStore {
     }));
   }
 
-  get routinesStore() {
-    return (this._routinesStore ??= new RoutinesStore(this));
+  get automationsStore() {
+    return (this._automationsStore ??= new AutomationsStore(this));
+  }
+
+  get automationBuilderStore() {
+    return (this._automationBuilderStore ??= new AutomationBuilderStore(this));
   }
 
   get trashStore() {

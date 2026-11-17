@@ -20,7 +20,6 @@ import {
   Plus,
   LayoutGrid,
   CalendarDays,
-  Repeat,
   Workflow,
   ShieldCheck,
   UserPlus,
@@ -267,13 +266,6 @@ const FullAppSidebar = observer(
               icon: Bell,
               visible: notificationsVisible,
               badge: currentUnreadNotificationCount,
-            },
-            {
-              key: "routines",
-              title: t("NavigationBar.routines"),
-              href: "/routines",
-              icon: Repeat,
-              visible: rootStore.appMode !== "self-hosted" && canAccess(Resource.routines),
             },
             {
               key: "automations",

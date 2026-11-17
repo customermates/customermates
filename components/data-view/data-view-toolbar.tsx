@@ -28,6 +28,7 @@ type Props<E extends HasId> = {
   anchorScope?: string;
   addLabel?: string;
   menuItems?: ReactNode;
+  addMenu?: ReactNode;
   automateHref?: string;
 };
 
@@ -42,6 +43,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   anchorScope,
   addLabel,
   menuItems,
+  addMenu,
   automateHref,
 }: Props<E>) {
   const t = useTranslations();
@@ -119,11 +121,19 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
         </TopBarMenuButton>
       )}
 
-      {onAdd && store.canCreate && (
+      {onAdd && store.canCreate && !addMenu && (
         <TopBarPrimaryButton
           anchorId={anchorScope ? `${anchorScope}-add` : undefined}
           label={addLabel ?? t("Common.actions.add")}
           onClick={onAdd}
+        />
+      )}
+
+      {addMenu && store.canCreate && (
+        <TopBarPrimaryButton
+          anchorId={anchorScope ? `${anchorScope}-add` : undefined}
+          label={addLabel ?? t("Common.actions.add")}
+          menu={addMenu}
         />
       )}
     </div>

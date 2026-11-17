@@ -18,13 +18,13 @@ type Props = {
 
 const RoutineAllowanceNoticeContent = observer(function RoutineAllowanceNoticeContent({ plan }: Props) {
   const t = useTranslations();
-  const { routinesStore, userStore } = useRootStore();
+  const { automationsStore, userStore } = useRootStore();
   const nextPlan = nextRoutinePlan(plan);
   const userId = userStore.user?.id;
   if (!plan || !nextPlan || !userId) return null;
   const allowance = PLAN_CATALOG[plan].entitlements.includedRoutinesPerUser;
   if (allowance === "unlimited" || allowance <= 0) return null;
-  const owned = routinesStore.items.filter((routine) => routine.ownerUserId === userId).length;
+  const owned = automationsStore.items.filter((item) => item.kind === "routine" && item.ownerUserId === userId).length;
   if (owned < allowance) return null;
 
   return (
