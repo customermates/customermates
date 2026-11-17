@@ -14,7 +14,8 @@ import type { AutomationEffect, AutomationEffectOutcome, AutomationTrigger } fro
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { localDay, shiftDay } from "./automation-date";
-import { renderAutomationTemplate } from "./automation-template";
+import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
+import { renderAutomationAgentPrompt, renderAutomationTemplate } from "./automation-template";
 
 type FieldAssignment = z.infer<typeof RecordFieldAssignmentSchema>;
 
@@ -107,7 +108,11 @@ export class AutomationEffectRunner {
   ): Promise<AutomationEffectOutcome> {
     if (!this.agents) return { kind: effect.kind, status: "failed", detail: "agentRuntimeUnavailable" };
     const record = context.recordRef ? await this.records.read(context.recordRef) : null;
-    const prompt = renderAutomationTemplate(effect.prompt, { record: record ?? undefined, rule: context.rule });
+    const { prompt, recordValues } = renderAutomationAgentPrompt(
+      effect.prompt,
+      { record: record ?? undefined, rule: context.rule },
+      untrustedText,
+    );
     const request: AutomationAgentJobInput & { idempotencyKey: string } = {
       companyId: context.companyId,
       runId: context.runId,
@@ -115,7 +120,8 @@ export class AutomationEffectRunner {
       ownerUserId: context.rule.ownerUserId,
       runtime: effect.runtime,
       prompt,
-      promptUntrusted: ["messageReceived", "formSubmitted", "webhookReceived"].includes(context.rule.trigger.kind),
+      promptUntrusted:
+        recordValues > 0 || ["messageReceived", "formSubmitted", "webhookReceived"].includes(context.rule.trigger.kind),
       model: effect.model ?? null,
       runnerId: effect.runnerId ?? null,
       recordRef: context.recordRef,
