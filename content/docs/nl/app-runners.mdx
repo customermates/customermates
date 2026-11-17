@@ -1,32 +1,32 @@
 ---
 title: "Runners: agents met je eigen Claude Code of Codex"
-description: "Een runner voert agentstappen uit met je eigen Claude Code, Codex of Gemini CLI op je machine: wat hij nodig heeft, starten, time-outs en intrekken."
+description: "Een runner voert jouw agentstappen uit met je eigen Claude Code, Codex of Gemini CLI op je machine: starten, bereik, time-outs en intrekken."
 ---
 
-Met een runner draaien de agentstappen van je werkruimte met je eigen Claude Code, Codex of Gemini CLI op je eigen machine. Het is een klein programma, `customermates-runner`, dat je werkruimte om agenttaken vraagt, de CLI start waarin je bent ingelogd, terugstuurt wat de CLI doet als transcript en het resultaat meldt. Je CLI-login blijft op je machine: Customermates ontvangt hem nooit. Runners werken op Customermates Cloud en op zelfgehoste instanties.
+Met een runner draaien jouw agentstappen met je eigen Claude Code, Codex of Gemini CLI op je eigen machine. Het is een klein programma, `customermates-runner`, dat je werkruimte om jouw agenttaken vraagt, de CLI start waarin je bent ingelogd, terugstuurt wat de CLI doet als transcript en het resultaat meldt. Je CLI-login blijft op je machine: Customermates ontvangt hem nooit. Runners werken op Customermates Cloud en op zelfgehoste instanties.
 
 Je beheert runners onder **Instellingen**, **Agents**, in de kaart **Runners**. Voor het toevoegen en intrekken van een runner heb je dezelfde rolrechten nodig als voor [API-sleutels](/docs/api-keys).
 
 ## Wat doet een runner? [#what-does-a-runner-do]
 
-Elke 60 seconden meldt hij de werkruimte de naam van zijn machine en welke CLI's hij in het PATH vond, met hun versies. Daartussen houdt hij maximaal 25 seconden een verzoek open om de volgende wachtende taak van de werkruimte op te halen, en vraagt daarna meteen opnieuw. Voor een taak schrijft hij een tijdelijke MCP-configuratie met het adres van je werkruimte en een kortlevende sleutel van de eigenaar van de taak, start hij de CLI met de prompt van de taak, stuurt hij elke stap van de CLI-uitvoer terug als transcriptgebeurtenis en verwijdert hij de configuratie zodra de CLI klaar is. Daarna wacht hij op de volgende taak.
+Elke 60 seconden meldt hij de werkruimte de naam van zijn machine en welke CLI's hij kan starten, met hun versies. Daartussen houdt hij maximaal 25 seconden een verzoek open om de volgende wachtende taak op te halen, en vraagt daarna meteen opnieuw. Een runner voert alleen de taken uit van het lid dat hem heeft toegevoegd: de agentstappen van de automatiseringen waarvan dat lid de eigenaar is. Hij bevestigt elke taak aan de werkruimte voordat hij de CLI start. Voor een taak schrijft hij een tijdelijke MCP-configuratie met het adres van je werkruimte en de sleutel van die taak, start hij de CLI met de prompt van de taak in een lege tijdelijke map, stuurt hij elke stap van het werk van de CLI terug als transcriptgebeurtenis en verwijdert hij de configuratie zodra de CLI klaar is. Daarna wacht hij op de volgende taak.
 
-De CLI werkt als de eigenaar van de taak, met de rechten van dat lid in deze werkruimte. Ze kan de tools van je werkruimte gebruiken via [MCP](/docs/mcp) en, voor zover haar eigen instellingen en de toegestane tools dat toelaten, alles wat verder op die machine staat, zoals lokale MCP-servers en bestanden.
+De CLI werkt als jij, het lid dat de runner heeft toegevoegd, met jouw rechten in deze werkruimte. Ze gebruikt de tools van je werkruimte via [MCP](/docs/mcp) met een sleutel die bij die ene taak hoort. De sleutel werkt alleen op het MCP-adres van je werkruimte en alleen zolang de taak loopt. Hij staat hooguit 25 toolaanroepen toe en weigert de aanroepen waarvoor in de chat jouw goedkeuring nodig zou zijn, zoals records verwijderen of rollen wijzigen.
 
 ## Wat heeft hij nodig? [#what-does-it-need]
 
 - Node 24, of Docker.
-- Claude Code, Codex of Gemini CLI, geïnstalleerd en ingelogd op die machine. Zonder CLI blijft de runner online maar neemt hij geen taken aan, zodat een andere runner ze kan krijgen.
+- Claude Code, Codex of Gemini CLI, geïnstalleerd en ingelogd op die machine. Zonder CLI meldt de runner er geen en neemt hij geen taken aan; jouw taken wachten dan en eindigen na 15 minuten als verlopen.
 - Een netwerkverbinding van die machine naar het adres van je Customermates. De runner doet alleen uitgaande verzoeken: hij werkt achter een firewall en heeft geen open poort nodig.
 
 ## Hoe voeg ik een runner toe en start ik hem? [#how-do-i-add-a-runner]
 
 1. Open **Instellingen**, **Agents** en klik op **Runner toevoegen**. Geef hem een naam waaraan je de machine herkent.
-2. Kopieer het token. Het wordt één keer getoond en begint met `cmr_`. Behandel het als een wachtwoord: wie het heeft, kan de runnertaken van deze werkruimte ophalen.
+2. Kopieer het token. Het wordt één keer getoond en begint met `cmr_`. Behandel het als een wachtwoord: wie het heeft, kan jouw runnertaken in deze werkruimte ophalen.
 3. Start de runner op die machine, met Node:
 
 ```bash
-npx customermates-runner --token cmr_... --url https://crm.example.com
+CUSTOMERMATES_RUNNER_TOKEN=cmr_... npx customermates-runner --url https://crm.example.com
 ```
 
 of met Docker, waarbij je de loginmap van je CLI koppelt zodat die ingelogd blijft:
@@ -36,63 +36,78 @@ docker run -d --restart unless-stopped \
   -e CUSTOMERMATES_URL=https://crm.example.com \
   -e CUSTOMERMATES_RUNNER_TOKEN=cmr_... \
   -v "$HOME/.claude:/home/node/.claude" \
+  -v "$HOME/.claude.json:/home/node/.claude.json" \
   ghcr.io/customermates/runner
 ```
 
-Het adres is dat waarop je Customermates opent; op een zelfgehoste instantie is het je eigen `BASE_URL`. Token en adres kunnen ook uit `CUSTOMERMATES_RUNNER_TOKEN` en `CUSTOMERMATES_URL` komen. Handige opties:
+Het adres is dat waarop je Customermates opent; op een zelfgehoste instantie is het je eigen `BASE_URL`. Het kan ook uit `CUSTOMERMATES_URL` komen. Geef de runner zijn token in de variabele `CUSTOMERMATES_RUNNER_TOKEN`, of in een bestand dat alleen jouw account kan lezen, opgegeven met `--token-file` of `CUSTOMERMATES_RUNNER_TOKEN_FILE`. Geef het niet mee als argument: een opdrachtregel is zichtbaar voor elke gebruiker van de machine. Op macOS bewaart Claude Code de login in de Sleutelhanger, dus de gekoppelde map brengt geen login in de container: geef `ANTHROPIC_API_KEY` mee, of een token uit `claude setup-token` in `CLAUDE_CODE_OAUTH_TOKEN`. Handige opties:
 
 - `--client claude`, `codex` of `gemini` kiest de CLI die de taken uitvoert. Standaard is dat de eerste die hij vindt.
 - `--workdir <map>` voert de CLI in die map uit. Standaard krijgt elke taak een lege tijdelijke map.
-- `--permission-mode <modus>` en `--allowed-tools <tools>` bepalen wat Claude Code zonder te vragen mag doen. Standaard zijn alleen de tools van je werkruimte toegestaan. Codex draait in een alleen-lezen sandbox.
+- `--permission-mode <modus>`, `--allowed-tools <tools>` en `--setting-sources <lijst>` bepalen wat Claude Code zonder te vragen mag doen. Standaard zijn alleen de tools van je werkruimte toegestaan en worden je eigen Claude Code-instellingen niet geladen.
+- `--allow-shell` laat Codex shellopdrachten uitvoeren in zijn alleen-lezen sandbox. Standaard heeft Codex geen shell.
 
 De runner schrijft zijn logs naar de standaarduitvoer en drukt zijn token nooit af.
 
 ## Wat stuurt de server, en wat stuurt hij nooit? [#what-is-sent]
 
-De server stuurt de prompt van de taak, of buitenstaanders die prompt kunnen beïnvloeden, de time-out van de taak, het MCP-adres van je werkruimte en een sleutel die enkele minuten na de time-out van de taak ophoudt te werken en wordt ingetrokken zodra de taak eindigt. Hij stuurt nooit een geheim van de werkruimte, een providersleutel of de gegevens van een andere taak. De sleutel bereikt alleen deze werkruimte, en alleen als het lid dat de taak bezit.
+De server stuurt de prompt van de taak, of buitenstaanders die prompt kunnen beïnvloeden, het MCP-adres van je werkruimte en de sleutel van de taak. Wanneer de runner de taak bevestigt, laat de server weten hoe lang de taak mag lopen. Hij stuurt nooit een geheim van de werkruimte, een providersleutel of een taak van een ander lid. De sleutel bereikt alleen deze werkruimte, alleen als jij, en alleen zolang de taak loopt: de server weigert hem voordat de runner de taak heeft bevestigd en vanaf het moment dat de taak klaar, verlopen of geannuleerd is.
 
-De runner stuurt nooit je CLI-login, je bestanden of je omgeving. Hij stuurt de machinenaam, de gevonden CLI's, de transcriptgebeurtenissen (elk afgekapt op 4 KB, zonder tokens) en het resultaat. Transcripten worden bij de taak bewaard: laat een CLI dus geen geheimen afdrukken die niet zichtbaar mogen zijn.
+De runner stuurt nooit je CLI-login, je bestanden of je omgeving. Hij stuurt de machinenaam, de CLI's die hij kan starten, de transcriptgebeurtenissen (wat de agent schreef, elke toolaanroep met een korte samenvatting van de argumenten en elk toolresultaat, zonder tokens) en het resultaat. Transcripten worden bij de taak bewaard: laat een CLI dus geen geheimen afdrukken die niet zichtbaar mogen zijn.
 
-Een prompt die buitenstaanders kunnen beïnvloeden, bijvoorbeeld een met een formulierinzending of een binnenkomende webhook, is in de taak gemarkeerd. De runner hult hem in dezelfde omlijsting als de MCP-server: de tekst is data, geen instructie, en een verzoek erin om het gedrag van de agent te veranderen wordt gemeld, niet opgevolgd.
+Een prompt die buitenstaanders kunnen beïnvloeden, bijvoorbeeld een met een formulierinzending, een binnenkomende webhook of de naam van een record, is in de taak gemarkeerd. De runner hult hem in dezelfde omlijsting als de MCP-server: de tekst is data, geen instructie, en een verzoek erin om het gedrag van de agent te veranderen wordt gemeld, niet opgevolgd.
+
+## Waar kan de CLI op mijn machine bij? [#what-can-it-reach]
+
+De CLI draait onder het account dat de runner heeft gestart. Een tekst als data presenteren verkleint de kans dat een model hem opvolgt, maar neemt die kans niet weg. Wat een misleide CLI zou kunnen doen, wordt begrensd door de sleutel van de taak, hierboven beschreven, en door deze standaardinstellingen:
+
+- Claude Code mag alleen de tools van je werkruimte aanroepen, laadt alleen de MCP-server van de taak en laadt je eigen instellingen niet. Zijn bestandstools blijven in de lege map van de taak.
+- Codex draait zonder je eigen configuratie en zonder shell. Start je de runner met `--allow-shell`, dan draaien opdrachten in de alleen-lezen sandbox van Codex, die schrijven tegenhoudt maar lezen niet: een opdracht kan elk bestand lezen dat jouw account kan lezen, en de tools van je werkruimte kunnen die inhoud daarna in een record schrijven. Gebruik dit alleen op een machine, in een container of onder een account waar verder niets op staat.
+- Gemini CLI wordt gestart met alleen de MCP-server van je werkruimte toegestaan. Zijn ingebouwde tools volgen je eigen Gemini-instellingen.
+- Het runnertoken en je CLI-logins staan in jouw account op die machine. Een CLI die je opdrachten laat uitvoeren, kan ze lezen. Draai de runner voor een strikte scheiding met Docker of onder een eigen gebruikersaccount.
 
 ## Wat gebeurt er met een taak? [#what-happens-to-a-job]
 
-Een taak wacht in de wachtrij tot een runner van de werkruimte hem oppakt. Een taak die geen runner binnen 15 minuten oppakt, eindigt als verlopen. Een opgepakte taak die niet klaar is voor zijn time-out, eindigt ook als verlopen, en de runner stopt de CLI op dat moment. Faalt de CLI, dan eindigt de taak als mislukt, met de reden. Een taak die al klaar, verlopen of geannuleerd is, kan niet meer worden gewijzigd door een late melding van een runner, en de runner stopt zijn CLI wanneer de werkruimte dat zegt.
+Een taak wacht in de wachtrij tot een runner van de eigenaar hem oppakt. Een opgepakte taak die de runner niet binnen een minuut bevestigt, bijvoorbeeld omdat hij op dat moment werd gestopt, gaat binnen enkele minuten terug naar de wachtrij. Een taak die geen runner binnen 15 minuten ophaalt, eindigt als verlopen. Een bevestigde taak mag tien minuten lopen; dan stopt de runner de CLI en alles wat die heeft gestart, en eindigt de taak als verlopen. Faalt de CLI, dan eindigt de taak als mislukt, met de reden. Wordt een runner ingetrokken, dan eindigen zijn taken als geannuleerd. Een taak die al klaar, verlopen of geannuleerd is, kan niet meer worden gewijzigd door een late melding van een runner, en de runner stopt zijn CLI wanneer de werkruimte dat zegt.
 
-In één werkruimte kunnen meerdere runners werken. Elke taak gaat naar precies één ervan.
+In één werkruimte kunnen meerdere runners werken. De taken van een lid gaan naar de runners van dat lid, en elke taak naar precies één ervan. Een agentstap die een runner noemt, wacht op die runner.
 
 ## Hoe zie ik of een runner online is? [#is-it-online]
 
-De kaart **Runners** toont per runner de machine, de gevonden CLI's en wanneer hij voor het laatst is gezien, met een van vier statussen: **Online** als hij in de laatste twee minuten is gezien, **Offline** als eerder, **Nooit verbonden** als hij zich nog niet heeft gemeld, en **Ingetrokken**.
+De kaart **Runners** toont per runner de machine, de CLI's die hij kan starten en wanneer hij voor het laatst is gezien, met een van vier statussen: **Online** als hij in de laatste twee minuten is gezien, **Offline** als eerder, **Nooit verbonden** als hij zich nog niet heeft gemeld, en **Ingetrokken**. De kaart werkt zichzelf elke 30 seconden bij.
 
-Wachten er agenttaken en is er al 10 minuten geen runner van de werkruimte gezien, dan krijgt de eigenaar van die taken een melding van het soort **Automatiseringsmeldingen**, hooguit één keer per uur, met een link naar de kaart **Runners**.
+Wachten jouw agenttaken en is er al 10 minuten geen runner van jou gezien die ze kan oppakken, dan krijg je een melding van het soort **Automatiseringsmeldingen**, één keer voor elke keer dat de runner wegviel, met een link naar de kaart **Runners**.
 
 ## Hoe trek ik een runner in? [#how-do-i-revoke-a-runner]
 
-Klik bij de runner op **Intrekken** en bevestig. De runner kan dan geen taken meer ophalen: zijn volgende verzoek wordt geweigerd en het programma stopt. Een taak die hij uitvoert, meldt niets meer terug en eindigt als verlopen. Intrekken kan niet ongedaan worden gemaakt. Wil je de machine opnieuw gebruiken, voeg dan een nieuwe runner toe en start hem met het nieuwe token. Trek een runner meteen in als zijn token uitlekt.
+Klik bij de runner op **Intrekken** en bevestig. De runner kan dan geen taken meer ophalen: zijn volgende verzoek wordt geweigerd en het programma stopt. De taken die hij uitvoert, en de taken die op precies deze runner wachten, eindigen als geannuleerd, en hun sleutels werken meteen niet meer. Intrekken kan niet ongedaan worden gemaakt. Wil je de machine opnieuw gebruiken, voeg dan een nieuwe runner toe en start hem met het nieuwe token. Trek een runner meteen in als zijn token uitlekt. Een runner wordt ook ingetrokken wanneer het lid dat hem heeft toegevoegd de werkruimte verlaat of wordt gedeactiveerd.
 
 ## Voor agents [#for-agents]
 
-Runners praten met de werkruimte via REST met `Authorization: Bearer cmr_...`, het token dat bij het toevoegen van de runner werd getoond. Een runnertoken bereikt alleen deze vier eindpunten, beschreven in de [API-referentie](/docs/openapi):
+Runners praten met de werkruimte via REST met `Authorization: Bearer cmr_...`, het token dat bij het toevoegen van de runner werd getoond. Een runnertoken bereikt alleen deze vijf eindpunten, beschreven in de [API-referentie](/docs/openapi):
 
-- `POST /api/v1/runner/heartbeat` meldt de machine en de gevonden CLI's.
-- `POST /api/v1/runner/jobs/claim` wacht maximaal 25 seconden en antwoordt 200 met een taak en haar MCP-toegang, of 204 als er geen kwam.
-- `POST /api/v1/runner/jobs/{id}/events` voegt transcriptgebeurtenissen toe en antwoordt 409 zodra de taak gesloten is.
-- `POST /api/v1/runner/jobs/{id}/result` meldt `succeeded`, `failed` of `timedOut` met het eindantwoord en, als de CLI ze meldt, tokens en kosten.
+- `POST /api/v1/runner/heartbeat` meldt de machine en de CLI's die de runner kan starten.
+- `POST /api/v1/runner/jobs/claim` wacht maximaal 25 seconden en antwoordt 200 met een taak van het lid van de runner, het pogingnummer en de MCP-toegang, of 204 als er geen kwam.
+- `POST /api/v1/runner/jobs/{id}/start` bevestigt de opgepakte poging, start de taak en antwoordt hoeveel seconden ze mag lopen.
+- `POST /api/v1/runner/jobs/{id}/events` voegt transcriptgebeurtenissen van die poging toe en antwoordt 409 zodra de taak gesloten is.
+- `POST /api/v1/runner/jobs/{id}/result` meldt `succeeded`, `failed` of `timedOut` voor die poging met het eindantwoord en, als de CLI ze meldt, de verbruikte tokens.
 
-Een ingetrokken token en een werkruimte die wordt verwijderd antwoorden 401.
+Een ingetrokken token, een runner waarvan het lid de werkruimte heeft verlaten of is gedeactiveerd, en een werkruimte die wordt verwijderd antwoorden 401.
 
 ## Veelgestelde vragen [#frequently-asked-questions]
 
 <Faq>
 <FaqItem question="Krijgt Customermates mijn login van Claude Code, Codex of Gemini?">
-Nee. De runner start de CLI die je zelf hebt geïnstalleerd en waarin je zelf bent ingelogd, op je machine. De werkruimte stuurt er alleen de prompt en een kortlevende sleutel voor het MCP-adres van je werkruimte naartoe.
+Nee. De runner start de CLI die je zelf hebt geïnstalleerd en waarin je zelf bent ingelogd, op je machine. De werkruimte stuurt er alleen de prompt en een sleutel voor die ene taak op het MCP-adres van je werkruimte naartoe.
 </FaqItem>
 <FaqItem question="Kan iemand buiten mijn team mijn runner iets laten doen?">
-Alleen via een prompt die jij hebt ingesteld. Bevat een prompt tekst van buitenstaanders, zoals een formulierinzending, dan markeert de taak dat en presenteert de runner hem als data, niet als instructie. De sleutel die de CLI krijgt, bereikt alleen deze werkruimte, als het lid dat de taak bezit, en verloopt. Standaard mag Claude Code alleen de tools van je werkruimte gebruiken en draait Codex in een alleen-lezen sandbox: verruim dat alleen op een machine die je vertrouwt.
+Alleen via een prompt die jij hebt ingesteld. Bevat een prompt tekst van buitenstaanders of uit een record, dan markeert de taak dat en presenteert de runner hem als data, niet als instructie. Een model kan zich door zulke tekst toch laten misleiden. Wat het dan zou kunnen doen, is beperkt: de sleutel van de taak handelt als jij, staat hooguit 25 toolaanroepen toe, weigert wat jouw goedkeuring nodig heeft en werkt niet meer zodra de taak eindigt. Standaard mag Claude Code alleen de tools van je werkruimte gebruiken en heeft Codex geen shell: verruim dat alleen op een machine die je vertrouwt.
+</FaqItem>
+<FaqItem question="Kan de runner van een collega mijn taken uitvoeren?">
+Nee. Een runner voert alleen de taken uit van het lid dat hem heeft toegevoegd, dus de machine van een ander lid krijgt nooit een sleutel die als jij handelt. Voeg je eigen runner toe om jouw agentstappen op een runner te laten draaien.
 </FaqItem>
 <FaqItem question="Wat als mijn machine uitstaat?">
-Taken wachten tot 15 minuten in de wachtrij en eindigen dan als verlopen. Na 10 minuten zonder runner krijgt de eigenaar van de wachtende taken een melding.
+Jouw taken wachten tot 15 minuten in de wachtrij en eindigen dan als verlopen. Na 10 minuten zonder een runner van jou krijg je een melding.
 </FaqItem>
 <FaqItem question="Kan ik de runner op een server draaien?">
 Ja. Elke machine met Node 24 of Docker, één ingelogde CLI en een verbinding met het adres van je Customermates werkt, bijvoorbeeld een virtuele machine die altijd aanstaat.
