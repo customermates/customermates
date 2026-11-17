@@ -65,7 +65,7 @@ const {
   getUserRepo,
 } = await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
-const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const DAY_MS = 86_400_000;
@@ -412,6 +412,32 @@ describeDatabase("Free plan pauses", { timeout: 120_000 }, () => {
     expect(await runWithoutTenant(() => getUserRepo().findWorkspacesWithPlanPausesUnscoped(new Date()))).not.toContain(
       w.companyId,
     );
+  });
+
+  it("takes the plan pause off a member whom an admin or an operator sets active by hand", async () => {
+    const w = await workspace();
+    const repo = getUserRepo();
+    await runWithoutTenant(() => getFreePlanPauseService().syncUnscoped(w.companyId, new Date()));
+    await runWithoutTenant(() => repo.claimPauseNoticeUnscoped(w.member.id, new Date()));
+    expect(await runWithoutTenant(() => repo.countPlanPausedMembersUnscoped(w.companyId))).toBe(2);
+
+    await runWithTenant(w.asTenant(w.owner, w.adminRoleId, true), () =>
+      repo.adminUpdateDetailsOrThrow({
+        userId: w.member.id,
+        email: w.member.email,
+        firstName: "Sam",
+        lastName: "Example",
+        status: "active",
+        avatarUrl: null,
+        roleId: w.memberRoleId,
+      }),
+    );
+    await runWithoutTenant(() => repo.setOperatorStatusCompanyWide(w.companyId, w.earliestAdmin.id, "active"));
+
+    const after = new Map((await users(w.companyId)).map((user) => [user.id, user]));
+    for (const id of [w.member.id, w.earliestAdmin.id])
+      expect(after.get(id)).toMatchObject({ status: "active", pausedByPlanAt: null, planPauseNoticeSentAt: null });
+    expect(await runWithoutTenant(() => repo.countPlanPausedMembersUnscoped(w.companyId))).toBe(0);
   });
 
   it("finds a Free workspace whose only excess is active rules, and a paid one whose only pause is a rule", async () => {

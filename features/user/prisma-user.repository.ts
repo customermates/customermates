@@ -47,6 +47,8 @@ import { AUTOMATION_DISABLED_REASON_PLAN_PAUSED } from "@/features/automation-ru
 import { seatChange } from "@/features/billing-usage/billing-usage-changes";
 import { strandsLastPlatformOperator } from "@/features/user/platform-operator-logins";
 
+const NO_PLAN_PAUSE = { pausedByPlanAt: null, planPauseNoticeSentAt: null } as const;
+
 function recordActorSelect(companyId: string) {
   return {
     id: true,
@@ -120,6 +122,7 @@ export class PrismaUserRepo
       data: {
         status,
         ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }),
+        ...(status === Status.active ? NO_PLAN_PAUSE : {}),
       },
     });
     await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, status));
@@ -461,6 +464,7 @@ export class PrismaUserRepo
         status: args.status,
         avatarUrl: args.avatarUrl,
         roleId: args.roleId,
+        ...(args.status === Status.active ? NO_PLAN_PAUSE : {}),
       },
       where: { id: args.userId, companyId },
     });
