@@ -17,6 +17,7 @@ import type { AutomationEffect, AutomationEffectOutcome, AutomationTrigger } fro
 import { DomainEvent } from "@/features/event/domain-events";
 import { localDay, shiftDay } from "./automation-date";
 import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
+import { automationTimeZone } from "./automation-rule.schema";
 import { renderAutomationAgentPrompt, renderAutomationTemplate } from "./automation-template";
 
 type FieldAssignment = z.infer<typeof RecordFieldAssignmentSchema>;
@@ -37,10 +38,6 @@ function recordHref(ref: RecordRef | null): string | null {
   return ref ? `/records/${ref.typeId}/${ref.recordId}` : null;
 }
 
-function triggerTimeZone(trigger: AutomationTrigger): string {
-  return trigger.kind === "dateReached" ? trigger.timezone : "UTC";
-}
-
 function dueAssignment(
   model: RecordModelView,
   typeId: string,
@@ -55,7 +52,7 @@ function dueAssignment(
       value: { kind: "dateTime", value: new Date(context.now.getTime() + due.offsetDays * DAY_MS).toISOString() },
     };
   }
-  const day = shiftDay(localDay(context.now, triggerTimeZone(context.rule.trigger)), due.offsetDays);
+  const day = shiftDay(localDay(context.now, automationTimeZone(context.rule.trigger)), due.offsetDays);
   return { fieldId: due.fieldId, value: { kind: "date", value: day } };
 }
 

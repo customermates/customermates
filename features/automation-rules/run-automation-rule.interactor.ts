@@ -17,7 +17,12 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { evaluateConditions } from "./automation-conditions";
 import { extendAutomationChain } from "./automation-context";
 import { ruleConditionPlan } from "./automation-record-trigger";
-import { AutomationConditionSchema, AutomationEffectSchema, AutomationTriggerSchema } from "./automation-rule.schema";
+import {
+  AutomationConditionSchema,
+  AutomationEffectSchema,
+  AutomationTriggerSchema,
+  automationTimeZone,
+} from "./automation-rule.schema";
 
 export const AUTOMATION_RUN_STALE_MS = 10 * 60 * 1000;
 
@@ -90,7 +95,7 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     if (!definition) return { status: "failed", error: "ruleInvalid" };
     const recordRef: RecordRef | null =
       run.typeId && run.recordId ? { typeId: run.typeId, recordId: run.recordId } : null;
-    const timeZone = definition.trigger.kind === "dateReached" ? definition.trigger.timezone : "UTC";
+    const timeZone = automationTimeZone(definition.trigger);
     if (recordRef) {
       const record = await this.records.read(recordRef);
       if (!record) return { status: "skipped", reason: "recordUnavailable" };

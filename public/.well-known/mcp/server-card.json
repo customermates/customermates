@@ -47516,6 +47516,12 @@
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
                     "description": "Stable id of the list (record type)."
+                  },
+                  "timezone": {
+                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
                   }
                 },
                 "required": [
@@ -47549,6 +47555,12 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
                       "description": "Stable id of the field."
                     }
+                  },
+                  "timezone": {
+                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
                   }
                 },
                 "required": [
@@ -47730,6 +47742,12 @@
                       "kind"
                     ],
                     "additionalProperties": false
+                  },
+                  "timezone": {
+                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
                   }
                 },
                 "required": [
@@ -47813,6 +47831,12 @@
                       "email",
                       "chat"
                     ]
+                  },
+                  "timezone": {
+                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
                   }
                 },
                 "required": [
@@ -47839,6 +47863,12 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "timezone": {
+                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
                   }
                 },
                 "required": [
@@ -47865,6 +47895,12 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "timezone": {
+                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
                   }
                 },
                 "required": [

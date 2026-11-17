@@ -23,6 +23,7 @@ import {
   AutomationConditionSchema,
   AutomationTriggerSchema,
   UpsertAutomationRuleSchema,
+  automationTimeZone,
 } from "../automation-rule.schema";
 import { renderAutomationTemplate } from "../automation-template";
 
@@ -295,6 +296,29 @@ describe("date reached timing", () => {
     expect(AutomationTriggerSchema.safeParse({ ...base, days: -1 }).success).toBe(false);
     const parsed = AutomationTriggerSchema.parse(base);
     expect(parsed).toMatchObject({ atHour: 8, timezone: "UTC" });
+  });
+
+  // Finding 6 of the review of 2026-11-17: only the date trigger knew a time zone, every other rule read
+  // "today" as the UTC day. Each trigger may now name the zone, and one helper answers for all of them.
+  it("lets every trigger name the time zone that today is read in, and falls back to UTC", () => {
+    const triggers = [
+      { kind: "recordCreated", typeId: TYPE },
+      { kind: "recordUpdated", typeId: TYPE },
+      { kind: "fieldChanged", typeId: TYPE, fieldId: FIELD },
+      { kind: "messageReceived" },
+      { kind: "formSubmitted", typeId: TYPE },
+      { kind: "webhookReceived" },
+    ];
+    for (const trigger of triggers) {
+      const plain = AutomationTriggerSchema.parse(trigger);
+      expect(plain).not.toHaveProperty("timezone");
+      expect(automationTimeZone(plain)).toBe("UTC");
+      const zoned = AutomationTriggerSchema.parse({ ...trigger, timezone: "Europe/Berlin" });
+      expect(automationTimeZone(zoned)).toBe("Europe/Berlin");
+      expect(AutomationTriggerSchema.safeParse({ ...trigger, timezone: "Mars/Base" }).success).toBe(false);
+    }
+    const date = { kind: "dateReached", typeId: TYPE, fieldId: FIELD, days: 1, direction: "before" };
+    expect(automationTimeZone(AutomationTriggerSchema.parse({ ...date, timezone: "Asia/Tokyo" }))).toBe("Asia/Tokyo");
   });
 });
 

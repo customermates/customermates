@@ -48,8 +48,12 @@ export const AUTOMATION_NOTIFY_KINDS = NOTIFICATION_KINDS;
 const TypeIdSchema = z.uuid().describe("Stable id of the list (record type).");
 const FieldIdSchema = z.uuid().describe("Stable id of the field.");
 
+const TodayTimeZoneSchema = TimeZoneSchema.optional().describe(
+  "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+);
+
 export const RecordCreatedTriggerSchema = z
-  .object({ kind: z.literal("recordCreated"), typeId: TypeIdSchema })
+  .object({ kind: z.literal("recordCreated"), typeId: TypeIdSchema, timezone: TodayTimeZoneSchema })
   .strict()
   .describe("Fires when a record is created in the list.");
 
@@ -62,6 +66,7 @@ export const RecordUpdatedTriggerSchema = z
       .max(50)
       .default([])
       .describe("Fire only when one of these fields changed. Empty means any field."),
+    timezone: TodayTimeZoneSchema,
   })
   .strict()
   .describe("Fires when a record in the list is updated.");
@@ -72,6 +77,7 @@ export const FieldChangedTriggerSchema = z
     typeId: TypeIdSchema,
     fieldId: FieldIdSchema,
     to: RecordScalarSchema.optional().describe("Fire only when the field changed to exactly this value."),
+    timezone: TodayTimeZoneSchema,
   })
   .strict()
   .describe("Fires when one field of a record changed, optionally to a given value.");
@@ -93,6 +99,7 @@ export const MessageReceivedTriggerSchema = z
   .object({
     kind: z.literal("messageReceived"),
     channel: z.enum(["any", "email", "chat"]).default("any"),
+    timezone: TodayTimeZoneSchema,
   })
   .strict()
   .describe("Fires when a message arrives in a connected account the rule owner can access.");
@@ -102,6 +109,7 @@ export const FormSubmittedTriggerSchema = z
     kind: z.literal("formSubmitted"),
     typeId: TypeIdSchema.optional(),
     sourceId: z.uuid().optional().describe("Restrict the rule to one form."),
+    timezone: TodayTimeZoneSchema,
   })
   .strict()
   .describe("Fires when a public form submission created a record.");
@@ -111,6 +119,7 @@ export const WebhookReceivedTriggerSchema = z
     kind: z.literal("webhookReceived"),
     typeId: TypeIdSchema.optional(),
     sourceId: z.uuid().optional().describe("Restrict the rule to one incoming webhook endpoint."),
+    timezone: TodayTimeZoneSchema,
   })
   .strict()
   .describe("Fires when an incoming webhook created or updated a record.");
@@ -125,6 +134,10 @@ export const AutomationTriggerSchema = z.discriminatedUnion("kind", [
   WebhookReceivedTriggerSchema,
 ]);
 export type AutomationTrigger = z.infer<typeof AutomationTriggerSchema>;
+
+export function automationTimeZone(trigger: Pick<AutomationTrigger, "timezone">): string {
+  return trigger.timezone ?? "UTC";
+}
 
 export const AutomationConditionSchema = z
   .object({

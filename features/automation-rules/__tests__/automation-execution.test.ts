@@ -200,6 +200,35 @@ describe("automation effects", () => {
     ]);
   });
 
+  // Finding 6 of the review of 2026-11-17: at 00:30 in Berlin it is still the day before in UTC, and a
+  // record rule gave the follow-up a due date one day early.
+  it("counts the due date of a record rule from today in the rule's time zone", async () => {
+    const effect = {
+      kind: "createRecord" as const,
+      typeId: TASKS,
+      due: { fieldId: DUE, offsetDays: 0 },
+      fields: [],
+      assignToRuleOwner: false,
+      assignedUserIds: [],
+    };
+    const justAfterMidnightInBerlin = new Date("2026-11-12T23:30:00.000Z");
+    const dueDay = async (trigger: Record<string, unknown>) => {
+      const { records, runner } = ports();
+      await runner.run([effect], { ...context(trigger), now: justAfterMidnightInBerlin });
+      const call = records.mutate.mock.calls[0]?.[0] as { mutation: { fields: unknown[] } };
+      return call.mutation.fields;
+    };
+    expect(await dueDay({ kind: "recordCreated", typeId: TYPE, timezone: "Europe/Berlin" })).toEqual([
+      { fieldId: DUE, value: { kind: "date", value: "2026-11-13" } },
+    ]);
+    expect(await dueDay({ kind: "formSubmitted", typeId: TYPE, timezone: "America/New_York" })).toEqual([
+      { fieldId: DUE, value: { kind: "date", value: "2026-11-12" } },
+    ]);
+    expect(await dueDay({ kind: "recordCreated", typeId: TYPE })).toEqual([
+      { fieldId: DUE, value: { kind: "date", value: "2026-11-12" } },
+    ]);
+  });
+
   it("gives a date and time due field a moment two days from now", async () => {
     const { records, runner } = ports();
     await runner.run(
@@ -480,6 +509,31 @@ describe("running a rule", () => {
     })) as string;
     const { interactor: instance } = interactor();
     await expect(run(instance, runId)).resolves.toEqual({ ok: true, data: { status: "applied" } });
+  });
+
+  it("reads today for a relative-day condition in the rule's time zone", async () => {
+    const overdue = [{ fieldId: DUE, operator: "before", relativeDays: 0 }];
+    const dueYesterdayInBerlin = view({
+      values: new Map<string, CalculatedValue>([
+        [DUE, { state: "value", value: { kind: "date", value: "2026-11-12" } }],
+      ]),
+    });
+    const justAfterMidnightInBerlin = new Date("2026-11-12T23:30:00.000Z");
+    const outcome = async (trigger: Record<string, unknown>) => {
+      const store = new FakeAutomationRuleRepo();
+      const runId = (await seedRun(store, { trigger, conditions: overdue })) as string;
+      const set = ports(dueYesterdayInBerlin);
+      const instance = new RunAutomationRuleInteractor(
+        store,
+        set.runner,
+        set.records as never,
+        () => justAfterMidnightInBerlin,
+      );
+      await run(instance, runId);
+      return store.runs.get(runId)?.status;
+    };
+    expect(await outcome({ kind: "recordCreated", typeId: TYPE, timezone: "Europe/Berlin" })).toBe("applied");
+    expect(await outcome({ kind: "recordCreated", typeId: TYPE })).toBe("skipped");
   });
 
   it("skips when the rule was disabled, the owner changed or the record is gone", async () => {
