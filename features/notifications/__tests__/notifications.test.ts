@@ -51,7 +51,14 @@ const COLLEAGUE = "00000000-0000-4000-8000-000000000012";
 const NOW = new Date("2026-11-12T10:00:00.000Z");
 
 function member(id: string) {
-  return { id, email: `${id}@example.test`, firstName: "Sofia", displayLanguage: Locale.en, workspaceSlug: "ws-1" };
+  return {
+    id,
+    email: `${id}@example.test`,
+    firstName: "Sofia",
+    displayLanguage: Locale.en,
+    workspaceSlug: "ws-1",
+    workspaceName: "Acme",
+  };
 }
 
 function mailer(result = true) {
@@ -180,6 +187,7 @@ describe("notifying members", () => {
       dedupeKey: null,
       readAt: null,
       emailedAt: at,
+      emailedInstantly: true,
       createdAt: at,
     });
     repo.rows.push(
@@ -194,6 +202,66 @@ describe("notifying members", () => {
       emailed: 0,
     });
     expect(mail.sendInstant).toHaveBeenCalledTimes(1);
+  });
+
+  it("counts instant mails that went out, not rows a digest or a pause marked as handled", async () => {
+    const recent = new Date(NOW.getTime() - 10 * 60 * 1000);
+    const handled = (index: number, emailedInstantly: boolean) => ({
+      id: `handled-${emailedInstantly}-${index}`,
+      companyId: COMPANY,
+      userId: ME,
+      kind: base.kind,
+      title: base.title,
+      body: null,
+      href: base.href,
+      sourceRuleId: null,
+      dedupeKey: null,
+      readAt: null,
+      emailedAt: recent,
+      emailedInstantly,
+      createdAt: recent,
+    });
+    repo.rows.push(...Array.from({ length: 40 }, (_, index) => handled(index, false)));
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.pauses.set(ME, new Date(NOW.getTime() + 60 * 1000));
+    const mail = mailer();
+    const paused = new NotificationService(repo, mail, () => NOW, pauses);
+    for (let index = 0; index < 25; index += 1)
+      await paused.notify({ ...base, title: `Held ${index}`, recipients: [ME] });
+    expect(mail.sendInstant).not.toHaveBeenCalled();
+
+    const afterPause = new NotificationService(repo, mail, () => new Date(NOW.getTime() + 2 * 60 * 1000), pauses);
+    await expect(afterPause.notify({ ...base, title: "After the pause", recipients: [ME] })).resolves.toEqual({
+      created: 1,
+      emailed: 1,
+    });
+    expect(repo.rows.filter((row) => row.emailedInstantly).map((row) => row.title)).toEqual(["After the pause"]);
+  });
+
+  it("marks each instant mail as sent before the next recipient is mailed", async () => {
+    const mail = mailer();
+    const markedAtSend: number[] = [];
+    mail.sendInstant.mockImplementation(() => {
+      markedAtSend.push(repo.rows.filter((row) => row.emailedAt !== null).length);
+      return Promise.resolve(true);
+    });
+    const service = new NotificationService(repo, mail, () => NOW);
+
+    await service.notify({ ...base, recipients: [ME, COLLEAGUE] });
+
+    expect(markedAtSend).toEqual([0, 1]);
+  });
+
+  it("keeps mailing the other recipients when marking one mail fails", async () => {
+    const mail = mailer();
+    const service = new NotificationService(repo, mail, () => NOW);
+    repo.markEmailedFailure = new Error("connection lost");
+
+    await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE] })).resolves.toEqual({
+      created: 2,
+      emailed: 2,
+    });
+    expect(mail.sendInstant).toHaveBeenCalledTimes(2);
   });
 
   it("does not spend the cap on mails that fail to send", async () => {
@@ -270,11 +338,40 @@ describe("the inbox", () => {
     expect(result).toMatchObject({ ok: true, data: { unreadCount: 3 } });
     if (!result.ok) return;
     expect(result.data.items.map((item) => item.title)).toEqual(["Note 2", "Note 1"]);
-    expect(result.data.nextBefore).toBe(result.data.items[1]?.createdAt);
+    expect(result.data.nextBefore).toBe(`${result.data.items[1]?.createdAt}_${result.data.items[1]?.id}`);
     const next = await asMe(() => inbox.invoke({ limit: 2, before: result.data.nextBefore } as never));
     if (!next.ok) throw new Error("expected a page");
     expect(next.data.items.map((item) => item.title)).toEqual(["Note 0"]);
     expect(next.data.nextBefore).toBeNull();
+  });
+
+  it("pages through notifications created in the same millisecond without skipping one", async () => {
+    for (const row of repo.rows) row.createdAt = NOW;
+    const inbox = new GetNotificationsInteractor(repo);
+    const seen: string[] = [];
+    let before: string | null | undefined;
+    do {
+      const page = await asMe(() => inbox.invoke({ limit: 1, ...(before ? { before } : {}) } as never));
+      if (!page.ok) throw new Error("expected a page");
+      seen.push(...page.data.items.map((item) => item.id));
+      before = page.data.nextBefore;
+    } while (before);
+
+    expect(seen.sort()).toEqual(
+      repo.rows
+        .filter((row) => row.userId === ME)
+        .map((row) => row.id)
+        .sort(),
+    );
+  });
+
+  it("still reads a plain timestamp as the page boundary", async () => {
+    const inbox = new GetNotificationsInteractor(repo);
+    const page = await asMe(() =>
+      inbox.invoke({ limit: 5, before: new Date(NOW.getTime() + 1500).toISOString() } as never),
+    );
+    if (!page.ok) throw new Error("expected a page");
+    expect(page.data.items.map((item) => item.title)).toEqual(["Note 1", "Note 0"]);
   });
 
   it("marks chosen notifications or all of them as read, only for the caller", async () => {
@@ -330,25 +427,56 @@ describe("the inbox", () => {
     const pause = new SetNotificationPauseInteractor(repo, pauses, () => NOW);
     const read = new GetNotificationPreferencesInteractor(repo, pauses, () => NOW);
 
-    const on = await asMe(() => pause.invoke({ until: "2026-11-19" }));
+    const on = await asMe(() => pause.invoke({ until: "2026-11-19", timeZone: "UTC" }));
     expect(on).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-19" } });
     expect(pauses.pauses.get(ME)).toEqual(new Date("2026-11-19T00:00:00.000Z"));
     expect(await asMe(() => read.invoke())).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-19" } });
 
-    const off = await asMe(() => pause.invoke({ until: null }));
+    const off = await asMe(() => pause.invoke({ until: null, timeZone: "UTC" }));
     expect(off).toMatchObject({ ok: true, data: { pausedUntil: null } });
     expect(pauses.pauses.has(ME)).toBe(false);
   });
 
-  it("refuses a pause that ends today or earlier, more than a year out or on no real day", async () => {
+  it("ends the pause when the chosen day begins where the member is, and reports that day back", async () => {
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.currentUserId = ME;
+    const pause = new SetNotificationPauseInteractor(repo, pauses, () => NOW);
+    const read = new GetNotificationPreferencesInteractor(repo, pauses, () => NOW);
+
+    const newYork = await asMe(() => pause.invoke({ until: "2026-11-16", timeZone: "America/New_York" }));
+    expect(newYork).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-16" } });
+    expect(pauses.pauses.get(ME)).toEqual(new Date("2026-11-16T05:00:00.000Z"));
+
+    const berlin = await asMe(() => pause.invoke({ until: "2026-11-16", timeZone: "Europe/Berlin" }));
+    expect(berlin).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-16" } });
+    expect(pauses.pauses.get(ME)).toEqual(new Date("2026-11-15T23:00:00.000Z"));
+    expect(await asMe(() => read.invoke())).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-16" } });
+  });
+
+  it("accepts tomorrow from a member west of UTC whose evening is already the next UTC day", async () => {
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.currentUserId = ME;
+    const evening = new Date("2026-11-13T02:30:00.000Z");
+    const pause = new SetNotificationPauseInteractor(repo, pauses, () => evening);
+
+    const tomorrow = await asMe(() => pause.invoke({ until: "2026-11-13", timeZone: "America/Los_Angeles" }));
+    expect(tomorrow).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-13" } });
+    expect(pauses.pauses.get(ME)).toEqual(new Date("2026-11-13T08:00:00.000Z"));
+
+    const today = await asMe(() => pause.invoke({ until: "2026-11-12", timeZone: "America/Los_Angeles" }));
+    expect(today.ok).toBe(false);
+  });
+
+  it("refuses a pause that ends today or earlier, more than a year out, on no real day or in no real zone", async () => {
     const pauses = new FakeNotificationPauseRepo();
     pauses.currentUserId = ME;
     const pause = new SetNotificationPauseInteractor(repo, pauses, () => NOW);
 
     for (const until of ["2026-11-12", "2026-11-01", "2027-11-13", "2026-02-30", "nonsense"]) {
-      const result = await asMe(() => pause.invoke({ until }));
+      const result = await asMe(() => pause.invoke({ until, timeZone: "UTC" }));
       expect(result.ok, until).toBe(false);
     }
+    expect((await asMe(() => pause.invoke({ until: "2026-11-19", timeZone: "Mars/Olympus" }))).ok).toBe(false);
     expect(pauses.pauses.has(ME)).toBe(false);
   });
 
@@ -439,6 +567,45 @@ describe("the daily digest", () => {
       createdAt,
     };
   }
+
+  it("sends the digest of a member whose oldest waiting notifications are of a kind they switched off", async () => {
+    const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60 * 1000);
+    repo.rows.push(
+      ...Array.from({ length: 130 }, (_, index) => ({
+        ...unsentRow(ME, minutesAgo(600 - index), index),
+        kind: "ruleAlert" as const,
+      })),
+      { ...unsentRow(ME, minutesAgo(30), 900), title: "Call Sofia" },
+    );
+    repo.preferences.set(ME, new Map([["ruleAlert", "off"]]));
+    const mail = mailer();
+
+    await expect(new SendNotificationDigestInteractor(repo, mail).invoke(NOW)).resolves.toEqual({
+      notificationDigests: 1,
+    });
+
+    expect(mail.sendDigest.mock.calls[0]?.[1].map((item: { title: string }) => item.title)).toEqual(["Call Sofia"]);
+    expect(repo.rows.filter((row) => row.emailedAt !== null).map((row) => row.title)).toEqual(["Call Sofia"]);
+  });
+
+  it("goes on to the next member when marking one digest as sent fails", async () => {
+    repo.rows.push(
+      unsentRow(COLLEAGUE, new Date(NOW.getTime() - 3 * 3600 * 1000), 0),
+      unsentRow(ME, new Date(NOW.getTime() - 2 * 3600 * 1000), 0),
+    );
+    const mail = mailer();
+    mail.sendDigest.mockImplementation((recipient: { id: string }) => {
+      repo.markEmailedFailure = recipient.id === COLLEAGUE ? new Error("connection lost") : null;
+      return Promise.resolve(true);
+    });
+
+    await expect(new SendNotificationDigestInteractor(repo, mail).invoke(NOW)).resolves.toEqual({
+      notificationDigests: 1,
+    });
+
+    expect(mail.sendDigest.mock.calls.map((call) => call[0].id)).toEqual([COLLEAGUE, ME]);
+    expect(repo.rows.find((row) => row.userId === ME)?.emailedAt).toEqual(NOW);
+  });
 
   it("still reaches a member beyond the first page of users who cannot be mailed", async () => {
     const earlier = (minutes: number) => new Date(NOW.getTime() - (90 - minutes) * 60 * 1000);

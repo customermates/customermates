@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -16,7 +18,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 const { prisma } = await import("@/prisma/db");
-const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { createRestRouteWorkspace } = await import("@/tests/helpers/rest-route-workspace");
 const { PrismaNotificationRepo } = await import("../prisma-notification.repository");
 
@@ -39,7 +41,13 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
     const add = (
       userId: string,
       createdAt: Date,
-      extra: { emailedAt?: Date; kind?: "dueToday" | "ruleAlert"; readAt?: Date } = {},
+      extra: {
+        emailedAt?: Date;
+        emailedInstantly?: boolean;
+        id?: string;
+        kind?: "dueToday" | "ruleAlert";
+        readAt?: Date;
+      } = {},
     ) =>
       runWithoutTenant(() =>
         prisma.notification.create({
@@ -59,17 +67,116 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
 
     const first = await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit: 2, after: null }));
     expect(first.users).toEqual([{ companyId: w.companyId, userId: w.member.id }]);
-    expect(first.next).toBe(sameMember.id);
+    expect(first.next).toEqual({ createdAt: sameMember.createdAt, id: sameMember.id });
 
     const second = await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit: 2, after: first.next }));
     expect(second.users).toEqual([{ companyId: w.companyId, userId: w.admin.id }]);
     expect(second.next).toBeNull();
 
-    await runWithoutTenant(() => repo.markEmailedUnscoped([oldest.id, sameMember.id, newest.id], now));
+    await runWithoutTenant(() => repo.markEmailedUnscoped([oldest.id, sameMember.id, newest.id], now, "digest"));
     const afterEmailed = await runWithoutTenant(() =>
       repo.findDigestUsersUnscoped({ since, limit: 2, after: first.next }),
     );
     expect(afterEmailed).toEqual({ users: [], next: null });
+  });
+
+  it("reaches the member behind a page boundary after the boundary row was mailed or deleted", async () => {
+    const { w, add } = await seed();
+    const other = await createRestRouteWorkspace();
+    cleanups.push(other.cleanup);
+    const repo = new PrismaNotificationRepo();
+    const since = minutesAgo(120);
+    const boundary = await add(w.member.id, minutesAgo(50));
+    await add(w.admin.id, minutesAgo(40));
+    await runWithoutTenant(() =>
+      prisma.notification.create({
+        data: {
+          companyId: other.companyId,
+          userId: other.admin.id,
+          kind: "dueToday",
+          title: "Due",
+          createdAt: minutesAgo(30),
+        },
+      }),
+    );
+    const inScope = (page: { users: { companyId: string }[] }) =>
+      page.users.filter((user) => [w.companyId, other.companyId].includes(user.companyId));
+
+    const first = await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit: 1, after: null }));
+    expect(first.next).not.toBeNull();
+    let cursor = first.next;
+    while (cursor && cursor.id !== boundary.id)
+      cursor = (await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit: 1, after: cursor }))).next;
+    expect(cursor).toEqual({ createdAt: boundary.createdAt, id: boundary.id });
+
+    await runWithoutTenant(() => repo.markEmailedUnscoped([boundary.id], now, "digest"));
+    const afterMailed = await runWithoutTenant(() =>
+      repo.findDigestUsersUnscoped({ since, limit: 500, after: cursor }),
+    );
+    expect(inScope(afterMailed)).toEqual([
+      { companyId: w.companyId, userId: w.admin.id },
+      { companyId: other.companyId, userId: other.admin.id },
+    ]);
+
+    await runWithoutTenant(() => prisma.notification.delete({ where: { id: boundary.id } }));
+    const afterDeleted = await runWithoutTenant(() =>
+      repo.findDigestUsersUnscoped({ since, limit: 500, after: cursor }),
+    );
+    expect(inScope(afterDeleted)).toEqual(inScope(afterMailed));
+  });
+
+  it("returns the waiting digest notifications of a member behind more than a hundred of a switched-off kind", async () => {
+    const { w, add } = await seed();
+    const repo = new PrismaNotificationRepo();
+    await runWithoutTenant(() =>
+      prisma.notification.createMany({
+        data: Array.from({ length: 130 }, (_, index) => ({
+          companyId: w.companyId,
+          userId: w.member.id,
+          kind: "ruleAlert" as const,
+          title: `Alert ${index}`,
+          createdAt: minutesAgo(600 - index),
+        })),
+      }),
+    );
+    const due = await add(w.member.id, minutesAgo(30));
+    const held = await add(w.member.id, minutesAgo(5), { kind: "ruleAlert" });
+    const selection = { since: minutesAgo(48 * 60), instantBefore: minutesAgo(15) };
+
+    const switchedOff = await runWithoutTenant(() =>
+      repo.findUnemailedUnscoped(w.companyId, w.member.id, {
+        ...selection,
+        digestKinds: ["dueToday"],
+        instantKinds: [],
+      }),
+    );
+    expect(switchedOff.map((row) => row.id)).toEqual([due.id]);
+
+    const instant = await runWithoutTenant(() =>
+      repo.findUnemailedUnscoped(w.companyId, w.member.id, {
+        ...selection,
+        digestKinds: ["dueToday"],
+        instantKinds: ["ruleAlert"],
+      }),
+    );
+    expect(instant).toHaveLength(100);
+    expect(instant.map((row) => row.id)).not.toContain(held.id);
+  });
+
+  it("pages the inbox by time and id so rows of one millisecond are neither skipped nor repeated", async () => {
+    const { w, add } = await seed();
+    const at = minutesAgo(10);
+    const ids = [randomUUID(), randomUUID(), randomUUID()].sort();
+    for (const id of ids) await add(w.member.id, at, { id });
+    const older = await add(w.member.id, minutesAgo(20));
+    const repo = new PrismaNotificationRepo();
+    const page = (before: { createdAt: Date; id: string | null } | null) =>
+      runWithTenant(w.member, () => repo.findInbox({ limit: 2, unreadOnly: false, before }));
+
+    const first = await page(null);
+    expect(first.map((row) => row.id)).toEqual(ids.slice(0, 2));
+    const second = await page({ createdAt: at, id: first[1].id });
+    expect(second.map((row) => row.id)).toEqual([ids[2], older.id]);
   });
 
   it("leaves out read and already mailed notifications and those older than the window", async () => {
@@ -80,30 +187,33 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
     const repo = new PrismaNotificationRepo();
 
     const page = await runWithoutTenant(() =>
-      repo.findDigestUsersUnscoped({ since: minutesAgo(120), limit: 10, after: null }),
+      repo.findDigestUsersUnscoped({ since: minutesAgo(120), limit: 500, after: null }),
     );
 
-    expect(page.users).toEqual([]);
+    expect(page.users.filter((user) => user.companyId === w.companyId)).toEqual([]);
   });
 
-  it("counts the mails of the last hour per member and kind", async () => {
+  it("counts the instant mails of the last hour per member, not rows a digest or a pause marked", async () => {
     const { w, add } = await seed();
-    await add(w.admin.id, minutesAgo(90), { emailedAt: minutesAgo(30), kind: "ruleAlert" });
-    await add(w.admin.id, minutesAgo(90), { emailedAt: minutesAgo(20), kind: "ruleAlert" });
-    await add(w.admin.id, minutesAgo(90), { emailedAt: minutesAgo(10), kind: "dueToday" });
-    await add(w.admin.id, minutesAgo(200), { emailedAt: minutesAgo(90), kind: "ruleAlert" });
-    await add(w.member.id, minutesAgo(90), { emailedAt: minutesAgo(5), kind: "ruleAlert" });
-    await add(w.admin.id, minutesAgo(5));
+    const instant = { emailedInstantly: true, kind: "ruleAlert" as const };
+    await add(w.admin.id, minutesAgo(90), { ...instant, emailedAt: minutesAgo(30) });
+    await add(w.admin.id, minutesAgo(90), { ...instant, emailedAt: minutesAgo(20), kind: "dueToday" });
+    await add(w.admin.id, minutesAgo(90), { emailedAt: minutesAgo(10), kind: "ruleAlert" });
+    await add(w.admin.id, minutesAgo(200), { ...instant, emailedAt: minutesAgo(90) });
+    await add(w.member.id, minutesAgo(90), { ...instant, emailedAt: minutesAgo(5) });
+    const pending = await add(w.admin.id, minutesAgo(5));
     const repo = new PrismaNotificationRepo();
+    const count = () =>
+      runWithoutTenant(() => repo.countInstantEmailsSinceUnscoped(w.companyId, [w.admin.id], minutesAgo(60)));
 
-    const counts = await runWithoutTenant(() =>
-      repo.countEmailedSinceUnscoped(w.companyId, [w.admin.id], minutesAgo(60)),
+    expect(await count()).toEqual([{ userId: w.admin.id, count: 2 }]);
+
+    await runWithoutTenant(() => repo.markEmailedUnscoped([pending.id], now, "digest"));
+    expect(await count()).toEqual([{ userId: w.admin.id, count: 2 }]);
+    await runWithoutTenant(() => repo.markEmailedUnscoped([pending.id], now, "instant"));
+    expect(await count()).toEqual([{ userId: w.admin.id, count: 3 }]);
+    expect(await runWithoutTenant(() => repo.countInstantEmailsSinceUnscoped(w.companyId, [], minutesAgo(60)))).toEqual(
+      [],
     );
-
-    expect(counts.sort((left, right) => left.kind.localeCompare(right.kind))).toEqual([
-      { userId: w.admin.id, kind: "dueToday", count: 1 },
-      { userId: w.admin.id, kind: "ruleAlert", count: 2 },
-    ]);
-    expect(await runWithoutTenant(() => repo.countEmailedSinceUnscoped(w.companyId, [], minutesAgo(60)))).toEqual([]);
   });
 });

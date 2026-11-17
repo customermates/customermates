@@ -2274,26 +2274,30 @@ enum NotificationEmailMode {
 }
 
 model Notification {
-  id           String           @id @default(uuid())
-  companyId    String
-  userId       String
-  kind         NotificationKind
-  title        String
-  body         String?
-  href         String?
-  sourceRuleId String?
-  dedupeKey    String?
-  readAt       DateTime?
-  emailedAt    DateTime?
-  createdAt    DateTime         @default(now())
-  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String           @id @default(uuid())
+  companyId        String
+  userId           String
+  kind             NotificationKind
+  title            String
+  body             String?
+  href             String?
+  sourceRuleId     String?
+  dedupeKey        String?
+  readAt           DateTime?
+  /// Set when the row needs no further email: mailed, or created while the kind was off or the member paused.
+  emailedAt        DateTime?
+  /// True only when an instant email for this row was accepted; the hourly instant cap counts these.
+  emailedInstantly Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  company          Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([companyId, userId, dedupeKey])
   @@index([companyId, userId, readAt, createdAt])
   @@index([companyId, userId, createdAt])
   @@index([emailedAt, createdAt])
 }
+  @@index([userId])
 
 model NotificationPreference {
   companyId String
@@ -2305,7 +2309,7 @@ model NotificationPreference {
   user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([companyId, userId, kind])
-  @@index([companyId, userId])
+  @@index([userId])
 }
 
 model NotificationPause {
@@ -2320,6 +2324,7 @@ model NotificationPause {
 }
 
 enum WikiPageProposalAction {
+  @@index([userId])
   create
   update
   delete

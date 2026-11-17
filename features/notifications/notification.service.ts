@@ -4,7 +4,7 @@ import type { NotificationEmailMode, NotificationKind } from "@/generated/prisma
 import type { NotificationMailer } from "./notification-mailer";
 import type { NotificationPauseRepo } from "./notification-pause.repo";
 import type {
-  EmailedCount,
+  InstantEmailCount,
   NotificationInsert,
   NotificationRecipient,
   NotificationRepo,
@@ -36,11 +36,9 @@ export function effectiveEmailMode(
   return preferences?.get(kind) ?? DEFAULT_EMAIL_MODES[kind] ?? "off";
 }
 
-function instantAllowance(userId: string, preferences: Preferences, emailedLastHour: EmailedCount[]): number {
-  const emailed = emailedLastHour
-    .filter((entry) => entry.userId === userId && effectiveEmailMode(preferences.get(userId), entry.kind) === "instant")
-    .reduce((sum, entry) => sum + entry.count, 0);
-  return Math.max(0, NOTIFICATION_INSTANT_EMAILS_PER_HOUR - emailed);
+function instantAllowance(userId: string, sentLastHour: InstantEmailCount[]): number {
+  const sent = sentLastHour.find((entry) => entry.userId === userId)?.count ?? 0;
+  return Math.max(0, NOTIFICATION_INSTANT_EMAILS_PER_HOUR - sent);
 }
 
 export class NotificationService {
@@ -73,7 +71,7 @@ export class NotificationService {
     }));
     const storedIds = new Set(await this.repo.insertManyUnscoped(rows));
     const created = rows.filter((row) => storedIds.has(row.id));
-    const emailed = await this.emailInstant(data.companyId, created, recipients, preferences, modeOf, now);
+    const emailed = await this.emailInstant(data.companyId, created, recipients, modeOf, now);
     return { created: created.length, emailed };
   }
 
@@ -87,7 +85,6 @@ export class NotificationService {
     companyId: string,
     created: NotificationInsert[],
     recipients: NotificationRecipient[],
-    preferences: Preferences,
     modeOf: ModeOf,
     now: Date,
   ): Promise<number> {
@@ -103,15 +100,13 @@ export class NotificationService {
       ).map((item) => [item.id, item]),
     );
     const userIds = [...new Set(instant.map((row) => row.userId))];
-    const emailedLastHour = await this.repo.countEmailedSinceUnscoped(
+    const sentLastHour = await this.repo.countInstantEmailsSinceUnscoped(
       companyId,
       userIds,
       new Date(now.getTime() - HOUR_MS),
     );
-    const allowance = new Map(
-      userIds.map((userId) => [userId, instantAllowance(userId, preferences, emailedLastHour)]),
-    );
-    const sent: string[] = [];
+    const allowance = new Map(userIds.map((userId) => [userId, instantAllowance(userId, sentLastHour)]));
+    let sent = 0;
     for (const row of instant) {
       const recipient = byUser.get(row.userId);
       const notification: PendingEmailNotification | undefined = pending.get(row.id);
@@ -119,15 +114,14 @@ export class NotificationService {
       const remaining = allowance.get(row.userId) ?? 0;
       if (remaining <= 0) continue;
       try {
-        if (await this.mailer.sendInstant(recipient, notification)) {
-          sent.push(row.id);
-          allowance.set(row.userId, remaining - 1);
-        }
+        if (!(await this.mailer.sendInstant(recipient, notification))) continue;
+        sent += 1;
+        allowance.set(row.userId, remaining - 1);
+        await this.repo.markEmailedUnscoped([row.id], now, "instant");
       } catch (error) {
         ErrorReporter.captureException(error, { tags: { kind: "notification-email" } });
       }
     }
-    await this.repo.markEmailedUnscoped(sent, now);
-    return sent.length;
+    return sent;
   }
 }

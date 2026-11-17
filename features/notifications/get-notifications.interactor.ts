@@ -1,5 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { NotificationRepo } from "./notification.repo";
+import type { InboxCursor, NotificationRepo } from "./notification.repo";
 import type { GetNotificationsData, NotificationInbox } from "./notification.schema";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -9,6 +9,21 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 import { GetNotificationsSchema, NotificationInboxSchema } from "./notification.schema";
+
+const CURSOR_SEPARATOR = "_";
+const CURSOR_ID = /^[0-9a-f-]{36}$/u;
+
+export function formatInboxCursor(row: { createdAt: Date; id: string }): string {
+  return `${row.createdAt.toISOString()}${CURSOR_SEPARATOR}${row.id}`;
+}
+
+export function parseInboxCursor(value: string | undefined): InboxCursor | null {
+  if (!value) return null;
+  const [stamp, id] = value.split(CURSOR_SEPARATOR);
+  const createdAt = new Date(stamp);
+  if (Number.isNaN(createdAt.getTime())) return null;
+  return { createdAt, id: id !== undefined && CURSOR_ID.test(id) ? id : null };
+}
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -20,13 +35,13 @@ export class GetNotificationsInteractor extends AuthenticatedInteractor<GetNotif
   @Validate(GetNotificationsSchema)
   @ValidateOutput(NotificationInboxSchema)
   async invoke(data: GetNotificationsData): Validated<NotificationInbox> {
-    const before = data.before ? new Date(data.before) : null;
     const page = await this.repo.findInbox({
       limit: data.limit + 1,
       unreadOnly: data.unreadOnly,
-      before: before && !Number.isNaN(before.getTime()) ? before : null,
+      before: parseInboxCursor(data.before),
     });
     const items = page.slice(0, data.limit);
+    const last = items.at(-1);
     const unreadCount = await this.repo.countUnread();
     return {
       ok: true as const,
@@ -41,7 +56,7 @@ export class GetNotificationsInteractor extends AuthenticatedInteractor<GetNotif
           createdAt: item.createdAt.toISOString(),
         })),
         unreadCount,
-        nextBefore: page.length > data.limit ? (items.at(-1)?.createdAt.toISOString() ?? null) : null,
+        nextBefore: page.length > data.limit && last ? formatInboxCursor(last) : null,
       },
     };
   }

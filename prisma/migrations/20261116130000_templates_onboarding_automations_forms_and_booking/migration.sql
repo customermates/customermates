@@ -76,6 +76,7 @@ CREATE TABLE "Notification" (
     "dedupeKey" TEXT,
     "readAt" TIMESTAMP(3),
     "emailedAt" TIMESTAMP(3),
+    "emailedInstantly" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
@@ -279,7 +280,10 @@ CREATE INDEX "Notification_companyId_userId_createdAt_idx" ON "Notification"("co
 CREATE INDEX "Notification_emailedAt_createdAt_idx" ON "Notification"("emailedAt", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "NotificationPreference_companyId_userId_idx" ON "NotificationPreference"("companyId", "userId");
+CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
+
+-- CreateIndex
+CREATE INDEX "NotificationPreference_userId_idx" ON "NotificationPreference"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "CalendarEvent_companyId_id_key" ON "CalendarEvent"("companyId", "id");
@@ -553,6 +557,9 @@ CREATE TABLE "NotificationPause" (
 );
 
 -- AddForeignKey
+-- CreateIndex
+CREATE INDEX "NotificationPause_userId_idx" ON "NotificationPause"("userId");
+
 ALTER TABLE "NotificationPause" ADD CONSTRAINT "NotificationPause_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey

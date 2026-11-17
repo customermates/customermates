@@ -1,7 +1,11 @@
 import type { NotificationEmailMode, NotificationKind, Prisma } from "@/generated/prisma";
 import type {
+  DigestSelection,
   DigestUserPage,
-  EmailedCount,
+  EmailDelivery,
+  InboxCursor,
+  InstantEmailCount,
+  NotificationCursor,
   NotificationInsert,
   NotificationPreferenceRow,
   NotificationRecipient,
@@ -13,6 +17,8 @@ import type {
 import { Status } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+
+import { NOTIFICATION_DIGEST_LIMIT } from "./notification.schema";
 
 const NOTIFICATION_SELECT = {
   id: true,
@@ -31,12 +37,18 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
     return { companyId: this.companyId, userId: this.userId };
   }
 
-  findInbox(args: { limit: number; unreadOnly: boolean; before: Date | null }): Promise<StoredNotification[]> {
+  findInbox(args: { limit: number; unreadOnly: boolean; before: InboxCursor | null }): Promise<StoredNotification[]> {
+    const { before } = args;
+    const olderThan: Prisma.NotificationWhereInput = before
+      ? before.id === null
+        ? { createdAt: { lt: before.createdAt } }
+        : { OR: [{ createdAt: { lt: before.createdAt } }, { createdAt: before.createdAt, id: { gt: before.id } }] }
+      : {};
     return this.prisma.notification.findMany({
       where: {
         ...this.ownedWhere(),
         ...(args.unreadOnly ? { readAt: null } : {}),
-        ...(args.before ? { createdAt: { lt: args.before } } : {}),
+        ...olderThan,
       },
       select: NOTIFICATION_SELECT,
       orderBy: [{ createdAt: "desc" }, { id: "asc" }],
@@ -168,45 +180,78 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
-  async markEmailedUnscoped(ids: string[], now: Date): Promise<void> {
+  async markEmailedUnscoped(ids: string[], now: Date, delivery: EmailDelivery): Promise<void> {
     if (ids.length === 0) return;
-    await this.prisma.notification.updateMany({ where: { id: { in: ids } }, data: { emailedAt: now } });
+    await this.prisma.notification.updateMany({
+      where: { id: { in: ids } },
+      data: { emailedAt: now, emailedInstantly: delivery === "instant" },
+    });
   }
 
   @BypassTenantGuard
-  async countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date): Promise<EmailedCount[]> {
+  async countInstantEmailsSinceUnscoped(
+    companyId: string,
+    userIds: string[],
+    since: Date,
+  ): Promise<InstantEmailCount[]> {
     if (userIds.length === 0) return [];
     const groups = await this.prisma.notification.groupBy({
-      by: ["userId", "kind"],
-      where: { companyId, userId: { in: userIds }, emailedAt: { gte: since } },
+      by: ["userId"],
+      where: { companyId, userId: { in: userIds }, emailedInstantly: true, emailedAt: { gte: since } },
       _count: { _all: true },
     });
-    return groups.map((group) => ({ userId: group.userId, kind: group.kind, count: group._count._all }));
+    return groups.map((group) => ({ userId: group.userId, count: group._count._all }));
   }
 
   @BypassTenantGuard
-  async findDigestUsersUnscoped(args: { since: Date; limit: number; after: string | null }): Promise<DigestUserPage> {
+  async findDigestUsersUnscoped(args: {
+    since: Date;
+    limit: number;
+    after: NotificationCursor | null;
+  }): Promise<DigestUserPage> {
+    const { after } = args;
     const rows = await this.prisma.notification.findMany({
-      where: { emailedAt: null, readAt: null, createdAt: { gte: args.since } },
-      select: { id: true, companyId: true, userId: true },
+      where: {
+        emailedAt: null,
+        readAt: null,
+        createdAt: { gte: args.since },
+        ...(after
+          ? { OR: [{ createdAt: { gt: after.createdAt } }, { createdAt: after.createdAt, id: { gt: after.id } }] }
+          : {}),
+      },
+      select: { id: true, companyId: true, userId: true, createdAt: true },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: args.limit,
-      ...(args.after ? { cursor: { id: args.after }, skip: 1 } : {}),
     });
     const users = new Map(rows.map((row) => [`${row.companyId}:${row.userId}`, row]));
     return {
       users: [...users.values()].map(({ companyId, userId }) => ({ companyId, userId })),
-      next: rows.length === args.limit ? (rows[rows.length - 1]?.id ?? null) : null,
+      next: rows.length === args.limit && last ? { createdAt: last.createdAt, id: last.id } : null,
     };
+    const last = rows.at(-1);
   }
 
   @BypassTenantGuard
-  async findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]> {
+  async findUnemailedUnscoped(
+    companyId: string,
+    userId: string,
+    selection: DigestSelection,
+  ): Promise<PendingEmailNotification[]> {
     const rows = await this.prisma.notification.findMany({
-      where: { companyId, userId, emailedAt: null, readAt: null, createdAt: { gte: since } },
+      where: {
+        companyId,
+        userId,
+        emailedAt: null,
+        readAt: null,
+        createdAt: { gte: selection.since },
+        OR: [
+          { kind: { in: selection.digestKinds } },
+          { kind: { in: selection.instantKinds }, createdAt: { lte: selection.instantBefore } },
+        ],
+      },
       select: PENDING_SELECT,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      take: 100,
+      take: NOTIFICATION_DIGEST_LIMIT,
     });
     return this.withRuleNames(companyId, rows);
   }

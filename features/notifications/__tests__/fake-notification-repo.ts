@@ -1,7 +1,11 @@
 import type { NotificationEmailMode, NotificationKind } from "@/generated/prisma";
 import type {
+  DigestSelection,
   DigestUserPage,
-  EmailedCount,
+  EmailDelivery,
+  InboxCursor,
+  InstantEmailCount,
+  NotificationCursor,
   NotificationInsert,
   NotificationPreferenceRow,
   NotificationRecipient,
@@ -9,8 +13,18 @@ import type {
 } from "../notification.repo";
 
 import { NotificationRepo } from "../notification.repo";
+import { NOTIFICATION_DIGEST_LIMIT } from "../notification.schema";
 
-type Row = NotificationInsert & { readAt: Date | null; emailedAt: Date | null; createdAt: Date };
+type Row = NotificationInsert & {
+  readAt: Date | null;
+  emailedAt: Date | null;
+  emailedInstantly?: boolean;
+  createdAt: Date;
+};
+
+function oldestFirst(left: Row, right: Row): number {
+  return left.createdAt.getTime() - right.createdAt.getTime() || (left.id < right.id ? -1 : 1);
+}
 
 export class FakeNotificationRepo extends NotificationRepo {
   rows: Row[] = [];
@@ -26,11 +40,16 @@ export class FakeNotificationRepo extends NotificationRepo {
     return this.rows.filter((row) => row.companyId === this.currentCompanyId && row.userId === this.currentUserId);
   }
 
-  findInbox(args: { limit: number; unreadOnly: boolean; before: Date | null }) {
+  findInbox(args: { limit: number; unreadOnly: boolean; before: InboxCursor | null }) {
+    const { before } = args;
+    const older = (row: Row) =>
+      !before ||
+      row.createdAt < before.createdAt ||
+      (before.id !== null && row.createdAt.getTime() === before.createdAt.getTime() && row.id > before.id);
     return Promise.resolve(
       this.visible()
-        .filter((row) => (!args.unreadOnly || !row.readAt) && (!args.before || row.createdAt < args.before))
-        .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+        .filter((row) => (!args.unreadOnly || !row.readAt) && older(row))
+        .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime() || (left.id < right.id ? -1 : 1))
         .slice(0, args.limit),
     );
   }
@@ -105,37 +124,64 @@ export class FakeNotificationRepo extends NotificationRepo {
     );
   }
 
-  markEmailedUnscoped(ids: string[], now: Date) {
-    for (const row of this.rows) if (ids.includes(row.id)) row.emailedAt = now;
+  markEmailedFailure: Error | null = null;
+
+  markEmailedUnscoped(ids: string[], now: Date, delivery: EmailDelivery) {
+    if (this.markEmailedFailure) return Promise.reject(this.markEmailedFailure);
+    for (const row of this.rows) {
+      if (!ids.includes(row.id)) continue;
+      row.emailedAt = now;
+      row.emailedInstantly = delivery === "instant";
+    }
     return Promise.resolve();
   }
 
-  countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date) {
-    const counts = new Map<string, EmailedCount>();
+  countInstantEmailsSinceUnscoped(companyId: string, userIds: string[], since: Date) {
+    const counts = new Map<string, InstantEmailCount>();
     for (const row of this.rows) {
-      if (row.companyId !== companyId || !userIds.includes(row.userId) || !row.emailedAt || row.emailedAt < since)
-        continue;
-      const key = `${row.userId}:${row.kind}`;
-      const entry = counts.get(key) ?? { userId: row.userId, kind: row.kind, count: 0 };
-      counts.set(key, { ...entry, count: entry.count + 1 });
+      const counted =
+        row.companyId === companyId &&
+        userIds.includes(row.userId) &&
+        row.emailedInstantly === true &&
+        row.emailedAt !== null &&
+        row.emailedAt >= since;
+      if (!counted) continue;
+      const entry = counts.get(row.userId) ?? { userId: row.userId, count: 0 };
+      counts.set(row.userId, { ...entry, count: entry.count + 1 });
     }
     return Promise.resolve([...counts.values()]);
   }
 
-  findDigestUsersUnscoped(args: { since: Date; limit: number; after: string | null }): Promise<DigestUserPage> {
-    const candidates = this.rows
-      .filter((row) => !row.emailedAt && !row.readAt && row.createdAt >= args.since)
-      .sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime() || (left.id < right.id ? -1 : 1));
-    const start = args.after ? candidates.findIndex((row) => row.id === args.after) + 1 : 0;
-    const page = candidates.slice(start, start + args.limit);
+  findDigestUsersUnscoped(args: {
+    since: Date;
+    limit: number;
+    after: NotificationCursor | null;
+  }): Promise<DigestUserPage> {
+    const { after } = args;
+    const beyond = (row: Row) =>
+      !after ||
+      row.createdAt > after.createdAt ||
+      (row.createdAt.getTime() === after.createdAt.getTime() && row.id > after.id);
+    const page = this.rows
+      .filter((row) => !row.emailedAt && !row.readAt && row.createdAt >= args.since && beyond(row))
+      .sort(oldestFirst)
+      .slice(0, args.limit);
     const users = new Map(page.map((row) => [`${row.companyId}:${row.userId}`, row]));
+    const last = page.at(-1);
     return Promise.resolve({
       users: [...users.values()].map(({ companyId, userId }) => ({ companyId, userId })),
-      next: page.length === args.limit ? (page[page.length - 1]?.id ?? null) : null,
+      next: page.length === args.limit && last ? { createdAt: last.createdAt, id: last.id } : null,
     });
   }
 
-  findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]> {
+  findUnemailedUnscoped(
+    companyId: string,
+    userId: string,
+    selection: DigestSelection,
+  ): Promise<PendingEmailNotification[]> {
+    const due = (row: Row) =>
+      selection.digestKinds.includes(row.kind) ||
+      (selection.instantKinds.includes(row.kind) && row.createdAt <= selection.instantBefore);
     return Promise.resolve(
       this.rows
         .filter(
@@ -144,8 +190,11 @@ export class FakeNotificationRepo extends NotificationRepo {
             row.userId === userId &&
             !row.emailedAt &&
             !row.readAt &&
-            row.createdAt >= since,
+            row.createdAt >= selection.since &&
+            due(row),
         )
+        .sort(oldestFirst)
+        .slice(0, NOTIFICATION_DIGEST_LIMIT)
         .map((row) => this.pending(row)),
     );
   }

@@ -130,11 +130,16 @@ describeDatabase("the notification email footer data", { timeout: 60_000 }, () =
       }),
     );
     const repo = new PrismaNotificationRepo();
-    const since = new Date(Date.now() - 60 * 60 * 1000);
+    const selection = {
+      since: new Date(Date.now() - 60 * 60 * 1000),
+      digestKinds: ["ruleAlert" as const],
+      instantKinds: [],
+      instantBefore: new Date(),
+    };
 
-    const before = await runWithoutTenant(() => repo.findUnemailedUnscoped(w.companyId, w.member.id, since));
+    const before = await runWithoutTenant(() => repo.findUnemailedUnscoped(w.companyId, w.member.id, selection));
     await runWithoutTenant(() => prisma.automationRule.delete({ where: { id: rule.id } }));
-    const after = await runWithoutTenant(() => repo.findUnemailedUnscoped(w.companyId, w.member.id, since));
+    const after = await runWithoutTenant(() => repo.findUnemailedUnscoped(w.companyId, w.member.id, selection));
 
     expect(before.find((item) => item.id === alert.id)?.sourceRuleName).toBe("Stale deals");
     expect(after.find((item) => item.id === alert.id)?.sourceRuleName).toBeNull();

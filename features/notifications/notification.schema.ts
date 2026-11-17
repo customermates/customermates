@@ -33,6 +33,9 @@ export const NOTIFICATION_DIGEST_WINDOW_HOURS = 24;
 export const NOTIFICATION_INSTANT_EMAILS_PER_HOUR = 20;
 export const NOTIFICATION_INSTANT_FALLBACK_MINUTES = 15;
 
+export const NOTIFICATION_DIGEST_LIMIT = 100;
+export const NOTIFICATION_DIGEST_ITEM_LIMIT = 20;
+export const NOTIFICATIONS_PATH = "/notifications";
 export const NotifyMembersSchema = z
   .object({
     companyId: z.uuid(),

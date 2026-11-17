@@ -1,12 +1,17 @@
 import type { NotificationMailer } from "./notification-mailer";
 import type { NotificationPauseRepo } from "./notification-pause.repo";
-import type { NotificationRepo } from "./notification.repo";
+import type { NotificationEmailMode } from "@/generated/prisma";
+import type { NotificationCursor, NotificationRepo } from "./notification.repo";
 
 import * as ErrorReporter from "@/core/observability/server";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 import { isNotificationPaused } from "./notification-pause";
-import { NOTIFICATION_DIGEST_WINDOW_HOURS, NOTIFICATION_INSTANT_FALLBACK_MINUTES } from "./notification.schema";
+import {
+  NOTIFICATION_DIGEST_WINDOW_HOURS,
+  NOTIFICATION_INSTANT_FALLBACK_MINUTES,
+  NOTIFICATION_KINDS,
+} from "./notification.schema";
 import { effectiveEmailMode } from "./notification.service";
 
 const DIGEST_PAGE_SIZE = 500;
@@ -31,7 +36,7 @@ export class SendNotificationDigestInteractor {
     const instantFallbackBefore = new Date(now.getTime() - NOTIFICATION_INSTANT_FALLBACK_MINUTES * MINUTE_MS);
     const handled = new Set<string>();
     let digests = 0;
-    let after: string | null = null;
+    let after: NotificationCursor | null = null;
     do {
       const page = await this.repo.findDigestUsersUnscoped({ since, limit: DIGEST_PAGE_SIZE, after });
       for (const user of page.users) {
@@ -53,21 +58,26 @@ export class SendNotificationDigestInteractor {
     if (this.pauses && isNotificationPaused((await this.pauses.findUnscoped(companyId, [userId])).get(userId), now))
       return false;
     const preferences = (await this.repo.findPreferencesUnscoped(companyId, [userId])).get(userId);
-    const pending = (await this.repo.findUnemailedUnscoped(companyId, userId, since)).filter((item) => {
-      const mode = effectiveEmailMode(preferences, item.kind);
-      return mode === "digest" || (mode === "instant" && item.createdAt <= instantFallbackBefore);
+    const kindsIn = (mode: NotificationEmailMode) =>
+      NOTIFICATION_KINDS.filter((kind) => effectiveEmailMode(preferences, kind) === mode);
+    const pending = await this.repo.findUnemailedUnscoped(companyId, userId, {
+      since,
+      digestKinds: kindsIn("digest"),
+      instantKinds: kindsIn("instant"),
+      instantBefore: instantFallbackBefore,
     });
     if (pending.length === 0) return false;
     try {
       if (!(await this.mailer.sendDigest(recipient, pending))) return false;
+      await this.repo.markEmailedUnscoped(
+        pending.map((item) => item.id),
+        now,
+        "digest",
+      );
     } catch (error) {
       ErrorReporter.captureException(error, { tags: { kind: "notification-digest" } });
       return false;
     }
-    await this.repo.markEmailedUnscoped(
-      pending.map((item) => item.id),
-      now,
-    );
     return true;
   }
 }
