@@ -9,6 +9,9 @@ const harness = vi.hoisted(() => ({
   wide: true,
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
+  toastProblem: vi.fn(),
+  guard: { register: vi.fn(), unregister: vi.fn() },
+  footerDirty: false as boolean,
 }));
 
 const translate = vi.hoisted(
@@ -16,8 +19,14 @@ const translate = vi.hoisted(
 );
 
 vi.mock("next-intl", () => ({ useTranslations: () => translate }));
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({ formatDescriptiveLongDate: (date: Date) => date.toISOString().slice(0, 10) }),
+}));
 vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => harness.wide }));
-vi.mock("sonner", () => ({ toast: { success: harness.toastSuccess } }));
+vi.mock("sonner", () => ({ toast: { success: harness.toastSuccess, error: harness.toastProblem } }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ navigationGuard: harness.guard }),
+}));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: harness.toastError }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => void action(),
@@ -41,12 +50,14 @@ vi.mock("@/components/forms/form-footer-actions", () => ({
     creating: boolean;
     saving: boolean;
     onSave: () => void;
-  }) =>
-    createElement("button", {
+  }) => {
+    harness.footerDirty = dirty;
+    return createElement("button", {
       id: "footer-save",
       disabled: (!creating && !dirty) || saving,
       onClick: () => onSave(),
-    }),
+    });
+  },
 }));
 
 import { PublicFormTab } from "../public-form-tab";
@@ -255,6 +266,119 @@ describe("PublicFormTab save and the enabled switch", () => {
     act(() => moveUp[1].click());
 
     expect(questionsInPreview()).toEqual(["Name", "Note"]);
+  });
+});
+
+describe("PublicFormTab unsaved edits", () => {
+  it("counts an edited draft as unsaved even while it cannot be saved, so closing asks first", async () => {
+    const { store } = await renderTab();
+    expect(harness.footerDirty).toBe(false);
+
+    type("#public-form-title-input", "");
+
+    expect(store.config).toBeNull();
+    expect(harness.footerDirty).toBe(true);
+  });
+
+  it("says what is missing when Save is pressed on a draft that cannot be saved", async () => {
+    const { actions } = await renderTab(build(editor()));
+    type("#public-form-title-input", "");
+
+    await act(async () => {
+      field<HTMLButtonElement>("#footer-save").click();
+      for (let turn = 0; turn < 4; turn += 1) await Promise.resolve();
+    });
+
+    expect(actions.save).not.toHaveBeenCalled();
+    expect(harness.toastProblem).toHaveBeenCalledExactlyOnceWith("PublicForm.builder.incomplete");
+  });
+
+  it("registers with the navigation guard while it is open, so the automation links ask before leaving", async () => {
+    const { store } = await renderTab();
+    expect(harness.guard.register).toHaveBeenCalledExactlyOnceWith(store);
+
+    act(() => root.render(createElement("div")));
+
+    expect(harness.guard.unregister).toHaveBeenCalledExactlyOnceWith(store);
+  });
+});
+
+describe("PublicFormTab when the list changed", () => {
+  it("locks the Include box of a field the list requires and leaves the others free", async () => {
+    await renderTab();
+    const include = (fieldId: string) => field<HTMLButtonElement>(`#public-form-builder-field-${fieldId}-include`);
+
+    expect(include("60000000-0000-4000-8000-000000000001").disabled).toBe(true);
+    expect(include("60000000-0000-4000-8000-000000000001").getAttribute("aria-checked")).toBe("true");
+    expect(include("60000000-0000-4000-8000-000000000002").disabled).toBe(false);
+  });
+
+  it("tells the owner which required field was added and that saving applies it", async () => {
+    const base = editor({ form: savedForm() });
+    const fields = base.fields.map((entry) =>
+      entry.label === "Company" ? { ...entry, required: true, mustInclude: true } : entry,
+    );
+    await renderTab(build({ ...base, fields }));
+
+    const notice = field("#public-form-repairs").textContent ?? "";
+    expect(notice).toContain('PublicForm.builder.repairsAdded:{"fields":"Company"}');
+    expect(notice).toContain("PublicForm.builder.repairsSave");
+    expect(field<HTMLButtonElement>("#footer-save").disabled).toBe(false);
+  });
+
+  it("tells the owner that the person was switched off and what left the form, without the stale person controls", async () => {
+    const saved = savedForm();
+    const form = savedForm({
+      config: {
+        ...saved.config,
+        fields: [
+          ...saved.config.fields,
+          { fieldId: "60000000-0000-4000-8000-000000000099", label: "Budget", helpText: null, required: false },
+        ],
+        person: {
+          typeId: "40000000-0000-4000-8000-000000000002",
+          relationshipId: "70000000-0000-4000-8000-000000000001",
+          emailLabel: "Email",
+          nameLabel: null,
+          nameFieldId: null,
+        },
+      },
+    });
+    await renderTab(build(editor({ form, peopleLists: [] })));
+
+    const notice = field("#public-form-repairs").textContent ?? "";
+    expect(notice).toContain("PublicForm.builder.repairsPersonDropped");
+    expect(notice).toContain('PublicForm.builder.repairsDropped:{"fields":"Budget"}');
+    expect(container.querySelector("#public-form-person-unavailable")).not.toBeNull();
+    expect(container.querySelector("#public-form-preview #public-form-email")).toBeNull();
+    expect(field<HTMLButtonElement>("#footer-save").disabled).toBe(false);
+  });
+
+  it("shows a required field no form can ask for and the submissions that could not be saved", async () => {
+    await renderTab(
+      build(
+        editor({
+          form: savedForm(),
+          blockingFields: ["Contract file"],
+          failures: { count: 3, lastAt: "2026-11-12T09:00:00.000Z" },
+        }),
+      ),
+    );
+
+    expect(field("#public-form-blocking-fields").textContent).toContain(
+      'PublicForm.builder.blockingFields:{"fields":"Contract file"}',
+    );
+    expect(field("#public-form-failed-submissions").textContent).toBe(
+      'PublicForm.builder.failedSubmissions:{"count":3,"date":"2026-11-12"}',
+    );
+  });
+
+  it("shows no notice for a form that still fits its list", async () => {
+    await renderTab();
+
+    expect(container.querySelector("#public-form-repairs")).toBeNull();
+    expect(container.querySelector("#public-form-blocking-fields")).toBeNull();
+    expect(container.querySelector("#public-form-failed-submissions")).toBeNull();
   });
 });
 

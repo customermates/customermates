@@ -1,11 +1,15 @@
 import type {
+  FailedPublicFormSubmission,
   NewPublicFormSubmission,
   PublicFormCreate,
+  PublicFormFailures,
   PublicFormPatch,
   PublicFormRepo,
   StoredPublicForm,
 } from "./public-form.repo";
 import type { PublicFormLookup, PublicFormLookupRepo } from "./public-form-lookup.repo";
+
+import { FAILED_SUBMISSION_OUTCOME } from "./public-form.repo";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -75,8 +79,39 @@ export class PrismaPublicFormRepo extends TenantRepository implements PublicForm
 
   countSubmissionsSince(since: Date): Promise<number> {
     return this.prisma.publicFormSubmission.count({
-      where: { companyId: this.companyId, createdAt: { gte: since } },
+      where: { companyId: this.companyId, createdAt: { gte: since }, outcome: { not: FAILED_SUBMISSION_OUTCOME } },
     });
+  }
+
+  async recordFailedSubmission(submission: FailedPublicFormSubmission): Promise<void> {
+    await this.prisma.publicFormSubmission.createMany({
+      data: [
+        {
+          id: submission.id,
+          companyId: this.companyId,
+          formId: submission.formId,
+          outcome: FAILED_SUBMISSION_OUTCOME,
+          personRecordId: submission.personRecordId,
+          ipHash: submission.ipHash,
+          locale: submission.locale,
+        },
+      ],
+      skipDuplicates: true,
+    });
+  }
+
+  async failedSubmissionsSince(formId: string, since: Date): Promise<PublicFormFailures> {
+    const failed = await this.prisma.publicFormSubmission.aggregate({
+      where: { companyId: this.companyId, formId, outcome: FAILED_SUBMISSION_OUTCOME, createdAt: { gte: since } },
+      _count: { _all: true },
+      _max: { createdAt: true },
+    });
+    return { count: failed._count._all, lastAt: failed._max.createdAt };
+  }
+
+  async workspaceName(): Promise<string | null> {
+    const company = await this.prisma.company.findUnique({ where: { id: this.companyId }, select: { name: true } });
+    return company?.name ?? null;
   }
 
   countFormSubmissionsSince(formId: string, since: Date, ipHash?: string): Promise<number> {

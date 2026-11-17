@@ -28,11 +28,13 @@ import { UpsertPublicFormInteractor } from "../upsert-public-form.interactor";
 import {
   UNLIMITED_PUBLIC_FORM_QUOTA,
   FORM_ID,
+  NAME_FIELD,
   NOTES_FIELD,
   PEOPLE_TYPE_ID,
   PERSON_NAME_FIELD,
   RELATION_ID,
   SECRET,
+  SIZE_FIELD,
   TYPE_ID,
   USER_ID,
   createConfig,
@@ -71,6 +73,8 @@ function repo(existing: ReturnType<typeof stored> | null = null, extra: Record<s
     ),
     countSubmissionsSince: vi.fn(() => Promise.resolve(7)),
     publicLinksAllowed: vi.fn(() => Promise.resolve(true)),
+    workspaceName: vi.fn(() => Promise.resolve("Acme")),
+    failedSubmissionsSince: vi.fn(() => Promise.resolve({ count: 0, lastAt: null as Date | null })),
     ...extra,
   };
 }
@@ -234,7 +238,10 @@ describe("UpsertPublicFormInteractor", () => {
       typeId: TYPE_ID,
       name: "Contact form",
       config: createConfig({
-        fields: [{ fieldId: NOTES_FIELD, label: "Message", helpText: null, required: false }],
+        fields: [
+          { fieldId: NAME_FIELD, label: "Your name", helpText: null, required: true },
+          { fieldId: NOTES_FIELD, label: "Message", helpText: null, required: false },
+        ],
         person: {
           typeId: PEOPLE_TYPE_ID,
           relationshipId: RELATION_ID,
@@ -246,6 +253,60 @@ describe("UpsertPublicFormInteractor", () => {
     });
 
     expect(result.ok).toBe(true);
+  });
+
+  const withoutName = createConfig({
+    fields: [{ fieldId: NOTES_FIELD, label: "Message", helpText: null, required: false }],
+  });
+  const withField = (id: string, patch: Record<string, unknown>) => {
+    const model = createModel();
+    return { ...model, fields: model.fields.map((field) => (field.id === id ? { ...field, ...patch } : field)) };
+  };
+
+  it("refuses a form that leaves out a field the list requires, and accepts it once the field has a default", async () => {
+    const missing = await interactor().invoke({ typeId: TYPE_ID, name: "Contact form", config: withoutName });
+    const defaulted = await interactor(repo(), {
+      model: withField(NAME_FIELD, { behavior: { kind: "input", defaultValue: { kind: "text", value: "Unknown" } } }),
+    }).invoke({ typeId: TYPE_ID, name: "Contact form", config: withoutName });
+
+    expect(failureCodeOf(missing)).toBe(CustomErrorCode.publicFormConfigurationInvalid);
+    expect(missing.ok ? null : missing.error.issues[0]?.path).toEqual(["config", "fields"]);
+    expect(defaulted.ok).toBe(true);
+  });
+
+  it("refuses a form on a list that requires a field no form can ask for", async () => {
+    const model = withField(SIZE_FIELD, { required: true, multiple: true });
+
+    const result = await interactor(repo(), { model }).invoke({
+      typeId: TYPE_ID,
+      name: "Contact form",
+      config: createConfig(),
+    });
+
+    expect(failureCodeOf(result)).toBe(CustomErrorCode.publicFormConfigurationInvalid);
+  });
+
+  it("still switches off a saved form whose definition no longer fits the list", async () => {
+    const stale = stored({
+      config: createConfig({
+        fields: withoutName.fields,
+        person: {
+          typeId: "00000000-0000-4000-8000-0000000000ff",
+          relationshipId: RELATION_ID,
+          emailLabel: "Email",
+          nameLabel: null,
+          nameFieldId: null,
+        },
+      }),
+    });
+    const formRepo = repo(stale);
+
+    const off = await interactor(formRepo).invoke({ id: FORM_ID, enabled: false });
+    const renamed = await interactor(repo(stale)).invoke({ id: FORM_ID, name: "Still live" });
+
+    expect(off.ok).toBe(true);
+    expect(formRepo.updateForm).toHaveBeenCalledWith(FORM_ID, { enabled: false });
+    expect(failureCodeOf(renamed)).toBe(CustomErrorCode.publicFormConfigurationInvalid);
   });
 });
 
@@ -330,6 +391,40 @@ describe("GetPublicFormEditorInteractor", () => {
     expect(result.data.fields.length).toBeGreaterThan(3);
     expect(result.data.peopleLists.map((entry) => entry.typeId)).toEqual([PEOPLE_TYPE_ID]);
     expect(result.data.form?.id).toBe(FORM_ID);
+    expect(result.data.fields.filter((field) => field.mustInclude).map((field) => field.fieldId)).toEqual([NAME_FIELD]);
+    expect(result.data).toMatchObject({
+      blockingFields: [],
+      failures: { count: 0, lastAt: null },
+      workspaceName: "Acme",
+      badge: false,
+    });
+  });
+
+  it("names required fields a form cannot ask for and the submissions that could not be saved", async () => {
+    const model = createModel();
+    const blocked = {
+      ...model,
+      fields: model.fields.map((field) =>
+        field.id === SIZE_FIELD ? { ...field, required: true, multiple: true } : field,
+      ),
+    };
+    const lastAt = new Date("2026-11-12T09:00:00.000Z");
+    const formRepo = repo(stored(), { failedSubmissionsSince: vi.fn(() => Promise.resolve({ count: 3, lastAt })) });
+
+    const result = await new GetPublicFormEditorInteractor(
+      formRepo as never,
+      records(blocked) as never,
+      policy() as never,
+      UNLIMITED_PUBLIC_FORM_QUOTA,
+      settings,
+    ).invoke({ typeId: TYPE_ID });
+
+    expect(result.ok && result.data.blockingFields).toEqual(["Team size"]);
+    expect(result.ok && result.data.failures).toEqual({ count: 3, lastAt: lastAt.toISOString() });
+    expect(formRepo.failedSubmissionsSince).toHaveBeenCalledWith(
+      FORM_ID,
+      new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+    );
   });
 
   it("says why the editor is blocked without leaking the form", async () => {

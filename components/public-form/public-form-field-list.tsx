@@ -30,15 +30,17 @@ export function PublicFormFieldList({ fields, options, onChange, onMove }: Props
       {fields.map((field, index) => {
         const option = byId.get(field.fieldId);
         const locked = option?.required === true;
+        const mustInclude = option?.mustInclude === true;
         const id = `public-form-builder-field-${field.fieldId}`;
         return (
           <li key={field.fieldId} className="flex flex-col gap-2 rounded-lg border border-border p-3">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <Checkbox
                 aria-label={t("PublicForm.builder.include", { field: option?.label ?? field.label })}
-                checked={field.included}
+                checked={field.included || mustInclude}
+                disabled={mustInclude}
                 id={`${id}-include`}
-                onCheckedChange={(checked) => update(index, { included: checked === true })}
+                onCheckedChange={(checked) => update(index, { included: checked === true || mustInclude })}
               />
 
               <span className="min-w-0 flex-1 truncate text-sm font-medium">{option?.label ?? field.label}</span>

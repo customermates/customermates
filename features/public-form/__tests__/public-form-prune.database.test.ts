@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -75,5 +77,55 @@ describeDatabase("pruning public form submissions", { timeout: 60_000 }, () => {
         submissionCount: 3,
       },
     );
+  });
+});
+
+describeDatabase("failed public form submissions", { timeout: 60_000 }, () => {
+  it("keeps a failed submission for the owner without counting it as a submission or against the monthly limit", async () => {
+    const w = await createRestRouteWorkspace();
+    cleanups.push(w.cleanup);
+    const form = await runWithoutTenant(() =>
+      prisma.publicForm.create({
+        data: {
+          companyId: w.companyId,
+          typeId: w.id("organization"),
+          name: "Contact",
+          createdById: w.admin.id,
+          config: createConfig() as never,
+        },
+      }),
+    );
+    const repo = new PrismaPublicFormRepo();
+    const since = new Date(Date.now() - DAY_MS);
+    const failed = { id: randomUUID(), formId: form.id, personRecordId: null, ipHash: "hash", locale: "de" };
+
+    await w.as(w.admin, () =>
+      repo.recordSubmission({
+        id: randomUUID(),
+        formId: form.id,
+        outcome: "created",
+        recordId: null,
+        personRecordId: null,
+        ipHash: "hash",
+        locale: null,
+        consent: null,
+      }),
+    );
+    await w.as(w.admin, () => repo.recordFailedSubmission(failed));
+    await w.as(w.admin, () => repo.recordFailedSubmission(failed));
+
+    expect(await w.as(w.admin, () => repo.countSubmissionsSince(since))).toBe(1);
+    expect(await w.as(w.admin, () => repo.countFormSubmissionsSince(form.id, since, "hash"))).toBe(2);
+    const failures = await w.as(w.admin, () => repo.failedSubmissionsSince(form.id, since));
+    expect(failures.count).toBe(1);
+    expect(failures.lastAt).toBeInstanceOf(Date);
+    expect(await w.as(w.admin, () => repo.failedSubmissionsSince(form.id, new Date(Date.now() + DAY_MS)))).toEqual({
+      count: 0,
+      lastAt: null,
+    });
+    expect(await runWithoutTenant(() => prisma.publicForm.findUniqueOrThrow({ where: { id: form.id } }))).toMatchObject(
+      { submissionCount: 1 },
+    );
+    expect(typeof (await w.as(w.admin, () => repo.workspaceName()))).not.toBe("undefined");
   });
 });

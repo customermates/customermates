@@ -70,7 +70,10 @@ export const PublicFormConfigSchema = z
       .max(PUBLIC_FORM_LIMITS.maxFields)
       .refine((fields) => new Set(fields.map((field) => field.fieldId)).size === fields.length, {
         message: "Each field can appear once",
-      }),
+      })
+      .describe(
+        "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved.",
+      ),
     person: PublicFormPersonSchema.nullable(),
     consent: PublicFormConsentSchema.nullable(),
     success: PublicFormSuccessSchema,
@@ -147,6 +150,9 @@ export const FormFieldOptionSchema = z
     label: z.string(),
     valueType: z.enum(ANSWERABLE_VALUE_TYPES),
     required: z.boolean(),
+    mustInclude: z
+      .boolean()
+      .describe("The list requires this field and gives it no default value, so every form must ask for it."),
     multiple: z.boolean(),
     options: z.array(z.object({ id: z.string(), label: z.string() }).strict()),
   })
@@ -172,6 +178,15 @@ export const PublicFormEditorSchema = z
     form: PublicFormDtoSchema.nullable(),
     fields: z.array(FormFieldOptionSchema),
     peopleLists: z.array(FormPeopleListOptionSchema),
+    blockingFields: z
+      .array(z.string())
+      .describe("Labels of required fields without a default value that a form cannot ask for."),
+    failures: z
+      .object({ count: z.number().int(), lastAt: z.string().nullable() })
+      .strict()
+      .describe("Submissions of the last 30 days that could not be saved as a record."),
+    workspaceName: z.string().nullable(),
+    badge: z.boolean(),
     allowed: z.boolean(),
     reason: z.enum(["workspaceDisabled", "permissionDenied"]).nullable(),
   })

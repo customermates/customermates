@@ -10,13 +10,14 @@ import { toast } from "sonner";
 
 import { AppCardBody } from "@/components/card/app-card-body";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { Alert } from "@/components/shared/alert";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { reportApplicationError } from "@/core/errors/report-application-error";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { PublicFormAfterSubmitChain } from "./public-form-after-submit-chain";
@@ -66,6 +67,65 @@ function PublishedLinks({ editor }: { editor: PublicFormEditor }) {
   );
 }
 
+const EditorNotices = observer(function EditorNotices({
+  store,
+  editor,
+}: {
+  store: PublicFormTabStore;
+  editor: PublicFormEditor;
+}) {
+  const t = useTranslations();
+  const intlStore = useHydratedIntlStore();
+  const { repairs } = store;
+  const names = (labels: string[]) => labels.join(", ");
+  const changes = [
+    ...(repairs.addedFields.length > 0
+      ? [t("PublicForm.builder.repairsAdded", { fields: names(repairs.addedFields) })]
+      : []),
+    ...(repairs.droppedFields.length > 0
+      ? [t("PublicForm.builder.repairsDropped", { fields: names(repairs.droppedFields) })]
+      : []),
+    ...(repairs.person === "dropped" ? [t("PublicForm.builder.repairsPersonDropped")] : []),
+    ...(repairs.person === "adjusted" ? [t("PublicForm.builder.repairsPersonAdjusted")] : []),
+  ];
+  const needsSave = repairs.addedFields.length > 0 || repairs.person !== null;
+  const { failures } = editor;
+
+  return (
+    <>
+      {editor.blockingFields.length > 0 ? (
+        <Alert
+          description={t("PublicForm.builder.blockingFields", { fields: names(editor.blockingFields) })}
+          id="public-form-blocking-fields"
+          role="alert"
+          variant="destructive"
+        />
+      ) : null}
+
+      {changes.length > 0 ? (
+        <Alert
+          description={[...changes, ...(needsSave ? [t("PublicForm.builder.repairsSave")] : [])].join(" ")}
+          id="public-form-repairs"
+          role="status"
+          variant="warning"
+        />
+      ) : null}
+
+      {failures.count > 0 && failures.lastAt ? (
+        <Alert
+          description={t("PublicForm.builder.failedSubmissions", {
+            count: failures.count,
+            date: intlStore.formatDescriptiveLongDate(new Date(failures.lastAt)),
+          })}
+          id="public-form-failed-submissions"
+          role="status"
+          variant="warning"
+        />
+      ) : null}
+    </>
+  );
+});
+
 function Notice({ id, text }: { id: string; text: string }) {
   return (
     <AppCardBody>
@@ -79,7 +139,13 @@ function Notice({ id, text }: { id: string; text: string }) {
 export const PublicFormTab = observer(function PublicFormTab({ store, onClose }: Props) {
   const t = useTranslations();
   const wide = useIsWiderThan("lg");
+  const { navigationGuard } = useRootStore();
   const { editor, draft } = store;
+
+  useEffect(() => {
+    navigationGuard.register(store);
+    return () => navigationGuard.unregister(store);
+  }, [navigationGuard, store]);
 
   const texts = useMemo(
     () => ({
@@ -121,6 +187,10 @@ export const PublicFormTab = observer(function PublicFormTab({ store, onClose }:
 
   const save = async () => {
     const outcome = await store.save();
+    if (outcome.status === "skipped" && store.config === null) {
+      toast.error(t("PublicForm.builder.incomplete"));
+      return;
+    }
     if (outcome.status === "failed") {
       toastZodErrorTree(outcome.error as never);
       return;
@@ -141,14 +211,10 @@ export const PublicFormTab = observer(function PublicFormTab({ store, onClose }:
           <div className="flex min-w-0 flex-col gap-5">
             <p className="text-sm text-muted-foreground">{t("PublicForm.builder.intro", { list: editor.typeLabel })}</p>
 
-  const { navigationGuard } = useRootStore();
+            <EditorNotices editor={editor} store={store} />
+
             <div className="flex items-center gap-2">
               <Switch
-  useEffect(() => {
-    navigationGuard.register(store);
-    return () => navigationGuard.unregister(store);
-  }, [navigationGuard, store]);
-
                 checked={draft.enabled}
                 id="public-form-enabled"
                 onCheckedChange={(checked) => store.patch({ enabled: checked })}
@@ -189,10 +255,6 @@ export const PublicFormTab = observer(function PublicFormTab({ store, onClose }:
 
             {store.config === null ? (
               <p className="text-xs text-muted-foreground" id="public-form-invalid">
-    if (outcome.status === "skipped" && store.config === null) {
-      toast.error(t("PublicForm.builder.incomplete"));
-      return;
-    }
                 {t("PublicForm.builder.incomplete")}
               </p>
             ) : null}

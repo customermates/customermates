@@ -15,9 +15,11 @@ import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Action, Resource } from "@/generated/prisma";
 
-import { formFieldOptions, formPeopleLists } from "./public-form-config-validation";
+import { formBlockingFields, formFieldOptions, formPeopleLists } from "./public-form-config-validation";
 import { readPublicFormUsage, toPublicFormDto } from "./public-form-dto";
 import { GetPublicFormEditorSchema, PublicFormEditorSchema } from "./public-form.schema";
+
+const FAILURE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 @TenantInteractor()
 export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPublicFormEditorData, PublicFormEditor> {
@@ -53,14 +55,25 @@ export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPu
           form: null,
           fields: [],
           peopleLists: [],
+          blockingFields: [],
+          failures: { count: 0, lastAt: null },
+          workspaceName: null,
+          badge: false,
           allowed: false,
           reason: !workspaceAllows ? ("workspaceDisabled" as const) : ("permissionDenied" as const),
         },
       };
     }
 
+    const now = this.settings.now?.() ?? new Date();
     const stored = await this.repo.findFormOfType(type.id);
-    const usage = await readPublicFormUsage(this.repo, this.quota, this.settings.now?.() ?? new Date());
+    const [usage, workspaceName, failures] = await Promise.all([
+      readPublicFormUsage(this.repo, this.quota, now),
+      this.repo.workspaceName(),
+      stored
+        ? this.repo.failedSubmissionsSince(stored.id, new Date(now.getTime() - FAILURE_WINDOW_MS))
+        : Promise.resolve({ count: 0, lastAt: null }),
+    ]);
     return {
       ok: true as const,
       data: {
@@ -68,6 +81,10 @@ export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPu
         form: stored ? toPublicFormDto(stored, usage, this.settings) : null,
         fields: formFieldOptions(model, type.id),
         peopleLists: formPeopleLists(model, type.id),
+        blockingFields: formBlockingFields(model, type.id),
+        failures: { count: failures.count, lastAt: failures.lastAt?.toISOString() ?? null },
+        workspaceName,
+        badge: usage.badge,
         allowed: true,
         reason: null,
       },

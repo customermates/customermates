@@ -24,6 +24,7 @@ import { createPerson, findPersonByEmail, linkDirection } from "@/features/recor
 
 import { PUBLIC_FORM_UNAVAILABLE } from "./public-form-access";
 import { buildFormAnswers, mutationFieldErrors } from "./public-form-answers";
+import { formCannotSaveRecords } from "./public-form-config-validation";
 import { startOfUtcMonth } from "./public-form-quota";
 import { PUBLIC_FORM_LIMITS, SubmitPublicFormSchema } from "./public-form.schema";
 
@@ -107,6 +108,7 @@ export class SubmitPublicFormInteractor {
 
     const blocked = await this.overLimit(context);
     if (blocked) return blocked;
+    if (formCannotSaveRecords(config, model, form.typeId)) return this.failed(context, null);
 
     const built = buildFormAnswers(config, form.typeId, model.fields, data);
     const consentMissing = config.consent !== null && data.consent !== true;
@@ -133,14 +135,31 @@ export class SubmitPublicFormInteractor {
     }
 
     const person = await this.resolvePerson(context, model, built);
-    if (person === false) return PUBLIC_FORM_UNAVAILABLE;
+    if (person === false) return this.failed(context, null);
     const links = this.personLinks(config, model, form.typeId, person);
-    if (!links) return PUBLIC_FORM_UNAVAILABLE;
+    if (!links) return this.failed(context, person);
 
     const created = await this.createRecord(context, model, built, links);
-    if (created.status === "failed") return created.result;
+    if (created.status === "failed")
+      return created.result.status === "unavailable" ? this.failed(context, person) : created.result;
     await this.finish(context, built, "created", created.recordId, person);
     return this.accepted(config);
+  }
+
+  private async failed(context: Context, person: RecordRef | null): Promise<PublicFormSubmitResult> {
+    const { form, config, data, ipHash, submissionId } = context;
+    await this.forms
+      .recordFailedSubmission({
+        id: submissionId,
+        formId: form.id,
+        personRecordId: person?.recordId ?? null,
+        ipHash,
+        locale: isAppLocale(data.locale) ? data.locale : config.locale,
+      })
+      .catch((error: unknown) => {
+        ErrorReporter.captureException(error, { tags: { kind: "form-failed-submission", companyId: form.companyId } });
+      });
+    return PUBLIC_FORM_UNAVAILABLE;
   }
 
   private personLinks(

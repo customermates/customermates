@@ -25,6 +25,18 @@ export type NewPublicFormSubmission = {
   consent: { text: string; version: number; at: Date } | null;
 };
 
+export const FAILED_SUBMISSION_OUTCOME = "failed";
+
+export type FailedPublicFormSubmission = {
+  id: string;
+  formId: string;
+  personRecordId: string | null;
+  ipHash: string | null;
+  locale: string | null;
+};
+
+export type PublicFormFailures = { count: number; lastAt: Date | null };
+
 export type PublicFormCreate = {
   typeId: string;
   name: string;
@@ -48,6 +60,9 @@ export abstract class PublicFormRepo {
   abstract countSubmissionsSince(since: Date): Promise<number>;
   abstract countFormSubmissionsSince(formId: string, since: Date, ipHash?: string): Promise<number>;
   abstract recordSubmission(submission: NewPublicFormSubmission): Promise<{ id: string }>;
+  abstract recordFailedSubmission(submission: FailedPublicFormSubmission): Promise<void>;
+  abstract failedSubmissionsSince(formId: string, since: Date): Promise<PublicFormFailures>;
+  abstract workspaceName(): Promise<string | null>;
   abstract deleteSubmissionsBeforeUnscoped(before: Date, limit: number): Promise<number>;
   abstract reassignCreatorUnscoped(args: {
     companyId: string;

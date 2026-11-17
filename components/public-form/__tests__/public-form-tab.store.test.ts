@@ -10,7 +10,9 @@ import {
   FORM_ID,
   NAME_FIELD,
   NOTE_FIELD,
+  PEOPLE_NAME_FIELD,
   PEOPLE_TYPE,
+  RELATIONSHIP,
   TEXTS,
   TYPE_ID,
   editor,
@@ -59,6 +61,145 @@ describe("PublicFormTabStore draft", () => {
     expect(store.draft?.consentEnabled).toBe(false);
   });
 
+  it("includes a required field of a new form wherever it sits in the list", async () => {
+    const base = editor();
+    const many = Array.from({ length: 7 }, (_, index) => ({
+      ...base.fields[1],
+      fieldId: `60000000-0000-4000-8000-0000000001${String(index).padStart(2, "0")}`,
+      label: `Extra ${index}`,
+    }));
+    const { store } = await loaded(editor({ fields: [...many, base.fields[0]] }));
+
+    expect(store.draft?.fields.find((field) => field.fieldId === NAME_FIELD)?.included).toBe(true);
+    expect(store.draft?.fields.filter((field) => field.included)).toHaveLength(6);
+  });
+
+  it("cuts a list or field label that is longer than a form text may be, so a new form can be saved", async () => {
+    const base = editor();
+    const long = "A very long label ".repeat(11).trim();
+    const { store } = await loaded(
+      editor({ typeLabel: long, fields: [{ ...base.fields[0], label: long }, ...base.fields.slice(1)] }),
+    );
+
+    expect(long.length).toBeGreaterThan(120);
+    expect(store.draft?.title.length).toBeLessThanOrEqual(120);
+    expect(store.draft?.fields[0].label.length).toBeLessThanOrEqual(120);
+    expect(store.config).not.toBeNull();
+    expect(store.repairs).toEqual({ addedFields: [], droppedFields: [], person: null });
+  });
+});
+
+describe("PublicFormTabStore after the list changed", () => {
+  const person = {
+    typeId: PEOPLE_TYPE,
+    relationshipId: RELATIONSHIP,
+    emailLabel: "Email",
+    nameLabel: "Name",
+    nameFieldId: PEOPLE_NAME_FIELD,
+  };
+  const withConfig = (patch: Partial<NonNullable<PublicFormEditor["form"]>["config"]>) =>
+    savedForm({ config: { ...savedForm().config, ...patch } });
+
+  it("adds a field the list made required after the form was saved, says so and can be saved at once", async () => {
+    const base = editor();
+    const nowRequired = base.fields.map((field) =>
+      field.fieldId === COMPANY_FIELD ? { ...field, required: true, mustInclude: true } : field,
+    );
+    const { store, actions } = await loaded(editor({ form: savedForm(), fields: nowRequired }));
+
+    expect(store.draft?.fields.find((field) => field.fieldId === COMPANY_FIELD)).toMatchObject({
+      included: true,
+      required: true,
+    });
+    expect(store.repairs).toEqual({ addedFields: ["Company"], droppedFields: [], person: null });
+    expect(store.edited).toBe(true);
+    expect(store.canSave).toBe(true);
+
+    await store.save();
+    expect(actions.save.mock.calls[0][0].config.fields.map((field: { fieldId: string }) => field.fieldId)).toEqual([
+      NOTE_FIELD,
+      NAME_FIELD,
+      COMPANY_FIELD,
+    ]);
+  });
+
+  it("leaves a required field with a default value out when the form did not ask for it", async () => {
+    const base = editor();
+    const defaulted = base.fields.map((field) =>
+      field.fieldId === COMPANY_FIELD ? { ...field, required: true, mustInclude: false } : field,
+    );
+    const { store } = await loaded(editor({ form: savedForm(), fields: defaulted }));
+
+    expect(store.draft?.fields.find((field) => field.fieldId === COMPANY_FIELD)?.included).toBe(false);
+    expect(store.edited).toBe(false);
+  });
+
+  it("switches the person off when its list no longer qualifies, says so and can then be saved", async () => {
+    const { store, actions } = await loaded(editor({ form: withConfig({ person }), peopleLists: [] }));
+
+    expect(store.draft?.personEnabled).toBe(false);
+    expect(store.repairs.person).toBe("dropped");
+    expect(store.config?.person).toBeNull();
+    expect(store.edited).toBe(true);
+
+    store.patch({ enabled: false });
+    await store.save();
+    expect(actions.save).toHaveBeenCalledWith(
+      expect.objectContaining({ enabled: false, config: expect.objectContaining({ person: null }) }),
+    );
+  });
+
+  it("does not keep the id of a people list that is gone when other lists remain", async () => {
+    const other = { ...editor().peopleLists[0], typeId: "40000000-0000-4000-8000-000000000009", label: "Contacts" };
+    const { store } = await loaded(editor({ form: withConfig({ person }), peopleLists: [other] }));
+
+    expect(store.repairs.person).toBe("dropped");
+    expect(store.draft).toMatchObject({
+      personEnabled: false,
+      personTypeId: other.typeId,
+      personRelationshipId: other.relationships[0].id,
+    });
+
+    store.patch({ personEnabled: true });
+    expect(store.config?.person).toMatchObject({ typeId: other.typeId, relationshipId: other.relationships[0].id });
+  });
+
+  it("picks a valid relationship when the stored one is gone and keeps the person on", async () => {
+    const list = {
+      ...editor().peopleLists[0],
+      relationships: [{ id: "70000000-0000-4000-8000-000000000009", sourceLabel: "Leads", targetLabel: "People" }],
+    };
+    const { store } = await loaded(editor({ form: withConfig({ person }), peopleLists: [list] }));
+
+    expect(store.repairs.person).toBe("adjusted");
+    expect(store.draft).toMatchObject({
+      personEnabled: true,
+      personRelationshipId: "70000000-0000-4000-8000-000000000009",
+    });
+    expect(store.edited).toBe(true);
+  });
+
+  it("names a question whose field left the list and keeps the form unedited", async () => {
+    const gone = { fieldId: "60000000-0000-4000-8000-000000000099", label: "Budget", helpText: null, required: false };
+    const { store } = await loaded(editor({ form: withConfig({ fields: [...savedForm().config.fields, gone] }) }));
+
+    expect(store.repairs).toEqual({ addedFields: [], droppedFields: ["Budget"], person: null });
+    expect(store.draft?.fields.map((field) => field.fieldId)).not.toContain(gone.fieldId);
+    expect(store.edited).toBe(false);
+  });
+
+  it("is a guarded form for the navigation guard while it has edits", async () => {
+    const { store } = await loaded();
+
+    expect(store.withUnsavedChangesGuard).toBe(true);
+    expect(store.hasUnsavedChanges).toBe(false);
+    store.patch({ title: "" });
+    expect(store.config).toBeNull();
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+});
+
+describe("PublicFormTabStore draft edits", () => {
   it("marks an edit as unsaved and a return to the saved text as clean again", async () => {
     const { store } = await loaded();
 
@@ -161,15 +302,21 @@ describe("PublicFormTabStore preview model", () => {
   });
 
   it("leaves out a question that is switched off and shows the badge of a free plan", async () => {
-    const { store } = await loaded(
-      editor({ form: savedForm({ usage: { submissionsThisMonth: 1, monthlyLimit: 50, badge: true } }) }),
-    );
+    const { store } = await loaded(editor({ form: savedForm(), badge: true }));
 
     const fields = (store.draft?.fields ?? []).map((field) => ({ ...field, included: field.fieldId === NAME_FIELD }));
     store.patch({ fields });
 
     expect(store.preview?.fields.map((field) => field.fieldId)).toEqual([NAME_FIELD]);
     expect(store.preview?.badge).toBe(true);
+  });
+
+  it("shows the workspace byline and the Free badge of the live page, also before the first save", async () => {
+    const saved = await loaded(editor({ form: savedForm(), workspaceName: "Acme GmbH" }));
+    const unsaved = await loaded(editor({ workspaceName: "Acme GmbH", badge: true }));
+
+    expect(saved.store.preview?.workspaceName).toBe("Acme GmbH");
+    expect(unsaved.store.preview).toMatchObject({ workspaceName: "Acme GmbH", badge: true });
   });
 
   it("asks for the email, and the name when a label is set, once the person is on", async () => {

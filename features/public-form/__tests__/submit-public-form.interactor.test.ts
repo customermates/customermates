@@ -28,6 +28,7 @@ import {
   PERSON_NAME_FIELD,
   RELATION_ID,
   SECRET,
+  SIZE_FIELD,
   TYPE_ID,
   UNLIMITED_PUBLIC_FORM_QUOTA,
   USER_ID,
@@ -137,6 +138,7 @@ function setup(options: Setup = {}) {
       Promise.resolve(ipHash ? (options.hourIpCount ?? 0) : (options.hourFormCount ?? 0)),
     ),
     recordSubmission: vi.fn(() => Promise.resolve({ id: "submission" })),
+    recordFailedSubmission: vi.fn(() => Promise.resolve()),
   };
   const quota = {
     limits: () =>
@@ -303,11 +305,98 @@ describe("SubmitPublicFormInteractor", () => {
     expect(await submit.invoke(submission())).toEqual({ status: "invalid", errors: { [NAME_FIELD]: "invalid" } });
   });
 
-  it("shows the form as unavailable when the record engine refuses without naming a field", async () => {
-    const { submit, writer } = setup();
+  it("shows the form as unavailable when the record engine refuses without naming a field, and keeps a failed submission for the owner", async () => {
+    const { submit, writer, forms, events } = setup();
     writer.invoke.mockResolvedValueOnce(failure(CustomErrorCode.recordWritePaused) as never);
 
     expect(await submit.invoke(submission())).toEqual({ status: "unavailable" });
+    expect(forms.recordFailedSubmission).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ formId: FORM_ID, personRecordId: null, locale: null }),
+    );
+    expect(forms.recordSubmission).not.toHaveBeenCalled();
+    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("keeps no failed submission for answers the visitor can correct", async () => {
+    const { submit, writer, forms } = setup();
+    writer.invoke.mockResolvedValueOnce(
+      failure(CustomErrorCode.recordValueInvalid, ["mutation", "fields", 0, "value"]) as never,
+    );
+
+    await submit.invoke(submission());
+
+    expect(forms.recordFailedSubmission).not.toHaveBeenCalled();
+  });
+
+  describe("a list that gained a required field after the form was saved", () => {
+    const grown = () => {
+      const model = createModel();
+      return {
+        ...model,
+        fields: model.fields.map((field) => (field.id === SIZE_FIELD ? { ...field, required: true } : field)),
+      };
+    };
+    const person = {
+      typeId: PEOPLE_TYPE_ID,
+      relationshipId: RELATION_ID,
+      emailLabel: "Email",
+      nameLabel: "Name",
+      nameFieldId: PERSON_NAME_FIELD,
+    };
+
+    it("shows the page as unavailable instead of letting the visitor fill in a form that cannot be saved", async () => {
+      const { read } = setup({ model: grown() });
+
+      expect(await read.invoke({ token })).toEqual({ status: "unavailable" });
+    });
+
+    it("refuses a submission before a person or a record is created, and keeps it for the owner", async () => {
+      const { submit, writer, forms, events } = setup({ config: createConfig({ person }), model: grown() });
+
+      const result = await submit.invoke(submission({ email: "ada@example.com", name: "Ada Lovelace" }));
+
+      expect(result).toEqual({ status: "unavailable" });
+      expect(writer.invoke).not.toHaveBeenCalled();
+      expect(forms.recordSubmission).not.toHaveBeenCalled();
+      expect(forms.recordFailedSubmission).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ formId: FORM_ID, personRecordId: null }),
+      );
+      expect(events.publish).not.toHaveBeenCalled();
+    });
+
+    it("accepts submissions again once the form asks for the field or the field has a default", async () => {
+      const model = grown();
+      const asked = createConfig({
+        fields: [...createConfig().fields, { fieldId: SIZE_FIELD, label: "Team size", helpText: null, required: true }],
+      });
+      const defaulted = {
+        ...model,
+        fields: model.fields.map((field) =>
+          field.id === SIZE_FIELD
+            ? { ...field, behavior: { kind: "input", defaultValue: { kind: "number", value: 1 } } }
+            : field,
+        ),
+      };
+
+      const withQuestion = await setup({ config: asked, model }).submit.invoke(
+        submission({ answers: { [NAME_FIELD]: "Ada Lovelace", [SIZE_FIELD]: "12" } }),
+      );
+      const withDefault = await setup({ model: defaulted as never }).submit.invoke(submission());
+
+      expect(withQuestion.status).toBe("submitted");
+      expect(withDefault.status).toBe("submitted");
+    });
+
+    it("refuses a submission whose people list no longer qualifies before it creates a person", async () => {
+      const model = createModel();
+      const unlinked = { ...model, relationships: [] };
+      const { submit, read, writer, forms } = setup({ config: createConfig({ person }), model: unlinked as never });
+
+      expect(await read.invoke({ token })).toEqual({ status: "unavailable" });
+      expect(await submit.invoke(submission({ email: "ada@example.com" }))).toEqual({ status: "unavailable" });
+      expect(writer.invoke).not.toHaveBeenCalled();
+      expect(forms.recordFailedSubmission).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("retries once with the new revision when the data model changed meanwhile", async () => {

@@ -53,10 +53,10 @@ export class UpsertPublicFormInteractor extends AuthenticatedInteractor<UpsertPu
     const previous = existing ? parsePublicFormConfig(existing.config) : null;
     const config = data.config ?? previous;
     if (!config) return fail(CustomErrorCode.publicFormConfigurationInvalid, ["config"]);
-    const invalid = invalidFormConfigPaths(config, model, typeId);
+    const enabled = data.enabled ?? existing?.enabled ?? true;
+    const invalid = data.config !== undefined || enabled ? invalidFormConfigPaths(config, model, typeId) : [];
     if (invalid.length > 0) return fail(CustomErrorCode.publicFormConfigurationInvalid, invalid[0].split("."));
 
-    const enabled = data.enabled ?? existing?.enabled ?? true;
     if (enabled && (data.enabled !== undefined || !existing) && !(await this.repo.publicLinksAllowed()))
       return failAuthorization(CustomErrorCode.permissionDenied, ["enabled"]);
 

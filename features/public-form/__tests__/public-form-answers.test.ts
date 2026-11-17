@@ -216,11 +216,23 @@ describe("form field eligibility", () => {
     expect(invalidFormConfigPaths(createConfig(), model, TYPE_ID)).toEqual([]);
     expect(
       invalidFormConfigPaths(
-        createConfig({ fields: [{ fieldId: FORMULA_FIELD, label: "Calculated", helpText: null, required: false }] }),
+        createConfig({
+          fields: [
+            { fieldId: FORMULA_FIELD, label: "Calculated", helpText: null, required: false },
+            { fieldId: NAME_FIELD, label: "Name", helpText: null, required: true },
+          ],
+        }),
         model,
         TYPE_ID,
       ),
     ).toEqual(["config.fields.0.fieldId"]);
+    expect(
+      invalidFormConfigPaths(
+        createConfig({ fields: [{ fieldId: NOTES_FIELD, label: "Message", helpText: null, required: false }] }),
+        model,
+        TYPE_ID,
+      ),
+    ).toEqual(["config.fields"]);
     expect(
       invalidFormConfigPaths(
         createConfig({

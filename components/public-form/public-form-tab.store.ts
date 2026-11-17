@@ -6,12 +6,12 @@ import type {
   UpsertPublicFormData,
 } from "@/features/public-form/public-form.schema";
 import type { AfterSubmitChain } from "./public-form-after-submit";
-import type { DraftTexts, FormDraft } from "./public-form-draft";
+import type { DraftRepairs, DraftTexts, FormDraft } from "./public-form-draft";
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { afterSubmitChain } from "./public-form-after-submit";
-import { initialDraft, previewForm, validDraftConfig } from "./public-form-draft";
+import { NO_DRAFT_REPAIRS, initialDraft, previewForm, repairDraft, validDraftConfig } from "./public-form-draft";
 
 export type PublicFormActionResult<T> = { ok: true; data: T } | { ok: false; error: unknown };
 
@@ -31,11 +31,12 @@ export class PublicFormTabStore {
   editor: PublicFormEditor | null = null;
   draft: FormDraft | null = null;
   rules: AutomationRuleDto[] = [];
+  repairs: DraftRepairs = NO_DRAFT_REPAIRS;
   baseline = "";
   saving = false;
   previewMode: PublicFormPreviewMode = "form";
-  private request = 0;
   readonly withUnsavedChangesGuard = true;
+  private request = 0;
 
   constructor(
     readonly typeId: string,
@@ -45,14 +46,15 @@ export class PublicFormTabStore {
       editor: observable.ref,
       draft: observable.ref,
       rules: observable.ref,
+      repairs: observable.ref,
       baseline: observable,
       saving: observable,
       previewMode: observable,
       edited: computed,
-      config: computed,
-      canSave: computed,
       hasUnsavedChanges: computed,
       isLoading: computed,
+      config: computed,
+      canSave: computed,
       preview: computed,
       chain: computed,
       patch: action,
@@ -67,8 +69,6 @@ export class PublicFormTabStore {
     return this.draft !== null && JSON.stringify(this.draft) !== this.baseline;
   }
 
-  get config(): PublicFormConfig | null {
-    return this.draft ? validDraftConfig(this.draft) : null;
   get hasUnsavedChanges(): boolean {
     return this.edited;
   }
@@ -77,6 +77,8 @@ export class PublicFormTabStore {
     return this.saving;
   }
 
+  get config(): PublicFormConfig | null {
+    return this.draft ? validDraftConfig(this.draft) : null;
   }
 
   get canSave(): boolean {
@@ -84,7 +86,7 @@ export class PublicFormTabStore {
   }
 
   get preview(): PublicFormView | null {
-    return this.draft && this.editor ? previewForm(this.draft, this.editor, null) : null;
+    return this.draft && this.editor ? previewForm(this.draft, this.editor, this.editor.workspaceName) : null;
   }
 
   get chain(): AfterSubmitChain | null {
@@ -104,11 +106,13 @@ export class PublicFormTabStore {
     if (current !== this.request) return { status: "stale" };
     if (!result.ok) return { status: "failed", error: result.error };
 
-    const next = initialDraft(result.data, texts);
+    const stored = initialDraft(result.data, texts);
+    const repaired = repairDraft(stored, result.data);
     runInAction(() => {
       this.editor = result.data;
-      this.draft = next;
-      this.baseline = JSON.stringify(next);
+      this.draft = repaired.draft;
+      this.repairs = repaired.repairs;
+      this.baseline = JSON.stringify(stored);
       this.rules = rules;
     });
     return { status: "loaded" };

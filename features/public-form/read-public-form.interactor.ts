@@ -9,6 +9,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { renderToken } from "@/core/network/public-submit-guard";
 
 import { PUBLIC_FORM_UNAVAILABLE } from "./public-form-access";
+import { formCannotSaveRecords } from "./public-form-config-validation";
 import { presentPublicForm } from "./public-form-presentation";
 
 @AllowInDemoMode
@@ -30,6 +31,7 @@ export class ReadPublicFormInteractor {
       ]);
       if (!policy.actor || !policy.allowed(form.typeId, "create")) return PUBLIC_FORM_UNAVAILABLE;
       if (!model.types.some((type) => type.id === form.typeId && !type.archived)) return PUBLIC_FORM_UNAVAILABLE;
+      if (formCannotSaveRecords(config, model, form.typeId)) return PUBLIC_FORM_UNAVAILABLE;
       return {
         status: "available",
         form: presentPublicForm({
