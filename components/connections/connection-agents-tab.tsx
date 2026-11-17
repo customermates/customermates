@@ -9,9 +9,9 @@ import {
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
-async function recentRuns() {
+async function unlessDenied<T>(load: () => Promise<T>): Promise<T | null> {
   try {
-    return await unwrapPage(getGetAgentJobsInteractor().invoke({}));
+    return await load();
   } catch (error) {
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return null;
     throw error;
@@ -21,16 +21,16 @@ async function recentRuns() {
 export async function ConnectionAgentsTab() {
   const [keys, runners, availability, runs] = await Promise.all([
     unwrapPage(getGetAgentProviderKeysInteractor().invoke()),
-    unwrapPage(getGetAgentRunnersInteractor().invoke()),
+    unlessDenied(() => unwrapPage(getGetAgentRunnersInteractor().invoke())),
     unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke({})),
-    recentRuns(),
+    unlessDenied(() => unwrapPage(getGetAgentJobsInteractor().invoke({}))),
   ]);
 
   return (
     <div className="flex flex-col gap-4" data-connection-tab="agents">
       <ConnectionScopeLine owner="workspace" scope="agents" />
 
-      <AgentsPageView availability={availability} keys={keys.keys} runners={runners.runners} runs={runs} />
+      <AgentsPageView availability={availability} keys={keys.keys} runners={runners?.runners ?? []} runs={runs} />
     </div>
   );
 }

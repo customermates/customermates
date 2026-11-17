@@ -145,6 +145,26 @@ describe("AutomationBuilderStore", () => {
     expect(store.form.id).toBe(RULE);
   });
 
+  it("forgets the rule it showed before when a new automation is opened in the same session", () => {
+    const store = makeStore();
+    store.openForRule(CONTEXT, { ...SAVED, effects: [] } as never, vi.fn());
+    expect(store.form.id).toBe(RULE);
+
+    store.openForCreate(CONTEXT, vi.fn(), { typeId: DEALS });
+    expect(store.isExisting).toBe(false);
+    expect(store.form.id).toBeUndefined();
+    expect(store.rule).toBeNull();
+
+    store.openForRule(CONTEXT, { ...SAVED, effects: [] } as never, vi.fn());
+    store.openForCreate(CONTEXT, vi.fn(), {
+      draft: { name: "Reminder", enabled: true, trigger: store.form.trigger, conditions: [], effects: [] },
+    });
+    expect(store.screen).toBe("chain");
+    expect(store.isExisting).toBe(false);
+    expect(store.form.id).toBeUndefined();
+    expect(store.form.name).toBe("Reminder");
+  });
+
   it("adds steps from the palette at the position asked for and opens the new card", () => {
     const { store } = open();
     store.startFromScratch();

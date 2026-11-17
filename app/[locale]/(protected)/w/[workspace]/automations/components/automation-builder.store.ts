@@ -58,6 +58,7 @@ const BLANK_TRIGGER: DraftTrigger = {
 };
 
 const BLANK_DRAFT: AutomationDraft = {
+  id: undefined,
   name: "",
   enabled: true,
   trigger: BLANK_TRIGGER,
@@ -160,7 +161,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.composerText = "";
     this.composerRefusal = null;
     this.composedByMate = false;
-    this.onInitOrRefresh(draft);
+    this.onInitOrRefresh({ ...BLANK_DRAFT, ...draft });
     this.open();
     this.schedulePreview(0);
   }
@@ -198,7 +199,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   };
 
   applyDraft = (draft: AutomationDraft, composed = false) => {
-    this.form = draft;
+    this.form = { ...BLANK_DRAFT, ...draft };
     this.screen = "chain";
     this.composedByMate = composed;
     this.invalid = [];

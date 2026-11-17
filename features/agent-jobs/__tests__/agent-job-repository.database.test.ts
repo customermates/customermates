@@ -106,6 +106,53 @@ describeDatabase("PrismaAgentJobRepo", () => {
     await client.end();
   });
 
+  it("keeps a job when its runner is deleted and lets the workspace be deleted with runner jobs in it", async () => {
+    const doomedCompany = randomUUID();
+    const doomedOwner = randomUUID();
+    const doomedRunner = randomUUID();
+    const keptRunner = randomUUID();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [doomedCompany]);
+    await client.query(
+      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+       VALUES ($1, $2, 'Agent', 'Owner', $3, 'active'::"Status", CURRENT_TIMESTAMP)`,
+      [doomedOwner, `agent-${doomedOwner}@example.invalid`, doomedCompany],
+    );
+    for (const id of [doomedRunner, keptRunner]) {
+      await client.query(
+        `INSERT INTO "AgentRunner" ("id", "companyId", "name", "tokenHash", "createdById", "updatedAt")
+         VALUES ($1, $2, 'laptop', $3, $4, CURRENT_TIMESTAMP)`,
+        [id, doomedCompany, `hash-${id}`, doomedOwner],
+      );
+    }
+    const jobs = await Promise.all(
+      [doomedRunner, keptRunner].map((runner) =>
+        runWithTenant(createMockUser({ id: doomedOwner, companyId: doomedCompany }), () =>
+          repo().enqueue({
+            runtime: "runner",
+            sourceKind: "automation",
+            sourceId: randomUUID(),
+            ownerUserId: doomedOwner,
+            prompt: "Summarise the deal",
+            promptUntrusted: false,
+            model: null,
+            runnerId: runner,
+          }),
+        ),
+      ),
+    );
+
+    await client.query('DELETE FROM "AgentRunner" WHERE "id" = $1', [doomedRunner]);
+    const orphan = await client.query<{ companyId: string; runnerId: string | null }>(
+      'SELECT "companyId", "runnerId" FROM "AgentJob" WHERE "id" = $1',
+      [jobs[0].id],
+    );
+    expect(orphan.rows).toEqual([{ companyId: doomedCompany, runnerId: null }]);
+
+    await client.query('DELETE FROM "Company" WHERE "id" = $1', [doomedCompany]);
+    const left = await client.query('SELECT 1 FROM "AgentJob" WHERE "id" = ANY($1)', [jobs.map((job) => job.id)]);
+    expect(left.rowCount).toBe(0);
+  });
+
   it("writes a queued job for the caller's workspace and reads it back only there", async () => {
     const job = await enqueue({ prompt: "Check the pipeline" });
     expect(job).toMatchObject({ companyId, status: "queued", attempts: 0, runtime: "ownKey" });

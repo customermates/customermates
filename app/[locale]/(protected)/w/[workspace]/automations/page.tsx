@@ -14,6 +14,7 @@ import { RoutineAllowanceNotice } from "@/app/components/upsell/routine-allowanc
 import { RoutinesPausedNotice } from "@/app/components/upsell/routines-paused-notice";
 import { PageContainer } from "@/components/shared/page-container";
 import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
@@ -48,6 +49,19 @@ function kindFilterOf(params: Record<string, string | string[] | undefined>): Fi
   return [{ field: FilterFieldKey.automationKind, operator: FilterOperatorKey.in, value: [known] }];
 }
 
+async function webhookOptions(): Promise<{ id: string; label: string }[]> {
+  try {
+    const webhooks = await getGetWebhooksInteractor().invoke({});
+    if (!webhooks.ok) return [];
+    return webhooks.data.items
+      .filter((hook) => hook.enabled)
+      .map((hook) => ({ id: hook.id, label: hook.description ?? hook.url }));
+  } catch (error) {
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return [];
+    throw error;
+  }
+}
+
 export default async function AutomationsPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.routines });
 
@@ -62,7 +76,7 @@ export default async function AutomationsPage({ searchParams }: Props) {
     ),
     unwrapPage(getGetRecordModelInteractor().invoke({})),
     unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke({})),
-    getGetWebhooksInteractor().invoke({}),
+    webhookOptions(),
     cloud ? unwrapPage(getGetPlanUsageInteractor().invoke()) : Promise.resolve(null),
   ]);
   const agentChat = cloud && env.APP_MODE !== "demo" && runtimes.mate.available;
@@ -78,13 +92,7 @@ export default async function AutomationsPage({ searchParams }: Props) {
       model={toAutomationBuilderModel(model)}
       prefill={prefillOf(params)}
       runtimes={runtimes}
-      webhooks={
-        webhooks.ok
-          ? webhooks.data.items
-              .filter((hook) => hook.enabled)
-              .map((hook) => ({ id: hook.id, label: hook.description ?? hook.url }))
-          : []
-      }
+      webhooks={webhooks}
     />
   );
 
