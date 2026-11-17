@@ -1,8 +1,6 @@
 import type { PublicFormTabActions } from "./public-form-tab.store";
 
-import { getPublicFormEditorAction, upsertPublicFormAction } from "@/app/actions";
-
-import { getFormAutomationRulesAction } from "./public-form-rules-actions";
+import { getFormAutomationRulesAction, getPublicFormEditorAction, upsertPublicFormAction } from "@/app/actions";
 
 export const publicFormTabActions: PublicFormTabActions = {
   loadEditor: (typeId) => getPublicFormEditorAction({ typeId }),
