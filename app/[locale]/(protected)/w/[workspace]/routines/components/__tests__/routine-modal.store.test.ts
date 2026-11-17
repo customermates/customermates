@@ -433,6 +433,39 @@ describe("RoutineModalStore", () => {
     expect(store.payload).not.toHaveProperty("triggerFilters");
   });
 
+  it("starts a new routine without the record trigger of the routine opened before it", async () => {
+    const model = createCrmPreset("30000000-0000-4000-8000-000000000040");
+    const fieldId = model.fields[0].id;
+    const query = {
+      typeId: model.types[1].id,
+      filters: [{ fieldId, operator: "eq" as const, value: { kind: "text" as const, value: "enterprise" } }],
+      relationships: [],
+    };
+    const store = makeStore();
+    await store.openForEdit(
+      makeRoutine({
+        triggerKind: RoutineTriggerKind.event,
+        triggerEvents: ["record.updated"],
+        recordTrigger: { query, changedFieldIds: [fieldId] },
+        recordSources: [{ query, changedFieldIds: [fieldId] }],
+      } as Partial<RoutineDto>),
+    );
+    store.close();
+
+    await store.openForCreate();
+
+    expect(store.form.id).toBeUndefined();
+    expect(store.form.recordTrigger).toBeNull();
+    expect(store.form.recordSources).toBeNull();
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerEvents", ["record.created"]);
+    expect(store.payload.recordTrigger).toEqual({
+      query: { typeId: store.recordModel?.types[0].id, filters: [], relationships: [] },
+      changedFieldIds: [],
+    });
+    expect(store.payload.recordSources).toBeNull();
+  });
+
   it("refreshes the configured record metadata whenever the editor is opened", async () => {
     const store = makeStore();
     await store.openForCreate();
