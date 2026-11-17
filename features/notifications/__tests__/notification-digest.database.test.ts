@@ -64,20 +64,46 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
     const sameMember = await add(w.member.id, minutesAgo(40));
     const repo = new PrismaNotificationRepo();
     const since = minutesAgo(120);
+    type Cursor = { createdAt: Date; id: string };
+    const member = { companyId: w.companyId, userId: w.member.id };
+    const admin = { companyId: w.companyId, userId: w.admin.id };
+    const beforeOwnRows: Cursor = {
+      createdAt: new Date(oldest.createdAt.getTime() - 1),
+      id: "ffffffff-ffff-ffff-ffff-ffffffffffff",
+    };
+    const walk = async (limit: number, after: Cursor) => {
+      const pages = [];
+      let cursor: Cursor | null = after;
+      while (cursor) {
+        const from: Cursor = cursor;
+        const page = await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit, after: from }));
+        pages.push(page);
+        cursor = page.next;
+      }
+      return pages;
+    };
+    const own = (pages: Array<{ users: Array<{ companyId: string; userId: string }> }>) =>
+      pages.flatMap((page) => page.users).filter((user) => user.companyId === w.companyId);
 
-    const first = await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit: 2, after: null }));
-    expect(first.users).toEqual([{ companyId: w.companyId, userId: w.member.id }]);
-    expect(first.next).toEqual({ createdAt: sameMember.createdAt, id: sameMember.id });
+    const rowByRow = await walk(1, beforeOwnRows);
+    expect(own(rowByRow)).toEqual([member, member, admin]);
+    expect(rowByRow.at(-1)).toEqual({ users: [], next: null });
+    const atSameMember = rowByRow.find((page) => page.next?.id === sameMember.id)?.next;
+    expect(atSameMember).toEqual({ createdAt: sameMember.createdAt, id: sameMember.id });
+    expect(own(await walk(1, atSameMember as Cursor))).toEqual([admin]);
 
-    const second = await runWithoutTenant(() => repo.findDigestUsersUnscoped({ since, limit: 2, after: first.next }));
-    expect(second.users).toEqual([{ companyId: w.companyId, userId: w.admin.id }]);
-    expect(second.next).toBeNull();
+    const waiting = await runWithoutTenant(() =>
+      prisma.notification.count({ where: { emailedAt: null, readAt: null, createdAt: { gte: oldest.createdAt } } }),
+    );
+    const onePage = await runWithoutTenant(() =>
+      repo.findDigestUsersUnscoped({ since, limit: waiting + 100, after: beforeOwnRows }),
+    );
+    expect(own([onePage])).toEqual([member, admin]);
+    expect(onePage.next).toBeNull();
 
     await runWithoutTenant(() => repo.markEmailedUnscoped([oldest.id, sameMember.id, newest.id], now, "digest"));
-    const afterEmailed = await runWithoutTenant(() =>
-      repo.findDigestUsersUnscoped({ since, limit: 2, after: first.next }),
-    );
-    expect(afterEmailed).toEqual({ users: [], next: null });
+    expect(own(await walk(1, beforeOwnRows))).toEqual([]);
+    expect(own(await walk(2, atSameMember as Cursor))).toEqual([]);
   });
 
   it("reaches the member behind a page boundary after the boundary row was mailed or deleted", async () => {
