@@ -813,7 +813,8 @@ model PublicForm {
   updatedAt       DateTime               @updatedAt
   company         Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
   type            RecordTypeDefinition   @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
-  createdBy       User                   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  /// The member whose access the form uses. A form belongs to its list, so removing the member row is refused while it still owns a form; the hand-over moves forms to an admin first.
+  createdBy       User                   @relation(fields: [companyId, createdById], references: [companyId, id], onDelete: Restrict)
   submissions     PublicFormSubmission[]
 
   @@unique([companyId, typeId])
@@ -841,6 +842,7 @@ model PublicFormSubmission {
   @@index([formId, createdAt])
   @@index([companyId, createdAt])
   @@index([formId, ipHash, createdAt])
+  @@index([createdAt])
 }
 
 model IncomingWebhook {
@@ -1785,6 +1787,7 @@ model Booking {
   @@unique([bookingLinkId, slotKey])
   @@index([companyId, bookingLinkId, startsAt])
   @@index([companyId, inviteeEmail])
+  @@index([endsAt])
 }
 
 model MessagingFolderPassMessage {
@@ -2304,6 +2307,7 @@ model Notification {
   @@index([companyId, userId, createdAt])
   @@index([emailedAt, createdAt])
   @@index([userId])
+  @@index([createdAt])
 }
 
 model NotificationPreference {

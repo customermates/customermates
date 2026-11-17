@@ -291,6 +291,9 @@ CREATE INDEX "Notification_emailedAt_createdAt_idx" ON "Notification"("emailedAt
 CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
 
 -- CreateIndex
+CREATE INDEX "Notification_createdAt_idx" ON "Notification"("createdAt");
+
+-- CreateIndex
 CREATE INDEX "NotificationPreference_userId_idx" ON "NotificationPreference"("userId");
 
 -- CreateIndex
@@ -321,6 +324,9 @@ CREATE INDEX "Booking_companyId_inviteeEmail_idx" ON "Booking"("companyId", "inv
 CREATE UNIQUE INDEX "Booking_bookingLinkId_slotKey_key" ON "Booking"("bookingLinkId", "slotKey");
 
 -- CreateIndex
+CREATE INDEX "Booking_endsAt_idx" ON "Booking"("endsAt");
+
+-- CreateIndex
 CREATE INDEX "PublicForm_createdById_idx" ON "PublicForm"("createdById");
 
 -- CreateIndex
@@ -334,6 +340,9 @@ CREATE INDEX "PublicFormSubmission_companyId_createdAt_idx" ON "PublicFormSubmis
 
 -- CreateIndex
 CREATE INDEX "PublicFormSubmission_formId_ipHash_createdAt_idx" ON "PublicFormSubmission"("formId", "ipHash", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "PublicFormSubmission_createdAt_idx" ON "PublicFormSubmission"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "IncomingWebhook_companyId_typeId_idx" ON "IncomingWebhook"("companyId", "typeId");
@@ -402,7 +411,7 @@ ALTER TABLE "PublicForm" ADD CONSTRAINT "PublicForm_companyId_fkey" FOREIGN KEY 
 ALTER TABLE "PublicForm" ADD CONSTRAINT "PublicForm_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PublicForm" ADD CONSTRAINT "PublicForm_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PublicForm" ADD CONSTRAINT "PublicForm_companyId_createdById_fkey" FOREIGN KEY ("companyId", "createdById") REFERENCES "User"("companyId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PublicFormSubmission" ADD CONSTRAINT "PublicFormSubmission_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;

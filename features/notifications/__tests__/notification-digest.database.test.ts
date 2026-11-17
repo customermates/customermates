@@ -268,7 +268,10 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
 
     await preference(w.member.id, "dueToday", "instant");
     expect(await find()).toEqual([member, admin]);
-    expect(await find(1)).toEqual([member]);
+    const limited = await runWithoutTenant(() =>
+      repo.findInstantFallbackUsersUnscoped({ since: minutesAgo(48 * 60), before: minutesAgo(15), now, limit: 1 }),
+    );
+    expect(limited).toHaveLength(1);
 
     await preference(w.admin.id, "ruleAlert", "digest");
     expect(await find()).toEqual([member]);
@@ -301,6 +304,16 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
     );
 
     expect(found.filter((user) => user.companyId === w.companyId)).toEqual([]);
+  });
+
+  it("has an index on the creation time alone for the daily prune", async () => {
+    const rows = await runWithoutTenant(() =>
+      prisma.$queryRaw<
+        Array<{ indexdef: string }>
+      >`SELECT indexdef FROM pg_indexes WHERE tablename = 'Notification' AND indexname = 'Notification_createdAt_idx'`,
+    );
+
+    expect(rows.map((row) => row.indexdef)).toEqual([expect.stringContaining('("createdAt")')]);
   });
 
   it("marks and reads back only notifications of the workspace it was called for", async () => {

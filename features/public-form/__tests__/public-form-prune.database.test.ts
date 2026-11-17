@@ -131,6 +131,79 @@ describeDatabase("failed public form submissions", { timeout: 60_000 }, () => {
   });
 });
 
+describeDatabase("the member a public form runs as", { timeout: 60_000 }, () => {
+  const createForm = (w: Awaited<ReturnType<typeof createRestRouteWorkspace>>, createdById: string) =>
+    runWithoutTenant(() =>
+      prisma.publicForm.create({
+        data: {
+          companyId: w.companyId,
+          typeId: w.id("organization"),
+          name: "Contact",
+          createdById,
+          config: createConfig() as never,
+        },
+      }),
+    );
+  const formExists = (id: string) => runWithoutTenant(() => prisma.publicForm.count({ where: { id } }));
+
+  it("keeps the form when its member row is removed: the removal is refused until the form is handed over", async () => {
+    const w = await createRestRouteWorkspace();
+    cleanups.push(w.cleanup);
+    const form = await createForm(w, w.member.id);
+    const removeMember = () => runWithoutTenant(() => prisma.user.delete({ where: { id: w.member.id } }));
+
+    await expect(removeMember()).rejects.toThrow();
+    expect(await formExists(form.id)).toBe(1);
+
+    const moved = await runWithoutTenant(() =>
+      new PrismaPublicFormRepo().reassignCreatorUnscoped({
+        companyId: w.companyId,
+        fromUserIds: [w.member.id],
+        toUserId: w.admin.id,
+      }),
+    );
+    expect(moved).toBe(1);
+    await expect(removeMember()).resolves.toMatchObject({ id: w.member.id });
+    expect(await formExists(form.id)).toBe(1);
+  });
+
+  it("refuses a member of another workspace as the member a form runs as", async () => {
+    const w = await createRestRouteWorkspace();
+    const other = await createRestRouteWorkspace();
+    cleanups.push(w.cleanup, other.cleanup);
+    const form = await createForm(w, w.admin.id);
+
+    await expect(createForm(other, w.admin.id)).rejects.toThrow();
+    await expect(
+      runWithoutTenant(() =>
+        prisma.publicForm.update({ where: { id: form.id }, data: { createdById: other.admin.id } }),
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("still deletes a whole workspace with its members and forms", async () => {
+    const w = await createRestRouteWorkspace();
+    const form = await createForm(w, w.member.id);
+
+    await w.cleanup();
+
+    expect(await formExists(form.id)).toBe(0);
+    expect(await runWithoutTenant(() => prisma.user.count({ where: { id: w.member.id } }))).toBe(0);
+  });
+});
+
+describeDatabase("the index the daily prune of form submissions uses", { timeout: 60_000 }, () => {
+  it("exists on the creation time alone", async () => {
+    const rows = await runWithoutTenant(() =>
+      prisma.$queryRaw<
+        Array<{ indexdef: string }>
+      >`SELECT indexdef FROM pg_indexes WHERE tablename = 'PublicFormSubmission' AND indexname = 'PublicFormSubmission_createdAt_idx'`,
+    );
+
+    expect(rows.map((row) => row.indexdef)).toEqual([expect.stringContaining('("createdAt")')]);
+  });
+});
+
 describeDatabase("duplicate public form submissions", { timeout: 60_000 }, () => {
   it("stores what a duplicate answered and lists the duplicates of one form, newest first, with the existing record", async () => {
     const w = await createRestRouteWorkspace();

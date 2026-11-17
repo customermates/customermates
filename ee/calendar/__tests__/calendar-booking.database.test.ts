@@ -551,7 +551,9 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
     const { account, calendar } = await connectCalendar(w);
     const organization = await w.create("organization", "organization.name", "Acme");
     const repo = new PrismaBookingRepo();
-    const link = await w.as(w.admin, () => repo.create("token-g-0123456789abcdef", linkData(calendar.id)));
+    const link = await w.as(w.admin, () =>
+      repo.create(`token-busy-${randomUUID().slice(0, 12)}`, linkData(calendar.id)),
+    );
     const free = (title: string, hour: number) =>
       runWithoutTenant(() =>
         prisma.calendarEvent.create({
@@ -850,5 +852,15 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
     expect([ended.id, endedCancelled.id, abandoned.id].some((id) => left.some((booking) => booking.id === id))).toBe(
       false,
     );
+  });
+
+  it("has an index on the end time alone for the daily prune of bookings", async () => {
+    const rows = await runWithoutTenant(() =>
+      prisma.$queryRaw<
+        Array<{ indexdef: string }>
+      >`SELECT indexdef FROM pg_indexes WHERE tablename = 'Booking' AND indexname = 'Booking_endsAt_idx'`,
+    );
+
+    expect(rows.map((row) => row.indexdef)).toEqual([expect.stringContaining('("endsAt")')]);
   });
 });
