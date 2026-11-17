@@ -35,6 +35,15 @@ describe("product film per locale", () => {
     expect(productFilmFor("xx")).toBe(PRODUCT_FILMS.en);
   });
 
+  it("shows the same inbox poster in front of every locale's film", () => {
+    for (const film of Object.values(PRODUCT_FILMS)) {
+      expect(film.posters, film.src).toEqual({
+        dark: "/customermates-film-poster-inbox-dark.jpg",
+        light: "/customermates-film-poster-inbox.jpg",
+      });
+    }
+  });
+
   it("ships every film and poster, the posters at the size the poster image props declare", () => {
     for (const path of PRODUCT_FILM_PUBLIC_PATHS) {
       const file = join(PUBLIC, path);
