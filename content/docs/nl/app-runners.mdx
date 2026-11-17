@@ -16,7 +16,7 @@ De CLI werkt als jij, het lid dat de runner heeft toegevoegd, met jouw rechten i
 ## Wat heeft hij nodig? [#what-does-it-need]
 
 - Node 24, of Docker.
-- Claude Code, Codex of Gemini CLI, geïnstalleerd en ingelogd op die machine. Zonder CLI meldt de runner er geen en neemt hij geen taken aan; jouw taken wachten dan en eindigen na 15 minuten als verlopen.
+- Claude Code, Codex of Gemini CLI, geïnstalleerd en ingelogd op die machine. Zonder CLI meldt de runner er geen en neemt hij geen taken aan. Zolang geen van jouw runners een CLI heeft gemeld, wacht een agentstap die op je eigen runner draait niet: hij mislukt meteen met "Er is nog geen runner met deze werkruimte verbonden."
 - Een netwerkverbinding van die machine naar het adres van je Customermates. De runner doet alleen uitgaande verzoeken: hij werkt achter een firewall en heeft geen open poort nodig.
 
 ## Hoe voeg ik een runner toe en start ik hem? [#how-do-i-add-a-runner]

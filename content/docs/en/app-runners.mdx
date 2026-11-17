@@ -16,7 +16,7 @@ The CLI works as you, the member who added the runner, with your permissions in 
 ## What does it need? [#what-does-it-need]
 
 - Node 24, or Docker.
-- One of Claude Code, Codex or Gemini CLI, installed and signed in on that machine. Without a CLI the runner reports none and takes no jobs; your jobs then wait and end as timed out after 15 minutes.
+- One of Claude Code, Codex or Gemini CLI, installed and signed in on that machine. Without a CLI the runner reports none and takes no jobs. As long as none of your runners has reported a CLI, an agent step that runs on your own runner does not wait: it fails at once with "No runner is connected to this workspace yet."
 - A network connection from that machine to your Customermates address. The runner only makes outgoing requests, so it works behind a firewall and needs no open port.
 
 ## How do I add and start a runner? [#how-do-i-add-a-runner]

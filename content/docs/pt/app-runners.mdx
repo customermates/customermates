@@ -16,7 +16,7 @@ A CLI trabalha como você, o membro que adicionou o runner, com as suas permiss�
 ## O que ele precisa? [#what-does-it-need]
 
 - Node 24, ou Docker.
-- Claude Code, Codex ou Gemini CLI, instalado e com a sessão iniciada nessa máquina. Sem CLI, o runner não informa nenhuma e não pega tarefas; as suas tarefas então esperam e terminam como expiradas após 15 minutos.
+- Claude Code, Codex ou Gemini CLI, instalado e com a sessão iniciada nessa máquina. Sem CLI, o runner não informa nenhuma e não pega tarefas. Enquanto nenhum dos seus runners tiver informado uma CLI, um passo do agente que roda no seu próprio runner não espera: ele falha de imediato com "Ainda não há nenhum runner conectado a este espaço de trabalho."
 - Uma conexão de rede dessa máquina até o endereço do seu Customermates. O runner só faz solicitações de saída: funciona atrás de um firewall e não precisa de nenhuma porta aberta.
 
 ## Como adiciono e inicio um runner? [#how-do-i-add-a-runner]
