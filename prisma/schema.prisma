@@ -3071,12 +3071,16 @@ model AgentJob {
   status          AgentJobStatus @default(queued)
   sourceKind      String
   sourceId        String?
+  idempotencyKey  String?
+  ruleChain       String[]       @default([])
   ownerUserId     String
   prompt          String
   promptUntrusted Boolean        @default(false)
   model           String?
+  pinnedRunnerId  String?
   runnerId        String?
   attempts        Int            @default(0)
+  queuedAt        DateTime       @default(now())
   claimedAt       DateTime?
   startedAt       DateTime?
   finishedAt      DateTime?
@@ -3093,7 +3097,9 @@ model AgentJob {
   owner           User           @relation(fields: [companyId, ownerUserId], references: [companyId, id], onDelete: Cascade)
   runner          AgentRunner?   @relation(fields: [runnerId], references: [id], onDelete: SetNull)
 
+  @@unique([companyId, idempotencyKey])
   @@index([companyId, status, createdAt])
   @@index([companyId, runnerId, status])
   @@index([status, timeoutAt])
+  @@index([status, queuedAt])
 }

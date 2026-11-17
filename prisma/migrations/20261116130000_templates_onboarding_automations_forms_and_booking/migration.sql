@@ -465,12 +465,16 @@ CREATE TABLE "AgentJob" (
     "status" "AgentJobStatus" NOT NULL DEFAULT 'queued',
     "sourceKind" TEXT NOT NULL,
     "sourceId" TEXT,
+    "idempotencyKey" TEXT,
+    "ruleChain" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "ownerUserId" TEXT NOT NULL,
     "prompt" TEXT NOT NULL,
     "promptUntrusted" BOOLEAN NOT NULL DEFAULT false,
     "model" TEXT,
+    "pinnedRunnerId" TEXT,
     "runnerId" TEXT,
     "attempts" INTEGER NOT NULL DEFAULT 0,
+    "queuedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "claimedAt" TIMESTAMP(3),
     "startedAt" TIMESTAMP(3),
     "finishedAt" TIMESTAMP(3),
@@ -503,6 +507,9 @@ CREATE INDEX "AgentRunner_companyId_revokedAt_idx" ON "AgentRunner"("companyId",
 CREATE UNIQUE INDEX "AgentRunner_companyId_id_key" ON "AgentRunner"("companyId", "id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "AgentJob_companyId_idempotencyKey_key" ON "AgentJob"("companyId", "idempotencyKey");
+
+-- CreateIndex
 CREATE INDEX "AgentJob_companyId_status_createdAt_idx" ON "AgentJob"("companyId", "status", "createdAt");
 
 -- CreateIndex
@@ -510,6 +517,9 @@ CREATE INDEX "AgentJob_companyId_runnerId_status_idx" ON "AgentJob"("companyId",
 
 -- CreateIndex
 CREATE INDEX "AgentJob_status_timeoutAt_idx" ON "AgentJob"("status", "timeoutAt");
+
+-- CreateIndex
+CREATE INDEX "AgentJob_status_queuedAt_idx" ON "AgentJob"("status", "queuedAt");
 
 -- AddForeignKey
 ALTER TABLE "AgentProviderKey" ADD CONSTRAINT "AgentProviderKey_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
