@@ -138,7 +138,7 @@ export class PrismaAutomationRuleRepo
     if (id) {
       await this.prisma.automationRule.updateMany({
         where: { id, companyId: this.companyId },
-        data: { ...fields, disabledReason: fields.enabled ? null : undefined },
+        data: { ...fields, disabledReason: fields.enabled ? null : fields.disabledReason },
       });
       saved = await this.findRule(id);
     } else {

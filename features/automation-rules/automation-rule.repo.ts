@@ -46,6 +46,7 @@ export type AutomationRuleWrite = {
   id?: string;
   name: string;
   enabled: boolean;
+  disabledReason?: string;
   ownerUserId: string;
   triggerKind: AutomationTriggerKind;
   typeId: string | null;

@@ -86,7 +86,7 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
       trigger: data.trigger as StoredAutomationRule["trigger"],
       conditions: data.conditions as StoredAutomationRule["conditions"],
       effects: data.effects as StoredAutomationRule["effects"],
-      disabledReason: data.enabled ? null : (previous?.disabledReason ?? null),
+      disabledReason: data.enabled ? null : (data.disabledReason ?? previous?.disabledReason ?? null),
     });
     if (recordTrigger) this.recordTriggers.set(stored.id, recordTrigger);
     else this.recordTriggers.delete(stored.id);

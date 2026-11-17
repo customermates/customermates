@@ -416,6 +416,30 @@ describe("switching a rule on and off", () => {
     expect(cancelled).toHaveLength(2);
   });
 
+  it("treats an update that turns a rule off like the disable route, and leaves other reasons alone", async () => {
+    repo.addRule({ id: RULE, ...reminder, trigger: reminder.trigger, effects: [notify] });
+    const upsert = new UpsertAutomationRuleInteractor(repo, recordsPort() as never, unlimited(), null, agentJobs);
+    const update = (input: Record<string, unknown>) =>
+      runWithTenant(mockUser, () => upsert.invoke({ id: RULE, ...input } as never));
+
+    expect(await update({ name: "Renamed" })).toMatchObject({ ok: true, data: { enabled: true } });
+    expect(cancelled).toHaveLength(0);
+
+    expect(await update({ enabled: false })).toMatchObject({
+      ok: true,
+      data: { enabled: false, disabledReason: "disabledByUser" },
+    });
+    expect(cancelled).toEqual([{ companyId: COMPANY, ruleId: RULE }]);
+
+    const paused = repo.rules.get(RULE);
+    if (paused) repo.rules.set(RULE, { ...paused, disabledReason: "planPaused" });
+    expect(await update({ name: "Renamed again", enabled: false })).toMatchObject({
+      ok: true,
+      data: { enabled: false, disabledReason: "planPaused" },
+    });
+    expect(cancelled).toHaveLength(1);
+  });
+
   it("checks the allowance when a rule is switched on", async () => {
     repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], enabled: false });
     repo.addRule({ id: "00000000-0000-4000-8000-0000000000a2", trigger: reminder.trigger, effects: [notify] });

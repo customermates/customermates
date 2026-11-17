@@ -3028,6 +3028,7 @@ export const getUpsertAutomationRuleInteractor = () =>
     getRecordAutomationPort(),
     getAutomationPlanLimits(),
     getAgentRuntimeAvailabilitySource(),
+    getAgentJobRepo(),
   );
 export const getSetAutomationRuleEnabledInteractor = () =>
   new SetAutomationRuleEnabledInteractor(getAutomationRuleRepo(), getAutomationPlanLimits(), getAgentJobRepo());

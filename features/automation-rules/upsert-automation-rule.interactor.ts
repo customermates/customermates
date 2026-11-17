@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import type { Validated } from "@/core/validation/validation.utils";
-import type { AutomationPlanLimits, AutomationRecordPort } from "./automation-ports";
+import type { AutomationAgentJobQueue, AutomationPlanLimits, AutomationRecordPort } from "./automation-ports";
 import type { AutomationRuleRepo, StoredAutomationRule } from "./automation-rule.repo";
 import type { AutomationEffect, AutomationRuleDto, UpsertAutomationRuleData } from "./automation-rule.schema";
 import type { ResolvedSteps } from "./automation-step-references";
@@ -14,6 +14,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { AUTOMATION_DISABLED_REASON_BY_USER } from "./automation-disabled-reason";
 import { automationModelIssues } from "./automation-model-validation";
 import { ruleConditionPlan } from "./automation-record-trigger";
 import { toAutomationRuleDto } from "./automation-rule-dto";
@@ -48,6 +49,8 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
     private readonly records: AutomationRecordPort,
     private readonly limits: AutomationPlanLimits,
     private readonly runtimes: AgentRuntimeAvailabilitySource | null = null,
+    private readonly agentJobs: AutomationAgentJobQueue | null = null,
+    private readonly clock: () => Date = () => new Date(),
   ) {
     super();
   }
@@ -78,11 +81,13 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
       }
     }
 
+    const switchedOff = previous?.enabled === true && !state.enabled;
     const saved = await this.repo.saveRule(
       {
         id: previous?.id,
         name: state.name,
         enabled: state.enabled,
+        ...(switchedOff ? { disabledReason: AUTOMATION_DISABLED_REASON_BY_USER } : {}),
         ownerUserId: this.user.id,
         triggerKind: state.trigger.kind,
         typeId: triggerTypeId(state.trigger),
@@ -92,6 +97,13 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
       },
       ruleConditionPlan(state.trigger, state.conditions, model).subscription,
     );
+    if (switchedOff && this.agentJobs) {
+      await this.agentJobs.cancelQueuedForRuleUnscoped({
+        companyId: this.companyId,
+        ruleId: saved.id,
+        now: this.clock(),
+      });
+    }
     return { ok: true as const, data: toAutomationRuleDto(saved) };
   }
 
