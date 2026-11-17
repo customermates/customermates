@@ -4277,6 +4277,7 @@
     },
     "source": {
       "choices": {
+        "advertisement": "Über eine Anzeige",
         "aiAssistant": "Über einen KI-Assistenten (ChatGPT, Claude, Perplexity)",
         "articleOrVideo": "Über einen Artikel oder ein Video",
         "directory": "Über ein Verzeichnis oder eine Auflistung",

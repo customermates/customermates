@@ -4277,6 +4277,7 @@
     },
     "source": {
       "choices": {
+        "advertisement": "Un annuncio pubblicitario",
         "aiAssistant": "Un assistente IA (ChatGPT, Claude, Perplexity)",
         "articleOrVideo": "Un articolo o un video",
         "directory": "Una directory o un elenco",

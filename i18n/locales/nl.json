@@ -4277,6 +4277,7 @@
     },
     "source": {
       "choices": {
+        "advertisement": "Een advertentie",
         "aiAssistant": "Een AI-assistent (ChatGPT, Claude, Perplexity)",
         "articleOrVideo": "Een artikel of video",
         "directory": "Een directory of overzichtssite",

@@ -96,6 +96,7 @@ export const StepGoal = observer(() => {
   const disabled = store.isSubmitting || store.isInitializing;
   const followupVisible = !store.selfHosted && (store.suggestedJob === "followup" || store.selectedJob === "followup");
   const jobs: OnboardingJob[] = ["agent", "workspace", ...(followupVisible ? (["followup"] as const) : [])];
+  const mateSuggested = !store.selfHosted && store.suggestedJob === "workspace";
   const mateTitle = store.selfHosted
     ? t("OnboardingWizard.goal.cloud.title")
     : t("OnboardingWizard.goal.workspace.title");
@@ -117,7 +118,7 @@ export const StepGoal = observer(() => {
             return (
               <SelectableCard
                 key={job}
-                badge={<Badge>{t("OnboardingWizard.goal.recommended")}</Badge>}
+                badge={mateSuggested ? undefined : <Badge>{t("OnboardingWizard.goal.recommended")}</Badge>}
                 description={
                   store.selfHosted
                     ? t("OnboardingWizard.goal.agent.descriptionSelfHosted")
@@ -151,6 +152,8 @@ export const StepGoal = observer(() => {
 
                       {t("OnboardingWizard.goal.cloud.badge")}
                     </Badge>
+                  ) : mateSuggested ? (
+                    <Badge variant="secondary">{t("OnboardingWizard.goal.suggested")}</Badge>
                   ) : undefined
                 }
                 description={mateDescription}

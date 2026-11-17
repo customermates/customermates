@@ -4277,6 +4277,7 @@
     },
     "source": {
       "choices": {
+        "advertisement": "Z reklamy",
         "aiAssistant": "Od asystenta AI (ChatGPT, Claude, Perplexity)",
         "articleOrVideo": "Z artykułu lub filmu",
         "directory": "Z katalogu lub zestawienia",

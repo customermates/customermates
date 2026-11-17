@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const DISCOVERY_CHOICES = [
   "searchEngine",
+  "advertisement",
   "aiAssistant",
   "directory",
   "socialMedia",

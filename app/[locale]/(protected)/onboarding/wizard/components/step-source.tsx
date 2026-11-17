@@ -22,6 +22,7 @@ export const StepSource = observer(() => {
   const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
   const labels: Record<DiscoveryChoice, string> = {
     searchEngine: t("OnboardingWizard.source.choices.searchEngine"),
+    advertisement: t("OnboardingWizard.source.choices.advertisement"),
     aiAssistant: t("OnboardingWizard.source.choices.aiAssistant"),
     directory: t("OnboardingWizard.source.choices.directory"),
     socialMedia: t("OnboardingWizard.source.choices.socialMedia"),

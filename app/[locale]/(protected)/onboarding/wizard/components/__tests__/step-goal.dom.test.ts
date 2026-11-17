@@ -63,7 +63,7 @@ let store: OnboardingWizardStore;
 
 async function renderGoal(
   job: "agent" | "workspace" | "followup",
-  options: { selfHosted?: boolean; suggestedJob?: "followup" | null } = {},
+  options: { selfHosted?: boolean; suggestedJob?: "followup" | "workspace" | null } = {},
 ) {
   const ai = {
     reset: vi.fn(),
@@ -124,6 +124,30 @@ describe("StepGoal", () => {
     expect(container.querySelectorAll('label[for="onboarding-goal-agent"] ol li')).toHaveLength(3);
     expect(container.querySelector('label[for="onboarding-goal-workspace"]')?.textContent).toContain(
       "OnboardingWizard.goal.workspace.title",
+    );
+  });
+
+  it("recommends Mate instead of the own agent when the sign-up link asked for Mate's setup", async () => {
+    await renderGoal("workspace", { suggestedJob: "workspace" });
+
+    expect(radios().map((item) => item.id)).toEqual(["onboarding-goal-agent", "onboarding-goal-workspace"]);
+    expect(radio("onboarding-goal-workspace")?.getAttribute("aria-checked")).toBe("true");
+    expect(container.querySelector('label[for="onboarding-goal-agent"]')?.textContent).not.toContain(
+      "OnboardingWizard.goal.recommended",
+    );
+    expect(container.querySelector('label[for="onboarding-goal-workspace"]')?.textContent).toContain(
+      "OnboardingWizard.goal.suggested",
+    );
+  });
+
+  it("keeps the own agent recommended on a self-hosted instance, where Mate is the cloud trial", async () => {
+    await renderGoal("agent", { selfHosted: true, suggestedJob: "workspace" });
+
+    expect(container.querySelector('label[for="onboarding-goal-agent"]')?.textContent).toContain(
+      "OnboardingWizard.goal.recommended",
+    );
+    expect(container.querySelector('label[for="onboarding-goal-workspace"]')?.textContent).not.toContain(
+      "OnboardingWizard.goal.suggested",
     );
   });
 

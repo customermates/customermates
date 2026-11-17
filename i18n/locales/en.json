@@ -4277,6 +4277,7 @@
     },
     "source": {
       "choices": {
+        "advertisement": "An ad",
         "aiAssistant": "An AI assistant (ChatGPT, Claude, Perplexity)",
         "articleOrVideo": "An article or video",
         "directory": "A directory or listing",
