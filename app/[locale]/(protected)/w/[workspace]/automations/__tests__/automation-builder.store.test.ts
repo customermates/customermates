@@ -204,6 +204,50 @@ describe("AutomationBuilderStore", () => {
     expect(store.expanded).toBe("effect-0");
   });
 
+  it("keeps a red mark on the card it was given to when cards are removed or added", async () => {
+    const { store } = open();
+    store.startFromScratch();
+    store.setName("Flags");
+    store.addEffect("notify", 0);
+    store.addEffect("agent", 0);
+    store.addCondition(0);
+    store.addCondition(1);
+    store.patchCondition(0, { operator: "notEmpty" });
+
+    expect(await store.save()).toBe("incomplete");
+    expect(store.invalid).toEqual(["conditions.1", "effects.0"]);
+
+    store.removeEffect(0);
+    expect(store.isFlagged("effects.0")).toBe(false);
+    expect(store.form.effects.map((effect) => effect.kind)).toEqual(["notify"]);
+
+    store.removeCondition(0);
+    expect(store.invalid).toEqual(["conditions.0"]);
+
+    store.addCondition(0);
+    expect(store.invalid).toEqual(["conditions.1"]);
+    store.removeCondition(1);
+    expect(store.invalid).toEqual([]);
+  });
+
+  it("moves a red mark along with its step when another step is put in front of it", async () => {
+    const { store } = open();
+    store.startFromScratch();
+    store.setName("Flags");
+
+    expect(await store.save()).toBe("incomplete");
+    expect(store.isFlagged("effects")).toBe(true);
+
+    store.addEffect("agent", 0);
+    expect(store.isFlagged("effects")).toBe(false);
+    expect(await store.save()).toBe("incomplete");
+    expect(store.invalid).toEqual(["effects.0"]);
+
+    store.addEffect("notify", 0);
+    expect(store.invalid).toEqual(["effects.1"]);
+    expect(store.isFlagged("effects.0")).toBe(false);
+  });
+
   it("saves a complete chain, hands the rule back and closes", async () => {
     actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: SAVED });
     const { store, onSaved } = open();

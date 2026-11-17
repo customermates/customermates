@@ -54,6 +54,16 @@ export function automationCardId(issue: string): string | null {
 }
 export type AutomationBuilderOpenOptions = { pane?: AutomationBuilderPane; typeId?: string; draft?: AutomationDraft };
 
+function reindexIssues(issues: string[], group: "conditions" | "effects", at: number, shift: 1 | -1): string[] {
+  return issues.flatMap((issue) => {
+    const [head, position, ...rest] = issue.split(".");
+    if (head !== group || position === undefined) return [issue];
+    const index = Number(position);
+    if (shift === -1 && index === at) return [];
+    return [[head, String(index >= at ? index + shift : index), ...rest].join(".")];
+  });
+}
+
 export const AUTOMATION_PREVIEW_DELAY_MS = 400;
 
 const BLANK_TRIGGER: DraftTrigger = {
@@ -293,6 +303,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const field = list.fields[0];
     next.splice(at, 0, blankCondition(field?.id ?? "", conditionOperatorsFor(field)[0]));
     this.form.conditions = next;
+    this.invalid = reindexIssues(this.invalid, "conditions", at, 1);
     this.expanded = `condition-${at}`;
     this.palette = null;
     this.schedulePreview();
@@ -300,6 +311,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
 
   removeCondition = (index: number) => {
     this.form.conditions = this.form.conditions.filter((_, item) => item !== index);
+    this.invalid = reindexIssues(this.invalid, "conditions", index, -1);
     this.expanded = null;
     this.schedulePreview();
   };
@@ -313,12 +325,14 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const next = [...this.form.effects];
     next.splice(at, 0, blankEffect(kind, this.model, this.form.trigger.typeId));
     this.form.effects = next;
+    this.invalid = reindexIssues(this.invalid, "effects", at, 1).filter((issue) => issue !== "effects");
     this.expanded = `effect-${at}`;
     this.palette = null;
   };
 
   removeEffect = (index: number) => {
     this.form.effects = this.form.effects.filter((_, item) => item !== index);
+    this.invalid = reindexIssues(this.invalid, "effects", index, -1);
     this.expanded = null;
   };
 
