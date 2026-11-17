@@ -1,0 +1,59 @@
+---
+title: "Agents: Provider Keys, Runtimes and Agent Runs"
+description: "Agent steps run on Mate, on your own AI key or on your own runner: add a provider key, see the models, the limits per run and the run history."
+---
+
+An agent is an AI that carries out the agent step of an [automation](/docs/app-automations): it reads the record that started the automation, uses the same CRM tools as Mate and reports what it did. Where an agent runs is the **runtime** of the step: **Mate** (Customermates' hosted agent, paid with the AI credits of your plan, Cloud only), **Your own key** (an agent in the Customermates cloud or on your own self-hosted instance that uses an API key from your AI provider, billed by the provider) or **Your own runner** (Claude Code or Codex on your own machine, under your own login).
+
+Open **Agents** in [Settings](app:settings/agents) to see which runtimes are available, add provider keys, see the runners of the workspace and read the recent runs. The page is for people who may change workspace settings.
+
+## How do I add a provider key? [#how-do-i-add-a-provider-key]
+
+Open **Agents**, click **Add key** and choose the **Provider** (Anthropic, OpenAI or Google), give the key a **Label**, paste the **API key** from the provider's console and choose a **Default model**. Customermates asks the provider whether the key works before it keeps it. A key the provider rejects is not saved, and a provider that cannot be reached right now asks you to try again.
+
+The key is stored encrypted and is never shown again: the list shows the label, the provider and the last four characters only. A workspace has one key per provider, so adding a key for a provider that already has one replaces it. **Test** asks the provider again and updates **Last checked**, **Remove** deletes the key for good. Keys work on every paid plan and on self-hosted instances, where the key is yours anyway; the Free plan cannot add one.
+
+## What does it cost? [#what-does-it-cost]
+
+An agent on your own key costs you what the provider charges for the calls, on the provider's bill. It does not use the AI credits of your Customermates plan. An agent on Mate uses the credits of the person who owns the automation, the same allowance that Mate chats and routines use, and each run shows the credits it used. A run stops before it can use more than its reserved credits.
+
+## Which models can I use? [#which-models-can-i-use]
+
+The list per provider is maintained in Customermates and shows the models of the providers you added a key for:
+
+- **Anthropic:** Claude Sonnet 5.5 (the default), Claude Opus 5.5, Claude Haiku 5.5, Claude Sonnet 4.5 and Claude Haiku 4.5.
+- **OpenAI:** GPT-5 mini (the default), GPT-5, GPT-5 nano, GPT-4.1 and GPT-4.1 mini.
+- **Google:** Gemini 2.5 Flash (the default), Gemini 2.5 Pro and Gemini 2.5 Flash-Lite.
+
+A step without a model uses the default model of the key. Customermates never asks for a Claude Pro or Max login: the own-key runtime works only with an API key from the provider's console.
+
+## What may an agent step do? [#what-may-an-agent-step-do]
+
+An agent step runs as the owner of the automation, with the owner's permissions, without anyone watching. It can read and change records, read the Knowledge Base and use the other workspace tools of Mate. It cannot use the interface and has no web search. Anything that needs an approval, such as deleting records or inviting people, is declined and the agent reports what remains.
+
+A run has two caps: at most 25 tool calls and 10 minutes. When a cap is reached, the run stops and says so. When the event that started the automation came from outside the workspace, for example a form, a webhook or an incoming message, the agent treats the record and everything in it as data, never as instructions. A run that is cut off before it finishes, for example by a server restart, is started once more. A run that fails because of the provider shows the provider's error class, never the key.
+
+## Where do I see what an agent did? [#where-do-i-see-what-an-agent-did]
+
+**Recent agent runs** on the **Agents** page lists the runs newest first, with the status (**Queued**, **Starting**, **Running**, **Completed**, **Failed**, **Timed out** or **Cancelled**), the runtime, the model, the tokens and, for Mate, the credits used. Open a run to read its transcript: the instruction, every tool the agent called with a short digest of the arguments, a short summary of each result and the final report. Runs are kept for 90 days. People who see all automations see all runs, everyone else sees the runs of their own automations.
+
+## For agents [#for-agents]
+
+The agent step is the effect `agent` of a rule in `manage_rules` over [MCP](/docs/mcp): `runtime` is `mate`, `ownKey` or `runner`, `prompt` is the task (it may use `{{record.name}}` and `{{rule.name}}`), `model` picks a model of the key's provider for `ownKey`, and `runnerId` pins one runner for `runner`. A runtime that is not available makes the effect fail with the reason `plan`, `noKey`, `noRunner`, `selfHosted` or `notConfigured`.
+
+## Frequently asked questions [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Can I use my Claude Pro or Max subscription?">
+No. Customermates runs agents on an API key from the provider's console, which the provider bills by use. A Claude Pro or Max login is for Claude itself and is not used by Customermates.
+</FaqItem>
+<FaqItem question="Is my key safe?">
+The key is checked with the provider, stored encrypted and shown again nowhere, not even to administrators. It is opened only for the moment of a run, for that run's calls to the provider, and is never written to the run history.
+</FaqItem>
+<FaqItem question="Why is Your own key not available?">
+The **Agents** page names the reason next to each runtime: your plan does not include it, or no provider key has been added yet. A runner is available when one was seen in the last two minutes.
+</FaqItem>
+<FaqItem question="Does a run keep going when I close the page?">
+Yes. A run is started on the server by the automation and finishes there. The page only shows what was recorded.
+</FaqItem>
+</Faq>

@@ -1,0 +1,59 @@
+---
+title: "Agents: sleutels van aanbieders, runtimes en uitvoeringen"
+description: "Agentstappen draaien op Mate, op je eigen AI-sleutel of op je eigen runner: voeg een sleutel toe, zie modellen, limieten per uitvoering en geschiedenis."
+---
+
+Een agent is een AI die de agentstap van een [automatisering](/docs/app-automations) uitvoert: ze leest het record dat de automatisering startte, gebruikt dezelfde CRM-tools als Mate en meldt wat ze deed. Waar een agent draait is de **runtime** van de stap: **Mate** (de gehoste agent van Customermates, betaald met de AI-credits van je pakket, alleen Cloud), **Je eigen sleutel** (een agent in de Customermates-cloud of op je zelfgehoste instantie die een API-sleutel van je AI-aanbieder gebruikt, in rekening gebracht door de aanbieder) of **Je eigen runner** (Claude Code of Codex op je eigen machine, met je eigen login).
+
+Open **Agents** in de [instellingen](app:settings/agents) om te zien welke runtimes beschikbaar zijn, sleutels van aanbieders toe te voegen, de runners van de werkruimte te zien en de recente uitvoeringen te lezen. De pagina is voor mensen die de instellingen van de werkruimte mogen wijzigen.
+
+## Hoe voeg ik een sleutel van een aanbieder toe? [#how-do-i-add-a-provider-key]
+
+Open **Agents**, klik op **Sleutel toevoegen** en kies de **Aanbieder** (Anthropic, OpenAI of Google). Geef de sleutel een **Label**, plak de **API-sleutel** uit de console van de aanbieder en kies een **Standaardmodel**. Customermates vraagt de aanbieder of de sleutel werkt voordat de sleutel wordt bewaard. Een sleutel die de aanbieder weigert wordt niet opgeslagen, en als de aanbieder op dat moment niet bereikbaar is, word je gevraagd het opnieuw te proberen.
+
+De sleutel wordt versleuteld opgeslagen en nooit meer getoond: de lijst toont alleen het label, de aanbieder en de laatste vier tekens. Een werkruimte heeft één sleutel per aanbieder, dus een sleutel toevoegen voor een aanbieder die er al een heeft, vervangt die. **Testen** vraagt de aanbieder opnieuw en werkt **Laatst gecontroleerd** bij, **Verwijderen** wist de sleutel definitief. Sleutels werken op elk betaald pakket en op zelfgehoste instanties, waar de sleutel toch al van jou is; het Free-pakket kan er geen toevoegen.
+
+## Wat kost het? [#what-does-it-cost]
+
+Een agent op je eigen sleutel kost wat de aanbieder voor de aanroepen rekent, op de rekening van de aanbieder. Hij gebruikt geen AI-credits van je Customermates-pakket. Een agent op Mate gebruikt de credits van de eigenaar van de automatisering, hetzelfde tegoed dat Mate-chats en routines gebruiken, en elke uitvoering toont de gebruikte credits. Een uitvoering stopt voordat ze meer kan gebruiken dan de gereserveerde credits.
+
+## Welke modellen kan ik gebruiken? [#which-models-can-i-use]
+
+De lijst per aanbieder wordt bijgehouden door Customermates en toont de modellen van de aanbieders waarvoor je een sleutel hebt toegevoegd:
+
+- **Anthropic:** Claude Sonnet 5.5 (de standaard), Claude Opus 5.5, Claude Haiku 5.5, Claude Sonnet 4.5 en Claude Haiku 4.5.
+- **OpenAI:** GPT-5 mini (de standaard), GPT-5, GPT-5 nano, GPT-4.1 en GPT-4.1 mini.
+- **Google:** Gemini 2.5 Flash (de standaard), Gemini 2.5 Pro en Gemini 2.5 Flash-Lite.
+
+Een stap zonder model gebruikt het standaardmodel van de sleutel. Customermates vraagt nooit om een Claude Pro- of Max-login: de runtime met eigen sleutel werkt alleen met een API-sleutel uit de console van de aanbieder.
+
+## Wat mag een agentstap doen? [#what-may-an-agent-step-do]
+
+Een agentstap draait als eigenaar van de automatisering, met diens rechten, zonder dat iemand meekijkt. Ze kan records lezen en wijzigen, de kennisbank lezen en de andere werkruimte-tools van Mate gebruiken. Ze kan de interface niet gebruiken en heeft geen webzoekfunctie. Alles wat een goedkeuring nodig heeft, zoals records verwijderen of mensen uitnodigen, wordt geweigerd en de agent meldt wat er openstaat.
+
+Een uitvoering heeft twee grenzen: hooguit 25 toolaanroepen en 10 minuten. Als een grens wordt bereikt, stopt de uitvoering en zegt dat. Als de gebeurtenis die de automatisering startte van buiten de werkruimte komt, bijvoorbeeld een formulier, een webhook of een binnenkomend bericht, behandelt de agent het record en alles erin als gegevens, nooit als instructies. Een uitvoering die voor het einde wordt afgebroken, bijvoorbeeld door een herstart van de server, wordt nog één keer gestart. Een uitvoering die mislukt door de aanbieder toont de foutklasse van de aanbieder, nooit de sleutel.
+
+## Waar zie ik wat een agent deed? [#where-do-i-see-what-an-agent-did]
+
+**Recente agentuitvoeringen** op de pagina **Agents** toont de uitvoeringen, nieuwste eerst, met de status (**In de wachtrij**, **Wordt gestart**, **Bezig**, **Afgerond**, **Mislukt**, **Time-out** of **Geannuleerd**), de runtime, het model, de tokens en, bij Mate, de gebruikte credits. Open een uitvoering om het transcript te lezen: de opdracht, elke aangeroepen tool met een korte samenvatting van de argumenten, een korte samenvatting van elk resultaat en het eindrapport. Uitvoeringen worden 90 dagen bewaard. Wie alle automatiseringen ziet, ziet alle uitvoeringen, de anderen zien de uitvoeringen van hun eigen automatiseringen.
+
+## Voor agents [#for-agents]
+
+De agentstap is het effect `agent` van een regel in `manage_rules` via [MCP](/docs/mcp): `runtime` is `mate`, `ownKey` of `runner`, `prompt` is de taak (ze mag `{{record.name}}` en `{{rule.name}}` gebruiken), `model` kiest voor `ownKey` een model van de aanbieder van de sleutel, en `runnerId` legt voor `runner` één runner vast. Een runtime die niet beschikbaar is laat het effect mislukken met de reden `plan`, `noKey`, `noRunner`, `selfHosted` of `notConfigured`.
+
+## Veelgestelde vragen [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Kan ik mijn Claude Pro- of Max-abonnement gebruiken?">
+Nee. Customermates voert agents uit op een API-sleutel uit de console van de aanbieder, die de aanbieder op gebruik factureert. Een Claude Pro- of Max-login hoort bij Claude zelf en wordt door Customermates niet gebruikt.
+</FaqItem>
+<FaqItem question="Is mijn sleutel veilig?">
+De sleutel wordt bij de aanbieder gecontroleerd, versleuteld opgeslagen en nergens meer getoond, ook niet aan beheerders. Hij wordt alleen geopend voor de duur van een uitvoering, voor de aanroepen van die uitvoering naar de aanbieder, en nooit in de geschiedenis van de uitvoeringen geschreven.
+</FaqItem>
+<FaqItem question="Waarom is Je eigen sleutel niet beschikbaar?">
+De pagina **Agents** noemt de reden naast elke runtime: je pakket bevat hem niet, of er is nog geen sleutel van een aanbieder toegevoegd. Een runner is beschikbaar als er in de laatste twee minuten een is gezien.
+</FaqItem>
+<FaqItem question="Gaat een uitvoering door als ik de pagina sluit?">
+Ja. Een uitvoering wordt door de automatisering op de server gestart en eindigt daar. De pagina toont alleen wat is vastgelegd.
+</FaqItem>
+</Faq>

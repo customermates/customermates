@@ -3106,6 +3106,7 @@
   "DocsSidebar": {
     "apiKeys": "API Keys",
     "appAssistant": "Assistant",
+    "appAgents": "Agents",
     "appAutomations": "Automations",
     "appCalendar": "Calendar",
     "appCompany": "Company",

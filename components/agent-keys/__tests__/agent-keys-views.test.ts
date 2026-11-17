@@ -42,6 +42,7 @@ vi.mock("next-intl", () => ({
 import { AgentKeysStore } from "../agent-keys.store";
 import { AgentKeysCard } from "../agent-keys-card";
 import { AgentRunnersCard } from "../agent-runners-card";
+import { agentRuntimeWithKeys } from "../agent-runtime-with-keys";
 import { AgentRuntimesCard } from "../agent-runtimes-card";
 
 const KEY: AgentProviderKeyDto = {
@@ -161,6 +162,22 @@ describe("AgentRunnersCard", () => {
 
     expect(markup).toContain("AgentRuntime.runnersEmpty");
     expect(markup).toContain('id="runner-slot"');
+  });
+});
+
+describe("agentRuntimeWithKeys", () => {
+  it("counts the keys on the page, so adding or removing one changes the key runtime at once", () => {
+    const base = availability();
+
+    expect(agentRuntimeWithKeys(base, 1).ownKey).toMatchObject({ available: true, reason: null });
+    const withKey = availability({ ownKey: { ...base.ownKey, available: true, reason: null } });
+    expect(agentRuntimeWithKeys(withKey, 0).ownKey).toMatchObject({ available: false, reason: "noKey" });
+  });
+
+  it("never turns a plan that does not include own keys into an available runtime", () => {
+    const free = availability({ ownKey: { available: false, reason: "plan", models: [], runners: [] } });
+
+    expect(agentRuntimeWithKeys(free, 2)).toBe(free);
   });
 });
 

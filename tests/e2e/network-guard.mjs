@@ -2,6 +2,7 @@ import net from "node:net";
 import http from "node:http";
 import https from "node:https";
 import { syncBuiltinESMExports } from "node:module";
+import { localAgentProviderRequest } from "./local-agent-provider.mjs";
 import { localEmailRequest } from "./local-email-provider.mjs";
 import { localLemonSqueezyRequest } from "./local-lemonsqueezy-provider.mjs";
 import { localOAuthRequest } from "./local-oauth-provider.mjs";
@@ -25,7 +26,13 @@ for (const key of ["BASE_URL", "DATABASE_URL", "DIRECT_URL", "WORKFLOW_LOCAL_BAS
 if (!/^\/crm_e2e(?:_[a-z0-9_]+)?$/.test(new URL(process.env.DATABASE_URL).pathname))
   throw new Error("The browser test transport requires an isolated browser test database");
 const originalFetch = globalThis.fetch;
-const localProviders = [localEmailRequest, localLemonSqueezyRequest, localOAuthRequest, localResendRequest];
+const localProviders = [
+  localAgentProviderRequest,
+  localEmailRequest,
+  localLemonSqueezyRequest,
+  localOAuthRequest,
+  localResendRequest,
+];
 globalThis.fetch = function (input, init) {
   for (const provider of localProviders) {
     const local = provider(input, init);

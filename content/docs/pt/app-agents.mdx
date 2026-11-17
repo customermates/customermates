@@ -1,0 +1,59 @@
+---
+title: "Agentes: chaves de provedor, runtimes e execuções"
+description: "As etapas de agente rodam no Mate, com a sua própria chave de IA ou no seu próprio runner: adicione uma chave, veja modelos, limites e o histórico."
+---
+
+Um agente é uma IA que executa a etapa de agente de uma [automação](/docs/app-automations): ele lê o registro que iniciou a automação, usa as mesmas ferramentas de CRM do Mate e relata o que fez. Onde um agente roda é o **runtime** da etapa: **Mate** (o agente hospedado do Customermates, pago com os créditos de IA do seu plano, somente Cloud), **Sua própria chave** (um agente na nuvem do Customermates ou na sua instância auto-hospedada que usa uma chave de API do seu provedor de IA, cobrada pelo provedor) ou **Seu próprio runner** (Claude Code ou Codex na sua própria máquina, com o seu próprio login).
+
+Abra **Agentes** nas [configurações](app:settings/agents) para ver quais runtimes estão disponíveis, adicionar chaves de provedor, ver os runners do espaço de trabalho e ler as últimas execuções. A página é para quem pode alterar as configurações do espaço de trabalho.
+
+## Como adiciono uma chave de provedor? [#how-do-i-add-a-provider-key]
+
+Abra **Agentes**, clique em **Adicionar chave** e escolha o **Provedor** (Anthropic, OpenAI ou Google). Dê um **Rótulo** à chave, cole a **Chave de API** do console do provedor e escolha um **Modelo padrão**. O Customermates pergunta ao provedor se a chave funciona antes de guardá-la. Uma chave que o provedor recusa não é salva, e se o provedor não puder ser alcançado no momento, você é convidado a tentar de novo.
+
+A chave é guardada criptografada e nunca mais é exibida: a lista mostra apenas o rótulo, o provedor e os quatro últimos caracteres. Um espaço de trabalho tem uma chave por provedor, então adicionar uma chave para um provedor que já tem uma a substitui. **Testar** pergunta de novo ao provedor e atualiza **Última verificação**, **Remover** exclui a chave de forma definitiva. As chaves funcionam em todos os planos pagos e em instâncias auto-hospedadas, onde a chave é sua de qualquer forma; o plano Free não pode adicionar nenhuma.
+
+## Quanto custa? [#what-does-it-cost]
+
+Um agente com a sua própria chave custa o que o provedor cobra pelas chamadas, na fatura do provedor. Ele não usa os créditos de IA do seu plano do Customermates. Um agente no Mate usa os créditos da pessoa dona da automação, a mesma cota que os chats do Mate e as rotinas usam, e cada execução mostra os créditos usados. Uma execução para antes de poder usar mais do que os créditos reservados.
+
+## Quais modelos posso usar? [#which-models-can-i-use]
+
+A lista por provedor é mantida pelo Customermates e mostra os modelos dos provedores para os quais você adicionou uma chave:
+
+- **Anthropic:** Claude Sonnet 5.5 (o padrão), Claude Opus 5.5, Claude Haiku 5.5, Claude Sonnet 4.5 e Claude Haiku 4.5.
+- **OpenAI:** GPT-5 mini (o padrão), GPT-5, GPT-5 nano, GPT-4.1 e GPT-4.1 mini.
+- **Google:** Gemini 2.5 Flash (o padrão), Gemini 2.5 Pro e Gemini 2.5 Flash-Lite.
+
+Uma etapa sem modelo usa o modelo padrão da chave. O Customermates nunca pede um login do Claude Pro ou Max: o runtime com chave própria funciona apenas com uma chave de API do console do provedor.
+
+## O que uma etapa de agente pode fazer? [#what-may-an-agent-step-do]
+
+Uma etapa de agente roda como dono da automação, com as permissões dele, sem que ninguém acompanhe. Ela pode ler e alterar registros, ler a base de conhecimento e usar as demais ferramentas de espaço de trabalho do Mate. Ela não pode usar a interface e não tem pesquisa na web. Tudo o que exige aprovação, como excluir registros ou convidar pessoas, é recusado e o agente relata o que falta.
+
+Uma execução tem dois limites: no máximo 25 chamadas de ferramentas e 10 minutos. Quando um limite é atingido, a execução para e informa. Quando o evento que iniciou a automação vem de fora do espaço de trabalho, por exemplo um formulário, um webhook ou uma mensagem recebida, o agente trata o registro e tudo o que há nele como dados, nunca como instruções. Uma execução interrompida antes do fim, por exemplo por uma reinicialização do servidor, é iniciada mais uma vez. Uma execução que falha por causa do provedor mostra a classe de erro do provedor, nunca a chave.
+
+## Onde vejo o que um agente fez? [#where-do-i-see-what-an-agent-did]
+
+**Execuções recentes dos agentes** na página **Agentes** lista as execuções, as mais recentes primeiro, com o status (**Na fila**, **Iniciando**, **Em andamento**, **Concluída**, **Falhou**, **Tempo esgotado** ou **Cancelada**), o runtime, o modelo, os tokens e, no Mate, os créditos usados. Abra uma execução para ler a transcrição: a instrução, cada ferramenta chamada com um breve resumo dos argumentos, um breve resumo de cada resultado e o relatório final. As execuções são guardadas por 90 dias. Quem vê todas as automações vê todas as execuções, os demais veem as das próprias automações.
+
+## Para agentes [#for-agents]
+
+A etapa de agente é o efeito `agent` de uma regra em `manage_rules` via [MCP](/docs/mcp): `runtime` é `mate`, `ownKey` ou `runner`, `prompt` é a tarefa (pode usar `{{record.name}}` e `{{rule.name}}`), `model` escolhe para `ownKey` um modelo do provedor da chave e `runnerId` fixa para `runner` um runner específico. Um runtime indisponível faz o efeito falhar com o motivo `plan`, `noKey`, `noRunner`, `selfHosted` ou `notConfigured`.
+
+## Perguntas frequentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Posso usar minha assinatura do Claude Pro ou Max?">
+Não. O Customermates executa os agentes com uma chave de API do console do provedor, que o provedor cobra por uso. Um login do Claude Pro ou Max pertence ao próprio Claude e não é usado pelo Customermates.
+</FaqItem>
+<FaqItem question="Minha chave está segura?">
+A chave é verificada com o provedor, guardada criptografada e não é exibida novamente em lugar nenhum, nem para administradores. Ela é aberta apenas durante uma execução, para as chamadas dessa execução ao provedor, e nunca é gravada no histórico de execuções.
+</FaqItem>
+<FaqItem question="Por que Sua própria chave não está disponível?">
+A página **Agentes** informa o motivo ao lado de cada runtime: seu plano não o inclui, ou nenhuma chave de provedor foi adicionada ainda. Um runner está disponível se algum foi visto nos últimos dois minutos.
+</FaqItem>
+<FaqItem question="Uma execução continua se eu fechar a página?">
+Sim. Uma execução é iniciada no servidor pela automação e termina lá. A página apenas mostra o que foi registrado.
+</FaqItem>
+</Faq>

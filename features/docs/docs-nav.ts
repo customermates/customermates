@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bot,
   BookOpen,
+  Bot,
   Building,
   DoorOpen,
   Cable,
@@ -115,6 +116,7 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
       { slug: "app-records", i18nKey: "DocsSidebar.appRecords", icon: Database },
       { slug: "app-routines", i18nKey: "DocsSidebar.appRoutines", icon: Repeat },
       { slug: "app-automations", i18nKey: "DocsSidebar.appAutomations", icon: Workflow },
+      { slug: "app-agents", i18nKey: "DocsSidebar.appAgents", icon: Bot },
       { slug: "app-runners", i18nKey: "DocsSidebar.appRunners", icon: Bot },
       { slug: "app-profile", i18nKey: "DocsSidebar.appProfile", icon: UserCircle },
       { slug: "app-search", i18nKey: "DocsSidebar.appSearch", icon: Search },

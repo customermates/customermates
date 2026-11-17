@@ -17,6 +17,7 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { AgentKeyModal } from "./agent-key-modal";
 import { AgentKeysCard } from "./agent-keys-card";
 import { AgentRunnersCard } from "./agent-runners-card";
+import { agentRuntimeWithKeys } from "./agent-runtime-with-keys";
 import { AgentRuntimesCard } from "./agent-runtimes-card";
 
 type Props = {
@@ -37,7 +38,7 @@ const AgentsPageViewContent = observer(({ availability, keys, runners, runs }: P
     <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
       <Alert description={t("AgentKeys.intro")} variant="neutral" />
 
-      <AgentRuntimesCard availability={availability} />
+      <AgentRuntimesCard availability={agentRuntimeWithKeys(availability, agentKeysStore.items.length)} />
 
       <AgentKeysCard planAllowed={availability.ownKey.reason !== "plan"} />
 

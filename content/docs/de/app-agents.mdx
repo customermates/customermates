@@ -1,0 +1,59 @@
+---
+title: "Agenten: Anbieter-Schlüssel, Laufzeiten und Agentenläufe"
+description: "Agent-Schritte laufen auf Mate, mit Ihrem eigenen KI-Schlüssel oder auf Ihrem eigenen Runner: Schlüssel hinzufügen, Modelle, Limits und Verlauf der Läufe."
+---
+
+Ein Agent ist eine KI, die den Agent-Schritt einer [Automatisierung](/docs/app-automations) ausführt: Sie liest den Datensatz, der die Automatisierung gestartet hat, nutzt dieselben CRM-Werkzeuge wie Mate und berichtet, was sie getan hat. Wo ein Agent läuft, ist die **Laufzeit** des Schritts: **Mate** (der gehostete Agent von Customermates, bezahlt mit den KI-Credits Ihres Tarifs, nur in der Cloud), **Dein eigener Schlüssel** (ein Agent in der Customermates-Cloud oder auf Ihrer selbst gehosteten Instanz, der einen API-Schlüssel Ihres KI-Anbieters nutzt und vom Anbieter abgerechnet wird) oder **Dein eigener Runner** (Claude Code oder Codex auf Ihrem eigenen Rechner, mit Ihrem eigenen Login).
+
+Öffnen Sie **Agenten** in den [Einstellungen](app:settings/agents), um zu sehen, welche Laufzeiten verfügbar sind, Anbieter-Schlüssel hinzuzufügen, die Runner des Workspaces zu sehen und die letzten Läufe zu lesen. Die Seite ist für Personen, die Workspace-Einstellungen ändern dürfen.
+
+## Wie füge ich einen Anbieter-Schlüssel hinzu? [#how-do-i-add-a-provider-key]
+
+Öffnen Sie **Agenten**, klicken Sie auf **Schlüssel hinzufügen** und wählen Sie den **Anbieter** (Anthropic, OpenAI oder Google). Geben Sie dem Schlüssel eine **Bezeichnung**, fügen Sie den **API-Schlüssel** aus der Konsole des Anbieters ein und wählen Sie ein **Standardmodell**. Customermates fragt beim Anbieter nach, ob der Schlüssel funktioniert, bevor es ihn behält. Ein vom Anbieter abgelehnter Schlüssel wird nicht gespeichert, und ist der Anbieter gerade nicht erreichbar, werden Sie gebeten, es noch einmal zu versuchen.
+
+Der Schlüssel wird verschlüsselt gespeichert und nie wieder angezeigt: Die Liste zeigt nur die Bezeichnung, den Anbieter und die letzten vier Zeichen. Ein Workspace hat einen Schlüssel pro Anbieter, ein neuer Schlüssel für einen Anbieter, der schon einen hat, ersetzt ihn also. **Testen** fragt den Anbieter erneut und aktualisiert **Zuletzt geprüft**, **Entfernen** löscht den Schlüssel endgültig. Schlüssel funktionieren in jedem kostenpflichtigen Tarif und auf selbst gehosteten Instanzen, wo der Schlüssel ohnehin Ihnen gehört; der Free-Tarif kann keinen hinzufügen.
+
+## Was kostet das? [#what-does-it-cost]
+
+Ein Agent mit Ihrem eigenen Schlüssel kostet Sie, was der Anbieter für die Aufrufe berechnet, auf der Rechnung des Anbieters. Er verbraucht keine KI-Credits Ihres Customermates-Tarifs. Ein Agent auf Mate verbraucht die Credits der Person, der die Automatisierung gehört, dasselbe Kontingent wie Mate-Chats und Routinen, und jeder Lauf zeigt die verbrauchten Credits. Ein Lauf stoppt, bevor er mehr als seine reservierten Credits verbrauchen könnte.
+
+## Welche Modelle kann ich verwenden? [#which-models-can-i-use]
+
+Die Liste je Anbieter wird von Customermates gepflegt und zeigt die Modelle der Anbieter, für die Sie einen Schlüssel hinzugefügt haben:
+
+- **Anthropic:** Claude Sonnet 5.5 (der Standard), Claude Opus 5.5, Claude Haiku 5.5, Claude Sonnet 4.5 und Claude Haiku 4.5.
+- **OpenAI:** GPT-5 mini (der Standard), GPT-5, GPT-5 nano, GPT-4.1 und GPT-4.1 mini.
+- **Google:** Gemini 2.5 Flash (der Standard), Gemini 2.5 Pro und Gemini 2.5 Flash-Lite.
+
+Ein Schritt ohne Modell nutzt das Standardmodell des Schlüssels. Customermates fragt nie nach einem Claude-Pro- oder Max-Login: Die Laufzeit mit eigenem Schlüssel funktioniert nur mit einem API-Schlüssel aus der Konsole des Anbieters.
+
+## Was darf ein Agent-Schritt tun? [#what-may-an-agent-step-do]
+
+Ein Agent-Schritt läuft als Eigentümer der Automatisierung mit dessen Berechtigungen, ohne dass jemand zusieht. Er kann Datensätze lesen und ändern, die Wissensbasis lesen und die übrigen Workspace-Werkzeuge von Mate nutzen. Er kann die Oberfläche nicht bedienen und hat keine Websuche. Alles, was eine Freigabe braucht, etwa das Löschen von Datensätzen oder das Einladen von Personen, wird abgelehnt, und der Agent berichtet, was offen bleibt.
+
+Ein Lauf hat zwei Grenzen: höchstens 25 Werkzeugaufrufe und 10 Minuten. Ist eine Grenze erreicht, stoppt der Lauf und sagt es. Stammt das Ereignis, das die Automatisierung gestartet hat, von außerhalb des Workspaces, etwa aus einem Formular, einem Webhook oder einer eingehenden Nachricht, behandelt der Agent den Datensatz und alles darin als Daten, nie als Anweisungen. Ein Lauf, der vor dem Ende abgebrochen wird, etwa durch einen Serverneustart, wird noch einmal gestartet. Scheitert ein Lauf am Anbieter, zeigt er die Fehlerklasse des Anbieters, nie den Schlüssel.
+
+## Wo sehe ich, was ein Agent getan hat? [#where-do-i-see-what-an-agent-did]
+
+**Letzte Agentenläufe** auf der Seite **Agenten** listet die Läufe, neueste zuerst, mit dem Status (**In Warteschlange**, **Startet**, **Läuft**, **Erledigt**, **Fehlgeschlagen**, **Zeitüberschreitung** oder **Abgebrochen**), der Laufzeit, dem Modell, den Tokens und bei Mate den verbrauchten Credits. Öffnen Sie einen Lauf, um sein Protokoll zu lesen: die Anweisung, jedes aufgerufene Werkzeug mit einer kurzen Zusammenfassung der Argumente, eine kurze Zusammenfassung jedes Ergebnisses und den Abschlussbericht. Läufe werden 90 Tage aufbewahrt. Wer alle Automatisierungen sieht, sieht alle Läufe, alle anderen sehen die Läufe ihrer eigenen Automatisierungen.
+
+## Für Agenten [#for-agents]
+
+Der Agent-Schritt ist der Effekt `agent` einer Regel in `manage_rules` über [MCP](/docs/mcp): `runtime` ist `mate`, `ownKey` oder `runner`, `prompt` ist die Aufgabe (sie darf `{{record.name}}` und `{{rule.name}}` verwenden), `model` wählt bei `ownKey` ein Modell des Anbieters des Schlüssels, und `runnerId` legt bei `runner` einen Runner fest. Eine nicht verfügbare Laufzeit lässt den Effekt mit dem Grund `plan`, `noKey`, `noRunner`, `selfHosted` oder `notConfigured` fehlschlagen.
+
+## Häufige Fragen [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Kann ich mein Claude-Pro- oder Max-Abonnement verwenden?">
+Nein. Customermates führt Agenten mit einem API-Schlüssel aus der Konsole des Anbieters aus, den der Anbieter nach Nutzung abrechnet. Ein Claude-Pro- oder Max-Login gehört zu Claude selbst und wird von Customermates nicht verwendet.
+</FaqItem>
+<FaqItem question="Ist mein Schlüssel sicher?">
+Der Schlüssel wird beim Anbieter geprüft, verschlüsselt gespeichert und nirgends wieder angezeigt, auch nicht für Administratoren. Er wird nur für die Dauer eines Laufs geöffnet, für dessen Aufrufe beim Anbieter, und nie in den Verlauf der Läufe geschrieben.
+</FaqItem>
+<FaqItem question="Warum ist Dein eigener Schlüssel nicht verfügbar?">
+Die Seite **Agenten** nennt den Grund neben jeder Laufzeit: Ihr Tarif enthält sie nicht, oder es wurde noch kein Anbieter-Schlüssel hinzugefügt. Ein Runner ist verfügbar, wenn einer in den letzten zwei Minuten gesehen wurde.
+</FaqItem>
+<FaqItem question="Läuft ein Lauf weiter, wenn ich die Seite schließe?">
+Ja. Ein Lauf wird von der Automatisierung auf dem Server gestartet und endet dort. Die Seite zeigt nur, was aufgezeichnet wurde.
+</FaqItem>
+</Faq>

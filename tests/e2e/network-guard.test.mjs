@@ -9,6 +9,7 @@ import http from "node:http";
 import https from "node:https";
 import net from "node:net";
 
+import { localAgentKeyPrefix, readAgentProviderChecks } from "./local-agent-provider.mjs";
 import { readRemovedAccounts, responseLostAfterAcceptance, sentCopyUnavailable } from "./local-email-provider.mjs";
 
 Object.assign(process.env, {
@@ -320,6 +321,51 @@ test("issues local OAuth tokens only to the local clients and only for the PKCE 
   } finally {
     delete process.env.GOOGLE_CLIENT_ID;
     delete process.env.GOOGLE_CLIENT_SECRET;
+  }
+});
+
+test("answers the three AI provider key checks locally, accepts only synthetic keys and never takes the key from the address", async () => {
+  const providerDirectory = mkdtempSync(join(tmpdir(), "crm-e2e-agent-provider-"));
+  process.env.CRM_E2E_PROVIDER_DIRECTORY = providerDirectory;
+  const valid = `${localAgentKeyPrefix}0001`;
+  try {
+    assert.deepEqual(readAgentProviderChecks(providerDirectory), []);
+    const anthropic = await fetch("https://api.anthropic.com/v1/models?limit=1", { headers: { "x-api-key": valid } });
+    assert.equal(anthropic.status, 200);
+    const openai = await fetch("https://api.openai.com/v1/models", { headers: { authorization: `Bearer ${valid}` } });
+    assert.equal(openai.status, 200);
+    const google = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1", {
+      headers: { "x-goog-api-key": valid },
+    });
+    assert.equal(google.status, 200);
+    assert.equal(
+      (await fetch("https://api.anthropic.com/v1/models", { headers: { "x-api-key": "sk-real-looking" } })).status,
+      401,
+    );
+    assert.equal(
+      (await fetch("https://generativelanguage.googleapis.com/v1beta/models", { headers: { "x-goog-api-key": "nope" } }))
+        .status,
+      400,
+    );
+    assert.deepEqual(
+      readAgentProviderChecks(providerDirectory).map(({ provider, accepted }) => [provider, accepted]),
+      [
+        ["anthropic", true],
+        ["openai", true],
+        ["google", true],
+        ["anthropic", false],
+        ["google", false],
+      ],
+    );
+    assert.doesNotMatch(readFileSync(join(providerDirectory, "agent-provider", "checks.jsonl"), "utf8"), /e2e-valid|sk-real/);
+    for (const request of [
+      () => fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${valid}`),
+      () => fetch("https://api.openai.com/v1/chat/completions", { headers: { authorization: `Bearer ${valid}` } }),
+      () => fetch("https://api.anthropic.com:4433/v1/models", { headers: { "x-api-key": valid } }),
+    ])
+      assert.throws(request, /blocked a non-loopback connection/);
+  } finally {
+    delete process.env.CRM_E2E_PROVIDER_DIRECTORY;
   }
 });
 
