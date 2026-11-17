@@ -78,7 +78,7 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
           companyId_userId_kind: { companyId: this.companyId, userId: this.userId, kind: preference.kind },
         },
         create: { companyId: this.companyId, userId: this.userId, ...preference },
-        update: { emailMode: preference.emailMode },
+        update: { companyId: this.companyId, emailMode: preference.emailMode },
       });
     }
   }

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   save: vi.fn(),
+  pause: vi.fn(),
   success: vi.fn(),
 }));
 
@@ -15,44 +16,40 @@ const translate = vi.hoisted(
 
 vi.mock("next-intl", () => ({ useTranslations: () => translate }));
 vi.mock("sonner", () => ({ toast: { success: harness.success, error: vi.fn() } }));
-vi.mock("../notification-preferences-actions", () => ({ setNotificationPreferencesAction: harness.save }));
+vi.mock("../notification-preferences-actions", () => ({
+  setNotificationPreferencesAction: harness.save,
+  setNotificationPauseAction: harness.pause,
+}));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatDescriptiveLongDate: (date: Date) => date.toISOString().slice(0, 10) }),
 }));
 vi.mock("@/components/forms/form-iso-date-picker", () => ({
   FormIsoDatePicker: ({ value, onValueChange }: { value?: string; onValueChange?: (value: string) => void }) =>
-    createElement("input", {
-      "data-testid": "pause-until",
-      value: value ?? "",
-      onChange: (event: { target: { value: string } }) => onValueChange?.(event.target.value),
-    }),
+    createElement(
+      "button",
+      { type: "button", "data-testid": "pause-until", onClick: () => onValueChange?.("2999-02-01") },
+      value ?? "",
+    ),
 }));
 
-import { NOTIFICATION_PAUSE_STORAGE_KEY } from "../notification-pause";
 import { NotificationPreferencesCard } from "../notification-preferences-card";
 
-const INITIAL = {
-  preferences: [
-    { kind: "dueToday", emailMode: "digest" },
-    { kind: "replyReceived", emailMode: "digest" },
-    { kind: "ruleAlert", emailMode: "instant" },
-  ],
-} as const;
+const MODES = { dueToday: "digest", replyReceived: "digest", ruleAlert: "instant" } as const;
 
 let container: HTMLDivElement;
 let root: Root;
 
-function result(modes: Record<string, string>) {
+function result(modes: Record<string, string>, pausedUntil: string | null = null) {
   return {
     ok: true,
-    data: { preferences: Object.entries(modes).map(([kind, emailMode]) => ({ kind, emailMode })) },
+    data: { preferences: Object.entries(modes).map(([kind, emailMode]) => ({ kind, emailMode })), pausedUntil },
   };
 }
 
-async function render() {
+async function render(pausedUntil: string | null = null) {
   await act(async () => {
-    root.render(createElement(NotificationPreferencesCard, { initial: INITIAL as never }));
+    root.render(createElement(NotificationPreferencesCard, { initial: result(MODES, pausedUntil).data as never }));
     await Promise.resolve();
   });
 }
@@ -86,10 +83,16 @@ function pauseSwitch() {
   return toggle;
 }
 
+async function clickPause() {
+  await act(async () => {
+    pauseSwitch().click();
+    await Promise.resolve();
+  });
+}
+
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
-  window.localStorage.clear();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -122,7 +125,7 @@ describe("NotificationPreferencesCard", () => {
   });
 
   it("saves the one kind that changed and keeps the answer", async () => {
-    harness.save.mockResolvedValue(result({ dueToday: "off", replyReceived: "digest", ruleAlert: "instant" }));
+    harness.save.mockResolvedValue(result({ ...MODES, dueToday: "off" }));
     await render();
 
     await choose("dueToday", "Notifications.emailMode.off");
@@ -140,72 +143,59 @@ describe("NotificationPreferencesCard", () => {
     expect(choiceOf("dueToday", "Notifications.emailMode.digest").dataset.state).toBe("active");
   });
 
-  it("pauses all emails by switching the three kinds off and remembering what they were", async () => {
-    harness.save.mockResolvedValue(result({ dueToday: "off", replyReceived: "off", ruleAlert: "off" }));
+  it("pauses all emails on the server for a week and keeps the kinds as they are", async () => {
+    harness.pause.mockImplementation(({ until }: { until: string }) => Promise.resolve(result(MODES, until)));
     await render();
 
+    await clickPause();
+
+    expect(harness.pause).toHaveBeenCalledTimes(1);
+    const { until } = harness.pause.mock.calls[0][0] as { until: string };
+    expect(until).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(harness.save).not.toHaveBeenCalled();
+    expect(pauseSwitch().getAttribute("aria-checked")).toBe("true");
+    expect(container.querySelector('[data-testid="pause-until"]')?.textContent).toBe(until);
+    expect(choiceOf("ruleAlert", "Notifications.emailMode.instant").dataset.state).toBe("active");
+    expect(choiceOf("ruleAlert", "Notifications.emailMode.instant").disabled).toBe(true);
+    expect(harness.success).toHaveBeenCalledWith(`Notifications.preferences.pauseOn:${until}`);
+  });
+
+  it("shows a pause the server already holds and ends it from the switch", async () => {
+    harness.pause.mockResolvedValue(result(MODES, null));
+    await render("2999-01-01");
+    expect(pauseSwitch().getAttribute("aria-checked")).toBe("true");
+
+    await clickPause();
+
+    expect(harness.pause).toHaveBeenCalledWith({ until: null });
+    expect(pauseSwitch().getAttribute("aria-checked")).toBe("false");
+    expect(harness.success).toHaveBeenCalledWith("Notifications.preferences.pauseOff");
+    expect(choiceOf("ruleAlert", "Notifications.emailMode.instant").disabled).toBe(false);
+  });
+
+  it("moves the end of a pause through the date picker", async () => {
+    harness.pause.mockResolvedValue(result(MODES, "2999-02-01"));
+    await render("2999-01-01");
+
+    const picker = container.querySelector<HTMLButtonElement>('[data-testid="pause-until"]');
+    if (!picker) throw new Error("No date picker");
+    expect(picker.textContent).toBe("2999-01-01");
     await act(async () => {
-      pauseSwitch().click();
+      picker.click();
       await Promise.resolve();
     });
 
-    expect(harness.save).toHaveBeenCalledWith({
-      preferences: [
-        { kind: "dueToday", emailMode: "off" },
-        { kind: "replyReceived", emailMode: "off" },
-        { kind: "ruleAlert", emailMode: "off" },
-      ],
-    });
-    const stored = JSON.parse(window.localStorage.getItem(NOTIFICATION_PAUSE_STORAGE_KEY) ?? "{}");
-    expect(stored.previous).toEqual({ dueToday: "digest", replyReceived: "digest", ruleAlert: "instant" });
-    expect(stored.until).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(pauseSwitch().getAttribute("aria-checked")).toBe("true");
-    expect(container.querySelector('[data-testid="pause-until"]')).not.toBeNull();
-    expect(harness.success).toHaveBeenCalled();
+    expect(harness.pause).toHaveBeenCalledWith({ until: "2999-02-01" });
+    expect(container.querySelector('[data-testid="pause-until"]')?.textContent).toBe("2999-02-01");
   });
 
-  it("brings the earlier choices back when the pause is switched off", async () => {
-    window.localStorage.setItem(
-      NOTIFICATION_PAUSE_STORAGE_KEY,
-      JSON.stringify({
-        until: "2999-01-01",
-        previous: { dueToday: "instant", replyReceived: "digest", ruleAlert: "off" },
-      }),
-    );
-    harness.save.mockResolvedValue(result({ dueToday: "instant", replyReceived: "digest", ruleAlert: "off" }));
-    await render();
+  it("keeps the pause as it was when the server refuses the new end", async () => {
+    harness.pause.mockResolvedValue({ ok: false, error: {} });
+    await render("2999-01-01");
+
+    await clickPause();
+
     expect(pauseSwitch().getAttribute("aria-checked")).toBe("true");
-
-    await act(async () => {
-      pauseSwitch().click();
-      await Promise.resolve();
-    });
-
-    expect(harness.save).toHaveBeenCalledWith({
-      preferences: [
-        { kind: "dueToday", emailMode: "instant" },
-        { kind: "replyReceived", emailMode: "digest" },
-        { kind: "ruleAlert", emailMode: "off" },
-      ],
-    });
-    expect(window.localStorage.getItem(NOTIFICATION_PAUSE_STORAGE_KEY)).toBeNull();
-    expect(pauseSwitch().getAttribute("aria-checked")).toBe("false");
-  });
-
-  it("brings the choices back on its own when the page opens on or after the end day", async () => {
-    window.localStorage.setItem(
-      NOTIFICATION_PAUSE_STORAGE_KEY,
-      JSON.stringify({
-        until: "2020-01-01",
-        previous: { dueToday: "digest", replyReceived: "digest", ruleAlert: "instant" },
-      }),
-    );
-    harness.save.mockResolvedValue(result({ dueToday: "digest", replyReceived: "digest", ruleAlert: "instant" }));
-
-    await render();
-
-    expect(harness.save).toHaveBeenCalledTimes(1);
-    expect(window.localStorage.getItem(NOTIFICATION_PAUSE_STORAGE_KEY)).toBeNull();
-    expect(pauseSwitch().getAttribute("aria-checked")).toBe("false");
+    expect(harness.success).not.toHaveBeenCalled();
   });
 });

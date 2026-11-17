@@ -1690,6 +1690,7 @@
       "notAuthenticated": "Entre para usar esta ação.",
       "notesExceedsMaxLength": "O conteúdo das notas excede o tamanho máximo.",
       "notesInvalidFormat": "Formato de notas inválido. Deve ser JSON válido do Tiptap ou texto em markdown.",
+      "notificationPauseDateInvalid": "A pausa deve terminar em um dia depois de hoje e dentro de um ano.",
       "operatorAllowanceMissing": "Este espaço de trabalho ainda não tem uma franquia Enterprise contratada, então os créditos não podem ser corrigidos. Defina primeiro a franquia na lista Espaços de trabalho.",
       "operatorConflict": "Essa alteração foi recusada. O registro pode ter mudado desde que a lista foi carregada, ou o espaço de trabalho pode não permitir isso agora. Recarregue e verifique o estado atual.",
       "operatorConnectedAccountsActive": "Este espaço de trabalho ainda tem contas de mensagens conectadas. Desconecte-as primeiro para liberar as contas do provedor e depois exclua o espaço de trabalho.",
@@ -3850,7 +3851,7 @@
       "modeLabel": "E-mail para {kind}",
       "pause": "Pausar todos os e-mails até",
       "pauseDate": "Data até a qual os e-mails ficam pausados",
-      "pauseHelp": "Enquanto estiver pausado, nenhuma notificação chega a você por e-mail. Suas escolhas acima voltam quando você abrir esta página a partir desse dia.",
+      "pauseHelp": "Enquanto estiver pausado, nenhuma notificação chega a você por e-mail, em nenhum dispositivo. Suas escolhas acima continuam como estão e voltam a valer a partir desse dia.",
       "pauseOff": "Suas escolhas de e-mail voltaram.",
       "pauseOn": "Todos os e-mails estão pausados até {date}.",
       "title": "E-mails de notificação"

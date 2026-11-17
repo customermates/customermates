@@ -1690,6 +1690,7 @@
       "notAuthenticated": "Connectez-vous pour utiliser cette action.",
       "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
       "notesInvalidFormat": "Format de notes invalide. Il doit s’agir de JSON Tiptap valide ou de texte markdown.",
+      "notificationPauseDateInvalid": "La suspension doit se terminer un jour après aujourd’hui et dans un délai d’un an.",
       "operatorAllowanceMissing": "Cet espace de travail n’a pas encore d’allocation Enterprise contractuelle, les crédits ne peuvent donc pas être corrigés. Définissez d’abord l’allocation dans la liste des espaces de travail.",
       "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
       "operatorConnectedAccountsActive": "Cet espace de travail a encore des comptes de messagerie connectés. Déconnectez-les d’abord pour libérer les comptes chez le prestataire, puis supprimez l’espace de travail.",
@@ -3850,7 +3851,7 @@
       "modeLabel": "E-mail pour {kind}",
       "pause": "Suspendre tous les e-mails jusqu’au",
       "pauseDate": "Date jusqu’à laquelle les e-mails sont suspendus",
-      "pauseHelp": "Pendant la suspension, aucune notification ne vous parvient par e-mail. Vos choix ci-dessus reviennent quand vous ouvrez cette page à partir de ce jour.",
+      "pauseHelp": "Pendant la suspension, aucune notification ne vous parvient par e-mail, sur aucun appareil. Vos choix ci-dessus restent tels quels et s’appliquent de nouveau à partir de ce jour.",
       "pauseOff": "Vos choix d’e-mail sont rétablis.",
       "pauseOn": "Tous les e-mails sont suspendus jusqu’au {date}.",
       "title": "E-mails de notification"

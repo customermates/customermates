@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { NotificationEmailMode, NotificationKind } from "@/generated/prisma";
 import type { NotificationMailer } from "./notification-mailer";
+import type { NotificationPauseRepo } from "./notification-pause.repo";
 import type {
   EmailedCount,
   NotificationInsert,
@@ -13,6 +14,7 @@ import type { NotifyMembersInput } from "./notification.schema";
 
 import * as ErrorReporter from "@/core/observability/server";
 
+import { isNotificationPaused } from "./notification-pause";
 import {
   DEFAULT_NOTIFICATION_EMAIL_MODES,
   NOTIFICATION_INSTANT_EMAILS_PER_HOUR,
@@ -22,6 +24,8 @@ import {
 const HOUR_MS = 60 * 60 * 1000;
 
 type Preferences = ReadonlyMap<string, ReadonlyMap<NotificationKind, NotificationEmailMode>>;
+
+type ModeOf = (userId: string, kind: NotificationKind) => NotificationEmailMode;
 
 const DEFAULT_EMAIL_MODES: Partial<Record<NotificationKind, NotificationEmailMode>> = DEFAULT_NOTIFICATION_EMAIL_MODES;
 
@@ -44,17 +48,17 @@ export class NotificationService {
     private readonly repo: NotificationRepo,
     private readonly mailer: NotificationMailer,
     private readonly clock: () => Date = () => new Date(),
+    private readonly pauses: NotificationPauseRepo | null = null,
   ) {}
 
   async notify(input: NotifyMembersInput): Promise<{ created: number; emailed: number }> {
     const data = NotifyMembersSchema.parse(input);
     const recipients = await this.repo.findRecipientsUnscoped(data.companyId, [...new Set(data.recipients)]);
     if (recipients.length === 0) return { created: 0, emailed: 0 };
-    const preferences = await this.repo.findPreferencesUnscoped(
-      data.companyId,
-      recipients.map((recipient) => recipient.id),
-    );
+    const userIds = recipients.map((recipient) => recipient.id);
+    const preferences = await this.repo.findPreferencesUnscoped(data.companyId, userIds);
     const now = this.clock();
+    const modeOf = await this.modeOf(data.companyId, userIds, preferences, now);
     const rows: NotificationInsert[] = recipients.map((recipient) => ({
       id: randomUUID(),
       companyId: data.companyId,
@@ -65,12 +69,18 @@ export class NotificationService {
       href: data.href ?? null,
       sourceRuleId: data.sourceRuleId ?? null,
       dedupeKey: data.dedupeKey ?? null,
-      emailedAt: effectiveEmailMode(preferences.get(recipient.id), data.kind) === "off" ? now : null,
+      emailedAt: modeOf(recipient.id, data.kind) === "off" ? now : null,
     }));
     const storedIds = new Set(await this.repo.insertManyUnscoped(rows));
     const created = rows.filter((row) => storedIds.has(row.id));
-    const emailed = await this.emailInstant(data.companyId, created, recipients, preferences, now);
+    const emailed = await this.emailInstant(data.companyId, created, recipients, preferences, modeOf, now);
     return { created: created.length, emailed };
+  }
+
+  private async modeOf(companyId: string, userIds: string[], preferences: Preferences, now: Date): Promise<ModeOf> {
+    const paused = this.pauses ? await this.pauses.findUnscoped(companyId, userIds) : new Map<string, Date>();
+    return (userId, kind) =>
+      isNotificationPaused(paused.get(userId), now) ? "off" : effectiveEmailMode(preferences.get(userId), kind);
   }
 
   private async emailInstant(
@@ -78,9 +88,10 @@ export class NotificationService {
     created: NotificationInsert[],
     recipients: NotificationRecipient[],
     preferences: Preferences,
+    modeOf: ModeOf,
     now: Date,
   ): Promise<number> {
-    const instant = created.filter((row) => effectiveEmailMode(preferences.get(row.userId), row.kind) === "instant");
+    const instant = created.filter((row) => modeOf(row.userId, row.kind) === "instant");
     if (instant.length === 0) return 0;
     const byUser = new Map(recipients.map((recipient) => [recipient.id, recipient]));
     const pending = new Map(

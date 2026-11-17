@@ -1690,6 +1690,7 @@
       "notAuthenticated": "Log in om deze actie te gebruiken.",
       "notesExceedsMaxLength": "De inhoud van de notities overschrijdt de maximale lengte.",
       "notesInvalidFormat": "Ongeldig notitieformaat. Moet geldige Tiptap-JSON of markdowntekst zijn.",
+      "notificationPauseDateInvalid": "De pauze moet eindigen op een dag na vandaag en binnen een jaar.",
       "operatorAllowanceMissing": "Deze werkruimte heeft nog geen contractueel Enterprise-contingent, dus credits kunnen niet worden gecorrigeerd. Stel eerst het contingent in op de lijst Werkruimtes.",
       "operatorConflict": "Die wijziging is geweigerd. Mogelijk is het record gewijzigd sinds het laden van de lijst, of staat de werkruimte het nu niet toe. Laad opnieuw en controleer de huidige status.",
       "operatorConnectedAccountsActive": "Deze werkruimte heeft nog verbonden berichtenaccounts. Ontkoppel ze eerst zodat de provideraccounts worden vrijgegeven, en verwijder daarna de werkruimte.",
@@ -3850,7 +3851,7 @@
       "modeLabel": "E-mail voor {kind}",
       "pause": "Alle e-mails pauzeren tot",
       "pauseDate": "Datum tot wanneer e-mails gepauzeerd zijn",
-      "pauseHelp": "Zolang het gepauzeerd is, bereikt geen melding je per e-mail. Je keuzes hierboven komen terug zodra je deze pagina op of na die dag opent.",
+      "pauseHelp": "Zolang het gepauzeerd is, bereikt geen melding je per e-mail, op geen enkel apparaat. Je keuzes hierboven blijven staan en gelden vanaf die dag weer.",
       "pauseOff": "Je e-mailkeuzes zijn terug.",
       "pauseOn": "Alle e-mails zijn gepauzeerd tot {date}.",
       "title": "E-mails over meldingen"

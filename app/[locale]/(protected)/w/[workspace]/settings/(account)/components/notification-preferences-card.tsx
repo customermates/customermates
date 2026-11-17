@@ -1,11 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type { NotificationPreferencesDto } from "@/features/notifications/notification.schema";
-import type { NotificationPause } from "./notification-pause";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -19,20 +18,8 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { NOTIFICATION_EMAIL_MODES } from "@/features/notifications/notification.schema";
 
-import { setNotificationPreferencesAction } from "./notification-preferences-actions";
-import {
-  NOTIFICATION_PAUSE_STORAGE_KEY,
-  addDaysToIso,
-  dateOfIso,
-  isNotificationPauseOver,
-  isoDateOf,
-  modesToPreferences,
-  parseNotificationPause,
-  pausedModes,
-  rememberModes,
-  restoredModes,
-  serializeNotificationPause,
-} from "./notification-pause";
+import { addDaysToIso, dateOfIso, isoDateOf } from "./notification-pause-dates";
+import { setNotificationPauseAction, setNotificationPreferencesAction } from "./notification-preferences-actions";
 
 type Props = { initial: NotificationPreferencesDto };
 
@@ -40,30 +27,12 @@ type Mode = (typeof NOTIFICATION_EMAIL_MODES)[number];
 
 const PAUSE_DEFAULT_DAYS = 7;
 
-function readStoredPause(): NotificationPause | null {
-  try {
-    return parseNotificationPause(window.localStorage.getItem(NOTIFICATION_PAUSE_STORAGE_KEY));
-  } catch {
-    return null;
-  }
-}
-
-function storePause(pause: NotificationPause | null) {
-  try {
-    if (pause) window.localStorage.setItem(NOTIFICATION_PAUSE_STORAGE_KEY, serializeNotificationPause(pause));
-    else window.localStorage.removeItem(NOTIFICATION_PAUSE_STORAGE_KEY);
-  } catch {
-    return;
-  }
-}
-
 export function NotificationPreferencesCard({ initial }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const [preferences, setPreferences] = useState(initial.preferences);
-  const [pause, setPause] = useState<NotificationPause | null>(null);
+  const [pausedUntil, setPausedUntil] = useState(initial.pausedUntil);
   const [pending, startTransition] = useTransition();
-  const pauseChecked = useRef(false);
 
   const change = (kind: NotificationPreferencesDto["preferences"][number]["kind"], emailMode: Mode) => {
     const previous = preferences;
@@ -76,70 +45,34 @@ export function NotificationPreferencesCard({ initial }: Props) {
         return;
       }
       setPreferences(result.data.preferences);
+      setPausedUntil(result.data.pausedUntil);
       toast.success(t("Common.notifications.updated"));
     });
   };
 
-  const resume = useCallback(
-    (stored: NotificationPause) => {
-      startTransition(async () => {
-        const result = await setNotificationPreferencesAction({
-          preferences: modesToPreferences(restoredModes(stored)),
-        });
-        if (!result.ok) {
-          toastZodErrorTree(result.error);
-          return;
-        }
-        storePause(null);
-        setPause(null);
-        setPreferences(result.data.preferences);
-        toast.success(t("Notifications.preferences.pauseOff"));
-      });
-    },
-    [t],
-  );
-
-  useEffect(() => {
-    if (pauseChecked.current) return;
-    pauseChecked.current = true;
-    const stored = readStoredPause();
-    if (!stored) return;
-    if (isNotificationPauseOver(stored, isoDateOf(new Date()))) resume(stored);
-    else setPause(stored);
-  }, [resume]);
-
   const formatDate = (until: string) => intlStore.formatDescriptiveLongDate(dateOfIso(until));
 
-  const startPause = (until: string) => {
-    const next: NotificationPause = { until, previous: rememberModes(preferences) };
+  const savePause = (until: string | null) => {
     startTransition(async () => {
-      const result = await setNotificationPreferencesAction({ preferences: modesToPreferences(pausedModes()) });
+      const result = await setNotificationPauseAction({ until });
       if (!result.ok) {
         toastZodErrorTree(result.error);
         return;
       }
-      storePause(next);
-      setPause(next);
       setPreferences(result.data.preferences);
-      toast.success(t("Notifications.preferences.pauseOn", { date: formatDate(until) }));
+      setPausedUntil(result.data.pausedUntil);
+      if (result.data.pausedUntil)
+        toast.success(t("Notifications.preferences.pauseOn", { date: formatDate(result.data.pausedUntil) }));
+      else toast.success(t("Notifications.preferences.pauseOff"));
     });
   };
 
-  const moveEnd = (until: string | undefined) => {
-    if (!pause || !until) return;
-    const next = { ...pause, until };
-    if (isNotificationPauseOver(next, isoDateOf(new Date()))) {
-      resume(pause);
-      return;
-    }
-    storePause(next);
-    setPause(next);
-    toast.success(t("Notifications.preferences.pauseOn", { date: formatDate(until) }));
+  const togglePause = (on: boolean) => {
+    savePause(on ? addDaysToIso(isoDateOf(new Date()), PAUSE_DEFAULT_DAYS) : null);
   };
 
-  const togglePause = (on: boolean) => {
-    if (on) startPause(addDaysToIso(isoDateOf(new Date()), PAUSE_DEFAULT_DAYS));
-    else if (pause) resume(pause);
+  const moveEnd = (until: string | undefined) => {
+    if (until && until !== pausedUntil) savePause(until);
   };
 
   return (
@@ -180,7 +113,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
                       items={NOTIFICATION_EMAIL_MODES.map((mode) => ({
                         value: mode,
                         label: t(`Notifications.emailMode.${mode}`),
-                        disabled: pending || pause !== null,
+                        disabled: pending || pausedUntil !== null,
                       }))}
                       label={t("Notifications.preferences.modeLabel", { kind: kindLabel })}
                       value={preference.emailMode}
@@ -197,7 +130,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Switch
-                checked={pause !== null}
+                checked={pausedUntil !== null}
                 disabled={pending}
                 id="notification-pause"
                 onCheckedChange={togglePause}
@@ -206,14 +139,14 @@ export function NotificationPreferencesCard({ initial }: Props) {
               <Label htmlFor="notification-pause">{t("Notifications.preferences.pause")}</Label>
             </div>
 
-            {pause ? (
+            {pausedUntil ? (
               <FormIsoDatePicker
                 className="w-56"
                 clearable={false}
                 id="notification-pause-until"
                 label={null}
                 placeholder={t("Notifications.preferences.pauseDate")}
-                value={pause.until}
+                value={pausedUntil}
                 onValueChange={moveEnd}
               />
             ) : null}

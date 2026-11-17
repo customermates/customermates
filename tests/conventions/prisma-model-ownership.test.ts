@@ -80,6 +80,7 @@ const OWNERS: Record<string, string> = {
   MessagingThreadParticipant: "ee/messaging/persistence/prisma-messaging.repository.ts",
   MessagingThreadRecordLink: "ee/messaging/thread-records/prisma-thread-records.repository.ts",
   Notification: "features/notifications/prisma-notification.repository.ts",
+  NotificationPause: "features/notifications/prisma-notification-pause.repository.ts",
   NotificationPreference: "features/notifications/prisma-notification.repository.ts",
   OauthAccessToken: "core/auth/better-auth.ts",
   OauthConsent: "features/auth/auth.service.ts",

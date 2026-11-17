@@ -1690,6 +1690,7 @@
       "notAuthenticated": "Zaloguj się, aby użyć tej czynności.",
       "notesExceedsMaxLength": "Treść notatek przekracza maksymalną długość.",
       "notesInvalidFormat": "Nieprawidłowy format notatek. Musi to być prawidłowy JSON Tiptap lub tekst w formacie Markdown.",
+      "notificationPauseDateInvalid": "Wstrzymanie musi się zakończyć w dniu późniejszym niż dziś i w ciągu roku.",
       "operatorAllowanceMissing": "Ta przestrzeń robocza nie ma jeszcze umownego limitu Enterprise, więc nie można skorygować kredytów. Najpierw ustaw limit na liście Przestrzenie robocze.",
       "operatorConflict": "Ta zmiana została odrzucona. Rekord mógł się zmienić od załadowania listy lub przestrzeń robocza może teraz na nią nie pozwalać. Odśwież i sprawdź aktualny stan.",
       "operatorConnectedAccountsActive": "Ta przestrzeń robocza nadal ma połączone konta komunikacyjne. Najpierw je odłącz, aby konta u dostawców zostały zwolnione, a potem usuń przestrzeń roboczą.",
@@ -3850,7 +3851,7 @@
       "modeLabel": "E-mail dla: {kind}",
       "pause": "Wstrzymaj wszystkie e-maile do",
       "pauseDate": "Data, do której e-maile są wstrzymane",
-      "pauseHelp": "Gdy wstrzymanie trwa, żadne powiadomienie nie dociera do Ciebie e-mailem. Twoje wybory powyżej wracają, gdy otworzysz tę stronę w tym dniu lub później.",
+      "pauseHelp": "Gdy wstrzymanie trwa, żadne powiadomienie nie dociera do Ciebie e-mailem, na żadnym urządzeniu. Twoje wybory powyżej zostają bez zmian i obowiązują znów od tego dnia.",
       "pauseOff": "Twoje ustawienia e-maili zostały przywrócone.",
       "pauseOn": "Wszystkie e-maile są wstrzymane do {date}.",
       "title": "E-maile z powiadomieniami"

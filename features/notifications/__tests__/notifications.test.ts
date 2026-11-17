@@ -40,7 +40,9 @@ import {
 import { NotificationService, effectiveEmailMode } from "../notification.service";
 import { PruneNotificationsInteractor } from "../prune-notifications.interactor";
 import { SendNotificationDigestInteractor } from "../send-notification-digest.interactor";
+import { SetNotificationPauseInteractor } from "../set-notification-pause.interactor";
 import { SetNotificationPreferencesInteractor } from "../set-notification-preferences.interactor";
+import { FakeNotificationPauseRepo } from "./fake-notification-pause-repo";
 import { FakeNotificationRepo } from "./fake-notification-repo";
 
 const COMPANY = "00000000-0000-4000-8000-000000000011";
@@ -97,6 +99,21 @@ describe("notifying members", () => {
     await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE] })).resolves.toEqual({ created: 2, emailed: 0 });
     expect(mail.sendInstant).not.toHaveBeenCalled();
     expect(repo.rows.find((row) => row.userId === COLLEAGUE)?.emailedAt).toBeNull();
+  });
+
+  it("holds every email of a member while their pause lasts and keeps their choices", async () => {
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.pauses.set(ME, new Date(NOW.getTime() + 24 * 3600 * 1000));
+    pauses.pauses.set(COLLEAGUE, new Date(NOW.getTime() - 1000));
+    const mail = mailer();
+    const service = new NotificationService(repo, mail, () => NOW, pauses);
+
+    await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE] })).resolves.toEqual({ created: 2, emailed: 1 });
+
+    expect(mail.sendInstant).toHaveBeenCalledTimes(1);
+    expect(mail.sendInstant.mock.calls[0]?.[0]).toMatchObject({ id: COLLEAGUE });
+    expect(repo.rows.find((row) => row.userId === ME)?.emailedAt).toEqual(NOW);
+    expect(repo.preferences.get(ME)).toBeUndefined();
   });
 
   it("marks a notification of a switched-off kind as handled when it is created, so the digest skips it", async () => {
@@ -283,10 +300,12 @@ describe("the inbox", () => {
   });
 
   it("returns every kind with its effective mode and saves changes", async () => {
-    const read = new GetNotificationPreferencesInteractor(repo);
-    const write = new SetNotificationPreferencesInteractor(repo);
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.currentUserId = ME;
+    const read = new GetNotificationPreferencesInteractor(repo, pauses, () => NOW);
+    const write = new SetNotificationPreferencesInteractor(repo, pauses, () => NOW);
     const before = await asMe(() => read.invoke());
-    expect(before).toMatchObject({ ok: true });
+    expect(before).toMatchObject({ ok: true, data: { pausedUntil: null } });
     if (!before.ok) return;
     expect(before.data.preferences.map((item) => item.kind)).toEqual(NOTIFICATION_KINDS);
     expect(before.data.preferences.find((item) => item.kind === "dueToday")?.emailMode).toBe("digest");
@@ -303,6 +322,43 @@ describe("the inbox", () => {
     expect(after.data.preferences.find((item) => item.kind === "replyReceived")?.emailMode).toBe("instant");
     expect(after.data.preferences.find((item) => item.kind === "ruleAlert")?.emailMode).toBe("instant");
     expect(repo.preferences.get(COLLEAGUE)).toBeUndefined();
+  });
+
+  it("pauses every email until a day in the future, reports the day and ends the pause again", async () => {
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.currentUserId = ME;
+    const pause = new SetNotificationPauseInteractor(repo, pauses, () => NOW);
+    const read = new GetNotificationPreferencesInteractor(repo, pauses, () => NOW);
+
+    const on = await asMe(() => pause.invoke({ until: "2026-11-19" }));
+    expect(on).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-19" } });
+    expect(pauses.pauses.get(ME)).toEqual(new Date("2026-11-19T00:00:00.000Z"));
+    expect(await asMe(() => read.invoke())).toMatchObject({ ok: true, data: { pausedUntil: "2026-11-19" } });
+
+    const off = await asMe(() => pause.invoke({ until: null }));
+    expect(off).toMatchObject({ ok: true, data: { pausedUntil: null } });
+    expect(pauses.pauses.has(ME)).toBe(false);
+  });
+
+  it("refuses a pause that ends today or earlier, more than a year out or on no real day", async () => {
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.currentUserId = ME;
+    const pause = new SetNotificationPauseInteractor(repo, pauses, () => NOW);
+
+    for (const until of ["2026-11-12", "2026-11-01", "2027-11-13", "2026-02-30", "nonsense"]) {
+      const result = await asMe(() => pause.invoke({ until }));
+      expect(result.ok, until).toBe(false);
+    }
+    expect(pauses.pauses.has(ME)).toBe(false);
+  });
+
+  it("reports an expired pause as no pause", async () => {
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.currentUserId = ME;
+    pauses.pauses.set(ME, new Date("2026-11-12T00:00:00.000Z"));
+    const read = new GetNotificationPreferencesInteractor(repo, pauses, () => NOW);
+
+    expect(await asMe(() => read.invoke())).toMatchObject({ ok: true, data: { pausedUntil: null } });
   });
 });
 
@@ -333,6 +389,20 @@ describe("the daily digest", () => {
     expect(mail.sendDigest.mock.calls[0]?.[1]).toHaveLength(2);
     expect(repo.rows.filter((row) => row.emailedAt).length).toBe(2);
     await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 0 });
+  });
+
+  it("sends no digest to a paused member and leaves their notifications for after the pause", async () => {
+    await seed("dueToday", ME);
+    await seed("dueToday", COLLEAGUE);
+    const pauses = new FakeNotificationPauseRepo();
+    pauses.pauses.set(ME, new Date(NOW.getTime() + 3600 * 1000));
+    const mail = mailer();
+    const digest = new SendNotificationDigestInteractor(repo, mail, Date.now, pauses);
+
+    await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 1 });
+
+    expect(mail.sendDigest.mock.calls[0]?.[0]).toMatchObject({ id: COLLEAGUE });
+    expect(repo.rows.find((row) => row.userId === ME)?.emailedAt).toBeNull();
   });
 
   it("takes instant notifications the cap or a failed mail held back into the next digest once they are older than the grace period", async () => {

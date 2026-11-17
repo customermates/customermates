@@ -1690,6 +1690,7 @@
       "notAuthenticated": "Sign in to use this action.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length.",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
+      "notificationPauseDateInvalid": "The pause must end on a day after today and within a year.",
       "operatorAllowanceMissing": "This workspace has no contracted Enterprise allowance yet, so credits cannot be corrected. Set the allowance on the Workspaces list first.",
       "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
       "operatorConnectedAccountsActive": "This workspace still has connected messaging accounts. Disconnect them first so the provider accounts are released, then delete the workspace.",
@@ -3850,7 +3851,7 @@
       "modeLabel": "Email for {kind}",
       "pause": "Pause all emails until",
       "pauseDate": "Date until which emails are paused",
-      "pauseHelp": "While paused, no notification reaches you by email. Your choices above come back when you open this page on or after that day.",
+      "pauseHelp": "While paused, no notification reaches you by email, on any device. Your choices above stay as they are and apply again from that day.",
       "pauseOff": "Your email choices are back.",
       "pauseOn": "All emails are paused until {date}.",
       "title": "Notification emails"

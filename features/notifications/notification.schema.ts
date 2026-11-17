@@ -92,8 +92,21 @@ export const NotificationPreferenceSchema = z.object({
 });
 export type NotificationPreferenceDto = z.infer<typeof NotificationPreferenceSchema>;
 
-export const NotificationPreferencesSchema = z.object({ preferences: z.array(NotificationPreferenceSchema) });
+export const NotificationPreferencesSchema = z.object({
+  preferences: z.array(NotificationPreferenceSchema),
+  pausedUntil: z.string().nullable(),
+});
 export type NotificationPreferencesDto = z.infer<typeof NotificationPreferencesSchema>;
+
+export const SetNotificationPauseSchema = z
+  .object({
+    until: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/u)
+      .nullable(),
+  })
+  .strict();
+export type SetNotificationPauseData = z.output<typeof SetNotificationPauseSchema>;
 
 export const SetNotificationKindOffSchema = z.object({ token: z.string().min(1).max(256) }).strict();
 export type SetNotificationKindOffData = z.output<typeof SetNotificationKindOffSchema>;

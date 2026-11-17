@@ -212,6 +212,7 @@ model User {
   automationRules                 AutomationRule[]
   notifications                   Notification[]
   notificationPreferences         NotificationPreference[]
+  notificationPauses              NotificationPause[]
   agentCreditAdjustments          AgentCreditAdjustment[]
   adAttributions                  AdAttribution[]
   recordAssignments               RecordAssignment[]
@@ -303,6 +304,7 @@ model Company {
   automationRuleRuns          AutomationRuleRun[]
   notifications               Notification[]
   notificationPreferences     NotificationPreference[]
+  notificationPauses          NotificationPause[]
   agentProviderKeys           AgentProviderKey[]
   agentRunners                AgentRunner[]
   agentJobs                   AgentJob[]
@@ -2303,6 +2305,17 @@ model NotificationPreference {
 
   @@id([companyId, userId, kind])
   @@index([companyId, userId])
+}
+
+model NotificationPause {
+  companyId String
+  userId    String
+  until     DateTime
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, userId])
 }
 
 enum WikiPageProposalAction {

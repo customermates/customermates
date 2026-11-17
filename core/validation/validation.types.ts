@@ -226,6 +226,7 @@ export enum CustomErrorCode {
   filterBetweenInvalidArrayLength = "filterBetweenInvalidArrayLength",
   notesInvalidFormat = "notesInvalidFormat",
   notesExceedsMaxLength = "notesExceedsMaxLength",
+  notificationPauseDateInvalid = "notificationPauseDateInvalid",
   mustNotBeBlank = "mustNotBeBlank",
   mustNotContainNullChars = "mustNotContainNullChars",
   duplicateWebhookEvents = "duplicateWebhookEvents",

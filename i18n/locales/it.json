@@ -1690,6 +1690,7 @@
       "notAuthenticated": "Accedi per usare questa azione.",
       "notesExceedsMaxLength": "Il contenuto delle note supera la lunghezza massima.",
       "notesInvalidFormat": "Formato delle note non valido. Deve essere JSON Tiptap valido o testo markdown.",
+      "notificationPauseDateInvalid": "La sospensione deve terminare in un giorno successivo a oggi ed entro un anno.",
       "operatorAllowanceMissing": "Questo spazio di lavoro non ha ancora un contingente Enterprise contrattuale, quindi i crediti non possono essere corretti. Imposta prima il contingente nell'elenco degli spazi di lavoro.",
       "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
       "operatorConnectedAccountsActive": "Questo spazio di lavoro ha ancora account di messaggistica collegati. Scollegali prima per liberare gli account del fornitore, poi elimina lo spazio di lavoro.",
@@ -3850,7 +3851,7 @@
       "modeLabel": "E-mail per {kind}",
       "pause": "Sospendi tutte le e-mail fino al",
       "pauseDate": "Data fino alla quale le e-mail sono sospese",
-      "pauseHelp": "Durante la sospensione nessuna notifica ti arriva via e-mail. Le tue scelte qui sopra tornano quando apri questa pagina da quel giorno in poi.",
+      "pauseHelp": "Durante la sospensione nessuna notifica ti arriva via e-mail, su nessun dispositivo. Le tue scelte qui sopra restano come sono e valgono di nuovo da quel giorno.",
       "pauseOff": "Le tue scelte per le e-mail sono di nuovo attive.",
       "pauseOn": "Tutte le e-mail sono sospese fino al {date}.",
       "title": "E-mail di notifica"

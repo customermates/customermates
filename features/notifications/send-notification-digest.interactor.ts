@@ -1,9 +1,11 @@
 import type { NotificationMailer } from "./notification-mailer";
+import type { NotificationPauseRepo } from "./notification-pause.repo";
 import type { NotificationRepo } from "./notification.repo";
 
 import * as ErrorReporter from "@/core/observability/server";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
+import { isNotificationPaused } from "./notification-pause";
 import { NOTIFICATION_DIGEST_WINDOW_HOURS, NOTIFICATION_INSTANT_FALLBACK_MINUTES } from "./notification.schema";
 import { effectiveEmailMode } from "./notification.service";
 
@@ -20,6 +22,7 @@ export class SendNotificationDigestInteractor {
     private readonly repo: NotificationRepo,
     private readonly mailer: NotificationMailer,
     private readonly elapsedClock: () => number = Date.now,
+    private readonly pauses: NotificationPauseRepo | null = null,
   ) {}
 
   async invoke(now = new Date()): Promise<{ notificationDigests: number }> {
@@ -47,6 +50,8 @@ export class SendNotificationDigestInteractor {
     const { companyId, userId } = user;
     const [recipient] = await this.repo.findRecipientsUnscoped(companyId, [userId]);
     if (!recipient) return false;
+    if (this.pauses && isNotificationPaused((await this.pauses.findUnscoped(companyId, [userId])).get(userId), now))
+      return false;
     const preferences = (await this.repo.findPreferencesUnscoped(companyId, [userId])).get(userId);
     const pending = (await this.repo.findUnemailedUnscoped(companyId, userId, since)).filter((item) => {
       const mode = effectiveEmailMode(preferences, item.kind);

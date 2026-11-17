@@ -2863,6 +2863,7 @@ import { PruneAutomationRuleRunsInteractor } from "@/features/automation-rules/p
 import { SweepAutomationRulesInteractor } from "@/features/automation-rules/sweep-automation-rules.interactor";
 import { UpsertAutomationRuleInteractor } from "@/features/automation-rules/upsert-automation-rule.interactor";
 import { PrismaNotificationRepo } from "@/features/notifications/prisma-notification.repository";
+import { PrismaNotificationPauseRepo } from "@/features/notifications/prisma-notification-pause.repository";
 import { EmailNotificationMailer } from "@/features/notifications/email-notification-mailer";
 import { GetNotificationPreferencesInteractor } from "@/features/notifications/get-notification-preferences.interactor";
 import { GetNotificationsInteractor } from "@/features/notifications/get-notifications.interactor";
@@ -2871,21 +2872,31 @@ import { NotificationService } from "@/features/notifications/notification.servi
 import { PruneNotificationsInteractor } from "@/features/notifications/prune-notifications.interactor";
 import { SendNotificationDigestInteractor } from "@/features/notifications/send-notification-digest.interactor";
 import { SetNotificationKindOffInteractor } from "@/features/notifications/set-notification-kind-off.interactor";
+import { SetNotificationPauseInteractor } from "@/features/notifications/set-notification-pause.interactor";
 import { SetNotificationPreferencesInteractor } from "@/features/notifications/set-notification-preferences.interactor";
 
 const getNotificationRepo = () => new PrismaNotificationRepo();
+const getNotificationPauseRepo = () => new PrismaNotificationPauseRepo();
 const getNotificationMailer = () => new EmailNotificationMailer(getEmailService(), env.BETTER_AUTH_SECRET);
-export const getNotificationService = () => new NotificationService(getNotificationRepo(), getNotificationMailer());
+export const getNotificationService = () =>
+  new NotificationService(getNotificationRepo(), getNotificationMailer(), () => new Date(), getNotificationPauseRepo());
 export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
 export const getMarkNotificationsReadInteractor = () => new MarkNotificationsReadInteractor(getNotificationRepo());
 export const getGetNotificationPreferencesInteractor = () =>
-  new GetNotificationPreferencesInteractor(getNotificationRepo());
+  new GetNotificationPreferencesInteractor(getNotificationRepo(), getNotificationPauseRepo());
 export const getSetNotificationPreferencesInteractor = () =>
-  new SetNotificationPreferencesInteractor(getNotificationRepo());
+  new SetNotificationPreferencesInteractor(getNotificationRepo(), getNotificationPauseRepo());
+export const getSetNotificationPauseInteractor = () =>
+  new SetNotificationPauseInteractor(getNotificationRepo(), getNotificationPauseRepo());
 export const getSetNotificationKindOffInteractor = () =>
   new SetNotificationKindOffInteractor(getNotificationRepo(), env.BETTER_AUTH_SECRET);
 export const getSendNotificationDigestInteractor = () =>
-  new SendNotificationDigestInteractor(getNotificationRepo(), getNotificationMailer());
+  new SendNotificationDigestInteractor(
+    getNotificationRepo(),
+    getNotificationMailer(),
+    Date.now,
+    getNotificationPauseRepo(),
+  );
 export const getPruneNotificationsInteractor = () => new PruneNotificationsInteractor(getNotificationRepo());
 
 const getAutomationRuleRepo = (companyId?: string) =>

@@ -531,3 +531,19 @@ ALTER TABLE "AgentJob" ADD CONSTRAINT "AgentJob_companyId_ownerUserId_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "AgentJob" ADD CONSTRAINT "AgentJob_companyId_runnerId_fkey" FOREIGN KEY ("companyId", "runnerId") REFERENCES "AgentRunner"("companyId", "id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- CreateTable
+CREATE TABLE "NotificationPause" (
+    "companyId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "until" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "NotificationPause_pkey" PRIMARY KEY ("companyId","userId")
+);
+
+-- AddForeignKey
+ALTER TABLE "NotificationPause" ADD CONSTRAINT "NotificationPause_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "NotificationPause" ADD CONSTRAINT "NotificationPause_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
