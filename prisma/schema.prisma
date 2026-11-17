@@ -2263,7 +2263,7 @@ model AutomationRuleRun {
 
   @@unique([ruleId, occurrenceKey])
   @@index([companyId, ruleId, createdAt])
-  @@index([status, scheduledFor])
+  @@index([status, createdAt])
 }
 
 enum NotificationKind {

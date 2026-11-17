@@ -208,6 +208,15 @@ describeDatabase("PrismaAutomationRuleRepo tenant boundaries", () => {
     expect(await lastRun()).toEqual(settled);
   });
 
+  it("indexes runs by status and admission time, which the stale sweep and the prune read", async () => {
+    const { rows } = await client.query<{ indexdef: string }>(
+      `SELECT indexdef FROM pg_indexes WHERE schemaname = current_schema() AND tablename = 'AutomationRuleRun'`,
+    );
+    const definitions = rows.map((row) => row.indexdef);
+    expect(definitions.some((definition) => definition.endsWith('(status, "createdAt")'))).toBe(true);
+    expect(definitions.some((definition) => definition.includes('"scheduledFor"'))).toBe(false);
+  });
+
   it("prunes finished runs of every workspace in batches and keeps unfinished ones", async () => {
     const old = new Date("2026-01-01T00:00:00.000Z");
     const insertRun = async (company: string, rule: string, status: string, key: string) => {

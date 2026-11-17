@@ -268,7 +268,7 @@ CREATE UNIQUE INDEX "AutomationRuleRun_ruleId_occurrenceKey_key" ON "AutomationR
 CREATE INDEX "AutomationRuleRun_companyId_ruleId_createdAt_idx" ON "AutomationRuleRun"("companyId", "ruleId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "AutomationRuleRun_status_scheduledFor_idx" ON "AutomationRuleRun"("status", "scheduledFor");
+CREATE INDEX "AutomationRuleRun_status_createdAt_idx" ON "AutomationRuleRun"("status", "createdAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Notification_companyId_userId_dedupeKey_key" ON "Notification"("companyId", "userId", "dedupeKey");
