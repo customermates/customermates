@@ -9,6 +9,8 @@ import { e2eAppMode } from "./workspace-switching";
 type Kind = "dueToday" | "replyReceived" | "ruleAlert";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+// The page text always carries every translation, so the form itself tells whether the confirmation is offered.
+const CONFIRMATION_FORM = 'action="/api/notifications/unsubscribe"';
 
 function unsubscribePath(companyId: string, userId: string, kind: Kind, issuedAt = new Date()) {
   const secret = notificationUnsubscribeSecret(process.env.BETTER_AUTH_SECRET);
@@ -128,7 +130,7 @@ test("a turn-off link from a notification email asks first, then switches that k
 
     const confirmation = await anonymous.get(`${location.pathname}${location.search}`);
     expect(confirmation.status()).toBe(200);
-    expect(await confirmation.text()).toContain("Turn off these emails?");
+    expect(await confirmation.text()).toContain(CONFIRMATION_FORM);
     expect(await modeOf("ruleAlert")).toBeUndefined();
 
     await test.step("confirming works without a signed-in browser and sends the person to Profile & preferences", async () => {
@@ -164,7 +166,7 @@ test("a turn-off link from a notification email asks first, then switches that k
       400,
     );
     const wrongPage = await page.request.get("/en/notification-emails/turn-off?token=wrong");
-    expect(await wrongPage.text()).not.toContain("Turn off these emails?");
+    expect(await wrongPage.text()).not.toContain(CONFIRMATION_FORM);
     expect(await modeOf("replyReceived")).toBeUndefined();
     expect(await modeOf("dueToday")).toBeUndefined();
   });
