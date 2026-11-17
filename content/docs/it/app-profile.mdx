@@ -5,9 +5,9 @@ description: "Le impostazioni personali di Customermates: nome, lingua, formati,
 
 ## Che cosa appartiene a me e non allo spazio di lavoro? [#what-lives-on-the-profile-screen]
 
-La parte Account delle Impostazioni contiene quattro pagine: [Profilo e preferenze](app:settings/profile) (nome, avatar, lingua, formati, tema), [Spazi di lavoro](app:settings/workspaces) (gli spazi di lavoro a cui si appartiene), [Canali e calendari](app:settings/channels) (gli account che alimentano la [Posta in arrivo](/docs/app-inbox)) e [Chiavi API e connettori](app:settings/api-keys) (chiavi per client MCP e REST). Si fa clic sull’avatar in basso nella barra laterale e si sceglie **Profilo e preferenze**, oppure si sceglie **Impostazioni** nel menu dello spazio di lavoro (il nome dello spazio di lavoro in alto nella barra laterale) o si preme G poi S; ciascuno apre Profilo e preferenze, e la navigazione delle impostazioni elenca le altre pagine. **Indietro** in alto in quella navigazione riporta dove si era. Le modifiche qui riguardano solo te, tranne un canale condiviso con lo spazio di lavoro. Il profilo è lo stesso in ogni spazio di lavoro a cui si appartiene, mentre canali e chiavi API appartengono allo spazio di lavoro in cui sono stati collegati o creati; vedere [Spazi di lavoro](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+La parte Account delle Impostazioni contiene due pagine: [Profilo e preferenze](app:settings/profile) (nome, avatar, lingua, formati, tema, e-mail di notifica) e [Spazi di lavoro](app:settings/workspaces) (gli spazi di lavoro a cui si appartiene). Gli account che alimentano la [Posta in arrivo](/docs/app-inbox), le pagine di prenotazione e le chiavi per client MCP e REST si trovano in [Connessioni](app:settings/connections), nella parte Spazio di lavoro, [descritta più sotto](#connections). Si fa clic sull’avatar in basso nella barra laterale e si sceglie **Profilo e preferenze**, oppure si sceglie **Impostazioni** nel menu dello spazio di lavoro (il nome dello spazio di lavoro in alto nella barra laterale) o si preme G poi S; ciascuno apre Profilo e preferenze, e la navigazione delle impostazioni elenca le altre pagine. **Indietro** in alto in quella navigazione riporta dove si era. Le modifiche qui riguardano solo te, tranne un canale condiviso con lo spazio di lavoro. Il profilo è lo stesso in ogni spazio di lavoro a cui si appartiene, mentre canali e chiavi API appartengono allo spazio di lavoro in cui sono stati collegati o creati; vedere [Spazi di lavoro](/docs/app-workspaces#what-is-the-same-in-every-workspace).
 
-Ogni membro vede Profilo e preferenze. Canali e calendari richiede **Accesso in lettura** **Tutti** sulla riga **Messaggi della posta in arrivo** del ruolo ed esiste solo su Customermates Cloud. Chiavi API e connettori richiede **Accesso in lettura** **Tutti** su **API e webhook**. Un nuovo ruolo personalizzato parte con **Nessuno** su entrambe le righe; i ruoli si modificano in [Ruoli](app:settings/roles), vedere [Guida all’app, Azienda](/docs/app-company).
+Ogni membro vede Profilo e preferenze e Connessioni. In Connessioni la scheda **Canali** richiede **Accesso in lettura** **Tutti** sulla riga **Messaggi della posta in arrivo** del ruolo ed esiste solo su Customermates Cloud, e la scheda **Sviluppatori** richiede **Accesso in lettura** **Tutti** su **API e webhook**; **App** e **Agenti** sono aperte a ogni membro. Un nuovo ruolo personalizzato parte con **Nessuno** su entrambe le righe; i ruoli si modificano in [Ruoli](app:settings/roles), vedere [Guida all’app, Azienda](/docs/app-company).
 
 ## Profilo e preferenze [#settings-tab]
 
@@ -35,7 +35,22 @@ Finché l’indirizzo non è verificato, l’avatar nella barra laterale e la vo
 
 ### Che cosa non posso cambiare qui, per esempio la password? [#what-can-i-not-change-here]
 
-Non esiste un’impostazione per password, indirizzo e-mail, fuso orario, notifiche o eliminazione dell’account. Per una nuova password, si esce e si usa **Password dimenticata?** nella pagina di accesso. Le firme e-mail appartengono a ogni canale e-mail, vedere [aspetto e firma delle e-mail](#email-appearance-and-signature).
+Non esiste un’impostazione per password, indirizzo e-mail, fuso orario o eliminazione dell’account. Per una nuova password, si esce e si usa **Password dimenticata?** nella pagina di accesso. Le firme e-mail appartengono a ogni canale e-mail, vedere [aspetto e firma delle e-mail](#email-appearance-and-signature).
+
+## E-mail di notifica [#notification-emails]
+
+La scheda **E-mail di notifica** di [Profilo e preferenze](app:settings/profile) è una tabella con una riga per tipo di notifica: **In scadenza oggi**, **Risposte ricevute** e **Avvisi di automazione**. Ogni riga offre tre scelte, **E-mail immediata**, **Riepilogo giornaliero** e **Nessuna e-mail**, e una modifica si salva subito. **Sospendi tutte le e-mail fino al** imposta i tre tipi su **Nessuna e-mail** fino al giorno scelto. La sospensione viene ricordata in questo browser: le scelte precedenti tornano quando la si disattiva o quando si apre questa pagina da quel giorno in poi. Ogni e-mail di notifica termina con il motivo per cui la si riceve e due link, **Disattiva questo tipo** e **Gestisci le notifiche**; vedere [Come funzionano le notifiche e le preferenze e-mail?](/docs/app-automations#how-do-notifications-work).
+
+## Connessioni [#connections]
+
+[Connessioni](app:settings/connections), nella parte Spazio di lavoro delle Impostazioni, è il luogo unico per tutto ciò che collega Customermates a persone, app, agenti e ai propri sistemi. La pagina ha quattro schede e l’indirizzo ricorda la scheda, così una scheda si può condividere con un link e ricaricare:
+
+- **Canali** raccoglie gli account collegati ([Canali e calendari](#channels-tab)) e le pagine di prenotazione, ciascuna con il proprio calendario. La scheda esiste solo su Customermates Cloud; su un’istanza self-hosted lo spiega.
+- **App** elenca le app collegate allo spazio di lavoro e ciò che ciascuna può raggiungere. Finché non ce n’è nessuna, indica **Nessuna app collegata**.
+- **Agenti** rimanda alle impostazioni degli agenti dello spazio di lavoro.
+- **Sviluppatori** raccoglie [Chiavi API e connettori](#api--connectors-tab), [Webhook](/docs/webhooks), il Log dei webhook e i Webhook in entrata in quattro sezioni.
+
+Ogni sezione inizia con una riga che dice a chi appartengono le sue connessioni e che cosa possono raggiungere. Un canale appartiene alla persona che l’ha collegato e resta privato finché non lo condivide con lo spazio di lavoro; app, agenti, chiavi API e webhook appartengono allo spazio di lavoro. I link precedenti a Canali e calendari, Pagine di prenotazione, Chiavi API e connettori, Webhook, Log dei webhook e Webhook in entrata continuano a funzionare e aprono la scheda corrispondente.
 
 ## Chiavi API e connettori [#api--connectors-tab]
 

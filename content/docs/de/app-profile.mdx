@@ -5,9 +5,9 @@ description: "Ihre persönlichen Customermates-Einstellungen: Name, Sprache, For
 
 ## Was gehört Ihnen statt dem Workspace? [#what-lives-on-the-profile-screen]
 
-Der Bereich Konto in den Einstellungen hat vier Seiten: [Profil & Einstellungen](app:settings/profile) (Name, Avatar, Sprache, Formate, Darstellung), [Workspaces](app:settings/workspaces) (die Workspaces, zu denen Sie gehören), [Kanäle & Kalender](app:settings/channels) (die Konten, die den [Posteingang](/docs/app-inbox) speisen) und [API-Schlüssel & Konnektoren](app:settings/api-keys) (Keys für MCP- und REST-Clients). Klicken Sie unten in der Seitenleiste auf Ihren Avatar und wählen Sie **Profil & Einstellungen**, oder wählen Sie **Einstellungen** im Workspace-Menü (der Name des Workspace oben in der Seitenleiste) oder drücken Sie G, dann S; jeder Weg öffnet Profil & Einstellungen, und die Einstellungsnavigation listet die übrigen Seiten. **Zurück** oben in dieser Navigation führt dorthin, wo Sie waren. Änderungen hier betreffen nur Sie, außer bei einem Kanal, den Sie mit dem Workspace teilen. Ihr Profil ist in jedem Workspace gleich, zu dem Sie gehören, während Kanäle und API-Keys zu dem Workspace gehören, in dem Sie sie verbunden oder erstellt haben; siehe [Workspaces](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+Der Bereich Konto in den Einstellungen hat zwei Seiten: [Profil & Einstellungen](app:settings/profile) (Name, Avatar, Sprache, Formate, Darstellung, E-Mails zu Benachrichtigungen) und [Workspaces](app:settings/workspaces) (die Workspaces, zu denen Sie gehören). Die Konten, die den [Posteingang](/docs/app-inbox) speisen, Ihre Buchungsseiten und die Keys für MCP- und REST-Clients finden Sie unter [Verbindungen](app:settings/connections) im Bereich Workspace, [weiter unten](#connections) beschrieben. Klicken Sie unten in der Seitenleiste auf Ihren Avatar und wählen Sie **Profil & Einstellungen**, oder wählen Sie **Einstellungen** im Workspace-Menü (der Name des Workspace oben in der Seitenleiste) oder drücken Sie G, dann S; jeder Weg öffnet Profil & Einstellungen, und die Einstellungsnavigation listet die übrigen Seiten. **Zurück** oben in dieser Navigation führt dorthin, wo Sie waren. Änderungen hier betreffen nur Sie, außer bei einem Kanal, den Sie mit dem Workspace teilen. Ihr Profil ist in jedem Workspace gleich, zu dem Sie gehören, während Kanäle und API-Keys zu dem Workspace gehören, in dem Sie sie verbunden oder erstellt haben; siehe [Workspaces](/docs/app-workspaces#what-is-the-same-in-every-workspace).
 
-Profil & Einstellungen sieht jedes Mitglied. Kanäle & Kalender braucht **Lesen** **Alle** in der Zeile **Inbox-Nachrichten** Ihrer Rolle und gibt es nur in Customermates Cloud. API-Schlüssel & Konnektoren braucht **Lesen** **Alle** bei **API & Webhooks**. Eine neue benutzerdefinierte Rolle startet in beiden Zeilen mit **Keine**; Rollen bearbeiten Sie unter [Rollen](app:settings/roles), siehe [App-Guide, Unternehmen](/docs/app-company).
+Profil & Einstellungen und Verbindungen sieht jedes Mitglied. Auf Verbindungen braucht der Tab **Kanäle** **Lesen** **Alle** in der Zeile **Inbox-Nachrichten** Ihrer Rolle und existiert nur in Customermates Cloud, und der Tab **Entwickler** braucht **Lesen** **Alle** bei **API & Webhooks**; **Apps** und **Agenten** stehen jedem Mitglied offen. Eine neue benutzerdefinierte Rolle startet in beiden Zeilen mit **Keine**; Rollen bearbeiten Sie unter [Rollen](app:settings/roles), siehe [App-Guide, Unternehmen](/docs/app-company).
 
 ## Profil & Einstellungen [#settings-tab]
 
@@ -35,7 +35,22 @@ Solange Ihre Adresse nicht verifiziert ist, zeigen Ihr Avatar in der Seitenleist
 
 ### Was lässt sich hier nicht ändern, etwa das Passwort? [#what-can-i-not-change-here]
 
-Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone, Benachrichtigungen oder das Löschen Ihres Kontos. Für ein neues Passwort melden Sie sich ab und nutzen auf der Anmeldeseite **Passwort vergessen?**. E-Mail-Signaturen gehören zum jeweiligen E-Mail-Kanal, siehe [E-Mail-Darstellung und Signatur](#email-appearance-and-signature).
+Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone oder das Löschen Ihres Kontos. Für ein neues Passwort melden Sie sich ab und nutzen auf der Anmeldeseite **Passwort vergessen?**. E-Mail-Signaturen gehören zum jeweiligen E-Mail-Kanal, siehe [E-Mail-Darstellung und Signatur](#email-appearance-and-signature).
+
+## E-Mails zu Benachrichtigungen [#notification-emails]
+
+Die Karte **E-Mails zu Benachrichtigungen** unter [Profil & Einstellungen](app:settings/profile) ist eine Tabelle mit einer Zeile je Art von Benachrichtigung: **Heute fällig**, **Erhaltene Antworten** und **Hinweise von Automatisierungen**. Jede Zeile bietet drei Auswahlmöglichkeiten, **Sofort per E-Mail**, **Tägliche Zusammenfassung** und **Keine E-Mail**, und eine Änderung wird sofort gespeichert. **Alle E-Mails pausieren bis** stellt die drei Arten bis zum gewählten Tag auf **Keine E-Mail**. Die Pause wird in diesem Browser gemerkt: Ihre früheren Einstellungen kommen zurück, wenn Sie sie ausschalten oder diese Seite an oder nach diesem Tag öffnen. Jede E-Mail zu einer Benachrichtigung endet mit dem Grund, warum Sie sie bekommen, und zwei Links, **Diese Art ausschalten** und **Benachrichtigungen verwalten**; siehe [Wie funktionieren Benachrichtigungen und E-Mail-Einstellungen?](/docs/app-automations#how-do-notifications-work).
+
+## Verbindungen [#connections]
+
+[Verbindungen](app:settings/connections) im Bereich Workspace der Einstellungen ist der eine Ort für alles, was Customermates mit Menschen, Apps, Agenten und Ihren eigenen Systemen verbindet. Die Seite hat vier Tabs, und die Adresse merkt sich den Tab, sodass ein Tab verlinkt und neu geladen werden kann:
+
+- **Kanäle** enthält Ihre verbundenen Konten ([Kanäle & Kalender](#channels-tab)) und Ihre Buchungsseiten, jeweils mit ihrem Kalender. Den Tab gibt es nur in Customermates Cloud; bei einer selbst gehosteten Instanz weist er darauf hin.
+- **Apps** listet die mit dem Workspace verbundenen Apps und was jede erreichen kann. Solange es keine gibt, steht dort **Noch keine Apps verbunden**.
+- **Agenten** verweist auf die Agenten-Einstellungen des Workspace.
+- **Entwickler** enthält [API-Schlüssel & Konnektoren](#api--connectors-tab), [Webhooks](/docs/webhooks), das Webhook-Protokoll und Eingehende Webhooks als vier Bereiche.
+
+Jeder Bereich beginnt mit einer Zeile, die sagt, wem seine Verbindungen gehören und was sie erreichen können. Ein Kanal gehört der Person, die ihn verbunden hat, und bleibt privat, bis sie ihn mit dem Workspace teilt; Apps, Agenten, API-Schlüssel und Webhooks gehören dem Workspace. Die bisherigen Links zu Kanäle & Kalender, Buchungsseiten, API-Schlüssel & Konnektoren, Webhooks, Webhook-Protokoll und Eingehende Webhooks funktionieren weiter und öffnen den passenden Tab.
 
 ## API-Schlüssel & Konnektoren [#api--connectors-tab]
 

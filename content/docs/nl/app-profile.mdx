@@ -5,9 +5,9 @@ description: "Je persoonlijke Customermates-instellingen: naam, taal, notatie, t
 
 ## Wat hoort bij jou en niet bij de werkruimte? [#what-lives-on-the-profile-screen]
 
-Het onderdeel Account van Instellingen bevat vier pagina's: [Profiel & voorkeuren](app:settings/profile) (naam, avatar, taal, notatie, thema), [Werkruimtes](app:settings/workspaces) (de werkruimtes waartoe je behoort), [Kanalen & agenda's](app:settings/channels) (de accounts die de [Inbox](/docs/app-inbox) voeden) en [API-sleutels & connectoren](app:settings/api-keys) (sleutels voor MCP- en REST-clients). Klik onderaan de zijbalk op je avatar en kies **Profiel & voorkeuren**, of kies **Instellingen** in het werkruimtemenu (de naam van de werkruimte bovenaan de zijbalk) of druk op G en daarna S; elk van die opent Profiel & voorkeuren, en de instellingennavigatie toont de andere pagina's. **Terug** bovenaan die navigatie brengt je terug naar waar je was. Wijzigingen hier gelden alleen voor jou, behalve een kanaal dat je met de werkruimte deelt. Je profiel is hetzelfde in elke werkruimte waartoe je behoort, terwijl kanalen en API-sleutels horen bij de werkruimte waarin je ze hebt gekoppeld of aangemaakt; zie [Werkruimtes](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+Het onderdeel Account van Instellingen bevat twee pagina's: [Profiel & voorkeuren](app:settings/profile) (naam, avatar, taal, notatie, thema, e-mails over meldingen) en [Werkruimtes](app:settings/workspaces) (de werkruimtes waartoe je behoort). De accounts die de [Inbox](/docs/app-inbox) voeden, je boekingspagina's en de sleutels voor MCP- en REST-clients staan op [Koppelingen](app:settings/connections) in het onderdeel Werkruimte, [hieronder beschreven](#connections). Klik onderaan de zijbalk op je avatar en kies **Profiel & voorkeuren**, of kies **Instellingen** in het werkruimtemenu (de naam van de werkruimte bovenaan de zijbalk) of druk op G en daarna S; elk van die opent Profiel & voorkeuren, en de instellingennavigatie toont de andere pagina's. **Terug** bovenaan die navigatie brengt je terug naar waar je was. Wijzigingen hier gelden alleen voor jou, behalve een kanaal dat je met de werkruimte deelt. Je profiel is hetzelfde in elke werkruimte waartoe je behoort, terwijl kanalen en API-sleutels horen bij de werkruimte waarin je ze hebt gekoppeld of aangemaakt; zie [Werkruimtes](/docs/app-workspaces#what-is-the-same-in-every-workspace).
 
-Elk lid ziet Profiel & voorkeuren. Kanalen & agenda's vraagt **Leestoegang** **Alle** op de rij **Inboxberichten** van je rol en bestaat alleen in Customermates Cloud. API-sleutels & connectoren vraagt **Leestoegang** **Alle** op **API en webhooks**. Een nieuwe aangepaste rol begint met **Geen** op beide rijen; rollen bewerk je bij [Rollen](app:settings/roles), zie [Appgids, Bedrijf](/docs/app-company).
+Elk lid ziet Profiel & voorkeuren en Koppelingen. Op Koppelingen vraagt het tabblad **Kanalen** **Leestoegang** **Alle** op de rij **Inboxberichten** van je rol en bestaat alleen in Customermates Cloud, en het tabblad **Ontwikkelaars** vraagt **Leestoegang** **Alle** op **API en webhooks**; **Apps** en **Agents** staan open voor elk lid. Een nieuwe aangepaste rol begint met **Geen** op beide rijen; rollen bewerk je bij [Rollen](app:settings/roles), zie [Appgids, Bedrijf](/docs/app-company).
 
 ## Profiel & voorkeuren [#settings-tab]
 
@@ -35,7 +35,22 @@ Zolang je adres niet is geverifieerd, tonen je avatar in de zijbalk en het item 
 
 ### Wat kan ik hier niet wijzigen, zoals mijn wachtwoord? [#what-can-i-not-change-here]
 
-Er is geen instelling voor wachtwoord, e-mailadres, tijdzone, notificaties of het verwijderen van je account. Voor een nieuw wachtwoord meld je je af en gebruik je **Wachtwoord vergeten?** op de inlogpagina. E-mailhandtekeningen horen bij elk e-mailkanaal, zie [uiterlijk en handtekening van e-mail](#email-appearance-and-signature).
+Er is geen instelling voor wachtwoord, e-mailadres, tijdzone of het verwijderen van je account. Voor een nieuw wachtwoord meld je je af en gebruik je **Wachtwoord vergeten?** op de inlogpagina. E-mailhandtekeningen horen bij elk e-mailkanaal, zie [uiterlijk en handtekening van e-mail](#email-appearance-and-signature).
+
+## E-mails over meldingen [#notification-emails]
+
+De kaart **E-mails over meldingen** op [Profiel & voorkeuren](app:settings/profile) is een tabel met één rij per soort melding: **Vandaag aan de beurt**, **Ontvangen antwoorden** en **Meldingen van automatiseringen**. Elke rij biedt drie keuzes, **Direct per e-mail**, **Dagelijkse samenvatting** en **Geen e-mail**, en een wijziging wordt meteen opgeslagen. **Alle e-mails pauzeren tot** zet de drie soorten op **Geen e-mail** tot de dag die je kiest. De pauze wordt onthouden in deze browser: je eerdere keuzes komen terug als je de pauze uitzet of deze pagina op of na die dag opent. Elke e-mail over een melding eindigt met de reden waarom je hem krijgt en twee links, **Deze soort uitzetten** en **Meldingen beheren**; zie [Hoe werken meldingen en e-mailvoorkeuren?](/docs/app-automations#how-do-notifications-work).
+
+## Koppelingen [#connections]
+
+[Koppelingen](app:settings/connections), in het onderdeel Werkruimte van Instellingen, is de ene plek voor alles wat Customermates koppelt aan mensen, apps, agents en je eigen systemen. De pagina heeft vier tabbladen en het adres onthoudt het tabblad, zodat een tabblad gelinkt en opnieuw geladen kan worden:
+
+- **Kanalen** bevat je gekoppelde accounts ([Kanalen & agenda's](#channels-tab)) en je boekingspagina's, elk met zijn agenda. Het tabblad bestaat alleen in Customermates Cloud; bij een zelf gehoste instantie legt het dat uit.
+- **Apps** toont de apps die aan de werkruimte gekoppeld zijn en waar elke app bij kan. Zolang er geen is, staat er **Nog geen apps gekoppeld**.
+- **Agents** verwijst naar de agentinstellingen van de werkruimte.
+- **Ontwikkelaars** bevat [API-sleutels & connectoren](#api--connectors-tab), [Webhooks](/docs/webhooks), het Webhooklog en Inkomende webhooks in vier onderdelen.
+
+Elk onderdeel begint met één regel die zegt van wie de koppelingen zijn en waar ze bij kunnen. Een kanaal is van de persoon die het heeft gekoppeld en blijft privé tot die het met de werkruimte deelt; apps, agents, API-sleutels en webhooks zijn van de werkruimte. De eerdere links naar Kanalen & agenda's, Boekingspagina's, API-sleutels & connectoren, Webhooks, Webhooklog en Inkomende webhooks werken nog en openen het bijbehorende tabblad.
 
 ## API-sleutels & connectoren [#api--connectors-tab]
 
