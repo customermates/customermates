@@ -91,6 +91,7 @@ import { CancelMeetingInteractor } from "@/ee/calendar/cancel-meeting.interactor
 import { DeleteBookingLinkInteractor } from "@/ee/calendar/delete-booking-link.interactor";
 import { GetBookingLinkByIdInteractor } from "@/ee/calendar/get-booking-link-by-id.interactor";
 import { GetBookingLinksInteractor } from "@/ee/calendar/get-booking-links.interactor";
+import { GetWorkspaceBookingLinksInteractor } from "@/ee/calendar/get-workspace-booking-links.interactor";
 import { GetFreeSlotsInteractor } from "@/ee/calendar/get-free-slots.interactor";
 import { GetMeetingOptionsInteractor } from "@/ee/calendar/get-meeting-options.interactor";
 import { MeetingRecordService } from "@/ee/calendar/meeting-record.service";
@@ -1904,6 +1905,8 @@ export const getCancelMeetingInteractor = () =>
   );
 export const getGetBookingLinksInteractor = () =>
   new GetBookingLinksInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
+export const getGetWorkspaceBookingLinksInteractor = () =>
+  new GetWorkspaceBookingLinksInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
 export const getGetBookingLinkByIdInteractor = () =>
   new GetBookingLinkByIdInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
 export const getSaveBookingLinkInteractor = () =>

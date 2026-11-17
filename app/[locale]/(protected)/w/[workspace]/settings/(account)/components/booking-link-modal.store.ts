@@ -8,7 +8,7 @@ import { action, makeObservable, observable } from "mobx";
 
 import { Resource } from "@/generated/prisma";
 
-import { saveBookingLinkAction } from "../booking/actions";
+import { saveBookingLinkAction } from "../../../calendar/booking-actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { browserTimeZone } from "@/core/utils/time-zone";

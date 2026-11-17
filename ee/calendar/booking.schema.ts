@@ -104,6 +104,15 @@ export type BookingLinkDto = z.infer<typeof BookingLinkSchema>;
 export const BookingLinkListSchema = z.object({ items: z.array(BookingLinkSchema) });
 export type BookingLinkList = z.infer<typeof BookingLinkListSchema>;
 
+export const WorkspaceBookingLinkSchema = BookingLinkSchema.extend({
+  ownerName: z.string(),
+  own: z.boolean(),
+});
+export type WorkspaceBookingLinkDto = z.infer<typeof WorkspaceBookingLinkSchema>;
+
+export const WorkspaceBookingLinkListSchema = z.object({ items: z.array(WorkspaceBookingLinkSchema) });
+export type WorkspaceBookingLinkList = z.infer<typeof WorkspaceBookingLinkListSchema>;
+
 export const DeleteBookingLinkResultSchema = z.object({ id: z.uuid(), deleted: z.literal(true) });
 export type DeleteBookingLinkResult = z.infer<typeof DeleteBookingLinkResultSchema>;
 
@@ -133,6 +142,8 @@ export type BookingLinkRow = {
   createdAt: Date;
   upcomingBookings: number;
 };
+
+export type WorkspaceBookingLinkRow = BookingLinkRow & { ownerName: string };
 
 export const PublicAnswerValueSchema = z.union([
   z.string().max(BOOKING_ANSWER_MAX_CHARS),

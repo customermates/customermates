@@ -1,4 +1,4 @@
-import type { BookingLinkRow } from "./booking.schema";
+import type { BookingLinkRow, WorkspaceBookingLinkRow } from "./booking.schema";
 
 export type BookingLinkWrite = {
   calendarId: string;
@@ -33,6 +33,7 @@ export type BookingLinkLookup = BookingLinkRow & {
 
 export abstract class BookingLinkRepo {
   abstract list(): Promise<BookingLinkRow[]>;
+  abstract listWorkspace(): Promise<WorkspaceBookingLinkRow[]>;
   abstract find(id: string): Promise<BookingLinkRow | null>;
   abstract countOwn(): Promise<number>;
   abstract create(token: string, data: BookingLinkWrite): Promise<BookingLinkRow>;

@@ -1,28 +1,28 @@
 "use client";
 
 import type { PublicFormEditor } from "@/features/public-form/public-form.schema";
-import type { FormDraft } from "./public-form-draft";
+import type { PublicFormTabStore } from "./public-form-tab.store";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { disablePublicFormAction, getPublicFormEditorAction, upsertPublicFormAction } from "@/app/actions";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { CopyableCode } from "@/components/shared/copyable-code";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useIsWiderThan } from "@/hooks/use-media-query";
 
-import { initialDraft, previewForm, validDraftConfig } from "./public-form-draft";
+import { PublicFormAfterSubmitChain } from "./public-form-after-submit-chain";
 import { PublicFormFieldList } from "./public-form-field-list";
+import { PublicFormPreview } from "./public-form-preview";
 import { PublicFormSettings } from "./public-form-settings";
-import { PublicFormView } from "./public-form-view";
 
-type Props = { typeId: string; onClose: () => void };
+type Props = { store: PublicFormTabStore; onClose: () => void };
 
 function UsageLine({ editor }: { editor: PublicFormEditor }) {
   const t = useTranslations();
@@ -74,40 +74,29 @@ function Notice({ id, text }: { id: string; text: string }) {
   );
 }
 
-export function PublicFormTab({ typeId, onClose }: Props) {
+export const PublicFormTab = observer(function PublicFormTab({ store, onClose }: Props) {
   const t = useTranslations();
-  const [editor, setEditor] = useState<PublicFormEditor | null>(null);
-  const [draft, setDraft] = useState<FormDraft | null>(null);
-  const [baseline, setBaseline] = useState("");
-  const [saving, setSaving] = useState(false);
+  const wide = useIsWiderThan("lg");
+  const { editor, draft } = store;
 
-  const texts = () => ({
-    submitLabel: t("PublicForm.builder.defaultSubmit"),
-    successMessage: t("PublicForm.builder.defaultSuccess"),
-    emailLabel: t("PublicForm.builder.defaultEmailLabel"),
-    nameLabel: t("PublicForm.builder.defaultNameLabel"),
-  });
-
-  const load = async (active: () => boolean = () => true) => {
-    const result = await getPublicFormEditorAction({ typeId });
-    if (!active()) return;
-    if (!result.ok) {
-      toastZodErrorTree(result.error);
-      return;
-    }
-    const next = initialDraft(result.data, texts());
-    setEditor(result.data);
-    setDraft(next);
-    setBaseline(JSON.stringify(next));
-  };
+  const texts = useMemo(
+    () => ({
+      submitLabel: t("PublicForm.builder.defaultSubmit"),
+      successMessage: t("PublicForm.builder.defaultSuccess"),
+      emailLabel: t("PublicForm.builder.defaultEmailLabel"),
+      nameLabel: t("PublicForm.builder.defaultNameLabel"),
+    }),
+    [t],
+  );
 
   useEffect(() => {
-    let active = true;
-    load(() => active).catch(reportApplicationError);
-    return () => {
-      active = false;
-    };
-  }, [typeId]);
+    store
+      .load(texts)
+      .then((outcome) => {
+        if (outcome.status === "failed") toastZodErrorTree(outcome.error as never);
+      })
+      .catch(reportApplicationError);
+  }, [store, texts]);
 
   if (!editor || !draft) return <Notice id="public-form-loading" text={t("PublicForm.builder.loading")} />;
 
@@ -126,108 +115,92 @@ export function PublicFormTab({ typeId, onClose }: Props) {
 
   if (editor.fields.length === 0) return <Notice id="public-form-no-fields" text={t("PublicForm.builder.noFields")} />;
 
-  const config = validDraftConfig(draft);
-  const patch = (next: Partial<FormDraft>) => setDraft((current) => (current ? { ...current, ...next } : current));
+  const { chain } = store;
 
   const save = async () => {
-    if (!config || saving) return;
-    setSaving(true);
-    try {
-      const result = await upsertPublicFormAction({
-        ...(editor.form ? { id: editor.form.id } : { typeId, name: draft.title.trim() }),
-        enabled: draft.enabled,
-        config,
-      });
-      if (!result.ok) {
-        toastZodErrorTree(result.error);
-        return;
-      }
-      toast.success(t("PublicForm.builder.saved"));
-      await load();
-    } finally {
-      setSaving(false);
+    const outcome = await store.save();
+    if (outcome.status === "failed") {
+      toastZodErrorTree(outcome.error as never);
+      return;
     }
-  };
-
-  const turnOff = async () => {
-    if (!editor.form || saving) return;
-    setSaving(true);
-    try {
-      const result = await disablePublicFormAction({ id: editor.form.id });
-      if (!result.ok) {
-        toastZodErrorTree(result.error);
-        return;
-      }
-      toast.success(t("PublicForm.builder.turnedOff"));
-      await load();
-    } finally {
-      setSaving(false);
+    if (outcome.status === "saved") {
+      toast.success(t("PublicForm.builder.saved"));
+      await store.load(texts);
     }
   };
 
   return (
     <>
       <AppCardBody id="public-form-tab">
-        <p className="text-sm text-muted-foreground">{t("PublicForm.builder.intro", { list: editor.typeLabel })}</p>
+        <div
+          className={wide ? "grid min-w-0 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_23rem]" : "flex flex-col gap-6"}
+          data-form-layout={wide ? "wide" : "compact"}
+        >
+          <div className="flex min-w-0 flex-col gap-5">
+            <p className="text-sm text-muted-foreground">{t("PublicForm.builder.intro", { list: editor.typeLabel })}</p>
 
-        <PublicFormSettings draft={draft} editor={editor} onChange={patch} />
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={draft.enabled}
+                id="public-form-enabled"
+                onCheckedChange={(checked) => store.patch({ enabled: checked })}
+              />
 
-        <section className="flex flex-col gap-3" id="public-form-section-fields">
-          <h3 className="text-sm font-semibold">{t("PublicForm.builder.sectionFields")}</h3>
+              <Label htmlFor="public-form-enabled">{t("PublicForm.builder.enabled")}</Label>
+            </div>
 
-          <PublicFormFieldList fields={draft.fields} options={editor.fields} onChange={(fields) => patch({ fields })} />
-        </section>
-
-        <section className="flex flex-col gap-3" id="public-form-section-preview">
-          <h3 className="text-sm font-semibold">{t("PublicForm.builder.sectionPreview")}</h3>
-
-          <div className="rounded-lg border border-border p-4" id="public-form-preview">
-            <PublicFormView embedded form={previewForm(draft, editor, null)} locale={draft.locale || "en"} token="" />
-          </div>
-        </section>
-
-        <PublishedLinks editor={editor} />
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={draft.enabled}
-              id="public-form-enabled"
-              onCheckedChange={(checked) => patch({ enabled: checked })}
+            <PublicFormSettings
+              draft={draft}
+              editor={editor}
+              onAddConsent={() => store.addConsentLine(t("PublicForm.builder.consentDefault"))}
+              onChange={store.patch}
+              onRemoveConsent={store.removeConsentLine}
             />
 
-            <Label htmlFor="public-form-enabled">{t("PublicForm.builder.enabled")}</Label>
+            <section className="flex flex-col gap-3" id="public-form-section-fields">
+              <h3 className="text-sm font-semibold">{t("PublicForm.builder.sectionFields")}</h3>
+
+              <PublicFormFieldList
+                fields={draft.fields}
+                options={editor.fields}
+                onChange={(fields) => store.patch({ fields })}
+                onMove={store.moveField}
+              />
+            </section>
+
+            {chain ? (
+              <PublicFormAfterSubmitChain
+                chain={chain}
+                formId={editor.form?.id ?? null}
+                listLabel={editor.typeLabel}
+                typeId={store.typeId}
+              />
+            ) : null}
+
+            <PublishedLinks editor={editor} />
+
+            {store.config === null ? (
+              <p className="text-xs text-muted-foreground" id="public-form-invalid">
+                {t("PublicForm.builder.incomplete")}
+              </p>
+            ) : null}
           </div>
 
-          {editor.form?.enabled ? (
-            <Button
-              disabled={saving}
-              id="public-form-turn-off"
-              size="sm"
-              variant="secondary"
-              onClick={() => runUserAction(turnOff)}
-            >
-              {t("PublicForm.builder.turnOff")}
-            </Button>
-          ) : null}
+          <div className={wide ? "min-w-0 lg:sticky lg:top-0" : "min-w-0"}>
+            <PublicFormPreview store={store} />
+          </div>
         </div>
-
-        {config === null ? (
-          <p className="text-xs text-muted-foreground" id="public-form-invalid">
-            {t("PublicForm.builder.incomplete")}
-          </p>
-        ) : null}
       </AppCardBody>
 
       <FormFooterActions
         editable
         anchorScope="public-form"
         creating={!editor.form}
-        dirty={config !== null && JSON.stringify(draft) !== baseline}
-        saving={saving}
+        dirty={store.edited && store.config !== null}
+        saving={store.saving}
         onCancel={onClose}
         onSave={save}
       />
     </>
   );
-}
+});

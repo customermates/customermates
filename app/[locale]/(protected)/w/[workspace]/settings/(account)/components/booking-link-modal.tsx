@@ -22,6 +22,8 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useIsWiderThan } from "@/hooks/use-media-query";
+import { BookingPreview } from "../../../calendar/components/booking/booking-preview";
 import { MEETING_DURATION_MINUTES } from "@/ee/calendar/meeting-durations";
 import { WORKING_WEEKDAYS } from "@/ee/calendar/working-hours";
 
@@ -33,6 +35,7 @@ const HORIZONS = [7, 14, 30, 60, 90];
 export const BookingLinkModal = observer(() => {
   const t = useTranslations();
   const store = useRootStore().bookingLinkModalStore;
+  const wide = useIsWiderThan("lg");
   const { form, setup } = store;
   const timeZones = useMemo(
     () => ["UTC", ...Intl.supportedValuesOf("timeZone")].map((value) => ({ value, label: value.replace(/_/gu, " ") })),
@@ -51,7 +54,11 @@ export const BookingLinkModal = observer(() => {
   };
 
   return (
-    <AppModal store={store} title={form.id ? t("Booking.editTitle") : t("Booking.newTitle")}>
+    <AppModal
+      size={wide ? "5xl" : undefined}
+      store={store}
+      title={form.id ? t("Booking.editTitle") : t("Booking.newTitle")}
+    >
       <AppForm store={store}>
         <AppCard className="relative">
           <AppCardHeader>
@@ -59,225 +66,256 @@ export const BookingLinkModal = observer(() => {
           </AppCardHeader>
 
           <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
-            <FormInput required id="title" label={t("Booking.fields.title")} />
-
-            <FormTextarea id="description" label={t("Booking.fields.description")} rows={2} />
-
-            {setup.calendars.length > 1 ? (
-              <FormSelect
-                required
-                id="calendarId"
-                items={setup.calendars.map((calendar) => ({
-                  value: calendar.id,
-                  label: calendar.accountLabel ? `${calendar.name} (${calendar.accountLabel})` : calendar.name,
-                }))}
-                label={t("Booking.fields.calendar")}
-              />
-            ) : null}
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <FormSelect
-                id="durationMinutes"
-                items={MEETING_DURATION_MINUTES.map((minutes) => ({
-                  value: String(minutes),
-                  label: t("Booking.minutes", { minutes }),
-                }))}
-                label={t("Booking.fields.duration")}
-                value={String(form.durationMinutes)}
-                onValueChange={(value) => store.onChange("durationMinutes", Number(value))}
-              />
-
-              <FormSelect
-                id="bufferMinutes"
-                items={BUFFERS.map((minutes) => ({ value: String(minutes), label: t("Booking.minutes", { minutes }) }))}
-                label={t("Booking.fields.buffer")}
-                value={String(form.bufferMinutes)}
-                onValueChange={(value) => store.onChange("bufferMinutes", Number(value))}
-              />
-
-              <FormSelect
-                id="minNoticeMinutes"
-                items={NOTICE_MINUTES.map((minutes) => ({
-                  value: String(minutes),
-                  label: t("Booking.notice", { hours: minutes / 60 }),
-                }))}
-                label={t("Booking.fields.minNotice")}
-                value={String(form.minNoticeMinutes)}
-                onValueChange={(value) => store.onChange("minNoticeMinutes", Number(value))}
-              />
-
-              <FormSelect
-                id="horizonDays"
-                items={HORIZONS.map((days) => ({ value: String(days), label: t("Booking.days", { days }) }))}
-                label={t("Booking.fields.horizon")}
-                value={String(form.horizonDays)}
-                onValueChange={(value) => store.onChange("horizonDays", Number(value))}
-              />
-            </div>
-
-            <FormAutocomplete
-              id="timeZone"
-              items={timeZones}
-              label={t("Booking.fields.timeZone")}
-              renderValue={(items) => items.map((item) => item.data?.label ?? item.key).join("")}
-              value={form.timeZone}
-              onValueChange={(value) => {
-                if (typeof value === "string" && value) store.onChange("timeZone", value);
-              }}
+            <div
+              className={
+                wide
+                  ? "grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.9fr)]"
+                  : "flex flex-col gap-4"
+              }
+              data-booking-layout={wide ? "wide" : "compact"}
             >
-              {(item) => <FormAutocompleteItem textValue={item.label}>{item.label}</FormAutocompleteItem>}
-            </FormAutocomplete>
+              <div className="flex min-w-0 flex-col gap-4">
+                <FormInput required id="title" label={t("Booking.fields.title")} />
 
-            <fieldset className="space-y-2" data-booking-hours="">
-              <legend className="text-sm font-medium">{t("Booking.fields.workingHours")}</legend>
+                <FormTextarea id="description" label={t("Booking.fields.description")} rows={2} />
 
-              {WORKING_WEEKDAYS.map((day) => {
-                const window = form.workingHours[day][0];
-                const open = form.workingHours[day].length > 0;
-                return (
-                  <div key={day} className="flex flex-wrap items-center gap-2">
-                    <Switch
-                      aria-label={weekdayLabels[day]}
-                      checked={open}
-                      id={`booking-day-${day}`}
-                      onCheckedChange={(next) => store.setDay(day, { open: next })}
-                    />
+                {setup.calendars.length > 1 ? (
+                  <FormSelect
+                    required
+                    id="calendarId"
+                    items={setup.calendars.map((calendar) => ({
+                      value: calendar.id,
+                      label: calendar.accountLabel ? `${calendar.name} (${calendar.accountLabel})` : calendar.name,
+                    }))}
+                    label={t("Booking.fields.calendar")}
+                  />
+                ) : null}
 
-                    <span className="w-24 text-sm">{weekdayLabels[day]}</span>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormSelect
+                    id="durationMinutes"
+                    items={MEETING_DURATION_MINUTES.map((minutes) => ({
+                      value: String(minutes),
+                      label: t("Booking.minutes", { minutes }),
+                    }))}
+                    label={t("Booking.fields.duration")}
+                    value={String(form.durationMinutes)}
+                    onValueChange={(value) => store.onChange("durationMinutes", Number(value))}
+                  />
 
-                    {open && window ? (
-                      <>
-                        <Input
-                          aria-label={t("Booking.fields.from")}
-                          className="w-28"
-                          type="time"
-                          value={window.start}
-                          onChange={(event) => store.setDay(day, { start: event.target.value })}
+                  <FormSelect
+                    id="bufferMinutes"
+                    items={BUFFERS.map((minutes) => ({
+                      value: String(minutes),
+                      label: t("Booking.minutes", { minutes }),
+                    }))}
+                    label={t("Booking.fields.buffer")}
+                    value={String(form.bufferMinutes)}
+                    onValueChange={(value) => store.onChange("bufferMinutes", Number(value))}
+                  />
+
+                  <FormSelect
+                    id="minNoticeMinutes"
+                    items={NOTICE_MINUTES.map((minutes) => ({
+                      value: String(minutes),
+                      label: t("Booking.notice", { hours: minutes / 60 }),
+                    }))}
+                    label={t("Booking.fields.minNotice")}
+                    value={String(form.minNoticeMinutes)}
+                    onValueChange={(value) => store.onChange("minNoticeMinutes", Number(value))}
+                  />
+
+                  <FormSelect
+                    id="horizonDays"
+                    items={HORIZONS.map((days) => ({ value: String(days), label: t("Booking.days", { days }) }))}
+                    label={t("Booking.fields.horizon")}
+                    value={String(form.horizonDays)}
+                    onValueChange={(value) => store.onChange("horizonDays", Number(value))}
+                  />
+                </div>
+
+                <FormAutocomplete
+                  id="timeZone"
+                  items={timeZones}
+                  label={t("Booking.fields.timeZone")}
+                  renderValue={(items) => items.map((item) => item.data?.label ?? item.key).join("")}
+                  value={form.timeZone}
+                  onValueChange={(value) => {
+                    if (typeof value === "string" && value) store.onChange("timeZone", value);
+                  }}
+                >
+                  {(item) => <FormAutocompleteItem textValue={item.label}>{item.label}</FormAutocompleteItem>}
+                </FormAutocomplete>
+
+                <fieldset className="space-y-2" data-booking-hours="">
+                  <legend className="text-sm font-medium">{t("Booking.fields.workingHours")}</legend>
+
+                  {WORKING_WEEKDAYS.map((day) => {
+                    const window = form.workingHours[day][0];
+                    const open = form.workingHours[day].length > 0;
+                    return (
+                      <div key={day} className="flex flex-wrap items-center gap-2">
+                        <Switch
+                          aria-label={weekdayLabels[day]}
+                          checked={open}
+                          id={`booking-day-${day}`}
+                          onCheckedChange={(next) => store.setDay(day, { open: next })}
                         />
 
-                        <span aria-hidden>-</span>
+                        <span className="w-24 text-sm">{weekdayLabels[day]}</span>
 
-                        <Input
-                          aria-label={t("Booking.fields.to")}
-                          className="w-28"
-                          type="time"
-                          value={window.end}
-                          onChange={(event) => store.setDay(day, { end: event.target.value })}
-                        />
-                      </>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">{t("Booking.closed")}</span>
-                    )}
-                  </div>
-                );
-              })}
-            </fieldset>
+                        {open && window ? (
+                          <>
+                            <Input
+                              aria-label={t("Booking.fields.from")}
+                              className="w-28"
+                              type="time"
+                              value={window.start}
+                              onChange={(event) => store.setDay(day, { start: event.target.value })}
+                            />
 
-            <FormSwitch id="withVideo" label={t("Booking.fields.withVideo")} />
+                            <span aria-hidden>-</span>
 
-            <FormSelect
-              id="personTypeId"
-              items={[
-                noneItem,
-                ...setup.lists
-                  .filter((list) => list.hasChannels)
-                  .map((list) => ({ value: list.id, label: list.label })),
-              ]}
-              label={t("Booking.fields.personList")}
-              value={form.personTypeId || NONE}
-              onValueChange={(value) => store.setPersonList(value === NONE ? "" : value)}
-            />
+                            <Input
+                              aria-label={t("Booking.fields.to")}
+                              className="w-28"
+                              type="time"
+                              value={window.end}
+                              onChange={(event) => store.setDay(day, { end: event.target.value })}
+                            />
+                          </>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">{t("Booking.closed")}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </fieldset>
 
-            <FormSelect
-              id="recordTypeId"
-              items={[
-                noneItem,
-                ...setup.lists
-                  .filter((list) => list.primaryFieldId)
-                  .map((list) => ({ value: list.id, label: list.label })),
-              ]}
-              label={t("Booking.fields.recordList")}
-              value={form.recordTypeId || NONE}
-              onValueChange={(value) => store.setRecordList(value === NONE ? "" : value)}
-            />
+                <FormSwitch id="withVideo" label={t("Booking.fields.withVideo")} />
 
-            {store.personRelationships.length ? (
-              <FormSelect
-                id="personRelationshipId"
-                items={[
-                  noneItem,
-                  ...store.personRelationships.map((relation) => ({
-                    value: relation.id,
-                    label: `${relation.sourceLabel} / ${relation.targetLabel}`,
-                  })),
-                ]}
-                label={t("Booking.fields.personRelationship")}
-                value={form.personRelationshipId || NONE}
-                onValueChange={(value) => store.onChange("personRelationshipId", value === NONE ? "" : value)}
-              />
-            ) : null}
-
-            {recordList ? (
-              <>
                 <FormSelect
-                  id="startFieldId"
-                  items={[noneItem, ...recordList.dateFields.map((field) => ({ value: field.id, label: field.label }))]}
-                  label={t("Booking.fields.startField")}
-                  value={form.startFieldId || NONE}
-                  onValueChange={(value) => store.onChange("startFieldId", value === NONE ? "" : value)}
+                  id="personTypeId"
+                  items={[
+                    noneItem,
+                    ...setup.lists
+                      .filter((list) => list.hasChannels)
+                      .map((list) => ({ value: list.id, label: list.label })),
+                  ]}
+                  label={t("Booking.fields.personList")}
+                  value={form.personTypeId || NONE}
+                  onValueChange={(value) => store.setPersonList(value === NONE ? "" : value)}
                 />
 
-                <div className="space-y-2" data-booking-questions="">
-                  <p className="text-sm font-medium">{t("Booking.fields.questions")}</p>
+                <FormSelect
+                  id="recordTypeId"
+                  items={[
+                    noneItem,
+                    ...setup.lists
+                      .filter((list) => list.primaryFieldId)
+                      .map((list) => ({ value: list.id, label: list.label })),
+                  ]}
+                  label={t("Booking.fields.recordList")}
+                  value={form.recordTypeId || NONE}
+                  onValueChange={(value) => store.setRecordList(value === NONE ? "" : value)}
+                />
 
-                  {form.questions.map((question, index) => (
-                    <div key={question.fieldId} className="flex flex-wrap items-center gap-2">
-                      <span className="min-w-0 flex-1 truncate text-sm">
-                        {recordList.questionFields.find((field) => field.id === question.fieldId)?.label ??
-                          t("Booking.unavailableField")}
-                      </span>
+                {store.personRelationships.length ? (
+                  <FormSelect
+                    id="personRelationshipId"
+                    items={[
+                      noneItem,
+                      ...store.personRelationships.map((relation) => ({
+                        value: relation.id,
+                        label: `${relation.sourceLabel} / ${relation.targetLabel}`,
+                      })),
+                    ]}
+                    label={t("Booking.fields.personRelationship")}
+                    value={form.personRelationshipId || NONE}
+                    onValueChange={(value) => store.onChange("personRelationshipId", value === NONE ? "" : value)}
+                  />
+                ) : null}
 
-                      <label className="flex items-center gap-2 text-sm">
-                        <Switch
-                          checked={question.required}
-                          onCheckedChange={(next) => store.setQuestion(index, { required: next })}
-                        />
+                {recordList ? (
+                  <>
+                    <FormSelect
+                      id="startFieldId"
+                      items={[
+                        noneItem,
+                        ...recordList.dateFields.map((field) => ({ value: field.id, label: field.label })),
+                      ]}
+                      label={t("Booking.fields.startField")}
+                      value={form.startFieldId || NONE}
+                      onValueChange={(value) => store.onChange("startFieldId", value === NONE ? "" : value)}
+                    />
 
-                        {t("Booking.fields.required")}
-                      </label>
+                    <div className="space-y-2" data-booking-questions="">
+                      <p className="text-sm font-medium">{t("Booking.fields.questions")}</p>
 
-                      <IconButton
-                        icon={X}
-                        label={t("Booking.removeQuestion")}
-                        onClick={() => store.removeQuestion(index)}
-                      />
-                    </div>
-                  ))}
+                      {form.questions.map((question, index) => (
+                        <div key={question.fieldId} className="flex flex-wrap items-center gap-2">
+                          <span className="min-w-0 flex-1 truncate text-sm">
+                            {recordList.questionFields.find((field) => field.id === question.fieldId)?.label ??
+                              t("Booking.unavailableField")}
+                          </span>
 
-                  {store.unusedQuestionFields.length && form.questions.length < 8 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {store.unusedQuestionFields.map((field) => (
-                        <Button
-                          key={field.id}
-                          size="sm"
-                          type="button"
-                          variant="secondary"
-                          onClick={() => store.addQuestion(field.id)}
-                        >
-                          <Plus aria-hidden className="size-4" />
+                          <label className="flex items-center gap-2 text-sm">
+                            <Switch
+                              checked={question.required}
+                              onCheckedChange={(next) => store.setQuestion(index, { required: next })}
+                            />
 
-                          {field.label}
-                        </Button>
+                            {t("Booking.fields.required")}
+                          </label>
+
+                          <IconButton
+                            icon={X}
+                            label={t("Booking.removeQuestion")}
+                            onClick={() => store.removeQuestion(index)}
+                          />
+                        </div>
                       ))}
+
+                      {store.unusedQuestionFields.length && form.questions.length < 8 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {store.unusedQuestionFields.map((field) => (
+                            <Button
+                              key={field.id}
+                              size="sm"
+                              type="button"
+                              variant="secondary"
+                              onClick={() => store.addQuestion(field.id)}
+                            >
+                              <Plus aria-hidden className="size-4" />
+
+                              {field.label}
+                            </Button>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  </>
+                ) : null}
+
+                <FormTextarea id="successMessage" label={t("Booking.fields.successMessage")} rows={2} />
+
+                <FormSwitch id="enabled" label={t("Booking.fields.enabled")} />
+              </div>
+
+              {wide ? (
+                <div className="min-w-0 lg:sticky lg:top-0">
+                  <BookingPreview />
                 </div>
-              </>
-            ) : null}
+              ) : (
+                <details className="rounded-lg border p-3" data-booking-preview-toggle="">
+                  <summary className="cursor-pointer text-sm font-medium">{t("Booking.pagePreviewLabel")}</summary>
 
-            <FormTextarea id="successMessage" label={t("Booking.fields.successMessage")} rows={2} />
-
-            <FormSwitch id="enabled" label={t("Booking.fields.enabled")} />
+                  <div className="mt-3">
+                    <BookingPreview />
+                  </div>
+                </details>
+              )}
+            </div>
           </AppCardBody>
 
           <UnsavedChangesBar anchorScope="booking-link-modal" creating={!form.id} store={store} />

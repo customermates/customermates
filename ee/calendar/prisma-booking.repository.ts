@@ -8,7 +8,7 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
-import type { BookingLinkRow } from "./booking.schema";
+import type { BookingLinkRow, WorkspaceBookingLinkRow } from "./booking.schema";
 import type { BookingLinkLookup, BookingLinkRepo, BookingLinkWrite } from "./booking-link.repo";
 import type { BookingConfirmation, BookingReservationInput, BookingReservationRepo } from "./booking-reservation.repo";
 import type { BusyInterval } from "./free-slots";
@@ -75,6 +75,20 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     });
 
     return rows.map(toRow);
+  }
+
+  async listWorkspace(): Promise<WorkspaceBookingLinkRow[]> {
+    const rows = await this.prisma.bookingLink.findMany({
+      where: { companyId: this.companyId },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: 200,
+      select: { ...linkSelect(new Date()), user: { select: { firstName: true, lastName: true } } },
+    });
+
+    return rows.map(({ user, ...row }) => ({
+      ...toRow(row),
+      ownerName: `${user.firstName} ${user.lastName}`.trim(),
+    }));
   }
 
   async find(id: string): Promise<BookingLinkRow | null> {

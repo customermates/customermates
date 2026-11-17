@@ -6,7 +6,8 @@ import type { ShareableRole } from "@/features/data-view/get-data-view-share-opt
 import type { LucideIcon } from "lucide-react";
 
 import { Building2, Globe, UserRound, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -17,7 +18,10 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { SelectableCard } from "@/components/forms/selectable-card";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
+import { DiscardChangesDialog } from "@/components/modal/confirm-dialog";
+import { publicFormTabActions } from "@/components/public-form/public-form-actions-adapter";
 import { PublicFormTab } from "@/components/public-form/public-form-tab";
+import { PublicFormTabStore } from "@/components/public-form/public-form-tab.store";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { Label } from "@/components/ui/label";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -26,6 +30,7 @@ import { copyToClipboard } from "@/core/utils/clipboard";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { PublicLinkOption } from "./public-link-option";
 
@@ -51,12 +56,32 @@ function sameRoles(left: readonly string[], right: readonly string[]) {
   return left.length === right.length && left.every((id) => right.includes(id));
 }
 
-export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenChange, onShared }: Props) {
+type Tab = "share" | "form";
+
+export const ShareViewDialog = observer(function ShareViewDialog({
+  kind,
+  formTypeId = null,
+  link,
+  view,
+  onOpenChange,
+  onShared,
+}: Props) {
   const t = useTranslations();
   const { appMode } = useRootStore();
+  const wide = useIsWiderThan("lg");
   const publishable = appMode !== "demo";
-  const [tab, setTab] = useState<"share" | "form">("share");
+  const [tab, setTab] = useState<Tab>("share");
+  const [pendingTab, setPendingTab] = useState<Tab | null>(null);
   const showForm = publishable && kind === "list" && formTypeId !== null;
+  const formViewId = view?.id ?? null;
+  const formStore = useMemo(
+    () => (showForm && formTypeId && formViewId ? new PublicFormTabStore(formTypeId, publicFormTabActions) : null),
+    [showForm, formTypeId, formViewId],
+  );
+  const requestTab = (next: Tab) => {
+    if (tab === "form" && next !== "form" && formStore?.edited) setPendingTab(next);
+    else setTab(next);
+  };
   const [visibility, setVisibility] = useState<Scope>("private");
   const [publicStatus, setPublicStatus] = useState<PublicLinkStatus | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
@@ -68,6 +93,7 @@ export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenCha
   if ((view?.id ?? null) !== openedFor) {
     setOpenedFor(view?.id ?? null);
     setTab("share");
+    setPendingTab(null);
     setVisibility(view?.isPublic ? "public" : (view?.visibility ?? "private"));
     setRoleIds(view?.roleIds ?? []);
     setPublicStatus(null);
@@ -207,8 +233,17 @@ export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenCha
 
   const title = t("DataView.share.title", { name: view?.name ?? "" });
 
+  const formTabOpen = showForm && tab === "form";
+
   return (
-    <AppModal focusContentOnOpen titleInContent open={view !== null} title={title} onClose={() => onOpenChange(false)}>
+    <AppModal
+      focusContentOnOpen
+      titleInContent
+      open={view !== null}
+      size={formTabOpen && wide ? "5xl" : undefined}
+      title={title}
+      onClose={() => onOpenChange(false)}
+    >
       <AppCard id="share-view-dialog">
         <AppCardHeader>
           <div className="flex min-w-0 flex-col gap-1.5">
@@ -230,16 +265,23 @@ export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenCha
               ]}
               label={t("DataView.share.tabsLabel")}
               value={tab}
-              onValueChange={setTab}
+              onValueChange={requestTab}
             />
           </div>
         ) : null}
 
-        {showForm && tab === "form" && formTypeId ? (
-          <PublicFormTab typeId={formTypeId} onClose={() => onOpenChange(false)} />
-        ) : null}
+        {formTabOpen && formStore ? <PublicFormTab store={formStore} onClose={() => onOpenChange(false)} /> : null}
 
-        <AppCardBody className={showForm && tab === "form" ? "hidden" : "flex flex-col gap-4"}>
+        <DiscardChangesDialog
+          open={pendingTab !== null}
+          onCancel={() => setPendingTab(null)}
+          onConfirm={() => {
+            if (pendingTab) setTab(pendingTab);
+            setPendingTab(null);
+          }}
+        />
+
+        <AppCardBody className={formTabOpen ? "hidden" : "flex flex-col gap-4"}>
           <RadioGroup className="gap-2" value={visibility} onValueChange={(value) => setVisibility(value as Scope)}>
             {scopes.map((scope) => {
               const Icon = SCOPE_ICONS[scope];
@@ -300,7 +342,7 @@ export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenCha
           )}
         </AppCardBody>
 
-        {showForm && tab === "form" ? null : (
+        {formTabOpen ? null : (
           <FormFooterActions
             editable
             anchorScope="share-view"
@@ -313,4 +355,4 @@ export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenCha
       </AppCard>
     </AppModal>
   );
-}
+});

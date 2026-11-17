@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import {
   ArrowUpRight,
+  CalendarClock,
   CalendarPlus,
   SlidersHorizontal,
   ChevronLeft,
@@ -74,6 +75,8 @@ import { RecordExplorationStore } from "../../records/[typeId]/components/record
 import { calendarSwatchStyle } from "../../records/[typeId]/components/record-calendar-layout";
 import { cn } from "@/core/utils/cn";
 import { plannerCalendarAdapter, plannerEntryColors } from "./planner-calendar-adapter";
+import { BookingPanel } from "./booking/booking-panel";
+import type { BookingPanelState } from "./booking/booking-panel-model";
 import { PlannerSettingsStore } from "./planner-settings.store";
 import { PlannerSourceModal } from "./planner-source-modal";
 import { PlannerWeekSchedule } from "./planner-week-schedule";
@@ -95,7 +98,17 @@ function sourceHref(source: PlannerSource) {
   return `/records/${source.typeId}?${params}`;
 }
 
-const PlannerPageViewContent = observer(function PlannerPageView({ options }: { options: PlannerOptions }) {
+type PlannerPageViewProps = {
+  options: PlannerOptions;
+  booking: BookingPanelState;
+  bookingRequested: boolean;
+};
+
+const PlannerPageViewContent = observer(function PlannerPageView({
+  options,
+  booking,
+  bookingRequested,
+}: PlannerPageViewProps) {
   const t = useTranslations();
   const root = useRootStore();
   const format = useRecordValueFormat();
@@ -121,6 +134,10 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [jumping, setJumping] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(bookingRequested);
+  useEffect(() => {
+    if (bookingRequested) setBookingOpen(true);
+  }, [bookingRequested]);
   const [eventDetail, setEventDetail] = useState<PlannerEntry | null>(null);
   const [creating, setCreating] = useState<{
     date: CalendarDate;
@@ -315,6 +332,13 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             onClick: () => setSourcesOpen(true),
           },
           {
+            id: "planner-booking",
+            icon: CalendarClock,
+            label: t("Booking.panelTitle"),
+            pressed: bookingOpen,
+            onClick: () => setBookingOpen((open) => !open),
+          },
+          {
             id: "planner-sync",
             icon: Download,
             label: t("Planner.calendarSync"),
@@ -331,7 +355,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         ]}
       />
     ),
-    [t, clientReady, canAddSource, addSource],
+    [t, clientReady, canAddSource, addSource, bookingOpen],
   );
   useSetTopBarActions(topBarActions);
   const recordName = (row: { id: string }) => {
@@ -492,6 +516,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
           <RecordCalendarView hideToolbar recordName={recordName} store={adapter} onOpenRecord={openRow} />
         )}
       </div>
+
+      {bookingOpen && <BookingPanel state={booking} onClose={() => setBookingOpen(false)} />}
 
       {sourcesOpen && (
         <AppModal open titleInContent size="lg" title={t("Planner.sources")} onClose={() => setSourcesOpen(false)}>

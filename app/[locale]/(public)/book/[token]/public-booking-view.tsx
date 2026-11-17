@@ -25,12 +25,26 @@ import { zonedDate } from "@/features/record-calendar/zoned-time";
 type Slot = { startsAt: string; endsAt: string };
 type Confirmed = Extract<PublicBookingSubmitResult, { status: "booked" }>;
 
+export type PublicBookingPreview = { slots: Slot[]; timeZone: string };
+
 const SLOT_DAYS = 31;
 
-function Frame({ children }: { children: React.ReactNode }) {
+function Frame({ children, preview = false }: { children: React.ReactNode; preview?: boolean }) {
   return (
-    <div className="min-h-full w-full bg-background" id="public-booking">
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-8 md:py-10">{children}</main>
+    <div
+      className={preview ? "w-full bg-background" : "min-h-full w-full bg-background"}
+      data-booking-preview={preview ? "" : undefined}
+      id={preview ? undefined : "public-booking"}
+    >
+      <main
+        className={
+          preview
+            ? "mx-auto flex w-full max-w-3xl flex-col gap-4 p-4"
+            : "mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-8 md:py-10"
+        }
+      >
+        {children}
+      </main>
     </div>
   );
 }
@@ -49,11 +63,22 @@ export function PublicBookingUnavailable({ rateLimited }: { rateLimited: boolean
   );
 }
 
-export function PublicBookingView({ page, token }: { page: PublicBookingPage; token: string }) {
+export function PublicBookingView({
+  page,
+  token,
+  preview,
+}: {
+  page: PublicBookingPage;
+  token: string;
+  preview?: PublicBookingPreview;
+}) {
   const t = useTranslations();
   const locale = useLocale();
-  const [timeZone, setTimeZone] = useState<string | null>(null);
-  const [slots, setSlots] = useState<Slot[] | null>(null);
+  const [visitorTimeZone, setTimeZone] = useState<string | null>(null);
+  const [fetchedSlots, setSlots] = useState<Slot[] | null>(null);
+  const slots = preview ? preview.slots : fetchedSlots;
+  const timeZone = preview ? preview.timeZone : visitorTimeZone;
+  const readOnly = preview !== undefined;
   const [loadFailed, setLoadFailed] = useState(false);
   const [date, setDate] = useState<string | null>(null);
   const [slot, setSlot] = useState<Slot | null>(null);
@@ -80,8 +105,8 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
   }, [token]);
 
   useEffect(() => {
-    void loadSlots().catch(reportApplicationError);
-  }, [loadSlots]);
+    if (!readOnly) void loadSlots().catch(reportApplicationError);
+  }, [loadSlots, readOnly]);
 
   const byDate = useMemo(() => {
     const groups = new Map<string, Slot[]>();
@@ -110,7 +135,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!slot || !timeZone || submitting) return;
+    if (!slot || !timeZone || submitting || readOnly) return;
 
     setSubmitting(true);
     setProblem(null);
@@ -174,7 +199,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
   }
 
   return (
-    <Frame>
+    <Frame preview={readOnly}>
       <div className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">
           {page.workspaceName ? `${page.hostName} · ${page.workspaceName}` : page.hostName}
@@ -291,6 +316,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
               required
               aria-invalid={invalid.includes("name")}
               autoComplete="name"
+              disabled={readOnly}
               id="booking-name"
               maxLength={200}
               value={name}
@@ -309,6 +335,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
               required
               aria-invalid={invalid.includes("email")}
               autoComplete="email"
+              disabled={readOnly}
               id="booking-email"
               maxLength={320}
               type="email"
@@ -320,7 +347,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
           {page.questions.map((question) => (
             <PublicFormFieldInput
               key={question.fieldId}
-              disabled={submitting}
+              disabled={submitting || readOnly}
               error={invalid.includes(question.fieldId) ? "invalid" : undefined}
               field={question}
               value={answers[question.fieldId]}
@@ -342,7 +369,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
             />
           </div>
 
-          <Button disabled={submitting} type="submit">
+          <Button disabled={submitting || readOnly} type="submit">
             {submitting ? <Spinner aria-label={t("Loading.text")} className="size-4" /> : null}
 
             {t("PublicBooking.confirm")}

@@ -3,9 +3,11 @@
 import type { PublicFormEditor } from "@/features/public-form/public-form.schema";
 import type { FormDraft } from "./public-form-draft";
 
+import { Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { LabeledSelect } from "@/components/forms/labeled-select";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -18,6 +20,8 @@ type Props = {
   draft: FormDraft;
   editor: PublicFormEditor;
   onChange: (patch: Partial<FormDraft>) => void;
+  onAddConsent: () => void;
+  onRemoveConsent: () => void;
 };
 
 function TextSetting({
@@ -42,7 +46,7 @@ function TextSetting({
   );
 }
 
-function PersonSettings({ draft, editor, onChange }: Props) {
+function PersonSettings({ draft, editor, onChange }: Pick<Props, "draft" | "editor" | "onChange">) {
   const t = useTranslations();
   const lists = editor.peopleLists;
   const current = lists.find((list) => list.typeId === draft.personTypeId) ?? lists[0];
@@ -128,20 +132,43 @@ function PersonSettings({ draft, editor, onChange }: Props) {
   );
 }
 
-function ConsentSettings({ draft, onChange }: Pick<Props, "draft" | "onChange">) {
+function ConsentSettings({
+  draft,
+  onChange,
+  onAddConsent,
+  onRemoveConsent,
+}: Pick<Props, "draft" | "onChange" | "onAddConsent" | "onRemoveConsent">) {
   const t = useTranslations();
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <Switch
-          checked={draft.consentEnabled}
-          id="public-form-consent-enabled"
-          onCheckedChange={(checked) => onChange({ consentEnabled: checked })}
-        />
+      {draft.consentEnabled ? (
+        <Button
+          className="self-start"
+          id="public-form-consent-remove"
+          size="sm"
+          type="button"
+          variant="ghost"
+          onClick={onRemoveConsent}
+        >
+          <X aria-hidden className="size-4" />
 
-        <Label htmlFor="public-form-consent-enabled">{t("PublicForm.builder.consentEnabled")}</Label>
-      </div>
+          {t("PublicForm.builder.consentClear")}
+        </Button>
+      ) : (
+        <Button
+          className="self-start"
+          id="public-form-consent-add"
+          size="sm"
+          type="button"
+          variant="secondary"
+          onClick={onAddConsent}
+        >
+          <Plus aria-hidden className="size-4" />
+
+          {t("PublicForm.builder.consentAdd")}
+        </Button>
+      )}
 
       {draft.consentEnabled ? (
         <>
@@ -172,7 +199,7 @@ function ConsentSettings({ draft, onChange }: Pick<Props, "draft" | "onChange">)
   );
 }
 
-export function PublicFormSettings({ draft, editor, onChange }: Props) {
+export function PublicFormSettings({ draft, editor, onChange, onAddConsent, onRemoveConsent }: Props) {
   const t = useTranslations();
 
   return (
@@ -229,7 +256,12 @@ export function PublicFormSettings({ draft, editor, onChange }: Props) {
       <section className="flex flex-col gap-3" id="public-form-section-consent">
         <h3 className="text-sm font-semibold">{t("PublicForm.builder.sectionConsent")}</h3>
 
-        <ConsentSettings draft={draft} onChange={onChange} />
+        <ConsentSettings
+          draft={draft}
+          onAddConsent={onAddConsent}
+          onChange={onChange}
+          onRemoveConsent={onRemoveConsent}
+        />
       </section>
 
       <section className="flex flex-col gap-3" id="public-form-section-success">

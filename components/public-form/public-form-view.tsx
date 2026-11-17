@@ -9,6 +9,7 @@ import type { FormErrors, FormValues } from "./public-form-state";
 
 import Image from "next/image";
 import { useState } from "react";
+import { CircleCheck, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ type Props = {
   token: string;
   locale: string;
   embedded: boolean;
+  doneMessage?: string;
   onSubmit?: (input: SubmitPublicFormInput) => Promise<PublicFormSubmitResult>;
 };
 
@@ -69,7 +71,39 @@ function Badge() {
   );
 }
 
-export function PublicFormView({ form, token, locale, embedded, onSubmit }: Props) {
+function WorkspaceMark({ name }: { name: string }) {
+  const t = useTranslations();
+  const initial = Array.from(name.trim())[0]?.toUpperCase() ?? "";
+
+  return (
+    <div className="flex items-center gap-2.5" data-public-form-workspace="">
+      <span
+        aria-hidden
+        className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary"
+      >
+        {initial}
+      </span>
+
+      <p className="min-w-0 truncate text-xs text-muted-foreground">{t("PublicForm.byline", { workspace: name })}</p>
+    </div>
+  );
+}
+
+function FormCard({ embedded, children }: { embedded: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-6 rounded-2xl border border-border bg-card",
+        embedded ? "p-5" : "p-6 shadow-sm md:p-8",
+      )}
+      data-public-form-card=""
+    >
+      {children}
+    </div>
+  );
+}
+
+export function PublicFormView({ form, token, locale, embedded, doneMessage, onSubmit }: Props) {
   const t = useTranslations();
   const [values, setValues] = useState<FormValues>(() => initialFormValues(form.fields));
   const [email, setEmail] = useState("");
@@ -113,18 +147,33 @@ export function PublicFormView({ form, token, locale, embedded, onSubmit }: Prop
   };
 
   const wrapper = cn("min-h-full w-full bg-background", embedded ? "p-0" : "px-4 py-8 md:py-12");
+  const shown: Phase = doneMessage === undefined ? phase : { kind: "sent", message: doneMessage };
 
-  if (phase.kind !== "editing") {
+  if (shown.kind !== "editing") {
     return (
       <div className={wrapper} id="public-form">
-        <main className="mx-auto flex w-full max-w-xl flex-col gap-4" role="status">
-          <h1 className="text-xl font-semibold tracking-tight" id="public-form-sent-title">
-            {phase.kind === "sent" ? t("PublicForm.sentTitle") : t("PublicForm.unavailableTitle")}
-          </h1>
+        <main className="mx-auto flex w-full max-w-xl flex-col gap-4">
+          <FormCard embedded={embedded}>
+            {form.workspaceName ? <WorkspaceMark name={form.workspaceName} /> : null}
 
-          <p className="text-sm text-muted-foreground" id="public-form-sent-message">
-            {phase.kind === "sent" ? phase.message : t("PublicForm.blockedBody")}
-          </p>
+            <div className="flex flex-col items-start gap-3" role="status">
+              {shown.kind === "sent" ? (
+                <CircleCheck aria-hidden className="size-9 text-success" />
+              ) : (
+                <TriangleAlert aria-hidden className="size-9 text-muted-foreground" />
+              )}
+
+              <h1 className="text-xl font-semibold tracking-tight" id="public-form-sent-title">
+                {shown.kind === "sent" ? t("PublicForm.sentTitle") : t("PublicForm.unavailableTitle")}
+              </h1>
+
+              <p className="text-sm text-muted-foreground" id="public-form-sent-message">
+                {shown.kind === "sent" ? shown.message : t("PublicForm.blockedBody")}
+              </p>
+            </div>
+          </FormCard>
+
+          {form.badge ? <Badge /> : null}
         </main>
       </div>
     );
@@ -132,144 +181,144 @@ export function PublicFormView({ form, token, locale, embedded, onSubmit }: Prop
 
   return (
     <div className={wrapper} id="public-form">
-      <main className="mx-auto flex w-full max-w-xl flex-col gap-6">
-        <header className="flex flex-col gap-1.5">
-          <h1 className="text-2xl font-semibold tracking-tight" id="public-form-title">
-            {form.title}
-          </h1>
+      <main className="mx-auto flex w-full max-w-xl flex-col gap-4">
+        <FormCard embedded={embedded}>
+          {form.workspaceName ? <WorkspaceMark name={form.workspaceName} /> : null}
 
-          {form.description ? <p className="text-sm text-muted-foreground">{form.description}</p> : null}
+          <header className="flex flex-col gap-1.5">
+            <h1 className="text-2xl font-semibold tracking-tight" id="public-form-title">
+              {form.title}
+            </h1>
 
-          {form.workspaceName ? (
-            <p className="text-xs text-muted-foreground">{t("PublicForm.byline", { workspace: form.workspaceName })}</p>
-          ) : null}
-        </header>
+            {form.description ? <p className="text-sm text-muted-foreground">{form.description}</p> : null}
+          </header>
 
-        <form
-          noValidate
-          className="flex flex-col gap-5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            runUserAction(() => submit());
-          }}
-        >
-          {Object.keys(errors).length > 0 ? (
-            <p className="text-sm text-destructive" id="public-form-error-summary" role="alert">
-              {t("PublicForm.errors.summary")}
-            </p>
-          ) : null}
+          <form
+            noValidate
+            className="flex flex-col gap-5"
+            onSubmit={(event) => {
+              event.preventDefault();
+              runUserAction(() => submit());
+            }}
+          >
+            {Object.keys(errors).length > 0 ? (
+              <p className="text-sm text-destructive" id="public-form-error-summary" role="alert">
+                {t("PublicForm.errors.summary")}
+              </p>
+            ) : null}
 
-          {form.person ? (
-            <>
+            {form.person ? (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="public-form-email">
+                    {form.person.emailLabel}
+
+                    <span aria-hidden className="text-destructive">
+                      *
+                    </span>
+                  </Label>
+
+                  <Input
+                    aria-required
+                    aria-invalid={Boolean(errors.email)}
+                    autoComplete="email"
+                    disabled={locked}
+                    id="public-form-email"
+                    inputMode="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                  />
+
+                  {errors.email ? (
+                    <p className="text-xs text-destructive" role="alert">
+                      {errors.email === "required" ? t("PublicForm.errors.required") : t("PublicForm.errors.email")}
+                    </p>
+                  ) : null}
+                </div>
+
+                {form.person.nameLabel ? (
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="public-form-name">{form.person.nameLabel}</Label>
+
+                    <Input
+                      autoComplete="name"
+                      disabled={locked}
+                      id="public-form-name"
+                      name="name"
+                      type="text"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                    />
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+
+            {form.fields.map((field) => (
+              <PublicFormFieldInput
+                key={field.fieldId}
+                disabled={locked}
+                error={errors[field.fieldId]}
+                field={field}
+                value={values[field.fieldId]}
+                onChange={(value) => setValues((current) => ({ ...current, [field.fieldId]: value }))}
+              />
+            ))}
+
+            <div aria-hidden className="absolute -left-[9999px] size-0 overflow-hidden">
+              <label htmlFor="public-form-website">{t("PublicForm.honeypot")}</label>
+
+              <input
+                autoComplete="off"
+                id="public-form-website"
+                name="website"
+                tabIndex={-1}
+                type="text"
+                value={website}
+                onChange={(event) => setWebsite(event.target.value)}
+              />
+            </div>
+
+            {form.consent ? (
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="public-form-email">
-                  {form.person.emailLabel}
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    aria-invalid={Boolean(errors.consent)}
+                    checked={consent}
+                    disabled={locked}
+                    id="public-form-consent"
+                    onCheckedChange={(checked) => setConsent(checked === true)}
+                  />
 
-                  <span aria-hidden className="text-destructive">
-                    *
-                  </span>
-                </Label>
+                  <Label className="flex-wrap leading-snug font-normal" htmlFor="public-form-consent">
+                    {form.consent.text}
 
-                <Input
-                  aria-required
-                  aria-invalid={Boolean(errors.email)}
-                  autoComplete="email"
-                  disabled={locked}
-                  id="public-form-email"
-                  inputMode="email"
-                  name="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
+                    <a
+                      className="text-primary underline underline-offset-4"
+                      href={form.consent.privacyUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {t("PublicForm.privacyNotice")}
+                    </a>
+                  </Label>
+                </div>
 
-                {errors.email ? (
+                {errors.consent ? (
                   <p className="text-xs text-destructive" role="alert">
-                    {errors.email === "required" ? t("PublicForm.errors.required") : t("PublicForm.errors.email")}
+                    {t("PublicForm.errors.consent")}
                   </p>
                 ) : null}
               </div>
+            ) : null}
 
-              {form.person.nameLabel ? (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="public-form-name">{form.person.nameLabel}</Label>
-
-                  <Input
-                    autoComplete="name"
-                    disabled={locked}
-                    id="public-form-name"
-                    name="name"
-                    type="text"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                  />
-                </div>
-              ) : null}
-            </>
-          ) : null}
-
-          {form.fields.map((field) => (
-            <PublicFormFieldInput
-              key={field.fieldId}
-              disabled={locked}
-              error={errors[field.fieldId]}
-              field={field}
-              value={values[field.fieldId]}
-              onChange={(value) => setValues((current) => ({ ...current, [field.fieldId]: value }))}
-            />
-          ))}
-
-          <div aria-hidden className="absolute -left-[9999px] size-0 overflow-hidden">
-            <label htmlFor="public-form-website">{t("PublicForm.honeypot")}</label>
-
-            <input
-              autoComplete="off"
-              id="public-form-website"
-              name="website"
-              tabIndex={-1}
-              type="text"
-              value={website}
-              onChange={(event) => setWebsite(event.target.value)}
-            />
-          </div>
-
-          {form.consent ? (
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-start gap-2">
-                <Checkbox
-                  aria-invalid={Boolean(errors.consent)}
-                  checked={consent}
-                  disabled={locked}
-                  id="public-form-consent"
-                  onCheckedChange={(checked) => setConsent(checked === true)}
-                />
-
-                <Label className="flex-wrap leading-snug font-normal" htmlFor="public-form-consent">
-                  {form.consent.text}
-
-                  <a
-                    className="text-primary underline underline-offset-4"
-                    href={form.consent.privacyUrl}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    {t("PublicForm.privacyNotice")}
-                  </a>
-                </Label>
-              </div>
-
-              {errors.consent ? (
-                <p className="text-xs text-destructive" role="alert">
-                  {t("PublicForm.errors.consent")}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-
-          <Button disabled={locked} id="public-form-submit" size="lg" type="submit">
-            {sending ? t("PublicForm.sending") : form.submitLabel}
-          </Button>
-        </form>
+            <Button disabled={locked} id="public-form-submit" size="lg" type="submit">
+              {sending ? t("PublicForm.sending") : form.submitLabel}
+            </Button>
+          </form>
+        </FormCard>
 
         {form.badge ? <Badge /> : null}
       </main>

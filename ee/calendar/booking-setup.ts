@@ -1,7 +1,7 @@
 import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
-import { isAnswerableField } from "@/features/records/record-value-coercion";
+import { type AnswerQuestion, answerQuestion, isAnswerableField } from "@/features/records/record-value-coercion";
 
 import type { MeetingOptions, WritableCalendar } from "./meeting.schema";
 
@@ -19,7 +19,7 @@ export type BookingSetupList = {
   hasChannels: boolean;
   primaryFieldId: string | null;
   dateFields: Array<{ id: string; label: string }>;
-  questionFields: Array<{ id: string; label: string }>;
+  questionFields: Array<{ id: string; label: string; question: AnswerQuestion | null }>;
 };
 
 export type BookingSetup = {
@@ -50,7 +50,11 @@ export function bookingSetup(model: RecordModelView | null, meeting: MeetingOpti
           .map((field) => ({ id: field.id, label: field.label })),
         questionFields: fields
           .filter((field) => field.id !== type.primaryFieldId && isAnswerableField(field))
-          .map((field) => ({ id: field.id, label: field.label })),
+          .map((field) => ({
+            id: field.id,
+            label: field.label,
+            question: answerQuestion(field, { label: field.label, helpText: null, required: false }),
+          })),
       };
     });
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { Action, Resource } from "@/generated/prisma";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -36,6 +37,7 @@ import type { BookingLinkRow } from "../booking.schema";
 import { DeleteBookingLinkInteractor } from "../delete-booking-link.interactor";
 import { GetBookingLinkByIdInteractor } from "../get-booking-link-by-id.interactor";
 import { GetBookingLinksInteractor } from "../get-booking-links.interactor";
+import { GetWorkspaceBookingLinksInteractor } from "../get-workspace-booking-links.interactor";
 import { SaveBookingLinkInteractor } from "../save-booking-link.interactor";
 import { DEFAULT_WORKING_HOURS } from "../working-hours";
 
@@ -73,6 +75,15 @@ const ROW: BookingLinkRow = {
   upcomingBookings: 2,
 };
 
+const OTHER_ROW: BookingLinkRow & { ownerName: string } = {
+  ...ROW,
+  id: "20000000-0000-4000-8000-000000000002",
+  userId: "other-user-id",
+  token: "tok_other_abcdefghij",
+  title: "Support call",
+  ownerName: "Ada Lovelace",
+};
+
 const MODEL = {
   revision: 1,
   types: [{ id: PEOPLE, label: "People", primaryFieldId: NAME, archived: false, embedded: false }],
@@ -102,6 +113,7 @@ const MODEL = {
 function build(options: { repo?: object; access?: object; records?: object } = {}) {
   const repo = {
     list: vi.fn().mockResolvedValue([ROW]),
+    listWorkspace: vi.fn().mockResolvedValue([{ ...ROW, ownerName: "Test User" }, OTHER_ROW]),
     find: vi.fn().mockResolvedValue(ROW),
     countOwn: vi.fn().mockResolvedValue(0),
     create: vi.fn().mockImplementation((token: string, data: object) => Promise.resolve({ ...ROW, ...data, token })),
@@ -127,6 +139,7 @@ function build(options: { repo?: object; access?: object; records?: object } = {
       BASE_URL,
     ),
     list: new GetBookingLinksInteractor(repo as never, entitlements as never, BASE_URL),
+    workspace: new GetWorkspaceBookingLinksInteractor(repo as never, entitlements as never, BASE_URL),
     get: new GetBookingLinkByIdInteractor(repo as never, entitlements as never, BASE_URL),
     remove: new DeleteBookingLinkInteractor(repo as never, entitlements as never),
   };
@@ -151,6 +164,45 @@ describe("booking link reads", () => {
       calendarName: "Work",
       workingHours: DEFAULT_WORKING_HOURS,
     });
+  });
+
+  it("lists the whole workspace with its owners for an admin and marks the caller's own links", async () => {
+    const { workspace, repo } = build();
+
+    const result = await run(() => workspace.invoke());
+
+    expect(repo.listWorkspace).toHaveBeenCalledOnce();
+    expect(repo.list).not.toHaveBeenCalled();
+    expect(result.ok && result.data.items.map(({ id, own, ownerName }) => ({ id, own, ownerName }))).toEqual([
+      { id: LINK_ID, own: true, ownerName: "Test User" },
+      { id: OTHER_ROW.id, own: false, ownerName: "Ada Lovelace" },
+    ]);
+  });
+
+  it("lists only the caller's links for a member who is not an admin", async () => {
+    const member = createMockUserWithPermissions([{ resource: Resource.inboxMessages, action: Action.readOwn }]);
+    const { workspace, repo } = build();
+
+    const result = await runWithTenant(member, () => workspace.invoke());
+
+    expect(repo.list).toHaveBeenCalledOnce();
+    expect(repo.listWorkspace).not.toHaveBeenCalled();
+    expect(result.ok && result.data.items.map(({ id, own }) => ({ id, own }))).toEqual([{ id: LINK_ID, own: true }]);
+  });
+
+  it("answers the plan refusal before reading", async () => {
+    const refusal = { ok: false as const, error: new Error("plan") };
+    const { repo } = build();
+    const denied = new GetWorkspaceBookingLinksInteractor(
+      repo as never,
+      { require: vi.fn().mockResolvedValue(refusal) } as never,
+      BASE_URL,
+    );
+
+    const result = await run(() => denied.invoke());
+
+    expect(result.ok).toBe(false);
+    expect(repo.listWorkspace).not.toHaveBeenCalled();
   });
 
   it("answers not found for an unknown link", async () => {

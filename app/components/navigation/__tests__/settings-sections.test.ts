@@ -10,7 +10,6 @@ describe("settings sections", () => {
       "profile",
       "workspaces",
       "channels",
-      "booking",
       "api-keys",
     ]);
     expect(SETTINGS_SECTIONS.workspace.map(({ slug }) => slug)).toEqual([
@@ -57,8 +56,11 @@ describe("settings sections", () => {
       "profile",
       "workspaces",
       "channels",
-      "booking",
       "api-keys",
     ]);
+  });
+
+  it("keeps booking pages out of Settings because the Calendar page holds them", () => {
+    expect(settingsSectionOf("booking")).toBeNull();
   });
 });
