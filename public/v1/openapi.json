@@ -105228,7 +105228,8 @@
                                     "required"
                                   ],
                                   "additionalProperties": false
-                                }
+                                },
+                                "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
                               },
                               "person": {
                                 "anyOf": [
@@ -105677,7 +105678,8 @@
                               "required"
                             ],
                             "additionalProperties": false
-                          }
+                          },
+                          "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
                         },
                         "person": {
                           "anyOf": [
@@ -106127,7 +106129,8 @@
                                       "required"
                                     ],
                                     "additionalProperties": false
-                                  }
+                                  },
+                                  "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
                                 },
                                 "person": {
                                   "anyOf": [
@@ -106383,6 +106386,10 @@
                           "required": {
                             "type": "boolean"
                           },
+                          "mustInclude": {
+                            "type": "boolean",
+                            "description": "The list requires this field and gives it no default value, so every form must ask for it."
+                          },
                           "multiple": {
                             "type": "boolean"
                           },
@@ -106411,6 +106418,7 @@
                           "label",
                           "valueType",
                           "required",
+                          "mustInclude",
                           "multiple",
                           "options"
                         ],
@@ -106490,6 +106498,52 @@
                         "additionalProperties": false
                       }
                     },
+                    "blockingFields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Labels of required fields without a default value that a form cannot ask for."
+                    },
+                    "failures": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "lastAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "count",
+                        "lastAt"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Submissions of the last 30 days that could not be saved as a record."
+                    },
+                    "workspaceName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "badge": {
+                      "type": "boolean"
+                    },
                     "allowed": {
                       "type": "boolean"
                     },
@@ -106513,6 +106567,10 @@
                     "form",
                     "fields",
                     "peopleLists",
+                    "blockingFields",
+                    "failures",
+                    "workspaceName",
+                    "badge",
                     "allowed",
                     "reason"
                   ],
@@ -106741,7 +106799,8 @@
                             "required"
                           ],
                           "additionalProperties": false
-                        }
+                        },
+                        "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
                       },
                       "person": {
                         "anyOf": [
@@ -106989,7 +107048,8 @@
                               "required"
                             ],
                             "additionalProperties": false
-                          }
+                          },
+                          "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
                         },
                         "person": {
                           "anyOf": [
@@ -107431,7 +107491,8 @@
                               "required"
                             ],
                             "additionalProperties": false
-                          }
+                          },
+                          "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
                         },
                         "person": {
                           "anyOf": [

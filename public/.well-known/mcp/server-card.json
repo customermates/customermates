@@ -33289,7 +33289,8 @@
                     "required"
                   ],
                   "additionalProperties": false
-                }
+                },
+                "description": "The questions, in order. Every field the list requires and gives no default value must be among them, otherwise no submission can be saved."
               },
               "person": {
                 "anyOf": [
@@ -37775,10 +37776,17 @@
               "type": "object",
               "properties": {
                 "calendarId": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                  "description": "A writable calendar from the meeting options. Booked meetings are created in it and its busy time hides slots."
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Null when the calendar is gone, for example after its account was disconnected. Visitors then see the page as unavailable until the owner chooses a calendar; bookings already made stay."
                 },
                 "title": {
                   "type": "string",
@@ -38160,10 +38168,17 @@
             "type": "object",
             "properties": {
               "calendarId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                "description": "A writable calendar from the meeting options. Booked meetings are created in it and its busy time hides slots."
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Null when the calendar is gone, for example after its account was disconnected. Visitors then see the page as unavailable until the owner chooses a calendar; bookings already made stay."
               },
               "title": {
                 "type": "string",
