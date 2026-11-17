@@ -99,7 +99,7 @@ test("the old settings routes open the tab that now holds them and keep their qu
   expect(errors).toEqual([]);
 });
 
-test("a turn-off link from a notification email switches that kind off without a session", async ({
+test("a turn-off link from a notification email asks first, then switches that kind off without a session", async ({
   page,
   database,
   workspace,
@@ -116,20 +116,35 @@ test("a turn-off link from a notification email switches that kind off without a
     ).rows[0]?.mode;
   const link = unsubscribePath(workspace.companyId, workspace.userId, "ruleAlert");
 
-  await test.step("the link works without a signed-in browser and sends the person to Profile & preferences", async () => {
+  await test.step("following the link, as a mail scanner does, changes nothing and leads to a confirmation page", async () => {
     const anonymous = await playwright.request.newContext({ baseURL });
     const first = await anonymous.get(link, { maxRedirects: 0 });
     expect(first.status()).toBe(303);
     const location = new URL(first.headers().location ?? "", "http://localhost");
-    expect(location.pathname).toMatch(/\/settings\/profile$/);
-    expect(location.searchParams.get("notice")).toBe("notification-kind-off");
-    expect(location.searchParams.get("kind")).toBe("ruleAlert");
-    expect(await modeOf("ruleAlert")).toBe("off");
-    expect(await modeOf("dueToday")).toBeUndefined();
+    expect(location.pathname).toMatch(/\/notification-emails\/turn-off$/);
+    const token = location.searchParams.get("token") ?? "";
+    expect(link).toContain(encodeURIComponent(token));
+    expect(await modeOf("ruleAlert")).toBeUndefined();
 
-    const again = await anonymous.get(link, { maxRedirects: 0 });
-    expect(again.status()).toBe(303);
-    expect(await modeOf("ruleAlert")).toBe("off");
+    const confirmation = await anonymous.get(`${location.pathname}${location.search}`);
+    expect(confirmation.status()).toBe(200);
+    expect(await confirmation.text()).toContain("Turn off these emails?");
+    expect(await modeOf("ruleAlert")).toBeUndefined();
+
+    await test.step("confirming works without a signed-in browser and sends the person to Profile & preferences", async () => {
+      const confirmed = await anonymous.post("/api/notifications/unsubscribe", { form: { token }, maxRedirects: 0 });
+      expect(confirmed.status()).toBe(303);
+      const target = new URL(confirmed.headers().location ?? "", "http://localhost");
+      expect(target.pathname).toMatch(/\/settings\/profile$/);
+      expect(target.searchParams.get("notice")).toBe("notification-kind-off");
+      expect(target.searchParams.get("kind")).toBe("ruleAlert");
+      expect(await modeOf("ruleAlert")).toBe("off");
+      expect(await modeOf("dueToday")).toBeUndefined();
+
+      const again = await anonymous.post("/api/notifications/unsubscribe", { form: { token }, maxRedirects: 0 });
+      expect(again.status()).toBe(303);
+      expect(await modeOf("ruleAlert")).toBe("off");
+    });
     await anonymous.dispose();
   });
 
@@ -145,16 +160,24 @@ test("a turn-off link from a notification email switches that kind off without a
       new Date(Date.now() - 31 * DAY_MS),
     );
     expect((await page.request.get(expired)).status()).toBe(410);
+    expect((await page.request.post("/api/notifications/unsubscribe", { form: { token: "wrong" } })).status()).toBe(
+      400,
+    );
+    expect((await page.request.get("/en/notification-emails/turn-off?token=wrong")).status()).toBe(404);
     expect(await modeOf("replyReceived")).toBeUndefined();
     expect(await modeOf("dueToday")).toBeUndefined();
   });
 
-  await test.step("opened in the signed-in browser, it shows a note and the row has changed", async () => {
+  await test.step("opened in the signed-in browser, it asks, then shows a note and the row has changed", async () => {
     await database.query('DELETE FROM "NotificationPreference" WHERE "companyId"=$1 AND "userId"=$2', [
       workspace.companyId,
       workspace.userId,
     ]);
     await page.goto(unsubscribePath(workspace.companyId, workspace.userId, "ruleAlert"));
+    await expect(page.getByRole("heading", { name: "Turn off these emails?" })).toBeVisible();
+    await expect(page.getByText("You will no longer get emails for “Automation alerts”.")).toBeVisible();
+    expect(await modeOf("ruleAlert")).toBeUndefined();
+    await page.getByRole("button", { name: "Turn off emails" }).click();
     await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(companyUrlPattern(workspace.companyId, "/settings/profile$"));
     await expect(page.getByText("Emails for “Automation alerts” are turned off.")).toBeVisible();

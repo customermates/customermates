@@ -90,6 +90,7 @@ const CODE_BACKED_ROUTE_FILES = {
   "/p/:token": "app/[locale]/(public)/p/[token]/page.tsx",
   "/book/:token": "app/[locale]/(public)/book/[token]/page.tsx",
   "/f/:token": "app/[locale]/(public)/f/[token]/page.tsx",
+  "/notification-emails/turn-off": "app/[locale]/(public)/notification-emails/turn-off/page.tsx",
   "/blog/page/:page": "app/[locale]/(static)/blog/page/[page]/page.tsx",
   "/compare/page/:page": "app/[locale]/(static)/compare/page/[page]/page.tsx",
   "/features/all/page/:page": "app/[locale]/(static)/features/all/page/[page]/page.tsx",

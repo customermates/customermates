@@ -3961,6 +3961,11 @@
       "pauseOn": "Alle E-Mails sind bis {date} pausiert.",
       "title": "E-Mails zu Benachrichtigungen"
     },
+    "turnOff": {
+      "body": "Du bekommst dann keine E-Mails mehr zu „{kind}“. Unter Profil & Einstellungen schaltest du sie wieder ein.",
+      "confirm": "E-Mails ausschalten",
+      "title": "Diese E-Mails ausschalten?"
+    },
     "unread": "Ungelesen"
   },
   "OnboardingChoice": {

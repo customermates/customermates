@@ -18,18 +18,18 @@ export class SetNotificationKindOffInteractor {
   ) {}
 
   @Validate(SetNotificationKindOffSchema)
-  async invoke({ token }: SetNotificationKindOffData): Validated<SetNotificationKindOffResult> {
+  async invoke({ token, confirmed }: SetNotificationKindOffData): Validated<SetNotificationKindOffResult> {
     const secret = notificationUnsubscribeSecret(this.authSecret);
     if (!secret) return { ok: true as const, data: { status: "invalid" } };
     const grant = verifyNotificationUnsubscribe(secret, token, this.clock());
     if (grant.status !== "valid") return { ok: true as const, data: { status: grant.status } };
     const [recipient] = await this.repo.findRecipientsUnscoped(grant.companyId, [grant.userId]);
     if (!recipient) return { ok: true as const, data: { status: "invalid" } };
-    await this.repo.saveEmailModeUnscoped(grant.companyId, grant.userId, grant.kind, "off");
+    if (confirmed) await this.repo.saveEmailModeUnscoped(grant.companyId, grant.userId, grant.kind, "off");
     return {
       ok: true as const,
       data: {
-        status: "off",
+        status: confirmed ? "off" : "pending",
         kind: grant.kind,
         workspaceSlug: recipient.workspaceSlug,
         locale: resolveUserLocale(recipient),

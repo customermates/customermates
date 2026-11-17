@@ -3961,6 +3961,11 @@
       "pauseOn": "Tous les e-mails sont suspendus jusqu’au {date}.",
       "title": "E-mails de notification"
     },
+    "turnOff": {
+      "body": "Vous ne recevrez plus d’e-mails « {kind} ». Vous pouvez les réactiver dans Profil et préférences.",
+      "confirm": "Désactiver les e-mails",
+      "title": "Désactiver ces e-mails ?"
+    },
     "unread": "Non lue"
   },
   "OnboardingChoice": {

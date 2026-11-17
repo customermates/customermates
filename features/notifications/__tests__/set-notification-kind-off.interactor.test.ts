@@ -38,8 +38,23 @@ beforeEach(() => {
 });
 
 describe("turning a notification kind off from an email link", () => {
+  it("changes nothing until the person confirms, and names the kind and the workspace to ask about", async () => {
+    const token = signed("ruleAlert");
+
+    const first = await interactor().invoke({ token, confirmed: false });
+    const second = await interactor().invoke({ token, confirmed: false });
+
+    expect(first).toEqual({
+      ok: true,
+      data: { status: "pending", kind: "ruleAlert", workspaceSlug: "ws-1", locale: "de" },
+    });
+    expect(second).toEqual(first);
+    expect(repo.unscopedSaves).toEqual([]);
+    expect(repo.preferences.get(ME)?.get("ruleAlert")).toBeUndefined();
+  });
+
   it("sets the email mode of that kind to off without a session and names where to send the person next", async () => {
-    const result = await interactor().invoke({ token: signed("ruleAlert") });
+    const result = await interactor().invoke({ token: signed("ruleAlert"), confirmed: true });
 
     expect(result).toEqual({
       ok: true,
@@ -52,7 +67,7 @@ describe("turning a notification kind off from an email link", () => {
   it("leaves the other kinds as they were", async () => {
     repo.preferences.set(ME, new Map([["dueToday", "instant"]]));
 
-    await interactor().invoke({ token: signed("replyReceived") });
+    await interactor().invoke({ token: signed("replyReceived"), confirmed: true });
 
     expect(repo.preferences.get(ME)?.get("dueToday")).toBe("instant");
     expect(repo.preferences.get(ME)?.get("replyReceived")).toBe("off");
@@ -61,8 +76,8 @@ describe("turning a notification kind off from an email link", () => {
   it("is idempotent when the link is followed again", async () => {
     const token = signed("dueToday");
 
-    const first = await interactor().invoke({ token });
-    const second = await interactor().invoke({ token });
+    const first = await interactor().invoke({ token, confirmed: true });
+    const second = await interactor().invoke({ token, confirmed: true });
 
     expect(second).toEqual(first);
     expect(repo.preferences.get(ME)?.get("dueToday")).toBe("off");
@@ -72,17 +87,29 @@ describe("turning a notification kind off from an email link", () => {
     const token = signed("ruleAlert");
     const tampered = token.replace("ruleAlert", "dueToday");
 
-    expect(await interactor().invoke({ token: tampered })).toEqual({ ok: true, data: { status: "invalid" } });
-    expect(await interactor().invoke({ token: "nonsense" })).toEqual({ ok: true, data: { status: "invalid" } });
-    expect((await interactor().invoke({ token: "" })).ok).toBe(false);
+    expect(await interactor().invoke({ token: tampered, confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(await interactor().invoke({ token: "nonsense", confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect((await interactor().invoke({ token: "", confirmed: true })).ok).toBe(false);
     expect(repo.unscopedSaves).toEqual([]);
   });
 
   it("refuses a token signed with another secret and any token when no secret is configured", async () => {
     const token = signed("ruleAlert");
 
-    expect(await interactor("other-secret").invoke({ token })).toEqual({ ok: true, data: { status: "invalid" } });
-    expect(await interactor("  ").invoke({ token })).toEqual({ ok: true, data: { status: "invalid" } });
+    expect(await interactor("other-secret").invoke({ token, confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(await interactor("  ").invoke({ token, confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
     expect(repo.unscopedSaves).toEqual([]);
   });
 
@@ -90,14 +117,18 @@ describe("turning a notification kind off from an email link", () => {
     const token = signed("ruleAlert");
     clockNow = new Date(NOW.getTime() + 31 * DAY_MS);
 
-    expect(await interactor().invoke({ token })).toEqual({ ok: true, data: { status: "expired" } });
+    expect(await interactor().invoke({ token, confirmed: true })).toEqual({ ok: true, data: { status: "expired" } });
     expect(repo.unscopedSaves).toEqual([]);
   });
 
   it("changes nothing when the person is no longer an active member of that workspace", async () => {
     repo.members = [];
 
-    expect(await interactor().invoke({ token: signed("ruleAlert") })).toEqual({
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: false })).toEqual({
       ok: true,
       data: { status: "invalid" },
     });

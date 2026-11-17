@@ -3961,6 +3961,11 @@
       "pauseOn": "Tutte le e-mail sono sospese fino al {date}.",
       "title": "E-mail di notifica"
     },
+    "turnOff": {
+      "body": "Non riceverai più le e-mail «{kind}». Puoi riattivarle in Profilo e preferenze.",
+      "confirm": "Disattiva le e-mail",
+      "title": "Disattivare queste e-mail?"
+    },
     "unread": "Da leggere"
   },
   "OnboardingChoice": {

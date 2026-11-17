@@ -22,6 +22,7 @@ export const DEFAULT_NOTIFICATION_EMAIL_MODES = {
 } as const satisfies Record<(typeof NOTIFICATION_KINDS)[number], (typeof NOTIFICATION_EMAIL_MODES)[number]>;
 
 export const NOTIFICATION_KIND_OFF_NOTICE = "notification-kind-off";
+export const NOTIFICATION_TURN_OFF_PATH = "/notification-emails/turn-off";
 export const NOTIFICATION_TITLE_MAX_CHARS = 200;
 export const NOTIFICATION_BODY_MAX_CHARS = 1000;
 export const NOTIFICATION_HREF_MAX_CHARS = 500;
@@ -108,11 +109,13 @@ export const SetNotificationPauseSchema = z
   .strict();
 export type SetNotificationPauseData = z.output<typeof SetNotificationPauseSchema>;
 
-export const SetNotificationKindOffSchema = z.object({ token: z.string().min(1).max(256) }).strict();
+export const SetNotificationKindOffSchema = z
+  .object({ token: z.string().min(1).max(256), confirmed: z.boolean() })
+  .strict();
 export type SetNotificationKindOffData = z.output<typeof SetNotificationKindOffSchema>;
 
 export type SetNotificationKindOffResult =
-  | { status: "off"; kind: NotificationKind; workspaceSlug: string; locale: AppLocale }
+  | { status: "off" | "pending"; kind: NotificationKind; workspaceSlug: string; locale: AppLocale }
   | { status: "expired" }
   | { status: "invalid" };
 

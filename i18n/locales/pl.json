@@ -3961,6 +3961,11 @@
       "pauseOn": "Wszystkie e-maile są wstrzymane do {date}.",
       "title": "E-maile z powiadomieniami"
     },
+    "turnOff": {
+      "body": "Nie będziesz już otrzymywać e-maili „{kind}”. Możesz je ponownie włączyć w sekcji Profil i preferencje.",
+      "confirm": "Wyłącz e-maile",
+      "title": "Wyłączyć te e-maile?"
+    },
     "unread": "Nieprzeczytane"
   },
   "OnboardingChoice": {

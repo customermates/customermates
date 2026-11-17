@@ -3961,6 +3961,11 @@
       "pauseOn": "Alle e-mails zijn gepauzeerd tot {date}.",
       "title": "E-mails over meldingen"
     },
+    "turnOff": {
+      "body": "Je krijgt dan geen e-mails meer over “{kind}”. Onder Profiel & voorkeuren zet je ze weer aan.",
+      "confirm": "E-mails uitzetten",
+      "title": "Deze e-mails uitzetten?"
+    },
     "unread": "Ongelezen"
   },
   "OnboardingChoice": {

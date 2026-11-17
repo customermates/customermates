@@ -3961,6 +3961,11 @@
       "pauseOn": "All emails are paused until {date}.",
       "title": "Notification emails"
     },
+    "turnOff": {
+      "body": "You will no longer get emails for “{kind}”. You can switch them back on under Profile & preferences.",
+      "confirm": "Turn off emails",
+      "title": "Turn off these emails?"
+    },
     "unread": "Unread"
   },
   "OnboardingChoice": {

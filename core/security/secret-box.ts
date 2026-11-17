@@ -6,6 +6,7 @@ const VERSION = "v1";
 const ALGORITHM = "aes-256-gcm";
 const KEY_BYTES = 32;
 const IV_BYTES = 12;
+const TAG_BYTES = 16;
 const DERIVATION_INFO = "customermates-secret-box-v1";
 
 export class SecretBoxError extends Error {
@@ -45,7 +46,7 @@ function boxKey(): Uint8Array {
 
 export function sealSecret(plain: string): string {
   const iv = bytes(randomBytes(IV_BYTES));
-  const cipher = createCipheriv(ALGORITHM, boxKey(), iv);
+  const cipher = createCipheriv(ALGORITHM, boxKey(), iv, { authTagLength: TAG_BYTES });
   const data = Buffer.concat([bytes(cipher.update(plain, "utf8")), bytes(cipher.final())]);
   const tag = bytes(cipher.getAuthTag());
   return [VERSION, encode(iv), encode(tag), encode(bytes(data))].join(".");
@@ -55,9 +56,9 @@ export function openSecret(sealed: string): string {
   const [version, iv, tag, data, ...rest] = sealed.split(".");
   if (version !== VERSION || !iv || !tag || !data || rest.length > 0)
     throw new SecretBoxError("The sealed value has an unknown format");
-  const decipher = createDecipheriv(ALGORITHM, boxKey(), decode(iv));
-  decipher.setAuthTag(decode(tag));
+  const decipher = createDecipheriv(ALGORITHM, boxKey(), decode(iv), { authTagLength: TAG_BYTES });
   try {
+    decipher.setAuthTag(decode(tag));
     return Buffer.concat([bytes(decipher.update(decode(data))), bytes(decipher.final())]).toString("utf8");
   } catch {
     throw new SecretBoxError("The sealed value cannot be opened with the configured key");

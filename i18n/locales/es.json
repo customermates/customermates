@@ -3961,6 +3961,11 @@
       "pauseOn": "Todos los correos están en pausa hasta el {date}.",
       "title": "Correos de notificación"
     },
+    "turnOff": {
+      "body": "Dejarás de recibir correos de «{kind}». Puedes volver a activarlos en Perfil y preferencias.",
+      "confirm": "Desactivar correos",
+      "title": "¿Desactivar estos correos?"
+    },
     "unread": "Sin leer"
   },
   "OnboardingChoice": {

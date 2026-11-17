@@ -43,6 +43,9 @@ describe("secret box", () => {
     const flipped = data.startsWith("A") ? `B${data.slice(1)}` : `A${data.slice(1)}`;
 
     expect(() => openSecret([version, iv, tag, flipped].join("."))).toThrow(SecretBoxError);
+    expect(() =>
+      openSecret([version, iv, Buffer.from(tag, "base64url").subarray(0, 4).toString("base64url"), data].join(".")),
+    ).toThrow(SecretBoxError);
     expect(() => openSecret("v2.a.b.c")).toThrow("unknown format");
     expect(() => openSecret("not sealed")).toThrow("unknown format");
   });
