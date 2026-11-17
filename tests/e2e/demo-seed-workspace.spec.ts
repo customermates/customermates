@@ -278,7 +278,8 @@ test("routines are listed with their owners and triggers", async ({ page, databa
   for (const routine of routines) {
     const row = page.getByRole("row").filter({ has: page.getByText(routine.name, { exact: true }) });
     await expect(row, routine.name).toBeVisible();
-    if (routine.trigger === "event") await expect(row).toContainText("When something changes");
+    // The merged Automations list reads every item as a sentence: "When <event>, ask Mate to <prompt>".
+    if (routine.trigger === "event") await expect(row).toContainText(/When .+, ask Mate to/);
     else {
       // Schedules read in words, for example "Weekdays at 08:00 AM" or "Every Monday at 07:00 AM", never as cron.
       await expect(row).toContainText(/(Every|Weekdays|Weekends|Daily)\b.* at \d{1,2}:\d{2}/);

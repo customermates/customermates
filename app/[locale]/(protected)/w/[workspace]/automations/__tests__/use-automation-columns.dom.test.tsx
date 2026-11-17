@@ -123,7 +123,8 @@ describe("automation list columns", () => {
       onToggle: vi.fn(),
     });
 
-    expect(cell("name")?.textContent).toContain("Automations.kind.routine");
+    expect(cell("name")?.textContent).not.toContain("Automations.kind.routine");
+    expect(cell("sentence")?.textContent).toContain("Automations.kind.routine");
     expect(cell("runsOn")?.textContent).toBe("Automations.runsOn.mate");
     expect(cell("runsOn")?.querySelector("[data-chip]")?.getAttribute("data-chip")).toBe("info");
     expect(cell("lastRunAt")?.textContent).toBe("RoutineDetail.never");

@@ -39,24 +39,22 @@ export function useAutomationColumns({
         accessorKey: "name",
         id: "name",
         header: t("Common.table.columns.name"),
-        cell: ({ row }) => (
-          <span className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-sm font-medium">{row.original.name}</span>
-
-            {row.original.kind === "routine" && (
-              <AppChip size="sm" variant="secondary">
-                {t("Automations.kind.routine")}
-              </AppChip>
-            )}
-          </span>
-        ),
+        cell: ({ row }) => <span className="truncate text-sm font-medium">{row.original.name}</span>,
       },
       {
         id: "sentence",
         header: t("Automations.columns.sentence"),
         cell: ({ row }) => (
-          <span className="truncate text-sm text-muted-foreground">
-            {automationItemSentence(row.original, model, t, intlStore)}
+          <span className="flex min-w-0 items-center gap-2">
+            {row.original.kind === "routine" && (
+              <AppChip size="sm" variant="secondary">
+                {t("Automations.kind.routine")}
+              </AppChip>
+            )}
+
+            <span className="truncate text-sm text-muted-foreground">
+              {automationItemSentence(row.original, model, t, intlStore)}
+            </span>
           </span>
         ),
       },

@@ -103,11 +103,21 @@ test("builds from scratch with an agent card whose runtime is unavailable and sh
   const card = builder.locator('[data-automation-card="effect-0"]');
   await expect(card).toContainText("ask your agent to");
   const reason = card.locator("[data-agent-reason]");
-  await expect(reason).toBeVisible();
-  await expect(reason.getByRole("link")).toHaveAttribute("href", /\/settings\/connections\?tab=agents$/);
+  if (e2eAppMode() === "self-hosted") {
+    // Mate is a Customermates Cloud runtime, so a self-hosted install sees why it is unavailable.
+    await expect(reason).toBeVisible();
+    await expect(reason.getByRole("link")).toHaveAttribute("href", /\/settings\/connections\?tab=agents$/);
+  } else {
+    await expect(reason).toHaveCount(0);
+  }
 
+  // No provider key is stored, so the own-key runtime explains itself on both editions.
   await card.getByRole("radio", { name: /Your own key/ }).click();
   await expect(card.locator("[data-agent-reason]")).toBeVisible();
+  await expect(card.locator("[data-agent-reason]").getByRole("link")).toHaveAttribute(
+    "href",
+    /\/settings\/connections\?tab=agents$/,
+  );
   await card.getByRole("textbox").fill("Summarise {{record.name}} for the owner");
   await expect(builder.locator('[data-automation-card="effect-0"]')).toContainText("Summarise");
 });
@@ -161,7 +171,7 @@ test.describe("routines in the same list", () => {
     );
     await page.goto(companyPath(companyId, "/automations"));
 
-    await page.getByText("Weekly client review", { exact: true }).click();
+    await clickHydrated(page.getByRole("button", { name: "Weekly client review", exact: true }));
 
     const routine = page.getByRole("dialog", { name: "Routine", exact: true });
     await expect(routine).toBeVisible();
