@@ -1,6 +1,6 @@
-import { Resource } from "@/generated/prisma";
+import { redirect } from "next/navigation";
 
-import type { Filter } from "@/core/base/base-get.schema";
+import { Resource } from "@/generated/prisma";
 
 import {
   getGetAgentRuntimeAvailabilityInteractor,
@@ -15,16 +15,15 @@ import { RoutinesPausedNotice } from "@/app/components/upsell/routines-paused-no
 import { PageContainer } from "@/components/shared/page-container";
 import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
+import { appRedirectHref } from "@/features/auth/next/app-redirect";
 import { requireAccess } from "@/features/auth/next/require";
-import { AUTOMATION_LIST_KINDS } from "@/features/automation-rules/automations-list.schema";
 import { env } from "@/env";
 
 import { toAutomationBuilderModel } from "./components/automation-builder-model";
+import { canonicalAutomationsSearch, showsRoutinesOnly } from "./components/automation-kind-filter";
 import { AutomationsPageView, type AutomationsPrefill } from "./components/automations-page-view";
 
 type Props = {
@@ -40,13 +39,6 @@ function prefillOf(params: Record<string, string | string[] | undefined>): Autom
   if (typeId && fieldId) return { kind: "remind", typeId, fieldId };
   const created = single(params.new);
   return created ? { kind: "new", typeId: created } : null;
-}
-
-function kindFilterOf(params: Record<string, string | string[] | undefined>): Filter[] | undefined {
-  const kind = single(params.kind);
-  const known = AUTOMATION_LIST_KINDS.find((candidate) => candidate === kind);
-  if (!known || params.filters !== undefined) return undefined;
-  return [{ field: FilterFieldKey.automationKind, operator: FilterOperatorKey.in, value: [known] }];
 }
 
 async function webhookOptions(): Promise<{ id: string; label: string }[]> {
@@ -66,14 +58,14 @@ export default async function AutomationsPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.routines });
 
   const params = await searchParams;
+  const canonical = canonicalAutomationsSearch(params);
+  if (canonical !== null) redirect(await appRedirectHref(canonical ? `/automations?${canonical}` : "/automations"));
+
   const listParams = await readSurfaceParams(SURFACE.routines, searchParams);
-  const kindFilter = kindFilterOf(params);
   const cloud = env.APP_MODE !== "self-hosted";
 
   const [list, model, runtimes, webhooks, usage] = await Promise.all([
-    unwrapPage(
-      getGetAutomationsListInteractor().invoke(kindFilter ? { ...listParams, filters: kindFilter } : listParams),
-    ),
+    unwrapPage(getGetAutomationsListInteractor().invoke(listParams)),
     unwrapPage(getGetRecordModelInteractor().invoke({})),
     unwrapPage(getGetAgentRuntimeAvailabilityInteractor().invoke({})),
     webhookOptions(),
@@ -81,7 +73,7 @@ export default async function AutomationsPage({ searchParams }: Props) {
   ]);
   const agentChat = cloud && env.APP_MODE !== "demo" && runtimes.mate.available;
   const free = usage?.plan === FREE_PLAN_ID;
-  const routinesOnly = single(params.kind) === "routine";
+  const routinesOnly = showsRoutinesOnly(listParams.filters);
 
   const view = (
     <AutomationsPageView

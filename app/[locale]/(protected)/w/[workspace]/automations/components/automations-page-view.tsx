@@ -30,8 +30,6 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Action, Resource } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -39,6 +37,7 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { deleteAutomationRuleAction } from "../actions";
 import { AutomationBuilderModal } from "./automation-builder-modal";
 import { reminderDraft } from "./automation-draft";
+import { showsRoutinesOnly } from "./automation-kind-filter";
 import { canDeleteAutomation, canToggleAutomation, toggleAutomation } from "./automation-row-actions";
 import { AutomationsPageSkeleton } from "./automations-page-skeleton";
 import { useAutomationColumns } from "./use-automation-columns";
@@ -229,13 +228,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     request: automationsStore.dataRequest,
     total: automationsStore.pagination?.total,
   });
-  const routinesOnly = (automationsStore.filters ?? []).some(
-    (filter) =>
-      filter.field === FilterFieldKey.automationKind.toString() &&
-      filter.operator === FilterOperatorKey.in &&
-      filter.value.length === 1 &&
-      filter.value[0] === "routine",
-  );
+  const routinesOnly = showsRoutinesOnly(automationsStore.filters);
   const descriptor = routinesOnly
     ? { title: t("RoutinesCard.emptyTitle"), body: t("RoutinesCard.emptyBody") }
     : { title: t("AutomationRules.emptyTitle"), body: t("AutomationRules.emptyBody") };
