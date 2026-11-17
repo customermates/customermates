@@ -13,6 +13,7 @@ export const AUTOMATION_RULE_NAME_MAX_CHARS = 120;
 export const AUTOMATION_CONDITION_LIMIT = 20;
 export const AUTOMATION_EFFECT_LIMIT = 10;
 export const AUTOMATION_TEMPLATE_MAX_CHARS = 1000;
+export const AUTOMATION_AGENT_PROMPT_MAX_CHARS = 4000;
 export const AUTOMATION_DATE_LOOKBACK_DAYS = 7;
 export const AUTOMATION_DATE_OFFSET_MAX_DAYS = 3650;
 export const AUTOMATION_LOOP_DEPTH_LIMIT = 1;
@@ -223,11 +224,38 @@ export const CallWebhookEffectSchema = z
   .strict()
   .describe("Sends the rule payload to one of the workspace's outbound webhooks.");
 
+export const AGENT_RUNTIMES = ["mate", "ownKey", "runner"] as const;
+export type AgentRuntimeKind = (typeof AGENT_RUNTIMES)[number];
+
+export const AgentEffectSchema = z
+  .object({
+    kind: z.literal("agent"),
+    runtime: z
+      .enum(AGENT_RUNTIMES)
+      .describe(
+        "mate runs on the hosted assistant, ownKey on the workspace's provider key, runner on a connected runner.",
+      ),
+    prompt: zx
+      .nonBlankText(AUTOMATION_AGENT_PROMPT_MAX_CHARS)
+      .describe(
+        "What the agent should do. May use {{record.name}} and {{rule.name}}; the record is handed over as context.",
+      ),
+    model: z
+      .string()
+      .max(80)
+      .optional()
+      .describe("ownKey only: the provider model id; the key's default when omitted."),
+    runnerId: z.uuid().optional().describe("runner only: one runner of the workspace; any live runner when omitted."),
+  })
+  .strict()
+  .describe("Asks an agent to act on the triggering record, through the runtime the workspace chose.");
+
 export const AutomationEffectSchema = z.discriminatedUnion("kind", [
   SetFieldEffectSchema,
   CreateRecordEffectSchema,
   NotifyEffectSchema,
   CallWebhookEffectSchema,
+  AgentEffectSchema,
 ]);
 export type AutomationEffect = z.infer<typeof AutomationEffectSchema>;
 
@@ -322,7 +350,7 @@ export const SetAutomationRuleEnabledSchema = z.object({ id: z.uuid(), enabled: 
 export type SetAutomationRuleEnabledData = z.infer<typeof SetAutomationRuleEnabledSchema>;
 
 export const AutomationEffectOutcomeSchema = z.object({
-  kind: z.enum(["setField", "createRecord", "notify", "callWebhook"]),
+  kind: z.enum(["setField", "createRecord", "notify", "callWebhook", "agent"]),
   status: z.enum(["applied", "skipped", "failed"]),
   detail: z.string().max(300).optional(),
   recordRef: z.object({ typeId: z.uuid(), recordId: z.uuid() }).optional(),

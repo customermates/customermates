@@ -1,6 +1,7 @@
 import type { CalculatedValue, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordMutation } from "@/features/records/record-query.schema";
 import type { NotifyMembersInput } from "@/features/notifications/notification.schema";
+import type { AgentRuntimeKind } from "./automation-rule.schema";
 
 export type AutomationRecordView = {
   ref: RecordRef;
@@ -28,4 +29,20 @@ export type AutomationPlanLimits = {
 
 export type AutomationNotifyPort = {
   notify(input: NotifyMembersInput): Promise<{ created: number }>;
+};
+
+export type AutomationAgentJobInput = {
+  companyId: string;
+  runId: string;
+  ownerUserId: string;
+  runtime: AgentRuntimeKind;
+  prompt: string;
+  promptUntrusted: boolean;
+  model: string | null;
+  runnerId: string | null;
+  recordRef: RecordRef | null;
+};
+
+export type AutomationAgentPort = {
+  enqueue(input: AutomationAgentJobInput): Promise<{ ok: true; jobId: string } | { ok: false; reason: string }>;
 };

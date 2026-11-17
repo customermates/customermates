@@ -412,3 +412,122 @@ ALTER TABLE "IncomingWebhookDelivery" ADD CONSTRAINT "IncomingWebhookDelivery_co
 
 -- AddForeignKey
 ALTER TABLE "IncomingWebhookDelivery" ADD CONSTRAINT "IncomingWebhookDelivery_webhookId_fkey" FOREIGN KEY ("webhookId") REFERENCES "IncomingWebhook"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateEnum
+CREATE TYPE "AgentProvider" AS ENUM ('anthropic', 'openai', 'google');
+
+-- CreateEnum
+CREATE TYPE "AgentRuntime" AS ENUM ('mate', 'ownKey', 'runner');
+
+-- CreateEnum
+CREATE TYPE "AgentJobStatus" AS ENUM ('queued', 'claimed', 'running', 'succeeded', 'failed', 'timedOut', 'cancelled');
+
+-- CreateTable
+CREATE TABLE "AgentProviderKey" (
+    "id" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "provider" "AgentProvider" NOT NULL,
+    "label" TEXT NOT NULL,
+    "keyCiphertext" TEXT NOT NULL,
+    "keyLast4" TEXT NOT NULL,
+    "defaultModel" TEXT,
+    "createdById" TEXT NOT NULL,
+    "validatedAt" TIMESTAMP(3),
+    "lastUsedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AgentProviderKey_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AgentRunner" (
+    "id" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "machine" TEXT,
+    "clients" JSONB NOT NULL DEFAULT '[]',
+    "lastSeenAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "createdById" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AgentRunner_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AgentJob" (
+    "id" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "runtime" "AgentRuntime" NOT NULL,
+    "status" "AgentJobStatus" NOT NULL DEFAULT 'queued',
+    "sourceKind" TEXT NOT NULL,
+    "sourceId" TEXT,
+    "ownerUserId" TEXT NOT NULL,
+    "prompt" TEXT NOT NULL,
+    "promptUntrusted" BOOLEAN NOT NULL DEFAULT false,
+    "model" TEXT,
+    "runnerId" TEXT,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "claimedAt" TIMESTAMP(3),
+    "startedAt" TIMESTAMP(3),
+    "finishedAt" TIMESTAMP(3),
+    "timeoutAt" TIMESTAMP(3),
+    "result" JSONB,
+    "transcript" JSONB,
+    "inputTokens" INTEGER,
+    "outputTokens" INTEGER,
+    "costMicrocents" BIGINT,
+    "error" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AgentJob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "AgentProviderKey_companyId_createdById_idx" ON "AgentProviderKey"("companyId", "createdById");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentProviderKey_companyId_provider_key" ON "AgentProviderKey"("companyId", "provider");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentRunner_tokenHash_key" ON "AgentRunner"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "AgentRunner_companyId_revokedAt_idx" ON "AgentRunner"("companyId", "revokedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentRunner_companyId_id_key" ON "AgentRunner"("companyId", "id");
+
+-- CreateIndex
+CREATE INDEX "AgentJob_companyId_status_createdAt_idx" ON "AgentJob"("companyId", "status", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "AgentJob_companyId_runnerId_status_idx" ON "AgentJob"("companyId", "runnerId", "status");
+
+-- CreateIndex
+CREATE INDEX "AgentJob_status_timeoutAt_idx" ON "AgentJob"("status", "timeoutAt");
+
+-- AddForeignKey
+ALTER TABLE "AgentProviderKey" ADD CONSTRAINT "AgentProviderKey_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentProviderKey" ADD CONSTRAINT "AgentProviderKey_companyId_createdById_fkey" FOREIGN KEY ("companyId", "createdById") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentRunner" ADD CONSTRAINT "AgentRunner_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentRunner" ADD CONSTRAINT "AgentRunner_companyId_createdById_fkey" FOREIGN KEY ("companyId", "createdById") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentJob" ADD CONSTRAINT "AgentJob_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentJob" ADD CONSTRAINT "AgentJob_companyId_ownerUserId_fkey" FOREIGN KEY ("companyId", "ownerUserId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentJob" ADD CONSTRAINT "AgentJob_companyId_runnerId_fkey" FOREIGN KEY ("companyId", "runnerId") REFERENCES "AgentRunner"("companyId", "id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -219,6 +219,9 @@ model User {
   uploadedRecordFiles             RecordFile[]
   calendarSubscriptions           CalendarSubscription[]
   bookingLinks                    BookingLink[]
+  agentProviderKeys               AgentProviderKey[]
+  agentRunners                    AgentRunner[]
+  agentJobs                       AgentJob[]
 
   @@unique([companyId, id])
   @@unique([companyId, email])
@@ -300,6 +303,9 @@ model Company {
   automationRuleRuns          AutomationRuleRun[]
   notifications               Notification[]
   notificationPreferences     NotificationPreference[]
+  agentProviderKeys           AgentProviderKey[]
+  agentRunners                AgentRunner[]
+  agentJobs                   AgentJob[]
   recordTypes                 RecordTypeDefinition[]
   recordFields                RecordFieldDefinition[]
   recordRelationships         RecordRelationshipDefinition[]
@@ -2980,4 +2986,100 @@ model CalendarSubscription {
   user                  User     @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
 
   @@index([companyId, userId])
+}
+
+enum AgentProvider {
+  anthropic
+  openai
+  google
+}
+
+enum AgentRuntime {
+  mate
+  ownKey
+  runner
+}
+
+enum AgentJobStatus {
+  queued
+  claimed
+  running
+  succeeded
+  failed
+  timedOut
+  cancelled
+}
+
+model AgentProviderKey {
+  id            String        @id @default(uuid())
+  companyId     String
+  provider      AgentProvider
+  label         String
+  keyCiphertext String
+  keyLast4      String
+  defaultModel  String?
+  createdById   String
+  validatedAt   DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy     User          @relation(fields: [companyId, createdById], references: [companyId, id], onDelete: Cascade)
+
+  @@unique([companyId, provider])
+  @@index([companyId, createdById])
+}
+
+model AgentRunner {
+  id          String     @id @default(uuid())
+  companyId   String
+  name        String
+  tokenHash   String     @unique
+  machine     String?
+  clients     Json       @default("[]")
+  lastSeenAt  DateTime?
+  revokedAt   DateTime?
+  createdById String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy   User       @relation(fields: [companyId, createdById], references: [companyId, id], onDelete: Cascade)
+  jobs        AgentJob[]
+
+  @@unique([companyId, id])
+  @@index([companyId, revokedAt])
+}
+
+model AgentJob {
+  id              String         @id @default(uuid())
+  companyId       String
+  runtime         AgentRuntime
+  status          AgentJobStatus @default(queued)
+  sourceKind      String
+  sourceId        String?
+  ownerUserId     String
+  prompt          String
+  promptUntrusted Boolean        @default(false)
+  model           String?
+  runnerId        String?
+  attempts        Int            @default(0)
+  claimedAt       DateTime?
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  timeoutAt       DateTime?
+  result          Json?
+  transcript      Json?
+  inputTokens     Int?
+  outputTokens    Int?
+  costMicrocents  BigInt?
+  error           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  company         Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner           User           @relation(fields: [companyId, ownerUserId], references: [companyId, id], onDelete: Cascade)
+  runner          AgentRunner?   @relation(fields: [companyId, runnerId], references: [companyId, id], onDelete: SetNull)
+
+  @@index([companyId, status, createdAt])
+  @@index([companyId, runnerId, status])
+  @@index([status, timeoutAt])
 }

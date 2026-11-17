@@ -48805,6 +48805,47 @@
                   ],
                   "additionalProperties": false,
                   "description": "Sends the rule payload to one of the workspace's outbound webhooks."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "agent"
+                    },
+                    "runtime": {
+                      "type": "string",
+                      "enum": [
+                        "mate",
+                        "ownKey",
+                        "runner"
+                      ],
+                      "description": "mate runs on the hosted assistant, ownKey on the workspace's provider key, runner on a connected runner."
+                    },
+                    "prompt": {
+                      "type": "string",
+                      "maxLength": 4000,
+                      "description": "What the agent should do. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
+                    },
+                    "model": {
+                      "description": "ownKey only: the provider model id; the key's default when omitted.",
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "runnerId": {
+                      "description": "runner only: one runner of the workspace; any live runner when omitted.",
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "runtime",
+                    "prompt"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Asks an agent to act on the triggering record, through the runtime the workspace chose."
                 }
               ]
             }

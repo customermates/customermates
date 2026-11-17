@@ -2,7 +2,12 @@ import type { RecordFieldAssignmentSchema, RecordModelView, RecordRef } from "@/
 import type { RecordMutation } from "@/features/records/record-query.schema";
 import type { z } from "zod";
 import type { EventService } from "@/features/event/event.service";
-import type { AutomationNotifyPort, AutomationRecordPort, AutomationRecordView } from "./automation-ports";
+import type {
+  AutomationAgentPort,
+  AutomationNotifyPort,
+  AutomationRecordPort,
+  AutomationRecordView,
+} from "./automation-ports";
 import type { AutomationRuleRepo } from "./automation-rule.repo";
 import type { AutomationEffect, AutomationEffectOutcome, AutomationTrigger } from "./automation-rule.schema";
 
@@ -56,6 +61,7 @@ export class AutomationEffectRunner {
     private readonly notifications: AutomationNotifyPort,
     private readonly events: Pick<EventService, "publish">,
     private readonly webhooks: Pick<AutomationRuleRepo, "findOutboundWebhookUnscoped">,
+    private readonly agents: AutomationAgentPort | null = null,
   ) {}
 
   async run(
@@ -88,7 +94,36 @@ export class AutomationEffectRunner {
         return this.notify(effect, index, context);
       case "callWebhook":
         return this.callWebhook(effect, context);
+      case "agent":
+        return this.agent(effect, context);
     }
+  }
+
+  private async agent(
+    effect: Extract<AutomationEffect, { kind: "agent" }>,
+    context: AutomationEffectContext,
+  ): Promise<AutomationEffectOutcome> {
+    if (!this.agents) return { kind: effect.kind, status: "failed", detail: "agentRuntimeUnavailable" };
+    const record = context.recordRef ? await this.records.read(context.recordRef) : null;
+    const prompt = renderAutomationTemplate(effect.prompt, { record, rule: context.rule });
+    const queued = await this.agents.enqueue({
+      companyId: context.companyId,
+      runId: context.runId,
+      ownerUserId: context.rule.ownerUserId,
+      runtime: effect.runtime,
+      prompt,
+      promptUntrusted: ["messageReceived", "formSubmitted", "webhookReceived"].includes(context.rule.trigger.kind),
+      model: effect.model ?? null,
+      runnerId: effect.runnerId ?? null,
+      recordRef: context.recordRef,
+    });
+    if (!queued.ok) return { kind: effect.kind, status: "failed", detail: queued.reason };
+    return {
+      kind: effect.kind,
+      status: "applied",
+      detail: queued.jobId,
+      ...(context.recordRef ? { recordRef: context.recordRef } : {}),
+    };
   }
 
   private async setField(

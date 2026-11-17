@@ -5,8 +5,9 @@ It replaces six additive migrations that never reached production: `202611121400
 `20261112150000_calendar_write_booking`, `20261113120000_public_forms_and_incoming_webhooks`,
 `20261113130000_onboarding_template_attribution`, `20261113131000_onboarding_measurement` and
 `20261113140000_signup_campaign_team_size`. The end state is the six migrations' schema plus the
-`BookingLink.personRelationshipId` column and the `NotificationKind` enum without the values `assigned` and
-`formSubmission`, which nothing ever wrote. A database that applied the six keeps those two unused enum values;
+`BookingLink.personRelationshipId` column, the `NotificationKind` enum without the values `assigned` and
+`formSubmission`, which nothing ever wrote, and the agent tables `AgentProviderKey`, `AgentRunner` and `AgentJob` with
+their enums. A database that applied the six keeps those two unused enum values;
 Postgres cannot drop enum values in place, and nothing reads them.
 
 ## Databases that applied the former migrations

@@ -20,6 +20,7 @@ if (Boolean(oauthProxyUrl) !== Boolean(oauthProxySecret))
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL as string,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
+  SECRET_BOX_KEY: process.env.SECRET_BOX_KEY?.trim() || undefined,
   BASE_URL,
   AUTH_ALLOWED_HOSTS: resolveAuthAllowedHosts(process.env, BASE_URL),
   OAUTH_PROXY_URL: oauthProxyUrl ? normalizeBaseUrl(oauthProxyUrl, "OAUTH_PROXY_URL") : undefined,
