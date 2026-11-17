@@ -29,7 +29,7 @@ An **Ask an agent** card holds what the agent should do, in plain words, and whe
 
 Open a list that has a date or date and time field, open **More actions** in the toolbar and choose **Remind me about** followed by the field name. The builder opens with a **A date is reached** trigger for that field, so you only choose **Days**, **Before or after**, the **At hour (0 to 23)** and the **Time zone**, then add a **Notify** action that tells you. The reminder reaches you on the Notifications page and, by your preference, by email.
 
-A date rule fires once per record, when the date shifted by your offset is reached. It is checked every few minutes. A rule you create or switch on later still catches dates that were reached within the last 7 days, and a record whose date you change to another day fires again for the new date. **Preview** over MCP or REST lists the records a date rule would hit next.
+A date rule fires once per record its owner can read, when the date shifted by your offset is reached. It is checked every few minutes. A rule you create or switch on later still catches dates that were reached within the last 7 days, and a record whose date you change to another day fires again for the new date. **Preview** over MCP or REST lists the records a date rule would hit next, among those you can read.
 
 ## How do automations run, and what does the history show? [#how-do-automations-run]
 
