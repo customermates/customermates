@@ -6,7 +6,11 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
-import { AGENT_JOB_UNTRUSTED_REFUSAL, AGENT_JOB_WIKI_REFUSAL } from "@/features/agent-jobs/agent-job-tool-policy";
+import {
+  AGENT_JOB_ROUTINE_LOOP_REFUSAL,
+  AGENT_JOB_UNTRUSTED_REFUSAL,
+  AGENT_JOB_WIKI_REFUSAL,
+} from "@/features/agent-jobs/agent-job-tool-policy";
 
 import {
   AGENT_JOB_TOOL_LIMIT_REFUSAL,
@@ -68,6 +72,30 @@ describe("the gate of a job key", () => {
         expect(await ask("manage_wiki_pages", { action })).toContain(AGENT_JOB_WIKI_REFUSAL);
       expect(await ask("manage_wiki_pages", { action: "search" })).toBeNull();
     }
+  });
+
+  it("does not start a routine or set up one that reacts to events when a rule started the job", async () => {
+    const { ask } = gate({ untrusted: false });
+
+    expect(await ask("manage_routines", { action: "run_now", id: "r" })).toContain(AGENT_JOB_ROUTINE_LOOP_REFUSAL);
+    expect(await ask("manage_routines", { action: "create", triggerKind: "event" })).toContain(
+      AGENT_JOB_ROUTINE_LOOP_REFUSAL,
+    );
+    expect(await ask("manage_routines", { action: "update", id: "r", enabled: true })).toContain(
+      AGENT_JOB_ROUTINE_LOOP_REFUSAL,
+    );
+    expect(await ask("manage_routines", { action: "create", triggerKind: "schedule" })).toBeNull();
+    expect(await ask("manage_routines", { action: "list" })).toBeNull();
+
+    const count = vi.fn().mockResolvedValue(true);
+    const outsideRule = await agentJobToolRefusal(
+      { ...job, ruleChain: [] },
+      { name: "manage_routines" },
+      { action: "run_now", id: "r" },
+      count,
+      () => Promise.resolve(false),
+    );
+    expect(outsideRule).toBeNull();
   });
 
   it("keeps the tool call limit first and the approval rule last", async () => {

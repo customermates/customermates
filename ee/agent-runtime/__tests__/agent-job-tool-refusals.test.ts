@@ -4,7 +4,11 @@ import { tool } from "ai";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { AGENT_JOB_UNTRUSTED_REFUSAL, AGENT_JOB_WIKI_REFUSAL } from "@/features/agent-jobs/agent-job-tool-policy";
+import {
+  AGENT_JOB_ROUTINE_LOOP_REFUSAL,
+  AGENT_JOB_UNTRUSTED_REFUSAL,
+  AGENT_JOB_WIKI_REFUSAL,
+} from "@/features/agent-jobs/agent-job-tool-policy";
 
 import { AgentJobRecorder } from "../agent-job-recorder";
 import { buildAgentJobTools } from "../agent-job-toolset";
@@ -83,6 +87,26 @@ describe("the tools of a hosted agent job", () => {
 
     expect(await call("send_email")).toEqual({ ok: false, result: AGENT_JOB_UNTRUSTED_REFUSAL });
     expect(ran).not.toHaveBeenCalled();
+  });
+
+  it("does not start a routine or set up one that reacts to events when a rule started the job", async () => {
+    const { call, ran } = world({ untrusted: false, ruleChain: [RULE] });
+    const refused = { ok: false, result: AGENT_JOB_ROUTINE_LOOP_REFUSAL };
+
+    expect(await call("manage_routines", { action: "run_now", id: "r" })).toEqual(refused);
+    expect(await call("manage_routines", { action: "create", triggerKind: "event" })).toEqual(refused);
+    expect(await call("manage_routines", { action: "update", id: "r", prompt: "again" })).toEqual(refused);
+    expect(ran).not.toHaveBeenCalled();
+
+    const scheduled = { action: "create", triggerKind: "schedule", cronExpression: "0 9 * * 1" };
+    expect(await call("manage_routines", scheduled)).toEqual({ ok: true, result: "done" });
+    expect(await call("manage_routines", { action: "list" })).toEqual({ ok: true, result: "done" });
+
+    const outsideRule = world({ untrusted: false, ruleChain: [] });
+    expect(await outsideRule.call("manage_routines", { action: "run_now", id: "r" })).toEqual({
+      ok: true,
+      result: "done",
+    });
   });
 
   it("never writes the Knowledge Base, trusted or not", async () => {
