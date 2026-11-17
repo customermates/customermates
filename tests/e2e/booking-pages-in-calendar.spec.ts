@@ -208,6 +208,12 @@ test("lets a visitor move to a later month and pick a time there", async ({ page
   const laterMonth = month === 12 ? `${year + 1}-01` : `${year}-${String(month + 1).padStart(2, "0")}`;
   const caption = await calendar.locator(".rdp-month_caption").innerText();
 
+  // The month it opens on is loaded to its end: its last working day can be picked without leaving the month.
+  const lastWorkingDay = new Date(Date.UTC(year, month, 0));
+  while ([0, 6].includes(lastWorkingDay.getUTCDay())) lastWorkingDay.setUTCDate(lastWorkingDay.getUTCDate() - 1);
+  await expect(calendar).toHaveAttribute("aria-busy", "false");
+  await expect(calendar.locator(`button[data-day="${lastWorkingDay.toISOString().slice(0, 10)}"]`)).toBeEnabled();
+
   await calendar.locator("button.rdp-button_next").click();
   await expect(calendar.locator(".rdp-month_caption")).not.toHaveText(caption);
   await expect(calendar).toHaveAttribute("aria-busy", "false");
@@ -233,6 +239,41 @@ test("lets a visitor move to a later month and pick a time there", async ({ page
   await expect(calendar.locator(".rdp-month_caption")).toHaveText(caption);
   await expect(calendar.locator(`button[data-day="${firstDay}"]`)).toBeEnabled();
   await visitor.close();
+
+  expect(visitorErrors).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("offers no times and tells the owner when the calendar cannot be read in full", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  test.setTimeout(120000);
+  const errors = collectPageErrors(page);
+  const calendarId = await connectCalendar(database, workspace);
+  await page.setViewportSize({ width: 1280, height: 900 });
+
+  const { url } = await createBookingPage(page, "Intro call");
+  await expect(page.locator("[data-booking-panel] [data-booking-busy-incomplete]")).toHaveCount(0);
+
+  // A repeating entry that cannot be worked out: the page must not treat the calendar as free.
+  await database.query(
+    'INSERT INTO "CalendarEvent"(id,"companyId","connectedAccountId","calendarId","unipileEventId",title,"startsAt","endsAt","recurrenceRule","attendeeEmails","updatedAt") SELECT $1,c."companyId",c."connectedAccountId",c.id,$2,\'Every second\',now() - interval \'1 day\',now() - interval \'1 day\' + interval \'1 minute\',\'RRULE:FREQ=SECONDLY\',\'{}\',now() FROM "Calendar" c WHERE c.id=$3',
+    [randomUUID(), `e2e_local_${randomUUID()}`, calendarId],
+  );
+
+  const visitor = await page.context().newPage();
+  const visitorErrors = collectPageErrors(visitor);
+  await visitor.goto(url);
+  await expect(visitor.getByText(englishMessages.PublicBooking.noSlots, { exact: true })).toBeVisible();
+  await expect(visitor.locator("[data-booking-slots] button")).toHaveCount(0);
+  await visitor.close();
+
+  await page.goto(pagePath(page, "/calendar?panel=booking"));
+  await expect(page.locator("[data-booking-panel] [data-booking-busy-incomplete]")).toContainText(
+    booking.busyTimeIncomplete,
+  );
 
   expect(visitorErrors).toEqual([]);
   expect(errors).toEqual([]);

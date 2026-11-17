@@ -188,3 +188,107 @@ test("says that the list gained a required field, asks before that change or an 
 
   expect(errors).toEqual([]);
 });
+
+test("switches a form off although its list now requires a field no form can ask for, and lists a duplicate submission with its answers", async ({
+  page,
+  database,
+  companyId,
+}) => {
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
+  await page.setViewportSize({ width: 1280, height: 1000 });
+  const typeId = presetId(companyId, "organization");
+  const storedForm = async () =>
+    (
+      await database.query<{ id: string; enabled: boolean }>(
+        'SELECT id, enabled FROM "PublicForm" WHERE "companyId"=$1 AND "typeId"=$2',
+        [companyId, typeId],
+      )
+    ).rows[0];
+
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
+  await createView(page, "Intake");
+  const openFormTab = async () => {
+    const dialog = await openShareDialog(page);
+    await dialog.locator("#share-view-tab-form").click();
+    await expect(dialog.locator("#public-form-tab #public-form-title-input")).toBeVisible();
+    return dialog;
+  };
+
+  let dialog = await openFormTab();
+  await dialog.locator("#public-form-tab #public-form-title-input").fill("Talk to us");
+  await dialog.locator("#public-form-save").click();
+  await expect(page.locator("[data-sonner-toast]")).toContainText(builder.saved);
+  await expect.poll(async () => (await storedForm())?.enabled).toBe(true);
+  const form = await storedForm();
+
+  // The list gains a required field that a form cannot ask for: several text values, no default value.
+  const model = await readModel(database, companyId);
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "putField",
+        field: {
+          id: randomUUID(),
+          typeId,
+          label: "Contract files",
+          valueType: "text",
+          multiple: true,
+          behavior: { kind: "input" },
+          required: true,
+          options: [],
+          position: 101,
+        },
+      },
+    ],
+  });
+
+  // Someone whose email address already has a record sent the form again; the answers are kept on the submission.
+  const existing = (
+    await database.query<{ id: string }>('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 LIMIT 1', [
+      companyId,
+      typeId,
+    ])
+  ).rows[0];
+  await database.query(
+    'INSERT INTO "PublicFormSubmission" (id, "companyId", "formId", outcome, "recordId", answers) VALUES ($1, $2, $3, $4, $5, $6::jsonb)',
+    [
+      randomUUID(),
+      companyId,
+      form.id,
+      "duplicate",
+      existing?.id ?? null,
+      JSON.stringify([
+        { fieldId: null, label: "Email", value: "ada@example.com" },
+        { fieldId: null, label: "Message", value: "Please call me back" },
+      ]),
+    ],
+  );
+
+  await page.reload();
+  dialog = await openFormTab();
+  const tab = dialog.locator("#public-form-tab");
+  await expect(tab.locator("#public-form-blocking-fields")).toContainText("Contract files");
+
+  // The duplicate shows with its answers and, when the record still exists, a link to it.
+  const duplicates = tab.locator("#public-form-duplicates");
+  await expect(duplicates).toContainText(builder.duplicatesTitle);
+  const row = duplicates.locator("[data-form-duplicate]").first();
+  await expect(row).toContainText("ada@example.com");
+  await expect(row).toContainText("Please call me back");
+  if (existing)
+    await expect(row.getByRole("link", { name: builder.duplicateOpenRecord })).toHaveAttribute(
+      "href",
+      new RegExp(`/records/${typeId}/${existing.id}$`, "u"),
+    );
+
+  // Switching off is saved although the form could not be saved as a live form any more.
+  await tab.locator("#public-form-enabled").click();
+  await dialog.locator("#public-form-save").click();
+  await expect(page.locator("[data-sonner-toast]").filter({ hasText: builder.saved }).last()).toBeVisible();
+  await expect.poll(async () => (await storedForm())?.enabled).toBe(false);
+
+  expect(errors).toEqual([]);
+});
