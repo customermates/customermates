@@ -145,6 +145,43 @@ describe("BusyTimeReader", () => {
     });
   });
 
+  it("counts an entry the app created as busy even when the provider marks it free", async () => {
+    expect(await busy([{ ...event({ transparency: "transparent" }), createdByApp: true }])).toEqual([
+      ["2026-11-17T09:00:00.000Z", "2026-11-17T10:00:00.000Z"],
+    ]);
+  });
+
+  it("blocks the whole range it was asked for when the calendar could not be read in full", async () => {
+    const personal = {
+      calendars: vi.fn().mockResolvedValue([{ id: "calendar", name: "Work", provider: "google" }]),
+      events: vi.fn().mockResolvedValue({ events: [event({ transparency: "opaque" })], truncated: true }),
+    };
+    const subject = new BusyTimeReader(personal);
+
+    expect(await subject.window(FROM, TO, "Europe/Berlin")).toMatchObject({ truncated: true });
+
+    const blocked = await subject.read(FROM, TO, "Europe/Berlin");
+    const slots = computeFreeSlots({
+      rules: {
+        workingHours: DEFAULT_WORKING_HOURS,
+        timeZone: "Europe/Berlin",
+        durationMinutes: 30,
+        bufferMinutes: 0,
+        minNoticeMinutes: 0,
+        horizonDays: 14,
+        stepMinutes: 30,
+      },
+      now: new Date("2026-11-16T00:00:00.000Z"),
+      busy: blocked,
+      from: FROM,
+      to: TO,
+      limit: 1000,
+    });
+
+    expect(blocked).toHaveLength(2);
+    expect(slots).toEqual([]);
+  });
+
   it("reads nothing without a connected calendar", async () => {
     const personal = { calendars: vi.fn().mockResolvedValue([]), events: vi.fn() };
 

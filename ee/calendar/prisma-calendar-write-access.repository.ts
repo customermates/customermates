@@ -43,14 +43,13 @@ function toRow({ connectedAccount, ...calendar }: CalendarRow): WritableCalendar
   };
 }
 
+export function ownCalendarAccountWhere(companyId: string, userId: string): Prisma.ConnectedAccountWhereInput {
+  return { companyId, userId, hasCalendar: true, provider: { in: CALENDAR_PROVIDERS } };
+}
+
 export class PrismaCalendarWriteAccessRepo extends TenantRepository implements CalendarWriteAccessRepo {
   private ownAccountWhere(): Prisma.ConnectedAccountWhereInput {
-    return {
-      companyId: this.companyId,
-      userId: this.userId,
-      hasCalendar: true,
-      provider: { in: CALENDAR_PROVIDERS },
-    };
+    return ownCalendarAccountWhere(this.companyId, this.userId);
   }
 
   async listOwnCalendars(): Promise<CalendarWriteAccounts> {

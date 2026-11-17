@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "Your calendar could not be read in full: it holds too many entries, or a repeating entry that cannot be worked out. Your booking pages offer no times on the affected days.",
     "chooseCalendar": "Choose a calendar",
     "closed": "Closed",
     "days": "{days, plural, one {# day} other {# days}}",

@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "No se pudo leer todo tu calendario: tiene demasiadas entradas o una entrada periódica que no se puede calcular. Tus páginas de reservas no ofrecen horarios en los días afectados.",
     "chooseCalendar": "Elegir un calendario",
     "closed": "Cerrado",
     "days": "{days, plural, one {# día} other {# días}}",

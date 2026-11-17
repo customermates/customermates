@@ -7,7 +7,7 @@ export const BOOKING_PANEL_VALUE = "booking";
 export type BookingPanelUnavailableReason = "demo" | "selfHosted" | "locked";
 
 export type BookingPanelState =
-  | { status: "ready"; links: WorkspaceBookingLinkDto[]; setup: BookingSetup }
+  | { status: "ready"; links: WorkspaceBookingLinkDto[]; setup: BookingSetup; busyTimeIncomplete?: boolean }
   | { status: "unavailable"; reason: BookingPanelUnavailableReason };
 
 export type BookingPanelGroups = {

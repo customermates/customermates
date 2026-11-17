@@ -116,7 +116,14 @@ export const WorkspaceBookingLinkSchema = BookingLinkSchema.extend({
 });
 export type WorkspaceBookingLinkDto = z.infer<typeof WorkspaceBookingLinkSchema>;
 
-export const WorkspaceBookingLinkListSchema = z.object({ items: z.array(WorkspaceBookingLinkSchema) });
+export const WorkspaceBookingLinkListSchema = z.object({
+  items: z.array(WorkspaceBookingLinkSchema),
+  busyTimeIncomplete: z
+    .boolean()
+    .describe(
+      "True when the caller's calendar could not be read in full for the days the caller's pages offer; those days offer no times.",
+    ),
+});
 export type WorkspaceBookingLinkList = z.infer<typeof WorkspaceBookingLinkListSchema>;
 
 export const DeleteBookingLinkResultSchema = z.object({ id: z.uuid(), deleted: z.literal(true) });

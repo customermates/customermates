@@ -36,6 +36,7 @@ const { PrismaCalendarEventLinkRepo } = await import("../prisma-calendar-event-l
 const { PrismaCalendarRepo } = await import("../prisma-calendar.repository");
 const { PrismaCalendarWriteAccessRepo } = await import("../prisma-calendar-write-access.repository");
 const { PrismaPlannerPersonalEventsRepo } = await import("../prisma-planner-personal-events.repository");
+const { PrismaOwnBusyEventsRepo } = await import("../prisma-own-busy-events.repository");
 const { BusyTimeReader } = await import("../busy-time.reader");
 const { DEFAULT_WORKING_HOURS } = await import("../working-hours");
 const { compileRecordActivityIndex } = await import("@/ee/messaging/activities/record-activity-query");
@@ -484,7 +485,7 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
     ]);
     expect(rows.find((row) => row.title === "day free")?.id).toBe(moved.id);
 
-    const reader = new BusyTimeReader(new PrismaPlannerPersonalEventsRepo());
+    const reader = new BusyTimeReader(new PrismaOwnBusyEventsRepo());
     const read = (from: string, to: string) =>
       w.as(w.admin, async () =>
         (await reader.read(new Date(from), new Date(to), "Europe/Berlin"))
@@ -503,6 +504,98 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
       "2030-01-16T05:00:00.000Z 2030-01-17T05:00:00.000Z",
     ]);
     expect(await w.as(w.member, () => reader.read(day("2030-01-15"), day("2030-01-19"), "Europe/Berlin"))).toEqual([]);
+  });
+
+  it("blocks a booking page only for the owner's own accounts, not for an account a colleague shared", async () => {
+    const w = await workspace();
+    const own = await connectCalendar(w);
+    const colleague = await connectCalendar(w, "ok", w.member);
+    await runWithoutTenant(() =>
+      prisma.connectedAccount.update({ where: { id: colleague.account.id }, data: { shared: true } }),
+    );
+    const meeting = (target: typeof own, title: string, startsAt: Date) =>
+      runWithoutTenant(() =>
+        prisma.calendarEvent.create({
+          data: {
+            companyId: w.companyId,
+            connectedAccountId: target.account.id,
+            calendarId: target.calendar.id,
+            unipileEventId: randomUUID(),
+            title,
+            startsAt,
+            endsAt: new Date(startsAt.getTime() + 30 * 60_000),
+            transparency: "opaque",
+          },
+        }),
+      );
+    await meeting(own, "Own", START);
+    await meeting(colleague, "Colleague", new Date("2030-01-15T11:00:00.000Z"));
+
+    const window = [new Date("2030-01-15T00:00:00.000Z"), new Date("2030-01-16T00:00:00.000Z")] as const;
+    const starts = (repo: InstanceType<typeof PrismaPlannerPersonalEventsRepo>) =>
+      w.as(w.admin, async () =>
+        (await new BusyTimeReader(repo).read(...window, "Europe/Berlin")).map((interval) =>
+          interval.startsAt.toISOString(),
+        ),
+      );
+
+    expect(await starts(new PrismaPlannerPersonalEventsRepo())).toEqual([
+      "2030-01-15T09:00:00.000Z",
+      "2030-01-15T11:00:00.000Z",
+    ]);
+    expect(await starts(new PrismaOwnBusyEventsRepo())).toEqual(["2030-01-15T09:00:00.000Z"]);
+  });
+
+  it("keeps a meeting the app created busy when the provider marks it free", async () => {
+    const w = await workspace();
+    const { account, calendar } = await connectCalendar(w);
+    const organization = await w.create("organization", "organization.name", "Acme");
+    const repo = new PrismaBookingRepo();
+    const link = await w.as(w.admin, () => repo.create("token-g-0123456789abcdef", linkData(calendar.id)));
+    const free = (title: string, hour: number) =>
+      runWithoutTenant(() =>
+        prisma.calendarEvent.create({
+          data: {
+            companyId: w.companyId,
+            connectedAccountId: account.id,
+            calendarId: calendar.id,
+            unipileEventId: randomUUID(),
+            title,
+            startsAt: new Date(Date.UTC(2030, 0, 15, hour)),
+            endsAt: new Date(Date.UTC(2030, 0, 15, hour, 30)),
+            transparency: "transparent",
+          },
+        }),
+      );
+    const synced = await free("Synced and free", 8);
+    const scheduled = await free("Scheduled from a record", 10);
+    const booked = await free("Booked on a page", 12);
+    await w.as(w.admin, () => new PrismaCalendarEventLinkRepo().linkRecords(scheduled.id, [organization]));
+    const reserved = await w.as(w.admin, () =>
+      repo.reserve(reservation(link.id, new Date(Date.UTC(2030, 0, 15, 12))), open),
+    );
+    await w.as(w.admin, () =>
+      repo.confirm(reserved?.id as string, {
+        calendarEventId: booked.id,
+        personTypeId: null,
+        personRecordId: null,
+        recordTypeId: null,
+        recordId: null,
+      }),
+    );
+
+    const busy = await w.as(w.admin, async () =>
+      (
+        await new BusyTimeReader(new PrismaOwnBusyEventsRepo()).read(
+          new Date("2030-01-15T00:00:00.000Z"),
+          new Date("2030-01-16T00:00:00.000Z"),
+          "Europe/Berlin",
+        )
+      ).map((interval) => interval.startsAt.toISOString()),
+    );
+
+    expect(busy).toEqual(["2030-01-15T10:00:00.000Z", "2030-01-15T12:00:00.000Z"]);
+    expect(synced.id).not.toBe(scheduled.id);
   });
 });
 

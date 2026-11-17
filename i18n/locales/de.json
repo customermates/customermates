@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "Dein Kalender konnte nicht vollständig gelesen werden: Er enthält zu viele Einträge oder einen Serientermin, der sich nicht berechnen lässt. Deine Buchungsseiten bieten an den betroffenen Tagen keine Zeiten an.",
     "chooseCalendar": "Kalender wählen",
     "closed": "Geschlossen",
     "days": "{days, plural, one {# Tag} other {# Tage}}",

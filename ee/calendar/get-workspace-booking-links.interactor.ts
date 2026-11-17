@@ -7,6 +7,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
+import type { BookingAvailability } from "./booking-availability";
 import type { BookingLinkRepo } from "./booking-link.repo";
 
 import { type WorkspaceBookingLinkList, WorkspaceBookingLinkListSchema } from "./booking.schema";
@@ -18,6 +19,8 @@ export class GetWorkspaceBookingLinksInteractor extends AuthenticatedInteractor<
     private repo: BookingLinkRepo,
     private entitlements: EntitlementService,
     private baseUrl: string,
+    private availability: Pick<BookingAvailability, "busyTimeIncomplete">,
+    private now: () => Date = () => new Date(),
   ) {
     super();
   }
@@ -32,9 +35,12 @@ export class GetWorkspaceBookingLinksInteractor extends AuthenticatedInteractor<
       ? await this.repo.listWorkspace()
       : (await this.repo.list()).map((row) => ({ ...row, ownerName: own }));
 
+    const live = rows.filter((row) => row.userId === this.user.id && row.enabled && row.calendarId !== null);
+
     return {
       ok: true as const,
       data: {
+        busyTimeIncomplete: live.length > 0 && (await this.availability.busyTimeIncomplete(live, this.now())),
         items: rows.map((row) => ({
           ...toBookingLinkDto(row, this.baseUrl),
           ownerName: row.ownerName,

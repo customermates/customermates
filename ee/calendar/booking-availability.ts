@@ -9,6 +9,7 @@ import { computeFreeSlots, freeSlotWindow, isFreeSlot } from "./free-slots";
 const MINUTE_MS = 60_000;
 const DAY_MS = 86_400_000;
 const SLOT_LIMIT = 500;
+const BUSY_WINDOW_DAYS = 31;
 
 export type BookingSlotPage = { slots: FreeSlot[]; nextFrom: string | null };
 
@@ -58,6 +59,18 @@ export class BookingAvailability {
     );
 
     return isFreeSlot({ rules, now, busy }, startsAt);
+  }
+
+  async busyTimeIncomplete(links: BookingLinkRow[], now: Date): Promise<boolean> {
+    const horizonDays = Math.max(0, ...links.map((link) => link.horizonDays));
+    const timeZone = links[0]?.timeZone ?? "UTC";
+    for (let day = 0; day < horizonDays; day += BUSY_WINDOW_DAYS) {
+      const from = new Date(now.getTime() + day * DAY_MS);
+      const to = new Date(now.getTime() + Math.min(horizonDays, day + BUSY_WINDOW_DAYS) * DAY_MS);
+      if ((await this.busy.window(from, to, timeZone)).truncated) return true;
+    }
+
+    return false;
   }
 
   private async busyBetween(from: Date, to: Date, link: BookingLinkRow) {

@@ -1,5 +1,6 @@
 import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
 import type { PlannerPersonalEventsRepo } from "@/features/planner/planner.repo";
+import type { Prisma } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { calendarAccessWhere, calendarEventAccessWhere } from "@/ee/messaging/messaging-access";
@@ -8,9 +9,17 @@ import { zonedDayStartText, zonedDayEndText } from "@/features/record-calendar/z
 import { expandPlannerEvents } from "./expand-planner-events";
 
 export class PrismaPlannerPersonalEventsRepo extends TenantRepository implements PlannerPersonalEventsRepo {
+  protected calendarWhere(): Prisma.CalendarWhereInput {
+    return calendarAccessWhere(this.companyId, this.userId);
+  }
+
+  protected eventWhere(): Prisma.CalendarEventWhereInput {
+    return calendarEventAccessWhere(this.companyId, this.userId);
+  }
+
   async calendars() {
     const rows = await this.prisma.calendar.findMany({
-      where: calendarAccessWhere(this.companyId, this.userId),
+      where: this.calendarWhere(),
       orderBy: [{ name: "asc" }, { id: "asc" }],
       take: 100,
       select: { id: true, name: true, connectedAccount: { select: { provider: true } } },
@@ -23,7 +32,7 @@ export class PrismaPlannerPersonalEventsRepo extends TenantRepository implements
     const allDayEnd = new Date(`${window.to}T23:59:59.999Z`);
     const rows = await this.prisma.calendarEvent.findMany({
       where: {
-        ...calendarEventAccessWhere(this.companyId, this.userId),
+        ...this.eventWhere(),
         calendarId: { in: calendarIds },
         status: { not: "cancelled" },
         OR: [

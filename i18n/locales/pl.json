@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "Nie udało się odczytać całego Twojego kalendarza: zawiera zbyt wiele wpisów albo wpis cykliczny, którego nie da się obliczyć. Twoje strony rezerwacji nie oferują terminów w dniach, których to dotyczy.",
     "chooseCalendar": "Wybierz kalendarz",
     "closed": "Zamknięte",
     "days": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",

@@ -100,6 +100,27 @@ describe("BookingAvailability", () => {
     expect(page.slots.at(-1)?.startsAt.slice(0, 10)).toBe("2026-11-27");
   });
 
+  it("checks the days the pages offer in ranges of 31 days and says when one of them could not be read in full", async () => {
+    const complete = { window: vi.fn().mockResolvedValue({ intervals: [], truncated: false }) };
+    const cut = {
+      window: vi
+        .fn()
+        .mockResolvedValueOnce({ intervals: [], truncated: false })
+        .mockResolvedValue({ intervals: [], truncated: true }),
+    };
+    const links = [LINK, { ...LINK, horizonDays: 90 }] as BookingLinkRow[];
+
+    expect(await new BookingAvailability(complete as never, {} as never).busyTimeIncomplete(links, NOW)).toBe(false);
+    expect(complete.window.mock.calls.map(([from, to]) => [from.toISOString(), to.toISOString()])).toEqual([
+      ["2026-11-16T05:00:00.000Z", "2026-12-17T05:00:00.000Z"],
+      ["2026-12-17T05:00:00.000Z", "2027-01-17T05:00:00.000Z"],
+      ["2027-01-17T05:00:00.000Z", "2027-02-14T05:00:00.000Z"],
+    ]);
+    expect(await new BookingAvailability(cut as never, {} as never).busyTimeIncomplete(links, NOW)).toBe(true);
+    expect(cut.window).toHaveBeenCalledTimes(2);
+    expect(await new BookingAvailability(cut as never, {} as never).busyTimeIncomplete([], NOW)).toBe(false);
+  });
+
   it("knows whether a start is still open, including one a reservation just took", async () => {
     const free = availability();
     const taken = availability([], [["2026-11-17T09:00:00.000Z", "2026-11-17T09:30:00.000Z"]]);

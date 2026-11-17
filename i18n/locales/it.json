@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "Non è stato possibile leggere tutto il tuo calendario: contiene troppe voci o una voce ricorrente che non si riesce a calcolare. Le tue pagine di prenotazione non offrono orari nei giorni interessati.",
     "chooseCalendar": "Scegli un calendario",
     "closed": "Chiuso",
     "days": "{days, plural, one {# giorno} other {# giorni}}",

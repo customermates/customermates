@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "Je agenda kon niet volledig worden gelezen: er staan te veel items in, of een terugkerend item dat niet kan worden berekend. Je boekingspagina’s bieden op de betrokken dagen geen tijden aan.",
     "chooseCalendar": "Agenda kiezen",
     "closed": "Gesloten",
     "days": "{days, plural, one {# dag} other {# dagen}}",

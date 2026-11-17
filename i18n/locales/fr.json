@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "Votre agenda n’a pas pu être lu en entier : il contient trop d’entrées ou une entrée récurrente qui ne peut pas être calculée. Vos pages de réservation ne proposent aucun créneau les jours concernés.",
     "chooseCalendar": "Choisir un agenda",
     "closed": "Fermé",
     "days": "{days, plural, one {# jour} other {# jours}}",

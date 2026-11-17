@@ -215,6 +215,15 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
           <Alert description={t("ScheduleMeeting.blocked.needsReconnect")} role="status" variant="warning" />
         ) : null}
 
+        {state.status === "ready" && state.busyTimeIncomplete ? (
+          <Alert
+            data-booking-busy-incomplete=""
+            description={t("Booking.busyTimeIncomplete")}
+            role="status"
+            variant="warning"
+          />
+        ) : null}
+
         {state.status === "ready" && store.links.length === 0 ? (
           <PageState
             action={

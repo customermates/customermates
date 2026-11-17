@@ -240,6 +240,16 @@ describe("BookingPanel", () => {
     expect(row(MINE.id).textContent).toContain("Booking.panelActive");
   });
 
+  it("tells the owner when the calendar could not be read in full, and stays quiet otherwise", async () => {
+    await renderPanel(ready());
+    expect(container.querySelector("[data-booking-busy-incomplete]")).toBeNull();
+
+    await renderPanel({ ...ready(), busyTimeIncomplete: true });
+    expect(container.querySelector("[data-booking-busy-incomplete]")?.textContent).toContain(
+      "Booking.busyTimeIncomplete",
+    );
+  });
+
   it("explains a missing calendar and does not allow a new page", async () => {
     await renderPanel(ready([], { ...READY_SETUP, blockedReason: "noCalendar" }));
 

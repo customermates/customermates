@@ -1428,6 +1428,7 @@
     }
   },
   "Booking": {
+    "busyTimeIncomplete": "Não foi possível ler todo o seu calendário: ele tem entradas demais ou uma entrada recorrente que não pode ser calculada. Suas páginas de agendamento não oferecem horários nos dias afetados.",
     "chooseCalendar": "Escolher um calendário",
     "closed": "Fechado",
     "days": "{days, plural, one {# dia} other {# dias}}",

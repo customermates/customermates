@@ -110,7 +110,8 @@ const MODEL = {
   relationships: [],
 } as unknown as RecordModelView;
 
-function build(options: { repo?: object; access?: object; records?: object } = {}) {
+function build(options: { repo?: object; access?: object; records?: object; busyTimeIncomplete?: boolean } = {}) {
+  const availability = { busyTimeIncomplete: vi.fn().mockResolvedValue(options.busyTimeIncomplete ?? false) };
   const repo = {
     list: vi.fn().mockResolvedValue([ROW]),
     listWorkspace: vi.fn().mockResolvedValue([{ ...ROW, ownerName: "Test User" }, OTHER_ROW]),
@@ -139,7 +140,13 @@ function build(options: { repo?: object; access?: object; records?: object } = {
       BASE_URL,
     ),
     list: new GetBookingLinksInteractor(repo as never, entitlements as never, BASE_URL),
-    workspace: new GetWorkspaceBookingLinksInteractor(repo as never, entitlements as never, BASE_URL),
+    availability,
+    workspace: new GetWorkspaceBookingLinksInteractor(
+      repo as never,
+      entitlements as never,
+      BASE_URL,
+      availability as never,
+    ),
     get: new GetBookingLinkByIdInteractor(repo as never, entitlements as never, BASE_URL),
     remove: new DeleteBookingLinkInteractor(repo as never, entitlements as never),
   };
@@ -179,6 +186,25 @@ describe("booking link reads", () => {
     ]);
   });
 
+  it("tells the owner when the calendar behind the own live pages could not be read in full", async () => {
+    const cut = build({ busyTimeIncomplete: true });
+    const paused = build({
+      busyTimeIncomplete: true,
+      repo: { listWorkspace: vi.fn().mockResolvedValue([{ ...ROW, enabled: false, ownerName: "Test User" }]) },
+    });
+
+    const result = await run(() => cut.workspace.invoke());
+    const none = await run(() => paused.workspace.invoke());
+
+    expect(result.ok && result.data.busyTimeIncomplete).toBe(true);
+    expect(cut.availability.busyTimeIncomplete).toHaveBeenCalledWith(
+      [expect.objectContaining({ id: LINK_ID })],
+      expect.any(Date),
+    );
+    expect(none.ok && none.data.busyTimeIncomplete).toBe(false);
+    expect(paused.availability.busyTimeIncomplete).not.toHaveBeenCalled();
+  });
+
   it("lists only the caller's links for a member who is not an admin", async () => {
     const member = createMockUserWithPermissions([{ resource: Resource.inboxMessages, action: Action.readOwn }]);
     const { workspace, repo } = build();
@@ -197,6 +223,7 @@ describe("booking link reads", () => {
       repo as never,
       { require: vi.fn().mockResolvedValue(refusal) } as never,
       BASE_URL,
+      { busyTimeIncomplete: vi.fn() } as never,
     );
 
     const result = await run(() => denied.invoke());

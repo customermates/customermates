@@ -21,5 +21,10 @@ export async function loadBookingPanel(options: Pick<PlannerOptions, "personalAv
     unwrapPage(getGetRecordModelInteractor().invoke({})),
   ]);
 
-  return { status: "ready", links: links.items, setup: bookingSetup(model, meeting) };
+  return {
+    status: "ready",
+    links: links.items,
+    setup: bookingSetup(model, meeting),
+    busyTimeIncomplete: links.busyTimeIncomplete,
+  };
 }

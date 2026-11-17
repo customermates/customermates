@@ -98,6 +98,7 @@ import { MeetingRecordService } from "@/ee/calendar/meeting-record.service";
 import { PrismaBookingRepo } from "@/ee/calendar/prisma-booking.repository";
 import { PrismaCalendarEventLinkRepo } from "@/ee/calendar/prisma-calendar-event-link.repository";
 import { PrismaCalendarWriteAccessRepo } from "@/ee/calendar/prisma-calendar-write-access.repository";
+import { PrismaOwnBusyEventsRepo } from "@/ee/calendar/prisma-own-busy-events.repository";
 import { PruneBookingsInteractor } from "@/ee/calendar/prune-bookings.interactor";
 import { PublicBookingAccess } from "@/ee/calendar/public-booking-access";
 import { ReadPublicBookingInteractor } from "@/ee/calendar/read-public-booking.interactor";
@@ -1892,7 +1893,7 @@ const getCalendarWriteAccessRepo = () => new PrismaCalendarWriteAccessRepo();
 const getCalendarEventLinkRepo = () => new PrismaCalendarEventLinkRepo();
 const getBookingRepo = () => new PrismaBookingRepo();
 const getCalendarEventWriter = () => new CalendarEventWriter(getMessagingService(), getCalendarRepo());
-const getBusyTimeReader = () => new BusyTimeReader(getPlannerPersonalEventsRepo());
+const getBusyTimeReader = () => new BusyTimeReader(new PrismaOwnBusyEventsRepo());
 const getBookingAvailability = () => new BookingAvailability(getBusyTimeReader(), getBookingRepo());
 const getMeetingRecordService = () =>
   new MeetingRecordService({
@@ -1929,7 +1930,12 @@ export const getCancelMeetingInteractor = () =>
 export const getGetBookingLinksInteractor = () =>
   new GetBookingLinksInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
 export const getGetWorkspaceBookingLinksInteractor = () =>
-  new GetWorkspaceBookingLinksInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
+  new GetWorkspaceBookingLinksInteractor(
+    getBookingRepo(),
+    getEntitlementService(),
+    env.BASE_URL,
+    getBookingAvailability(),
+  );
 export const getGetBookingLinkByIdInteractor = () =>
   new GetBookingLinkByIdInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
 export const getSaveBookingLinkInteractor = () =>

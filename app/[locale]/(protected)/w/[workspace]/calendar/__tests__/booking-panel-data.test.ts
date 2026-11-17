@@ -21,7 +21,7 @@ import { bookingLink } from "../components/__tests__/booking-fixtures";
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.env.APP_MODE = "cloud";
-  mocks.links.mockResolvedValue({ ok: true, data: { items: [bookingLink()] } });
+  mocks.links.mockResolvedValue({ ok: true, data: { items: [bookingLink()], busyTimeIncomplete: true } });
   mocks.meeting.mockResolvedValue({ ok: true, data: { calendars: [], blockedReason: "noCalendar" } });
   mocks.model.mockResolvedValue({ ok: true, data: { types: [], fields: [], relationships: [] } });
 });
@@ -56,6 +56,7 @@ describe("loadBookingPanel", () => {
       status: "ready",
       links: [expect.objectContaining({ title: "Intro call", ownerName: "Test User", own: true })],
       setup: { calendars: [], lists: [], relationships: [], blockedReason: "noCalendar" },
+      busyTimeIncomplete: true,
     });
   });
 });
