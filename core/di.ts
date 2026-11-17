@@ -3259,7 +3259,7 @@ const getAgentRunnerRepo = () => new PrismaAgentRunnerRepo();
 const getAgentJobRunnerRepo = () => new QueuedAgentJobRunnerRepo(getAgentJobRepo(), getAgentRunnerRepo());
 const getAgentJobCredentials = () =>
   new AuthAgentJobCredentials(getAuthService(), getUserService(), getWorkspacePlanService(), env.BASE_URL);
-const getAgentRunnerRevocation = () =>
+export const getAgentRunnerRevocation = () =>
   new AgentRunnerRevocation(getAgentRunnerRepo(), getAgentJobRepo(), getAgentJobCredentials());
 
 const agentRunnerLimiters = {

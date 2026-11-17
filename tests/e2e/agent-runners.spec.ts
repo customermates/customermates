@@ -30,14 +30,17 @@ test("an administrator adds a runner, sees its token once, connects it and revok
   await expect(dialog.getByText(messages.tokenCreated, { exact: true })).toBeVisible();
   const token = await dialog.locator("#agent-runner-token").getAttribute("data-value");
   expect(token).toMatch(/^cmr_[A-Za-z0-9_-]{43}$/u);
+  // The token travels in the environment, never as an argument other users of the machine could read.
   await expect(dialog.locator("#agent-runner-npx")).toHaveAttribute(
     "data-value",
-    new RegExp(`^npx customermates-runner --token ${token} --url https?://`, "u"),
+    new RegExp(`^CUSTOMERMATES_RUNNER_TOKEN=${token} npx customermates-runner --url https?://`, "u"),
   );
+  await expect(dialog.locator("#agent-runner-npx")).not.toHaveAttribute("data-value", /--token/u);
   await expect(dialog.locator("#agent-runner-docker")).toHaveAttribute(
     "data-value",
     new RegExp(`CUSTOMERMATES_RUNNER_TOKEN=${token} `, "u"),
   );
+  await expect(dialog.locator("#agent-runner-docker")).toHaveAttribute("data-value", /\.claude\.json:/u);
 
   const stored = await database.query<{ tokenHash: string; companyId: string }>(
     'SELECT "tokenHash", "companyId" FROM "AgentRunner" WHERE name=$1',
@@ -68,9 +71,9 @@ test("an administrator adds a runner, sees its token once, connects it and revok
   });
   expect(refused.status()).toBe(401);
 
-  await page.reload();
+  // No reload: the card reloads the runners by itself every 30 seconds while the page is visible.
   const online = page.locator("[data-agent-runner]", { hasText: "Office laptop" });
-  await expect(online).toHaveAttribute("data-status", "online");
+  await expect(online).toHaveAttribute("data-status", "online", { timeout: 45_000 });
   await expect(online).toContainText(messages.status.online);
   await expect(online).toContainText("e2e-host");
   await expect(online).toContainText(`${messages.clientNames.claude} 2.1.318`);
@@ -85,6 +88,105 @@ test("an administrator adds a runner, sees its token once, connects it and revok
   await expect(revoked).toHaveAttribute("data-status", "revoked");
   await expect(revoked.getByRole("button", { name: messages.revoke, exact: true })).toHaveCount(0);
   const afterRevoke = await request.post("/api/v1/runner/heartbeat", { headers, data: { clients: [] } });
+  expect(afterRevoke.status()).toBe(401);
+  expect(errors).toEqual([]);
+});
+
+test("a runner takes its member's job only after confirming it, and revoking it cancels what waits for it", async ({
+  page,
+  database,
+  workspace,
+  request,
+}) => {
+  const errors = collectPageErrors(page);
+  const token = `cmr_${randomUUID().replaceAll("-", "")}${"a".repeat(11)}`;
+  const runnerId = randomUUID();
+  await database.query(
+    'INSERT INTO "AgentRunner" (id,"companyId",name,"tokenHash","createdById","updatedAt") VALUES ($1,$2,$3,$4,$5,NOW())',
+    [runnerId, workspace.companyId, "Job runner", createHash("sha256").update(token).digest("hex"), workspace.userId],
+  );
+  const insertJob = (id: string, pinnedRunnerId: string | null) =>
+    database.query(
+      'INSERT INTO "AgentJob" (id,"companyId",runtime,status,"sourceKind","ownerUserId",prompt,"pinnedRunnerId","updatedAt") VALUES ($1,$2,\'runner\',\'queued\',\'test\',$3,$4,$5,NOW())',
+      [id, workspace.companyId, workspace.userId, "Summarise the open deals", pinnedRunnerId],
+    );
+  const jobOf = async (id: string) =>
+    (
+      await database.query<{ status: string; error: string | null; result: unknown; costMicrocents: string | null }>(
+        'SELECT status, error, result, "costMicrocents" FROM "AgentJob" WHERE id=$1',
+        [id],
+      )
+    ).rows[0];
+  const headers = { authorization: `Bearer ${token}` };
+  const jobId = randomUUID();
+  await insertJob(jobId, null);
+
+  const claim = await request.post("/api/v1/runner/jobs/claim", { headers, data: { waitSeconds: 0 } });
+  expect(claim.status()).toBe(200);
+  const claimed = (await claim.json()) as { job: { id: string; attempt: number }; mcp: { url: string; token: string } };
+  expect(claimed.job).toMatchObject({ id: jobId, attempt: 1 });
+  expect((await jobOf(jobId)).status).toBe("claimed");
+
+  // The key of the job does nothing until the runner has confirmed the job.
+  const rpc = { jsonrpc: "2.0", id: 1, method: "tools/list" };
+  const mcpHeaders = { "x-api-key": claimed.mcp.token, accept: "application/json, text/event-stream" };
+  const early = await request.post(claimed.mcp.url, { headers: mcpHeaders, data: rpc });
+  expect(early.status()).toBe(401);
+
+  const stale = await request.post(`/api/v1/runner/jobs/${jobId}/start`, { headers, data: { attempt: 2 } });
+  expect(stale.status()).toBe(409);
+  const start = await request.post(`/api/v1/runner/jobs/${jobId}/start`, { headers, data: { attempt: 1 } });
+  expect(start.status()).toBe(200);
+  const { timeoutInSeconds } = (await start.json()) as { timeoutInSeconds: number };
+  expect(timeoutInSeconds).toBeGreaterThan(590);
+  expect(timeoutInSeconds).toBeLessThanOrEqual(600);
+  expect((await jobOf(jobId)).status).toBe("running");
+  const live = await request.post(claimed.mcp.url, { headers: mcpHeaders, data: rpc });
+  expect(live.status()).toBe(200);
+  // The same key is refused everywhere but the MCP address of the workspace.
+  const rest = await request.get("/api/v1/webhooks", { headers: { "x-api-key": claimed.mcp.token } });
+  expect(rest.status()).toBe(401);
+
+  const at = new Date().toISOString();
+  const events = await request.post(`/api/v1/runner/jobs/${jobId}/events`, {
+    headers,
+    data: { attempt: 1, events: [{ type: "message", at, role: "assistant", text: "Three deals are open." }] },
+  });
+  expect(events.status()).toBe(200);
+  const raw = await request.post(`/api/v1/runner/jobs/${jobId}/events`, {
+    headers,
+    data: { attempt: 1, events: [{ type: "assistant", message: { content: [] } }] },
+  });
+  expect(raw.status()).toBe(400);
+
+  const result = await request.post(`/api/v1/runner/jobs/${jobId}/result`, {
+    headers,
+    data: { attempt: 1, status: "succeeded", summary: "Three deals are open.", inputTokens: 12, outputTokens: 5 },
+  });
+  expect(result.status()).toBe(200);
+  expect(await jobOf(jobId)).toMatchObject({
+    status: "succeeded",
+    error: null,
+    result: { text: "Three deals are open.", reason: "stop", toolCalls: 0 },
+    costMicrocents: null,
+  });
+  const afterEnd = await request.post(claimed.mcp.url, { headers: mcpHeaders, data: rpc });
+  expect(afterEnd.status()).toBe(401);
+  const late = await request.post(`/api/v1/runner/jobs/${jobId}/result`, {
+    headers,
+    data: { attempt: 1, status: "failed", error: "late" },
+  });
+  expect(late.status()).toBe(409);
+
+  const waitingId = randomUUID();
+  await insertJob(waitingId, runnerId);
+  await page.goto(appPath(workspace.slug, "/settings/agents"));
+  const card = page.locator("[data-agent-runner]", { hasText: "Job runner" });
+  await card.getByRole("button", { name: messages.revoke, exact: true }).click();
+  await page.getByRole("alertdialog").locator("#confirm-delete").click();
+  await expect(card).toHaveAttribute("data-status", "revoked");
+  expect(await jobOf(waitingId)).toMatchObject({ status: "cancelled", error: "runnerRevoked" });
+  const afterRevoke = await request.post("/api/v1/runner/jobs/claim", { headers, data: { waitSeconds: 0 } });
   expect(afterRevoke.status()).toBe(401);
   expect(errors).toEqual([]);
 });
