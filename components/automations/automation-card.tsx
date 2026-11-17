@@ -1,12 +1,13 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useId } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 
 type CardProps = {
@@ -22,6 +23,17 @@ type CardProps = {
   onRemove?: () => void;
   children: ReactNode;
 };
+
+function HeaderTip({ hint, children }: { hint?: string; children: ReactElement }) {
+  if (!hint) return children;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+
+      <TooltipContent>{hint}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function AutomationCard({
   cardId,
@@ -46,29 +58,30 @@ export function AutomationCard({
       )}
       data-automation-card={cardId}
     >
-      <button
-        aria-controls={bodyId}
-        aria-expanded={expanded}
-        className="flex w-full items-start gap-3 rounded-xl p-3 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-        title={openHint}
-        type="button"
-        onClick={onToggle}
-      >
-        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-          <Icon aria-hidden="true" className="size-4" />
-        </span>
+      <HeaderTip hint={openHint}>
+        <button
+          aria-controls={bodyId}
+          aria-expanded={expanded}
+          className="flex w-full items-start gap-3 rounded-xl p-3 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          type="button"
+          onClick={onToggle}
+        >
+          <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+            <Icon aria-hidden="true" className="size-4" />
+          </span>
 
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="text-xs text-muted-foreground">{kindLabel}</span>
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-xs text-muted-foreground">{kindLabel}</span>
 
-          <span className="text-sm leading-snug break-words">{sentence}</span>
-        </span>
+            <span className="text-sm leading-snug break-words">{sentence}</span>
+          </span>
 
-        <ChevronDown
-          aria-hidden="true"
-          className={cn("mt-1 size-4 shrink-0 text-muted-foreground transition-transform", expanded && "rotate-180")}
-        />
-      </button>
+          <ChevronDown
+            aria-hidden="true"
+            className={cn("mt-1 size-4 shrink-0 text-muted-foreground transition-transform", expanded && "rotate-180")}
+          />
+        </button>
+      </HeaderTip>
 
       {expanded && (
         <div className="flex flex-col gap-3 border-t p-3" id={bodyId}>

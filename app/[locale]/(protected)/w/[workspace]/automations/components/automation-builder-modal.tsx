@@ -10,8 +10,8 @@ import { toast } from "sonner";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal } from "@/components/modal/app-modal";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
@@ -134,20 +134,14 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
                 </SegmentedControl>
               </div>
 
-              <div className="flex flex-wrap justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={store.close}>
-                  {t("Common.actions.cancel")}
-                </Button>
-
-                <Button
-                  data-automation-save=""
-                  disabled={store.isLoading}
-                  type="button"
-                  onClick={() => runUserAction(save)}
-                >
-                  {!store.isExisting && form.enabled ? t("Automations.builder.switchOn") : t("Common.actions.save")}
-                </Button>
-              </div>
+              <FormFooterActions
+                creating={!store.isExisting}
+                saveLabel={!store.isExisting && form.enabled ? t("Automations.builder.switchOn") : undefined}
+                saving={store.isLoading}
+                store={store}
+                onCancel={store.close}
+                onSave={() => runUserAction(save)}
+              />
             </>
           )}
         </AppCardBody>

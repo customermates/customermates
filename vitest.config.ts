@@ -144,6 +144,8 @@ export const domTestFiles = [
   "core/stores/__tests__/use-hydrated-intl-store.test.ts",
   "features/messaging/__tests__/message-presentation.test.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/__tests__/account-signature-behavior.test.ts",
+  "app/[locale]/(protected)/w/[workspace]/automations/__tests__/use-automation-columns.dom.test.tsx",
+  "app/[locale]/(protected)/w/[workspace]/automations/__tests__/automation-agent-fields.dom.test.tsx",
   "app/[locale]/(protected)/w/[workspace]/routines/components/__tests__/routine-modal.render.test.tsx",
   "app/[locale]/(protected)/w/[workspace]/routines/components/__tests__/routine-runs-pane.render.test.tsx",
   "app/[locale]/(protected)/w/[workspace]/notifications/components/__tests__/notifications-page-view.dom.test.tsx",

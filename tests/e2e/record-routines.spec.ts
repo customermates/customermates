@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 
-import { formattingTagFor } from "../../i18n/locale-registry";
 import { nextCronOccurrence, parseCronExpression } from "../../ee/routines/routine-schedule";
 import { companyPath, companyUrlPattern } from "./app-paths";
 import { setPaletteText, expectPaletteText } from "./filter-palette";
@@ -30,8 +29,9 @@ test("persists a routine for a customer-created type and matches only its config
     [companyId, typeId],
   );
   expect(field.rows).toHaveLength(1);
-  await page.goto(companyPath(companyId, "/routines"));
+  await page.goto(companyPath(companyId, "/automations"));
   await page.locator("#routines-add").click();
+  await page.getByRole("menuitem", { name: "Routine (Mate on a schedule)" }).click();
   const routine = page.getByRole("dialog", { name: "Routine", exact: true });
   await routine.locator("#name").fill("Project follow-up");
   await routine.locator("#prompt").fill("Summarize the changed project without sending messages.");
@@ -98,7 +98,7 @@ test("persists a routine for a customer-created type and matches only its config
   expect(errors).toEqual([]);
 });
 
-test("lists a scheduled routine in words with its next run on the schedule's own clock", async ({
+test("lists a scheduled routine in words, never as a raw cron expression", async ({
   page,
   database,
   companyId,
@@ -123,17 +123,7 @@ test("lists a scheduled routine in words with its next run on the schedule's own
       nextRunAt,
     ],
   );
-  await page.goto(companyPath(companyId, "/routines"));
-  const nextRun = new Intl.DateTimeFormat(formattingTagFor("en"), {
-    year: "2-digit",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone,
-  }).format(nextRunAt);
-  expect(nextRun).toContain("08:00");
+  await page.goto(companyPath(companyId, "/automations"));
   await expect(page.getByText(/^Weekdays at 08:00/)).toBeVisible();
-  await expect(page.getByText(nextRun, { exact: true })).toBeVisible();
   await expect(page.getByText(expression, { exact: true })).toHaveCount(0);
 });

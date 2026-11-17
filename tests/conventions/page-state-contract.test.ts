@@ -22,6 +22,7 @@ const protectedPages = filesUnder(protectedRoot)
 // JavaScript is slow, blocked or failing stays on that shell. The public demo lands on /dashboard.
 const redirectOnlyPages = [
   "dashboard/page.tsx",
+  "w/[workspace]/routines/page.tsx",
   "open/[area]/[preset]/page.tsx",
   "open/[area]/[preset]/[recordId]/page.tsx",
   "w/[workspace]/settings/(account)/api-keys/page.tsx",
@@ -39,7 +40,7 @@ const collectionViews = [
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/records-page-view.tsx",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/members-page-view.tsx",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/roles-page-view.tsx",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/routines-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/automations-page-view.tsx",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhooks-page-view.tsx",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx",
 ] as const;
