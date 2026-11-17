@@ -9,13 +9,13 @@ Open the **Agents** tab of [Connections](app:settings/agents) in Settings to see
 
 ## How do I add a provider key? [#how-do-i-add-a-provider-key]
 
-Open **Agents**, click **Add key** and choose the **Provider** (Anthropic, OpenAI or Google), give the key a **Label**, paste the **API key** from the provider's console and choose a **Default model**. Customermates asks the provider whether the key works before it keeps it. A key the provider rejects is not saved, and a provider that cannot be reached right now asks you to try again.
+Open **Agents**, click **Add key** and choose the **Provider** (Anthropic, OpenAI or Google), give the key a **Label**, paste the **API key** from the provider's console and choose a **Default model**. Customermates asks the provider whether the key works before it keeps it. A key the provider rejects is not saved, and a provider that cannot be reached right now asks you to try again. A key the provider accepts but does not let list its models, for example a restricted OpenAI key, is saved with a note that it could not be checked.
 
-The key is stored encrypted and is never shown again: the list shows the label, the provider and the last four characters only. A workspace has one key per provider, so adding a key for a provider that already has one replaces it. **Test** asks the provider again and updates **Last checked**, **Remove** deletes the key for good. Keys work on every paid plan and on self-hosted instances, where the key is yours anyway; the Free plan cannot add one.
+The key is stored encrypted and is never shown again: the list shows the label, the provider and the last four characters only. A workspace has one key per provider, so adding a key for a provider that already has one replaces it. **Test** asks the provider again and updates **Last checked**, **Remove** deletes the key for good. If the server's encryption secret changed after the key was saved, **Test** and agent runs say that the key cannot be read, and you save it again. Keys work on every paid plan and on self-hosted instances, where the key is yours anyway; the Free plan cannot add one.
 
 ## What does it cost? [#what-does-it-cost]
 
-An agent on your own key costs you what the provider charges for the calls, on the provider's bill. It does not use the AI credits of your Customermates plan. An agent on Mate uses the credits of the person who owns the automation, the same allowance that Mate chats and routines use, and each run shows the credits it used. A run stops before it can use more than its reserved credits.
+An agent on your own key costs you what the provider charges for the calls, on the provider's bill. It does not use the AI credits of your Customermates plan. An agent on Mate uses the credits of the person who owns the automation, the same allowance that Mate chats and routines use, and each run shows the credits it used. A run on Mate holds credits round by round and stops before it uses more than 10 credits or more than is left of that allowance.
 
 ## Which models can I use? [#which-models-can-i-use]
 
@@ -25,7 +25,7 @@ The list per provider is maintained in Customermates and shows the models of the
 - **OpenAI:** GPT-5 mini (the default), GPT-5, GPT-5 nano, GPT-4.1 and GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (the default), Gemini 2.5 Pro and Gemini 2.5 Flash-Lite.
 
-A step without a model uses the default model of the key. Customermates never asks for a Claude Pro or Max login: the own-key runtime works only with an API key from the provider's console.
+A step without a model runs on the default model of the key when the workspace has one provider key. With several keys the step needs a model, so removing a key never moves a step to another provider. When a key's default model is no longer offered, the run uses the provider's default model and says so in its transcript. Customermates never asks for a Claude Pro or Max login: the own-key runtime works only with an API key from the provider's console.
 
 ## What may an agent step do? [#what-may-an-agent-step-do]
 

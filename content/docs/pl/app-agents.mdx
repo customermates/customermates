@@ -9,13 +9,13 @@ Otwórz w ustawieniach kartę **Agenty** w sekcji [Połączenia](app:settings/ag
 
 ## Jak dodać klucz dostawcy? [#how-do-i-add-a-provider-key]
 
-Otwórz **Agenty**, kliknij **Dodaj klucz** i wybierz **Dostawcę** (Anthropic, OpenAI lub Google). Nadaj kluczowi **Etykietę**, wklej **Klucz API** z konsoli dostawcy i wybierz **Model domyślny**. Customermates pyta dostawcę, czy klucz działa, zanim go zachowa. Klucz odrzucony przez dostawcę nie jest zapisywany, a jeśli dostawca jest chwilowo nieosiągalny, zostaniesz poproszony o ponowną próbę.
+Otwórz **Agenty**, kliknij **Dodaj klucz** i wybierz **Dostawcę** (Anthropic, OpenAI lub Google). Nadaj kluczowi **Etykietę**, wklej **Klucz API** z konsoli dostawcy i wybierz **Model domyślny**. Customermates pyta dostawcę, czy klucz działa, zanim go zachowa. Klucz odrzucony przez dostawcę nie jest zapisywany, a jeśli dostawca jest chwilowo nieosiągalny, zostaniesz poproszony o ponowną próbę. Klucz, który dostawca przyjmuje, ale któremu nie pozwala wyświetlić listy modeli, na przykład ograniczony klucz OpenAI, jest zapisywany z adnotacją, że nie udało się go sprawdzić.
 
-Klucz jest zapisywany w postaci zaszyfrowanej i nigdy więcej nie jest pokazywany: lista pokazuje tylko etykietę, dostawcę i cztery ostatnie znaki. Przestrzeń robocza ma jeden klucz na dostawcę, więc dodanie klucza dla dostawcy, który już go ma, zastępuje go. **Testuj** ponownie pyta dostawcę i aktualizuje **Ostatnio sprawdzono**, **Usuń** usuwa klucz na stałe. Klucze działają w każdym płatnym planie i na instancjach self-hosted, gdzie klucz i tak należy do Ciebie; plan Free nie może dodać klucza.
+Klucz jest zapisywany w postaci zaszyfrowanej i nigdy więcej nie jest pokazywany: lista pokazuje tylko etykietę, dostawcę i cztery ostatnie znaki. Przestrzeń robocza ma jeden klucz na dostawcę, więc dodanie klucza dla dostawcy, który już go ma, zastępuje go. **Testuj** ponownie pyta dostawcę i aktualizuje **Ostatnio sprawdzono**, **Usuń** usuwa klucz na stałe. Jeśli sekret szyfrowania serwera zmienił się po zapisaniu klucza, **Testuj** i uruchomienia agentów zgłaszają, że klucza nie da się odczytać, a Ty zapisujesz go ponownie. Klucze działają w każdym płatnym planie i na instancjach self-hosted, gdzie klucz i tak należy do Ciebie; plan Free nie może dodać klucza.
 
 ## Ile to kosztuje? [#what-does-it-cost]
 
-Agent z Twoim własnym kluczem kosztuje tyle, ile dostawca nalicza za wywołania, na rachunku dostawcy. Nie zużywa kredytów AI Twojego planu Customermates. Agent na Mate zużywa kredyty osoby będącej właścicielem automatyzacji, z tej samej puli, z której korzystają czaty Mate i rutyny, a każde uruchomienie pokazuje zużyte kredyty. Uruchomienie zatrzymuje się, zanim mogłoby zużyć więcej niż zarezerwowane kredyty.
+Agent z Twoim własnym kluczem kosztuje tyle, ile dostawca nalicza za wywołania, na rachunku dostawcy. Nie zużywa kredytów AI Twojego planu Customermates. Agent na Mate zużywa kredyty osoby będącej właścicielem automatyzacji, z tej samej puli, z której korzystają czaty Mate i rutyny, a każde uruchomienie pokazuje zużyte kredyty. Uruchomienie na Mate rezerwuje kredyty runda po rundzie i zatrzymuje się, zanim zużyje więcej niż 10 kredytów albo więcej, niż zostało w tej puli.
 
 ## Jakich modeli mogę używać? [#which-models-can-i-use]
 
@@ -25,7 +25,7 @@ Listę dla każdego dostawcy prowadzi Customermates i pokazuje modele dostawców
 - **OpenAI:** GPT-5 mini (domyślny), GPT-5, GPT-5 nano, GPT-4.1 i GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (domyślny), Gemini 2.5 Pro i Gemini 2.5 Flash-Lite.
 
-Krok bez modelu używa modelu domyślnego klucza. Customermates nigdy nie prosi o login Claude Pro ani Max: środowisko z własnym kluczem działa tylko z kluczem API z konsoli dostawcy.
+Krok bez modelu używa modelu domyślnego klucza, gdy przestrzeń robocza ma jeden klucz dostawcy. Przy kilku kluczach krok potrzebuje modelu, dzięki czemu usunięcie klucza nigdy nie przenosi kroku do innego dostawcy. Gdy model domyślny klucza nie jest już oferowany, uruchomienie używa modelu domyślnego dostawcy i odnotowuje to w zapisie. Customermates nigdy nie prosi o login Claude Pro ani Max: środowisko z własnym kluczem działa tylko z kluczem API z konsoli dostawcy.
 
 ## Co może zrobić krok agenta? [#what-may-an-agent-step-do]
 

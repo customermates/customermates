@@ -9,13 +9,13 @@ Ein Agent ist eine KI, die den Agent-Schritt einer [Automatisierung](/docs/app-a
 
 ## Wie füge ich einen Anbieter-Schlüssel hinzu? [#how-do-i-add-a-provider-key]
 
-Öffnen Sie **Agenten**, klicken Sie auf **Schlüssel hinzufügen** und wählen Sie den **Anbieter** (Anthropic, OpenAI oder Google). Geben Sie dem Schlüssel eine **Bezeichnung**, fügen Sie den **API-Schlüssel** aus der Konsole des Anbieters ein und wählen Sie ein **Standardmodell**. Customermates fragt beim Anbieter nach, ob der Schlüssel funktioniert, bevor es ihn behält. Ein vom Anbieter abgelehnter Schlüssel wird nicht gespeichert, und ist der Anbieter gerade nicht erreichbar, werden Sie gebeten, es noch einmal zu versuchen.
+Öffnen Sie **Agenten**, klicken Sie auf **Schlüssel hinzufügen** und wählen Sie den **Anbieter** (Anthropic, OpenAI oder Google). Geben Sie dem Schlüssel eine **Bezeichnung**, fügen Sie den **API-Schlüssel** aus der Konsole des Anbieters ein und wählen Sie ein **Standardmodell**. Customermates fragt beim Anbieter nach, ob der Schlüssel funktioniert, bevor es ihn behält. Ein vom Anbieter abgelehnter Schlüssel wird nicht gespeichert, und ist der Anbieter gerade nicht erreichbar, werden Sie gebeten, es noch einmal zu versuchen. Ein Schlüssel, den der Anbieter annimmt, der aber seine Modelle nicht auflisten darf, etwa ein eingeschränkter OpenAI-Schlüssel, wird mit dem Hinweis gespeichert, dass er nicht geprüft werden konnte.
 
-Der Schlüssel wird verschlüsselt gespeichert und nie wieder angezeigt: Die Liste zeigt nur die Bezeichnung, den Anbieter und die letzten vier Zeichen. Ein Workspace hat einen Schlüssel pro Anbieter, ein neuer Schlüssel für einen Anbieter, der schon einen hat, ersetzt ihn also. **Testen** fragt den Anbieter erneut und aktualisiert **Zuletzt geprüft**, **Entfernen** löscht den Schlüssel endgültig. Schlüssel funktionieren in jedem kostenpflichtigen Tarif und auf selbst gehosteten Instanzen, wo der Schlüssel ohnehin Ihnen gehört; der Free-Tarif kann keinen hinzufügen.
+Der Schlüssel wird verschlüsselt gespeichert und nie wieder angezeigt: Die Liste zeigt nur die Bezeichnung, den Anbieter und die letzten vier Zeichen. Ein Workspace hat einen Schlüssel pro Anbieter, ein neuer Schlüssel für einen Anbieter, der schon einen hat, ersetzt ihn also. **Testen** fragt den Anbieter erneut und aktualisiert **Zuletzt geprüft**, **Entfernen** löscht den Schlüssel endgültig. Wurde das Verschlüsselungsgeheimnis des Servers nach dem Speichern geändert, melden **Testen** und Agentenläufe, dass der Schlüssel nicht gelesen werden kann, und Sie speichern ihn erneut. Schlüssel funktionieren in jedem kostenpflichtigen Tarif und auf selbst gehosteten Instanzen, wo der Schlüssel ohnehin Ihnen gehört; der Free-Tarif kann keinen hinzufügen.
 
 ## Was kostet das? [#what-does-it-cost]
 
-Ein Agent mit Ihrem eigenen Schlüssel kostet Sie, was der Anbieter für die Aufrufe berechnet, auf der Rechnung des Anbieters. Er verbraucht keine KI-Credits Ihres Customermates-Tarifs. Ein Agent auf Mate verbraucht die Credits der Person, der die Automatisierung gehört, dasselbe Kontingent wie Mate-Chats und Routinen, und jeder Lauf zeigt die verbrauchten Credits. Ein Lauf stoppt, bevor er mehr als seine reservierten Credits verbrauchen könnte.
+Ein Agent mit Ihrem eigenen Schlüssel kostet Sie, was der Anbieter für die Aufrufe berechnet, auf der Rechnung des Anbieters. Er verbraucht keine KI-Credits Ihres Customermates-Tarifs. Ein Agent auf Mate verbraucht die Credits der Person, der die Automatisierung gehört, dasselbe Kontingent wie Mate-Chats und Routinen, und jeder Lauf zeigt die verbrauchten Credits. Ein Lauf auf Mate reserviert Credits Runde für Runde und stoppt, bevor er mehr als 10 Credits verbraucht oder mehr, als von diesem Kontingent übrig ist.
 
 ## Welche Modelle kann ich verwenden? [#which-models-can-i-use]
 
@@ -25,7 +25,7 @@ Die Liste je Anbieter wird von Customermates gepflegt und zeigt die Modelle der 
 - **OpenAI:** GPT-5 mini (der Standard), GPT-5, GPT-5 nano, GPT-4.1 und GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (der Standard), Gemini 2.5 Pro und Gemini 2.5 Flash-Lite.
 
-Ein Schritt ohne Modell nutzt das Standardmodell des Schlüssels. Customermates fragt nie nach einem Claude-Pro- oder Max-Login: Die Laufzeit mit eigenem Schlüssel funktioniert nur mit einem API-Schlüssel aus der Konsole des Anbieters.
+Ein Schritt ohne Modell läuft mit dem Standardmodell des Schlüssels, wenn der Workspace genau einen Anbieter-Schlüssel hat. Bei mehreren Schlüsseln braucht der Schritt ein Modell, damit das Entfernen eines Schlüssels nie einen Schritt zu einem anderen Anbieter verschiebt. Wird das Standardmodell eines Schlüssels nicht mehr angeboten, nutzt der Lauf das Standardmodell des Anbieters und vermerkt das im Protokoll. Customermates fragt nie nach einem Claude-Pro- oder Max-Login: Die Laufzeit mit eigenem Schlüssel funktioniert nur mit einem API-Schlüssel aus der Konsole des Anbieters.
 
 ## Was darf ein Agent-Schritt tun? [#what-may-an-agent-step-do]
 

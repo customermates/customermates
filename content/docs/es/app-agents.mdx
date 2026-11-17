@@ -9,13 +9,13 @@ Abre la pestaña **Agentes** de [Conexiones](app:settings/agents), en los ajuste
 
 ## ¿Cómo añado una clave de proveedor? [#how-do-i-add-a-provider-key]
 
-Abre **Agentes**, haz clic en **Añadir clave** y elige el **Proveedor** (Anthropic, OpenAI o Google). Ponle una **Etiqueta** a la clave, pega la **Clave de API** de la consola del proveedor y elige un **Modelo predeterminado**. Customermates pregunta al proveedor si la clave funciona antes de conservarla. Una clave que el proveedor rechaza no se guarda, y si el proveedor no está disponible en ese momento, se te pide que lo intentes de nuevo.
+Abre **Agentes**, haz clic en **Añadir clave** y elige el **Proveedor** (Anthropic, OpenAI o Google). Ponle una **Etiqueta** a la clave, pega la **Clave de API** de la consola del proveedor y elige un **Modelo predeterminado**. Customermates pregunta al proveedor si la clave funciona antes de conservarla. Una clave que el proveedor rechaza no se guarda, y si el proveedor no está disponible en ese momento, se te pide que lo intentes de nuevo. Una clave que el proveedor acepta pero a la que no deja listar sus modelos, por ejemplo una clave de OpenAI restringida, se guarda con una nota que indica que no se pudo comprobar.
 
-La clave se guarda cifrada y no se vuelve a mostrar: la lista muestra solo la etiqueta, el proveedor y los últimos cuatro caracteres. Un espacio de trabajo tiene una clave por proveedor, así que añadir una clave para un proveedor que ya tiene una la sustituye. **Probar** vuelve a preguntar al proveedor y actualiza **Última comprobación**, **Quitar** elimina la clave de forma definitiva. Las claves funcionan en todos los planes de pago y en instancias autoalojadas, donde la clave es tuya de todos modos; el plan Free no puede añadir ninguna.
+La clave se guarda cifrada y no se vuelve a mostrar: la lista muestra solo la etiqueta, el proveedor y los últimos cuatro caracteres. Un espacio de trabajo tiene una clave por proveedor, así que añadir una clave para un proveedor que ya tiene una la sustituye. **Probar** vuelve a preguntar al proveedor y actualiza **Última comprobación**, **Quitar** elimina la clave de forma definitiva. Si el secreto de cifrado del servidor cambió después de guardar la clave, **Probar** y las ejecuciones de agentes indican que la clave no se puede leer, y la guardas de nuevo. Las claves funcionan en todos los planes de pago y en instancias autoalojadas, donde la clave es tuya de todos modos; el plan Free no puede añadir ninguna.
 
 ## ¿Cuánto cuesta? [#what-does-it-cost]
 
-Un agente con tu propia clave te cuesta lo que el proveedor cobra por las llamadas, en la factura del proveedor. No usa los créditos de IA de tu plan de Customermates. Un agente en Mate usa los créditos de la persona propietaria de la automatización, la misma asignación que usan los chats de Mate y las rutinas, y cada ejecución muestra los créditos usados. Una ejecución se detiene antes de poder usar más de sus créditos reservados.
+Un agente con tu propia clave te cuesta lo que el proveedor cobra por las llamadas, en la factura del proveedor. No usa los créditos de IA de tu plan de Customermates. Un agente en Mate usa los créditos de la persona propietaria de la automatización, la misma asignación que usan los chats de Mate y las rutinas, y cada ejecución muestra los créditos usados. Una ejecución en Mate reserva créditos ronda a ronda y se detiene antes de usar más de 10 créditos o más de lo que queda de esa asignación.
 
 ## ¿Qué modelos puedo usar? [#which-models-can-i-use]
 
@@ -25,7 +25,7 @@ La lista por proveedor la mantiene Customermates y muestra los modelos de los pr
 - **OpenAI:** GPT-5 mini (el predeterminado), GPT-5, GPT-5 nano, GPT-4.1 y GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (el predeterminado), Gemini 2.5 Pro y Gemini 2.5 Flash-Lite.
 
-Un paso sin modelo usa el modelo predeterminado de la clave. Customermates nunca pide un acceso de Claude Pro o Max: el runtime con clave propia solo funciona con una clave de API de la consola del proveedor.
+Un paso sin modelo usa el modelo predeterminado de la clave cuando el espacio de trabajo tiene una sola clave de proveedor. Con varias claves el paso necesita un modelo, de modo que quitar una clave nunca mueve un paso a otro proveedor. Cuando el modelo predeterminado de una clave ya no se ofrece, la ejecución usa el modelo predeterminado del proveedor y lo indica en su transcripción. Customermates nunca pide un acceso de Claude Pro o Max: el runtime con clave propia solo funciona con una clave de API de la consola del proveedor.
 
 ## ¿Qué puede hacer un paso de agente? [#what-may-an-agent-step-do]
 

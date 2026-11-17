@@ -9,13 +9,13 @@ Ouvrez l’onglet **Agents** de [Connexions](app:settings/agents), dans les para
 
 ## Comment ajouter une clé de fournisseur ? [#how-do-i-add-a-provider-key]
 
-Ouvrez **Agents**, cliquez sur **Ajouter une clé** et choisissez le **Fournisseur** (Anthropic, OpenAI ou Google). Donnez un **Libellé** à la clé, collez la **Clé API** depuis la console du fournisseur et choisissez un **Modèle par défaut**. Customermates demande au fournisseur si la clé fonctionne avant de la conserver. Une clé que le fournisseur refuse n’est pas enregistrée, et si le fournisseur est injoignable pour le moment, il vous est demandé de réessayer.
+Ouvrez **Agents**, cliquez sur **Ajouter une clé** et choisissez le **Fournisseur** (Anthropic, OpenAI ou Google). Donnez un **Libellé** à la clé, collez la **Clé API** depuis la console du fournisseur et choisissez un **Modèle par défaut**. Customermates demande au fournisseur si la clé fonctionne avant de la conserver. Une clé que le fournisseur refuse n’est pas enregistrée, et si le fournisseur est injoignable pour le moment, il vous est demandé de réessayer. Une clé que le fournisseur accepte mais qui n’a pas le droit de lister ses modèles, par exemple une clé OpenAI restreinte, est enregistrée avec une note indiquant qu’elle n’a pas pu être vérifiée.
 
-La clé est stockée chiffrée et n’est plus jamais affichée : la liste montre uniquement le libellé, le fournisseur et les quatre derniers caractères. Un espace de travail a une clé par fournisseur, donc ajouter une clé pour un fournisseur qui en a déjà une la remplace. **Tester** interroge de nouveau le fournisseur et met à jour **Dernière vérification**, **Retirer** supprime définitivement la clé. Les clés fonctionnent sur tous les forfaits payants et sur les instances auto-hébergées, où la clé vous appartient de toute façon ; le forfait Free ne peut pas en ajouter.
+La clé est stockée chiffrée et n’est plus jamais affichée : la liste montre uniquement le libellé, le fournisseur et les quatre derniers caractères. Un espace de travail a une clé par fournisseur, donc ajouter une clé pour un fournisseur qui en a déjà une la remplace. **Tester** interroge de nouveau le fournisseur et met à jour **Dernière vérification**, **Retirer** supprime définitivement la clé. Si le secret de chiffrement du serveur a changé après l’enregistrement de la clé, **Tester** et les exécutions d’agent indiquent que la clé ne peut pas être lue, et vous l’enregistrez de nouveau. Les clés fonctionnent sur tous les forfaits payants et sur les instances auto-hébergées, où la clé vous appartient de toute façon ; le forfait Free ne peut pas en ajouter.
 
 ## Combien cela coûte-t-il ? [#what-does-it-cost]
 
-Un agent sur votre propre clé vous coûte ce que le fournisseur facture pour les appels, sur la facture du fournisseur. Il n’utilise pas les crédits IA de votre forfait Customermates. Un agent sur Mate utilise les crédits de la personne propriétaire de l’automatisation, le même quota que les conversations Mate et les routines, et chaque exécution indique les crédits utilisés. Une exécution s’arrête avant de pouvoir utiliser plus que ses crédits réservés.
+Un agent sur votre propre clé vous coûte ce que le fournisseur facture pour les appels, sur la facture du fournisseur. Il n’utilise pas les crédits IA de votre forfait Customermates. Un agent sur Mate utilise les crédits de la personne propriétaire de l’automatisation, le même quota que les conversations Mate et les routines, et chaque exécution indique les crédits utilisés. Une exécution sur Mate réserve des crédits tour après tour et s’arrête avant d’utiliser plus de 10 crédits ou plus que ce qu’il reste de ce quota.
 
 ## Quels modèles puis-je utiliser ? [#which-models-can-i-use]
 
@@ -25,7 +25,7 @@ La liste par fournisseur est tenue par Customermates et montre les modèles des 
 - **OpenAI :** GPT-5 mini (par défaut), GPT-5, GPT-5 nano, GPT-4.1 et GPT-4.1 mini.
 - **Google :** Gemini 2.5 Flash (par défaut), Gemini 2.5 Pro et Gemini 2.5 Flash-Lite.
 
-Une étape sans modèle utilise le modèle par défaut de la clé. Customermates ne demande jamais de connexion Claude Pro ou Max : le runtime avec votre propre clé fonctionne uniquement avec une clé API de la console du fournisseur.
+Une étape sans modèle s’exécute avec le modèle par défaut de la clé quand l’espace de travail n’a qu’une clé de fournisseur. Avec plusieurs clés, l’étape a besoin d’un modèle, afin que le retrait d’une clé ne déplace jamais une étape vers un autre fournisseur. Quand le modèle par défaut d’une clé n’est plus proposé, l’exécution utilise le modèle par défaut du fournisseur et l’indique dans sa transcription. Customermates ne demande jamais de connexion Claude Pro ou Max : le runtime avec votre propre clé fonctionne uniquement avec une clé API de la console du fournisseur.
 
 ## Que peut faire une étape d’agent ? [#what-may-an-agent-step-do]
 

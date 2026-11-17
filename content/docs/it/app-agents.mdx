@@ -9,13 +9,13 @@ Apri la scheda **Agenti** di [Connessioni](app:settings/agents), nelle impostazi
 
 ## Come aggiungo una chiave di fornitore? [#how-do-i-add-a-provider-key]
 
-Apri **Agenti**, fai clic su **Aggiungi chiave** e scegli il **Fornitore** (Anthropic, OpenAI o Google). Dai un' **Etichetta** alla chiave, incolla la **Chiave API** dalla console del fornitore e scegli un **Modello predefinito**. Customermates chiede al fornitore se la chiave funziona prima di conservarla. Una chiave rifiutata dal fornitore non viene salvata e, se il fornitore al momento non è raggiungibile, ti viene chiesto di riprovare.
+Apri **Agenti**, fai clic su **Aggiungi chiave** e scegli il **Fornitore** (Anthropic, OpenAI o Google). Dai un' **Etichetta** alla chiave, incolla la **Chiave API** dalla console del fornitore e scegli un **Modello predefinito**. Customermates chiede al fornitore se la chiave funziona prima di conservarla. Una chiave rifiutata dal fornitore non viene salvata e, se il fornitore al momento non è raggiungibile, ti viene chiesto di riprovare. Una chiave che il fornitore accetta ma a cui non permette di elencare i modelli, per esempio una chiave OpenAI con restrizioni, viene salvata con una nota che dice che non è stato possibile verificarla.
 
-La chiave viene salvata cifrata e non viene mai più mostrata: l’elenco mostra solo l’etichetta, il fornitore e gli ultimi quattro caratteri. Uno spazio di lavoro ha una chiave per fornitore, quindi aggiungere una chiave per un fornitore che ne ha già una la sostituisce. **Prova** interroga di nuovo il fornitore e aggiorna **Ultimo controllo**, **Rimuovi** elimina la chiave per sempre. Le chiavi funzionano su ogni piano a pagamento e sulle istanze self-hosted, dove la chiave è comunque tua; il piano Free non può aggiungerne una.
+La chiave viene salvata cifrata e non viene mai più mostrata: l’elenco mostra solo l’etichetta, il fornitore e gli ultimi quattro caratteri. Uno spazio di lavoro ha una chiave per fornitore, quindi aggiungere una chiave per un fornitore che ne ha già una la sostituisce. **Prova** interroga di nuovo il fornitore e aggiorna **Ultimo controllo**, **Rimuovi** elimina la chiave per sempre. Se il segreto di cifratura del server è cambiato dopo il salvataggio della chiave, **Prova** e le esecuzioni degli agenti dicono che la chiave non si può leggere, e la salvi di nuovo. Le chiavi funzionano su ogni piano a pagamento e sulle istanze self-hosted, dove la chiave è comunque tua; il piano Free non può aggiungerne una.
 
 ## Quanto costa? [#what-does-it-cost]
 
-Un agente con la tua chiave ti costa quello che il fornitore addebita per le chiamate, sulla fattura del fornitore. Non usa i crediti IA del tuo piano Customermates. Un agente su Mate usa i crediti della persona proprietaria dell’automazione, la stessa quota delle chat di Mate e delle routine, e ogni esecuzione mostra i crediti usati. Un’esecuzione si ferma prima di poter usare più dei crediti riservati.
+Un agente con la tua chiave ti costa quello che il fornitore addebita per le chiamate, sulla fattura del fornitore. Non usa i crediti IA del tuo piano Customermates. Un agente su Mate usa i crediti della persona proprietaria dell’automazione, la stessa quota delle chat di Mate e delle routine, e ogni esecuzione mostra i crediti usati. Un’esecuzione su Mate riserva i crediti un turno alla volta e si ferma prima di usare più di 10 crediti o più di quanto resta di quella quota.
 
 ## Quali modelli posso usare? [#which-models-can-i-use]
 
@@ -25,7 +25,7 @@ L’elenco per fornitore è curato da Customermates e mostra i modelli dei forni
 - **OpenAI:** GPT-5 mini (predefinito), GPT-5, GPT-5 nano, GPT-4.1 e GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (predefinito), Gemini 2.5 Pro e Gemini 2.5 Flash-Lite.
 
-Un passaggio senza modello usa il modello predefinito della chiave. Customermates non chiede mai un login Claude Pro o Max: il runtime con chiave propria funziona solo con una chiave API dalla console del fornitore.
+Un passaggio senza modello usa il modello predefinito della chiave quando lo spazio di lavoro ha una sola chiave di fornitore. Con più chiavi il passaggio ha bisogno di un modello, così rimuovere una chiave non sposta mai un passaggio su un altro fornitore. Quando il modello predefinito di una chiave non è più offerto, l’esecuzione usa il modello predefinito del fornitore e lo indica nella trascrizione. Customermates non chiede mai un login Claude Pro o Max: il runtime con chiave propria funziona solo con una chiave API dalla console del fornitore.
 
 ## Che cosa può fare un passaggio agente? [#what-may-an-agent-step-do]
 

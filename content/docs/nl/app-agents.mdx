@@ -9,13 +9,13 @@ Open in de instellingen het tabblad **Agents** van [Koppelingen](app:settings/ag
 
 ## Hoe voeg ik een sleutel van een aanbieder toe? [#how-do-i-add-a-provider-key]
 
-Open **Agents**, klik op **Sleutel toevoegen** en kies de **Aanbieder** (Anthropic, OpenAI of Google). Geef de sleutel een **Label**, plak de **API-sleutel** uit de console van de aanbieder en kies een **Standaardmodel**. Customermates vraagt de aanbieder of de sleutel werkt voordat de sleutel wordt bewaard. Een sleutel die de aanbieder weigert wordt niet opgeslagen, en als de aanbieder op dat moment niet bereikbaar is, word je gevraagd het opnieuw te proberen.
+Open **Agents**, klik op **Sleutel toevoegen** en kies de **Aanbieder** (Anthropic, OpenAI of Google). Geef de sleutel een **Label**, plak de **API-sleutel** uit de console van de aanbieder en kies een **Standaardmodel**. Customermates vraagt de aanbieder of de sleutel werkt voordat de sleutel wordt bewaard. Een sleutel die de aanbieder weigert wordt niet opgeslagen, en als de aanbieder op dat moment niet bereikbaar is, word je gevraagd het opnieuw te proberen. Een sleutel die de aanbieder accepteert maar die zijn modellen niet mag opvragen, bijvoorbeeld een beperkte OpenAI-sleutel, wordt opgeslagen met een notitie dat hij niet kon worden gecontroleerd.
 
-De sleutel wordt versleuteld opgeslagen en nooit meer getoond: de lijst toont alleen het label, de aanbieder en de laatste vier tekens. Een werkruimte heeft één sleutel per aanbieder, dus een sleutel toevoegen voor een aanbieder die er al een heeft, vervangt die. **Testen** vraagt de aanbieder opnieuw en werkt **Laatst gecontroleerd** bij, **Verwijderen** wist de sleutel definitief. Sleutels werken op elk betaald pakket en op zelfgehoste instanties, waar de sleutel toch al van jou is; het Free-pakket kan er geen toevoegen.
+De sleutel wordt versleuteld opgeslagen en nooit meer getoond: de lijst toont alleen het label, de aanbieder en de laatste vier tekens. Een werkruimte heeft één sleutel per aanbieder, dus een sleutel toevoegen voor een aanbieder die er al een heeft, vervangt die. **Testen** vraagt de aanbieder opnieuw en werkt **Laatst gecontroleerd** bij, **Verwijderen** wist de sleutel definitief. Als het versleutelingsgeheim van de server is gewijzigd nadat de sleutel is opgeslagen, melden **Testen** en agentuitvoeringen dat de sleutel niet kan worden gelezen, en sla je hem opnieuw op. Sleutels werken op elk betaald pakket en op zelfgehoste instanties, waar de sleutel toch al van jou is; het Free-pakket kan er geen toevoegen.
 
 ## Wat kost het? [#what-does-it-cost]
 
-Een agent op je eigen sleutel kost wat de aanbieder voor de aanroepen rekent, op de rekening van de aanbieder. Hij gebruikt geen AI-credits van je Customermates-pakket. Een agent op Mate gebruikt de credits van de eigenaar van de automatisering, hetzelfde tegoed dat Mate-chats en routines gebruiken, en elke uitvoering toont de gebruikte credits. Een uitvoering stopt voordat ze meer kan gebruiken dan de gereserveerde credits.
+Een agent op je eigen sleutel kost wat de aanbieder voor de aanroepen rekent, op de rekening van de aanbieder. Hij gebruikt geen AI-credits van je Customermates-pakket. Een agent op Mate gebruikt de credits van de eigenaar van de automatisering, hetzelfde tegoed dat Mate-chats en routines gebruiken, en elke uitvoering toont de gebruikte credits. Een uitvoering op Mate reserveert credits ronde voor ronde en stopt voordat ze meer dan 10 credits gebruikt of meer dan er van dat tegoed over is.
 
 ## Welke modellen kan ik gebruiken? [#which-models-can-i-use]
 
@@ -25,7 +25,7 @@ De lijst per aanbieder wordt bijgehouden door Customermates en toont de modellen
 - **OpenAI:** GPT-5 mini (de standaard), GPT-5, GPT-5 nano, GPT-4.1 en GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (de standaard), Gemini 2.5 Pro en Gemini 2.5 Flash-Lite.
 
-Een stap zonder model gebruikt het standaardmodel van de sleutel. Customermates vraagt nooit om een Claude Pro- of Max-login: de runtime met eigen sleutel werkt alleen met een API-sleutel uit de console van de aanbieder.
+Een stap zonder model gebruikt het standaardmodel van de sleutel als de werkruimte één sleutel van een aanbieder heeft. Met meerdere sleutels heeft de stap een model nodig, zodat het verwijderen van een sleutel nooit een stap naar een andere aanbieder verplaatst. Als het standaardmodel van een sleutel niet meer wordt aangeboden, gebruikt de uitvoering het standaardmodel van de aanbieder en meldt ze dat in het transcript. Customermates vraagt nooit om een Claude Pro- of Max-login: de runtime met eigen sleutel werkt alleen met een API-sleutel uit de console van de aanbieder.
 
 ## Wat mag een agentstap doen? [#what-may-an-agent-step-do]
 
