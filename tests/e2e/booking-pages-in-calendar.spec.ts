@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -95,6 +96,145 @@ test("creates a booking page from the calendar, sees the preview follow the titl
   await page.goto(pagePath(page, "/calendar?panel=booking"));
   await expect(page.locator("[data-booking-panel] [data-booking-link]")).toHaveCount(1);
 
+  expect(errors).toEqual([]);
+});
+
+async function createBookingPage(page: Page, title: string) {
+  await page.goto(pagePath(page, "/calendar?panel=booking"));
+  const panel = page.locator("[data-booking-panel]");
+  await expect(panel).toBeVisible();
+  await panel.getByRole("button", { name: booking.new, exact: true }).first().click();
+  const dialog = page.getByRole("dialog");
+  await dialog.locator("#title").fill(title);
+  await dialog.locator("#booking-link-modal-save").click();
+  await expect(dialog).toHaveCount(0);
+  const row = panel.locator("[data-booking-link]");
+  await expect(row).toHaveCount(1);
+  const url = await row.locator("[data-value]").getAttribute("data-value");
+  if (!url) throw new Error("The booking page has no public address.");
+  return { panel, row, url };
+}
+
+test("keeps a booking page whose calendar is gone, shows it as unavailable and lets its owner choose a calendar", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  test.setTimeout(120000);
+  const errors = collectPageErrors(page);
+  const lostCalendarId = await connectCalendar(database, workspace);
+  await page.setViewportSize({ width: 1280, height: 900 });
+
+  const { row, url } = await createBookingPage(page, "Intro call");
+  await expect(row.locator("[data-booking-calendar-missing]")).toHaveCount(0);
+  await expect(row).toContainText(booking.panelActive);
+
+  // The calendar disappears at the provider; the account keeps another calendar.
+  const account = await database.query<{ connectedAccountId: string }>(
+    'SELECT "connectedAccountId" FROM "Calendar" WHERE id=$1',
+    [lostCalendarId],
+  );
+  const otherCalendarId = randomUUID();
+  await database.query(
+    'INSERT INTO "Calendar"(id,"companyId","connectedAccountId","unipileCalendarId",name,"updatedAt") VALUES($1,$2,$3,$4,\'Second calendar\',now())',
+    [otherCalendarId, workspace.companyId, account.rows[0].connectedAccountId, `e2e_local_${otherCalendarId}`],
+  );
+  await database.query('DELETE FROM "Calendar" WHERE id=$1', [lostCalendarId]);
+  const storedCalendar = async () =>
+    (
+      await database.query<{ calendarId: string | null }>(
+        'SELECT "calendarId" FROM "BookingLink" WHERE "companyId"=$1',
+        [workspace.companyId],
+      )
+    ).rows.map((link) => link.calendarId);
+  expect(await storedCalendar()).toEqual([null]);
+
+  await page.goto(pagePath(page, "/calendar?panel=booking"));
+  const orphan = page.locator("[data-booking-panel] [data-booking-link]");
+  await expect(orphan).toHaveCount(1);
+  await expect(orphan.getByRole("heading", { name: "Intro call" })).toBeVisible();
+  await expect(orphan.locator("[data-booking-calendar-missing]")).toContainText(booking.noCalendar);
+  await expect(orphan).toContainText(booking.panelUnavailable);
+  await expect(orphan).not.toContainText(booking.panelActive);
+  await expect(orphan.locator("[data-value]")).toHaveAttribute("data-value", url);
+
+  // A visitor sees the page as unavailable until a calendar is chosen.
+  const visitor = await page.context().newPage();
+  await visitor.goto(url);
+  await expect(visitor.getByText(englishMessages.PublicBooking.unavailable, { exact: true })).toBeVisible();
+  await expect(visitor.locator("[data-booking-calendar]")).toHaveCount(0);
+
+  await orphan.getByRole("button", { name: booking.chooseCalendar, exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.locator("#title")).toHaveValue("Intro call");
+  await dialog.locator("#calendarId").click();
+  await page.getByRole("option").filter({ hasText: "Second calendar" }).click();
+  await dialog.locator("#booking-link-modal-save").click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator("[data-sonner-toast]").filter({ hasText: booking.saved }).last()).toBeVisible();
+
+  await expect(orphan.locator("[data-booking-calendar-missing]")).toHaveCount(0);
+  await expect(orphan).toContainText(booking.panelActive);
+  await expect.poll(storedCalendar).toEqual([otherCalendarId]);
+
+  await visitor.reload();
+  await expect(visitor.locator("#public-booking-title")).toHaveText("Intro call");
+  await expect(visitor.locator("[data-booking-calendar]")).toBeVisible();
+  await visitor.close();
+
+  expect(errors).toEqual([]);
+});
+
+test("lets a visitor move to a later month and pick a time there", async ({ page, database, workspace }) => {
+  test.setTimeout(120000);
+  const errors = collectPageErrors(page);
+  await connectCalendar(database, workspace);
+  await page.setViewportSize({ width: 1280, height: 900 });
+
+  const { url } = await createBookingPage(page, "Intro call");
+  await database.query('UPDATE "BookingLink" SET "horizonDays"=90 WHERE "companyId"=$1', [workspace.companyId]);
+
+  const visitor = await page.context().newPage();
+  const visitorErrors = collectPageErrors(visitor);
+  await visitor.goto(url);
+  const calendar = visitor.locator("[data-booking-calendar]");
+  await expect(calendar).toBeVisible();
+  await expect(visitor.locator("[data-booking-slots] button").first()).toBeVisible();
+
+  // The page opens on the month of the first free day.
+  const firstDay = await calendar.locator('button[data-day][data-selected-single="true"]').getAttribute("data-day");
+  if (!firstDay) throw new Error("The booking page did not select its first free day.");
+  const [year, month] = firstDay.split("-").map(Number);
+  const laterMonth = month === 12 ? `${year + 1}-01` : `${year}-${String(month + 1).padStart(2, "0")}`;
+  const caption = await calendar.locator(".rdp-month_caption").innerText();
+
+  await calendar.locator("button.rdp-button_next").click();
+  await expect(calendar.locator(".rdp-month_caption")).not.toHaveText(caption);
+  await expect(calendar).toHaveAttribute("aria-busy", "false");
+
+  // The times of the later month load when the visitor gets there: its last free day lies behind the first page.
+  const laterDay = calendar
+    .locator(`button[data-day^="${laterMonth}-"]:not([disabled]):not([aria-disabled="true"])`)
+    .last();
+  await expect(laterDay).toBeVisible();
+  const laterDate = await laterDay.getAttribute("data-day");
+  await laterDay.click();
+  await expect(calendar.locator(`button[data-day="${laterDate}"]`)).toHaveAttribute("data-selected-single", "true");
+  await expect(visitor.locator("#booking-name")).toHaveCount(0);
+
+  const slot = visitor.locator("[data-booking-slots] button").first();
+  await expect(slot).toBeVisible();
+  await slot.click();
+  await expect(visitor.locator("[data-booking-form] #booking-name")).toBeEnabled();
+  await expect(visitor.locator("[data-booking-form] #booking-email")).toBeEnabled();
+
+  // Going back keeps the earlier month and its first free day available.
+  await calendar.locator("button.rdp-button_previous").click();
+  await expect(calendar.locator(".rdp-month_caption")).toHaveText(caption);
+  await expect(calendar.locator(`button[data-day="${firstDay}"]`)).toBeEnabled();
+  await visitor.close();
+
+  expect(visitorErrors).toEqual([]);
   expect(errors).toEqual([]);
 });
 
