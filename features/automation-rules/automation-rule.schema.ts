@@ -266,7 +266,9 @@ export const AgentEffectSchema = z
     runnerId: z
       .uuid()
       .optional()
-      .describe("runner only: one of your own runners that is not revoked; any of your live runners when omitted."),
+      .describe(
+        "runner only: a runner of the rule's owner that is not revoked; any live runner of the owner when omitted.",
+      ),
   })
   .strict()
   .describe("Asks an agent to act on the triggering record, through the runtime the workspace chose.");
