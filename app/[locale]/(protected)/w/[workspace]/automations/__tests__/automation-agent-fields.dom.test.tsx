@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
+import type { RootStore } from "@/core/stores/root.store";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { DraftAgent } from "../components/automation-draft";
@@ -15,6 +16,17 @@ vi.mock("next-intl", () => ({
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children: ReactNode; href: string }) => <a href={href}>{children}</a>,
 }));
+vi.mock("@/components/ui/tooltip", () => ({
+  Tooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
+  TooltipTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  TooltipContent: () => null,
+}));
+vi.mock("../actions", () => ({
+  composeAutomationAction: vi.fn(),
+  previewAutomationRuleAction: vi.fn(() => Promise.resolve({ ok: true, data: null })),
+  setAutomationRuleEnabledAction: vi.fn(),
+  upsertAutomationRuleAction: vi.fn(),
+}));
 vi.mock("@/components/ui/select", () => ({
   Select: ({ children, value }: { children: ReactNode; value: string }) => <div data-select={value}>{children}</div>,
   SelectTrigger: ({ children }: { children: ReactNode }) => <div>{children}</div>,
@@ -26,9 +38,12 @@ vi.mock("@/components/ui/select", () => ({
 import { Zap } from "lucide-react";
 
 import { AutomationCard, AutomationConnector } from "@/components/automations/automation-card";
+import { AutomationPalette } from "@/components/automations/automation-palette";
 
 import { AGENT_SETTINGS_HREF, AutomationAgentFields } from "../components/automation-agent-fields";
 import { toAutomationBuilderModel } from "../components/automation-builder-model";
+import { AutomationBuilderStore } from "../components/automation-builder.store";
+import { AutomationCardChain } from "../components/automation-card-chain";
 import { AutomationConditionFields } from "../components/automation-condition-fields";
 import { blankAgentEffect, blankCondition, emptyDraft } from "../components/automation-draft";
 import { AutomationEffectFields } from "../components/automation-effect-fields";
@@ -209,6 +224,41 @@ describe("the Ask an agent card", () => {
     expect(container.querySelector("textarea")?.getAttribute("aria-invalid")).toBe("true");
   });
 
+  it("names the prompt field for assistive technology", () => {
+    render(blankAgentEffect("mate"), runtimes({ mate: AVAILABLE }));
+
+    const prompt = container.querySelector("textarea");
+    const label = container.querySelector(`label[for="${prompt?.id}"]`);
+    expect(prompt?.id).toBeTruthy();
+    expect(label?.textContent).toBe("Automations.agent.prompt");
+  });
+
+  it("moves between the runtimes with the arrow keys and keeps one of them in the tab order", () => {
+    const effect = blankAgentEffect("mate");
+    const onChange = render(effect, runtimes());
+    const radio = (runtime: string) => container.querySelector<HTMLButtonElement>(`[data-agent-runtime="${runtime}"]`);
+    const press = (runtime: string, key: string) =>
+      act(() => {
+        radio(runtime)?.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+      });
+
+    expect(["mate", "ownKey", "runner"].map((runtime) => radio(runtime)?.tabIndex)).toEqual([0, -1, -1]);
+
+    press("mate", "ArrowRight");
+    expect(onChange).toHaveBeenLastCalledWith({ ...effect, runtime: "ownKey" });
+    expect(document.activeElement).toBe(radio("ownKey"));
+
+    press("mate", "ArrowLeft");
+    expect(onChange).toHaveBeenLastCalledWith({ ...effect, runtime: "runner" });
+
+    press("mate", "ArrowDown");
+    expect(onChange).toHaveBeenLastCalledWith({ ...effect, runtime: "ownKey" });
+
+    onChange.mockClear();
+    press("mate", "a");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("still shows the picker for a model or runner that is gone, so another one can be chosen", () => {
     render({ ...blankAgentEffect("runner"), runnerId: RUNNER }, runtimes());
     expect(offered(RUNNER)).toEqual(["default"]);
@@ -362,6 +412,90 @@ describe("the trigger card", () => {
       />,
     );
     expect(toValue()).toBe(true);
+  });
+});
+
+describe("the step palette and the keyboard", () => {
+  function chainStore() {
+    const store = new AutomationBuilderStore({
+      registerModalStore: vi.fn(),
+      userStore: { user: { id: "u", role: { isSystemRole: false } }, can: vi.fn(() => true) },
+      localeStore: { getTranslation: (key: string) => key },
+    } as unknown as RootStore);
+    act(() => {
+      store.openForCreate(
+        { model: MODEL, runtimes: runtimes(), webhooks: [], composer: false, cloud: false, timezone: "UTC" },
+        vi.fn(),
+        { typeId: DEALS },
+      );
+      store.startFromScratch();
+    });
+    return store;
+  }
+
+  const connectors = () => [...container.querySelectorAll<HTMLButtonElement>("[data-automation-connector] button")];
+
+  it("closes on Escape without letting the key reach the dialog around it", () => {
+    const onClose = vi.fn();
+    const outer = vi.fn();
+    mount(
+      <div role="presentation" onKeyDown={outer}>
+        <AutomationPalette disabled={new Set()} onClose={onClose} onPick={vi.fn()} />
+      </div>,
+    );
+    const palette = container.querySelector("[data-automation-palette]");
+    const search = palette?.querySelector("input");
+
+    expect(palette?.hasAttribute("data-local-escape")).toBe(true);
+    expect(search?.closest("[data-local-escape]")).toBe(palette);
+
+    const escape = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    act(() => {
+      search?.dispatchEvent(escape);
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(outer).not.toHaveBeenCalled();
+    expect(escape.defaultPrevented).toBe(true);
+
+    act(() => {
+      search?.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true, cancelable: true }));
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(outer).toHaveBeenCalledTimes(1);
+  });
+
+  it("puts the focus on the card that was just added", () => {
+    const store = chainStore();
+    mount(<AutomationCardChain store={store} />);
+
+    act(() => connectors()[0]?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-automation-palette-item="notify"]')?.click());
+
+    const header = container.querySelector('[data-automation-card="effect-0"] button[aria-expanded="true"]');
+    expect(header).not.toBeNull();
+    expect(document.activeElement).toBe(header);
+
+    act(() => connectors()[0]?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-automation-palette-item="condition"]')?.click());
+    expect(document.activeElement).toBe(
+      container.querySelector('[data-automation-card="condition-0"] button[aria-expanded="true"]'),
+    );
+  });
+
+  it("hands the focus back to the + it was opened from when it is closed without a choice", () => {
+    const store = chainStore();
+    act(() => store.addEffect("notify", 0));
+    mount(<AutomationCardChain store={store} />);
+
+    act(() => connectors()[1]?.click());
+    const search = container.querySelector<HTMLInputElement>("[data-automation-palette] input");
+    act(() => {
+      search?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    });
+
+    expect(container.querySelector("[data-automation-palette]")).toBeNull();
+    expect(store.isOpen).toBe(true);
+    expect(document.activeElement).toBe(connectors()[1]);
   });
 });
 

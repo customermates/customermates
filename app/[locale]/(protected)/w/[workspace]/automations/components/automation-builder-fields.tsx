@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { cloneElement, isValidElement, useId } from "react";
 import { useTranslations } from "next-intl";
 
 import type { AutomationBuilderField } from "./automation-builder-model";
@@ -26,22 +26,30 @@ export function Section({ title, children }: { title: string; children: React.Re
 }
 
 export function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+  const generatedId = useId();
+  const control = isValidElement<{ id?: string }>(children) ? children : null;
+  const id = control ? (control.props.id ?? generatedId) : undefined;
+
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <Label className="text-xs text-muted-foreground" htmlFor={id}>
+        {label}
+      </Label>
 
-      {children}
+      {control ? cloneElement(control, { id }) : children}
     </div>
   );
 }
 
 export function Choose({
+  id,
   value,
   items,
   placeholder,
   label,
   onChange,
 }: {
+  id?: string;
   value: string;
   items: { id: string; label: string }[];
   placeholder: string;
@@ -50,7 +58,7 @@ export function Choose({
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger aria-label={label} className="w-full">
+      <SelectTrigger aria-label={label} className="w-full" id={id}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
 
@@ -66,11 +74,13 @@ export function Choose({
 }
 
 export function PickMany({
+  id,
   values,
   items,
   label,
   onChange,
 }: {
+  id?: string;
   values: string[];
   items: { id: string; label: string }[];
   label: string;
@@ -88,19 +98,20 @@ export function PickMany({
       aria-label={label}
       className="flex max-h-40 flex-wrap gap-x-4 gap-y-2 overflow-y-auto rounded-md border border-input p-2"
       data-automation-pick-many=""
+      id={id}
       role="group"
     >
       {entries.map((entry) => {
-        const id = `${baseId}-${entry.id}`;
+        const boxId = `${baseId}-${entry.id}`;
         return (
           <span key={entry.id} className="flex items-center gap-2">
             <Checkbox
               checked={values.includes(entry.id)}
-              id={id}
+              id={boxId}
               onCheckedChange={(checked) => toggle(entry.id, checked === true)}
             />
 
-            <Label className={"stale" in entry ? "font-normal text-destructive" : "font-normal"} htmlFor={id}>
+            <Label className={"stale" in entry ? "font-normal text-destructive" : "font-normal"} htmlFor={boxId}>
               {entry.label}
             </Label>
           </span>
@@ -138,11 +149,13 @@ function unavailableText(t: ReturnType<typeof useTranslations>, what: DraftUnava
 }
 
 export function ValueInput({
+  id,
   field,
   value,
   label,
   onChange,
 }: {
+  id?: string;
   field: AutomationBuilderField | undefined;
   value: string;
   label: string;
@@ -152,6 +165,7 @@ export function ValueInput({
   if (field?.valueType === "select") {
     return (
       <Choose
+        id={id}
         items={field.options}
         label={label}
         placeholder={t("AutomationRules.builder.choose")}
@@ -163,6 +177,7 @@ export function ValueInput({
   if (field?.valueType === "boolean") {
     return (
       <Choose
+        id={id}
         items={BOOLEAN_OPTIONS.map((option) => ({ id: option, label: t(`AutomationRules.builder.boolean.${option}`) }))}
         label={label}
         placeholder={t("AutomationRules.builder.choose")}
@@ -174,6 +189,7 @@ export function ValueInput({
   return (
     <Input
       aria-label={label}
+      id={id}
       inputMode={field?.valueType === "number" || field?.valueType === "currency" ? "decimal" : undefined}
       placeholder={field?.valueType === "date" ? "2026-12-31" : undefined}
       value={value}
@@ -189,10 +205,12 @@ function timeZoneIds(current: string): { id: string; label: string }[] {
 }
 
 export function TimeZonePicker({
+  id,
   value,
   label,
   onChange,
 }: {
+  id?: string;
   value: string;
   label: string;
   onChange: (value: string) => void;
@@ -200,6 +218,7 @@ export function TimeZonePicker({
   const t = useTranslations();
   return (
     <Choose
+      id={id}
       items={timeZoneIds(value)}
       label={label}
       placeholder={t("AutomationRules.builder.choose")}

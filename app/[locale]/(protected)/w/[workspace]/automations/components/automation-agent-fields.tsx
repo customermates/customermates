@@ -17,6 +17,8 @@ import { Choose, Labeled } from "./automation-builder-fields";
 export const AGENT_SETTINGS_HREF = "/settings/connections?tab=agents";
 
 const DEFAULT_CHOICE = "default";
+const NEXT_KEYS = ["ArrowRight", "ArrowDown"];
+const PREVIOUS_KEYS = ["ArrowLeft", "ArrowUp"];
 
 type Props = {
   effect: DraftAgent;
@@ -44,25 +46,38 @@ function RuntimeReason({ runtime, runtimes }: { runtime: AgentRuntimeKind; runti
 export function AutomationAgentFields({ effect, runtimes, flagged, onChange }: Props) {
   const t = useTranslations();
   const option = runtimes[effect.runtime];
+  const choose = (runtime: AgentRuntimeKind) => onChange({ ...effect, runtime, model: "", runnerId: "" });
 
   return (
     <div className="flex flex-col gap-3">
       <div aria-label={t("Automations.agent.runtimeLabel")} className="flex flex-wrap gap-2" role="radiogroup">
-        {AGENT_RUNTIMES.map((runtime) => {
+        {AGENT_RUNTIMES.map((runtime, index) => {
           const selected = effect.runtime === runtime;
           return (
             <button
               key={runtime}
               aria-checked={selected}
               className={cn(
-                "flex min-w-32 flex-1 flex-col gap-0.5 rounded-md border px-3 py-2 text-left text-sm transition-colors",
+                "flex min-w-32 flex-1 flex-col gap-0.5 rounded-md border px-3 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
                 selected ? "border-ring bg-accent" : "border-border hover:bg-accent/50",
                 !runtimes[runtime].available && "text-muted-foreground",
               )}
               data-agent-runtime={runtime}
               role="radio"
+              tabIndex={selected ? 0 : -1}
               type="button"
-              onClick={() => onChange({ ...effect, runtime, model: "", runnerId: "" })}
+              onClick={() => choose(runtime)}
+              onKeyDown={(event) => {
+                const step = NEXT_KEYS.includes(event.key) ? 1 : PREVIOUS_KEYS.includes(event.key) ? -1 : 0;
+                if (step === 0) return;
+                event.preventDefault();
+                const next = AGENT_RUNTIMES[(index + step + AGENT_RUNTIMES.length) % AGENT_RUNTIMES.length];
+                if (!next) return;
+                choose(next);
+                event.currentTarget.parentElement
+                  ?.querySelector<HTMLElement>(`[data-agent-runtime="${next}"]`)
+                  ?.focus();
+              }}
             >
               <span className="font-medium">{t(`Automations.agent.runtime.${runtime}`)}</span>
 

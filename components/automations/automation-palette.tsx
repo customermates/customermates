@@ -3,7 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 
 import { Bell, Filter, ListPlus, Pencil, Search, Sparkles, Webhook, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -74,7 +74,22 @@ type Props = {
 
 export function AutomationPalette({ disabled, onPick, onClose }: Props) {
   const t = useTranslations();
+  const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+    };
+    root.addEventListener("keydown", closeOnEscape);
+    return () => root.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
+
   const groups = useMemo(() => {
     const term = query.trim().toLowerCase();
     return GROUP_ORDER.map((group) => ({
@@ -90,9 +105,11 @@ export function AutomationPalette({ disabled, onPick, onClose }: Props) {
 
   return (
     <div
+      ref={rootRef}
       aria-label={t("Automations.palette.title")}
       className="flex flex-col gap-3 rounded-xl border bg-popover p-3 shadow-md"
       data-automation-palette=""
+      data-local-escape=""
       role="group"
     >
       <div className="flex items-center gap-2">

@@ -6,6 +6,7 @@ import type { AutomationBuilderStore } from "./automation-builder.store";
 
 import { Bell, Filter, ListPlus, Pencil, Sparkles, Webhook, Zap } from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { AutomationCard, AutomationConnector } from "@/components/automations/automation-card";
@@ -28,7 +29,22 @@ const EFFECT_ICONS: Record<string, LucideIcon> = {
 
 export const AutomationCardChain = observer(function AutomationCardChain({ store }: { store: AutomationBuilderStore }) {
   const t = useTranslations();
+  const chainRef = useRef<HTMLDivElement>(null);
+  const focusAfterRender = useRef<{ card: string } | { connector: number } | null>(null);
   const { form, model, context, palette } = store;
+
+  useEffect(() => {
+    const target = focusAfterRender.current;
+    const chain = chainRef.current;
+    if (!target || !chain) return;
+    focusAfterRender.current = null;
+    const element =
+      "card" in target
+        ? chain.querySelector<HTMLElement>(`[data-automation-card="${target.card}"] button[aria-expanded]`)
+        : chain.querySelectorAll<HTMLElement>("[data-automation-connector] button")[target.connector];
+    element?.focus();
+  });
+
   if (!model || !context) return null;
 
   const hasRecord = draftHasRecord(form.trigger);
@@ -40,8 +56,20 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
     for (const kind of ["setField", "createRecord", "notify", "callWebhook", "agent"] as const) disabled.add(kind);
 
   const pick = (kind: AutomationPaletteKind, position: number) => {
-    if (kind === "condition") store.addCondition(Math.min(position, conditionCount));
-    else store.addEffect(kind, Math.max(0, position - conditionCount));
+    if (kind === "condition") {
+      const at = Math.min(position, conditionCount);
+      focusAfterRender.current = { card: `condition-${at}` };
+      store.addCondition(at);
+    } else {
+      const at = Math.max(0, position - conditionCount);
+      focusAfterRender.current = { card: `effect-${at}` };
+      store.addEffect(kind, at);
+    }
+  };
+
+  const dismissPalette = (position: number) => {
+    focusAfterRender.current = { connector: position };
+    store.closePalette();
   };
 
   const readOnly = store.isReadOnly;
@@ -58,13 +86,17 @@ export const AutomationCardChain = observer(function AutomationCardChain({ store
         />
 
         {palette?.index === position && (
-          <AutomationPalette disabled={disabled} onClose={store.closePalette} onPick={(kind) => pick(kind, position)} />
+          <AutomationPalette
+            disabled={disabled}
+            onClose={() => dismissPalette(position)}
+            onPick={(kind) => pick(kind, position)}
+          />
         )}
       </>
     );
 
   return (
-    <div className="flex flex-col" data-automation-chain="">
+    <div ref={chainRef} className="flex flex-col" data-automation-chain="">
       <AutomationCard
         cardId="trigger"
         expanded={store.expanded === "trigger"}
