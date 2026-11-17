@@ -20,7 +20,7 @@ import { wikiGraphRecordTypes } from "./wiki-graph-records";
 import { GetWikiGraphSchema, WikiGraphSchema } from "./wiki-graph.schema";
 
 export const WIKI_LINK_SYNC_BATCH_PAGES = 100;
-const WIKI_LINK_SYNC_MAX_BATCHES = 5;
+export const WIKI_LINK_SYNC_MAX_BATCHES = 5;
 
 export async function syncWikiLinksBestEffort(repo: WikiGraphRepo, batches: number): Promise<boolean> {
   let remaining = true;

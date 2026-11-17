@@ -7,15 +7,16 @@ import { isWikiTargetInWorkspace, parseWikiPageHref } from "./wiki-links";
 const UUID_SOURCE =
   "(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)";
 const RECORD_PATH_PATTERN = new RegExp(
-  `^/(?:([a-z]{2})/)?(?:w/([^/?#]+)/)?records/(${UUID_SOURCE})/(${UUID_SOURCE})(?:[?#].*)?$`,
+  `^/(?:([a-z]{2})/)?(?:w/([^/?#]+)/)?records/(${UUID_SOURCE})(?:/(${UUID_SOURCE}))?/?(?:[?#].*)?$`,
   "iu",
 );
 
-export type WikiRecordTarget = { typeId: string; recordId: string; slug: string | null };
+export type WikiRecordTarget = { typeId: string; recordId: string | null; slug: string | null };
 
 export type WikiLinkTargets = {
   pages: string[];
   records: Array<{ typeId: string; recordId: string }>;
+  lists: string[];
 };
 
 type MarkdownNode = {
@@ -45,10 +46,10 @@ export function parseRecordHref(value: string, baseUrl?: string): WikiRecordTarg
   }
   if (!path.startsWith("/")) return null;
   const match = RECORD_PATH_PATTERN.exec(path);
-  if (!match?.[3] || !match[4]) return null;
+  if (!match?.[3]) return null;
   if (match[1] && !routingLocaleFromUrlSegment(match[1])) return null;
   if (match[2] !== undefined && !isWorkspaceSlugSegment(match[2])) return null;
-  return { typeId: match[3].toLowerCase(), recordId: match[4].toLowerCase(), slug: match[2] ?? null };
+  return { typeId: match[3].toLowerCase(), recordId: match[4]?.toLowerCase() ?? null, slug: match[2] ?? null };
 }
 
 export function extractWikiLinkTargets(
@@ -58,6 +59,7 @@ export function extractWikiLinkTargets(
   const document = parseMarkdownToJSON(markdown) as MarkdownNode;
   const pages = new Set<string>();
   const records = new Map<string, { typeId: string; recordId: string }>();
+  const lists = new Set<string>();
   visit(document, (node) => {
     for (const mark of node.marks ?? []) {
       const href = mark.type === "link" ? mark.attrs?.href : null;
@@ -68,9 +70,10 @@ export function extractWikiLinkTargets(
         continue;
       }
       const record = parseRecordHref(href, options.baseUrl);
-      if (record && isWikiTargetInWorkspace(record, options.workspaceSlug))
-        records.set(`${record.typeId}/${record.recordId}`, { typeId: record.typeId, recordId: record.recordId });
+      if (!record || !isWikiTargetInWorkspace(record, options.workspaceSlug)) continue;
+      if (record.recordId === null) lists.add(record.typeId);
+      else records.set(`${record.typeId}/${record.recordId}`, { typeId: record.typeId, recordId: record.recordId });
     }
   });
-  return { pages: [...pages], records: [...records.values()] };
+  return { pages: [...pages], records: [...records.values()], lists: [...lists] };
 }

@@ -1356,6 +1356,10 @@
       "widgetLayoutOverlap": "Diese Position überschneidet sich mit einem anderen Widget. Wähle einen freien Platz im 12-Spalten-Raster oder lass das Layout weg, damit das Widget automatisch platziert wird.",
       "widgetLayoutTooSmall": "Dieses Widget ist zu klein: Diagramme und Kennzahlen brauchen mindestens 2 Zeilen, Aktivitätsverläufe 2 Spalten und 6 Zeilen.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
+      "wikiEditInvalid": "Diese Änderung ist nicht gültig. Sende find mit replace, anchor mit markdown oder nur markdown, und entweder markdown oder edits, nicht beides.",
+      "wikiEditSectionNotFound": "Die Seite hat keinen Abschnitt mit diesem Anker. Die Gliederung der Seite nennt die Anker ihrer Abschnitte.",
+      "wikiEditTextAmbiguous": "Der zu ersetzende Text kommt mehrfach vor. Nimm mehr vom umgebenden Text dazu, damit er nur auf eine Stelle passt.",
+      "wikiEditTextNotFound": "Der zu ersetzende Text steht nicht auf der Seite. Kopiere ihn genau aus einem frischen Abruf der Seite.",
       "wikiGuideExists": "Diese Wissensdatenbank hat bereits einen Betriebsleitfaden. Aktualisiere stattdessen den vorhandenen Leitfaden.",
       "wikiNotEmpty": "Diese Aktion erfordert eine leere Wissensdatenbank.",
       "wikiPageConflict": "Diese Wissensdatenbank-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
@@ -5456,6 +5460,7 @@
     "showDeliveries": "Zustellungen anzeigen"
   },
   "Wiki": {
+    "changed": "Zuletzt geändert",
     "conflict": "Diese Seite wurde geändert. Deine Änderungen sind noch vorhanden. Lade die neueste Version, um fortzufahren.",
     "copyLink": "Seitenlink kopieren",
     "delete": "Seite löschen",
@@ -5465,30 +5470,40 @@
     "emptyTitle": "Deine Wissensdatenbank ist leer",
     "graph": {
       "canvasLabel": "Karte der Wissensdatenbank-Seiten und ihrer Verknüpfungen",
-      "drawerLabel": "Seitenvorschau: {title}",
-      "drawerSegments": "Bereiche der Seitenvorschau",
+      "filter": {
+        "all": "Alle Seiten",
+        "knowledge": "Wissen",
+        "label": "Seiten nach Typ zeigen",
+        "procedure": "Verfahren"
+      },
       "fit": "Karte ins Fenster einpassen",
       "label": "Karte der Wissensdatenbank",
-      "legend": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu lesen.",
-      "legendEdit": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu lesen, ziehe eine Seite, um sie festzupinnen.",
-      "linkCounts": "Verweise von {inbound} · verweist auf {outbound}",
+      "legend": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu öffnen.",
+      "legendEdit": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu öffnen, ziehe sie, um sie an ihrem Platz festzupinnen.",
       "linkedFrom": "Verweise von",
+      "linkedFromCount": "{count, plural, one {Verweis von # Seite} other {Verweise von # Seiten}}",
+      "linksFailed": "Die Verweise dieser Seite konnten nicht geladen werden.",
       "linksTo": "Verweist auf",
+      "loadFailed": "Die Seiten der Wissensdatenbank konnten nicht geladen werden.",
       "missingLinks": "{count, plural, one {# Verweis führt zu einer gelöschten Seite} other {# Verweise führen zu gelöschten Seiten}}",
       "nodeLabel": "{title} ({kind})",
       "noLinks": "Keine Seiten",
       "noMatches": "Keine Seite passt zum Filter.",
-      "openPage": "Seite öffnen",
-      "pin": "Hier festpinnen",
+      "pin": "Auf der Karte festpinnen",
+      "pinHelp": "Hält diese Seite an ihrem Platz auf der Karte. Du kannst eine Seite auch ziehen, um sie festzupinnen.",
       "pinned": "Festgepinnt",
+      "pinnedHelp": "Diese Seite behält ihren Platz, wenn sich die Karte neu ordnet.",
       "records": "Verknüpfte Datensätze",
       "search": "Seite finden",
       "segments": {
+        "details": "Details",
         "links": "Verweise",
         "page": "Seite"
       },
+      "sheetSegments": "Bereiche der Seite",
       "truncated": "Die ersten {count} Seiten werden gezeigt.",
-      "unpin": "Lösen"
+      "unpin": "Pin lösen",
+      "unpinHelp": "Die Karte ordnet diese Seite wieder selbst ein."
     },
     "kind": {
       "guide": "Betriebsleitfaden",
@@ -5509,8 +5524,11 @@
     "next": "Weiter",
     "noResults": "Keine passenden Seiten.",
     "onThisPage": "Auf dieser Seite",
-    "page": "Seite {current} von {total}",
-    "pageActions": "Seitenaktionen",
+    "owner": {
+      "help": "Die Person, das Team oder der Agent, der diese Seite aktuell hält. Agenten sehen die Angabe bei der Seite.",
+      "label": "Verantwortlich",
+      "placeholder": "Zum Beispiel Support-Team"
+    },
     "pagesLabel": "Wissensdatenbank-Seiten",
     "pageTitle": "Seitentitel",
     "previous": "Zurück",
@@ -5542,10 +5560,17 @@
       "title": "Vorschläge"
     },
     "reload": "Seite neu laden",
-    "search": "Seiten suchen…",
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
     "unavailableTitle": "Seite nicht verfügbar",
     "untitled": "Unbenannte Seite",
+    "verified": {
+      "help": "Hält fest, dass du diese Seite heute geprüft hast und sie noch stimmt.",
+      "label": "Zuletzt geprüft",
+      "mark": "Als geprüft markieren",
+      "never": "Noch nicht geprüft",
+      "on": "Geprüft am {date}",
+      "saveFirst": "Speichere deine Änderungen, bevor du die Seite als geprüft markierst."
+    },
     "websiteImport": {
       "faqHeading": "Häufig gestellte Fragen",
       "source": "Quelle: {url} · abgerufen am {date}"

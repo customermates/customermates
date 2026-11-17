@@ -2,39 +2,38 @@ import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 
 type Props = {
   animated?: boolean;
-  documentOnly?: boolean;
 };
 
-export function WikiPageSkeleton({ animated = true, documentOnly = false }: Props) {
+const DOTS = [
+  "top-[22%] left-[18%] size-4",
+  "top-[36%] left-[41%] size-6",
+  "top-[18%] left-[63%] size-3",
+  "top-[52%] left-[27%] size-3",
+  "top-[58%] left-[56%] size-5",
+  "top-[44%] left-[78%] size-4",
+  "top-[74%] left-[40%] size-3",
+  "top-[70%] left-[70%] size-3",
+];
+
+export function WikiPageSkeleton({ animated = true }: Props) {
   return (
-    <div
-      className={
-        documentOnly ? "h-full min-h-80" : "grid h-full min-h-0 grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)]"
-      }
-    >
-      {!documentOnly && (
-        <aside className="hidden border-r border-border p-4 lg:block">
-          <Shape animated={animated} className="mb-5 h-8 w-full rounded-md" />
+    <div className="relative h-full min-h-80 overflow-hidden">
+      <div className="flex gap-1 p-3">
+        <Shape animated={animated} className="h-7 w-24 rounded-full" />
 
-          <div className="space-y-2">
-            <Shape animated={animated} className="h-9 w-full rounded-md" motionPhase={1} />
+        <Shape animated={animated} className="h-7 w-28 rounded-full" motionPhase={1} />
 
-            <Shape animated={animated} className="h-9 w-4/5 rounded-md" motionPhase={2} />
-
-            <Shape animated={animated} className="h-9 w-11/12 rounded-md" motionPhase={3} />
-          </div>
-        </aside>
-      )}
-
-      <div className="mx-auto w-full max-w-3xl space-y-5 px-6 py-8 md:px-10 md:py-10">
-        <Shape breathe animated={animated} className="h-8 w-2/3" />
-
-        <Shape animated={animated} className="h-4 w-full" motionPhase={1} />
-
-        <Shape animated={animated} className="h-4 w-11/12" motionPhase={2} />
-
-        <Shape animated={animated} className="h-4 w-4/5" motionPhase={3} />
+        <Shape animated={animated} className="h-7 w-24 rounded-full" motionPhase={2} />
       </div>
+
+      {DOTS.map((position, index) => (
+        <Shape
+          key={position}
+          animated={animated}
+          className={`absolute rounded-full ${position}`}
+          motionPhase={((index % 3) + 1) as 1 | 2 | 3}
+        />
+      ))}
     </div>
   );
 }

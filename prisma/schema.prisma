@@ -338,6 +338,10 @@ model WikiPage {
   sourceContentHash       String?
   sourceImportedUpdatedAt DateTime?
   linksSyncedAt           DateTime?
+  /// Who keeps the page current: a person, a team or an agent, as free text.
+  owner                   String?
+  /// When someone last confirmed the page is still correct; a content change does not move it.
+  verifiedAt              DateTime?
   deletedAt               DateTime?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
@@ -356,19 +360,20 @@ model WikiPage {
 enum WikiLinkTargetKind {
   page
   record
+  list
 }
 
 model WikiPageLink {
-  id            String             @id @default(uuid())
-  companyId     String
-  pageId        String
-  targetKind    WikiLinkTargetKind
-  targetId      String
-  targetTypeId  String?
-  pageUpdatedAt DateTime
-  createdAt     DateTime           @default(now())
-  company       Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  page          WikiPage           @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  id           String             @id @default(uuid())
+  companyId    String
+  pageId       String
+  targetKind   WikiLinkTargetKind
+  /// The linked page, the linked record, or for a list link the record type.
+  targetId     String
+  targetTypeId String?
+  createdAt    DateTime           @default(now())
+  company      Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  page         WikiPage           @relation(fields: [pageId], references: [id], onDelete: Cascade)
 
   @@unique([companyId, pageId, targetKind, targetId])
   @@index([companyId, targetKind, targetId])

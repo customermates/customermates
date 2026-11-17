@@ -1356,6 +1356,10 @@
       "widgetLayoutOverlap": "Esta posição se sobrepõe a outro widget. Escolha um espaço livre na grade de 12 colunas ou omita o layout para posicionar o widget automaticamente.",
       "widgetLayoutTooSmall": "Este widget é pequeno demais: gráficos e números precisam de pelo menos 2 linhas, e linhas do tempo de atividade, de 2 colunas e 6 linhas.",
       "widgetNotFound": "ID do widget não encontrado ou inacessível.",
+      "wikiEditInvalid": "Esta edição não é válida. Envie find com replace, anchor com markdown ou apenas markdown, e markdown ou edits, não os dois.",
+      "wikiEditSectionNotFound": "A página não tem uma seção com esta âncora. O sumário da página indica as âncoras das seções.",
+      "wikiEditTextAmbiguous": "O texto a substituir aparece mais de uma vez. Inclua mais do texto ao redor para que corresponda a um só lugar.",
+      "wikiEditTextNotFound": "O texto a substituir não está na página. Copie-o exatamente de uma leitura recente da página.",
       "wikiGuideExists": "Esta Base de conhecimento já tem um Guia de operação. Atualize o guia existente.",
       "wikiNotEmpty": "Esta ação exige uma Base de conhecimento vazia.",
       "wikiPageConflict": "Esta página da Base de conhecimento mudou depois que você a abriu. Recarregue-a e tente novamente.",
@@ -5456,6 +5460,7 @@
     "showDeliveries": "Mostrar entregas"
   },
   "Wiki": {
+    "changed": "Última alteração",
     "conflict": "Esta página foi alterada. Suas edições continuam aqui. Recarregue para usar a versão mais recente.",
     "copyLink": "Copiar link da página",
     "delete": "Excluir página",
@@ -5465,30 +5470,40 @@
     "emptyTitle": "Sua base de conhecimento está vazia",
     "graph": {
       "canvasLabel": "Mapa das páginas da base de conhecimento e dos links entre elas",
-      "drawerLabel": "Pré-visualização da página: {title}",
-      "drawerSegments": "Seções da pré-visualização",
+      "filter": {
+        "all": "Todas as páginas",
+        "knowledge": "Conhecimento",
+        "label": "Mostrar páginas por tipo",
+        "procedure": "Procedimentos"
+      },
       "fit": "Ajustar o mapa à janela",
       "label": "Mapa da base de conhecimento",
-      "legend": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para lê-la.",
-      "legendEdit": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para lê-la, arraste uma página para fixá-la.",
-      "linkCounts": "Linkada de {inbound} · aponta para {outbound}",
+      "legend": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para abri-la.",
+      "legendEdit": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para abri-la, arraste-a para fixá-la no lugar.",
       "linkedFrom": "Linkada de",
+      "linkedFromCount": "{count, plural, one {Linkada de # página} other {Linkada de # páginas}}",
+      "linksFailed": "Não foi possível carregar os links desta página.",
       "linksTo": "Aponta para",
+      "loadFailed": "Não foi possível carregar as páginas da base de conhecimento.",
       "missingLinks": "{count, plural, one {# link aponta para uma página excluída} other {# links apontam para páginas excluídas}}",
       "nodeLabel": "{title} ({kind})",
       "noLinks": "Nenhuma página",
       "noMatches": "Nenhuma página corresponde ao filtro.",
-      "openPage": "Abrir página",
-      "pin": "Fixar aqui",
+      "pin": "Fixar no mapa",
+      "pinHelp": "Mantém esta página no lugar no mapa. Você também pode arrastar uma página para fixá-la.",
       "pinned": "Fixada",
+      "pinnedHelp": "Esta página mantém o lugar quando o mapa se reorganiza.",
       "records": "Registros vinculados",
       "search": "Encontrar uma página",
       "segments": {
+        "details": "Detalhes",
         "links": "Links",
         "page": "Página"
       },
+      "sheetSegments": "Seções da página",
       "truncated": "Mostrando as primeiras {count} páginas.",
-      "unpin": "Soltar"
+      "unpin": "Soltar a fixação",
+      "unpinHelp": "O mapa volta a posicionar esta página."
     },
     "kind": {
       "guide": "Guia operacional",
@@ -5509,8 +5524,11 @@
     "next": "Próximo",
     "noResults": "Nenhuma página correspondente.",
     "onThisPage": "Nesta página",
-    "page": "Página {current} de {total}",
-    "pageActions": "Ações da página",
+    "owner": {
+      "help": "A pessoa, a equipe ou o agente que mantém esta página atualizada. Os agentes veem isso junto à página.",
+      "label": "Responsável",
+      "placeholder": "Por exemplo, equipe de suporte"
+    },
     "pagesLabel": "Páginas da base de conhecimento",
     "pageTitle": "Título da página",
     "previous": "Anterior",
@@ -5542,10 +5560,17 @@
       "title": "Propostas"
     },
     "reload": "Recarregar página",
-    "search": "Buscar páginas…",
     "unavailableBody": "Esta página foi excluída ou você não tem acesso a ela. Escolha outra página.",
     "unavailableTitle": "Página indisponível",
     "untitled": "Página sem título",
+    "verified": {
+      "help": "Registra que você conferiu esta página hoje e que ela continua correta.",
+      "label": "Última verificação",
+      "mark": "Marcar como verificada",
+      "never": "Ainda não verificada",
+      "on": "Verificada em {date}",
+      "saveFirst": "Salve suas alterações antes de marcar a página como verificada."
+    },
     "websiteImport": {
       "faqHeading": "Perguntas frequentes",
       "source": "Fonte: {url} · obtida em {date}"

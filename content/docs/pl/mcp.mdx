@@ -430,9 +430,9 @@ Czyta i zmienia twój osobisty kalendarz: options wyświetla listy z polami dat 
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-Wyświetla, wyszukuje, czyta, tworzy, aktualizuje, zmienia kolejność (przenosi przed lub za inną stronę) albo usuwa (przenosi do Kosza) strony Bazy wiedzy, z których każda jest stroną wiedzy, procedurą z wyzwalaczem „kiedy używać” albo jedynym Przewodnikiem operacyjnym. Aktualizacje i usunięcia wymagają najnowszej wartości updatedAt; create może atomowo wymagać pustej Bazy wiedzy.
+Wyświetla, wyszukuje, czyta, tworzy, aktualizuje, zmienia kolejność (przenosi przed lub za inną stronę) albo usuwa (przenosi do Kosza) strony Bazy wiedzy, z których każda jest stroną wiedzy, procedurą z wyzwalaczem „kiedy używać” albo jedynym Przewodnikiem operacyjnym. Aktualizacja może zmienić części strony (znajdź i zamień albo sekcję wskazaną kotwicą) zamiast przesyłać ją całą, wskazać, kto dba o aktualność strony, i oznaczyć ją jako sprawdzoną. links zwraca strony, które linkują do danej strony, i strony, do których ona linkuje, a dla całej Bazy wiedzy strony, do których nie linkuje żadna inna, oraz strony z linkami do usuniętych stron. Aktualizacje i usunięcia wymagają najnowszej wartości updatedAt; create może atomowo wymagać pustej Bazy wiedzy.
 
-**Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `edits`, `kind`, `whenToUse`, `owner`, `verified`.
 {/* /mcp-catalog */}
 
 ### Wiadomości [#messaging]

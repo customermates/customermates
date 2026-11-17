@@ -12,6 +12,7 @@ import { PermissionService } from "@/core/base/permission.service";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import {
   getGetWikiGraphInteractor,
+  getGetWikiLinkReportInteractor,
   getGetWikiPageLinksInteractor,
   getPinWikiGraphNodeInteractor,
   getWikiGraphRepo,
@@ -74,6 +75,7 @@ describeDatabase("Knowledge Base map on PostgreSQL", () => {
   const graph = (tenant = user) => runWithTenant(tenant, () => getGetWikiGraphInteractor().invoke({}));
   const pageLinks = (id: string, tenant = user) =>
     runWithTenant(tenant, () => getGetWikiPageLinksInteractor().invoke({ id }));
+  const linkReport = (tenant = user) => runWithTenant(tenant, () => getGetWikiLinkReportInteractor().invoke({}));
   const pin = (data: Parameters<ReturnType<typeof getPinWikiGraphNodeInteractor>["invoke"]>[0], tenant = user) =>
     runWithTenant(tenant, () => getPinWikiGraphNodeInteractor().invoke(data));
   const pageLink = (id: string) => `/wiki?page=${id}`;
@@ -92,6 +94,7 @@ describeDatabase("Knowledge Base map on PostgreSQL", () => {
           markdown: [
             `Plans follow the [guide](${pageLink(guide.id)}) and [refunds](${pageLink(refunds.id)}).`,
             `See [Acme](/records/${TYPE_ID}/${RECORD_ID}) and the [old page](${pageLink(MISSING_PAGE_ID)}).`,
+            `All of them are in the [customer list](/records/${TYPE_ID}).`,
           ].join("\n\n"),
         },
       ]),
@@ -141,7 +144,7 @@ describeDatabase("Knowledge Base map on PostgreSQL", () => {
       x: 0.5,
       y: 0.5,
     });
-    expect(node(pricing.id)).toMatchObject({ inbound: 1, outbound: 2, missing: 1, records: 1, pinned: false });
+    expect(node(pricing.id)).toMatchObject({ inbound: 1, outbound: 2, missing: 1, records: 2, pinned: false });
     expect(node(refunds.id)).toMatchObject({ inbound: 1, outbound: 1, whenToUse: "Refund requests." });
     expect(first.links).toEqual(
       expect.arrayContaining([
@@ -177,7 +180,13 @@ describeDatabase("Knowledge Base map on PostgreSQL", () => {
       targetId: MISSING_PAGE_ID,
       targetTypeId: null,
     });
-    expect(stored.rowCount).toBe(5);
+    expect(stored.rows).toContainEqual({
+      pageId: pricing.id,
+      targetKind: "list",
+      targetId: TYPE_ID,
+      targetTypeId: TYPE_ID,
+    });
+    expect(stored.rowCount).toBe(6);
 
     const second = ok(await graph());
     expect(second.nodes.map(({ id, x, y }) => ({ id, x, y }))).toEqual(
@@ -247,9 +256,97 @@ describeDatabase("Knowledge Base map on PostgreSQL", () => {
       { id: refunds.id, title: "Refunds", kind: "procedure" },
     ]);
     expect(links.missing).toBe(1);
+    expect(links.missingPageIds).toEqual([MISSING_PAGE_ID]);
     expect(links.records).toEqual([]);
-    expect(ok(await pageLinks(guide.id))).toMatchObject({ linkedFrom: [{ id: pricing.id }], linksTo: [], missing: 0 });
+    expect(ok(await pageLinks(guide.id))).toMatchObject({
+      linkedFrom: [{ id: pricing.id }],
+      linksTo: [],
+      missing: 0,
+      missingPageIds: [],
+    });
     expect(await pageLinks(MISSING_PAGE_ID)).toMatchObject({ ok: false });
+  });
+
+  it("reads the links again after an edit to a part of the page added one", async () => {
+    const { guide, pricing } = await seedLinkedPages();
+    const [shipping] = ok(await create([{ title: "Shipping", markdown: "Ships in two days." }]));
+    expect(ok(await pageLinks(shipping.id))).toMatchObject({ linkedFrom: [], linksTo: [] });
+
+    const edited = ok(
+      await update({
+        id: shipping.id,
+        expectedUpdatedAt: shipping.updatedAt,
+        edits: [{ markdown: `## See also\n\nPrices are on [pricing](${pageLink(pricing.id)}).` }],
+      }),
+    );
+
+    expect(edited.markdown).toBe(
+      `Ships in two days.\n\n## See also\n\nPrices are on [pricing](${pageLink(pricing.id)}).`,
+    );
+    expect(ok(await pageLinks(shipping.id)).linksTo).toEqual([{ id: pricing.id, title: "Pricing", kind: "knowledge" }]);
+    expect(ok(await pageLinks(pricing.id)).linkedFrom.map(({ id }) => id)).toContain(shipping.id);
+    expect(ok(await pageLinks(guide.id)).linkedFrom).toEqual([{ id: pricing.id, title: "Pricing", kind: "knowledge" }]);
+  });
+
+  it("reports the pages no other page links to and the pages with links to deleted pages", async () => {
+    const { guide, refunds, pricing } = await seedLinkedPages();
+    const [shipping] = ok(
+      await create([{ title: "Shipping", markdown: `Follows the [guide](${pageLink(guide.id)}).` }]),
+    );
+
+    const report = ok(await linkReport());
+
+    expect(report).toEqual({
+      pages: 4,
+      orphans: [{ id: shipping.id, title: "Shipping", kind: "knowledge" }],
+      orphansTotal: 1,
+      broken: [{ id: pricing.id, title: "Pricing", kind: "knowledge", missingPageIds: [MISSING_PAGE_ID] }],
+      brokenTotal: 1,
+      syncing: false,
+    });
+
+    await client.query('UPDATE "WikiPage" SET "deletedAt" = NOW() WHERE "id" = $1 AND "companyId" = $2', [
+      refunds.id,
+      companyId,
+    ]);
+    const after = ok(await linkReport());
+    expect(after.pages).toBe(3);
+    expect(after.orphans.map(({ id }) => id).sort()).toEqual([pricing.id, shipping.id].sort());
+    expect(after.broken).toEqual([
+      expect.objectContaining({
+        id: pricing.id,
+        missingPageIds: expect.arrayContaining([MISSING_PAGE_ID, refunds.id]),
+      }),
+    ]);
+    expect(after.broken[0].missingPageIds).toHaveLength(2);
+  });
+
+  it("never reports the Operating Guide as an orphan and reports nothing for an empty Knowledge Base", async () => {
+    expect(ok(await linkReport())).toEqual({
+      pages: 0,
+      orphans: [],
+      orphansTotal: 0,
+      broken: [],
+      brokenTotal: 0,
+      syncing: false,
+    });
+
+    ok(await create([{ title: "Operating Guide", markdown: "Be concise.", kind: "guide" }]));
+    expect(ok(await linkReport())).toMatchObject({ pages: 1, orphans: [], orphansTotal: 0 });
+  });
+
+  it("keeps the link report of another workspace apart and needs Knowledge Base read access", async () => {
+    const { pricing } = await seedLinkedPages();
+    ok(await create([{ title: "Foreign", markdown: `Reads [pricing](${pageLink(pricing.id)}).` }], foreignUser));
+
+    expect(ok(await linkReport()).orphans).toEqual([]);
+    expect(ok(await linkReport(foreignUser))).toMatchObject({
+      pages: 1,
+      orphansTotal: 1,
+      broken: [expect.objectContaining({ title: "Foreign", missingPageIds: [pricing.id] })],
+    });
+    expect(ok(await linkReport({ ...readOnlyUser, id: randomUUID(), companyId })).pages).toBe(3);
+    await expect(linkReport({ ...noAccessUser, id: randomUUID(), companyId })).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it("drops a trashed page from the map and counts links to it as missing", async () => {

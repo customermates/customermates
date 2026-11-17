@@ -60,7 +60,6 @@ export class PrismaWikiGraphRepo extends TenantRepository implements WikiGraphRe
                 targetKind: "page" as const,
                 targetId,
                 targetTypeId: null,
-                pageUpdatedAt: page.updatedAt,
               })),
               ...targets.records.map((record) => ({
                 companyId: this.companyId,
@@ -68,7 +67,13 @@ export class PrismaWikiGraphRepo extends TenantRepository implements WikiGraphRe
                 targetKind: "record" as const,
                 targetId: record.recordId,
                 targetTypeId: record.typeId,
-                pageUpdatedAt: page.updatedAt,
+              })),
+              ...targets.lists.map((typeId) => ({
+                companyId: this.companyId,
+                pageId: page.id,
+                targetKind: "list" as const,
+                targetId: typeId,
+                targetTypeId: typeId,
               })),
             ];
             if (rows.length > 0) await this.prisma.wikiPageLink.createMany({ data: rows, skipDuplicates: true });

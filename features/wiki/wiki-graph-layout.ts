@@ -5,14 +5,14 @@ export type WikiGraphPositions = Record<string, WikiGraphPosition>;
 
 export const WIKI_GRAPH_MAX_NODES = 600;
 
-const LAYOUT_VERSION = "3";
+const LAYOUT_VERSION = "4";
 const CENTER = 0.5;
 const SPREAD = 0.42;
 const EDGE = 0.02;
 const MAX_IDEAL_DISTANCE = 0.28;
-const IDEAL_DISTANCE_FACTOR = 0.85;
-const REPULSION_REACH = 3;
-const GRAVITY_PER_IDEAL = 18;
+const IDEAL_DISTANCE_FACTOR = 0.95;
+const REPULSION_REACH = 3.5;
+const GRAVITY_PER_IDEAL = 10;
 const COLD_TEMPERATURE = 0.1;
 const WARM_TEMPERATURE = 0.006;
 const FINAL_TEMPERATURE = 0.002;
@@ -70,14 +70,23 @@ export function layoutWikiGraph({
   const count = ids.length;
   if (count === 0) return {};
   const index = new Map(ids.map((id, position) => [id, position] as const));
-  const edges = links
-    .filter(([source, target]) => source !== target && index.has(source) && index.has(target))
-    .map(([source, target]) => [index.get(source) as number, index.get(target) as number] as const);
+  const seen = new Set<string>();
+  const edges: Array<readonly [number, number]> = [];
+  for (const [source, target] of links) {
+    const a = index.get(source);
+    const b = index.get(target);
+    if (a === undefined || b === undefined || a === b) continue;
+    const key = a < b ? `${a}:${b}` : `${b}:${a}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    edges.push([a, b]);
+  }
   const neighbours: number[][] = ids.map(() => []);
   for (const [source, target] of edges) {
     neighbours[source].push(target);
     neighbours[target].push(source);
   }
+  const pull = neighbours.map((list) => 1 / Math.sqrt(Math.max(1, list.length)));
 
   const x = new Float64Array(count);
   const y = new Float64Array(count);
@@ -160,10 +169,10 @@ export function layoutWikiGraph({
       const force = (distance * distance) / ideal;
       const unitX = (deltaX / distance) * force;
       const unitY = (deltaY / distance) * force;
-      dx[a] += unitX;
-      dy[a] += unitY;
-      dx[b] -= unitX;
-      dy[b] -= unitY;
+      dx[a] += unitX * pull[a];
+      dy[a] += unitY * pull[a];
+      dx[b] -= unitX * pull[b];
+      dy[b] -= unitY * pull[b];
     }
     for (let position = 0; position < count; position += 1) {
       if (fixed[position]) continue;

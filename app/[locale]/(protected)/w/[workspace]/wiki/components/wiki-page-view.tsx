@@ -1,31 +1,22 @@
 "use client";
 
-import type { WikiPageKind, WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
 import type { WikiGraph } from "@/features/wiki/wiki-graph.schema";
+import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 import type { ReactNode } from "react";
-import type { ResizablePanelDefinition } from "@/components/layout/resizable-panels";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
-import { BookOpen, ChevronDown, Loader2, Plus, Sparkles } from "lucide-react";
+import { BookOpen, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
-import { AppForm } from "@/components/forms/form-context";
-import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
-import { FormSelect } from "@/components/forms/form-select";
-import { FormTextarea } from "@/components/forms/form-textarea";
-import { Editor } from "@/components/editor/editor";
-import { EditorLinkPickerContext } from "@/components/editor/editor-link-picker";
 import { PageState } from "@/components/page-state/page-state";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { FormFieldHelp } from "@/components/forms/form-field-help";
-import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -37,48 +28,36 @@ import {
 } from "@/components/wiki/wiki-homepage-setup";
 import { WikiSetupProgress } from "@/components/wiki/wiki-setup-progress";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
-import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
-import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
-import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 import { useIsWiderThan } from "@/hooks/use-media-query";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
+import { useWikiGraphPositions } from "./use-wiki-graph-positions";
+import { wikiGraphVisibleIds } from "./wiki-graph-model";
 import { WikiGraphView } from "./wiki-graph-view";
 import { WikiPageActions } from "./wiki-page-actions";
+import { WikiPageList } from "./wiki-page-list";
+import { WikiPageSheet } from "./wiki-page-sheet";
+import { WikiPageSkeleton } from "./wiki-page-skeleton";
+import { resolveWikiPageState, resolveWikiSheetState } from "./wiki-page-state";
 import { WikiProposals } from "./wiki-proposals";
 import { WikiProposalsEntry } from "./wiki-proposals-entry";
 import { WikiProposalsStore } from "./wiki-proposals.store";
-import { WIKI_HEADING_ID_PREFIX, WikiPageOutline } from "./wiki-page-outline";
-import { WikiPageSkeleton } from "./wiki-page-skeleton";
-import { WikiLinkPicker } from "./wiki-link-picker";
-import { WikiPageRail } from "./wiki-page-rail";
-import { resolveWikiPageState } from "./wiki-page-state";
-import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
-import { useWikiPages } from "./use-wiki-pages";
-import { WikiPageKindSchema, WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
-import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-
-const WIKI_PANEL_IDS = ["pages", "document"] as const;
+import { WikiSearchStore } from "./wiki-search.store";
 
 type Props = {
-  graph?: WikiGraph | null;
+  graph: WikiGraph | null;
   initialPage: WikiPageDto | null;
   initialSetupState?: WikiHomepageSetupState;
-  layoutInitial?: Record<string, number>;
-  listPage: WikiPageListResult;
   openProposals?: boolean;
-  pinnedPage?: WikiPageSummary | null;
   requestedPageId?: string;
   unavailable?: boolean;
 };
 
 const WikiPageViewContent = observer(function WikiPageView({
-  graph = null,
+  graph,
   initialPage,
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
-  layoutInitial,
-  listPage,
   openProposals = false,
-  pinnedPage = null,
   requestedPageId,
   unavailable = false,
 }: Props) {
@@ -86,16 +65,15 @@ const WikiPageViewContent = observer(function WikiPageView({
   const rootStore = useRootStore();
   const router = useRouter();
   const [isNavigating, startNavigation] = useTransition();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [pending, setPending] = useState<{ id: string | null } | null>(null);
   const [store] = useState(() => {
     const cached = rootStore.wikiPageStore;
     cached.initializeServerPage(initialPage, requestedPageId);
     return cached;
   });
   useNavigationGuard(store);
-  const formId = useId();
-  const titleContainer = useRef<HTMLDivElement>(null);
-  const pages = useWikiPages(listPage);
+  const [search] = useState(() => new WikiSearchStore());
+  useEffect(() => () => search.dispose(), [search]);
   const userStore = rootStore.userStore as typeof rootStore.userStore | undefined;
   const canReviewProposals = typeof userStore?.can === "function" && userStore.can(Resource.wiki, Action.update);
   const [proposals] = useState(() => new WikiProposalsStore(rootStore, () => router.refresh()));
@@ -115,17 +93,10 @@ const WikiPageViewContent = observer(function WikiPageView({
       ),
     [userStore],
   );
-  const { columnWidths, commitColumnWidths } = useP13nColumnWidths({
-    initial: layoutInitial,
-    p13nId: rootStore.appMode === "demo" ? undefined : WIKI_LAYOUT_P13N_ID,
-    persistenceScope: rootStore.userStore?.user?.id ?? "anonymous",
-  });
-  const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
-  const canManage = store.canManage;
   const setupState = useLiveWikiSetupState(initialSetupState);
   const importRunning = setupState.status === "working";
-  const hasPages =
-    listPage.total > 0 || pinnedPage !== null || initialPage !== null || initialSetupState.pages.length > 0;
+  const pageCount = graph?.nodes.length ?? 0;
+  const hasPages = pageCount > 0 || initialPage !== null || initialSetupState.pages.length > 0;
 
   useLayoutEffect(() => {
     store.receiveServerPage(initialPage, requestedPageId);
@@ -137,135 +108,104 @@ const WikiPageViewContent = observer(function WikiPageView({
       },
     );
   }, [initialPage, requestedPageId, store]);
-  useEffect(() => {
-    if (store.creating) titleContainer.current?.querySelector("textarea")?.focus();
-  }, [store.creating]);
 
+  const openId = pending && isNavigating ? pending.id : (requestedPageId ?? null);
   const missing =
     !store.creating &&
+    openId !== null &&
+    openId === (requestedPageId ?? null) &&
     (store.unavailable || (unavailable && !store.awaitingSelection && !store.hasUnsavedChanges && !store.isLoading));
-  const hasDocument = !missing && (store.creating || Boolean(store.form.id));
-  const wide = useIsWiderThan("lg");
-  const showGraph =
-    graph !== null &&
-    graph.nodes.length > 1 &&
-    wide &&
-    !requestedPageId &&
-    !store.creating &&
-    !store.hasUnsavedChanges &&
-    !store.awaitingSelection;
-  const pageState = resolveWikiPageState({
-    isNavigating,
+  const sheetState = resolveWikiSheetState({
+    openId,
+    loadedId: store.form.id,
+    creating: store.creating,
+    awaiting: store.awaitingSelection,
     missing,
-    hasDocument,
+  });
+  const wide = useIsWiderThan("lg");
+  const pageState = resolveWikiPageState({
+    failed: graph === null,
+    hasPages: pageCount > 0,
     setupActive: importRunning && !hasPages,
-    showGraph,
   });
   const setupFailedBody = useWikiSetupFailureBody(setupState);
   const setupFailed = store.allows(Action.create) && setupState.status === "failed";
+  const positions = useWikiGraphPositions(graph);
+  const canPin = store.allows(Action.update) && rootStore.appMode !== "demo";
+  const visible = useMemo(
+    () => wikiGraphVisibleIds(graph?.nodes ?? [], { query: search.query, kind: null, found: search.found }),
+    [graph, search.found, search.query],
+  );
   const tryNavigate = useCallback(
     (navigate: () => void) => rootStore.navigationGuard.tryNavigate(navigate),
     [rootStore],
   );
   const create = useCallback(() => {
-    tryNavigate(() => {
-      store.startCreate();
-      setMobileOpen(false);
-    });
+    tryNavigate(() => store.startCreate());
   }, [store, tryNavigate]);
-  const selectPage = (pageId: string) => {
-    if (!store.creating && pageId === store.form.id && pageState !== "graph") {
-      setMobileOpen(false);
-      return;
-    }
+  const selectPage = useCallback(
+    (pageId: string) => {
+      if (!store.creating && pageId === store.form.id && pageId === requestedPageId) return;
+      tryNavigate(() => {
+        store.load(initialPage);
+        setPending({ id: pageId });
+        startNavigation(() => router.push(wikiPagePath(pageId)));
+      });
+    },
+    [initialPage, requestedPageId, router, store, tryNavigate],
+  );
+  const closeSheet = useCallback(() => {
     tryNavigate(() => {
       store.load(initialPage);
-      setMobileOpen(false);
-      startNavigation(() => router.push(wikiPagePath(pageId)));
+      if (!requestedPageId) return;
+      setPending({ id: null });
+      startNavigation(() => router.push("/wiki"));
     });
-  };
+  }, [initialPage, requestedPageId, router, store, tryNavigate]);
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
-  const cancelCreate = useCallback(() => store.load(initialPage), [initialPage, store]);
-  const savePanelSizes = useCallback(
-    (sizes: readonly number[] | null) => {
-      commitColumnWidths((current) =>
-        mergeStoredPanelSizes(current, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, sizes, false),
-      );
-    },
-    [commitColumnWidths],
-  );
+  const openFirstMatch = useCallback(() => {
+    const first = graph?.nodes.find((node) => visible.has(node.id));
+    if (first) selectPage(first.id);
+  }, [graph, selectPage, visible]);
   const topBar = useMemo(
-    () =>
-      isNavigating ? null : (
-        <WikiPageActions
-          canCreate
-          hasDocument={hasDocument && pageState !== "graph"}
-          proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
-          store={store}
-          onCreate={create}
-          onReload={reload}
-        />
-      ),
-    [canReviewProposals, create, hasDocument, isNavigating, pageState, proposals, reload, store],
+    () => (
+      <WikiPageActions
+        proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
+        search={pageCount > 0 ? search : null}
+        store={store}
+        onCreate={create}
+        onOpenFirst={openFirstMatch}
+      />
+    ),
+    [canReviewProposals, create, openFirstMatch, pageCount, proposals, search, store],
   );
   useSetTopBarActions(topBar);
-  const kindLabels: Record<WikiPageKind, string> = {
-    guide: t("Wiki.kind.guide"),
-    procedure: t("Wiki.kind.procedure"),
-    knowledge: t("Wiki.kind.knowledge"),
-  };
-  const kindHelp: Record<WikiPageKind, string> = {
-    guide: t("Wiki.kind.guideHelp"),
-    procedure: t("Wiki.kind.procedureHelp"),
-    knowledge: t("Wiki.kind.knowledgeHelp"),
-  };
-  const kindDescriptions: Record<WikiPageKind, string> = {
-    guide: t("Wiki.kind.guideDescription"),
-    procedure: t("Wiki.kind.procedureDescription"),
-    knowledge: t("Wiki.kind.knowledgeDescription"),
-  };
-  const otherGuide =
-    (pinnedPage?.kind === "guide" && pinnedPage.id !== store.form.id) ||
-    pages.result.items.some(({ id, kind }) => kind === "guide" && id !== store.form.id);
-  const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
-  const railBusy = store.isLoading || isNavigating;
-  const pageList = (
-    <WikiPageRail
-      busy={railBusy}
-      canManage={store.allows(Action.update)}
-      currentPageId={store.creating ? null : store.form.id}
-      pages={pages}
-      pinnedPage={pinnedRailPage}
-      onSelect={selectPage}
-    />
-  );
 
-  let documentBody: ReactNode;
+  const sheetPageId = sheetState === "page" && !store.creating ? store.form.id : null;
+  const sheetNode = sheetPageId ? (positions.nodes.find((node) => node.id === sheetPageId) ?? null) : null;
+  const otherGuide = (graph?.nodes ?? []).some((node) => node.kind === "guide" && node.id !== store.form.id);
+
+  let body: ReactNode;
   switch (pageState) {
-    case "graph":
-      documentBody = graph && (
-        <WikiGraphView
-          canPin={store.allows(Action.update) && rootStore.appMode !== "demo"}
-          graph={graph}
-          onOpenPage={selectPage}
-        />
-      );
-      break;
-    case "loading":
-      documentBody = (
-        <PageState background={<WikiPageSkeleton documentOnly />} label={t("PageState.loading")} state="loading" />
-      );
-      break;
     case "error":
-      documentBody = (
-        <PageState description={t("Wiki.unavailableBody")} state="error" title={t("Wiki.unavailableTitle")} />
+      body = (
+        <PageState
+          action={
+            <Button size="sm" variant="secondary" onClick={() => router.refresh()}>
+              {t("ErrorCard.retry")}
+            </Button>
+          }
+          description={t("Wiki.graph.loadFailed")}
+          state="error"
+          title={t("Wiki.unavailableTitle")}
+        />
       );
       break;
     case "setup":
-      documentBody = (
+      body = (
         <PageState
           action={<WikiSetupProgress state={setupState} />}
-          background={<WikiPageSkeleton documentOnly animated={false} />}
+          background={<WikiPageSkeleton animated={false} />}
           description={
             setupState.domain
               ? t("WikiSetup.status.workingBodyWiki", { domain: setupState.domain })
@@ -278,7 +218,7 @@ const WikiPageViewContent = observer(function WikiPageView({
       );
       break;
     case "empty":
-      documentBody = (
+      body = (
         <PageState
           action={
             <AgentStarterActions
@@ -296,7 +236,7 @@ const WikiPageViewContent = observer(function WikiPageView({
               surface="page"
             />
           }
-          background={<WikiPageSkeleton documentOnly animated={false} />}
+          background={<WikiPageSkeleton animated={false} />}
           description={store.allows(Action.create) ? t("Wiki.emptyBody") : t("Wiki.emptyBodyReadOnly")}
           icon={BookOpen}
           state="empty"
@@ -305,219 +245,76 @@ const WikiPageViewContent = observer(function WikiPageView({
       );
       break;
     case "content":
-      documentBody = (
-        <AppForm id={formId} store={store}>
-          <div
-            className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-6 px-6 py-8 md:px-10 md:py-10 @min-[58rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[58rem]/wiki:justify-center"
-            data-wiki-document-layout=""
-          >
-            <div className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[58rem]/wiki:mx-0">
-              {store.conflict && (
-                <Alert variant="warning">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p>{t("Wiki.conflict")}</p>
-
-                    <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={reload}>
-                      {t("Wiki.reload")}
-                    </Button>
-                  </div>
-                </Alert>
-              )}
-
-              <div ref={titleContainer}>
-                {canManage ? (
-                  <FormTextarea
-                    required
-                    aria-label={t("Wiki.pageTitle")}
-                    className="min-h-0 resize-none rounded-none border-0 bg-transparent px-0 py-1 text-3xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-2 md:text-3xl"
-                    id="title"
-                    label={null}
-                    maxLength={120}
-                    placeholder={t("Wiki.untitled")}
-                    rows={1}
-                  />
-                ) : (
-                  <h1 className="break-words text-3xl font-semibold tracking-tight">{store.form.title}</h1>
-                )}
-              </div>
-
-              {canManage ? (
-                <div className="grid gap-3" data-wiki-page-kind="">
-                  <FormSelect
-                    className="h-8 w-auto min-w-32 text-sm"
-                    containerClassName="w-fit"
-                    id="kind"
-                    items={WIKI_PAGE_KINDS.map((kind) => ({
-                      value: kind,
-                      label: kindLabels[kind],
-                      description: kind === "guide" && otherGuide ? t("Wiki.kind.guideExists") : kindDescriptions[kind],
-                      disabled: kind === "guide" && otherGuide,
-                    }))}
-                    label={t("Wiki.kind.label")}
-                    labelEndAddon={
-                      <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Wiki.kind.label") })}>
-                        {kindHelp[store.form.kind]}
-                      </FormFieldHelp>
-                    }
-                    onValueChange={(value) => {
-                      const kind = WikiPageKindSchema.safeParse(value);
-                      if (kind.success) store.onChange("kind", kind.data);
-                    }}
-                  />
-
-                  {store.form.kind === "procedure" && (
-                    <FormTextarea
-                      required
-                      className="min-h-0 resize-none"
-                      id="whenToUse"
-                      label={t("Wiki.whenToUse.label")}
-                      maxLength={WIKI_WHEN_TO_USE_MAX_LENGTH}
-                      placeholder={t("Wiki.whenToUse.placeholder")}
-                      rows={1}
-                    />
-                  )}
-                </div>
-              ) : (
-                store.form.kind !== "knowledge" && (
-                  <p className="text-sm text-muted-foreground">
-                    {kindLabels[store.form.kind]}
-
-                    {store.form.kind === "procedure" && store.form.whenToUse ? `: ${store.form.whenToUse}` : ""}
-                  </p>
-                )
-              )}
-
-              <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
-                <Editor
-                  data={store.editorDocument}
-                  headingIdPrefix={WIKI_HEADING_ID_PREFIX}
-                  readOnly={!canManage || store.isLoading}
-                  onChange={store.onEditorChange}
-                />
-              </EditorLinkPickerContext.Provider>
+      body = graph && (
+        <>
+          {importRunning && (
+            <div className="shrink-0 px-4 pt-3" data-wiki-import-banner="">
+              <Alert
+                aria-live="polite"
+                className="py-2"
+                description={t("WikiSetup.status.backgroundBanner")}
+                icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
+                role="status"
+              />
             </div>
+          )}
 
-            <WikiPageOutline document={store.editorDocument} />
-          </div>
-        </AppForm>
+          {wide ? (
+            <WikiGraphView
+              canPin={canPin}
+              found={search.found}
+              graph={graph}
+              positions={positions}
+              query={search.query}
+              selectedId={openId}
+              onSelect={selectPage}
+            />
+          ) : (
+            <WikiPageList nodes={graph.nodes} truncated={graph.truncated} visible={visible} onSelect={selectPage} />
+          )}
+        </>
       );
       break;
     default: {
       const exhaustive: never = pageState;
-      documentBody = exhaustive;
+      body = exhaustive;
     }
   }
 
-  if (pageState === "graph") {
-    return (
-      <section
-        aria-label={t("Wiki.graph.label")}
-        className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
-        id="wiki-document-panel"
-      >
-        {documentBody}
-
-        {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
-      </section>
-    );
-  }
-
-  const panelDefinitions: ResizablePanelDefinition[] = [
-    {
-      id: "pages",
-      label: t("Wiki.pagesLabel"),
-      controlId: "wiki-pages-panel",
-      minimumSize: 192,
-      maximumSize: 384,
-      defaultSize: 240,
-      element: (
-        <aside className="hidden min-h-0 flex-col lg:flex" id="wiki-pages-panel">
-          {pageList}
-        </aside>
-      ),
-    },
-    {
-      id: "document",
-      label: t("Wiki.document"),
-      controlId: "wiki-document-panel",
-      minimumSize: 480,
-      defaultSize: 720,
-      element: (
-        <section
-          aria-label={t("Wiki.document")}
-          className="@container/wiki relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
-          id="wiki-document-panel"
-        >
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-[var(--unsaved-changes-bar-space,0px)]">
-            <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
-              <ResponsiveOverlay
-                align="start"
-                drawerDirection="left"
-                open={mobileOpen}
-                popoverClassName="flex h-96 w-80 flex-col p-0"
-                title={t("Wiki.pagesLabel")}
-                trigger={
-                  <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
-                    <BookOpen aria-hidden="true" className="shrink-0" />
-
-                    <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
-
-                    <ChevronDown aria-hidden="true" className="shrink-0" />
-                  </Button>
-                }
-                onOpenChange={setMobileOpen}
-              >
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{pageList}</div>
-              </ResponsiveOverlay>
-            </div>
-
-            {importRunning && pageState !== "setup" && (
-              <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10" data-wiki-import-banner="">
-                <Alert
-                  aria-live="polite"
-                  className="py-2"
-                  description={t("WikiSetup.status.backgroundBanner")}
-                  icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
-                  role="status"
-                />
-              </div>
-            )}
-
-            {setupFailed && (
-              <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
-                <Alert description={setupFailedBody} variant={hasPages ? "warning" : "destructive"} />
-              </div>
-            )}
-
-            {documentBody}
-          </div>
-
-          {hasDocument && (
-            <UnsavedChangesBar
-              anchorScope="wiki-page"
-              creating={store.creating}
-              formId={formId}
-              store={store}
-              onCancel={store.creating ? cancelCreate : store.resetDocument}
-            />
-          )}
-
-          {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
-        </section>
-      ),
-    },
-  ];
-
   return (
-    <ResizablePanelGroup
-      className="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[var(--panel-grid-template)]"
-      defaultTemplate="15rem 1px minmax(30rem, 1fr)"
-      handleClassName="hidden lg:flex"
-      initialSizes={initialPanelSizes}
-      layoutMode="fixed-first"
-      panels={panelDefinitions}
-      onSizesCommit={savePanelSizes}
-    />
+    <section
+      aria-label={t("Wiki.graph.label")}
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+      data-wiki-document-layout=""
+      id="wiki-document-panel"
+    >
+      {setupFailed && (
+        <div className="shrink-0 px-4 pt-3">
+          <Alert description={setupFailedBody} variant={hasPages ? "warning" : "destructive"} />
+        </div>
+      )}
+
+      {body}
+
+      <WikiPageSheet
+        canPin={canPin && wide}
+        open={sheetState !== "closed"}
+        otherGuide={otherGuide}
+        pinned={sheetNode ? sheetNode.pinned : null}
+        state={sheetState === "closed" ? "loading" : sheetState}
+        store={store}
+        onClose={closeSheet}
+        onReload={reload}
+        onSelect={selectPage}
+        onTogglePin={() => {
+          if (!sheetNode) return;
+          const origin = { x: sheetNode.x, y: sheetNode.y, pinned: sheetNode.pinned };
+          runUserAction(() => positions.pin(sheetNode.id, sheetNode.pinned ? null : origin, origin));
+        }}
+      />
+
+      {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
+    </section>
   );
 });
 

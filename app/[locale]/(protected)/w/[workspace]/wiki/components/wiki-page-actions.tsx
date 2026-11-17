@@ -2,83 +2,34 @@
 
 import type { ReactNode } from "react";
 import type { WikiPageStore } from "./wiki-page.store";
+import type { WikiSearchStore } from "./wiki-search.store";
 
 import { observer } from "mobx-react-lite";
-import { Link, MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { TopBarMenuButton, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
-import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { runUserAction } from "@/core/errors/report-application-error";
-import { wikiPageUrl } from "@/features/wiki/wiki-links";
-import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { Action } from "@/generated/prisma";
-import { useWorkspaceSlug } from "@/i18n/navigation";
+
+import { WikiPageSearch } from "./wiki-page-search";
 
 type Props = {
-  canCreate: boolean;
   store: WikiPageStore;
-  hasDocument: boolean;
+  search: WikiSearchStore | null;
   onCreate: () => void;
-  onReload: () => void;
+  onOpenFirst: () => void;
   proposals?: ReactNode;
 };
 
-export const WikiPageActions = observer((props: Props) => {
-  const { canCreate, store, hasDocument, onCreate, onReload, proposals } = props;
+export const WikiPageActions = observer(({ store, search, onCreate, onOpenFirst, proposals }: Props) => {
   const t = useTranslations();
-  const copyToClipboard = useCopyToClipboard();
-  const workspaceSlug = useWorkspaceSlug();
-  const { showTrashConfirmation } = useDeleteConfirmation();
 
   return (
     <div className="flex items-center gap-1">
+      {search && <WikiPageSearch store={search} onOpenFirst={onOpenFirst} />}
+
       {proposals}
 
-      {hasDocument && store.form.id && (
-        <TopBarMenuButton busy={store.isLoading} icon={MoreHorizontal} label={t("Wiki.pageActions")}>
-          <DropdownMenuItem
-            onSelect={() => {
-              if (!workspaceSlug) return;
-              runUserAction(() =>
-                copyToClipboard(wikiPageUrl(window.location.origin, workspaceSlug, store.form.id as string)),
-              );
-            }}
-          >
-            <Link aria-hidden="true" />
-
-            {t("Wiki.copyLink")}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onSelect={onReload}>
-            <RotateCcw aria-hidden="true" />
-
-            {t("Wiki.reload")}
-          </DropdownMenuItem>
-
-          {store.allows(Action.delete) && (
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={() => {
-                const pageId = store.form.id;
-                showTrashConfirmation(
-                  () => store.delete(),
-                  store.form.title,
-                  undefined,
-                  () => pageId && store.showRestored(pageId),
-                );
-              }}
-            >
-              <Trash2 aria-hidden="true" />
-
-              {t("Wiki.delete")}
-            </DropdownMenuItem>
-          )}
-        </TopBarMenuButton>
-      )}
-
-      {store.allows(Action.create) && canCreate && (
+      {store.allows(Action.create) && (
         <TopBarPrimaryButton disabled={store.isLoading} label={t("Wiki.newPage")} onClick={onCreate} />
       )}
     </div>

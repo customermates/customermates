@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import type * as TooltipModule from "@/components/ui/tooltip";
+import type { ComponentProps } from "react";
 import type { WikiGraph, WikiGraphNode } from "@/features/wiki/wiki-graph.schema";
 
 import { act, createElement } from "react";
@@ -6,8 +7,6 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
-  getPage: vi.fn(),
-  getLinks: vi.fn(),
   pin: vi.fn(),
   reported: [] as unknown[],
 }));
@@ -17,27 +16,31 @@ vi.mock("next-intl", () => ({
     values ? `${key}:${Object.values(values).join("|")}` : key,
 }));
 vi.mock("../../actions", () => ({
-  getWikiPageAction: harness.getPage,
-  getWikiPageLinksAction: harness.getLinks,
   pinWikiGraphNodeAction: harness.pin,
 }));
-vi.mock("@/i18n/navigation", () => ({
-  IntlLink: ({ children, ...props }: { children?: ReactNode; [key: string]: unknown }) =>
-    createElement("a", props, children),
-}));
-vi.mock("@/components/editor/editor", () => ({
-  Editor: ({ label }: { label?: string }) => createElement("div", { "data-editor": "" }, label),
-}));
+vi.mock("@/components/ui/tooltip", async (importOriginal) => {
+  const actual = await importOriginal<typeof TooltipModule>();
+  return {
+    ...actual,
+    Tooltip: (props: ComponentProps<typeof actual.Tooltip>) =>
+      createElement(actual.TooltipProvider, null, createElement(actual.Tooltip, props)),
+  };
+});
 vi.mock("@/core/errors/report-application-error", () => ({
-  runUserAction: (run: () => unknown) => Promise.resolve(run()).catch((error: unknown) => harness.reported.push(error)),
+  runUserAction: (run: () => unknown) =>
+    Promise.resolve()
+      .then(run)
+      .catch((error: unknown) => harness.reported.push(error)),
   reportApplicationError: (error: unknown) => harness.reported.push(error),
 }));
 
+import { useWikiGraphPositions } from "../use-wiki-graph-positions";
 import { WikiGraphView } from "../wiki-graph-view";
 
 const GUIDE = "10000000-0000-4000-8000-000000000001";
 const REFUNDS = "10000000-0000-4000-8000-000000000002";
 const PRICING = "10000000-0000-4000-8000-000000000003";
+const ARCHIVE = "10000000-0000-4000-8000-000000000004";
 
 const updatedAt = new Date("2026-11-16T10:00:00.000Z");
 const node = (overrides: Partial<WikiGraphNode> & { id: string; title: string }): WikiGraphNode => ({
@@ -56,18 +59,9 @@ const node = (overrides: Partial<WikiGraphNode> & { id: string; title: string })
 const graph: WikiGraph = {
   nodes: [
     node({ id: GUIDE, title: "Operating Guide", kind: "guide", inbound: 2 }),
-    node({
-      id: REFUNDS,
-      title: "Refunds",
-      kind: "procedure",
-      whenToUse: "Refund requests.",
-      inbound: 1,
-      outbound: 2,
-      records: 1,
-      x: 0.3,
-      y: 0.3,
-    }),
+    node({ id: REFUNDS, title: "Refunds", kind: "procedure", inbound: 1, outbound: 2, x: 0.3, y: 0.3 }),
     node({ id: PRICING, title: "Pricing", inbound: 1, outbound: 1, x: 0.7, y: 0.6, pinned: true }),
+    node({ id: ARCHIVE, title: "Archive", x: 0.1, y: 0.9 }),
   ],
   links: [
     { source: REFUNDS, target: GUIDE },
@@ -79,54 +73,37 @@ const graph: WikiGraph = {
   syncing: false,
 };
 
+type ViewProps = Partial<Pick<ComponentProps<typeof WikiGraphView>, "canPin" | "found" | "query" | "selectedId">> & {
+  source?: WikiGraph;
+};
+
 const settle = async () => {
+  await Promise.resolve();
   await Promise.resolve();
   await Promise.resolve();
 };
 
-function typeInto(input: HTMLInputElement | null, value: string) {
-  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(input, value);
-  input?.dispatchEvent(new Event("input", { bubbles: true }));
-}
-
 describe("WikiGraphView", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
-  const onOpenPage = vi.fn();
+  const onSelect = vi.fn();
+
+  function Host({
+    source = graph,
+    canPin = true,
+    found = new Set<string>(),
+    query = "",
+    selectedId = null,
+  }: ViewProps) {
+    const positions = useWikiGraphPositions(source);
+    return createElement(WikiGraphView, { graph: source, positions, query, found, selectedId, canPin, onSelect });
+  }
 
   beforeEach(() => {
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-    harness.getPage.mockReset();
-    harness.getLinks.mockReset();
     harness.pin.mockReset();
     harness.reported.length = 0;
-    onOpenPage.mockReset();
-    harness.getPage.mockImplementation((id: string) =>
-      Promise.resolve({
-        ok: true,
-        data: {
-          id,
-          title: graph.nodes.find((candidate) => candidate.id === id)?.title ?? "",
-          markdown: "Body text.",
-          kind: id === REFUNDS ? "procedure" : "knowledge",
-          whenToUse: id === REFUNDS ? "Refund requests." : null,
-          createdAt: updatedAt,
-          updatedAt,
-        },
-      }),
-    );
-    harness.getLinks.mockImplementation(({ id }: { id: string }) =>
-      Promise.resolve({
-        ok: true,
-        data: {
-          id,
-          linkedFrom: id === GUIDE ? [{ id: REFUNDS, title: "Refunds", kind: "procedure" }] : [],
-          linksTo: id === REFUNDS ? [{ id: GUIDE, title: "Operating Guide", kind: "guide" }] : [],
-          missing: id === REFUNDS ? 1 : 0,
-          records: [],
-        },
-      }),
-    );
+    onSelect.mockReset();
     harness.pin.mockImplementation((data: { id: string; pinned?: false }) =>
       Promise.resolve({ ok: true, data: { id: data.id, pinned: !("pinned" in data) } }),
     );
@@ -140,14 +117,14 @@ describe("WikiGraphView", () => {
     container.remove();
   });
 
-  const render = (canPin = true) =>
+  const render = (props: ViewProps = {}) =>
     act(async () => {
-      root.render(createElement(WikiGraphView, { graph, canPin, onOpenPage }));
+      root.render(createElement(Host, props));
       await settle();
     });
   const nodeButton = (title: string) =>
     [...container.querySelectorAll<SVGGElement>("[data-wiki-graph-node]")].find((element) =>
-      element.getAttribute("aria-label")?.startsWith(`Wiki.graph.nodeLabel:${title}`),
+      element.getAttribute("aria-label")?.startsWith(`Wiki.graph.nodeLabel:${title}|`),
     );
   const press = (title: string) =>
     act(async () => {
@@ -156,149 +133,161 @@ describe("WikiGraphView", () => {
       element?.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, button: 0 }));
       await settle();
     });
-  const clickButton = (within: ParentNode | null, text: string) =>
-    act(async () => {
-      [...(within?.querySelectorAll("button") ?? [])].find((button) => button.textContent?.includes(text))?.click();
-      await settle();
+  const segment = (label: string) =>
+    [...container.querySelectorAll<HTMLButtonElement>('[role="tablist"] [role="tab"]')].find((button) =>
+      button.textContent?.startsWith(label),
+    );
+  const choose = (label: string) =>
+    act(() => {
+      segment(label)?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+      segment(label)?.focus();
     });
+  const dimmed = (title: string) => nodeButton(title)?.classList.contains("opacity-20");
 
-  it("draws every page as a node and marks pinned pages", async () => {
+  it("draws every page as a node in its kind's colour and marks only pinned pages with a pin", async () => {
     await render();
-    expect(container.querySelectorAll("[data-wiki-graph-node]")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-wiki-graph-node]")).toHaveLength(4);
     expect(container.querySelectorAll("line")).toHaveLength(3);
+    expect(nodeButton("Operating Guide")?.querySelector("circle.fill-foreground")).not.toBeNull();
+    expect(nodeButton("Refunds")?.querySelector("circle.fill-info")).not.toBeNull();
+    expect(nodeButton("Pricing")?.querySelector("circle.fill-muted-foreground")).not.toBeNull();
     expect(nodeButton("Pricing")?.dataset.wikiGraphPinned).toBe("true");
+    expect(nodeButton("Pricing")?.querySelector("[data-wiki-graph-pin]")).not.toBeNull();
     expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBeUndefined();
-    expect(container.querySelector("[data-wiki-graph-drawer]")).toBeNull();
+    expect(container.querySelectorAll("[data-wiki-graph-pin]")).toHaveLength(1);
     expect(container.textContent).toContain("Wiki.graph.legendEdit");
   });
 
-  it("fades pages that do not match the search or a hidden kind", async () => {
+  it("holds no search field and no page panel of its own", async () => {
     await render();
-    const input = container.querySelector<HTMLInputElement>("input[type=search]");
-    expect(input).not.toBeNull();
-    act(() => typeInto(input, "refund"));
-    expect(nodeButton("Refunds")?.getAttribute("tabindex")).toBe("0");
-    expect(nodeButton("Pricing")?.getAttribute("tabindex")).toBe("-1");
-    expect(nodeButton("Pricing")?.classList.contains("opacity-20")).toBe(true);
-
-    act(() => typeInto(input, ""));
-    await clickButton(container, "Wiki.kind.knowledge");
-    expect(nodeButton("Pricing")?.getAttribute("tabindex")).toBe("-1");
-    expect(nodeButton("Refunds")?.getAttribute("tabindex")).toBe("0");
+    expect(container.querySelector("input")).toBeNull();
+    expect(container.querySelector("[data-wiki-graph-drawer]")).toBeNull();
+    expect(container.querySelector('button[aria-label="Wiki.graph.fit"]')).not.toBeNull();
   });
 
-  it("opens the drawer with the page and its links, moves between linked pages and closes on Escape", async () => {
+  it("filters by page kind with the shared segmented control and keeps the guide in view", async () => {
+    await render();
+    expect(container.querySelector('[role="tablist"]')?.getAttribute("aria-label")).toBe("Wiki.graph.filter.label");
+    expect(segment("Wiki.graph.filter.all")?.textContent).toBe("Wiki.graph.filter.all4");
+    expect(segment("Wiki.graph.filter.procedure")?.textContent).toBe("Wiki.graph.filter.procedure1");
+    expect(segment("Wiki.graph.filter.knowledge")?.textContent).toBe("Wiki.graph.filter.knowledge2");
+    expect(segment("Wiki.graph.filter.all")?.getAttribute("aria-selected")).toBe("true");
+    expect(segment("Wiki.graph.filter.all")?.hasAttribute("aria-controls")).toBe(false);
+
+    choose("Wiki.graph.filter.procedure");
+    expect(segment("Wiki.graph.filter.procedure")?.getAttribute("aria-selected")).toBe("true");
+    expect(segment("Wiki.graph.filter.all")?.getAttribute("aria-selected")).toBe("false");
+    expect(nodeButton("Refunds")?.getAttribute("tabindex")).toBe("0");
+    expect(nodeButton("Operating Guide")?.getAttribute("tabindex")).toBe("0");
+    expect(nodeButton("Pricing")?.getAttribute("tabindex")).toBe("-1");
+    expect(dimmed("Pricing")).toBe(true);
+    expect(dimmed("Archive")).toBe(true);
+
+    choose("Wiki.graph.filter.all");
+    expect(dimmed("Pricing")).toBe(false);
+  });
+
+  it("fades pages the top bar search does not match, keeps pages found by their text and says when nothing matches", async () => {
+    await render({ query: "refund" });
+    expect(nodeButton("Refunds")?.getAttribute("tabindex")).toBe("0");
+    expect(dimmed("Pricing")).toBe(true);
+    expect(dimmed("Operating Guide")).toBe(true);
+
+    await render({ query: "refund", found: new Set([PRICING]) });
+    expect(dimmed("Pricing")).toBe(false);
+    expect(dimmed("Archive")).toBe(true);
+
+    await render({ query: "nothing like this" });
+    expect(container.textContent).toContain("Wiki.graph.noMatches");
+    expect(container.textContent).not.toContain("Wiki.graph.legendEdit");
+  });
+
+  it("asks to open a page on a click or on Enter, and rings the open page", async () => {
     await render();
     await press("Refunds");
-    const drawer = container.querySelector("[data-wiki-graph-drawer]");
-    expect(drawer).not.toBeNull();
-    expect(harness.getPage).toHaveBeenCalledWith(REFUNDS);
-    expect(harness.getLinks).toHaveBeenCalledWith({ id: REFUNDS });
-    expect(drawer?.querySelector("h2")?.textContent).toBe("Refunds");
-    expect(drawer?.textContent).toContain("Refund requests.");
-    expect(drawer?.querySelector("[data-editor]")?.textContent).toBe("Refunds");
-    expect(nodeButton("Refunds")?.getAttribute("aria-pressed")).toBe("true");
-
-    await act(async () => {
-      const tab = [...container.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(
-        (candidate) => candidate.textContent === "Wiki.graph.segments.links",
-      );
-      tab?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
-      tab?.focus();
-      tab?.click();
-      await settle();
-    });
-    expect(drawer?.textContent).toContain("Wiki.graph.linksTo · 1");
-    expect(drawer?.textContent).toContain("Wiki.graph.missingLinks:1");
-    await clickButton(drawer, "Operating Guide");
-    expect(harness.getPage).toHaveBeenCalledWith(GUIDE);
-    expect(container.querySelector("[data-wiki-graph-drawer] h2")?.textContent).toBe("Operating Guide");
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(REFUNDS);
+    expect(harness.pin).not.toHaveBeenCalled();
 
     act(() => {
-      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      nodeButton("Pricing")?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     });
-    expect(container.querySelector("[data-wiki-graph-drawer]")).toBeNull();
+    expect(onSelect).toHaveBeenLastCalledWith(PRICING);
+
+    await render({ selectedId: REFUNDS });
+    expect(nodeButton("Refunds")?.getAttribute("aria-pressed")).toBe("true");
+    expect(nodeButton("Refunds")?.querySelectorAll("circle")).toHaveLength(2);
+    expect(nodeButton("Pricing")?.getAttribute("aria-pressed")).toBe("false");
+    expect(dimmed("Archive")).toBe(true);
+    expect(dimmed("Pricing")).toBe(false);
   });
 
-  it("opens the page on request and pins or unpins from the drawer", async () => {
+  it("brings a page and the pages it links with forward while it has the focus", async () => {
     await render();
-    await press("Pricing");
-    const drawer = container.querySelector("[data-wiki-graph-drawer]");
-    await clickButton(drawer, "Wiki.graph.openPage");
-    expect(onOpenPage).toHaveBeenCalledWith(PRICING);
-
-    const unpin = drawer?.querySelector<HTMLButtonElement>('button[aria-label="Wiki.graph.unpin"]');
-    expect(unpin).not.toBeNull();
-    await act(async () => {
-      unpin?.click();
-      await settle();
+    expect(dimmed("Archive")).toBe(false);
+    act(() => {
+      nodeButton("Refunds")?.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
     });
-    expect(harness.pin).toHaveBeenCalledWith({ id: PRICING, pinned: false });
-    expect(nodeButton("Pricing")?.dataset.wikiGraphPinned).toBeUndefined();
-    expect(harness.reported).toEqual([]);
+    expect(dimmed("Archive")).toBe(true);
+    expect(dimmed("Refunds")).toBe(false);
+    expect(dimmed("Operating Guide")).toBe(false);
+    act(() => {
+      nodeButton("Refunds")?.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
+    });
+    expect(dimmed("Archive")).toBe(false);
   });
 
-  it("focuses the drawer heading and opens the page on a double click", async () => {
-    await render();
-    await press("Refunds");
-    expect(document.activeElement).toBe(container.querySelector("[data-wiki-graph-drawer] h2"));
-    await press("Pricing");
-    await press("Pricing");
-    await act(async () => {
-      container.querySelector("svg")?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
-      await settle();
-    });
-    expect(onOpenPage).toHaveBeenCalledWith(PRICING);
-    await act(async () => {
-      container.querySelector("svg")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
-      container.querySelector("svg")?.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, button: 0 }));
-      container.querySelector("svg")?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
-      await settle();
-    });
-    expect(onOpenPage).toHaveBeenCalledTimes(1);
-  });
-
-  it("pins a dragged page, reverts a cancelled drag and restores the origin when the pin fails", async () => {
+  it("pins a dragged page, reverts a cancelled drag and restores the place when the pin fails", async () => {
     await render();
     const svg = container.querySelector("svg");
     const before = nodeButton("Refunds")?.getAttribute("transform");
-    const drag = (end: "pointerup" | "pointercancel") =>
+    const drag = (end: "pointerup" | "pointercancel", to = 40) =>
       act(async () => {
         nodeButton("Refunds")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
-        svg?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 40, clientY: 40 }));
-        svg?.dispatchEvent(new MouseEvent(end, { bubbles: true, clientX: 40, clientY: 40 }));
+        svg?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: to, clientY: to }));
+        svg?.dispatchEvent(new MouseEvent(end, { bubbles: true, clientX: to, clientY: to }));
         await settle();
       });
 
     await drag("pointercancel");
     expect(harness.pin).not.toHaveBeenCalled();
     expect(nodeButton("Refunds")?.getAttribute("transform")).toBe(before);
-    expect(container.querySelector("[data-wiki-graph-drawer]")).toBeNull();
+    expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBeUndefined();
+    expect(onSelect).not.toHaveBeenCalled();
 
     await drag("pointerup");
-    expect(harness.pin).toHaveBeenCalledWith(expect.objectContaining({ id: REFUNDS, x: expect.any(Number) }));
+    expect(harness.pin).toHaveBeenCalledExactlyOnceWith({ id: REFUNDS, x: 0.025, y: 0.04 });
     expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBe("true");
+    expect(nodeButton("Refunds")?.querySelector("[data-wiki-graph-pin]")).not.toBeNull();
     expect(nodeButton("Refunds")?.getAttribute("transform")).not.toBe(before);
+    expect(onSelect).not.toHaveBeenCalled();
 
     harness.pin.mockImplementation(() => Promise.reject(new Error("offline")));
     const pinnedAt = nodeButton("Refunds")?.getAttribute("transform");
-    await act(async () => {
-      nodeButton("Refunds")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
-      svg?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 120, clientY: 90 }));
-      svg?.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, clientX: 120, clientY: 90 }));
-      await settle();
-      await settle();
-    });
+    await drag("pointerup", 120);
     expect(harness.reported).toHaveLength(1);
     expect(nodeButton("Refunds")?.getAttribute("transform")).toBe(pinnedAt);
     expect(nodeButton("Refunds")?.dataset.wikiGraphPinned).toBe("true");
   });
 
-  it("hides pinning for readers", async () => {
-    await render(false);
-    await press("Pricing");
-    expect(container.querySelector('button[aria-label="Wiki.graph.unpin"]')).toBeNull();
+  it("lets readers open pages but not move them", async () => {
+    await render({ canPin: false });
+    const svg = container.querySelector("svg");
+    const before = nodeButton("Refunds")?.getAttribute("transform");
+    await act(async () => {
+      nodeButton("Refunds")?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
+      svg?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 40, clientY: 40 }));
+      svg?.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, clientX: 40, clientY: 40 }));
+      await settle();
+    });
+    expect(harness.pin).not.toHaveBeenCalled();
+    expect(nodeButton("Refunds")?.getAttribute("transform")).toBe(before);
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(REFUNDS);
     expect(container.textContent).toContain("Wiki.graph.legend");
     expect(container.textContent).not.toContain("Wiki.graph.legendEdit");
+  });
+
+  it("says when the map shows only part of a large Knowledge Base", async () => {
+    await render({ source: { ...graph, truncated: true } });
+    expect(container.textContent).toContain("Wiki.graph.truncated:4");
   });
 });

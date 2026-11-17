@@ -259,6 +259,119 @@ describe("UpdateWikiPageInteractor", () => {
     }
     expect(events.publish).not.toHaveBeenCalled();
   });
+
+  it("hands edits to parts of the page, the owner and the verified mark to the repository", async () => {
+    const previous = page();
+    const current = page({ markdown: "Updated body", owner: "Support team", verifiedAt: new Date() });
+    const repo = { updatePage: vi.fn().mockResolvedValue({ status: "updated", previous, page: current }) };
+    const input = {
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+      edits: [
+        { find: "Original", replace: "Updated" },
+        { anchor: "pricing", markdown: "## Pricing\n\nNew.", placement: "replace" as const },
+      ],
+      owner: "Support team",
+      verified: true as const,
+    };
+
+    const result = await new UpdateWikiPageInteractor(repo as never, eventService() as never).invoke(input);
+
+    expect(result).toEqual({ ok: true, data: current });
+    expect(repo.updatePage).toHaveBeenCalledExactlyOnceWith(input);
+  });
+
+  it.each([
+    ["an owner alone", { owner: "Support team" }],
+    ["a cleared owner", { owner: null }],
+    ["the verified mark alone", { verified: true as const }],
+  ])("accepts %s as a change", async (_label, change) => {
+    const unchanged = page();
+    const repo = {
+      updatePage: vi.fn().mockResolvedValue({ status: "unchanged", previous: unchanged, page: unchanged }),
+    };
+
+    const result = await new UpdateWikiPageInteractor(repo as never, eventService() as never).invoke({
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+      ...change,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(repo.updatePage).toHaveBeenCalledOnce();
+  });
+
+  it("names the edit that could not be applied", async () => {
+    const repo = {
+      updatePage: vi
+        .fn()
+        .mockResolvedValue({ status: "invalid-edit", error: CustomErrorCode.wikiEditSectionNotFound, index: 1 }),
+    };
+    const events = eventService();
+
+    const result = await new UpdateWikiPageInteractor(repo as never, events as never).invoke({
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+      edits: [
+        { find: "Original", replace: "Updated" },
+        { anchor: "missing", markdown: "Text." },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        path: ["edits", 1],
+        params: { error: CustomErrorCode.wikiEditSectionNotFound },
+      });
+    }
+    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("reports edits that make the page too long on the edits, not on a markdown nobody sent", async () => {
+    const repo = {
+      updatePage: vi.fn().mockResolvedValue({ status: "invalid", error: CustomErrorCode.notesExceedsMaxLength }),
+    };
+
+    const result = await new UpdateWikiPageInteractor(repo as never, eventService() as never).invoke({
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+      edits: [{ markdown: "More text." }],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.issues[0]).toMatchObject({ path: ["edits"] });
+  });
+
+  it.each([
+    [
+      "a whole markdown together with edits",
+      { markdown: "Body", edits: [{ markdown: "More." }] },
+      CustomErrorCode.wikiEditInvalid,
+    ],
+    ["no change at all", {}, CustomErrorCode.wikiPageUpdateEmpty],
+    ["an empty list of edits", { edits: [] }, null],
+    ["more edits than one call takes", { edits: Array.from({ length: 21 }, () => ({ markdown: "More." })) }, null],
+    ["an edit without a shape", { edits: [{ anchor: "pricing" }] }, CustomErrorCode.wikiEditInvalid],
+    ["verified false", { verified: false }, null],
+    ["an owner longer than 80 characters", { owner: "x".repeat(81) }, null],
+  ])("refuses %s before anything is read", async (_label, change, code) => {
+    const repo = { updatePage: vi.fn() };
+
+    const result = await new UpdateWikiPageInteractor(repo as never, eventService() as never).invoke({
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+      ...change,
+    } as never);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok && code) {
+      expect(result.error.issues.map((issue) => (issue as { params?: { error?: string } }).params?.error)).toContain(
+        code,
+      );
+    }
+    expect(repo.updatePage).not.toHaveBeenCalled();
+  });
 });
 
 describe("DeleteWikiPageInteractor", () => {

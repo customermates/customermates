@@ -1,35 +1,27 @@
 "use client";
 
-import type {
-  PointerEvent as ReactPointerEvent,
-  KeyboardEvent as ReactKeyboardEvent,
-  MouseEvent as ReactMouseEvent,
-} from "react";
-import type { WikiGraph, WikiPageLinks } from "@/features/wiki/wiki-graph.schema";
-import type { WikiPageDto, WikiPageKind } from "@/features/wiki/wiki.schema";
-import type { WikiGraphCanvasNode } from "./wiki-graph-canvas";
+import type { PointerEvent as ReactPointerEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
+import type { WikiGraph } from "@/features/wiki/wiki-graph.schema";
+import type { WikiPageKind } from "@/features/wiki/wiki.schema";
+import type { WikiGraphPlace, WikiGraphPositions } from "./use-wiki-graph-positions";
 import type { WikiGraphTransform } from "./wiki-graph-model";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Maximize, Search } from "lucide-react";
+import { Maximize } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
-import { actionData } from "@/core/utils/action-data";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
-import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 
-import { getWikiPageAction, getWikiPageLinksAction, pinWikiGraphNodeAction } from "../actions";
 import { WikiGraphCanvas } from "./wiki-graph-canvas";
-import { WikiGraphDrawer, WIKI_GRAPH_DRAWER_WIDTH } from "./wiki-graph-drawer";
 import {
   WIKI_GRAPH_DRAG_THRESHOLD,
   WIKI_GRAPH_KIND_DOT,
   wikiGraphFitTransform,
   wikiGraphNeighbours,
-  wikiGraphRevealNode,
   wikiGraphToUnit,
   wikiGraphVisibleIds,
   wikiGraphZoomAt,
@@ -37,18 +29,30 @@ import {
 
 type Props = {
   graph: WikiGraph;
+  positions: WikiGraphPositions;
+  query: string;
+  found: ReadonlySet<string>;
+  selectedId: string | null;
   canPin: boolean;
-  onOpenPage: (id: string) => void;
+  onSelect: (id: string) => void;
 };
-
-type Position = { x: number; y: number; pinned: boolean };
 
 type Gesture =
   | { kind: "pan"; pointerId: number; startX: number; startY: number; origin: WikiGraphTransform }
-  | { kind: "node"; pointerId: number; id: string; startX: number; startY: number; moved: boolean; origin: Position };
+  | {
+      kind: "node";
+      pointerId: number;
+      id: string;
+      startX: number;
+      startY: number;
+      moved: boolean;
+      origin: WikiGraphPlace;
+    };
 
 const WHEEL_LINE_PIXELS = 16;
 const WHEEL_PAGE_PIXELS = 100;
+const FILTER_KINDS = ["procedure", "knowledge"] as const satisfies readonly WikiPageKind[];
+const FILTER_ALL = "all";
 
 function wheelPixels(event: WheelEvent): number {
   if (event.deltaMode === 1) return event.deltaY * WHEEL_LINE_PIXELS;
@@ -56,50 +60,37 @@ function wheelPixels(event: WheelEvent): number {
   return event.deltaY;
 }
 
-function isEditableTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
-}
-
-export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
+export function WikiGraphView({ graph, positions, query, found, selectedId, canPin, onSelect }: Props) {
   const t = useTranslations();
   const container = useRef<HTMLDivElement | null>(null);
   const svg = useRef<SVGSVGElement | null>(null);
   const gesture = useRef<Gesture | null>(null);
-  const lastTap = useRef<string | null>(null);
   const interacted = useRef(false);
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [transform, setTransform] = useState<WikiGraphTransform>({ k: 1, x: 0, y: 0 });
-  const [query, setQuery] = useState("");
-  const [kinds, setKinds] = useState<Set<WikiPageKind>>(() => new Set(WIKI_PAGE_KINDS));
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [kind, setKind] = useState<WikiPageKind | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
-  const [positions, setPositions] = useState<Record<string, Position>>({});
-  const [pages, setPages] = useState<Record<string, WikiPageDto | null>>({});
-  const [links, setLinks] = useState<Record<string, WikiPageLinks | null>>({});
-  const [failed, setFailed] = useState<Record<string, boolean>>({});
 
-  const nodes = useMemo<WikiGraphCanvasNode[]>(
-    () =>
-      graph.nodes.map((node) => {
-        const override = positions[node.id];
-        return override ? { ...node, x: override.x, y: override.y, pinned: override.pinned } : node;
-      }),
-    [graph.nodes, positions],
-  );
+  const { nodes } = positions;
   const byId = useMemo(() => new Map(nodes.map((node) => [node.id, node] as const)), [nodes]);
   const neighbours = useMemo(() => wikiGraphNeighbours(graph), [graph]);
-  const visible = useMemo(() => wikiGraphVisibleIds(graph.nodes, { query, kinds }), [graph.nodes, kinds, query]);
+  const visible = useMemo(
+    () => wikiGraphVisibleIds(graph.nodes, { query, kind, found }),
+    [found, graph.nodes, kind, query],
+  );
   const focusId = hoverId ?? selectedId;
   const focus = useMemo(() => {
     if (!focusId) return null;
     return new Set([focusId, ...(neighbours.get(focusId) ?? [])]);
   }, [focusId, neighbours]);
-  const selected = selectedId ? (byId.get(selectedId) ?? null) : null;
   const kindLabels: Record<WikiPageKind, string> = {
     guide: t("Wiki.kind.guide"),
     procedure: t("Wiki.kind.procedure"),
     knowledge: t("Wiki.kind.knowledge"),
+  };
+  const filterLabels: Record<(typeof FILTER_KINDS)[number], string> = {
+    procedure: t("Wiki.graph.filter.procedure"),
+    knowledge: t("Wiki.graph.filter.knowledge"),
   };
   const kindCounts = useMemo(() => {
     const counts: Record<WikiPageKind, number> = { guide: 0, procedure: 0, knowledge: 0 };
@@ -143,67 +134,6 @@ export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
     };
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
-  }, []);
-
-  const load = useCallback(async (id: string) => {
-    setFailed((current) => ({ ...current, [id]: false }));
-    try {
-      const [page, pageLinks] = await Promise.all([
-        getWikiPageAction(id).then((result) => (result.ok ? result.data : null)),
-        actionData(getWikiPageLinksAction({ id })),
-      ]);
-      setPages((current) => ({ ...current, [id]: page }));
-      setLinks((current) => ({ ...current, [id]: pageLinks }));
-      if (!page) setFailed((current) => ({ ...current, [id]: true }));
-    } catch (error) {
-      setFailed((current) => ({ ...current, [id]: true }));
-      reportApplicationError(error);
-    }
-  }, []);
-
-  const select = useCallback(
-    (id: string) => {
-      const node = byId.get(id);
-      if (!node) return;
-      interacted.current = true;
-      setSelectedId(id);
-      setTransform((current) => wikiGraphRevealNode(node, viewport, current, WIKI_GRAPH_DRAWER_WIDTH));
-      if (!(id in pages)) load(id).catch(reportApplicationError);
-    },
-    [byId, load, pages, viewport],
-  );
-
-  const close = useCallback(() => {
-    setSelectedId(null);
-    setHoverId(null);
-  }, []);
-
-  useEffect(() => {
-    if (!selectedId) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !event.defaultPrevented && !isEditableTarget(event.target)) close();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [close, selectedId]);
-
-  const pin = useCallback((id: string, position: { x: number; y: number } | null, origin: Position) => {
-    setPositions((current) => ({
-      ...current,
-      [id]: position ? { ...position, pinned: true } : { x: origin.x, y: origin.y, pinned: false },
-    }));
-    return actionData(
-      pinWikiGraphNodeAction(position ? { id, x: position.x, y: position.y } : { id, pinned: false }),
-    ).then(
-      (result) => {
-        if (result.pinned === Boolean(position)) return;
-        setPositions((current) => ({ ...current, [id]: { ...origin } }));
-      },
-      (error: unknown) => {
-        setPositions((current) => ({ ...current, [id]: { ...origin } }));
-        throw error;
-      },
-    );
   }, []);
 
   const pointerPoint = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -252,8 +182,7 @@ export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
     )
       return;
     current.moved = true;
-    const unit = wikiGraphToUnit(pointerPoint(event), transform);
-    setPositions((state) => ({ ...state, [current.id]: { ...unit, pinned: true } }));
+    positions.move(current.id, wikiGraphToUnit(pointerPoint(event), transform));
   };
 
   const releasePointer = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -266,15 +195,13 @@ export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
     if (!current || current.pointerId !== event.pointerId) return;
     gesture.current = null;
     releasePointer(event);
-    if (current.kind === "pan" || current.moved) lastTap.current = null;
     if (current.kind === "pan") return;
     if (current.moved) {
       const unit = wikiGraphToUnit(pointerPoint(event), transform);
-      runUserAction(() => pin(current.id, unit, current.origin));
+      runUserAction(() => positions.pin(current.id, unit, current.origin));
       return;
     }
-    lastTap.current = current.id;
-    select(current.id);
+    onSelect(current.id);
   };
 
   const onPointerCancel = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -282,34 +209,35 @@ export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
     if (!current || current.pointerId !== event.pointerId) return;
     gesture.current = null;
     releasePointer(event);
-    if (current.kind === "node" && current.moved)
-      setPositions((state) => ({ ...state, [current.id]: { ...current.origin } }));
-  };
-
-  const onDoubleClick = (event: ReactMouseEvent<SVGSVGElement>) => {
-    const id = nodeIdAt(event.target) ?? lastTap.current;
-    if (id) onOpenPage(id);
+    if (current.kind === "node" && current.moved) positions.restore(current.id, current.origin);
   };
 
   const onNodeKeyDown = (event: ReactKeyboardEvent<SVGGElement>, id: string) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      select(id);
+      onSelect(id);
     }
   };
 
-  const toggleKind = (kind: WikiPageKind) =>
-    setKinds((current) => {
-      const next = new Set(current);
-      if (next.has(kind)) next.delete(kind);
-      else next.add(kind);
-      return next;
-    });
+  const filterItem = (value: WikiPageKind | null, label: string, count: number) => ({
+    value: value ?? FILTER_ALL,
+    controls: false as const,
+    label: (
+      <span className="flex items-center gap-1.5">
+        {value && <span aria-hidden="true" className={cn("size-2 rounded-full", WIKI_GRAPH_KIND_DOT[value])} />}
+
+        <span className="truncate">{label}</span>
+
+        <span className="tabular-nums opacity-70">{count}</span>
+      </span>
+    ),
+  });
 
   return (
     <div ref={container} className="relative flex min-h-0 flex-1 overflow-hidden bg-background" data-wiki-graph-view="">
       <WikiGraphCanvas
         focus={focus}
+        focusId={focusId}
         label={t("Wiki.graph.canvasLabel")}
         links={graph.links}
         nodeLabel={(node) => t("Wiki.graph.nodeLabel", { title: node.title, kind: kindLabels[node.kind] })}
@@ -318,7 +246,6 @@ export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
         svgRef={svg}
         transform={transform}
         visible={visible}
-        onDoubleClick={onDoubleClick}
         onNodeHover={setHoverId}
         onNodeKeyDown={onNodeKeyDown}
         onPointerCancel={onPointerCancel}
@@ -327,59 +254,39 @@ export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
         onPointerUp={onPointerUp}
       />
 
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 p-3"
-        style={{ paddingRight: selected ? WIKI_GRAPH_DRAWER_WIDTH + 12 : undefined }}
-      >
-        <div className="pointer-events-auto relative w-72 max-w-full">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground"
-          />
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start gap-2 p-3">
+        <SegmentedControl
+          className="pointer-events-auto min-w-0"
+          items={[
+            filterItem(null, t("Wiki.graph.filter.all"), graph.nodes.length),
+            ...FILTER_KINDS.map((value) => filterItem(value, filterLabels[value], kindCounts[value])),
+          ]}
+          label={t("Wiki.graph.filter.label")}
+          listClassName="w-auto bg-card"
+          value={kind ?? FILTER_ALL}
+          onValueChange={(value) => setKind(FILTER_KINDS.find((candidate) => candidate === value) ?? null)}
+        />
 
-          <Input
-            aria-label={t("Wiki.graph.search")}
-            className="h-8 bg-card pl-8"
-            placeholder={t("Wiki.graph.search")}
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </div>
+        <div className="pointer-events-auto ml-auto shrink-0">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label={t("Wiki.graph.fit")}
+                className="size-7 bg-card"
+                size="icon-sm"
+                variant="secondary"
+                onClick={fit}
+              >
+                <Maximize aria-hidden="true" />
+              </Button>
+            </TooltipTrigger>
 
-        <div className="pointer-events-auto flex flex-wrap items-center gap-1">
-          {WIKI_PAGE_KINDS.map((kind) => (
-            <Button
-              key={kind}
-              aria-pressed={kinds.has(kind)}
-              className={cn("h-8 gap-2 bg-card font-normal", !kinds.has(kind) && "text-muted-foreground")}
-              size="sm"
-              variant="secondary"
-              onClick={() => toggleKind(kind)}
-            >
-              <span
-                aria-hidden="true"
-                className={cn("size-2 rounded-full", WIKI_GRAPH_KIND_DOT[kind], !kinds.has(kind) && "opacity-30")}
-              />
-
-              {kindLabels[kind]}
-
-              <span className="text-muted-foreground tabular-nums">{kindCounts[kind]}</span>
-            </Button>
-          ))}
-        </div>
-
-        <div className="pointer-events-auto ml-auto">
-          <Button aria-label={t("Wiki.graph.fit")} className="bg-card" size="icon" variant="secondary" onClick={fit}>
-            <Maximize aria-hidden="true" />
-          </Button>
+            <TooltipContent>{t("Wiki.graph.fit")}</TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
-      <p
-        className="pointer-events-none absolute bottom-3 left-3 max-w-xl text-xs text-muted-foreground"
-        style={{ right: selected ? WIKI_GRAPH_DRAWER_WIDTH + 12 : undefined }}
-      >
+      <p className="pointer-events-none absolute bottom-3 left-3 max-w-xl text-xs text-muted-foreground">
         {visible.size === 0
           ? t("Wiki.graph.noMatches")
           : graph.truncated
@@ -388,29 +295,6 @@ export function WikiGraphView({ graph, canPin, onOpenPage }: Props) {
               ? t("Wiki.graph.legendEdit")
               : t("Wiki.graph.legend")}
       </p>
-
-      {selected && (
-        <WikiGraphDrawer
-          canPin={canPin}
-          failed={failed[selected.id] === true}
-          kindLabels={kindLabels}
-          links={links[selected.id]}
-          node={selected}
-          page={pages[selected.id]}
-          onClose={close}
-          onOpen={onOpenPage}
-          onSelect={select}
-          onTogglePin={() =>
-            runUserAction(() =>
-              pin(selected.id, selected.pinned ? null : { x: selected.x, y: selected.y }, {
-                x: selected.x,
-                y: selected.y,
-                pinned: selected.pinned,
-              }),
-            )
-          }
-        />
-      )}
     </div>
   );
 }

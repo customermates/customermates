@@ -64,8 +64,8 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     readOnlyActions: ["list", "runs"],
   },
   manage_wiki_pages: {
-    approvalFreeActions: ["list", "search", "get", "gaps", "create", "update"],
-    readOnlyActions: ["list", "search", "get", "gaps"],
+    approvalFreeActions: ["list", "search", "get", "links", "gaps", "create", "update"],
+    readOnlyActions: ["list", "search", "get", "links", "gaps"],
   },
   manage_record_files: { inputRisk: (input) => recordToolRisk("manage_record_files", input) },
   move_email_thread: { approvalFree: true },

@@ -45,21 +45,27 @@ export class GetWikiPageLinksInteractor extends AuthenticatedInteractor<GetWikiP
     const summaries = related.map((item) => ({ id: item.id, title: item.title, kind: item.kind }));
     const linkedFrom = summaries.filter((item) => incoming.has(item.id));
     const linksTo = summaries.filter((item) => outgoingSet.has(item.id));
+    const live = new Set(linksTo.map((item) => item.id));
+    const missingPageIds = outgoingPageIds.filter((id) => !live.has(id));
 
     const counts = new Map<string, number>();
+    const lists = new Set<string>();
     for (const link of outgoing) {
-      if (link.targetKind !== "record" || !link.targetTypeId) continue;
-      counts.set(link.targetTypeId, (counts.get(link.targetTypeId) ?? 0) + 1);
+      if (link.targetKind === "page" || !link.targetTypeId) continue;
+      if (link.targetKind === "list") lists.add(link.targetTypeId);
+      else counts.set(link.targetTypeId, (counts.get(link.targetTypeId) ?? 0) + 1);
     }
+    const typeIds = new Set([...counts.keys(), ...lists]);
     const records =
-      counts.size === 0
+      typeIds.size === 0
         ? []
         : await runInTransaction(
             async () => {
               const [model, access] = await Promise.all([this.records.getModel(), this.policy.load()]);
-              return wikiGraphRecordTypes(model, counts.keys(), access.canReadType).map((type) => ({
+              return wikiGraphRecordTypes(model, typeIds, access.canReadType).map((type) => ({
                 ...type,
-                count: counts.get(type.id) ?? 1,
+                count: counts.get(type.id) ?? 0,
+                list: lists.has(type.id),
               }));
             },
             { readOnly: true },
@@ -71,7 +77,8 @@ export class GetWikiPageLinksInteractor extends AuthenticatedInteractor<GetWikiP
         id: page.id,
         linkedFrom,
         linksTo,
-        missing: outgoingPageIds.length - linksTo.length,
+        missing: missingPageIds.length,
+        missingPageIds,
         records,
       },
     };

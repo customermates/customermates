@@ -51,7 +51,10 @@ export type GetWikiGraphData = Data<typeof GetWikiGraphSchema>;
 export const WikiLinkedPageSchema = z.object({ id: z.uuid(), title: z.string(), kind: WikiPageKindSchema });
 export type WikiLinkedPage = Data<typeof WikiLinkedPageSchema>;
 
-export const WikiPageRecordLinksSchema = WikiGraphRecordTypeSchema.extend({ count: z.number().int().min(1) });
+export const WikiPageRecordLinksSchema = WikiGraphRecordTypeSchema.extend({
+  count: z.number().int().min(0).describe("How many single records of this list the page links to."),
+  list: z.boolean().describe("Whether the page links to the list itself."),
+});
 export type WikiPageRecordLinks = Data<typeof WikiPageRecordLinksSchema>;
 
 export const WikiPageLinksSchema = z.object({
@@ -59,12 +62,28 @@ export const WikiPageLinksSchema = z.object({
   linkedFrom: z.array(WikiLinkedPageSchema),
   linksTo: z.array(WikiLinkedPageSchema),
   missing: z.number().int().min(0),
+  missingPageIds: z.array(z.uuid()).describe("The linked page ids that no longer name a live page."),
   records: z.array(WikiPageRecordLinksSchema),
 });
 export type WikiPageLinks = Data<typeof WikiPageLinksSchema>;
 
 export const GetWikiPageLinksSchema = z.object({ id: z.uuid() });
 export type GetWikiPageLinksData = Data<typeof GetWikiPageLinksSchema>;
+
+export const WIKI_LINK_REPORT_LIMIT = 50;
+
+export const WikiLinkReportSchema = z.object({
+  pages: z.number().int().min(0),
+  orphans: z.array(WikiLinkedPageSchema).max(WIKI_LINK_REPORT_LIMIT),
+  orphansTotal: z.number().int().min(0),
+  broken: z.array(WikiLinkedPageSchema.extend({ missingPageIds: z.array(z.uuid()) })).max(WIKI_LINK_REPORT_LIMIT),
+  brokenTotal: z.number().int().min(0),
+  syncing: z.boolean(),
+});
+export type WikiLinkReport = Data<typeof WikiLinkReportSchema>;
+
+export const GetWikiLinkReportSchema = z.object({}).strict();
+export type GetWikiLinkReportData = Data<typeof GetWikiLinkReportSchema>;
 
 export const PinWikiGraphNodeSchema = z.union([
   z.object({ id: z.uuid(), x: UnitSchema, y: UnitSchema }).strict(),

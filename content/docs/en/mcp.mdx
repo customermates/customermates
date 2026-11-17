@@ -430,9 +430,9 @@ Read and change your personal calendar: options lists the lists with date fields
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-List, search, read, create, update, reorder (move before or after another page) or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
+List, search, read, create, update, reorder (move before or after another page) or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. An update can change parts of a page (find and replace, or a section by its anchor) instead of resending it, set who keeps the page current and mark it as verified. links returns the pages that link to a page and the pages it links to, or for the whole Knowledge Base the pages no other page links to and the pages with links to deleted pages. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
 
-**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `edits`, `kind`, `whenToUse`, `owner`, `verified`.
 {/* /mcp-catalog */}
 
 ### Messaging

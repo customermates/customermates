@@ -58615,6 +58615,26 @@
                               }
                             ]
                           },
+                          "owner": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "verifiedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "createdAt": {
                             "type": "string"
                           },
@@ -58858,6 +58878,26 @@
                               }
                             ]
                           },
+                          "owner": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "verifiedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "createdAt": {
                             "type": "string"
                           },
@@ -59090,6 +59130,26 @@
                       ]
                     },
                     "whenToUse": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "owner": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "verifiedAt": {
                       "anyOf": [
                         {
                           "type": "string"
@@ -59499,7 +59559,7 @@
       "post": {
         "operationId": "getWikiPageLinks",
         "summary": "Read the links of a Knowledge Base page",
-        "description": "Lists the pages that link to one page, the pages it links to, how many of its page links point at a deleted page, and the record lists it links into with a count per list. A missing page answers 404. Requires: Knowledge Base read access.",
+        "description": "Lists the pages that link to one page, the pages it links to, the linked page ids that point at a deleted page, and the record lists it links into: per list how many single records the page links to and whether it links to the list itself. A missing page answers 404. Requires: Knowledge Base read access.",
         "tags": [
           "knowledge-base"
         ],
@@ -59613,6 +59673,15 @@
                       "minimum": 0,
                       "maximum": 9007199254740991
                     },
+                    "missingPageIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "description": "The linked page ids that no longer name a live page."
+                    },
                     "records": {
                       "type": "array",
                       "items": {
@@ -59645,8 +59714,13 @@
                           },
                           "count": {
                             "type": "integer",
-                            "minimum": 1,
-                            "maximum": 9007199254740991
+                            "minimum": 0,
+                            "maximum": 9007199254740991,
+                            "description": "How many single records of this list the page links to."
+                          },
+                          "list": {
+                            "type": "boolean",
+                            "description": "Whether the page links to the list itself."
                           }
                         },
                         "required": [
@@ -59654,7 +59728,8 @@
                           "label",
                           "pluralLabel",
                           "icon",
-                          "count"
+                          "count",
+                          "list"
                         ],
                         "additionalProperties": false
                       }
@@ -59665,7 +59740,234 @@
                     "linkedFrom",
                     "linksTo",
                     "missing",
+                    "missingPageIds",
                     "records"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/wiki/link-report": {
+      "post": {
+        "operationId": "getWikiLinkReport",
+        "summary": "Read what to repair in the Knowledge Base links",
+        "description": "Lists the pages that no other page links to (orphans; the Operating Guide is the entry page and never one) and the pages whose links point at a deleted page (broken, with the missing ids), up to 50 each with their totals. syncing is true while links of recently changed pages are still being read. Send an empty object. Requires: Knowledge Base read access.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              },
+              "examples": {
+                "default": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The orphan pages and the pages with broken links.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pages": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "orphans": {
+                      "maxItems": 50,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "guide",
+                              "procedure",
+                              "knowledge"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "kind"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "orphansTotal": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "broken": {
+                      "maxItems": 50,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "guide",
+                              "procedure",
+                              "knowledge"
+                            ]
+                          },
+                          "missingPageIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "kind",
+                          "missingPageIds"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "brokenTotal": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "syncing": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "pages",
+                    "orphans",
+                    "orphansTotal",
+                    "broken",
+                    "brokenTotal",
+                    "syncing"
                   ],
                   "additionalProperties": false
                 }
@@ -59802,6 +60104,10 @@
                         "whenToUse": {
                           "type": "string",
                           "maxLength": 300
+                        },
+                        "owner": {
+                          "type": "string",
+                          "maxLength": 80
                         }
                       },
                       "required": [
@@ -59866,6 +60172,26 @@
                         ]
                       },
                       "whenToUse": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "owner": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "verifiedAt": {
                         "anyOf": [
                           {
                             "type": "string"
@@ -60017,6 +60343,46 @@
                   "markdown": {
                     "type": "string"
                   },
+                  "edits": {
+                    "description": "Changes to parts of the page instead of a whole new markdown, applied in order and all or none. Each edit is one of: find and replace (the one exact occurrence of a text, within the section named by anchor when given); anchor and markdown (replaces that section, or with placement before or after inserts beside it); markdown alone (adds to the end of the page, or with placement start to its beginning). A section runs from its heading to the next heading of any level.",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "find": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65535
+                        },
+                        "replace": {
+                          "type": "string",
+                          "maxLength": 65535
+                        },
+                        "anchor": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "markdown": {
+                          "type": "string",
+                          "maxLength": 65535
+                        },
+                        "placement": {
+                          "type": "string",
+                          "enum": [
+                            "replace",
+                            "before",
+                            "after",
+                            "start",
+                            "end"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
                   "kind": {
                     "type": "string",
                     "enum": [
@@ -60028,6 +60394,23 @@
                   "whenToUse": {
                     "type": "string",
                     "maxLength": 300
+                  },
+                  "owner": {
+                    "description": "Who keeps the page current: a person, a team or an agent. null or an empty text clears it.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "verified": {
+                    "description": "true records that the page was checked and is still correct: verifiedAt becomes now and updatedAt stays as it is unless the content changes in the same call.",
+                    "type": "boolean",
+                    "const": true
                   }
                 },
                 "required": [
@@ -60075,6 +60458,26 @@
                       ]
                     },
                     "whenToUse": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "owner": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "verifiedAt": {
                       "anyOf": [
                         {
                           "type": "string"
@@ -60416,6 +60819,26 @@
                       ]
                     },
                     "whenToUse": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "owner": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "verifiedAt": {
                       "anyOf": [
                         {
                           "type": "string"
@@ -143973,6 +144396,10 @@
                         "wikiWhenToUseRequired",
                         "wikiPageUpdateEmpty",
                         "wikiProcedureNeedsSteps",
+                        "wikiEditInvalid",
+                        "wikiEditSectionNotFound",
+                        "wikiEditTextAmbiguous",
+                        "wikiEditTextNotFound",
                         "wikiProposalNotFound",
                         "wikiProposalReviewed",
                         "wikiProposalStale",

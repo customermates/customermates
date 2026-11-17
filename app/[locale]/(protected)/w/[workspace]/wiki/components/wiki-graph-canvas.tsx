@@ -1,25 +1,27 @@
 "use client";
 
-import type {
-  PointerEvent as ReactPointerEvent,
-  KeyboardEvent as ReactKeyboardEvent,
-  MouseEvent as ReactMouseEvent,
-  Ref,
-} from "react";
+import type { PointerEvent as ReactPointerEvent, KeyboardEvent as ReactKeyboardEvent, Ref } from "react";
 import type { WikiGraph, WikiGraphNode } from "@/features/wiki/wiki-graph.schema";
 import type { WikiGraphTransform } from "./wiki-graph-model";
+
+import { useMemo } from "react";
+import { Pin } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 
 import {
   WIKI_GRAPH_KIND_FILL,
+  WIKI_GRAPH_LABEL_FONT_SIZE,
   wikiGraphLabel,
+  wikiGraphLabelIds,
   wikiGraphNodeRadius,
-  wikiGraphShowsLabel,
+  wikiGraphNodeScale,
   wikiGraphWorldPoint,
 } from "./wiki-graph-model";
 
 export type WikiGraphCanvasNode = WikiGraphNode & { pinned: boolean };
+
+const PIN_SIZE = 13;
 
 type Props = {
   svgRef: Ref<SVGSVGElement>;
@@ -28,6 +30,7 @@ type Props = {
   links: WikiGraph["links"];
   transform: WikiGraphTransform;
   visible: ReadonlySet<string>;
+  focusId: string | null;
   focus: ReadonlySet<string> | null;
   selectedId: string | null;
   nodeLabel: (node: WikiGraphCanvasNode) => string;
@@ -35,7 +38,6 @@ type Props = {
   onPointerMove: (event: ReactPointerEvent<SVGSVGElement>) => void;
   onPointerUp: (event: ReactPointerEvent<SVGSVGElement>) => void;
   onPointerCancel: (event: ReactPointerEvent<SVGSVGElement>) => void;
-  onDoubleClick: (event: ReactMouseEvent<SVGSVGElement>) => void;
   onNodeHover: (id: string | null) => void;
   onNodeKeyDown: (event: ReactKeyboardEvent<SVGGElement>, id: string) => void;
 };
@@ -47,6 +49,7 @@ export function WikiGraphCanvas({
   links,
   transform,
   visible,
+  focusId,
   focus,
   selectedId,
   nodeLabel,
@@ -54,15 +57,18 @@ export function WikiGraphCanvas({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
-  onDoubleClick,
   onNodeHover,
   onNodeKeyDown,
 }: Props) {
-  const byId = new Map(nodes.map((node) => [node.id, node] as const));
+  const byId = useMemo(() => new Map(nodes.map((node) => [node.id, node] as const)), [nodes]);
   const strokeWidth = 1 / transform.k;
-  const fontSize = 11 / transform.k;
-  const nodeScale = transform.k < 1 ? transform.k : Math.sqrt(transform.k);
-  const labelContext = { total: nodes.length, zoom: transform.k, focus, selected: selectedId };
+  const fontSize = WIKI_GRAPH_LABEL_FONT_SIZE / transform.k;
+  const nodeScale = wikiGraphNodeScale(transform.k);
+  const labelZoom = Math.round(transform.k * 20) / 20;
+  const labelled = useMemo(
+    () => wikiGraphLabelIds(nodes, { zoom: labelZoom, focusId, focus, visible }),
+    [focus, focusId, labelZoom, nodes, visible],
+  );
   const dimmed = (id: string) => !visible.has(id) || (focus !== null && !focus.has(id));
 
   return (
@@ -72,7 +78,6 @@ export function WikiGraphCanvas({
       className="size-full touch-none select-none"
       data-wiki-graph=""
       role="application"
-      onDoubleClick={onDoubleClick}
       onPointerCancel={onPointerCancel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -94,9 +99,9 @@ export function WikiGraphCanvas({
                 className={cn(
                   "transition-opacity",
                   hot ? "stroke-foreground" : "stroke-border-strong",
-                  faded ? "opacity-15" : hot ? "opacity-90" : "opacity-60",
+                  faded ? "opacity-10" : hot ? "opacity-40" : "opacity-50",
                 )}
-                strokeWidth={hot ? strokeWidth * 1.5 : strokeWidth}
+                strokeWidth={strokeWidth}
                 x1={from.x}
                 x2={to.x}
                 y1={from.y}
@@ -112,6 +117,7 @@ export function WikiGraphCanvas({
             const radius = wikiGraphNodeRadius(node) / nodeScale;
             const selected = node.id === selectedId;
             const faded = dimmed(node.id);
+            const pinSize = PIN_SIZE / transform.k;
             return (
               <g
                 key={node.id}
@@ -129,21 +135,32 @@ export function WikiGraphCanvas({
                 onPointerEnter={() => onNodeHover(node.id)}
                 onPointerLeave={() => onNodeHover(null)}
               >
-                {(node.kind === "guide" || selected) && (
+                {selected && (
                   <circle
-                    className={cn("fill-none stroke-foreground", selected ? "opacity-90" : "opacity-45")}
-                    r={radius + 5 / transform.k}
-                    strokeWidth={selected ? strokeWidth * 1.5 : strokeWidth}
+                    className="fill-none stroke-foreground opacity-80"
+                    r={radius + 4 / transform.k}
+                    strokeWidth={strokeWidth * 1.5}
                   />
                 )}
 
                 <circle
-                  className={cn(WIKI_GRAPH_KIND_FILL[node.kind], "stroke-card")}
+                  className={cn(WIKI_GRAPH_KIND_FILL[node.kind], "stroke-background")}
                   r={radius}
                   strokeWidth={strokeWidth * 1.5}
                 />
 
-                {node.pinned && <circle className="fill-card" r={Math.max(1.2, radius * 0.28)} />}
+                {node.pinned && (
+                  <Pin
+                    aria-hidden="true"
+                    className="fill-background text-foreground"
+                    data-wiki-graph-pin=""
+                    height={pinSize}
+                    strokeWidth={2.25}
+                    width={pinSize}
+                    x={radius * 0.55}
+                    y={-radius * 0.55 - pinSize}
+                  />
+                )}
               </g>
             );
           })}
@@ -151,7 +168,7 @@ export function WikiGraphCanvas({
 
         <g aria-hidden="true" className="pointer-events-none">
           {nodes.map((node) => {
-            if (!wikiGraphShowsLabel(node, labelContext)) return null;
+            if (!labelled.has(node.id)) return null;
             const point = wikiGraphWorldPoint(node);
             const radius = wikiGraphNodeRadius(node) / nodeScale;
             const emphasised = node.kind === "guide" || node.id === selectedId;
@@ -163,11 +180,11 @@ export function WikiGraphCanvas({
                   emphasised && "font-semibold",
                   dimmed(node.id) && "opacity-20",
                 )}
-                fontSize={emphasised ? fontSize * 1.12 : fontSize}
+                fontSize={fontSize}
                 strokeWidth={3 / transform.k}
                 textAnchor="middle"
                 x={point.x}
-                y={point.y + radius + fontSize * 1.15}
+                y={point.y + radius + fontSize * 1.2}
               >
                 {wikiGraphLabel(node.title)}
               </text>

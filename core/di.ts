@@ -434,6 +434,7 @@ import { PruneWikiKnowledgeGapsInteractor } from "@/features/wiki/prune-wiki-kno
 import { SyncStaleWikiSectionsInteractor } from "@/features/wiki/sync-stale-wiki-sections.interactor";
 import { GetWikiGraphInteractor } from "@/features/wiki/get-wiki-graph.interactor";
 import { GetWikiPageLinksInteractor } from "@/features/wiki/get-wiki-page-links.interactor";
+import { GetWikiLinkReportInteractor } from "@/features/wiki/get-wiki-link-report.interactor";
 import { PinWikiGraphNodeInteractor } from "@/features/wiki/pin-wiki-graph-node.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
@@ -1557,6 +1558,7 @@ export const getGetWikiGraphInteractor = () =>
   new GetWikiGraphInteractor(getWikiGraphRepo(), getRecordRepo(), getRecordAccessPolicy());
 export const getGetWikiPageLinksInteractor = () =>
   new GetWikiPageLinksInteractor(getWikiGraphRepo(), getRecordRepo(), getRecordAccessPolicy());
+export const getGetWikiLinkReportInteractor = () => new GetWikiLinkReportInteractor(getWikiGraphRepo());
 export const getPinWikiGraphNodeInteractor = () => new PinWikiGraphNodeInteractor(getWikiGraphRepo());
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());

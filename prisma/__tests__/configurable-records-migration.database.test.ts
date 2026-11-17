@@ -887,6 +887,8 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
           summary: null,
           summaryContentHash: null,
           linksSyncedAt: null,
+          owner: null,
+          verifiedAt: null,
         },
       })),
     });

@@ -20,7 +20,8 @@ import type { WikiIndexClaim } from "@/ee/wiki-retrieval/wiki-semantic-index.ser
 import { Prisma, Resource } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
-import { WIKI_CATALOG_PAGE_SIZE, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
+import { applyWikiPageEdits } from "./wiki-page-edits";
+import { WIKI_CATALOG_PAGE_SIZE, canonicalWikiMarkdown, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
 import { promptWikiSummary } from "./wiki-summary";
 import { UNCLAIMED_WIKI_INDEX_PAGE, legacyIndexedWikiPage, staleWikiIndexPage } from "./wiki-index-sql";
 
@@ -106,6 +107,8 @@ export class PrismaWikiPageRepo
       markdown: true,
       kind: true,
       whenToUse: true,
+      owner: true,
+      verifiedAt: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -143,6 +146,8 @@ export class PrismaWikiPageRepo
       title: true,
       kind: true,
       whenToUse: true,
+      owner: true,
+      verifiedAt: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -359,6 +364,7 @@ export class PrismaWikiPageRepo
             markdown: page.markdown,
             kind: wikiPageKindFields(page).kind,
             whenToUse: wikiPageKindFields(page).whenToUse,
+            owner: page.owner || null,
             sortOrder: page.kind === "guide" ? -1 : undefined,
             createdAt: new Date(createdAt + index),
           },
@@ -375,15 +381,23 @@ export class PrismaWikiPageRepo
     if (previous.updatedAt.getTime() !== data.expectedUpdatedAt.getTime()) return { status: "conflict" as const };
 
     const title = data.title?.trim() ?? previous.title;
-    const markdown = data.markdown ?? previous.markdown;
+    let markdown = data.markdown ?? previous.markdown;
+    if (data.edits) {
+      const edited = applyWikiPageEdits(previous.markdown, data.edits);
+      if (!edited.ok) return { status: "invalid-edit" as const, error: edited.error, index: edited.index };
+      const canonical = canonicalWikiMarkdown(edited.markdown);
+      if (!canonical.ok) return { status: "invalid" as const, error: canonical.error };
+      markdown = canonical.markdown;
+    }
     const kind = data.kind ?? previous.kind;
     const whenToUse = kind === "procedure" ? (data.whenToUse ?? previous.whenToUse) : null;
-    if (
-      title === previous.title &&
-      markdown === previous.markdown &&
-      kind === previous.kind &&
-      whenToUse === previous.whenToUse
-    )
+    const owner = data.owner === undefined ? previous.owner : data.owner || null;
+    const contentChanged =
+      title !== previous.title ||
+      markdown !== previous.markdown ||
+      kind !== previous.kind ||
+      whenToUse !== previous.whenToUse;
+    if (!contentChanged && owner === previous.owner && !data.verified)
       return { status: "unchanged" as const, previous, page: previous };
     const invalid = wikiPageKindIssue({ kind, whenToUse, markdown });
     if (invalid) return { status: "invalid" as const, error: invalid };
@@ -402,8 +416,12 @@ export class PrismaWikiPageRepo
         markdown,
         kind,
         whenToUse,
+        owner,
+        ...(data.verified ? { verifiedAt: new Date() } : {}),
         ...(kind !== previous.kind ? { sortOrder: kind === "guide" ? -1 : 2147483647 } : {}),
-        updatedAt: new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1)),
+        updatedAt: contentChanged
+          ? new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1))
+          : previous.updatedAt,
       },
     });
     if (updated.count !== 1) {

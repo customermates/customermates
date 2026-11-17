@@ -35,33 +35,35 @@ export function wikiPageKindIssue(page: {
   return null;
 }
 
-export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
-  if (markdown.length > MAX_RICH_TEXT_MARKDOWN_LENGTH) {
-    ctx.addIssue({
-      code: "custom",
-      params: { error: CustomErrorCode.notesExceedsMaxLength },
-    });
-    return z.NEVER;
-  }
-
+export function canonicalWikiMarkdown(
+  markdown: string,
+):
+  | { ok: true; markdown: string }
+  | { ok: false; error: CustomErrorCode.notesExceedsMaxLength | CustomErrorCode.notesInvalidFormat } {
+  if (markdown.length > MAX_RICH_TEXT_MARKDOWN_LENGTH)
+    return { ok: false, error: CustomErrorCode.notesExceedsMaxLength };
   try {
     const canonical = serializeJSONToMarkdown(parseMarkdownToJSON(markdown));
-    if (canonical.length > MAX_RICH_TEXT_MARKDOWN_LENGTH) {
-      ctx.addIssue({
-        code: "custom",
-        params: { error: CustomErrorCode.notesExceedsMaxLength },
-      });
-      return z.NEVER;
-    }
-    return canonical;
+    if (canonical.length > MAX_RICH_TEXT_MARKDOWN_LENGTH)
+      return { ok: false, error: CustomErrorCode.notesExceedsMaxLength };
+    return { ok: true, markdown: canonical };
   } catch {
-    ctx.addIssue({
-      code: "custom",
-      params: { error: CustomErrorCode.notesInvalidFormat },
-    });
-    return z.NEVER;
+    return { ok: false, error: CustomErrorCode.notesInvalidFormat };
   }
+}
+
+export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
+  const canonical = canonicalWikiMarkdown(markdown);
+  if (canonical.ok) return canonical.markdown;
+  ctx.addIssue({ code: "custom", params: { error: canonical.error } });
+  return z.NEVER;
 });
+
+export const WIKI_OWNER_MAX_LENGTH = 80;
+export const WikiOwnerSchema = z
+  .string()
+  .max(WIKI_OWNER_MAX_LENGTH)
+  .transform((owner) => owner.trim());
 
 export const WikiPageDtoSchema = z.object({
   id: z.uuid(),
@@ -69,6 +71,8 @@ export const WikiPageDtoSchema = z.object({
   markdown: z.string(),
   kind: WikiPageKindSchema,
   whenToUse: z.string().nullable(),
+  owner: z.string().nullable().optional(),
+  verifiedAt: z.date().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -90,6 +94,8 @@ const WikiCatalogItemSchema = WikiPageSummarySchema.pick({
 }).extend({
   excerpt: z.string().max(200),
   summary: z.string().max(160).optional(),
+  owner: z.string().optional(),
+  verifiedAt: z.date().optional(),
   url: z.string(),
 });
 export const WIKI_GUIDE_CONTEXT_MAX_BYTES = 2_400;
@@ -107,6 +113,8 @@ const WikiCatalogProcedureSchema = z.object({
   url: z.string(),
   whenToUse: z.string(),
   summary: z.string().max(160).optional(),
+  owner: z.string().optional(),
+  verifiedAt: z.date().optional(),
 });
 export const WikiCatalogSchema = z.object({
   guide: WikiCatalogGuideSchema.nullable().optional(),
@@ -143,6 +151,7 @@ export const WikiPageInputSchema = z
     markdown: WikiMarkdownSchema,
     kind: WikiPageKindSchema.optional(),
     whenToUse: WikiWhenToUseSchema.optional(),
+    owner: WikiOwnerSchema.optional(),
   })
   .superRefine((page, ctx) => {
     const error = wikiPageKindIssue(wikiPageKindFields(page));

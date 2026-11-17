@@ -9,7 +9,14 @@ import { DeleteWikiPageResultSchema, DeleteWikiPageSchema } from "./delete-wiki-
 import { GetWikiPageSchema } from "./get-wiki-page.interactor";
 import { MoveWikiPageSchema } from "./move-wiki-page.interactor";
 import { UpdateWikiPageSchema } from "./update-wiki-page.interactor";
-import { GetWikiGraphSchema, GetWikiPageLinksSchema, WikiGraphSchema, WikiPageLinksSchema } from "./wiki-graph.schema";
+import {
+  GetWikiGraphSchema,
+  GetWikiLinkReportSchema,
+  GetWikiPageLinksSchema,
+  WikiGraphSchema,
+  WikiLinkReportSchema,
+  WikiPageLinksSchema,
+} from "./wiki-graph.schema";
 import {
   WikiPageDtoSchema,
   WikiPageListResultSchema,
@@ -102,11 +109,22 @@ export const wikiApiPaths = {
     post: wikiOperation(
       "getWikiPageLinks",
       "Read the links of a Knowledge Base page",
-      `Lists the pages that link to one page, the pages it links to, how many of its page links point at a deleted page, and the record lists it links into with a count per list. A missing page answers 404. ${READ}`,
+      `Lists the pages that link to one page, the pages it links to, the linked page ids that point at a deleted page, and the record lists it links into: per list how many single records the page links to and whether it links to the list itself. A missing page answers 404. ${READ}`,
       GetWikiPageLinksSchema,
       { id: EXAMPLE_PAGE_ID },
       WikiPageLinksSchema,
       "The links of the page.",
+    ),
+  },
+  "/v1/wiki/link-report": {
+    post: wikiOperation(
+      "getWikiLinkReport",
+      "Read what to repair in the Knowledge Base links",
+      `Lists the pages that no other page links to (orphans; the Operating Guide is the entry page and never one) and the pages whose links point at a deleted page (broken, with the missing ids), up to 50 each with their totals. syncing is true while links of recently changed pages are still being read. Send an empty object. ${READ}`,
+      GetWikiLinkReportSchema,
+      {},
+      WikiLinkReportSchema,
+      "The orphan pages and the pages with broken links.",
     ),
   },
   "/v1/wiki/create": {

@@ -23,8 +23,11 @@ import {
   getGetUserDetailsInteractor,
   getGetUsersApiInteractor,
   getGetWikiCatalogInteractor,
+  getGetWikiKnowledgeGapsInteractor,
+  getGetWikiLinkReportInteractor,
   getGetCompanyInteractor,
 } from "@/core/di";
+import * as ErrorReporter from "@/core/observability/server";
 
 const WorkspaceContextOutputSchema = z.looseObject({
   user: z.looseObject({}),
@@ -64,8 +67,25 @@ const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
   "lastSyncedAt is the time the account's last history import finished, not the time of its newest message: a message that arrives later leaves it unchanged. " +
   "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter).";
 
+async function wikiUpkeep() {
+  try {
+    const gaps = await getGetWikiKnowledgeGapsInteractor().invoke();
+    if (!gaps.ok) return undefined;
+    const report = await getGetWikiLinkReportInteractor().invoke({});
+    const upkeep = {
+      ...(gaps.data.items.length > 0 ? { openQuestions: gaps.data.items.length } : {}),
+      ...(report.ok && report.data.orphansTotal > 0 ? { orphanPages: report.data.orphansTotal } : {}),
+      ...(report.ok && report.data.brokenTotal > 0 ? { pagesWithDeadLinks: report.data.brokenTotal } : {}),
+    };
+    return Object.keys(upkeep).length > 0 ? upkeep : undefined;
+  } catch (error) {
+    if (!(error instanceof ForbiddenError)) ErrorReporter.captureException(error, { tags: { kind: "wiki-upkeep" } });
+    return undefined;
+  }
+}
+
 async function workspaceContext(wikiPage: number | null) {
-  const [userResult, companyResult, rolesResult, accountsResult, wikiResult] = await Promise.all([
+  const [userResult, companyResult, rolesResult, accountsResult, wikiResult, upkeep] = await Promise.all([
     getGetUserDetailsInteractor().invoke(),
     getGetCompanyInteractor().invoke(),
     getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
@@ -78,6 +98,7 @@ async function workspaceContext(wikiPage: number | null) {
             if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return null;
             throw error;
           }),
+    wikiPage === 1 ? wikiUpkeep() : undefined,
   ]);
   if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
   if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
@@ -92,6 +113,7 @@ async function workspaceContext(wikiPage: number | null) {
             wiki: {
               ...(wiki.guide ? { guide: wiki.guide } : {}),
               ...(wiki.procedures?.total ? { procedures: wiki.procedures } : {}),
+              ...(upkeep ? { upkeep } : {}),
               total: wiki.total,
               page: wiki.page,
               nextPage: wiki.nextPage,
@@ -115,6 +137,8 @@ export const getWorkspaceContextTool = {
     "On the first page wiki.guide is the Operating Guide (nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse. " +
     "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, not the complete page. " +
     "wiki.nextPage is the wikiPage value of the following catalog page. wiki is omitted without Knowledge Base Read. " +
+    "A page's owner and verifiedAt (when someone last confirmed it is correct) appear when set. " +
+    "For someone who may edit pages, wiki.upkeep on the first page counts what is open, and is omitted when nothing is: openQuestions the Knowledge Base could not answer, orphanPages that no other page links to and pagesWithDeadLinks that link to a page that no longer exists. " +
     WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({

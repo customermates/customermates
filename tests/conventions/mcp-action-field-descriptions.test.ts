@@ -39,8 +39,11 @@ describe("MCP action field descriptions", () => {
       "expectedUpdatedAt",
       "title",
       "markdown",
+      "edits",
       "kind",
       "whenToUse",
+      "owner",
+      "verified",
     ]);
   });
 

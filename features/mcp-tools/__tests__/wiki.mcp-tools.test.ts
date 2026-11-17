@@ -21,6 +21,8 @@ const calls = vi.hoisted(() => ({
   search: vi.fn(),
   update: vi.fn(),
   gaps: vi.fn(),
+  links: vi.fn(),
+  report: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -43,6 +45,8 @@ vi.mock("@/core/di", () => ({
   getSearchWikiKnowledgeInteractor: () => ({ invoke: calls.search }),
   getUpdateWikiPageInteractor: () => ({ invoke: calls.update }),
   getGetWikiKnowledgeGapsInteractor: () => ({ invoke: calls.gaps }),
+  getGetWikiPageLinksInteractor: () => ({ invoke: calls.links }),
+  getGetWikiLinkReportInteractor: () => ({ invoke: calls.report }),
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "../tool-registry";
@@ -83,6 +87,10 @@ async function run(input: Record<string, unknown>) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  calls.links.mockResolvedValue({
+    ok: true,
+    data: { id: PAGE_ID, linkedFrom: [], linksTo: [], missing: 0, missingPageIds: [], records: [] },
+  });
 });
 
 describe("Knowledge Base saved-page contract", () => {
@@ -628,6 +636,219 @@ describe("manage_wiki_pages writes", () => {
   it("rejects an empty create batch in the public tool schema", () => {
     expect(manageWikiPagesTool.inputSchema.safeParse({ action: "create", pages: [] }).success).toBe(false);
     expect(calls.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("manage_wiki_pages part edits, owner and verification", () => {
+  it("sends edits to parts of a page instead of its whole markdown and reports the new length", async () => {
+    calls.update.mockResolvedValue({
+      ok: true,
+      data: { ...page("Updated body"), owner: "Support team", verifiedAt: new Date("2026-09-09T08:00:00.000Z") },
+    });
+    const edits = [
+      { find: "Body", replace: "Updated body" },
+      { anchor: "pricing", markdown: "## Pricing\n\nNew.", placement: "after" },
+      { markdown: "## Changelog\n\nNew." },
+    ];
+
+    const result = await run({
+      action: "update",
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT.toISOString(),
+      edits,
+      owner: "Support team",
+      verified: true,
+    });
+
+    expect(calls.update).toHaveBeenCalledExactlyOnceWith({
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+      edits,
+      owner: "Support team",
+      verified: true,
+    });
+    expect(decode(mcpToolResultText(result))).toMatchObject({
+      id: PAGE_ID,
+      totalChars: "Updated body".length,
+      owner: "Support team",
+      verifiedAt: expect.stringContaining("2026-09-09"),
+    });
+    expect(decode(mcpToolResultText(result))).not.toHaveProperty("markdown");
+  });
+
+  it("verifies a page without any other change, and clears an owner with null", async () => {
+    calls.update.mockResolvedValue({ ok: true, data: page() });
+
+    await run({ action: "update", id: PAGE_ID, expectedUpdatedAt: UPDATED_AT.toISOString(), verified: true });
+    await run({ action: "update", id: PAGE_ID, expectedUpdatedAt: UPDATED_AT.toISOString(), owner: null });
+
+    expect(calls.update.mock.calls).toEqual([
+      [{ id: PAGE_ID, expectedUpdatedAt: UPDATED_AT, verified: true }],
+      [{ id: PAGE_ID, expectedUpdatedAt: UPDATED_AT, owner: null }],
+    ]);
+  });
+
+  it("does not take verified false for a change", async () => {
+    const result = await run({
+      action: "update",
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT.toISOString(),
+      verified: false,
+    });
+
+    expect(mcpToolResultText(result)).toContain("Validation error:");
+    expect(calls.update).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["no edit", []],
+    ["more edits than one call takes", Array.from({ length: 21 }, () => ({ markdown: "More." }))],
+    ["an edit with escaped line breaks", [{ markdown: "## Steps\\n\\n1. Confirm." }]],
+    ["an edit with an empty find", [{ find: "", replace: "x" }]],
+  ])("rejects %s in the tool schema", (_label, edits) => {
+    expect(
+      manageWikiPagesTool.inputSchema.safeParse({
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: UPDATED_AT.toISOString(),
+        edits,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("tells a writer about part edits, the size limit and verification", () => {
+    expect(manageWikiPagesTool.description).toContain("edits change parts of a page");
+    expect(manageWikiPagesTool.description).toContain("at most 65,535 characters");
+    expect(manageWikiPagesTool.description).toContain("verifiedAt is when someone last confirmed the page");
+    expect(manageWikiPagesTool.inputSchema.shape.action.description).toContain(
+      "links without id reports on the whole Knowledge Base",
+    );
+  });
+});
+
+describe("manage_wiki_pages links", () => {
+  const OTHER_ID = "00000000-0000-4000-8000-000000000002";
+  const GONE_ID = "00000000-0000-4000-8000-000000000009";
+  const TYPE_ID = "20000000-0000-4000-8000-000000000001";
+
+  it("names the pages that link to a page on its first chunk only", async () => {
+    calls.get.mockResolvedValue({ ok: true, data: page("Body") });
+    calls.links.mockResolvedValue({
+      ok: true,
+      data: {
+        id: PAGE_ID,
+        linkedFrom: Array.from({ length: 10 }, (_, index) => ({
+          id: `00000000-0000-4000-8000-0000000001${String(index).padStart(2, "0")}`,
+          title: `Linking page ${index}`,
+          kind: "knowledge",
+        })),
+        linksTo: [],
+        missing: 0,
+        missingPageIds: [],
+        records: [],
+      },
+    });
+
+    const first = decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID }))) as {
+      linkedFrom: Array<Record<string, unknown>>;
+      linkedFromTotal: number;
+      totalChars: number;
+    };
+    expect(calls.links).toHaveBeenCalledExactlyOnceWith({ id: PAGE_ID });
+    expect(first.linkedFromTotal).toBe(10);
+    expect(first.linkedFrom).toHaveLength(8);
+    expect(first.linkedFrom[0]).toEqual({ id: "00000000-0000-4000-8000-000000000100", title: "Linking page 0" });
+    expect(first.totalChars).toBe(4);
+
+    calls.links.mockClear();
+    const later = decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID, offset: 2 })));
+    expect(calls.links).not.toHaveBeenCalled();
+    expect(later).not.toHaveProperty("linkedFrom");
+  });
+
+  it("leaves linkedFrom out when nothing links to the page, and still reads the page when links cannot be read", async () => {
+    calls.get.mockResolvedValue({ ok: true, data: page("Body") });
+    expect(decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID })))).not.toHaveProperty("linkedFrom");
+
+    calls.links.mockRejectedValue(new Error("links unavailable"));
+    const result = decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID })));
+    expect(result).toMatchObject({ id: PAGE_ID, markdownChunk: "Body" });
+    expect(result).not.toHaveProperty("linkedFrom");
+  });
+
+  it("returns the links of one page: linking pages, linked pages, dead links and record lists", async () => {
+    calls.links.mockResolvedValue({
+      ok: true,
+      data: {
+        id: PAGE_ID,
+        linkedFrom: [{ id: OTHER_ID, title: "Operating Guide", kind: "guide" }],
+        linksTo: [{ id: OTHER_ID, title: "Operating Guide", kind: "guide" }],
+        missing: 1,
+        missingPageIds: [GONE_ID],
+        records: [{ id: TYPE_ID, label: "Person", pluralLabel: "People", icon: "user", count: 2, list: true }],
+      },
+    });
+
+    const result = await run({ action: "links", id: PAGE_ID });
+
+    expect(calls.links).toHaveBeenCalledExactlyOnceWith({ id: PAGE_ID });
+    expect(calls.report).not.toHaveBeenCalled();
+    expect(decode(mcpToolResultText(result))).toEqual({
+      id: PAGE_ID,
+      linkedFrom: [{ id: OTHER_ID, title: "Operating Guide", kind: "guide" }],
+      linksTo: [{ id: OTHER_ID, title: "Operating Guide", kind: "guide" }],
+      missingPageIds: [GONE_ID],
+      records: [{ id: TYPE_ID, pluralLabel: "People", count: 2, list: true }],
+    });
+  });
+
+  it("returns the link report of the whole Knowledge Base without an id", async () => {
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: {
+        pages: 12,
+        orphans: [{ id: OTHER_ID, title: "Old pricing", kind: "knowledge" }],
+        orphansTotal: 1,
+        broken: [{ id: PAGE_ID, title: "Company Overview", kind: "knowledge", missingPageIds: [GONE_ID] }],
+        brokenTotal: 1,
+        syncing: false,
+      },
+    });
+
+    const result = decode(mcpToolResultText(await run({ action: "links" })));
+
+    expect(calls.report).toHaveBeenCalledExactlyOnceWith({});
+    expect(calls.links).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      pages: 12,
+      orphans: [{ id: OTHER_ID, title: "Old pricing", kind: "knowledge" }],
+      orphansTotal: 1,
+      broken: [{ id: PAGE_ID, title: "Company Overview", kind: "knowledge", missingPageIds: [GONE_ID] }],
+      brokenTotal: 1,
+      syncing: false,
+    });
+  });
+
+  it("says when links are still being read, so an empty report is not taken for a clean one", async () => {
+    calls.report.mockResolvedValue({
+      ok: true,
+      data: { pages: 12, orphans: [], orphansTotal: 0, broken: [], brokenTotal: 0, syncing: true },
+    });
+
+    const result = decode(mcpToolResultText(await run({ action: "links" }))) as { syncing: boolean; hint: string };
+
+    expect(result.syncing).toBe(true);
+    expect(result.hint).toContain("still being read");
+  });
+
+  it("rejects a malformed page id and relays a denied read", async () => {
+    expect(manageWikiPagesTool.inputSchema.safeParse({ action: "links", id: "not-an-id" }).success).toBe(false);
+
+    calls.report.mockRejectedValue(new ForbiddenError());
+    const denied = await executeMcpTool(manageWikiPagesTool, [
+      manageWikiPagesTool.inputSchema.parse({ action: "links" }),
+    ]);
+    expect(denied).toMatchObject({ ok: false, failure: { kind: "authorization" } });
   });
 });
 
