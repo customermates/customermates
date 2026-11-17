@@ -15,7 +15,7 @@ import type { PublicFormConfig, PublicFormSubmitResult, SubmitPublicFormInput } 
 import { randomUUID } from "node:crypto";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
-import { looksAutomated, visitorHash } from "@/core/network/public-submit-guard";
+import { looksAutomated, renderTokenIssuedTo, visitorHash } from "@/core/network/public-submit-guard";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import * as ErrorReporter from "@/core/observability/server";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -34,6 +34,7 @@ type Context = {
   form: PublicFormLookup;
   config: PublicFormConfig;
   data: Submission;
+  visitor: string | null;
   ipHash: string | null;
   now: Date;
   submissionId: string;
@@ -65,6 +66,7 @@ export class SubmitPublicFormInteractor {
         form,
         config,
         data,
+        visitor: visitor ?? null,
         ipHash: visitorHash(visitor, this.access.authSecret),
         now: this.access.now(),
         submissionId: randomUUID(),
@@ -101,6 +103,9 @@ export class SubmitPublicFormInteractor {
       authSecret: this.access.authSecret,
     });
     if (automated) return this.accepted(config);
+    if (!renderTokenIssuedTo(data.renderToken, context.visitor, this.access.authSecret)) return PUBLIC_FORM_UNAVAILABLE;
+    const limited = this.access.admitSubmission(form.id);
+    if (limited) return limited;
 
     const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
     const typeExists = model.types.some((entry) => entry.id === form.typeId && !entry.archived);

@@ -5,7 +5,7 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
-import { looksAutomated, visitorHash } from "@/core/network/public-submit-guard";
+import { looksAutomated, renderTokenIssuedTo, visitorHash } from "@/core/network/public-submit-guard";
 import { stripControlCharacters } from "@/core/utils/strip-control-characters";
 import { DomainEvent } from "@/features/event/domain-events";
 import { coerceAnswers } from "@/features/records/record-value-coercion";
@@ -88,7 +88,7 @@ export class SubmitPublicBookingInteractor {
     if (!name) return { status: "invalid", fields: ["name"] };
     const data = { ...parsed.data, name, answers: withoutControlCharacters(parsed.data.answers) };
 
-    return this.access.open(data.token, data.visitor, (link) => this.book(link, data));
+    return this.access.open(data.token, data.visitor, (link) => this.book(link, data), "afterSpamChecks");
   }
 
   private async book(link: BookingLinkLookup, data: SubmitPublicBookingData): Promise<PublicBookingSubmitResult> {
@@ -101,7 +101,10 @@ export class SubmitPublicBookingInteractor {
       now,
       authSecret: this.access.authSecret,
     });
-    if (automated) return { status: "unavailable" };
+    if (automated || !renderTokenIssuedTo(data.renderToken, data.visitor, this.access.authSecret))
+      return { status: "unavailable" };
+    const limited = this.access.admitLink(link.token);
+    if (limited) return limited;
     if (!(await this.availability.isOpen(link, now, startsAt))) return { status: "slotTaken" };
 
     const model = link.recordTypeId ? await this.records.loadModel() : null;

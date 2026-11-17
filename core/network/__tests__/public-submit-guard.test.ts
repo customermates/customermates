@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { PUBLIC_FILL_MS, looksAutomated, renderToken, renderTokenAgeMs, visitorHash } from "../public-submit-guard";
+import {
+  PUBLIC_FILL_MS,
+  looksAutomated,
+  renderToken,
+  renderTokenAgeMs,
+  renderTokenIssuedTo,
+  visitorHash,
+} from "../public-submit-guard";
 
 const ID = "00000000-0000-4000-8000-0000000000f1";
 const SECRET = "token-test-secret";
@@ -23,12 +30,39 @@ describe("render token", () => {
 
   it("rejects a forged timestamp and malformed tokens", () => {
     const token = renderToken(ID, issued, SECRET);
-    const signature = token.split(".")[1];
+    const [, tag, signature] = token.split(".");
 
-    expect(renderTokenAgeMs(`1.${signature}`, ID, issued, SECRET)).toBeNull();
-    expect(renderTokenAgeMs(`${issued.getTime() - 1000}.${signature}`, ID, issued, SECRET)).toBeNull();
+    expect(renderTokenAgeMs(`1.${tag}.${signature}`, ID, issued, SECRET)).toBeNull();
+    expect(renderTokenAgeMs(`${issued.getTime() - 1000}.${tag}.${signature}`, ID, issued, SECRET)).toBeNull();
+    expect(renderTokenAgeMs(`${issued.getTime()}.${signature}`, ID, issued, SECRET)).toBeNull();
     expect(renderTokenAgeMs("garbage", ID, issued, SECRET)).toBeNull();
     expect(renderTokenAgeMs(`${token}.extra`, ID, issued, SECRET)).toBeNull();
+  });
+
+  it("is bound to the visitor it was rendered for, so it cannot be replayed from another address", () => {
+    const token = renderToken(ID, issued, SECRET, "visitor-a");
+    const later = new Date(issued.getTime() + 10_000);
+
+    expect(renderTokenAgeMs(token, ID, later, SECRET)).toBe(10_000);
+    expect(renderTokenIssuedTo(token, "visitor-a", SECRET)).toBe(true);
+    expect(renderTokenIssuedTo(token, "visitor-b", SECRET)).toBe(false);
+    expect(renderTokenIssuedTo(token, null, SECRET)).toBe(false);
+    expect(token).not.toContain("visitor-a");
+  });
+
+  it("cannot be moved to another visitor by swapping the visitor part", () => {
+    const [issuedAt, , signature] = renderToken(ID, issued, SECRET, "visitor-a").split(".");
+    const [, otherTag] = renderToken(ID, issued, SECRET, "visitor-b").split(".");
+
+    expect(renderTokenAgeMs(`${issuedAt}.${otherTag}.${signature}`, ID, issued, SECRET)).toBeNull();
+  });
+
+  it("binds a page rendered without a known address to visitors without one", () => {
+    const token = renderToken(ID, issued, SECRET);
+
+    expect(renderTokenIssuedTo(token, null, SECRET)).toBe(true);
+    expect(renderTokenIssuedTo(token, undefined, SECRET)).toBe(true);
+    expect(renderTokenIssuedTo(token, "visitor-a", SECRET)).toBe(false);
   });
 });
 

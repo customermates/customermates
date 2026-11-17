@@ -8,7 +8,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { renderToken } from "@/core/network/public-submit-guard";
+import { renderToken, renderTokenIssuedTo } from "@/core/network/public-submit-guard";
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -64,6 +64,7 @@ type Setup = {
   writes?: unknown[];
   model?: ReturnType<typeof createModel>;
   burst?: number;
+  formBurst?: number;
 };
 
 function setup(options: Setup = {}) {
@@ -104,7 +105,7 @@ function setup(options: Setup = {}) {
   const limiters = {
     view: new TokenBucketRateLimiter(1_000, 60_000),
     visitorSubmit: new TokenBucketRateLimiter(options.burst ?? 1_000, 60_000),
-    formSubmit: new TokenBucketRateLimiter(1_000, 60_000),
+    formSubmit: new TokenBucketRateLimiter(options.formBurst ?? 1_000, 60_000),
   };
   const access = new PublicFormAccess(
     { findFormUnscoped: () => Promise.resolve(lookupForm) } as never,
@@ -160,13 +161,16 @@ function setup(options: Setup = {}) {
 const token = publicFormToken(FORM_ID, SECRET);
 const fieldUuid = (index: number) => `00000000-0000-4000-8000-${String(index + 1000).padStart(12, "0")}`;
 
+const VISITOR = "203.0.113.9";
+
 function submission(overrides: Record<string, unknown> = {}) {
+  const visitor = ("visitor" in overrides ? overrides.visitor : VISITOR) as string | null | undefined;
   return {
     token,
-    renderToken: renderToken(FORM_ID, new Date(now.getTime() - 8_000), SECRET),
+    renderToken: renderToken(FORM_ID, new Date(now.getTime() - 8_000), SECRET, visitor),
     consent: true,
     answers: { [NAME_FIELD]: "Ada Lovelace", [NOTES_FIELD]: "Hello" },
-    visitor: "203.0.113.9",
+    visitor: VISITOR,
     ...overrides,
   };
 }
@@ -266,6 +270,34 @@ describe("SubmitPublicFormInteractor", () => {
 
     expect(result.status).toBe("submitted");
     expect(writer.invoke).not.toHaveBeenCalled();
+  });
+
+  it("refuses a page that was rendered for another address, and says so instead of dropping the answers", async () => {
+    const { submit, writer, forms } = setup();
+    const elsewhere = renderToken(FORM_ID, new Date(now.getTime() - 8_000), SECRET, "198.51.100.7");
+
+    expect(await submit.invoke(submission({ renderToken: elsewhere }))).toEqual({ status: "unavailable" });
+    expect(writer.invoke).not.toHaveBeenCalled();
+    expect(forms.recordSubmission).not.toHaveBeenCalled();
+  });
+
+  it("charges the bucket all visitors of a form share only after the spam checks passed", async () => {
+    const { submit, writer } = setup({ formBurst: 1 });
+    const tooFast = renderToken(FORM_ID, new Date(now.getTime() - 500), SECRET, VISITOR);
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await submit.invoke(submission({ website: "https://spam.example" }));
+      await submit.invoke(submission({ renderToken: tooFast }));
+      await submit.invoke(submission({ renderToken: "1.deadbeef" }));
+    }
+    expect(writer.invoke).not.toHaveBeenCalled();
+
+    expect((await submit.invoke(submission())).status).toBe("submitted");
+    expect(writer.invoke).toHaveBeenCalledTimes(1);
+    expect(await submit.invoke(submission())).toEqual({
+      status: "rateLimited",
+      retryAfterSeconds: expect.any(Number),
+    });
   });
 
   it("asks for the consent when the form needs it", async () => {
@@ -648,8 +680,10 @@ describe("ReadPublicFormInteractor", () => {
       submitLabel: "Send",
       workspaceName: "Acme",
       badge: true,
-      renderToken: expect.stringMatching(/^\d+\.[0-9a-f]{64}$/u),
+      renderToken: expect.stringMatching(/^\d+\.[0-9a-f]{16}\.[0-9a-f]{64}$/u),
     });
+    expect(renderTokenIssuedTo(result.form.renderToken, "203.0.113.9", SECRET)).toBe(true);
+    expect(renderTokenIssuedTo(result.form.renderToken, "198.51.100.7", SECRET)).toBe(false);
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain(COMPANY_ID);
     expect(serialized).not.toContain(USER_ID);

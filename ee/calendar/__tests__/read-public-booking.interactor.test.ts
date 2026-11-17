@@ -17,7 +17,7 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
-import { renderTokenAgeMs } from "@/core/network/public-submit-guard";
+import { renderTokenAgeMs, renderTokenIssuedTo } from "@/core/network/public-submit-guard";
 import { PublicTenant } from "@/core/network/public-tenant";
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 
@@ -93,6 +93,8 @@ describe("ReadPublicBookingInteractor", () => {
     expect(result.page).toMatchObject({ title: "Intro call", hostName: "Ben", durationMinutes: 30 });
     expect(renderTokenAgeMs(result.page.renderToken, LINK_ID, new Date(NOW.getTime() + 5_000), SECRET)).toBe(5_000);
     expect(renderTokenAgeMs(result.page.renderToken, "other-link", new Date(NOW.getTime() + 5_000), SECRET)).toBeNull();
+    expect(renderTokenIssuedTo(result.page.renderToken, "v", SECRET)).toBe(true);
+    expect(renderTokenIssuedTo(result.page.renderToken, "w", SECRET)).toBe(false);
   });
 
   it("is unavailable outside the cloud and does not look the link up", async () => {

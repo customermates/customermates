@@ -34,7 +34,7 @@ export class ReadPublicBookingInteractor {
           hostName: link.hostName,
           withVideo: link.withVideo,
           questions: publicQuestions(link.recordTypeId ? await this.records.loadModel() : null, link),
-          renderToken: renderToken(link.id, this.access.now(), this.access.authSecret),
+          renderToken: renderToken(link.id, this.access.now(), this.access.authSecret, query.data.visitor),
         },
       }),
     );

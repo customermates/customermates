@@ -1,5 +1,5 @@
 import type { PermissionService } from "@/core/base/permission.service";
-import type { PublicBlocked } from "@/core/network/public-access";
+import type { PublicBlocked, PublicRateLimited } from "@/core/network/public-access";
 import type { PublicTenant } from "@/core/network/public-tenant";
 import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -34,17 +34,21 @@ export class PublicBookingAccess {
     return this.settings.authSecret;
   }
 
+  admitLink(token: string): PublicRateLimited | null {
+    return admitAll([[this.limiters.perLink, `link:${token}`]]);
+  }
+
   async open<T>(
     token: string,
     visitor: string | null | undefined,
     read: (link: BookingLinkLookup) => Promise<T>,
+    linkBucket: "now" | "afterSpamChecks" = "now",
   ): Promise<T | PublicBlocked> {
     if (env.APP_MODE !== "cloud") return PUBLIC_BOOKING_UNAVAILABLE;
 
-    const limited = admitAll([
-      [this.limiters.perVisitor, visitor ? `visitor:${visitor}` : null],
-      [this.limiters.perLink, `link:${token}`],
-    ]);
+    const limited =
+      admitAll([[this.limiters.perVisitor, visitor ? `visitor:${visitor}` : null]]) ??
+      (linkBucket === "now" ? this.admitLink(token) : null);
     if (limited) return limited;
 
     const link = await this.lookup.findByTokenUnscoped(token);

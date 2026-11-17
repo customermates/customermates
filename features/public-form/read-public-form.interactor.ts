@@ -40,7 +40,7 @@ export class ReadPublicFormInteractor {
           modelFields: model.fields,
           workspaceName: form.company.name,
           badge: limits.badge,
-          renderToken: renderToken(form.id, this.access.now(), this.access.authSecret),
+          renderToken: renderToken(form.id, this.access.now(), this.access.authSecret, visitor),
         }),
       };
     });

@@ -160,7 +160,9 @@ function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
   };
 }
 
-function build(options: { link?: BookingLinkLookup | null; entitlement?: unknown; perVisitor?: number } = {}) {
+function build(
+  options: { link?: BookingLinkLookup | null; entitlement?: unknown; perVisitor?: number; perLink?: number } = {},
+) {
   const lookup = {
     findByTokenUnscoped: vi.fn().mockResolvedValue(options.link === undefined ? link() : options.link),
   };
@@ -168,7 +170,7 @@ function build(options: { link?: BookingLinkLookup | null; entitlement?: unknown
     lookup,
     new PublicTenant({ getActiveUserByIdOrThrow: vi.fn().mockResolvedValue(mockUser) }),
     {
-      perLink: new TokenBucketRateLimiter(100, 60_000),
+      perLink: new TokenBucketRateLimiter(options.perLink ?? 100, 60_000),
       perVisitor: new TokenBucketRateLimiter(options.perVisitor ?? 100, 60_000),
     },
     () => ({ require: vi.fn().mockResolvedValue(options.entitlement ?? null) }),
@@ -221,7 +223,7 @@ const INPUT = {
   timeZone: "Europe/London",
   answers: { [NOTE]: "Pricing" },
   website: "",
-  renderToken: renderToken(link().id, new Date(NOW.getTime() - 8_000), SECRET),
+  renderToken: renderToken(link().id, new Date(NOW.getTime() - 8_000), SECRET, "visitor-hash"),
 };
 
 beforeEach(() => {
@@ -613,6 +615,34 @@ describe("SubmitPublicBookingInteractor", () => {
       expect(writer.create).not.toHaveBeenCalled();
     });
 
+    it("refuses a page that was rendered for another address", async () => {
+      const { interactor, availability, reservations } = build();
+      const elsewhere = renderToken(link().id, new Date(NOW.getTime() - 8_000), SECRET, "another-visitor");
+
+      expect(await interactor.invoke({ ...INPUT, renderToken: elsewhere })).toEqual({ status: "unavailable" });
+      expect(availability.isOpen).not.toHaveBeenCalled();
+      expect(reservations.reserve).not.toHaveBeenCalled();
+    });
+
+    it("charges the bucket all visitors of a page share only after the spam checks passed", async () => {
+      const { interactor, reservations } = build({ perLink: 1 });
+      const tooFast = renderToken(link().id, new Date(NOW.getTime() - 500), SECRET, "visitor-hash");
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        await interactor.invoke({ ...INPUT, website: "https://spam.example" });
+        await interactor.invoke({ ...INPUT, renderToken: tooFast });
+        await interactor.invoke({ ...INPUT, renderToken: "1.deadbeef" });
+      }
+      expect(reservations.reserve).not.toHaveBeenCalled();
+
+      expect((await interactor.invoke(INPUT)).status).toBe("booked");
+      expect(await interactor.invoke(INPUT)).toEqual({
+        status: "rateLimited",
+        retryAfterSeconds: expect.any(Number),
+      });
+      expect(reservations.reserve).toHaveBeenCalledTimes(1);
+    });
+
     it("stops a page that already took its bookings of the last 24 hours, counted in the database", async () => {
       const { interactor, reservations, writer } = build();
       reservations.countForLinkSince.mockResolvedValue(50);
@@ -629,7 +659,9 @@ describe("SubmitPublicBookingInteractor", () => {
     it("does not count a visitor whose address is unknown", async () => {
       const { interactor, reservations } = build();
 
-      expect((await interactor.invoke({ ...INPUT, visitor: null })).status).toBe("booked");
+      const unbound = renderToken(link().id, new Date(NOW.getTime() - 8_000), SECRET);
+
+      expect((await interactor.invoke({ ...INPUT, visitor: null, renderToken: unbound })).status).toBe("booked");
       expect(reservations.countForVisitorSince).not.toHaveBeenCalled();
       expect(reservations.reserve).toHaveBeenCalledWith(
         expect.objectContaining({ ipHash: null }),

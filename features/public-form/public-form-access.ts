@@ -1,4 +1,4 @@
-import type { PublicBlocked } from "@/core/network/public-access";
+import type { PublicBlocked, PublicRateLimited } from "@/core/network/public-access";
 import type { PublicTenant } from "@/core/network/public-tenant";
 import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import type { PublicFormLookup, PublicFormLookupRepo } from "./public-form-lookup.repo";
@@ -45,6 +45,10 @@ export class PublicFormAccess {
     return this.settings.authSecret;
   }
 
+  admitSubmission(formId: string): PublicRateLimited | null {
+    return admitAll([[this.limiters.formSubmit, `form:${formId}`]]);
+  }
+
   async open<T>(
     token: string,
     visitor: string | null | undefined,
@@ -57,10 +61,7 @@ export class PublicFormAccess {
     const limited = admitAll(
       mode === "view"
         ? [[this.limiters.view, visitor ? `view:${visitor}` : null]]
-        : [
-            [this.limiters.visitorSubmit, visitor ? `submit:${formId}:${visitor}` : null],
-            [this.limiters.formSubmit, `form:${formId}`],
-          ],
+        : [[this.limiters.visitorSubmit, visitor ? `submit:${formId}:${visitor}` : null]],
     );
     if (limited) return limited;
 
