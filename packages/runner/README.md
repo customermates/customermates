@@ -78,7 +78,7 @@ The CLI runs as the account that started the runner. Read this before you run a 
 - Gemini CLI is started with only the workspace's MCP server allowed. Its own built-in tools follow your Gemini settings.
 - The runner token and the CLI logins sit in your account on that machine. A CLI that you allow to run commands can read them. For strict separation run the runner in the Docker image or under its own user account.
 - Windows: the runner starts CLIs installed with npm (`.cmd` files) through `cmd.exe`. This path is covered by unit tests of the command line it builds, not by a test run on Windows. Stopping a job there uses `taskkill /T /F`.
-- Tested with Claude Code 2.1.326 and Codex CLI 0.169.0. Older versions may not know every flag above; the job then fails with the CLI's own message.
+- The flags above were checked against the help of Claude Code 2.1.326 and Codex CLI 0.169.0. An older version may not know every flag; the job then fails with the CLI's own message.
 
 ## Stop or revoke
 
