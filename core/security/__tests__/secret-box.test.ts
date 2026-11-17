@@ -13,7 +13,7 @@ import { openSecret, sealSecret, secretLast4, SecretBoxError } from "../secret-b
 
 const OWNER = ["agent-provider-key", "company-1", "anthropic"] as const;
 
-function sealVersionOne(plain: string, secret: string): string {
+function sealWithoutOwner(plain: string, secret: string): string {
   const key = new Uint8Array(hkdfSync("sha256", secret, "", "customermates-secret-box-v1", 32));
   const iv = new Uint8Array(randomBytes(12));
   const cipher = createCipheriv("aes-256-gcm", key, iv, { authTagLength: 16 });
@@ -56,20 +56,18 @@ describe("secret box", () => {
     expect(failureOf(() => sealSecret("value", ["agent-provider-key", ""]))).toBe("configuration");
   });
 
-  it("still opens a value sealed in the first format, which had no owner", () => {
-    const sealed = sealVersionOne("sk-ant-example-0001", "a-long-test-only-authentication-secret");
+  it("refuses a value that is sealed without an owner, although the key fits", () => {
+    const sealed = sealWithoutOwner("sk-ant-example-0001", "a-long-test-only-authentication-secret");
 
-    expect(openSecret(sealed, OWNER)).toBe("sk-ant-example-0001");
-    expect(openSecret(sealed, ["agent-provider-key", "company-2", "openai"])).toBe("sk-ant-example-0001");
+    expect(failureOf(() => openSecret(sealed, OWNER))).toBe("format");
+    expect(failureOf(() => openSecret(sealed.replace(/^v1\./, "v2."), OWNER))).toBe("unreadable");
   });
 
   it("keeps values sealed before SECRET_BOX_KEY was set readable and seals new ones with the configured key", () => {
     const before = sealSecret("old value", OWNER);
-    const beforeInFirstFormat = sealVersionOne("older value", "a-long-test-only-authentication-secret");
 
     mockEnv.SECRET_BOX_KEY = Buffer.alloc(32, 7).toString("base64");
     expect(openSecret(before, OWNER)).toBe("old value");
-    expect(openSecret(beforeInFirstFormat, OWNER)).toBe("older value");
 
     const after = sealSecret("new value", OWNER);
     expect(openSecret(after, OWNER)).toBe("new value");
@@ -111,7 +109,7 @@ describe("secret box", () => {
         OWNER,
       ),
     ).toThrow(SecretBoxError);
-    expect(failureOf(() => openSecret(["v1", iv, tag, data].join("."), OWNER))).toBe("unreadable");
+    expect(failureOf(() => openSecret(["v1", iv, tag, data].join("."), OWNER))).toBe("format");
     expect(() => openSecret("v3.a.b.c", OWNER)).toThrow("unknown format");
     expect(() => openSecret("not sealed", OWNER)).toThrow("unknown format");
     expect(failureOf(() => openSecret("not sealed", OWNER))).toBe("format");

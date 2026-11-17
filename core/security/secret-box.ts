@@ -2,7 +2,6 @@ import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:cr
 
 import { env } from "@/env";
 
-const UNBOUND_VERSION = "v1";
 const BOUND_VERSION = "v2";
 const ALGORITHM = "aes-256-gcm";
 const KEY_BYTES = 32;
@@ -68,10 +67,10 @@ function associatedData(binding: SecretBinding): Uint8Array {
   return bytes(Buffer.from(JSON.stringify(binding), "utf8"));
 }
 
-function decrypt(key: Uint8Array, aad: Uint8Array | null, iv: string, tag: string, data: string): string | null {
+function decrypt(key: Uint8Array, aad: Uint8Array, iv: string, tag: string, data: string): string | null {
   try {
     const decipher = createDecipheriv(ALGORITHM, key, decode(iv), { authTagLength: TAG_BYTES });
-    if (aad) decipher.setAAD(aad);
+    decipher.setAAD(aad);
     decipher.setAuthTag(decode(tag));
     return Buffer.concat([bytes(decipher.update(decode(data))), bytes(decipher.final())]).toString("utf8");
   } catch {
@@ -91,9 +90,9 @@ export function sealSecret(plain: string, binding: SecretBinding): string {
 
 export function openSecret(sealed: string, binding: SecretBinding): string {
   const [version, iv, tag, data, ...rest] = sealed.split(".");
-  if ((version !== UNBOUND_VERSION && version !== BOUND_VERSION) || !iv || !tag || !data || rest.length > 0)
+  if (version !== BOUND_VERSION || !iv || !tag || !data || rest.length > 0)
     throw new SecretBoxError("The sealed value has an unknown format", "format");
-  const aad = version === BOUND_VERSION ? associatedData(binding) : null;
+  const aad = associatedData(binding);
   for (const key of openingKeys()) {
     const plain = decrypt(key, aad, iv, tag, data);
     if (plain !== null) return plain;
