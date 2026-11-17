@@ -76,6 +76,7 @@ function candidateWhere(
     state: "value",
     instantValue: { gte: args.from, lte: args.to },
     record: { deletedAt: null },
+    field: { archived: false, type: { archived: false } },
   };
 }
 

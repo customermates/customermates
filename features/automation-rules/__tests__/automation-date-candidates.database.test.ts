@@ -109,5 +109,22 @@ describeDatabase("date candidates of a date-reached rule", () => {
       ["2026-11-20", "2026-11-18T07:00:00.000Z"],
       ["2026-11-20", "2026-11-18T07:00:00.000Z"],
     ]);
+
+    // Archiving a field or a list keeps the stored values. A date rule must not go on firing for them.
+    await runWithoutTenant(() =>
+      prisma.recordFieldDefinition.updateMany({
+        where: { companyId: w.companyId, id: closes },
+        data: { archived: true },
+      }),
+    );
+    expect(await candidates(closes)).toEqual([]);
+    expect(await candidates(meeting)).toHaveLength(1);
+    await runWithoutTenant(() =>
+      prisma.recordTypeDefinition.updateMany({
+        where: { companyId: w.companyId, id: typeId },
+        data: { archived: true },
+      }),
+    );
+    expect(await candidates(meeting)).toEqual([]);
   });
 });

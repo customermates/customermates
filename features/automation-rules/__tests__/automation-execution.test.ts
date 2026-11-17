@@ -57,7 +57,14 @@ const RELATION = "55555555-5555-4555-8555-555555555555";
 const WEBHOOK = "66666666-6666-4666-8666-666666666666";
 const NOW = new Date("2026-11-12T08:00:00.000Z");
 
+const CLOSES = "22222222-2222-4222-8222-666666666666";
+
 const notify = { kind: "notify", recipients: { ruleOwner: true }, title: "Look at {{record.name}}" };
+
+function modelField(id: string, typeId: string, valueType: string, archived = false) {
+  const options = valueType === "select" ? ["won", "lost"].map((option) => ({ id: option, label: option })) : [];
+  return { id, typeId, valueType, multiple: false, behavior: { kind: "input" }, archived, options };
+}
 
 function view(overrides: Partial<AutomationRecordView> = {}): AutomationRecordView {
   return {
@@ -74,10 +81,15 @@ function ports(record: AutomationRecordView | null = view()) {
   const records = {
     model: vi.fn().mockResolvedValue({
       revision: 1,
-      types: [],
+      types: [
+        { id: TYPE, archived: false },
+        { id: TASKS, archived: false },
+      ],
       fields: [
-        { id: DUE, typeId: TASKS, valueType: "date" },
-        { id: NEXT_STEP, typeId: TASKS, valueType: "dateTime" },
+        modelField(STAGE, TYPE, "select"),
+        modelField(CLOSES, TYPE, "date"),
+        modelField(DUE, TASKS, "date"),
+        modelField(NEXT_STEP, TASKS, "dateTime"),
       ],
       relationships: [],
     }),
@@ -494,7 +506,10 @@ describe("running a rule", () => {
   });
 
   it("skips when the conditions are not met", async () => {
+    // A form rule keeps its conditions for the run; a record rule has them checked as subscription filters.
     const runId = (await seedRun(repo, {
+      triggerKind: "formSubmitted",
+      trigger: { kind: "formSubmitted", typeId: TYPE },
       conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "lost" } }],
     })) as string;
     const { interactor: instance, notifications } = interactor();
@@ -512,10 +527,10 @@ describe("running a rule", () => {
   });
 
   it("reads today for a relative-day condition in the rule's time zone", async () => {
-    const overdue = [{ fieldId: DUE, operator: "before", relativeDays: 0 }];
+    const overdue = [{ fieldId: CLOSES, operator: "before", relativeDays: 0 }];
     const dueYesterdayInBerlin = view({
       values: new Map<string, CalculatedValue>([
-        [DUE, { state: "value", value: { kind: "date", value: "2026-11-12" } }],
+        [CLOSES, { state: "value", value: { kind: "date", value: "2026-11-12" } }],
       ]),
     });
     const justAfterMidnightInBerlin = new Date("2026-11-12T23:30:00.000Z");
@@ -566,6 +581,42 @@ describe("running a rule", () => {
     const { interactor: instance } = interactor();
     expect(await run(instance, runId, limited)).toEqual({ ok: true, data: { status: "skipped" } });
     expect(repo.runs.get(runId)?.outcome).toMatchObject({ reason: "ownerNotPermitted" });
+  });
+
+  // The check the brief asked for: a list or field that was deleted after the rule was saved. A condition
+  // on an archived field used to be read as "empty", so "is empty" and "is not" passed and the steps ran.
+  it("fails as invalid instead of running when the rule no longer fits the lists and fields", async () => {
+    const outcome = async (ruleOverrides: Record<string, unknown>, model?: Record<string, unknown>) => {
+      const store = new FakeAutomationRuleRepo();
+      const runId = (await seedRun(store, ruleOverrides)) as string;
+      const set = ports();
+      if (model) set.records.model.mockResolvedValue(model);
+      const instance = new RunAutomationRuleInteractor(store, set.runner, set.records as never, () => NOW);
+      await run(instance, runId);
+      const settled = store.runs.get(runId);
+      return { status: settled?.status, error: settled?.error, notified: set.notifications.notify.mock.calls.length };
+    };
+    const current = (await ports().records.model()) as { types: unknown[]; fields: Array<{ id: string }> };
+    const archivedStage = {
+      ...current,
+      fields: current.fields.map((field) => (field.id === STAGE ? { ...field, archived: true } : field)),
+    };
+    const stageIsEmpty = {
+      triggerKind: "formSubmitted",
+      trigger: { kind: "formSubmitted", typeId: TYPE },
+      conditions: [{ fieldId: STAGE, operator: "empty" }],
+    };
+
+    expect(await outcome(stageIsEmpty, archivedStage)).toEqual({ status: "failed", error: "ruleInvalid", notified: 0 });
+    expect(await outcome({}, { ...current, types: [{ id: TYPE, archived: true }] })).toEqual({
+      status: "failed",
+      error: "ruleInvalid",
+      notified: 0,
+    });
+    expect(
+      await outcome({ effects: [{ kind: "setField", fields: [{ fieldId: STAGE, value: null }] }] }, archivedStage),
+    ).toMatchObject({ status: "failed", error: "ruleInvalid" });
+    expect(await outcome({})).toMatchObject({ status: "applied", notified: 1 });
   });
 
   it("settles as failed with the reason when an effect fails", async () => {
