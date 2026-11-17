@@ -35,7 +35,14 @@ export function fieldChangedFilter(
   model: RecordModelView,
 ): RecordFilter | null {
   if (!trigger.to) return null;
-  return usableFilter(trigger.typeId, { fieldId: trigger.fieldId, operator: "eq", value: trigger.to }, model);
+  const field = model.fields.find(
+    (candidate) => candidate.typeId === trigger.typeId && candidate.id === trigger.fieldId && !candidate.archived,
+  );
+  const filter: RecordFilter =
+    field?.valueType === "select" && field.multiple
+      ? { fieldId: trigger.fieldId, operator: "in", value: null, values: [trigger.to] }
+      : { fieldId: trigger.fieldId, operator: "eq", value: trigger.to };
+  return usableFilter(trigger.typeId, filter, model);
 }
 
 export function conditionRecordFilter(condition: AutomationCondition): RecordFilter {

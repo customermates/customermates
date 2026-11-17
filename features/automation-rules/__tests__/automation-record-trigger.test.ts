@@ -94,6 +94,22 @@ describe("a rule's record trigger as a shared record trigger", () => {
     expect(anyValue.subscription?.query.filters).toEqual([]);
   });
 
+  it("reads the value of a multiple choice field as one of its options", () => {
+    const toAlpha = trigger({
+      kind: "fieldChanged",
+      typeId: DEAL,
+      fieldId: TAGS,
+      to: { kind: "select", value: "alpha" },
+    });
+
+    expect(toAlpha.kind === "fieldChanged" && fieldChangedFilter(toAlpha, model())).toEqual({
+      fieldId: TAGS,
+      operator: "in",
+      value: null,
+      values: [{ kind: "select", value: "alpha" }],
+    });
+  });
+
   it("refuses a value the field cannot be filtered by", () => {
     const wrongKind = trigger({
       kind: "fieldChanged",

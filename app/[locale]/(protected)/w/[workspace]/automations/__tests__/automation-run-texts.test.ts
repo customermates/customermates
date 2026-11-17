@@ -59,6 +59,7 @@ const SKIP_REASONS = [
   "ownerMissing",
   "ownerNotPermitted",
   "recordUnavailable",
+  "ruleChanged",
   "ruleDisabled",
 ];
 
