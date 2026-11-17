@@ -8,7 +8,7 @@ import type { DraftCondition, DraftConditionOperator, DraftUnavailableKind } fro
 import { Input } from "@/components/ui/input";
 
 import { conditionOperatorsFor, fieldOfList, listOf } from "./automation-draft";
-import { Choose, Labeled, PickMany, UnavailableNote, ValueInput } from "./automation-builder-fields";
+import { Choose, FieldRow, Labeled, PickMany, UnavailableNote, ValueInput } from "./automation-builder-fields";
 
 type Props = {
   condition: DraftCondition;
@@ -58,7 +58,7 @@ export function AutomationConditionFields({ condition, typeId, model, flagged, u
     <div className="flex flex-col gap-3">
       <UnavailableNote what={unavailable} />
 
-      <div className="flex flex-wrap gap-3">
+      <FieldRow>
         <Labeled label={t("AutomationRules.builder.field")}>
           <Choose
             items={fields}
@@ -99,7 +99,7 @@ export function AutomationConditionFields({ condition, typeId, model, flagged, u
             )}
           </Labeled>
         )}
-      </div>
+      </FieldRow>
 
       {listOperator && (
         <Labeled label={t("AutomationRules.builder.value")}>

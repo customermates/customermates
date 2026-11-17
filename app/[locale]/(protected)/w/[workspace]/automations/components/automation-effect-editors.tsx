@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { AUTOMATION_NOTIFY_KINDS } from "@/features/automation-rules/automation-rule.schema";
 
 import { fieldOfList, linkRelationsFor, listOf } from "./automation-draft";
-import { Choose, DATE_FIELD_TYPES, Labeled, ValueInput } from "./automation-builder-fields";
+import { Choose, DATE_FIELD_TYPES, FieldRow, Labeled, ValueInput } from "./automation-builder-fields";
 
 function SwitchRow({
   label,
@@ -45,7 +45,7 @@ export function NotifyEditor({
   const t = useTranslations();
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-3">
+      <FieldRow>
         <Labeled label={t("AutomationRules.builder.title")}>
           <Input value={effect.title} onChange={(event) => onChange({ ...effect, title: event.target.value })} />
         </Labeled>
@@ -64,7 +64,7 @@ export function NotifyEditor({
             }
           />
         </Labeled>
-      </div>
+      </FieldRow>
 
       <Labeled label={t("AutomationRules.builder.body")}>
         <Input value={effect.body} onChange={(event) => onChange({ ...effect, body: event.target.value })} />
@@ -111,7 +111,7 @@ export function CreateRecordEditor({
   const choose = t("AutomationRules.builder.choose");
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-3">
+      <FieldRow>
         <Labeled label={t("AutomationRules.builder.list")}>
           <Choose
             items={model.lists.map((item) => ({ id: item.id, label: item.label }))}
@@ -131,13 +131,13 @@ export function CreateRecordEditor({
             onChange={(titleFieldId) => onChange({ ...effect, titleFieldId })}
           />
         </Labeled>
-      </div>
+      </FieldRow>
 
       <Labeled label={t("AutomationRules.builder.title")}>
         <Input value={effect.title} onChange={(event) => onChange({ ...effect, title: event.target.value })} />
       </Labeled>
 
-      <div className="flex flex-wrap gap-3">
+      <FieldRow>
         <Labeled label={t("AutomationRules.builder.dueField")}>
           <Choose
             items={[
@@ -178,7 +178,7 @@ export function CreateRecordEditor({
             />
           </Labeled>
         )}
-      </div>
+      </FieldRow>
 
       <SwitchRow
         checked={effect.assignToOwner}
@@ -204,7 +204,7 @@ export function SetFieldEditor({
 }) {
   const t = useTranslations();
   return (
-    <div className="flex flex-wrap gap-3">
+    <FieldRow>
       <Labeled label={t("AutomationRules.builder.field")}>
         <Choose
           items={fields}
@@ -223,6 +223,6 @@ export function SetFieldEditor({
           onChange={(value) => onChange({ ...effect, value })}
         />
       </Labeled>
-    </div>
+    </FieldRow>
   );
 }

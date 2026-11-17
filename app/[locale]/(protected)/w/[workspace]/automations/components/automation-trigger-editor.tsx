@@ -12,6 +12,7 @@ import { DRAFT_MESSAGE_CHANNELS, DRAFT_TRIGGER_KINDS, fieldOfList, fieldTakesVal
 import {
   Choose,
   DATE_FIELD_TYPES,
+  FieldRow,
   Labeled,
   PickMany,
   TimeZonePicker,
@@ -81,7 +82,7 @@ export function AutomationTriggerEditor({ trigger, model, flagged, unavailable, 
           </Button>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-3">
+        <FieldRow>
           <Labeled label={t("AutomationRules.builder.event")}>
             <Choose
               items={DRAFT_TRIGGER_KINDS.map((kind) => ({ id: kind, label: t(`AutomationRules.trigger.${kind}`) }))}
@@ -146,7 +147,7 @@ export function AutomationTriggerEditor({ trigger, model, flagged, unavailable, 
               />
             </Labeled>
           )}
-        </div>
+        </FieldRow>
       )}
 
       {trigger.kind === "recordUpdated" && (
@@ -165,7 +166,7 @@ export function AutomationTriggerEditor({ trigger, model, flagged, unavailable, 
       )}
 
       {trigger.kind === "dateReached" && (
-        <div className="flex flex-wrap gap-3">
+        <FieldRow>
           <Labeled label={t("AutomationRules.builder.days")}>
             <Input
               aria-invalid={flagged("trigger") || undefined}
@@ -203,7 +204,7 @@ export function AutomationTriggerEditor({ trigger, model, flagged, unavailable, 
               onChange={(timezone) => onChange({ timezone })}
             />
           </Labeled>
-        </div>
+        </FieldRow>
       )}
 
       {flagged("trigger") && !unavailable && (

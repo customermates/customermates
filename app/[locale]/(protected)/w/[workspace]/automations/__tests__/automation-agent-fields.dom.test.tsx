@@ -408,6 +408,41 @@ describe("the trigger card", () => {
     expect(offered("email")).toEqual(["any", "email", "chat"]);
   });
 
+  it("gives every field of a row a flex basis so the row wraps on a phone (class contract, no browser run)", () => {
+    mount(
+      <AutomationTriggerEditor
+        flagged={() => false}
+        model={MODEL}
+        trigger={{ ...TRIGGER, kind: "dateReached", fieldId: MEETING }}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const rows = [...container.querySelectorAll("[data-automation-field-row]")];
+    expect(rows).toHaveLength(2);
+    for (const row of rows) {
+      const fields = [...row.querySelectorAll(":scope > [data-automation-field]")];
+      expect(row.classList.contains("flex-wrap")).toBe(true);
+      expect(fields.length).toBeGreaterThan(2);
+      for (const item of fields) {
+        expect(["basis-40", "grow", "min-w-0"].every((name) => item.classList.contains(name))).toBe(true);
+        expect(item.classList.contains("flex-1")).toBe(false);
+      }
+    }
+
+    mount(
+      <AutomationTriggerEditor
+        flagged={() => false}
+        model={MODEL}
+        trigger={{ ...TRIGGER, kind: "recordUpdated" }}
+        onChange={vi.fn()}
+      />,
+    );
+    const stacked = container.querySelector("[data-automation-pick-many]")?.closest("[data-automation-field]");
+    expect(stacked?.closest("[data-automation-field-row]")).toBeNull();
+    expect(stacked?.classList.contains("basis-40")).toBe(false);
+  });
+
   it("asks for a target value only where the field can hold one", () => {
     const toValue = () => container.textContent?.includes("AutomationRules.builder.toValue");
     mount(

@@ -1,6 +1,6 @@
 "use client";
 
-import { cloneElement, isValidElement, useId } from "react";
+import { cloneElement, createContext, isValidElement, useContext, useId } from "react";
 import { useTranslations } from "next-intl";
 
 import type { AutomationBuilderField } from "./automation-builder-model";
@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/core/utils/cn";
 
 const BOOLEAN_OPTIONS = ["true", "false"] as const;
 
@@ -25,13 +26,26 @@ export function Section({ title, children }: { title: string; children: React.Re
   );
 }
 
+const FieldRowContext = createContext(false);
+
+export function FieldRow({ children }: { children: React.ReactNode }) {
+  return (
+    <FieldRowContext.Provider value={true}>
+      <div className="flex flex-wrap gap-3" data-automation-field-row="">
+        {children}
+      </div>
+    </FieldRowContext.Provider>
+  );
+}
+
 export function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
   const generatedId = useId();
+  const inRow = useContext(FieldRowContext);
   const control = isValidElement<{ id?: string }>(children) ? children : null;
   const id = control ? (control.props.id ?? generatedId) : undefined;
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+    <div className={cn("flex min-w-0 flex-col gap-1.5", inRow ? "grow basis-40" : "flex-1")} data-automation-field="">
       <Label className="text-xs text-muted-foreground" htmlFor={id}>
         {label}
       </Label>
