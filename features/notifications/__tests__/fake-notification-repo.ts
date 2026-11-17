@@ -13,7 +13,7 @@ import type {
 } from "../notification.repo";
 
 import { NotificationRepo } from "../notification.repo";
-import { NOTIFICATION_DIGEST_LIMIT } from "../notification.schema";
+import { DEFAULT_NOTIFICATION_EMAIL_MODES, NOTIFICATION_DIGEST_LIMIT } from "../notification.schema";
 
 type Row = NotificationInsert & {
   readAt: Date | null;
@@ -172,6 +172,21 @@ export class FakeNotificationRepo extends NotificationRepo {
       users: [...users.values()].map(({ companyId, userId }) => ({ companyId, userId })),
       next: page.length === args.limit && last ? { createdAt: last.createdAt, id: last.id } : null,
     });
+  }
+
+  findInstantFallbackUsersUnscoped(args: { since: Date; before: Date; now: Date; limit: number }) {
+    const instant = (row: Row) =>
+      (this.preferences.get(row.userId)?.get(row.kind) ?? DEFAULT_NOTIFICATION_EMAIL_MODES[row.kind]) === "instant";
+    const waiting = this.rows
+      .filter(
+        (row) =>
+          !row.emailedAt && !row.readAt && row.createdAt >= args.since && row.createdAt <= args.before && instant(row),
+      )
+      .sort(oldestFirst);
+    const users = new Map(waiting.map((row) => [`${row.companyId}:${row.userId}`, row]));
+    return Promise.resolve(
+      [...users.values()].slice(0, args.limit).map(({ companyId, userId }) => ({ companyId, userId })),
+    );
   }
 
   findUnemailedUnscoped(

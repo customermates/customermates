@@ -1,5 +1,6 @@
 import {
   getNotifyRunnerOfflineInteractor,
+  getSendInstantNotificationFallbackInteractor,
   getSweepAgentJobTimeoutsInteractor,
   getSweepAutomationRulesInteractor,
   getSweepRecordDeliveriesInteractor,
@@ -23,6 +24,7 @@ function sweepSteps(): SweepStep[] {
     ["recordFileIndex", () => getSweepRecordFileIndexInteractor().invoke()],
     ["automationRules", () => getSweepAutomationRulesInteractor().invoke()],
     ["agentJobs", agentJobsThenRunnerNotice],
+    ["instantNotificationFallback", () => getSendInstantNotificationFallbackInteractor().invoke()],
   ];
 }
 

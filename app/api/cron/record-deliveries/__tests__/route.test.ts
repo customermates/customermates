@@ -5,6 +5,7 @@ const sweepFiles = vi.hoisted(() => vi.fn());
 const sweepRules = vi.hoisted(() => vi.fn());
 const sweepAgentJobs = vi.hoisted(() => vi.fn());
 const notifyRunnerOffline = vi.hoisted(() => vi.fn());
+const sendInstantFallback = vi.hoisted(() => vi.fn());
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   CRON_SECRET: "test-cron-secret" as string | undefined,
@@ -17,6 +18,7 @@ vi.mock("@/core/di", () => ({
   getSweepAutomationRulesInteractor: () => ({ invoke: sweepRules }),
   getSweepAgentJobTimeoutsInteractor: () => ({ invoke: sweepAgentJobs }),
   getNotifyRunnerOfflineInteractor: () => ({ invoke: notifyRunnerOffline }),
+  getSendInstantNotificationFallbackInteractor: () => ({ invoke: sendInstantFallback }),
 }));
 
 import { GET } from "../route";
@@ -38,6 +40,7 @@ describe("record delivery recovery cron", () => {
     sweepRules.mockResolvedValue({ automationRulesAdmitted: 4, automationRunsRedispatched: 1 });
     sweepAgentJobs.mockResolvedValue({ agentJobsTimedOut: 1, agentJobsRequeued: 2, agentJobsRedispatched: 3 });
     notifyRunnerOffline.mockResolvedValue({ runnerOfflineNotified: 2 });
+    sendInstantFallback.mockResolvedValue({ instantNotificationFallbacks: 5 });
   });
 
   it("requires the configured cron secret", async () => {
@@ -72,7 +75,9 @@ describe("record delivery recovery cron", () => {
       agentJobsRequeued: 2,
       agentJobsRedispatched: 3,
       runnerOfflineNotified: 2,
+      instantNotificationFallbacks: 5,
     });
+    expect(sendInstantFallback).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(sweepFiles).toHaveBeenCalledTimes(1);
     expect(sweepRules).toHaveBeenCalledTimes(1);

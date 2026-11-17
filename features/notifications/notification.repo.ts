@@ -94,6 +94,12 @@ export abstract class NotificationRepo {
     limit: number;
     after: NotificationCursor | null;
   }): Promise<DigestUserPage>;
+  abstract findInstantFallbackUsersUnscoped(args: {
+    since: Date;
+    before: Date;
+    now: Date;
+    limit: number;
+  }): Promise<{ companyId: string; userId: string }[]>;
   abstract findUnemailedUnscoped(
     companyId: string,
     userId: string,

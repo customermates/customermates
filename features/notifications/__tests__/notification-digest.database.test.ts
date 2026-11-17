@@ -245,6 +245,64 @@ describeDatabase("the notification digest queue", { timeout: 60_000 }, () => {
     );
   });
 
+  it("finds the members whose instant notifications waited past the grace period, by their effective email mode", async () => {
+    const { w, add } = await seed();
+    const preference = (userId: string, kind: "dueToday" | "ruleAlert", emailMode: "instant" | "digest" | "off") =>
+      runWithoutTenant(() =>
+        prisma.notificationPreference.create({ data: { companyId: w.companyId, userId, kind, emailMode } }),
+      );
+    const repo = new PrismaNotificationRepo();
+    const find = async (limit = 500) =>
+      (
+        await runWithoutTenant(() =>
+          repo.findInstantFallbackUsersUnscoped({ since: minutesAgo(48 * 60), before: minutesAgo(15), now, limit }),
+        )
+      ).filter((user) => user.companyId === w.companyId);
+    const admin = { companyId: w.companyId, userId: w.admin.id };
+    const member = { companyId: w.companyId, userId: w.member.id };
+
+    await add(w.admin.id, minutesAgo(30), { kind: "ruleAlert" });
+    await add(w.admin.id, minutesAgo(20), { kind: "ruleAlert" });
+    await add(w.member.id, minutesAgo(60), { kind: "dueToday" });
+    expect(await find()).toEqual([admin]);
+
+    await preference(w.member.id, "dueToday", "instant");
+    expect(await find()).toEqual([member, admin]);
+    expect(await find(1)).toEqual([member]);
+
+    await preference(w.admin.id, "ruleAlert", "digest");
+    expect(await find()).toEqual([member]);
+
+    await runWithoutTenant(() =>
+      prisma.notificationPause.create({
+        data: { companyId: w.companyId, userId: w.member.id, until: minutesAgo(-60), timeZone: "UTC" },
+      }),
+    );
+    expect(await find()).toEqual([]);
+    await runWithoutTenant(() =>
+      prisma.notificationPause.update({
+        where: { companyId_userId: { companyId: w.companyId, userId: w.member.id } },
+        data: { until: minutesAgo(1) },
+      }),
+    );
+    expect(await find()).toEqual([member]);
+  });
+
+  it("does not offer fresh, old, read or mailed instant notifications to the fallback", async () => {
+    const { w, add } = await seed();
+    const repo = new PrismaNotificationRepo();
+    await add(w.admin.id, minutesAgo(5), { kind: "ruleAlert" });
+    await add(w.admin.id, minutesAgo(48 * 60 + 5), { kind: "ruleAlert" });
+    await add(w.admin.id, minutesAgo(30), { kind: "ruleAlert", readAt: minutesAgo(10) });
+    await add(w.admin.id, minutesAgo(30), { kind: "ruleAlert", emailedAt: minutesAgo(29) });
+
+    const found = await runWithoutTenant(() =>
+      repo.findInstantFallbackUsersUnscoped({ since: minutesAgo(48 * 60), before: minutesAgo(15), now, limit: 500 }),
+    );
+
+    expect(found.filter((user) => user.companyId === w.companyId)).toEqual([]);
+  });
+
   it("marks and reads back only notifications of the workspace it was called for", async () => {
     const { w, add } = await seed();
     const other = await createRestRouteWorkspace();

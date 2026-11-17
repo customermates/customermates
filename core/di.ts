@@ -2934,6 +2934,7 @@ import { GetNotificationsInteractor } from "@/features/notifications/get-notific
 import { MarkNotificationsReadInteractor } from "@/features/notifications/mark-notifications-read.interactor";
 import { NotificationService } from "@/features/notifications/notification.service";
 import { PruneNotificationsInteractor } from "@/features/notifications/prune-notifications.interactor";
+import { SendInstantNotificationFallbackInteractor } from "@/features/notifications/send-instant-notification-fallback.interactor";
 import { SendNotificationDigestInteractor } from "@/features/notifications/send-notification-digest.interactor";
 import { SetNotificationKindOffInteractor } from "@/features/notifications/set-notification-kind-off.interactor";
 import { SetNotificationPauseInteractor } from "@/features/notifications/set-notification-pause.interactor";
@@ -2977,6 +2978,13 @@ export const getSetNotificationKindOffInteractor = () =>
   );
 export const getSendNotificationDigestInteractor = () =>
   new SendNotificationDigestInteractor(
+    getNotificationRepo(),
+    getNotificationMailer(),
+    Date.now,
+    getNotificationPauseRepo(),
+  );
+export const getSendInstantNotificationFallbackInteractor = () =>
+  new SendInstantNotificationFallbackInteractor(
     getNotificationRepo(),
     getNotificationMailer(),
     Date.now,

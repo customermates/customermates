@@ -1,4 +1,4 @@
-import type { NotificationEmailMode, NotificationKind, Prisma } from "@/generated/prisma";
+import type { NotificationEmailMode, NotificationKind } from "@/generated/prisma";
 import type {
   DigestSelection,
   DigestUserPage,
@@ -14,11 +14,15 @@ import type {
   StoredNotification,
 } from "./notification.repo";
 
-import { Status } from "@/generated/prisma";
+import { Prisma, Status } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
-import { NOTIFICATION_DIGEST_LIMIT } from "./notification.schema";
+import {
+  DEFAULT_NOTIFICATION_EMAIL_MODES,
+  NOTIFICATION_DIGEST_LIMIT,
+  NOTIFICATION_KINDS,
+} from "./notification.schema";
 
 const NOTIFICATION_SELECT = {
   id: true,
@@ -234,6 +238,37 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
       users: [...users.values()].map(({ companyId, userId }) => ({ companyId, userId })),
       next: rows.length === args.limit && last ? { createdAt: last.createdAt, id: last.id } : null,
     };
+  }
+
+  @BypassTenantGuard
+  async findInstantFallbackUsersUnscoped(args: {
+    since: Date;
+    before: Date;
+    now: Date;
+    limit: number;
+  }): Promise<{ companyId: string; userId: string }[]> {
+    const instantByDefault = NOTIFICATION_KINDS.filter((kind) => DEFAULT_NOTIFICATION_EMAIL_MODES[kind] === "instant");
+    const rows = await this.prisma.$queryRaw<Array<{ companyId: string; userId: string }>>(Prisma.sql`
+      SELECT n."companyId", n."userId"
+      FROM "Notification" n
+      LEFT JOIN "NotificationPreference" p
+        ON p."companyId" = n."companyId" AND p."userId" = n."userId" AND p."kind" = n."kind"
+      LEFT JOIN "NotificationPause" z
+        ON z."companyId" = n."companyId" AND z."userId" = n."userId"
+      WHERE n."emailedAt" IS NULL
+        AND n."readAt" IS NULL
+        AND n."createdAt" >= ${args.since}
+        AND n."createdAt" <= ${args.before}
+        AND (z."until" IS NULL OR z."until" <= ${args.now})
+        AND COALESCE(
+          p."emailMode"::text,
+          CASE WHEN n."kind"::text = ANY(${instantByDefault}::text[]) THEN 'instant' ELSE 'digest' END
+        ) = 'instant'
+      GROUP BY n."companyId", n."userId"
+      ORDER BY MIN(n."createdAt") ASC, n."companyId" ASC, n."userId" ASC
+      LIMIT ${args.limit}
+    `);
+    return rows.map(({ companyId, userId }) => ({ companyId, userId }));
   }
 
   @BypassTenantGuard
