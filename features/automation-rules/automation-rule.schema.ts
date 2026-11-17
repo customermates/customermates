@@ -238,7 +238,7 @@ export const AgentEffectSchema = z
     prompt: zx
       .nonBlankText(AUTOMATION_AGENT_PROMPT_MAX_CHARS)
       .describe(
-        "What the agent should do. May use {{record.name}} and {{rule.name}}; the record is handed over as context.",
+        "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context.",
       ),
     model: z
       .string()

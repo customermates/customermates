@@ -48825,7 +48825,7 @@
                     "prompt": {
                       "type": "string",
                       "maxLength": 4000,
-                      "description": "What the agent should do. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
+                      "description": "The task for the agent. May use {{record.name}} and {{rule.name}}; the record is handed over as context."
                     },
                     "model": {
                       "description": "ownKey only: the provider model id; the key's default when omitted.",
