@@ -2922,7 +2922,11 @@ const getAutomationsListComposer = () =>
     getPermissionService(),
   );
 export const getComposeAutomationInteractor = () =>
-  new ComposeAutomationInteractor(getRecordAutomationPort(), getEntitlementService(), new HostedComposeModelCaller());
+  new ComposeAutomationInteractor(
+    getRecordAutomationPort(),
+    getEntitlementService(),
+    new HostedComposeModelCaller(getAgentUsageService()),
+  );
 export const getGetAutomationsListInteractor = () =>
   new GetAutomationsListInteractor(
     getAutomationsListComposer(),

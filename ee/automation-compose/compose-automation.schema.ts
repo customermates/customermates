@@ -12,7 +12,14 @@ import {
 
 export const COMPOSE_SENTENCE_MAX_CHARS = 600;
 
-export const COMPOSE_REFUSAL_REASONS = ["unclear", "unsupported", "invalid", "unavailable"] as const;
+export const COMPOSE_REFUSAL_REASONS = [
+  "unclear",
+  "unsupported",
+  "invalid",
+  "unavailable",
+  "credits",
+  "rateLimited",
+] as const;
 export type ComposeRefusalReason = (typeof COMPOSE_REFUSAL_REASONS)[number];
 
 export const ComposeAutomationSchema = z.object({ sentence: zx.nonBlankText(COMPOSE_SENTENCE_MAX_CHARS) }).strict();

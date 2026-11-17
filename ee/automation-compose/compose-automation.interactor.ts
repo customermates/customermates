@@ -3,6 +3,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { AutomationRecordPort } from "@/features/automation-rules/automation-ports";
 import type { ComposeAutomationData, ComposeAutomationResult } from "./compose-automation.schema";
 import type { ComposeModelCaller } from "./compose-model-caller";
+import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 
 import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -14,6 +15,7 @@ import { automationModelIssues } from "@/features/automation-rules/automation-mo
 import { automationRuleFinalStateIssues } from "@/features/automation-rules/automation-rule.schema";
 
 import { composeSystemPrompt } from "./compose-automation.prompt";
+import { composeRateLimitKey, composeRateLimiter } from "./compose-rate-limit";
 import {
   ComposeAutomationResultSchema,
   ComposeAutomationSchema,
@@ -40,6 +42,7 @@ export class ComposeAutomationInteractor extends AuthenticatedInteractor<
     private readonly entitlements: Pick<EntitlementService, "require">,
     private readonly caller: ComposeModelCaller,
     private readonly clock: () => Date = () => new Date(),
+    private readonly limiter: Pick<TokenBucketRateLimiter, "admit"> = composeRateLimiter,
   ) {
     super();
   }
@@ -51,17 +54,20 @@ export class ComposeAutomationInteractor extends AuthenticatedInteractor<
       return { ok: true as const, data: { status: "refused", reason: "unavailable" } };
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
+    if (!this.limiter.admit(composeRateLimitKey(this.user.companyId, this.user.id)).allowed)
+      return { ok: true as const, data: { status: "refused", reason: "rateLimited" } };
 
     const model = await this.records.model();
-    const output = await this.caller
+    const outcome = await this.caller
       .call({
         system: composeSystemPrompt(model, this.clock().toISOString().slice(0, 10)),
         prompt: `Sentence:\n"""${data.sentence}"""`,
         schema: ComposeModelOutputSchema,
       })
-      .catch(() => null);
+      .catch(() => ({ ok: false, reason: "unavailable" }) as const);
 
-    if (!output) return { ok: true as const, data: { status: "refused", reason: "unavailable" } };
+    if (!outcome.ok) return { ok: true as const, data: { status: "refused", reason: outcome.reason } };
+    const output = outcome.value;
     if (output.status === "refused") return { ok: true as const, data: { status: "refused", reason: output.reason } };
 
     const draft = mateOnly(output.draft);

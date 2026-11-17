@@ -1249,7 +1249,9 @@
       "recipesBody": "Chaque recette est une chaîne complète. Modifiez ce que vous voulez, donnez-lui un nom, activez-la.",
       "recipesTitle": "Partir d’une recette",
       "refusal": {
+        "credits": "Vos crédits Mate sont épuisés pour cette période. Choisissez une recette ou partez de zéro.",
         "invalid": "Le brouillon ne correspondait pas à votre espace de travail. Essayez de nommer la liste ou le champ.",
+        "rateLimited": "Vous avez beaucoup composé cette dernière heure. Réessayez dans un moment ou choisissez une recette.",
         "unavailable": "Mate n’est pas disponible pour le moment. Choisissez une recette ou partez de zéro.",
         "unclear": "Mate n’a pas compris ce qui doit se passer. Dites ce qui la déclenche et ce qu’elle doit faire.",
         "unsupported": "Une automatisation ne peut pas encore faire cela. Décrivez-la comme un déclencheur et des étapes exactes."

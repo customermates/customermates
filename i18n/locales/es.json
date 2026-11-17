@@ -1249,7 +1249,9 @@
       "recipesBody": "Cada receta es una cadena completa. Cambia lo que quieras, ponle un nombre y actívala.",
       "recipesTitle": "Empezar con una receta",
       "refusal": {
+        "credits": "Tus créditos de Mate se han agotado para este periodo. Elige una receta o empieza desde cero.",
         "invalid": "El borrador no encajaba con tu espacio de trabajo. Prueba a nombrar la lista o el campo.",
+        "rateLimited": "Has compuesto mucho en la última hora. Inténtalo más tarde o elige una receta.",
         "unavailable": "Mate no está disponible ahora mismo. Elige una receta o empieza desde cero.",
         "unclear": "Mate no ha entendido qué debe pasar. Di qué la dispara y qué debe hacer.",
         "unsupported": "Una automatización todavía no puede hacer eso. Descríbela como un disparador y pasos exactos."

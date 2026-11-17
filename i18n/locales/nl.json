@@ -1249,7 +1249,9 @@
       "recipesBody": "Elk recept is een complete keten. Pas aan wat je wilt, geef het een naam en schakel het in.",
       "recipesTitle": "Beginnen met een recept",
       "refusal": {
+        "credits": "Je Mate-credits zijn voor deze periode op. Kies een recept of begin helemaal opnieuw.",
         "invalid": "Het concept paste niet bij je werkruimte. Probeer de lijst of het veld te noemen.",
+        "rateLimited": "Je hebt het afgelopen uur veel samengesteld. Probeer het straks opnieuw of kies een recept.",
         "unavailable": "Mate is nu niet beschikbaar. Kies een recept of begin helemaal opnieuw.",
         "unclear": "Mate begreep niet wat er moet gebeuren. Zeg wat het in gang zet en wat het moet doen.",
         "unsupported": "Dat kan een automatisering nog niet. Beschrijf het als een trigger en exacte stappen."

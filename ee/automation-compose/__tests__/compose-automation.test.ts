@@ -34,7 +34,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import type { RecordModelView } from "@/features/records/record-model.schema";
-import type { ComposeModelCall } from "../compose-model-caller";
+import type { ComposeModelCall, ComposeModelOutcome } from "../compose-model-caller";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ComposeModelCaller } from "../compose-model-caller";
@@ -85,12 +85,17 @@ const MODEL = {
 
 class FakeCaller extends ComposeModelCaller {
   calls: ComposeModelCall<unknown>[] = [];
-  constructor(private readonly output: unknown) {
+  constructor(
+    private readonly output: unknown,
+    private readonly refusal: "credits" | "unavailable" = "unavailable",
+  ) {
     super();
   }
-  call<T>(call: ComposeModelCall<T>): Promise<T | null> {
+  call<T>(call: ComposeModelCall<T>): Promise<ComposeModelOutcome<T>> {
     this.calls.push(call as ComposeModelCall<unknown>);
-    return Promise.resolve(this.output as T | null);
+    return Promise.resolve(
+      this.output === null ? { ok: false, reason: this.refusal } : { ok: true, value: this.output as T },
+    );
   }
 }
 
@@ -111,13 +116,18 @@ const DRAFT = {
   },
 };
 
-function build(output: unknown, entitlement: unknown = null) {
-  const caller = new FakeCaller(output);
+function build(
+  output: unknown,
+  entitlement: unknown = null,
+  options: { refusal?: "credits" | "unavailable"; admit?: boolean } = {},
+) {
+  const caller = new FakeCaller(output, options.refusal);
   const entitlements = { require: vi.fn().mockResolvedValue(entitlement) };
   const records = { model: vi.fn().mockResolvedValue(MODEL) };
-  const interactor = new ComposeAutomationInteractor(records, entitlements as never, caller, () => NOW);
+  const limiter = { admit: vi.fn().mockReturnValue({ allowed: options.admit ?? true }) };
+  const interactor = new ComposeAutomationInteractor(records, entitlements as never, caller, () => NOW, limiter);
   const compose = (sentence: string) => runWithTenant(mockUser, () => interactor.invoke({ sentence }));
-  return { caller, entitlements, records, compose };
+  return { caller, entitlements, records, limiter, compose };
 }
 
 describe("composing an automation with Mate", () => {
@@ -183,6 +193,19 @@ describe("composing an automation with Mate", () => {
   it("reports the assistant as unavailable when the model returns nothing", async () => {
     const result = await build(null).compose("Anything");
     expect(result).toEqual({ ok: true, data: { status: "refused", reason: "unavailable" } });
+  });
+
+  it("passes on a credits refusal from the hosted caller", async () => {
+    const result = await build(null, null, { refusal: "credits" }).compose("Anything");
+    expect(result).toEqual({ ok: true, data: { status: "refused", reason: "credits" } });
+  });
+
+  it("refuses a member who composed too often in the last hour before the model is called", async () => {
+    const { compose, caller, limiter, records } = build(DRAFT, null, { admit: false });
+    expect(await compose("Anything")).toEqual({ ok: true, data: { status: "refused", reason: "rateLimited" } });
+    expect(limiter.admit).toHaveBeenCalledWith(`${mockUser.companyId}:${mockUser.id}`);
+    expect(caller.calls).toHaveLength(0);
+    expect(records.model).not.toHaveBeenCalled();
   });
 
   it("is unavailable on self-hosted, without calling the model", async () => {

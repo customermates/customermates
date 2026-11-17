@@ -45,7 +45,13 @@ type AgentRetrievalReservation = {
 export type WorkspaceIndexingPurpose = "wikiIndexing" | "fileIndexing";
 
 export type AgentRetrievalGrant = {
-  purpose: "wikiRetrieval" | WorkspaceIndexingPurpose | "wikiSynthesis" | "calculationDraft" | "commandResolve";
+  purpose:
+    | "wikiRetrieval"
+    | WorkspaceIndexingPurpose
+    | "wikiSynthesis"
+    | "calculationDraft"
+    | "commandResolve"
+    | "automationCompose";
   companyId: string;
   userId: string | null;
   planSnapshot: SubscriptionPlan;
@@ -349,7 +355,12 @@ export class AgentUsageService {
   async prepareRetrieval(
     userId: string,
     now = new Date(),
-    purpose: "wikiRetrieval" | "wikiSynthesis" | "calculationDraft" | "commandResolve" = "wikiRetrieval",
+    purpose:
+      | "wikiRetrieval"
+      | "wikiSynthesis"
+      | "calculationDraft"
+      | "commandResolve"
+      | "automationCompose" = "wikiRetrieval",
   ): Promise<AgentRetrievalGrant | null> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return null;

@@ -1249,7 +1249,9 @@
       "recipesBody": "Ogni ricetta è una catena completa. Cambia quello che vuoi, dalle un nome e attivala.",
       "recipesTitle": "Parti da una ricetta",
       "refusal": {
+        "credits": "I tuoi crediti Mate sono esauriti per questo periodo. Scegli una ricetta o parti da zero.",
         "invalid": "La bozza non si adattava al tuo spazio di lavoro. Prova a indicare l’elenco o il campo.",
+        "rateLimited": "Hai composto molto nell’ultima ora. Riprova tra un po’ oppure scegli una ricetta.",
         "unavailable": "Mate non è disponibile al momento. Scegli una ricetta o parti da zero.",
         "unclear": "Mate non ha capito che cosa deve succedere. Di’ che cosa la fa partire e che cosa deve fare.",
         "unsupported": "Un’automazione non può ancora farlo. Descrivila come un trigger e passaggi esatti."

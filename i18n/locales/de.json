@@ -1249,7 +1249,9 @@
       "recipesBody": "Jedes Rezept ist eine vollständige Kette. Ändere, was du willst, gib ihr einen Namen und schalte sie ein.",
       "recipesTitle": "Mit einem Rezept starten",
       "refusal": {
+        "credits": "Deine Mate-Credits sind für diesen Zeitraum aufgebraucht. Wähle ein Rezept oder starte von null.",
         "invalid": "Der Entwurf passte nicht zu deinem Arbeitsbereich. Nenne am besten die Liste oder das Feld.",
+        "rateLimited": "Du hast in der letzten Stunde viel verfasst. Versuche es später noch einmal oder wähle ein Rezept.",
         "unavailable": "Mate ist gerade nicht verfügbar. Wähle ein Rezept oder starte von null.",
         "unclear": "Mate konnte nicht erkennen, was passieren soll. Sag, was es auslöst und was es tun soll.",
         "unsupported": "Das kann eine Automatisierung noch nicht. Beschreibe es als Auslöser und genaue Schritte."

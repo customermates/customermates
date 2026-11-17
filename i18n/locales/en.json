@@ -1249,7 +1249,9 @@
       "recipesBody": "Each recipe is a complete chain. Change anything, give it a name, switch it on.",
       "recipesTitle": "Start from a recipe",
       "refusal": {
+        "credits": "Your Mate credits are used up for this period. Pick a recipe or start from scratch.",
         "invalid": "The draft did not fit your workspace. Try naming the list or the field.",
+        "rateLimited": "You have composed a lot in the last hour. Try again in a while, or pick a recipe.",
         "unavailable": "Mate is not available right now. Pick a recipe or start from scratch.",
         "unclear": "Mate could not tell what should happen. Say what sets it off and what it should do.",
         "unsupported": "An automation cannot do that yet. Describe it as a trigger and exact steps."

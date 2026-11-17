@@ -27,6 +27,10 @@ function refusalText(t: ReturnType<typeof useTranslations>, reason: string): str
       return t("Automations.start.refusal.invalid");
     case "unavailable":
       return t("Automations.start.refusal.unavailable");
+    case "credits":
+      return t("Automations.start.refusal.credits");
+    case "rateLimited":
+      return t("Automations.start.refusal.rateLimited");
     default:
       return t("Automations.start.refusal.unclear");
   }

@@ -1249,7 +1249,9 @@
       "recipesBody": "Każda receptura to kompletny łańcuch. Zmień, co chcesz, nadaj nazwę i włącz.",
       "recipesTitle": "Zacznij od receptury",
       "refusal": {
+        "credits": "Twoje kredyty Mate na ten okres się wyczerpały. Wybierz recepturę lub zacznij od zera.",
         "invalid": "Szkic nie pasował do Twojego obszaru roboczego. Spróbuj podać nazwę listy lub pola.",
+        "rateLimited": "W ostatniej godzinie dużo komponowałeś. Spróbuj ponownie za chwilę albo wybierz recepturę.",
         "unavailable": "Mate jest teraz niedostępna. Wybierz recepturę lub zacznij od zera.",
         "unclear": "Mate nie zrozumiała, co ma się stać. Powiedz, co ją uruchamia i co ma zrobić.",
         "unsupported": "Automatyzacja jeszcze tego nie potrafi. Opisz to jako wyzwalacz i dokładne kroki."
