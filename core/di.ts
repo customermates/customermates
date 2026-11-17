@@ -357,6 +357,7 @@ import { ClaimBackfillInteractor } from "@/ee/messaging/ingest/claim-backfill.in
 import { ReleaseBackfillClaimInteractor } from "@/ee/messaging/ingest/release-backfill-claim.interactor";
 import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
 import { DiscardDraftInteractor } from "@/ee/messaging/outbound/discard-draft.interactor";
+import { ListReviewDraftsInteractor } from "@/ee/messaging/outbound/list-review-drafts.interactor";
 import { DraftSendGate } from "@/ee/messaging/outbound/draft-send-gate";
 import { PruneDraftSendsInteractor } from "@/ee/messaging/outbound/prune-draft-sends.interactor";
 import { ResolveProviderProfileInteractor } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
@@ -1942,6 +1943,9 @@ export const getSaveNewThreadDraftInteractor = () => new SaveNewThreadDraftInter
 export const getSaveReplyDraftInteractor = () => new SaveReplyDraftInteractor(getSaveDraftInteractor());
 
 export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMessagingRepo(), getEntitlementService());
+
+export const getListReviewDraftsInteractor = () =>
+  new ListReviewDraftsInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());
 
 export const getPruneDraftSendsInteractor = () => new PruneDraftSendsInteractor(getMessagingRepo());
 

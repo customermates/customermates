@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Cable, Inbox, RefreshCw } from "lucide-react";
+import { Cable, GalleryHorizontalEnd, Inbox, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Action, Resource } from "@/generated/prisma";
@@ -50,8 +50,9 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { messagingThreadsStore, connectedAccountsStore, userStore } = useRootStore();
+  const { messagingThreadsStore, connectedAccountsStore, draftReviewStore, userStore } = useRootStore();
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
+  const draftCount = !locked && userStore.can(Resource.inboxMessages, Action.create) ? draftReviewStore.openCount : 0;
 
   useEffect(() => {
     if (locked) return;
@@ -105,6 +106,17 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
             />
           )}
 
+          {draftCount > 0 && (
+            <TopBarPrimaryButton
+              anchorId="inbox-review-drafts"
+              count={draftCount}
+              icon={GalleryHorizontalEnd}
+              label={t("Inbox.draftReview.title")}
+              variant="secondary"
+              onClick={draftReviewStore.open}
+            />
+          )}
+
           {canConnect && (
             <TopBarPrimaryButton
               count={channelsNeedingAction}
@@ -115,7 +127,17 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
           )}
         </div>
       ),
-    [isRefreshing, messagingThreadsStore, t, channelsNeedingAction, canConnect, canUpdate, locked],
+    [
+      isRefreshing,
+      messagingThreadsStore,
+      t,
+      channelsNeedingAction,
+      canConnect,
+      canUpdate,
+      locked,
+      draftCount,
+      draftReviewStore,
+    ],
   );
   useSetTopBarActions(topBarNode);
 

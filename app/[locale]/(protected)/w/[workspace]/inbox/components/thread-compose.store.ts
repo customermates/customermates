@@ -29,6 +29,7 @@ import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice
 import { formatBytes } from "@/core/utils/format-bytes";
 
 import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
+import { sendSavedDraft } from "./send-saved-draft";
 
 export type NewThreadTarget = {
   connectedAccountId: string;
@@ -976,7 +977,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     const newThread = detail.thread?.id === draft.messagingThreadId && isDraftThreadId(detail.thread.unipileThreadId);
     const generation = this.composeGeneration;
     const onSent = this.onNewThreadSent;
-    const draftBinding = { draftMessageId: draft.id, draftRevision: draft.draftRevision };
+    const saved = { ...draft, draftRevision: draft.draftRevision };
     const email = isEmailProvider(draft.provider);
     const recipients =
       email || draft.recipients.to.length
@@ -994,35 +995,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         if (detail.thread?.id === draft.messagingThreadId) void detail.refresh();
         return true;
       },
-      send: (attachments) =>
-        email
-          ? sendEmailAction({
-              ...(newThread ? { connectedAccountId: draft.connectedAccountId } : { threadId: draft.messagingThreadId }),
-              to: recipients.map((identifier) => ({ identifier })),
-              cc: draft.recipients.cc.length ? draft.recipients.cc.map((recipient) => recipient.identifier) : undefined,
-              bcc: draft.recipients.bcc.length
-                ? draft.recipients.bcc.map((recipient) => recipient.identifier)
-                : undefined,
-              subject: draft.subject ?? "",
-              body: draft.bodyText ?? "",
-              bodyFormat: "markdown",
-              attachments,
-              ...draftBinding,
-            })
-          : newThread
-            ? startChatAction({
-                connectedAccountId: draft.connectedAccountId,
-                attendeeIdentifiers: recipients,
-                text: draft.bodyText ?? "",
-                attachments,
-                ...draftBinding,
-              })
-            : sendChatMessageAction({
-                threadId: draft.messagingThreadId,
-                text: draft.bodyText ?? "",
-                attachments,
-                ...draftBinding,
-              }),
+      send: (attachments) => sendSavedDraft(saved, { newThread, recipients, attachments }),
       onSent: newThread
         ? (threadId) => {
             if (generation !== this.composeGeneration || this.hasUnsavedChanges || this.hasComposedContent) return;
