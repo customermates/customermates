@@ -38,12 +38,7 @@ import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 import { AI_CLIENT_COMMAND_ICONS, CHANNEL_COMMAND_ICONS } from "./connect-command-icons";
-import {
-  CONNECT_INTENT_AI_CLIENTS,
-  CONNECT_INTENT_CHANNELS,
-  RELEASED_CONNECT_INTENT_CHANNELS,
-  connectIntentHref,
-} from "./connect-intent";
+import { CONNECT_INTENT_AI_CLIENTS, CONNECT_INTENT_CHANNELS, connectIntentHref } from "./connect-intent";
 
 type CommandKind = "page" | "setting" | "action";
 
@@ -135,11 +130,7 @@ const AI_CLIENT_CONNECTION_COMMANDS: Record<
   gemini: { id: "setting.apiKeys.gemini", labelKey: "CommandPalette.labels.connect.gemini" },
 };
 
-export const UNRELEASED_CHANNEL_COMMAND_IDS: readonly string[] = CONNECT_INTENT_CHANNELS.filter(
-  (channel) => !RELEASED_CONNECT_INTENT_CHANNELS.includes(channel),
-).map((channel) => CHANNEL_CONNECTION_COMMANDS[channel].id);
-
-const CHANNEL_CONNECTIONS: StaticCommand[] = RELEASED_CONNECT_INTENT_CHANNELS.map((channel) => ({
+const CHANNEL_CONNECTIONS: StaticCommand[] = CONNECT_INTENT_CHANNELS.map((channel) => ({
   ...CHANNEL_CONNECTION_COMMANDS[channel],
   kind: "setting",
   icon: CHANNEL_COMMAND_ICONS[channel],

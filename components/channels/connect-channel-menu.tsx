@@ -1,6 +1,6 @@
 "use client";
 
-import { isConnectChannelReleased, type ConnectChannel } from "@/ee/messaging/connect/connect-channels";
+import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { MessagingProvider } from "@/generated/prisma";
 
 import { observer } from "mobx-react-lite";
@@ -21,7 +21,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 
-const ALL_CONNECT_CHANNEL_OPTIONS: {
+export const CONNECT_CHANNEL_OPTIONS: {
   key: ConnectChannel;
   icon: MessagingProvider;
   labelKey: string;
@@ -57,10 +57,6 @@ const ALL_CONNECT_CHANNEL_OPTIONS: {
   { key: "telegram", icon: "telegram", labelKey: "Common.providers.telegram" },
   { key: "facebook", icon: "facebook", labelKey: "Common.providers.facebook" },
 ];
-
-export const CONNECT_CHANNEL_OPTIONS = ALL_CONNECT_CHANNEL_OPTIONS.filter((option) =>
-  isConnectChannelReleased(option.key),
-);
 
 const FEATURED_PROVIDERS: MessagingProvider[] = ["whatsapp", "linkedin", "google"];
 

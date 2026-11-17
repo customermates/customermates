@@ -32,7 +32,7 @@ import { AccountConnectionDetails } from "./account-connection-details";
 import { ConnectedAccountsPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { RELEASED_CONNECT_INTENT_CHANNELS } from "@/components/keyboard/connect-intent";
+import { CONNECT_INTENT_CHANNELS } from "@/components/keyboard/connect-intent";
 import { ConnectMenuItems, ConnectProviderStack } from "@/components/channels/connect-channel-menu";
 import { useConnectIntent } from "@/components/keyboard/use-connect-intent";
 
@@ -115,7 +115,7 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
   const { connectedAccountsStore, connectedAccountModalStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
-  useConnectIntent(RELEASED_CONNECT_INTENT_CHANNELS, canConnect && !locked, (channel) =>
+  useConnectIntent(CONNECT_INTENT_CHANNELS, canConnect && !locked, (channel) =>
     runUserAction(() => connectedAccountsStore.connectAccount(channel)),
   );
 

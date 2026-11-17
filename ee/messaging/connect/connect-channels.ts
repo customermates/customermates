@@ -19,10 +19,4 @@ export const CONNECT_CHANNELS = {
 
 export type ConnectChannel = keyof typeof CONNECT_CHANNELS;
 
-export function isConnectChannelReleased(channel: ConnectChannel): boolean {
-  return channel !== "facebook" || process.env.NEXT_PUBLIC_FACEBOOK_MESSENGER === "true";
-}
-
-export const CONNECT_CHANNEL_KEYS = (Object.keys(CONNECT_CHANNELS) as ConnectChannel[]).filter(
-  isConnectChannelReleased,
-) as [ConnectChannel, ...ConnectChannel[]];
+export const CONNECT_CHANNEL_KEYS = Object.keys(CONNECT_CHANNELS) as [ConnectChannel, ...ConnectChannel[]];

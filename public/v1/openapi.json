@@ -119174,9 +119174,10 @@
                       "linkedin_sales_navigator",
                       "linkedin_recruiter",
                       "instagram",
-                      "telegram"
+                      "telegram",
+                      "facebook"
                     ],
-                    "description": "The channel to connect: google (Gmail), outlook, imap (any other email via IMAP and SMTP), whatsapp, linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram or telegram."
+                    "description": "The channel to connect: google (Gmail), outlook, imap (any other email via IMAP and SMTP), whatsapp, linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram, telegram or facebook (Messenger, with the Facebook Pages the account administers)."
                   }
                 },
                 "required": [

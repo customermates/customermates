@@ -1,8 +1,6 @@
 import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { AiConnectionProvider } from "@/components/ai-connection/ai-connection.store";
 
-import { isConnectChannelReleased } from "@/ee/messaging/connect/connect-channels";
-
 export const CONNECT_INTENT_PARAM = "connect";
 
 export const CONNECT_INTENT_CHANNELS = [
@@ -17,8 +15,6 @@ export const CONNECT_INTENT_CHANNELS = [
   "telegram",
   "facebook",
 ] as const satisfies readonly ConnectChannel[];
-
-export const RELEASED_CONNECT_INTENT_CHANNELS = CONNECT_INTENT_CHANNELS.filter(isConnectChannelReleased);
 
 export const CONNECT_INTENT_AI_CLIENTS = [
   "claude",
