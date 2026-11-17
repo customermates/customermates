@@ -281,6 +281,7 @@ export enum CustomErrorCode {
   unipileDisconnectedAccount = "unipileDisconnectedAccount",
   unipileUnknown = "unipileUnknown",
   unipileProviderRejected = "unipileProviderRejected",
+  unipileMessagingUnavailable = "unipileMessagingUnavailable",
   unipileAccountRestricted = "unipileAccountRestricted",
   unipileSendUnconfirmed = "unipileSendUnconfirmed",
   unipileSendOutcomeUnknown = "unipileSendOutcomeUnknown",

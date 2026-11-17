@@ -13,7 +13,8 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { deriveLinkedinProducts, isEmailProvider } from "../../provider";
 import { BACKFILL_EMAIL_TIMEOUT_MS } from "./paginate";
 import { isUnipileRateLimit } from "../../messaging.service";
-import { deriveAccountFeatures, mapUnipileProvider, mapUnipileStatus } from "../../unipile.mappers";
+import { mapUnipileProvider } from "../../unipile.mappers";
+import { deriveAccountConnection } from "../../account-connection";
 import {
   buildFolderCatalog,
   defaultSelectedFolderIds,
@@ -27,12 +28,16 @@ export const ACCOUNT_WIDE_SOURCE = "__account_wide__";
 export function classifyAccountReadiness(account: UnipileAccount): "ready" | "waiting" | "stalled" {
   if (account.status === "disconnected" || account.status === "paused") return "stalled";
 
+  const connection = deriveAccountConnection(account);
+  const operational = connection.status === ConnectedAccountStatus.ok;
+  if (!connection.hasMessaging && connection.hasCalendar && operational) return "ready";
+
   const syncStatus = account.initial_sync?.status;
   const gateOnInitialSync = mapUnipileProvider(account.provider) !== MessagingProvider.whatsapp;
   if (gateOnInitialSync && syncStatus)
     return syncStatus === "completed" || syncStatus === "failed" ? "ready" : "waiting";
 
-  return account.status === "running" ? "ready" : "waiting";
+  return operational ? "ready" : "waiting";
 }
 
 export type BackfillPlan =
@@ -60,18 +65,18 @@ export class PrepareBackfillInteractor {
     if (!account || account.status === ConnectedAccountStatus.deleted || account.backfillClaimToken !== token)
       return { status: "stopped" };
 
+    const checkedAt = new Date();
     const snapshot = await this.fetchAccount(account.unipileAccountId);
     const provider = snapshot ? mapUnipileProvider(snapshot.provider) : account.provider;
+    const features = snapshot
+      ? await this.refreshAccountFromSnapshot(account, snapshot, checkedAt)
+      : { hasMessaging: account.hasMessaging, hasCalendar: account.hasCalendar };
 
     if (snapshot) {
       const readiness = classifyAccountReadiness(snapshot);
       if (readiness === "stalled") return { status: "stopped" };
       if (readiness === "waiting") return { status: "waiting" };
     }
-
-    const features = snapshot
-      ? await this.refreshAccountFromSnapshot(account, snapshot)
-      : { hasMessaging: account.hasMessaging, hasCalendar: account.hasCalendar };
 
     const kind = !features.hasMessaging ? "none" : isEmailProvider(provider) ? "email" : "chat";
     const sources =
@@ -111,22 +116,19 @@ export class PrepareBackfillInteractor {
   private async refreshAccountFromSnapshot(
     account: ConnectedAccount,
     snapshot: UnipileAccount,
+    checkedAt: Date,
   ): Promise<{ hasMessaging: boolean; hasCalendar: boolean }> {
-    const features = deriveAccountFeatures(snapshot);
-    const hasMessaging = account.hasMessaging || features.hasMessaging;
-    const hasCalendar = account.hasCalendar || features.hasCalendar;
+    const connection = deriveAccountConnection(snapshot, undefined, account.connectionDetails, checkedAt);
 
     const update: Parameters<BackfillConnectedAccountRepo["updateAccountUnscoped"]>[0] = {
       unipileAccountId: account.unipileAccountId,
+      ...connection,
     };
-    if (hasMessaging !== account.hasMessaging) update.hasMessaging = hasMessaging;
-    if (hasCalendar !== account.hasCalendar) update.hasCalendar = hasCalendar;
     if (!account.displayName && snapshot.name) update.displayName = snapshot.name;
-    if (account.status === ConnectedAccountStatus.connecting) update.status = mapUnipileStatus(snapshot.status);
 
-    if (Object.keys(update).length > 1) await this.repo.updateAccountUnscoped(update);
+    await this.repo.updateAccountUnscoped(update);
 
-    return { hasMessaging, hasCalendar };
+    return { hasMessaging: connection.hasMessaging, hasCalendar: connection.hasCalendar };
   }
 
   private async resolveChatSources(unipileAccountId: string, provider: MessagingProvider): Promise<string[]> {

@@ -12,8 +12,10 @@ import type { MessagingService } from "../../messaging.service";
 import { DomainEvent } from "@/features/event/domain-events";
 import { isEmailProvider } from "../../provider";
 import { verifyHostedAuthState } from "../../webhook-signature";
-import { deriveAccountFeatures, mapUnipileProvider, mapUnipileStatus } from "../../unipile.mappers";
-import type { AccountWebhookRepo, WebhookUserRepo } from "./account-webhook.repo";
+import { mapUnipileProvider } from "../../unipile.mappers";
+import { deriveAccountConnection } from "../../account-connection";
+import type { AccountWebhookRepo } from "./account-webhook.repo";
+import type { WebhookUserRepo } from "./webhook-user.repo";
 import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 const Schema = z.object({
@@ -52,13 +54,14 @@ export class ProcessAccountAddWebhookInteractor {
 
     if (existing && existing.status === ConnectedAccountStatus.deleted) return;
 
+    const checkedAt = new Date();
     const snapshot = await this.messagingService.getAccount(envelope.account_id);
 
     const provider = mapUnipileProvider(snapshot.provider);
-    const status = mapUnipileStatus(snapshot.status);
+    const connection = deriveAccountConnection(snapshot, undefined, existing?.connectionDetails, checkedAt);
+    const { status, hasMessaging, hasCalendar } = connection;
     const displayName = snapshot.name ?? null;
     const emailAddress = isEmailProvider(provider) ? (snapshot.name ?? null) : null;
-    const { hasMessaging, hasCalendar } = deriveAccountFeatures(snapshot);
 
     const connectedAccountId = existing
       ? existing.id
@@ -78,12 +81,10 @@ export class ProcessAccountAddWebhookInteractor {
 
     await this.accountRepo.updateAccountUnscoped({
       unipileAccountId: envelope.account_id,
-      status,
+      ...connection,
       displayName,
       emailAddress,
       provider,
-      hasMessaging,
-      hasCalendar,
     });
 
     await this.funnel.recordFunnelEventUnscoped({

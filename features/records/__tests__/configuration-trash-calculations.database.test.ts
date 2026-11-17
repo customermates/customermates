@@ -1359,4 +1359,88 @@ describeDatabase("configuration Trash access and permanent deletion", () => {
     ).toMatchObject({ deleted: 3, failed: 0 });
     expect(await f.items()).toEqual([]);
   }, 180_000);
+
+  it("keeps an expired list in Trash while a calculation of another list that reads it waits there, then purges both", async () => {
+    const f = await fixture();
+    const lookup = await f.remove({ kind: "field", id: f.customerCredit.id });
+    const list = await f.remove({ kind: "type", id: f.organizationTypeId });
+    const expire = (itemId: string) =>
+      runWithoutTenant(
+        () =>
+          prisma.$executeRaw`UPDATE "TrashItem" SET "expiresAt" = now() - interval '1 day' WHERE "companyId" = ${f.companyId} AND "id" = ${itemId}`,
+      );
+    const purge = () => f.trash.purge.invoke({ companyId: f.companyId, now: new Date().toISOString(), after: null });
+
+    await expire(list);
+    expect(await purge()).toMatchObject({ deleted: 0, failed: 1 });
+    expect((await f.items()).map((item) => item.id).sort()).toEqual([lookup, list].sort());
+    expect((await f.getModel()).types.find((type) => type.id === f.organizationTypeId)?.archived).toBe(true);
+
+    const scoped = createTestRecordRepo(f.companyId);
+    const system = new ConfigurationSystemPurge(
+      scoped,
+      new RecordConfigurationService(scoped),
+      new RecordConfigurationWriter(scoped, new RecordCalculationService(scoped), noWebhooks),
+      new PrismaTrashRepo(f.companyId),
+      { dispatch: () => Promise.resolve() },
+    );
+    const [item] = (await f.items()).filter((entry) => entry.id === list);
+    const revision = (await f.getModel()).revision;
+    await expect(
+      runWithoutTenant(() =>
+        runInTransaction(
+          () =>
+            system.deletePermanently(
+              item,
+              {
+                expectedRevision: revision,
+                idempotencyKey: `trash:deletePermanently:${randomUUID()}`,
+                operations: [{ operation: "deletePermanently", target: { kind: "type", id: f.organizationTypeId } }],
+              },
+              f.companyId,
+            ),
+          { companyId: f.companyId },
+        ),
+      ),
+    ).rejects.toMatchObject({
+      message: "recordConfigurationInvalid",
+      cause: { values: { reasons: "calculation", blockedBy: "trash" } },
+    });
+
+    await expire(lookup);
+    expect(await purge()).toMatchObject({ deleted: 2, failed: 0 });
+    expect(await f.items()).toEqual([]);
+    expect((await f.getModel()).types.some((type) => type.id === f.organizationTypeId)).toBe(false);
+  }, 180_000);
+
+  it("purges a field and the calculation reading it when they expire together, the field first", async () => {
+    const f = await fixture();
+    const doubled = f.extraField(f.dealTypeId, "Doubled", {
+      valueType: "currency",
+      format: { currency: "EUR" },
+      behavior: {
+        kind: "formula",
+        expression: {
+          kind: "operation",
+          operator: "multiply",
+          arguments: [field(f.gross.id), { kind: "literal", value: decimal("2") }],
+        },
+      },
+    });
+    await f.configure([{ operation: "putField", field: doubled }]);
+    await f.configure([
+      { operation: "delete", target: { kind: "field", id: doubled.id } },
+      { operation: "delete", target: { kind: "field", id: f.gross.id } },
+    ]);
+    await runWithoutTenant(async () => {
+      await prisma.$executeRaw`UPDATE "TrashItem" SET "expiresAt" = now() - interval '2 days' WHERE "companyId" = ${f.companyId} AND "targetId" = ${f.gross.id}`;
+      await prisma.$executeRaw`UPDATE "TrashItem" SET "expiresAt" = now() - interval '1 day' WHERE "companyId" = ${f.companyId} AND "targetId" = ${doubled.id}`;
+    });
+
+    expect(
+      await f.trash.purge.invoke({ companyId: f.companyId, now: new Date().toISOString(), after: null }),
+    ).toMatchObject({ deleted: 2, failed: 0 });
+    expect(await f.items()).toEqual([]);
+    expect((await f.getModel()).fields.some((entry) => [doubled.id, f.gross.id].includes(entry.id))).toBe(false);
+  }, 180_000);
 });

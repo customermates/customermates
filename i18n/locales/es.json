@@ -1966,6 +1966,7 @@
       "unipileDisconnectedAccount": "El canal está desconectado. Su propietario debe volver a conectarlo en Canales y calendarios antes de poder usarlo de nuevo.",
       "unipileFeatureUnavailable": "Esto no está disponible en este canal. Reintentar no ayudará; se ha notificado al equipo.",
       "unipileInvalidRequest": "El proveedor rechazó la solicitud por no ser válida. Comprueba los identificadores y los parámetros.",
+      "unipileMessagingUnavailable": "El correo no está disponible para esta cuenta. Elige un canal de correo conectado; el acceso al calendario es independiente.",
       "unipileProviderError": "El proveedor está teniendo problemas ahora mismo. Inténtalo de nuevo en breve.",
       "unipileProviderRejected": "El proveedor rechazó esta solicitud. Repetirla sin cambios no ayudará; revisa primero los destinatarios, el contenido o el destino.",
       "unipileRateLimit": "Este canal ha alcanzado su límite por ahora. Puedes reintentar {retryAfter}. Más información en https://customermates.com/docs/messaging-rate-limits.",
@@ -2498,6 +2499,7 @@
     "alreadyExistsToastDescription": "Esta cuenta ya está conectada por un miembro de tu espacio de trabajo. Pídele que la comparta con el espacio de trabajo para evitar mensajes duplicados en la bandeja de entrada.",
     "alreadyExistsToastTitle": "Cuenta ya conectada",
     "channels": {
+      "gmail": "Gmail",
       "imap": "IMAP",
       "linkedinClassic": "LinkedIn (Classic)",
       "linkedinRecruiter": "LinkedIn (Classic y Recruiter)",
@@ -2576,12 +2578,15 @@
     "folderToggleLabel": "Sincronizar la carpeta {folder}",
     "invalidCredentialsToastDescription": "No se aceptaron las credenciales. Compruébalas e inténtalo de nuevo.",
     "invalidCredentialsToastTitle": "Credenciales no válidas",
-    "lastSynced": "Última sincronización",
+    "lastSynced": "Última importación del historial",
     "messagingRequiresCloud": "La mensajería está disponible en Customermates Cloud (plan Pro o superior).",
     "messagingRequiresPro": "La mensajería requiere el plan Pro o superior. Cambia a un plan superior para conectar un canal.",
     "ownerLabel": "Propietario",
     "paidSubscriptionRequired": "Conectar canales requiere una suscripción activa o una prueba no caducada.",
+    "productUnavailable": "No disponible",
     "provider": "Proveedor",
+    "providerReason": "Motivo del proveedor",
+    "providerReasonUnavailable": "El proveedor no ha indicado el motivo.",
     "reactivate": "Reactivar",
     "resync": "Resincronizar",
     "resyncFailedDescription": "No se pudo iniciar la resincronización. Inténtalo de nuevo o contacta con soporte.",
@@ -2599,6 +2604,7 @@
       "stacked": "Logo arriba"
     },
     "status": "Estado",
+    "statusCheckedAt": "Estado comprobado",
     "statusLabels": {
       "connecting": "Conectando",
       "credentials": "Se requiere reconexión",
@@ -4832,7 +4838,7 @@
     "title": "Uso del plan Free"
   },
   "ProductFilm": {
-    "caption": "Cada conversación con clientes por email, LinkedIn y WhatsApp en un solo lugar. Mate configura tu espacio y redacta el seguimiento, tú lo revisas y lo envías. Funciona con Claude, ChatGPT o cualquier agente que hable MCP. Película en inglés.",
+    "caption": "Cada conversación con clientes por email, LinkedIn y WhatsApp en un solo lugar. Mate configura tu espacio y redacta el seguimiento, tú lo revisas y lo envías. Funciona con Claude, ChatGPT o cualquier agente que hable MCP.",
     "play": "Reproducir el vídeo",
     "title": "Vídeo de producto de Customermates"
   },

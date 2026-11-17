@@ -185,7 +185,7 @@ export default async function BuildingBlocksPage({ params }: StaticLocaleProps) 
             primary={{ href: "/auth/signup", label: "Start your 14-day trial" }}
             secondary={{
               href: "#film",
-              label: "Watch the film (70 s)",
+              label: "Watch the film (73 s)",
               play: true,
             }}
             showOpenSourceBadge={false}

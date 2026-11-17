@@ -36,7 +36,7 @@ function accountRepoReturning(account: unknown) {
 describe("webhook handlers for an account that no longer exists", () => {
   it("returns without writing when the status webhook cannot resolve its account", async () => {
     const accountRepo = accountRepoReturning(null);
-    const interactor = new ProcessAccountStatusWebhookInteractor(accountRepo as never);
+    const interactor = new ProcessAccountStatusWebhookInteractor(accountRepo as never, {} as never);
 
     await expect(
       interactor.invoke({ type: "account.status.disconnected", account_id: "acc_uni-gone" }),

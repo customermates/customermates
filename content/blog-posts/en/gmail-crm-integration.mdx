@@ -6,7 +6,7 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/outlook-crm-integration
   - /docs/app-inbox
-  - /blog/customer-interaction-management
+  - /blog/claude-outlook-gmail
 
 hero:
   title: "Gmail CRM Integration: The Three Types and How to Pick a CRM for Gmail"
@@ -143,7 +143,7 @@ To try this with your own Gmail, [start your trial](/auth/signup?job=followup): 
 
 If no product fits, you connect the Gmail API to the CRM's API or webhooks with a tool such as n8n or your own code. A stage change can send a message; an incoming email can create a record; a row in Google Sheets can start either. You own the OAuth app, the error handling and Google's verification, and a workflow that fails quietly is the typical failure, so alert on errors. If your leads still live in a spreadsheet, [Google Sheets as a CRM](/blog/google-sheets-crm) covers when that is enough.
 
-With Customermates, if you use Claude, ChatGPT or another AI client, connect it through [MCP](/docs/mcp). It can read Gmail conversations, save a draft for review and send email, using the same permissions as your account. The server tells clients to confirm before sending, but that check happens in the client, not on the server. Test how your client handles it with a draft first. External clients use your own AI provider, not hosted credits.
+With Customermates, if you use Claude, ChatGPT or another AI client, connect it through [MCP](/docs/mcp). It can read Gmail conversations, save a draft for review and send email, using the same permissions as your account. The server tells clients to confirm before sending, but that check happens in the client, not on the server. Test how your client handles it with a draft first. External clients use your own AI provider, not hosted credits. The routes compared, from Anthropic's connector to Google's Gmail MCP server, are in [Outlook MCP and Gmail MCP](/blog/claude-outlook-gmail).
 
 For deterministic automation, [webhooks](/docs/webhooks) report [[derived.webhooks.events.total]] event types, including [[derived.webhooks.events.messaging]] messaging events such as an ingested email. A separately run n8n instance can consume them through the [n8n community node](/docs/n8n), for example to post a message elsewhere when a client replies. n8n is not included with Customermates.
 

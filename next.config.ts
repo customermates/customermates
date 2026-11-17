@@ -186,6 +186,10 @@ const nextConfig: NextConfig = {
         "/customermates-film.mp4",
         "/customermates-film-poster-inbox.jpg",
         "/customermates-film-poster-inbox-dark.jpg",
+        "/customermates-film-de.mp4",
+        "/customermates-film-fr.mp4",
+        "/customermates-film-es.mp4",
+        "/customermates-film-it.mp4",
         "/images/:path*",
         "/icons/:path*",
       ].map((source) => ({

@@ -61,6 +61,7 @@ const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
   "Each role carries its full permission list; without role management only the user's own role is listed, and a user's roleId matches a role id. " +
   "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
   "the id is the connectedAccountId of that account and status is its connection status. " +
+  "lastSyncedAt is the time the account's last history import finished, not the time of its newest message: a message that arrives later leaves it unchanged. " +
   "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter).";
 
 async function workspaceContext(wikiPage: number | null) {
