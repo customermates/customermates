@@ -2267,7 +2267,6 @@
       "accounts": "Zakres: prywatne dla właściciela, chyba że udostępnione przestrzeni roboczej",
       "agents": "Zakres: tylko dostęp i limity, które ustawisz",
       "apps": "Zakres: tylko to, na co zezwolisz przy łączeniu",
-      "booking": "Zakres: każdy z linkiem może zarezerwować termin w kalendarzu właściciela",
       "deliveries": "Zakres: każda próba dostarczenia webhooków tej przestrzeni roboczej",
       "incoming": "Zakres: pozwala innym systemom tworzyć lub aktualizować rekordy na wybranej liście",
       "keys": "Zakres: odczytuje i zapisuje dane tej przestrzeni roboczej przez API",

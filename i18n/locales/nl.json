@@ -2267,7 +2267,6 @@
       "accounts": "Bereik: privé voor de eigenaar, tenzij gedeeld met de werkruimte",
       "agents": "Bereik: alleen de toegang en limieten die je instelt",
       "apps": "Bereik: alleen wat je toestaat bij het koppelen",
-      "booking": "Bereik: iedereen met de link kan boeken in de agenda van de eigenaar",
       "deliveries": "Bereik: elke bezorgpoging van de webhooks van deze werkruimte",
       "incoming": "Bereik: laat andere systemen records in de gekozen lijst aanmaken of bijwerken",
       "keys": "Bereik: leest en schrijft de gegevens van deze werkruimte via de API",

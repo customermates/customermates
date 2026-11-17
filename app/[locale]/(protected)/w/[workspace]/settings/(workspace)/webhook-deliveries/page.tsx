@@ -1,28 +1,9 @@
-import { Resource } from "@/generated/prisma";
+import { redirect } from "next/navigation";
 
-import { WebhookDeliveriesPageView } from "../components/webhook/webhook-deliveries-page-view";
+import { connectionsRedirectTarget } from "@/features/connections/redirect-to-connections";
 
-import { getGetWebhookDeliveriesInteractor } from "@/core/di";
-import { requireAccess } from "@/features/auth/next/require";
-import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
-import { SURFACE } from "@/core/data-view/data-view-keys";
-import { PageContainer } from "@/components/shared/page-container";
-import { unwrapPage } from "@/core/validation/next/unwrap-page";
-
-type Props = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function CompanyWebhookDeliveriesPage({ searchParams }: Props) {
-  await requireAccess({ resource: Resource.api });
-
-  const deliveryParams = await readSurfaceParams(SURFACE.webhookDeliveries, searchParams);
-
-  const deliveries = await unwrapPage(getGetWebhookDeliveriesInteractor().invoke(deliveryParams));
-
-  return (
-    <PageContainer padded={false}>
-      <WebhookDeliveriesPageView initialDeliveries={deliveries} />
-    </PageContainer>
-  );
+  redirect(await connectionsRedirectTarget("webhook-deliveries", searchParams));
 }

@@ -2267,7 +2267,6 @@
       "accounts": "Reichweite: privat für den Besitzer, solange nicht mit dem Workspace geteilt",
       "agents": "Reichweite: nur der Zugriff und die Grenzen, die du festlegst",
       "apps": "Reichweite: nur das, was du beim Verbinden erlaubst",
-      "booking": "Reichweite: Wer den Link hat, kann im Kalender des Besitzers buchen",
       "deliveries": "Reichweite: jeder Zustellversuch der Webhooks dieses Workspace",
       "incoming": "Reichweite: lässt andere Systeme Datensätze in der gewählten Liste anlegen oder ändern",
       "keys": "Reichweite: liest und schreibt die Daten dieses Workspace über die API",

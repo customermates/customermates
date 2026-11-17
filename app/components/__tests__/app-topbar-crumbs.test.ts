@@ -45,18 +45,14 @@ describe("app topbar crumbs", () => {
     ]);
   });
 
-  it("titles settings pages under Settings, including Deliveries as its own page", () => {
+  it("titles settings pages under Settings, including Connections as one page for its tabs", () => {
     expect(buildAppTopbarCrumbs("/en/settings/members", translate, null).crumbs).toEqual([
       { label: "NavigationBar.settings", href: "/settings/profile" },
       { label: "SettingsNav.members" },
     ]);
-    expect(buildAppTopbarCrumbs("/en/settings/webhook-deliveries", translate, null).crumbs).toEqual([
+    expect(buildAppTopbarCrumbs("/en/settings/connections", translate, null).crumbs).toEqual([
       { label: "NavigationBar.settings", href: "/settings/profile" },
-      { label: "SettingsNav.deliveries" },
-    ]);
-    expect(buildAppTopbarCrumbs("/en/settings/incoming-webhooks", translate, null).crumbs).toEqual([
-      { label: "NavigationBar.settings", href: "/settings/profile" },
-      { label: "SettingsNav.incomingWebhooks" },
+      { label: "SettingsNav.connections" },
     ]);
     expect(buildAppTopbarCrumbs("/en/settings/billing", translate, null).crumbs.at(-1)).toEqual({
       label: "SettingsNav.billing",

@@ -7,6 +7,7 @@ import {
   History,
   KeyRound,
   Mail,
+  Plug,
   Send,
   Shield,
   SlidersHorizontal,
@@ -19,11 +20,12 @@ import { Resource } from "@/generated/prisma";
 
 import type { SettingsSlug } from "./settings-routes";
 import type { AppMode } from "@/core/config/environment";
+import type { ConnectionsRedirectSlug } from "@/features/connections/connection-tabs";
 
 export type SettingsSection = "account" | "workspace";
 
 type SettingsSubroute = {
-  slug: SettingsSlug;
+  slug: Exclude<SettingsSlug, ConnectionsRedirectSlug>;
   labelKey: string;
   icon: LucideIcon;
   resource?: Resource;
@@ -34,14 +36,6 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
   account: [
     { slug: "profile", icon: UserCircle, labelKey: "SettingsNav.profile" },
     { slug: "workspaces", icon: Building2, labelKey: "SettingsNav.workspaces" },
-    {
-      slug: "channels",
-      icon: Mail,
-      labelKey: "SettingsNav.channels",
-      resource: Resource.inboxMessages,
-      cloudOnly: true,
-    },
-    { slug: "api-keys", icon: KeyRound, labelKey: "SettingsNav.apiKeys", resource: Resource.api },
   ],
   workspace: [
     { slug: "general", icon: SlidersHorizontal, labelKey: "SettingsNav.general" },
@@ -49,16 +43,30 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
     { slug: "roles", icon: Shield, labelKey: "SettingsNav.roles", resource: Resource.users },
     { slug: "billing", icon: CreditCard, labelKey: "SettingsNav.billing", resource: Resource.company, cloudOnly: true },
     { slug: "activity", icon: History, labelKey: "SettingsNav.activity", resource: Resource.activityLog },
-    { slug: "webhooks", icon: Webhook, labelKey: "SettingsNav.webhooks", resource: Resource.api },
-    { slug: "webhook-deliveries", icon: Send, labelKey: "SettingsNav.deliveries", resource: Resource.api },
-    {
-      slug: "incoming-webhooks",
-      icon: Download,
-      labelKey: "SettingsNav.incomingWebhooks",
-      resource: Resource.api,
-    },
+    { slug: "connections", icon: Plug, labelKey: "SettingsNav.connections" },
   ],
 };
+
+type RedirectedSettings = { labelKey: string; icon: LucideIcon; resource: Resource; cloudOnly: boolean };
+
+export const REDIRECTED_SETTINGS: Record<ConnectionsRedirectSlug, RedirectedSettings> = {
+  channels: { labelKey: "SettingsNav.channels", icon: Mail, resource: Resource.inboxMessages, cloudOnly: true },
+  "api-keys": { labelKey: "SettingsNav.apiKeys", icon: KeyRound, resource: Resource.api, cloudOnly: false },
+  webhooks: { labelKey: "SettingsNav.webhooks", icon: Webhook, resource: Resource.api, cloudOnly: false },
+  "webhook-deliveries": { labelKey: "SettingsNav.deliveries", icon: Send, resource: Resource.api, cloudOnly: false },
+  "incoming-webhooks": {
+    labelKey: "SettingsNav.incomingWebhooks",
+    icon: Download,
+    resource: Resource.api,
+    cloudOnly: false,
+  },
+};
+
+export function redirectedSettingsOf(slug: string | undefined): RedirectedSettings | null {
+  return slug !== undefined && Object.hasOwn(REDIRECTED_SETTINGS, slug)
+    ? REDIRECTED_SETTINGS[slug as ConnectionsRedirectSlug]
+    : null;
+}
 
 export function settingsSectionOf(slug: string): SettingsSection | null {
   return (

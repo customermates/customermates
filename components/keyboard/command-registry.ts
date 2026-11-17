@@ -36,8 +36,9 @@ import {
 } from "lucide-react";
 
 import { Action, Resource } from "@/generated/prisma";
-import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
-import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { REDIRECTED_SETTINGS, SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
+import { CONNECTIONS_REDIRECTS, connectionsHref, settingsHref } from "@/app/components/navigation/settings-routes";
+import type { ConnectionsRedirectSlug } from "@/features/connections/connection-tabs";
 
 import { AI_CLIENT_COMMAND_ICONS, CHANNEL_COMMAND_ICONS } from "./connect-command-icons";
 import { CONNECT_INTENT_AI_CLIENTS, CONNECT_INTENT_CHANNELS, connectIntentHref } from "./connect-intent";
@@ -149,16 +150,28 @@ const AI_CLIENT_CONNECTIONS: StaticCommand[] = CONNECT_INTENT_AI_CLIENTS.map((pr
   requires: { resource: Resource.api, action: Action.create },
 }));
 
-const SETTINGS_PAGES: StaticCommand[] = [...SETTINGS_SECTIONS.account, ...SETTINGS_SECTIONS.workspace].map(
-  (subroute) => ({
-    id: `settings.${subroute.slug}`,
-    labelKey: subroute.labelKey,
-    kind: "page",
-    icon: subroute.icon,
-    target: { href: settingsHref(subroute.slug) },
-    requires: { resource: subroute.resource, cloudOnly: subroute.cloudOnly },
-  }),
-);
+const SETTINGS_PAGES: StaticCommand[] = [
+  ...[...SETTINGS_SECTIONS.account, ...SETTINGS_SECTIONS.workspace].map(
+    (subroute): StaticCommand => ({
+      id: `settings.${subroute.slug}`,
+      labelKey: subroute.labelKey,
+      kind: "page",
+      icon: subroute.icon,
+      target: { href: settingsHref(subroute.slug) },
+      requires: { resource: subroute.resource, cloudOnly: subroute.cloudOnly },
+    }),
+  ),
+  ...(Object.keys(REDIRECTED_SETTINGS) as ConnectionsRedirectSlug[]).map(
+    (slug): StaticCommand => ({
+      id: `settings.${slug}`,
+      labelKey: REDIRECTED_SETTINGS[slug].labelKey,
+      kind: "page",
+      icon: REDIRECTED_SETTINGS[slug].icon,
+      target: { href: connectionsHref(CONNECTIONS_REDIRECTS[slug].tab, CONNECTIONS_REDIRECTS[slug].section) },
+      requires: { resource: REDIRECTED_SETTINGS[slug].resource, cloudOnly: REDIRECTED_SETTINGS[slug].cloudOnly },
+    }),
+  ),
+];
 
 export const STATIC_COMMANDS: readonly StaticCommand[] = [
   {

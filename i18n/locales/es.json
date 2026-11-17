@@ -2267,7 +2267,6 @@
       "accounts": "Alcance: privado para su propietario, salvo que se comparta con el espacio de trabajo",
       "agents": "Alcance: solo el acceso y los límites que definas",
       "apps": "Alcance: solo lo que permites al conectar",
-      "booking": "Alcance: quien tenga el enlace puede reservar en el calendario de su propietario",
       "deliveries": "Alcance: cada intento de entrega de los webhooks de este espacio de trabajo",
       "incoming": "Alcance: permite que otros sistemas creen o actualicen registros en la lista que elijas",
       "keys": "Alcance: lee y escribe los datos de este espacio de trabajo a través de la API",

@@ -87,6 +87,7 @@ const SETTINGS_NAVIGATION = {
   apiKeys: "API keys & connectors",
   billing: "Billing",
   channels: "Channels & calendars",
+  connections: "Connections",
   deliveries: "Webhook log",
   general: "General",
   incomingWebhooks: "Incoming webhooks",

@@ -2267,7 +2267,6 @@
       "accounts": "Escopo: privado para o proprietário, a menos que seja compartilhado com o espaço de trabalho",
       "agents": "Escopo: somente o acesso e os limites que você definir",
       "apps": "Escopo: somente o que você permitir ao conectar",
-      "booking": "Escopo: qualquer pessoa com o link pode agendar no calendário do proprietário",
       "deliveries": "Escopo: cada tentativa de entrega dos webhooks deste espaço de trabalho",
       "incoming": "Escopo: permite que outros sistemas criem ou atualizem registros na lista escolhida",
       "keys": "Escopo: lê e grava os dados deste espaço de trabalho pela API",

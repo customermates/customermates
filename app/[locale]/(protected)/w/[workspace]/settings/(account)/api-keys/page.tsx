@@ -1,20 +1,9 @@
-import { Resource } from "@/generated/prisma/client";
+import { redirect } from "next/navigation";
 
-import { ApiKeysPageView } from "../components/api-keys-page-view";
+import { connectionsRedirectTarget } from "@/features/connections/redirect-to-connections";
 
-import { getGetApiKeysInteractor } from "@/core/di";
-import { requireAccess } from "@/features/auth/next/require";
-import { PageContainer } from "@/components/shared/page-container";
-import { unwrapPage } from "@/core/validation/next/unwrap-page";
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function ProfileApiKeysPage() {
-  await requireAccess({ resource: Resource.api });
-
-  const apiKeys = await unwrapPage(getGetApiKeysInteractor().invoke());
-
-  return (
-    <PageContainer>
-      <ApiKeysPageView apiKeys={apiKeys} />
-    </PageContainer>
-  );
+export default async function ProfileApiKeysPage({ searchParams }: Props) {
+  redirect(await connectionsRedirectTarget("api-keys", searchParams));
 }

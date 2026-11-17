@@ -2267,7 +2267,6 @@
       "accounts": "Portée : privé pour son propriétaire, sauf partage avec l’espace de travail",
       "agents": "Portée : uniquement l’accès et les limites que vous définissez",
       "apps": "Portée : uniquement ce que vous autorisez à la connexion",
-      "booking": "Portée : toute personne disposant du lien peut réserver dans l’agenda de son propriétaire",
       "deliveries": "Portée : chaque tentative d’envoi des webhooks de cet espace de travail",
       "incoming": "Portée : permet à d’autres systèmes de créer ou de modifier des enregistrements dans la liste choisie",
       "keys": "Portée : lit et écrit les données de cet espace de travail via l’API",

@@ -2267,7 +2267,6 @@
       "accounts": "Scope: private to its owner unless shared with the workspace",
       "agents": "Scope: only the access and limits you set",
       "apps": "Scope: only what you allow when you connect",
-      "booking": "Scope: anyone with the link can book into its owner’s calendar",
       "deliveries": "Scope: every delivery attempt of this workspace’s webhooks",
       "incoming": "Scope: lets other systems create or update records in the list you choose",
       "keys": "Scope: reads and writes this workspace’s data through the API",
