@@ -1,3 +1,4 @@
+import type { CalculatedValue } from "@/features/records/record-model.schema";
 import type { DateReachedTriggerSchema } from "./automation-rule.schema";
 import type { AutomationDateCandidate } from "./automation-rule.repo";
 import type { z } from "zod";
@@ -28,6 +29,16 @@ export function normalisedDateValue(candidate: Pick<AutomationDateCandidate, "ki
   }
   const instant = new Date(candidate.fieldValue);
   return Number.isNaN(instant.getTime()) ? null : instant.toISOString();
+}
+
+export function currentDateValue(
+  kind: AutomationDateCandidate["kind"],
+  current: CalculatedValue | undefined,
+): string | null {
+  if (current?.state !== "value") return null;
+  const scalar = current.value;
+  if (scalar.kind !== "date" && scalar.kind !== "dateTime") return null;
+  return normalisedDateValue({ kind, fieldValue: scalar.value });
 }
 
 export function dueDateOccurrences(

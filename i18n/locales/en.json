@@ -1133,6 +1133,7 @@
     },
     "reason": {
       "conditionsNotMet": "The conditions were not met.",
+      "dateChanged": "The date was changed or cleared before the automation ran.",
       "ownerChanged": "The owner changed.",
       "ownerInactive": "The owner is no longer an active member.",
       "ownerMissing": "The automation has no owner.",

@@ -1133,6 +1133,7 @@
     },
     "reason": {
       "conditionsNotMet": "No se cumplían las condiciones.",
+      "dateChanged": "La fecha se cambió o se vació antes de que se ejecutara la automatización.",
       "ownerChanged": "El propietario cambió.",
       "ownerInactive": "El propietario ya no es un miembro activo.",
       "ownerMissing": "La automatización no tiene propietario.",

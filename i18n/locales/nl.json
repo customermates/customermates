@@ -1133,6 +1133,7 @@
     },
     "reason": {
       "conditionsNotMet": "De voorwaarden waren niet vervuld.",
+      "dateChanged": "De datum is gewijzigd of leeggemaakt voordat de automatisering liep.",
       "ownerChanged": "De eigenaar is gewijzigd.",
       "ownerInactive": "De eigenaar is geen actief lid meer.",
       "ownerMissing": "De automatisering heeft geen eigenaar.",

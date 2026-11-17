@@ -40,6 +40,29 @@ export function effectDetailText(t: Translate, detail: string): string {
   }
 }
 
+export function runReasonText(t: Translate, reason: string): string {
+  switch (reason) {
+    case "conditionsNotMet":
+      return t("AutomationRules.reason.conditionsNotMet");
+    case "dateChanged":
+      return t("AutomationRules.reason.dateChanged");
+    case "ownerChanged":
+      return t("AutomationRules.reason.ownerChanged");
+    case "ownerInactive":
+      return t("AutomationRules.reason.ownerInactive");
+    case "ownerMissing":
+      return t("AutomationRules.reason.ownerMissing");
+    case "ownerNotPermitted":
+      return t("AutomationRules.reason.ownerNotPermitted");
+    case "recordUnavailable":
+      return t("AutomationRules.reason.recordUnavailable");
+    case "ruleDisabled":
+      return t("AutomationRules.reason.ruleDisabled");
+    default:
+      return reason;
+  }
+}
+
 export function runErrorText(t: Translate, error: string): string {
   return error === "ruleInvalid" ? t("AutomationRules.detail.ruleInvalid") : effectDetailText(t, error);
 }

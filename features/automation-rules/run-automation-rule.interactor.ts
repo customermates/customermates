@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 import type { Validated } from "@/core/validation/validation.utils";
-import type { RecordRef } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { AutomationEffectRunner } from "./automation-effect-runner";
-import type { AutomationRecordPort } from "./automation-ports";
+import type { AutomationRecordPort, AutomationRecordView } from "./automation-ports";
 import type { AutomationRuleRepo, StoredAutomationRule } from "./automation-rule.repo";
-import type { AutomationEffectOutcome } from "./automation-rule.schema";
+import type { AutomationEffectOutcome, AutomationTrigger } from "./automation-rule.schema";
 
 import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -17,6 +17,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { evaluateConditions } from "./automation-conditions";
 import { extendAutomationChain } from "./automation-context";
 import { automationModelIssues } from "./automation-model-validation";
+import { currentDateValue } from "./automation-occurrence";
 import { ruleConditionPlan } from "./automation-record-trigger";
 import {
   AutomationConditionSchema,
@@ -33,7 +34,20 @@ type RunAutomationRuleData = z.infer<typeof Schema>;
 const RunPayloadSchema = z.looseObject({
   chain: z.array(z.uuid()).max(5).default([]),
   routineDepth: z.number().int().nonnegative().optional(),
+  fieldValue: z.string().optional(),
 });
+
+function admittedDateChanged(
+  trigger: AutomationTrigger,
+  model: RecordModelView,
+  record: AutomationRecordView,
+  admitted: string | undefined,
+): boolean {
+  if (trigger.kind !== "dateReached" || admitted === undefined) return false;
+  const field = model.fields.find((item) => item.id === trigger.fieldId);
+  const kind = field?.valueType === "dateTime" ? "dateTime" : "date";
+  return currentDateValue(kind, record.values.get(trigger.fieldId)) !== admitted;
+}
 
 type RunStatus = "applied" | "skipped" | "failed";
 type RunAutomationRuleOutcome = { status: RunStatus | "missing" | "notClaimed" };
@@ -99,14 +113,16 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     const timeZone = automationTimeZone(definition.trigger);
     const model = await this.records.model();
     if (automationModelIssues(definition, model).length > 0) return { status: "failed", error: "ruleInvalid" };
+    const { chain: parentChain, routineDepth, fieldValue } = RunPayloadSchema.parse(run.payload ?? {});
     if (recordRef) {
       const record = await this.records.read(recordRef);
       if (!record) return { status: "skipped", reason: "recordUnavailable" };
+      if (admittedDateChanged(definition.trigger, model, record, fieldValue))
+        return { status: "skipped", reason: "dateChanged" };
       const { residual } = ruleConditionPlan(definition.trigger, definition.conditions, model);
       if (!evaluateConditions(residual, record.values, { now, timeZone }))
         return { status: "skipped", reason: "conditionsNotMet" };
     }
-    const { chain: parentChain, routineDepth } = RunPayloadSchema.parse(run.payload ?? {});
     const { outcomes, failure } = await runInCausation(
       {
         ruleChain: extendAutomationChain(parentChain, rule.id),

@@ -14,7 +14,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { IntlLink } from "@/i18n/navigation";
 
 import { getAutomationRuleRunsAction } from "../actions";
-import { effectDetailText, runErrorText } from "./automation-run-texts";
+import { effectDetailText, runErrorText, runReasonText } from "./automation-run-texts";
 import { AUTOMATION_STATUS_VARIANT } from "./automation-status-variant";
 
 export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefined; name: string }) {
@@ -85,7 +85,11 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
               </IntlLink>
             )}
 
-            {run.reason && <p className="text-xs text-muted-foreground">{t(`AutomationRules.reason.${run.reason}`)}</p>}
+            {run.reason && (
+              <p className="text-xs text-muted-foreground" data-automation-run-reason="">
+                {runReasonText(t, run.reason)}
+              </p>
+            )}
 
             {run.effects.map((effect, index) => {
               const kind = t(`AutomationRules.effect.${effect.kind}`);

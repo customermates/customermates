@@ -31,6 +31,7 @@ import type { AutomationRecipientAccess, AutomationRecordView } from "../automat
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { AutomationEffectRunner } from "../automation-effect-runner";
+import { currentDateValue, normalisedDateValue } from "../automation-occurrence";
 import { AutomationRuleAdmission } from "../automation-rule-admission";
 import { currentCausation } from "@/core/decorators/causation-context";
 import { RoutineAdmission } from "@/ee/routines/routine-admission";
@@ -544,6 +545,75 @@ describe("running a rule", () => {
     };
     expect(await outcome({ kind: "recordCreated", typeId: TYPE, timezone: "Europe/Berlin" })).toBe("applied");
     expect(await outcome({ kind: "recordCreated", typeId: TYPE })).toBe("skipped");
+  });
+
+  it("skips a date rule whose record no longer holds the date the sweep admitted", async () => {
+    const dateTrigger = {
+      kind: "dateReached",
+      typeId: TYPE,
+      fieldId: CLOSES,
+      days: 1,
+      direction: "before",
+      atHour: 8,
+      timezone: "Europe/Berlin",
+    };
+    const outcome = async (current: CalculatedValue | undefined, payload: Record<string, unknown>) => {
+      const store = new FakeAutomationRuleRepo();
+      store.addRule({
+        id: RULE,
+        triggerKind: "dateReached",
+        typeId: TYPE,
+        trigger: dateTrigger,
+        effects: [
+          { ...notify, recipients: { ruleOwner: true, assignees: false, userIds: [] }, notificationKind: "ruleAlert" },
+        ],
+      });
+      const runId = (await store.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey: `date:${RECORD}:${CLOSES}:2026-11-13:before1`,
+        triggerKind: "dateReached",
+        typeId: TYPE,
+        recordId: RECORD,
+        payload,
+        depth: 0,
+        scheduledFor: NOW,
+      })) as string;
+      const set = ports(view({ values: new Map<string, CalculatedValue>(current ? [[CLOSES, current]] : []) }));
+      const instance = new RunAutomationRuleInteractor(store, set.runner, set.records as never, () => NOW);
+      await run(instance, runId);
+      const settled = store.runs.get(runId);
+      return {
+        status: settled?.status,
+        reason: (settled?.outcome as { reason?: string } | null)?.reason,
+        notified: set.notifications.notify.mock.calls.length,
+      };
+    };
+    const admitted = { chain: [], fireAt: "2026-11-12T07:00:00.000Z", fieldValue: "2026-11-13" };
+    const date = (value: string): CalculatedValue => ({ state: "value", value: { kind: "date", value } });
+
+    expect(await outcome(date("2026-11-13"), admitted)).toMatchObject({ status: "applied", notified: 1 });
+    expect(await outcome(date("2026-11-13T00:00:00.000Z"), admitted)).toMatchObject({ status: "applied" });
+    expect(await outcome(date("2026-12-01"), admitted)).toEqual({
+      status: "skipped",
+      reason: "dateChanged",
+      notified: 0,
+    });
+    expect(await outcome(undefined, admitted)).toEqual({ status: "skipped", reason: "dateChanged", notified: 0 });
+    expect(await outcome({ state: "missing" }, admitted)).toMatchObject({ status: "skipped", reason: "dateChanged" });
+    expect(await outcome(date("2026-12-01"), { chain: [] })).toMatchObject({ status: "applied" });
+  });
+
+  it("compares a date and time by its instant and a date by its day", () => {
+    const instant = (value: string): CalculatedValue => ({ state: "value", value: { kind: "dateTime", value } });
+    expect(currentDateValue("dateTime", instant("2026-11-13T10:00:00+01:00"))).toBe(
+      normalisedDateValue({ kind: "dateTime", fieldValue: "2026-11-13T09:00:00.000Z" }),
+    );
+    expect(currentDateValue("dateTime", instant("2026-11-13T10:00:00+01:00"))).not.toBe(
+      normalisedDateValue({ kind: "dateTime", fieldValue: "2026-11-13T10:00:00.000Z" }),
+    );
+    expect(currentDateValue("date", { state: "value", value: { kind: "text", value: "2026-11-13" } })).toBeNull();
+    expect(currentDateValue("date", { state: "restricted" })).toBeNull();
   });
 
   it("skips when the rule was disabled, the owner changed or the record is gone", async () => {

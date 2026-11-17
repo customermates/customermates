@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
-import { effectDetailText, runErrorText } from "../components/automation-run-texts";
+import { effectDetailText, runErrorText, runReasonText } from "../components/automation-run-texts";
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -50,7 +50,35 @@ const EFFECT_CODES = [
   "agentRuntimeUnavailable:selfHosted",
 ];
 
+const SKIP_REASONS = [
+  "conditionsNotMet",
+  "dateChanged",
+  "ownerChanged",
+  "ownerInactive",
+  "ownerMissing",
+  "ownerNotPermitted",
+  "recordUnavailable",
+  "ruleDisabled",
+];
+
 describe("the run history texts", () => {
+  it.each(APP_LOCALES)("says in %s why a run was skipped, also when its date changed", (locale) => {
+    const t = translator(catalog(locale));
+
+    for (const reason of SKIP_REASONS) {
+      const text = runReasonText(t, reason);
+      expect(text, reason).not.toBe(reason);
+      expect(text, reason).toMatch(/\s/);
+    }
+    expect(runReasonText(t, "somethingNew")).toBe("somethingNew");
+  });
+
+  it("names a changed date in English", () => {
+    expect(runReasonText(translator(catalog("en")), "dateChanged")).toBe(
+      "The date was changed or cleared before the automation ran.",
+    );
+  });
+
   it("covers the eight languages of the app", () => {
     expect(APP_LOCALES).toHaveLength(8);
   });

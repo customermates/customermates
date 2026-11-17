@@ -1133,6 +1133,7 @@
     },
     "reason": {
       "conditionsNotMet": "Warunki nie były spełnione.",
+      "dateChanged": "Data została zmieniona lub usunięta, zanim automatyzacja się uruchomiła.",
       "ownerChanged": "Właściciel się zmienił.",
       "ownerInactive": "Właściciel nie jest już aktywnym członkiem.",
       "ownerMissing": "Automatyzacja nie ma właściciela.",
