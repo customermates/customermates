@@ -132,9 +132,16 @@ describe("agent interface targets", () => {
 
   it("names every routable target's page with the label keys the sidebar can show", () => {
     expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
-    expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
-    expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual(["SettingsNav.deliveries"]);
-    expect(agentUiPageLabelKeys("/settings/incoming-webhooks")).toEqual(["SettingsNav.incomingWebhooks"]);
+    expect(agentUiPageLabelKeys("/settings/connections")).toEqual(["SettingsNav.connections"]);
+    expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys", "SettingsNav.connections"]);
+    expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual([
+      "SettingsNav.deliveries",
+      "SettingsNav.connections",
+    ]);
+    expect(agentUiPageLabelKeys("/settings/incoming-webhooks")).toEqual([
+      "SettingsNav.incomingWebhooks",
+      "SettingsNav.connections",
+    ]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
     expect(agentUiPageLabelKeys("/routines")).toEqual(["NavigationBar.routines"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);

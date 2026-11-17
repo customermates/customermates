@@ -6781,7 +6781,7 @@ describe("AgentUiControlStore", () => {
 
   it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
     const elements = new Map([
-      ["nav-settings-channels", new FakeHTMLElement()],
+      ["nav-settings-connections", new FakeHTMLElement()],
       ["settings-channels-connect", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
@@ -6802,7 +6802,7 @@ describe("AgentUiControlStore", () => {
       await expect(
         store.startGuidedTour([
           {
-            targetId: "nav-settings-channels",
+            targetId: "nav-settings-connections",
             note: "Open connected accounts.",
           },
           {
@@ -6811,8 +6811,8 @@ describe("AgentUiControlStore", () => {
           },
         ]),
       ).resolves.toMatchObject({ ok: true });
-      expect(navigate).toHaveBeenCalledWith("/settings/channels");
-      expect(store.active?.targetId).toBe("nav-settings-channels");
+      expect(navigate).toHaveBeenCalledWith("/settings/connections");
+      expect(store.active?.targetId).toBe("nav-settings-connections");
 
       store.nextStep();
       await vi.waitFor(() => expect(store.active?.targetId).toBe("settings-channels-connect"));
@@ -7028,7 +7028,7 @@ describe("AgentUiControlStore", () => {
     vi.useFakeTimers();
 
     const elements = new Map([
-      ["nav-settings-channels", new FakeHTMLElement(1)],
+      ["nav-settings-connections", new FakeHTMLElement(1)],
       ["connected-account-signature", new FakeHTMLElement(0)],
       ["settings-channels-connect", new FakeHTMLElement(1)],
     ]);
@@ -7047,7 +7047,7 @@ describe("AgentUiControlStore", () => {
 
     await expect(
       store.startGuidedTour([
-        { targetId: "nav-settings-channels", note: "Open channels." },
+        { targetId: "nav-settings-connections", note: "Open channels." },
         { targetId: "connected-account-signature", note: "Turn on the signature." },
         { targetId: "settings-channels-connect", note: "Connect one." },
       ]),

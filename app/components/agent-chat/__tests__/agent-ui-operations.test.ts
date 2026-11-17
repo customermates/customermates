@@ -5,6 +5,7 @@ import type { AppMode } from "@/core/config/environment";
 
 import { Resource } from "@/generated/prisma";
 import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
+import { settingsLandingPath } from "@/app/components/navigation/settings-routes";
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
   getRecordAction: vi.fn(),
   getRecordNavigationAction: vi.fn(),
@@ -121,8 +122,8 @@ describe("AgentUiControlStore.navigate", () => {
     store.registerNavigate(navigate);
 
     for (const [targetId, route] of [
-      ["nav-settings-webhooks", "/settings/webhooks"],
-      ["nav-settings-api-keys", "/settings/api-keys"],
+      ["settings-webhooks-add", "/settings/webhooks"],
+      ["settings-api-keys-generate", "/settings/api-keys"],
       ["nav-settings-activity", "/settings/activity"],
     ]) {
       await expect(store.navigate({ targetId })).resolves.toEqual({
@@ -147,7 +148,7 @@ describe("AgentUiControlStore.navigate", () => {
 
     const selfHosted = controlStore({ appMode: "self-hosted" });
     selfHosted.registerNavigate(navigate);
-    for (const targetId of ["nav-inbox", "nav-routines", "nav-settings-channels", "nav-settings-billing"])
+    for (const targetId of ["nav-inbox", "nav-routines", "connected-account-tab-details", "nav-settings-billing"])
       await expect(selfHosted.navigate({ targetId }), targetId).resolves.toMatchObject({ ok: false });
     expect(navigate).not.toHaveBeenCalled();
 
@@ -234,7 +235,7 @@ describe("AgentUiControlStore.highlight", () => {
 
   it("treats a mounted target without layout as not rendered instead of spotlighting nothing", async () => {
     const hidden = element(0);
-    onPage("/settings/channels", (id) => (id === "connected-account-signature" ? hidden : null));
+    onPage("/settings/connections", (id) => (id === "connected-account-signature" ? hidden : null));
     const store = controlStore();
 
     await expect(settled(store.highlight("connected-account-signature"))).resolves.toEqual({
@@ -249,7 +250,7 @@ describe("AgentUiControlStore.highlight", () => {
   it("waits for a target of the current page that renders after the address changed", async () => {
     const filter = element(1);
     let lookups = 0;
-    onPage("/settings/webhooks", (id) => (id === "settings-webhooks-filter" && ++lookups > 5 ? filter : null));
+    onPage("/settings/connections", (id) => (id === "settings-webhooks-filter" && ++lookups > 5 ? filter : null));
     const store = controlStore();
 
     await expect(settled(store.highlight("settings-webhooks-filter"))).resolves.toEqual({
@@ -319,13 +320,13 @@ describe("AgentUiControlStore.highlight", () => {
     const unavailable =
       "The page /settings/webhooks is not available to this user's role or installation; the app would redirect to the Dashboard. Tell the user instead of navigating or highlighting.";
 
-    for (const targetId of ["nav-settings-webhooks", "settings-webhooks-add"]) {
+    for (const targetId of ["settings-webhooks-filter", "settings-webhooks-add"]) {
       expect(await immediately(store.highlight(targetId)), targetId).toEqual({
         ok: false,
         result: `Target ${targetId} cannot be shown. ${unavailable}`,
       });
     }
-    expect(lookup.mock.calls.filter(([id]) => id === "nav-settings-webhooks")).toHaveLength(1);
+    expect(lookup.mock.calls.filter(([id]) => id === "settings-webhooks-filter")).toHaveLength(1);
   });
 
   it("still highlights a rendered group toggle whose first page the role cannot open", async () => {
@@ -342,7 +343,7 @@ describe("AgentUiControlStore.highlight", () => {
     const filter = element(1);
     let rendered = false;
     onPage(
-      "/settings/webhooks",
+      "/settings/connections",
       (id) => (id === "settings-webhooks-filter" && rendered ? filter : null),
       () => !rendered,
     );
@@ -358,7 +359,7 @@ describe("AgentUiControlStore.highlight", () => {
 
   it("stops waiting for a target of a page that never finishes loading", async () => {
     onPage(
-      "/settings/webhooks",
+      "/settings/connections",
       () => null,
       () => true,
     );
@@ -398,7 +399,7 @@ describe("AgentUiControlStore guided tour", () => {
       return 1;
     });
     const navigate = vi.fn((path: string) => {
-      location.pathname = path;
+      location.pathname = settingsLandingPath(path);
       return Promise.resolve("navigated" as const);
     });
     return navigate;
@@ -422,7 +423,7 @@ describe("AgentUiControlStore guided tour", () => {
   ].map((targetId) => ({ targetId, note: `Fill ${targetId}.` }));
 
   it("gives unrendered stops on one page one shared wait instead of one wait each", async () => {
-    const navigate = onApp("/settings/webhooks", new Map());
+    const navigate = onApp("/settings/connections", new Map());
     const store = controlStore();
     store.registerNavigate(navigate);
 
@@ -518,7 +519,7 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("ends the tour when the control of its stop disappears and no later stop is on screen", async () => {
     const rendered = new Map([["connected-account-signature", laidOut()]]);
-    const navigate = onApp("/settings/channels", rendered);
+    const navigate = onApp("/settings/connections", rendered);
     const store = controlStore();
     store.registerNavigate(navigate);
 
@@ -563,7 +564,7 @@ describe("AgentUiControlStore guided tour", () => {
       ["settings-webhooks-add", laidOut()],
       ["settings-webhooks-filter", laidOut()],
     ]);
-    const navigate = onApp("/settings/webhooks", rendered);
+    const navigate = onApp("/settings/connections", rendered);
     const store = controlStore();
     store.registerNavigate(navigate);
 
@@ -589,11 +590,11 @@ describe("AgentUiControlStore guided tour", () => {
     const rendered = new Map<string, ReturnType<typeof laidOut>>();
     let loading = false;
     const load = { ms: 0 };
-    const navigate = onApp("/settings/webhooks", rendered, () => loading);
+    const navigate = onApp("/settings/connections", rendered, () => loading);
     rendered.set(pages["/settings/webhooks"], laidOut());
     navigate.mockImplementation((path: string) => {
-      if (window.location.pathname !== path) {
-        window.location.pathname = path;
+      if (window.location.pathname !== settingsLandingPath(path)) {
+        window.location.pathname = settingsLandingPath(path);
         rendered.clear();
         loading = true;
         setTimeout(() => {
@@ -637,7 +638,7 @@ describe("AgentUiControlStore guided tour", () => {
     await reportTargetsFor(store, rendered, 6000);
 
     expect(currentStop(store)).toMatchObject({ targetId: "settings-webhooks-add", stepIndex: 0 });
-    expect(window.location.pathname).toBe("/settings/webhooks");
+    expect(window.location.pathname).toBe("/settings/connections");
     expect(navigate).not.toHaveBeenCalledWith("/routines");
   });
 

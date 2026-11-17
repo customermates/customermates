@@ -1304,7 +1304,7 @@ describe("agent tools", () => {
     expect(await lineOf("widget-modal-save")).toBe("widget-modal-save|/dashboard|nh|>widget-modal-kind");
     expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
     expect(await lineOf("nav-settings-members")).toBe("nav-settings-members|/settings/members|nh");
-    expect(await lineOf("nav-settings-api-keys")).toBe("nav-settings-api-keys|/settings/api-keys|nh");
+    expect(await lineOf("nav-settings-connections")).toBe("nav-settings-connections|/settings/connections|nh");
     expect(await lineOf("widget-modal-cancel")).toBe("widget-modal-cancel|/dashboard|nh|>widget-modal-kind");
     expect(await lineOf("webhook-modal-url")).toContain("|>settings-webhooks-add");
   });
@@ -1387,7 +1387,7 @@ describe("agent tools", () => {
     ["Miembros", "nav-settings-members"],
     ["Facturation", "nav-settings-billing"],
     ["profilo", "nav-settings-profile"],
-    ["Kanäle", "nav-settings-channels"],
+    ["Verbindungen", "nav-settings-connections"],
     ["Buscar", "nav-search"],
     ["Rechercher", "nav-search"],
     ["Cerca", "nav-search"],
@@ -1433,8 +1433,8 @@ describe("agent tools", () => {
     ["Boîte de réception", "nav-inbox"],
     ["Tableau de bord", "nav-dashboard"],
     ["Menú personal", "nav-personal-menu"],
-    ["Chiavi API", "nav-settings-api-keys"],
-    ["Clés API", "nav-settings-api-keys"],
+    ["Chiavi API", "settings-api-keys-generate"],
+    ["Clés API", "settings-api-keys-generate"],
     ["Menu dello spazio di lavoro", "nav-workspace-menu"],
   ])("answers the multi-word page name %s with that page instead of most of the catalog", async (query, id) => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
@@ -1447,7 +1447,7 @@ describe("agent tools", () => {
 
   it("lists an exact id first and still lists the targets it prefixes", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
-    const lines = String(await execute(tools.list_ui_targets, { query: "nav-settings-webhooks" }))
+    const lines = String(await execute(tools.list_ui_targets, { query: "nav-settings-connections" }))
       .split("\n")
       .filter((line) => line.includes("|"))
       .map((line) => line.split("|")[0]);
@@ -1459,7 +1459,7 @@ describe("agent tools", () => {
       (target) => target.id,
     );
 
-    expect(lines[0]).toBe("nav-settings-webhooks");
+    expect(lines[0]).toBe("nav-settings-connections");
     expect(prefixed).toEqual(subLinks);
 
     recordNavigationHarness.types = [
@@ -1488,7 +1488,7 @@ describe("agent tools", () => {
     const workflow = String(await execute(tools.list_ui_targets, { query: "connected accounts" }));
     const provider = String(await execute(tools.list_ui_targets, { query: "WhatsApp" }));
 
-    expect(workflow).toContain("nav-settings-channels");
+    expect(workflow).toContain("nav-settings-connections");
     expect(workflow).toContain("settings-channels-connect");
     expect(workflow).toMatch(/\n(?:end|nextCursor=\d+;total=\d+)$/);
     expect(provider).toContain("settings-channels-connect");

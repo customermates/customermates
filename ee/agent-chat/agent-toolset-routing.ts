@@ -265,7 +265,7 @@ const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],
   widgets: ["/dashboard"],
-  webhooks: ["/settings/webhooks"],
+  webhooks: ["/settings/webhooks", "/settings/connections"],
   routines: ["/routines"],
   admin: ["/settings"],
 };
