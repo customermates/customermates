@@ -1105,6 +1105,7 @@
     "emptyTitle": "Brak automatyzacji",
     "history": {
       "empty": "Brak uruchomień",
+      "loadFailed": "Nie udało się wczytać uruchomień.",
       "open": "Historia",
       "record": "Otwórz rekord",
       "title": "Uruchomienia „{name}”"

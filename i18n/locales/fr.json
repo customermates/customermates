@@ -1105,6 +1105,7 @@
     "emptyTitle": "Aucune automatisation pour l’instant",
     "history": {
       "empty": "Aucune exécution pour l’instant",
+      "loadFailed": "Les exécutions n’ont pas pu être chargées.",
       "open": "Historique",
       "record": "Ouvrir l’enregistrement",
       "title": "Exécutions de « {name} »"

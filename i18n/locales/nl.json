@@ -1105,6 +1105,7 @@
     "emptyTitle": "Nog geen automatiseringen",
     "history": {
       "empty": "Nog geen uitvoeringen",
+      "loadFailed": "De uitvoeringen konden niet worden geladen.",
       "open": "Geschiedenis",
       "record": "Record openen",
       "title": "Uitvoeringen van “{name}”"

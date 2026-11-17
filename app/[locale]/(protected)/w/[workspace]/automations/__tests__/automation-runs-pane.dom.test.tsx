@@ -113,6 +113,48 @@ describe("the run history of an automation", () => {
     expect(container.querySelector("button")).toBeNull();
   });
 
+  it("says that the runs could not be loaded, instead of 'No runs yet', and loads them on Retry", async () => {
+    actions.getAutomationRuleRunsAction
+      .mockResolvedValueOnce({ ok: false, failure: { kind: "unavailable", issues: [] } })
+      .mockResolvedValueOnce({ ok: true, data: { runs: [run("a-1", RULE_A)], nextCursor: null } });
+
+    await render(RULE_A, "Rule A");
+    const error = container.querySelector("[data-automation-runs-error]");
+    expect(error?.textContent).toContain("AutomationRules.history.loadFailed");
+    expect(container.textContent).not.toContain("AutomationRules.history.empty");
+
+    await act(async () => {
+      error?.querySelector("button")?.click();
+      await settle();
+    });
+    expect(container.querySelector("[data-automation-runs-error]")).toBeNull();
+    expect(shownRuns()).toHaveLength(1);
+  });
+
+  it("keeps the runs it has when a further page fails and retries that page", async () => {
+    actions.getAutomationRuleRunsAction
+      .mockResolvedValueOnce({ ok: true, data: { runs: [run("a-1", RULE_A)], nextCursor: "next" } })
+      .mockRejectedValueOnce(new Error("offline"))
+      .mockResolvedValueOnce({ ok: true, data: { runs: [run("a-2", RULE_A)], nextCursor: null } });
+
+    await render(RULE_A, "Rule A");
+    await act(async () => {
+      container.querySelector("button")?.click();
+      await settle();
+    });
+    expect(shownRuns()).toHaveLength(1);
+    const retry = container.querySelector<HTMLButtonElement>("[data-automation-runs-error] button");
+    expect(retry?.textContent).toBe("ErrorCard.retry");
+    expect([...container.querySelectorAll("button")]).toHaveLength(1);
+
+    await act(async () => {
+      retry?.click();
+      await settle();
+    });
+    expect(actions.getAutomationRuleRunsAction).toHaveBeenLastCalledWith({ id: RULE_A, cursor: "next" });
+    expect(shownRuns()).toHaveLength(2);
+  });
+
   it("appends the next page of the automation that is still open", async () => {
     actions.getAutomationRuleRunsAction.mockImplementation((input: { id: string; cursor?: string }) =>
       Promise.resolve(

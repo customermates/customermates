@@ -1105,6 +1105,7 @@
     "emptyTitle": "Ancora nessuna automazione",
     "history": {
       "empty": "Nessuna esecuzione",
+      "loadFailed": "Non è stato possibile caricare le esecuzioni.",
       "open": "Cronologia",
       "record": "Apri il record",
       "title": "Esecuzioni di «{name}»"

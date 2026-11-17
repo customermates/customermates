@@ -1105,6 +1105,7 @@
     "emptyTitle": "Noch keine Automatisierungen",
     "history": {
       "empty": "Noch keine Läufe",
+      "loadFailed": "Die Läufe konnten nicht geladen werden.",
       "open": "Verlauf",
       "record": "Datensatz öffnen",
       "title": "Läufe von „{name}“"

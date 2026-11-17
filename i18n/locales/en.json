@@ -1105,6 +1105,7 @@
     "emptyTitle": "No automations yet",
     "history": {
       "empty": "No runs yet",
+      "loadFailed": "The runs could not be loaded.",
       "open": "History",
       "record": "Open the record",
       "title": "Runs of “{name}”"

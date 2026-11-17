@@ -23,6 +23,7 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
   const [runs, setRuns] = useState<AutomationRuleRunDto[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState<{ cursor: string | null } | null>(null);
 
   const generation = useRef(0);
 
@@ -32,16 +33,23 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
       const started = generation.current;
       const active = () => generation.current === started;
       setLoading(true);
+      setFailed(null);
       void actionDataOrNull(getAutomationRuleRunsAction({ id: ruleId, ...(cursor ? { cursor } : {}) }))
         .then((page) => {
           if (!active()) return;
-          setRuns((current) => (cursor ? [...current, ...(page?.runs ?? [])] : (page?.runs ?? [])));
-          setNextCursor(page?.nextCursor ?? null);
           setLoading(false);
+          if (!page) {
+            setFailed({ cursor });
+            return;
+          }
+          setRuns((current) => (cursor ? [...current, ...page.runs] : page.runs));
+          setNextCursor(page.nextCursor);
         })
         .catch((error: unknown) => {
           reportApplicationError(error);
-          if (active()) setLoading(false);
+          if (!active()) return;
+          setLoading(false);
+          setFailed({ cursor });
         });
     },
     [ruleId],
@@ -52,6 +60,7 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
     setRuns([]);
     setNextCursor(null);
     setLoading(false);
+    setFailed(null);
     load(null);
   }, [load]);
 
@@ -66,7 +75,7 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
     >
       <h3 className="text-sm font-semibold">{t("AutomationRules.history.title", { name: name.trim() })}</h3>
 
-      {!loading && runs.length === 0 && (
+      {!loading && !failed && runs.length === 0 && (
         <p className="text-sm text-muted-foreground">{t("AutomationRules.history.empty")}</p>
       )}
 
@@ -117,7 +126,17 @@ export function AutomationRunsPane({ ruleId, name }: { ruleId: string | undefine
 
       {loading && <Spinner aria-label={t("PageState.loading")} />}
 
-      {!loading && nextCursor && (
+      {!loading && failed && (
+        <div className="flex flex-col items-start gap-2" data-automation-runs-error="" role="alert">
+          <p className="text-sm text-destructive">{t("AutomationRules.history.loadFailed")}</p>
+
+          <Button size="sm" variant="secondary" onClick={() => load(failed.cursor)}>
+            {t("ErrorCard.retry")}
+          </Button>
+        </div>
+      )}
+
+      {!loading && !failed && nextCursor && (
         <div>
           <Button size="sm" variant="secondary" onClick={() => load(nextCursor)}>
             {t("Common.actions.loadMore")}
