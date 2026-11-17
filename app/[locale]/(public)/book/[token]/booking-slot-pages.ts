@@ -3,7 +3,7 @@ import type { PublicBookingSlotsResult } from "@/ee/calendar/booking.schema";
 export type BookingSlot = { startsAt: string; endsAt: string };
 
 export type BookingSlotLoad =
-  | { status: "loaded"; slots: BookingSlot[]; nextFrom: string | null }
+  | { status: "loaded"; slots: BookingSlot[]; nextFrom: string | null; through: number }
   | { status: "failed" };
 
 type LoadArgs = {
@@ -31,13 +31,16 @@ export function needsMoreBookingSlots(nextFrom: string | null, through: number):
 export async function loadBookingSlots({ read, from, through, untilFirstSlot }: LoadArgs): Promise<BookingSlotLoad> {
   const slots: BookingSlot[] = [];
   let nextFrom = from;
+  let shownThrough = through;
   for (let request = 0; request < MAX_REQUESTS_PER_LOAD; request += 1) {
     const result = await read(nextFrom ?? undefined);
     if (result.status !== "available") return { status: "failed" };
     slots.push(...result.slots);
     nextFrom = result.nextFrom;
-    const wanted = needsMoreBookingSlots(nextFrom, through) || (untilFirstSlot && slots.length === 0);
+    if (untilFirstSlot && slots.length > 0)
+      shownThrough = Math.max(shownThrough, bookingMonthEnd(new Date(slots[0].startsAt)));
+    const wanted = needsMoreBookingSlots(nextFrom, shownThrough) || (untilFirstSlot && slots.length === 0);
     if (nextFrom === null || !wanted) break;
   }
-  return { status: "loaded", slots, nextFrom };
+  return { status: "loaded", slots, nextFrom, through: shownThrough };
 }

@@ -147,6 +147,7 @@ export function PublicBookingView({
             return;
           }
           state.nextFrom = loaded.nextFrom;
+          state.through = Math.max(state.through, loaded.through);
           setSlots((current) => (fresh ? loaded.slots : [...(current ?? []), ...loaded.slots]));
         }
       } catch {

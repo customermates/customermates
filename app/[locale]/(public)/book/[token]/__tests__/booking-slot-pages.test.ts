@@ -37,6 +37,48 @@ describe("loading booking slots in ranges", () => {
     expect(loaded.status === "loaded" && loaded.slots).toHaveLength(2);
   });
 
+  it("loads the month it shows first to its end, so no later day of that month stays grey", async () => {
+    const read = serverWith([20, 40, 70], 90);
+
+    const loaded = await loadBookingSlots({ read, from: null, through: 0, untilFirstSlot: true });
+
+    expect(read.mock.calls.map(([from]) => from)).toEqual([undefined, new Date(START + 31 * DAY_MS).toISOString()]);
+    expect(loaded.status === "loaded" && loaded.slots.map((slot) => slot.startsAt)).toEqual([
+      slotAt(20).startsAt,
+      slotAt(40).startsAt,
+    ]);
+    expect(loaded).toMatchObject({
+      nextFrom: new Date(START + 62 * DAY_MS).toISOString(),
+      through: bookingMonthEnd(new Date(slotAt(20).startsAt)),
+    });
+  });
+
+  it("also fills the shown month when the server cuts a busy range short", async () => {
+    const read = serverWith([1, 5, 9, 13], 90, 4);
+
+    const loaded = await loadBookingSlots({ read, from: null, through: 0, untilFirstSlot: true });
+
+    expect(loaded.status === "loaded" && loaded.slots).toHaveLength(4);
+    expect(read.mock.calls.length).toBeGreaterThan(3);
+    expect(loaded.status === "loaded" && Date.parse(loaded.nextFrom ?? "")).toBeGreaterThan(
+      bookingMonthEnd(new Date(slotAt(1).startsAt)),
+    );
+  });
+
+  it("does not move the shown month when it only loads more for a month the visitor opened", async () => {
+    const read = serverWith([40], 90);
+
+    const more = await loadBookingSlots({
+      read,
+      from: new Date(START + 31 * DAY_MS).toISOString(),
+      through: START + 35 * DAY_MS,
+      untilFirstSlot: false,
+    });
+
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(more).toMatchObject({ through: START + 35 * DAY_MS });
+  });
+
   it("keeps asking for the next range until the month the visitor moved to is covered", async () => {
     const read = serverWith([1, 40, 70, 85], 90);
     const first = await loadBookingSlots({ read, from: null, through: 0, untilFirstSlot: true });
@@ -72,7 +114,7 @@ describe("loading booking slots in ranges", () => {
     expect(lateOnly).toHaveBeenCalledTimes(3);
     expect(found.status === "loaded" && found.slots.map((slot) => slot.startsAt)).toEqual([slotAt(80).startsAt]);
     expect(none).toHaveBeenCalledTimes(3);
-    expect(empty).toEqual({ status: "loaded", slots: [], nextFrom: null });
+    expect(empty).toEqual({ status: "loaded", slots: [], nextFrom: null, through: 0 });
   });
 
   it("reports a failed load when the page stops being available", async () => {
