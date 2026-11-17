@@ -1,0 +1,37 @@
+{
+  "bin": {
+    "customermates-runner": "dist/cli.js"
+  },
+  "description": "Runs the agent jobs of a Customermates workspace with your own Claude Code, Codex or Gemini CLI on your machine.",
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "keywords": [
+    "customermates",
+    "crm",
+    "agents",
+    "claude-code",
+    "codex",
+    "gemini-cli",
+    "mcp"
+  ],
+  "license": "SEE LICENSE IN LICENSE.md",
+  "name": "customermates-runner",
+  "private": false,
+  "repository": {
+    "directory": "packages/runner",
+    "type": "git",
+    "url": "git+https://github.com/customermates/customermates.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "node scripts/prepack.mjs"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}
