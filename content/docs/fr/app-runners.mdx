@@ -16,7 +16,7 @@ La CLI travaille en votre nom, vous, le membre qui a ajouté le runner, avec vos
 ## De quoi a-t-il besoin ? [#what-does-it-need]
 
 - Node 24, ou Docker.
-- Claude Code, Codex ou Gemini CLI, installé et connecté sur cette machine. Sans CLI, le runner n’en signale aucune et ne prend aucune tâche. Tant qu’aucun de vos runners n’a signalé de CLI, une étape d’agent qui s’exécute sur votre propre runner n’attend pas : elle échoue aussitôt avec « Aucun runner n’est encore connecté à cet espace de travail. »
+- Claude Code, Codex ou Gemini CLI, installé et connecté sur cette machine. Sans CLI, le runner n’en signale aucune et ne prend aucune tâche. Tant qu’aucun de vos runners n’a signalé de CLI, une étape d’agent qui s’exécute sur votre propre runner n’attend pas : elle échoue aussitôt avec « Vous n’avez pas encore de runner prêt. Les runners sont personnels : chaque membre ajoute le sien. »
 - Une connexion réseau de cette machine vers l’adresse de votre Customermates. Le runner ne fait que des requêtes sortantes : il fonctionne derrière un pare-feu et n’a besoin d’aucun port ouvert.
 
 ## Comment ajouter et démarrer un runner ? [#how-do-i-add-a-runner]

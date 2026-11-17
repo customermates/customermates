@@ -16,13 +16,18 @@ import { AGENT_RUNNER_LIMITS } from "./agent-runner.schema";
 
 type Jobs = Pick<
   AgentJobRepo,
-  "claimUnscoped" | "startUnscoped" | "findUnscoped" | "appendEventsUnscoped" | "finishUnscoped"
+  | "claimUnscoped"
+  | "startUnscoped"
+  | "findUnscoped"
+  | "appendEventsUnscoped"
+  | "finishUnscoped"
+  | "releaseRunnerClaimUnscoped"
 >;
 
 export class QueuedAgentJobRunnerRepo extends AgentJobRunnerRepo {
   constructor(
     private readonly jobs: Jobs,
-    private readonly runners: Pick<AgentRunnerRepo, "findClaimableJobIdsUnscoped" | "releaseClaimedJobUnscoped">,
+    private readonly runners: Pick<AgentRunnerRepo, "findClaimableJobIdsUnscoped">,
     private readonly clock: () => Date = () => new Date(),
   ) {
     super();
@@ -61,7 +66,7 @@ export class QueuedAgentJobRunnerRepo extends AgentJobRunnerRepo {
   }
 
   releaseClaim(jobId: string, runner: AuthenticatedAgentRunner, attempt: number): Promise<boolean> {
-    return this.runners.releaseClaimedJobUnscoped({
+    return this.jobs.releaseRunnerClaimUnscoped({
       companyId: runner.companyId,
       jobId,
       runnerId: runner.id,

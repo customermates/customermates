@@ -113,6 +113,12 @@ export abstract class AgentJobRepo {
     maxEvents: number;
   }): Promise<boolean>;
   abstract finishUnscoped(args: AgentJobFinish): Promise<boolean>;
+  abstract releaseRunnerClaimUnscoped(args: {
+    companyId: string;
+    jobId: string;
+    runnerId: string;
+    attempt: number;
+  }): Promise<boolean>;
   abstract discardQueuedUnscoped(args: { id: string; companyId: string; error: string; now: Date }): Promise<boolean>;
   abstract sweepTimeoutsUnscoped(args: {
     now: Date;

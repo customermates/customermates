@@ -130,27 +130,6 @@ export class PrismaAgentRunnerRepo extends TenantRepository implements AgentRunn
   }
 
   @BypassTenantGuard
-  async releaseClaimedJobUnscoped(args: {
-    companyId: string;
-    jobId: string;
-    runnerId: string;
-    attempt: number;
-  }): Promise<boolean> {
-    const { count } = await this.prisma.agentJob.updateMany({
-      where: {
-        id: args.jobId,
-        companyId: args.companyId,
-        runtime: AgentRuntime.runner,
-        status: AgentJobStatus.claimed,
-        runnerId: args.runnerId,
-        attempts: args.attempt,
-      },
-      data: { status: AgentJobStatus.queued, runnerId: null, claimedAt: null, timeoutAt: null },
-    });
-    return count === 1;
-  }
-
-  @BypassTenantGuard
   async findWaitingOwnersUnscoped(args: { seenSince: Date }): Promise<AgentRunnerWaitingOwner[]> {
     const queued = await this.prisma.agentJob.findMany({
       where: {

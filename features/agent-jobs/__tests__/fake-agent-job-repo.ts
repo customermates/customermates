@@ -161,6 +161,26 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return Promise.resolve(true);
   }
 
+  releaseRunnerClaimUnscoped(args: {
+    companyId: string;
+    jobId: string;
+    runnerId: string;
+    attempt: number;
+  }): Promise<boolean> {
+    const job = this.jobs.get(args.jobId);
+    if (
+      !job ||
+      job.companyId !== args.companyId ||
+      job.runtime !== "runner" ||
+      job.status !== "claimed" ||
+      job.runnerId !== args.runnerId ||
+      job.attempts !== args.attempt
+    )
+      return Promise.resolve(false);
+    this.jobs.set(job.id, { ...job, status: "queued", runnerId: null, claimedAt: null, timeoutAt: null });
+    return Promise.resolve(true);
+  }
+
   discardQueuedUnscoped(args: { id: string; companyId: string; error: string; now: Date }): Promise<boolean> {
     const job = this.jobs.get(args.id);
     if (!job || job.companyId !== args.companyId || job.status !== "queued") return Promise.resolve(false);

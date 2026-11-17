@@ -3,8 +3,10 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { APP_LOCALES } from "@/i18n/locale-registry";
+
 const ROOT = join(__dirname, "..", "..", "..");
-const LOCALES = ["en", "de", "fr", "it", "es", "pt", "pl", "nl"] as const;
+const LOCALES = APP_LOCALES;
 
 function page(locale: string): string {
   return readFileSync(join(ROOT, "content", "docs", locale, "app-runners.mdx"), "utf8");
