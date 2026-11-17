@@ -784,6 +784,8 @@ export class PrismaUserRepo
         status: Status.inactive,
         leftAt: new Date(),
         agentCreditActivatedAt: null,
+        pausedByPlanAt: null,
+        planPauseNoticeSentAt: null,
       },
     });
     if (count > 0) await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, Status.inactive));

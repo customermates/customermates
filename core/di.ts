@@ -311,6 +311,7 @@ import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-
 import { CreateWorkspaceInteractor } from "@/features/workspace/create-workspace.interactor";
 import { GetMemberRemovalInteractor } from "@/features/workspace/get-member-removal.interactor";
 import { JoinWorkspaceInteractor } from "@/features/workspace/join-workspace.interactor";
+import { LeaveInactiveWorkspaceInteractor } from "@/features/workspace/leave-inactive-workspace.interactor";
 import { LeaveWorkspaceInteractor } from "@/features/workspace/leave-workspace.interactor";
 import { DeleteWorkspaceInteractor } from "@/features/workspace/delete-workspace.interactor";
 import { UnrecordedSubscriptionCheck } from "@/ee/subscription/unrecorded-subscription-check";
@@ -1444,6 +1445,15 @@ export const getWorkspaceDepartureService = () =>
 
 export const getLeaveWorkspaceInteractor = () =>
   new LeaveWorkspaceInteractor(getAuthService(), getUserRepo(), getRoleRepo(), getWorkspaceDepartureService());
+
+export const getLeaveInactiveWorkspaceInteractor = () =>
+  new LeaveInactiveWorkspaceInteractor(
+    getAuthService(),
+    getUserRepo(),
+    getUserRepo(),
+    getRoleRepo(),
+    getWorkspaceDepartureService(),
+  );
 
 export const getGetWorkspaceLeaveInteractor = () => new GetWorkspaceLeaveInteractor(getUserRepo(), getRoleRepo());
 

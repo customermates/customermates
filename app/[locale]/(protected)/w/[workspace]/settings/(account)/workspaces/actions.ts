@@ -4,6 +4,7 @@ import { getLocale } from "next-intl/server";
 
 import type { CreateWorkspaceData } from "@/features/workspace/create-workspace.interactor";
 import type { DeleteWorkspaceData } from "@/features/workspace/delete-workspace.interactor";
+import type { LeaveInactiveWorkspaceData } from "@/features/workspace/leave-inactive-workspace.interactor";
 import type { LeaveWorkspaceData } from "@/features/workspace/leave-workspace.interactor";
 import type { WithdrawWorkspaceRequestData } from "@/features/workspace/withdraw-workspace-request.interactor";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
@@ -11,6 +12,7 @@ import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 import {
   getCreateWorkspaceInteractor,
   getDeleteWorkspaceInteractor,
+  getLeaveInactiveWorkspaceInteractor,
   getLeaveWorkspaceInteractor,
   getListMyWorkspacesInteractor,
   getWithdrawWorkspaceRequestInteractor,
@@ -33,6 +35,10 @@ export async function createWorkspaceAction(data: CreateWorkspaceData) {
 
 export async function leaveWorkspaceAction(data: LeaveWorkspaceData) {
   return serializeResult(getLeaveWorkspaceInteractor().invoke(data));
+}
+
+export async function leaveInactiveWorkspaceAction(data: LeaveInactiveWorkspaceData) {
+  return serializeResult(getLeaveInactiveWorkspaceInteractor().invoke(data));
 }
 
 export async function withdrawWorkspaceRequestAction(data: WithdrawWorkspaceRequestData) {
