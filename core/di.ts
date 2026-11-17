@@ -2840,6 +2840,7 @@ export const getReadCalendarSubscriptionInteractor = () =>
 import { upgradeOfferValues } from "@/ee/subscription/plan-upgrade-offer";
 import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
 import { AutomationEffectRunner } from "@/features/automation-rules/automation-effect-runner";
+import { GetAgentRuntimeAvailabilityInteractor } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
 import { AutomationPlanLimitsAdapter } from "@/features/automation-rules/automation-plan-limits";
 import { AutomationRuleAdmission } from "@/features/automation-rules/automation-rule-admission";
 import { DeleteAutomationRuleInteractor } from "@/features/automation-rules/delete-automation-rule.interactor";
@@ -2914,6 +2915,7 @@ export const getSweepAutomationRulesInteractor = () =>
   );
 export const getPruneAutomationRuleRunsInteractor = () =>
   new PruneAutomationRuleRunsInteractor(getAutomationRuleRepo());
+export const getGetAgentRuntimeAvailabilityInteractor = () => new GetAgentRuntimeAvailabilityInteractor();
 
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
 import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
