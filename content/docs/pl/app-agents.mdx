@@ -25,7 +25,7 @@ Listę dla każdego dostawcy prowadzi Customermates i pokazuje modele dostawców
 - **OpenAI:** GPT-5 mini (domyślny), GPT-5, GPT-5 nano, GPT-4.1 i GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (domyślny), Gemini 2.5 Pro i Gemini 2.5 Flash-Lite.
 
-Krok bez modelu używa modelu domyślnego klucza, gdy przestrzeń robocza ma jeden klucz dostawcy. Przy kilku kluczach krok potrzebuje modelu, dzięki czemu usunięcie klucza nigdy nie przenosi kroku do innego dostawcy. Gdy model domyślny klucza nie jest już oferowany, uruchomienie używa modelu domyślnego dostawcy i odnotowuje to w zapisie. Customermates nigdy nie prosi o login Claude Pro ani Max: środowisko z własnym kluczem działa tylko z kluczem API z konsoli dostawcy.
+Krok zapisany bez modelu zachowuje od tej chwili model domyślny jedynego klucza dostawcy w przestrzeni roboczej. Przy kilku kluczach krok potrzebuje modelu, dzięki czemu usunięcie klucza nigdy nie przenosi kroku do innego dostawcy. Gdy model domyślny klucza nie jest już oferowany, uruchomienie używa modelu domyślnego dostawcy i odnotowuje to w zapisie. Customermates nigdy nie prosi o login Claude Pro ani Max: środowisko z własnym kluczem działa tylko z kluczem API z konsoli dostawcy.
 
 ## Co może zrobić krok agenta? [#what-may-an-agent-step-do]
 

@@ -25,7 +25,7 @@ De lijst per aanbieder wordt bijgehouden door Customermates en toont de modellen
 - **OpenAI:** GPT-5 mini (de standaard), GPT-5, GPT-5 nano, GPT-4.1 en GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (de standaard), Gemini 2.5 Pro en Gemini 2.5 Flash-Lite.
 
-Een stap zonder model gebruikt het standaardmodel van de sleutel als de werkruimte één sleutel van een aanbieder heeft. Met meerdere sleutels heeft de stap een model nodig, zodat het verwijderen van een sleutel nooit een stap naar een andere aanbieder verplaatst. Als het standaardmodel van een sleutel niet meer wordt aangeboden, gebruikt de uitvoering het standaardmodel van de aanbieder en meldt ze dat in het transcript. Customermates vraagt nooit om een Claude Pro- of Max-login: de runtime met eigen sleutel werkt alleen met een API-sleutel uit de console van de aanbieder.
+Een stap die zonder model wordt opgeslagen, houdt vanaf dat moment het standaardmodel van de enige sleutel van een aanbieder in de werkruimte. Met meerdere sleutels heeft de stap een model nodig, zodat het verwijderen van een sleutel nooit een stap naar een andere aanbieder verplaatst. Als het standaardmodel van een sleutel niet meer wordt aangeboden, gebruikt de uitvoering het standaardmodel van de aanbieder en meldt ze dat in het transcript. Customermates vraagt nooit om een Claude Pro- of Max-login: de runtime met eigen sleutel werkt alleen met een API-sleutel uit de console van de aanbieder.
 
 ## Wat mag een agentstap doen? [#what-may-an-agent-step-do]
 

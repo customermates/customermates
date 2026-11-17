@@ -25,7 +25,7 @@ Die Liste je Anbieter wird von Customermates gepflegt und zeigt die Modelle der 
 - **OpenAI:** GPT-5 mini (der Standard), GPT-5, GPT-5 nano, GPT-4.1 und GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (der Standard), Gemini 2.5 Pro und Gemini 2.5 Flash-Lite.
 
-Ein Schritt ohne Modell läuft mit dem Standardmodell des Schlüssels, wenn der Workspace genau einen Anbieter-Schlüssel hat. Bei mehreren Schlüsseln braucht der Schritt ein Modell, damit das Entfernen eines Schlüssels nie einen Schritt zu einem anderen Anbieter verschiebt. Wird das Standardmodell eines Schlüssels nicht mehr angeboten, nutzt der Lauf das Standardmodell des Anbieters und vermerkt das im Protokoll. Customermates fragt nie nach einem Claude-Pro- oder Max-Login: Die Laufzeit mit eigenem Schlüssel funktioniert nur mit einem API-Schlüssel aus der Konsole des Anbieters.
+Ein Schritt, der ohne Modell gespeichert wird, behält von da an das Standardmodell des einzigen Anbieter-Schlüssels des Workspace. Bei mehreren Schlüsseln braucht der Schritt ein Modell, damit das Entfernen eines Schlüssels nie einen Schritt zu einem anderen Anbieter verschiebt. Wird das Standardmodell eines Schlüssels nicht mehr angeboten, nutzt der Lauf das Standardmodell des Anbieters und vermerkt das im Protokoll. Customermates fragt nie nach einem Claude-Pro- oder Max-Login: Die Laufzeit mit eigenem Schlüssel funktioniert nur mit einem API-Schlüssel aus der Konsole des Anbieters.
 
 ## Was darf ein Agent-Schritt tun? [#what-may-an-agent-step-do]
 

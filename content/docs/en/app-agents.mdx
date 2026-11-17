@@ -25,7 +25,7 @@ The list per provider is maintained in Customermates and shows the models of the
 - **OpenAI:** GPT-5 mini (the default), GPT-5, GPT-5 nano, GPT-4.1 and GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (the default), Gemini 2.5 Pro and Gemini 2.5 Flash-Lite.
 
-A step without a model runs on the default model of the key when the workspace has one provider key. With several keys the step needs a model, so removing a key never moves a step to another provider. When a key's default model is no longer offered, the run uses the provider's default model and says so in its transcript. Customermates never asks for a Claude Pro or Max login: the own-key runtime works only with an API key from the provider's console.
+A step saved without a model keeps the default model of the workspace's only provider key from then on. With several keys the step needs a model, so removing a key never moves a step to another provider. When a key's default model is no longer offered, the run uses the provider's default model and says so in its transcript. Customermates never asks for a Claude Pro or Max login: the own-key runtime works only with an API key from the provider's console.
 
 ## What may an agent step do? [#what-may-an-agent-step-do]
 

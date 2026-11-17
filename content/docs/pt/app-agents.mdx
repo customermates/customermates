@@ -25,7 +25,7 @@ A lista por provedor é mantida pelo Customermates e mostra os modelos dos prove
 - **OpenAI:** GPT-5 mini (o padrão), GPT-5, GPT-5 nano, GPT-4.1 e GPT-4.1 mini.
 - **Google:** Gemini 2.5 Flash (o padrão), Gemini 2.5 Pro e Gemini 2.5 Flash-Lite.
 
-Uma etapa sem modelo usa o modelo padrão da chave quando o espaço de trabalho tem uma única chave de provedor. Com várias chaves a etapa precisa de um modelo, para que remover uma chave nunca mova uma etapa para outro provedor. Quando o modelo padrão de uma chave não é mais oferecido, a execução usa o modelo padrão do provedor e informa isso na transcrição. O Customermates nunca pede um login do Claude Pro ou Max: o runtime com chave própria funciona apenas com uma chave de API do console do provedor.
+Uma etapa salva sem modelo mantém a partir de então o modelo padrão da única chave de provedor do espaço de trabalho. Com várias chaves a etapa precisa de um modelo, para que remover uma chave nunca mova uma etapa para outro provedor. Quando o modelo padrão de uma chave não é mais oferecido, a execução usa o modelo padrão do provedor e informa isso na transcrição. O Customermates nunca pede um login do Claude Pro ou Max: o runtime com chave própria funciona apenas com uma chave de API do console do provedor.
 
 ## O que uma etapa de agente pode fazer? [#what-may-an-agent-step-do]
 

@@ -110,7 +110,14 @@ export class RunAgentJobInteractor extends AuthenticatedInteractor<RunAgentJobDa
       timeoutAt,
     });
     if (!claimed) return { ok: true as const, data: { status: "skipped" } };
-    await this.repo.startUnscoped({ id: jobId, companyId, attempt: claimed.attempts, now: started, timeoutAt });
+    const startedRun = await this.repo.startUnscoped({
+      id: jobId,
+      companyId,
+      attempt: claimed.attempts,
+      now: started,
+      timeoutAt,
+    });
+    if (!startedRun) return { ok: true as const, data: { status: "skipped" } };
 
     return { ok: true as const, data: { status: await this.run(claimed) } };
   }

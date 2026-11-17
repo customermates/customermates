@@ -114,6 +114,18 @@ describe("a hosted agent job and the queue", () => {
     expect(jobs.jobs.get(jobId)).toMatchObject({ status: "claimed", attempts: 2, finishedAt: null, error: null });
   });
 
+  it("does not run when the start of its attempt is refused", async () => {
+    const loop = vi.fn().mockResolvedValue(FINISHED);
+    const { jobs, run } = await world(loop);
+    vi.spyOn(jobs, "startUnscoped").mockResolvedValue(false);
+    const job = jobs.add({ runtime: "ownKey" });
+
+    await run(job.id);
+
+    expect(loop).not.toHaveBeenCalled();
+    expect(jobs.jobs.get(job.id)).toMatchObject({ status: "claimed", finishedAt: null });
+  });
+
   it("builds the tools of a run with the rule chain stored on the job", async () => {
     const chain = ["00000000-0000-4000-8000-0000000000d1", "00000000-0000-4000-8000-0000000000d2"];
     const { jobs, toolkit, run } = await world(() => Promise.resolve(FINISHED));
