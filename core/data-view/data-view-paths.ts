@@ -14,7 +14,7 @@ export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string 
   [SURFACE.operatorUsers]: "/operator/users",
   [SURFACE.operatorWorkspaces]: "/operator/workspaces",
   [SURFACE.operatorAudit]: "/operator/audit",
-  [SURFACE.routines]: "/routines",
+  [SURFACE.routines]: "/automations",
   [SURFACE.dashboard]: "/dashboard",
 });
 

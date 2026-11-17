@@ -54,4 +54,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.lastName]: textFieldOperators,
   [FilterFieldKey.trashKind]: [FilterOperatorKey.in],
   [FilterFieldKey.trashList]: [FilterOperatorKey.in],
+  [FilterFieldKey.automationKind]: scalarSelectOperators,
+  [FilterFieldKey.automationStatus]: scalarSelectOperators,
+  [FilterFieldKey.automationRunsOn]: scalarSelectOperators,
 };

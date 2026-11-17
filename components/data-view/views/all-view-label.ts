@@ -33,7 +33,7 @@ export function allViewLabel(
     case SURFACE.operatorAudit:
       return t("DataView.views.allTab.auditEntries");
     case SURFACE.routines:
-      return t("DataView.views.allTab.routines");
+      return t("DataView.views.allTab.automations");
     default:
       return t("DataView.views.all");
   }

@@ -106,6 +106,15 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     );
   }
 
+  countRunsSince(ruleIds: string[], since: Date) {
+    const counts = new Map<string, number>();
+    for (const run of this.runs.values()) {
+      if (ruleIds.includes(run.ruleId) && run.createdAt >= since)
+        counts.set(run.ruleId, (counts.get(run.ruleId) ?? 0) + 1);
+    }
+    return Promise.resolve(counts);
+  }
+
   findEnabledRulesUnscoped(args: {
     companyId: string;
     ids?: string[];

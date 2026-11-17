@@ -56,6 +56,11 @@ import { isCustomField } from "@/components/data-view/table-view.utils";
 import { Avatar } from "@/components/ui/avatar";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { TRASH_KINDS } from "@/features/trash/trash.schema";
+import {
+  AUTOMATION_LIST_KINDS,
+  AUTOMATION_LIST_STATUSES,
+  AUTOMATION_RUNS_ON,
+} from "@/features/automation-rules/automations-list.schema";
 import { type ChipColor } from "@/constants/chip-colors";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -417,6 +422,30 @@ export function filterOptionSources(
           key: kind,
           value: kind,
           textValue: t(`Trash.kinds.${kind}`),
+        })),
+    },
+    [FilterFieldKey.automationKind]: {
+      items: () =>
+        AUTOMATION_LIST_KINDS.map((kind) => ({
+          key: kind,
+          value: kind,
+          textValue: t(`Automations.filters.kind.${kind}`),
+        })),
+    },
+    [FilterFieldKey.automationStatus]: {
+      items: () =>
+        AUTOMATION_LIST_STATUSES.map((status) => ({
+          key: status,
+          value: status,
+          textValue: t(`Automations.filters.status.${status}`),
+        })),
+    },
+    [FilterFieldKey.automationRunsOn]: {
+      items: () =>
+        AUTOMATION_RUNS_ON.map((runsOn) => ({
+          key: runsOn,
+          value: runsOn,
+          textValue: t(`Automations.runsOn.${runsOn}`),
         })),
     },
     [FilterFieldKey.trashList]: {

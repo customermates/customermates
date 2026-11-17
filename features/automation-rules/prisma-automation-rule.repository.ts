@@ -188,6 +188,16 @@ export class PrismaAutomationRuleRepo
     });
   }
 
+  async countRunsSince(ruleIds: string[], since: Date): Promise<Map<string, number>> {
+    if (ruleIds.length === 0) return new Map();
+    const rows = await this.prisma.automationRuleRun.groupBy({
+      by: ["ruleId"],
+      where: { companyId: this.companyId, ruleId: { in: ruleIds }, createdAt: { gte: since } },
+      _count: { _all: true },
+    });
+    return new Map(rows.map((row) => [row.ruleId, row._count._all]));
+  }
+
   @BypassTenantGuard
   findEnabledRulesUnscoped(args: {
     companyId: string;

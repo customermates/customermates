@@ -2641,7 +2641,7 @@ export const getManageDataViewsInteractor = () =>
       [SURFACE.webhookDeliveries]: getWebhookDeliveryRepo(),
       [SURFACE.incomingWebhooks]: getIncomingWebhookRepo(),
       [SURFACE.messagingThreads]: getMessagingRepo(),
-      [SURFACE.routines]: getRoutineRepo(),
+      [SURFACE.routines]: getAutomationsListComposer(),
     },
     getDataViewStateRepo(),
     getUpsertDataViewInteractor(),
@@ -2851,6 +2851,8 @@ import { DiscardAutomationRuleRunInteractor } from "@/features/automation-rules/
 import { GetAutomationRuleRunsInteractor } from "@/features/automation-rules/get-automation-rule-runs.interactor";
 import { GetAutomationRuleInteractor } from "@/features/automation-rules/get-automation-rule.interactor";
 import { GetAutomationRulesInteractor } from "@/features/automation-rules/get-automation-rules.interactor";
+import { AutomationsListComposer } from "@/features/automation-rules/automations-list.composer";
+import { GetAutomationsListInteractor } from "@/features/automation-rules/get-automations-list.interactor";
 import { PreviewAutomationRuleInteractor } from "@/features/automation-rules/preview-automation-rule.interactor";
 import { RecordAutomationPort } from "@/features/automation-rules/record-automation.port";
 import { RunAutomationRuleInteractor } from "@/features/automation-rules/run-automation-rule.interactor";
@@ -2900,6 +2902,19 @@ const getAutomationEffectRunner = () =>
 export const getAutomationRuleAdmission = () =>
   new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getGetAutomationRulesInteractor = () => new GetAutomationRulesInteractor(getAutomationRuleRepo());
+const getAutomationsListComposer = () =>
+  new AutomationsListComposer(
+    getAutomationRuleRepo(),
+    env.APP_MODE === "self-hosted" ? null : getRoutineRepo(),
+    getPermissionService(),
+  );
+export const getGetAutomationsListInteractor = () =>
+  new GetAutomationsListInteractor(
+    getAutomationsListComposer(),
+    getDataViewStateRepo(),
+    "interactive",
+    getQueryParamsPrecheck(),
+  );
 export const getGetAutomationRuleInteractor = () => new GetAutomationRuleInteractor(getAutomationRuleRepo());
 export const getGetAutomationRuleRunsInteractor = () => new GetAutomationRuleRunsInteractor(getAutomationRuleRepo());
 export const getUpsertAutomationRuleInteractor = () =>

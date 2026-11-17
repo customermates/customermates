@@ -99,6 +99,7 @@ export abstract class AutomationRuleRepo {
     cursor: AutomationRunCursor | null;
     limit: number;
   }): Promise<StoredAutomationRuleRun[]>;
+  abstract countRunsSince(ruleIds: string[], since: Date): Promise<Map<string, number>>;
 
   abstract findEnabledRulesUnscoped(args: {
     companyId: string;

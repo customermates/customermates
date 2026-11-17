@@ -68,7 +68,7 @@ export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescri
     path: DATA_VIEW_PATHS[SURFACE.operatorAudit],
   },
   [SURFACE.routines]: {
-    label: "Routines",
+    label: "Automations",
     path: DATA_VIEW_PATHS[SURFACE.routines],
     resource: Resource.routines,
   },

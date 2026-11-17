@@ -481,6 +481,21 @@ export class PrismaRoutineRepo
     });
   }
 
+  async countRunsSince(routineIds: string[], since: Date): Promise<Map<string, number>> {
+    if (routineIds.length === 0) return new Map();
+    const rows = await this.prisma.routineRun.groupBy({
+      by: ["routineId"],
+      where: {
+        companyId: this.companyId,
+        routineId: { in: routineIds },
+        routine: routineAccessWhere(this.permissions),
+        createdAt: { gte: since },
+      },
+      _count: { _all: true },
+    });
+    return new Map(rows.map((row) => [row.routineId, row._count._all]));
+  }
+
   async getRoutineRuns(routineId: string, limit: number, decoded: RoutineRunCursor | null): Promise<RoutineRunPage> {
     const rows = await this.prisma.routineRun.findMany({
       where: {

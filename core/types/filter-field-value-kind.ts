@@ -1,6 +1,11 @@
 import { AD_PROVIDER_ORDER } from "@/features/acquisition/ad-provider-registry";
 import { FilterFieldKey } from "./filter-field-key";
 import { TRASH_KINDS } from "@/features/trash/trash.schema";
+import {
+  AUTOMATION_LIST_KINDS,
+  AUTOMATION_LIST_STATUSES,
+  AUTOMATION_RUNS_ON,
+} from "@/features/automation-rules/automations-list.schema";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "./filter-field-operators";
 
 import {
@@ -73,6 +78,9 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.lastName]: { kind: "string" },
   [FilterFieldKey.trashKind]: { kind: "enum", values: TRASH_KINDS },
   [FilterFieldKey.trashList]: { kind: "string" },
+  [FilterFieldKey.automationKind]: { kind: "enum", values: AUTOMATION_LIST_KINDS },
+  [FilterFieldKey.automationStatus]: { kind: "enum", values: AUTOMATION_LIST_STATUSES },
+  [FilterFieldKey.automationRunsOn]: { kind: "enum", values: AUTOMATION_RUNS_ON },
 };
 
 const FILTER_FIELD_AGENT_NOTES: Partial<Record<FilterFieldKey, string>> = {

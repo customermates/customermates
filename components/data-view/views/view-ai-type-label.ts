@@ -15,7 +15,7 @@ const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, string> = {
   [SURFACE.messagingThreads]: "NavigationBar.inbox",
   [SURFACE.entityTimeline]: "EntityTimeline.types.activities",
   [SURFACE.activity]: "SettingsNav.activity",
-  [SURFACE.routines]: "NavigationBar.routines",
+  [SURFACE.routines]: "NavigationBar.automations",
   [SURFACE.dashboard]: "NavigationBar.dashboard",
 };
 
