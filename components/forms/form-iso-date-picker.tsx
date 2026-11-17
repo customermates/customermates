@@ -12,7 +12,7 @@ import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "./form-label";
 import { InputClearButton } from "./input-clear-button";
-import { DATE_PRESETS, localTimeValue, parseIsoDate, toLocalIso } from "./iso-date-values";
+import { DATE_PRESETS, localTimeValue, parseIsoDate, parseLocalDay, toLocalIso } from "./iso-date-values";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
@@ -40,11 +40,6 @@ type Props = {
   inline?: boolean;
 };
 
-function localDayOf(value: string | undefined): Date | undefined {
-  const match = value ? /^(\d{4})-(\d{2})-(\d{2})/u.exec(value) : null;
-  return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : undefined;
-}
-
 export const FormIsoDatePicker = observer(
   ({
     id,
@@ -71,7 +66,7 @@ export const FormIsoDatePicker = observer(
     const raw = controlledValue ?? store?.getValue(id);
     const domId = inputId ?? id;
     const isoValue = typeof raw === "string" && raw !== "" ? raw : undefined;
-    const parsed = parseIsoDate(isoValue);
+    const parsed = (dateOnly ? parseLocalDay(isoValue) : undefined) ?? parseIsoDate(isoValue);
     const { hasError } = useFormFieldErrors(id);
     const isLoading = store?.isLoading ?? false;
     const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
@@ -141,7 +136,7 @@ export const FormIsoDatePicker = observer(
     }
 
     const timeValue = parsed ? localTimeValue(parsed) : "";
-    const earliest = localDayOf(min);
+    const earliest = parseLocalDay(min);
     const today = new Date();
     const presetIsTooEarly = (compute: (today: Date) => Date) =>
       earliest !== undefined &&

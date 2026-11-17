@@ -48,6 +48,11 @@ export function parseIsoDate(value: string | undefined): Date | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
+export function parseLocalDay(value: string | undefined): Date | undefined {
+  const match = value ? /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value) : null;
+  return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : undefined;
+}
+
 export function toLocalIso(date: Date, dateOnly: boolean): string {
   if (dateOnly) {
     const y = date.getFullYear();
