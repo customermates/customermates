@@ -72,6 +72,8 @@ const VERIFIED_LANDING_PATH = "/auth/verify-email?verified=1";
 
 const CHANGE_PASSWORD_PATH = "/change-password";
 
+const API_KEY_HEADER = "x-api-key";
+
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: env.AUTH_ALLOWED_HOSTS,
@@ -88,6 +90,13 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.request && (ctx.request.headers.has(API_KEY_HEADER) || ctx.headers?.has(API_KEY_HEADER))) {
+        throw new APIError("FORBIDDEN", {
+          code: "API_KEY_NOT_ACCEPTED",
+          message: "API keys are not accepted on the auth endpoints",
+        });
+      }
+
       if (ctx.path === CHANGE_PASSWORD_PATH) return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
 
       const apiKeyAction = apiKeyRouteAction(ctx.path);
@@ -349,6 +358,7 @@ export const auth = betterAuth({
   plugins: [
     ...(oauthProxy ? [oauthProxy] : []),
     apiKey({
+      apiKeyHeaders: API_KEY_HEADER,
       rateLimit: {
         enabled: false,
       },

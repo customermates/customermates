@@ -138,14 +138,17 @@ test("a runner takes its member's job only after confirming it, and revoking it 
   const start = await request.post(`/api/v1/runner/jobs/${jobId}/start`, { headers, data: { attempt: 1 } });
   expect(start.status()).toBe(200);
   const { timeoutInSeconds } = (await start.json()) as { timeoutInSeconds: number };
-  expect(timeoutInSeconds).toBeGreaterThan(590);
-  expect(timeoutInSeconds).toBeLessThanOrEqual(600);
+  // The runner gets 20 seconds less than the ten minutes the server keeps the job open.
+  expect(timeoutInSeconds).toBeGreaterThan(570);
+  expect(timeoutInSeconds).toBeLessThanOrEqual(580);
   expect((await jobOf(jobId)).status).toBe("running");
   const live = await request.post(claimed.mcp.url, { headers: mcpHeaders, data: rpc });
   expect(live.status()).toBe(200);
   // The same key is refused everywhere but the MCP address of the workspace.
   const rest = await request.get("/api/v1/webhooks", { headers: { "x-api-key": claimed.mcp.token } });
   expect(rest.status()).toBe(401);
+  const session = await request.get("/api/auth/get-session", { headers: { "x-api-key": claimed.mcp.token } });
+  expect(session.status()).toBe(403);
 
   const at = new Date().toISOString();
   const events = await request.post(`/api/v1/runner/jobs/${jobId}/events`, {

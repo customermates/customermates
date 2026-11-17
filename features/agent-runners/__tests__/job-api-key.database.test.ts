@@ -87,6 +87,50 @@ describeDatabase("the API key of a runner job", { timeout: 60_000 }, () => {
     expect(parseAgentJobCredentialMetadata(plainRow?.metadata)).toBeNull();
   });
 
+  it("is refused on every HTTP endpoint of the auth library and still resolves a session on the server", async () => {
+    const { auth, issueExpiringApiKey } = await import("@/core/auth/better-auth");
+    const { agentJobCredentialMetadata } = await import("../agent-job-credential-marker");
+    const { env } = await import("@/env");
+    const { prisma } = await db();
+    const { authUserId, companyId } = await seed();
+    const issued = await issueExpiringApiKey({
+      authUserId,
+      companyId,
+      name: "Runner job over HTTP",
+      expiresAt: new Date(Date.now() + 15 * 60_000),
+      metadata: agentJobCredentialMetadata({ jobId: randomUUID(), attempt: 1, runnerId: randomUUID() }),
+    });
+    const http = (path: string, body?: unknown) =>
+      auth.handler(
+        new Request(`${env.BASE_URL}/api/auth${path}`, {
+          method: body === undefined ? "GET" : "POST",
+          headers: { "x-api-key": issued.key, origin: env.BASE_URL, "content-type": "application/json" },
+          body: body === undefined ? undefined : JSON.stringify(body),
+        }),
+      );
+
+    const answers = [
+      await http("/get-session"),
+      await http("/list-sessions"),
+      await http("/update-user", { name: "Renamed by a job key" }),
+      await http("/sign-out", {}),
+      await http("/api-key/list"),
+    ];
+
+    for (const answer of answers) {
+      expect(answer.status).toBe(403);
+      const text = await answer.text();
+      expect(text).toContain("API_KEY_NOT_ACCEPTED");
+      expect(text).not.toContain(authUserId);
+    }
+    expect((await prisma.authUser.findUnique({ where: { id: authUserId } }))?.name).toBe("Owner");
+    expect(await sessionUserOf(issued.key)).toBe(authUserId);
+
+    const withoutKey = await auth.handler(new Request(`${env.BASE_URL}/api/auth/get-session`));
+    expect(withoutKey.status).toBe(200);
+    expect(await withoutKey.text()).toBe("null");
+  });
+
   it("counts tool calls up to the limit and no further, also when they arrive at once", async () => {
     const { issueExpiringApiKey, countApiKeyRequest, apiKeyRequestsNamed } = await import("@/core/auth/better-auth");
     const { authUserId, companyId } = await seed();
