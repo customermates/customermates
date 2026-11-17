@@ -71,6 +71,7 @@ export const domTestFiles = [
   "app/**/settings/**/components/subscription/__tests__/plan-picker-focus.dom.test.tsx",
   "app/components/workspaces/__tests__/workspace-unavailable-dialog.dom.test.ts",
   "app/components/workspaces/__tests__/workspace-switcher-items.dom.test.ts",
+  "app/components/workspaces/__tests__/leave-inactive-workspace.dom.test.ts",
   "app/**/settings/**/general/__tests__/workspace-general-view.dom.test.ts",
   "core/base/__tests__/data-view-autosave.test.ts",
   "core/base/__tests__/base-data-view-clear-grouping.test.ts",

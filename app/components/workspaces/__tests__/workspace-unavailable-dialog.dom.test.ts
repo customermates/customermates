@@ -11,6 +11,7 @@ vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/workspaces/actions", () => ({
   deleteWorkspaceAction: vi.fn(),
+  leaveInactiveWorkspaceAction: vi.fn(),
   leaveWorkspaceAction: vi.fn(),
   listMyWorkspacesAction: vi.fn(),
   withdrawWorkspaceRequestAction: vi.fn(),

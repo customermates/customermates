@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import { Status } from "@/generated/prisma";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { LeaveInactiveWorkspaceDialog } from "@/app/components/workspaces/leave-inactive-workspace-dialog";
 import {
   LeaveWorkspaceButton,
   LeaveWorkspaceDialog,
@@ -37,6 +38,8 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
   const t = useTranslations();
   const { appMode, createWorkspaceModalStore, workspacesStore } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const [inactiveLeave, setInactiveLeave] = useState<{ companyId: string; name: string } | null>(null);
+  const [confirmingInactiveLeave, setConfirmingInactiveLeave] = useState(false);
   const { canCreate } = workspacesStore;
   const fallback = t("Workspaces.fallbackName");
   const current = workspaces.find((workspace) => workspace.isCurrent) ?? null;
@@ -123,15 +126,33 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
                           />
                         ) : null
                       ) : (
-                        <Button
-                          aria-label={t("Workspaces.switchTo", { name })}
-                          size="sm"
-                          type="button"
-                          variant="secondary"
-                          onClick={() => workspacesStore.requestSwitch(workspace.companyId)}
-                        >
-                          {t("Workspaces.switch")}
-                        </Button>
+                        <>
+                          <Button
+                            aria-label={t("Workspaces.switchTo", { name })}
+                            size="sm"
+                            type="button"
+                            variant="secondary"
+                            onClick={() => workspacesStore.requestSwitch(workspace.companyId)}
+                          >
+                            {t("Workspaces.switch")}
+                          </Button>
+
+                          {appMode !== "demo" && workspace.status === Status.inactive ? (
+                            <Button
+                              aria-label={t("Workspaces.leaveNamed", { name })}
+                              data-slot="leave-inactive-workspace"
+                              size="sm"
+                              type="button"
+                              variant="ghostDestructive"
+                              onClick={() => {
+                                setInactiveLeave({ companyId: workspace.companyId, name });
+                                setConfirmingInactiveLeave(true);
+                              }}
+                            >
+                              {t("Workspaces.leaveShort")}
+                            </Button>
+                          ) : null}
+                        </>
                       )}
                     </div>
 
@@ -155,6 +176,14 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
         name={currentName}
         open={confirmingLeave}
         onClose={() => setConfirmingLeave(false)}
+      />
+
+      <LeaveInactiveWorkspaceDialog
+        anchorScope="settings-workspaces-leave-inactive-confirm"
+        companyId={inactiveLeave?.companyId ?? null}
+        name={inactiveLeave?.name ?? fallback}
+        open={confirmingInactiveLeave}
+        onClose={() => setConfirmingInactiveLeave(false)}
       />
     </div>
   );

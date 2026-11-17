@@ -2,9 +2,11 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { action, computed, makeObservable, observable } from "mobx";
+import { Status } from "@/generated/prisma";
 
 import {
   deleteWorkspaceAction,
+  leaveInactiveWorkspaceAction,
   leaveWorkspaceAction,
   listMyWorkspacesAction,
   withdrawWorkspaceRequestAction,
@@ -113,6 +115,23 @@ export class WorkspacesStore extends BaseStore {
     return true;
   };
 
+  leaveInactive = async (companyId: string): Promise<boolean> => {
+    const target = this.items.find((workspace) => workspace.companyId === companyId);
+    if (this.isNavigating || target?.status !== Status.inactive) return false;
+
+    const result = await this.whileLoading(() => leaveInactiveWorkspaceAction({ companyId }));
+    if (!result.ok) {
+      if (result.code === CustomErrorCode.workspaceChanged || result.code === CustomErrorCode.workspaceNotFound)
+        this.reload();
+      else toastZodErrorTree(result.error);
+      return false;
+    }
+
+    if (target.isCurrent) this.enter("/dashboard");
+    else this.reload();
+    return true;
+  };
+
   deleteCurrent = async (): Promise<boolean> => {
     const current = this.current;
     if (this.isNavigating || !current) return false;
@@ -141,6 +160,10 @@ export class WorkspacesStore extends BaseStore {
     this.enter("/dashboard");
     return true;
   };
+
+  private reload() {
+    this.navigateTo(`${window.location.pathname}${window.location.search}`);
+  }
 
   private navigateTo(href: string) {
     this.setIsNavigating(true);
