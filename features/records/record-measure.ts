@@ -23,6 +23,7 @@ export type MeasureRow = {
   resultValue: string | null;
   resultCurrency: string | null;
   count: number;
+  total?: boolean;
 };
 
 function scalarJson(field: RecordField, value: Prisma.Sql): Prisma.Sql {
@@ -43,15 +44,11 @@ function scalarJson(field: RecordField, value: Prisma.Sql): Prisma.Sql {
   return Prisma.sql`jsonb_build_object('kind', ${field.valueType === "select" || field.valueType === "member" ? field.valueType : "text"}::text, 'value', ${value}."textValue")`;
 }
 
-export function compileRecordMeasure(
-  companyId: string,
-  measure: RecordMeasure,
-  model: RecordModel,
-  access: RecordAccessMap,
-  selection?: RecordContributionGroup | null,
-): Prisma.Sql {
-  const query = RecordQuerySchema.parse(measure.source);
-  const eligible = compileRecordQuery(companyId, query, model, access).matching;
+function eligibleRecords(companyId: string, measure: RecordMeasure, model: RecordModel, access: RecordAccessMap) {
+  return compileRecordQuery(companyId, RecordQuerySchema.parse(measure.source), model, access).matching;
+}
+
+function measureParts(companyId: string, measure: RecordMeasure, model: RecordModel, access: RecordAccessMap) {
   const field = model.fields.find(
     (candidate) =>
       candidate.id === measure.valueFieldId && candidate.typeId === measure.source.typeId && !candidate.archived,
@@ -185,11 +182,32 @@ export function compileRecordMeasure(
     max: "MAX",
   } as const;
   const aggregate = Prisma.sql`${Prisma.raw(operators[measure.aggregation])}(value)`;
-  const contributions = Prisma.sql`WITH eligible AS (${eligible}), contributions AS (
+  const contributions = Prisma.sql`
     SELECT DISTINCT grain.id, ${groupByRecord ? Prisma.sql`${group}.id` : Prisma.sql`NULL::text`} AS "groupRecordId", ${groupByRecord ? Prisma.sql`${group}."typeId"` : Prisma.sql`NULL::text`} AS "groupTypeId", ${groupField ? Prisma.sql`${groupField.id}::text` : systemField ? Prisma.sql`${systemField}::text` : Prisma.sql`NULL::text`} AS "groupFieldId",
       ${groupState} AS "groupState", ${groupValue} AS "groupValue", ${groupSort} AS "groupSort", ${amountState} AS state, ${amountValue} AS value, ${amountCurrency} AS currency
     FROM eligible JOIN "CrmRecord" grain ON grain."companyId" = ${companyId} AND grain."typeId" = ${measure.source.typeId} AND grain.id = eligible.id ${joins.length ? Prisma.join(joins, " ") : Prisma.empty}
-    WHERE ${groupSelection}
+    WHERE ${groupSelection}`;
+  const order = Prisma.sql`CASE WHEN "groupState" = 'value' THEN MIN("groupSort") END NULLS LAST, "groupValue"::text NULLS LAST, "groupRecordId" NULLS LAST`;
+  const summary = (source: Prisma.Sql, positioned = false) =>
+    Prisma.sql`SELECT "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue", COUNT(*)::integer AS count,
+    CASE WHEN BOOL_OR(state = 'restricted') THEN 'restricted' WHEN BOOL_OR(state = 'error') THEN 'error' WHEN COUNT(DISTINCT currency) > 1 THEN 'currency_mismatch' WHEN COUNT(value) = 0 THEN 'missing' ELSE 'value' END AS "resultState",
+    ${["sum", "count"].includes(measure.aggregation) ? Prisma.sql`COALESCE(${aggregate}, 0)::text` : Prisma.sql`${aggregate}::text`} AS "resultValue",
+    ${field?.valueType === "currency" && measure.aggregation !== "count" ? Prisma.sql`COALESCE(MAX(currency), ${recordInvariant(field.format?.currency)})` : Prisma.sql`NULL::text`} AS "resultCurrency"${positioned ? Prisma.sql`, (ROW_NUMBER() OVER (ORDER BY ${order}))::integer AS position` : Prisma.empty}
+    FROM ${source} GROUP BY "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue" ORDER BY ${order} LIMIT ${measure.groupLimit + 1}`;
+  return { contributions, summary, groupByRecord };
+}
+
+export function compileRecordMeasure(
+  companyId: string,
+  measure: RecordMeasure,
+  model: RecordModel,
+  access: RecordAccessMap,
+  selection?: RecordContributionGroup | null,
+): Prisma.Sql {
+  const eligible = eligibleRecords(companyId, measure, model, access);
+  const parts = measureParts(companyId, measure, model, access);
+  const { groupByRecord } = parts;
+  const contributions = Prisma.sql`WITH eligible AS (${eligible}), contributions AS (${parts.contributions}
   )`;
   if (selection !== undefined) {
     let predicate = Prisma.sql`TRUE`;
@@ -209,9 +227,24 @@ export function compileRecordMeasure(
     }
     return Prisma.sql`${contributions} SELECT DISTINCT id FROM contributions WHERE ${predicate}`;
   }
-  return Prisma.sql`${contributions} SELECT "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue", COUNT(*)::integer AS count,
-    CASE WHEN BOOL_OR(state = 'restricted') THEN 'restricted' WHEN BOOL_OR(state = 'error') THEN 'error' WHEN COUNT(DISTINCT currency) > 1 THEN 'currency_mismatch' WHEN COUNT(value) = 0 THEN 'missing' ELSE 'value' END AS "resultState",
-    ${["sum", "count"].includes(measure.aggregation) ? Prisma.sql`COALESCE(${aggregate}, 0)::text` : Prisma.sql`${aggregate}::text`} AS "resultValue",
-    ${field?.valueType === "currency" && measure.aggregation !== "count" ? Prisma.sql`COALESCE(MAX(currency), ${recordInvariant(field.format?.currency)})` : Prisma.sql`NULL::text`} AS "resultCurrency"
-    FROM contributions GROUP BY "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue" ORDER BY CASE WHEN "groupState" = 'value' THEN MIN("groupSort") END NULLS LAST, "groupValue"::text NULLS LAST, "groupRecordId" NULLS LAST LIMIT ${measure.groupLimit + 1}`;
+  return Prisma.sql`${contributions} ${parts.summary(Prisma.sql`contributions`)}`;
+}
+
+export function compileRecordMeasureWithTotal(
+  companyId: string,
+  measure: RecordMeasure,
+  model: RecordModel,
+  access: RecordAccessMap,
+): Prisma.Sql {
+  const eligible = eligibleRecords(companyId, measure, model, access);
+  const groups = measureParts(companyId, measure, model, access);
+  const total = measureParts(companyId, { ...measure, groupBy: null }, model, access);
+  return Prisma.sql`WITH eligible AS (${eligible}), contributions AS (${groups.contributions}
+  ), total_contributions AS (${total.contributions}
+  )
+  SELECT * FROM (
+    SELECT FALSE AS total, grouped.* FROM (${groups.summary(Prisma.sql`contributions`, true)}) grouped
+    UNION ALL
+    SELECT TRUE AS total, overall.* FROM (${total.summary(Prisma.sql`total_contributions`, true)}) overall
+  ) measured ORDER BY total, position`;
 }

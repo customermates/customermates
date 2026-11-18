@@ -93,6 +93,23 @@ describeDatabase("structured interactor rollback against PostgreSQL", { timeout:
     ).resolves.toBe("20s");
   });
 
+  it("plans every transaction without just-in-time compilation, which costs more than our short queries take", async () => {
+    const setting = (readOnly: boolean) =>
+      runWithoutTenant(() =>
+        runInTransaction(
+          async () => {
+            const tx = getTransactionClient<typeof prisma>();
+            if (!tx) throw new Error("Missing transaction client");
+            const rows = await tx.$queryRaw<Array<{ value: string }>>`SELECT current_setting('jit') AS value`;
+            return rows[0]?.value;
+          },
+          { readOnly, lockCompany: false },
+        ),
+      );
+    expect(await setting(true)).toBe("off");
+    expect(await setting(false)).toBe("off");
+  });
+
   it("returns clean connections after a timed-out transaction that issued concurrent queries", async () => {
     const companyId = randomUUID();
     const client = () => {
