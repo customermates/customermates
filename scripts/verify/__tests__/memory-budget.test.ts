@@ -21,9 +21,10 @@ describe("verify memory budget", () => {
 
     const allTargets = ["chromium", "firefox", "webkit", "mobile", "chromium"];
     expect(defaultParallel({ cores: 16, budgetGb: budget, projects: allTargets })).toBe(1);
-    expect(defaultParallel({ cores: 16, budgetGb: budget, projects: ["chromium", "firefox", "chromium"] })).toBe(2);
+    expect(defaultParallel({ cores: 16, budgetGb: budget, projects: ["chromium", "firefox", "chromium"] })).toBe(1);
     expect(defaultParallel({ cores: 16, budgetGb: budget, projects: ["webkit", "mobile"] })).toBe(1);
-    expect(defaultParallel({ cores: 16, budgetGb: 61, projects: ["chromium", "chromium"] })).toBe(8);
+    expect(defaultParallel({ cores: 16, budgetGb: 61, projects: ["chromium", "chromium"] })).toBe(6);
+    expect(defaultParallel({ cores: 32, budgetGb: 128, projects: ["chromium"] })).toBe(14);
   });
 
   it("takes the smallest of the machine, the declared limit and the cgroup limit, and ignores unusable values", () => {
@@ -36,7 +37,7 @@ describe("verify memory budget", () => {
   it("never drops below one shard or above half the cores", () => {
     expect(defaultParallel({ cores: 16, budgetGb: 2, projects: ["webkit"] })).toBe(1);
     expect(defaultParallel({ cores: 4, budgetGb: 256, projects: ["chromium"] })).toBe(2);
-    expect(defaultParallel({ cores: 16, budgetGb: 16, projects: [] })).toBe(2);
+    expect(defaultParallel({ cores: 16, budgetGb: 16, projects: [] })).toBe(1);
   });
 
   it("reads the memory limit of the process's own cgroup or of the nearest parent that has one", () => {

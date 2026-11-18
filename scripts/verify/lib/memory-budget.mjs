@@ -4,9 +4,10 @@ const GIB = 1024 ** 3;
 
 /**
  * Memory one Playwright shard (production server, browser, worker) needs, in GiB. WebKit and the mobile emulation take
- * twice that. Measured on the test VM: three shards at once exceeded a 16 GiB job.
+ * twice that. Measured on the test VM: two shards at once (Chromium, Firefox or Chromium with self-hosted) exceeded a
+ * 16 GiB job three times on 2026-11-18, so an offloaded job runs one shard at a time.
  */
-export const SHARD_MEMORY_GB = 6;
+export const SHARD_MEMORY_GB = 9;
 const HEAVY_PROJECTS = new Set(["webkit", "mobile"]);
 
 /**
