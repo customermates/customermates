@@ -1,4 +1,6 @@
+import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { ThreadAccountOwnersRepo } from "../inbox/thread-account-owners.repo";
+import type { MessagingMessage } from "../messaging.schema";
 import type { ListReviewDraftsRepo } from "./list-review-drafts.repo";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -12,11 +14,20 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { splitQuotedText } from "../email-quote";
 import { MessagingThreadSchema } from "../messaging.schema";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 
 export const REVIEW_DRAFTS_MAX = 50;
-export const REVIEW_DRAFT_HISTORY_SIZE = 4;
+export const REVIEW_DRAFT_HISTORY_SIZE = 10;
+
+export function toReviewHistoryMessage(message: MessagingMessage): MessagingMessageDto {
+  return toMessagingMessageDto({
+    ...message,
+    bodyHtml: null,
+    bodyText: message.bodyText === null ? null : splitQuotedText(message.bodyText).visible,
+  });
+}
 
 const Schema = z.object({
   limit: z.number().int().min(1).max(REVIEW_DRAFTS_MAX).optional(),
@@ -69,7 +80,7 @@ export class ListReviewDraftsInteractor extends AuthenticatedInteractor<ListRevi
         items: entries.map((entry) => ({
           draft: toMessagingMessageDto(entry.draft),
           thread: entry.thread,
-          history: entry.history.map(toMessagingMessageDto),
+          history: entry.history.map(toReviewHistoryMessage),
           accountLabel: owners[entry.thread.connectedAccountId]?.accountLabel ?? null,
         })),
         total,
