@@ -37823,7 +37823,7 @@
     {
       "name": "manage_booking_links",
       "title": "Manage public booking pages",
-      "description": "Lists, creates, changes and deletes the caller's public booking pages, a link where anyone can book a meeting in the caller's connected calendar without an account. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. A booking link carries the meeting duration, a buffer, minimum notice, how many days ahead slots are offered, working hours in a time zone, an optional video link and the visitor questions. Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email, and personRelationshipId the relationship of the booking list that links each booking record to that person (null links nothing). calendarId is the id of one of the caller's writable calendars; personTypeId, personRelationshipId, recordTypeId and startFieldId are the stable ids of lists, relationships and fields of the record model. save with an id changes only the keys sent, and questions and workingHours replace the whole value. The page shows free slots from the synced calendars and creates the calendar event, the Person and the record when someone books; every booking also emits the form.submitted event, so rules can react. delete permanently removes the link and its booking history; meetings already booked stay in the calendar.",
+      "description": "Lists, creates, changes and deletes the caller's public booking pages, a link where anyone can book a meeting in the caller's connected calendar without an account. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. A booking link carries the meeting duration, a buffer, minimum notice, how many days ahead slots are offered, working hours in a time zone, an optional video link and the visitor questions. Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email, and personRelationshipId the relationship of the booking list that links each booking record to that person (null links nothing). calendarId is the id of one of the caller's writable calendars; personTypeId, personRelationshipId, recordTypeId and startFieldId are the stable ids of lists, relationships and fields of the record model. save with an id changes only the keys sent, and questions and workingHours replace the whole value. The page shows free slots from the synced calendars and creates the calendar event, the Person and the record when someone books; every booking also emits the form.submitted event, so rules can react. assignment roundRobin with hostUserIds (administrators only, members with a connected calendar) shares a page: a time is offered when any host is free and the free host with the fewest upcoming bookings gets the meeting. With inviteeChanges the visitor can cancel or move the booking through a private link in the invitation; a cancelled or moved booking emits the booking.changed event. delete permanently removes the link and its booking history; meetings already booked stay in the calendar.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -37839,7 +37839,7 @@
               "save",
               "delete"
             ],
-            "description": "list returns the caller's booking links; get: id; save: id, calendarId, title, description, durationMinutes, bufferMinutes, minNoticeMinutes, horizonDays, timeZone, workingHours, withVideo, personTypeId, personRelationshipId, recordTypeId, startFieldId, questions, successMessage, enabled; delete: id."
+            "description": "list returns the caller's booking links; get: id; save: id, calendarId, title, description, durationMinutes, bufferMinutes, minNoticeMinutes, horizonDays, timeZone, workingHours, withVideo, personTypeId, personRelationshipId, recordTypeId, startFieldId, questions, successMessage, enabled, assignment, inviteeChanges, hostUserIds; delete: id."
           },
           "id": {
             "description": "get, delete and save: the booking link; omit it on save to create a new link.",
@@ -37956,6 +37956,24 @@
           },
           "enabled": {
             "type": "boolean"
+          },
+          "assignment": {
+            "type": "string",
+            "enum": [
+              "single",
+              "roundRobin"
+            ]
+          },
+          "inviteeChanges": {
+            "type": "boolean"
+          },
+          "hostUserIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
           }
         },
         "required": [
@@ -38310,6 +38328,18 @@
                 "enabled": {
                   "type": "boolean"
                 },
+                "assignment": {
+                  "type": "string",
+                  "enum": [
+                    "single",
+                    "roundRobin"
+                  ],
+                  "description": "single books the owner of the page. roundRobin offers a time when at least one host is free and books the free host with the fewest upcoming bookings of this page."
+                },
+                "inviteeChanges": {
+                  "type": "boolean",
+                  "description": "Whether the visitor may cancel or move the booking through the private link they receive."
+                },
                 "id": {
                   "type": "string",
                   "format": "uuid",
@@ -38330,6 +38360,40 @@
                       "type": "null"
                     }
                   ]
+                },
+                "hosts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "calendarName": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Null when this host has no usable calendar; the host is then skipped."
+                      }
+                    },
+                    "required": [
+                      "userId",
+                      "name",
+                      "calendarName"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "description": "The further hosts of a roundRobin page, without its owner."
                 },
                 "upcomingBookings": {
                   "type": "integer",
@@ -38360,10 +38424,13 @@
                 "questions",
                 "successMessage",
                 "enabled",
+                "assignment",
+                "inviteeChanges",
                 "id",
                 "token",
                 "url",
                 "calendarName",
+                "hosts",
                 "upcomingBookings",
                 "createdAt"
               ],
@@ -38702,6 +38769,18 @@
               "enabled": {
                 "type": "boolean"
               },
+              "assignment": {
+                "type": "string",
+                "enum": [
+                  "single",
+                  "roundRobin"
+                ],
+                "description": "single books the owner of the page. roundRobin offers a time when at least one host is free and books the free host with the fewest upcoming bookings of this page."
+              },
+              "inviteeChanges": {
+                "type": "boolean",
+                "description": "Whether the visitor may cancel or move the booking through the private link they receive."
+              },
               "id": {
                 "type": "string",
                 "format": "uuid",
@@ -38722,6 +38801,40 @@
                     "type": "null"
                   }
                 ]
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "calendarName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Null when this host has no usable calendar; the host is then skipped."
+                    }
+                  },
+                  "required": [
+                    "userId",
+                    "name",
+                    "calendarName"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "The further hosts of a roundRobin page, without its owner."
               },
               "upcomingBookings": {
                 "type": "integer",
@@ -38752,10 +38865,13 @@
               "questions",
               "successMessage",
               "enabled",
+              "assignment",
+              "inviteeChanges",
               "id",
               "token",
               "url",
               "calendarName",
+              "hosts",
               "upcomingBookings",
               "createdAt"
             ],
@@ -47683,7 +47799,7 @@
     {
       "name": "manage_rules",
       "title": "Manage rules",
-      "description": "Reads, creates, changes and removes automation rules: deterministic when-if-then rules that run without AI, on every plan and on self-hosted instances. A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted or an incoming webhook), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, send an outbound webhook). A rule runs once per record and occurrence, as its owner, with the owner's permissions: it cannot do more than the owner could. Changes a rule makes cannot start the same rule again, and a chain stops after two rules. action list returns compact summaries; get returns one rule in full; runs returns one rule's history, newest first, each with its status, the affected record and the outcome of every effect; a run whose record the caller may not read has recordId null, and a date rule's run then also scheduledFor null. action create needs name, trigger and effects; omitting enabled produces a LIVE rule and enabled false creates a draft. Plans limit the number of active rules; the refusal names the limit. action update changes only the keys supplied; trigger, conditions and effects REPLACE their previous value. Only the owner may change or enable a rule. action enable and disable switch a rule on and off; its history is kept; an administrator may also disable. action delete removes the rule and its history permanently and is IRREVERSIBLE. action preview lists which records a date-reached rule would hit on its upcoming sweep (at most 200 are checked), without running anything.",
+      "description": "Reads, creates, changes and removes automation rules: deterministic when-if-then rules that run without AI, on every plan and on self-hosted instances. A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted, an incoming webhook or a booking cancelled or rescheduled), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, send an outbound webhook). A rule runs once per record and occurrence, as its owner, with the owner's permissions: it cannot do more than the owner could. Changes a rule makes cannot start the same rule again, and a chain stops after two rules. action list returns compact summaries; get returns one rule in full; runs returns one rule's history, newest first, each with its status, the affected record and the outcome of every effect; a run whose record the caller may not read has recordId null, and a date rule's run then also scheduledFor null. action create needs name, trigger and effects; omitting enabled produces a LIVE rule and enabled false creates a draft. Plans limit the number of active rules; the refusal names the limit. action update changes only the keys supplied; trigger, conditions and effects REPLACE their previous value. Only the owner may change or enable a rule. action enable and disable switch a rule on and off; its history is kept; an administrator may also disable. action delete removes the rule and its history permanently and is IRREVERSIBLE. action preview lists which records a date-reached rule would hit on its upcoming sweep (at most 200 are checked), without running anything.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -47723,7 +47839,7 @@
             "type": "boolean"
           },
           "trigger": {
-            "description": "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted or webhookReceived. List and field ids are the stable ids of the record model.",
+            "description": "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted, webhookReceived or bookingChanged (a booking cancelled or rescheduled; change is any, cancelled or rescheduled). List and field ids are the stable ids of the record model.",
             "oneOf": [
               {
                 "type": "object",
@@ -48129,6 +48245,48 @@
                 ],
                 "additionalProperties": false,
                 "description": "Fires when an incoming webhook created or updated a record."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "bookingChanged"
+                  },
+                  "change": {
+                    "default": "any",
+                    "description": "cancelled or rescheduled fires only on that change, any on both.",
+                    "type": "string",
+                    "enum": [
+                      "any",
+                      "cancelled",
+                      "rescheduled"
+                    ]
+                  },
+                  "typeId": {
+                    "description": "The list of the record the booking created.",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "sourceId": {
+                    "description": "Restrict the rule to one booking page.",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "timezone": {
+                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false,
+                "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
               }
             ]
           },
@@ -51258,6 +51416,7 @@
                 "messaging.relation.created",
                 "form.submitted",
                 "webhook.received",
+                "booking.changed",
                 "automation.rule.fired"
               ]
             }

@@ -168,7 +168,7 @@ export function PublicBookingManageView({
           >
             <ArrowLeft aria-hidden className="size-4" />
 
-            {t("PublicBooking.back")}
+            {t("Common.actions.back")}
           </Button>
 
           <Button
@@ -212,9 +212,7 @@ export function PublicBookingManageView({
         {state === "past" ? <p className="text-sm text-muted-foreground">{t("PublicBooking.statePast")}</p> : null}
 
         {state === "upcoming" && !booking.canCancel ? (
-          <p className="text-sm text-muted-foreground">
-            {t("PublicBooking.changesOff", { host: booking.hostName })}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("PublicBooking.changesOff", { host: booking.hostName })}</p>
         ) : null}
 
         {problemAlert}

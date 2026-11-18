@@ -171,6 +171,7 @@ describe("manage_rules activity", () => {
       "messageReceived",
       "formSubmitted",
       "webhookReceived",
+      "bookingChanged",
     ];
     const effects = [
       { kind: "createRecord", title: { text: "A" } },

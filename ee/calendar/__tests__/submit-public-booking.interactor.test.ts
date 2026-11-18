@@ -19,17 +19,26 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
 import { PUBLIC_FILL_MS, renderToken, visitorHash } from "@/core/network/public-submit-guard";
-import { PublicTenant } from "@/core/network/public-tenant";
-import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import { DomainEvent } from "@/features/event/domain-events";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import type { BookingLinkLookup } from "../booking-link.repo";
+import type { HostLoad } from "../booking-reservation.repo";
 
-import { PublicBookingAccess } from "../public-booking-access";
 import { SubmitPublicBookingInteractor } from "../submit-public-booking.interactor";
-import { DEFAULT_WORKING_HOURS } from "../working-hours";
+import {
+  type AccessOptions,
+  ANA,
+  BO,
+  buildAccess,
+  calendarId,
+  calendarRow,
+  candidate,
+  currentUserId,
+  lookupLink,
+  OWNER,
+} from "./public-booking-fixtures";
 
 const PEOPLE = "10000000-0000-4000-8000-000000000001";
 const ACTIONS = "10000000-0000-4000-8000-000000000002";
@@ -123,21 +132,7 @@ const MODEL = {
 } as unknown as RecordModelView;
 
 function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
-  return {
-    id: "50000000-0000-4000-8000-000000000001",
-    companyId: mockUser.companyId,
-    userId: mockUser.id,
-    calendarId: "60000000-0000-4000-8000-000000000001",
-    calendarName: "Work",
-    token: TOKEN,
-    title: "Intro call",
-    description: null,
-    durationMinutes: 30,
-    bufferMinutes: 0,
-    minNoticeMinutes: 240,
-    horizonDays: 30,
-    timeZone: "Europe/Berlin",
-    workingHours: DEFAULT_WORKING_HOURS,
+  return lookupLink({
     withVideo: true,
     personTypeId: PEOPLE,
     personRelationshipId: PERSON_RELATION,
@@ -145,48 +140,55 @@ function link(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
     startFieldId: DUE,
     questions: [{ fieldId: NOTE, required: true }],
     successMessage: "See you soon",
-    enabled: true,
-    createdAt: new Date(0),
-    upcomingBookings: 0,
-    hostName: "Ben",
-    workspaceName: "Acme",
-    companyDeleting: false,
-    unipileAccountId: "acc_1",
-    unipileCalendarId: "cal_1",
-    connectedAccountId: "70000000-0000-4000-8000-000000000001",
-    provider: "google",
-    accountUsable: true,
+    inviteeChanges: false,
     ...overrides,
-  };
+  });
+}
+
+function roundRobin(overrides: Partial<BookingLinkLookup> = {}): BookingLinkLookup {
+  return link({
+    assignment: "roundRobin",
+    hostCandidates: [candidate(OWNER), candidate(ANA), candidate(BO)],
+    ...overrides,
+  });
 }
 
 function build(
-  options: { link?: BookingLinkLookup | null; entitlement?: unknown; perVisitor?: number; perLink?: number } = {},
+  options: {
+    link?: BookingLinkLookup | null;
+    entitled?: boolean;
+    perVisitor?: number;
+    perLink?: number;
+    calendars?: AccessOptions["calendars"];
+    locale?: AccessOptions["locale"];
+  } = {},
 ) {
-  const lookup = {
-    findByTokenUnscoped: vi.fn().mockResolvedValue(options.link === undefined ? link() : options.link),
+  const { access, lookup } = buildAccess({
+    link: options.link === undefined ? link() : options.link,
+    authSecret: SECRET,
+    now: NOW,
+    perLink: options.perLink,
+    perVisitor: options.perVisitor,
+    entitled: options.entitled === false ? () => false : undefined,
+    calendars: options.calendars,
+    locale: options.locale,
+  });
+  const availability = {
+    openHosts: vi.fn((_link: unknown, hostIds: string[]) => Promise.resolve(hostIds)),
+    isOpen: vi.fn().mockResolvedValue(true),
   };
-  const access = new PublicBookingAccess(
-    lookup,
-    new PublicTenant({ getActiveUserByIdOrThrow: vi.fn().mockResolvedValue(mockUser) }),
-    {
-      perLink: new TokenBucketRateLimiter(options.perLink ?? 100, 60_000),
-      perVisitor: new TokenBucketRateLimiter(options.perVisitor ?? 100, 60_000),
-    },
-    () => ({ require: vi.fn().mockResolvedValue(options.entitlement ?? null) }),
-    () => ({ companyId: mockUser.companyId, has: vi.fn().mockReturnValue(true) }),
-    { authSecret: SECRET, now: () => NOW },
-  );
-  const availability = { isOpen: vi.fn().mockResolvedValue(true) };
+  const hostsOfReservations: string[] = [];
   const reservations = {
-    reserve: vi.fn<(input: unknown, isOpen: () => Promise<boolean>) => Promise<{ id: string } | null>>(() =>
-      Promise.resolve({ id: "80000000-0000-4000-8000-000000000001" }),
-    ),
+    reserve: vi.fn<(input: unknown, isOpen: () => Promise<boolean>) => Promise<{ id: string } | null>>(() => {
+      hostsOfReservations.push(currentUserId());
+      return Promise.resolve({ id: "80000000-0000-4000-8000-000000000001" });
+    }),
     confirm: vi.fn().mockResolvedValue(undefined),
     release: vi.fn().mockResolvedValue(undefined),
     countOpenForEmail: vi.fn().mockResolvedValue(0),
     countForVisitorSince: vi.fn().mockResolvedValue(0),
     countForLinkSince: vi.fn().mockResolvedValue(0),
+    hostLoads: vi.fn<() => Promise<HostLoad[]>>().mockResolvedValue([]),
   };
   const writer = {
     create: vi.fn().mockResolvedValue({
@@ -202,6 +204,7 @@ function build(
     createBookingRecord: vi.fn().mockResolvedValue(RECORD),
   };
   const events = { publish: vi.fn().mockResolvedValue(undefined) };
+  const announcer = { notifyHost: vi.fn().mockResolvedValue(undefined) };
   const interactor = new SubmitPublicBookingInteractor(
     access,
     availability as never,
@@ -210,8 +213,21 @@ function build(
     links as never,
     records as never,
     events as never,
+    announcer,
+    "http://localhost:4000",
   );
-  return { interactor, lookup, availability, reservations, writer, links, records, events };
+  return {
+    interactor,
+    lookup,
+    availability,
+    reservations,
+    writer,
+    links,
+    records,
+    events,
+    announcer,
+    hostsOfReservations,
+  };
 }
 
 const INPUT = {
@@ -233,7 +249,7 @@ beforeEach(() => {
 
 describe("SubmitPublicBookingInteractor", () => {
   it("books: creates the event, the Person and the record, links them, confirms and emits form.submitted", async () => {
-    const { interactor, writer, records, links, reservations, events } = build();
+    const { interactor, writer, records, links, reservations, events, announcer } = build();
 
     const result = await interactor.invoke(INPUT);
 
@@ -243,10 +259,14 @@ describe("SubmitPublicBookingInteractor", () => {
       endsAt: "2026-11-17T09:30:00.000Z",
       conferenceUrl: "https://meet.google.com/abc",
       title: "Intro call",
+      hostName: "Test User",
+      manageUrl: null,
       successMessage: "See you soon",
     });
     expect(reservations.reserve).toHaveBeenCalledWith(
       expect.objectContaining({
+        bookingLinkId: link().id,
+        manageToken: expect.stringMatching(/^[A-Za-z0-9_-]{24}$/),
         inviteeEmail: "ada@example.com",
         inviteeName: "Ada Lovelace",
         timeZone: "Europe/London",
@@ -258,7 +278,7 @@ describe("SubmitPublicBookingInteractor", () => {
     expect(visitorHash("visitor-hash", SECRET)).not.toBe("visitor-hash");
     expect(writer.create).toHaveBeenCalledWith(
       mockUser.companyId,
-      expect.objectContaining({ unipileCalendarId: "cal_1", unipileAccountId: "acc_1" }),
+      expect.objectContaining({ unipileCalendarId: `cal_${OWNER.id}`, unipileAccountId: `acc_${OWNER.id}` }),
       expect.objectContaining({
         title: "Intro call - Ada Lovelace",
         attendeeEmails: ["ada@example.com"],
@@ -306,6 +326,20 @@ describe("SubmitPublicBookingInteractor", () => {
         }),
       },
       { systemCompanyId: mockUser.companyId },
+    );
+    expect(announcer.notifyHost).toHaveBeenCalledWith(
+      {
+        id: "80000000-0000-4000-8000-000000000001",
+        companyId: mockUser.companyId,
+        hostUserId: OWNER.id,
+        linkOwnerId: OWNER.id,
+        inviteeName: "Ada Lovelace",
+        linkTitle: "Intro call",
+        startsAt: new Date(STARTS_AT),
+        linkTimeZone: "Europe/Berlin",
+      },
+      "booked",
+      "en",
     );
   });
 
@@ -438,9 +472,15 @@ describe("SubmitPublicBookingInteractor", () => {
 
   it("answers slotTaken when the time is no longer free and reserves nothing", async () => {
     const { interactor, availability, reservations, writer } = build();
-    availability.isOpen.mockResolvedValue(false);
+    availability.openHosts.mockResolvedValue([]);
 
     expect(await interactor.invoke(INPUT)).toEqual({ status: "slotTaken" });
+    expect(availability.openHosts).toHaveBeenCalledWith(
+      expect.objectContaining({ id: link().id }),
+      [OWNER.id],
+      NOW,
+      new Date(STARTS_AT),
+    );
     expect(reservations.reserve).not.toHaveBeenCalled();
     expect(writer.create).not.toHaveBeenCalled();
   });
@@ -557,13 +597,18 @@ describe("SubmitPublicBookingInteractor", () => {
   it("is unavailable for a missing, paused or disconnected link and without the inbox plan", async () => {
     expect(await build({ link: null }).interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
     expect(await build({ link: link({ enabled: false }) }).interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
-    expect(await build({ link: link({ accountUsable: false }) }).interactor.invoke(INPUT)).toEqual({
+    expect(
+      await build({
+        calendars: { [calendarId(OWNER.id)]: calendarRow(OWNER.id, { accountStatus: "credentials" }) },
+      }).interactor.invoke(INPUT),
+    ).toEqual({ status: "unavailable" });
+    expect(await build({ link: link({ calendarId: null, hostCandidates: [] }) }).interactor.invoke(INPUT)).toEqual({
       status: "unavailable",
     });
     expect(await build({ link: link({ companyDeleting: true }) }).interactor.invoke(INPUT)).toEqual({
       status: "unavailable",
     });
-    expect(await build({ entitlement: { ok: false } }).interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
+    expect(await build({ entitled: false }).interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
   });
 
   it("limits one visitor and reports when to come back", async () => {
@@ -596,6 +641,7 @@ describe("SubmitPublicBookingInteractor", () => {
       const { interactor, availability, reservations, writer } = build();
 
       expect(await interactor.invoke({ ...INPUT, renderToken: token })).toEqual({ status: "unavailable" });
+      expect(availability.openHosts).not.toHaveBeenCalled();
       expect(availability.isOpen).not.toHaveBeenCalled();
       expect(reservations.reserve).not.toHaveBeenCalled();
       expect(writer.create).not.toHaveBeenCalled();
@@ -620,6 +666,7 @@ describe("SubmitPublicBookingInteractor", () => {
       const elsewhere = renderToken(link().id, new Date(NOW.getTime() - 8_000), SECRET, "another-visitor");
 
       expect(await interactor.invoke({ ...INPUT, renderToken: elsewhere })).toEqual({ status: "unavailable" });
+      expect(availability.openHosts).not.toHaveBeenCalled();
       expect(availability.isOpen).not.toHaveBeenCalled();
       expect(reservations.reserve).not.toHaveBeenCalled();
     });
@@ -676,10 +723,11 @@ describe("SubmitPublicBookingInteractor", () => {
       reservations.reserve.mockImplementation((_input, isOpen) =>
         isOpen().then((open) => (open ? { id: "80000000-0000-4000-8000-000000000001" } : null)),
       );
-      availability.isOpen.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+      availability.isOpen.mockResolvedValueOnce(false);
 
       expect(await interactor.invoke(INPUT)).toEqual({ status: "slotTaken" });
-      expect(availability.isOpen).toHaveBeenCalledTimes(2);
+      expect(availability.openHosts).toHaveBeenCalledTimes(1);
+      expect(availability.isOpen).toHaveBeenCalledTimes(1);
       expect(availability.isOpen).toHaveBeenLastCalledWith(
         expect.objectContaining({ id: link().id }),
         NOW,
@@ -695,6 +743,162 @@ describe("SubmitPublicBookingInteractor", () => {
       );
 
       expect((await interactor.invoke(INPUT)).status).toBe("booked");
+    });
+  });
+
+  describe("the private link to change the booking", () => {
+    it("puts the manage link into the result and the invitation when visitors may change their booking", async () => {
+      const { interactor, writer, reservations } = build({ link: link({ inviteeChanges: true }) });
+
+      const result = await interactor.invoke(INPUT, { manageLine: "Cancel or move:\u0007" });
+
+      if (result.status !== "booked") throw new Error("expected a booking");
+      const { manageToken } = reservations.reserve.mock.calls[0][0] as { manageToken: string };
+      expect(result.manageUrl).toBe(`http://localhost:4000/book/manage/${manageToken}`);
+      expect(writer.create.mock.calls[0][2]).toMatchObject({
+        description: `Ada Lovelace <ada@example.com>\n\nCancel or move: http://localhost:4000/book/manage/${manageToken}`,
+      });
+    });
+
+    it("draws a new manage token for every booking", async () => {
+      const { interactor, reservations } = build();
+
+      await interactor.invoke(INPUT);
+      await interactor.invoke(INPUT);
+
+      const tokens = reservations.reserve.mock.calls.map(([input]) => (input as { manageToken: string }).manageToken);
+      expect(new Set(tokens).size).toBe(2);
+    });
+
+    it("leaves the link out when visitors may not change their booking", async () => {
+      const { interactor, writer } = build({ link: link({ inviteeChanges: false }) });
+
+      const result = await interactor.invoke(INPUT, { manageLine: "Cancel or move:" });
+
+      expect(result).toMatchObject({ status: "booked", manageUrl: null });
+      expect(writer.create.mock.calls[0][2]).toMatchObject({ description: "Ada Lovelace <ada@example.com>" });
+    });
+  });
+
+  describe("round robin", () => {
+    it("books the free host with the fewest upcoming bookings in that host's own calendar and tenant", async () => {
+      const { interactor, availability, reservations, writer, announcer, hostsOfReservations } = build({
+        link: roundRobin(),
+      });
+      availability.openHosts.mockResolvedValue([OWNER.id, BO.id]);
+      reservations.hostLoads.mockResolvedValue([
+        { hostUserId: OWNER.id, upcoming: 3, lastBookedAt: new Date("2026-11-15T10:00:00.000Z") },
+        { hostUserId: ANA.id, upcoming: 0, lastBookedAt: null },
+        { hostUserId: BO.id, upcoming: 1, lastBookedAt: new Date("2026-11-15T09:00:00.000Z") },
+      ]);
+
+      const result = await interactor.invoke(INPUT);
+
+      expect(result).toMatchObject({ status: "booked", hostName: "Bo Host" });
+      expect(availability.openHosts).toHaveBeenCalledWith(
+        expect.objectContaining({ id: link().id }),
+        [OWNER.id, ANA.id, BO.id],
+        NOW,
+        new Date(STARTS_AT),
+      );
+      expect(reservations.hostLoads).toHaveBeenCalledWith(link().id, NOW);
+      expect(hostsOfReservations).toEqual([BO.id]);
+      expect(writer.create).toHaveBeenCalledWith(
+        mockUser.companyId,
+        expect.objectContaining({ id: calendarId(BO.id), unipileCalendarId: `cal_${BO.id}` }),
+        expect.anything(),
+      );
+      expect(announcer.notifyHost).toHaveBeenCalledWith(
+        expect.objectContaining({ hostUserId: BO.id, linkOwnerId: OWNER.id }),
+        "booked",
+        "en",
+      );
+    });
+
+    it("falls through to the next host when the first one was taken in the meantime", async () => {
+      const { interactor, reservations, writer, hostsOfReservations } = build({ link: roundRobin() });
+      reservations.hostLoads.mockResolvedValue([
+        { hostUserId: OWNER.id, upcoming: 2, lastBookedAt: null },
+        { hostUserId: ANA.id, upcoming: 0, lastBookedAt: null },
+        { hostUserId: BO.id, upcoming: 1, lastBookedAt: null },
+      ]);
+      reservations.reserve.mockImplementation(() => {
+        const host = currentUserId();
+        hostsOfReservations.push(host);
+        return Promise.resolve(host === ANA.id ? null : { id: "80000000-0000-4000-8000-000000000001" });
+      });
+
+      const result = await interactor.invoke(INPUT);
+
+      expect(result).toMatchObject({ status: "booked", hostName: "Bo Host" });
+      expect(hostsOfReservations).toEqual([ANA.id, BO.id]);
+      expect(writer.create).toHaveBeenCalledTimes(1);
+      expect(writer.create).toHaveBeenCalledWith(
+        mockUser.companyId,
+        expect.objectContaining({ id: calendarId(BO.id) }),
+        expect.anything(),
+      );
+    });
+
+    it("tries the next host after a provider refusal and releases the first reservation", async () => {
+      const { interactor, reservations, writer } = build({ link: roundRobin() });
+      writer.create
+        .mockResolvedValueOnce({ ok: false, error: CustomErrorCode.unipileProviderRejected })
+        .mockResolvedValueOnce({
+          ok: true,
+          eventId: "90000000-0000-4000-8000-000000000001",
+          event: { conferenceUrl: null },
+        });
+
+      const result = await interactor.invoke(INPUT);
+
+      expect(result).toMatchObject({ status: "booked", hostName: "Ana Host" });
+      expect(reservations.release).toHaveBeenCalledTimes(1);
+      expect(reservations.confirm).toHaveBeenCalledTimes(1);
+    });
+
+    it("answers unavailable when every host's provider refused, and slotTaken when every host was taken", async () => {
+      const refused = build({ link: roundRobin() });
+      refused.writer.create.mockResolvedValue({ ok: false, error: CustomErrorCode.unipileProviderRejected });
+      expect(await refused.interactor.invoke(INPUT)).toEqual({ status: "unavailable" });
+      expect(refused.reservations.release).toHaveBeenCalledTimes(3);
+
+      const taken = build({ link: roundRobin() });
+      taken.reservations.reserve.mockResolvedValue(null);
+      expect(await taken.interactor.invoke(INPUT)).toEqual({ status: "slotTaken" });
+      expect(taken.reservations.reserve).toHaveBeenCalledTimes(3);
+      expect(taken.writer.create).not.toHaveBeenCalled();
+    });
+
+    it("offers and books only hosts whose calendar can be used", async () => {
+      const { interactor, availability, hostsOfReservations } = build({
+        link: roundRobin(),
+        calendars: {
+          [calendarId(OWNER.id)]: calendarRow(OWNER.id, { accountStatus: "credentials" }),
+          [calendarId(ANA.id)]: null,
+          [calendarId(BO.id)]: calendarRow(BO.id),
+        },
+      });
+
+      expect(await interactor.invoke(INPUT)).toMatchObject({ status: "booked", hostName: "Bo Host" });
+      expect(availability.openHosts).toHaveBeenCalledWith(expect.anything(), [BO.id], NOW, new Date(STARTS_AT));
+      expect(hostsOfReservations).toEqual([BO.id]);
+    });
+
+    it("books the owner of a single page without asking for host loads to change the choice", async () => {
+      const { interactor, availability, hostsOfReservations } = build();
+
+      expect(await interactor.invoke(INPUT)).toMatchObject({ status: "booked", hostName: "Test User" });
+      expect(availability.openHosts).toHaveBeenCalledWith(expect.anything(), [OWNER.id], NOW, new Date(STARTS_AT));
+      expect(hostsOfReservations).toEqual([OWNER.id]);
+    });
+
+    it("tells the host in the member locale", async () => {
+      const { interactor, announcer } = build({ locale: "de" });
+
+      await interactor.invoke(INPUT);
+
+      expect(announcer.notifyHost).toHaveBeenCalledWith(expect.anything(), "booked", "de");
     });
   });
 });

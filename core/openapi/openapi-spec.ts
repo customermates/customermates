@@ -113,8 +113,10 @@ import {
   webhookAutomationRuleFiredOperation,
 } from "@/features/automation-rules/automation-rule-fired.openapi";
 import {
+  WebhookBookingChangedSchema,
   WebhookFormSubmittedSchema,
   WebhookWebhookReceivedSchema,
+  webhookBookingChangedOperation,
   webhookFormSubmittedOperation,
   webhookWebhookReceivedOperation,
 } from "@/features/event/external-trigger-events.openapi";
@@ -318,6 +320,9 @@ export function generateOpenApiSpec() {
       webhookReceived: {
         post: webhookWebhookReceivedOperation,
       },
+      bookingChanged: {
+        post: webhookBookingChangedOperation,
+      },
       automationRuleFired: {
         post: webhookAutomationRuleFiredOperation,
       },
@@ -344,6 +349,7 @@ export function generateOpenApiSpec() {
         WebhookMessagingRelationCreatedSchema,
         WebhookFormSubmittedSchema,
         WebhookWebhookReceivedSchema,
+        WebhookBookingChangedSchema,
         WebhookAutomationRuleFiredSchema,
         UserDtoSchema,
         MemberDtoSchema,

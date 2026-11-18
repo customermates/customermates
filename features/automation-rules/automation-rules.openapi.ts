@@ -31,7 +31,7 @@ const ruleFields = z.object(UpsertAutomationRuleSchema.shape);
 const CreateRuleApiSchema = ruleFields
   .omit({ id: true })
   .describe(
-    "A new rule. name, trigger and effects are required; conditions are optional. Omitting enabled creates a live rule; pass enabled false for a draft. The trigger kinds are recordCreated, recordUpdated, fieldChanged, dateReached, messageReceived, formSubmitted and webhookReceived; the effects are setField, createRecord, notify and callWebhook. List, field and relationship ids come from the record model.",
+    "A new rule. name, trigger and effects are required; conditions are optional. Omitting enabled creates a live rule; pass enabled false for a draft. The trigger kinds are recordCreated, recordUpdated, fieldChanged, dateReached, messageReceived, formSubmitted, webhookReceived and bookingChanged; the effects are setField, createRecord, notify and callWebhook. List, field and relationship ids come from the record model.",
   );
 
 const UpdateRuleApiSchema = ruleFields

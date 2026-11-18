@@ -154,6 +154,7 @@ describe("PublicBookingView on the live page", () => {
     timeZone: "UTC",
     workspaceName: "Acme",
     hostName: "Test User",
+    team: false,
     withVideo: false,
     questions: [],
     renderToken: "render",
@@ -214,5 +215,84 @@ describe("PublicBookingView on the live page", () => {
     act(() => slotButtons()[0].click());
 
     expect(container.querySelector("[data-booking-form]")?.tagName).toBe("FORM");
+  });
+
+  it("replaces the calendar with the form once a time is chosen, shows the time beside it, and goes back", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    await renderLive();
+
+    expect(container.querySelector("aside [data-booking-when]")).toBeNull();
+    act(() => slotButtons()[0].click());
+
+    expect(container.querySelector("[data-booking-calendar]")).toBeNull();
+    expect(container.querySelector("[data-booking-slots]")).toBeNull();
+    expect(container.querySelector("aside #public-booking-title")?.textContent).toBe("Intro call");
+    expect(container.querySelector("aside [data-booking-when]")).not.toBeNull();
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-booking-back]")?.click());
+
+    expect(container.querySelector("[data-booking-form]")).toBeNull();
+    expect(container.querySelector("[data-booking-calendar]")).not.toBeNull();
+    expect(container.querySelector("aside [data-booking-when]")).toBeNull();
+    expect(slotButtons()).toHaveLength(1);
+  });
+
+  it("confirms with the host who takes the meeting and the private link to change it", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    harness.submit.mockResolvedValue({
+      status: "booked",
+      startsAt: slotIn(2).startsAt,
+      endsAt: slotIn(2).endsAt,
+      conferenceUrl: null,
+      title: "Intro call",
+      hostName: "Ana Host",
+      manageUrl: "https://app.example.com/book/manage/manage_abcdefghijklmnop",
+      successMessage: null,
+    });
+    await renderLive();
+    act(() => slotButtons()[0].click());
+
+    await act(async () => {
+      container
+        .querySelector("[data-booking-form]")
+        ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+    await settle();
+
+    expect(harness.submit).toHaveBeenCalledOnce();
+    expect(container.querySelector("[data-booking-confirmed]")?.textContent).toContain(
+      'PublicBooking.with:{"host":"Ana Host"}',
+    );
+    expect(container.querySelector<HTMLAnchorElement>("[data-booking-manage-link]")?.href).toBe(
+      "https://app.example.com/book/manage/manage_abcdefghijklmnop",
+    );
+  });
+
+  it("leaves the manage link out when the page does not let visitors change bookings", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    harness.submit.mockResolvedValue({
+      status: "booked",
+      startsAt: slotIn(2).startsAt,
+      endsAt: slotIn(2).endsAt,
+      conferenceUrl: null,
+      title: "Intro call",
+      hostName: "Test User",
+      manageUrl: null,
+      successMessage: null,
+    });
+    await renderLive();
+    act(() => slotButtons()[0].click());
+
+    await act(async () => {
+      container
+        .querySelector("[data-booking-form]")
+        ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+    await settle();
+
+    expect(container.querySelector("[data-booking-confirmed]")).not.toBeNull();
+    expect(container.querySelector("[data-booking-manage-link]")).toBeNull();
   });
 });

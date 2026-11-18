@@ -197,6 +197,7 @@
           "setField": "définir la valeur d’un champ"
         },
         "trigger": {
+          "bookingChanged": "une réservation est annulée ou reprogrammée",
           "dateReached": "une date est atteinte",
           "fieldChanged": "un champ change",
           "formSubmitted": "un formulaire est envoyé",
@@ -1029,6 +1030,10 @@
       "atHour": "À l’heure (0 à 23)",
       "before": "avant",
       "body": "Détails (facultatif)",
+      "bookingChange": "Modification",
+      "bookingChangeAny": "Toute modification",
+      "bookingChangeCancelled": "Annulée",
+      "bookingChangeRescheduled": "Reprogrammée",
       "boolean": {
         "false": "Non",
         "true": "Oui"
@@ -1158,6 +1163,7 @@
       "skipped": "Ignorée"
     },
     "summary": {
+      "bookingChanged": "{change, select, cancelled {Quand une réservation est annulée} rescheduled {Quand une réservation est reprogrammée} other {Quand une réservation est annulée ou reprogrammée}}",
       "dateReached": "{direction, select, before {{days, plural, =0 {À la date de {field} dans {list}} one {# jour avant {field} dans {list}} other {# jours avant {field} dans {list}}}} other {{days, plural, =0 {À la date de {field} dans {list}} one {# jour après {field} dans {list}} other {# jours après {field} dans {list}}}}}",
       "fieldChanged": "Quand {field} change dans {list}",
       "formSubmitted": "Quand un formulaire est envoyé",
@@ -1168,6 +1174,7 @@
     },
     "title": "Automatisations",
     "trigger": {
+      "bookingChanged": "Une réservation est annulée ou reprogrammée",
       "dateReached": "Une date est atteinte",
       "fieldChanged": "Un champ change",
       "formSubmitted": "Un formulaire est envoyé",
@@ -1312,6 +1319,13 @@
         },
         "title": "Répondre aux nouvelles demandes"
       },
+      "bookingCancelled": {
+        "description": "Quand une réservation est annulée, vous prévenir pour que vous puissiez relancer ou libérer le créneau.",
+        "effects": {
+          "notify": "Réservation annulée : {record}"
+        },
+        "title": "Me prévenir quand une réservation est annulée"
+      },
       "chaseDocuments": {
         "description": "7 jours après une date de demande, créer une tâche pour relancer les documents et prévenir la personne responsable.",
         "effects": {
@@ -1447,6 +1461,8 @@
       "enabled": "Accepter les réservations",
       "from": "De",
       "horizon": "Réservable à l’avance",
+      "hosts": "Hôtes",
+      "inviteeChanges": "Les visiteurs peuvent annuler et reprogrammer",
       "minNotice": "Préavis minimum",
       "none": "Aucun",
       "personList": "Trouver ou créer le visiteur dans",
@@ -1461,6 +1477,13 @@
       "to": "À",
       "withVideo": "Ajouter un lien de visioconférence",
       "workingHours": "Horaires de travail"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "{name} a réservé une réunion",
+      "cancelledTitle": "{name} a annulé une réunion",
+      "reason": "Motif : {reason}",
+      "rescheduledTitle": "{name} a déplacé une réunion"
     },
     "minutes": "{minutes} min",
     "new": "Nouvelle page de réservation",
@@ -1480,6 +1503,9 @@
     "panelYours": "Vos pages de réservation",
     "paused": "En pause",
     "removeQuestion": "Retirer la question",
+    "roundRobin": "Partager cette page avec des collègues (round robin)",
+    "roundRobinChip": "{count} hôtes",
+    "roundRobinHint": "Un créneau est proposé dès qu’au moins un hôte est libre. Chaque réservation va à l’hôte libre qui a le moins de réservations à venir, dans son agenda connecté. Vous êtes toujours hôte également.",
     "saved": "Page de réservation enregistrée",
     "selfHostedNote": "Les pages de réservation utilisent la connexion d’agenda hébergée et ne sont pas disponibles en auto-hébergement.",
     "unavailableField": "Champ devenu indisponible",
@@ -1798,6 +1824,8 @@
       "automationRuleRunCursorInvalid": "Ce lien de page de l’historique des exécutions n’est plus valide. Rechargez l’historique et réessayez.",
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "bookingAnswerInvalid": "Une réponse est manquante ou invalide.",
+      "bookingHostsNotAllowed": "Seul un administrateur peut ajouter d’autres membres comme hôtes.",
+      "bookingHostWithoutCalendar": "Ce membre n’a pas d’agenda connecté et ne peut pas être hôte d’une page de réservation.",
       "bookingLinkLimitReached": "Vous pouvez avoir au maximum {limit} pages de réservation. Supprimez-en une pour en créer une autre.",
       "bookingLinkNotFound": "ID de page de réservation introuvable ou inaccessible.",
       "bookingListInvalid": "Cette liste ou ce champ ne peut pas servir aux réservations.",
@@ -2066,6 +2094,9 @@
         "rule": {
           "fired": "Règle d’automatisation déclenchée"
         }
+      },
+      "booking": {
+        "changed": "Réservation modifiée"
       },
       "connected_account": {
         "created": "Compte connecté",
@@ -4870,16 +4901,28 @@
     "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."
   },
   "PublicBooking": {
+    "bookAgain": "Réserver un autre créneau",
+    "cancel": "Annuler la réservation",
+    "cancelledText": "La réservation est annulée et l’invitation de calendrier est retirée.",
+    "cancelReason": "Motif (facultatif)",
+    "changesOff": "Pour modifier cette réservation, contactez {host}.",
     "confirm": "Confirmer la réservation",
     "confirmedText": "Vous recevrez une invitation de calendrier par e-mail.",
     "confirmedTitle": "Votre réservation est confirmée",
     "email": "E-mail",
     "honeypot": "Laissez ce champ vide",
     "joinLink": "Rejoindre la visioconférence",
+    "keep": "Conserver la réservation",
     "loadFailed": "Les créneaux disponibles n’ont pas pu être chargés. Rechargez la page pour réessayer.",
     "loadingMore": "Chargement d’autres créneaux",
+    "manage": "Annuler ou reprogrammer",
+    "manageFailed": "La modification n’a pas pu être effectuée. Réessayez dans un instant.",
+    "manageLine": "Annuler ou reprogrammer :",
+    "manageNotAllowed": "Cette réservation ne peut plus être modifiée ici.",
+    "manageTitle": "Votre réservation",
     "minutes": "{minutes} min",
     "name": "Votre nom",
+    "noOtherSlots": "Aucun autre créneau libre dans les prochaines semaines.",
     "noSlots": "Aucun créneau libre dans les prochaines semaines.",
     "pageTitle": "Prendre rendez-vous",
     "problem": {
@@ -4888,9 +4931,16 @@
       "unavailable": "La réservation n’a pas pu aboutir. Réessayez ou choisissez un autre créneau."
     },
     "rateLimited": "Trop de requêtes. Réessayez dans quelques minutes.",
+    "reschedule": "Reprogrammer",
+    "rescheduleConfirm": "Déplacer vers ce créneau",
+    "rescheduledText": "La réservation est déplacée. Vous recevrez une invitation de calendrier mise à jour.",
+    "rescheduleTitle": "Choisissez un nouveau créneau",
+    "stateCancelled": "Cette réservation a été annulée.",
+    "statePast": "Cette réunion a déjà eu lieu.",
     "timeZone": "Horaires affichés dans le fuseau {timeZone}",
     "unavailable": "Cette page de réservation n’est pas disponible.",
-    "video": "Visioconférence"
+    "video": "Visioconférence",
+    "with": "Avec {host}"
   },
   "PublicForm": {
     "afterSubmit": {

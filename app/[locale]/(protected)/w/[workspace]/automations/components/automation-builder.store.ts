@@ -80,6 +80,7 @@ const BLANK_TRIGGER: DraftTrigger = {
   fieldId: "",
   fieldIds: [],
   channel: "any",
+  change: "any",
   value: "",
   days: "1",
   direction: "before",

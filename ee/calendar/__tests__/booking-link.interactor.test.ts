@@ -71,9 +71,19 @@ const ROW: BookingLinkRow = {
   questions: [],
   successMessage: null,
   enabled: true,
+  assignment: "single",
+  inviteeChanges: true,
+  hosts: [],
   createdAt: new Date("2026-11-12T10:00:00.000Z"),
   upcomingBookings: 2,
 };
+
+const ANA_ID = "40000000-0000-4000-8000-000000000001";
+const BO_ID = "40000000-0000-4000-8000-000000000002";
+const MEMBERS = [
+  { userId: ANA_ID, name: "Ana Host", calendarId: "10000000-0000-4000-8000-0000000000a1", calendarName: "Ana work" },
+  { userId: mockUser.id, name: "Test User", calendarId: CALENDAR_ID, calendarName: "Work" },
+];
 
 const OTHER_ROW: BookingLinkRow & { ownerName: string } = {
   ...ROW,
@@ -124,6 +134,7 @@ function build(options: { repo?: object; access?: object; records?: object; busy
   };
   const access = {
     findOwnCalendar: vi.fn().mockResolvedValue({ id: CALENDAR_ID, accountStatus: "ok" }),
+    listMemberCalendars: vi.fn().mockResolvedValue(MEMBERS),
     ...options.access,
   };
   const records = { loadModel: vi.fn().mockResolvedValue(MODEL), ...options.records };
@@ -146,6 +157,7 @@ function build(options: { repo?: object; access?: object; records?: object; busy
       entitlements as never,
       BASE_URL,
       availability as never,
+      access as never,
     ),
     get: new GetBookingLinkByIdInteractor(repo as never, entitlements as never, BASE_URL),
     remove: new DeleteBookingLinkInteractor(repo as never, entitlements as never),
@@ -184,6 +196,7 @@ describe("booking link reads", () => {
       { id: LINK_ID, own: true, ownerName: "Test User" },
       { id: OTHER_ROW.id, own: false, ownerName: "Ada Lovelace" },
     ]);
+    expect(result.ok && result.data.hostCandidates).toEqual([{ userId: ANA_ID, name: "Ana Host" }]);
   });
 
   it("tells the owner when the calendar behind the own live pages could not be read in full", async () => {
@@ -214,6 +227,7 @@ describe("booking link reads", () => {
     expect(repo.list).toHaveBeenCalledOnce();
     expect(repo.listWorkspace).not.toHaveBeenCalled();
     expect(result.ok && result.data.items.map(({ id, own }) => ({ id, own }))).toEqual([{ id: LINK_ID, own: true }]);
+    expect(result.ok && result.data.hostCandidates).toEqual([]);
   });
 
   it("answers the plan refusal before reading", async () => {
@@ -224,6 +238,7 @@ describe("booking link reads", () => {
       { require: vi.fn().mockResolvedValue(refusal) } as never,
       BASE_URL,
       { busyTimeIncomplete: vi.fn() } as never,
+      { listMemberCalendars: vi.fn() },
     );
 
     const result = await run(() => denied.invoke());
@@ -248,9 +263,12 @@ describe("SaveBookingLinkInteractor", () => {
     const result = await run(() => save.invoke(CREATE));
 
     expect(result.ok).toBe(true);
-    const [token, data] = repo.create.mock.calls[0];
+    const [token, data, hosts] = repo.create.mock.calls[0];
     expect(token).toMatch(/^[A-Za-z0-9_-]{24}$/);
+    expect(hosts).toEqual([]);
     expect(data).toMatchObject({
+      assignment: "single",
+      inviteeChanges: true,
       calendarId: CALENDAR_ID,
       bufferMinutes: 0,
       minNoticeMinutes: 240,
@@ -318,7 +336,11 @@ describe("SaveBookingLinkInteractor", () => {
     expect(result.ok).toBe(true);
     expect(access.findOwnCalendar).not.toHaveBeenCalled();
     expect(records.loadModel).not.toHaveBeenCalled();
-    expect(repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ enabled: false, title: "Intro call" }));
+    expect(repo.update).toHaveBeenCalledWith(
+      LINK_ID,
+      expect.objectContaining({ enabled: false, title: "Intro call", assignment: "single", inviteeChanges: true }),
+      undefined,
+    );
   });
 
   it("reads a link whose calendar is gone and still lets its owner pause it without choosing a calendar", async () => {
@@ -333,7 +355,11 @@ describe("SaveBookingLinkInteractor", () => {
     expect(listed.ok && listed.data.items[0]).toMatchObject({ id: LINK_ID, calendarId: null, calendarName: null });
     expect(paused.ok).toBe(true);
     expect(access.findOwnCalendar).not.toHaveBeenCalled();
-    expect(repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ calendarId: null, enabled: false }));
+    expect(repo.update).toHaveBeenCalledWith(
+      LINK_ID,
+      expect.objectContaining({ calendarId: null, enabled: false }),
+      undefined,
+    );
   });
 
   it("checks the calendar the owner chooses for a link that lost its calendar", async () => {
@@ -344,10 +370,100 @@ describe("SaveBookingLinkInteractor", () => {
 
     expect((await run(() => chosen.save.invoke({ id: LINK_ID, calendarId: CALENDAR_ID }))).ok).toBe(true);
     expect(chosen.access.findOwnCalendar).toHaveBeenCalledWith(CALENDAR_ID);
-    expect(chosen.repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ calendarId: CALENDAR_ID }));
+    expect(chosen.repo.update).toHaveBeenCalledWith(
+      LINK_ID,
+      expect.objectContaining({ calendarId: CALENDAR_ID }),
+      undefined,
+    );
     expect(code(await run(() => foreign.save.invoke({ id: LINK_ID, calendarId: CALENDAR_ID })))).toBe(
       CustomErrorCode.calendarNotFound,
     );
+  });
+
+  describe("round robin hosts", () => {
+    const ROUND_ROBIN = { id: LINK_ID, assignment: "roundRobin" as const };
+    const member = () =>
+      createMockUserWithPermissions([
+        { resource: Resource.inboxMessages, action: Action.readOwn },
+        { resource: Resource.inboxMessages, action: Action.create },
+        { resource: Resource.inboxMessages, action: Action.update },
+      ]);
+
+    it("lets an administrator add other members, each with their first usable calendar", async () => {
+      const { save, repo, access } = build();
+
+      const result = await run(() => save.invoke({ ...ROUND_ROBIN, hostUserIds: [ANA_ID, ANA_ID] }));
+
+      expect(result.ok).toBe(true);
+      expect(access.listMemberCalendars).toHaveBeenCalledOnce();
+      expect(repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ assignment: "roundRobin" }), [
+        { userId: ANA_ID, calendarId: "10000000-0000-4000-8000-0000000000a1" },
+      ]);
+    });
+
+    it("creates a round robin page with its hosts", async () => {
+      const { save, repo } = build();
+
+      expect((await run(() => save.invoke({ ...CREATE, assignment: "roundRobin", hostUserIds: [ANA_ID] }))).ok).toBe(
+        true,
+      );
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ assignment: "roundRobin" }),
+        [{ userId: ANA_ID, calendarId: "10000000-0000-4000-8000-0000000000a1" }],
+      );
+    });
+
+    it("refuses other members from someone who is not an administrator and stores nothing", async () => {
+      const { save, repo, access } = build();
+
+      const result = await runWithTenant(member(), () => save.invoke({ ...ROUND_ROBIN, hostUserIds: [ANA_ID] }));
+
+      expect(code(result)).toBe(CustomErrorCode.bookingHostsNotAllowed);
+      expect(access.listMemberCalendars).not.toHaveBeenCalled();
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it("lets someone who is not an administrator clear the hosts", async () => {
+      const { save, repo } = build();
+
+      expect((await runWithTenant(member(), () => save.invoke({ id: LINK_ID, hostUserIds: [] }))).ok).toBe(true);
+      expect(repo.update).toHaveBeenLastCalledWith(LINK_ID, expect.anything(), []);
+    });
+
+    it("refuses a member without a usable calendar", async () => {
+      const { save, repo } = build();
+
+      expect(code(await run(() => save.invoke({ ...ROUND_ROBIN, hostUserIds: [ANA_ID, BO_ID] })))).toBe(
+        CustomErrorCode.bookingHostWithoutCalendar,
+      );
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it("clears the hosts when the page goes back to single", async () => {
+      const { save, repo, access } = build({
+        repo: {
+          find: vi.fn().mockResolvedValue({
+            ...ROW,
+            assignment: "roundRobin",
+            hosts: [{ userId: ANA_ID, name: "Ana Host", calendarName: "Ana work" }],
+          }),
+        },
+      });
+
+      const result = await run(() => save.invoke({ id: LINK_ID, assignment: "single", hostUserIds: [] }));
+
+      expect(result.ok).toBe(true);
+      expect(access.listMemberCalendars).not.toHaveBeenCalled();
+      expect(repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ assignment: "single" }), []);
+    });
+
+    it("keeps the hosts when a change does not name them", async () => {
+      const { save, repo } = build();
+
+      expect((await run(() => save.invoke({ id: LINK_ID, inviteeChanges: false }))).ok).toBe(true);
+      expect(repo.update).toHaveBeenCalledWith(LINK_ID, expect.objectContaining({ inviteeChanges: false }), undefined);
+    });
   });
 
   it("answers not found when updating a link the caller does not own", async () => {

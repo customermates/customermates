@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { getTenantUser, runWithTenant } from "@/core/decorators/tenant-context";
+import { createMockUser } from "@/tests/helpers/mock-user";
+
 import type { BookingLinkRow } from "../booking.schema";
 
 import { BookingAvailability } from "../booking-availability";
@@ -17,12 +20,34 @@ const LINK = {
 
 const NOW = new Date("2026-11-16T05:00:00.000Z");
 
-function availability(calendarBusy: Array<[string, string]> = [], reservedBusy: Array<[string, string]> = []) {
-  const toIntervals = (pairs: Array<[string, string]>) =>
-    pairs.map(([from, to]) => ({ startsAt: new Date(from), endsAt: new Date(to) }));
+const HOST = "host-1";
+
+type Busy = Array<[string, string]> | Array<[string, string, string]>;
+
+function toIntervals(pairs: Busy) {
+  return pairs.map(([from, to, eventId]) => ({
+    startsAt: new Date(from),
+    endsAt: new Date(to),
+    ...(eventId ? { eventId } : {}),
+  }));
+}
+
+const runAs = <T>(userId: string, work: () => Promise<T>) => runWithTenant(createMockUser({ id: userId }), work);
+
+function availability(calendarBusy: Busy = [], reservedBusy: Busy = []) {
   const busy = { read: vi.fn().mockResolvedValue(toIntervals(calendarBusy)) };
   const reservations = { busyForOwner: vi.fn().mockResolvedValue(toIntervals(reservedBusy)) };
-  return { busy, reservations, subject: new BookingAvailability(busy as never, reservations as never) };
+  return { busy, reservations, subject: new BookingAvailability(busy as never, reservations as never, runAs) };
+}
+
+function perHost(calendarBusy: Record<string, Busy>, reservedBusy: Record<string, Busy> = {}) {
+  const busy = {
+    read: vi.fn(() => Promise.resolve(toIntervals(calendarBusy[getTenantUser().id] ?? []))),
+  };
+  const reservations = {
+    busyForOwner: vi.fn(() => Promise.resolve(toIntervals(reservedBusy[getTenantUser().id] ?? []))),
+  };
+  return { busy, reservations, subject: new BookingAvailability(busy as never, reservations as never, runAs) };
 }
 
 describe("BookingAvailability", () => {
@@ -32,7 +57,7 @@ describe("BookingAvailability", () => {
       [["2026-11-17T10:00:00.000Z", "2026-11-17T10:30:00.000Z"]],
     );
 
-    const { slots } = await subject.slots(LINK, NOW, new Date("2026-11-17T00:00:00.000Z"), 1);
+    const { slots } = await subject.slots(LINK, [HOST], NOW, new Date("2026-11-17T00:00:00.000Z"), 1);
     const starts = slots.map((slot) => slot.startsAt.slice(11, 16));
 
     expect(starts[0]).toBe("08:00");
@@ -45,7 +70,7 @@ describe("BookingAvailability", () => {
   it("applies the minimum notice to today's slots", async () => {
     const { subject } = availability();
 
-    const { slots } = await subject.slots(LINK, new Date("2026-11-16T08:10:00.000Z"), undefined, 1);
+    const { slots } = await subject.slots(LINK, [HOST], new Date("2026-11-16T08:10:00.000Z"), undefined, 1);
 
     expect(slots[0].startsAt).toBe("2026-11-16T09:30:00.000Z");
   });
@@ -56,7 +81,7 @@ describe("BookingAvailability", () => {
     let requests = 0;
     let from: string | null | undefined;
     do {
-      const page = await subject.slots(link, NOW, from ? new Date(from) : undefined, days);
+      const page = await subject.slots(link, [HOST], NOW, from ? new Date(from) : undefined, days);
       starts.push(...page.slots.map((slot) => slot.startsAt));
       from = page.nextFrom;
       requests += 1;
@@ -79,8 +104,8 @@ describe("BookingAvailability", () => {
     const dense = { ...LINK, durationMinutes: 15, horizonDays: 90 } as BookingLinkRow;
     const { subject } = availability();
 
-    const first = await subject.slots(dense, NOW, undefined, 31);
-    const second = await subject.slots(dense, NOW, new Date(first.nextFrom ?? ""), 31);
+    const first = await subject.slots(dense, [HOST], NOW, undefined, 31);
+    const second = await subject.slots(dense, [HOST], NOW, new Date(first.nextFrom ?? ""), 31);
     const all = await everySlot(dense, 31);
 
     expect(first.slots).toHaveLength(500);
@@ -94,7 +119,7 @@ describe("BookingAvailability", () => {
   it("ends the paging when the range already reaches the horizon", async () => {
     const { subject } = availability();
 
-    const page = await subject.slots(LINK, NOW, undefined, 31);
+    const page = await subject.slots(LINK, [HOST], NOW, undefined, 31);
 
     expect(page.nextFrom).toBeNull();
     expect(page.slots.at(-1)?.startsAt.slice(0, 10)).toBe("2026-11-27");
@@ -110,15 +135,17 @@ describe("BookingAvailability", () => {
     };
     const links = [LINK, { ...LINK, horizonDays: 90 }] as BookingLinkRow[];
 
-    expect(await new BookingAvailability(complete as never, {} as never).busyTimeIncomplete(links, NOW)).toBe(false);
+    expect(await new BookingAvailability(complete as never, {} as never, runAs).busyTimeIncomplete(links, NOW)).toBe(
+      false,
+    );
     expect(complete.window.mock.calls.map(([from, to]) => [from.toISOString(), to.toISOString()])).toEqual([
       ["2026-11-16T05:00:00.000Z", "2026-12-17T05:00:00.000Z"],
       ["2026-12-17T05:00:00.000Z", "2027-01-17T05:00:00.000Z"],
       ["2027-01-17T05:00:00.000Z", "2027-02-14T05:00:00.000Z"],
     ]);
-    expect(await new BookingAvailability(cut as never, {} as never).busyTimeIncomplete(links, NOW)).toBe(true);
+    expect(await new BookingAvailability(cut as never, {} as never, runAs).busyTimeIncomplete(links, NOW)).toBe(true);
     expect(cut.window).toHaveBeenCalledTimes(2);
-    expect(await new BookingAvailability(cut as never, {} as never).busyTimeIncomplete([], NOW)).toBe(false);
+    expect(await new BookingAvailability(cut as never, {} as never, runAs).busyTimeIncomplete([], NOW)).toBe(false);
   });
 
   it("knows whether a start is still open, including one a reservation just took", async () => {
@@ -129,5 +156,74 @@ describe("BookingAvailability", () => {
     expect(await taken.subject.isOpen(LINK, NOW, new Date("2026-11-17T09:00:00.000Z"))).toBe(false);
     expect(await free.subject.isOpen(LINK, NOW, new Date("2026-11-17T09:15:00.000Z"))).toBe(false);
     expect(await free.subject.isOpen(LINK, NOW, new Date("2026-12-31T09:00:00.000Z"))).toBe(false);
+  });
+
+  describe("several hosts", () => {
+    const DAY_START = new Date("2026-11-17T00:00:00.000Z");
+    const NINE: [string, string] = ["2026-11-17T08:00:00.000Z", "2026-11-17T10:00:00.000Z"];
+
+    it("reads each host's busy time as that host and offers a time when any host is free", async () => {
+      const { subject, busy } = perHost({ a: [NINE], b: [["2026-11-17T08:00:00.000Z", "2026-11-17T09:00:00.000Z"]] });
+
+      const one = await subject.slots(LINK, ["a"], NOW, DAY_START, 1);
+      const both = await subject.slots(LINK, ["a", "b"], NOW, DAY_START, 1);
+      const starts = (page: typeof one) => page.slots.map((slot) => slot.startsAt.slice(11, 16));
+
+      expect(starts(one)).not.toContain("09:00");
+      expect(starts(both)).toContain("09:00");
+      expect(starts(both)).not.toContain("08:00");
+      expect(new Set(starts(both)).size).toBe(both.slots.length);
+      expect(busy.read).toHaveBeenCalledTimes(3);
+    });
+
+    it("leaves out a host who cannot be run as, without failing the page", async () => {
+      const busy = { read: vi.fn().mockResolvedValue([]) };
+      const reservations = { busyForOwner: vi.fn().mockResolvedValue([]) };
+      const subject = new BookingAvailability(busy as never, reservations as never, (userId, work) =>
+        userId === "gone" ? Promise.resolve(null) : runAs(userId, work),
+      );
+
+      expect((await subject.slots(LINK, ["gone"], NOW, DAY_START, 1)).slots).toEqual([]);
+      expect((await subject.slots(LINK, ["gone", "a"], NOW, DAY_START, 1)).slots.length).toBeGreaterThan(0);
+      expect(await subject.openHosts(LINK, ["gone", "a"], NOW, new Date("2026-11-17T09:00:00.000Z"))).toEqual(["a"]);
+    });
+
+    it("names the hosts who are free at a start, in the order given", async () => {
+      const { subject } = perHost(
+        { a: [NINE], c: [] },
+        { b: [["2026-11-17T09:00:00.000Z", "2026-11-17T09:30:00.000Z"]] },
+      );
+
+      expect(await subject.openHosts(LINK, ["c", "a", "b"], NOW, new Date("2026-11-17T09:00:00.000Z"))).toEqual(["c"]);
+      expect(await subject.openHosts(LINK, ["a", "b", "c"], NOW, new Date("2026-11-17T11:00:00.000Z"))).toEqual([
+        "a",
+        "b",
+        "c",
+      ]);
+    });
+  });
+
+  describe("moving an own booking", () => {
+    const AT = new Date("2026-11-17T09:00:00.000Z");
+    const OWN = { bookingId: "booking-1", calendarEventId: "event-1" };
+
+    it("does not count the booking's own event as busy and leaves the booking out of the reserved times", async () => {
+      const { subject, reservations } = availability([
+        ["2026-11-17T09:00:00.000Z", "2026-11-17T09:30:00.000Z", "event-1"],
+      ]);
+
+      expect(await subject.isOpen(LINK, NOW, AT)).toBe(false);
+      expect(await subject.isOpen(LINK, NOW, AT, OWN)).toBe(true);
+      expect(reservations.busyForOwner).toHaveBeenLastCalledWith(expect.any(Date), expect.any(Date), "booking-1");
+
+      const page = await subject.slots(LINK, [HOST], NOW, new Date("2026-11-17T00:00:00.000Z"), 1, OWN);
+      expect(page.slots.map((slot) => slot.startsAt)).toContain(AT.toISOString());
+    });
+
+    it("still counts other events at that time", async () => {
+      const { subject } = availability([["2026-11-17T09:00:00.000Z", "2026-11-17T09:30:00.000Z", "event-2"]]);
+
+      expect(await subject.isOpen(LINK, NOW, AT, OWN)).toBe(false);
+    });
   });
 });

@@ -27,6 +27,9 @@ export function bookingLink(overrides: Partial<WorkspaceBookingLinkDto> = {}): W
     questions: [],
     successMessage: null,
     enabled: true,
+    assignment: "single",
+    inviteeChanges: true,
+    hosts: [],
     upcomingBookings: 0,
     createdAt: "2026-11-12T10:00:00.000Z",
     ownerName: "Test User",
@@ -55,6 +58,9 @@ export function bookingForm(overrides: Partial<BookingLinkForm> = {}): BookingLi
     questions: [],
     successMessage: "",
     enabled: true,
+    assignment: "single",
+    hostUserIds: [],
+    inviteeChanges: true,
     ...overrides,
   };
 }

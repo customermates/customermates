@@ -124266,6 +124266,49 @@
                                 ],
                                 "additionalProperties": false,
                                 "description": "Fires when an incoming webhook created or updated a record."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "bookingChanged"
+                                  },
+                                  "change": {
+                                    "default": "any",
+                                    "description": "cancelled or rescheduled fires only on that change, any on both.",
+                                    "type": "string",
+                                    "enum": [
+                                      "any",
+                                      "cancelled",
+                                      "rescheduled"
+                                    ]
+                                  },
+                                  "typeId": {
+                                    "description": "The list of the record the booking created.",
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "sourceId": {
+                                    "description": "Restrict the rule to one booking page.",
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "timezone": {
+                                    "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 64
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "change"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                               }
                             ],
                             "type": "object"
@@ -126732,6 +126775,49 @@
                           ],
                           "additionalProperties": false,
                           "description": "Fires when an incoming webhook created or updated a record."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "bookingChanged"
+                            },
+                            "change": {
+                              "default": "any",
+                              "description": "cancelled or rescheduled fires only on that change, any on both.",
+                              "type": "string",
+                              "enum": [
+                                "any",
+                                "cancelled",
+                                "rescheduled"
+                              ]
+                            },
+                            "typeId": {
+                              "description": "The list of the record the booking created.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "sourceId": {
+                              "description": "Restrict the rule to one booking page.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "timezone": {
+                              "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "change"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                         }
                       ],
                       "type": "object"
@@ -128583,7 +128669,8 @@
                               "dateReached",
                               "messageReceived",
                               "formSubmitted",
-                              "webhookReceived"
+                              "webhookReceived",
+                              "bookingChanged"
                             ]
                           },
                           "typeId": {
@@ -129232,6 +129319,48 @@
                         ],
                         "additionalProperties": false,
                         "description": "Fires when an incoming webhook created or updated a record."
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "bookingChanged"
+                          },
+                          "change": {
+                            "default": "any",
+                            "description": "cancelled or rescheduled fires only on that change, any on both.",
+                            "type": "string",
+                            "enum": [
+                              "any",
+                              "cancelled",
+                              "rescheduled"
+                            ]
+                          },
+                          "typeId": {
+                            "description": "The list of the record the booking created.",
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "sourceId": {
+                            "description": "Restrict the rule to one booking page.",
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "timezone": {
+                            "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                       }
                     ],
                     "type": "object"
@@ -129959,7 +130088,7 @@
                     }
                   }
                 },
-                "description": "A new rule. name, trigger and effects are required; conditions are optional. Omitting enabled creates a live rule; pass enabled false for a draft. The trigger kinds are recordCreated, recordUpdated, fieldChanged, dateReached, messageReceived, formSubmitted and webhookReceived; the effects are setField, createRecord, notify and callWebhook. List, field and relationship ids come from the record model."
+                "description": "A new rule. name, trigger and effects are required; conditions are optional. Omitting enabled creates a live rule; pass enabled false for a draft. The trigger kinds are recordCreated, recordUpdated, fieldChanged, dateReached, messageReceived, formSubmitted, webhookReceived and bookingChanged; the effects are setField, createRecord, notify and callWebhook. List, field and relationship ids come from the record model."
               }
             }
           }
@@ -130646,6 +130775,49 @@
                           ],
                           "additionalProperties": false,
                           "description": "Fires when an incoming webhook created or updated a record."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "bookingChanged"
+                            },
+                            "change": {
+                              "default": "any",
+                              "description": "cancelled or rescheduled fires only on that change, any on both.",
+                              "type": "string",
+                              "enum": [
+                                "any",
+                                "cancelled",
+                                "rescheduled"
+                              ]
+                            },
+                            "typeId": {
+                              "description": "The list of the record the booking created.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "sourceId": {
+                              "description": "Restrict the rule to one booking page.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "timezone": {
+                              "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "change"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                         }
                       ],
                       "type": "object"
@@ -132768,6 +132940,48 @@
                         ],
                         "additionalProperties": false,
                         "description": "Fires when an incoming webhook created or updated a record."
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "bookingChanged"
+                          },
+                          "change": {
+                            "default": "any",
+                            "description": "cancelled or rescheduled fires only on that change, any on both.",
+                            "type": "string",
+                            "enum": [
+                              "any",
+                              "cancelled",
+                              "rescheduled"
+                            ]
+                          },
+                          "typeId": {
+                            "description": "The list of the record the booking created.",
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "sourceId": {
+                            "description": "Restrict the rule to one booking page.",
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "timezone": {
+                            "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                       }
                     ],
                     "type": "object"
@@ -134185,6 +134399,49 @@
                           ],
                           "additionalProperties": false,
                           "description": "Fires when an incoming webhook created or updated a record."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "bookingChanged"
+                            },
+                            "change": {
+                              "default": "any",
+                              "description": "cancelled or rescheduled fires only on that change, any on both.",
+                              "type": "string",
+                              "enum": [
+                                "any",
+                                "cancelled",
+                                "rescheduled"
+                              ]
+                            },
+                            "typeId": {
+                              "description": "The list of the record the booking created.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "sourceId": {
+                              "description": "Restrict the rule to one booking page.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "timezone": {
+                              "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "change"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                         }
                       ],
                       "type": "object"
@@ -136638,6 +136895,49 @@
                           ],
                           "additionalProperties": false,
                           "description": "Fires when an incoming webhook created or updated a record."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "bookingChanged"
+                            },
+                            "change": {
+                              "default": "any",
+                              "description": "cancelled or rescheduled fires only on that change, any on both.",
+                              "type": "string",
+                              "enum": [
+                                "any",
+                                "cancelled",
+                                "rescheduled"
+                              ]
+                            },
+                            "typeId": {
+                              "description": "The list of the record the booking created.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "sourceId": {
+                              "description": "Restrict the rule to one booking page.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "timezone": {
+                              "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "change"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                         }
                       ],
                       "type": "object"
@@ -139091,6 +139391,49 @@
                           ],
                           "additionalProperties": false,
                           "description": "Fires when an incoming webhook created or updated a record."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "bookingChanged"
+                            },
+                            "change": {
+                              "default": "any",
+                              "description": "cancelled or rescheduled fires only on that change, any on both.",
+                              "type": "string",
+                              "enum": [
+                                "any",
+                                "cancelled",
+                                "rescheduled"
+                              ]
+                            },
+                            "typeId": {
+                              "description": "The list of the record the booking created.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "sourceId": {
+                              "description": "Restrict the rule to one booking page.",
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "timezone": {
+                              "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "change"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                         }
                       ],
                       "type": "object"
@@ -141362,6 +141705,48 @@
                             ],
                             "additionalProperties": false,
                             "description": "Fires when an incoming webhook created or updated a record."
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "bookingChanged"
+                              },
+                              "change": {
+                                "default": "any",
+                                "description": "cancelled or rescheduled fires only on that change, any on both.",
+                                "type": "string",
+                                "enum": [
+                                  "any",
+                                  "cancelled",
+                                  "rescheduled"
+                                ]
+                              },
+                              "typeId": {
+                                "description": "The list of the record the booking created.",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "sourceId": {
+                                "description": "Restrict the rule to one booking page.",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "timezone": {
+                                "description": "IANA time zone in which today is read for relativeDays conditions and due dates of created records. UTC when omitted.",
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Fires when the invitee or the host cancelled or rescheduled a booking that created a record."
                           }
                         ],
                         "type": "object"
@@ -142618,6 +143003,7 @@
                         "messaging.relation.created",
                         "form.submitted",
                         "webhook.received",
+                        "booking.changed",
                         "automation.rule.fired"
                       ]
                     },
@@ -144765,6 +145151,7 @@
                         "messaging.relation.created",
                         "form.submitted",
                         "webhook.received",
+                        "booking.changed",
                         "automation.rule.fired"
                       ]
                     },
@@ -169406,6 +169793,30 @@
         }
       }
     },
+    "bookingChanged": {
+      "post": {
+        "operationId": "webhookBookingChanged",
+        "summary": "Booking Changed",
+        "description": "Sent when the invitee or the host cancelled or rescheduled a booking. `data.change` is `cancelled` or `rescheduled`, `data.by` says who changed it, `data.recordId` is the record the booking created or `null`, `data.answers` holds name, email, the times and the visitor's answers by field label.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookBookingChangedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
     "automationRuleFired": {
       "post": {
         "operationId": "webhookAutomationRuleFired",
@@ -171749,6 +172160,140 @@
         ],
         "additionalProperties": false
       },
+      "WebhookBookingChangedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "booking.changed"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "actorId": {
+            "type": "null"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "bookingId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "bookingLinkId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "bookingLinkName": {
+                "type": "string"
+              },
+              "change": {
+                "type": "string",
+                "enum": [
+                  "cancelled",
+                  "rescheduled"
+                ]
+              },
+              "by": {
+                "type": "string",
+                "enum": [
+                  "invitee",
+                  "host"
+                ]
+              },
+              "typeId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "recordId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "personRecordId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hostUserId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "answers": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "entityId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "bookingId",
+              "bookingLinkId",
+              "bookingLinkName",
+              "change",
+              "by",
+              "typeId",
+              "recordId",
+              "personRecordId",
+              "hostUserId",
+              "answers",
+              "entityId"
+            ]
+          }
+        },
+        "required": [
+          "event",
+          "id",
+          "timestamp",
+          "companyId",
+          "actorId",
+          "data"
+        ],
+        "additionalProperties": false
+      },
       "WebhookAutomationRuleFiredSchema": {
         "type": "object",
         "properties": {
@@ -171813,7 +172358,8 @@
                   "dateReached",
                   "messageReceived",
                   "formSubmitted",
-                  "webhookReceived"
+                  "webhookReceived",
+                  "bookingChanged"
                 ]
               },
               "firedAt": {
@@ -172957,6 +173503,8 @@
                         "bookingRateLimited",
                         "bookingAnswerInvalid",
                         "bookingListInvalid",
+                        "bookingHostsNotAllowed",
+                        "bookingHostWithoutCalendar",
                         "connectedAccountNotFound",
                         "connectedAccountEmailChangeRequired",
                         "roleNotFound",
@@ -173322,6 +173870,7 @@
                 "messaging.relation.created",
                 "form.submitted",
                 "webhook.received",
+                "booking.changed",
                 "automation.rule.fired"
               ]
             }
@@ -176832,6 +177381,7 @@
                 "messaging.relation.created",
                 "form.submitted",
                 "webhook.received",
+                "booking.changed",
                 "automation.rule.fired"
               ]
             }

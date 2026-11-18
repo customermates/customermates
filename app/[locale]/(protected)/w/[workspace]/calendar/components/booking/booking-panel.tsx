@@ -5,7 +5,7 @@ import type { BookingPanelState } from "./booking-panel-model";
 
 import { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { ArrowUpRight, CalendarClock, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import { deleteBookingLinkAction, saveBookingLinkAction } from "../../booking-actions";
@@ -21,6 +21,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Switch } from "@/components/ui/switch";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { IntlLink, useRouter } from "@/i18n/navigation";
 
@@ -49,11 +50,8 @@ const BookingRow = observer(function BookingRow({
   onEdit: (link: WorkspaceBookingLinkDto, invoker: HTMLElement) => void;
 }) {
   const t = useTranslations();
-  const locale = useLocale();
-  const when = (iso: string) =>
-    new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(
-      new Date(iso),
-    );
+  const intlStore = useHydratedIntlStore();
+  const when = (iso: string) => intlStore.formatDescriptiveShortDateTime(new Date(iso));
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   return (
@@ -73,13 +71,15 @@ const BookingRow = observer(function BookingRow({
       {upcoming.length > 0 ? (
         <ul className="flex flex-col gap-1" data-booking-upcoming="">
           {upcoming.slice(0, UPCOMING_PER_PAGE).map((booking) => (
-            <li key={booking.id} className="flex items-baseline gap-2 text-xs">
-              <span className="shrink-0 tabular-nums text-muted-foreground">{when(booking.startsAt)}</span>
+            <li key={booking.id} className="flex flex-col text-xs">
+              <span className="flex items-baseline gap-2">
+                <span className="min-w-0 flex-1 truncate font-medium">{booking.inviteeName}</span>
 
-              <span className="min-w-0 flex-1 truncate">{booking.inviteeName}</span>
+                <span className="shrink-0 tabular-nums text-muted-foreground">{when(booking.startsAt)}</span>
+              </span>
 
               {link.hosts.length > 0 ? (
-                <span className="shrink-0 text-muted-foreground">{booking.hostName}</span>
+                <span className="truncate text-muted-foreground">{booking.hostName}</span>
               ) : null}
             </li>
           ))}

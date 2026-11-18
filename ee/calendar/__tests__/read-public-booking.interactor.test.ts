@@ -18,67 +18,42 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { renderTokenAgeMs, renderTokenIssuedTo } from "@/core/network/public-submit-guard";
-import { PublicTenant } from "@/core/network/public-tenant";
-import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 
 import type { BookingLinkLookup } from "../booking-link.repo";
 
-import { PublicBookingAccess } from "../public-booking-access";
 import { ReadPublicBookingInteractor } from "../read-public-booking.interactor";
-import { DEFAULT_WORKING_HOURS } from "../working-hours";
+import {
+  type AccessOptions,
+  ANA,
+  BO,
+  buildAccess,
+  calendarId,
+  calendarRow,
+  candidate,
+  LINK_ID,
+  lookupLink,
+  OWNER,
+  TOKEN,
+} from "./public-booking-fixtures";
 
 const SECRET = "booking-read-secret";
 const NOW = new Date("2026-11-16T10:00:00.000Z");
-const TOKEN = "tok_abcdefghijklmnop";
-const LINK_ID = "50000000-0000-4000-8000-000000000001";
 
-const link = {
-  id: LINK_ID,
-  companyId: mockUser.companyId,
-  userId: mockUser.id,
-  calendarId: "60000000-0000-4000-8000-000000000001",
-  calendarName: "Work",
-  token: TOKEN,
-  title: "Intro call",
-  description: null,
-  durationMinutes: 30,
-  bufferMinutes: 0,
-  minNoticeMinutes: 240,
-  horizonDays: 30,
-  timeZone: "Europe/Berlin",
-  workingHours: DEFAULT_WORKING_HOURS,
-  withVideo: false,
-  personTypeId: null,
-  personRelationshipId: null,
-  recordTypeId: null,
-  startFieldId: null,
-  questions: [],
-  successMessage: null,
-  enabled: true,
-  createdAt: new Date(0),
-  upcomingBookings: 0,
-  hostName: "Ben",
-  workspaceName: "Acme",
-  companyDeleting: false,
-  unipileAccountId: "acc_1",
-  unipileCalendarId: "cal_1",
-  connectedAccountId: "70000000-0000-4000-8000-000000000001",
-  provider: "google",
-  accountUsable: true,
-} as BookingLinkLookup;
-
-function build() {
-  const lookup = { findByTokenUnscoped: vi.fn().mockResolvedValue(link) };
-  const access = new PublicBookingAccess(
-    lookup,
-    new PublicTenant({ getActiveUserByIdOrThrow: vi.fn().mockResolvedValue(mockUser) }),
-    { perLink: new TokenBucketRateLimiter(100, 60_000), perVisitor: new TokenBucketRateLimiter(100, 60_000) },
-    () => ({ require: vi.fn().mockResolvedValue(null) }),
-    () => ({ companyId: mockUser.companyId, has: vi.fn().mockReturnValue(true) }),
-    { authSecret: SECRET, now: () => NOW },
-  );
+function build(options: { link?: BookingLinkLookup; calendars?: AccessOptions["calendars"] } = {}) {
+  const { access, lookup } = buildAccess({
+    link: options.link ?? lookupLink({ hostName: "Ben", companyId: mockUser.companyId, userId: mockUser.id }),
+    calendars: options.calendars,
+    authSecret: SECRET,
+    now: NOW,
+  });
   return { interactor: new ReadPublicBookingInteractor(access, { loadModel: vi.fn() }), lookup };
 }
+
+const TEAM = lookupLink({
+  hostName: "Ben",
+  assignment: "roundRobin",
+  hostCandidates: [candidate(OWNER), candidate(ANA), candidate(BO)],
+});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -90,7 +65,7 @@ describe("ReadPublicBookingInteractor", () => {
     const result = await build().interactor.invoke({ token: TOKEN, visitor: "v" });
 
     if (result.status !== "available") throw new Error("expected an available page");
-    expect(result.page).toMatchObject({ title: "Intro call", hostName: "Ben", durationMinutes: 30 });
+    expect(result.page).toMatchObject({ title: "Intro call", hostName: "Test User", team: false, durationMinutes: 30 });
     expect(renderTokenAgeMs(result.page.renderToken, LINK_ID, new Date(NOW.getTime() + 5_000), SECRET)).toBe(5_000);
     expect(renderTokenAgeMs(result.page.renderToken, "other-link", new Date(NOW.getTime() + 5_000), SECRET)).toBeNull();
     expect(renderTokenIssuedTo(result.page.renderToken, "v", SECRET)).toBe(true);
@@ -103,6 +78,21 @@ describe("ReadPublicBookingInteractor", () => {
 
     expect(await interactor.invoke({ token: TOKEN })).toEqual({ status: "unavailable" });
     expect(lookup.findByTokenUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("shows a round robin page with more than one usable host as a team under the owner's name", async () => {
+    const result = await build({ link: TEAM }).interactor.invoke({ token: TOKEN });
+
+    expect(result).toMatchObject({ status: "available", page: { hostName: "Ben", team: true } });
+  });
+
+  it("names the one host left when the other hosts cannot take bookings", async () => {
+    const result = await build({
+      link: TEAM,
+      calendars: { [calendarId(OWNER.id)]: null, [calendarId(ANA.id)]: calendarRow(ANA.id), [calendarId(BO.id)]: null },
+    }).interactor.invoke({ token: TOKEN });
+
+    expect(result).toMatchObject({ status: "available", page: { hostName: "Ana Host", team: false } });
   });
 
   it("is unavailable for a malformed token", async () => {

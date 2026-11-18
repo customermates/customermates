@@ -43,7 +43,7 @@ function build() {
     deleteCalendarEventUnscoped: vi.fn().mockResolvedValue({ id: EVENT_ID }),
   };
   const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
-  const bookings = { cancelForCalendarEventUnscoped: vi.fn().mockResolvedValue(1) };
+  const bookings = { eventCancelled: vi.fn().mockResolvedValue(1), eventAt: vi.fn().mockResolvedValue(1) };
   return { calendarRepo, eventService, bookings };
 }
 
@@ -67,11 +67,15 @@ describe("calendar.event.delete releases the booking", () => {
 
     await interactor.invoke(envelope);
 
-    expect(bookings.cancelForCalendarEventUnscoped).toHaveBeenCalledExactlyOnceWith({
+    expect(bookings.eventCancelled).toHaveBeenCalledExactlyOnceWith({
       companyId: "co-1",
       calendarEventId: EVENT_ID,
     });
+    expect(bookings.eventAt).not.toHaveBeenCalled();
     expect(eventService.publish).toHaveBeenCalledOnce();
+    expect(bookings.eventCancelled.mock.invocationCallOrder[0]).toBeLessThan(
+      eventService.publish.mock.invocationCallOrder[0] ?? 0,
+    );
   });
 
   it("does nothing for an event that was never stored or an account that is gone", async () => {
@@ -91,8 +95,8 @@ describe("calendar.event.delete releases the booking", () => {
       gone.bookings,
     ).invoke(envelope);
 
-    expect(unknown.bookings.cancelForCalendarEventUnscoped).not.toHaveBeenCalled();
-    expect(gone.bookings.cancelForCalendarEventUnscoped).not.toHaveBeenCalled();
+    expect(unknown.bookings.eventCancelled).not.toHaveBeenCalled();
+    expect(gone.bookings.eventCancelled).not.toHaveBeenCalled();
   });
 });
 
@@ -125,16 +129,18 @@ describe("calendar.event.update keeps the booking in step with its event", () =>
     };
   }
 
-  it("cancels the booking unless the event still sits at the booked time", async () => {
+  it("moves the booking to the time the event now sits at instead of cancelling it", async () => {
     const { run, bookings } = interactor();
 
     await run(event());
 
-    expect(bookings.cancelForCalendarEventUnscoped).toHaveBeenCalledExactlyOnceWith({
+    expect(bookings.eventAt).toHaveBeenCalledExactlyOnceWith({
       companyId: "co-1",
       calendarEventId: EVENT_ID,
-      stillAt: { startsAt: new Date("2030-01-15T09:00:00.000Z"), endsAt: new Date("2030-01-15T09:30:00.000Z") },
+      startsAt: new Date("2030-01-15T09:00:00.000Z"),
+      endsAt: new Date("2030-01-15T09:30:00.000Z"),
     });
+    expect(bookings.eventCancelled).not.toHaveBeenCalled();
   });
 
   it("cancels the booking whatever the time when the provider cancelled the event", async () => {
@@ -142,9 +148,19 @@ describe("calendar.event.update keeps the booking in step with its event", () =>
 
     await run(event({ is_cancelled: true }));
 
-    expect(bookings.cancelForCalendarEventUnscoped).toHaveBeenCalledExactlyOnceWith({
+    expect(bookings.eventCancelled).toHaveBeenCalledExactlyOnceWith({
       companyId: "co-1",
       calendarEventId: EVENT_ID,
     });
+    expect(bookings.eventAt).not.toHaveBeenCalled();
+  });
+
+  it("leaves the booking alone when the event became an all-day event", async () => {
+    const { run, bookings } = interactor();
+
+    await run(event({ start: { type: "date", date: "2030-01-15" }, end: { type: "date", date: "2030-01-16" } }));
+
+    expect(bookings.eventAt).not.toHaveBeenCalled();
+    expect(bookings.eventCancelled).not.toHaveBeenCalled();
   });
 });

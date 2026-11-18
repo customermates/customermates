@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { AutomationTriggerKind } from "@/generated/prisma";
 import type { AutomationTrigger } from "./automation-rule.schema";
 
-import { EXTERNAL_TRIGGER_EVENTS } from "@/features/event/external-trigger-events";
+import { BOOKING_CHANGES, EXTERNAL_TRIGGER_EVENTS } from "@/features/event/external-trigger-events";
 import type { WEBHOOK_MESSAGING_EVENTS } from "@/features/webhook/webhook-event-registry";
 import { eventOccurrenceKey } from "./automation-occurrence";
 
@@ -20,6 +20,13 @@ const ExternalPayloadSchema = z.looseObject({
   outcome: z.string().optional(),
 });
 
+const BookingPayloadSchema = z.looseObject({
+  bookingLinkId: z.uuid(),
+  change: z.enum(BOOKING_CHANGES),
+  typeId: z.uuid().nullish(),
+  recordId: z.uuid().nullish(),
+});
+
 const MessagePayloadSchema = z.looseObject({ connectedAccountId: z.string().min(1) });
 
 export type AutomationEventDescriptor = {
@@ -30,6 +37,7 @@ export type AutomationEventDescriptor = {
   channel: "email" | "chat" | null;
   sourceId: string | null;
   connectedAccountId: string | null;
+  change?: (typeof BOOKING_CHANGES)[number];
 };
 
 type EventInput = { id: string; kind: string; payload: unknown };
@@ -49,7 +57,23 @@ function describeMessageEvent(event: EventInput): AutomationEventDescriptor | nu
   };
 }
 
+function describeBookingEvent(event: EventInput): AutomationEventDescriptor | null {
+  const payload = BookingPayloadSchema.safeParse(event.payload);
+  if (!payload.success || !payload.data.typeId || !payload.data.recordId) return null;
+  return {
+    triggerKind: "bookingChanged",
+    typeId: payload.data.typeId,
+    recordId: payload.data.recordId,
+    occurrenceKey: eventOccurrenceKey(event.id),
+    channel: null,
+    sourceId: payload.data.bookingLinkId,
+    connectedAccountId: null,
+    change: payload.data.change,
+  };
+}
+
 function describeExternalEvent(event: EventInput): AutomationEventDescriptor | null {
+  if (event.kind === "booking.changed") return describeBookingEvent(event);
   if (!(EXTERNAL_TRIGGER_EVENTS as readonly string[]).includes(event.kind)) return null;
   const payload = ExternalPayloadSchema.safeParse(event.payload);
   if (!payload.success || !payload.data.typeId || !payload.data.recordId) return null;
@@ -83,6 +107,13 @@ export function triggerMatchesEvent(trigger: AutomationTrigger, event: Automatio
         (!trigger.typeId || trigger.typeId === event.typeId) &&
         (!trigger.sourceId || trigger.sourceId === event.sourceId)
       );
+    case "bookingChanged":
+      return (
+        event.triggerKind === "bookingChanged" &&
+        (trigger.change === "any" || trigger.change === event.change) &&
+        (!trigger.typeId || trigger.typeId === event.typeId) &&
+        (!trigger.sourceId || trigger.sourceId === event.sourceId)
+      );
     default:
       return false;
   }
@@ -92,5 +123,6 @@ export function subscribedRuleKinds(eventKind: string): AutomationTriggerKind[] 
   if ((MESSAGE_RULE_EVENTS as readonly string[]).includes(eventKind)) return ["messageReceived"];
   if (eventKind === "form.submitted") return ["formSubmitted"];
   if (eventKind === "webhook.received") return ["webhookReceived"];
+  if (eventKind === "booking.changed") return ["bookingChanged"];
   return [];
 }

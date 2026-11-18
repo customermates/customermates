@@ -39,7 +39,11 @@ export abstract class BookingLinkRepo {
   abstract find(id: string): Promise<BookingLinkRow | null>;
   abstract countOwn(): Promise<number>;
   abstract create(token: string, data: BookingLinkWrite, hosts: BookingHostWrite[]): Promise<BookingLinkRow>;
-  abstract update(id: string, data: Partial<BookingLinkWrite>, hosts?: BookingHostWrite[]): Promise<BookingLinkRow | null>;
+  abstract update(
+    id: string,
+    data: Partial<BookingLinkWrite>,
+    hosts?: BookingHostWrite[],
+  ): Promise<BookingLinkRow | null>;
   abstract delete(id: string): Promise<boolean>;
   abstract findByTokenUnscoped(token: string): Promise<BookingLinkLookup | null>;
 }

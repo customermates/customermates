@@ -105,7 +105,7 @@ export class PrismaCalendarWriteAccessRepo extends TenantRepository implements C
       });
     }
 
-    return [...first.values()].sort((left, right) => left.name.localeCompare(right.name));
+    return [...first.values()].sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
   }
 
   async findOwnCalendar(calendarId: string): Promise<WritableCalendarRow | null> {

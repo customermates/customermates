@@ -61,6 +61,9 @@ function form(overrides: Partial<BookingLinkForm> = {}): BookingLinkForm {
     questions: [],
     successMessage: "",
     enabled: true,
+    assignment: "single",
+    hostUserIds: [],
+    inviteeChanges: true,
     ...overrides,
   };
 }
@@ -83,6 +86,16 @@ describe("booking preview page", () => {
       workspaceName: null,
       questions: [],
     });
+  });
+
+  it("shows a team only for a round robin draft that names further hosts", () => {
+    const page = (overrides: Partial<BookingLinkForm>) =>
+      bookingPreviewPage(form(overrides), SETUP, "Test User", "Your booking page").team;
+
+    expect(page({})).toBe(false);
+    expect(page({ assignment: "roundRobin" })).toBe(false);
+    expect(page({ assignment: "single", hostUserIds: ["40000000-0000-4000-8000-000000000001"] })).toBe(false);
+    expect(page({ assignment: "roundRobin", hostUserIds: ["40000000-0000-4000-8000-000000000001"] })).toBe(true);
   });
 
   it("falls back to the placeholder title while the title is empty", () => {

@@ -197,6 +197,7 @@
           "setField": "set a field value"
         },
         "trigger": {
+          "bookingChanged": "a booking is cancelled or rescheduled",
           "dateReached": "a date is reached",
           "fieldChanged": "a field changes",
           "formSubmitted": "a form is submitted",
@@ -1029,6 +1030,10 @@
       "atHour": "At hour (0 to 23)",
       "before": "before",
       "body": "Details (optional)",
+      "bookingChange": "What changed",
+      "bookingChangeAny": "Any change",
+      "bookingChangeCancelled": "Cancelled",
+      "bookingChangeRescheduled": "Rescheduled",
       "boolean": {
         "false": "No",
         "true": "Yes"
@@ -1158,6 +1163,7 @@
       "skipped": "Skipped"
     },
     "summary": {
+      "bookingChanged": "{change, select, cancelled {When a booking is cancelled} rescheduled {When a booking is rescheduled} other {When a booking is cancelled or rescheduled}}",
       "dateReached": "{direction, select, before {{days, plural, =0 {On the date of {field} in {list}} one {# day before {field} in {list}} other {# days before {field} in {list}}}} other {{days, plural, =0 {On the date of {field} in {list}} one {# day after {field} in {list}} other {# days after {field} in {list}}}}}",
       "fieldChanged": "When {field} changes in {list}",
       "formSubmitted": "When a form is submitted",
@@ -1168,6 +1174,7 @@
     },
     "title": "Automations",
     "trigger": {
+      "bookingChanged": "A booking is cancelled or rescheduled",
       "dateReached": "A date is reached",
       "fieldChanged": "A field changes",
       "formSubmitted": "A form is submitted",
@@ -1311,6 +1318,13 @@
           "notify": "Review the reply to {record}"
         },
         "title": "Answer new enquiries"
+      },
+      "bookingCancelled": {
+        "description": "When a booking is cancelled, notify you so you can follow up or free the time.",
+        "effects": {
+          "notify": "Booking cancelled: {record}"
+        },
+        "title": "Tell me when a booking is cancelled"
       },
       "chaseDocuments": {
         "description": "7 days after a request date, create an Action to chase the documents and notify the owner.",
@@ -1810,8 +1824,8 @@
       "automationRuleRunCursorInvalid": "That page link for the run history is no longer valid. Reload the history and try again.",
       "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "bookingAnswerInvalid": "An answer is missing or not valid.",
-      "bookingHostWithoutCalendar": "This member has no connected calendar and cannot host a booking page.",
       "bookingHostsNotAllowed": "Only an administrator can add other members as hosts.",
+      "bookingHostWithoutCalendar": "This member has no connected calendar and cannot host a booking page.",
       "bookingLinkLimitReached": "You can have at most {limit} booking links. Delete one to create another.",
       "bookingLinkNotFound": "Booking link ID not found or not accessible.",
       "bookingListInvalid": "This list or field cannot be used for bookings.",
@@ -2080,6 +2094,9 @@
         "rule": {
           "fired": "Automation Rule Fired"
         }
+      },
+      "booking": {
+        "changed": "Booking Changed"
       },
       "connected_account": {
         "created": "Account Connected",
@@ -4884,11 +4901,10 @@
     "apiKeysDescription": "Long-lived API keys for programmatic access."
   },
   "PublicBooking": {
-    "back": "Back",
     "bookAgain": "Book a new time",
     "cancel": "Cancel booking",
-    "cancelReason": "Reason (optional)",
     "cancelledText": "The booking is cancelled and the calendar invitation is withdrawn.",
+    "cancelReason": "Reason (optional)",
     "changesOff": "To change this booking, contact {host}.",
     "confirm": "Confirm booking",
     "confirmedText": "You will receive a calendar invitation by email.",
@@ -4917,8 +4933,8 @@
     "rateLimited": "Too many requests. Try again in a few minutes.",
     "reschedule": "Reschedule",
     "rescheduleConfirm": "Move to this time",
-    "rescheduleTitle": "Choose a new time",
     "rescheduledText": "The booking is moved. You will receive an updated calendar invitation.",
+    "rescheduleTitle": "Choose a new time",
     "stateCancelled": "This booking was cancelled.",
     "statePast": "This meeting has already taken place.",
     "timeZone": "Times are shown in {timeZone}",

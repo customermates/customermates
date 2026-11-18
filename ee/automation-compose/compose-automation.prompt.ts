@@ -83,7 +83,7 @@ export function composeSystemPrompt(model: RecordModelView, today: string): stri
     "You turn one sentence about a small business workflow into one automation rule for a CRM.",
     `Today is ${today}.`,
     "An automation has exactly one trigger, optional conditions on the triggering record, and one to ten effects.",
-    "Triggers: recordCreated, recordUpdated, fieldChanged, dateReached, messageReceived, formSubmitted, webhookReceived.",
+    "Triggers: recordCreated, recordUpdated, fieldChanged, dateReached, messageReceived, formSubmitted, webhookReceived, bookingChanged.",
     "Effects: setField, createRecord, notify, callWebhook, agent.",
     "Use only the list, field, option and relationship ids of the workspace model below; never invent an id.",
     "A wait or delay between steps does not exist: express a delay as a due date offset on a created record or as a dateReached trigger.",

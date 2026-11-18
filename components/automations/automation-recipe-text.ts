@@ -60,6 +60,11 @@ const TEXT: Record<AutomationRecipeId, (t: Translate) => RecipeText> = {
     description: t("Automations.recipes.wonOrLostReason.description", values),
     effects: [t("Automations.recipes.wonOrLostReason.effects.notify", values)],
   }),
+  bookingCancelled: (t) => ({
+    title: t("Automations.recipes.bookingCancelled.title", values),
+    description: t("Automations.recipes.bookingCancelled.description", values),
+    effects: [t("Automations.recipes.bookingCancelled.effects.notify", values)],
+  }),
 };
 
 export function recipeText(t: Translate, id: AutomationRecipeId): RecipeText {

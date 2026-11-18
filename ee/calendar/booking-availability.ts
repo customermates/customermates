@@ -40,12 +40,10 @@ export function mergeHostSlots(
     if (overflow && new Date(overflow.startsAt) < covered) covered = new Date(overflow.startsAt);
   }
   const merged = new Map<string, FreeSlot>();
-  for (const found of perHost) {
-    for (const slot of found) {
-      if (new Date(slot.startsAt) < covered) merged.set(slot.startsAt, slot);
-    }
-  }
-  const slots = [...merged.values()].sort((left, right) => left.startsAt.localeCompare(right.startsAt));
+  for (const found of perHost)
+    for (const slot of found) if (new Date(slot.startsAt) < covered) merged.set(slot.startsAt, slot);
+
+  const slots = [...merged.values()].sort((left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt));
   const cut = slots[limit];
   if (!cut) return { slots, covered };
 
@@ -98,7 +96,9 @@ export class BookingAvailability {
 
   async openHosts(link: BookingLinkRow, hostIds: string[], now: Date, startsAt: Date): Promise<string[]> {
     const open = await Promise.all(
-      hostIds.map(async (hostId) => ((await this.runAs(hostId, () => this.isOpen(link, now, startsAt))) ? hostId : null)),
+      hostIds.map(async (hostId) =>
+        (await this.runAs(hostId, () => this.isOpen(link, now, startsAt))) ? hostId : null,
+      ),
     );
 
     return open.filter((hostId): hostId is string => hostId !== null);

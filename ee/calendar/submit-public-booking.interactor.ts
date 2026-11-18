@@ -148,9 +148,7 @@ export class SubmitPublicBookingInteractor {
     for (const hostId of ordered) {
       const host = link.usableHosts.find((item) => item.userId === hostId);
       if (!host) continue;
-      const outcome = await this.access.asHost(hostId, () =>
-        this.bookWith(link, host, data, answers, ipHash, texts),
-      );
+      const outcome = await this.access.asHost(hostId, () => this.bookWith(link, host, data, answers, ipHash, texts));
       if (outcome === null || outcome === "taken") continue;
       if (outcome === "failed") {
         failed = true;

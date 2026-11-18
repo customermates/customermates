@@ -90,10 +90,8 @@ import { BookingAvailability, type HostRunner } from "@/ee/calendar/booking-avai
 import { BookingEventSync } from "@/ee/calendar/booking-event-sync";
 import { CancelPublicBookingInteractor } from "@/ee/calendar/cancel-public-booking.interactor";
 import { GetUpcomingBookingsInteractor } from "@/ee/calendar/get-upcoming-bookings.interactor";
-import {
-  ReadPublicBookingManageInteractor,
-  ReadPublicBookingManageSlotsInteractor,
-} from "@/ee/calendar/read-public-booking-manage.interactor";
+import { ReadPublicBookingManageInteractor } from "@/ee/calendar/read-public-booking-manage.interactor";
+import { ReadPublicBookingManageSlotsInteractor } from "@/ee/calendar/read-public-booking-manage-slots.interactor";
 import { ReschedulePublicBookingInteractor } from "@/ee/calendar/reschedule-public-booking.interactor";
 import { BusyTimeReader } from "@/ee/calendar/busy-time.reader";
 import { CalendarEventWriter } from "@/ee/calendar/calendar-event-writer";
@@ -1916,8 +1914,7 @@ const getBookingRepo = () => new PrismaBookingRepo();
 const getCalendarEventWriter = () => new CalendarEventWriter(getMessagingService(), getCalendarRepo());
 const getBusyTimeReader = () => new BusyTimeReader(new PrismaPlannerPersonalEventsRepo("own"));
 const runAsBookingHost: HostRunner = (userId, work) => publicTenant.run(userId, work, () => Promise.resolve(null));
-const getBookingAvailability = () =>
-  new BookingAvailability(getBusyTimeReader(), getBookingRepo(), runAsBookingHost);
+const getBookingAvailability = () => new BookingAvailability(getBusyTimeReader(), getBookingRepo(), runAsBookingHost);
 const getBookingAnnouncer = () =>
   new BookingAnnouncer(getEventService(), getNotificationService(), async (locale, kind, values) => {
     const t = await getTranslator(locale, "Booking.hostNotice");
@@ -2015,6 +2012,15 @@ const publicBookingSubmitAccess = new PublicBookingAccess(
   () => getCalendarWriteAccessRepo(),
   bookingAccessSettings,
 );
+const publicBookingChangeAccess = new PublicBookingAccess(
+  getBookingRepo(),
+  publicTenant,
+  { perLink: new TokenBucketRateLimiter(60, 600_000), perVisitor: new TokenBucketRateLimiter(20, 600_000) },
+  () => getEntitlementService(),
+  () => getPermissionService(),
+  () => getCalendarWriteAccessRepo(),
+  bookingAccessSettings,
+);
 export const getReadPublicBookingInteractor = () =>
   new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService());
 export const getReadPublicBookingSlotsInteractor = () =>
@@ -2037,7 +2043,7 @@ export const getReadPublicBookingManageSlotsInteractor = () =>
   new ReadPublicBookingManageSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
 export const getCancelPublicBookingInteractor = () =>
   new CancelPublicBookingInteractor(
-    publicBookingSubmitAccess,
+    publicBookingChangeAccess,
     getBookingRepo(),
     getCalendarWriteAccessRepo(),
     getCalendarEventWriter(),
@@ -2045,7 +2051,7 @@ export const getCancelPublicBookingInteractor = () =>
   );
 export const getReschedulePublicBookingInteractor = () =>
   new ReschedulePublicBookingInteractor(
-    publicBookingSubmitAccess,
+    publicBookingChangeAccess,
     getBookingAvailability(),
     getBookingRepo(),
     getCalendarWriteAccessRepo(),

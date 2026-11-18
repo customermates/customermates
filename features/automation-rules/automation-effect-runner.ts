@@ -153,7 +153,8 @@ export class AutomationEffectRunner {
       runtime: effect.runtime,
       prompt,
       promptUntrusted:
-        recordValues > 0 || ["messageReceived", "formSubmitted", "webhookReceived"].includes(context.rule.trigger.kind),
+        recordValues > 0 ||
+        ["messageReceived", "formSubmitted", "webhookReceived", "bookingChanged"].includes(context.rule.trigger.kind),
       model: effect.model ?? null,
       runnerId: effect.runnerId ?? null,
       recordRef: context.recordRef,

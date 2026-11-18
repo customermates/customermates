@@ -47,14 +47,28 @@ describe("mergeHostSlots", () => {
   const end = new Date(Date.UTC(2030, 0, 16));
 
   it("offers a time once when any host is free and keeps the times in order", () => {
-    const merged = mergeHostSlots([[slot(9), slot(11)], [slot(10), slot(11)]], end, 500);
+    const merged = mergeHostSlots(
+      [
+        [slot(9), slot(11)],
+        [slot(10), slot(11)],
+      ],
+      end,
+      500,
+    );
 
     expect(merged.slots.map((item) => item.startsAt)).toEqual([slot(9).startsAt, slot(10).startsAt, slot(11).startsAt]);
     expect(merged.covered.getTime()).toBe(end.getTime() + 1);
   });
 
   it("stops at the first time a host could not report in full, so no later time is missed", () => {
-    const merged = mergeHostSlots([[slot(9), slot(10), slot(11)], [slot(9), slot(12), slot(13)]], end, 2);
+    const merged = mergeHostSlots(
+      [
+        [slot(9), slot(10), slot(11)],
+        [slot(9), slot(12), slot(13)],
+      ],
+      end,
+      2,
+    );
 
     expect(merged.slots.map((item) => item.startsAt)).toEqual([slot(9).startsAt, slot(10).startsAt]);
     expect(merged.covered.toISOString()).toBe(slot(11).startsAt);
@@ -99,7 +113,7 @@ describe("booking invitation and change payload", () => {
       endsAt: new Date("2030-01-15T09:30:00.000Z"),
       timeZone: "Europe/Berlin",
       answers: { Topic: "Pricing" },
-    } as BookingRow;
+    } as unknown as BookingRow;
 
     expect(bookingChangedPayload(booking, "cancelled", "invitee", { reason: "Ill" })).toEqual({
       bookingId: "b1",

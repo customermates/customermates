@@ -82,6 +82,7 @@ export const PUBLIC_ROUTES = [
   "/invitation/:token",
   "/p/:token",
   "/book/:token",
+  "/book/manage/:token",
   "/f/:token",
   "/notification-emails/turn-off",
   "/docs/openapi/:slug",

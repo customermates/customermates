@@ -234,7 +234,9 @@ test("lets a visitor move to a later month and pick a time there", async ({ page
   await expect(visitor.locator("[data-booking-form] #booking-name")).toBeEnabled();
   await expect(visitor.locator("[data-booking-form] #booking-email")).toBeEnabled();
 
-  // Going back keeps the earlier month and its first free day available.
+  // Back returns to the times of the month the visitor was on; the earlier month and its first free day stay available.
+  await visitor.locator("[data-booking-back]").click();
+  await expect(calendar.locator(`button[data-day="${laterDate}"]`)).toHaveAttribute("data-selected-single", "true");
   await calendar.locator("button.rdp-button_previous").click();
   await expect(calendar.locator(".rdp-month_caption")).toHaveText(caption);
   await expect(calendar.locator(`button[data-day="${firstDay}"]`)).toBeEnabled();

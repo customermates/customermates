@@ -3,12 +3,26 @@
 import { useTranslations } from "next-intl";
 
 import type { AutomationBuilderModel } from "./automation-builder-model";
-import type { AutomationDraft, DraftMessageChannel, DraftTriggerKind, DraftUnavailableKind } from "./automation-draft";
+import type {
+  AutomationDraft,
+  DraftBookingChange,
+  DraftMessageChannel,
+  DraftTriggerKind,
+  DraftUnavailableKind,
+} from "./automation-draft";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { DRAFT_MESSAGE_CHANNELS, DRAFT_TRIGGER_KINDS, fieldOfList, fieldTakesValue, listOf } from "./automation-draft";
+import {
+  DRAFT_BOOKING_CHANGES,
+  DRAFT_MESSAGE_CHANNELS,
+  DRAFT_TRIGGER_KINDS,
+  fieldOfList,
+  fieldTakesValue,
+  listOf,
+  triggerListIsOptional,
+} from "./automation-draft";
 import {
   Choose,
   DATE_FIELD_TYPES,
@@ -39,11 +53,22 @@ function channelLabel(t: ReturnType<typeof useTranslations>, channel: DraftMessa
   }
 }
 
+function bookingChangeLabel(t: ReturnType<typeof useTranslations>, change: DraftBookingChange): string {
+  switch (change) {
+    case "any":
+      return t("AutomationRules.builder.bookingChangeAny");
+    case "cancelled":
+      return t("AutomationRules.builder.bookingChangeCancelled");
+    case "rescheduled":
+      return t("AutomationRules.builder.bookingChangeRescheduled");
+  }
+}
+
 export function AutomationTriggerEditor({ trigger, model, flagged, unavailable, onChange }: Props) {
   const t = useTranslations();
   const choose = t("AutomationRules.builder.choose");
   const recordKind = trigger.kind !== "messageReceived" && trigger.kind !== "other";
-  const optionalList = trigger.kind === "formSubmitted" || trigger.kind === "webhookReceived";
+  const optionalList = triggerListIsOptional(trigger.kind);
   const triggerFields = (listOf(model, trigger.typeId)?.fields ?? []).filter(
     (field) => trigger.kind !== "dateReached" || DATE_FIELD_TYPES.has(field.valueType),
   );
@@ -103,6 +128,18 @@ export function AutomationTriggerEditor({ trigger, model, flagged, unavailable, 
                 onChange={(typeId) =>
                   onChange({ typeId: typeId === "none" ? "" : typeId, fieldId: "", fieldIds: [], value: "" })
                 }
+              />
+            </Labeled>
+          )}
+
+          {trigger.kind === "bookingChanged" && (
+            <Labeled label={t("AutomationRules.builder.bookingChange")}>
+              <Choose
+                items={DRAFT_BOOKING_CHANGES.map((change) => ({ id: change, label: bookingChangeLabel(t, change) }))}
+                label={t("AutomationRules.builder.bookingChange")}
+                placeholder={choose}
+                value={trigger.change}
+                onChange={(change) => onChange({ change: change as DraftBookingChange })}
               />
             </Labeled>
           )}

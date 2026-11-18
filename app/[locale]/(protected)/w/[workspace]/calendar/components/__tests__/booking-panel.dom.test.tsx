@@ -16,9 +16,15 @@ const harness = vi.hoisted(() => ({
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
+  useLocale: () => "en",
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ bookingLinkModalStore: harness.modal }),
+}));
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({
+    formatDescriptiveShortDateTime: (date: Date | undefined) => (date ? date.toISOString().slice(0, 16) : ""),
+  }),
 }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children: unknown; href: string }) =>
@@ -203,7 +209,50 @@ describe("BookingPanel", () => {
   it("hands the setup and the refresh to the booking modal", async () => {
     await renderPanel(ready());
 
-    expect(harness.modal.configure).toHaveBeenCalledWith(READY_SETUP, expect.any(Function));
+    expect(harness.modal.configure).toHaveBeenCalledWith(READY_SETUP, expect.any(Function), undefined);
+  });
+
+  it("hands the members who can host to the modal and shows the next bookings of each page with their host", async () => {
+    const team = bookingLink({
+      assignment: "roundRobin",
+      hosts: [{ userId: "40000000-0000-4000-8000-000000000001", name: "Ana Host", calendarName: "Work" }],
+    });
+    const booking = (id: string, linkId: string, startsAt: string, inviteeName: string) => ({
+      id,
+      bookingLinkId: linkId,
+      pageTitle: "Intro call",
+      inviteeName,
+      inviteeEmail: "visitor@example.com",
+      startsAt,
+      endsAt: startsAt,
+      hostUserId: "40000000-0000-4000-8000-000000000001",
+      hostName: "Ana Host",
+      calendarEventId: null,
+      recordTypeId: null,
+      recordId: null,
+    });
+    const hostCandidates = [{ userId: "40000000-0000-4000-8000-000000000001", name: "Ana Host" }];
+    const upcoming = [
+      ...Array.from({ length: 6 }, (_, index) =>
+        booking(`b${index}`, team.id, `2026-11-2${index}T09:00:00.000Z`, `Visitor ${index}`),
+      ),
+      booking("other", ADA.id, "2026-11-20T09:00:00.000Z", "Grace"),
+    ];
+
+    await renderPanel({ status: "ready", links: [team, ADA], setup: READY_SETUP, hostCandidates, upcoming });
+
+    expect(harness.modal.configure).toHaveBeenCalledWith(READY_SETUP, expect.any(Function), hostCandidates);
+    const own = row(team.id);
+    expect(own.querySelector("[data-booking-round-robin]")?.textContent).toBe('Booking.roundRobinChip:{"count":2}');
+    const listed = [...own.querySelectorAll("[data-booking-upcoming] li")];
+    expect(listed).toHaveLength(5);
+    expect(listed[0]?.textContent).toContain("Visitor 0");
+    expect(listed[0]?.textContent).toContain("Ana Host");
+    expect(own.textContent).not.toContain("Grace");
+    const other = row(ADA.id);
+    expect(other.querySelector("[data-booking-round-robin]")).toBeNull();
+    expect(other.querySelector("[data-booking-upcoming]")?.textContent).toContain("Grace");
+    expect(other.querySelector("[data-booking-upcoming]")?.textContent).not.toContain("Ana Host");
   });
 
   it("shows the empty state with a create button when there are no pages", async () => {

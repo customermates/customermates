@@ -3,6 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import z from "zod";
 
 import { EventEnvelopeSchema } from "./event-envelope";
+import { BOOKING_CHANGES } from "./external-trigger-events";
 
 const FormSubmittedPayloadSchema = z.object({
   source: z.enum(["form", "booking"]),
@@ -25,6 +26,19 @@ const WebhookReceivedPayloadSchema = z.object({
   recordId: z.uuid().nullable(),
 });
 
+const BookingChangedPayloadSchema = z.object({
+  bookingId: z.uuid(),
+  bookingLinkId: z.uuid(),
+  bookingLinkName: z.string(),
+  change: z.enum(BOOKING_CHANGES),
+  by: z.enum(["invitee", "host"]),
+  typeId: z.uuid().nullable(),
+  recordId: z.uuid().nullable(),
+  personRecordId: z.uuid().nullable(),
+  hostUserId: z.uuid(),
+  answers: z.record(z.string(), z.string()),
+});
+
 export const WebhookFormSubmittedSchema = EventEnvelopeSchema.extend({
   event: z.literal("form.submitted"),
   actorId: z.null(),
@@ -35,6 +49,12 @@ export const WebhookWebhookReceivedSchema = EventEnvelopeSchema.extend({
   event: z.literal("webhook.received"),
   actorId: z.null(),
   data: WebhookReceivedPayloadSchema.extend({ entityId: z.string() }),
+});
+
+export const WebhookBookingChangedSchema = EventEnvelopeSchema.extend({
+  event: z.literal("booking.changed"),
+  actorId: z.null(),
+  data: BookingChangedPayloadSchema.extend({ entityId: z.string() }),
 });
 
 export const webhookFormSubmittedOperation: ZodOpenApiOperationObject = {
@@ -67,6 +87,26 @@ export const webhookWebhookReceivedOperation: ZodOpenApiOperationObject = {
     content: {
       "application/json": {
         schema: WebhookWebhookReceivedSchema,
+      },
+    },
+  },
+  responses: {
+    "200": {
+      description: "Webhook received successfully",
+    },
+  },
+};
+
+export const webhookBookingChangedOperation: ZodOpenApiOperationObject = {
+  operationId: "webhookBookingChanged",
+  summary: "Booking Changed",
+  description:
+    "Sent when the invitee or the host cancelled or rescheduled a booking. `data.change` is `cancelled` or `rescheduled`, `data.by` says who changed it, `data.recordId` is the record the booking created or `null`, `data.answers` holds name, email, the times and the visitor's answers by field label.",
+  tags: ["webhooks"],
+  requestBody: {
+    content: {
+      "application/json": {
+        schema: WebhookBookingChangedSchema,
       },
     },
   },

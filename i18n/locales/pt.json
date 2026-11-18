@@ -197,6 +197,7 @@
           "setField": "definir o valor de um campo"
         },
         "trigger": {
+          "bookingChanged": "um agendamento é cancelado ou reagendado",
           "dateReached": "uma data é atingida",
           "fieldChanged": "um campo muda",
           "formSubmitted": "um formulário é enviado",
@@ -1029,6 +1030,10 @@
       "atHour": "Na hora (0 a 23)",
       "before": "antes",
       "body": "Detalhes (opcional)",
+      "bookingChange": "Alteração",
+      "bookingChangeAny": "Qualquer alteração",
+      "bookingChangeCancelled": "Cancelado",
+      "bookingChangeRescheduled": "Reagendado",
       "boolean": {
         "false": "Não",
         "true": "Sim"
@@ -1158,6 +1163,7 @@
       "skipped": "Ignorada"
     },
     "summary": {
+      "bookingChanged": "{change, select, cancelled {Quando um agendamento é cancelado} rescheduled {Quando um agendamento é reagendado} other {Quando um agendamento é cancelado ou reagendado}}",
       "dateReached": "{direction, select, before {{days, plural, =0 {Na data de {field} em {list}} one {# dia antes de {field} em {list}} other {# dias antes de {field} em {list}}}} other {{days, plural, =0 {Na data de {field} em {list}} one {# dia depois de {field} em {list}} other {# dias depois de {field} em {list}}}}}",
       "fieldChanged": "Quando {field} muda em {list}",
       "formSubmitted": "Quando um formulário é enviado",
@@ -1168,6 +1174,7 @@
     },
     "title": "Automações",
     "trigger": {
+      "bookingChanged": "Um agendamento é cancelado ou reagendado",
       "dateReached": "Uma data é alcançada",
       "fieldChanged": "Um campo muda",
       "formSubmitted": "Um formulário é enviado",
@@ -1312,6 +1319,13 @@
         },
         "title": "Responder a novas consultas"
       },
+      "bookingCancelled": {
+        "description": "Quando um agendamento é cancelado, avisar você para fazer o acompanhamento ou liberar o horário.",
+        "effects": {
+          "notify": "Agendamento cancelado: {record}"
+        },
+        "title": "Me avisar quando um agendamento for cancelado"
+      },
       "chaseDocuments": {
         "description": "7 dias após uma data de solicitação, criar uma tarefa para cobrar os documentos e avisar a pessoa responsável.",
         "effects": {
@@ -1447,6 +1461,8 @@
       "enabled": "Aceitar agendamentos",
       "from": "De",
       "horizon": "Antecedência máxima",
+      "hosts": "Anfitriões",
+      "inviteeChanges": "Os visitantes podem cancelar e reagendar",
       "minNotice": "Antecedência mínima",
       "none": "Nenhum",
       "personList": "Encontrar ou criar o visitante em",
@@ -1461,6 +1477,13 @@
       "to": "Até",
       "withVideo": "Adicionar um link de videochamada",
       "workingHours": "Horário de trabalho"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "{name} agendou uma reunião",
+      "cancelledTitle": "{name} cancelou uma reunião",
+      "reason": "Motivo: {reason}",
+      "rescheduledTitle": "{name} reagendou uma reunião"
     },
     "minutes": "{minutes} min",
     "new": "Nova página de agendamento",
@@ -1480,6 +1503,9 @@
     "panelYours": "Suas páginas de agendamento",
     "paused": "Pausada",
     "removeQuestion": "Remover pergunta",
+    "roundRobin": "Compartilhar esta página com colegas (round robin)",
+    "roundRobinChip": "{count} anfitriões",
+    "roundRobinHint": "Um horário é oferecido quando pelo menos um anfitrião está livre. Cada agendamento vai para o anfitrião livre com menos agendamentos próximos, no calendário conectado dele. Você também é sempre anfitrião.",
     "saved": "Página de agendamento salva",
     "selfHostedNote": "As páginas de agendamento usam a conexão de calendário hospedada e não estão disponíveis na hospedagem própria.",
     "unavailableField": "Campo não está mais disponível",
@@ -1798,6 +1824,8 @@
       "automationRuleRunCursorInvalid": "Esse link de página do histórico de execuções não é mais válido. Recarregue o histórico e tente novamente.",
       "billingPortalUnavailable": "O portal de cobrança não está disponível para este espaço de trabalho. Entre em contato com o suporte para fazer alterações.",
       "bookingAnswerInvalid": "Uma resposta está faltando ou não é válida.",
+      "bookingHostsNotAllowed": "Somente um administrador pode adicionar outros membros como anfitriões.",
+      "bookingHostWithoutCalendar": "Este membro não tem um calendário conectado e não pode ser anfitrião de uma página de agendamento.",
       "bookingLinkLimitReached": "Você pode ter no máximo {limit} páginas de agendamento. Exclua uma para criar outra.",
       "bookingLinkNotFound": "ID da página de agendamento não encontrado ou inacessível.",
       "bookingListInvalid": "Esta lista ou este campo não pode ser usado para agendamentos.",
@@ -2066,6 +2094,9 @@
         "rule": {
           "fired": "Regra de automação acionada"
         }
+      },
+      "booking": {
+        "changed": "Agendamento alterado"
       },
       "connected_account": {
         "created": "Conta conectada",
@@ -4870,16 +4901,28 @@
     "apiKeysDescription": "Chaves de API de longa duração para acesso programático."
   },
   "PublicBooking": {
+    "bookAgain": "Agendar um novo horário",
+    "cancel": "Cancelar agendamento",
+    "cancelledText": "O agendamento foi cancelado e o convite de calendário foi retirado.",
+    "cancelReason": "Motivo (opcional)",
+    "changesOff": "Para alterar este agendamento, entre em contato com {host}.",
     "confirm": "Confirmar agendamento",
     "confirmedText": "Você receberá um convite de calendário por e-mail.",
     "confirmedTitle": "Agendamento confirmado",
     "email": "E-mail",
     "honeypot": "Deixe este campo em branco",
     "joinLink": "Entrar na videochamada",
+    "keep": "Manter agendamento",
     "loadFailed": "Não foi possível carregar os horários disponíveis. Recarregue a página para tentar novamente.",
     "loadingMore": "Carregando mais horários",
+    "manage": "Cancelar ou reagendar",
+    "manageFailed": "Não foi possível fazer a alteração. Tente novamente em instantes.",
+    "manageLine": "Cancelar ou reagendar:",
+    "manageNotAllowed": "Este agendamento não pode mais ser alterado aqui.",
+    "manageTitle": "Seu agendamento",
     "minutes": "{minutes} min",
     "name": "Seu nome",
+    "noOtherSlots": "Não há outros horários livres nas próximas semanas.",
     "noSlots": "Não há horários livres nas próximas semanas.",
     "pageTitle": "Agendar uma reunião",
     "problem": {
@@ -4888,9 +4931,16 @@
       "unavailable": "Não foi possível concluir o agendamento. Tente novamente ou escolha outro horário."
     },
     "rateLimited": "Muitas solicitações. Tente novamente em alguns minutos.",
+    "reschedule": "Reagendar",
+    "rescheduleConfirm": "Mover para este horário",
+    "rescheduledText": "O agendamento foi movido. Você receberá um convite de calendário atualizado.",
+    "rescheduleTitle": "Escolha um novo horário",
+    "stateCancelled": "Este agendamento foi cancelado.",
+    "statePast": "Esta reunião já aconteceu.",
     "timeZone": "Horários exibidos em {timeZone}",
     "unavailable": "Esta página de agendamento não está disponível.",
-    "video": "Videochamada"
+    "video": "Videochamada",
+    "with": "Com {host}"
   },
   "PublicForm": {
     "afterSubmit": {

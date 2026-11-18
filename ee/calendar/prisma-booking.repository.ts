@@ -83,11 +83,13 @@ function toRow({ calendar, hosts, _count, ...link }: LinkRecord): BookingLinkRow
   return {
     ...link,
     calendarName: calendar?.name ?? null,
-    hosts: hosts.map((host) => ({
-      userId: host.userId,
-      name: memberName(host.user),
-      calendarName: host.calendar?.name ?? null,
-    })),
+    hosts: hosts
+      .filter((host) => host.userId !== link.userId)
+      .map((host) => ({
+        userId: host.userId,
+        name: memberName(host.user),
+        calendarName: host.calendar?.name ?? null,
+      })),
     upcomingBookings: _count.bookings,
   };
 }
@@ -221,7 +223,11 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     return row;
   }
 
-  async update(id: string, data: Partial<BookingLinkWrite>, hosts?: BookingHostWrite[]): Promise<BookingLinkRow | null> {
+  async update(
+    id: string,
+    data: Partial<BookingLinkWrite>,
+    hosts?: BookingHostWrite[],
+  ): Promise<BookingLinkRow | null> {
     const updated = await runInTransaction(
       async () => {
         const { count } = await this.prisma.bookingLink.updateMany({

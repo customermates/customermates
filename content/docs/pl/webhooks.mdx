@@ -273,7 +273,7 @@ Wartość pola Tekst sformatowany w ładunkach to wartość `richText`, której 
 
 ## Jakie zdarzenia istnieją? [#which-events-exist]
 
-Webhook może subskrybować [[derived.webhooks.events.total]] zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów, [[derived.webhooks.events.messaging]] zdarzeń wiadomości i [[derived.webhooks.events.other]] zdarzeń formularzy, przychodzących webhooków i reguł automatyzacji. Dla webhooka CRM wybierz **Rekord utworzony**, **Rekord zaktualizowany**, **Rekord przeniesiony do Kosza**, **Rekord przywrócony** lub **Rekord usunięty na stałe** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) i ustaw jego [źródło rekordów](#record-event-sources); obejmuje to także własne listy. Wszystkie używają [standardowego envelope](#what-does-the-payload-look-like). Rutyny mogą być uruchamiane przez te same zdarzenia, z wyjątkiem **Rekord usunięty na stałe** (`record.deletedPermanently`), **E-mail usunięty** (`messaging.email.deleted`) i **Czat usunięty** (`messaging.chat.deleted`); **Wiadomość usunięta** (`messaging.message.deleted`) uruchamia rutyny. Zobacz [Rutyny](/docs/app-routines#how-do-event-triggers-work).
+Webhook może subskrybować [[derived.webhooks.events.total]] zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów, [[derived.webhooks.events.messaging]] zdarzeń wiadomości i [[derived.webhooks.events.other]] zdarzeń formularzy, stron rezerwacji, przychodzących webhooków i reguł automatyzacji. Dla webhooka CRM wybierz **Rekord utworzony**, **Rekord zaktualizowany**, **Rekord przeniesiony do Kosza**, **Rekord przywrócony** lub **Rekord usunięty na stałe** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) i ustaw jego [źródło rekordów](#record-event-sources); obejmuje to także własne listy. Wszystkie używają [standardowego envelope](#what-does-the-payload-look-like). Rutyny mogą być uruchamiane przez te same zdarzenia, z wyjątkiem **Rekord usunięty na stałe** (`record.deletedPermanently`), **E-mail usunięty** (`messaging.email.deleted`) i **Czat usunięty** (`messaging.chat.deleted`); **Wiadomość usunięta** (`messaging.message.deleted`) uruchamia rutyny. Zobacz [Rutyny](/docs/app-routines#how-do-event-triggers-work).
 
 ### Zdarzenia rekordów [#record-events]
 
@@ -323,7 +323,7 @@ Zdarzenia wiadomości są uruchamiane przez przychodzącą aktywność dostawcy 
 | `messaging.calendar_event.changed` | Zmienia się wydarzenie kalendarza |
 | `messaging.relation.created` | Powstaje nowa relacja dostawcy |
 
-### Zdarzenia formularzy, przychodzących webhooków i reguł automatyzacji [#other-events]
+### Zdarzenia formularzy, stron rezerwacji, przychodzących webhooków i reguł automatyzacji [#other-events]
 
 Te zdarzenia używają [standardowego envelope](#what-does-the-payload-look-like). Customermates przechowuje zdarzenie tylko wtedy, gdy subskrybuje je webhook albo używa go reguła automatyzacji, a rutyny nie mogą być przez nie uruchamiane.
 
@@ -331,9 +331,10 @@ Te zdarzenia używają [standardowego envelope](#what-does-the-payload-look-like
 | --- | --- | --- |
 | `form.submitted` | Publiczny formularz lub strona rezerwacji otrzymuje zgłoszenie | `source`, `formId`, `formName`, `typeId`, `submissionId`, `outcome`, `recordId`, `personRecordId` oraz `answers` według etykiety pola |
 | `webhook.received` | [Przychodzący webhook](#incoming-webhooks) tworzy lub aktualizuje rekord | `webhookId`, `webhookName`, `typeId`, `deliveryId`, `outcome` i `recordId` |
+| `booking.changed` | Rezerwacja dokonana na stronie rezerwacji zostaje anulowana lub przełożona | `bookingId`, `bookingLinkId`, `bookingLinkName`, `change` (`cancelled` lub `rescheduled`), `by` (`invitee` lub `host`), `typeId`, `recordId`, `personRecordId`, `hostUserId` oraz `answers`: `name` i `email` odwiedzającego, `startsAt`, `endsAt` i `timeZone` (po przełożeniu nowy termin), `previousStartsAt` po przełożeniu, `reason`, jeśli go podano, oraz odpowiedzi odwiedzającego według etykiety pola |
 | `automation.rule.fired` | Uruchamia się reguła automatyzacji z efektem **Wywołaj webhook** | `ruleId`, `ruleName`, `runId`, `trigger`, `firedAt` i `record`, który uruchomił regułę |
 
-W pierwszych dwóch `actorId` ma wartość `null`. `automation.rule.fired` trafia tylko do webhooka wskazanego w regule i tylko wtedy, gdy ten webhook wybrał to zdarzenie; `actorId` to właściciel reguły. Dostawa jest zapisywana jak każda inna, z ponowieniami i ponownym wysłaniem.
+We wszystkich oprócz `automation.rule.fired` `actorId` ma wartość `null`. `automation.rule.fired` trafia tylko do webhooka wskazanego w regule i tylko wtedy, gdy ten webhook wybrał to zdarzenie; `actorId` to właściciel reguły. Dostawa jest zapisywana jak każda inna, z ponowieniami i ponownym wysłaniem.
 
 ## Jak odbierać dane z innych narzędzi przez przychodzący webhook? [#incoming-webhooks]
 

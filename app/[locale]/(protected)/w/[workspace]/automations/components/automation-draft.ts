@@ -19,6 +19,7 @@ import equal from "fast-deep-equal/es6";
 import {
   AGENT_RUNTIMES,
   AUTOMATION_AGENT_PROMPT_MAX_CHARS,
+  AUTOMATION_BOOKING_CHANGES,
   AUTOMATION_DATE_OFFSET_MAX_DAYS,
 } from "@/features/automation-rules/automation-rule.schema";
 import { RECORD_NAME_TOKEN } from "@/features/automation-rules/automation-template";
@@ -31,6 +32,7 @@ export const DRAFT_TRIGGER_KINDS = [
   "messageReceived",
   "formSubmitted",
   "webhookReceived",
+  "bookingChanged",
 ] as const;
 export type DraftTriggerKind = (typeof DRAFT_TRIGGER_KINDS)[number] | "other";
 
@@ -49,12 +51,22 @@ export type DraftConditionOperator = (typeof DRAFT_CONDITION_OPERATORS)[number];
 export const DRAFT_MESSAGE_CHANNELS = ["any", "email", "chat"] as const;
 export type DraftMessageChannel = (typeof DRAFT_MESSAGE_CHANNELS)[number];
 
+export const DRAFT_BOOKING_CHANGES = AUTOMATION_BOOKING_CHANGES;
+export type DraftBookingChange = (typeof DRAFT_BOOKING_CHANGES)[number];
+
+const OPTIONAL_LIST_KINDS: readonly DraftTriggerKind[] = ["formSubmitted", "webhookReceived", "bookingChanged"];
+
+export function triggerListIsOptional(kind: DraftTriggerKind | AutomationTrigger["kind"]): boolean {
+  return (OPTIONAL_LIST_KINDS as readonly string[]).includes(kind);
+}
+
 export type DraftTrigger = {
   kind: DraftTriggerKind;
   typeId: string;
   fieldId: string;
   fieldIds: string[];
   channel: DraftMessageChannel;
+  change: DraftBookingChange;
   value: string;
   days: string;
   direction: "before" | "after";
@@ -146,7 +158,7 @@ export function draftHasRecord(trigger: DraftTrigger): boolean {
   if (trigger.kind === "other")
     return trigger.kept !== null && "typeId" in trigger.kept && Boolean(trigger.kept.typeId);
   if (trigger.kind === "messageReceived") return false;
-  if (trigger.kind === "formSubmitted" || trigger.kind === "webhookReceived") return Boolean(trigger.typeId);
+  if (triggerListIsOptional(trigger.kind)) return Boolean(trigger.typeId);
   return true;
 }
 
@@ -257,6 +269,7 @@ export function emptyDraft(
       fieldId: "",
       fieldIds: [],
       channel: "any",
+      change: "any",
       value: "",
       days: "1",
       direction: "before",
@@ -359,6 +372,10 @@ function triggerShape(
   if (draft.kind === "formSubmitted" || draft.kind === "webhookReceived") {
     if (typeId && !listOf(model, typeId)) return null;
     return { kind: draft.kind, ...(typeId ? { typeId } : {}) };
+  }
+  if (draft.kind === "bookingChanged") {
+    if (typeId && !listOf(model, typeId)) return null;
+    return { kind: "bookingChanged", change: draft.change, ...(typeId ? { typeId } : {}) };
   }
   const list = listOf(model, typeId);
   if (!list) return null;
@@ -769,7 +786,7 @@ function effectToDraft(
 }
 
 function triggerToDraft(trigger: AutomationTrigger, model: AutomationBuilderModel, timezone: string): DraftTrigger {
-  const optionalList = trigger.kind === "formSubmitted" || trigger.kind === "webhookReceived";
+  const optionalList = triggerListIsOptional(trigger.kind);
   const ownTypeId = "typeId" in trigger && trigger.typeId ? trigger.typeId : "";
   const typeId = ownTypeId || (optionalList ? "" : (model.lists[0]?.id ?? ""));
   const base = emptyDraft(model, { typeId, timezone }).trigger;
@@ -780,6 +797,7 @@ function triggerToDraft(trigger: AutomationTrigger, model: AutomationBuilderMode
     fieldId: trigger.kind === "fieldChanged" || trigger.kind === "dateReached" ? trigger.fieldId : "",
     fieldIds: trigger.kind === "recordUpdated" ? [...trigger.fieldIds] : [],
     channel: trigger.kind === "messageReceived" ? trigger.channel : base.channel,
+    change: trigger.kind === "bookingChanged" ? trigger.change : base.change,
     value: trigger.kind === "fieldChanged" ? textFor(trigger.to) : "",
     days: trigger.kind === "dateReached" ? String(trigger.days) : base.days,
     direction: trigger.kind === "dateReached" ? trigger.direction : base.direction,

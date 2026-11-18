@@ -78,7 +78,8 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
 
     let hosts: BookingHostWrite[] | undefined;
     if (hostUserIds !== undefined) {
-      const wanted = [...new Set(hostUserIds)].filter((userId) => userId !== this.user.id);
+      const wanted =
+        merged.assignment === "roundRobin" ? [...new Set(hostUserIds)].filter((userId) => userId !== this.user.id) : [];
       if (wanted.length && !this.user.role?.isSystemRole)
         return fail(CustomErrorCode.bookingHostsNotAllowed, ["hostUserIds"]);
       const members = wanted.length ? await this.access.listMemberCalendars() : [];

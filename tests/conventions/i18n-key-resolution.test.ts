@@ -728,7 +728,7 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
   ],
   [
     `${AUTOMATIONS_DIRECTORY}/automation-trigger-editor.tsx :: t :: trigger.\${kind}`,
-    AUTOMATION_KEYS("trigger", [...AUTOMATION_TRIGGER_KINDS, "formSubmitted", "webhookReceived"]),
+    AUTOMATION_KEYS("trigger", [...AUTOMATION_TRIGGER_KINDS, "formSubmitted", "webhookReceived", "bookingChanged"]),
   ],
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],

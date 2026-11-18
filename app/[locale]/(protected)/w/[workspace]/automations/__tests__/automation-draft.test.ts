@@ -1,3 +1,4 @@
+import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
 
 import type { RecordModelView } from "@/features/records/record-model.schema";
@@ -7,7 +8,9 @@ import type { AutomationDraft, DraftCondition, DraftEffect, DraftReferences } fr
 
 import { automationModelIssues } from "@/features/automation-rules/automation-model-validation";
 import { UpsertAutomationRuleSchema } from "@/features/automation-rules/automation-rule.schema";
+import EN_MESSAGES from "@/i18n/locales/en.json";
 import { toAutomationBuilderModel } from "../components/automation-builder-model";
+import { triggerSentence } from "../components/automation-draft-sentence";
 import {
   blankAgentEffect,
   blankCondition,
@@ -253,7 +256,14 @@ describe("turning a draft into a rule", () => {
 
   it("sends the member's time zone on every trigger that is not a date trigger", () => {
     const base = draft().trigger;
-    const kinds = ["recordCreated", "recordUpdated", "messageReceived", "formSubmitted", "webhookReceived"] as const;
+    const kinds = [
+      "recordCreated",
+      "recordUpdated",
+      "messageReceived",
+      "formSubmitted",
+      "webhookReceived",
+      "bookingChanged",
+    ] as const;
     for (const kind of kinds) {
       const input = convert(draft({ trigger: { ...base, kind } }));
       expect(input.trigger, kind).toMatchObject({ kind, timezone: TZ });
@@ -528,6 +538,33 @@ describe("opening a saved rule", () => {
     });
   });
 
+  it("edits a booking trigger with its change and an optional list, and reads it as a sentence", () => {
+    const opened = ruleToDraft(
+      { ...rule, trigger: { kind: "bookingChanged", change: "cancelled" }, conditions: [], effects: [] },
+      MODEL,
+      TZ,
+    );
+    expect(opened.trigger).toMatchObject({ kind: "bookingChanged", change: "cancelled", typeId: "" });
+    expect(convert({ ...opened, effects: draft().effects }).trigger).toEqual({
+      kind: "bookingChanged",
+      change: "cancelled",
+      timezone: TZ,
+    });
+    const listed = { ...opened.trigger, change: "rescheduled" as const, typeId: DEALS };
+    expect(convert(draft({ trigger: listed })).trigger).toEqual({
+      kind: "bookingChanged",
+      change: "rescheduled",
+      typeId: DEALS,
+      timezone: TZ,
+    });
+    const t = createTranslator({ locale: "en", messages: EN_MESSAGES });
+    const sentence = (change: "any" | "cancelled" | "rescheduled") =>
+      triggerSentence({ ...opened.trigger, change }, MODEL, t as never);
+    expect(sentence("cancelled")).toBe("When a booking is cancelled");
+    expect(sentence("rescheduled")).toBe("When a booking is rescheduled");
+    expect(sentence("any")).toBe("When a booking is cancelled or rescheduled");
+  });
+
   it("opens and saves an agent step with its runtime, model and runner", () => {
     const runner = "88888888-8888-4888-8888-888888888888";
     const effects = [
@@ -636,6 +673,9 @@ const TRIGGER_SHAPES: Array<[string, Record<string, unknown>, "editable" | "kept
   ["any webhook delivers", { kind: "webhookReceived" }, "editable"],
   ["a webhook delivers into a list", { kind: "webhookReceived", typeId: DEALS }, "editable"],
   ["one webhook endpoint delivers", { kind: "webhookReceived", typeId: DEALS, sourceId: SOURCE }, "kept"],
+  ["any booking changes", { kind: "bookingChanged", change: "any" }, "editable"],
+  ["a booking in a list is cancelled", { kind: "bookingChanged", change: "cancelled", typeId: DEALS }, "editable"],
+  ["one booking page is rescheduled", { kind: "bookingChanged", change: "rescheduled", sourceId: SOURCE }, "kept"],
 ];
 
 const CONDITION_SHAPES: Array<[string, Record<string, unknown>, "editable" | "kept"]> = [

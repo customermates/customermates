@@ -49,6 +49,8 @@ export function triggerSentence(trigger: DraftTrigger, model: AutomationBuilderM
       return t("AutomationRules.summary.formSubmitted");
     case "webhookReceived":
       return t("AutomationRules.summary.webhookReceived");
+    case "bookingChanged":
+      return t("AutomationRules.summary.bookingChanged", { change: trigger.change });
     default:
       return t("Automations.sentence.otherTrigger");
   }

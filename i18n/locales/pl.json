@@ -197,6 +197,7 @@
           "setField": "ustaw wartość pola"
         },
         "trigger": {
+          "bookingChanged": "zostanie anulowana lub przełożona rezerwacja",
           "dateReached": "nadejdzie określona data",
           "fieldChanged": "zmieni się pole",
           "formSubmitted": "zostanie wysłany formularz",
@@ -1029,6 +1030,10 @@
       "atHour": "O godzinie (0 do 23)",
       "before": "przed",
       "body": "Szczegóły (opcjonalnie)",
+      "bookingChange": "Zmiana",
+      "bookingChangeAny": "Dowolna zmiana",
+      "bookingChangeCancelled": "Anulowana",
+      "bookingChangeRescheduled": "Przełożona",
       "boolean": {
         "false": "Nie",
         "true": "Tak"
@@ -1158,6 +1163,7 @@
       "skipped": "Pominięta"
     },
     "summary": {
+      "bookingChanged": "{change, select, cancelled {Gdy rezerwacja zostanie anulowana} rescheduled {Gdy rezerwacja zostanie przełożona} other {Gdy rezerwacja zostanie anulowana lub przełożona}}",
       "dateReached": "{direction, select, before {{days, plural, =0 {W dniu daty {field} w {list}} one {# dzień przed {field} w {list}} few {# dni przed {field} w {list}} many {# dni przed {field} w {list}} other {# dnia przed {field} w {list}}}} other {{days, plural, =0 {W dniu daty {field} w {list}} one {# dzień po {field} w {list}} few {# dni po {field} w {list}} many {# dni po {field} w {list}} other {# dnia po {field} w {list}}}}}",
       "fieldChanged": "Gdy zmieni się {field} w {list}",
       "formSubmitted": "Gdy formularz zostanie wysłany",
@@ -1168,6 +1174,7 @@
     },
     "title": "Automatyzacje",
     "trigger": {
+      "bookingChanged": "Rezerwacja zostaje anulowana lub przełożona",
       "dateReached": "Nadchodzi data",
       "fieldChanged": "Zmienia się pole",
       "formSubmitted": "Zostaje wysłany formularz",
@@ -1312,6 +1319,13 @@
         },
         "title": "Odpowiadanie na nowe zapytania"
       },
+      "bookingCancelled": {
+        "description": "Gdy rezerwacja zostanie anulowana, powiadom siebie, by móc się odezwać lub zwolnić termin.",
+        "effects": {
+          "notify": "Rezerwacja anulowana: {record}"
+        },
+        "title": "Powiadomienie o anulowanej rezerwacji"
+      },
       "chaseDocuments": {
         "description": "7 dni po dacie prośby utwórz zadanie przypomnienia o dokumentach i powiadom właściciela.",
         "effects": {
@@ -1447,6 +1461,8 @@
       "enabled": "Przyjmuj rezerwacje",
       "from": "Od",
       "horizon": "Maksymalne wyprzedzenie",
+      "hosts": "Gospodarze",
+      "inviteeChanges": "Odwiedzający mogą anulować i zmieniać termin",
       "minNotice": "Minimalne wyprzedzenie",
       "none": "Brak",
       "personList": "Znajdź lub utwórz odwiedzającego w",
@@ -1461,6 +1477,13 @@
       "to": "Do",
       "withVideo": "Dodaj link do wideorozmowy",
       "workingHours": "Godziny pracy"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "Spotkanie zarezerwowane przez {name}",
+      "cancelledTitle": "Spotkanie anulowane przez {name}",
+      "reason": "Powód: {reason}",
+      "rescheduledTitle": "Spotkanie przełożone przez {name}"
     },
     "minutes": "{minutes} min",
     "new": "Nowa strona rezerwacji",
@@ -1480,6 +1503,9 @@
     "panelYours": "Twoje strony rezerwacji",
     "paused": "Wstrzymana",
     "removeQuestion": "Usuń pytanie",
+    "roundRobin": "Udostępnij tę stronę współpracownikom (round robin)",
+    "roundRobinChip": "Gospodarze: {count}",
+    "roundRobinHint": "Termin jest oferowany, gdy co najmniej jeden gospodarz jest wolny. Każda rezerwacja trafia do wolnego gospodarza z najmniejszą liczbą nadchodzących rezerwacji, do jego połączonego kalendarza. Ty również zawsze jesteś gospodarzem.",
     "saved": "Zapisano stronę rezerwacji",
     "selfHostedNote": "Strony rezerwacji korzystają z hostowanego połączenia z kalendarzem i nie są dostępne przy self-hostingu.",
     "unavailableField": "Pole nie jest już dostępne",
@@ -1798,6 +1824,8 @@
       "automationRuleRunCursorInvalid": "Ten link do strony historii uruchomień jest już nieważny. Załaduj historię ponownie i spróbuj jeszcze raz.",
       "billingPortalUnavailable": "Portal rozliczeń jest niedostępny dla tej przestrzeni roboczej. Skontaktuj się z pomocą techniczną, aby wprowadzić zmiany.",
       "bookingAnswerInvalid": "Brakuje odpowiedzi lub jest nieprawidłowa.",
+      "bookingHostsNotAllowed": "Tylko administrator może dodawać innych członków jako gospodarzy.",
+      "bookingHostWithoutCalendar": "Ten członek nie ma połączonego kalendarza i nie może być gospodarzem strony rezerwacji.",
       "bookingLinkLimitReached": "Limit stron rezerwacji to {limit}. Usuń jedną, aby utworzyć kolejną.",
       "bookingLinkNotFound": "Nie znaleziono ID strony rezerwacji lub brak do niej dostępu.",
       "bookingListInvalid": "Tej listy lub tego pola nie można użyć do rezerwacji.",
@@ -2066,6 +2094,9 @@
         "rule": {
           "fired": "Reguła automatyzacji uruchomiona"
         }
+      },
+      "booking": {
+        "changed": "Rezerwacja zmieniona"
       },
       "connected_account": {
         "created": "Konto połączone",
@@ -4870,16 +4901,28 @@
     "apiKeysDescription": "Długo ważne klucze API do dostępu programowego."
   },
   "PublicBooking": {
+    "bookAgain": "Zarezerwuj nowy termin",
+    "cancel": "Anuluj rezerwację",
+    "cancelledText": "Rezerwacja została anulowana, a zaproszenie do kalendarza wycofane.",
+    "cancelReason": "Powód (opcjonalnie)",
+    "changesOff": "Aby zmienić tę rezerwację, skontaktuj się z {host}.",
     "confirm": "Potwierdź rezerwację",
     "confirmedText": "Zaproszenie do kalendarza otrzymasz e-mailem.",
     "confirmedTitle": "Rezerwacja potwierdzona",
     "email": "E-mail",
     "honeypot": "Zostaw to pole puste",
     "joinLink": "Dołącz do wideorozmowy",
+    "keep": "Zachowaj rezerwację",
     "loadFailed": "Nie udało się wczytać dostępnych terminów. Odśwież stronę i spróbuj ponownie.",
     "loadingMore": "Wczytywanie kolejnych terminów",
+    "manage": "Anuluj lub zmień termin",
+    "manageFailed": "Nie udało się wprowadzić zmiany. Spróbuj ponownie za chwilę.",
+    "manageLine": "Anuluj lub zmień termin:",
+    "manageNotAllowed": "Tej rezerwacji nie można już tutaj zmienić.",
+    "manageTitle": "Twoja rezerwacja",
     "minutes": "{minutes} min",
     "name": "Twoje imię i nazwisko",
+    "noOtherSlots": "W najbliższych tygodniach nie ma innych wolnych terminów.",
     "noSlots": "W najbliższych tygodniach nie ma wolnych terminów.",
     "pageTitle": "Zarezerwuj spotkanie",
     "problem": {
@@ -4888,9 +4931,16 @@
       "unavailable": "Nie udało się dokończyć rezerwacji. Spróbuj ponownie lub wybierz inny termin."
     },
     "rateLimited": "Zbyt wiele żądań. Spróbuj ponownie za kilka minut.",
+    "reschedule": "Zmień termin",
+    "rescheduleConfirm": "Przenieś na ten termin",
+    "rescheduledText": "Rezerwacja została przeniesiona. Otrzymasz zaktualizowane zaproszenie do kalendarza.",
+    "rescheduleTitle": "Wybierz nowy termin",
+    "stateCancelled": "Ta rezerwacja została anulowana.",
+    "statePast": "To spotkanie już się odbyło.",
     "timeZone": "Godziny wyświetlane w strefie {timeZone}",
     "unavailable": "Ta strona rezerwacji jest niedostępna.",
-    "video": "Wideorozmowa"
+    "video": "Wideorozmowa",
+    "with": "Z {host}"
   },
   "PublicForm": {
     "afterSubmit": {

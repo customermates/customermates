@@ -53,6 +53,8 @@ function draftTrigger(recipe: AutomationRecipe, base: DraftTrigger, bindings: Re
   switch (trigger.kind) {
     case "formSubmitted":
       return { ...base, kind: "formSubmitted", typeId: "", fieldId: "", value: "" };
+    case "bookingChanged":
+      return { ...base, kind: "bookingChanged", change: trigger.change, typeId: "", fieldId: "", value: "" };
     case "stageChanged":
       return { ...base, kind: "fieldChanged", typeId, fieldId: bindings.stageFieldId, value: "" };
     case "stageUpdated":

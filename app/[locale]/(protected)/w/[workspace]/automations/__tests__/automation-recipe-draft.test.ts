@@ -163,6 +163,18 @@ describe("opening a recipe in the builder", () => {
     if (converted.ok) expect(converted.input.trigger).toEqual({ kind: "formSubmitted", timezone: TZ });
   });
 
+  it("opens the cancelled booking recipe on any list with a notification for the owner", () => {
+    const draft = draftOf("bookingCancelled");
+    expect(draft.trigger).toMatchObject({ kind: "bookingChanged", change: "cancelled", typeId: "" });
+    expect(draft.effects).toEqual([expect.objectContaining({ kind: "notify", toOwner: true, toAssignees: false })]);
+    const converted = draftToUpsert(draft, MODEL);
+    expect(converted.ok).toBe(true);
+    if (converted.ok) {
+      expect(converted.input.trigger).toEqual({ kind: "bookingChanged", change: "cancelled", timezone: TZ });
+      expect(UpsertAutomationRuleSchema.safeParse(converted.input).success).toBe(true);
+    }
+  });
+
   it("sets the due offset on the new Action when its list has exactly one writable date field", () => {
     const draft = draftOf("welcomeSubmission");
     const action = draft.effects[0];

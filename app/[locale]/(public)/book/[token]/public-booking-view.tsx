@@ -102,10 +102,10 @@ export function BookingSummary({
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        <Avatar name={who} size="sm" />
+      <div className="flex items-start gap-2">
+        <Avatar className="mt-0.5 shrink-0" name={who} size="sm" />
 
-        <p className="min-w-0 truncate text-sm text-muted-foreground">
+        <p className="min-w-0 text-sm text-muted-foreground">
           {!team && workspaceName ? `${hostName} · ${workspaceName}` : who}
         </p>
       </div>
@@ -337,16 +337,18 @@ export function PublicBookingView({
         <p className="text-sm text-muted-foreground">{t("PublicBooking.noSlots")}</p>
       ) : null}
 
-      {slots?.length && timeZone && !slot ? (
-        <BookingSlotPicker
-          horizonDays={page.horizonDays}
-          loadingMore={loadingMore}
-          selected={slot}
-          slots={slots}
-          timeZone={timeZone}
-          onMonth={showMonth}
-          onSelect={setSlot}
-        />
+      {slots?.length && timeZone ? (
+        <div className={slot ? "hidden" : undefined}>
+          <BookingSlotPicker
+            horizonDays={page.horizonDays}
+            loadingMore={loadingMore}
+            selected={slot}
+            slots={slots}
+            timeZone={timeZone}
+            onMonth={showMonth}
+            onSelect={setSlot}
+          />
+        </div>
       ) : null}
 
       {slot ? (
@@ -416,10 +418,16 @@ export function PublicBookingView({
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button data-booking-back="" disabled={submitting} type="button" variant="ghost" onClick={() => setSlot(null)}>
+            <Button
+              data-booking-back=""
+              disabled={submitting}
+              type="button"
+              variant="ghost"
+              onClick={() => setSlot(null)}
+            >
               <ArrowLeft aria-hidden className="size-4" />
 
-              {t("PublicBooking.back")}
+              {t("Common.actions.back")}
             </Button>
 
             <Button disabled={submitting || readOnly} type="submit">

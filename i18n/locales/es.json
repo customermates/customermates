@@ -197,6 +197,7 @@
           "setField": "establecer el valor de un campo"
         },
         "trigger": {
+          "bookingChanged": "se cancela o se reprograma una reserva",
           "dateReached": "se alcanza una fecha",
           "fieldChanged": "cambia un campo",
           "formSubmitted": "se envía un formulario",
@@ -1029,6 +1030,10 @@
       "atHour": "A la hora (0 a 23)",
       "before": "antes",
       "body": "Detalles (opcional)",
+      "bookingChange": "Cambio",
+      "bookingChangeAny": "Cualquier cambio",
+      "bookingChangeCancelled": "Cancelada",
+      "bookingChangeRescheduled": "Reprogramada",
       "boolean": {
         "false": "No",
         "true": "Sí"
@@ -1158,6 +1163,7 @@
       "skipped": "Omitida"
     },
     "summary": {
+      "bookingChanged": "{change, select, cancelled {Cuando se cancela una reserva} rescheduled {Cuando se reprograma una reserva} other {Cuando se cancela o se reprograma una reserva}}",
       "dateReached": "{direction, select, before {{days, plural, =0 {En la fecha de {field} en {list}} one {# día antes de {field} en {list}} other {# días antes de {field} en {list}}}} other {{days, plural, =0 {En la fecha de {field} en {list}} one {# día después de {field} en {list}} other {# días después de {field} en {list}}}}}",
       "fieldChanged": "Cuando cambia {field} en {list}",
       "formSubmitted": "Cuando se envía un formulario",
@@ -1168,6 +1174,7 @@
     },
     "title": "Automatizaciones",
     "trigger": {
+      "bookingChanged": "Se cancela o se reprograma una reserva",
       "dateReached": "Se alcanza una fecha",
       "fieldChanged": "Cambia un campo",
       "formSubmitted": "Se envía un formulario",
@@ -1312,6 +1319,13 @@
         },
         "title": "Responder a las nuevas consultas"
       },
+      "bookingCancelled": {
+        "description": "Cuando se cancela una reserva, avisarte para que puedas dar seguimiento o liberar el horario.",
+        "effects": {
+          "notify": "Reserva cancelada: {record}"
+        },
+        "title": "Avisarme cuando se cancele una reserva"
+      },
       "chaseDocuments": {
         "description": "7 días después de una fecha de solicitud, crear una tarea para reclamar los documentos y avisar a la persona responsable.",
         "effects": {
@@ -1447,6 +1461,8 @@
       "enabled": "Aceptar reservas",
       "from": "Desde",
       "horizon": "Reservable con antelación",
+      "hosts": "Anfitriones",
+      "inviteeChanges": "Los visitantes pueden cancelar y reprogramar",
       "minNotice": "Antelación mínima",
       "none": "Ninguno",
       "personList": "Buscar o crear al visitante en",
@@ -1461,6 +1477,13 @@
       "to": "Hasta",
       "withVideo": "Añadir un enlace de videollamada",
       "workingHours": "Horario laboral"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "{name} reservó una reunión",
+      "cancelledTitle": "{name} canceló una reunión",
+      "reason": "Motivo: {reason}",
+      "rescheduledTitle": "{name} movió una reunión"
     },
     "minutes": "{minutes} min",
     "new": "Nueva página de reservas",
@@ -1480,6 +1503,9 @@
     "panelYours": "Tus páginas de reservas",
     "paused": "En pausa",
     "removeQuestion": "Quitar pregunta",
+    "roundRobin": "Compartir esta página con compañeros (round robin)",
+    "roundRobinChip": "{count} anfitriones",
+    "roundRobinHint": "Se ofrece un horario cuando al menos un anfitrión está libre. Cada reserva va al anfitrión libre con menos reservas próximas, a su calendario conectado. Tú también eres siempre anfitrión.",
     "saved": "Página de reservas guardada",
     "selfHostedNote": "Las páginas de reservas usan la conexión de calendario alojada y no están disponibles con el autoalojamiento.",
     "unavailableField": "Campo ya no disponible",
@@ -1798,6 +1824,8 @@
       "automationRuleRunCursorInvalid": "Ese enlace de página del historial de ejecuciones ya no es válido. Vuelve a cargar el historial e inténtalo de nuevo.",
       "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
       "bookingAnswerInvalid": "Falta una respuesta o no es válida.",
+      "bookingHostsNotAllowed": "Solo un administrador puede añadir a otros miembros como anfitriones.",
+      "bookingHostWithoutCalendar": "Este miembro no tiene un calendario conectado y no puede ser anfitrión de una página de reservas.",
       "bookingLinkLimitReached": "Puedes tener como máximo {limit} páginas de reservas. Elimina una para crear otra.",
       "bookingLinkNotFound": "ID de página de reservas no encontrado o no accesible.",
       "bookingListInvalid": "Esta lista o este campo no se puede usar para reservas.",
@@ -2066,6 +2094,9 @@
         "rule": {
           "fired": "Regla de automatización activada"
         }
+      },
+      "booking": {
+        "changed": "Reserva modificada"
       },
       "connected_account": {
         "created": "Cuenta conectada",
@@ -4870,16 +4901,28 @@
     "apiKeysDescription": "Claves de API de larga duración para el acceso programático."
   },
   "PublicBooking": {
+    "bookAgain": "Reservar otro horario",
+    "cancel": "Cancelar reserva",
+    "cancelledText": "La reserva está cancelada y la invitación de calendario se ha retirado.",
+    "cancelReason": "Motivo (opcional)",
+    "changesOff": "Para modificar esta reserva, ponte en contacto con {host}.",
     "confirm": "Confirmar reserva",
     "confirmedText": "Recibirás una invitación de calendario por correo electrónico.",
     "confirmedTitle": "Reserva confirmada",
     "email": "Correo electrónico",
     "honeypot": "Deja este campo vacío",
     "joinLink": "Unirse a la videollamada",
+    "keep": "Mantener reserva",
     "loadFailed": "No se pudieron cargar los horarios disponibles. Recarga la página para intentarlo de nuevo.",
     "loadingMore": "Cargando más horarios",
+    "manage": "Cancelar o reprogramar",
+    "manageFailed": "No se pudo hacer el cambio. Inténtalo de nuevo en un momento.",
+    "manageLine": "Cancelar o reprogramar:",
+    "manageNotAllowed": "Esta reserva ya no se puede modificar aquí.",
+    "manageTitle": "Tu reserva",
     "minutes": "{minutes} min",
     "name": "Tu nombre",
+    "noOtherSlots": "No hay otros horarios libres en las próximas semanas.",
     "noSlots": "No hay horarios libres en las próximas semanas.",
     "pageTitle": "Reservar una reunión",
     "problem": {
@@ -4888,9 +4931,16 @@
       "unavailable": "No se pudo completar la reserva. Inténtalo de nuevo o elige otro horario."
     },
     "rateLimited": "Demasiadas solicitudes. Inténtalo de nuevo en unos minutos.",
+    "reschedule": "Reprogramar",
+    "rescheduleConfirm": "Mover a este horario",
+    "rescheduledText": "La reserva se ha movido. Recibirás una invitación de calendario actualizada.",
+    "rescheduleTitle": "Elige un nuevo horario",
+    "stateCancelled": "Esta reserva se canceló.",
+    "statePast": "Esta reunión ya tuvo lugar.",
     "timeZone": "Horarios mostrados en {timeZone}",
     "unavailable": "Esta página de reservas no está disponible.",
-    "video": "Videollamada"
+    "video": "Videollamada",
+    "with": "Con {host}"
   },
   "PublicForm": {
     "afterSubmit": {

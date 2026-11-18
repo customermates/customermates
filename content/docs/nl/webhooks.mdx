@@ -273,7 +273,7 @@ De waarde van een veld van het type Opgemaakte tekst is in payloads een `richTex
 
 ## Welke gebeurtenissen bestaan er? [#which-events-exist]
 
-Een webhook kan zich abonneren op [[derived.webhooks.events.total]] gebeurtenissen: [[derived.webhooks.events.records]] recordgebeurtenissen, [[derived.webhooks.events.messaging]] berichtgebeurtenissen en [[derived.webhooks.events.other]] gebeurtenissen van formulieren, inkomende webhooks en automatiseringsregels. Selecteer voor een CRM-webhook **Record aangemaakt**, **Record bijgewerkt**, **Record naar prullenbak verplaatst**, **Record hersteld** of **Record definitief verwijderd** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) en stel zijn [recordbron](#record-event-sources) in; dit geldt ook voor lijsten die je zelf hebt gemaakt. Alle gebruiken de [standaardenvelop](#what-does-the-payload-look-like). Routines kunnen door dezelfde gebeurtenissen worden geactiveerd, behalve **Record definitief verwijderd** (`record.deletedPermanently`), **E-mail verwijderd** (`messaging.email.deleted`) en **Chat verwijderd** (`messaging.chat.deleted`); **Bericht verwijderd** (`messaging.message.deleted`) activeert wel routines. Zie [Routines](/docs/app-routines#how-do-event-triggers-work).
+Een webhook kan zich abonneren op [[derived.webhooks.events.total]] gebeurtenissen: [[derived.webhooks.events.records]] recordgebeurtenissen, [[derived.webhooks.events.messaging]] berichtgebeurtenissen en [[derived.webhooks.events.other]] gebeurtenissen van formulieren, boekingspagina's, inkomende webhooks en automatiseringsregels. Selecteer voor een CRM-webhook **Record aangemaakt**, **Record bijgewerkt**, **Record naar prullenbak verplaatst**, **Record hersteld** of **Record definitief verwijderd** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) en stel zijn [recordbron](#record-event-sources) in; dit geldt ook voor lijsten die je zelf hebt gemaakt. Alle gebruiken de [standaardenvelop](#what-does-the-payload-look-like). Routines kunnen door dezelfde gebeurtenissen worden geactiveerd, behalve **Record definitief verwijderd** (`record.deletedPermanently`), **E-mail verwijderd** (`messaging.email.deleted`) en **Chat verwijderd** (`messaging.chat.deleted`); **Bericht verwijderd** (`messaging.message.deleted`) activeert wel routines. Zie [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Recordgebeurtenissen [#record-events]
 
@@ -323,7 +323,7 @@ Berichtgebeurtenissen gaan af bij inkomende provideractiviteit op gekoppelde acc
 | `messaging.calendar_event.changed` | Een agenda-afspraak verandert |
 | `messaging.relation.created` | Een nieuwe providerrelatie wordt aangemaakt |
 
-### Gebeurtenissen van formulieren, inkomende webhooks en automatiseringsregels [#other-events]
+### Gebeurtenissen van formulieren, boekingspagina's, inkomende webhooks en automatiseringsregels [#other-events]
 
 Deze gebeurtenissen gebruiken de [standaardenvelop](#what-does-the-payload-look-like). Customermates bewaart er een alleen zolang een webhook erop is geabonneerd of een automatiseringsregel hem gebruikt, en routines kunnen er niet door worden gestart.
 
@@ -331,9 +331,10 @@ Deze gebeurtenissen gebruiken de [standaardenvelop](#what-does-the-payload-look-
 | --- | --- | --- |
 | `form.submitted` | Een openbaar formulier of boekingspagina ontvangt een inzending | `source`, `formId`, `formName`, `typeId`, `submissionId`, `outcome`, `recordId`, `personRecordId` en de `answers` per veldlabel |
 | `webhook.received` | Een [inkomende webhook](#incoming-webhooks) maakt een record aan of werkt het bij | `webhookId`, `webhookName`, `typeId`, `deliveryId`, `outcome` en `recordId` |
+| `booking.changed` | Een boeking via een boekingspagina wordt geannuleerd of verplaatst | `bookingId`, `bookingLinkId`, `bookingLinkName`, `change` (`cancelled` of `rescheduled`), `by` (`invitee` of `host`), `typeId`, `recordId`, `personRecordId`, `hostUserId` en de `answers`: de `name` en `email` van de bezoeker, `startsAt`, `endsAt` en `timeZone` (na een verplaatsing de nieuwe tijd), `previousStartsAt` na een verplaatsing, een `reason` als er een is opgegeven en de antwoorden van de bezoeker per veldlabel |
 | `automation.rule.fired` | Een automatiseringsregel met het effect **Een webhook aanroepen** gaat af | `ruleId`, `ruleName`, `runId`, `trigger`, `firedAt` en het `record` dat de regel startte |
 
-Bij de eerste twee is `actorId` `null`. `automation.rule.fired` bereikt alleen de webhook die de regel noemt, en alleen als die webhook de gebeurtenis heeft geselecteerd; `actorId` is de eigenaar van de regel. Een aflevering wordt net als elke andere vastgelegd, met nieuwe pogingen en opnieuw verzenden.
+Bij alle behalve `automation.rule.fired` is `actorId` `null`. `automation.rule.fired` bereikt alleen de webhook die de regel noemt, en alleen als die webhook de gebeurtenis heeft geselecteerd; `actorId` is de eigenaar van de regel. Een aflevering wordt net als elke andere vastgelegd, met nieuwe pogingen en opnieuw verzenden.
 
 ## Hoe ontvang ik gegevens uit andere tools met een inkomende webhook? [#incoming-webhooks]
 

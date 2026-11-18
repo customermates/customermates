@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
 import { collectPageErrors, expect, test } from "./fixtures";
@@ -16,6 +17,18 @@ const EVERY_DAY = Object.fromEntries(
     [{ start: "08:00", end: "18:00" }],
   ]),
 );
+
+// A booking sent sooner than two seconds after the page was rendered counts as automated and is refused.
+async function confirmLikeAPerson(page: Page) {
+  await page.waitForTimeout(2200);
+  await page.getByRole("button", { name: "Confirm booking", exact: true }).click();
+}
+
+// Booking limits count per visitor address; each journey books as its own visitor.
+async function asOwnVisitor(page: Page) {
+  const octet = () => 1 + Math.floor(Math.random() * 250);
+  await page.setExtraHTTPHeaders({ "x-real-ip": `10.${octet()}.${octet()}.${octet()}` });
+}
 
 async function connectCalendar(database: Client, owner: { companyId: string; userId: string }, email: string) {
   const accountId = randomUUID();
@@ -79,6 +92,7 @@ test("a visitor books a time, moves it and cancels it through the private link",
 }) => {
   test.setTimeout(120000);
   const errors = collectPageErrors(page);
+  await asOwnVisitor(page);
   const calendarId = await connectCalendar(database, workspace, "owner@synthetic.test");
   const link = await addBookingPage(database, workspace, calendarId);
 
@@ -89,7 +103,7 @@ test("a visitor books a time, moves it and cancels it through the private link",
   await expect(page.locator("[data-booking-when]")).toBeVisible();
   await page.locator("#booking-name").fill("Vera Visitor");
   await page.locator("#booking-email").fill("vera.visitor@synthetic.test");
-  await page.getByRole("button", { name: "Confirm booking", exact: true }).click();
+  await confirmLikeAPerson(page);
 
   const confirmed = page.locator("[data-booking-confirmed]");
   await expect(confirmed).toContainText("You are booked");
@@ -155,6 +169,7 @@ test("a round robin page books the free host with the fewest upcoming bookings",
 }) => {
   test.setTimeout(120000);
   const errors = collectPageErrors(page);
+  await asOwnVisitor(page);
   const ownerCalendar = await connectCalendar(database, workspace, "owner@synthetic.test");
   const colleagueId = await addAdministrator(database, workspace.companyId, `clara-${randomUUID()}@synthetic.test`);
   const colleagueCalendar = await connectCalendar(
@@ -189,7 +204,7 @@ test("a round robin page books the free host with the fewest upcoming bookings",
   await clickHydrated(page.locator("[data-booking-slots] button").first());
   await page.locator("#booking-name").fill("Rob Round");
   await page.locator("#booking-email").fill("rob.round@synthetic.test");
-  await page.getByRole("button", { name: "Confirm booking", exact: true }).click();
+  await confirmLikeAPerson(page);
 
   await expect(page.locator("[data-booking-confirmed]")).toContainText("With Clara Admin");
   const booked = await bookingOf(database, link.id);

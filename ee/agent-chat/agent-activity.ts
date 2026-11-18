@@ -135,6 +135,7 @@ export const AGENT_RULE_TRIGGER_KINDS = [
   "messageReceived",
   "formSubmitted",
   "webhookReceived",
+  "bookingChanged",
 ] as const;
 export const AGENT_RULE_EFFECT_KINDS = ["setField", "createRecord", "notify", "callWebhook"] as const;
 
@@ -723,6 +724,8 @@ function ruleTriggerText(kind: (typeof AGENT_RULE_TRIGGER_KINDS)[number], t: Age
       return t("AgentChat.activity.rule.trigger.formSubmitted");
     case "webhookReceived":
       return t("AgentChat.activity.rule.trigger.webhookReceived");
+    case "bookingChanged":
+      return t("AgentChat.activity.rule.trigger.bookingChanged");
   }
 }
 

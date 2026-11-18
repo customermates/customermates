@@ -96,7 +96,7 @@ function build(overrides: { access?: object; writer?: object; records?: object; 
     ...overrides.records,
   };
   const entitlements = { require: vi.fn().mockResolvedValue(null), ...overrides.entitlements };
-  const bookings = { cancelForCalendarEvent: vi.fn().mockResolvedValue(undefined) };
+  const bookings = { eventCancelled: vi.fn().mockResolvedValue(1), eventAt: vi.fn().mockResolvedValue(1) };
   return {
     access,
     writer,
@@ -111,8 +111,14 @@ function build(overrides: { access?: object; writer?: object; records?: object; 
       records as never,
       entitlements as never,
     ),
-    update: new UpdateMeetingInteractor(access as never, writer as never, links as never, entitlements as never),
-    cancel: new CancelMeetingInteractor(access as never, writer as never, bookings as never, entitlements as never),
+    update: new UpdateMeetingInteractor(
+      access as never,
+      writer as never,
+      links as never,
+      entitlements as never,
+      bookings,
+    ),
+    cancel: new CancelMeetingInteractor(access as never, writer as never, bookings, entitlements as never),
   };
 }
 
@@ -261,7 +267,15 @@ describe("UpdateMeetingInteractor", () => {
   };
 
   it("moves a meeting: end follows the new start and the stored links come back", async () => {
-    const { update, writer } = build({ access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) } });
+    const moved = {
+      ...EVENT,
+      startsAt: new Date("2026-11-18T10:00:00.000Z"),
+      endsAt: new Date("2026-11-18T10:45:00.000Z"),
+    };
+    const { update, writer, bookings } = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) },
+      writer: { update: vi.fn().mockResolvedValue({ ok: true, eventId: EVENT_ID, event: moved }) },
+    });
 
     const result = await run(() =>
       update.invoke({
@@ -282,6 +296,31 @@ describe("UpdateMeetingInteractor", () => {
         notifyAttendees: true,
       }),
     );
+    expect(bookings.eventAt).toHaveBeenCalledExactlyOnceWith({
+      companyId: mockUser.companyId,
+      calendarEventId: EVENT_ID,
+      startsAt: moved.startsAt,
+      endsAt: moved.endsAt,
+    });
+    expect(bookings.eventCancelled).not.toHaveBeenCalled();
+  });
+
+  it("leaves the booking alone when the meeting became an all-day event or the provider refused", async () => {
+    const allDay = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) },
+      writer: { update: vi.fn().mockResolvedValue({ ok: true, eventId: EVENT_ID, event: { ...EVENT, allDay: true } }) },
+    });
+    const refused = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) },
+      writer: { update: vi.fn().mockResolvedValue({ ok: false, error: CustomErrorCode.unipileProviderRejected }) },
+    });
+
+    expect((await run(() => allDay.update.invoke({ id: EVENT_ID, title: "Renamed" } as never))).ok).toBe(true);
+    expect(code(await run(() => refused.update.invoke({ id: EVENT_ID, title: "Renamed" } as never)))).toBe(
+      CustomErrorCode.unipileProviderRejected,
+    );
+    expect(allDay.bookings.eventAt).not.toHaveBeenCalled();
+    expect(refused.bookings.eventAt).not.toHaveBeenCalled();
   });
 
   it("requires the start and the length together and an event the caller owns", async () => {
@@ -316,7 +355,10 @@ describe("CancelMeetingInteractor", () => {
 
     expect(result).toEqual({ ok: true, data: { id: EVENT_ID, status: "cancelled" } });
     expect(writer.cancel).toHaveBeenCalledWith(ROW, "Sorry");
-    expect(bookings.cancelForCalendarEvent).toHaveBeenCalledWith(EVENT_ID);
+    expect(bookings.eventCancelled).toHaveBeenCalledExactlyOnceWith({
+      companyId: mockUser.companyId,
+      calendarEventId: EVENT_ID,
+    });
   });
 
   it("keeps the booking when the provider refuses and answers not found for a foreign event", async () => {
@@ -329,7 +371,7 @@ describe("CancelMeetingInteractor", () => {
     expect(code(await run(() => refused.cancel.invoke({ id: EVENT_ID })))).toBe(
       CustomErrorCode.unipileProviderRejected,
     );
-    expect(refused.bookings.cancelForCalendarEvent).not.toHaveBeenCalled();
+    expect(refused.bookings.eventCancelled).not.toHaveBeenCalled();
     expect(code(await run(() => foreign.cancel.invoke({ id: EVENT_ID })))).toBe(CustomErrorCode.calendarEventNotFound);
   });
 });

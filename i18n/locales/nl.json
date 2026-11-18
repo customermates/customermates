@@ -197,6 +197,7 @@
           "setField": "een veldwaarde instellen"
         },
         "trigger": {
+          "bookingChanged": "een boeking wordt geannuleerd of verplaatst",
           "dateReached": "een datum wordt bereikt",
           "fieldChanged": "een veld verandert",
           "formSubmitted": "een formulier wordt verzonden",
@@ -1029,6 +1030,10 @@
       "atHour": "Om uur (0 tot 23)",
       "before": "voor",
       "body": "Details (optioneel)",
+      "bookingChange": "Wijziging",
+      "bookingChangeAny": "Elke wijziging",
+      "bookingChangeCancelled": "Geannuleerd",
+      "bookingChangeRescheduled": "Verplaatst",
       "boolean": {
         "false": "Nee",
         "true": "Ja"
@@ -1158,6 +1163,7 @@
       "skipped": "Overgeslagen"
     },
     "summary": {
+      "bookingChanged": "{change, select, cancelled {Wanneer een boeking wordt geannuleerd} rescheduled {Wanneer een boeking wordt verplaatst} other {Wanneer een boeking wordt geannuleerd of verplaatst}}",
       "dateReached": "{direction, select, before {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag voor {field} in {list}} other {# dagen voor {field} in {list}}}} other {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag na {field} in {list}} other {# dagen na {field} in {list}}}}}",
       "fieldChanged": "Wanneer {field} verandert in {list}",
       "formSubmitted": "Wanneer een formulier wordt verstuurd",
@@ -1168,6 +1174,7 @@
     },
     "title": "Automatiseringen",
     "trigger": {
+      "bookingChanged": "Een boeking wordt geannuleerd of verplaatst",
       "dateReached": "Een datum is bereikt",
       "fieldChanged": "Een veld verandert",
       "formSubmitted": "Er wordt een formulier verstuurd",
@@ -1312,6 +1319,13 @@
         },
         "title": "Nieuwe aanvragen beantwoorden"
       },
+      "bookingCancelled": {
+        "description": "Als een boeking wordt geannuleerd, jou waarschuwen zodat je kunt opvolgen of de tijd kunt vrijgeven.",
+        "effects": {
+          "notify": "Boeking geannuleerd: {record}"
+        },
+        "title": "Mij waarschuwen als een boeking wordt geannuleerd"
+      },
       "chaseDocuments": {
         "description": "7 dagen na een aanvraagdatum een taak aanmaken om de documenten na te vragen en de verantwoordelijke waarschuwen.",
         "effects": {
@@ -1447,6 +1461,8 @@
       "enabled": "Boekingen accepteren",
       "from": "Van",
       "horizon": "Vooruit boekbaar",
+      "hosts": "Hosts",
+      "inviteeChanges": "Bezoekers kunnen annuleren en verplaatsen",
       "minNotice": "Minimale aanlooptijd",
       "none": "Geen",
       "personList": "Bezoeker zoeken of aanmaken in",
@@ -1461,6 +1477,13 @@
       "to": "Tot",
       "withVideo": "Videolink toevoegen",
       "workingHours": "Werktijden"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "{name} heeft een afspraak geboekt",
+      "cancelledTitle": "{name} heeft een afspraak geannuleerd",
+      "reason": "Reden: {reason}",
+      "rescheduledTitle": "{name} heeft een afspraak verplaatst"
     },
     "minutes": "{minutes} min",
     "new": "Nieuwe boekingspagina",
@@ -1480,6 +1503,9 @@
     "panelYours": "Jouw boekingspagina's",
     "paused": "Gepauzeerd",
     "removeQuestion": "Vraag verwijderen",
+    "roundRobin": "Deze pagina delen met collega's (round robin)",
+    "roundRobinChip": "Hosts: {count}",
+    "roundRobinHint": "Er wordt een tijd aangeboden als minstens één host vrij is. Elke boeking gaat naar de vrije host met de minste aankomende boekingen, in de gekoppelde agenda van die host. Jij bent altijd ook host.",
     "saved": "Boekingspagina opgeslagen",
     "selfHostedNote": "Boekingspagina's gebruiken de gehoste agendaverbinding en zijn niet beschikbaar bij zelf hosten.",
     "unavailableField": "Veld niet meer beschikbaar",
@@ -1798,6 +1824,8 @@
       "automationRuleRunCursorInvalid": "Die paginalink voor de uitvoeringsgeschiedenis is niet meer geldig. Laad de geschiedenis opnieuw en probeer het nogmaals.",
       "billingPortalUnavailable": "Het factureringsportaal is niet beschikbaar voor deze werkruimte. Neem contact op met support om wijzigingen aan te brengen.",
       "bookingAnswerInvalid": "Een antwoord ontbreekt of is ongeldig.",
+      "bookingHostsNotAllowed": "Alleen een beheerder kan andere leden als hosts toevoegen.",
+      "bookingHostWithoutCalendar": "Dit lid heeft geen gekoppelde agenda en kan geen host van een boekingspagina zijn.",
       "bookingLinkLimitReached": "Je kunt maximaal {limit} boekingspagina's hebben. Verwijder er een om een nieuwe te maken.",
       "bookingLinkNotFound": "ID van boekingspagina niet gevonden of niet toegankelijk.",
       "bookingListInvalid": "Deze lijst of dit veld kan niet voor boekingen worden gebruikt.",
@@ -2066,6 +2094,9 @@
         "rule": {
           "fired": "Automatiseringsregel geactiveerd"
         }
+      },
+      "booking": {
+        "changed": "Boeking gewijzigd"
       },
       "connected_account": {
         "created": "Account verbonden",
@@ -4870,16 +4901,28 @@
     "apiKeysDescription": "Langlopende API-sleutels voor programmatische toegang."
   },
   "PublicBooking": {
+    "bookAgain": "Een nieuwe tijd boeken",
+    "cancel": "Boeking annuleren",
+    "cancelledText": "De boeking is geannuleerd en de agenda-uitnodiging is ingetrokken.",
+    "cancelReason": "Reden (optioneel)",
+    "changesOff": "Neem contact op met {host} om deze boeking te wijzigen.",
     "confirm": "Boeking bevestigen",
     "confirmedText": "Je ontvangt een agenda-uitnodiging per e-mail.",
     "confirmedTitle": "Je afspraak is geboekt",
     "email": "E-mail",
     "honeypot": "Laat dit veld leeg",
     "joinLink": "Deelnemen aan het videogesprek",
+    "keep": "Boeking behouden",
     "loadFailed": "De beschikbare tijden konden niet worden geladen. Laad de pagina opnieuw om het nog eens te proberen.",
     "loadingMore": "Meer tijden laden",
+    "manage": "Annuleren of verplaatsen",
+    "manageFailed": "De wijziging kon niet worden doorgevoerd. Probeer het zo meteen opnieuw.",
+    "manageLine": "Annuleren of verplaatsen:",
+    "manageNotAllowed": "Deze boeking kan hier niet meer worden gewijzigd.",
+    "manageTitle": "Jouw boeking",
     "minutes": "{minutes} min",
     "name": "Je naam",
+    "noOtherSlots": "Er zijn de komende weken geen andere vrije tijden.",
     "noSlots": "Er zijn de komende weken geen vrije tijden.",
     "pageTitle": "Een afspraak boeken",
     "problem": {
@@ -4888,9 +4931,16 @@
       "unavailable": "De boeking kon niet worden voltooid. Probeer het opnieuw of kies een ander tijdstip."
     },
     "rateLimited": "Te veel verzoeken. Probeer het over een paar minuten opnieuw.",
+    "reschedule": "Verplaatsen",
+    "rescheduleConfirm": "Verplaatsen naar deze tijd",
+    "rescheduledText": "De boeking is verplaatst. Je ontvangt een bijgewerkte agenda-uitnodiging.",
+    "rescheduleTitle": "Kies een nieuwe tijd",
+    "stateCancelled": "Deze boeking is geannuleerd.",
+    "statePast": "Deze afspraak heeft al plaatsgevonden.",
     "timeZone": "Tijden worden getoond in {timeZone}",
     "unavailable": "Deze boekingspagina is niet beschikbaar.",
-    "video": "Videogesprek"
+    "video": "Videogesprek",
+    "with": "Met {host}"
   },
   "PublicForm": {
     "afterSubmit": {

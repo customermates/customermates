@@ -1205,6 +1205,30 @@ describe("admitting events", () => {
     expect(repo.runs.size).toBe(1);
     expect([...repo.runs.values()][0]).toMatchObject({ recordId: RECORD, triggerKind: "formSubmitted" });
   });
+
+  it("starts booking rules for the chosen change and booking page, and skips bookings without a record", async () => {
+    const LINK = "6a6a6a6a-6a6a-4a6a-8a6a-6a6a6a6a6a6a";
+    seedRule(repo, {
+      triggerKind: "bookingChanged",
+      typeId: TYPE,
+      trigger: { kind: "bookingChanged", change: "cancelled", typeId: TYPE, sourceId: LINK },
+    });
+    const changed = (id: string, extra: Record<string, unknown>) => ({
+      id,
+      companyId: COMPANY,
+      kind: "booking.changed",
+      subjectKind: "booking",
+      payload: { typeId: TYPE, recordId: RECORD, bookingLinkId: LINK, change: "cancelled", by: "invitee", ...extra },
+    });
+    await admit(changed(UUID("16"), { change: "rescheduled" }));
+    await admit(changed(UUID("17"), { bookingLinkId: "99999999-9999-4999-8999-999999999999" }));
+    await admit(changed(UUID("18"), { recordId: null }));
+    await admit(changed(UUID("19"), { typeId: null }));
+    expect(repo.runs.size).toBe(0);
+    await admit(changed(UUID("24"), {}));
+    expect(repo.runs.size).toBe(1);
+    expect([...repo.runs.values()][0]).toMatchObject({ recordId: RECORD, triggerKind: "bookingChanged" });
+  });
 });
 
 function seedRule(repo: FakeAutomationRuleRepo, overrides: Record<string, unknown> = {}) {

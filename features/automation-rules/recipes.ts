@@ -8,6 +8,7 @@ export const AUTOMATION_RECIPE_IDS = [
   "chaseDocuments",
   "weeklyReview",
   "wonOrLostReason",
+  "bookingCancelled",
 ] as const;
 export type AutomationRecipeId = (typeof AUTOMATION_RECIPE_IDS)[number];
 
@@ -16,6 +17,7 @@ export type RecipeSlot = (typeof RECIPE_SLOTS)[number];
 
 export type RecipeTrigger =
   | { kind: "formSubmitted" }
+  | { kind: "bookingChanged"; change: "cancelled" | "rescheduled" }
   | { kind: "stageChanged" }
   | { kind: "stageUpdated" }
   | { kind: "dateReached"; days: number; direction: "before" | "after"; atHour: number }
@@ -123,6 +125,16 @@ export const AUTOMATION_RECIPES: readonly AutomationRecipe[] = [
     slots: ["list", "stageField", "reasonField"],
     trigger: { kind: "stageUpdated" },
     conditions: [{ kind: "reasonEmpty" }],
+    effects: [{ kind: "notify", notificationKind: "ruleAlert", text: 0 }],
+  },
+  {
+    id: "bookingCancelled",
+    kind: "rule",
+    cloudOnly: false,
+    usesAgent: false,
+    slots: [],
+    trigger: { kind: "bookingChanged", change: "cancelled" },
+    conditions: [],
     effects: [{ kind: "notify", notificationKind: "ruleAlert", text: 0 }],
   },
 ];

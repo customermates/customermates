@@ -27,6 +27,7 @@ export const AUTOMATION_TRIGGER_KINDS = [
   "messageReceived",
   "formSubmitted",
   "webhookReceived",
+  "bookingChanged",
 ] as const;
 export const AutomationTriggerKindSchema = z.enum(AutomationTriggerKind);
 export const AutomationRunStatusSchema = z.enum(AutomationRunStatus);
@@ -124,6 +125,22 @@ export const WebhookReceivedTriggerSchema = z
   .strict()
   .describe("Fires when an incoming webhook created or updated a record.");
 
+export const AUTOMATION_BOOKING_CHANGES = ["any", "cancelled", "rescheduled"] as const;
+
+export const BookingChangedTriggerSchema = z
+  .object({
+    kind: z.literal("bookingChanged"),
+    change: z
+      .enum(AUTOMATION_BOOKING_CHANGES)
+      .default("any")
+      .describe("cancelled or rescheduled fires only on that change, any on both."),
+    typeId: TypeIdSchema.optional().describe("The list of the record the booking created."),
+    sourceId: z.uuid().optional().describe("Restrict the rule to one booking page."),
+    timezone: TodayTimeZoneSchema,
+  })
+  .strict()
+  .describe("Fires when the invitee or the host cancelled or rescheduled a booking that created a record.");
+
 export const AutomationTriggerSchema = z.discriminatedUnion("kind", [
   RecordCreatedTriggerSchema,
   RecordUpdatedTriggerSchema,
@@ -132,6 +149,7 @@ export const AutomationTriggerSchema = z.discriminatedUnion("kind", [
   MessageReceivedTriggerSchema,
   FormSubmittedTriggerSchema,
   WebhookReceivedTriggerSchema,
+  BookingChangedTriggerSchema,
 ]);
 export type AutomationTrigger = z.infer<typeof AutomationTriggerSchema>;
 

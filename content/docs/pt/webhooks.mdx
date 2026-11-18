@@ -273,7 +273,7 @@ O valor de um campo de Texto formatado nos payloads é um valor `richText` cujo 
 
 ## Quais eventos existem? [#which-events-exist]
 
-Um webhook pode assinar [[derived.webhooks.events.total]] eventos: [[derived.webhooks.events.records]] eventos de registro, [[derived.webhooks.events.messaging]] eventos de mensagens e [[derived.webhooks.events.other]] eventos de formulários, webhooks de entrada e regras de automação. Para um webhook de CRM, selecione **Registro criado**, **Registro atualizado**, **Registro movido para a lixeira**, **Registro restaurado** ou **Registro excluído permanentemente** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) e defina a [origem dos registros](#record-event-sources) dele; isso cobre também as listas que você mesmo criou. Todos usam o [envelope padrão](#what-does-the-payload-look-like). As rotinas podem ser disparadas pelos mesmos eventos, exceto **Registro excluído permanentemente** (`record.deletedPermanently`), **E-mail excluído** (`messaging.email.deleted`) e **Chat excluído** (`messaging.chat.deleted`); **Mensagem excluída** (`messaging.message.deleted`) dispara rotinas. Veja [Rotinas](/docs/app-routines#how-do-event-triggers-work).
+Um webhook pode assinar [[derived.webhooks.events.total]] eventos: [[derived.webhooks.events.records]] eventos de registro, [[derived.webhooks.events.messaging]] eventos de mensagens e [[derived.webhooks.events.other]] eventos de formulários, páginas de agendamento, webhooks de entrada e regras de automação. Para um webhook de CRM, selecione **Registro criado**, **Registro atualizado**, **Registro movido para a lixeira**, **Registro restaurado** ou **Registro excluído permanentemente** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) e defina a [origem dos registros](#record-event-sources) dele; isso cobre também as listas que você mesmo criou. Todos usam o [envelope padrão](#what-does-the-payload-look-like). As rotinas podem ser disparadas pelos mesmos eventos, exceto **Registro excluído permanentemente** (`record.deletedPermanently`), **E-mail excluído** (`messaging.email.deleted`) e **Chat excluído** (`messaging.chat.deleted`); **Mensagem excluída** (`messaging.message.deleted`) dispara rotinas. Veja [Rotinas](/docs/app-routines#how-do-event-triggers-work).
 
 ### Eventos de registro [#record-events]
 
@@ -323,7 +323,7 @@ Os eventos de mensagens disparam com a atividade de entrada do provedor em conta
 | `messaging.calendar_event.changed` | Um evento de calendário muda |
 | `messaging.relation.created` | Uma nova relação do provedor é criada |
 
-### Eventos de formulários, webhooks de entrada e regras de automação [#other-events]
+### Eventos de formulários, páginas de agendamento, webhooks de entrada e regras de automação [#other-events]
 
 Esses eventos usam o [envelope padrão](#what-does-the-payload-look-like). O Customermates guarda um deles apenas enquanto um webhook o assina ou uma regra de automação o usa, e as rotinas não podem ser disparadas por eles.
 
@@ -331,9 +331,10 @@ Esses eventos usam o [envelope padrão](#what-does-the-payload-look-like). O Cus
 | --- | --- | --- |
 | `form.submitted` | Um formulário público ou uma página de agendamento recebe um envio | `source`, `formId`, `formName`, `typeId`, `submissionId`, `outcome`, `recordId`, `personRecordId` e as `answers` por rótulo de campo |
 | `webhook.received` | Um [webhook de entrada](#incoming-webhooks) cria ou atualiza um registro | `webhookId`, `webhookName`, `typeId`, `deliveryId`, `outcome` e `recordId` |
+| `booking.changed` | Um agendamento feito por meio de uma página de agendamento é cancelado ou reagendado | `bookingId`, `bookingLinkId`, `bookingLinkName`, `change` (`cancelled` ou `rescheduled`), `by` (`invitee` ou `host`), `typeId`, `recordId`, `personRecordId`, `hostUserId` e as `answers`: o `name` e o `email` do visitante, `startsAt`, `endsAt` e `timeZone` (após um reagendamento, o novo horário), `previousStartsAt` após um reagendamento, um `reason` se foi informado e as respostas do visitante por rótulo de campo |
 | `automation.rule.fired` | Uma regra de automação com o efeito **Chamar um webhook** dispara | `ruleId`, `ruleName`, `runId`, `trigger`, `firedAt` e o `record` que iniciou a regra |
 
-Nos dois primeiros, `actorId` é `null`. `automation.rule.fired` chega apenas ao webhook que a regra nomeia, e só se esse webhook selecionou o evento; `actorId` é o proprietário da regra. A entrega é registrada como qualquer outra, com novas tentativas e reenvio.
+Em todos, exceto `automation.rule.fired`, `actorId` é `null`. `automation.rule.fired` chega apenas ao webhook que a regra nomeia, e só se esse webhook selecionou o evento; `actorId` é o proprietário da regra. A entrega é registrada como qualquer outra, com novas tentativas e reenvio.
 
 ## Como recebo dados de outras ferramentas com um webhook de entrada? [#incoming-webhooks]
 

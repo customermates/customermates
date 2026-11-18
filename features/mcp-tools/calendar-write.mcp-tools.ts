@@ -13,7 +13,7 @@ import {
   getScheduleMeetingInteractor,
   getUpdateMeetingInteractor,
 } from "@/core/di";
-import { BookingLinkSchema, SaveBookingLinkSchema } from "@/ee/calendar/booking.schema";
+import { BOOKING_ASSIGNMENTS, BookingLinkSchema, SaveBookingLinkSchema } from "@/ee/calendar/booking.schema";
 import {
   FreeSlotsSchema,
   MeetingActionListSchema,
@@ -151,7 +151,7 @@ const ManageBookingLinksToolSchema = z
     action: z
       .enum(BOOKING_ACTIONS)
       .describe(
-        "list returns the caller's booking links; get: id; save: id, calendarId, title, description, durationMinutes, bufferMinutes, minNoticeMinutes, horizonDays, timeZone, workingHours, withVideo, personTypeId, personRelationshipId, recordTypeId, startFieldId, questions, successMessage, enabled; delete: id.",
+        "list returns the caller's booking links; get: id; save: id, calendarId, title, description, durationMinutes, bufferMinutes, minNoticeMinutes, horizonDays, timeZone, workingHours, withVideo, personTypeId, personRelationshipId, recordTypeId, startFieldId, questions, successMessage, enabled, assignment, inviteeChanges, hostUserIds; delete: id.",
       ),
     id: SaveBookingLinkSchema.shape.id.describe(
       "get, delete and save: the booking link; omit it on save to create a new link.",
@@ -173,6 +173,9 @@ const ManageBookingLinksToolSchema = z
     questions: z.array(z.unknown()).optional(),
     successMessage: z.string().nullable().optional(),
     enabled: z.boolean().optional(),
+    assignment: z.enum(BOOKING_ASSIGNMENTS).optional(),
+    inviteeChanges: z.boolean().optional(),
+    hostUserIds: z.array(z.uuid()).optional(),
   })
   .strict();
 
@@ -194,6 +197,7 @@ export const manageBookingLinksTool = {
     "Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email, and personRelationshipId the relationship of the booking list that links each booking record to that person (null links nothing). " +
     "calendarId is the id of one of the caller's writable calendars; personTypeId, personRelationshipId, recordTypeId and startFieldId are the stable ids of lists, relationships and fields of the record model. save with an id changes only the keys sent, and questions and workingHours replace the whole value. " +
     "The page shows free slots from the synced calendars and creates the calendar event, the Person and the record when someone books; every booking also emits the form.submitted event, so rules can react. " +
+    "assignment roundRobin with hostUserIds (administrators only, members with a connected calendar) shares a page: a time is offered when any host is free and the free host with the fewest upcoming bookings gets the meeting. With inviteeChanges the visitor can cancel or move the booking through a private link in the invitation; a cancelled or moved booking emits the booking.changed event. " +
     "delete permanently removes the link and its booking history; meetings already booked stay in the calendar.",
   annotations: {
     readOnlyHint: false,

@@ -197,6 +197,7 @@
           "setField": "einen Feldwert setzen"
         },
         "trigger": {
+          "bookingChanged": "eine Buchung storniert oder verschoben wird",
           "dateReached": "ein Datum erreicht ist",
           "fieldChanged": "sich ein Feld ändert",
           "formSubmitted": "ein Formular abgeschickt wird",
@@ -1029,6 +1030,10 @@
       "atHour": "Um (Stunde 0 bis 23)",
       "before": "vor",
       "body": "Weitere Angaben (optional)",
+      "bookingChange": "Änderung",
+      "bookingChangeAny": "Jede Änderung",
+      "bookingChangeCancelled": "Storniert",
+      "bookingChangeRescheduled": "Verschoben",
       "boolean": {
         "false": "Nein",
         "true": "Ja"
@@ -1158,6 +1163,7 @@
       "skipped": "Übersprungen"
     },
     "summary": {
+      "bookingChanged": "{change, select, cancelled {Wenn eine Buchung storniert wird} rescheduled {Wenn eine Buchung verschoben wird} other {Wenn eine Buchung storniert oder verschoben wird}}",
       "dateReached": "{direction, select, before {{days, plural, =0 {Am Datum von {field} in {list}} one {# Tag vor {field} in {list}} other {# Tage vor {field} in {list}}}} other {{days, plural, =0 {Am Datum von {field} in {list}} one {# Tag nach {field} in {list}} other {# Tage nach {field} in {list}}}}}",
       "fieldChanged": "Wenn sich {field} in {list} ändert",
       "formSubmitted": "Wenn ein Formular abgeschickt wird",
@@ -1168,6 +1174,7 @@
     },
     "title": "Automatisierungen",
     "trigger": {
+      "bookingChanged": "Eine Buchung wird storniert oder verschoben",
       "dateReached": "Ein Datum ist erreicht",
       "fieldChanged": "Ein Feld ändert sich",
       "formSubmitted": "Ein Formular wird abgeschickt",
@@ -1312,6 +1319,13 @@
         },
         "title": "Neue Anfragen beantworten"
       },
+      "bookingCancelled": {
+        "description": "Wenn eine Buchung storniert wird, dich benachrichtigen, damit du nachfassen oder die Zeit freigeben kannst.",
+        "effects": {
+          "notify": "Buchung storniert: {record}"
+        },
+        "title": "Mich benachrichtigen, wenn eine Buchung storniert wird"
+      },
       "chaseDocuments": {
         "description": "7 Tage nach einem Anfragedatum eine Aufgabe zum Nachfordern der Unterlagen anlegen und die Besitzerin oder den Besitzer benachrichtigen.",
         "effects": {
@@ -1447,6 +1461,8 @@
       "enabled": "Buchungen annehmen",
       "from": "Von",
       "horizon": "Im Voraus buchbar",
+      "hosts": "Gastgeber",
+      "inviteeChanges": "Besucher können Buchungen stornieren und verschieben",
       "minNotice": "Mindestvorlauf",
       "none": "Keine",
       "personList": "Besucher finden oder anlegen in",
@@ -1461,6 +1477,13 @@
       "to": "Bis",
       "withVideo": "Videolink hinzufügen",
       "workingHours": "Arbeitszeiten"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "{name} hat einen Termin gebucht",
+      "cancelledTitle": "{name} hat einen Termin abgesagt",
+      "reason": "Grund: {reason}",
+      "rescheduledTitle": "{name} hat einen Termin verschoben"
     },
     "minutes": "{minutes} Min.",
     "new": "Neue Buchungsseite",
@@ -1480,6 +1503,9 @@
     "panelYours": "Deine Buchungsseiten",
     "paused": "Pausiert",
     "removeQuestion": "Frage entfernen",
+    "roundRobin": "Seite mit Kollegen teilen (Round Robin)",
+    "roundRobinChip": "{count} Gastgeber",
+    "roundRobinHint": "Eine Zeit wird angeboten, wenn mindestens ein Gastgeber frei ist. Jede Buchung geht an den freien Gastgeber mit den wenigsten anstehenden Buchungen, in dessen verbundenen Kalender. Du bist immer auch Gastgeber.",
     "saved": "Buchungsseite gespeichert",
     "selfHostedNote": "Buchungsseiten nutzen die gehostete Kalenderverbindung und sind beim Self-Hosting nicht verfügbar.",
     "unavailableField": "Feld nicht mehr verfügbar",
@@ -1798,6 +1824,8 @@
       "automationRuleRunCursorInvalid": "Dieser Link zur Seite des Ausführungsverlaufs ist nicht mehr gültig. Lade den Verlauf neu und versuche es noch einmal.",
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "bookingAnswerInvalid": "Eine Antwort fehlt oder ist ungültig.",
+      "bookingHostsNotAllowed": "Nur ein Admin kann andere Mitglieder als Gastgeber hinzufügen.",
+      "bookingHostWithoutCalendar": "Dieses Mitglied hat keinen verbundenen Kalender und kann nicht Gastgeber einer Buchungsseite sein.",
       "bookingLinkLimitReached": "Du kannst höchstens {limit} Buchungsseiten haben. Lösche eine, um eine neue zu erstellen.",
       "bookingLinkNotFound": "Buchungsseiten-ID nicht gefunden oder nicht zugänglich.",
       "bookingListInvalid": "Diese Liste oder dieses Feld kann nicht für Buchungen verwendet werden.",
@@ -2066,6 +2094,9 @@
         "rule": {
           "fired": "Automatisierungsregel ausgelöst"
         }
+      },
+      "booking": {
+        "changed": "Buchung geändert"
       },
       "connected_account": {
         "created": "Konto verbunden",
@@ -4870,16 +4901,28 @@
     "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."
   },
   "PublicBooking": {
+    "bookAgain": "Neue Zeit buchen",
+    "cancel": "Buchung stornieren",
+    "cancelledText": "Die Buchung ist storniert und die Kalendereinladung wurde zurückgezogen.",
+    "cancelReason": "Grund (optional)",
+    "changesOff": "Um diese Buchung zu ändern, wende dich an {host}.",
     "confirm": "Buchung bestätigen",
     "confirmedText": "Du erhältst eine Kalendereinladung per E-Mail.",
     "confirmedTitle": "Dein Termin ist gebucht",
     "email": "E-Mail",
     "honeypot": "Dieses Feld leer lassen",
     "joinLink": "Videoanruf beitreten",
+    "keep": "Buchung behalten",
     "loadFailed": "Die freien Zeiten konnten nicht geladen werden. Lade die Seite neu und versuche es erneut.",
     "loadingMore": "Weitere Zeiten werden geladen",
+    "manage": "Stornieren oder verschieben",
+    "manageFailed": "Die Änderung konnte nicht vorgenommen werden. Versuche es gleich noch einmal.",
+    "manageLine": "Stornieren oder verschieben:",
+    "manageNotAllowed": "Diese Buchung kann hier nicht mehr geändert werden.",
+    "manageTitle": "Deine Buchung",
     "minutes": "{minutes} Min.",
     "name": "Dein Name",
+    "noOtherSlots": "In den nächsten Wochen gibt es keine anderen freien Zeiten.",
     "noSlots": "In den nächsten Wochen gibt es keine freien Zeiten.",
     "pageTitle": "Termin buchen",
     "problem": {
@@ -4888,9 +4931,16 @@
       "unavailable": "Die Buchung konnte nicht abgeschlossen werden. Versuche es erneut oder wähle eine andere Zeit."
     },
     "rateLimited": "Zu viele Anfragen. Versuche es in ein paar Minuten erneut.",
+    "reschedule": "Verschieben",
+    "rescheduleConfirm": "Auf diese Zeit verschieben",
+    "rescheduledText": "Die Buchung wurde verschoben. Du erhältst eine aktualisierte Kalendereinladung.",
+    "rescheduleTitle": "Neue Zeit wählen",
+    "stateCancelled": "Diese Buchung wurde storniert.",
+    "statePast": "Dieser Termin hat bereits stattgefunden.",
     "timeZone": "Zeiten werden in {timeZone} angezeigt",
     "unavailable": "Diese Buchungsseite ist nicht verfügbar.",
-    "video": "Videoanruf"
+    "video": "Videoanruf",
+    "with": "Mit {host}"
   },
   "PublicForm": {
     "afterSubmit": {

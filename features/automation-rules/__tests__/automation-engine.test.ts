@@ -13,6 +13,7 @@ import {
   localDay,
   shiftDay,
 } from "../automation-date";
+import { describeAutomationEvent, subscribedRuleKinds, triggerMatchesEvent } from "../automation-event";
 import {
   dateOccurrenceKey,
   dueDateOccurrences,
@@ -302,6 +303,7 @@ describe("date reached timing", () => {
       { kind: "messageReceived" },
       { kind: "formSubmitted", typeId: TYPE },
       { kind: "webhookReceived" },
+      { kind: "bookingChanged" },
     ];
     for (const trigger of triggers) {
       const plain = AutomationTriggerSchema.parse(trigger);
@@ -313,6 +315,48 @@ describe("date reached timing", () => {
     }
     const date = { kind: "dateReached", typeId: TYPE, fieldId: FIELD, days: 1, direction: "before" };
     expect(automationTimeZone(AutomationTriggerSchema.parse({ ...date, timezone: "Asia/Tokyo" }))).toBe("Asia/Tokyo");
+  });
+});
+
+describe("booking changed events", () => {
+  const LINK = "44444444-4444-4444-8444-444444444444";
+  const RECORD = "55555555-5555-4555-8555-555555555555";
+  const event = (payload: Record<string, unknown>) => ({
+    id: "e1",
+    kind: "booking.changed",
+    payload: { typeId: TYPE, recordId: RECORD, bookingLinkId: LINK, change: "cancelled", by: "host", ...payload },
+  });
+
+  it("describes a booking change on its record with the booking page as source", () => {
+    expect(describeAutomationEvent(event({}))).toEqual({
+      triggerKind: "bookingChanged",
+      typeId: TYPE,
+      recordId: RECORD,
+      occurrenceKey: "event:e1",
+      channel: null,
+      sourceId: LINK,
+      connectedAccountId: null,
+      change: "cancelled",
+    });
+    expect(describeAutomationEvent(event({ recordId: null }))).toBeNull();
+    expect(describeAutomationEvent(event({ typeId: null }))).toBeNull();
+    expect(describeAutomationEvent(event({ change: "moved" }))).toBeNull();
+    expect(subscribedRuleKinds("booking.changed")).toEqual(["bookingChanged"]);
+  });
+
+  it("matches by change, list and booking page", () => {
+    const descriptor = describeAutomationEvent(event({ change: "rescheduled" }));
+    if (!descriptor) throw new Error("expected a descriptor");
+    const trigger = (input: Record<string, unknown>) =>
+      AutomationTriggerSchema.parse({ kind: "bookingChanged", ...input });
+    expect(trigger({})).toMatchObject({ change: "any" });
+    expect(triggerMatchesEvent(trigger({}), descriptor)).toBe(true);
+    expect(triggerMatchesEvent(trigger({ change: "rescheduled" }), descriptor)).toBe(true);
+    expect(triggerMatchesEvent(trigger({ change: "cancelled" }), descriptor)).toBe(false);
+    expect(triggerMatchesEvent(trigger({ typeId: OTHER }), descriptor)).toBe(false);
+    expect(triggerMatchesEvent(trigger({ sourceId: LINK, typeId: TYPE }), descriptor)).toBe(true);
+    expect(triggerMatchesEvent(trigger({ sourceId: OTHER }), descriptor)).toBe(false);
+    expect(triggerMatchesEvent(AutomationTriggerSchema.parse({ kind: "formSubmitted" }), descriptor)).toBe(false);
   });
 });
 

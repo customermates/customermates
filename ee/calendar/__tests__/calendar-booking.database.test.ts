@@ -99,12 +99,15 @@ function linkData(calendarId: string) {
     questions: [],
     successMessage: null,
     enabled: true,
+    assignment: "single" as const,
+    inviteeChanges: true,
   };
 }
 
 function reservation(bookingLinkId: string, startsAt = START, email = "ada@example.test") {
   return {
     bookingLinkId,
+    manageToken: `manage-${randomUUID()}`,
     startsAt,
     endsAt: new Date(startsAt.getTime() + 30 * 60_000),
     inviteeName: "Ada",
@@ -123,7 +126,7 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const { calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
 
-    const created = await w.as(w.admin, () => repo.create("token-a-0123456789abcdef", linkData(calendar.id)));
+    const created = await w.as(w.admin, () => repo.create("token-a-0123456789abcdef", linkData(calendar.id), []));
     const listed = await w.as(w.admin, () => repo.list());
     const foreign = await w.as(w.member, () => repo.list());
     const updated = await w.as(w.admin, () => repo.update(created.id, { enabled: false, title: "Renamed" }));
@@ -134,9 +137,11 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     expect(updated).toMatchObject({ enabled: false, title: "Renamed", calendarName: "Work" });
     expect(lookup).toMatchObject({
       id: created.id,
-      accountUsable: true,
       hostName: expect.stringContaining("Admin"),
-      unipileCalendarId: expect.any(String),
+      assignment: "single",
+      inviteeChanges: true,
+      hosts: [],
+      hostCandidates: [{ userId: w.admin.id, name: expect.stringContaining("Admin"), calendarId: calendar.id }],
     });
     expect(await w.as(w.member, () => repo.delete(created.id))).toBe(false);
     expect(await w.as(w.admin, () => repo.delete(created.id))).toBe(true);
@@ -148,7 +153,7 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const { account, calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
     const token = `token-gone-${randomUUID().slice(0, 12)}`;
-    const link = await w.as(w.admin, () => repo.create(token, linkData(calendar.id)));
+    const link = await w.as(w.admin, () => repo.create(token, linkData(calendar.id), []));
     const booked = await w.as(w.admin, () => repo.reserve(reservation(link.id), open));
     await w.as(w.admin, () =>
       repo.confirm(booked?.id ?? "", {
@@ -166,7 +171,11 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     expect(kept).toMatchObject({ id: link.id, token, calendarId: null, calendarName: null, enabled: true });
     expect((await w.as(w.admin, () => repo.listWorkspace())).map((row) => row.calendarId)).toEqual([null]);
     expect(await runWithoutTenant(() => prisma.booking.count({ where: { bookingLinkId: link.id } }))).toBe(1);
-    expect(await runWithoutTenant(() => repo.findByTokenUnscoped(token))).toBeNull();
+    expect(await runWithoutTenant(() => repo.findByTokenUnscoped(token))).toMatchObject({
+      id: link.id,
+      calendarId: null,
+      hostCandidates: [],
+    });
     expect(await w.as(w.admin, () => repo.update(link.id, { enabled: false }))).toMatchObject({
       calendarId: null,
       enabled: false,
@@ -178,7 +187,7 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     expect(await runWithoutTenant(() => repo.findByTokenUnscoped(token))).toMatchObject({
       id: link.id,
       calendarId: again.calendar.id,
-      accountUsable: true,
+      hostCandidates: [expect.objectContaining({ userId: w.admin.id, calendarId: again.calendar.id })],
     });
   });
 
@@ -187,7 +196,7 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const { calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
     const link = await w.as(w.admin, () =>
-      repo.create(`token-cal-${randomUUID().slice(0, 12)}`, linkData(calendar.id)),
+      repo.create(`token-cal-${randomUUID().slice(0, 12)}`, linkData(calendar.id), []),
     );
 
     await runWithoutTenant(() => prisma.calendar.delete({ where: { id: calendar.id } }));
@@ -203,11 +212,13 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const foreign = await connectCalendar(elsewhere);
     const repo = new PrismaBookingRepo();
 
-    const own = await w.as(w.admin, () => repo.create("token-w1-0123456789abcdef", linkData(mine.calendar.id)));
+    const own = await w.as(w.admin, () => repo.create("token-w1-0123456789abcdef", linkData(mine.calendar.id), []));
     const theirs = await w.as(w.member, () =>
-      repo.create("token-w2-0123456789abcdef", { ...linkData(colleague.calendar.id), title: "Support" }),
+      repo.create("token-w2-0123456789abcdef", { ...linkData(colleague.calendar.id), title: "Support" }, []),
     );
-    await elsewhere.as(elsewhere.admin, () => repo.create("token-w3-0123456789abcdef", linkData(foreign.calendar.id)));
+    await elsewhere.as(elsewhere.admin, () =>
+      repo.create("token-w3-0123456789abcdef", linkData(foreign.calendar.id), []),
+    );
 
     const workspaceWide = await w.as(w.admin, () => repo.listWorkspace());
 
@@ -230,7 +241,7 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const w = await workspace();
     const { calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
-    const link = await w.as(w.admin, () => repo.create("token-b-0123456789abcdef", linkData(calendar.id)));
+    const link = await w.as(w.admin, () => repo.create("token-b-0123456789abcdef", linkData(calendar.id), []));
 
     const first = await w.as(w.admin, () => repo.reserve(reservation(link.id), open));
     const second = await w.as(w.admin, () => repo.reserve(reservation(link.id, START, "bob@example.test"), open));
@@ -272,7 +283,11 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
       await runWithoutTenant(() => prisma.booking.findUnique({ where: { id: again?.id as string } })),
     ).toMatchObject({ status: "confirmed", slotKey: null, calendarEventId: event.id });
     expect(await w.as(w.admin, () => repo.reserve(reservation(link.id), () => Promise.resolve(false)))).toBeNull();
-    expect(await w.as(w.admin, () => repo.cancelForCalendarEvent(event.id))).toBeUndefined();
+    expect(
+      await runWithoutTenant(() =>
+        repo.cancelForCalendarEventUnscoped({ companyId: w.companyId, calendarEventId: event.id, now: new Date() }),
+      ),
+    ).toEqual([expect.objectContaining({ id: again?.id, status: "cancelled" })]);
     expect(await w.as(w.admin, () => repo.reserve(reservation(link.id), open))).toEqual({ id: expect.any(String) });
   });
 
@@ -280,7 +295,7 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     const w = await workspace();
     const { calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
-    const link = await w.as(w.admin, () => repo.create("token-c-0123456789abcdef", linkData(calendar.id)));
+    const link = await w.as(w.admin, () => repo.create("token-c-0123456789abcdef", linkData(calendar.id), []));
     const future = new Date(Date.now() + 7 * 86_400_000);
     const stale = new Date(future.getTime() + 86_400_000);
     await w.as(w.admin, () => repo.reserve(reservation(link.id, future), open));
@@ -551,7 +566,7 @@ describeDatabase("calendar write access and event record links", { timeout: 60_0
     const organization = await w.create("organization", "organization.name", "Acme");
     const repo = new PrismaBookingRepo();
     const link = await w.as(w.admin, () =>
-      repo.create(`token-busy-${randomUUID().slice(0, 12)}`, linkData(calendar.id)),
+      repo.create(`token-busy-${randomUUID().slice(0, 12)}`, linkData(calendar.id), []),
     );
     const free = (title: string, hour: number) =>
       runWithoutTenant(() =>
@@ -658,7 +673,7 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
   const stored = (bookingId: string) =>
     runWithoutTenant(() => prisma.booking.findUniqueOrThrow({ where: { id: bookingId } }));
 
-  it("counts only in-flight reservations as busy and drops a booking from busy time once it is confirmed", async () => {
+  it("counts in-flight reservations as busy, keeps a confirmed booking busy until the calendar sync caught up, then drops it", async () => {
     const w = await workspace();
     const { calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
@@ -678,37 +693,65 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
       }),
     );
 
-    expect(await w.as(w.admin, () => repo.busyForOwner(...window))).toEqual([]);
+    expect(await w.as(w.admin, () => repo.busyForOwner(...window))).toHaveLength(1);
     expect(await stored(reserved?.id as string)).toMatchObject({ status: "confirmed", slotKey: null });
+
+    await runWithoutTenant(
+      () =>
+        prisma.$executeRaw`UPDATE "Booking" SET "updatedAt" = now() - interval '11 minutes' WHERE id = ${reserved?.id as string}`,
+    );
+    expect(await w.as(w.admin, () => repo.busyForOwner(...window))).toEqual([]);
   });
 
-  it("cancels a booking when its event is deleted or moved, and keeps it while the event still sits at the booked time", async () => {
+  it("moves a booking with its event, leaves it while the event still sits at the booked time, and cancels it with the event", async () => {
     const w = await workspace();
     const { calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
     const link = await createLink(w, calendar.id, "token-e-0123456789abcdef");
     const { event, bookingId } = await bookedEvent(w, repo, link.id);
+    const now = new Date("2026-11-18T10:00:00.000Z");
+    const later = { startsAt: new Date(START.getTime() + 3_600_000), endsAt: new Date(END.getTime() + 3_600_000) };
 
     const unchanged = await runWithoutTenant(() =>
-      repo.cancelForCalendarEventUnscoped({
+      repo.moveForCalendarEventUnscoped({
         companyId: w.companyId,
         calendarEventId: event.id,
-        stillAt: { startsAt: START, endsAt: END },
+        startsAt: START,
+        endsAt: END,
+        now,
       }),
     );
-    expect(unchanged).toBe(0);
-    expect(await stored(bookingId)).toMatchObject({ status: "confirmed" });
+    expect(unchanged).toEqual([]);
+    expect(await stored(bookingId)).toMatchObject({ status: "confirmed", startsAt: START, rescheduledAt: null });
 
     const moved = await runWithoutTenant(() =>
-      repo.cancelForCalendarEventUnscoped({
-        companyId: w.companyId,
-        calendarEventId: event.id,
-        stillAt: { startsAt: new Date(START.getTime() + 3_600_000), endsAt: new Date(END.getTime() + 3_600_000) },
-      }),
+      repo.moveForCalendarEventUnscoped({ companyId: w.companyId, calendarEventId: event.id, ...later, now }),
     );
-    expect(moved).toBe(1);
-    expect(await stored(bookingId)).toMatchObject({ status: "cancelled", slotKey: null });
+    expect(moved).toEqual([
+      {
+        booking: expect.objectContaining({ id: bookingId, status: "confirmed", ...later, hostUserId: w.admin.id }),
+        previousStartsAt: START,
+      },
+    ]);
+    expect(await stored(bookingId)).toMatchObject({ status: "confirmed", ...later, rescheduledAt: now });
+
+    const cancelled = await runWithoutTenant(() =>
+      repo.cancelForCalendarEventUnscoped({ companyId: w.companyId, calendarEventId: event.id, now }),
+    );
+    expect(cancelled).toEqual([expect.objectContaining({ id: bookingId, status: "cancelled", ...later })]);
+    expect(await stored(bookingId)).toMatchObject({
+      status: "cancelled",
+      slotKey: null,
+      cancelledBy: "host",
+      cancelReason: null,
+      cancelledAt: now,
+    });
     expect(await w.as(w.admin, () => repo.countOpenForEmail(link.id, "ada@example.test", new Date(0)))).toBe(0);
+    expect(
+      await runWithoutTenant(() =>
+        repo.moveForCalendarEventUnscoped({ companyId: w.companyId, calendarEventId: event.id, ...later, now }),
+      ),
+    ).toEqual([]);
   });
 
   it("cancels every open booking of a deleted event, for its own workspace only", async () => {
@@ -720,15 +763,26 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
     const { event, bookingId } = await bookedEvent(w, repo, link.id);
 
     const foreign = await runWithoutTenant(() =>
-      repo.cancelForCalendarEventUnscoped({ companyId: other.companyId, calendarEventId: event.id }),
+      repo.cancelForCalendarEventUnscoped({ companyId: other.companyId, calendarEventId: event.id, now: new Date() }),
     );
-    expect(foreign).toBe(0);
-    expect(await stored(bookingId)).toMatchObject({ status: "confirmed" });
+    expect(foreign).toEqual([]);
+    expect(
+      await runWithoutTenant(() =>
+        repo.moveForCalendarEventUnscoped({
+          companyId: other.companyId,
+          calendarEventId: event.id,
+          startsAt: new Date(START.getTime() + 3_600_000),
+          endsAt: new Date(END.getTime() + 3_600_000),
+          now: new Date(),
+        }),
+      ),
+    ).toEqual([]);
+    expect(await stored(bookingId)).toMatchObject({ status: "confirmed", startsAt: START });
 
     const own = await runWithoutTenant(() =>
-      repo.cancelForCalendarEventUnscoped({ companyId: w.companyId, calendarEventId: event.id }),
+      repo.cancelForCalendarEventUnscoped({ companyId: w.companyId, calendarEventId: event.id, now: new Date() }),
     );
-    expect(own).toBe(1);
+    expect(own.map((booking) => booking.id)).toEqual([bookingId]);
     expect(await stored(bookingId)).toMatchObject({ status: "cancelled" });
     expect(await w.as(w.admin, () => repo.reserve(reservation(link.id), open))).toEqual({ id: expect.any(String) });
   });
@@ -821,6 +875,8 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
           data: {
             companyId: w.companyId,
             bookingLinkId: link.id,
+            hostUserId: w.admin.id,
+            manageToken: `manage-${randomUUID()}`,
             status,
             inviteeName: "Ada",
             inviteeEmail: email,

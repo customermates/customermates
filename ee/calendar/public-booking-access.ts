@@ -26,8 +26,7 @@ type Limiters = { perLink: TokenBucketRateLimiter; perVisitor: TokenBucketRateLi
 
 type Settings = { authSecret: string | undefined; now?: () => Date; locale?: () => AppLocale };
 
-type Lookups = Pick<BookingLinkRepo, "findByTokenUnscoped"> &
-  Pick<BookingReservationRepo, "findByManageTokenUnscoped">;
+type Lookups = Pick<BookingLinkRepo, "findByTokenUnscoped"> & Pick<BookingReservationRepo, "findByManageTokenUnscoped">;
 
 export class PublicBookingAccess {
   constructor(

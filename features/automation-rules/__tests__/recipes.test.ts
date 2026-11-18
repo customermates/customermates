@@ -9,9 +9,9 @@ import {
 } from "../recipes";
 
 describe("automation recipes", () => {
-  it("defines each of the seven recipes exactly once", () => {
+  it("defines each of the eight recipes exactly once", () => {
     expect(AUTOMATION_RECIPES.map((recipe) => recipe.id)).toEqual([...AUTOMATION_RECIPE_IDS]);
-    expect(new Set(AUTOMATION_RECIPES.map((recipe) => recipe.id)).size).toBe(7);
+    expect(new Set(AUTOMATION_RECIPES.map((recipe) => recipe.id)).size).toBe(8);
   });
 
   it("keeps the weekly review a routine on Cloud and every other recipe an exact or agent rule", () => {
@@ -41,13 +41,14 @@ describe("automation recipes", () => {
     expect(slots("remindBeforeRenewal")).toEqual(["list", "dateField"]);
     expect(slots("wonOrLostReason")).toEqual(["list", "stageField", "reasonField"]);
     expect(slots("welcomeSubmission")).toEqual([]);
+    expect(slots("bookingCancelled")).toEqual([]);
   });
 
   it("offers the routine recipe only on Cloud", () => {
     const ids = (recipes: AutomationRecipe[]) => recipes.map((recipe) => recipe.id);
     expect(ids(availableRecipes({ cloud: true }))).toContain("weeklyReview");
     expect(ids(availableRecipes({ cloud: false }))).not.toContain("weeklyReview");
-    expect(availableRecipes({ cloud: false })).toHaveLength(6);
+    expect(availableRecipes({ cloud: false })).toHaveLength(7);
   });
 
   it("finds a recipe by id and returns nothing for an unknown id", () => {

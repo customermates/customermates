@@ -34,7 +34,7 @@ const ManageRulesSchema = z.object({
     .optional()
     .describe("create and update. Omitting it on create produces a LIVE rule; pass false to save a draft."),
   trigger: AutomationTriggerSchema.optional().describe(
-    "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted or webhookReceived. List and field ids are the stable ids of the record model.",
+    "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted, webhookReceived or bookingChanged (a booking cancelled or rescheduled; change is any, cancelled or rescheduled). List and field ids are the stable ids of the record model.",
   ),
   conditions: z
     .array(AutomationConditionSchema)
@@ -88,7 +88,7 @@ export const manageRulesTool = {
   title: "Manage rules",
   description:
     "Reads, creates, changes and removes automation rules: deterministic when-if-then rules that run without AI, on every plan and on self-hosted instances. " +
-    "A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted or an incoming webhook), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, send an outbound webhook). " +
+    "A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted, an incoming webhook or a booking cancelled or rescheduled), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, send an outbound webhook). " +
     "A rule runs once per record and occurrence, as its owner, with the owner's permissions: it cannot do more than the owner could. Changes a rule makes cannot start the same rule again, and a chain stops after two rules. " +
     "action list returns compact summaries; get returns one rule in full; runs returns one rule's history, newest first, each with its status, the affected record and the outcome of every effect; a run whose record the caller may not read has recordId null, and a date rule's run then also scheduledFor null. " +
     "action create needs name, trigger and effects; omitting enabled produces a LIVE rule and enabled false creates a draft. Plans limit the number of active rules; the refusal names the limit. " +

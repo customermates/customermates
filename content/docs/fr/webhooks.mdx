@@ -273,7 +273,7 @@ La valeur d’un champ Texte enrichi dans les charges utiles est une valeur `ric
 
 ## Quels évènements existent ? [#which-events-exist]
 
-Un webhook peut s’abonner à [[derived.webhooks.events.total]] évènements : [[derived.webhooks.events.records]] évènements d’enregistrement, [[derived.webhooks.events.messaging]] évènements de messagerie et [[derived.webhooks.events.other]] évènements de formulaires, de webhooks entrants et de règles d’automatisation. Pour un webhook CRM, sélectionnez **Enregistrement créé**, **Enregistrement mis à jour**, **Enregistrement placé dans la corbeille**, **Enregistrement restauré** ou **Enregistrement supprimé définitivement** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) et définissez sa [source d’enregistrements](#record-event-sources) ; cela couvre aussi les listes que vous avez créées vous-même. Tous utilisent l’[enveloppe standard](#what-does-the-payload-look-like). Les routines peuvent être déclenchées par les mêmes évènements, sauf **Enregistrement supprimé définitivement** (`record.deletedPermanently`), **E-mail supprimé** (`messaging.email.deleted`) et **Conversation supprimée** (`messaging.chat.deleted`) ; **Message supprimé** (`messaging.message.deleted`) déclenche bien des routines. Voir [Routines](/docs/app-routines#how-do-event-triggers-work).
+Un webhook peut s’abonner à [[derived.webhooks.events.total]] évènements : [[derived.webhooks.events.records]] évènements d’enregistrement, [[derived.webhooks.events.messaging]] évènements de messagerie et [[derived.webhooks.events.other]] évènements de formulaires, de pages de réservation, de webhooks entrants et de règles d’automatisation. Pour un webhook CRM, sélectionnez **Enregistrement créé**, **Enregistrement mis à jour**, **Enregistrement placé dans la corbeille**, **Enregistrement restauré** ou **Enregistrement supprimé définitivement** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) et définissez sa [source d’enregistrements](#record-event-sources) ; cela couvre aussi les listes que vous avez créées vous-même. Tous utilisent l’[enveloppe standard](#what-does-the-payload-look-like). Les routines peuvent être déclenchées par les mêmes évènements, sauf **Enregistrement supprimé définitivement** (`record.deletedPermanently`), **E-mail supprimé** (`messaging.email.deleted`) et **Conversation supprimée** (`messaging.chat.deleted`) ; **Message supprimé** (`messaging.message.deleted`) déclenche bien des routines. Voir [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Évènements d’enregistrement [#record-events]
 
@@ -323,7 +323,7 @@ Les évènements de messagerie se déclenchent sur l’activité entrante du fou
 | `messaging.calendar_event.changed` | Un évènement de calendrier change |
 | `messaging.relation.created` | Une nouvelle relation du fournisseur est créée |
 
-### Évènements des formulaires, des webhooks entrants et des règles d’automatisation [#other-events]
+### Évènements des formulaires, des pages de réservation, des webhooks entrants et des règles d’automatisation [#other-events]
 
 Ces évènements utilisent l’[enveloppe standard](#what-does-the-payload-look-like). Customermates n’en conserve un que tant qu’un webhook y est abonné ou qu’une règle d’automatisation l’utilise, et les routines ne peuvent pas être déclenchées par eux.
 
@@ -331,9 +331,10 @@ Ces évènements utilisent l’[enveloppe standard](#what-does-the-payload-look-
 | --- | --- | --- |
 | `form.submitted` | Un formulaire public ou une page de réservation reçoit une soumission | `source`, `formId`, `formName`, `typeId`, `submissionId`, `outcome`, `recordId`, `personRecordId` et les `answers` par libellé de champ |
 | `webhook.received` | Un [webhook entrant](#incoming-webhooks) crée ou met à jour un enregistrement | `webhookId`, `webhookName`, `typeId`, `deliveryId`, `outcome` et `recordId` |
+| `booking.changed` | Une réservation faite via une page de réservation est annulée ou reprogrammée | `bookingId`, `bookingLinkId`, `bookingLinkName`, `change` (`cancelled` ou `rescheduled`), `by` (`invitee` ou `host`), `typeId`, `recordId`, `personRecordId`, `hostUserId` et les `answers` : le `name` et l’`email` du visiteur, `startsAt`, `endsAt` et `timeZone` (après une reprogrammation, le nouveau créneau), `previousStartsAt` après une reprogrammation, un `reason` s’il a été indiqué, et les réponses du visiteur par libellé de champ |
 | `automation.rule.fired` | Une règle d’automatisation avec l’effet **Appeler un webhook** se déclenche | `ruleId`, `ruleName`, `runId`, `trigger`, `firedAt` et le `record` qui a lancé la règle |
 
-Pour les deux premiers, `actorId` vaut `null`. `automation.rule.fired` n’atteint que le webhook que la règle désigne, et seulement si ce webhook a sélectionné l’évènement ; `actorId` est le propriétaire de la règle. Sa livraison est journalisée comme toutes les autres, avec nouvelles tentatives et renvoi.
+Pour tous sauf `automation.rule.fired`, `actorId` vaut `null`. `automation.rule.fired` n’atteint que le webhook que la règle désigne, et seulement si ce webhook a sélectionné l’évènement ; `actorId` est le propriétaire de la règle. Sa livraison est journalisée comme toutes les autres, avec nouvelles tentatives et renvoi.
 
 ## Comment recevoir des données d’autres outils avec un webhook entrant ? [#incoming-webhooks]
 

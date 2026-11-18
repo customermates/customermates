@@ -26,12 +26,13 @@ export type BusyTimeWindow = { intervals: BusyInterval[]; truncated: boolean };
 export function busyInterval(event: BusyCalendarEvent, fallbackTimeZone: string): BusyInterval | null {
   const transparency = event.transparency?.trim().toLowerCase();
   if (transparency === FREE_TRANSPARENCY && !event.createdByApp) return null;
-  if (!event.allDay)
+  if (!event.allDay) {
     return {
       startsAt: new Date(event.startsAt),
       endsAt: new Date(event.endsAt),
       ...(event.id ? { eventId: event.id } : {}),
     };
+  }
   if (!transparency) return null;
 
   const timeZone = event.timezone && isIanaTimeZone(event.timezone) ? event.timezone : fallbackTimeZone;
