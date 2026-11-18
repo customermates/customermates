@@ -181,25 +181,29 @@ export async function collectConsumerImpact(
 ): Promise<void> {
   const { viewTypes, deletedTypeIds, cause } = change;
   const { issues, blockers, cleaned, cleanups, droppedViewReferences } = impact;
+  const inTrash = (typeId: string, of: RecordModel) => of.types.some((type) => type.id === typeId && type.archived);
+  const leavesTrash = (typeId: string) => inTrash(typeId, current) && !inTrash(typeId, model);
   if (viewTypes.size) {
     const blockedLayouts = new Set<string>();
     for await (const entry of consumers.detailLayouts) {
-      if (deletedTypeIds.has(entry.typeId) || recordDetailLayoutIsValid(entry.typeId, entry.layout, model)) continue;
+      if (inTrash(entry.typeId, model) || recordDetailLayoutIsValid(entry.typeId, entry.layout, model)) continue;
       const layout =
-        cause && recordDetailLayoutIsValid(entry.typeId, entry.layout, current)
+        leavesTrash(entry.typeId) || (cause && recordDetailLayoutIsValid(entry.typeId, entry.layout, current))
           ? cleanRecordDetailLayout(entry.typeId, entry.layout, model)
           : null;
-      if (cause && layout) {
+      if (layout) {
         cleanups.push({ kind: "detailLayout", id: entry.id, layout });
-        cleaned.push({
-          consumer: {
-            kind: "detailLayout",
-            id: entry.id,
-            typeId: entry.typeId,
-            label: "",
-          },
-          target: cause,
-        });
+        if (cause) {
+          cleaned.push({
+            consumer: {
+              kind: "detailLayout",
+              id: entry.id,
+              typeId: entry.typeId,
+              label: "",
+            },
+            target: cause,
+          });
+        }
         continue;
       }
       if (blockedLayouts.has(entry.typeId)) continue;
@@ -208,8 +212,7 @@ export async function collectConsumerImpact(
     }
     for await (const consumer of consumers.viewStates) {
       if (consumer.trashed) continue;
-      if (deletedTypeIds.has(consumer.typeId) || recordViewStateIsValid(consumer.typeId, consumer.state, model))
-        continue;
+      if (inTrash(consumer.typeId, model) || recordViewStateIsValid(consumer.typeId, consumer.state, model)) continue;
       const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
       const id = consumer.key.slice(consumer.key.indexOf(":") + 1);
       const validBefore = recordViewStateIsValid(consumer.typeId, consumer.state, current);
@@ -220,7 +223,14 @@ export async function collectConsumerImpact(
           continue;
         }
       }
-      const state = cause && validBefore ? cleanRecordViewState(consumer.typeId, consumer.state, model) : null;
+      const state =
+        leavesTrash(consumer.typeId) || (cause && validBefore)
+          ? cleanRecordViewState(consumer.typeId, consumer.state, model)
+          : null;
+      if (state && !cause) {
+        cleanups.push({ kind, id, state });
+        continue;
+      }
       if (cause && state) {
         cleanups.push({ kind, id, state });
         if (kind === "view") {
