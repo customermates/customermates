@@ -20,6 +20,7 @@ const Schema = z.object({
   type: z.enum(["email.new", "email.new.bounce"]),
   account_id: z.string(),
   payload: z.looseObject({ email: z.unknown().optional() }),
+  receivedAt: z.date().optional(),
 });
 type Payload = z.infer<typeof Schema>;
 
@@ -59,6 +60,9 @@ export class ProcessEmailNewWebhookInteractor {
     });
     await synchronizeInboundAvatar(this.avatars, account.companyId, result);
     if (result.isEcho || result.isDuplicate) return;
+
+    const storedBeforeThisWebhook = envelope.receivedAt !== undefined && result.message.createdAt < envelope.receivedAt;
+    if (storedBeforeThisWebhook) return;
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_EMAIL_RECEIVED,
