@@ -12,7 +12,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { MessagingThreadSchema } from "../messaging.schema";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 
@@ -56,30 +55,25 @@ export class ListReviewDraftsInteractor extends AuthenticatedInteractor<ListRevi
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    return runInTransaction(
-      async () => {
-        const { entries, total } = await this.repo.listReviewDrafts({
-          limit: data.countOnly ? 0 : (data.limit ?? REVIEW_DRAFTS_MAX),
-          historySize: REVIEW_DRAFT_HISTORY_SIZE,
-        });
-        const owners = await this.accountRepo.listAccountOwnersByIds([
-          ...new Set(entries.map((entry) => entry.thread.connectedAccountId)),
-        ]);
+    const { entries, total } = await this.repo.listReviewDrafts({
+      limit: data.countOnly ? 0 : (data.limit ?? REVIEW_DRAFTS_MAX),
+      historySize: REVIEW_DRAFT_HISTORY_SIZE,
+    });
+    const owners = await this.accountRepo.listAccountOwnersByIds([
+      ...new Set(entries.map((entry) => entry.thread.connectedAccountId)),
+    ]);
 
-        return {
-          ok: true as const,
-          data: {
-            items: entries.map((entry) => ({
-              draft: toMessagingMessageDto(entry.draft),
-              thread: entry.thread,
-              history: entry.history.map(toMessagingMessageDto),
-              accountLabel: owners[entry.thread.connectedAccountId]?.accountLabel ?? null,
-            })),
-            total,
-          },
-        };
+    return {
+      ok: true as const,
+      data: {
+        items: entries.map((entry) => ({
+          draft: toMessagingMessageDto(entry.draft),
+          thread: entry.thread,
+          history: entry.history.map(toMessagingMessageDto),
+          accountLabel: owners[entry.thread.connectedAccountId]?.accountLabel ?? null,
+        })),
+        total,
       },
-      { readOnly: true },
-    );
+    };
   }
 }

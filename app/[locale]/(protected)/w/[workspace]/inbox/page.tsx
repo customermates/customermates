@@ -8,6 +8,7 @@ import {
   getGetMessagingAccountsStateInteractor,
   getGetMessagingThreadInteractor,
   getGetMessagingThreadsInteractor,
+  getListReviewDraftsInteractor,
 } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
@@ -39,7 +40,13 @@ export default async function InboxPage({ searchParams }: Props) {
   const requestedThreadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
   const threadParams = await readSurfaceParams(SURFACE.messagingThreads, listParams);
 
-  const threads = locked ? { items: [] } : await unwrapPage(getGetMessagingThreadsInteractor().invoke(threadParams));
+  const [threads, drafts] = locked
+    ? [{ items: [] }, null]
+    : await Promise.all([
+        unwrapPage(getGetMessagingThreadsInteractor().invoke(threadParams)),
+        getListReviewDraftsInteractor().invoke({ countOnly: true }),
+      ]);
+  const draftCount = drafts?.ok ? drafts.data.total : 0;
 
   if (requestedThreadId === LATEST_THREAD_ID) {
     const query = new URLSearchParams();
@@ -59,7 +66,7 @@ export default async function InboxPage({ searchParams }: Props) {
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 
   const content = (
-    <InboxSurface locked={locked} threads={threads}>
+    <InboxSurface draftCount={draftCount} locked={locked} threads={threads}>
       <div className="flex min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
         <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
           <InboxList canConnect={canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
