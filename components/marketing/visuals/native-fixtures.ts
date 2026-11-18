@@ -15,6 +15,10 @@ export const VISUAL_PROVIDER_FIXTURES = {
     asset: "/icons/channels/google.svg",
     name: "Gmail",
   },
+  facebook: {
+    asset: "/icons/channels/messenger.svg",
+    name: "Messenger",
+  },
   imap: {
     asset: "/icons/channels/mail.svg",
     name: "IMAP",
@@ -43,7 +47,7 @@ export const VISUAL_PROVIDER_FIXTURES = {
 
 export const VISUAL_PROVIDER_SET_FIXTURES = {
   "unified-inbox": {
-    providers: ["gmail", "outlook", "linkedin", "whatsapp", "telegram", "instagram", "imap"],
+    providers: ["gmail", "outlook", "linkedin", "whatsapp", "telegram", "instagram", "facebook", "imap"],
   },
 } as const satisfies Record<string, { providers: readonly (keyof typeof VISUAL_PROVIDER_FIXTURES)[] }>;
 

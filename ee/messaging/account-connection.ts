@@ -48,11 +48,12 @@ export function deriveAccountConnection(
   const products = account.metadata?.products_connection_status ?? {};
   const provider = account.provider?.toLowerCase();
   const calendarProvider = provider === "google" || provider === "outlook";
+  const partlyRunning = account.status === "running" || account.status === "partial" || account.status === "degraded";
   const operational =
-    calendarProvider &&
-    (account.status === "running" || account.status === "partial" || account.status === "degraded") &&
-    (features.hasMessaging || features.hasCalendar) &&
-    Object.values(products).includes("running");
+    partlyRunning &&
+    (calendarProvider
+      ? (features.hasMessaging || features.hasCalendar) && Object.values(products).includes("running")
+      : provider === "facebook" && products.messaging === "running");
   const status = operational ? ConnectedAccountStatus.ok : mapUnipileStatus(account.status);
   const sameProducts =
     previous &&

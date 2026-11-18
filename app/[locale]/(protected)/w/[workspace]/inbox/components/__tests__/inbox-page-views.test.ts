@@ -147,6 +147,7 @@ function renderInboxList(
   options: {
     canConnect?: boolean;
     canUpdate?: boolean;
+    draftCount?: number;
     filters?: unknown[];
     locked?: boolean;
     searchTerm?: string;
@@ -169,6 +170,7 @@ function renderInboxList(
   };
   harness.getRootStore.mockReturnValue({
     connectedAccountsStore: { ensureLoaded: harness.ensureLoaded, needsActionCount: 0 },
+    draftReviewStore: { open: vi.fn(), openCount: options.draftCount ?? 0 },
     messagingThreadsStore,
     userStore: { can: () => options.canUpdate ?? true },
   });
@@ -304,6 +306,22 @@ describe("Inbox page-state owners", () => {
     const readOnly = renderInboxList("ready", { canConnect: false });
     expect(readOnly).not.toContain("<button");
     expect(renderToStaticMarkup(latestTopBar() as ReactElement)).not.toContain("ConnectedAccountsCard.title");
+  });
+
+  it("offers the draft review in the topbar only while drafts wait, beside the primary connect action", () => {
+    renderInboxList("ready", { withItem: true });
+    expect(renderToStaticMarkup(latestTopBar() as ReactElement)).not.toContain("Inbox.draftReview.title");
+
+    renderInboxList("ready", { draftCount: 3, withItem: true });
+    const waiting = renderToStaticMarkup(latestTopBar() as ReactElement);
+    expect(waiting).toMatch(
+      /id="inbox-review-drafts"[^>]*data-variant="secondary"|data-variant="secondary"[^>]*id="inbox-review-drafts"/,
+    );
+    expect(waiting).toContain("Inbox.draftReview.title");
+    expect(waiting).toContain(">3<");
+
+    renderInboxList("ready", { draftCount: 3, locked: true, withItem: true });
+    expect(latestTopBar()).toBeNull();
   });
 
   it("offers Refresh only to a role with Manage on Inbox messages", () => {

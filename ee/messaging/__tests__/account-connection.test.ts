@@ -3,8 +3,8 @@ import type { UnipileAccount } from "../unipile.schema";
 import { describe, expect, it } from "vitest";
 
 import { deriveAccountConnection } from "../account-connection";
-import { deriveAccountFeatures } from "../unipile.mappers";
-import { isUsableSenderFor } from "../provider";
+import { deriveAccountFeatures, mapUnipileProvider } from "../unipile.mappers";
+import { facebookPageInboxIds, isUsableSenderFor } from "../provider";
 
 const calendarOnly: UnipileAccount = {
   id: "acc_calendar_only",
@@ -165,5 +165,57 @@ describe("Google product connection state", () => {
 
   it("excludes a calendar-only account from email sender choices", () => {
     expect(isUsableSenderFor({ provider: "google", status: "ok", hasMessaging: false }, "mail")).toBe(false);
+  });
+});
+
+describe("Facebook product connection state", () => {
+  const facebook: UnipileAccount = {
+    id: "acc_facebook",
+    provider: "facebook",
+    status: "running",
+    metadata: { products_connection_status: { messaging: "running", page_1357020157484056: "running" } },
+  };
+
+  it("connects Messenger as a messaging account without a calendar", () => {
+    expect(mapUnipileProvider("facebook")).toBe("facebook");
+    expect(deriveAccountFeatures(facebook)).toEqual({ hasMessaging: true, hasCalendar: false });
+    expect(deriveAccountConnection(facebook)).toMatchObject({ status: "ok", hasMessaging: true, hasCalendar: false });
+    expect(isUsableSenderFor({ provider: "facebook", status: "ok", hasMessaging: true }, "facebook")).toBe(true);
+  });
+
+  it.each(["partial", "degraded"] as const)(
+    "keeps the Messenger inbox usable while a Facebook Page is down (%s)",
+    (status) => {
+      expect(
+        deriveAccountConnection({
+          ...facebook,
+          status,
+          metadata: {
+            products_connection_status: { messaging: "running", page_1357020157484056: "disconnected" },
+          },
+        }),
+      ).toMatchObject({
+        status: "ok",
+        hasMessaging: true,
+        connectionDetails: { products: { messaging: "running", page_1357020157484056: "disconnected" } },
+      });
+    },
+  );
+
+  it("asks for a reconnect when the Messenger session itself is gone", () => {
+    expect(
+      deriveAccountConnection({
+        ...facebook,
+        status: "partial",
+        metadata: { products_connection_status: { messaging: "disconnected", page_1357020157484056: "running" } },
+      }).status,
+    ).toBe("credentials");
+    expect(deriveAccountConnection({ ...facebook, status: "disconnected" }).status).toBe("credentials");
+  });
+
+  it("finds the Page inboxes among the inboxes of a Facebook account", () => {
+    expect(
+      facebookPageInboxIds(["INBOX", "PENDING", "PAGE_2468013579_INBOX", "PAGE_1357020157484056_INBOX", "ARCHIVED"]),
+    ).toEqual(["PAGE_1357020157484056_INBOX", "PAGE_2468013579_INBOX"]);
   });
 });

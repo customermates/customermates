@@ -23,6 +23,7 @@ import {
   getSendEmailInteractor,
   getSaveDraftInteractor,
   getDiscardDraftInteractor,
+  getListReviewDraftsInteractor,
   getStartChatInteractor,
   getResolveProviderProfileInteractor,
   getRefreshInboxInteractor,
@@ -91,6 +92,14 @@ export async function saveDraftAction(data: SaveDraftData) {
 
 export async function discardDraftAction(data: DiscardDraftData) {
   return serializeResult(getDiscardDraftInteractor().invoke(data));
+}
+
+export async function listReviewDraftsAction() {
+  return serializeResult(getListReviewDraftsInteractor().invoke({}));
+}
+
+export async function countReviewDraftsAction() {
+  return serializeResult(getListReviewDraftsInteractor().invoke({ countOnly: true }));
 }
 
 export async function startChatAction(data: StartChatData) {

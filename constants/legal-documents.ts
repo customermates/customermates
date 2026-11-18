@@ -1,6 +1,6 @@
 export const LEGAL_DOCUMENT_VERSIONS = {
   dpa: "2026-10-16",
-  privacy: "2026-11-09",
+  privacy: "2026-11-18",
   subprocessors: "2026-11-01",
   terms: "2026-09-01",
 } as const;

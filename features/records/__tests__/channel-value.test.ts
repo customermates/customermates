@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { byChannelGroup, channelClass, channelGroup, messagingProviderFor } from "@/ee/messaging/provider";
+import {
+  byChannelGroup,
+  channelClass,
+  channelGroup,
+  getProviderProfileUrl,
+  messagingProviderFor,
+} from "@/ee/messaging/provider";
 import { inferChannelProviders, normalizeChannelValue } from "../channel-value";
 
 describe("channel values", () => {
@@ -11,7 +17,52 @@ describe("channel values", () => {
     expect(inferChannelProviders("(201) 555-0123", "us")).toEqual(["phone"]);
     expect(inferChannelProviders("person@example.test")).toEqual(["mail"]);
     expect(inferChannelProviders("https://www.linkedin.com/in/person")).toEqual(["linkedin"]);
-    expect(inferChannelProviders("@person")).toEqual(["linkedin", "telegram", "instagram"]);
+    expect(inferChannelProviders("@person")).toEqual(["linkedin", "telegram", "instagram", "facebook"]);
+  });
+
+  it("reads a Facebook profile from every link form Facebook and Messenger hand out", () => {
+    expect(inferChannelProviders("https://www.facebook.com/jane.doe")).toEqual(["facebook"]);
+    expect(inferChannelProviders("https://m.me/jane.doe")).toEqual(["facebook"]);
+    expect(normalizeChannelValue("facebook", "https://www.facebook.com/jane.doe/")).toBe("jane.doe");
+    expect(normalizeChannelValue("facebook", "https://m.facebook.com/jane.doe?ref=bookmarks")).toBe("jane.doe");
+    expect(normalizeChannelValue("facebook", "https://www.facebook.com/profile.php?id=100001234567890&sk=about")).toBe(
+      "100001234567890",
+    );
+    expect(normalizeChannelValue("facebook", "https://www.facebook.com/people/Jane-Doe/100001234567890/")).toBe(
+      "100001234567890",
+    );
+    expect(normalizeChannelValue("facebook", "https://www.messenger.com/t/100001234567890")).toBe("100001234567890");
+    expect(normalizeChannelValue("facebook", "https://www.facebook.com/messages/t/100001234567890")).toBe(
+      "100001234567890",
+    );
+    expect(normalizeChannelValue("facebook", "https://m.me/jane.doe")).toBe("jane.doe");
+    expect(normalizeChannelValue("facebook", "@jane.doe")).toBe("jane.doe");
+    expect(getProviderProfileUrl("facebook", "jane.doe")).toBe("https://www.facebook.com/jane.doe");
+    expect(getProviderProfileUrl("facebook", "100001234567890")).toBe(
+      "https://www.facebook.com/profile.php?id=100001234567890",
+    );
+    expect(channelGroup("facebook", "jane.doe")).toBe("social");
+    expect(normalizeChannelValue("facebook", "https://www.messenger.com/e2ee/t/100001234567890")).toBe(
+      "100001234567890",
+    );
+    expect(normalizeChannelValue("facebook", "https://www.facebook.com/profile.php?sk=about&id=100001234567890")).toBe(
+      "100001234567890",
+    );
+  });
+
+  it.each([
+    "https://www.facebook.com/groups/1234567890",
+    "https://www.facebook.com/share/p/abc123",
+    "https://www.facebook.com/pages/Example/1234567890",
+    "https://www.facebook.com/watch/?v=1234567890",
+    "https://www.facebook.com/profile.php",
+    "https://www.facebook.com/events/1234567890",
+    "https://www.custom.me/jane",
+    "https://notfb.com/jane",
+    "https://notfacebook.com/jane",
+  ])("does not read a Facebook profile out of %s", (value) => {
+    expect(inferChannelProviders(value)).not.toContain("facebook");
+    expect(normalizeChannelValue("facebook", value)).toBeNull();
   });
 
   it("normalises phone and WhatsApp numbers with the same rules", () => {

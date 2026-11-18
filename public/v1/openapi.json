@@ -839,6 +839,7 @@
                             "whatsapp",
                             "instagram",
                             "telegram",
+                            "facebook",
                             "phone"
                           ],
                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -904,6 +905,7 @@
                               "whatsapp",
                               "instagram",
                               "telegram",
+                              "facebook",
                               "phone"
                             ],
                             "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -3386,7 +3388,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     }
                   },
@@ -3479,7 +3482,8 @@
                                   "linkedin",
                                   "whatsapp",
                                   "instagram",
-                                  "telegram"
+                                  "telegram",
+                                  "facebook"
                                 ]
                               }
                             }
@@ -3862,6 +3866,7 @@
                                                     "whatsapp",
                                                     "instagram",
                                                     "telegram",
+                                                    "facebook",
                                                     "phone"
                                                   ],
                                                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -3933,6 +3938,7 @@
                                                     "whatsapp",
                                                     "instagram",
                                                     "telegram",
+                                                    "facebook",
                                                     "phone"
                                                   ],
                                                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -6842,7 +6848,8 @@
                                       "linkedin",
                                       "whatsapp",
                                       "instagram",
-                                      "telegram"
+                                      "telegram",
+                                      "facebook"
                                     ]
                                   },
                                   "direction": {
@@ -8084,7 +8091,8 @@
                                       "linkedin",
                                       "whatsapp",
                                       "instagram",
-                                      "telegram"
+                                      "telegram",
+                                      "facebook"
                                     ]
                                   },
                                   "organizer": {
@@ -11426,6 +11434,7 @@
                                     "whatsapp",
                                     "instagram",
                                     "telegram",
+                                    "facebook",
                                     "phone"
                                   ],
                                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -12611,6 +12620,7 @@
                                       "whatsapp",
                                       "instagram",
                                       "telegram",
+                                      "facebook",
                                       "phone"
                                     ],
                                     "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -14590,7 +14600,8 @@
                                 "linkedin",
                                 "whatsapp",
                                 "instagram",
-                                "telegram"
+                                "telegram",
+                                "facebook"
                               ]
                             }
                           },
@@ -14683,7 +14694,8 @@
                                           "linkedin",
                                           "whatsapp",
                                           "instagram",
-                                          "telegram"
+                                          "telegram",
+                                          "facebook"
                                         ]
                                       }
                                     }
@@ -18669,7 +18681,8 @@
                                   "linkedin",
                                   "whatsapp",
                                   "instagram",
-                                  "telegram"
+                                  "telegram",
+                                  "facebook"
                                 ]
                               }
                             },
@@ -18762,7 +18775,8 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
+                                            "telegram",
+                                            "facebook"
                                           ]
                                         }
                                       }
@@ -19329,6 +19343,7 @@
                                                                 "whatsapp",
                                                                 "instagram",
                                                                 "telegram",
+                                                                "facebook",
                                                                 "phone"
                                                               ],
                                                               "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -19400,6 +19415,7 @@
                                                                 "whatsapp",
                                                                 "instagram",
                                                                 "telegram",
+                                                                "facebook",
                                                                 "phone"
                                                               ],
                                                               "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -22309,7 +22325,8 @@
                                                   "linkedin",
                                                   "whatsapp",
                                                   "instagram",
-                                                  "telegram"
+                                                  "telegram",
+                                                  "facebook"
                                                 ]
                                               },
                                               "direction": {
@@ -23551,7 +23568,8 @@
                                                   "linkedin",
                                                   "whatsapp",
                                                   "instagram",
-                                                  "telegram"
+                                                  "telegram",
+                                                  "facebook"
                                                 ]
                                               },
                                               "organizer": {
@@ -32643,7 +32661,8 @@
                                   "linkedin",
                                   "whatsapp",
                                   "instagram",
-                                  "telegram"
+                                  "telegram",
+                                  "facebook"
                                 ]
                               }
                             },
@@ -32736,7 +32755,8 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
+                                            "telegram",
+                                            "facebook"
                                           ]
                                         }
                                       }
@@ -33303,6 +33323,7 @@
                                                                 "whatsapp",
                                                                 "instagram",
                                                                 "telegram",
+                                                                "facebook",
                                                                 "phone"
                                                               ],
                                                               "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -33374,6 +33395,7 @@
                                                                 "whatsapp",
                                                                 "instagram",
                                                                 "telegram",
+                                                                "facebook",
                                                                 "phone"
                                                               ],
                                                               "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -36283,7 +36305,8 @@
                                                   "linkedin",
                                                   "whatsapp",
                                                   "instagram",
-                                                  "telegram"
+                                                  "telegram",
+                                                  "facebook"
                                                 ]
                                               },
                                               "direction": {
@@ -37525,7 +37548,8 @@
                                                   "linkedin",
                                                   "whatsapp",
                                                   "instagram",
-                                                  "telegram"
+                                                  "telegram",
+                                                  "facebook"
                                                 ]
                                               },
                                               "organizer": {
@@ -48551,6 +48575,7 @@
                               "whatsapp",
                               "instagram",
                               "telegram",
+                              "facebook",
                               "phone"
                             ],
                             "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -51223,6 +51248,7 @@
                                     "whatsapp",
                                     "instagram",
                                     "telegram",
+                                    "facebook",
                                     "phone"
                                   ],
                                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -52317,6 +52343,7 @@
                                     "whatsapp",
                                     "instagram",
                                     "telegram",
+                                    "facebook",
                                     "phone"
                                   ],
                                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -52638,6 +52665,7 @@
                                     "whatsapp",
                                     "instagram",
                                     "telegram",
+                                    "facebook",
                                     "phone"
                                   ],
                                   "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -87796,7 +87824,8 @@
                                         "linkedin",
                                         "whatsapp",
                                         "instagram",
-                                        "telegram"
+                                        "telegram",
+                                        "facebook"
                                       ]
                                     }
                                   },
@@ -87889,7 +87918,8 @@
                                                   "linkedin",
                                                   "whatsapp",
                                                   "instagram",
-                                                  "telegram"
+                                                  "telegram",
+                                                  "facebook"
                                                 ]
                                               }
                                             }
@@ -88456,6 +88486,7 @@
                                                                       "whatsapp",
                                                                       "instagram",
                                                                       "telegram",
+                                                                      "facebook",
                                                                       "phone"
                                                                     ],
                                                                     "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -88527,6 +88558,7 @@
                                                                       "whatsapp",
                                                                       "instagram",
                                                                       "telegram",
+                                                                      "facebook",
                                                                       "phone"
                                                                     ],
                                                                     "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -91436,7 +91468,8 @@
                                                         "linkedin",
                                                         "whatsapp",
                                                         "instagram",
-                                                        "telegram"
+                                                        "telegram",
+                                                        "facebook"
                                                       ]
                                                     },
                                                     "direction": {
@@ -92678,7 +92711,8 @@
                                                         "linkedin",
                                                         "whatsapp",
                                                         "instagram",
-                                                        "telegram"
+                                                        "telegram",
+                                                        "facebook"
                                                       ]
                                                     },
                                                     "organizer": {
@@ -100545,6 +100579,7 @@
                                       "whatsapp",
                                       "instagram",
                                       "telegram",
+                                      "facebook",
                                       "phone"
                                     ],
                                     "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -106205,7 +106240,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "status": {
@@ -106860,7 +106896,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "status": {
@@ -107419,7 +107456,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "status": {
@@ -119136,9 +119174,10 @@
                       "linkedin_sales_navigator",
                       "linkedin_recruiter",
                       "instagram",
-                      "telegram"
+                      "telegram",
+                      "facebook"
                     ],
-                    "description": "The channel to connect: google (Gmail), outlook, imap (any other email via IMAP and SMTP), whatsapp, linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram or telegram."
+                    "description": "The channel to connect: google (Gmail), outlook, imap (any other email via IMAP and SMTP), whatsapp, linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram, telegram or facebook (Messenger, with the Facebook Pages the account administers)."
                   }
                 },
                 "required": [
@@ -119921,7 +119960,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "direction": {
@@ -122039,7 +122079,8 @@
                               "linkedin",
                               "whatsapp",
                               "instagram",
-                              "telegram"
+                              "telegram",
+                              "facebook"
                             ]
                           },
                           "name": {
@@ -122195,7 +122236,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "name": {
@@ -123185,7 +123227,8 @@
                               "linkedin",
                               "whatsapp",
                               "instagram",
-                              "telegram"
+                              "telegram",
+                              "facebook"
                             ]
                           }
                         },
@@ -123479,7 +123522,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     }
                   },
@@ -123617,7 +123661,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "direction": {
@@ -124985,7 +125030,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "direction": {
@@ -126015,7 +126061,8 @@
                         "linkedin",
                         "whatsapp",
                         "instagram",
-                        "telegram"
+                        "telegram",
+                        "facebook"
                       ]
                     },
                     "direction": {
@@ -133898,6 +133945,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -133969,6 +134017,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -135355,6 +135404,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -135426,6 +135476,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -136812,6 +136863,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -136883,6 +136935,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -138269,6 +138322,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -138340,6 +138394,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -139726,6 +139781,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -139797,6 +139853,7 @@
                                             "whatsapp",
                                             "instagram",
                                             "telegram",
+                                            "facebook",
                                             "phone"
                                           ],
                                           "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given."
@@ -142592,7 +142649,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerMessageId": {
@@ -142670,7 +142728,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerMessageId": {
@@ -142748,7 +142807,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerMessageId": {
@@ -142826,7 +142886,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerMessageId": {
@@ -142904,7 +142965,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerMessageId": {
@@ -142982,7 +143044,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerMessageId": {
@@ -143060,7 +143123,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerThreadId": {
@@ -143136,7 +143200,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerThreadId": {
@@ -143334,7 +143399,8 @@
                   "linkedin",
                   "whatsapp",
                   "instagram",
-                  "telegram"
+                  "telegram",
+                  "facebook"
                 ]
               },
               "providerUserId": {
@@ -143389,7 +143455,8 @@
               "linkedin",
               "whatsapp",
               "instagram",
-              "telegram"
+              "telegram",
+              "facebook"
             ]
           },
           "type": {
@@ -151523,7 +151590,8 @@
               "linkedin",
               "whatsapp",
               "instagram",
-              "telegram"
+              "telegram",
+              "facebook"
             ]
           },
           "status": {
@@ -151827,7 +151895,8 @@
                     "linkedin",
                     "whatsapp",
                     "instagram",
-                    "telegram"
+                    "telegram",
+                    "facebook"
                   ]
                 },
                 "direction": {
@@ -155369,7 +155438,8 @@
               "linkedin",
               "whatsapp",
               "instagram",
-              "telegram"
+              "telegram",
+              "facebook"
             ]
           },
           "type": {
