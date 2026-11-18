@@ -160,11 +160,13 @@ const DraftBubble = observer(function DraftBubble({ item }: { item: ReviewDraft 
     <div className="flex justify-end pl-8">
       <MessageSurface isEmail isOutbound className="border-primary/30 w-full border border-dashed">
         <div className="flex flex-col gap-2 px-3.5 py-3" data-draft-review-body="">
-          <div className="flex items-center justify-between gap-2">
-            {subject ? <span className="min-w-0 truncate font-semibold">{subject}</span> : <span />}
+          {(subject || store.editing) && (
+            <div className="flex items-center justify-between gap-2">
+              {subject ? <span className="min-w-0 truncate font-semibold">{subject}</span> : <span />}
 
-            <Badge variant="secondary">{t("Inbox.draftReview.draftBadge")}</Badge>
-          </div>
+              <Badge variant="secondary">{t("Inbox.draftReview.draftBadge")}</Badge>
+            </div>
+          )}
 
           {store.editing ? (
             <Textarea
@@ -176,7 +178,15 @@ const DraftBubble = observer(function DraftBubble({ item }: { item: ReviewDraft 
               onChange={(event) => store.setEditBody(event.target.value)}
             />
           ) : (
-            <MessageText text={item.draft.bodyText ?? ""} />
+            <div>
+              {!subject && (
+                <Badge className="float-end ms-2 mb-1" variant="secondary">
+                  {t("Inbox.draftReview.draftBadge")}
+                </Badge>
+              )}
+
+              <MessageText text={item.draft.bodyText ?? ""} />
+            </div>
           )}
 
           {attachmentCount > 0 && (
