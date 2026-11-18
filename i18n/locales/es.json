@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Color de acento",
       "accentPicker": "Elegir color de acento",
-      "description": "Tu logotipo y tu color de acento aparecen en tus páginas de reservas y formularios públicos.",
+      "description": "Tu logotipo y tu color de acento aparecen en tus páginas de reservas y formularios públicos. El logotipo también sustituye las iniciales del espacio de trabajo en la aplicación.",
       "logoEmpty": "Sin logotipo",
       "logoHint": "PNG, JPEG o WebP, hasta 512 KB.",
       "logoLabel": "Logotipo",

@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Kolor akcentu",
       "accentPicker": "Wybierz kolor akcentu",
-      "description": "Logo i kolor akcentu są widoczne na stronach rezerwacji i w formularzach publicznych.",
+      "description": "Logo i kolor akcentu są widoczne na stronach rezerwacji i w formularzach publicznych. Logo zastępuje też inicjały przestrzeni roboczej w aplikacji.",
       "logoEmpty": "Brak logo",
       "logoHint": "PNG, JPEG lub WebP, maksymalnie 512 KB.",
       "logoLabel": "Logo",

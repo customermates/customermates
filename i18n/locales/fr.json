@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Couleur d’accent",
       "accentPicker": "Choisir la couleur d’accent",
-      "description": "Votre logo et votre couleur d’accent apparaissent sur vos pages de réservation et vos formulaires publics.",
+      "description": "Votre logo et votre couleur d’accent apparaissent sur vos pages de réservation et vos formulaires publics. Le logo remplace aussi les initiales de l’espace de travail dans l’application.",
       "logoEmpty": "Aucun logo",
       "logoHint": "PNG, JPEG ou WebP, 512 Ko maximum.",
       "logoLabel": "Logo",

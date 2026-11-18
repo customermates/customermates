@@ -13,6 +13,7 @@ export type WorkspaceMembershipRow = {
     slug: string;
     createdAt: Date;
     hasActiveAdmin: boolean;
+    brand?: { logoKey: string | null } | null;
     subscription: { status: SubscriptionStatus; plan: SubscriptionPlan; trialEndDate: Date | null } | null;
     _count: { users: number };
   };

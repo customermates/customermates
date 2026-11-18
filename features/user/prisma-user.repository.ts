@@ -648,6 +648,7 @@ export class PrismaUserRepo
             name: true,
             slug: true,
             createdAt: true,
+            brand: { select: { logoKey: true } },
             subscription: {
               select: { status: true, plan: true, trialEndDate: true },
             },

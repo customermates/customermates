@@ -61,7 +61,7 @@ const PlanPausedCardContent = observer(function PlanPausedCard({ ownerName }: Pr
                       variant="secondary"
                       onClick={() => workspacesStore.requestSwitch(other.companyId)}
                     >
-                      <WorkspaceAvatar companyId={other.companyId} name={name} size="sm" />
+                      <WorkspaceAvatar companyId={other.companyId} logoUrl={other.logoUrl} name={name} size="sm" />
 
                       <span className="min-w-0 flex-1 truncate text-left">{name}</span>
                     </Button>

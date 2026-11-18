@@ -36,6 +36,7 @@ export class WorkspacesStore extends BaseStore {
       canCreate: computed,
       setWorkspaces: action,
       renameCurrent: action,
+      setCurrentLogo: action,
       showUnavailable: action,
       setIsNavigating: action,
     });
@@ -59,6 +60,10 @@ export class WorkspacesStore extends BaseStore {
 
   renameCurrent = (name: string) => {
     this.items = this.items.map((workspace) => (workspace.isCurrent ? { ...workspace, name } : workspace));
+  };
+
+  setCurrentLogo = (logoUrl: string | null) => {
+    this.items = this.items.map((workspace) => (workspace.isCurrent ? { ...workspace, logoUrl } : workspace));
   };
 
   showUnavailable = () => {

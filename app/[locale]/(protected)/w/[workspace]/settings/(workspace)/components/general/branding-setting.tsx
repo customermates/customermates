@@ -14,6 +14,7 @@ import { BrandLogo } from "@/components/shared/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { isBrandColor } from "@/features/workspace-brand/brand-color";
 import { BRAND_LOGO_TYPES, type BrandLogoRefusal, brandLogoRefusal } from "@/features/workspace-brand/brand-image";
@@ -35,6 +36,7 @@ function toBase64(bytes: Uint8Array): string {
 export const BrandingSetting = observer(function BrandingSetting({ editable, initial, workspaceName }: Props) {
   const t = useTranslations();
   const store = useAppForm();
+  const { workspacesStore } = useRootStore();
   const fileInput = useRef<HTMLInputElement>(null);
   const [logoUrl, setLogoUrl] = useState(initial.logoUrl);
   const [logoProblem, setLogoProblem] = useState<BrandLogoRefusal | null>(null);
@@ -61,6 +63,7 @@ export const BrandingSetting = observer(function BrandingSetting({ editable, ini
           return;
         }
         setLogoUrl(result.data.logoUrl);
+        workspacesStore.setCurrentLogo(result.data.logoUrl);
         toast.success(t("Workspaces.branding.saved"));
       } finally {
         setSaving(false);

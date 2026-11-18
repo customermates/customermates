@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Colore di accento",
       "accentPicker": "Scegli il colore di accento",
-      "description": "Il tuo logo e il tuo colore di accento compaiono nelle tue pagine di prenotazione e nei moduli pubblici.",
+      "description": "Il tuo logo e il tuo colore di accento compaiono nelle tue pagine di prenotazione e nei moduli pubblici. Il logo sostituisce anche le iniziali dello spazio di lavoro nell’app.",
       "logoEmpty": "Nessun logo",
       "logoHint": "PNG, JPEG o WebP, fino a 512 KB.",
       "logoLabel": "Logo",

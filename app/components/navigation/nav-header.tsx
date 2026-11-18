@@ -17,7 +17,7 @@ type Props = {
   workspaceMenu: ReactNode | null;
   workspaceMenuLabel: string;
   workspaceMenuBadge?: { count: number; label: string };
-  workspace: { companyId: string; name: string } | null;
+  workspace: { companyId: string; name: string; logoUrl?: string | null } | null;
   onWorkspaceMenuOpen?: () => void;
   brandName: string;
   logoAlt: string;
@@ -54,7 +54,7 @@ export function NavHeader({
   const brand = (
     <>
       {workspace ? (
-        <WorkspaceAvatar companyId={workspace.companyId} name={workspace.name} size="sm" />
+        <WorkspaceAvatar companyId={workspace.companyId} logoUrl={workspace.logoUrl} name={workspace.name} size="sm" />
       ) : (
         <AppImage
           alt={logoAlt}

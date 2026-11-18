@@ -28,6 +28,7 @@ function workspace(
     companyId,
     name,
     slug: `ws-${companyId}`,
+    logoUrl: null,
     status: "active",
     inactiveReason: null,
     roleName: "Admin",

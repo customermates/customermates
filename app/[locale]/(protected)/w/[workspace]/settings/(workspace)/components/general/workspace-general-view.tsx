@@ -46,7 +46,7 @@ type Props = {
 const WorkspaceGeneralViewContent = observer((props: Props) => {
   const { brand, deleteRefusal, leaveRefusal, publicLinks, workspace } = props;
   const t = useTranslations();
-  const { appMode, workspaceGeneralStore: store } = useRootStore();
+  const { appMode, workspaceGeneralStore: store, workspacesStore } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -72,7 +72,12 @@ const WorkspaceGeneralViewContent = observer((props: Props) => {
       <AppForm store={store}>
         <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-6 motion-reduce:animate-none">
           <div className="flex min-w-0 items-center gap-3">
-            <WorkspaceAvatar companyId={workspace.companyId} name={name} size="xl" />
+            <WorkspaceAvatar
+              companyId={workspace.companyId}
+              logoUrl={(workspacesStore.current ?? workspace).logoUrl}
+              name={name}
+              size="xl"
+            />
 
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="truncate font-medium">{name}</span>

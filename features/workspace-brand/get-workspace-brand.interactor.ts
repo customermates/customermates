@@ -6,7 +6,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-import { WorkspaceBrandSchema, publicBrand } from "./workspace-brand.schema";
+import { NO_BRAND, WorkspaceBrandSchema, publicBrand } from "./workspace-brand.schema";
 
 @TenantInteractor()
 export class GetWorkspaceBrandInteractor extends AuthenticatedInteractor<void, WorkspaceBrand> {
@@ -16,7 +16,6 @@ export class GetWorkspaceBrandInteractor extends AuthenticatedInteractor<void, W
 
   @ValidateOutput(WorkspaceBrandSchema)
   async invoke(): Validated<WorkspaceBrand> {
-    const brand = publicBrand(await this.repo.find());
-    return { ok: true as const, data: brand ?? { accentColor: null, logoUrl: null } };
+    return { ok: true as const, data: publicBrand(await this.repo.find()) ?? NO_BRAND };
   }
 }

@@ -47,6 +47,7 @@ function workspace(companyId: string, name: string, overrides: Partial<Workspace
     companyId,
     name,
     slug: name.toLowerCase().replaceAll(" ", "-"),
+    logoUrl: null,
     status: "active",
     inactiveReason: null,
     roleName: "Admin",

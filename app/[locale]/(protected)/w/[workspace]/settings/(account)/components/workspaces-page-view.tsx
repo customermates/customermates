@@ -102,7 +102,12 @@ const WorkspacesPageViewContent = observer(({ leaves, workspaces }: Props) => {
                     className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
                     data-workspace-id={workspace.companyId}
                   >
-                    <WorkspaceAvatar companyId={workspace.companyId} name={name} size="lg" />
+                    <WorkspaceAvatar
+                      companyId={workspace.companyId}
+                      logoUrl={workspace.logoUrl}
+                      name={name}
+                      size="lg"
+                    />
 
                     <div className="flex min-w-0 flex-1 basis-40 flex-col gap-0.5">
                       <div className="flex min-w-0 items-center gap-2">

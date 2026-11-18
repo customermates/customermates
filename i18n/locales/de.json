@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Akzentfarbe",
       "accentPicker": "Akzentfarbe auswählen",
-      "description": "Dein Logo und deine Akzentfarbe erscheinen auf deinen Buchungsseiten und öffentlichen Formularen.",
+      "description": "Dein Logo und deine Akzentfarbe erscheinen auf deinen Buchungsseiten und öffentlichen Formularen. Das Logo ersetzt außerdem die Initialen des Workspace in der App.",
       "logoEmpty": "Kein Logo",
       "logoHint": "PNG, JPEG oder WebP, höchstens 512 KB.",
       "logoLabel": "Logo",

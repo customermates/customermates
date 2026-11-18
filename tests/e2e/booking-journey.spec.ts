@@ -229,6 +229,7 @@ test("a logo and an accent colour set under Branding show on the workspace's boo
     .setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: solidPng(24, [15, 98, 254]) });
   const settingsLogo = branding.locator("#settings-general-branding-logo-preview img[data-brand-logo]");
   await expect(settingsLogo).toBeVisible();
+  await expect(page.locator("#nav-workspace-menu img[data-workspace-logo]")).toBeVisible();
   await expect(branding.locator("#settings-general-branding-logo-error")).toHaveCount(0);
 
   const unsavedChanges = page.locator("[data-slot='unsaved-changes-bar']");
@@ -275,6 +276,7 @@ test("a logo and an accent colour set under Branding show on the workspace's boo
   await page.goto(appPath(workspace.slug, "/settings/general"));
   await clickHydrated(branding.locator("#settings-general-branding-logo-remove"));
   await expect(branding.locator("#settings-general-branding-logo-preview")).toContainText("No logo");
+  await expect(page.locator("#nav-workspace-menu img[data-workspace-logo]")).toHaveCount(0);
   await branding.locator("#settings-general-branding-accent-reset").click();
   await expect(branding.locator("#settings-general-branding-accent")).toHaveValue("");
   await page.locator("#settings-general-save").click();

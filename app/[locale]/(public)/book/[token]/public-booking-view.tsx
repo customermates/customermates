@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import type { PublicBookingPage, PublicBookingSubmitResult } from "@/ee/calendar/booking.schema";
 import type { FormValue } from "@/components/public-form/public-form-state";
-import type { PublicBrand } from "@/features/workspace-brand/workspace-brand.schema";
+import type { WorkspaceBrand } from "@/features/workspace-brand/workspace-brand.schema";
 import type { BookingSlot } from "./booking-slot-pages";
 
 import { useCallback, useEffect, useState } from "react";
@@ -40,7 +40,7 @@ export function PublicBookingFrame({
   children: React.ReactNode;
   aside?: React.ReactNode;
   preview?: boolean;
-  brand?: PublicBrand | null;
+  brand?: WorkspaceBrand | null;
 }) {
   const accent = brandStyle(brand?.accentColor);
 

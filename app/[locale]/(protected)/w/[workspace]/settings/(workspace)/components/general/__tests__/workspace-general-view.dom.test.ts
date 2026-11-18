@@ -32,6 +32,7 @@ const workspace: WorkspaceSummary = {
   companyId: "00000000-0000-4000-8000-000000000001",
   name: "Bergmann Steuern",
   slug: "bergmann-steuern",
+  logoUrl: null,
   status: "active",
   inactiveReason: null,
   roleName: "Admin",

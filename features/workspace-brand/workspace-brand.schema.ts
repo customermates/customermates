@@ -10,8 +10,6 @@ import { BRAND_LOGO_MAX_BYTES } from "./brand-image";
 export const BRAND_LOGO_KEY = /^[A-Za-z0-9_-]{16,64}$/u;
 const BRAND_LOGO_BASE64_MAX_CHARS = Math.ceil(BRAND_LOGO_MAX_BYTES / 3) * 4 + 4096;
 
-export type PublicBrand = { logoUrl: string | null; accentColor: string | null };
-
 export const WorkspaceBrandSchema = z
   .object({
     accentColor: z.string().nullable(),
@@ -19,6 +17,8 @@ export const WorkspaceBrandSchema = z
   })
   .strict();
 export type WorkspaceBrand = Data<typeof WorkspaceBrandSchema>;
+
+export const NO_BRAND: WorkspaceBrand = { accentColor: null, logoUrl: null };
 
 export const SaveWorkspaceBrandSchema = z
   .object({
@@ -44,7 +44,7 @@ export function brandLogoUrl(logoKey: string): string {
 
 export function publicBrand(
   stored: { accentColor: string | null; logoKey: string | null } | null | undefined,
-): PublicBrand | null {
+): WorkspaceBrand | null {
   if (!stored || (!stored.accentColor && !stored.logoKey)) return null;
   return {
     logoUrl: stored.logoKey ? brandLogoUrl(stored.logoKey) : null,

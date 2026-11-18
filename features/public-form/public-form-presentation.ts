@@ -1,5 +1,5 @@
 import type { RecordField } from "@/features/records/record-model.schema";
-import type { PublicBrand } from "@/features/workspace-brand/workspace-brand.schema";
+import type { WorkspaceBrand } from "@/features/workspace-brand/workspace-brand.schema";
 import type { PublicFormConfig, PublicFormView } from "./public-form.schema";
 
 import { answerQuestion, isAnswerableField } from "@/features/records/record-value-coercion";
@@ -11,7 +11,7 @@ type PresentArgs = {
   workspaceName: string | null;
   badge: boolean;
   renderToken: string;
-  brand?: PublicBrand | null;
+  brand?: WorkspaceBrand | null;
 };
 
 export function presentPublicForm({

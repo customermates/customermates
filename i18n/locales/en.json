@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Accent colour",
       "accentPicker": "Choose accent colour",
-      "description": "Your logo and accent colour appear on your booking pages and public forms.",
+      "description": "Your logo and accent colour appear on your booking pages and public forms. The logo also replaces the workspace's initials in the app.",
       "logoEmpty": "No logo",
       "logoHint": "PNG, JPEG or WebP, up to 512 KB.",
       "logoLabel": "Logo",

@@ -245,6 +245,7 @@ describe("NavigationSwitch account-state refresh", () => {
         companyId: "company-1",
         name: "Acme",
         slug: "acme",
+        logoUrl: null,
         status: "active",
         inactiveReason: null,
         roleName: "Admin",

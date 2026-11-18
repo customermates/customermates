@@ -1,5 +1,5 @@
 import type { RecordModelView } from "@/features/records/record-model.schema";
-import type { PublicBrand } from "@/features/workspace-brand/workspace-brand.schema";
+import type { WorkspaceBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { type AnswerQuestion, answerQuestion, isAnswerableField } from "@/features/records/record-value-coercion";
@@ -28,13 +28,13 @@ export type BookingSetup = {
   lists: BookingSetupList[];
   relationships: BookingSetupRelationship[];
   blockedReason: MeetingOptions["blockedReason"];
-  brand?: PublicBrand | null;
+  brand?: WorkspaceBrand | null;
 };
 
 export function bookingSetup(
   model: RecordModelView | null,
   meeting: MeetingOptions,
-  brand: PublicBrand | null = null,
+  brand: WorkspaceBrand | null = null,
 ): BookingSetup {
   const lists = (model?.types ?? [])
     .filter((type) => !type.archived && !type.embedded)

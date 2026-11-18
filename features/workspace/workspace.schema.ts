@@ -24,6 +24,7 @@ export const WorkspaceSummarySchema = z.object({
   companyId: z.string(),
   name: z.string().nullable(),
   slug: z.string(),
+  logoUrl: z.string().nullable(),
   status: z.enum(Status),
   inactiveReason: z.enum(WORKSPACE_INACTIVE_REASONS).nullable(),
   roleName: z.string().nullable(),

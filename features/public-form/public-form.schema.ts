@@ -1,5 +1,5 @@
 import type { AnswerQuestion } from "@/features/records/record-value-coercion";
-import type { PublicBrand } from "@/features/workspace-brand/workspace-brand.schema";
+import type { WorkspaceBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
 import { z } from "zod";
 
@@ -230,7 +230,7 @@ export type PublicFormView = {
   consent: PublicFormConsent | null;
   badge: boolean;
   renderToken: string;
-  brand: PublicBrand | null;
+  brand: WorkspaceBrand | null;
 };
 
 export type PublicFormReadResult =

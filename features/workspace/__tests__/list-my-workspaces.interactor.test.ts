@@ -83,6 +83,20 @@ describe("ListMyWorkspacesInteractor", () => {
     ]);
   });
 
+  it("gives each workspace the address of its logo, or none", async () => {
+    const branded = row("active", Status.active);
+    const plain = row("pending", Status.pendingAuthorization);
+    repo.listWorkspaceMembershipsUnscoped.mockResolvedValue([
+      { ...branded, company: { ...branded.company, brand: { logoKey: "key_abcdefghijklmnop" } } },
+      { ...plain, company: { ...plain.company, brand: { logoKey: null } } },
+      row("inactive", Status.inactive),
+    ]);
+
+    const { data } = await interactor().invoke();
+
+    expect(data.map((workspace) => workspace.logoUrl)).toEqual(["/api/brand/logo/key_abcdefghijklmnop", null, null]);
+  });
+
   it("says why a membership is inactive: paused by the Free plan, deactivated, or left without an active admin", async () => {
     const pausedAt = new Date("2026-11-01T08:00:00.000Z");
     repo.listWorkspaceMembershipsUnscoped.mockResolvedValue([

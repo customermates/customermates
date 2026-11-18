@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Accentkleur",
       "accentPicker": "Accentkleur kiezen",
-      "description": "Je logo en accentkleur staan op je boekingspagina's en openbare formulieren.",
+      "description": "Je logo en accentkleur staan op je boekingspagina's en openbare formulieren. Het logo vervangt ook de initialen van de werkruimte in de app.",
       "logoEmpty": "Geen logo",
       "logoHint": "PNG, JPEG of WebP, maximaal 512 kB.",
       "logoLabel": "Logo",

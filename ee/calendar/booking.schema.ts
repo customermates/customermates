@@ -1,7 +1,7 @@
 import type { PublicBlocked } from "@/core/network/public-access";
 
 import type { AnswerQuestion } from "@/features/records/record-value-coercion";
-import type { PublicBrand } from "@/features/workspace-brand/workspace-brand.schema";
+import type { WorkspaceBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
 import { z } from "zod";
 
@@ -296,7 +296,7 @@ export type PublicBookingPage = {
   withVideo: boolean;
   questions: PublicQuestion[];
   renderToken: string;
-  brand: PublicBrand | null;
+  brand: WorkspaceBrand | null;
 };
 
 export type PublicBookingState = "upcoming" | "past" | "cancelled";
@@ -314,7 +314,7 @@ export type PublicManagedBooking = {
   canCancel: boolean;
   canReschedule: boolean;
   bookAgainToken: string | null;
-  brand: PublicBrand | null;
+  brand: WorkspaceBrand | null;
 };
 
 export type PublicBookingManageResult = { status: "found"; booking: PublicManagedBooking } | PublicBlocked;

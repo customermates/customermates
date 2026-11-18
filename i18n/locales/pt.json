@@ -7125,7 +7125,7 @@
     "branding": {
       "accentLabel": "Cor de destaque",
       "accentPicker": "Escolher cor de destaque",
-      "description": "Seu logotipo e sua cor de destaque aparecem nas suas páginas de agendamento e nos formulários públicos.",
+      "description": "Seu logotipo e sua cor de destaque aparecem nas suas páginas de agendamento e nos formulários públicos. O logotipo também substitui as iniciais do espaço de trabalho no aplicativo.",
       "logoEmpty": "Sem logotipo",
       "logoHint": "PNG, JPEG ou WebP, até 512 KB.",
       "logoLabel": "Logotipo",

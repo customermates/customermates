@@ -588,6 +588,7 @@ const FullAppSidebar = observer(
               currentWorkspace
                 ? {
                     companyId: currentWorkspace.companyId,
+                    logoUrl: currentWorkspace.logoUrl,
                     name: workspaceDisplayName(currentWorkspace.name, t("Workspaces.fallbackName")),
                   }
                 : null

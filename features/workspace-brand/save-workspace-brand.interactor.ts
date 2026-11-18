@@ -13,7 +13,7 @@ import { fail } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { BRAND_LOGO_MAX_BYTES, sniffBrandLogoType } from "./brand-image";
-import { SaveWorkspaceBrandSchema, WorkspaceBrandSchema, publicBrand } from "./workspace-brand.schema";
+import { NO_BRAND, SaveWorkspaceBrandSchema, WorkspaceBrandSchema, publicBrand } from "./workspace-brand.schema";
 
 @TenantInteractor({ resource: Resource.company, manage: "update" })
 export class SaveWorkspaceBrandInteractor extends AuthenticatedInteractor<SaveWorkspaceBrandData, WorkspaceBrand> {
@@ -39,6 +39,6 @@ export class SaveWorkspaceBrandInteractor extends AuthenticatedInteractor<SaveWo
       ...(logo === undefined ? {} : { logo }),
     });
 
-    return { ok: true as const, data: publicBrand(saved) ?? { accentColor: null, logoUrl: null } };
+    return { ok: true as const, data: publicBrand(saved) ?? NO_BRAND };
   }
 }
