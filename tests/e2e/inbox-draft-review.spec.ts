@@ -134,6 +134,48 @@ test("reviews saved drafts one by one: send, keep for later, edit and send", asy
   expect(errors).toEqual([]);
 });
 
+test("keeps the decisions in view with many long drafts in a short window", async ({ page, database, workspace }) => {
+  const errors = collectPageErrors(page);
+  expectBlockedEmailScripts(page);
+  const accountId = await connectSender(database, workspace);
+  const run = randomUUID();
+  const longBody = Array.from({ length: 60 }, (_, line) => `Paragraph ${line + 1} of a long draft.`).join("\n\n");
+  for (let index = 0; index < 24; index += 1) await saveDraft(page, accountId, `Many ${index} ${run}`, longBody);
+
+  const html = await (await page.request.get(pagePath(page, "/inbox"))).text();
+  expect(html).toContain("Review drafts");
+
+  const wide = (page.viewportSize()?.width ?? 1280) >= 768;
+  if (wide) await page.setViewportSize({ width: 1024, height: 560 });
+  await page.goto(pagePath(page, "/inbox"));
+  const open = page.getByRole("button", { name: "Review drafts", exact: true });
+  await expect(open).toContainText("24");
+  await open.click();
+
+  const deck = page.locator("[data-draft-review]");
+  await expect(deck.getByText("24 drafts left")).toBeVisible();
+  const actions = deck.locator("[data-draft-review-actions]");
+  for (const name of ["Send", "Edit", "Keep", "Discard draft"])
+    await expect(actions.getByRole("button", { name, exact: true })).toBeInViewport({ ratio: 1 });
+
+  const scrolls = (selector: string) =>
+    deck.locator(selector).evaluate((element) => element.scrollHeight > element.clientHeight + 1);
+  expect(await scrolls("[data-draft-review-scroll]")).toBe(true);
+  if (wide) {
+    expect(await scrolls("[data-draft-review-queue]")).toBe(true);
+    const last = deck.getByRole("list", { name: "Drafts waiting for review" }).getByRole("button").last();
+    await last.scrollIntoViewIfNeeded();
+    await last.click();
+    const front = deck.locator("[data-draft-review-queue] button").first();
+    await expect(front).toHaveAttribute("aria-current", "true");
+    await expect(front).toBeInViewport({ ratio: 1 });
+  }
+
+  await deck.locator("[data-draft-review-scroll]").evaluate((element) => element.scrollTo(0, element.scrollHeight));
+  await expect(actions.getByRole("button", { name: "Send", exact: true })).toBeInViewport({ ratio: 1 });
+  expect(errors).toEqual([]);
+});
+
 test("opens the review from a link and discards a draft without sending it", async ({ page, database, workspace }) => {
   const errors = collectPageErrors(page);
   expectBlockedEmailScripts(page);

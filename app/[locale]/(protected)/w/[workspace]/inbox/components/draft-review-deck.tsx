@@ -4,7 +4,7 @@ import type { ReviewDraft } from "@/ee/messaging/outbound/list-review-drafts.int
 import type { PanInfo } from "framer-motion";
 import type { ReactNode } from "react";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -85,7 +85,7 @@ function RecipientHeader({ item }: { item: ReviewDraft }) {
   const newConversation = isDraftThreadId(item.thread.unipileThreadId);
 
   return (
-    <div className="flex min-w-0 items-center gap-3 p-4 pb-3">
+    <div className="flex min-w-0 shrink-0 items-center gap-3 p-4 pb-3">
       <Avatar name={name} size="lg" src={avatarUrl} />
 
       <div className="min-w-0 flex-1">
@@ -239,7 +239,7 @@ const DraftCard = observer(function DraftCard({ item }: { item: ReviewDraft }) {
     <motion.div
       dragSnapToOrigin
       animate={{ opacity: 1, y: 0 }}
-      className={cn("relative touch-pan-y", draggable && "cursor-grab active:cursor-grabbing")}
+      className={cn("relative flex min-h-0 touch-pan-y flex-col", draggable && "cursor-grab active:cursor-grabbing")}
       data-draft-review-card={item.draft.id}
       drag={draggable ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
@@ -249,10 +249,13 @@ const DraftCard = observer(function DraftCard({ item }: { item: ReviewDraft }) {
       transition={{ duration: 0.18 }}
       onDragEnd={settle}
     >
-      <div className="bg-card border-border-strong overflow-hidden rounded-2xl border shadow-md">
+      <div className="bg-card border-border-strong flex min-h-0 flex-col overflow-hidden rounded-2xl border shadow-md">
         <RecipientHeader item={item} />
 
-        <div className="bg-muted/60 flex flex-col gap-3 p-4">
+        <div
+          className="bg-muted/60 flex min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain p-4"
+          data-draft-review-scroll=""
+        >
           {item.history.length > 0 && (
             <ol aria-label={t("Inbox.draftReview.earlier")} className="flex flex-col gap-3">
               {item.history.slice(-HISTORY_SHOWN).map((message) => (
@@ -297,7 +300,7 @@ const CardStack = observer(function CardStack({ item }: { item: ReviewDraft }) {
   const peeking = store.queue.slice(1, 1 + PEEKING_CARDS);
 
   return (
-    <div className="relative">
+    <div className="relative flex min-h-0 flex-col">
       {peeking.map((entry, index) => (
         <div
           key={entry.draft.id}
@@ -428,11 +431,18 @@ function QueueRow({ item, active, onSelect }: { item: ReviewDraft; active: boole
 const DraftQueue = observer(function DraftQueue() {
   const t = useTranslations();
   const { draftReviewStore: store } = useRootStore();
+  const list = useRef<HTMLOListElement>(null);
+  const frontId = store.current?.draft.id;
+
+  useEffect(() => {
+    list.current?.scrollTo({ top: 0 });
+  }, [frontId]);
 
   return (
     <ol
+      ref={list}
       aria-label={t("Inbox.draftReview.queue")}
-      className="flex flex-col gap-1 max-md:hidden"
+      className="flex min-h-0 flex-col gap-1 overflow-y-auto overscroll-contain max-md:hidden"
       data-draft-review-queue=""
     >
       {store.queue.map((entry, index) => (
@@ -494,7 +504,7 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
           )}
         </AppCardHeader>
 
-        <AppCardBody>
+        <AppCardBody className={reviewing ? "in-data-overlay-surface:overflow-hidden" : undefined}>
           {store.status === "loading" || store.status === "idle" ? (
             <div aria-busy="true" aria-label={t("PageState.loading")} className="flex flex-col gap-4" role="status">
               <Skeleton className="h-8 w-48" />
@@ -510,20 +520,20 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
               </Button>
             </div>
           ) : item ? (
-            <div className="grid min-h-0 gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
               <DraftQueue />
 
-              <div className="flex min-w-0 flex-col gap-8 pb-3">
+              <div className="flex min-h-0 min-w-0 flex-col gap-8 px-1 pt-1">
                 <CardStack item={item} />
 
                 {!store.editing && (
-                  <>
+                  <div className="flex shrink-0 flex-col items-center gap-2 pb-1" data-draft-review-actions="">
                     <DecisionButtons />
 
-                    <p className="text-muted-foreground text-center text-xs max-sm:hidden">
+                    <p className="text-muted-foreground text-center text-xs max-sm:hidden short:hidden">
                       {t("Inbox.draftReview.hint")}
                     </p>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
