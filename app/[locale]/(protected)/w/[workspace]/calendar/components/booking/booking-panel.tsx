@@ -198,6 +198,7 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
 
         {state.status === "ready" && state.setup.blockedReason === "noCalendar" ? (
           <Alert
+            stacked
             action={
               <ConnectChannelButton
                 channels={["google", "outlook"]}

@@ -124,7 +124,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
                     </div>
                   </TableCell>
 
-                  <TableCell className="w-[21rem] min-w-[21rem] align-middle">
+                  <TableCell className="w-px align-middle">
                     <SegmentedControl
                       idPrefix={`notification-${preference.kind}`}
                       items={NOTIFICATION_EMAIL_MODES.map((mode) => ({
@@ -133,6 +133,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
                         disabled: pending || pausedUntil !== null,
                       }))}
                       label={t("Notifications.preferences.modeLabel", { kind: kindLabel })}
+                      listClassName="w-max auto-cols-max"
                       value={preference.emailMode}
                       onValueChange={(value) => change(preference.kind, value)}
                     />
