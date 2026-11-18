@@ -63,6 +63,7 @@ const UnipileProviderSchema = z.enum([
   "imap",
   "telegram",
   "instagram",
+  "facebook",
 ]);
 
 export const UnipileChatSchema = z.looseObject({

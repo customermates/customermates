@@ -85,6 +85,7 @@ export function TopBarPrimaryButton({
   anchorId,
   count,
   disabled,
+  variant = "default",
   ...target
 }: {
   label: string;
@@ -93,6 +94,7 @@ export function TopBarPrimaryButton({
   anchorId?: string;
   count?: number;
   disabled?: boolean;
+  variant?: "default" | "secondary";
 } & ({ onClick: () => void } | { href: string } | { menu: ReactNode })) {
   const content = (
     <>
@@ -110,7 +112,7 @@ export function TopBarPrimaryButton({
 
   if ("href" in target) {
     return (
-      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size="sm" variant="default">
+      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size="sm" variant={variant}>
         <IntlLink href={target.href} id={anchorId}>
           {content}
         </IntlLink>
@@ -127,7 +129,7 @@ export function TopBarPrimaryButton({
       id={anchorId}
       size="sm"
       type="button"
-      variant="default"
+      variant={variant}
       onClick={"onClick" in target ? target.onClick : undefined}
     >
       {content}

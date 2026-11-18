@@ -24,6 +24,7 @@ import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/w/[worksp
 import { MessagingThreadsStore } from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/messaging-threads.store";
 import { ThreadComposeStore } from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/thread-compose.store";
 import { ThreadParticipantsStore } from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/thread-participants.store";
+import { DraftReviewStore } from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/draft-review.store";
 import { LegalUpdateStore } from "@/app/[locale]/(protected)/legal-update/components/legal-update.store";
 import { OnboardingWizardStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.store";
 import { StepProfileStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-profile.store";
@@ -78,6 +79,7 @@ export class RootStore {
   private _messagingThreadDetailStore?: MessagingThreadDetailStore;
   private _threadComposeStore?: ThreadComposeStore;
   private _threadParticipantsStore?: ThreadParticipantsStore;
+  private _draftReviewStore?: DraftReviewStore;
   private _intlStore?: IntlStore;
   private _layoutStore?: LayoutStore;
   private _loadingOverlayStore?: LoadingOverlayStore;
@@ -191,6 +193,10 @@ export class RootStore {
 
   get threadParticipantsStore() {
     return (this._threadParticipantsStore ??= new ThreadParticipantsStore(this));
+  }
+
+  get draftReviewStore() {
+    return (this._draftReviewStore ??= new DraftReviewStore(this));
   }
 
   get widgetsStore() {

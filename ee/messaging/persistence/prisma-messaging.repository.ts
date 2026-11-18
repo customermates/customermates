@@ -32,6 +32,7 @@ import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.int
 import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.repo";
 import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
 import type { DiscardDraftRepo } from "../outbound/discard-draft.repo";
+import type { ListReviewDraftsRepo, ReviewDraftEntry } from "../outbound/list-review-drafts.repo";
 import type { CompleteReplyDraftSendArgs, DraftSendRepo } from "../outbound/draft-send.repo";
 import type { PruneDraftSendsRepo } from "../outbound/prune-draft-sends.repo";
 import type { SaveDraftRepo } from "../outbound/save-draft.repo";
@@ -103,6 +104,9 @@ type ConvertDraftToSentArgs = {
   sentAt: Date;
 };
 
+const REVIEW_DRAFT_SCAN_LIMIT = 500;
+const REVIEW_DRAFT_HISTORY_SLACK = 4;
+
 function draftMessageProviderId(threadId: string): string {
   return `draft_${threadId}`;
 }
@@ -134,6 +138,7 @@ export class PrismaMessagingRepo
     DraftSendRepo,
     SaveDraftRepo,
     DiscardDraftRepo,
+    ListReviewDraftsRepo,
     PruneDraftSendsRepo,
     SearchChannelCandidatesRepo,
     GetMessageAttachmentMetaRepo,
@@ -1810,6 +1815,69 @@ export class PrismaMessagingRepo
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
     return row as unknown as MessagingMessage | null;
+  }
+
+  async listReviewDrafts(args: { limit: number; historySize: number }) {
+    const candidates = await this.prisma.messagingMessage.findMany({
+      where: {
+        companyId: this.companyId,
+        isDraft: true,
+        isHidden: false,
+        thread: { is: threadAccessWhere(this.companyId, this.userId) },
+        connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
+      },
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+      take: REVIEW_DRAFT_SCAN_LIMIT,
+      select: { id: true, updatedAt: true },
+    });
+    if (candidates.length === 0) return { entries: [], total: 0 };
+
+    const claimed = await this.prisma.messagingDraftSend.findMany({
+      where: { companyId: this.companyId, draftMessageId: { in: candidates.map((draft) => draft.id) } },
+      select: { draftMessageId: true, draftRevision: true, state: true, claimedAt: true },
+    });
+    const sendByDraft = new Map(claimed.map((send) => [send.draftMessageId, send]));
+    const open = candidates.filter((draft) => {
+      const send = sendByDraft.get(draft.id);
+      if (!send) return true;
+      if (send.draftRevision.getTime() === draft.updatedAt.getTime()) return false;
+
+      return effectiveDraftSendState(send) === "unknown";
+    });
+    const page = open.slice(0, args.limit);
+    if (page.length === 0) return { entries: [], total: open.length };
+
+    const rows = await this.prisma.messagingMessage.findMany({
+      where: { id: { in: page.map((draft) => draft.id) }, companyId: this.companyId, isDraft: true },
+    });
+    const draftById = new Map(rows.map((row) => [row.id, row as unknown as MessagingMessage]));
+    const threadRows = await this.prisma.messagingThread.findMany({
+      where: {
+        id: { in: [...new Set(rows.map((row) => row.messagingThreadId))] },
+        ...threadAccessWhere(this.companyId, this.userId),
+      },
+      select: this.threadSelect,
+    });
+    const threadById = new Map((await this.mapThreadRows(threadRows)).map((thread) => [thread.id, thread]));
+
+    const entries: ReviewDraftEntry[] = [];
+    for (const { id } of page) {
+      const draft = draftById.get(id);
+      const thread = draft ? threadById.get(draft.messagingThreadId) : undefined;
+      if (!draft || !thread) continue;
+
+      const { messages } = await this.listMessagesForThread(thread.id, {
+        page: 1,
+        pageSize: args.historySize + REVIEW_DRAFT_HISTORY_SLACK,
+      });
+      entries.push({
+        draft,
+        thread,
+        history: messages.filter((message) => !message.isDraft && !message.isEvent).slice(-args.historySize),
+      });
+    }
+
+    return { entries, total: open.length };
   }
 
   async deleteDraft(args: { messageId: string; expectedUpdatedAt: Date }): Promise<DraftDeleteResult> {

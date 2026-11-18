@@ -3,7 +3,16 @@ import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { CommandIcon } from "./command-registry";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
-import { Google, Instagram, Linkedin, Mail, Outlook, Telegram, Whatsapp } from "@/components/icons/channel-icon";
+import {
+  Google,
+  Instagram,
+  Linkedin,
+  Mail,
+  Messenger,
+  Outlook,
+  Telegram,
+  Whatsapp,
+} from "@/components/icons/channel-icon";
 
 export const CHANNEL_COMMAND_ICONS: Record<ConnectChannel, CommandIcon> = {
   google: Google,
@@ -15,6 +24,7 @@ export const CHANNEL_COMMAND_ICONS: Record<ConnectChannel, CommandIcon> = {
   linkedin_recruiter: Linkedin,
   instagram: Instagram,
   telegram: Telegram,
+  facebook: Messenger,
 };
 
 function aiLogo(provider: AiConnectionProvider): CommandIcon {

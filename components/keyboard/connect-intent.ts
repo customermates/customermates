@@ -13,6 +13,7 @@ export const CONNECT_INTENT_CHANNELS = [
   "linkedin_recruiter",
   "instagram",
   "telegram",
+  "facebook",
 ] as const satisfies readonly ConnectChannel[];
 
 export const CONNECT_INTENT_AI_CLIENTS = [
@@ -48,6 +49,7 @@ const CHANNEL_PROVIDER: Record<(typeof CONNECT_INTENT_CHANNELS)[number], string>
   linkedin_recruiter: "linkedin",
   instagram: "instagram",
   telegram: "telegram",
+  facebook: "facebook",
 };
 
 const CHANNEL_PRODUCT: Partial<Record<(typeof CONNECT_INTENT_CHANNELS)[number], string>> = {

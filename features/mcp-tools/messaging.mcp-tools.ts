@@ -675,7 +675,7 @@ const ConnectMessagingAccountSchema = z.object({
     .enum(CONNECT_CHANNEL_KEYS)
     .describe(
       "Which channel to connect: google (Gmail), outlook, imap (any other email via IMAP/SMTP), whatsapp, " +
-        "linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram, telegram.",
+        "linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram, telegram, facebook (Messenger).",
     ),
 });
 
@@ -686,7 +686,7 @@ export const connectMessagingAccountTool = {
     "Generates a secure hosted authentication link for connecting a messaging channel to the user's inbox. " +
     "The link is opened in a browser, where the connection is completed (scanning a QR code for WhatsApp, signing in for email or LinkedIn); the tool itself does not complete the connection. " +
     "The link is single-user and expires in 30 minutes. " +
-    "channel is one of google (Gmail), outlook, imap, whatsapp, linkedin, linkedin_sales_navigator, linkedin_recruiter, instagram, telegram. " +
+    "channel is one of google (Gmail), outlook, imap, whatsapp, linkedin, linkedin_sales_navigator, linkedin_recruiter, instagram, telegram, facebook (Messenger). " +
     "Requires a plan that includes messaging, and a free account slot: Pro allows 1 connected account per user, Business 3, Enterprise unlimited; Starter has none. " +
     "Returns the connect url.",
   annotations: {

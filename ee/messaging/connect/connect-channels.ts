@@ -14,6 +14,7 @@ export const CONNECT_CHANNELS = {
   },
   instagram: { providers: ["instagram"] },
   telegram: { providers: ["telegram"] },
+  facebook: { providers: ["facebook"] },
 } as const satisfies Record<string, { providers: readonly string[]; config?: Record<string, unknown> }>;
 
 export type ConnectChannel = keyof typeof CONNECT_CHANNELS;

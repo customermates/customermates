@@ -18,6 +18,7 @@ import { relative, resolve } from "node:path";
 
 import { appDirectory, buildAppCopy, e2eEnvironment, sourceDigest, syncAppCopy, withCopyLock, writeEnvFile } from "./lib/app-copy.mjs";
 import { prepareDatabase } from "./lib/database.mjs";
+import { defaultParallel, memoryBudgetGb, offloadMemoryStop } from "./lib/memory-budget.mjs";
 import { compareWithBaseline, mergeOutcomes, parseTarget, TARGETS, testOutcomes } from "./lib/e2e-results.mjs";
 import { dropDatabase, ensureCluster, recreateDatabase } from "./lib/postgres.mjs";
 import { assignShards } from "./lib/vitest-results.mjs";
@@ -60,8 +61,10 @@ const offloaded = options.offload ? options.offload.split(",").filter((target) =
 const local = targets.filter((target) => !offloaded.includes(target));
 
 const cores = cpus().length;
-const memoryGb = totalmem() / 1024 ** 3;
-const parallel = Number(options.parallel) || Math.max(1, Math.min(Math.floor(cores / 2), Math.floor(memoryGb / 4)));
+const memoryGb = memoryBudgetGb({ totalGb: totalmem() / 1024 ** 3 });
+const parallel =
+  Number(options.parallel) ||
+  defaultParallel({ cores, budgetGb: memoryGb, projects: local.map((target) => parseTarget(target).project) });
 const shardsPerTarget = Number(options.shards) || Math.max(1, Math.floor(parallel / Math.max(1, local.length)));
 
 const DURATION_FILES = [resolve(REPO_ROOT, ".runs/verify/e2e-durations.json"), resolve(REPO_ROOT, "tests/e2e/durations.json")];
@@ -128,7 +131,13 @@ async function runOffloaded() {
   const host = (await capture("python3", ["-c", "import json,os;print(json.load(open(os.path.expanduser('~/.config/workspace-ops/config.json'))).get('offload_host','ws-test'))"]).catch(() => "ws-test")) || "ws-test";
   await run("rsync", ["-a", `${host}:${remoteDirectory}`, resolve(directory, "remote/")], { log: resolve(directory, "offload.log") });
   const summaryFile = resolve(directory, "remote/summary.json");
-  if (!existsSync(summaryFile)) return offloaded.map((target) => ({ target, error: `offload exited ${result.code} without a report` }));
+  if (!existsSync(summaryFile)) {
+    const output = existsSync(resolve(directory, "offload.log")) ? readFileSync(resolve(directory, "offload.log"), "utf8") : "";
+    const error = offloadMemoryStop(output)
+      ? "stopped at the test VM's memory limit for one job; rerun with a smaller --parallel"
+      : `offload exited ${result.code} without a report`;
+    return offloaded.map((target) => ({ target, error }));
+  }
   return JSON.parse(readFileSync(summaryFile, "utf8")).targets.map((entry) => ({ ...entry, remote: true }));
 }
 

@@ -2,7 +2,13 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { compareWithBaseline, mergeOutcomes, testOutcomes, updateBaseline } from "../lib/e2e-results.mjs";
 import { assignShards } from "../lib/vitest-results.mjs";
-import { inboxHash, isTestInbox, TEST_INBOX_HASHES, unipileDecision } from "../../../tests/e2e/live/live-allowlist.mjs";
+import {
+  inboxHash,
+  isTestInbox,
+  SENDER_ACCOUNT,
+  TEST_INBOX_HASHES,
+  unipileDecision,
+} from "../../../tests/e2e/live/live-allowlist.mjs";
 
 const report = {
   suites: [
@@ -92,12 +98,12 @@ describe("live-check egress guard", () => {
   });
 
   it("refuses sends to other addresses, from other accounts, and every other provider write", async () => {
-    expect(await send("acc_01m42y7hj1ecva9pb0sycgqq51", ["someone@example.test"])).toMatchObject({ status: 422 });
+    expect(await send(SENDER_ACCOUNT, ["someone@example.test"])).toMatchObject({ status: 422 });
     expect(await send("acc_other", ["someone@example.test"])).toMatchObject({ status: 422 });
-    expect(await send("acc_01m42y7hj1ecva9pb0sycgqq51", [])).toMatchObject({ status: 422 });
-    const remove = new URL("https://api.unipile.com/v2/accounts/acc_01m42y7hj1ecva9pb0sycgqq51");
+    expect(await send(SENDER_ACCOUNT, [])).toMatchObject({ status: 422 });
+    const remove = new URL(`https://api.unipile.com/v2/accounts/${SENDER_ACCOUNT}`);
     expect(await unipileDecision("DELETE", remove, remove.href, {})).toMatchObject({ status: 403 });
-    const chat = new URL("https://api.unipile.com/v2/acc_01m42y7hj1ecva9pb0sycgqq51/chats");
+    const chat = new URL(`https://api.unipile.com/v2/${SENDER_ACCOUNT}/chats`);
     expect(await unipileDecision("POST", chat, chat.href, { body: "{}" })).toMatchObject({ status: 403 });
     expect(await unipileDecision("GET", remove, remove.href, {})).toBeNull();
   });
@@ -105,7 +111,7 @@ describe("live-check egress guard", () => {
 
 describe("live-check multipart sends", () => {
   const fixture = "multipart-fixture@example.test";
-  const account = "acc_01m42y7hj1ecva9pb0sycgqq51";
+  const account = SENDER_ACCOUNT;
   const url = new URL(`https://api.unipile.com/v2/${account}/emails/send`);
 
   beforeAll(() => TEST_INBOX_HASHES.add(inboxHash(fixture)));
