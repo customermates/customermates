@@ -12,6 +12,7 @@ import { useState } from "react";
 import { CircleCheck, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { BrandLogo } from "@/components/shared/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { publicSignupHref } from "@/core/utils/public-signup";
+import { brandStyle } from "@/features/workspace-brand/brand-color";
 
 import { PublicFormFieldInput } from "./public-form-field-input";
 import { initialFormValues, missingFormValues } from "./public-form-state";
@@ -71,18 +73,22 @@ function Badge() {
   );
 }
 
-function WorkspaceMark({ name }: { name: string }) {
+function WorkspaceMark({ name, logoUrl }: { name: string; logoUrl?: string | null }) {
   const t = useTranslations();
   const initial = Array.from(name.trim())[0]?.toUpperCase() ?? "";
 
   return (
     <div className="flex items-center gap-2.5" data-public-form-workspace="">
-      <span
-        aria-hidden
-        className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary"
-      >
-        {initial}
-      </span>
+      {logoUrl ? (
+        <BrandLogo name={name} src={logoUrl} />
+      ) : (
+        <span
+          aria-hidden
+          className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary"
+        >
+          {initial}
+        </span>
+      )}
 
       <p className="min-w-0 truncate text-xs text-muted-foreground">{t("PublicForm.byline", { workspace: name })}</p>
     </div>
@@ -148,13 +154,16 @@ export function PublicFormView({ form, token, locale, embedded, doneMessage, onS
 
   const wrapper = cn("min-h-full w-full bg-background", embedded ? "p-0" : "px-4 py-8 md:py-12");
   const shown: Phase = doneMessage === undefined ? phase : { kind: "sent", message: doneMessage };
+  const accent = brandStyle(form.brand?.accentColor);
+  const brandAccent = accent ? form.brand?.accentColor : undefined;
+  const logoUrl = form.brand?.logoUrl;
 
   if (shown.kind !== "editing") {
     return (
-      <div className={wrapper} id="public-form">
+      <div className={wrapper} data-brand-accent={brandAccent} id="public-form" style={accent}>
         <main className="mx-auto flex w-full max-w-xl flex-col gap-4">
           <FormCard embedded={embedded}>
-            {form.workspaceName ? <WorkspaceMark name={form.workspaceName} /> : null}
+            {form.workspaceName ? <WorkspaceMark logoUrl={logoUrl} name={form.workspaceName} /> : null}
 
             <div className="flex flex-col items-start gap-3" role="status">
               {shown.kind === "sent" ? (
@@ -180,10 +189,10 @@ export function PublicFormView({ form, token, locale, embedded, doneMessage, onS
   }
 
   return (
-    <div className={wrapper} id="public-form">
+    <div className={wrapper} data-brand-accent={brandAccent} id="public-form" style={accent}>
       <main className="mx-auto flex w-full max-w-xl flex-col gap-4">
         <FormCard embedded={embedded}>
-          {form.workspaceName ? <WorkspaceMark name={form.workspaceName} /> : null}
+          {form.workspaceName ? <WorkspaceMark logoUrl={logoUrl} name={form.workspaceName} /> : null}
 
           <header className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-semibold tracking-tight" id="public-form-title">

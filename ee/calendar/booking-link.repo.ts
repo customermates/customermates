@@ -1,3 +1,4 @@
+import type { StoredBrand } from "@/features/workspace-brand/workspace-brand.repo";
 import type { BookingAssignmentKind, BookingLinkRow, WorkspaceBookingLinkRow } from "./booking.schema";
 
 export type BookingHostWrite = { userId: string; calendarId: string };
@@ -29,6 +30,7 @@ export type BookingHostCandidate = { userId: string; name: string; calendarId: s
 export type BookingLinkLookup = BookingLinkRow & {
   hostName: string;
   workspaceName: string | null;
+  brand: StoredBrand | null;
   companyDeleting: boolean;
   hostCandidates: BookingHostCandidate[];
 };

@@ -45,6 +45,7 @@ const FORM: PublicFormModel = {
   consent: { text: "I agree to be contacted.", privacyUrl: "https://example.com/privacy" },
   badge: false,
   renderToken: "render",
+  brand: null,
 };
 
 let container: HTMLDivElement;
@@ -103,6 +104,24 @@ describe("PublicFormView page", () => {
     const badge = container.querySelector("#public-form-badge");
     expect(badge).not.toBeNull();
     expect(card()?.contains(badge)).toBe(false);
+  });
+
+  it("shows the workspace's logo next to its name and puts the accent colour on the page, not without a brand", async () => {
+    await renderView();
+    expect(container.querySelector("[data-brand-logo]")).toBeNull();
+    expect(container.querySelector<HTMLElement>("#public-form")?.getAttribute("style")).toBeNull();
+
+    await renderView({
+      form: { ...FORM, brand: { accentColor: "#fde047", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" } },
+    });
+    const page = container.querySelector<HTMLElement>("#public-form");
+    const logo = card()?.querySelector<HTMLImageElement>("[data-public-form-workspace] img[data-brand-logo]");
+    expect(logo?.getAttribute("src")).toBe("/api/brand/logo/logo_key_abcdefghijkl");
+    expect(logo?.alt).toBe("Acme GmbH");
+    expect(page?.dataset.brandAccent).toBe("#fde047");
+    expect(page?.style.getPropertyValue("--primary")).toBe("#fde047");
+    expect(page?.style.getPropertyValue("--primary-foreground")).toBe("black");
+    expect(page?.contains(container.querySelector("#public-form-submit"))).toBe(true);
   });
 
   it("leaves out the workspace line when the workspace has no name", async () => {

@@ -3247,6 +3247,17 @@ export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSetting
 export const getSetPublicLinksAllowedInteractor = () =>
   new SetPublicLinksAllowedInteractor(getCompanyRepo(), getEventService());
 
+import { PrismaWorkspaceBrandRepo } from "@/features/workspace-brand/prisma-workspace-brand.repository";
+import { GetWorkspaceBrandInteractor } from "@/features/workspace-brand/get-workspace-brand.interactor";
+import { ReadWorkspaceBrandLogoInteractor } from "@/features/workspace-brand/read-workspace-brand-logo.interactor";
+import { SaveWorkspaceBrandInteractor } from "@/features/workspace-brand/save-workspace-brand.interactor";
+
+const getWorkspaceBrandRepo = () => new PrismaWorkspaceBrandRepo();
+
+export const getGetWorkspaceBrandInteractor = () => new GetWorkspaceBrandInteractor(getWorkspaceBrandRepo());
+export const getSaveWorkspaceBrandInteractor = () => new SaveWorkspaceBrandInteractor(getWorkspaceBrandRepo());
+export const getReadWorkspaceBrandLogoInteractor = () => new ReadWorkspaceBrandLogoInteractor(getWorkspaceBrandRepo());
+
 import { PrismaPublicFormRepo } from "@/features/public-form/prisma-public-form.repository";
 import { PublicFormAccess } from "@/features/public-form/public-form-access";
 import { PUBLIC_FORM_LIMITS } from "@/features/public-form/public-form.schema";

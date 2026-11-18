@@ -4,6 +4,7 @@ import { WorkspaceGeneralView } from "../components/general/workspace-general-vi
 
 import {
   getGetPublicLinkSettingsInteractor,
+  getGetWorkspaceBrandInteractor,
   getGetWorkspaceDeletionInteractor,
   getGetWorkspaceLeaveInteractor,
   getListMyWorkspacesInteractor,
@@ -15,11 +16,12 @@ import { unwrapPage } from "@/core/validation/next/unwrap-page";
 export default async function WorkspaceGeneralPage() {
   await requireAccess();
 
-  const [workspaces, leave, deletion, publicLinks] = await Promise.all([
+  const [workspaces, leave, deletion, publicLinks, brand] = await Promise.all([
     unwrapPage(getListMyWorkspacesInteractor().invoke()),
     unwrapPage(getGetWorkspaceLeaveInteractor().invoke()),
     unwrapPage(getGetWorkspaceDeletionInteractor().invoke()),
     unwrapPage(getGetPublicLinkSettingsInteractor().invoke()),
+    unwrapPage(getGetWorkspaceBrandInteractor().invoke()),
   ]);
   const workspace = workspaces.find((candidate) => candidate.isCurrent);
   if (!workspace) notFound();
@@ -27,6 +29,7 @@ export default async function WorkspaceGeneralPage() {
   return (
     <PageContainer>
       <WorkspaceGeneralView
+        brand={brand}
         deleteRefusal={deletion.refusal}
         leaveRefusal={leave.refusal}
         publicLinks={publicLinks}

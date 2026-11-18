@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import type { PublicBookingPage, PublicBookingSubmitResult } from "@/ee/calendar/booking.schema";
 import type { FormValue } from "@/components/public-form/public-form-state";
+import type { PublicBrand } from "@/features/workspace-brand/workspace-brand.schema";
 import type { BookingSlot } from "./booking-slot-pages";
 
 import { useCallback, useEffect, useState } from "react";
@@ -14,6 +15,7 @@ import { type BookingSlotReader, BookingSlotPicker, useBookingSlots } from "./bo
 
 import { PublicFormFieldInput } from "@/components/public-form/public-form-field-input";
 import { Alert } from "@/components/shared/alert";
+import { BrandLogo } from "@/components/shared/brand-logo";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { browserTimeZone } from "@/core/utils/time-zone";
+import { brandStyle } from "@/features/workspace-brand/brand-color";
 
 type Confirmed = Extract<PublicBookingSubmitResult, { status: "booked" }>;
 
@@ -32,11 +35,15 @@ export function PublicBookingFrame({
   children,
   aside,
   preview = false,
+  brand = null,
 }: {
   children: React.ReactNode;
   aside?: React.ReactNode;
   preview?: boolean;
+  brand?: PublicBrand | null;
 }) {
+  const accent = brandStyle(brand?.accentColor);
+
   return (
     <div
       className={
@@ -45,7 +52,9 @@ export function PublicBookingFrame({
           : "@container/booking flex min-h-full w-full items-start justify-center bg-muted/40 px-4 py-6 md:py-12"
       }
       data-booking-preview={preview ? "" : undefined}
+      data-brand-accent={accent ? brand?.accentColor : undefined}
       id={preview ? undefined : "public-booking"}
+      style={accent}
     >
       <main
         className={
@@ -87,6 +96,7 @@ export function BookingSummary({
   withVideo = false,
   when,
   description,
+  logoUrl = null,
 }: {
   hostName: string;
   workspaceName: string | null;
@@ -96,14 +106,19 @@ export function BookingSummary({
   withVideo?: boolean;
   when?: string | null;
   description?: string | null;
+  logoUrl?: string | null;
 }) {
   const t = useTranslations();
   const who = team ? (workspaceName ?? hostName) : hostName;
 
   return (
     <>
-      <div className="flex items-start gap-2">
-        <Avatar className="mt-0.5 shrink-0" name={who} size="sm" />
+      <div className={logoUrl ? "flex flex-wrap items-center gap-2" : "flex items-start gap-2"}>
+        {logoUrl ? (
+          <BrandLogo name={workspaceName ?? who} src={logoUrl} />
+        ) : (
+          <Avatar className="mt-0.5 shrink-0" name={who} size="sm" />
+        )}
 
         <p className="min-w-0 text-sm text-muted-foreground">
           {!team && workspaceName ? `${hostName} · ${workspaceName}` : who}
@@ -248,8 +263,14 @@ export function PublicBookingView({
 
   if (confirmed) {
     return (
-      <PublicBookingFrame>
+      <PublicBookingFrame brand={page.brand}>
         <div className="flex flex-col gap-4" data-booking-confirmed="">
+          {page.brand?.logoUrl ? (
+            <div>
+              <BrandLogo name={page.workspaceName ?? page.hostName} src={page.brand.logoUrl} />
+            </div>
+          ) : null}
+
           <CalendarCheck aria-hidden className="size-8 text-success" />
 
           <div className="flex flex-col gap-1">
@@ -302,6 +323,7 @@ export function PublicBookingView({
           description={page.description}
           durationMinutes={page.durationMinutes}
           hostName={page.hostName}
+          logoUrl={page.brand?.logoUrl}
           team={page.team}
           title={page.title}
           when={slot ? when(slot.startsAt) : null}
@@ -309,6 +331,7 @@ export function PublicBookingView({
           workspaceName={page.workspaceName}
         />
       }
+      brand={page.brand}
       preview={readOnly}
     >
       {loadFailed ? <Alert description={t("PublicBooking.loadFailed")} role="alert" variant="destructive" /> : null}

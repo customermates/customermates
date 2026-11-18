@@ -208,7 +208,14 @@ export class PrismaPublicFormRepo extends TenantRepository implements PublicForm
       select: {
         ...FORM_SELECT,
         companyId: true,
-        company: { select: { name: true, allowPublicLinks: true, deletingAt: true } },
+        company: {
+          select: {
+            name: true,
+            allowPublicLinks: true,
+            deletingAt: true,
+            brand: { select: { accentColor: true, logoKey: true } },
+          },
+        },
         type: { select: { archived: true } },
       },
     });

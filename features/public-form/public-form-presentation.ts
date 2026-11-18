@@ -1,4 +1,5 @@
 import type { RecordField } from "@/features/records/record-model.schema";
+import type { PublicBrand } from "@/features/workspace-brand/workspace-brand.schema";
 import type { PublicFormConfig, PublicFormView } from "./public-form.schema";
 
 import { answerQuestion, isAnswerableField } from "@/features/records/record-value-coercion";
@@ -10,6 +11,7 @@ type PresentArgs = {
   workspaceName: string | null;
   badge: boolean;
   renderToken: string;
+  brand?: PublicBrand | null;
 };
 
 export function presentPublicForm({
@@ -19,6 +21,7 @@ export function presentPublicForm({
   workspaceName,
   badge,
   renderToken,
+  brand = null,
 }: PresentArgs): PublicFormView {
   const fields = config.fields.flatMap((entry) => {
     const field = modelFields.find(
@@ -39,5 +42,6 @@ export function presentPublicForm({
     consent: config.consent,
     badge,
     renderToken,
+    brand,
   };
 }

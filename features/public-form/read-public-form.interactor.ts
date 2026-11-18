@@ -7,6 +7,7 @@ import type { PublicFormReadResult } from "./public-form.schema";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { renderToken } from "@/core/network/public-submit-guard";
+import { publicBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
 import { PUBLIC_FORM_UNAVAILABLE } from "./public-form-access";
 import { formCannotSaveRecords } from "./public-form-config-validation";
@@ -41,6 +42,7 @@ export class ReadPublicFormInteractor {
           workspaceName: form.company.name,
           badge: limits.badge,
           renderToken: renderToken(form.id, this.access.now(), this.access.authSecret, visitor),
+          brand: publicBrand(form.company.brand),
         }),
       };
     });

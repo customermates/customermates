@@ -203,6 +203,18 @@ CREATE TABLE "PublicForm" (
 );
 
 -- CreateTable
+CREATE TABLE "CompanyBrand" (
+    "companyId" TEXT NOT NULL,
+    "accentColor" VARCHAR(7),
+    "logo" BYTEA,
+    "logoType" VARCHAR(32),
+    "logoKey" VARCHAR(64),
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CompanyBrand_pkey" PRIMARY KEY ("companyId")
+);
+
+-- CreateTable
 CREATE TABLE "PublicFormSubmission" (
     "id" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
@@ -365,6 +377,9 @@ CREATE INDEX "BookingLinkHost_companyId_userId_idx" ON "BookingLinkHost"("compan
 CREATE INDEX "BookingLinkHost_calendarId_idx" ON "BookingLinkHost"("calendarId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "CompanyBrand_logoKey_key" ON "CompanyBrand"("logoKey");
+
+-- CreateIndex
 CREATE INDEX "PublicForm_createdById_idx" ON "PublicForm"("createdById");
 
 -- CreateIndex
@@ -456,6 +471,9 @@ ALTER TABLE "BookingLinkHost" ADD CONSTRAINT "BookingLinkHost_companyId_userId_f
 
 -- AddForeignKey
 ALTER TABLE "BookingLinkHost" ADD CONSTRAINT "BookingLinkHost_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "Calendar"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CompanyBrand" ADD CONSTRAINT "CompanyBrand_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PublicForm" ADD CONSTRAINT "PublicForm_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;

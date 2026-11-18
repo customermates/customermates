@@ -1,4 +1,6 @@
 import type { Root } from "react-dom/client";
+import type { BookingSetup } from "@/ee/calendar/booking-setup";
+import type { PublicBookingPage } from "@/ee/calendar/booking.schema";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -46,10 +48,10 @@ import { READY_SETUP, bookingForm } from "./booking-fixtures";
 
 let container: HTMLDivElement;
 let root: Root;
-let modal: { form: ReturnType<typeof bookingForm>; setup: typeof READY_SETUP };
+let modal: { form: ReturnType<typeof bookingForm>; setup: BookingSetup };
 
-async function renderPreview() {
-  modal = observable({ form: bookingForm(), setup: READY_SETUP });
+async function renderPreview(setup: BookingSetup = READY_SETUP) {
+  modal = observable({ form: bookingForm(), setup });
   harness.rootStore = {
     bookingLinkModalStore: modal,
     userStore: { user: { firstName: "Test", lastName: "User" } },
@@ -86,6 +88,27 @@ describe("BookingPreview", () => {
     expect(title()).toBe("Intro call");
     expect(container.textContent).toContain("Test User");
     expect(container.textContent).toContain('PublicBooking.minutes:{"minutes":30}');
+  });
+
+  it("shows neither a logo nor an accent colour in the preview without a brand", async () => {
+    await renderPreview();
+
+    expect(container.querySelector("[data-brand-logo]")).toBeNull();
+    expect(container.querySelector<HTMLElement>("[data-booking-preview]")?.getAttribute("style")).toBeNull();
+  });
+
+  it("shows the workspace's logo and accent colour in the preview", async () => {
+    await renderPreview({
+      ...READY_SETUP,
+      brand: { accentColor: "#1d4ed8", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" },
+    });
+    const frame = container.querySelector<HTMLElement>("[data-booking-preview]");
+    expect(container.querySelector("aside img[data-brand-logo]")?.getAttribute("src")).toBe(
+      "/api/brand/logo/logo_key_abcdefghijkl",
+    );
+    expect(container.querySelector<HTMLImageElement>("aside img[data-brand-logo]")?.alt).toBe("Test User");
+    expect(frame?.style.getPropertyValue("--primary")).toBe("#1d4ed8");
+    expect(frame?.style.getPropertyValue("--primary-foreground")).toBe("white");
   });
 
   it("offers the slots computed from the working hours and never asks the server for any", async () => {
@@ -146,7 +169,7 @@ describe("BookingPreview", () => {
 
 describe("PublicBookingView on the live page", () => {
   const DAY_MS = 86_400_000;
-  const LIVE_PAGE = {
+  const LIVE_PAGE: PublicBookingPage = {
     title: "Intro call",
     description: null,
     durationMinutes: 30,
@@ -158,20 +181,79 @@ describe("PublicBookingView on the live page", () => {
     withVideo: false,
     questions: [],
     renderToken: "render",
+    brand: null,
   };
+  const BRAND = { accentColor: "#fde047", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" };
   const slotIn = (days: number) => {
     const startsAt = new Date(Date.now() + days * DAY_MS).toISOString();
     return { startsAt, endsAt: new Date(Date.parse(startsAt) + 30 * 60_000).toISOString() };
   };
   const settle = () => act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
 
-  async function renderLive() {
+  async function renderLive(page: PublicBookingPage = LIVE_PAGE) {
     await act(async () => {
-      root.render(createElement(PublicBookingView, { page: LIVE_PAGE, token: "tok_abcdefghijklmnop" }));
+      root.render(createElement(PublicBookingView, { page, token: "tok_abcdefghijklmnop" }));
       await Promise.resolve();
     });
     await settle();
   }
+
+  it("looks as before without a brand: the initials, and the app's own primary colour", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    await renderLive();
+
+    const frame = container.querySelector<HTMLElement>("#public-booking");
+    expect(container.querySelector("[data-brand-logo]")).toBeNull();
+    expect(container.querySelector('aside [data-slot="avatar"]')).not.toBeNull();
+    expect(frame?.getAttribute("style")).toBeNull();
+    expect(frame?.hasAttribute("data-brand-accent")).toBe(false);
+  });
+
+  it("shows the workspace's logo instead of the initials and sets the accent colour on the frame only", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    await renderLive({ ...LIVE_PAGE, brand: BRAND });
+
+    const frame = container.querySelector<HTMLElement>("#public-booking");
+    const logo = container.querySelector<HTMLImageElement>("aside img[data-brand-logo]");
+    expect(logo?.getAttribute("src")).toBe(BRAND.logoUrl);
+    expect(logo?.alt).toBe("Acme");
+    expect(container.querySelector('aside [data-slot="avatar"]')).toBeNull();
+    expect(container.querySelector("aside")?.textContent).toContain("Test User · Acme");
+    expect(frame?.dataset.brandAccent).toBe("#fde047");
+    expect(frame?.style.getPropertyValue("--primary")).toBe("#fde047");
+    expect(frame?.style.getPropertyValue("--primary-foreground")).toBe("black");
+    expect(document.documentElement.style.getPropertyValue("--primary")).toBe("");
+  });
+
+  it("keeps the logo and the accent colour on the confirmation", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    harness.submit.mockResolvedValue({
+      status: "booked",
+      startsAt: slotIn(2).startsAt,
+      endsAt: slotIn(2).endsAt,
+      conferenceUrl: null,
+      title: "Intro call",
+      hostName: "Test User",
+      manageUrl: null,
+      successMessage: null,
+    });
+    await renderLive({ ...LIVE_PAGE, brand: { ...BRAND, accentColor: "#1d4ed8" } });
+    act(() => slotButtons()[0].click());
+    await act(async () => {
+      container
+        .querySelector("[data-booking-form]")
+        ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+    await settle();
+
+    const frame = container.querySelector<HTMLElement>("#public-booking");
+    expect(container.querySelector("[data-booking-confirmed] img[data-brand-logo]")?.getAttribute("src")).toBe(
+      BRAND.logoUrl,
+    );
+    expect(frame?.style.getPropertyValue("--primary")).toBe("#1d4ed8");
+    expect(frame?.style.getPropertyValue("--primary-foreground")).toBe("white");
+  });
 
   it("loads the first range, then the later ranges once the visitor moves to a month beyond it", async () => {
     const second = new Date(Date.now() + 31 * DAY_MS).toISOString();

@@ -94,6 +94,7 @@ export function lookupLink(overrides: Partial<BookingLinkLookup> = {}): BookingL
     upcomingBookings: 0,
     hostName: "Test User",
     workspaceName: "Acme",
+    brand: null,
     companyDeleting: false,
     hostCandidates: [candidate(OWNER)],
     ...overrides,

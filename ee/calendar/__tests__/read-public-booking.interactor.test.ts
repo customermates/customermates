@@ -72,6 +72,23 @@ describe("ReadPublicBookingInteractor", () => {
     expect(renderTokenIssuedTo(result.page.renderToken, "w", SECRET)).toBe(false);
   });
 
+  it("carries the workspace's logo and accent colour, and no brand when none is set", async () => {
+    const plain = await build().interactor.invoke({ token: TOKEN });
+    const branded = await build({
+      link: lookupLink({
+        companyId: mockUser.companyId,
+        userId: mockUser.id,
+        brand: { accentColor: "#0f62fe", logoKey: "logo_key_abcdefghijkl" },
+      }),
+    }).interactor.invoke({ token: TOKEN });
+
+    expect(plain).toMatchObject({ status: "available", page: { brand: null } });
+    expect(branded).toMatchObject({
+      status: "available",
+      page: { brand: { accentColor: "#0f62fe", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" } },
+    });
+  });
+
   it("is unavailable outside the cloud and does not look the link up", async () => {
     mockEnv.APP_MODE = "self-hosted";
     const { interactor, lookup } = build();

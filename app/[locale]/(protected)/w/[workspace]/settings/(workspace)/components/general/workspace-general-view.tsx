@@ -4,6 +4,7 @@ import type { WorkspaceLeaveRefusal } from "@/features/workspace/member-removal-
 import type { WorkspaceDeleteRefusal } from "@/features/workspace/workspace-deletion-refusal";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 import type { PublicLinkSettings } from "@/features/public-link/public-link-settings.schema";
+import type { WorkspaceBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -31,28 +32,33 @@ import { WORKSPACE_PATH_SEGMENT } from "@/core/navigation/workspace-paths";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
 import { WORKSPACE_SLUG_MAX_LENGTH } from "@/features/workspace/workspace-slug";
 
+import { BrandingSetting } from "./branding-setting";
 import { PublicLinksSetting } from "./public-links-setting";
 
 type Props = {
+  brand?: WorkspaceBrand | null;
   deleteRefusal: WorkspaceDeleteRefusal | null;
   leaveRefusal: WorkspaceLeaveRefusal | null;
   publicLinks?: PublicLinkSettings | null;
   workspace: WorkspaceSummary;
 };
 
-const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, publicLinks, workspace }: Props) => {
+const WorkspaceGeneralViewContent = observer((props: Props) => {
+  const { brand, deleteRefusal, leaveRefusal, publicLinks, workspace } = props;
   const t = useTranslations();
   const { appMode, workspaceGeneralStore: store } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  const accentColor = brand?.accentColor ?? "";
+
   useState(() => {
-    store.onInitOrRefresh({ name: workspace.name ?? "", slug: workspace.slug });
+    store.onInitOrRefresh({ name: workspace.name ?? "", slug: workspace.slug, accentColor });
   });
 
   useEffect(
-    () => store.onInitOrRefresh({ name: workspace.name ?? "", slug: workspace.slug }),
-    [store, workspace.name, workspace.slug],
+    () => store.onInitOrRefresh({ name: workspace.name ?? "", slug: workspace.slug, accentColor }),
+    [store, workspace.name, workspace.slug, accentColor],
   );
 
   const demo = appMode === "demo";
@@ -118,6 +124,8 @@ const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, pub
           <UnsavedChangesBar anchorScope="settings-general" editable={editable} placement="sticky" store={store} />
 
           {publicLinks && !demo ? <PublicLinksSetting editable={editable} initial={publicLinks} /> : null}
+
+          {brand && !demo ? <BrandingSetting editable={editable} initial={brand} workspaceName={name} /> : null}
 
           {demo ? null : (
             <section aria-labelledby="settings-general-danger-zone" className="flex flex-col gap-3">

@@ -95,7 +95,19 @@ describe("ReadPublicBookingManageInteractor", () => {
         canCancel: true,
         canReschedule: true,
         bookAgainToken: lookupLink().token,
+        brand: null,
       },
+    });
+  });
+
+  it("carries the workspace's logo and accent colour", async () => {
+    const result = await read({
+      link: lookupLink({ brand: { accentColor: "#0f62fe", logoKey: "logo_key_abcdefghijkl" } }),
+    }).invoke({ manageToken: MANAGE_TOKEN, visitor: "v" });
+
+    expect(result).toMatchObject({
+      status: "found",
+      booking: { brand: { accentColor: "#0f62fe", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" } },
     });
   });
 

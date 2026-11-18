@@ -53,6 +53,7 @@ const OWNERS: Record<string, string> = {
   Booking: "ee/calendar/prisma-booking.repository.ts",
   BookingLink: "ee/calendar/prisma-booking.repository.ts",
   BookingLinkHost: "ee/calendar/prisma-booking.repository.ts",
+  CompanyBrand: "features/workspace-brand/prisma-workspace-brand.repository.ts",
   Calendar: "ee/calendar/prisma-calendar.repository.ts",
   CalendarEvent: "ee/calendar/prisma-calendar.repository.ts",
   CalendarEventRecordLink: "ee/calendar/prisma-calendar-event-link.repository.ts",

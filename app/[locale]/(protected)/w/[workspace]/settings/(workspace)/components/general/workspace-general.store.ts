@@ -7,15 +7,15 @@ import { Action, Resource } from "@/generated/prisma";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 
-import { renameWorkspaceAction, updateWorkspaceSlugAction } from "../../actions";
+import { renameWorkspaceAction, saveWorkspaceBrandAction, updateWorkspaceSlugAction } from "../../actions";
 
 export const WORKSPACE_GENERAL_SETTINGS_PATH = "/settings/general";
 
-type WorkspaceGeneralForm = { name: string; slug: string };
+type WorkspaceGeneralForm = { name: string; slug: string; accentColor: string };
 
 export class WorkspaceGeneralStore extends BaseFormStore<WorkspaceGeneralForm> {
   constructor(rootStore: RootStore) {
-    super(rootStore, { name: "", slug: "" }, Resource.company);
+    super(rootStore, { name: "", slug: "", accentColor: "" }, Resource.company);
 
     makeObservable(this, {
       onSubmit: action,
@@ -33,6 +33,22 @@ export class WorkspaceGeneralStore extends BaseFormStore<WorkspaceGeneralForm> {
 
     try {
       const { name, slug } = this.form;
+      const accentColor = this.form.accentColor.trim().toLowerCase();
+
+      if (accentColor !== this.savedState.accentColor) {
+        const branded = await saveWorkspaceBrandAction({ accentColor: accentColor === "" ? null : accentColor });
+        if (!branded.ok) {
+          this.setError(branded.error);
+          return;
+        }
+
+        const { name: savedName, slug: savedSlug } = this.savedState;
+        this.onInitOrRefresh({ accentColor: branded.data.accentColor ?? "", name: savedName, slug: savedSlug });
+        this.onChange("name", name);
+        this.onChange("slug", slug);
+        this.setIsLoading(true);
+      } else if (accentColor !== this.form.accentColor) this.onChange("accentColor", accentColor);
+
       const saved = this.savedState;
 
       if (name !== saved.name) {

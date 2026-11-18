@@ -272,7 +272,9 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
       where: { token },
       select: {
         ...linkSelect(new Date()),
-        company: { select: { name: true, deletingAt: true } },
+        company: {
+          select: { name: true, deletingAt: true, brand: { select: { accentColor: true, logoKey: true } } },
+        },
         user: { select: { firstName: true, lastName: true } },
       },
     });
@@ -295,6 +297,7 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
       ...toRow(link),
       hostName: memberName(user),
       workspaceName: company.name,
+      brand: company.brand,
       companyDeleting: company.deletingAt !== null,
       hostCandidates: [...owner, ...further],
     };

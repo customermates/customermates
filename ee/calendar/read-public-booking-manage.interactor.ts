@@ -1,4 +1,5 @@
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { publicBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
 import type { OpenBooking, PublicBookingAccess } from "./public-booking-access";
 
@@ -53,6 +54,7 @@ export class ReadPublicBookingManageInteractor {
             canCancel: inviteeMayCancel(opened, now),
             canReschedule: inviteeMayReschedule(opened, now),
             bookAgainToken: link.enabled ? link.token : null,
+            brand: publicBrand(link.brand),
           },
         });
       },

@@ -41,6 +41,7 @@ export function bookingPreviewPage(
     withVideo: form.withVideo,
     questions,
     renderToken: "",
+    brand: setup.brand ?? null,
   };
 }
 

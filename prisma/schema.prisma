@@ -271,6 +271,7 @@ model Company {
   dataViewRoleShares          DataViewRoleShare[]
   hiddenDataViews             DataViewHidden[]
   publicViewLinks             PublicViewLink[]
+  brand                       CompanyBrand?
   publicForms                 PublicForm[]
   publicFormSubmissions       PublicFormSubmission[]
   incomingWebhooks            IncomingWebhook[]
@@ -837,6 +838,17 @@ model PublicViewLink {
 
   @@index([companyId, viewId])
   @@index([createdById])
+}
+
+/// The logo and accent colour a workspace shows on its booking pages and public forms. Its own table so the logo bytes are never read together with the workspace row; logoKey is the public address of the image and changes with every upload.
+model CompanyBrand {
+  companyId   String   @id
+  accentColor String?  @db.VarChar(7)
+  logo        Bytes?
+  logoType    String?  @db.VarChar(32)
+  logoKey     String?  @unique @db.VarChar(64)
+  updatedAt   DateTime @updatedAt
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model PublicForm {

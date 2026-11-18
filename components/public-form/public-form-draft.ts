@@ -214,5 +214,6 @@ export function previewForm(draft: FormDraft, editor: PublicFormEditor, workspac
     consent: draft.consentEnabled ? { text: draft.consentText, privacyUrl: draft.privacyUrl } : null,
     badge: editor.badge,
     renderToken: "",
+    brand: null,
   };
 }

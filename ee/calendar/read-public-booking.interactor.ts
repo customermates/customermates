@@ -1,5 +1,6 @@
 import { renderToken } from "@/core/network/public-submit-guard";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { publicBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
 import type { MeetingRecordService } from "./meeting-record.service";
 import type { PublicBookingAccess } from "./public-booking-access";
@@ -36,6 +37,7 @@ export class ReadPublicBookingInteractor {
           withVideo: link.withVideo,
           questions: publicQuestions(link.recordTypeId ? await this.records.loadModel() : null, link),
           renderToken: renderToken(link.id, this.access.now(), this.access.authSecret, query.data.visitor),
+          brand: publicBrand(link.brand),
         },
       }),
     );
