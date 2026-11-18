@@ -72,6 +72,7 @@ export const domTestFiles = [
   "app/components/upsell/__tests__/storage-upsell.dom.test.tsx",
   "app/components/upsell/__tests__/routine-allowance-notice.dom.test.tsx",
   "components/keyboard/__tests__/use-connect-intent.dom.test.tsx",
+  "components/shared/__tests__/app-link-intent.dom.test.tsx",
   "app/**/settings/**/components/subscription/__tests__/plan-picker-focus.dom.test.tsx",
   "app/components/workspaces/__tests__/workspace-unavailable-dialog.dom.test.ts",
   "app/components/workspaces/__tests__/workspace-switcher-items.dom.test.ts",

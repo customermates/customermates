@@ -130,6 +130,7 @@ export function NavMainParent({
 
                     <SidebarMenuSubButton asChild isActive={subActive}>
                       <AppLink
+                        prefetchOnIntent
                         appearance="unstyled"
                         href={sub.href}
                         id={`nav-${sub.key}`}

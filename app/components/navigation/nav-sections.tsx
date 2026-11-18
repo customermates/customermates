@@ -289,7 +289,13 @@ function SortableNavItem({
           isActive={isActive}
           tooltip={item.title}
         >
-          <AppLink appearance="unstyled" href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
+          <AppLink
+            prefetchOnIntent
+            appearance="unstyled"
+            href={item.href}
+            id={`nav-${item.key}`}
+            onClick={() => onNavigate(item.key)}
+          >
             <NavLinkPendingIcon icon={item.icon} />
 
             <span className="min-w-0 truncate">{item.title}</span>
