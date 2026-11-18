@@ -1,15 +1,14 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import SignInProviderButton from "./sign-in-provider-button";
 
-import { SocialErrorToast } from "../social-error-toast";
+import { SocialErrorToast } from "@/app/[locale]/(public)/auth/social-error-toast";
 
 import { AppLink } from "@/components/shared/app-link";
 import { FormInput } from "@/components/forms/form-input";
@@ -36,14 +35,12 @@ type Props = {
 
 const SignInFormContent = observer((props: Props) => {
   const { callbackURL, inviterName, onboardingIntent, socialProviders, workspaceName } = props;
-  const searchParams = useSearchParams();
 
   const t = useTranslations();
 
   const { signInStore, appMode } = useRootStore();
-  const resolvedCallbackURL = callbackURL ?? searchParams.get("callbackURL") ?? undefined;
   useState(() => {
-    signInStore.onInitOrRefresh({ callbackURL: resolvedCallbackURL });
+    signInStore.onInitOrRefresh({ callbackURL });
     signInStore.setWithUnsavedChangesGuard(false);
   });
   const { isLoading } = signInStore;
@@ -51,9 +48,8 @@ const SignInFormContent = observer((props: Props) => {
   const workspace = workspaceName?.trim() ?? "";
 
   useEffect(() => {
-    if (signInStore.form.callbackURL !== resolvedCallbackURL)
-      signInStore.onInitOrRefresh({ callbackURL: resolvedCallbackURL });
-  }, [resolvedCallbackURL, signInStore]);
+    if (signInStore.form.callbackURL !== callbackURL) signInStore.onInitOrRefresh({ callbackURL });
+  }, [callbackURL, signInStore]);
 
   return (
     <AppForm store={signInStore}>
@@ -79,7 +75,9 @@ const SignInFormContent = observer((props: Props) => {
         />
 
         <AppCardBody>
-          <SocialErrorToast />
+          <Suspense>
+            <SocialErrorToast />
+          </Suspense>
 
           {isInvited ? (
             <Alert className="mb-4" role="note">

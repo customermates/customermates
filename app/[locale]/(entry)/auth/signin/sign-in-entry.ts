@@ -1,15 +1,10 @@
-import type { Metadata } from "next";
+import "server-only";
 
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
-import { SignInForm } from "./sign-in-form";
-
-import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { requireUnauthenticated } from "@/features/auth/next/require";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
-import { enabledSocialProviders } from "@/core/auth/better-auth";
-import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import {
   ONBOARDING_INTENT_QUERY_PARAM,
   onboardingIntentFromPath,
@@ -18,17 +13,25 @@ import {
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  return generateMetadataFromMeta({ locale, route: "/auth/signin" });
-}
-
-type Props = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+export type SignInEntry = {
+  callbackURL?: string;
+  inviterName?: string;
+  onboardingIntent?: string;
+  workspaceName?: string | null;
 };
 
-export default async function SignInPage({ searchParams }: Props) {
-  const params = await searchParams;
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export function searchParamsOf(search: string): SearchParams {
+  const params: SearchParams = {};
+  for (const [key, value] of new URLSearchParams(search)) {
+    const known = params[key];
+    params[key] = known === undefined ? value : [...(Array.isArray(known) ? known : [known]), value];
+  }
+  return params;
+}
+
+export async function resolveSignInEntry(params: SearchParams): Promise<SignInEntry> {
   const callbackURLValue = params.callbackURL;
   const callbackURL = typeof callbackURLValue === "string" ? callbackURLValue : undefined;
   const callbackIntent =
@@ -67,22 +70,15 @@ export default async function SignInPage({ searchParams }: Props) {
 
   await requireUnauthenticated();
 
-  return (
-    <CenteredCardPage>
-      <SignInForm
-        callbackURL={
-          activeIntent
-            ? pathWithOnboardingIntent(
-                activeIntent.type === "invitation" ? "/auth/invitation" : "/onboarding/wizard",
-                activeIntent.intent,
-              )
-            : callbackURL
-        }
-        inviterName={invitation?.inviterName}
-        onboardingIntent={activeIntent?.intent}
-        socialProviders={enabledSocialProviders}
-        workspaceName={invitation?.companyName}
-      />
-    </CenteredCardPage>
-  );
+  return {
+    callbackURL: activeIntent
+      ? pathWithOnboardingIntent(
+          activeIntent.type === "invitation" ? "/auth/invitation" : "/onboarding/wizard",
+          activeIntent.intent,
+        )
+      : callbackURL,
+    inviterName: invitation?.inviterName,
+    onboardingIntent: activeIntent?.intent,
+    workspaceName: invitation?.companyName,
+  };
 }

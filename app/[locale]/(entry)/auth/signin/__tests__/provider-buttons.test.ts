@@ -47,10 +47,10 @@ vi.mock("@/components/shared/app-link", () => ({ AppLink: passthrough }));
 vi.mock("@/components/shared/alert", () => ({ Alert: passthrough }));
 vi.mock("@/components/shared/reveal", () => ({ Reveal: passthrough }));
 vi.mock("@/components/ui/separator", () => ({ Separator: () => null }));
-vi.mock("../../social-error-toast", () => ({ SocialErrorToast: () => null }));
+vi.mock("@/app/[locale]/(public)/auth/social-error-toast", () => ({ SocialErrorToast: () => null }));
 
 import { SignInForm } from "../sign-in-form";
-import { SignUpForm } from "../../signup/sign-up-form";
+import { SignUpForm } from "@/app/[locale]/(public)/auth/signup/sign-up-form";
 
 const socialProviders = { google: true, microsoft: true };
 

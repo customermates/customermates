@@ -10,8 +10,12 @@ const authActions = vi.hoisted(() => ({
 }));
 
 vi.mock("@/app/[locale]/(public)/auth/actions", () => authActions);
+const entryActions = vi.hoisted(() => ({ resolveSignInEntryAction: vi.fn() }));
+vi.mock("../actions", () => entryActions);
 const toastZodErrorTree = vi.hoisted(() => vi.fn());
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
+const reportApplicationError = vi.hoisted(() => vi.fn());
+vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError }));
 
 import { SignInStore } from "../sign-in.store";
 
@@ -69,6 +73,68 @@ describe("SignInStore", () => {
 
     await store.onSubmit();
     expect(authActions.signInWithEmailAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("waits for the entry of an invitation link before signing in, and keeps what was typed", async () => {
+    let resolveEntry: (entry: { callbackURL: string; inviterName: string }) => void = () => undefined;
+    entryActions.resolveSignInEntryAction.mockReturnValue(
+      new Promise((resolve) => {
+        resolveEntry = resolve;
+      }),
+    );
+    authActions.signInWithEmailAction.mockResolvedValue({ ok: true, data: { url: "/en/auth/invitation" } });
+    const store = new SignInStore(rootStore);
+
+    store.resolveEntry("?intent=signed.intent");
+    store.onChange("email", "invited@example.com");
+    const submitted = store.onSubmit();
+    await Promise.resolve();
+
+    expect(entryActions.resolveSignInEntryAction).toHaveBeenCalledWith("?intent=signed.intent");
+    expect(store.entrySettled).toBe(false);
+    expect(store.isLoading).toBe(true);
+    expect(authActions.signInWithEmailAction).not.toHaveBeenCalled();
+
+    resolveEntry({ callbackURL: "/auth/invitation?intent=signed.intent", inviterName: "Invite Admin" });
+    await submitted;
+
+    expect(store.entry).toMatchObject({ inviterName: "Invite Admin" });
+    expect(store.entrySettled).toBe(true);
+    expect(authActions.signInWithEmailAction).toHaveBeenCalledWith(
+      expect.objectContaining({ email: "invited@example.com", callbackURL: "/auth/invitation?intent=signed.intent" }),
+    );
+  });
+
+  it("stays unsettled while the server sends a signed-in visitor on", async () => {
+    let signal: unknown;
+    try {
+      redirect("/en/dashboard");
+    } catch (error) {
+      signal = error;
+    }
+    entryActions.resolveSignInEntryAction.mockRejectedValue(signal);
+    const store = new SignInStore(rootStore);
+
+    store.resolveEntry("");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(store.entrySettled).toBe(false);
+    expect(reportApplicationError).not.toHaveBeenCalled();
+  });
+
+  it("opens the plain form and reports the failure when the entry cannot be read", async () => {
+    const failure = new Error("offline");
+    entryActions.resolveSignInEntryAction.mockRejectedValue(failure);
+    authActions.signInWithEmailAction.mockResolvedValue({ ok: true, data: { url: "/en" } });
+    const store = new SignInStore(rootStore);
+
+    store.resolveEntry("");
+    await store.onSubmit();
+
+    expect(store.entrySettled).toBe(true);
+    expect(store.entry).toBeNull();
+    expect(reportApplicationError).toHaveBeenCalledWith(failure);
+    expect(authActions.signInWithEmailAction).toHaveBeenCalledOnce();
   });
 
   it("does not navigate when authentication returns a validation error", async () => {

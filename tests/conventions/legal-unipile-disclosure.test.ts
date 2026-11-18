@@ -1130,7 +1130,7 @@ describe("registration legal copy covers the DPA", () => {
     const surfaces = [
       "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx",
       "app/[locale]/(public)/auth/signup/sign-up-form.tsx",
-      "app/[locale]/(public)/auth/signin/sign-in-form.tsx",
+      "app/[locale]/(entry)/auth/signin/sign-in-form.tsx",
     ];
 
     for (const surface of surfaces) {
@@ -1140,8 +1140,8 @@ describe("registration legal copy covers the DPA", () => {
   });
 
   it("requires personal cloud onboarding acknowledgement without treating invitees as company acceptors", () => {
-    const signInPage = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/page.tsx"), "utf8");
-    const signInForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/sign-in-form.tsx"), "utf8");
+    const signInPage = readFileSync(join(REPO_ROOT, "app/[locale]/(entry)/auth/signin/sign-in-entry.ts"), "utf8");
+    const signInForm = readFileSync(join(REPO_ROOT, "app/[locale]/(entry)/auth/signin/sign-in-form.tsx"), "utf8");
     const signUpForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signup/sign-up-form.tsx"), "utf8");
     const onboarding = readFileSync(
       join(REPO_ROOT, "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx"),
