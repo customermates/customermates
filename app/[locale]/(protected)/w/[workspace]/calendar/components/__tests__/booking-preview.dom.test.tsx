@@ -224,15 +224,15 @@ describe("PublicBookingView on the live page", () => {
     expect(container.querySelector("aside [data-booking-when]")).toBeNull();
     act(() => slotButtons()[0].click());
 
-    expect(container.querySelector("[data-booking-calendar]")).toBeNull();
-    expect(container.querySelector("[data-booking-slots]")).toBeNull();
+    expect(container.querySelector("[data-booking-calendar]")?.closest(".hidden")).not.toBeNull();
+    expect(container.querySelector("[data-booking-slots]")?.closest(".hidden")).not.toBeNull();
     expect(container.querySelector("aside #public-booking-title")?.textContent).toBe("Intro call");
     expect(container.querySelector("aside [data-booking-when]")).not.toBeNull();
 
     act(() => container.querySelector<HTMLButtonElement>("[data-booking-back]")?.click());
 
     expect(container.querySelector("[data-booking-form]")).toBeNull();
-    expect(container.querySelector("[data-booking-calendar]")).not.toBeNull();
+    expect(container.querySelector("[data-booking-calendar]")?.closest(".hidden")).toBeNull();
     expect(container.querySelector("aside [data-booking-when]")).toBeNull();
     expect(slotButtons()).toHaveLength(1);
   });
