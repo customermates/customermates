@@ -91,6 +91,47 @@ export const BookingLinkModal = observer(() => {
                   />
                 ) : null}
 
+                {store.knownHosts.length > 0 ? (
+                  <fieldset className="space-y-2" data-booking-hosts="">
+                    <legend className="text-sm font-medium">{t("Booking.fields.hosts")}</legend>
+
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={form.assignment === "roundRobin"}
+                        id="booking-round-robin"
+                        onCheckedChange={(checked) => store.onChange("assignment", checked ? "roundRobin" : "single")}
+                      />
+
+                      <label className="text-sm" htmlFor="booking-round-robin">
+                        {t("Booking.roundRobin")}
+                      </label>
+                    </div>
+
+                    {form.assignment === "roundRobin" ? (
+                      <>
+                        <p className="text-xs text-muted-foreground">{t("Booking.roundRobinHint")}</p>
+
+                        <ul className="flex flex-col gap-2 rounded-lg border p-3">
+                          {store.knownHosts.map((host) => (
+                            <li key={host.userId} className="flex items-center gap-3">
+                              <Switch
+                                aria-label={host.name}
+                                checked={form.hostUserIds.includes(host.userId)}
+                                id={`booking-host-${host.userId}`}
+                                onCheckedChange={(checked) => store.toggleHost(host.userId, checked)}
+                              />
+
+                              <label className="min-w-0 truncate text-sm" htmlFor={`booking-host-${host.userId}`}>
+                                {host.name}
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    ) : null}
+                  </fieldset>
+                ) : null}
+
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormSelect
                     id="durationMinutes"
@@ -298,6 +339,8 @@ export const BookingLinkModal = observer(() => {
                 ) : null}
 
                 <FormTextarea id="successMessage" label={t("Booking.fields.successMessage")} rows={2} />
+
+                <FormSwitch id="inviteeChanges" label={t("Booking.fields.inviteeChanges")} />
 
                 <FormSwitch id="enabled" label={t("Booking.fields.enabled")} />
               </div>

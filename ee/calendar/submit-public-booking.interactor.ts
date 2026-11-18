@@ -2,6 +2,8 @@ import type { EventService } from "@/features/event/event.service";
 import type { FormSubmittedPayload } from "@/features/event/external-trigger-events";
 import type { RecordRef } from "@/features/records/record-model.schema";
 
+import { randomBytes } from "node:crypto";
+
 import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
@@ -10,14 +12,13 @@ import { stripControlCharacters } from "@/core/utils/strip-control-characters";
 import { DomainEvent } from "@/features/event/domain-events";
 import { coerceAnswers } from "@/features/records/record-value-coercion";
 
+import type { BookingAnnouncer } from "./booking-announcer";
 import type { BookingAvailability } from "./booking-availability";
 import type { BookingReservationRepo } from "./booking-reservation.repo";
 import type { CalendarEventLinkRepo } from "./calendar-event-link.repo";
 import type { CalendarEventWriter } from "./calendar-event-writer";
-import type { WritableCalendarRow } from "./calendar-write-access.repo";
 import type { MeetingRecordService } from "./meeting-record.service";
-import type { PublicBookingAccess } from "./public-booking-access";
-import type { BookingLinkLookup } from "./booking-link.repo";
+import type { OpenBookingLink, PublicBookingAccess, UsableHost } from "./public-booking-access";
 
 import {
   type PublicBookingSubmitResult,
@@ -27,7 +28,8 @@ import {
   BOOKING_PER_VISITOR_PER_HOUR,
   SubmitPublicBookingSchema,
 } from "./booking.schema";
-import { bookingInvitation } from "./booking-invitation";
+import { orderHostsForBooking } from "./booking-assignment";
+import { bookingInvitation, bookingManageUrl } from "./booking-invitation";
 import { publicQuestions } from "./public-booking-questions";
 
 const MINUTE_MS = 60_000;
@@ -36,6 +38,13 @@ const DAY_MS = 24 * HOUR_MS;
 const OPEN_BOOKINGS_RETRY_SECONDS = 3600;
 const VISITOR_RETRY_SECONDS = 600;
 const LINK_RETRY_SECONDS = 3600;
+const MANAGE_TOKEN_BYTES = 18;
+
+export type PublicBookingTexts = { manageLine: string };
+
+type Booked = Extract<PublicBookingSubmitResult, { status: "booked" }>;
+type Answers = ReturnType<typeof coerceAnswers>;
+type HostOutcome = Booked | "taken" | "failed";
 
 async function safely<T>(kind: string, work: () => Promise<T>): Promise<T | null> {
   try {
@@ -73,9 +82,11 @@ export class SubmitPublicBookingInteractor {
     private links: CalendarEventLinkRepo,
     private records: MeetingRecordService,
     private events: Pick<EventService, "publish">,
+    private announcer: Pick<BookingAnnouncer, "notifyHost">,
+    private baseUrl: string,
   ) {}
 
-  async invoke(input: unknown): Promise<PublicBookingSubmitResult> {
+  async invoke(input: unknown, texts: PublicBookingTexts = { manageLine: "" }): Promise<PublicBookingSubmitResult> {
     const parsed = SubmitPublicBookingSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -88,10 +99,14 @@ export class SubmitPublicBookingInteractor {
     if (!name) return { status: "invalid", fields: ["name"] };
     const data = { ...parsed.data, name, answers: withoutControlCharacters(parsed.data.answers) };
 
-    return this.access.open(data.token, data.visitor, (link) => this.book(link, data), "afterSpamChecks");
+    return this.access.open(data.token, data.visitor, (link) => this.book(link, data, texts), "afterSpamChecks");
   }
 
-  private async book(link: BookingLinkLookup, data: SubmitPublicBookingData): Promise<PublicBookingSubmitResult> {
+  private async book(
+    link: OpenBookingLink,
+    data: SubmitPublicBookingData,
+    texts: PublicBookingTexts,
+  ): Promise<PublicBookingSubmitResult> {
     const now = this.access.now();
     const startsAt = new Date(data.startsAt);
     const automated = looksAutomated({
@@ -105,7 +120,10 @@ export class SubmitPublicBookingInteractor {
       return { status: "unavailable" };
     const limited = this.access.admitLink(link.token);
     if (limited) return limited;
-    if (!(await this.availability.isOpen(link, now, startsAt))) return { status: "slotTaken" };
+
+    const hostIds = link.usableHosts.map((host) => host.userId);
+    const free = await this.availability.openHosts(link, hostIds, now, startsAt);
+    if (!free.length) return { status: "slotTaken" };
 
     const model = link.recordTypeId ? await this.records.loadModel() : null;
     const questions = publicQuestions(model, link);
@@ -125,10 +143,41 @@ export class SubmitPublicBookingInteractor {
     if ((await this.reservations.countForLinkSince(link.id, dayAgo)) >= BOOKING_PER_LINK_PER_DAY)
       return { status: "rateLimited", retryAfterSeconds: LINK_RETRY_SECONDS };
 
+    const ordered = orderHostsForBooking(free, await this.reservations.hostLoads(link.id, now), hostIds);
+    let failed = false;
+    for (const hostId of ordered) {
+      const host = link.usableHosts.find((item) => item.userId === hostId);
+      if (!host) continue;
+      const outcome = await this.access.asHost(hostId, () =>
+        this.bookWith(link, host, data, answers, ipHash, texts),
+      );
+      if (outcome === null || outcome === "taken") continue;
+      if (outcome === "failed") {
+        failed = true;
+        continue;
+      }
+
+      return outcome;
+    }
+
+    return failed ? { status: "unavailable" } : { status: "slotTaken" };
+  }
+
+  private async bookWith(
+    link: OpenBookingLink,
+    host: UsableHost,
+    data: SubmitPublicBookingData,
+    answers: Answers,
+    ipHash: string | null,
+    texts: PublicBookingTexts,
+  ): Promise<HostOutcome> {
+    const startsAt = new Date(data.startsAt);
     const endsAt = new Date(startsAt.getTime() + link.durationMinutes * MINUTE_MS);
+    const manageToken = randomBytes(MANAGE_TOKEN_BYTES).toString("base64url");
     const reservation = await this.reservations.reserve(
       {
         bookingLinkId: link.id,
+        manageToken,
         startsAt,
         endsAt,
         inviteeName: data.name,
@@ -139,21 +188,16 @@ export class SubmitPublicBookingInteractor {
       },
       () => this.availability.isOpen(link, this.access.now(), startsAt),
     );
-    if (!reservation) return { status: "slotTaken" };
+    if (!reservation) return "taken";
 
-    const calendar: WritableCalendarRow = {
-      id: link.calendarId,
-      name: link.calendarName ?? "",
-      unipileCalendarId: link.unipileCalendarId,
-      timezone: null,
-      provider: link.provider as WritableCalendarRow["provider"],
-      connectedAccountId: link.connectedAccountId,
-      unipileAccountId: link.unipileAccountId,
-      accountStatus: "ok",
-      accountLabel: null,
-    };
-    const invitation = bookingInvitation(link.title, data.name, data.email);
-    const written = await this.writer.create(link.companyId, calendar, {
+    const manageUrl = link.inviteeChanges ? bookingManageUrl(this.baseUrl, manageToken) : null;
+    const invitation = bookingInvitation(
+      link.title,
+      data.name,
+      data.email,
+      manageUrl ? { line: texts.manageLine, url: manageUrl } : null,
+    );
+    const written = await this.writer.create(link.companyId, host.calendar, {
       title: invitation.title,
       description: invitation.description,
       attendeeEmails: [data.email],
@@ -165,7 +209,7 @@ export class SubmitPublicBookingInteractor {
     });
     if (!written.ok) {
       await this.reservations.release(reservation.id);
-      return { status: "unavailable" };
+      return "failed";
     }
 
     const person = link.personTypeId
@@ -226,6 +270,20 @@ export class SubmitPublicBookingInteractor {
         ),
       );
     }
+    await this.announcer.notifyHost(
+      {
+        id: reservation.id,
+        companyId: link.companyId,
+        hostUserId: host.userId,
+        linkOwnerId: link.userId,
+        inviteeName: data.name,
+        linkTitle: link.title,
+        startsAt,
+        linkTimeZone: link.timeZone,
+      },
+      "booked",
+      this.access.memberLocale(),
+    );
 
     return {
       status: "booked",
@@ -233,6 +291,8 @@ export class SubmitPublicBookingInteractor {
       endsAt: endsAt.toISOString(),
       conferenceUrl: written.event.conferenceUrl,
       title: link.title,
+      hostName: host.name,
+      manageUrl,
       successMessage: link.successMessage,
     };
   }

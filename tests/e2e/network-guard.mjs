@@ -3,6 +3,7 @@ import http from "node:http";
 import https from "node:https";
 import { syncBuiltinESMExports } from "node:module";
 import { localAgentProviderRequest } from "./local-agent-provider.mjs";
+import { localCalendarRequest } from "./local-calendar-provider.mjs";
 import { localEmailRequest } from "./local-email-provider.mjs";
 import { localLemonSqueezyRequest } from "./local-lemonsqueezy-provider.mjs";
 import { localOAuthRequest } from "./local-oauth-provider.mjs";
@@ -28,6 +29,7 @@ if (!/^\/crm_e2e(?:_[a-z0-9_]+)?$/.test(new URL(process.env.DATABASE_URL).pathna
 const originalFetch = globalThis.fetch;
 const localProviders = [
   localAgentProviderRequest,
+  localCalendarRequest,
   localEmailRequest,
   localLemonSqueezyRequest,
   localOAuthRequest,

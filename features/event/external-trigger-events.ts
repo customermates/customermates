@@ -1,4 +1,4 @@
-export const EXTERNAL_TRIGGER_EVENTS = ["form.submitted", "webhook.received"] as const;
+export const EXTERNAL_TRIGGER_EVENTS = ["form.submitted", "webhook.received", "booking.changed"] as const;
 
 export type ExternalTriggerEvent = (typeof EXTERNAL_TRIGGER_EVENTS)[number];
 
@@ -13,6 +13,22 @@ export type FormSubmittedPayload = {
   outcome: "created" | "duplicate";
   recordId: string | null;
   personRecordId: string | null;
+  answers: ExternalAnswers;
+};
+
+export const BOOKING_CHANGES = ["cancelled", "rescheduled"] as const;
+export type BookingChange = (typeof BOOKING_CHANGES)[number];
+
+export type BookingChangedPayload = {
+  bookingId: string;
+  bookingLinkId: string;
+  bookingLinkName: string;
+  change: BookingChange;
+  by: "invitee" | "host";
+  typeId: string | null;
+  recordId: string | null;
+  personRecordId: string | null;
+  hostUserId: string;
   answers: ExternalAnswers;
 };
 

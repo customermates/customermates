@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
-import type { BookingLinkDto, BookingQuestion } from "@/ee/calendar/booking.schema";
+import type { BookingAssignmentKind, BookingLinkDto, BookingQuestion } from "@/ee/calendar/booking.schema";
 import type { BookingSetup } from "@/ee/calendar/booking-setup";
 import type { WorkingHours, WorkingWeekday } from "@/ee/calendar/working-hours";
 
@@ -33,7 +33,12 @@ export type BookingLinkForm = {
   questions: BookingQuestion[];
   successMessage: string;
   enabled: boolean;
+  assignment: BookingAssignmentKind;
+  hostUserIds: string[];
+  inviteeChanges: boolean;
 };
+
+export type BookingHostOption = { userId: string; name: string };
 
 const EMPTY_SETUP: BookingSetup = { calendars: [], lists: [], relationships: [], blockedReason: null };
 
@@ -57,6 +62,9 @@ function emptyForm(setup: BookingSetup): BookingLinkForm {
     questions: [],
     successMessage: "",
     enabled: true,
+    assignment: "single",
+    hostUserIds: [],
+    inviteeChanges: true,
   };
 }
 
@@ -64,21 +72,45 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
   setup: BookingSetup = EMPTY_SETUP;
   onSaved: (() => void) | null = null;
   calendarMissing = false;
+  hostOptions: BookingHostOption[] = [];
 
   constructor(rootStore: RootStore) {
     super(rootStore, emptyForm(EMPTY_SETUP), Resource.inboxMessages);
 
     makeObservable(this, {
       setup: observable.ref,
+      hostOptions: observable.ref,
       calendarMissing: observable,
       configure: action,
       start: action,
     });
   }
 
-  configure = (setup: BookingSetup, onSaved: () => void) => {
+  configure = (setup: BookingSetup, onSaved: () => void, hostOptions: BookingHostOption[] = []) => {
     this.setup = setup;
     this.onSaved = onSaved;
+    this.hostOptions = hostOptions;
+  };
+
+  get knownHosts(): BookingHostOption[] {
+    const known = new Map(this.hostOptions.map((host) => [host.userId, host]));
+    for (const host of this.storedHosts) if (!known.has(host.userId)) known.set(host.userId, host);
+
+    return [...known.values()];
+  }
+
+  private storedHosts: BookingHostOption[] = [];
+
+  private get hostsChanged(): boolean {
+    const wanted = this.form.assignment === "roundRobin" ? this.form.hostUserIds : [];
+    const stored = this.storedHosts.map((host) => host.userId);
+
+    return wanted.length !== stored.length || wanted.some((userId) => !stored.includes(userId));
+  }
+
+  toggleHost = (userId: string, hosting: boolean) => {
+    const without = this.form.hostUserIds.filter((id) => id !== userId);
+    this.onChange("hostUserIds", hosting ? [...without, userId] : without);
   };
 
   get selectedRecordList() {
@@ -101,6 +133,7 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
 
   start = (link?: BookingLinkDto, invoker?: HTMLElement | null) => {
     this.calendarMissing = link ? link.calendarId === null : false;
+    this.storedHosts = link ? link.hosts.map(({ userId, name }) => ({ userId, name })) : [];
     this.onInitOrRefresh(
       link
         ? {
@@ -122,6 +155,9 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
             questions: structuredClone(link.questions),
             successMessage: link.successMessage ?? "",
             enabled: link.enabled,
+            assignment: link.assignment,
+            hostUserIds: link.hosts.map((host) => host.userId),
+            inviteeChanges: link.inviteeChanges,
           }
         : emptyForm(this.setup),
     );
@@ -203,6 +239,9 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
         questions: form.recordTypeId ? form.questions : [],
         successMessage: form.successMessage.trim() || null,
         enabled: form.enabled,
+        assignment: form.assignment,
+        inviteeChanges: form.inviteeChanges,
+        ...(this.hostsChanged ? { hostUserIds: form.assignment === "roundRobin" ? form.hostUserIds : [] } : {}),
       });
       if (!result.ok) {
         this.setError(result.error as never);

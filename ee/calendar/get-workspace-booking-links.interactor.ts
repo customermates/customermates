@@ -9,6 +9,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 import type { BookingAvailability } from "./booking-availability";
 import type { BookingLinkRepo } from "./booking-link.repo";
+import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
 
 import { type WorkspaceBookingLinkList, WorkspaceBookingLinkListSchema } from "./booking.schema";
 import { toBookingLinkDto } from "./booking-link-dto";
@@ -20,6 +21,7 @@ export class GetWorkspaceBookingLinksInteractor extends AuthenticatedInteractor<
     private entitlements: EntitlementService,
     private baseUrl: string,
     private availability: Pick<BookingAvailability, "busyTimeIncomplete">,
+    private members: Pick<CalendarWriteAccessRepo, "listMemberCalendars">,
     private now: () => Date = () => new Date(),
   ) {
     super();
@@ -36,10 +38,16 @@ export class GetWorkspaceBookingLinksInteractor extends AuthenticatedInteractor<
       : (await this.repo.list()).map((row) => ({ ...row, ownerName: own }));
 
     const live = rows.filter((row) => row.userId === this.user.id && row.enabled && row.calendarId !== null);
+    const hostCandidates = this.user.role?.isSystemRole
+      ? (await this.members.listMemberCalendars())
+          .filter((member) => member.userId !== this.user.id)
+          .map(({ userId, name }) => ({ userId, name }))
+      : [];
 
     return {
       ok: true as const,
       data: {
+        hostCandidates,
         busyTimeIncomplete: live.length > 0 && (await this.availability.busyTimeIncomplete(live, this.now())),
         items: rows.map((row) => ({
           ...toBookingLinkDto(row, this.baseUrl),

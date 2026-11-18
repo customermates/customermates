@@ -182,6 +182,8 @@ export enum CustomErrorCode {
   bookingRateLimited = "bookingRateLimited",
   bookingAnswerInvalid = "bookingAnswerInvalid",
   bookingListInvalid = "bookingListInvalid",
+  bookingHostsNotAllowed = "bookingHostsNotAllowed",
+  bookingHostWithoutCalendar = "bookingHostWithoutCalendar",
   connectedAccountNotFound = "connectedAccountNotFound",
   connectedAccountEmailChangeRequired = "connectedAccountEmailChangeRequired",
   roleNotFound = "roleNotFound",

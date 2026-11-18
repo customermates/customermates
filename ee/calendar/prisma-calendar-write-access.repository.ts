@@ -1,17 +1,18 @@
 import type { Prisma } from "@/generated/prisma";
 
-import { ConnectedAccountStatus } from "@/generated/prisma";
+import { ConnectedAccountStatus, Status } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 
 import type {
   CalendarWriteAccessRepo,
   CalendarWriteAccounts,
+  MemberCalendar,
   WritableCalendarRow,
   WritableEventRow,
 } from "./calendar-write-access.repo";
 
-import { ownCalendarAccountWhere } from "./own-calendar-account";
+import { CALENDAR_PROVIDERS, ownCalendarAccountWhere } from "./own-calendar-account";
 
 const calendarSelect = {
   id: true,
@@ -68,6 +69,43 @@ export class PrismaCalendarWriteAccessRepo extends TenantRepository implements C
     ]);
 
     return { calendars: rows.map(toRow), accountsNeedingReconnect: needing };
+  }
+
+  async listMemberCalendars(): Promise<MemberCalendar[]> {
+    const rows = await this.prisma.calendar.findMany({
+      where: {
+        companyId: this.companyId,
+        connectedAccount: {
+          is: {
+            companyId: this.companyId,
+            hasCalendar: true,
+            provider: { in: CALENDAR_PROVIDERS },
+            status: ConnectedAccountStatus.ok,
+            user: { is: { companyId: this.companyId, status: Status.active } },
+          },
+        },
+      },
+      orderBy: [{ name: "asc" }, { id: "asc" }],
+      take: 1000,
+      select: {
+        id: true,
+        name: true,
+        connectedAccount: { select: { userId: true, user: { select: { firstName: true, lastName: true } } } },
+      },
+    });
+    const first = new Map<string, MemberCalendar>();
+    for (const row of rows) {
+      const { userId, user } = row.connectedAccount;
+      if (first.has(userId)) continue;
+      first.set(userId, {
+        userId,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        calendarId: row.id,
+        calendarName: row.name,
+      });
+    }
+
+    return [...first.values()].sort((left, right) => left.name.localeCompare(right.name));
   }
 
   async findOwnCalendar(calendarId: string): Promise<WritableCalendarRow | null> {

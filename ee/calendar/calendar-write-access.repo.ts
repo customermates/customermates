@@ -28,8 +28,11 @@ export type CalendarWriteAccounts = {
   accountsNeedingReconnect: number;
 };
 
+export type MemberCalendar = { userId: string; name: string; calendarId: string; calendarName: string };
+
 export abstract class CalendarWriteAccessRepo {
   abstract listOwnCalendars(): Promise<CalendarWriteAccounts>;
+  abstract listMemberCalendars(): Promise<MemberCalendar[]>;
   abstract findOwnCalendar(calendarId: string): Promise<WritableCalendarRow | null>;
   abstract findOwnEvent(eventId: string): Promise<WritableEventRow | null>;
 }

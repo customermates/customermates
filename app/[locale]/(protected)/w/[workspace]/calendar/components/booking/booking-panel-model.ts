@@ -1,4 +1,4 @@
-import type { WorkspaceBookingLinkDto } from "@/ee/calendar/booking.schema";
+import type { UpcomingBookingDto, WorkspaceBookingLinkDto } from "@/ee/calendar/booking.schema";
 import type { BookingSetup } from "@/ee/calendar/booking-setup";
 
 export const BOOKING_PANEL_PARAM = "panel";
@@ -6,8 +6,17 @@ export const BOOKING_PANEL_VALUE = "booking";
 
 export type BookingPanelUnavailableReason = "demo" | "selfHosted" | "locked";
 
+export type BookingHostCandidate = { userId: string; name: string };
+
 export type BookingPanelState =
-  | { status: "ready"; links: WorkspaceBookingLinkDto[]; setup: BookingSetup; busyTimeIncomplete?: boolean }
+  | {
+      status: "ready";
+      links: WorkspaceBookingLinkDto[];
+      setup: BookingSetup;
+      busyTimeIncomplete?: boolean;
+      hostCandidates?: BookingHostCandidate[];
+      upcoming?: UpcomingBookingDto[];
+    }
   | { status: "unavailable"; reason: BookingPanelUnavailableReason };
 
 export type BookingPanelGroups = {

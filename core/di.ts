@@ -84,7 +84,17 @@ import { GetCalendarEventsInteractor } from "@/ee/calendar/get-calendar-events.i
 import { GetCalendarsInteractor } from "@/ee/calendar/get-calendars.interactor";
 import { PrismaCalendarEventsRepo } from "@/ee/calendar/prisma-calendar-events.repository";
 import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
-import { BookingAvailability } from "@/ee/calendar/booking-availability";
+import { resolveUserLocale } from "@/i18n/user-locale";
+import { BookingAnnouncer } from "@/ee/calendar/booking-announcer";
+import { BookingAvailability, type HostRunner } from "@/ee/calendar/booking-availability";
+import { BookingEventSync } from "@/ee/calendar/booking-event-sync";
+import { CancelPublicBookingInteractor } from "@/ee/calendar/cancel-public-booking.interactor";
+import { GetUpcomingBookingsInteractor } from "@/ee/calendar/get-upcoming-bookings.interactor";
+import {
+  ReadPublicBookingManageInteractor,
+  ReadPublicBookingManageSlotsInteractor,
+} from "@/ee/calendar/read-public-booking-manage.interactor";
+import { ReschedulePublicBookingInteractor } from "@/ee/calendar/reschedule-public-booking.interactor";
 import { BusyTimeReader } from "@/ee/calendar/busy-time.reader";
 import { CalendarEventWriter } from "@/ee/calendar/calendar-event-writer";
 import { CancelMeetingInteractor } from "@/ee/calendar/cancel-meeting.interactor";
@@ -1862,14 +1872,14 @@ export const getProcessCalendarEventUpsertWebhookInteractor = () =>
     getCalendarRepo(),
     getConnectedAccountRepo(),
     getEventService(),
-    getBookingRepo(),
+    getBookingEventSync(),
   );
 export const getProcessCalendarEventDeleteWebhookInteractor = () =>
   new ProcessCalendarEventDeleteWebhookInteractor(
     getCalendarRepo(),
     getConnectedAccountRepo(),
     getEventService(),
-    getBookingRepo(),
+    getBookingEventSync(),
   );
 export const getGetCalendarsInteractor = () =>
   new GetCalendarsInteractor(
@@ -1905,7 +1915,24 @@ const getCalendarEventLinkRepo = () => new PrismaCalendarEventLinkRepo();
 const getBookingRepo = () => new PrismaBookingRepo();
 const getCalendarEventWriter = () => new CalendarEventWriter(getMessagingService(), getCalendarRepo());
 const getBusyTimeReader = () => new BusyTimeReader(new PrismaPlannerPersonalEventsRepo("own"));
-const getBookingAvailability = () => new BookingAvailability(getBusyTimeReader(), getBookingRepo());
+const runAsBookingHost: HostRunner = (userId, work) => publicTenant.run(userId, work, () => Promise.resolve(null));
+const getBookingAvailability = () =>
+  new BookingAvailability(getBusyTimeReader(), getBookingRepo(), runAsBookingHost);
+const getBookingAnnouncer = () =>
+  new BookingAnnouncer(getEventService(), getNotificationService(), async (locale, kind, values) => {
+    const t = await getTranslator(locale, "Booking.hostNotice");
+    const title =
+      kind === "booked"
+        ? t("bookedTitle", { name: values.name })
+        : kind === "cancelled"
+          ? t("cancelledTitle", { name: values.name })
+          : t("rescheduledTitle", { name: values.name });
+    const body = t("body", { page: values.page, when: values.when });
+
+    return { title, body: values.reason ? `${body} ${t("reason", { reason: values.reason })}` : body };
+  });
+const getBookingEventSync = () =>
+  new BookingEventSync(getBookingRepo(), getBookingAnnouncer(), getMeetingRecordService(), runAsBookingHost);
 const getMeetingRecordService = () =>
   new MeetingRecordService({
     model: getGetRecordModelInteractor(),
@@ -1930,14 +1957,17 @@ export const getUpdateMeetingInteractor = () =>
     getCalendarEventWriter(),
     getCalendarEventLinkRepo(),
     getEntitlementService(),
+    getBookingEventSync(),
   );
 export const getCancelMeetingInteractor = () =>
   new CancelMeetingInteractor(
     getCalendarWriteAccessRepo(),
     getCalendarEventWriter(),
-    getBookingRepo(),
+    getBookingEventSync(),
     getEntitlementService(),
   );
+export const getGetUpcomingBookingsInteractor = () =>
+  new GetUpcomingBookingsInteractor(getBookingRepo(), getEntitlementService());
 export const getGetBookingLinksInteractor = () =>
   new GetBookingLinksInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
 export const getGetWorkspaceBookingLinksInteractor = () =>
@@ -1946,6 +1976,7 @@ export const getGetWorkspaceBookingLinksInteractor = () =>
     getEntitlementService(),
     env.BASE_URL,
     getBookingAvailability(),
+    getCalendarWriteAccessRepo(),
   );
 export const getGetBookingLinkByIdInteractor = () =>
   new GetBookingLinkByIdInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
@@ -1962,13 +1993,18 @@ export const getDeleteBookingLinkInteractor = () =>
 export const getPruneBookingsInteractor = () => new PruneBookingsInteractor(getBookingRepo());
 
 const publicTenant = new PublicTenant(getUserService());
+const bookingAccessSettings = {
+  authSecret: env.BETTER_AUTH_SECRET,
+  locale: () => resolveUserLocale(getTenantUser()),
+};
 const publicBookingReadAccess = new PublicBookingAccess(
   getBookingRepo(),
   publicTenant,
   { perLink: new TokenBucketRateLimiter(300, 60_000), perVisitor: new TokenBucketRateLimiter(60, 60_000) },
   () => getEntitlementService(),
   () => getPermissionService(),
-  { authSecret: env.BETTER_AUTH_SECRET },
+  () => getCalendarWriteAccessRepo(),
+  bookingAccessSettings,
 );
 const publicBookingSubmitAccess = new PublicBookingAccess(
   getBookingRepo(),
@@ -1976,7 +2012,8 @@ const publicBookingSubmitAccess = new PublicBookingAccess(
   { perLink: new TokenBucketRateLimiter(30, 600_000), perVisitor: new TokenBucketRateLimiter(5, 600_000) },
   () => getEntitlementService(),
   () => getPermissionService(),
-  { authSecret: env.BETTER_AUTH_SECRET },
+  () => getCalendarWriteAccessRepo(),
+  bookingAccessSettings,
 );
 export const getReadPublicBookingInteractor = () =>
   new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService());
@@ -1991,6 +2028,30 @@ export const getSubmitPublicBookingInteractor = () =>
     getCalendarEventLinkRepo(),
     getMeetingRecordService(),
     getEventService(),
+    getBookingAnnouncer(),
+    env.BASE_URL,
+  );
+export const getReadPublicBookingManageInteractor = () =>
+  new ReadPublicBookingManageInteractor(publicBookingReadAccess);
+export const getReadPublicBookingManageSlotsInteractor = () =>
+  new ReadPublicBookingManageSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
+export const getCancelPublicBookingInteractor = () =>
+  new CancelPublicBookingInteractor(
+    publicBookingSubmitAccess,
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getBookingAnnouncer(),
+  );
+export const getReschedulePublicBookingInteractor = () =>
+  new ReschedulePublicBookingInteractor(
+    publicBookingSubmitAccess,
+    getBookingAvailability(),
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getMeetingRecordService(),
+    getBookingAnnouncer(),
   );
 export const getProcessAccountAddWebhookInteractor = () =>
   new ProcessAccountAddWebhookInteractor(

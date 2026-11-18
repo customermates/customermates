@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "AutomationTriggerKind" AS ENUM ('recordCreated', 'recordUpdated', 'fieldChanged', 'dateReached', 'messageReceived', 'formSubmitted', 'webhookReceived');
+CREATE TYPE "AutomationTriggerKind" AS ENUM ('recordCreated', 'recordUpdated', 'fieldChanged', 'dateReached', 'messageReceived', 'formSubmitted', 'webhookReceived', 'bookingChanged');
 
 -- CreateEnum
 CREATE TYPE "AutomationRunStatus" AS ENUM ('queued', 'running', 'applied', 'skipped', 'failed');
@@ -12,6 +12,12 @@ CREATE TYPE "NotificationEmailMode" AS ENUM ('instant', 'digest', 'off');
 
 -- CreateEnum
 CREATE TYPE "BookingStatus" AS ENUM ('reserved', 'confirmed', 'cancelled');
+
+-- CreateEnum
+CREATE TYPE "BookingAssignment" AS ENUM ('single', 'roundRobin');
+
+-- CreateEnum
+CREATE TYPE "BookingActor" AS ENUM ('invitee', 'host');
 
 -- AlterEnum
 ALTER TYPE "CompanyFunnelEventType" ADD VALUE 'channelSkipped';
@@ -127,10 +133,24 @@ CREATE TABLE "BookingLink" (
     "questions" JSONB NOT NULL DEFAULT '[]',
     "successMessage" TEXT,
     "enabled" BOOLEAN NOT NULL DEFAULT true,
+    "assignment" "BookingAssignment" NOT NULL DEFAULT 'single',
+    "inviteeChanges" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "BookingLink_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BookingLinkHost" (
+    "bookingLinkId" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "calendarId" TEXT,
+    "position" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BookingLinkHost_pkey" PRIMARY KEY ("bookingLinkId","userId")
 );
 
 -- CreateTable
@@ -152,6 +172,12 @@ CREATE TABLE "Booking" (
     "recordTypeId" TEXT,
     "recordId" TEXT,
     "ipHash" TEXT,
+    "hostUserId" TEXT NOT NULL,
+    "manageToken" TEXT NOT NULL,
+    "cancelledBy" "BookingActor",
+    "cancelReason" TEXT,
+    "cancelledAt" TIMESTAMP(3),
+    "rescheduledAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -327,6 +353,18 @@ CREATE UNIQUE INDEX "Booking_bookingLinkId_slotKey_key" ON "Booking"("bookingLin
 CREATE INDEX "Booking_endsAt_idx" ON "Booking"("endsAt");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Booking_manageToken_key" ON "Booking"("manageToken");
+
+-- CreateIndex
+CREATE INDEX "Booking_companyId_hostUserId_startsAt_idx" ON "Booking"("companyId", "hostUserId", "startsAt");
+
+-- CreateIndex
+CREATE INDEX "BookingLinkHost_companyId_userId_idx" ON "BookingLinkHost"("companyId", "userId");
+
+-- CreateIndex
+CREATE INDEX "BookingLinkHost_calendarId_idx" ON "BookingLinkHost"("calendarId");
+
+-- CreateIndex
 CREATE INDEX "PublicForm_createdById_idx" ON "PublicForm"("createdById");
 
 -- CreateIndex
@@ -403,6 +441,21 @@ ALTER TABLE "Booking" ADD CONSTRAINT "Booking_companyId_fkey" FOREIGN KEY ("comp
 
 -- AddForeignKey
 ALTER TABLE "Booking" ADD CONSTRAINT "Booking_companyId_bookingLinkId_fkey" FOREIGN KEY ("companyId", "bookingLinkId") REFERENCES "BookingLink"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Booking" ADD CONSTRAINT "Booking_companyId_hostUserId_fkey" FOREIGN KEY ("companyId", "hostUserId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BookingLinkHost" ADD CONSTRAINT "BookingLinkHost_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BookingLinkHost" ADD CONSTRAINT "BookingLinkHost_companyId_bookingLinkId_fkey" FOREIGN KEY ("companyId", "bookingLinkId") REFERENCES "BookingLink"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BookingLinkHost" ADD CONSTRAINT "BookingLinkHost_companyId_userId_fkey" FOREIGN KEY ("companyId", "userId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BookingLinkHost" ADD CONSTRAINT "BookingLinkHost_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "Calendar"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PublicForm" ADD CONSTRAINT "PublicForm_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;

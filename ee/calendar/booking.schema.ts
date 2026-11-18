@@ -17,6 +17,11 @@ export const BOOKING_OPEN_PER_EMAIL = 3;
 export const BOOKING_PER_VISITOR_PER_HOUR = 10;
 export const BOOKING_PER_LINK_PER_DAY = 50;
 export const BOOKING_ANSWER_MAX_CHARS = 2000;
+export const BOOKING_HOST_LIMIT = 10;
+export const BOOKING_CANCEL_REASON_MAX_CHARS = 500;
+export const BOOKING_UPCOMING_LIST_LIMIT = 50;
+export const BOOKING_ASSIGNMENTS = ["single", "roundRobin"] as const;
+export type BookingAssignmentKind = (typeof BOOKING_ASSIGNMENTS)[number];
 
 export const BookingQuestionSchema = z
   .object({
@@ -72,11 +77,34 @@ const LinkFieldsSchema = z.object({
   questions: z.array(BookingQuestionSchema).max(BOOKING_QUESTION_LIMIT),
   successMessage: z.string().trim().max(500).nullable().describe("Shown to the visitor after booking."),
   enabled: z.boolean(),
+  assignment: z
+    .enum(BOOKING_ASSIGNMENTS)
+    .describe(
+      "single books the owner of the page. roundRobin offers a time when at least one host is free and books the free host with the fewest upcoming bookings of this page.",
+    ),
+  inviteeChanges: z
+    .boolean()
+    .describe("Whether the visitor may cancel or move the booking through the private link they receive."),
 });
+
+const HostUserIdsSchema = z
+  .array(z.uuid())
+  .max(BOOKING_HOST_LIMIT - 1)
+  .describe(
+    "Further members who host a roundRobin page besides its owner. Each needs a connected calendar that can be written; meetings go to their first such calendar. Only an administrator may name other members.",
+  );
+
+export const BookingHostSchema = z.object({
+  userId: z.uuid(),
+  name: z.string(),
+  calendarName: z.string().nullable().describe("Null when this host has no usable calendar; the host is then skipped."),
+});
+export type BookingHostDto = z.infer<typeof BookingHostSchema>;
 
 export const SaveBookingLinkSchema = LinkFieldsSchema.partial()
   .extend({
     id: z.uuid().optional().describe("Omit to create a booking link; send it to change one."),
+    hostUserIds: HostUserIdsSchema.optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
@@ -103,6 +131,7 @@ export const BookingLinkSchema = LinkFieldsSchema.extend({
   token: z.string(),
   url: z.string(),
   calendarName: z.string().nullable(),
+  hosts: z.array(BookingHostSchema).describe("The further hosts of a roundRobin page, without its owner."),
   upcomingBookings: z.number().int().nonnegative(),
   createdAt: z.iso.datetime(),
 });
@@ -119,6 +148,11 @@ export type WorkspaceBookingLinkDto = z.infer<typeof WorkspaceBookingLinkSchema>
 
 export const WorkspaceBookingLinkListSchema = z.object({
   items: z.array(WorkspaceBookingLinkSchema),
+  hostCandidates: z
+    .array(z.object({ userId: z.uuid(), name: z.string() }))
+    .describe(
+      "The other members who can host a roundRobin page: each has a connected calendar. Empty unless the caller is an administrator.",
+    ),
   busyTimeIncomplete: z
     .boolean()
     .describe(
@@ -126,6 +160,25 @@ export const WorkspaceBookingLinkListSchema = z.object({
     ),
 });
 export type WorkspaceBookingLinkList = z.infer<typeof WorkspaceBookingLinkListSchema>;
+
+export const UpcomingBookingSchema = z.object({
+  id: z.uuid(),
+  bookingLinkId: z.uuid(),
+  pageTitle: z.string(),
+  inviteeName: z.string(),
+  inviteeEmail: z.string(),
+  startsAt: z.iso.datetime(),
+  endsAt: z.iso.datetime(),
+  hostUserId: z.uuid(),
+  hostName: z.string(),
+  calendarEventId: z.uuid().nullable().describe("The calendar event of the meeting; cancel it to cancel the booking."),
+  recordTypeId: z.uuid().nullable(),
+  recordId: z.uuid().nullable(),
+});
+export type UpcomingBookingDto = z.infer<typeof UpcomingBookingSchema>;
+
+export const UpcomingBookingListSchema = z.object({ items: z.array(UpcomingBookingSchema) });
+export type UpcomingBookingList = z.infer<typeof UpcomingBookingListSchema>;
 
 export const DeleteBookingLinkResultSchema = z.object({ id: z.uuid(), deleted: z.literal(true) });
 export type DeleteBookingLinkResult = z.infer<typeof DeleteBookingLinkResultSchema>;
@@ -153,6 +206,9 @@ export type BookingLinkRow = {
   questions: unknown;
   successMessage: string | null;
   enabled: boolean;
+  assignment: BookingAssignmentKind;
+  inviteeChanges: boolean;
+  hosts: BookingHostDto[];
   createdAt: Date;
   upcomingBookings: number;
 };
@@ -177,10 +233,37 @@ export const PublicBookingQuerySchema = z
   .strict();
 export type PublicBookingQuery = z.infer<typeof PublicBookingQuerySchema>;
 
+const ManageTokenSchema = z
+  .string()
+  .min(16)
+  .max(64)
+  .regex(/^[A-Za-z0-9_-]+$/);
+
 export const PublicBookingSlotsQuerySchema = PublicBookingQuerySchema.extend({
   from: z.iso.datetime({ offset: true }).optional(),
   days: z.number().int().min(1).max(31).default(14),
 }).strict();
+
+export const PublicBookingManageQuerySchema = z
+  .object({ manageToken: ManageTokenSchema, visitor: z.string().max(64).nullish() })
+  .strict();
+export type PublicBookingManageQuery = z.infer<typeof PublicBookingManageQuerySchema>;
+
+export const PublicBookingManageSlotsQuerySchema = PublicBookingManageQuerySchema.extend({
+  from: z.iso.datetime({ offset: true }).optional(),
+  days: z.number().int().min(1).max(31).default(14),
+}).strict();
+
+export const CancelPublicBookingSchema = PublicBookingManageQuerySchema.extend({
+  reason: z.string().trim().max(BOOKING_CANCEL_REASON_MAX_CHARS).default(""),
+}).strict();
+export type CancelPublicBookingInput = z.input<typeof CancelPublicBookingSchema>;
+
+export const ReschedulePublicBookingSchema = PublicBookingManageQuerySchema.extend({
+  startsAt: z.iso.datetime({ offset: true }),
+  timeZone: TimeZoneSchema,
+}).strict();
+export type ReschedulePublicBookingInput = z.input<typeof ReschedulePublicBookingSchema>;
 export type PublicBookingSlotsQuery = z.infer<typeof PublicBookingSlotsQuerySchema>;
 
 export const SubmitPublicBookingSchema = PublicBookingQuerySchema.extend({
@@ -208,10 +291,38 @@ export type PublicBookingPage = {
   timeZone: string;
   workspaceName: string | null;
   hostName: string;
+  team: boolean;
   withVideo: boolean;
   questions: PublicQuestion[];
   renderToken: string;
 };
+
+export type PublicBookingState = "upcoming" | "past" | "cancelled";
+
+export type PublicManagedBooking = {
+  title: string;
+  hostName: string;
+  workspaceName: string | null;
+  inviteeName: string;
+  startsAt: string;
+  endsAt: string;
+  durationMinutes: number;
+  horizonDays: number;
+  state: PublicBookingState;
+  canCancel: boolean;
+  canReschedule: boolean;
+  bookAgainToken: string | null;
+};
+
+export type PublicBookingManageResult = { status: "found"; booking: PublicManagedBooking } | PublicBlocked;
+
+export type PublicBookingCancelResult = { status: "cancelled" } | { status: "notAllowed" } | PublicBlocked;
+
+export type PublicBookingRescheduleResult =
+  | { status: "rescheduled"; startsAt: string; endsAt: string }
+  | { status: "slotTaken" }
+  | { status: "notAllowed" }
+  | PublicBlocked;
 
 export type PublicBookingPageResult = { status: "available"; page: PublicBookingPage } | PublicBlocked;
 
@@ -231,6 +342,8 @@ export type PublicBookingSubmitResult =
       endsAt: string;
       conferenceUrl: string | null;
       title: string;
+      hostName: string;
+      manageUrl: string | null;
       successMessage: string | null;
     }
   | { status: "slotTaken" }

@@ -14,7 +14,7 @@ const DAY_MS = 86_400_000;
 export type BusyCalendarEvent = Pick<
   PersonalCalendarEvent,
   "startsAt" | "endsAt" | "allDay" | "timezone" | "transparency"
-> & { createdByApp?: boolean };
+> & { id?: string; createdByApp?: boolean };
 
 export interface BusyEventSource {
   calendars(): Promise<Array<{ id: string }>>;
@@ -26,7 +26,12 @@ export type BusyTimeWindow = { intervals: BusyInterval[]; truncated: boolean };
 export function busyInterval(event: BusyCalendarEvent, fallbackTimeZone: string): BusyInterval | null {
   const transparency = event.transparency?.trim().toLowerCase();
   if (transparency === FREE_TRANSPARENCY && !event.createdByApp) return null;
-  if (!event.allDay) return { startsAt: new Date(event.startsAt), endsAt: new Date(event.endsAt) };
+  if (!event.allDay)
+    return {
+      startsAt: new Date(event.startsAt),
+      endsAt: new Date(event.endsAt),
+      ...(event.id ? { eventId: event.id } : {}),
+    };
   if (!transparency) return null;
 
   const timeZone = event.timezone && isIanaTimeZone(event.timezone) ? event.timezone : fallbackTimeZone;

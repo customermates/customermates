@@ -6,7 +6,7 @@ import { timeOfDayMinutes, workingWindowsOn, type WorkingHours } from "./working
 const MINUTE_MS = 60_000;
 const DAY_MS = 86_400_000;
 
-export type BusyInterval = { startsAt: Date; endsAt: Date };
+export type BusyInterval = { startsAt: Date; endsAt: Date; eventId?: string };
 
 export type FreeSlotRules = {
   workingHours: WorkingHours;

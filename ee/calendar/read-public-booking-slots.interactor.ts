@@ -25,6 +25,7 @@ export class ReadPublicBookingSlotsInteractor {
         timeZone: link.timeZone,
         ...(await this.availability.slots(
           link,
+          link.usableHosts.map((host) => host.userId),
           this.access.now(),
           query.data.from ? new Date(query.data.from) : undefined,
           query.data.days,

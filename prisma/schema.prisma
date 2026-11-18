@@ -220,6 +220,8 @@ model User {
   uploadedRecordFiles             RecordFile[]
   calendarSubscriptions           CalendarSubscription[]
   bookingLinks                    BookingLink[]
+  bookingLinkHosts                BookingLinkHost[]
+  hostedBookings                  Booking[]              @relation("BookingHost")
   agentProviderKeys               AgentProviderKey[]
   agentRunners                    AgentRunner[]
   agentJobs                       AgentJob[]
@@ -286,6 +288,7 @@ model Company {
   calendarEvents              CalendarEvent[]
   calendarEventRecordLinks    CalendarEventRecordLink[]
   bookingLinks                BookingLink[]
+  bookingLinkHosts            BookingLinkHost[]
   bookings                    Booking[]
   subscription                Subscription?
   agentConversations          AgentConversation[]
@@ -1700,6 +1703,7 @@ model Calendar {
   updatedAt          DateTime         @updatedAt
   events             CalendarEvent[]
   bookingLinks       BookingLink[]
+  bookingLinkHosts   BookingLinkHost[]
 
   @@unique([connectedAccountId, unipileCalendarId])
   @@index([companyId])
@@ -1764,6 +1768,16 @@ enum BookingStatus {
   cancelled
 }
 
+enum BookingAssignment {
+  single
+  roundRobin
+}
+
+enum BookingActor {
+  invitee
+  host
+}
+
 model BookingLink {
   id                   String    @id @default(uuid())
   companyId            String
@@ -1787,14 +1801,38 @@ model BookingLink {
   questions            Json      @default("[]")
   successMessage       String?
   enabled              Boolean   @default(true)
+  /// single books the owner; roundRobin offers a time when any host is free and books the host with the fewest upcoming bookings.
+  assignment           BookingAssignment @default(single)
+  /// Whether the visitor may cancel or move the booking through the private link they receive.
+  inviteeChanges       Boolean   @default(true)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   company              Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user                 User      @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
   calendar             Calendar? @relation(fields: [calendarId], references: [id], onDelete: SetNull)
   bookings             Booking[]
+  hosts                BookingLinkHost[]
 
   @@unique([companyId, id])
+  @@index([companyId, userId])
+  @@index([calendarId])
+}
+
+/// A further host of a round robin booking page. The owner of the page is always a host through BookingLink.calendarId.
+model BookingLinkHost {
+  bookingLinkId String
+  companyId     String
+  userId        String
+  /// Null once the calendar is gone; this host is then skipped until a calendar is chosen again.
+  calendarId    String?
+  position      Int         @default(0)
+  createdAt     DateTime    @default(now())
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  link          BookingLink @relation(fields: [companyId, bookingLinkId], references: [companyId, id], onDelete: Cascade)
+  user          User        @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
+  calendar      Calendar?   @relation(fields: [calendarId], references: [id], onDelete: SetNull)
+
+  @@id([bookingLinkId, userId])
   @@index([companyId, userId])
   @@index([calendarId])
 }
@@ -1817,12 +1855,22 @@ model Booking {
   recordTypeId    String?
   recordId        String?
   ipHash          String?
+  /// The member whose calendar holds the meeting: the owner of the page, or the host a round robin page chose.
+  hostUserId      String
+  /// Opens the private page on which the visitor cancels or moves the booking.
+  manageToken     String        @unique
+  cancelledBy     BookingActor?
+  cancelReason    String?
+  cancelledAt     DateTime?
+  rescheduledAt   DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   link            BookingLink   @relation(fields: [companyId, bookingLinkId], references: [companyId, id], onDelete: Cascade)
+  host            User          @relation("BookingHost", fields: [companyId, hostUserId], references: [companyId, id], onDelete: Cascade)
 
   @@unique([bookingLinkId, slotKey])
+  @@index([companyId, hostUserId, startsAt])
   @@index([companyId, bookingLinkId, startsAt])
   @@index([companyId, inviteeEmail])
   @@index([endsAt])
@@ -2247,6 +2295,7 @@ enum AutomationTriggerKind {
   messageReceived
   formSubmitted
   webhookReceived
+  bookingChanged
 }
 
 enum AutomationRunStatus {

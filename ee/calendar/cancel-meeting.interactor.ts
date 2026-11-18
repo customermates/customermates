@@ -9,7 +9,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import type { BookingReservationRepo } from "./booking-reservation.repo";
+import type { BookingEventSync } from "./booking-event-sync";
 import type { CalendarEventWriter } from "./calendar-event-writer";
 import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
 
@@ -26,7 +26,7 @@ export class CancelMeetingInteractor extends AuthenticatedInteractor<CancelMeeti
   constructor(
     private access: CalendarWriteAccessRepo,
     private writer: CalendarEventWriter,
-    private bookings: Pick<BookingReservationRepo, "cancelForCalendarEvent">,
+    private bookings: Pick<BookingEventSync, "eventCancelled">,
     private entitlements: EntitlementService,
   ) {
     super();
@@ -44,7 +44,7 @@ export class CancelMeetingInteractor extends AuthenticatedInteractor<CancelMeeti
     const cancelled = await this.writer.cancel(event, data.comment);
     if (!cancelled.ok) return eventWriteFailure(cancelled);
 
-    await this.bookings.cancelForCalendarEvent(event.id);
+    await this.bookings.eventCancelled({ companyId: this.companyId, calendarEventId: event.id });
 
     return { ok: true as const, data: { id: event.id, status: "cancelled" as const } };
   }

@@ -11,7 +11,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import type { BookingLinkRepo, BookingLinkWrite } from "./booking-link.repo";
+import type { BookingHostWrite, BookingLinkRepo, BookingLinkWrite } from "./booking-link.repo";
 import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
 import type { MeetingRecordService } from "./meeting-record.service";
 
@@ -45,7 +45,7 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const { id, ...changes } = data;
+    const { id, hostUserIds, ...changes } = data;
     const current = id ? await this.repo.find(id) : null;
     if (id && !current) return failNotFound(CustomErrorCode.bookingLinkNotFound, ["id"]);
     if (!current && (await this.repo.countOwn()) >= BOOKING_LINK_LIMIT_PER_USER)
@@ -72,7 +72,23 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
       questions: changes.questions ?? (current ? storedQuestions(current.questions) : []),
       successMessage: changes.successMessage !== undefined ? changes.successMessage : (current?.successMessage ?? null),
       enabled: changes.enabled ?? current?.enabled ?? true,
+      assignment: changes.assignment ?? current?.assignment ?? "single",
+      inviteeChanges: changes.inviteeChanges ?? current?.inviteeChanges ?? true,
     } satisfies BookingLinkWrite;
+
+    let hosts: BookingHostWrite[] | undefined;
+    if (hostUserIds !== undefined) {
+      const wanted = [...new Set(hostUserIds)].filter((userId) => userId !== this.user.id);
+      if (wanted.length && !this.user.role?.isSystemRole)
+        return fail(CustomErrorCode.bookingHostsNotAllowed, ["hostUserIds"]);
+      const members = wanted.length ? await this.access.listMemberCalendars() : [];
+      hosts = [];
+      for (const userId of wanted) {
+        const member = members.find((item) => item.userId === userId);
+        if (!member) return fail(CustomErrorCode.bookingHostWithoutCalendar, ["hostUserIds"]);
+        hosts.push({ userId, calendarId: member.calendarId });
+      }
+    }
 
     if (!current || changes.calendarId) {
       const calendar = merged.calendarId ? await this.access.findOwnCalendar(merged.calendarId) : null;
@@ -93,8 +109,8 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
     }
 
     const row = current
-      ? await this.repo.update(current.id, merged)
-      : await this.repo.create(randomBytes(TOKEN_BYTES).toString("base64url"), merged);
+      ? await this.repo.update(current.id, merged, hosts)
+      : await this.repo.create(randomBytes(TOKEN_BYTES).toString("base64url"), merged, hosts ?? []);
     if (!row) return failNotFound(CustomErrorCode.bookingLinkNotFound, ["id"]);
 
     return { ok: true as const, data: toBookingLinkDto(row, this.baseUrl) };

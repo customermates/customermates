@@ -4,6 +4,7 @@ import type { BookingPanelState } from "./components/booking/booking-panel-model
 import {
   getGetMeetingOptionsInteractor,
   getGetRecordModelInteractor,
+  getGetUpcomingBookingsInteractor,
   getGetWorkspaceBookingLinksInteractor,
 } from "@/core/di";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
@@ -15,10 +16,11 @@ export async function loadBookingPanel(options: Pick<PlannerOptions, "personalAv
   if (env.APP_MODE !== "cloud") return { status: "unavailable", reason: "selfHosted" };
   if (!options.personalAvailable) return { status: "unavailable", reason: "locked" };
 
-  const [links, meeting, model] = await Promise.all([
+  const [links, meeting, model, upcoming] = await Promise.all([
     unwrapPage(getGetWorkspaceBookingLinksInteractor().invoke()),
     unwrapPage(getGetMeetingOptionsInteractor().invoke({})),
     unwrapPage(getGetRecordModelInteractor().invoke({})),
+    unwrapPage(getGetUpcomingBookingsInteractor().invoke()),
   ]);
 
   return {
@@ -26,5 +28,7 @@ export async function loadBookingPanel(options: Pick<PlannerOptions, "personalAv
     links: links.items,
     setup: bookingSetup(model, meeting),
     busyTimeIncomplete: links.busyTimeIncomplete,
+    hostCandidates: links.hostCandidates,
+    upcoming: upcoming.items,
   };
 }

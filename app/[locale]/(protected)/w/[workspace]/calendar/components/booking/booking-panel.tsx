@@ -1,11 +1,11 @@
 "use client";
 
-import type { WorkspaceBookingLinkDto } from "@/ee/calendar/booking.schema";
+import type { UpcomingBookingDto, WorkspaceBookingLinkDto } from "@/ee/calendar/booking.schema";
 import type { BookingPanelState } from "./booking-panel-model";
 
 import { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight, CalendarClock, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import { deleteBookingLinkAction, saveBookingLinkAction } from "../../booking-actions";
@@ -34,16 +34,26 @@ type Props = {
 
 const NO_LINKS: WorkspaceBookingLinkDto[] = [];
 
+const NO_BOOKINGS: UpcomingBookingDto[] = [];
+const UPCOMING_PER_PAGE = 5;
+
 const BookingRow = observer(function BookingRow({
   link,
   store,
+  upcoming,
   onEdit,
 }: {
   link: WorkspaceBookingLinkDto;
   store: BookingPanelStore;
+  upcoming: UpcomingBookingDto[];
   onEdit: (link: WorkspaceBookingLinkDto, invoker: HTMLElement) => void;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
+  const when = (iso: string) =>
+    new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(
+      new Date(iso),
+    );
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   return (
@@ -51,10 +61,30 @@ const BookingRow = observer(function BookingRow({
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="min-w-0 flex-1 truncate text-sm font-medium">{link.title}</h3>
 
+        {link.assignment === "roundRobin" && link.hosts.length > 0 ? (
+          <AppChip data-booking-round-robin="">{t("Booking.roundRobinChip", { count: link.hosts.length + 1 })}</AppChip>
+        ) : null}
+
         <AppChip>{t("Booking.minutes", { minutes: link.durationMinutes })}</AppChip>
       </div>
 
       <p className="text-xs text-muted-foreground">{t("Booking.upcoming", { count: link.upcomingBookings })}</p>
+
+      {upcoming.length > 0 ? (
+        <ul className="flex flex-col gap-1" data-booking-upcoming="">
+          {upcoming.slice(0, UPCOMING_PER_PAGE).map((booking) => (
+            <li key={booking.id} className="flex items-baseline gap-2 text-xs">
+              <span className="shrink-0 tabular-nums text-muted-foreground">{when(booking.startsAt)}</span>
+
+              <span className="min-w-0 flex-1 truncate">{booking.inviteeName}</span>
+
+              {link.hosts.length > 0 ? (
+                <span className="shrink-0 text-muted-foreground">{booking.hostName}</span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       {link.calendarId === null ? (
         <Alert
@@ -149,11 +179,18 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
   const [store] = useState(() => new BookingPanelStore(ready?.links ?? NO_LINKS, actions));
   const links = ready?.links ?? NO_LINKS;
   const setup = ready?.setup ?? null;
+  const hostCandidates = ready?.hostCandidates;
+  const upcomingByLink = useMemo(() => {
+    const groups = new Map<string, UpcomingBookingDto[]>();
+    for (const booking of ready?.upcoming ?? NO_BOOKINGS)
+      groups.set(booking.bookingLinkId, [...(groups.get(booking.bookingLinkId) ?? []), booking]);
+    return groups;
+  }, [ready]);
 
   useEffect(() => store.sync(links), [store, links]);
   useEffect(() => {
-    if (setup) modal.configure(setup, actions.refresh);
-  }, [modal, setup, actions]);
+    if (setup) modal.configure(setup, actions.refresh, hostCandidates);
+  }, [modal, setup, actions, hostCandidates]);
 
   const { groups } = store;
   const canCreate = canCreateBookingPage(state);
@@ -249,6 +286,7 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
                   key={link.id}
                   link={link}
                   store={store}
+                  upcoming={upcomingByLink.get(link.id) ?? NO_BOOKINGS}
                   onEdit={(item, invoker) => modal.start(item, invoker)}
                 />
               ))}
@@ -268,6 +306,7 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
                   key={link.id}
                   link={link}
                   store={store}
+                  upcoming={upcomingByLink.get(link.id) ?? NO_BOOKINGS}
                   onEdit={(item, invoker) => modal.start(item, invoker)}
                 />
               ))}

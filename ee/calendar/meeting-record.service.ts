@@ -240,6 +240,40 @@ export class MeetingRecordService {
     return this.create(model, type.id, fields, personLink(model, type.id, input.person), input.identities);
   }
 
+  async moveBookingRecord(input: {
+    ref: RecordRef;
+    startFieldId: string | null;
+    startsAt: Date;
+    timeZone: string;
+  }): Promise<boolean> {
+    const model = await this.loadModel();
+    const start = input.startFieldId
+      ? model?.fields.find(
+          (field) => field.id === input.startFieldId && field.typeId === input.ref.typeId && !field.archived,
+        )
+      : null;
+    if (!model || !start || (start.valueType !== "dateTime" && start.valueType !== "date")) return false;
+
+    const current = await this.ports.read.invoke({ typeId: input.ref.typeId, recordId: input.ref.recordId });
+    if (!current.ok) return false;
+    const value: RecordScalarInput =
+      start.valueType === "dateTime"
+        ? { kind: "dateTime", value: input.startsAt.toISOString() }
+        : { kind: "date", value: zonedDate(input.startsAt, input.timeZone) };
+    const result = await this.ports.mutate.invoke({
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "update",
+        ref: input.ref,
+        expectedVersion: current.data.version,
+        fields: [{ fieldId: start.id, value }],
+      },
+    });
+
+    return result.ok && result.data.status === "completed";
+  }
+
   private async create(
     model: RecordModelView,
     typeId: string,

@@ -1,4 +1,6 @@
-import type { BookingLinkRow, WorkspaceBookingLinkRow } from "./booking.schema";
+import type { BookingAssignmentKind, BookingLinkRow, WorkspaceBookingLinkRow } from "./booking.schema";
+
+export type BookingHostWrite = { userId: string; calendarId: string };
 
 export type BookingLinkWrite = {
   calendarId: string | null;
@@ -18,18 +20,17 @@ export type BookingLinkWrite = {
   questions: unknown;
   successMessage: string | null;
   enabled: boolean;
+  assignment: BookingAssignmentKind;
+  inviteeChanges: boolean;
 };
 
+export type BookingHostCandidate = { userId: string; name: string; calendarId: string };
+
 export type BookingLinkLookup = BookingLinkRow & {
-  calendarId: string;
   hostName: string;
   workspaceName: string | null;
   companyDeleting: boolean;
-  unipileAccountId: string;
-  unipileCalendarId: string;
-  connectedAccountId: string;
-  provider: string;
-  accountUsable: boolean;
+  hostCandidates: BookingHostCandidate[];
 };
 
 export abstract class BookingLinkRepo {
@@ -37,8 +38,8 @@ export abstract class BookingLinkRepo {
   abstract listWorkspace(): Promise<WorkspaceBookingLinkRow[]>;
   abstract find(id: string): Promise<BookingLinkRow | null>;
   abstract countOwn(): Promise<number>;
-  abstract create(token: string, data: BookingLinkWrite): Promise<BookingLinkRow>;
-  abstract update(id: string, data: Partial<BookingLinkWrite>): Promise<BookingLinkRow | null>;
+  abstract create(token: string, data: BookingLinkWrite, hosts: BookingHostWrite[]): Promise<BookingLinkRow>;
+  abstract update(id: string, data: Partial<BookingLinkWrite>, hosts?: BookingHostWrite[]): Promise<BookingLinkRow | null>;
   abstract delete(id: string): Promise<boolean>;
   abstract findByTokenUnscoped(token: string): Promise<BookingLinkLookup | null>;
 }

@@ -8,6 +8,7 @@ const NON_TRIGGERING_EVENTS = [
   "automation.rule.fired",
   "form.submitted",
   "webhook.received",
+  "booking.changed",
   "record.deletedPermanently",
 ] as const;
 

@@ -9,6 +9,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import type { BookingEventSync } from "./booking-event-sync";
 import type { CalendarEventLinkRepo } from "./calendar-event-link.repo";
 import type { CalendarEventWriter, EventPatchInput } from "./calendar-event-writer";
 import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
@@ -26,6 +27,7 @@ export class UpdateMeetingInteractor extends AuthenticatedInteractor<UpdateMeeti
     private writer: CalendarEventWriter,
     private links: CalendarEventLinkRepo,
     private entitlements: EntitlementService,
+    private bookings: Pick<BookingEventSync, "eventAt">,
   ) {
     super();
   }
@@ -55,6 +57,14 @@ export class UpdateMeetingInteractor extends AuthenticatedInteractor<UpdateMeeti
     if (!written.ok) return eventWriteFailure(written);
     if (written.event.status === CalendarEventStatus.cancelled)
       return failNotFound(CustomErrorCode.calendarEventNotFound, ["id"]);
+    if (!written.event.allDay) {
+      await this.bookings.eventAt({
+        companyId: this.companyId,
+        calendarEventId: written.eventId,
+        startsAt: written.event.startsAt,
+        endsAt: written.event.endsAt,
+      });
+    }
 
     const links = (await this.links.listLinks([written.eventId])).get(written.eventId) ?? [];
 

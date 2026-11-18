@@ -37,6 +37,7 @@ export function bookingPreviewPage(
     timeZone: form.timeZone,
     workspaceName: null,
     hostName,
+    team: form.assignment === "roundRobin" && form.hostUserIds.length > 0,
     withVideo: form.withVideo,
     questions,
     renderToken: "",

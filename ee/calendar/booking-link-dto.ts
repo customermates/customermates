@@ -44,6 +44,9 @@ export function toBookingLinkDto(row: BookingLinkRow, baseUrl: string): BookingL
     questions: storedQuestions(row.questions),
     successMessage: row.successMessage,
     enabled: row.enabled,
+    assignment: row.assignment,
+    inviteeChanges: row.inviteeChanges,
+    hosts: row.hosts,
     upcomingBookings: row.upcomingBookings,
     createdAt: row.createdAt.toISOString(),
   };
