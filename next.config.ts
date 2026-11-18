@@ -99,7 +99,7 @@ const nextConfig: NextConfig = {
 
   experimental: {
     ...(process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? { turbopackFileSystemCacheForDev: false } : {}),
-    cpus: process.env.VERCEL === "1" ? 1 : 2,
+    cpus: Number(process.env.NEXT_STATIC_WORKERS) || (process.env.VERCEL === "1" ? 1 : 2),
     webpackBuildWorker: true,
     webpackMemoryOptimizations: true,
     globalNotFound: true,
