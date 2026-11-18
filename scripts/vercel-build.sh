@@ -64,5 +64,7 @@ fi
 # live), so the Vercel heap is 6 GiB again; that still leaves about 2 GB of the 8 GB machine for the OS and workers.
 # 2026-11-11, eight content locales: 6 GiB plus two static workers was killed at 8 GB; with one static worker and no
 # webpack cache (next.config.ts) a 4.5 GiB heap builds with a 6.5 GB peak, while 4 GiB is too small for the compile.
-export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-4608}"
+# 2026-11-18, templates, automations and connections: the compile ran out of a 4.5 GiB heap on Vercel and on ws-test with
+# the same settings; a 5 GiB heap builds with a 6.4 GB peak of the largest process (5.5 GiB: 6.5 GB), inside the 8 GB machine.
+export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-5120}"
 yarn build
