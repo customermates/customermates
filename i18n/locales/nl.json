@@ -5595,6 +5595,13 @@
       "on": "Gecontroleerd op {date}",
       "saveFirst": "Sla je wijzigingen op voordat je de pagina als gecontroleerd markeert."
     },
+    "view": {
+      "label": "Weergave van de kennisbank",
+      "map": "Kaart",
+      "openFullPage": "Als volledige pagina openen",
+      "pages": "Pagina's",
+      "showOnMap": "Op de kaart tonen"
+    },
     "websiteImport": {
       "faqHeading": "Veelgestelde vragen",
       "source": "Bron: {url} · opgehaald op {date}"

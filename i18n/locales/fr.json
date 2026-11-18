@@ -5595,6 +5595,13 @@
       "on": "Vérifiée le {date}",
       "saveFirst": "Enregistrez vos modifications avant de marquer la page comme vérifiée."
     },
+    "view": {
+      "label": "Vue de la base de connaissances",
+      "map": "Carte",
+      "openFullPage": "Ouvrir en pleine page",
+      "pages": "Pages",
+      "showOnMap": "Afficher sur la carte"
+    },
     "websiteImport": {
       "faqHeading": "Questions fréquentes",
       "source": "Source : {url} · consultée le {date}"

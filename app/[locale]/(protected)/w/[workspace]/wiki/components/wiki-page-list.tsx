@@ -17,10 +17,11 @@ type Props = {
   nodes: ReadonlyArray<Pick<WikiGraphNode, "id" | "title" | "kind">>;
   visible: ReadonlySet<string>;
   truncated: boolean;
+  currentId?: string | null;
   onSelect: (id: string) => void;
 };
 
-export function WikiPageList({ nodes, visible, truncated, onSelect }: Props) {
+export function WikiPageList({ nodes, visible, truncated, currentId = null, onSelect }: Props) {
   const t = useTranslations();
   const headings: Record<WikiPageKind, string> = {
     guide: t("Wiki.kind.guide"),
@@ -45,10 +46,14 @@ export function WikiPageList({ nodes, visible, truncated, onSelect }: Props) {
                 <li key={page.id}>
                   <Button
                     asChild
-                    className="h-auto min-h-10 w-full justify-start gap-2.5 p-2 text-left font-normal"
+                    className={cn(
+                      "h-auto min-h-10 w-full justify-start gap-2.5 p-2 text-left font-normal",
+                      page.id === currentId && "bg-selected hover:bg-selected",
+                    )}
                     variant="ghost"
                   >
                     <IntlLink
+                      aria-current={page.id === currentId ? "page" : undefined}
                       href={wikiPagePath(page.id)}
                       onClick={(event) => {
                         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)

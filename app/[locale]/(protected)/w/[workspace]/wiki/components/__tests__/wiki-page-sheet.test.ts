@@ -136,7 +136,7 @@ vi.mock("@/i18n/navigation", () => ({
   useWorkspaceSlug: () => "acme",
 }));
 
-import { WikiPageSheet } from "../wiki-page-sheet";
+import { WikiPageDocument, WikiPageSheet } from "../wiki-page-sheet";
 
 type SheetProps = ComponentProps<typeof WikiPageSheet>;
 
@@ -655,5 +655,125 @@ describe("Knowledge Base page sheet", () => {
 
       expect(harness.bar).toMatchObject({ creating: false, onCancel: spies.resetDocument });
     });
+  });
+
+  it("offers to open the page as a full page where the pages view exists", async () => {
+    const onSwitchView = vi.fn();
+    await mount({ onSwitchView });
+
+    expect(actionIds()).toEqual(["verify", "pin", "copy-link", "delete", "switch-view"]);
+    expect(action("switch-view")?.label).toBe("Wiki.view.openFullPage");
+    await action("switch-view")?.onClick();
+    expect(onSwitchView).toHaveBeenCalledOnce();
+  });
+});
+
+describe("Knowledge Base page as a full page", () => {
+  const onSwitchView = vi.fn();
+
+  async function mountDocument(props: Partial<ComponentProps<typeof WikiPageDocument>> = {}) {
+    const container = document.createElement("div");
+    document.body.append(container);
+    containers.push(container);
+    const root = createRoot(container);
+    roots.push(root);
+    await act(async () => {
+      root.render(
+        createElement(WikiPageDocument, {
+          state: "page",
+          store,
+          otherGuide: false,
+          onClose: callbacks.onClose,
+          onSelect: callbacks.onSelect,
+          onReload: callbacks.onReload,
+          onSwitchView,
+          ...props,
+        }),
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    return container;
+  }
+  const railLabels = (container: HTMLElement) =>
+    [...container.querySelectorAll('[data-slot="app-modal-actions"] [data-slot="app-modal-action"]')].map((control) =>
+      control.getAttribute("aria-label"),
+    );
+
+  it("shows the page in the content area instead of a sheet, with its actions beside the title", async () => {
+    const container = await mountDocument();
+
+    expect(container.querySelector("[data-modal]")).toBeNull();
+    expect(container.querySelector("section[data-wiki-document]")?.getAttribute("data-wiki-document")).toBe("page");
+    expect(container.querySelector("section[data-wiki-document]")?.getAttribute("aria-label")).toBe("Wiki.document");
+    expect(container.querySelector('[data-wiki-page-title] [data-form-input="title"]')).not.toBeNull();
+    expect(railLabels(container)).toEqual([
+      "Wiki.verified.mark",
+      "Wiki.copyLink",
+      "Wiki.delete",
+      "Wiki.view.showOnMap",
+    ]);
+    expect(container.querySelector("[data-editor]")).not.toBeNull();
+    expect(harness.getLinks).toHaveBeenCalledExactlyOnceWith({ id: REFUNDS });
+  });
+
+  it("returns to the map on request and offers no pinning away from the map", async () => {
+    const container = await mountDocument();
+
+    expect(railLabels(container)).not.toContain("Wiki.graph.pin");
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[aria-label="Wiki.view.showOnMap"]')?.click();
+      await Promise.resolve();
+    });
+    expect(onSwitchView).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the headings of a long page beside the text", async () => {
+    runInAction(
+      () =>
+        (state.editorDocument = {
+          type: "doc",
+          content: [heading(1, "Overview"), heading(2, "Steps"), heading(3, "Exceptions")],
+        }),
+    );
+    const container = await mountDocument();
+
+    const outline = container.querySelector("nav[data-wiki-page-outline]");
+    expect(outline?.getAttribute("aria-label")).toBe("Wiki.onThisPage");
+    expect([...(outline?.querySelectorAll("button") ?? [])].map((button) => button.textContent)).toEqual([
+      "Overview",
+      "Steps",
+      "Exceptions",
+    ]);
+  });
+
+  it("shows a skeleton while the page is fetched and says when the page is gone, without a dialog title", async () => {
+    const loading = await mountDocument({ state: "loading" });
+    expect(loading.querySelector("[data-wiki-page-sheet-skeleton]")).not.toBeNull();
+    expect(harness.getLinks).not.toHaveBeenCalled();
+
+    const gone = await mountDocument({ state: "error" });
+    expect(gone.querySelector("h2")?.textContent).toBe("Wiki.unavailableTitle");
+    expect(gone.querySelector("[data-modal-title]")).toBeNull();
+    expect(gone.textContent).toContain("Wiki.unavailableBody");
+  });
+
+  it("cancels a new page through the view and lets a reader only read, copy the link and return to the map", async () => {
+    runInAction(() => {
+      state.creating = true;
+      Object.assign(state.form, { id: null, title: "", kind: "knowledge", whenToUse: "", updatedAt: null });
+    });
+    await mountDocument();
+    expect(harness.bar).toMatchObject({ creating: true, onCancel: callbacks.onClose });
+
+    runInAction(() => {
+      state.creating = false;
+      state.canManage = false;
+      Object.assign(state.form, { id: REFUNDS, title: "Refunds", updatedAt });
+    });
+    permissions.delete = false;
+    const reader = await mountDocument();
+    expect(reader.querySelector("h2")?.textContent).toBe("Refunds");
+    expect(railLabels(reader)).toEqual(["Wiki.copyLink", "Wiki.view.showOnMap"]);
   });
 });

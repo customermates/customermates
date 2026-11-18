@@ -104,6 +104,15 @@ describe("Knowledge Base page list for narrow screens", () => {
     expect(none.textContent).toContain("Wiki.graph.noMatches");
   });
 
+  it("marks the page that is open beside the list and no page when none is open", () => {
+    const open = render({ currentId: REFUNDS }).container;
+    const current = [...open.querySelectorAll('a[aria-current="page"]')];
+    expect(current.map((link) => link.textContent)).toEqual(["Refunds"]);
+    expect(current[0]?.className).toContain("bg-selected");
+
+    expect(render().container.querySelector("a[aria-current]")).toBeNull();
+  });
+
   it("says when the list shows only part of a large Knowledge Base", () => {
     expect(render({ truncated: true }).container.textContent).toContain("Wiki.graph.truncated:4");
     expect(render().container.textContent).not.toContain("Wiki.graph.truncated");
