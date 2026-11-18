@@ -16,7 +16,10 @@ export const BookingPreview = observer(function BookingPreview() {
   const user = root.userStore.user;
   const [now] = useState(() => new Date());
   const hostName = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
-  const page = bookingPreviewPage(form, setup, hostName, t("Booking.pagePreviewTitle"));
+  const page = {
+    ...bookingPreviewPage(form, setup, hostName, t("Booking.pagePreviewTitle")),
+    workspaceName: root.workspacesStore.current?.name ?? null,
+  };
   const preview = { slots: bookingPreviewSlots(form, now), timeZone: form.timeZone };
 
   return (

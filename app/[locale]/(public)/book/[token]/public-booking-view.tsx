@@ -113,7 +113,7 @@ export function BookingSummary({
 
   return (
     <>
-      <div className={logoUrl ? "flex flex-wrap items-center gap-2" : "flex items-start gap-2"}>
+      <div className={logoUrl ? "flex items-center gap-2" : "flex items-start gap-2"}>
         {logoUrl ? (
           <BrandLogo name={workspaceName ?? who} src={logoUrl} />
         ) : (
@@ -266,8 +266,12 @@ export function PublicBookingView({
       <PublicBookingFrame brand={page.brand}>
         <div className="flex flex-col gap-4" data-booking-confirmed="">
           {page.brand?.logoUrl ? (
-            <div>
+            <div className="flex items-center gap-2">
               <BrandLogo name={page.workspaceName ?? page.hostName} src={page.brand.logoUrl} />
+
+              {page.workspaceName ? (
+                <p className="min-w-0 text-sm text-muted-foreground">{page.workspaceName}</p>
+              ) : null}
             </div>
           ) : null}
 

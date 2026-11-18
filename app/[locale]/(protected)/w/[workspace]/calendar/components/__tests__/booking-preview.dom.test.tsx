@@ -55,6 +55,7 @@ async function renderPreview(setup: BookingSetup = READY_SETUP) {
   harness.rootStore = {
     bookingLinkModalStore: modal,
     userStore: { user: { firstName: "Test", lastName: "User" } },
+    workspacesStore: { current: { name: "Acme" } },
   };
   await act(async () => {
     root.render(createElement(BookingPreview));
@@ -106,7 +107,7 @@ describe("BookingPreview", () => {
     expect(container.querySelector("aside img[data-brand-logo]")?.getAttribute("src")).toBe(
       "/api/brand/logo/logo_key_abcdefghijkl",
     );
-    expect(container.querySelector<HTMLImageElement>("aside img[data-brand-logo]")?.alt).toBe("Test User");
+    expect(container.querySelector<HTMLImageElement>("aside img[data-brand-logo]")?.alt).toBe("Acme");
     expect(frame?.style.getPropertyValue("--primary")).toBe("#1d4ed8");
     expect(frame?.style.getPropertyValue("--primary-foreground")).toBe("white");
   });
