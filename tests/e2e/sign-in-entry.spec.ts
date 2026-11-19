@@ -53,13 +53,13 @@ test("signing in from a link to a protected page returns to that page", async ({
   const visitor = await anonymous(browser, testInfo);
   try {
     const { page } = visitor;
-    await page.goto(companyPath(workspace.companyId, "/routines"));
+    await page.goto(companyPath(workspace.companyId, "/automations"));
     await expect(page).toHaveURL(/\/auth\/signin\?callbackURL=/);
     await expectHydrated(page.locator("#email"));
     await page.locator("#email").fill(login.rows[0].email);
     await page.locator("#password").fill(password);
     await clickHydrated(page.getByRole("button", { name: englishMessages.SignInForm.signInCta, exact: true }));
-    await expect(page).toHaveURL(/\/routines/);
+    await expect(page).toHaveURL(/\/automations/);
     await page.waitForLoadState("domcontentloaded");
     expect(visitor.errors).toEqual([]);
   } finally {
