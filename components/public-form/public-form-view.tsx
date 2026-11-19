@@ -7,7 +7,6 @@ import type {
 } from "@/features/public-form/public-form.schema";
 import type { FormErrors, FormValues } from "./public-form-state";
 
-import Image from "next/image";
 import { useState } from "react";
 import { CircleCheck, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -19,9 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
-import { publicSignupHref } from "@/core/utils/public-signup";
 import { brandStyle } from "@/features/workspace-brand/brand-color";
 
+import { MadeWithBadge } from "./made-with-badge";
 import { PublicFormFieldInput } from "./public-form-field-input";
 import { initialFormValues, missingFormValues } from "./public-form-state";
 
@@ -45,31 +44,7 @@ function Badge() {
   const t = useTranslations();
 
   return (
-    <a
-      className="group mx-auto flex w-fit items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground"
-      href={publicSignupHref("form")}
-      id="public-form-badge"
-      rel="noopener"
-      target="_top"
-    >
-      <Image
-        alt=""
-        className="size-4 rounded dark:hidden"
-        height={16}
-        src="/images/light/customermates-square.svg"
-        width={16}
-      />
-
-      <Image
-        alt=""
-        className="hidden size-4 rounded dark:block"
-        height={16}
-        src="/images/dark/customermates-square.svg"
-        width={16}
-      />
-
-      <span>{t("PublicForm.badge")}</span>
-    </a>
+    <MadeWithBadge className="mx-auto" id="public-form-badge" label={t("PublicForm.badge")} spot="form" target="_top" />
   );
 }
 

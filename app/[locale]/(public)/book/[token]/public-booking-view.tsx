@@ -13,6 +13,7 @@ import { ArrowLeft, CalendarCheck, CalendarDays, Clock, Video } from "lucide-rea
 import { readPublicBookingSlotsAction, submitPublicBookingAction } from "./actions";
 import { type BookingSlotReader, BookingSlotPicker, useBookingSlots } from "./booking-slot-picker";
 
+import { MadeWithBadge } from "@/components/public-form/made-with-badge";
 import { PublicFormFieldInput } from "@/components/public-form/public-form-field-input";
 import { Alert } from "@/components/shared/alert";
 import { BrandLogo } from "@/components/shared/brand-logo";
@@ -42,6 +43,7 @@ export function PublicBookingFrame({
   preview?: boolean;
   brand?: WorkspaceBrand | null;
 }) {
+  const t = useTranslations();
   const accent = brandStyle(brand?.accentColor);
 
   return (
@@ -49,7 +51,7 @@ export function PublicBookingFrame({
       className={
         preview
           ? "@container/booking w-full bg-background"
-          : "@container/booking flex min-h-full w-full items-start justify-center bg-muted/40 px-4 py-6 md:py-12"
+          : "@container/booking flex min-h-full w-full flex-col items-center gap-4 bg-muted/40 px-4 py-6 md:py-12"
       }
       data-booking-preview={preview ? "" : undefined}
       data-brand-accent={accent ? brand?.accentColor : undefined}
@@ -71,6 +73,8 @@ export function PublicBookingFrame({
 
         <div className="flex min-w-0 flex-col gap-5 p-5 @3xl/booking:p-6">{children}</div>
       </main>
+
+      {preview ? null : <MadeWithBadge id="public-booking-badge" label={t("PublicLink.upsell.badge")} spot="booking" />}
     </div>
   );
 }

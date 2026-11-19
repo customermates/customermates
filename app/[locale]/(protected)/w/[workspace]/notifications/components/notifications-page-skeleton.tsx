@@ -7,19 +7,19 @@ export function NotificationsPageSkeleton({ animated = true }: { animated?: bool
   return (
     <div
       data-notifications-page-skeleton
-      className="mx-auto flex w-full max-w-3xl flex-col"
+      className="flex w-full flex-col"
       {...(animated ? { "data-page-skeleton-loading": "true" } : { "data-page-skeleton-empty": "true" })}
     >
-      <div className="flex flex-wrap gap-2 px-4 pt-4 pb-3 md:px-6">
+      <div className="flex flex-wrap items-center gap-1 border-b border-border px-4 pt-1 pb-4" data-joins-top-bar="">
         {CHIPS.map((width, index) => (
-          <Shape key={index} animated={animated} className={`h-8 rounded-full ${width}`} motionPhase={1} />
+          <Shape key={index} animated={animated} className={`h-7 rounded-full ${width}`} motionPhase={1} />
         ))}
       </div>
 
       {ROWS.map((row) => (
         <div
           key={row}
-          className="flex items-start gap-3 border-b border-border px-4 py-3 md:px-6"
+          className="flex items-start gap-3 border-b border-border px-4 py-3"
           data-skeleton-group={row % 4}
         >
           <Shape animated={animated} className="mt-1.5 size-2 shrink-0 rounded-full" />

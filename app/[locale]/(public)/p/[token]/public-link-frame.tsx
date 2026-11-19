@@ -2,13 +2,11 @@
 
 import type { ReactNode } from "react";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { ErrorPageView } from "@/components/shared/error-page-view";
+import { MadeWithBadge } from "@/components/public-form/made-with-badge";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/core/utils/cn";
-import { publicSignupHref } from "@/core/utils/public-signup";
 
 const HOME_URL = "https://customermates.com";
 
@@ -20,28 +18,6 @@ type Props = {
   children: ReactNode;
   after?: ReactNode;
 };
-
-function Logo({ className }: { className: string }) {
-  return (
-    <>
-      <Image
-        alt=""
-        className={cn(className, "dark:hidden")}
-        height={16}
-        src="/images/light/customermates-square.svg"
-        width={16}
-      />
-
-      <Image
-        alt=""
-        className={cn(className, "hidden dark:block")}
-        height={16}
-        src="/images/dark/customermates-square.svg"
-        width={16}
-      />
-    </>
-  );
-}
 
 export function PublicLinkFrame({ kind, name, workspaceName, expiresAt, children, after }: Props) {
   const t = useTranslations();
@@ -77,19 +53,16 @@ export function PublicLinkFrame({ kind, name, workspaceName, expiresAt, children
 
         {upsell ? (
           <div className="flex justify-end lg:pointer-events-none lg:sticky lg:bottom-[calc(1.5rem+var(--safe-bottom))] lg:z-40">
-            <a
-              className="group pointer-events-auto flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
-              href={publicSignupHref("badge")}
+            <MadeWithBadge
+              className="pointer-events-auto backdrop-blur"
               id="public-link-badge"
+              label={t("PublicLink.upsell.badge")}
+              spot="badge"
             >
-              <Logo className="size-4 rounded" />
-
-              <span>{t("PublicLink.upsell.badge")}</span>
-
               <span className="hidden text-primary-soft-foreground group-hover:inline group-focus-visible:inline">
                 {t("PublicLink.upsell.badgeHover")}
               </span>
-            </a>
+            </MadeWithBadge>
           </div>
         ) : null}
       </main>

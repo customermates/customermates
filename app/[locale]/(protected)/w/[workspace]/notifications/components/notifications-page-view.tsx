@@ -10,6 +10,7 @@ import type { NotificationDto, NotificationInbox } from "@/features/notification
 import type { NotificationsStore } from "./notifications.store";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { VIEW_TAB_ACTIVE_CLASS, VIEW_TAB_CLASS } from "@/components/data-view/views/view-chip";
 import { PageState } from "@/components/page-state/page-state";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -66,7 +67,7 @@ function NotificationRow({ item, intlStore, store }: RowProps) {
     </>
   );
   const className =
-    "flex w-full items-start gap-3 border-b border-border px-4 py-3 text-start hover:bg-accent focus-visible:bg-accent md:px-6";
+    "flex w-full items-start gap-3 border-b border-border px-4 py-3 text-start hover:bg-accent focus-visible:bg-accent";
   const markRead = () => {
     if (!item.read) runUserAction(() => store.markRead([item.id]));
   };
@@ -144,36 +145,33 @@ const NotificationsPageViewContent = observer(function NotificationsPageView({ i
     : [{ key: "all", date: now, items: visible }];
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col pb-6">
+    <div className="flex w-full flex-col pb-6">
       <div
         aria-label={t("Notifications.filtersLabel")}
-        className="flex flex-wrap gap-2 px-4 pt-4 pb-3 md:px-6"
+        className="flex flex-wrap items-center gap-1 border-b border-border bg-background px-4 pt-1 pb-4"
+        data-joins-top-bar=""
         role="group"
       >
         {NOTIFICATION_KIND_FILTERS.map((option) => (
-          <Button
+          <button
             key={option}
             aria-pressed={kind === option}
-            className="rounded-full"
-            size="sm"
+            className={cn(VIEW_TAB_CLASS, kind === option && VIEW_TAB_ACTIVE_CLASS)}
             type="button"
-            variant={kind === option ? "default" : "secondary"}
             onClick={() => setKind(option)}
           >
             {option === "all" ? t("Notifications.filterAll") : t(`Notifications.kinds.${option}`)}
-          </Button>
+          </button>
         ))}
       </div>
 
       {visible.length === 0 ? (
-        <p className="px-4 py-10 text-center text-sm text-muted-foreground md:px-6">
-          {t("Notifications.emptyFiltered")}
-        </p>
+        <p className="px-4 py-10 text-sm text-muted-foreground">{t("Notifications.emptyFiltered")}</p>
       ) : (
         groups.map((group) => (
           <section key={group.key}>
             {intlStore.rendersZonedValues && (
-              <h2 className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-2 text-xs font-medium text-muted-foreground backdrop-blur md:px-6">
+              <h2 className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-2 text-xs font-medium text-muted-foreground backdrop-blur">
                 {resolveNotificationDayLabel(
                   group.date,
                   now,
@@ -195,7 +193,7 @@ const NotificationsPageViewContent = observer(function NotificationsPageView({ i
       )}
 
       {store.nextBefore && (
-        <div className="flex justify-center px-4 pt-4">
+        <div className="flex px-4 pt-4">
           <Button
             disabled={store.isLoadingMore}
             size="sm"
