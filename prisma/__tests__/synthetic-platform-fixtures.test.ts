@@ -14,9 +14,6 @@ import { AgentJobResultSchema, AgentTranscriptEventSchema } from "@/features/age
 import { AGENT_JOB_DETAILED_ERROR } from "@/features/agent-jobs/agent-job-dto";
 import { AgentRunnerClientSchema } from "@/features/agent-runners/agent-runner.schema";
 import { effectDetailText } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-run-texts";
-import { BRAND_LOGO_MAX_BYTES, sniffBrandLogoType } from "@/features/workspace-brand/brand-image";
-import { isBrandColor } from "@/features/workspace-brand/brand-color";
-import { BRAND_LOGO_KEY } from "@/features/workspace-brand/workspace-brand.schema";
 import { PublicFormConfigSchema } from "@/features/public-form/public-form.schema";
 import { formCannotSaveRecords } from "@/features/public-form/public-form-config-validation";
 import {
@@ -34,7 +31,6 @@ import { solutionWorkspacePlans } from "../seeds/solutions/seed-solutions";
 import { buildSolutionRecordData } from "../seeds/solutions/solution-data";
 import {
   buildTeamPlatformFixtures,
-  DEMO_BRAND_LOGO_KEY,
   PLATFORM_ID_GROUPS,
   seedSolutionPlatform,
 } from "../seeds/solutions/solution-platform";
@@ -59,13 +55,6 @@ describe("platform fixtures of the team workspace", () => {
   it("are deterministic", () => {
     const sameData = buildSolutionRecordData(workspace, content, model);
     expect(buildTeamPlatformFixtures(workspace, content, model, sameData)).toEqual(fixtures);
-  });
-
-  it("brand the workspace with a small PNG logo and a valid accent colour", () => {
-    expect(isBrandColor(fixtures.brand.accentColor)).toBe(true);
-    expect(sniffBrandLogoType(new Uint8Array(fixtures.brand.logo))).toBe("image/png");
-    expect(fixtures.brand.logo.length).toBeLessThan(BRAND_LOGO_MAX_BYTES);
-    expect(BRAND_LOGO_KEY.test(DEMO_BRAND_LOGO_KEY)).toBe(true);
   });
 
   it("seed valid automations over every trigger kind, one on a booking change and one with an agent step", () => {
@@ -288,7 +277,6 @@ describe("seedSolutionPlatform", () => {
       "calendar",
       "agentRunner",
       "agentJob",
-      "companyBrand",
       "automationRule",
       "automationRuleRun",
       "notification",
@@ -315,7 +303,6 @@ describe("seedSolutionPlatform", () => {
       calendar: fixtures.hostCalendars.length,
       agentRunner: 1,
       agentJob: fixtures.agentJobs.length,
-      companyBrand: 1,
       automationRule: fixtures.rules.length,
       automationRuleRun: fixtures.runs.length,
       notification: fixtures.notifications.length,
@@ -367,8 +354,6 @@ describe("seedSolutionPlatform", () => {
     expect(hosts.flatMap(({ data: entries }) => entries.map((entry) => entry.calendarId))).toEqual(
       fixtures.hostCalendars.map(({ calendarId }) => calendarId),
     );
-    const brand = writes["companyBrand.upsert"] as Array<{ create: { logo: Uint8Array; accentColor: string } }>;
-    expect(sniffBrandLogoType(brand[0]?.create.logo ?? new Uint8Array())).toBe("image/png");
     const jobs = writes["agentJob.upsert"] as Array<{ create: { status: string; runtime: string } }>;
     expect(jobs.every((row) => row.create.runtime === "runner" && row.create.status !== "queued")).toBe(true);
   });

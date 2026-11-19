@@ -3,7 +3,6 @@ import type { Strings } from "../agencies";
 export const es: Strings = {
   countryCode: "es",
   company: "Estudio Almendro",
-  workspaceName: "Agencias",
   website: "https://estudio-almendro.example",
   phones: { office: { templates: ["+34 91 000 0###"], start: 40 } },
   selfTitle: "Fundador y director general",

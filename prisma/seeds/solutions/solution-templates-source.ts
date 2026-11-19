@@ -4,13 +4,26 @@ import type { SolutionTemplate } from "@/core/solutions/solution-templates";
 import { solutionContent } from "./define-solution";
 import { SOLUTION_DEFINITIONS } from "./definitions";
 
+/** The use case a reference template stands for; the demo workspaces themselves carry their fictional company's name. */
+const TEMPLATE_USE_CASES: Record<SolutionId, string> = {
+  smb: "Small business",
+  consultants: "Consultants",
+  agencies: "Agencies",
+  freelancers: "Freelancers",
+  startups: "Startups",
+  "client-management": "Clients",
+  "sales-pipeline": "Sales pipeline",
+  "linkedin-crm": "LinkedIn sales",
+  "whatsapp-crm": "WhatsApp CRM",
+};
+
 export function solutionTemplatesFromSeeds(): Record<SolutionId, SolutionTemplate> {
   return Object.fromEntries(
     Object.entries(SOLUTION_DEFINITIONS).map(([id, definition]) => {
       const content = solutionContent(definition, "en");
       const fields = content.fields.filter((field) => !field.archived);
       const template: SolutionTemplate = {
-        workspace: content.workspaceName,
+        workspace: TEMPLATE_USE_CASES[id as SolutionId],
         lists: content.lists.map((list) => ({
           name: list.pluralLabel,
           fields: fields

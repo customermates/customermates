@@ -154,7 +154,6 @@ type InboxKey = (typeof INBOX)[number];
 
 const en = {
   company: "Brightwater Air Systems",
-  workspaceName: "Sales pipeline",
   website: "https://brightwater-air.example",
   phones: {
     office: {
@@ -908,8 +907,7 @@ const en = {
 export type Strings = typeof en;
 
 const de: Strings = {
-  company: "Weserluft Drucklufttechnik GmbH",
-  workspaceName: "Pipeline",
+  company: "Weserluft Drucklufttechnik",
   website: "https://weserluft.example",
   phones: { office: { templates: ["+49 30 23125 5##"], start: 0 } },
   selfTitle: "Vertriebsleiter",
@@ -2612,7 +2610,6 @@ export default defineSolution<Strings>({
     };
 
     return {
-      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "service", "task"] as const).map((key) => ({
         key,

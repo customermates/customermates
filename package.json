@@ -226,6 +226,7 @@
     "db:provision": "node scripts/provision-dev-database.mjs",
     "db:reset": "bash ee/scripts/reset-db.sh",
     "db:use-live-data": "bash scripts/use-live-data.sh",
+    "demo-brands:generate": "node scripts/generate-demo-brand-logos.mjs",
     "dev": "prisma generate && yarn workflow:setup && yarn openapi:generate && yarn raw-docs:generate && yarn mcp:generate-card && yarn templates:generate && next dev --turbopack -p 4000",
     "dev:become": "tsx scripts/mint-local-session.ts",
     "docs:generate-catalog": "tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/generate-mcp-catalog.ts",

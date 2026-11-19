@@ -3,7 +3,6 @@ import type { Strings } from "../smb";
 
 export const pt: Strings = {
   company: "Âncora TI",
-  workspaceName: "Pequena empresa",
   website: "https://ancora-ti.example",
   phones: {
     mobile: { templates: ["+55 11 90000-0###"], start: 0 },

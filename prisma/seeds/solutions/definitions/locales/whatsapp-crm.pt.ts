@@ -2,7 +2,6 @@ import type { Strings } from "../whatsapp-crm";
 
 export const pt: Strings = {
   company: "Marcenaria Bétula",
-  workspaceName: "CRM de WhatsApp",
   website: "https://marcenaria-betula.example",
   phones: { mobile: { templates: ["+55 11 90000-0###"], start: 100 } },
   selfTitle: "Proprietário e marceneiro",

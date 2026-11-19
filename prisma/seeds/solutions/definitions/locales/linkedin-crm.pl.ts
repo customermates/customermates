@@ -1,8 +1,7 @@
 import type { Strings } from "../linkedin-crm";
 
 export const pl: Strings = {
-  company: "Czujni Szkolenia sp. z o.o.",
-  workspaceName: "Sprzedaż na LinkedIn",
+  company: "Czujni Szkolenia",
   website: "https://czujni-szkolenia.example",
   selfTitle: "Założyciel",
   lists: {
@@ -533,7 +532,7 @@ export const pl: Strings = {
     },
   },
   agents: {
-    company: "Czujni Szkolenia sp. z o.o.",
+    company: "Czujni Szkolenia",
     records: "rekordy potencjalnych klientów, firm, szans sprzedaży i zadań",
     mate: "Sprawdza nowe kontakty na LinkedIn, znajduje firmy podobne do tych, które wygraliśmy, i zamienia zdanie wpisane na czacie w aktualizację rekordu lub zadanie.",
     claude:

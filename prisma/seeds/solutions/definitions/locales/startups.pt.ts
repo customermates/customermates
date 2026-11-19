@@ -1,8 +1,7 @@
 import type { Strings } from "../startups";
 
 export const pt: Strings = {
-  company: "Gabarito Software S.A.",
-  workspaceName: "Startups",
+  company: "Gabarito",
   website: "https://gabarito-software.example",
   phones: {
     mobile: {

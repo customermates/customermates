@@ -1,8 +1,7 @@
 import type { Strings } from "../startups";
 
 export const es: Strings = {
-  company: "Calibra Software S.L.",
-  workspaceName: "Startups",
+  company: "Calibra",
   website: "https://calibra-software.example",
   phones: {
     mobile: {

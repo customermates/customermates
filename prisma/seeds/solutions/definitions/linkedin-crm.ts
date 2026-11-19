@@ -190,7 +190,6 @@ type InboxKey = (typeof INBOX_PLAN)[number]["key"];
 
 const en = {
   company: "Clearwatch Awareness",
-  workspaceName: "LinkedIn sales",
   website: "https://clearwatch-awareness.example",
   selfTitle: "Founder",
   lists: {
@@ -738,8 +737,7 @@ const en = {
 export type Strings = typeof en;
 
 const de: Strings = {
-  company: "Wachblick Schulungen GmbH",
-  workspaceName: "LinkedIn",
+  company: "Wachblick Schulungen",
   website: "https://wachblick-schulungen.example",
   selfTitle: "Geschäftsführer",
   lists: {
@@ -1274,7 +1272,7 @@ const de: Strings = {
     },
   },
   agents: {
-    company: "Wachblick Schulungen GmbH",
+    company: "Wachblick Schulungen",
     records: "Interessenten, Firmen, Verkaufschancen und Aufgaben",
     mate: "Dazu gehört, neue LinkedIn-Kontakte zu recherchieren, Firmen wie die gewonnenen zu finden und aus einem Satz im Chat eine Änderung an einem Datensatz oder eine Aufgabe zu machen.",
     claude:
@@ -1954,7 +1952,6 @@ export default defineSolution<Strings>({
     };
 
     return {
-      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["contact", "organization", "deal", "task"] as const).map((key) => ({
         key,

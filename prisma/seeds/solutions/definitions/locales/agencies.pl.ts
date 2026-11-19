@@ -3,7 +3,6 @@ import type { Strings } from "../agencies";
 export const pl: Strings = {
   countryCode: "pl",
   company: "Studio Wrzos",
-  workspaceName: "Agencje",
   website: "https://studio-wrzos.example",
   phones: { office: { templates: ["+48 22 000 0###"], start: 20 } },
   selfTitle: "Założyciel i dyrektor zarządzający",

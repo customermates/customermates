@@ -2,8 +2,7 @@ import { address, groupDigits } from "../../define-solution";
 import type { Strings } from "../smb";
 
 export const es: Strings = {
-  company: "Alameda IT",
-  workspaceName: "Pequeña empresa",
+  company: "Alameda Informática",
   website: "https://alameda-it.example",
   phones: {
     mobile: { templates: ["+34 600 000 ###"], start: 0 },
@@ -324,7 +323,7 @@ export const es: Strings = {
     guide: {
       title: "Guía operativa",
       markdown: [
-        "Alameda IT se ocupa de los ordenadores, las redes y el correo de pequeñas oficinas: clínicas dentales y de fisioterapia, despachos de abogados y asesorías, estudios y tiendas. Este espacio de trabajo contiene datos de demostración; todas las empresas y personas son ficticias.",
+        "Alameda Informática se ocupa de los ordenadores, las redes y el correo de pequeñas oficinas: clínicas dentales y de fisioterapia, despachos de abogados y asesorías, estudios y tiendas. Este espacio de trabajo contiene datos de demostración; todas las empresas y personas son ficticias.",
         "",
         "## Cómo usamos el CRM",
         "- **Empresas** son las oficinas y negocios a los que damos soporte o con los que hablamos. **Contactos** son las personas que trabajan allí.",
@@ -518,7 +517,7 @@ export const es: Strings = {
   files: {
     quote: {
       title: "Presupuesto",
-      preparedFor: "Preparado por Alameda IT para",
+      preparedFor: "Preparado por Alameda Informática para",
       lineItems: "Conceptos",
       columns: ["Servicio", "Cant.", "Precio unitario", "Importe"],
       total: "Total",
@@ -684,7 +683,7 @@ export const es: Strings = {
       "Creada por Claude a partir del correo de Daniel sobre la última factura:\nNo sabe a qué corresponde la jornada en las instalaciones del día 3.\nBloqueada hasta que Laura confirme en la herramienta de facturación para qué fue esa jornada.\nHay un borrador de respuesta esperando en la Bandeja de entrada.",
   },
   agents: {
-    company: "Alameda IT",
+    company: "Alameda Informática",
     records: "empresas, contactos, oportunidades y tareas",
     mate: "Responde preguntas sobre el pipeline, redacta respuestas a los correos de clientes y crea tareas cuando se lo pedimos.",
     claude:

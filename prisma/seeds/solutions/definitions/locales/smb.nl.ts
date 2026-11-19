@@ -3,7 +3,6 @@ import type { Strings } from "../smb";
 
 export const nl: Strings = {
   company: "Havenlaan IT",
-  workspaceName: "Klein bedrijf",
   website: "https://havenlaan-it.example",
   phones: {
     mobile: { templates: ["+31 6 0000 0###"], start: 0 },
