@@ -32,7 +32,7 @@ const SignInEntryFormContent = observer(({ socialProviders }: Props) => {
       className={cn("contents", signedInHint && !entrySettled ? "invisible" : "[[data-session-hint]_&]:invisible")}
       data-sign-in-entry={entrySettled ? "ready" : "pending"}
     >
-      <SignInForm {...entry} socialProviders={socialProviders} />
+      <SignInForm {...entry} socialProviders={entry?.socialProviders ?? socialProviders} />
     </div>
   );
 });

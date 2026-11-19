@@ -18,6 +18,7 @@ export type SignInEntry = {
   inviterName?: string;
   onboardingIntent?: string;
   workspaceName?: string | null;
+  socialProviders?: { google: boolean; microsoft: boolean };
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;
