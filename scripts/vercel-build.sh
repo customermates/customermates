@@ -32,9 +32,23 @@ else
     echo "migrating over the DATABASE_URL endpoint. If that is a transaction pooler," >&2
     echo "the advisory lock this takes can time out (P1002)." >&2
   fi
-  npx --no-install prisma migrate deploy
   if [[ "${VERCEL_ENV:-}" == "preview" ]]; then
+    # A branch that amends its own unreleased migration leaves the preview database with a migration recorded as
+    # failed, and every later preview build then stops at P3009. The preview database holds seed data only, so in
+    # exactly that case it is rebuilt from scratch, over the direct endpoint for the reason given above. Any other
+    # migration error fails the build, and production never takes this path.
+    migrate_log="$(mktemp)"
+    if ! npx --no-install prisma migrate deploy 2>&1 | tee "$migrate_log"; then
+      if grep -q "P3009" "$migrate_log" && [[ -n "${DIRECT_URL:-}" ]]; then
+        echo "Preview database has a failed migration on record (P3009); rebuilding it from the migrations."
+        npx --no-install prisma migrate reset --force
+      else
+        exit 1
+      fi
+    fi
     npx --no-install tsx prisma/seed.ts
+  else
+    npx --no-install prisma migrate deploy
   fi
 fi
 # fumadocs' lastModified() plugin derives content dates from Git history. Blog posts use

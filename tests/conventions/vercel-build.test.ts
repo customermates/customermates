@@ -6,7 +6,22 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT } from "./walk";
 
 describe("Vercel build safety", () => {
-  it("resets only the dedicated Demo preview and seeds every preview before building", () => {
+  it("rebuilds a preview database only after a recorded failed migration, over the direct endpoint", () => {
+    const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
+    const preview = script.lastIndexOf('if [[ "${VERCEL_ENV:-}" == "preview" ]]; then');
+    const production = script.lastIndexOf("npx --no-install prisma migrate deploy");
+    const guard = script.indexOf('if grep -q "P3009" "$migrate_log" && [[ -n "${DIRECT_URL:-}" ]]; then');
+    const reset = script.lastIndexOf("npx --no-install prisma migrate reset --force");
+
+    expect(preview).toBeGreaterThan(-1);
+    expect(guard).toBeGreaterThan(preview);
+    expect(reset).toBeGreaterThan(guard);
+    expect(production).toBeGreaterThan(reset);
+    expect(script.slice(reset, production)).toContain("exit 1");
+    expect(script.match(/prisma migrate reset --force/g)).toHaveLength(2);
+  });
+
+  it("resets the dedicated Demo preview and seeds every preview before building", () => {
     const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
     const demo = script.indexOf(
       '"${VERCEL_ENV:-}" == "preview" && "${VERCEL_TARGET_ENV:-}" == "demo" && "${APP_MODE:-}" == "demo"',
@@ -21,10 +36,9 @@ describe("Vercel build safety", () => {
     expect(demo).toBeGreaterThan(-1);
     expect(reset).toBeGreaterThan(demo);
     expect(demoSeed).toBeGreaterThan(reset);
-    expect(migrate).toBeGreaterThan(demoSeed);
-    expect(migrate).toBeGreaterThan(-1);
-    expect(preview).toBeGreaterThan(migrate);
-    expect(previewSeed).toBeGreaterThan(preview);
+    expect(preview).toBeGreaterThan(demoSeed);
+    expect(migrate).toBeGreaterThan(preview);
+    expect(previewSeed).toBeGreaterThan(migrate);
     expect(build).toBeGreaterThan(previewSeed);
     expect(script).not.toMatch(/unipile/i);
   });
