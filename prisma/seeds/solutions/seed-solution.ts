@@ -28,6 +28,7 @@ import {
 } from "./solution-data";
 import { seedSolutionMateChats, seedSolutionPlanner, seedSolutionTrash } from "./solution-extras";
 import { seedSolutionFiles, solutionFileValues } from "./solution-files";
+import { buildTeamPlatformFixtures, seedSolutionPlatform } from "./solution-platform";
 import { buildSolutionMessaging } from "./solution-messaging";
 import {
   SOLUTION_VIEW_GROUP,
@@ -613,6 +614,8 @@ export async function seedSolutionWorkspace(
   await seedSolutionPlanner(prisma, workspace, content);
   await seedSolutionTrash(prisma, workspace, content);
   await seedSolutionMateChats(prisma, workspace, content);
+  if (workspace.team)
+    await seedSolutionPlatform(prisma, workspace, buildTeamPlatformFixtures(workspace, content, model, data));
 
   return {
     slug: workspace.slug,

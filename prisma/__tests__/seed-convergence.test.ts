@@ -52,7 +52,58 @@ suite("generic synthetic seed convergence", { timeout: 360000 }, () => {
         histories: await prisma.eventLog.count({ where: { companyId } }),
         deliveries: await prisma.webhookDelivery.count({ where: { companyId } }),
       };
+      const client = prisma;
+      const platformCounts = async () => ({
+        brands: await client.companyBrand.count({ where: { companyId, logo: { not: null } } }),
+        rules: await client.automationRule.count({ where: { companyId } }),
+        bookingRules: await client.automationRule.count({ where: { companyId, triggerKind: "bookingChanged" } }),
+        appliedRuns: await client.automationRuleRun.count({ where: { companyId, status: "applied" } }),
+        failedRuns: await client.automationRuleRun.count({ where: { companyId, status: "failed" } }),
+        notifications: await client.notification.count({ where: { companyId, userId: SEED_IDS.user } }),
+        unread: await client.notification.count({ where: { companyId, userId: SEED_IDS.user, readAt: null } }),
+        singlePages: await client.bookingLink.count({
+          where: { companyId, assignment: "single", calendarId: { not: null } },
+        }),
+        roundRobinPages: await client.bookingLink.count({
+          where: { companyId, assignment: "roundRobin", calendarId: { not: null } },
+        }),
+        furtherHosts: await client.bookingLinkHost.count({ where: { companyId, calendarId: { not: null } } }),
+        bookings: await client.booking.count({ where: { companyId } }),
+        cancelledBookings: await client.booking.count({ where: { companyId, status: "cancelled" } }),
+        forms: await client.publicForm.count({ where: { companyId } }),
+        submissions: await client.publicFormSubmission.count({ where: { companyId } }),
+        incomingWebhooks: await client.incomingWebhook.count({ where: { companyId } }),
+        incomingDeliveries: await client.incomingWebhookDelivery.count({ where: { companyId } }),
+        runners: await client.agentRunner.count({ where: { companyId } }),
+        agentJobs: await client.agentJob.count({ where: { companyId } }),
+        calendars: await client.calendar.count({ where: { companyId } }),
+        accounts: await client.connectedAccount.count({ where: { companyId } }),
+      });
+      const platform = await platformCounts();
+      expect(platform).toMatchObject({
+        brands: 1,
+        bookingRules: 1,
+        singlePages: 1,
+        roundRobinPages: 1,
+        furtherHosts: 1,
+        cancelledBookings: 1,
+        forms: 1,
+        incomingWebhooks: 1,
+        runners: 1,
+      });
+      expect(platform.rules).toBeGreaterThanOrEqual(5);
+      expect(platform.appliedRuns).toBeGreaterThan(0);
+      expect(platform.failedRuns).toBeGreaterThan(0);
+      expect(platform.unread).toBeGreaterThan(0);
+      expect(platform.notifications).toBeGreaterThan(platform.unread);
+      expect(platform.bookings).toBeGreaterThanOrEqual(5);
+      expect(platform.submissions).toBeGreaterThanOrEqual(3);
+      expect(platform.incomingDeliveries).toBeGreaterThanOrEqual(2);
+      expect(platform.agentJobs).toBeGreaterThan(0);
+      const agentRule = await prisma.automationRule.findMany({ where: { companyId }, select: { effects: true } });
+      expect(agentRule.filter(({ effects }) => JSON.stringify(effects).includes('"kind":"agent"'))).toHaveLength(1);
       const second = await runSyntheticSeed(context);
+      expect(await platformCounts()).toEqual(platform);
       expect(second.reset).toEqual([]);
       expect(second.workspaces.filter((workspace) => workspace.slug !== team.workspace.slug)).toEqual(
         first.workspaces

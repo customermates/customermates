@@ -33,6 +33,7 @@ export async function resetOutdatedSyntheticWorkspace(
         return false;
       // Record event subscriptions restrict deleting their record type, so they go before the company cascade.
       await tx.recordEventSubscription.deleteMany({ where: { companyId } });
+      await tx.publicForm.deleteMany({ where: { companyId } });
       await tx.company.delete({ where: { id: companyId } });
       return true;
     },

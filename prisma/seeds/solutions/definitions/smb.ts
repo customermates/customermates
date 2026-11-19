@@ -420,7 +420,7 @@ const en = {
         "## How we use the CRM",
         "- **Companies** are the offices we support or talk to. **Contacts** are the people there.",
         "- **Deals** are support contracts and projects. The stage shows where the conversation is; the value comes from the services on the deal. Quotes, network inventories and site visit notes are attached to the deal in its Documents field.",
-        "- **Tasks** are next actions with an owner, a status and a due date. They are records like any other: nobody gets an automatic reminder, so check the Due soon view every morning. On-site visits carry a Scheduled time and appear in the Site visits calendar.",
+        "- **Tasks** are next actions with an owner, a status and a due date. They are records like any other. Automations remind deal owners three weeks before a close date and tell us about new enquiries, blocked tasks and replies; everything else is in the Due soon view, so check it every morning. On-site visits carry a Scheduled time and appear in the Site visits calendar.",
         "- A conversation from the inbox belongs to a deal only when someone links it to that deal.",
         "",
         "## Working rules",
