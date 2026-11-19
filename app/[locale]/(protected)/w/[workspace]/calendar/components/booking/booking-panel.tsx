@@ -103,6 +103,7 @@ const BookingRow = observer(function BookingRow({
           data-booking-calendar-missing=""
           description={t("Booking.noCalendar")}
           role="status"
+          stacked
           variant="warning"
         />
       ) : null}
