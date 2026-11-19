@@ -2726,6 +2726,17 @@
     "visibilityShared": "Shared",
     "visibilityUpdateFailed": "Couldn't update visibility. Try again."
   },
+  "ConnectedApps": {
+    "connect": "Connect an AI app",
+    "connectedSince": "Connected since",
+    "description": "AI apps such as Claude or ChatGPT that you connected to this workspace with your sign-in. Each app acts with your permissions.",
+    "disconnectDescription": "{name} loses access to this workspace at once. To use it again, connect it again and approve the access.",
+    "disconnectTitle": "Disconnect this app?",
+    "empty": "No AI app is connected yet. Connect Claude, ChatGPT or another AI app to work with this workspace from there.",
+    "lastActive": "Last active",
+    "title": "Connected AI apps",
+    "toastDisconnected": "App disconnected"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Open in inbox",
     "calendarAllDay": "All day",

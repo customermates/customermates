@@ -508,6 +508,9 @@ import { CreateApiKeyInteractor } from "@/features/api-key/create-api-key.intera
 import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.interactor";
 import { AuthorizeMcpConnectionInteractor } from "@/features/auth/authorize-mcp-connection.interactor";
 import { GetApiKeysInteractor } from "@/features/api-key/get-api-keys.interactor";
+import { DisconnectConnectedAppInteractor } from "@/features/connected-apps/disconnect-connected-app.interactor";
+import { GetConnectedAppsInteractor } from "@/features/connected-apps/get-connected-apps.interactor";
+import { PrismaConnectedAppRepo } from "@/features/connected-apps/prisma-connected-app.repository";
 // EE Subscription interactors
 import { AbandonCheckoutInteractor } from "@/ee/subscription/abandon-checkout.interactor";
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
@@ -2065,7 +2068,7 @@ const publicBookingChangeAccess = new PublicBookingAccess(
   bookingAccessSettings,
 );
 export const getReadPublicBookingInteractor = () =>
-  new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService());
+  new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService(), getPublicFormQuota());
 export const getReadPublicBookingSlotsInteractor = () =>
   new ReadPublicBookingSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
 export const getSubmitPublicBookingInteractor = () =>
@@ -2082,7 +2085,7 @@ export const getSubmitPublicBookingInteractor = () =>
     getBookingMailer(),
   );
 export const getReadPublicBookingManageInteractor = () =>
-  new ReadPublicBookingManageInteractor(publicBookingReadAccess);
+  new ReadPublicBookingManageInteractor(publicBookingReadAccess, getPublicFormQuota());
 export const getReadPublicBookingManageSlotsInteractor = () =>
   new ReadPublicBookingManageSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
 export const getCancelPublicBookingInteractor = () =>
@@ -2443,6 +2446,11 @@ export const getCreateApiKeyInteractor = () => new CreateApiKeyInteractor(getAut
 export const getGetApiKeysInteractor = () => new GetApiKeysInteractor(getAuthService());
 
 export const getDeleteApiKeyInteractor = () => new DeleteApiKeyInteractor(getAuthService());
+
+export const getGetConnectedAppsInteractor = () =>
+  new GetConnectedAppsInteractor(new PrismaConnectedAppRepo(), getAuthService());
+
+export const getDisconnectConnectedAppInteractor = () => new DisconnectConnectedAppInteractor(getAuthService());
 export const getAuthorizeMcpConnectionInteractor = () => new AuthorizeMcpConnectionInteractor();
 
 // --- EE Subscription ---

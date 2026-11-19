@@ -133,9 +133,12 @@ function connectedAccount(): ConnectedAccountDto {
 
 function renderApiKeys(
   status: RequestStatus,
-  options: { canManage?: boolean; withItem?: boolean; workspaceName?: string | null } = {},
+  options: { canManage?: boolean; withItem?: boolean; withApp?: boolean; workspaceName?: string | null } = {},
 ) {
   const items = options.withItem ? [apiKey()] : [];
+  const connectedApps = options.withApp
+    ? [{ id: "client-1", name: "Claude", connectedAt: new Date(0), lastActiveAt: new Date(0) }]
+    : [];
   const apiKeysStore = {
     canManage: options.canManage ?? true,
     dataRequest: request(status),
@@ -146,11 +149,13 @@ function renderApiKeys(
   harness.getRootStore.mockReturnValue({
     apiKeyModalStore: { add: harness.addApiKey, view: harness.viewApiKey },
     apiKeysStore,
+    connectedAppsStore: { items: connectedApps, setItems: vi.fn() },
+    deleteConfirmationModalStore: { onInitOrRefresh: vi.fn(), open: vi.fn() },
     intlStore: { formatNumericalShortDateTime: () => "date" },
     workspacesStore: { current: { name: options.workspaceName === undefined ? "Acme" : options.workspaceName } },
   });
 
-  return renderToStaticMarkup(createElement(ApiKeysPageView, { apiKeys: items }));
+  return renderToStaticMarkup(createElement(ApiKeysPageView, { apiKeys: items, connectedApps }));
 }
 
 function renderConnected(
@@ -256,6 +261,12 @@ describe("profile resource page views", () => {
     expect(unnamed).not.toContain("Workspaces.apiKeysScopeNamed");
     expect(content).toContain("animate-page-result-in");
     expect(content).not.toContain("data-page-state");
+    expect(content).toContain("data-connected-apps-empty");
+
+    const onlyApp = renderApiKeys("ready", { withApp: true });
+    expect(onlyApp).not.toContain("data-page-state");
+    expect(onlyApp).toContain('data-connected-app="client-1"');
+    expect(onlyApp).not.toContain("data-connected-apps-empty");
   });
 
   it("renders connected-account locked, error, empty, permission, and content branches", () => {

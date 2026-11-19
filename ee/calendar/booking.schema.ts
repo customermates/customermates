@@ -346,6 +346,7 @@ export type PublicBookingPage = {
   questions: PublicQuestion[];
   renderToken: string;
   brand: WorkspaceBrand | null;
+  badge: boolean;
 };
 
 export type PublicBookingState = "upcoming" | "past" | "cancelled";
@@ -366,6 +367,7 @@ export type PublicManagedBooking = {
   canReschedule: boolean;
   bookAgainToken: string | null;
   brand: WorkspaceBrand | null;
+  badge: boolean;
 };
 
 export type PublicBookingManageResult = { status: "found"; booking: PublicManagedBooking } | PublicBlocked;

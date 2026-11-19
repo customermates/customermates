@@ -2726,6 +2726,17 @@
     "visibilityShared": "Geteilt",
     "visibilityUpdateFailed": "Sichtbarkeit konnte nicht aktualisiert werden. Bitte erneut versuchen."
   },
+  "ConnectedApps": {
+    "connect": "KI-App verbinden",
+    "connectedSince": "Verbunden seit",
+    "description": "KI-Apps wie Claude oder ChatGPT, die du mit deiner Anmeldung mit diesem Workspace verbunden hast. Jede App handelt mit deinen Berechtigungen.",
+    "disconnectDescription": "{name} verliert sofort den Zugriff auf diesen Workspace. Um die App wieder zu nutzen, verbinde sie erneut und bestätige den Zugriff.",
+    "disconnectTitle": "Diese App trennen?",
+    "empty": "Noch ist keine KI-App verbunden. Verbinde Claude, ChatGPT oder eine andere KI-App, um von dort aus mit diesem Workspace zu arbeiten.",
+    "lastActive": "Zuletzt aktiv",
+    "title": "Verbundene KI-Apps",
+    "toastDisconnected": "App getrennt"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Im Posteingang öffnen",
     "calendarAllDay": "Ganztägig",

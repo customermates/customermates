@@ -447,6 +447,21 @@ export async function revokeMembershipCredentials(authUserId: string, companyId:
   return apiKeys.count + tokens.count;
 }
 
+export async function revokeOauthClientTokens(args: {
+  authUserId: string;
+  companyId: string;
+  clientId: string;
+}): Promise<number> {
+  const tokens = await (getTransactionClient<typeof prisma>() ?? prisma).oauthAccessToken.deleteMany({
+    where: {
+      userId: args.authUserId,
+      clientId: args.clientId,
+      OR: [{ companyId: args.companyId }, { companyId: null }],
+    },
+  });
+  return tokens.count;
+}
+
 export async function deleteApiKeysForIdentities(identityIds: string[]): Promise<void> {
   await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
     where: { referenceId: { in: identityIds } },

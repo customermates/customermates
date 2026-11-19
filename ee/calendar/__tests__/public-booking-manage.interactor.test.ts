@@ -77,7 +77,11 @@ beforeEach(() => {
 });
 
 describe("ReadPublicBookingManageInteractor", () => {
-  const read = (setup: Setup = {}) => new ReadPublicBookingManageInteractor(access(setup).access);
+  const limits = vi.fn();
+  const read = (setup: Setup = {}, badge = false) => {
+    limits.mockResolvedValue({ submissionsPerMonth: null, badge });
+    return new ReadPublicBookingManageInteractor(access(setup).access, { limits });
+  };
 
   it("shows an upcoming booking that the visitor may cancel and move", async () => {
     expect(await read().invoke({ manageToken: MANAGE_TOKEN, visitor: "v" })).toEqual({
@@ -98,8 +102,16 @@ describe("ReadPublicBookingManageInteractor", () => {
         canReschedule: true,
         bookAgainToken: lookupLink().token,
         brand: null,
+        badge: false,
       },
     });
+  });
+
+  it("shows the badge when the plan of the booking's workspace carries it", async () => {
+    const result = await read({}, true).invoke({ manageToken: MANAGE_TOKEN, visitor: "v" });
+
+    expect(result).toMatchObject({ status: "found", booking: { badge: true } });
+    expect(limits).toHaveBeenCalledWith(OWNER.companyId);
   });
 
   it("carries the workspace's logo and accent colour", async () => {

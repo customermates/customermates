@@ -127,7 +127,7 @@ export function PublicBookingManageView({
 
   if (mode === "reschedule") {
     return (
-      <PublicBookingFrame aside={summary} brand={booking.brand}>
+      <PublicBookingFrame aside={summary} badge={booking.badge} brand={booking.brand}>
         <h2 className="text-sm font-medium">{t("PublicBooking.rescheduleTitle")}</h2>
 
         {loadFailed ? <Alert description={t("PublicBooking.loadFailed")} role="alert" variant="destructive" /> : null}
@@ -188,7 +188,7 @@ export function PublicBookingManageView({
   }
 
   return (
-    <PublicBookingFrame brand={booking.brand}>
+    <PublicBookingFrame badge={booking.badge} brand={booking.brand}>
       <div className="flex flex-col gap-4" data-booking-manage={state}>
         {state === "cancelled" ? (
           <CalendarX aria-hidden className="size-8 text-muted-foreground" />

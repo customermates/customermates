@@ -2726,6 +2726,17 @@
     "visibilityShared": "Gedeeld",
     "visibilityUpdateFailed": "Zichtbaarheid kon niet worden bijgewerkt. Probeer het opnieuw."
   },
+  "ConnectedApps": {
+    "connect": "AI-app koppelen",
+    "connectedSince": "Gekoppeld sinds",
+    "description": "AI-apps zoals Claude of ChatGPT die je met je login aan deze werkruimte hebt gekoppeld. Elke app werkt met jouw rechten.",
+    "disconnectDescription": "{name} verliest direct de toegang tot deze werkruimte. Koppel de app opnieuw en keur de toegang goed om hem weer te gebruiken.",
+    "disconnectTitle": "Deze app ontkoppelen?",
+    "empty": "Er is nog geen AI-app gekoppeld. Koppel Claude, ChatGPT of een andere AI-app om van daaruit met deze werkruimte te werken.",
+    "lastActive": "Laatst actief",
+    "title": "Gekoppelde AI-apps",
+    "toastDisconnected": "App ontkoppeld"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Openen in inbox",
     "calendarAllDay": "Hele dag",

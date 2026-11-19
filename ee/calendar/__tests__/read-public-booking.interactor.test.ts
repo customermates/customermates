@@ -39,14 +39,15 @@ import {
 const SECRET = "booking-read-secret";
 const NOW = new Date("2026-11-16T10:00:00.000Z");
 
-function build(options: { link?: BookingLinkLookup; calendars?: AccessOptions["calendars"] } = {}) {
+function build(options: { link?: BookingLinkLookup; calendars?: AccessOptions["calendars"]; badge?: boolean } = {}) {
   const { access, lookup } = buildAccess({
     link: options.link ?? lookupLink({ hostName: "Ben", companyId: mockUser.companyId, userId: mockUser.id }),
     calendars: options.calendars,
     authSecret: SECRET,
     now: NOW,
   });
-  return { interactor: new ReadPublicBookingInteractor(access, { loadModel: vi.fn() }), lookup };
+  const limits = vi.fn().mockResolvedValue({ submissionsPerMonth: null, badge: options.badge ?? false });
+  return { interactor: new ReadPublicBookingInteractor(access, { loadModel: vi.fn() }, { limits }), lookup, limits };
 }
 
 const TEAM = lookupLink({
@@ -87,6 +88,21 @@ describe("ReadPublicBookingInteractor", () => {
       status: "available",
       page: { brand: { accentColor: "#0f62fe", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" } },
     });
+  });
+
+  it("shows the badge only when the plan of the page's workspace carries it", async () => {
+    const free = build({ badge: true });
+    const paid = build();
+
+    expect(await free.interactor.invoke({ token: TOKEN })).toMatchObject({
+      status: "available",
+      page: { badge: true },
+    });
+    expect(await paid.interactor.invoke({ token: TOKEN })).toMatchObject({
+      status: "available",
+      page: { badge: false },
+    });
+    expect(free.limits).toHaveBeenCalledWith(mockUser.companyId);
   });
 
   it("is unavailable outside the cloud and does not look the link up", async () => {

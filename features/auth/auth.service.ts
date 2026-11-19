@@ -22,6 +22,7 @@ import {
   issueExpiringApiKey,
   revokeApiKeysNamed,
   revokeMembershipCredentials,
+  revokeOauthClientTokens,
 } from "@/core/auth/better-auth";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { prisma } from "@/prisma/db";
@@ -100,6 +101,17 @@ export class AuthService {
   async revokeOauthConsents(userId: string): Promise<number> {
     const consents = await prisma.oauthConsent.deleteMany({ where: { userId } });
     return consents.count;
+  }
+
+  async revokeOauthClientAccess(args: { authUserId: string; companyId: string; clientId: string }): Promise<number> {
+    const tokens = await revokeOauthClientTokens(args);
+    const elsewhere = await prisma.oauthAccessToken.count({
+      where: { userId: args.authUserId, clientId: args.clientId },
+    });
+    if (elsewhere === 0)
+      await prisma.oauthConsent.deleteMany({ where: { userId: args.authUserId, clientId: args.clientId } });
+
+    return tokens;
   }
 
   async getSession() {

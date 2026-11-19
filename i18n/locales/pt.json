@@ -2726,6 +2726,17 @@
     "visibilityShared": "Compartilhada",
     "visibilityUpdateFailed": "Não foi possível atualizar a visibilidade. Tente de novo."
   },
+  "ConnectedApps": {
+    "connect": "Conectar um app de IA",
+    "connectedSince": "Conectado desde",
+    "description": "Apps de IA, como Claude ou ChatGPT, que você conectou a este espaço de trabalho com o seu login. Cada app age com as suas permissões.",
+    "disconnectDescription": "{name} perde o acesso a este espaço de trabalho imediatamente. Para usá-lo de novo, conecte-o outra vez e aprove o acesso.",
+    "disconnectTitle": "Desconectar este app?",
+    "empty": "Nenhum app de IA está conectado ainda. Conecte Claude, ChatGPT ou outro app de IA para trabalhar com este espaço de trabalho a partir dele.",
+    "lastActive": "Última atividade",
+    "title": "Apps de IA conectados",
+    "toastDisconnected": "App desconectado"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Abrir na caixa de entrada",
     "calendarAllDay": "Dia inteiro",

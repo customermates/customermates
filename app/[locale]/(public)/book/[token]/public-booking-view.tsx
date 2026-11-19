@@ -37,11 +37,13 @@ export function PublicBookingFrame({
   aside,
   preview = false,
   brand = null,
+  badge = false,
 }: {
   children: React.ReactNode;
   aside?: React.ReactNode;
   preview?: boolean;
   brand?: WorkspaceBrand | null;
+  badge?: boolean;
 }) {
   const t = useTranslations();
   const accent = brandStyle(brand?.accentColor);
@@ -74,7 +76,9 @@ export function PublicBookingFrame({
         <div className="flex min-w-0 flex-col gap-5 p-5 @3xl/booking:p-6">{children}</div>
       </main>
 
-      {preview ? null : <MadeWithBadge id="public-booking-badge" label={t("PublicLink.upsell.badge")} spot="booking" />}
+      {badge && !preview ? (
+        <MadeWithBadge id="public-booking-badge" label={t("PublicLink.upsell.badge")} spot="booking" />
+      ) : null}
     </div>
   );
 }
@@ -267,7 +271,7 @@ export function PublicBookingView({
 
   if (confirmed) {
     return (
-      <PublicBookingFrame brand={page.brand}>
+      <PublicBookingFrame badge={page.badge} brand={page.brand}>
         <div className="flex flex-col gap-4" data-booking-confirmed="">
           {page.brand?.logoUrl ? (
             <div className="flex items-center gap-2">
@@ -339,6 +343,7 @@ export function PublicBookingView({
           workspaceName={page.workspaceName}
         />
       }
+      badge={page.badge}
       brand={page.brand}
       preview={readOnly}
     >

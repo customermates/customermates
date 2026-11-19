@@ -38,6 +38,7 @@ import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/componen
 import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
 import { ApiKeyModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-key-modal.store";
 import { ApiKeysStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-keys.store";
+import { ConnectedAppsStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-apps.store";
 import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connect-upsell-modal.store";
 import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-account-modal.store";
 import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts.store";
@@ -83,6 +84,7 @@ export class RootStore {
   public readonly navigationGuard = new NavigationGuardController();
 
   private _apiKeysStore?: ApiKeysStore;
+  private _connectedAppsStore?: ConnectedAppsStore;
   private _agentKeysStore?: AgentKeysStore;
   private _agentRunsStore?: AgentRunsStore;
   private _connectedAccountsStore?: ConnectedAccountsStore;
@@ -255,6 +257,10 @@ export class RootStore {
 
   get apiKeysStore() {
     return (this._apiKeysStore ??= new ApiKeysStore(this));
+  }
+
+  get connectedAppsStore() {
+    return (this._connectedAppsStore ??= new ConnectedAppsStore(this));
   }
 
   get agentKeyModalStore() {

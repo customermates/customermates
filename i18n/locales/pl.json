@@ -2726,6 +2726,17 @@
     "visibilityShared": "Udostępnione",
     "visibilityUpdateFailed": "Nie udało się zmienić widoczności. Spróbuj ponownie."
   },
+  "ConnectedApps": {
+    "connect": "Połącz aplikację AI",
+    "connectedSince": "Połączona od",
+    "description": "Aplikacje AI, takie jak Claude lub ChatGPT, które połączyłeś z tą przestrzenią roboczą swoim logowaniem. Każda aplikacja działa z twoimi uprawnieniami.",
+    "disconnectDescription": "{name} od razu traci dostęp do tej przestrzeni roboczej. Aby znów z niej korzystać, połącz ją ponownie i zatwierdź dostęp.",
+    "disconnectTitle": "Rozłączyć tę aplikację?",
+    "empty": "Nie połączono jeszcze żadnej aplikacji AI. Połącz Claude, ChatGPT lub inną aplikację AI, aby pracować z tą przestrzenią roboczą z jej poziomu.",
+    "lastActive": "Ostatnia aktywność",
+    "title": "Połączone aplikacje AI",
+    "toastDisconnected": "Aplikacja rozłączona"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Otwórz w skrzynce odbiorczej",
     "calendarAllDay": "Cały dzień",

@@ -1,6 +1,7 @@
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { publicBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
+import type { PublicFormQuota } from "@/features/public-form/public-form-quota";
 import type { OpenBooking, PublicBookingAccess } from "./public-booking-access";
 
 import {
@@ -26,7 +27,10 @@ export function inviteeMayReschedule(opened: OpenBooking, now: Date): boolean {
 
 @SystemInteractor
 export class ReadPublicBookingManageInteractor {
-  constructor(private access: PublicBookingAccess) {}
+  constructor(
+    private access: PublicBookingAccess,
+    private quota: PublicFormQuota,
+  ) {}
 
   async invoke(input: unknown): Promise<PublicBookingManageResult> {
     const query = PublicBookingManageQuerySchema.safeParse(input);
@@ -35,12 +39,12 @@ export class ReadPublicBookingManageInteractor {
     return this.access.openBooking(
       query.data.manageToken,
       query.data.visitor,
-      (opened): Promise<PublicBookingManageResult> => {
+      async (opened): Promise<PublicBookingManageResult> => {
         const { booking, link } = opened;
         const now = this.access.now();
         const cancelledByHost = booking.status === "cancelled" && booking.cancelledBy === "host";
 
-        return Promise.resolve({
+        return {
           status: "found",
           booking: {
             title: link.title,
@@ -58,8 +62,9 @@ export class ReadPublicBookingManageInteractor {
             canReschedule: inviteeMayReschedule(opened, now),
             bookAgainToken: link.enabled ? link.token : null,
             brand: publicBrand(link.brand),
+            badge: (await this.quota.limits(booking.companyId)).badge,
           },
-        });
+        };
       },
     );
   }

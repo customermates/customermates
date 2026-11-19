@@ -5,6 +5,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { z } from "zod";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { appPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { addBrowserWorkspace } from "./workspace";
@@ -137,6 +138,79 @@ test("the MCP consent picker binds the connection to the chosen workspace and ex
     expect(await tokens()).toEqual([{ accessToken, companyId: target.companyId }]);
   } finally {
     await database.query('DELETE FROM "OauthApplication" WHERE "clientId"=$1', [clientId]);
+  }
+  expect(errors).toEqual([]);
+});
+
+test("the API keys page lists the member's connected AI app once and disconnecting it revokes its tokens", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  test.setTimeout(120_000);
+  const errors = collectPageErrors(page);
+  const messages = englishMessages.ConnectedApps;
+  const ownClient = `connector-${randomUUID()}`;
+  const colleagueClient = `connector-${randomUUID()}`;
+  const colleagueLogin = randomUUID();
+  const application = (clientId: string, name: string) =>
+    database.query(
+      'INSERT INTO "OauthApplication" (id,name,"clientId","redirectUrls",type,"updatedAt") VALUES ($1,$2,$3,$4,\'public\',NOW())',
+      [randomUUID(), name, clientId, REDIRECT_URI],
+    );
+  const token = (clientId: string, userId: string, issued: string) =>
+    database.query(
+      `INSERT INTO "OauthAccessToken" (id,"accessToken","refreshToken","accessTokenExpiresAt","refreshTokenExpiresAt","clientId","userId",scopes,"companyId","createdAt","updatedAt")
+       VALUES ($1,$2,$3,NOW()+$4::interval+interval '1 hour',NOW()+$4::interval+interval '30 days',$5,$6,'openid offline_access',$7,NOW()+$4::interval,NOW()+$4::interval)`,
+      [randomUUID(), randomUUID(), randomUUID(), issued, clientId, userId, workspace.companyId],
+    );
+  const tokensOf = async (clientId: string, userId: string) =>
+    (
+      await database.query<{ count: string }>(
+        'SELECT count(*) FROM "OauthAccessToken" WHERE "clientId"=$1 AND "userId"=$2',
+        [clientId, userId],
+      )
+    ).rows[0].count;
+
+  await database.query(
+    'INSERT INTO "AuthUser" (id,email,name,"emailVerified","updatedAt") VALUES ($1,$2,\'Colleague Login\',true,NOW())',
+    [colleagueLogin, `connected-apps-${colleagueLogin}@synthetic.test`],
+  );
+  try {
+    await application(ownClient, "Claude");
+    await application(colleagueClient, "Colleague Connector");
+    await token(ownClient, workspace.authUserId, "-45 days");
+    await token(ownClient, workspace.authUserId, "-2 days");
+    await token(colleagueClient, colleagueLogin, "-1 day");
+    await database.query(
+      'INSERT INTO "OauthConsent" (id,"clientId","userId",scopes,"consentGiven","updatedAt") VALUES ($1,$2,$3,\'openid offline_access\',true,NOW())',
+      [randomUUID(), ownClient, workspace.authUserId],
+    );
+
+    await page.goto(appPath(workspace.slug, "/settings/api-keys"));
+    const card = page.locator("[data-connected-apps-card]");
+    await expect(card.getByRole("heading", { level: 2, name: messages.title, exact: true })).toBeVisible();
+    const apps = card.locator("[data-connected-app]");
+    await expect(apps).toHaveCount(1);
+    await expect(apps).toContainText("Claude");
+    await expect(apps).toContainText(messages.connectedSince);
+    await expect(apps).toContainText(messages.lastActive);
+    await expect(card).not.toContainText("Colleague Connector");
+
+    await clickHydrated(apps.getByRole("button", { name: "Disconnect", exact: true }));
+    const confirm = page.getByRole("alertdialog");
+    await expect(confirm).toContainText(messages.disconnectTitle);
+    await expect(confirm).toContainText("Claude");
+    await confirm.locator("#confirm-delete").click();
+
+    await expect(page.locator("[data-connected-app]")).toHaveCount(0);
+    expect(await tokensOf(ownClient, workspace.authUserId)).toBe("0");
+    expect(await tokensOf(colleagueClient, colleagueLogin)).toBe("1");
+    const consents = await database.query('SELECT 1 FROM "OauthConsent" WHERE "clientId"=$1', [ownClient]);
+    expect(consents.rowCount).toBe(0);
+  } finally {
+    await database.query('DELETE FROM "OauthApplication" WHERE "clientId" IN ($1,$2)', [ownClient, colleagueClient]);
+    await database.query('DELETE FROM "AuthUser" WHERE id=$1', [colleagueLogin]);
   }
   expect(errors).toEqual([]);
 });

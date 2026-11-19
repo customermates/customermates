@@ -86,6 +86,7 @@ describe("BookingPreview", () => {
     expect(container.querySelector("[data-booking-preview-pane]")).not.toBeNull();
     expect(container.querySelector("[data-booking-preview]")).not.toBeNull();
     expect(container.querySelector("#public-booking")).toBeNull();
+    expect(container.querySelector("#public-booking-badge")).toBeNull();
     expect(title()).toBe("Intro call");
     expect(container.textContent).toContain("Test User");
     expect(container.textContent).toContain('PublicBooking.minutes:{"minutes":30}');
@@ -183,6 +184,7 @@ describe("PublicBookingView on the live page", () => {
     questions: [],
     renderToken: "render",
     brand: null,
+    badge: false,
   };
   const BRAND = { accentColor: "#fde047", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" };
   const slotIn = (days: number) => {
@@ -224,6 +226,15 @@ describe("PublicBookingView on the live page", () => {
     expect(frame?.style.getPropertyValue("--primary")).toBe("#fde047");
     expect(frame?.style.getPropertyValue("--primary-foreground")).toBe("black");
     expect(document.documentElement.style.getPropertyValue("--primary")).toBe("");
+  });
+
+  it("shows the badge only on a page whose workspace plan carries it", async () => {
+    harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
+    await renderLive();
+    expect(container.querySelector("#public-booking-badge")).toBeNull();
+
+    await renderLive({ ...LIVE_PAGE, badge: true });
+    expect(container.querySelector("#public-booking-badge")).not.toBeNull();
   });
 
   it("keeps the logo and the accent colour on the confirmation", async () => {

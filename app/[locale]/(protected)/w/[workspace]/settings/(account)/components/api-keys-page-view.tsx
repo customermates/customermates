@@ -1,6 +1,7 @@
 "use client";
 
 import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
+import type { ConnectedApp } from "@/features/connected-apps/connected-app.schema";
 import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
@@ -20,6 +21,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
 import { runUserAction } from "@/core/errors/report-application-error";
 
+import { ConnectedAppsCard } from "./connected-apps-card";
 import { ApiKeysPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -28,11 +30,12 @@ import { useConnectIntent } from "@/components/keyboard/use-connect-intent";
 
 type Props = {
   apiKeys: ApiKey[];
+  connectedApps: ConnectedApp[];
 };
 
-const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
+const ApiKeysPageViewContent = observer(({ apiKeys, connectedApps }: Props) => {
   const t = useTranslations();
-  const { apiKeyModalStore, apiKeysStore, workspacesStore } = useRootStore();
+  const { apiKeyModalStore, apiKeysStore, connectedAppsStore, workspacesStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const { canManage } = apiKeysStore;
   const workspaceName = workspacesStore.current?.name?.trim();
@@ -41,12 +44,16 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
     : t("Workspaces.apiKeysScope");
 
   useLayoutEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
+  useLayoutEffect(() => connectedAppsStore.setItems({ items: connectedApps }), [connectedApps, connectedAppsStore]);
   useConnectIntent(CONNECT_INTENT_AI_CLIENTS, canManage, (provider) => {
     apiKeyModalStore.add();
     apiKeyModalStore.aiConnectionStore.selectProvider(provider);
   });
 
-  const pageState = resolveResourcePageState(apiKeysStore.dataRequest, apiKeysStore.items.length);
+  const pageState = resolveResourcePageState(
+    apiKeysStore.dataRequest,
+    apiKeysStore.items.length + connectedAppsStore.items.length,
+  );
   const topBarActions = useMemo(
     () =>
       pageState !== "loading" && pageState !== "error" && canManage ? (
@@ -106,7 +113,7 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
         <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
           <Alert description={`${t("ProfileSections.apiKeysDescription")} ${workspaceScope}`} variant="neutral" />
 
-          <div className={PROFILE_RESOURCE_CARD_GRID_CLASS_NAME}>
+          <div className={`${PROFILE_RESOURCE_CARD_GRID_CLASS_NAME} empty:hidden`}>
             {apiKeysStore.items.map((key) => (
               <Card
                 key={key.id}
@@ -139,6 +146,8 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
               </Card>
             ))}
           </div>
+
+          <ConnectedAppsCard />
         </div>
       );
       break;
