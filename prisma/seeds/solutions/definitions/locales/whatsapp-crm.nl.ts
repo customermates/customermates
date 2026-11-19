@@ -2,7 +2,6 @@ import type { Strings } from "../whatsapp-crm";
 
 export const nl: Strings = {
   company: "Timmerwerkplaats Berkenhout",
-  workspaceName: "WhatsApp CRM",
   website: "https://timmerwerkplaats-berkenhout.example",
   phones: { mobile: { templates: ["+31 6 0000 0###"], start: 10 } },
   selfTitle: "Eigenaar en meubelmaker",

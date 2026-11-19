@@ -1,8 +1,7 @@
 import type { Strings } from "../linkedin-crm";
 
 export const pt: Strings = {
-  company: "Olho Vivo Treinamentos Ltda.",
-  workspaceName: "Vendas no LinkedIn",
+  company: "Olho Vivo Treinamentos",
   website: "https://olhovivo-treinamentos.example",
   selfTitle: "Sócio-fundador",
   lists: {
@@ -532,7 +531,7 @@ export const pt: Strings = {
     },
   },
   agents: {
-    company: "Olho Vivo Treinamentos Ltda.",
+    company: "Olho Vivo Treinamentos",
     records: "prospects, empresas, oportunidades e tarefas",
     mate: "Ele pesquisa novas conexões do LinkedIn, encontra empresas parecidas com as que ganhamos e transforma uma frase no chat em uma atualização de registro ou em uma tarefa.",
     claude:

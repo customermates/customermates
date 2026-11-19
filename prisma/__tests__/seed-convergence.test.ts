@@ -11,6 +11,7 @@ import {
 import { createSeedContext, SEED_IDS } from "../seeds/context";
 import { runSyntheticSeed } from "../seeds/run";
 import { solutionWorkspacePlans } from "../seeds/solutions/seed-solutions";
+import { solutionBrand } from "../seeds/solutions/solution-brands";
 import { presetId } from "@/features/records/crm-preset";
 import { compareRecordKey } from "@/features/records/record-json";
 
@@ -102,8 +103,23 @@ suite("generic synthetic seed convergence", { timeout: 360000 }, () => {
       expect(platform.agentJobs).toBeGreaterThan(0);
       const agentRule = await prisma.automationRule.findMany({ where: { companyId }, select: { effects: true } });
       expect(agentRule.filter(({ effects }) => JSON.stringify(effects).includes('"kind":"agent"'))).toHaveLength(1);
+      const brandRows = () =>
+        client.companyBrand.findMany({
+          select: { companyId: true, accentColor: true, logoKey: true, logoType: true },
+          orderBy: { companyId: "asc" },
+        });
+      const brands = await brandRows();
+      expect(brands.toSorted((a, b) => compareRecordKey(a.companyId, b.companyId))).toEqual(
+        plans
+          .map(({ workspace }) => {
+            const { accentColor, logoKey, logoType } = solutionBrand(workspace);
+            return { companyId: workspace.companyId, accentColor, logoKey, logoType };
+          })
+          .toSorted((a, b) => compareRecordKey(a.companyId, b.companyId)),
+      );
       const second = await runSyntheticSeed(context);
       expect(await platformCounts()).toEqual(platform);
+      expect(await brandRows()).toEqual(brands);
       expect(second.reset).toEqual([]);
       expect(second.workspaces.filter((workspace) => workspace.slug !== team.workspace.slug)).toEqual(
         first.workspaces
@@ -160,7 +176,7 @@ suite("generic synthetic seed convergence", { timeout: 360000 }, () => {
           .map(({ workspace, content }) => ({
             companyId: workspace.companyId,
             status: "active",
-            company: { name: content.workspaceName },
+            company: { name: content.companyName },
             role: { isSystemRole: true },
           }))
           .toSorted((a, b) => compareRecordKey(a.companyId, b.companyId)),

@@ -3,7 +3,6 @@ import type { Strings } from "../consultants";
 export const pl: Strings = {
   countryCode: "pl",
   company: "Jesion Doradztwo",
-  workspaceName: "Doradztwo",
   website: "https://jesion-doradztwo.example",
   phones: { mobile: { templates: ["+48 500 000 ###"], start: 300 } },
   selfTitle: "Główny konsultant",

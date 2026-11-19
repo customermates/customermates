@@ -126,7 +126,6 @@ type AgentNoteKey =
 
 const en = {
   company: "Gaugewise",
-  workspaceName: "Startups",
   website: "https://gaugewise.example",
   phones: {
     mobile: { templates: ["+1 216 555 01##", "+1 414 555 01##", "+1 614 555 01##", "+1 317 555 01##"], start: 10 },
@@ -791,8 +790,7 @@ const en = {
 export type Strings = typeof en;
 
 const de: Strings = {
-  company: "Messwerk Software GmbH",
-  workspaceName: "Start-ups",
+  company: "Messwerk",
   website: "https://messwerk-software.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 300 } },
   selfTitle: "Mitgründer und Geschäftsführer",
@@ -2264,7 +2262,6 @@ export default defineSolution<Strings>({
     ];
 
     return {
-      workspaceName: t.workspaceName,
       valueLabels: { value: t.fields.dealValue, weighted: t.fields.weightedValue },
       companyName: t.company,
       lists: (["organization", "contact", "deal", "investor", "task"] as const).map((key) => ({

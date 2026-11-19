@@ -2,8 +2,7 @@ import type { Strings } from "../freelancers";
 
 export const pl: Strings = {
   countryCode: "pl",
-  company: "Bukowa Projektowanie Produktu",
-  workspaceName: "Freelancerzy",
+  company: "Bukowa Design",
   website: "https://bukowa-design.example",
   phones: { mobile: { templates: ["+48 500 000 ###"], start: 300 } },
   selfTitle: "Niezależny projektant UX i produktu",
@@ -325,7 +324,7 @@ export const pl: Strings = {
     guide: {
       title: "Przewodnik operacyjny",
       markdown: [
-        "Max Bergmann pracuje samodzielnie jako Bukowa Projektowanie Produktu, projektant UX i produktu dla niewielkiej liczby klientów B2B, z których większość zna od lat. Ten obszar roboczy zawiera dane demonstracyjne; wszystkie firmy i osoby są zmyślone.",
+        "Max Bergmann pracuje samodzielnie jako Bukowa Design, projektant UX i produktu dla niewielkiej liczby klientów B2B, z których większość zna od lat. Ten obszar roboczy zawiera dane demonstracyjne; wszystkie firmy i osoby są zmyślone.",
         "",
         "## Co jest w tym obszarze roboczym",
         "- **Klienci** to firmy, dla których pracuję lub z którymi rozmawiam o pracy. Lista klientów pokazuje, od jak dawna współpracujemy, rodzaj współpracy, sumę moich honorariów i następny krok.",
@@ -537,7 +536,7 @@ export const pl: Strings = {
     } as Partial<Record<"replySam", string>>,
   },
   agents: {
-    company: "Bukowa Projektowanie Produktu",
+    company: "Bukowa Design",
     records: "klientów, zapytania i projekty",
     mate: "Odpowiada na pytania o mój tydzień, zamienia brief w zapytanie, tworzy zadania z maili i na moją prośbę zapisuje szkice odpowiedzi.",
     claude:

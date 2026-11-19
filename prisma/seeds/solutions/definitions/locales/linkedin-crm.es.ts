@@ -1,8 +1,7 @@
 import type { Strings } from "../linkedin-crm";
 
 export const es: Strings = {
-  company: "Atalaya Formación S.L.",
-  workspaceName: "LinkedIn",
+  company: "Atalaya Formación",
   website: "https://atalaya-formacion.example",
   selfTitle: "Fundador",
   lists: {
@@ -532,7 +531,7 @@ export const es: Strings = {
     },
   },
   agents: {
-    company: "Atalaya Formación S.L.",
+    company: "Atalaya Formación",
     records: "prospectos, empresas, oportunidades y tareas",
     mate: "Investiga nuevas conexiones de LinkedIn, encuentra empresas parecidas a las que hemos ganado y convierte una frase en el chat en un cambio en un registro o en una tarea.",
     claude:

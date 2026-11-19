@@ -3,7 +3,6 @@ import type { Strings } from "../freelancers";
 export const es: Strings = {
   countryCode: "es",
   company: "Robledal Diseño de Producto",
-  workspaceName: "Freelancers",
   website: "https://robledal-diseno.example",
   phones: { mobile: { templates: ["+34 600 000 ###"], start: 300 } },
   selfTitle: "Diseñador UX y de producto freelance",

@@ -27,7 +27,6 @@ import type { AgentRunnerClient } from "@/features/agent-runners/agent-runner.sc
 import { AGENT_JOB_SOURCE_AUTOMATION } from "@/features/agent-jobs/agent-job.schema";
 import { AGENT_JOB_DETAILED_ERROR, AGENT_JOB_ERROR_TEXT_KEY } from "@/features/agent-jobs/agent-job-dto";
 
-import { demoBrandLogoPng } from "../brand-logo";
 import { workspaceFixtureId } from "../helpers";
 import { messagingUnipileAccountId } from "../messaging/seed";
 import { TEAM_MEMBER_IDS } from "../team";
@@ -51,9 +50,6 @@ export const PLATFORM_ID_GROUPS = {
   runner: "7b100000",
   agentJob: "7b200000",
 } as const;
-
-export const DEMO_BRAND_ACCENT = "#0f766e";
-export const DEMO_BRAND_LOGO_KEY = "harbor-lane-it-demo-logo";
 
 const MINUTE = 60_000;
 
@@ -191,7 +187,6 @@ export type PlatformAgentJob = {
 };
 
 export type PlatformFixtures = {
-  brand: { accentColor: string; logo: Uint8Array; logoType: "image/png"; logoKey: string };
   hostCalendars: PlatformHostCalendar[];
   runner: PlatformRunner;
   agentJobs: PlatformAgentJob[];
@@ -276,14 +271,6 @@ export function buildTeamPlatformFixtures(
   const recordHref = (record: RecordRef) => `/records/${record.typeId}/${record.recordId}`;
   const max = TEAM_MEMBER_IDS.maxBergmann;
   const minutesAfter = (moment: Date, minutes: number) => new Date(moment.getTime() + minutes * MINUTE);
-
-  const accent = DEMO_BRAND_ACCENT;
-  const brand = {
-    accentColor: accent,
-    logo: demoBrandLogoPng(accent),
-    logoType: "image/png" as const,
-    logoKey: DEMO_BRAND_LOGO_KEY,
-  };
 
   const clara = TEAM_MEMBER_IDS.claraNeumann;
   const hostCalendars: PlatformHostCalendar[] = [
@@ -957,7 +944,6 @@ export function buildTeamPlatformFixtures(
   });
 
   return {
-    brand,
     hostCalendars,
     runner,
     agentJobs,
@@ -990,15 +976,6 @@ export async function seedSolutionPlatform(
     companyId,
     id: { startsWith: `${PLATFORM_ID_GROUPS[group]}-${tag}-`, notIn: ids },
   });
-
-  const { brand } = fixtures;
-  const brandRow = {
-    accentColor: brand.accentColor,
-    logo: new Uint8Array(brand.logo),
-    logoType: brand.logoType,
-    logoKey: brand.logoKey,
-  };
-  await prisma.companyBrand.upsert({ where: { companyId }, update: brandRow, create: { companyId, ...brandRow } });
 
   const calendarOf = new Map<string, string>();
   const ownerCalendar = await prisma.calendar.findFirst({

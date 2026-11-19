@@ -1,8 +1,7 @@
 import type { Strings } from "../linkedin-crm";
 
 export const nl: Strings = {
-  company: "Scherpzicht Training B.V.",
-  workspaceName: "LinkedIn-verkoop",
+  company: "Scherpzicht Training",
   website: "https://scherpzicht-training.example",
   selfTitle: "Oprichter",
   lists: {
@@ -533,7 +532,7 @@ export const nl: Strings = {
     },
   },
   agents: {
-    company: "Scherpzicht Training B.V.",
+    company: "Scherpzicht Training",
     records: "prospects, bedrijven, verkoopkansen en taken",
     mate: "Het onderzoekt nieuwe LinkedIn-connecties, vindt bedrijven die lijken op de bedrijven die we hebben gewonnen en maakt van één zin in de chat een wijziging in een record of een taak.",
     claude:
