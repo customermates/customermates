@@ -35,6 +35,17 @@ describe("settings sections", () => {
     expect(listed.has("connections")).toBe(true);
   });
 
+  it("lists Connections only for a member who may open one of its tabs", () => {
+    const workspace = (allowed: Resource[]) =>
+      visibleSubroutes("workspace", "cloud", (resource) => allowed.includes(resource)).map(({ slug }) => slug);
+
+    expect(workspace([])).toEqual(["general"]);
+    expect(workspace([Resource.routines])).toEqual(["general"]);
+    expect(workspace([Resource.inboxMessages])).toEqual(["general", "connections"]);
+    expect(workspace([Resource.company])).toEqual(["general", "billing", "connections"]);
+    expect(workspace([Resource.api])).toEqual(["general", "connections"]);
+  });
+
   it("keeps permissions and cloud-only pages, and lets the Connections tabs gate themselves", () => {
     const onlyUsers = (resource: Resource) => resource === Resource.users;
     expect(visibleSubroutes("account", "self-hosted", onlyUsers).map(({ slug }) => slug)).toEqual([
@@ -52,7 +63,6 @@ describe("settings sections", () => {
       "general",
       "members",
       "roles",
-      "connections",
     ]);
     expect(
       visibleSubroutes("workspace", "cloud", (resource) => resource === Resource.api).map(({ slug }) => slug),

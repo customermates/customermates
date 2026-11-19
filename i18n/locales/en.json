@@ -1648,7 +1648,7 @@
         "api-keys": "tokens, API, MCP, developer, access keys, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP server, n8n, integration",
         "billing": "plan, subscription, invoices, payment, pricing, upgrade, receipt",
         "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendars, inbox sync, calendar sync, email sync, SMTP, IMAP, Office 365, Sales Navigator",
-        "connections": "connections, integrations, apps, agents, channels, API keys, webhooks, developers, connect, linked accounts",
+        "connections": "connections, integrations, agents, channels, API keys, webhooks, developers, connect, linked accounts",
         "general": "workspace name, rename workspace, leave workspace",
         "incoming-webhooks": "inbound webhooks, receive data, secret address, webhook URL, post JSON, create records from other tools, form tool, Zapier, Make, n8n",
         "members": "team, users, people, colleagues, invite, seats",
@@ -2689,20 +2689,12 @@
     "visibilityUpdateFailed": "Couldn't update visibility. Try again."
   },
   "Connections": {
-    "apps": {
-      "comingSoon": "Coming in the next release",
-      "connect": "Connect",
-      "emptyBody": "Apps you connect later show up here with who connected them and what they can reach.",
-      "emptyTitle": "No apps connected yet",
-      "enables": "Enables",
-      "providersTitle": "Available apps"
-    },
     "channels": {
       "sectionsLabel": "Channel sections",
       "selfHostedBody": "Email, LinkedIn, WhatsApp and calendar channels use the hosted connection service and are not available when you self-host.",
       "selfHostedTitle": "Channels need Customermates Cloud"
     },
-    "description": "Everything that links Customermates to your channels, apps, agents and systems, with who owns each connection and what it can reach.",
+    "description": "Everything that links Customermates to your channels, agents and systems, with who owns each connection and what it can reach.",
     "developers": {
       "sectionsLabel": "Developer sections"
     },
@@ -2713,7 +2705,6 @@
     "scope": {
       "accounts": "Scope: private to its owner unless shared with the workspace",
       "agents": "Scope: only the access and limits you set",
-      "apps": "Scope: only what you allow when you connect",
       "deliveries": "Scope: every delivery attempt of this workspace’s webhooks",
       "incoming": "Scope: lets other systems create or update records in the list you choose",
       "keys": "Scope: reads and writes this workspace’s data through the API",
@@ -2721,7 +2712,6 @@
     },
     "tabs": {
       "agents": "Agents",
-      "apps": "Apps",
       "channels": "Channels",
       "developers": "Developers"
     },

@@ -63,6 +63,7 @@ type CommandTarget = { href: string } | { control: string } | { action: CommandA
 
 type CommandRequirement = {
   resource?: Resource;
+  anyResource?: readonly Resource[];
   action?: Action;
   cloudOnly?: boolean;
   schemaManager?: boolean;
@@ -159,7 +160,7 @@ const SETTINGS_PAGES: StaticCommand[] = [
       kind: "page",
       icon: subroute.icon,
       target: { href: settingsHref(subroute.slug) },
-      requires: { resource: subroute.resource, cloudOnly: subroute.cloudOnly },
+      requires: { resource: subroute.resource, anyResource: subroute.anyResource, cloudOnly: subroute.cloudOnly },
     }),
   ),
   ...(Object.keys(REDIRECTED_SETTINGS) as ConnectionsRedirectSlug[]).map(
@@ -406,6 +407,10 @@ export function staticCommand(id: string): StaticCommand | undefined {
   return STATIC_COMMANDS.find((entry) => entry.id === id);
 }
 
+function canRead(environment: CommandEnvironment, resource: Resource): boolean {
+  return environment.can(resource, Action.readOwn) || environment.can(resource, Action.readAll);
+}
+
 export function commandAvailable(entry: StaticCommand, environment: CommandEnvironment): boolean {
   const requires = entry.requires;
   if (!requires) return true;
@@ -414,7 +419,8 @@ export function commandAvailable(entry: StaticCommand, environment: CommandEnvir
   if (requires.listPage && !environment.onListPage) return false;
   if (requires.otherWorkspaces && !environment.otherWorkspaces) return false;
   if (requires.workspaceCreation && environment.appMode === "demo") return false;
+  if (requires.anyResource && !requires.anyResource.some((resource) => canRead(environment, resource))) return false;
   if (!requires.resource) return true;
   if (requires.action) return environment.can(requires.resource, requires.action);
-  return environment.can(requires.resource, Action.readOwn) || environment.can(requires.resource, Action.readAll);
+  return canRead(environment, requires.resource);
 }

@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { Resource } from "@/generated/prisma";
+
 import {
   CONNECTIONS_REDIRECTS,
+  CONNECTION_RESOURCES,
   CONNECTION_TABS,
+  CONNECTION_TAB_RESOURCES,
   connectionSectionsOf,
   connectionsHref,
   connectionsRedirectHref,
@@ -11,21 +15,34 @@ import {
 } from "../connection-tabs";
 
 describe("connection tabs", () => {
-  it("offers channels, apps, agents and developers in that order", () => {
-    expect(CONNECTION_TABS).toEqual(["channels", "apps", "agents", "developers"]);
+  it("offers channels, agents and developers in that order", () => {
+    expect(CONNECTION_TABS).toEqual(["channels", "agents", "developers"]);
     expect(connectionSectionsOf("channels")).toEqual(["accounts"]);
     expect(connectionSectionsOf("developers")).toEqual(["keys", "webhooks", "deliveries", "incoming"]);
-    expect(connectionSectionsOf("apps")).toEqual([]);
     expect(connectionSectionsOf("agents")).toEqual([]);
+  });
+
+  it("names the permission each tab needs, so the page and the navigation ask for the same ones", () => {
+    expect(CONNECTION_TAB_RESOURCES).toEqual({
+      channels: Resource.inboxMessages,
+      agents: Resource.company,
+      developers: Resource.api,
+    });
+    expect(CONNECTION_RESOURCES).toEqual([Resource.inboxMessages, Resource.company, Resource.api]);
   });
 
   it("opens the requested tab when the person may see it and the first visible one otherwise", () => {
     expect(resolveConnectionTab("developers", CONNECTION_TABS)).toBe("developers");
-    expect(resolveConnectionTab(["apps", "agents"], CONNECTION_TABS)).toBe("apps");
-    expect(resolveConnectionTab("developers", ["apps", "agents"])).toBe("apps");
+    expect(resolveConnectionTab(["agents", "developers"], CONNECTION_TABS)).toBe("agents");
+    expect(resolveConnectionTab("developers", ["channels", "agents"])).toBe("channels");
     expect(resolveConnectionTab(undefined, ["agents", "developers"])).toBe("agents");
     expect(resolveConnectionTab("nonsense", CONNECTION_TABS)).toBe("channels");
+    expect(resolveConnectionTab("apps", CONNECTION_TABS)).toBe("channels");
+  });
+
+  it("opens no tab for a member whose role allows none, so the page can send them away", () => {
     expect(resolveConnectionTab("channels", [])).toBeNull();
+    expect(resolveConnectionTab(undefined, [])).toBeNull();
   });
 
   it("opens the requested section of a tab and the first one otherwise", () => {
@@ -33,7 +50,7 @@ describe("connection tabs", () => {
     expect(resolveConnectionSection("developers", "accounts")).toBe("keys");
     expect(resolveConnectionSection("channels", undefined)).toBe("accounts");
     expect(resolveConnectionSection("channels", ["keys"])).toBe("accounts");
-    expect(resolveConnectionSection("apps", "keys")).toBeNull();
+    expect(resolveConnectionSection("agents", "keys")).toBeNull();
   });
 
   it("builds a short link that leaves out the default section", () => {
@@ -74,7 +91,7 @@ describe("redirects from the old settings pages", () => {
   });
 
   it("do not let a carried tab or section override where the page now lives", () => {
-    expect(connectionsRedirectHref("webhooks", new URLSearchParams("tab=apps&section=keys&x=1"))).toBe(
+    expect(connectionsRedirectHref("webhooks", new URLSearchParams("tab=agents&section=keys&x=1"))).toBe(
       "/settings/connections?tab=developers&section=webhooks&x=1",
     );
   });

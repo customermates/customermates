@@ -27,7 +27,7 @@ test("Connections opens each tab and keeps it in the address", async ({ page, co
   await page.goto(companyPath(companyId, "/settings/connections"));
   await page.waitForLoadState("networkidle");
   const tabs = page.getByRole("tablist", { name: "Connection types" });
-  await expect(tabs.getByRole("tab")).toHaveText(["Channels", "Apps", "Agents", "Developers"]);
+  await expect(tabs.getByRole("tab")).toHaveText(["Channels", "Agents", "Developers"]);
 
   await test.step("Channels holds the connected accounts, or explains why it cannot on self-hosted", async () => {
     await expect(tabs.getByRole("tab", { name: "Channels" })).toHaveAttribute("data-state", "active");
@@ -37,13 +37,6 @@ test("Connections opens each tab and keeps it in the address", async ({ page, co
     }
     await expect(page.getByRole("tablist", { name: "Channel sections" })).toHaveCount(0);
     await expect(page.locator("[data-connection-scope='accounts']")).toBeAttached();
-  });
-
-  await test.step("Apps says no app is connected yet and names its owner and scope", async () => {
-    await tabs.getByRole("tab", { name: "Apps" }).click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections\\?tab=apps$"));
-    await expect(page.getByText("No apps connected yet")).toBeVisible();
-    await expect(page.locator("[data-connection-scope='apps']")).toContainText("Owner: this workspace");
   });
 
   await test.step("Agents holds the runtimes, provider keys, runners and recent runs", async () => {
@@ -255,7 +248,7 @@ test("a member without API access opens Connections and is offered only the tabs
     const tabs = member.page.getByRole("tablist", { name: "Connection types" });
 
     await test.step("the Developers tab, which needs API access, is not offered", async () => {
-      await expect(tabs.getByRole("tab", { name: "Apps" })).toBeVisible();
+      await expect(tabs.getByRole("tab", { name: "Agents" })).toBeVisible();
       await expect(tabs.getByRole("tab", { name: "Developers" })).toHaveCount(0);
       await expect(member.page.getByRole("tablist", { name: "Developer sections" })).toHaveCount(0);
     });

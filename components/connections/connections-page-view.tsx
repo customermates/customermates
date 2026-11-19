@@ -17,8 +17,6 @@ function tabLabel(t: Translate, tab: ConnectionTab): string {
   switch (tab) {
     case "channels":
       return t("Connections.tabs.channels");
-    case "apps":
-      return t("Connections.tabs.apps");
     case "agents":
       return t("Connections.tabs.agents");
     case "developers":

@@ -1,5 +1,15 @@
-export const CONNECTION_TABS = ["channels", "apps", "agents", "developers"] as const;
+import { Resource } from "@/generated/prisma";
+
+export const CONNECTION_TABS = ["channels", "agents", "developers"] as const;
 export type ConnectionTab = (typeof CONNECTION_TABS)[number];
+
+export const CONNECTION_TAB_RESOURCES = {
+  channels: Resource.inboxMessages,
+  agents: Resource.company,
+  developers: Resource.api,
+} as const satisfies Record<ConnectionTab, Resource>;
+
+export const CONNECTION_RESOURCES: readonly Resource[] = CONNECTION_TABS.map((tab) => CONNECTION_TAB_RESOURCES[tab]);
 
 export const CHANNEL_SECTIONS = ["accounts"] as const;
 export type ChannelSection = (typeof CHANNEL_SECTIONS)[number];
@@ -14,7 +24,6 @@ export const CONNECTION_SECTION_PARAM = "section";
 
 const SECTIONS_OF_TAB = {
   channels: CHANNEL_SECTIONS,
-  apps: [],
   agents: [],
   developers: DEVELOPER_SECTIONS,
 } as const satisfies Record<ConnectionTab, readonly ConnectionSection[]>;

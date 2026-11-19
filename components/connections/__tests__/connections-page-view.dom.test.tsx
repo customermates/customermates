@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps } from "react";
 import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
@@ -14,7 +14,6 @@ vi.mock("@/i18n/navigation", () => ({
     createElement("a", { href }, children as never),
 }));
 
-import { ConnectionAppsTab } from "../connection-apps-tab";
 import { ConnectionsPageView } from "../connections-page-view";
 
 let container: HTMLDivElement;
@@ -26,15 +25,13 @@ function tabs(prefix: string) {
   return [...document.querySelectorAll<HTMLButtonElement>(`[role="tab"][id^="${prefix}-tab-"]`)];
 }
 
-function render(node: ReactNode) {
-  act(() => root.render(node));
-}
-
 function renderView(props: ViewProps, content = "content") {
-  render(
-    <ConnectionsPageView {...props}>
-      <p>{content}</p>
-    </ConnectionsPageView>,
+  act(() =>
+    root.render(
+      <ConnectionsPageView {...props}>
+        <p>{content}</p>
+      </ConnectionsPageView>,
+    ),
   );
 }
 
@@ -59,52 +56,43 @@ afterEach(() => {
 });
 
 describe("ConnectionsPageView", () => {
-  it("lists the four tabs, marks the open one and shows its content in a labelled panel", () => {
+  it("lists the three tabs, marks the open one and shows its content in a labelled panel", () => {
     renderView(
-      { tabs: ["channels", "apps", "agents", "developers"], tab: "apps", section: null, bleed: false },
-      "apps content",
+      { tabs: ["channels", "agents", "developers"], tab: "agents", section: null, bleed: false },
+      "agents content",
     );
 
     expect(tabs("connections").map((tab) => tab.textContent)).toEqual([
       "Connections.tabs.channels",
-      "Connections.tabs.apps",
       "Connections.tabs.agents",
       "Connections.tabs.developers",
     ]);
-    expect(tabs("connections").map((tab) => tab.dataset.state)).toEqual(["inactive", "active", "inactive", "inactive"]);
+    expect(tabs("connections").map((tab) => tab.dataset.state)).toEqual(["inactive", "active", "inactive"]);
     const panel = document.getElementById("connections-panel");
-    expect(panel?.getAttribute("aria-labelledby")).toBe("connections-tab-apps");
-    expect(panel?.textContent).toContain("apps content");
+    expect(panel?.getAttribute("aria-labelledby")).toBe("connections-tab-agents");
+    expect(panel?.textContent).toContain("agents content");
     expect(document.querySelector("h1")?.textContent).toBe("Connections.title");
     expect(document.querySelector('[role="tablist"][aria-label="Connections.tabsLabel"]')).not.toBeNull();
   });
 
   it("offers only the tabs the person may see", () => {
-    renderView({ tabs: ["apps", "agents"], tab: "apps", section: null, bleed: false });
+    renderView({ tabs: ["agents"], tab: "agents", section: null, bleed: false });
 
-    expect(tabs("connections").map((tab) => tab.textContent)).toEqual([
-      "Connections.tabs.apps",
-      "Connections.tabs.agents",
-    ]);
+    expect(tabs("connections").map((tab) => tab.textContent)).toEqual(["Connections.tabs.agents"]);
     expect(document.querySelector('[aria-label="Connections.channels.sectionsLabel"]')).toBeNull();
   });
 
   it("opens the next tab through the address, so a tab can be linked and reloaded", async () => {
-    renderView({
-      tabs: ["channels", "apps", "agents", "developers"],
-      tab: "channels",
-      section: "accounts",
-      bleed: false,
-    });
+    renderView({ tabs: ["channels", "agents", "developers"], tab: "channels", section: "accounts", bleed: false });
 
     pressArrowRight(tabs("connections")[0]);
 
-    await vi.waitFor(() => expect(router.push).toHaveBeenCalledWith("/settings/connections?tab=apps"));
+    await vi.waitFor(() => expect(router.push).toHaveBeenCalledWith("/settings/connections?tab=agents"));
   });
 
   it("shows the sections of the Developers tab and keeps the tab when one is chosen", async () => {
     renderView(
-      { tabs: ["channels", "apps", "agents", "developers"], tab: "developers", section: "keys", bleed: false },
+      { tabs: ["channels", "agents", "developers"], tab: "developers", section: "keys", bleed: false },
       "keys content",
     );
 
@@ -126,12 +114,7 @@ describe("ConnectionsPageView", () => {
   });
 
   it("lets both switchers grow to their longest label and scroll sideways instead of cutting labels off", () => {
-    renderView({
-      tabs: ["channels", "apps", "agents", "developers"],
-      tab: "developers",
-      section: "incoming",
-      bleed: false,
-    });
+    renderView({ tabs: ["channels", "agents", "developers"], tab: "developers", section: "incoming", bleed: false });
 
     const lists = [...document.querySelectorAll<HTMLElement>('[role="tablist"]')];
     expect(lists.map((list) => list.getAttribute("aria-label"))).toEqual([
@@ -160,12 +143,7 @@ describe("ConnectionsPageView", () => {
       },
     });
     try {
-      renderView({
-        tabs: ["channels", "apps", "agents", "developers"],
-        tab: "developers",
-        section: "incoming",
-        bleed: false,
-      });
+      renderView({ tabs: ["channels", "agents", "developers"], tab: "developers", section: "incoming", bleed: false });
     } finally {
       if (descriptor) Object.defineProperty(Element.prototype, "scrollIntoView", descriptor);
       else Reflect.deleteProperty(Element.prototype, "scrollIntoView");
@@ -175,39 +153,12 @@ describe("ConnectionsPageView", () => {
   });
 
   it("shows no section control for Channels, whose only section is the connected accounts", () => {
-    renderView({ tabs: ["channels", "apps"], tab: "channels", section: "accounts", bleed: false }, "accounts content");
+    renderView(
+      { tabs: ["channels", "agents"], tab: "channels", section: "accounts", bleed: false },
+      "accounts content",
+    );
 
     expect(tabs("connections-section")).toEqual([]);
     expect(container.textContent).toContain("accounts content");
-  });
-});
-
-describe("ConnectionAppsTab", () => {
-  it("says no apps are connected yet and names the owner and scope while the registry is empty", () => {
-    render(<ConnectionAppsTab />);
-
-    expect(container.textContent).toContain("Connections.apps.emptyTitle");
-    expect(container.textContent).toContain("Connections.apps.emptyBody");
-    expect(container.querySelector("[data-connection-owner='workspace'][data-connection-scope='apps']")).not.toBeNull();
-    expect(container.querySelector("button")).toBeNull();
-  });
-
-  it("lists each provider with what it enables and a disabled Connect button until it is available", () => {
-    render(
-      <ConnectionAppsTab
-        providers={[
-          { id: "alpha", name: "Alpha", enablesKey: "Connections.apps.enables", available: false },
-          { id: "beta", name: "Beta", enablesKey: "Connections.apps.enables", available: true },
-        ]}
-      />,
-    );
-
-    const cards = [...container.querySelectorAll<HTMLElement>("[data-connection-provider]")];
-    expect(cards.map((card) => card.dataset.connectionProvider)).toEqual(["alpha", "beta"]);
-    expect(cards[0]?.textContent).toContain("Alpha");
-    expect(cards[0]?.textContent).toContain("Connections.apps.comingSoon");
-    expect(cards[0]?.querySelector("button")?.disabled).toBe(true);
-    expect(cards[1]?.textContent).not.toContain("Connections.apps.comingSoon");
-    expect(cards[1]?.querySelector("button")?.disabled).toBe(false);
   });
 });

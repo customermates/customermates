@@ -1648,7 +1648,7 @@
         "api-keys": "tokeny, API, MCP, deweloper, klucze dostępu, konektory, Claude, ChatGPT, Codex, Gemini, Cursor, AI, serwer MCP, n8n, integracja",
         "billing": "plan, subskrypcja, faktury, płatność, cennik, zmiana planu, paragon, rachunek",
         "channels": "połączone konta, konta e-mail, LinkedIn, WhatsApp, integracje, Google, Kalendarz Google, Gmail, Microsoft, Outlook, Instagram, Telegram, kalendarze, synchronizacja skrzynki, synchronizacja kalendarza, synchronizacja poczty, SMTP, IMAP, Office 365, Sales Navigator",
-        "connections": "połączenia, integracje, aplikacje, agenci, kanały, klucze API, webhooki, deweloperzy, połącz, połączone konta",
+        "connections": "połączenia, integracje, agenci, kanały, klucze API, webhooki, deweloperzy, połącz, połączone konta",
         "general": "nazwa przestrzeni roboczej, zmień nazwę przestrzeni roboczej, opuść przestrzeń roboczą",
         "incoming-webhooks": "przychodzące webhooki, odbieranie danych, tajny adres, adres URL webhooka, wysyłanie JSON, tworzenie rekordów z innych narzędzi, narzędzie do formularzy, Zapier, Make, n8n",
         "members": "zespół, użytkownicy, osoby, współpracownicy, zaproś, miejsca, licencje",
@@ -2689,20 +2689,12 @@
     "visibilityUpdateFailed": "Nie udało się zmienić widoczności. Spróbuj ponownie."
   },
   "Connections": {
-    "apps": {
-      "comingSoon": "Dostępne w następnym wydaniu",
-      "connect": "Połącz",
-      "emptyBody": "Aplikacje, które połączysz później, pojawią się tutaj razem z osobą, która je połączyła, i tym, do czego mają dostęp.",
-      "emptyTitle": "Brak połączonych aplikacji",
-      "enables": "Umożliwia",
-      "providersTitle": "Dostępne aplikacje"
-    },
     "channels": {
       "sectionsLabel": "Sekcje kanałów",
       "selfHostedBody": "Kanały e-mail, LinkedIn, WhatsApp i kalendarza korzystają z hostowanej usługi połączeń i nie są dostępne przy self-hostingu.",
       "selfHostedTitle": "Kanały wymagają Customermates Cloud"
     },
-    "description": "Wszystko, co łączy Customermates z Twoimi kanałami, aplikacjami, agentami i systemami, z właścicielem każdego połączenia i tym, do czego ma dostęp.",
+    "description": "Wszystko, co łączy Customermates z Twoimi kanałami, agentami i systemami, z właścicielem każdego połączenia i tym, do czego ma dostęp.",
     "developers": {
       "sectionsLabel": "Sekcje dla deweloperów"
     },
@@ -2713,7 +2705,6 @@
     "scope": {
       "accounts": "Zakres: prywatne dla właściciela, chyba że udostępnione przestrzeni roboczej",
       "agents": "Zakres: tylko dostęp i limity, które ustawisz",
-      "apps": "Zakres: tylko to, na co zezwolisz przy łączeniu",
       "deliveries": "Zakres: każda próba dostarczenia webhooków tej przestrzeni roboczej",
       "incoming": "Zakres: pozwala innym systemom tworzyć lub aktualizować rekordy na wybranej liście",
       "keys": "Zakres: odczytuje i zapisuje dane tej przestrzeni roboczej przez API",
@@ -2721,7 +2712,6 @@
     },
     "tabs": {
       "agents": "Agenci",
-      "apps": "Aplikacje",
       "channels": "Kanały",
       "developers": "Deweloperzy"
     },

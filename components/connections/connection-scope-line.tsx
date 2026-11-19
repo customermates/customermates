@@ -4,7 +4,7 @@ type Translate = ReturnType<typeof useTranslations>;
 
 export type ConnectionOwner = "user" | "workspace";
 
-export type ConnectionScope = "accounts" | "agents" | "apps" | "deliveries" | "incoming" | "keys" | "webhooks";
+export type ConnectionScope = "accounts" | "agents" | "deliveries" | "incoming" | "keys" | "webhooks";
 
 function ownerLabel(t: Translate, owner: ConnectionOwner): string {
   return owner === "user" ? t("Connections.owner.user") : t("Connections.owner.workspace");
@@ -16,8 +16,6 @@ function scopeLabel(t: Translate, scope: ConnectionScope): string {
       return t("Connections.scope.accounts");
     case "agents":
       return t("Connections.scope.agents");
-    case "apps":
-      return t("Connections.scope.apps");
     case "deliveries":
       return t("Connections.scope.deliveries");
     case "incoming":

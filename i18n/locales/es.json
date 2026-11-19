@@ -1648,7 +1648,7 @@
         "api-keys": "tokens, API, MCP, desarrollador, claves de acceso, conectores, Claude, ChatGPT, Codex, Gemini, Cursor, IA, servidor MCP, n8n, integración",
         "billing": "plan, suscripción, facturas, pago, precios, mejorar plan, recibo, factura",
         "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendarios, sincronización de bandeja, sincronización de calendario, sincronización de correo, SMTP, IMAP, Office 365, Sales Navigator",
-        "connections": "conexiones, integraciones, apps, agentes, canales, claves de API, webhooks, desarrolladores, conectar, cuentas vinculadas",
+        "connections": "conexiones, integraciones, agentes, canales, claves de API, webhooks, desarrolladores, conectar, cuentas vinculadas",
         "general": "nombre del espacio de trabajo, renombrar espacio de trabajo, salir del espacio de trabajo",
         "incoming-webhooks": "webhooks entrantes, recibir datos, dirección secreta, URL del webhook, enviar JSON, crear registros desde otras herramientas, herramienta de formularios, Zapier, Make, n8n",
         "members": "equipo, usuarios, personas, compañeros, invitar, asientos, licencias",
@@ -2689,20 +2689,12 @@
     "visibilityUpdateFailed": "No se pudo actualizar la visibilidad. Inténtalo de nuevo."
   },
   "Connections": {
-    "apps": {
-      "comingSoon": "Llega en la próxima versión",
-      "connect": "Conectar",
-      "emptyBody": "Las apps que conectes más adelante aparecerán aquí, con quién las conectó y a qué pueden acceder.",
-      "emptyTitle": "Aún no hay apps conectadas",
-      "enables": "Permite",
-      "providersTitle": "Apps disponibles"
-    },
     "channels": {
       "sectionsLabel": "Secciones de canales",
       "selfHostedBody": "Los canales de correo, LinkedIn, WhatsApp y calendario usan el servicio de conexión alojado y no están disponibles si alojas tú mismo.",
       "selfHostedTitle": "Los canales necesitan Customermates Cloud"
     },
-    "description": "Todo lo que conecta Customermates con tus canales, apps, agentes y sistemas, con el propietario de cada conexión y a qué puede acceder.",
+    "description": "Todo lo que conecta Customermates con tus canales, agentes y sistemas, con el propietario de cada conexión y a qué puede acceder.",
     "developers": {
       "sectionsLabel": "Secciones para desarrolladores"
     },
@@ -2713,7 +2705,6 @@
     "scope": {
       "accounts": "Alcance: privado para su propietario, salvo que se comparta con el espacio de trabajo",
       "agents": "Alcance: solo el acceso y los límites que definas",
-      "apps": "Alcance: solo lo que permites al conectar",
       "deliveries": "Alcance: cada intento de entrega de los webhooks de este espacio de trabajo",
       "incoming": "Alcance: permite que otros sistemas creen o actualicen registros en la lista que elijas",
       "keys": "Alcance: lee y escribe los datos de este espacio de trabajo a través de la API",
@@ -2721,7 +2712,6 @@
     },
     "tabs": {
       "agents": "Agentes",
-      "apps": "Apps",
       "channels": "Canales",
       "developers": "Desarrolladores"
     },

@@ -520,7 +520,7 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<Exclude<SettingsSlug, Connections
   workspaces:
     "Settings link to Workspaces, every workspace the person belongs to with role, status and plan, and Switch, Leave and Create workspace",
   connections:
-    "Settings link to Connections, one page with four tabs: Channels (connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram), Apps, Agents and Developers (API keys & connectors, webhooks, webhook log and incoming webhooks); each connection shows who owns it and its scope",
+    "Settings link to Connections, one page with three tabs: Channels (connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram), Agents and Developers (API keys & connectors, webhooks, webhook log and incoming webhooks); each connection shows who owns it and its scope",
   general: "Settings link to General, the workspace name and Leave workspace",
   members: "Settings link to Members, the team members of the workspace and their roles",
   roles: "Settings link to Roles and their permissions",

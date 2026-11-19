@@ -23,6 +23,8 @@ import type { SettingsSlug } from "./settings-routes";
 import type { AppMode } from "@/core/config/environment";
 import type { ConnectionsRedirectSlug } from "@/features/connections/connection-tabs";
 
+import { CONNECTION_RESOURCES } from "@/features/connections/connection-tabs";
+
 export type SettingsSection = "account" | "workspace";
 
 type SettingsSubroute = {
@@ -30,6 +32,7 @@ type SettingsSubroute = {
   labelKey: string;
   icon: LucideIcon;
   resource?: Resource;
+  anyResource?: readonly Resource[];
   cloudOnly?: boolean;
 };
 
@@ -44,7 +47,7 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
     { slug: "roles", icon: Shield, labelKey: "SettingsNav.roles", resource: Resource.users },
     { slug: "billing", icon: CreditCard, labelKey: "SettingsNav.billing", resource: Resource.company, cloudOnly: true },
     { slug: "activity", icon: History, labelKey: "SettingsNav.activity", resource: Resource.activityLog },
-    { slug: "connections", icon: Plug, labelKey: "SettingsNav.connections" },
+    { slug: "connections", icon: Plug, labelKey: "SettingsNav.connections", anyResource: CONNECTION_RESOURCES },
   ],
 };
 
@@ -85,6 +88,8 @@ export function visibleSubroutes(
 ): SettingsSubroute[] {
   return SETTINGS_SECTIONS[section].filter(
     (subroute) =>
-      (appMode !== "self-hosted" || !subroute.cloudOnly) && (!subroute.resource || canAccess(subroute.resource)),
+      (appMode !== "self-hosted" || !subroute.cloudOnly) &&
+      (!subroute.resource || canAccess(subroute.resource)) &&
+      (!subroute.anyResource || subroute.anyResource.some(canAccess)),
   );
 }

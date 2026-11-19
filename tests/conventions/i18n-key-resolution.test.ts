@@ -1062,7 +1062,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     "components/channels/connect-channel-menu.tsx :: t :: option.labelKey",
     1,
   ],
-  ["components/connections/connection-apps-tab.tsx :: t :: provider.enablesKey", 1],
   [
     "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey",
     1,

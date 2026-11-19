@@ -55,7 +55,7 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page.locator("[data-sidebar-section]")).toHaveCount(0);
   });
 
-  await test.step("channels, apps, agents and the developer tools are one Connections page in the area nav", async () => {
+  await test.step("channels, agents and the developer tools are one Connections page in the area nav", async () => {
     const workspaceGroup = page.locator('[data-area-nav-group="workspace"]');
     const items = await workspaceGroup
       .locator("a[id^='nav-settings-']")

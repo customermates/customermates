@@ -7,7 +7,7 @@ import { billingFocusPlan, billingHref, CONNECTIONS_HREF, connectionsHref, setti
 describe("connections links", () => {
   it("opens the Connections page, with a tab and an inner section when asked", () => {
     expect(CONNECTIONS_HREF).toBe("/settings/connections");
-    expect(connectionsHref("apps")).toBe("/settings/connections?tab=apps");
+    expect(connectionsHref("agents")).toBe("/settings/connections?tab=agents");
     expect(connectionsHref("channels", "accounts")).toBe("/settings/connections?tab=channels");
     expect(connectionsHref("developers", "webhooks")).toBe("/settings/connections?tab=developers&section=webhooks");
   });

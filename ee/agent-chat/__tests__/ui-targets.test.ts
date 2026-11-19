@@ -118,6 +118,8 @@ describe("agent interface targets", () => {
     expect(agentRouteVisible("/settings/webhooks", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.api))).toBe(true);
+    expect(agentRouteVisible("/settings/connections", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/connections", "cloud", reads(Resource.company))).toBe(true);
     expect(agentRouteVisible("/settings/members", "cloud", reads(Resource.users))).toBe(true);
     expect(agentRouteVisible("/settings/api-keys", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/profile", "cloud", reads())).toBe(true);
