@@ -60,6 +60,7 @@ test("signing in from a link to a protected page returns to that page", async ({
     await page.locator("#password").fill(password);
     await clickHydrated(page.getByRole("button", { name: englishMessages.SignInForm.signInCta, exact: true }));
     await expect(page).toHaveURL(/\/routines/);
+    await page.waitForLoadState("domcontentloaded");
     expect(visitor.errors).toEqual([]);
   } finally {
     await visitor.close();
