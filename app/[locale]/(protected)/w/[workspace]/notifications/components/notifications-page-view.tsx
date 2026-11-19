@@ -10,7 +10,6 @@ import type { NotificationDto, NotificationInbox } from "@/features/notification
 import type { NotificationsStore } from "./notifications.store";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
-import { VIEW_TAB_ACTIVE_CLASS, VIEW_TAB_CLASS } from "@/components/data-view/views/view-chip";
 import { PageState } from "@/components/page-state/page-state";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -153,15 +152,17 @@ const NotificationsPageViewContent = observer(function NotificationsPageView({ i
         role="group"
       >
         {NOTIFICATION_KIND_FILTERS.map((option) => (
-          <button
+          <Button
             key={option}
             aria-pressed={kind === option}
-            className={cn(VIEW_TAB_CLASS, kind === option && VIEW_TAB_ACTIVE_CLASS)}
+            className="h-7 rounded-full px-2.5 text-xs"
+            size="sm"
             type="button"
+            variant={kind === option ? "default" : "secondary"}
             onClick={() => setKind(option)}
           >
             {option === "all" ? t("Notifications.filterAll") : t(`Notifications.kinds.${option}`)}
-          </button>
+          </Button>
         ))}
       </div>
 
