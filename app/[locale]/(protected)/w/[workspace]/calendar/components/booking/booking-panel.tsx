@@ -93,6 +93,7 @@ const BookingRow = observer(function BookingRow({
 
       {link.calendarId === null ? (
         <Alert
+          stacked
           action={
             link.own ? (
               <Button size="sm" variant="secondary" onClick={(event) => onEdit(link, event.currentTarget)}>
@@ -103,7 +104,6 @@ const BookingRow = observer(function BookingRow({
           data-booking-calendar-missing=""
           description={t("Booking.noCalendar")}
           role="status"
-          stacked
           variant="warning"
         />
       ) : null}
