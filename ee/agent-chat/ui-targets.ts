@@ -5,7 +5,6 @@ import type { AppMode } from "@/core/config/environment";
 import type { Resource } from "@/generated/prisma";
 
 import {
-  redirectedSettingsOf,
   SETTINGS_SECTIONS,
   settingsSectionOf,
   visibleSubroutes,
@@ -221,8 +220,6 @@ function primaryNavPage(section: string | undefined) {
 
 export function agentUiPageLabelKeys(route: string): string[] {
   const [section, slug] = routeSegments(route);
-  const redirected = section === "settings" ? redirectedSettingsOf(slug) : null;
-  if (redirected) return [redirected.labelKey, "SettingsNav.connections"];
   const settingsSection = settingsSectionOfRoute(section, slug);
   if (settingsSection) {
     const labelKey = SETTINGS_SECTIONS[settingsSection].find((subroute) => subroute.slug === slug)?.labelKey;
@@ -238,8 +235,6 @@ export function agentSidebarGroupId(targetId: string) {
 
 export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {
   const [section, slug] = routeSegments(path);
-  const redirected = section === "settings" ? redirectedSettingsOf(slug) : null;
-  if (redirected) return (appMode !== "self-hosted" || !redirected.cloudOnly) && canAccess(redirected.resource);
   const settingsSection = settingsSectionOfRoute(section, slug);
   if (settingsSection)
     return visibleSubroutes(settingsSection, appMode, canAccess).some((subroute) => subroute.slug === slug);

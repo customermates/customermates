@@ -867,7 +867,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   it("keeps the step that answers a question in the words of that step, not a row that shares one word", async () => {
     const excerpt = await excerptOf("webhooks", "Wo trage ich die Webhook-URL ein", "de");
     expect(excerpt).toContain(
-      `Öffnen Sie **Verbindungen**, wählen Sie den Tab **Entwickler** und [Webhooks](${APP}${workspaceEntryHref("/settings/webhooks")}), klicken Sie auf [Hinzufügen](${APP}${workspaceEntryHref("/settings/webhooks?focus=control%3Asettings-webhooks-add")}), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein`,
+      `Öffnen Sie [Webhooks](${APP}${workspaceEntryHref("/settings/webhooks")}), klicken Sie auf [Hinzufügen](${APP}${workspaceEntryHref("/settings/webhooks?focus=control%3Asettings-webhooks-add")}), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein`,
     );
     expect(appLinks(excerpt).split(" ")).toContain(`${APP}${workspaceEntryHref("/settings/webhooks")}`);
   });

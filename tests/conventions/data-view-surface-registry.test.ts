@@ -8,7 +8,6 @@ import {
   isActivitySurface,
   type BuiltinDataViewSurfaceKey,
 } from "@/core/data-view/data-view-keys";
-import { CONNECTIONS_REDIRECTS } from "@/app/components/navigation/settings-routes";
 import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 
 const root = process.cwd();
@@ -55,10 +54,7 @@ describe("data view surface registry", () => {
           .slice(1, -1)
           .filter((segment) => !["[locale]", "w", "[workspace]"].includes(segment) && !segment.startsWith("("))
           .join("/")}`;
-        const redirectedPaths = Object.keys(CONNECTIONS_REDIRECTS).map((slug) => `/settings/${slug}`);
-        const savedViewPath = DATA_VIEW_PATHS[key as BuiltinDataViewSurfaceKey];
-        const redirectsHere = route === "/settings/connections" && redirectedPaths.includes(savedViewPath ?? "");
-        expect(redirectsHere ? route : savedViewPath, `${path} saved-view link`).toBe(route);
+        expect(DATA_VIEW_PATHS[key as BuiltinDataViewSurfaceKey], `${path} saved-view link`).toBe(route);
         reached.add(key as string);
       }
     }

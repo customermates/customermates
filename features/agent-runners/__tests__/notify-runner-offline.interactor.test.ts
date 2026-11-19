@@ -55,7 +55,7 @@ describe("NotifyRunnerOfflineInteractor", () => {
       kind: "ruleAlert",
       title: "title:en",
       body: "body:en",
-      href: "/settings/connections?tab=agents",
+      href: "/settings/agents",
       dedupeKey: "runner-offline:2026-11-17T08:40:00.000Z",
     });
   });

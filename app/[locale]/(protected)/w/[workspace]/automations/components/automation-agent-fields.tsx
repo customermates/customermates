@@ -16,7 +16,7 @@ import { IntlLink } from "@/i18n/navigation";
 
 import { Choose, Labeled } from "./automation-builder-fields";
 
-export const AGENT_SETTINGS_HREF = "/settings/connections?tab=agents";
+export const AGENT_SETTINGS_HREF = "/settings/agents";
 
 const DEFAULT_CHOICE = "default";
 const NEXT_KEYS = ["ArrowRight", "ArrowDown"];

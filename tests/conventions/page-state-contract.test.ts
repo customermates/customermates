@@ -25,13 +25,7 @@ const redirectOnlyPages = [
   "w/[workspace]/routines/page.tsx",
   "open/[area]/[preset]/page.tsx",
   "open/[area]/[preset]/[recordId]/page.tsx",
-  "w/[workspace]/settings/(account)/api-keys/page.tsx",
-  "w/[workspace]/settings/(workspace)/agents/page.tsx",
   "w/[workspace]/settings/(account)/booking/page.tsx",
-  "w/[workspace]/settings/(account)/channels/page.tsx",
-  "w/[workspace]/settings/(workspace)/incoming-webhooks/page.tsx",
-  "w/[workspace]/settings/(workspace)/webhook-deliveries/page.tsx",
-  "w/[workspace]/settings/(workspace)/webhooks/page.tsx",
 ] as const;
 const protectedLoaders = protectedPages
   .filter((page) => !(redirectOnlyPages as readonly string[]).includes(page))

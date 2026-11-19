@@ -5,9 +5,9 @@ description: "Your personal Customermates settings: name, language, formats, the
 
 ## What belongs to you rather than the workspace? [#what-lives-on-the-profile-screen]
 
-The Account part of Settings holds two pages: [Profile & preferences](app:settings/profile) (name, avatar, language, formats, theme, notification emails) and [Workspaces](app:settings/workspaces) (the workspaces you belong to). The accounts that feed the [Inbox](/docs/app-inbox) and the keys for MCP and REST clients are on [Connections](app:settings/connections) in the Workspace part, described [below](#connections). Click your avatar at the bottom of the sidebar and choose **Profile & preferences**, or choose **Settings** in the workspace menu (the workspace name at the top of the sidebar) or press G then S; each opens Profile & preferences, and the settings nav lists the other pages. **Back** at the top of that nav returns to where you were. Changes here affect only you, except a channel you share with the workspace. Your profile is the same in every workspace you belong to, while channels and API keys belong to the workspace you connected or created them in; see [Workspaces](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+The Account part of Settings holds four pages: [Profile & preferences](app:settings/profile) (name, avatar, language, formats, theme, notification emails), [Workspaces](app:settings/workspaces) (the workspaces you belong to), [Channels & calendars](app:settings/channels) (the accounts that feed the [Inbox](/docs/app-inbox)) and [API keys & connectors](app:settings/api-keys) (keys for MCP and REST clients). Click your avatar at the bottom of the sidebar and choose **Profile & preferences**, or choose **Settings** in the workspace menu (the workspace name at the top of the sidebar) or press G then S; each opens Profile & preferences, and the settings nav lists the other pages. **Back** at the top of that nav returns to where you were. Changes here affect only you, except a channel you share with the workspace. Your profile is the same in every workspace you belong to, while channels and API keys belong to the workspace you connected or created them in; see [Workspaces](/docs/app-workspaces#what-is-the-same-in-every-workspace).
 
-Every member sees Profile & preferences and Connections. On Connections, the **Channels** tab needs **Read access** **All** on your role's **Inbox messages** row and exists on Customermates Cloud only, and the **Developers** tab needs **Read access** **All** on **API & Webhooks**; **Agents** is open to every member. A new custom role starts with **None** on both rows; roles are edited in [Roles](app:settings/roles), see [App guide, Company](/docs/app-company).
+Every member sees Profile & preferences. Channels & calendars needs **Read access** **All** on your role's **Inbox messages** row and exists on Customermates Cloud only. API keys & connectors needs **Read access** **All** on **API & Webhooks**. A new custom role starts with **None** on both rows; roles are edited in [Roles](app:settings/roles), see [App guide, Company](/docs/app-company).
 
 ## Profile & preferences [#settings-tab]
 
@@ -40,16 +40,6 @@ There is no setting for password, email address, time zone or deleting your acco
 ## Notification emails [#notification-emails]
 
 The **Notification emails** card on [Profile & preferences](app:settings/profile) is a table with one row per kind of notification: **Due today**, **Replies received** and **Automation alerts**. Each row has three choices, **Email right away**, **Daily digest** and **No email**, and a change saves at once. **Pause emails from this workspace until** holds every notification email of this workspace until the day you pick. The pause applies on every device, your choices above stay as they are, and emails resume when that day begins in your time zone. The choices and the pause belong to this workspace; other workspaces you are a member of keep their own. Every notification email ends with why you got it and two links, **Turn off this kind** and **Manage notifications**; see [How do notifications and email preferences work?](/docs/app-automations#how-do-notifications-work).
-
-## Connections [#connections]
-
-[Connections](app:settings/connections), in the Workspace part of Settings, is the one place for everything that links Customermates to people, agents and your own systems. It has three tabs, and the address keeps the tab, so a tab can be linked and reloaded:
-
-- **Channels** holds your connected accounts ([Channels & calendars](#channels-tab)). It exists on Customermates Cloud only; on a self-hosted instance the tab says so.
-- **Agents** holds the runtimes, provider keys, runners and recent runs of the workspace's agents; see [Agents](/docs/app-agents).
-- **Developers** holds [API keys & connectors](#api--connectors-tab), [Webhooks](/docs/webhooks), the Webhook log and Incoming webhooks as four sections.
-
-Each section starts with one line that says who owns its connections and what they can reach. A channel belongs to the person who connected it and stays private until they share it with the workspace; agents, API keys and webhooks belong to the workspace. The earlier links to Channels & calendars, API keys & connectors, Webhooks, Webhook log and Incoming webhooks still work and open the matching tab.
 
 ## API keys & connectors [#api--connectors-tab]
 

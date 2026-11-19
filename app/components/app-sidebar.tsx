@@ -352,7 +352,7 @@ const FullAppSidebar = observer(
             href: settingsHref(subroute.slug),
             icon: subroute.icon,
             badge:
-              subroute.slug === "connections"
+              subroute.slug === "channels"
                 ? channelsNeedingActionCount
                 : subroute.slug === "members"
                   ? pendingMemberCount

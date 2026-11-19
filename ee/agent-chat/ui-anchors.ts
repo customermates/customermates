@@ -2,7 +2,6 @@ import { Resource } from "@/generated/prisma";
 
 import { SETTINGS_SECTIONS, type SettingsSection } from "@/app/components/navigation/settings-sections";
 import { type SettingsSlug, settingsHref, WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
-import type { ConnectionsRedirectSlug } from "@/features/connections/connection-tabs";
 
 export type AnchorPage = {
   scope: string;
@@ -515,17 +514,24 @@ export const MENU_NAV_TARGETS: {
   },
 ];
 
-export const SETTINGS_NAV_DESCRIPTIONS: Record<Exclude<SettingsSlug, ConnectionsRedirectSlug>, string> = {
+export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   profile: "Settings link to Profile & preferences: name, avatar, language, theme and email verification",
   workspaces:
     "Settings link to Workspaces, every workspace the person belongs to with role, status and plan, and Switch, Leave and Create workspace",
-  connections:
-    "Settings link to Connections, one page with three tabs: Channels (connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram), Agents and Developers (API keys & connectors, webhooks, webhook log and incoming webhooks); each connection shows who owns it and its scope",
+  channels:
+    "Settings link to Channels & calendars, the connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram",
+  "api-keys": "Settings link to API keys & connectors for the REST API, MCP clients and AI connectors",
   general: "Settings link to General, the workspace name and Leave workspace",
   members: "Settings link to Members, the team members of the workspace and their roles",
   roles: "Settings link to Roles and their permissions",
   billing: "Settings link to Billing, the plan, subscription, trial status and invoices",
   activity: "Settings link to Audit log, the log of changes in the workspace",
+  agents:
+    "Settings link to Agents, the workspace's own AI provider keys, the runners that work for it and their recent runs",
+  webhooks: "Settings link to Webhooks; each webhook row offers Show deliveries for its sent deliveries",
+  "incoming-webhooks":
+    "Settings link to Incoming webhooks, the addresses other systems post to so a record is created in a list",
+  "webhook-deliveries": "Settings link to Webhook log, the sent webhook deliveries, directly below Incoming webhooks",
 };
 
 function settingsNavKeys(section: SettingsSection): string[] {

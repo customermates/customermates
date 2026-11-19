@@ -1,10 +1,8 @@
 import { isPurchasablePlanId, type PurchasablePlanId } from "@/core/commercial/plan-catalog";
-import { CONNECTIONS_REDIRECTS, connectionsHref } from "@/features/connections/connection-tabs";
 
 export type SettingsSlug =
   | "profile"
   | "workspaces"
-  | "connections"
   | "channels"
   | "api-keys"
   | "general"
@@ -12,10 +10,10 @@ export type SettingsSlug =
   | "roles"
   | "billing"
   | "activity"
+  | "agents"
   | "webhooks"
-  | "webhook-deliveries"
   | "incoming-webhooks"
-  | "agents";
+  | "webhook-deliveries";
 
 export function settingsHref(slug: SettingsSlug) {
   return `/settings/${slug}`;
@@ -34,12 +32,3 @@ export function billingFocusPlan(value: string | string[] | undefined): Purchasa
 export const SETTINGS_ENTRY_HREF = settingsHref("profile");
 
 export const WEBHOOK_DELIVERIES_HREF = settingsHref("webhook-deliveries");
-
-export const CONNECTIONS_HREF = settingsHref("connections");
-
-export { CONNECTIONS_REDIRECTS, connectionsHref };
-
-export function settingsLandingPath(path: string): string {
-  const slug = /^\/settings\/([^/?#]+)/u.exec(path)?.[1];
-  return slug && Object.hasOwn(CONNECTIONS_REDIRECTS, slug) ? CONNECTIONS_HREF : path;
-}

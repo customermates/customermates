@@ -245,7 +245,7 @@ describe("AutomationBuilderStore", () => {
     expect(member.isReadOnly).toBe(false);
   });
 
-  it("knows whether the member can open Settings, Connections, Agents, which needs workspace settings", () => {
+  it("knows whether the member can open Settings, Agents, which needs workspace settings", () => {
     const granted = new Set<string>([`${Resource.routines}:${Action.create}`]);
     const store = new AutomationBuilderStore({
       registerModalStore: vi.fn(),

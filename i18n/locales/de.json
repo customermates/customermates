@@ -1187,10 +1187,10 @@
   "Automations": {
     "agent": {
       "anyRunner": "Beliebiger verfügbarer Runner",
-      "askAdmin": "Ein Admin kann das unter Einstellungen, Verbindungen, Agenten einrichten.",
+      "askAdmin": "Ein Admin kann das unter Einstellungen, Agenten einrichten.",
       "defaultModel": "Standardmodell des Schlüssels",
       "model": "Modell",
-      "openSettings": "Einstellungen, Verbindungen, Agenten öffnen",
+      "openSettings": "Einstellungen, Agenten öffnen",
       "ownerRunner": "Läuft auf einem Runner der Person, der diese Automatisierung gehört. Runner sind persönlich, deine werden hier deshalb nicht aufgeführt.",
       "prompt": "Was soll der Agent tun?",
       "promptPlaceholder": "Zum Beispiel: Verfasse eine kurze, freundliche Antwort und speichere sie zur Prüfung.",
@@ -1687,7 +1687,6 @@
         "api-keys": "Token, API, MCP, Entwickler, Zugangsschlüssel, Konnektoren, Connectors, Claude, ChatGPT, Codex, Gemini, Cursor, KI, MCP-Server, n8n, Integration",
         "billing": "Tarif, Abonnement, Rechnungen, Zahlung, Preise, Upgrade, Beleg, Rechnung",
         "channels": "verbundene Konten, E-Mail-Konten, LinkedIn, WhatsApp, Integrationen, Google, Google Kalender, Gmail, Microsoft, Outlook, Instagram, Telegram, Kalender, Postfach-Synchronisierung, Kalender-Synchronisierung, E-Mail-Synchronisierung, SMTP, IMAP, Office 365, Sales Navigator",
-        "connections": "Verbindungen, Integrationen, Agenten, Kanäle, API-Schlüssel, Webhooks, Entwickler, verbinden, verknüpfte Konten",
         "general": "Workspace-Name, Workspace umbenennen, Workspace verlassen",
         "incoming-webhooks": "eingehende Webhooks, Daten empfangen, geheime Adresse, Webhook-URL, JSON senden, Datensätze aus anderen Tools anlegen, Formular-Tool, Zapier, Make, n8n",
         "members": "Team, Benutzer, Personen, Kollegen, einladen, Plätze, Lizenzen",
@@ -2726,36 +2725,6 @@
     "visibilityPrivate": "Privat",
     "visibilityShared": "Geteilt",
     "visibilityUpdateFailed": "Sichtbarkeit konnte nicht aktualisiert werden. Bitte erneut versuchen."
-  },
-  "Connections": {
-    "channels": {
-      "sectionsLabel": "Bereiche der Kanäle",
-      "selfHostedBody": "E-Mail-, LinkedIn-, WhatsApp- und Kalenderkanäle nutzen den gehosteten Verbindungsdienst und sind beim Self-Hosting nicht verfügbar.",
-      "selfHostedTitle": "Kanäle brauchen Customermates Cloud"
-    },
-    "description": "Alles, was Customermates mit deinen Kanälen, Agenten und Systemen verbindet, mit Besitzer und Reichweite jeder Verbindung.",
-    "developers": {
-      "sectionsLabel": "Bereiche für Entwickler"
-    },
-    "owner": {
-      "user": "Besitzer: die Person, die es verbunden hat",
-      "workspace": "Besitzer: dieser Workspace"
-    },
-    "scope": {
-      "accounts": "Reichweite: privat für den Besitzer, solange nicht mit dem Workspace geteilt",
-      "agents": "Reichweite: nur der Zugriff und die Grenzen, die du festlegst",
-      "deliveries": "Reichweite: jeder Zustellversuch der Webhooks dieses Workspace",
-      "incoming": "Reichweite: lässt andere Systeme Datensätze in der gewählten Liste anlegen oder ändern",
-      "keys": "Reichweite: liest und schreibt die Daten dieses Workspace über die API",
-      "webhooks": "Reichweite: sendet die Ereignisse dieses Workspace an die Adressen, die du hinzufügst"
-    },
-    "tabs": {
-      "agents": "Agenten",
-      "channels": "Kanäle",
-      "developers": "Entwickler"
-    },
-    "tabsLabel": "Arten von Verbindungen",
-    "title": "Verbindungen"
   },
   "ContactHistory": {
     "ariaOpenInInbox": "Im Posteingang öffnen",
@@ -6322,7 +6291,6 @@
     "apiKeys": "API-Schlüssel & Konnektoren",
     "billing": "Abrechnung",
     "channels": "Kanäle & Kalender",
-    "connections": "Verbindungen",
     "deliveries": "Webhook-Protokoll",
     "general": "Allgemein",
     "incomingWebhooks": "Eingehende Webhooks",

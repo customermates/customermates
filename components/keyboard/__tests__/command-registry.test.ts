@@ -76,6 +76,9 @@ describe("command registry", () => {
         "settings.general",
         "settings.members",
         "settings.billing",
+        "settings.channels",
+        "settings.api-keys",
+        "settings.agents",
         "settings.webhooks",
         "settings.webhook-deliveries",
         "settings.incoming-webhooks",
@@ -105,19 +108,6 @@ describe("command registry", () => {
     expect(commandAvailable(switchView, reader)).toBe(false);
     expect(commandAvailable(inbox, { ...everything, appMode: "self-hosted" })).toBe(false);
     expect(commandAvailable(configure, everything)).toBe(true);
-  });
-
-  it("offers Connections only to a person who may open one of its tabs", () => {
-    const connections = staticCommand("settings.connections");
-    if (!connections) throw new Error("missing command");
-    const reads = (allowed: Resource): CommandEnvironment => ({
-      ...everything,
-      can: (resource, action) => resource === allowed && action === Action.readAll,
-    });
-    expect(commandAvailable(connections, reads(Resource.users))).toBe(false);
-    expect(commandAvailable(connections, reads(Resource.inboxMessages))).toBe(true);
-    expect(commandAvailable(connections, reads(Resource.company))).toBe(true);
-    expect(commandAvailable(connections, reads(Resource.api))).toBe(true);
   });
 
   it("offers switching only with another workspace and creating everywhere except the demo", () => {

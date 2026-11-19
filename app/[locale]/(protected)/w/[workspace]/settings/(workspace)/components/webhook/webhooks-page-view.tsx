@@ -23,7 +23,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { RowActions } from "@/components/data-view/row-actions";
 import { Action } from "@/generated/prisma";
 import { Send } from "lucide-react";
-import { connectionsHref } from "@/app/components/navigation/settings-routes";
+import { WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
 import { useRouter } from "@/i18n/navigation";
 import { encodeGetParams } from "@/core/utils/get-params";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -100,7 +100,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
           icon: Send,
           onSelect: () =>
             router.push(
-              `${connectionsHref("developers", "deliveries")}&${encodeGetParams({
+              `${WEBHOOK_DELIVERIES_HREF}?${encodeGetParams({
                 filters: [{ field: FilterFieldKey.webhookId, operator: FilterOperatorKey.in, value: [item.id] }],
               })}`,
             ),

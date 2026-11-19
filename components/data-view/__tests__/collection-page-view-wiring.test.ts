@@ -314,7 +314,7 @@ const fixtures: Fixture[] = [
       )(item);
       actions.props.contextAction.onSelect();
       expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
-        "/settings/connections?tab=developers&section=deliveries&filters=webhookId%3Ain%3Arow",
+        "/settings/webhook-deliveries?filters=webhookId%3Ain%3Arow",
       );
     },
     verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),

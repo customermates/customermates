@@ -133,7 +133,6 @@ export const domTestFiles = [
   "app/**/settings/**/__tests__/connected-accounts-status-toast.dom.test.ts",
   "app/**/settings/**/__tests__/notification-preferences-card.dom.test.tsx",
   "app/**/settings/**/__tests__/notification-notice-toast.dom.test.ts",
-  "components/connections/__tests__/connections-page-view.dom.test.tsx",
   "components/wiki/__tests__/wiki-refresh-safety.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
   "components/modal/__tests__/navigation-history-guard.test.ts",

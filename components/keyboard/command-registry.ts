@@ -36,9 +36,8 @@ import {
 } from "lucide-react";
 
 import { Action, Resource } from "@/generated/prisma";
-import { REDIRECTED_SETTINGS, SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
-import { CONNECTIONS_REDIRECTS, connectionsHref, settingsHref } from "@/app/components/navigation/settings-routes";
-import type { ConnectionsRedirectSlug } from "@/features/connections/connection-tabs";
+import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 import { AI_CLIENT_COMMAND_ICONS, CHANNEL_COMMAND_ICONS } from "./connect-command-icons";
 import { CONNECT_INTENT_AI_CLIENTS, CONNECT_INTENT_CHANNELS, connectIntentHref } from "./connect-intent";
@@ -63,7 +62,6 @@ type CommandTarget = { href: string } | { control: string } | { action: CommandA
 
 type CommandRequirement = {
   resource?: Resource;
-  anyResource?: readonly Resource[];
   action?: Action;
   cloudOnly?: boolean;
   schemaManager?: boolean;
@@ -152,28 +150,16 @@ const AI_CLIENT_CONNECTIONS: StaticCommand[] = CONNECT_INTENT_AI_CLIENTS.map((pr
   requires: { resource: Resource.api, action: Action.create },
 }));
 
-const SETTINGS_PAGES: StaticCommand[] = [
-  ...[...SETTINGS_SECTIONS.account, ...SETTINGS_SECTIONS.workspace].map(
-    (subroute): StaticCommand => ({
-      id: `settings.${subroute.slug}`,
-      labelKey: subroute.labelKey,
-      kind: "page",
-      icon: subroute.icon,
-      target: { href: settingsHref(subroute.slug) },
-      requires: { resource: subroute.resource, anyResource: subroute.anyResource, cloudOnly: subroute.cloudOnly },
-    }),
-  ),
-  ...(Object.keys(REDIRECTED_SETTINGS) as ConnectionsRedirectSlug[]).map(
-    (slug): StaticCommand => ({
-      id: `settings.${slug}`,
-      labelKey: REDIRECTED_SETTINGS[slug].labelKey,
-      kind: "page",
-      icon: REDIRECTED_SETTINGS[slug].icon,
-      target: { href: connectionsHref(CONNECTIONS_REDIRECTS[slug].tab, CONNECTIONS_REDIRECTS[slug].section) },
-      requires: { resource: REDIRECTED_SETTINGS[slug].resource, cloudOnly: REDIRECTED_SETTINGS[slug].cloudOnly },
-    }),
-  ),
-];
+const SETTINGS_PAGES: StaticCommand[] = [...SETTINGS_SECTIONS.account, ...SETTINGS_SECTIONS.workspace].map(
+  (subroute) => ({
+    id: `settings.${subroute.slug}`,
+    labelKey: subroute.labelKey,
+    kind: "page",
+    icon: subroute.icon,
+    target: { href: settingsHref(subroute.slug) },
+    requires: { resource: subroute.resource, cloudOnly: subroute.cloudOnly },
+  }),
+);
 
 export const STATIC_COMMANDS: readonly StaticCommand[] = [
   {
@@ -407,10 +393,6 @@ export function staticCommand(id: string): StaticCommand | undefined {
   return STATIC_COMMANDS.find((entry) => entry.id === id);
 }
 
-function canRead(environment: CommandEnvironment, resource: Resource): boolean {
-  return environment.can(resource, Action.readOwn) || environment.can(resource, Action.readAll);
-}
-
 export function commandAvailable(entry: StaticCommand, environment: CommandEnvironment): boolean {
   const requires = entry.requires;
   if (!requires) return true;
@@ -419,8 +401,7 @@ export function commandAvailable(entry: StaticCommand, environment: CommandEnvir
   if (requires.listPage && !environment.onListPage) return false;
   if (requires.otherWorkspaces && !environment.otherWorkspaces) return false;
   if (requires.workspaceCreation && environment.appMode === "demo") return false;
-  if (requires.anyResource && !requires.anyResource.some((resource) => canRead(environment, resource))) return false;
   if (!requires.resource) return true;
   if (requires.action) return environment.can(requires.resource, requires.action);
-  return canRead(environment, requires.resource);
+  return environment.can(requires.resource, Action.readOwn) || environment.can(requires.resource, Action.readAll);
 }

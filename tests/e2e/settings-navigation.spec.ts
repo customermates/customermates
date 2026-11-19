@@ -55,19 +55,36 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page.locator("[data-sidebar-section]")).toHaveCount(0);
   });
 
-  await test.step("channels, agents and the developer tools are one Connections page in the area nav", async () => {
+  await test.step("agents, webhooks, incoming webhooks and the webhook log are separate pages in the area nav", async () => {
     const workspaceGroup = page.locator('[data-area-nav-group="workspace"]');
     const items = await workspaceGroup
       .locator("a[id^='nav-settings-']")
       .evaluateAll((links) => links.map((link) => link.id));
-    for (const replaced of ["webhooks", "webhook-deliveries", "incoming-webhooks"])
-      expect(items).not.toContain(`nav-settings-${replaced}`);
-    await expect(workspaceGroup.locator("#nav-settings-connections")).toContainText("Connections");
-    await page.locator("#nav-settings-connections").click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections"));
+    expect(items.slice(items.indexOf("nav-settings-agents"))).toEqual([
+      "nav-settings-agents",
+      "nav-settings-webhooks",
+      "nav-settings-incoming-webhooks",
+      "nav-settings-webhook-deliveries",
+    ]);
+    await expect(page.locator("#nav-settings-connections")).toHaveCount(0);
+    const accountItems = await page
+      .locator('[data-area-nav-group="account"]')
+      .locator("a[id^='nav-settings-']")
+      .evaluateAll((links) => links.map((link) => link.id));
+    expect(accountItems).toEqual(
+      e2eAppMode() === "self-hosted"
+        ? ["nav-settings-profile", "nav-settings-workspaces", "nav-settings-api-keys"]
+        : ["nav-settings-profile", "nav-settings-workspaces", "nav-settings-channels", "nav-settings-api-keys"],
+    );
+    await page.locator("#nav-settings-webhooks").click();
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhooks$"));
+    await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);
     await openSidebar(page);
-    await expect(page.locator("#nav-settings-connections")).toHaveAttribute("data-active", "true");
-    await expect(page.locator("#nav-settings-profile")).toHaveAttribute("data-active", "false");
+    await page.locator("#nav-settings-webhook-deliveries").click();
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhook-deliveries$"));
+    await openSidebar(page);
+    await expect(page.locator("#nav-settings-webhook-deliveries")).toHaveAttribute("data-active", "true");
+    await expect(page.locator("#nav-settings-webhooks")).toHaveAttribute("data-active", "false");
   });
 
   await test.step("Back returns to the page Settings was opened from", async () => {

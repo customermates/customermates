@@ -7,6 +7,7 @@ import {
 import { companyPath, companyUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { secondUser } from "./second-user";
+import { openSidebar } from "./sidebar";
 import { e2eAppMode } from "./workspace-switching";
 
 type Kind = "dueToday" | "replyReceived" | "ruleAlert";
@@ -22,81 +23,48 @@ function unsubscribePath(companyId: string, userId: string, kind: Kind, issuedAt
   return `/api/notifications/unsubscribe?token=${encodeURIComponent(token)}`;
 }
 
-test("Connections opens each tab and keeps it in the address", async ({ page, companyId }) => {
+test("Agents and Incoming webhooks open as their own settings pages from the area nav", async ({ page, companyId }) => {
   const errors = collectPageErrors(page);
-  await page.goto(companyPath(companyId, "/settings/connections"));
+  await page.goto(companyPath(companyId, "/settings/profile"));
   await page.waitForLoadState("networkidle");
-  const tabs = page.getByRole("tablist", { name: "Connection types" });
-  await expect(tabs.getByRole("tab")).toHaveText(["Channels", "Agents", "Developers"]);
-
-  await test.step("Channels holds the connected accounts, or explains why it cannot on self-hosted", async () => {
-    await expect(tabs.getByRole("tab", { name: "Channels" })).toHaveAttribute("data-state", "active");
-    if (e2eAppMode() === "self-hosted") {
-      await expect(page.getByText("Channels need Customermates Cloud")).toBeVisible();
-      return;
-    }
-    await expect(page.getByRole("tablist", { name: "Channel sections" })).toHaveCount(0);
-    await expect(page.locator("[data-connection-scope='accounts']")).toBeAttached();
-  });
 
   await test.step("Agents holds the runtimes, provider keys, runners and recent runs", async () => {
-    await tabs.getByRole("tab", { name: "Agents" }).click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections\\?tab=agents$"));
-    await expect(page.locator("[data-connection-tab='agents']")).toBeVisible();
-    await expect(page.locator("[data-connection-scope='agents']")).toContainText("Owner: this workspace");
+    await openSidebar(page);
+    await page.locator("#nav-settings-agents").click();
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/agents$"));
     // A fresh workspace has no runner: the card says so instead of ending under its heading.
     await expect(page.locator("[data-agent-runners-card] [data-agent-runners-empty]")).toHaveText(
       "You have no runner yet. Add one to run agent steps with your own CLI.",
     );
+    await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);
+    await openSidebar(page);
+    await expect(page.locator("#nav-settings-agents")).toHaveAttribute("data-active", "true");
   });
 
-  await test.step("Developers holds the keys, webhooks, deliveries and incoming webhooks as sections", async () => {
-    await tabs.getByRole("tab", { name: "Developers" }).click();
-    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections\\?tab=developers$"));
-    const sections = page.getByRole("tablist", { name: "Developer sections" });
-    await expect(sections.getByRole("tab")).toHaveText([
-      "API keys & connectors",
-      "Webhooks",
-      "Webhook log",
-      "Incoming webhooks",
-    ]);
-    await expect(page.locator("[data-connection-scope='keys']")).toContainText("Owner: this workspace");
-
-    for (const [name, section, scope] of [
-      ["Webhooks", "webhooks", "webhooks"],
-      ["Webhook log", "deliveries", "deliveries"],
-      ["Incoming webhooks", "incoming", "incoming"],
-    ] as const) {
-      await sections.getByRole("tab", { name, exact: true }).click();
-      await expect(page).toHaveURL(
-        companyUrlPattern(companyId, `/settings/connections\\?tab=developers&section=${section}$`),
-      );
-      await expect(page.locator(`[data-connection-scope='${scope}']`)).toBeAttached();
-    }
+  await test.step("Incoming webhooks holds its list between Webhooks and the Webhook log", async () => {
+    await page.locator("#nav-settings-incoming-webhooks").click();
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/incoming-webhooks$"));
+    await expect(page.locator("#incoming-webhooks")).toBeAttached();
+    await openSidebar(page);
+    await expect(page.locator("#nav-settings-incoming-webhooks")).toHaveAttribute("data-active", "true");
+    await expect(page.locator("#nav-settings-webhooks")).toHaveAttribute("data-active", "false");
+    await expect(page.locator("#nav-settings-agents")).toHaveAttribute("data-active", "false");
   });
 
   expect(errors).toEqual([]);
 });
 
-test("the old settings routes open the tab that now holds them and keep their query", async ({ page, companyId }) => {
+test("each settings page keeps its own address and its query", async ({ page, companyId }) => {
   const errors = collectPageErrors(page);
+  const pages = ["agents", "api-keys", "webhooks", "webhook-deliveries", "incoming-webhooks"];
 
-  for (const [old, expected] of [
-    ["channels", "tab=channels"],
-    ["agents", "tab=agents"],
-    ["api-keys", "tab=developers"],
-    ["webhooks", "tab=developers&section=webhooks"],
-    ["webhook-deliveries", "tab=developers&section=deliveries"],
-    ["incoming-webhooks", "tab=developers&section=incoming"],
-  ] as const) {
-    await page.goto(companyPath(companyId, `/settings/${old}`));
-    await expect(page, old).toHaveURL(companyUrlPattern(companyId, `/settings/connections\\?${expected}$`));
+  for (const slug of e2eAppMode() === "self-hosted" ? pages : ["channels", ...pages]) {
+    await page.goto(companyPath(companyId, `/settings/${slug}`));
+    await expect(page, slug).toHaveURL(companyUrlPattern(companyId, `/settings/${slug}$`));
   }
 
   await page.goto(companyPath(companyId, "/settings/webhook-deliveries?search=hello"));
-  await expect(page).toHaveURL(
-    companyUrlPattern(companyId, "/settings/connections\\?tab=developers&section=deliveries&"),
-  );
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhook-deliveries\\?"));
   expect(new URL(page.url()).searchParams.get("search")).toBe("hello");
   expect(errors).toEqual([]);
 });
@@ -216,7 +184,7 @@ test("a turn-off link from a notification email asks first, then switches that k
   expect(errors).toEqual([]);
 });
 
-test("a member without API access opens Connections and is offered only the tabs the role allows", async ({
+test("a member without API access is offered Agents but none of the pages that need API access", async ({
   page,
   browser,
   database,
@@ -242,39 +210,27 @@ test("a member without API access opens Connections and is offered only the tabs
   const roleId = ((await saved.json()) as { role: { id: string } }).role.id;
   const member = await secondUser(browser, database, companyId, testInfo, roleId);
   try {
-    await member.page.goto(companyPath(companyId, "/settings/connections"));
+    const apiPages = ["api-keys", "webhooks", "incoming-webhooks", "webhook-deliveries"];
+    await member.page.goto(companyPath(companyId, "/settings/profile"));
     await member.page.waitForLoadState("networkidle");
-    await expect(member.page.locator("[data-connections-page]")).toBeVisible();
-    const tabs = member.page.getByRole("tablist", { name: "Connection types" });
+    await openSidebar(member.page);
 
-    await test.step("the Developers tab, which needs API access, is not offered", async () => {
-      await expect(tabs.getByRole("tab", { name: "Agents" })).toBeVisible();
-      await expect(tabs.getByRole("tab", { name: "Developers" })).toHaveCount(0);
-      await expect(member.page.getByRole("tablist", { name: "Developer sections" })).toHaveCount(0);
+    await test.step("the pages that need API access are not listed", async () => {
+      await expect(member.page.locator("#nav-settings-agents")).toBeVisible();
+      for (const slug of apiPages) await expect(member.page.locator(`#nav-settings-${slug}`), slug).toHaveCount(0);
     });
 
-    await test.step("asking for it by address opens a tab the role allows instead of an error page", async () => {
-      await member.page.goto(companyPath(companyId, "/settings/connections?tab=developers&section=webhooks"));
-      await member.page.waitForLoadState("networkidle");
-      await expect(member.page.locator("[data-connections-page]")).toBeVisible();
-      await expect(member.page.locator("[data-connection-scope='keys']")).toHaveCount(0);
-      await expect(member.page.locator("[data-connection-scope='webhooks']")).toHaveCount(0);
-      await expect(tabs.getByRole("tab", { selected: true })).not.toHaveText("Developers");
-    });
-
-    await test.step("every tab that is offered opens, also Agents, whose runner list needs API access", async () => {
-      for (const tab of await tabs.getByRole("tab").all()) {
-        await tab.click();
-        await expect(tab).toHaveAttribute("data-state", "active");
+    await test.step("asking for one by address leads away from it instead of to an error page", async () => {
+      for (const slug of apiPages) {
+        await member.page.goto(companyPath(companyId, `/settings/${slug}`));
         await member.page.waitForLoadState("networkidle");
-        await expect(member.page.locator("[data-connections-page]")).toBeVisible();
+        await expect(member.page, slug).not.toHaveURL(/\/settings\//);
       }
     });
 
-    await test.step("on Agents, when it is offered, the runners card says that the role may not see runners", async () => {
-      const agents = tabs.getByRole("tab", { name: "Agents" });
-      if ((await agents.count()) === 0) return;
-      await agents.click();
+    await test.step("Agents opens, and its runners card says that the role may not see runners", async () => {
+      await member.page.goto(companyPath(companyId, "/settings/agents"));
+      await expect(member.page).toHaveURL(companyUrlPattern(companyId, "/settings/agents$"));
       await expect(member.page.locator("[data-agent-runners-card] [data-agent-runners-withheld]")).toHaveText(
         "Your role cannot see runners, so none are listed here.",
       );

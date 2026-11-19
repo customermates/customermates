@@ -1,4 +1,3 @@
-import { CONNECTIONS_REDIRECTS } from "@/app/components/navigation/settings-routes";
 import { focusHref } from "@/components/focus/focus-href";
 import { TOOLBAR_PAGES_WITH_ADD, TOOLBAR_PAGES_WITHOUT_ADD } from "@/ee/agent-chat/ui-anchors";
 import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
@@ -20,7 +19,6 @@ const PAGE_ROUTES = new Set([
     (target) => target.route,
   ),
   ...[...TOOLBAR_PAGES_WITH_ADD, ...TOOLBAR_PAGES_WITHOUT_ADD].map((page) => page.route),
-  ...Object.keys(CONNECTIONS_REDIRECTS).map((slug) => `/settings/${slug}`),
 ]);
 
 function pageControlPrefix(route: string) {

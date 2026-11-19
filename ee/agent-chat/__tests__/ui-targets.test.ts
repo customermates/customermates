@@ -118,8 +118,8 @@ describe("agent interface targets", () => {
     expect(agentRouteVisible("/settings/webhooks", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.api))).toBe(true);
-    expect(agentRouteVisible("/settings/connections", "cloud", reads(Resource.users))).toBe(false);
-    expect(agentRouteVisible("/settings/connections", "cloud", reads(Resource.company))).toBe(true);
+    expect(agentRouteVisible("/settings/agents", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/agents", "cloud", reads(Resource.company))).toBe(true);
     expect(agentRouteVisible("/settings/members", "cloud", reads(Resource.users))).toBe(true);
     expect(agentRouteVisible("/settings/api-keys", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/profile", "cloud", reads())).toBe(true);
@@ -135,16 +135,10 @@ describe("agent interface targets", () => {
 
   it("names every routable target's page with the label keys the sidebar can show", () => {
     expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
-    expect(agentUiPageLabelKeys("/settings/connections")).toEqual(["SettingsNav.connections"]);
-    expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys", "SettingsNav.connections"]);
-    expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual([
-      "SettingsNav.deliveries",
-      "SettingsNav.connections",
-    ]);
-    expect(agentUiPageLabelKeys("/settings/incoming-webhooks")).toEqual([
-      "SettingsNav.incomingWebhooks",
-      "SettingsNav.connections",
-    ]);
+    expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
+    expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual(["SettingsNav.deliveries"]);
+    expect(agentUiPageLabelKeys("/settings/incoming-webhooks")).toEqual(["SettingsNav.incomingWebhooks"]);
+    expect(agentUiPageLabelKeys("/settings/agents")).toEqual(["SettingsNav.agents"]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
     expect(agentUiPageLabelKeys("/automations")).toEqual(["NavigationBar.automations"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);

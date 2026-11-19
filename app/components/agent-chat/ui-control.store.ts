@@ -13,7 +13,6 @@ import {
   findAgentUiTarget,
   type AgentUiTarget,
 } from "@/ee/agent-chat/ui-targets";
-import { settingsLandingPath } from "@/app/components/navigation/settings-routes";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 import { isResolvedAppLinkPath } from "@/features/docs/app-links";
@@ -67,7 +66,7 @@ function targetBelongsToCurrentPage(targetId: string) {
   const target = findAgentUiTarget(targetId);
   const pathname = currentAppPathname();
   if (!target || pathname === null) return false;
-  return target.route === "*" || isSidebarTarget(target) || settingsLandingPath(target.route) === pathname;
+  return target.route === "*" || isSidebarTarget(target) || target.route === pathname;
 }
 
 function unavailableRouteMessage(path: string) {
@@ -76,7 +75,7 @@ function unavailableRouteMessage(path: string) {
 
 export function findAgentTargetElement(targetId: string) {
   const target = findAgentUiTarget(targetId);
-  if (target?.elementId && currentAppPathname() !== settingsLandingPath(target.route)) return null;
+  if (target?.elementId && currentAppPathname() !== target.route) return null;
   const element = document.getElementById(target?.elementId ?? targetId);
   return element?.isConnected && element.getClientRects().length > 0 ? element : null;
 }
@@ -328,7 +327,7 @@ export class AgentUiControlStore extends BaseStore {
     if (this.vanishedTourStep.skipped || Date.now() - this.vanishedTourStep.since < TARGET_SETTLE_TIMEOUT_MS) return;
     this.vanishedTourStep.skipped = true;
     const route = this.tourSteps[spotlight.stepIndex]?.route;
-    if (route && settingsLandingPath(route) !== currentAppPathname()) this.end();
+    if (route && route !== currentAppPathname()) this.end();
     else this.nextStep();
   };
 

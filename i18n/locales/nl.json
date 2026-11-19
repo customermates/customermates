@@ -1187,10 +1187,10 @@
   "Automations": {
     "agent": {
       "anyRunner": "Een willekeurige online runner",
-      "askAdmin": "Een beheerder kan dit instellen onder Instellingen, Verbindingen, Agents.",
+      "askAdmin": "Een beheerder kan dit instellen onder Instellingen, Agents.",
       "defaultModel": "Standaardmodel van de sleutel",
       "model": "Model",
-      "openSettings": "Instellingen, Verbindingen, Agents openen",
+      "openSettings": "Instellingen, Agents openen",
       "ownerRunner": "Draait op een runner van de eigenaar van de automatisering. Runners zijn persoonlijk, dus die van jou staan hier niet.",
       "prompt": "Wat moet de agent doen?",
       "promptPlaceholder": "Bijvoorbeeld: schrijf een korte, vriendelijke reactie en bewaar die ter controle.",
@@ -1687,7 +1687,6 @@
         "api-keys": "tokens, API, MCP, ontwikkelaar, toegangssleutels, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP-server, n8n, integratie",
         "billing": "abonnement, facturen, betaling, prijzen, upgraden, bon",
         "channels": "gekoppelde accounts, e-mailaccounts, LinkedIn, WhatsApp, integraties, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, agenda's, inboxsynchronisatie, agendasynchronisatie, e-mailsynchronisatie, SMTP, IMAP, Office 365, Sales Navigator",
-        "connections": "koppelingen, integraties, agents, kanalen, API-sleutels, webhooks, ontwikkelaars, koppelen, gekoppelde accounts",
         "general": "werkruimtenaam, werkruimte hernoemen, werkruimte verlaten",
         "incoming-webhooks": "inkomende webhooks, gegevens ontvangen, geheim adres, webhook-URL, JSON versturen, records aanmaken vanuit andere tools, formuliertool, Zapier, Make, n8n",
         "members": "team, gebruikers, personen, collega's, uitnodigen, licenties",
@@ -2726,36 +2725,6 @@
     "visibilityPrivate": "Privé",
     "visibilityShared": "Gedeeld",
     "visibilityUpdateFailed": "Zichtbaarheid kon niet worden bijgewerkt. Probeer het opnieuw."
-  },
-  "Connections": {
-    "channels": {
-      "sectionsLabel": "Onderdelen van kanalen",
-      "selfHostedBody": "E-mail-, LinkedIn-, WhatsApp- en agendakanalen gebruiken de gehoste koppelingsdienst en zijn niet beschikbaar bij zelf hosten.",
-      "selfHostedTitle": "Kanalen hebben Customermates Cloud nodig"
-    },
-    "description": "Alles wat Customermates koppelt aan je kanalen, agents en systemen, met de eigenaar van elke koppeling en waar die bij kan.",
-    "developers": {
-      "sectionsLabel": "Onderdelen voor ontwikkelaars"
-    },
-    "owner": {
-      "user": "Eigenaar: de persoon die het heeft gekoppeld",
-      "workspace": "Eigenaar: deze werkruimte"
-    },
-    "scope": {
-      "accounts": "Bereik: privé voor de eigenaar, tenzij gedeeld met de werkruimte",
-      "agents": "Bereik: alleen de toegang en limieten die je instelt",
-      "deliveries": "Bereik: elke bezorgpoging van de webhooks van deze werkruimte",
-      "incoming": "Bereik: laat andere systemen records in de gekozen lijst aanmaken of bijwerken",
-      "keys": "Bereik: leest en schrijft de gegevens van deze werkruimte via de API",
-      "webhooks": "Bereik: stuurt de gebeurtenissen van deze werkruimte naar de adressen die je toevoegt"
-    },
-    "tabs": {
-      "agents": "Agents",
-      "channels": "Kanalen",
-      "developers": "Ontwikkelaars"
-    },
-    "tabsLabel": "Soorten koppelingen",
-    "title": "Koppelingen"
   },
   "ContactHistory": {
     "ariaOpenInInbox": "Openen in inbox",
@@ -6322,7 +6291,6 @@
     "apiKeys": "API-sleutels & connectoren",
     "billing": "Facturering",
     "channels": "Kanalen & agenda's",
-    "connections": "Koppelingen",
     "deliveries": "Webhooklog",
     "general": "Algemeen",
     "incomingWebhooks": "Inkomende webhooks",

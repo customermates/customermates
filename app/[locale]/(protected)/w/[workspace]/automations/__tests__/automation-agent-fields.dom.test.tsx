@@ -146,14 +146,14 @@ afterEach(() => {
 });
 
 describe("the Ask an agent card", () => {
-  it("names why the chosen runtime is unavailable and links to Settings, Connections, Agents", () => {
+  it("names why the chosen runtime is unavailable and links to Settings, Agents", () => {
     render(blankAgentEffect("ownKey"), runtimes());
 
     const reason = container.querySelector("[data-agent-reason]");
     expect(reason?.getAttribute("data-agent-reason")).toBe("noKey");
     expect(reason?.textContent).toContain("Automations.agent.reason.noKey");
     expect(reason?.querySelector("a")?.getAttribute("href")).toBe(AGENT_SETTINGS_HREF);
-    expect(AGENT_SETTINGS_HREF).toBe("/settings/connections?tab=agents");
+    expect(AGENT_SETTINGS_HREF).toBe("/settings/agents");
   });
 
   it("says who can set a runtime up, without a link, to a member who cannot open that settings tab", () => {

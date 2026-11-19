@@ -2,16 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { PURCHASABLE_PLAN_IDS } from "@/core/commercial/plan-catalog";
 
-import { billingFocusPlan, billingHref, CONNECTIONS_HREF, connectionsHref, settingsHref } from "../settings-routes";
-
-describe("connections links", () => {
-  it("opens the Connections page, with a tab and an inner section when asked", () => {
-    expect(CONNECTIONS_HREF).toBe("/settings/connections");
-    expect(connectionsHref("agents")).toBe("/settings/connections?tab=agents");
-    expect(connectionsHref("channels", "accounts")).toBe("/settings/connections?tab=channels");
-    expect(connectionsHref("developers", "webhooks")).toBe("/settings/connections?tab=developers&section=webhooks");
-  });
-});
+import { billingFocusPlan, billingHref, settingsHref } from "../settings-routes";
 
 describe("billing links", () => {
   it("opens the billing page plain or with the plan an upgrade prompt names", () => {
