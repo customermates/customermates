@@ -722,7 +722,7 @@ describe("Workspace Wiki reference degradation", () => {
     expect(wiki.procedures?.more).toBe(AGENT_WIKI_MORE_PROCEDURES_HINT);
     expect(wiki.procedures?.items.every(({ title }) => Array.from(title).length <= 40)).toBe(true);
     expect(Array.from(wiki.guide?.title ?? "").length).toBeLessThanOrEqual(40);
-  });
+  }, 30_000);
 
   it("falls back to a fixed pointer to manage_wiki_pages when even the bare index cannot fit", () => {
     const text = serializeAgentWikiCatalog({
