@@ -2,6 +2,7 @@ import * as ErrorReporter from "@/core/observability/server";
 
 import type { BookingAnnouncer } from "./booking-announcer";
 import type { HostRunner } from "./booking-availability";
+import type { BookingMailer } from "./booking-mailer";
 import type { BookingReservationRepo } from "./booking-reservation.repo";
 import type { MeetingRecordService } from "./meeting-record.service";
 
@@ -13,12 +14,16 @@ export class BookingEventSync {
     private announcer: Pick<BookingAnnouncer, "changed">,
     private records: Pick<MeetingRecordService, "moveBookingRecord">,
     private runAs: HostRunner,
+    private mailer: Pick<BookingMailer, "send">,
     private now: () => Date = () => new Date(),
   ) {}
 
   async eventCancelled(event: EventRef): Promise<number> {
     const cancelled = await this.bookings.cancelForCalendarEventUnscoped({ ...event, now: this.now() });
-    for (const booking of cancelled) await this.announcer.changed(booking, "cancelled", "host");
+    for (const booking of cancelled) {
+      await this.announcer.changed(booking, "cancelled", "host");
+      await this.mailer.send({ kind: "cancelled", booking, by: "host", reason: null });
+    }
 
     return cancelled.length;
   }
@@ -40,6 +45,7 @@ export class BookingEventSync {
         });
       }
       await this.announcer.changed(booking, "rescheduled", "host", { previousStartsAt });
+      await this.mailer.send({ kind: "rescheduled", booking, by: "host", previousStartsAt });
     }
 
     return moves.length;

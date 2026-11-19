@@ -8,7 +8,7 @@ import type {
   SubmitPublicBookingInput,
 } from "@/ee/calendar/booking.schema";
 
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import {
   getCancelPublicBookingInteractor,
@@ -28,12 +28,12 @@ export async function readPublicBookingSlotsAction(input: {
 }
 
 export async function submitPublicBookingAction(
-  input: Omit<SubmitPublicBookingInput, "visitor">,
+  input: Omit<SubmitPublicBookingInput, "visitor" | "locale">,
 ): Promise<PublicBookingSubmitResult> {
   const t = await getTranslations();
 
   return getSubmitPublicBookingInteractor().invoke(
-    { ...input, visitor: await visitorKey() },
+    { ...input, visitor: await visitorKey(), locale: await getLocale() },
     { manageLine: t("PublicBooking.manageLine") },
   );
 }

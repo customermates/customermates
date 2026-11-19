@@ -1,5 +1,6 @@
 import {
   getNotifyRunnerOfflineInteractor,
+  getSendBookingRemindersInteractor,
   getSendInstantNotificationFallbackInteractor,
   getSweepAgentJobTimeoutsInteractor,
   getSweepAutomationRulesInteractor,
@@ -25,6 +26,9 @@ function sweepSteps(): SweepStep[] {
     ["automationRules", () => getSweepAutomationRulesInteractor().invoke()],
     ["agentJobs", agentJobsThenRunnerNotice],
     ["instantNotificationFallback", () => getSendInstantNotificationFallbackInteractor().invoke()],
+    ...(env.APP_MODE === "cloud"
+      ? ([["bookingReminders", () => getSendBookingRemindersInteractor().invoke()]] satisfies SweepStep[])
+      : []),
   ];
 }
 

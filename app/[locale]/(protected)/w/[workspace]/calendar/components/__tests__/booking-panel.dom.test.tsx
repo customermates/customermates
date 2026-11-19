@@ -10,6 +10,7 @@ const harness = vi.hoisted(() => ({
   refresh: vi.fn(),
   save: vi.fn(),
   remove: vi.fn(),
+  cancelBooking: vi.fn(),
   toastError: vi.fn(),
 }));
 
@@ -34,6 +35,9 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("../../booking-actions", () => ({
   saveBookingLinkAction: harness.save,
   deleteBookingLinkAction: harness.remove,
+  cancelHostedBookingAction: harness.cancelBooking,
+  rescheduleHostedBookingAction: vi.fn(),
+  readHostedBookingSlotsAction: vi.fn(),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => void action(),
@@ -248,6 +252,13 @@ describe("BookingPanel", () => {
     expect(listed).toHaveLength(5);
     expect(listed[0]?.textContent).toContain("Visitor 0");
     expect(listed[0]?.textContent).toContain("Ana Host");
+    expect(listed[0]?.querySelector("[data-booking-host-reschedule]")?.textContent).toBe(
+      "Booking.hostActions.reschedule",
+    );
+    expect(listed[0]?.querySelector("[data-booking-host-cancel]")?.textContent).toBe(
+      "Booking.hostActions.cancelConfirm",
+    );
+    expect(own.querySelectorAll('[data-booking-host-actions="b0"]')).toHaveLength(1);
     expect(own.textContent).not.toContain("Grace");
     const other = row(ADA.id);
     expect(other.querySelector("[data-booking-round-robin]")).toBeNull();

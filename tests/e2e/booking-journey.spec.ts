@@ -4,8 +4,10 @@ import { deflateSync } from "node:zlib";
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
+import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { appPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { emailLanguage, emailLinks, emailText, sentEmailsTo } from "./transactional-mail";
 import { addAdministrator, clickHydrated, e2eAppMode, expectHydrated } from "./workspace-switching";
 
 test.skip(
@@ -161,6 +163,122 @@ test("a visitor books a time, moves it and cancels it through the private link",
   await page.reload();
   await expect(page.locator('[data-booking-manage="cancelled"]')).toContainText("This booking was cancelled.");
   await expect(page.locator("[data-booking-cancel]")).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+async function bookAs(page: Page, token: string, name: string, email: string) {
+  await asOwnVisitor(page);
+  await page.goto(`/en/book/${token}`);
+  await clickHydrated(page.locator("[data-booking-slots] button").first());
+  await page.locator("#booking-name").fill(name);
+  await page.locator("#booking-email").fill(email);
+  await confirmLikeAPerson(page);
+  const manageUrl = await page.locator("[data-booking-confirmed] [data-booking-manage-link]").getAttribute("href");
+  if (!manageUrl) throw new Error("The booking has no manage link.");
+  return manageUrl;
+}
+
+async function bookingFor(database: Client, email: string) {
+  const result = await database.query<{
+    status: string;
+    startsAt: Date;
+    cancelledBy: string | null;
+    cancelReason: string | null;
+    rescheduledAt: Date | null;
+    calendarEventId: string | null;
+  }>(
+    'SELECT status,"startsAt","cancelledBy","cancelReason","rescheduledAt","calendarEventId" FROM "Booking" WHERE "inviteeEmail"=$1',
+    [email],
+  );
+  return result.rows[0];
+}
+
+test("the host cancels one booking with a reason and moves another from the booking panel, and each visitor sees it and gets an email", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
+  const hostActions = englishMessages.Booking.hostActions;
+  const calendarId = await connectCalendar(database, workspace, "owner@synthetic.test");
+  const link = await addBookingPage(database, workspace, calendarId);
+  const caraEmail = `cara-${randomUUID()}@synthetic.test`;
+  const monaEmail = `mona-${randomUUID()}@synthetic.test`;
+  const caraManage = await bookAs(page, link.token, "Cara Cancel", caraEmail);
+  const monaManage = await bookAs(page, link.token, "Mona Move", monaEmail);
+  const monaBooked = await bookingFor(database, monaEmail);
+
+  await page.goto(monaManage);
+  const when = page.locator('[data-booking-manage="upcoming"] [data-booking-when]');
+  await expect(when).toBeVisible();
+  const whenBooked = await when.innerText();
+
+  await page.goto(appPath(workspace.slug, "/calendar?panel=booking"));
+  const upcoming = page.locator("[data-booking-panel] [data-booking-upcoming-item]");
+  await expect(upcoming).toHaveCount(2);
+  const cara = upcoming.filter({ hasText: "Cara Cancel" });
+  const mona = upcoming.filter({ hasText: "Mona Move" });
+
+  await clickHydrated(cara.locator("[data-booking-host-cancel]"));
+  const confirm = page.locator('[data-slot="confirm-dialog"]');
+  await expect(confirm).toContainText(hostActions.cancelTitle.replace("{name}", "Cara Cancel"));
+  await confirm.locator("[data-booking-host-cancel-reason]").fill("Out sick");
+  await confirm.getByRole("button", { name: hostActions.cancelConfirm, exact: true }).click();
+  await expect(
+    page.locator("[data-sonner-toast]").filter({ hasText: hostActions.cancelled.replace("{name}", "Cara Cancel") }),
+  ).toBeVisible();
+  await expect(confirm).toHaveCount(0);
+  await expect(cara).toHaveCount(0);
+  const cancelled = await bookingFor(database, caraEmail);
+  expect(cancelled).toMatchObject({ status: "cancelled", cancelledBy: "host", cancelReason: "Out sick" });
+  const cancelledEvent = await database.query<{ status: string }>('SELECT status FROM "CalendarEvent" WHERE id=$1', [
+    cancelled.calendarEventId,
+  ]);
+  expect(cancelledEvent.rows[0].status).toBe("cancelled");
+
+  await mona.locator("[data-booking-host-reschedule]").click();
+  const reschedule = page.locator("[data-booking-host-reschedule-dialog]");
+  await expect(reschedule).toContainText(hostActions.rescheduleTitle.replace("{name}", "Mona Move"));
+  await reschedule.locator("[data-booking-slots] button").nth(3).click();
+  await reschedule.locator("#booking-host-reschedule-save").click();
+  await expect(
+    page.locator("[data-sonner-toast]").filter({ hasText: hostActions.rescheduled.replace("{name}", "Mona Move") }),
+  ).toBeVisible();
+  await expect(reschedule).toHaveCount(0);
+  const moved = await bookingFor(database, monaEmail);
+  expect(moved.status).toBe("confirmed");
+  expect(moved.rescheduledAt).not.toBeNull();
+  expect(moved.startsAt.getTime()).not.toBe(monaBooked.startsAt.getTime());
+  const movedEvent = await database.query<{ startsAt: Date }>('SELECT "startsAt" FROM "CalendarEvent" WHERE id=$1', [
+    moved.calendarEventId,
+  ]);
+  expect(movedEvent.rows[0].startsAt.getTime()).toBe(moved.startsAt.getTime());
+  await expect(upcoming).toHaveCount(1);
+
+  await page.goto(caraManage);
+  await expect(page.locator('[data-booking-manage="cancelled"] [data-booking-cancelled-by="host"]')).toContainText(
+    "cancelled this booking. Reason: Out sick",
+  );
+  await expect(page.locator("[data-booking-cancel]")).toHaveCount(0);
+
+  await page.goto(monaManage);
+  await expect(when).toBeVisible();
+  await expect(when).not.toHaveText(whenBooked);
+  await expect(page.locator("[data-booking-cancel]")).toBeVisible();
+
+  const kinds = (address: string) => sentEmailsTo(address).map((email) => email.subject.split(":")[0]);
+  await expect.poll(() => kinds(caraEmail)).toEqual(["Confirmed", "Cancelled"]);
+  await expect.poll(() => kinds(monaEmail)).toEqual(["Confirmed", "Rescheduled"]);
+  const [caraConfirmed, caraCancelled] = sentEmailsTo(caraEmail);
+  expect(caraConfirmed.from).toBe('"Browser workspace via Customermates" <mail@customermates.test>');
+  expect(emailLanguage(caraConfirmed)).toBe("en");
+  expect(emailLinks(caraConfirmed)).toContain(caraManage);
+  expect(emailText(caraCancelled)).toContain("Out sick");
+  expect(emailLinks(caraCancelled)).not.toContain(caraManage);
+  const monaMoved = sentEmailsTo(monaEmail)[1];
+  expect(emailText(monaMoved)).toContain(englishMessages.BookingEmail.labelPrevious);
+  expect(emailLinks(monaMoved)).toContain(monaManage);
   expect(errors).toEqual([]);
 });
 

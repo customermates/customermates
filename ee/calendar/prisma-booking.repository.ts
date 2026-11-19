@@ -22,12 +22,19 @@ import type {
   BookingReservationInput,
   BookingReservationRepo,
   BookingRow,
+  BookingTimes,
   HostLoad,
 } from "./booking-reservation.repo";
 import type { BusyInterval } from "./free-slots";
 
+import { BOOKING_REMINDER_LEAD_MS } from "./booking.schema";
+
 const RESERVATION_TTL_MS = 10 * 60_000;
 const OPEN_STATUSES = [BookingStatus.reserved, BookingStatus.confirmed];
+
+function reminderMark(startsAt: Date, now: Date): Date | null {
+  return startsAt.getTime() - now.getTime() < BOOKING_REMINDER_LEAD_MS ? now : null;
+}
 
 function upcomingWhere(now: Date): Prisma.BookingWhereInput {
   return { status: { in: OPEN_STATUSES }, endsAt: { gt: now } };
@@ -122,7 +129,13 @@ const bookingSelect = {
   recordId: true,
   hostUserId: true,
   manageToken: true,
-  host: { select: { firstName: true, lastName: true } },
+  locale: true,
+  cancelledBy: true,
+  cancelReason: true,
+  rescheduledAt: true,
+  reminderSentAt: true,
+  host: { select: { firstName: true, lastName: true, email: true } },
+  company: { select: { name: true, brand: { select: { accentColor: true, logoKey: true } } } },
   link: {
     select: {
       token: true,
@@ -132,6 +145,7 @@ const bookingSelect = {
       recordTypeId: true,
       personTypeId: true,
       startFieldId: true,
+      inviteeChanges: true,
     },
   },
 } satisfies Prisma.BookingSelect;
@@ -144,11 +158,15 @@ function storedAnswers(value: unknown): Record<string, string> {
   return Object.fromEntries(Object.entries(value).map(([key, answer]) => [key, String(answer)]));
 }
 
-function toBooking({ host, link, answers, ...booking }: BookingRecord): BookingRow {
+function toBooking({ host, link, company, answers, ...booking }: BookingRecord): BookingRow {
   return {
     ...booking,
     answers: storedAnswers(answers),
     hostName: memberName(host),
+    hostEmail: host.email,
+    workspaceName: company.name,
+    brand: company.brand,
+    linkInviteeChanges: link.inviteeChanges,
     linkToken: link.token,
     linkTitle: link.title,
     linkOwnerId: link.userId,
@@ -343,6 +361,8 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
               timeZone: input.timeZone,
               answers: input.answers,
               ipHash: input.ipHash,
+              locale: input.locale ?? null,
+              reminderSentAt: reminderMark(input.startsAt, new Date()),
             },
           ],
           skipDuplicates: true,
@@ -354,11 +374,22 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     );
   }
 
-  async confirm(id: string, confirmation: BookingConfirmation): Promise<void> {
+  async confirm(id: string, confirmation: BookingConfirmation): Promise<BookingRow | null> {
     await this.prisma.booking.updateMany({
       where: { id, companyId: this.companyId },
       data: { ...confirmation, status: BookingStatus.confirmed, slotKey: null },
     });
+
+    return this.findHosted(id);
+  }
+
+  async findConfirmed(id: string): Promise<BookingRow | null> {
+    const row = await this.prisma.booking.findFirst({
+      where: { id, companyId: this.companyId, status: BookingStatus.confirmed },
+      select: bookingSelect,
+    });
+
+    return row ? toBooking(row) : null;
   }
 
   async release(id: string): Promise<void> {
@@ -418,24 +449,67 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
         if (!current || current.status !== BookingStatus.confirmed || current.startsAt <= now) return null;
         if (!(await isOpen())) return null;
 
+        const moved = { ...to, rescheduledAt: now, reminderSentAt: reminderMark(to.startsAt, now) };
         await this.prisma.booking.updateMany({
           where: { id, companyId: this.companyId, hostUserId: this.userId, status: BookingStatus.confirmed },
-          data: { startsAt: to.startsAt, endsAt: to.endsAt, rescheduledAt: now },
+          data: moved,
         });
 
-        return {
-          booking: { ...current, startsAt: to.startsAt, endsAt: to.endsAt },
-          previousStartsAt: current.startsAt,
-        };
+        return { booking: { ...current, ...moved }, previousStartsAt: current.startsAt };
       },
       { lockCompany: false },
     );
   }
 
-  async restoreTimes(id: string, times: { startsAt: Date; endsAt: Date }): Promise<void> {
+  async restoreTimes(id: string, times: BookingTimes): Promise<void> {
     await this.prisma.booking.updateMany({
       where: { id, companyId: this.companyId, hostUserId: this.userId },
-      data: { startsAt: times.startsAt, endsAt: times.endsAt },
+      data: {
+        startsAt: times.startsAt,
+        endsAt: times.endsAt,
+        ...(times.rescheduledAt !== undefined ? { rescheduledAt: times.rescheduledAt } : {}),
+        ...(times.reminderSentAt !== undefined ? { reminderSentAt: times.reminderSentAt } : {}),
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async listDueRemindersUnscoped(now: Date, limit: number): Promise<BookingRow[]> {
+    const rows = await this.prisma.booking.findMany({
+      where: {
+        status: BookingStatus.confirmed,
+        reminderSentAt: null,
+        startsAt: { gt: now, lte: new Date(now.getTime() + BOOKING_REMINDER_LEAD_MS) },
+      },
+      orderBy: [{ startsAt: "asc" }, { id: "asc" }],
+      take: limit,
+      select: bookingSelect,
+    });
+
+    return rows.map(toBooking);
+  }
+
+  @BypassTenantGuard
+  async claimReminderUnscoped(booking: Pick<BookingRow, "id" | "companyId" | "startsAt">, now: Date): Promise<boolean> {
+    const { count } = await this.prisma.booking.updateMany({
+      where: {
+        id: booking.id,
+        companyId: booking.companyId,
+        status: BookingStatus.confirmed,
+        reminderSentAt: null,
+        startsAt: booking.startsAt,
+      },
+      data: { reminderSentAt: now },
+    });
+
+    return count > 0;
+  }
+
+  @BypassTenantGuard
+  async releaseReminderUnscoped(booking: Pick<BookingRow, "id" | "companyId">): Promise<void> {
+    await this.prisma.booking.updateMany({
+      where: { id: booking.id, companyId: booking.companyId },
+      data: { reminderSentAt: null },
     });
   }
 
@@ -458,7 +532,12 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
       data: cancelledData(BookingActor.host, null, now),
     });
 
-    return open.map((booking) => ({ ...toBooking(booking), status: BookingStatus.cancelled }));
+    return open.map((booking) => ({
+      ...toBooking(booking),
+      status: BookingStatus.cancelled,
+      cancelledBy: BookingActor.host,
+      cancelReason: null,
+    }));
   }
 
   @BypassTenantGuard
@@ -481,17 +560,23 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     });
     if (!moved.length) return [];
 
+    const times = {
+      startsAt: args.startsAt,
+      endsAt: args.endsAt,
+      rescheduledAt: args.now,
+      reminderSentAt: reminderMark(args.startsAt, args.now),
+    };
     await this.prisma.booking.updateMany({
       where: {
         companyId: args.companyId,
         id: { in: moved.map((booking) => booking.id) },
         status: BookingStatus.confirmed,
       },
-      data: { startsAt: args.startsAt, endsAt: args.endsAt, rescheduledAt: args.now },
+      data: times,
     });
 
     return moved.map((booking) => ({
-      booking: { ...toBooking(booking), startsAt: args.startsAt, endsAt: args.endsAt },
+      booking: { ...toBooking(booking), ...times },
       previousStartsAt: booking.startsAt,
     }));
   }

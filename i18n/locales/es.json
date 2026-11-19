@@ -1478,6 +1478,20 @@
       "withVideo": "Añadir un enlace de videollamada",
       "workingHours": "Horario laboral"
     },
+    "hostActions": {
+      "cancelConfirm": "Cancelar reserva",
+      "cancelled": "Reserva cancelada. {name} recibe un correo.",
+      "cancelReason": "Motivo para {name} (opcional)",
+      "cancelText": "La reunión se quita del calendario y {name} recibe un correo.",
+      "cancelTitle": "¿Cancelar la reserva con {name}?",
+      "keep": "Mantener reserva",
+      "loadFailed": "No se pudieron cargar los horarios libres.",
+      "noSlots": "Esta página no tiene otros horarios libres.",
+      "reschedule": "Reprogramar",
+      "rescheduleConfirm": "Mover reserva",
+      "rescheduled": "Reserva movida. {name} recibe un correo.",
+      "rescheduleTitle": "Nuevo horario para {name}"
+    },
     "hostNotice": {
       "body": "{page}, {when}.",
       "bookedTitle": "{name} reservó una reunión",
@@ -1519,6 +1533,31 @@
       "tuesday": "Martes",
       "wednesday": "Miércoles"
     }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} canceló tu reserva de {page}.",
+    "cancelledIntroInvitee": "Tu reserva de {page} con {host} está cancelada, como pediste.",
+    "cancelledSubject": "Cancelada: {page} el {date}",
+    "cancelledTitle": "Reserva cancelada",
+    "confirmedIntro": "Tu reserva de {page} con {host} está confirmada. La invitación de calendario llega en un correo aparte.",
+    "confirmedSubject": "Confirmada: {page} el {date}",
+    "confirmedTitle": "Reserva confirmada",
+    "footer": "Recibes este correo porque esta dirección se usó para reservar un horario con {workspace}.",
+    "greeting": "Hola {name}:",
+    "greetingNoName": "Hola:",
+    "labelHost": "Con",
+    "labelNewWhen": "Nuevo horario",
+    "labelPrevious": "Horario anterior",
+    "labelReason": "Motivo",
+    "labelWhen": "Cuándo",
+    "manage": "Cancelar o reprogramar",
+    "reminderIntro": "Un recordatorio de tu reserva de {page} con {host}.",
+    "reminderSubject": "Recordatorio: {page} el {date}",
+    "reminderTitle": "Tu cita se acerca",
+    "rescheduledIntroHost": "{host} movió tu reserva de {page} a un nuevo horario.",
+    "rescheduledIntroInvitee": "Tu reserva de {page} con {host} se movió al nuevo horario que elegiste.",
+    "rescheduledSubject": "Reprogramada: {page} el {date}",
+    "rescheduledTitle": "Reserva reprogramada"
   },
   "BrowserFrame": {
     "open": "Abrir en una nueva pestaña"
@@ -4949,6 +4988,8 @@
     "rescheduledText": "La reserva se ha movido. Recibirás una invitación de calendario actualizada.",
     "rescheduleTitle": "Elige un nuevo horario",
     "stateCancelled": "Esta reserva se canceló.",
+    "stateCancelledByHost": "{host} canceló esta reserva.",
+    "stateCancelledByHostReason": "{host} canceló esta reserva. Motivo: {reason}",
     "statePast": "Esta reunión ya tuvo lugar.",
     "timeZone": "Horarios mostrados en {timeZone}",
     "unavailable": "Esta página de reservas no está disponible.",

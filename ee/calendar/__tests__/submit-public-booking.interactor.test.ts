@@ -31,6 +31,7 @@ import {
   type AccessOptions,
   ANA,
   BO,
+  bookingRow,
   buildAccess,
   calendarId,
   calendarRow,
@@ -56,6 +57,7 @@ const TOKEN = "tok_abcdefghijklmnop";
 const STARTS_AT = "2026-11-17T09:00:00.000Z";
 const SECRET = "booking-test-secret";
 const NOW = new Date("2026-11-16T10:00:00.000Z");
+const CONFIRMED = bookingRow({ startsAt: new Date(STARTS_AT), locale: "de" });
 
 const MODEL = {
   revision: 1,
@@ -183,7 +185,7 @@ function build(
       hostsOfReservations.push(currentUserId());
       return Promise.resolve({ id: "80000000-0000-4000-8000-000000000001" });
     }),
-    confirm: vi.fn().mockResolvedValue(undefined),
+    confirm: vi.fn().mockResolvedValue(CONFIRMED),
     release: vi.fn().mockResolvedValue(undefined),
     countOpenForEmail: vi.fn().mockResolvedValue(0),
     countForVisitorSince: vi.fn().mockResolvedValue(0),
@@ -205,6 +207,7 @@ function build(
   };
   const events = { publish: vi.fn().mockResolvedValue(undefined) };
   const announcer = { notifyHost: vi.fn().mockResolvedValue(undefined) };
+  const mailer = { send: vi.fn().mockResolvedValue(true) };
   const interactor = new SubmitPublicBookingInteractor(
     access,
     availability as never,
@@ -215,8 +218,10 @@ function build(
     events as never,
     announcer,
     "http://localhost:4000",
+    mailer,
   );
   return {
+    mailer,
     interactor,
     lookup,
     availability,
@@ -899,6 +904,39 @@ describe("SubmitPublicBookingInteractor", () => {
       await interactor.invoke(INPUT);
 
       expect(announcer.notifyHost).toHaveBeenCalledWith(expect.anything(), "booked", "de");
+    });
+  });
+
+  describe("the confirmation email to the visitor", () => {
+    it("stores the language of the booking page and sends the confirmed booking to the mailer", async () => {
+      const { interactor, reservations, mailer } = build();
+
+      await interactor.invoke({ ...INPUT, locale: "de" });
+
+      expect(reservations.reserve).toHaveBeenCalledWith(
+        expect.objectContaining({ locale: "de" }),
+        expect.any(Function),
+      );
+      expect(mailer.send.mock.calls).toEqual([[{ kind: "confirmed", booking: CONFIRMED }]]);
+    });
+
+    it("stores no language it does not offer", async () => {
+      const { interactor, reservations } = build();
+
+      await interactor.invoke({ ...INPUT, locale: "xx" });
+
+      expect(reservations.reserve).toHaveBeenCalledWith(
+        expect.objectContaining({ locale: null }),
+        expect.any(Function),
+      );
+    });
+
+    it("sends nothing when the booking did not go through", async () => {
+      const { interactor, reservations, mailer } = build();
+      reservations.reserve.mockResolvedValue(null);
+
+      expect((await interactor.invoke(INPUT)).status).not.toBe("booked");
+      expect(mailer.send).not.toHaveBeenCalled();
     });
   });
 });

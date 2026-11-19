@@ -909,6 +909,59 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
     );
   });
 
+  it("offers a confirmed booking for its reminder within a day of the start, lets one caller claim it, and skips moved-away, short-notice and cancelled bookings", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await createLink(w, calendar.id, "token-r-0123456789abcdef");
+    const { bookingId } = await bookedEvent(w, repo, link.id);
+    const day = 86_400_000;
+    const soon = new Date(START.getTime() - day + 60_000);
+    const due = async (now: Date) =>
+      (await runWithoutTenant(() => repo.listDueRemindersUnscoped(now, 500))).filter(
+        (booking) => booking.id === bookingId,
+      );
+
+    expect(await due(new Date(START.getTime() - day - 60_000))).toEqual([]);
+    expect(await due(START)).toEqual([]);
+    const [row] = await due(soon);
+    expect(row).toMatchObject({
+      id: bookingId,
+      companyId: w.companyId,
+      hostUserId: w.admin.id,
+      linkInviteeChanges: true,
+      locale: null,
+      reminderSentAt: null,
+    });
+
+    expect(await runWithoutTenant(() => repo.claimReminderUnscoped(row, soon))).toBe(true);
+    expect(await runWithoutTenant(() => repo.claimReminderUnscoped(row, soon))).toBe(false);
+    expect(await stored(bookingId)).toMatchObject({ reminderSentAt: soon });
+    expect(await due(soon)).toEqual([]);
+
+    await runWithoutTenant(() => repo.releaseReminderUnscoped(row));
+    expect(await due(soon)).toHaveLength(1);
+
+    await runWithoutTenant(() => repo.claimReminderUnscoped(row, soon));
+    const later = { startsAt: new Date(START.getTime() + 3_600_000), endsAt: new Date(END.getTime() + 3_600_000) };
+    const moved = await w.as(w.admin, () => repo.moveHosted(bookingId, later, soon, open));
+    expect(moved?.booking).toMatchObject({ ...later, reminderSentAt: null });
+    expect(await stored(bookingId)).toMatchObject({ ...later, rescheduledAt: soon, reminderSentAt: null });
+    expect(await runWithoutTenant(() => repo.claimReminderUnscoped(row, soon))).toBe(false);
+    expect(await due(soon)).toEqual([]);
+    expect(await due(new Date(soon.getTime() + 3_600_000))).toHaveLength(1);
+
+    const shortNotice = new Date(START.getTime() - 3_600_000);
+    await w.as(w.admin, () => repo.moveHosted(bookingId, { startsAt: START, endsAt: END }, shortNotice, open));
+    expect(await stored(bookingId)).toMatchObject({ startsAt: START, reminderSentAt: shortNotice });
+    expect(await due(shortNotice)).toEqual([]);
+
+    await runWithoutTenant(() =>
+      prisma.booking.update({ where: { id: bookingId }, data: { reminderSentAt: null, status: "cancelled" } }),
+    );
+    expect(await due(shortNotice)).toEqual([]);
+  });
+
   it("has an index on the end time alone for the daily prune of bookings", async () => {
     const rows = await runWithoutTenant(
       () =>

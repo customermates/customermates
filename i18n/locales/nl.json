@@ -1478,6 +1478,20 @@
       "withVideo": "Videolink toevoegen",
       "workingHours": "Werktijden"
     },
+    "hostActions": {
+      "cancelConfirm": "Boeking annuleren",
+      "cancelled": "Boeking geannuleerd. {name} krijgt een e-mail.",
+      "cancelReason": "Reden voor {name} (optioneel)",
+      "cancelText": "De afspraak wordt uit de agenda verwijderd en {name} krijgt een e-mail.",
+      "cancelTitle": "Boeking met {name} annuleren?",
+      "keep": "Boeking houden",
+      "loadFailed": "Vrije tijden konden niet worden geladen.",
+      "noSlots": "Deze pagina heeft geen andere vrije tijden.",
+      "reschedule": "Verplaatsen",
+      "rescheduleConfirm": "Boeking verplaatsen",
+      "rescheduled": "Boeking verplaatst. {name} krijgt een e-mail.",
+      "rescheduleTitle": "Nieuwe tijd voor {name}"
+    },
     "hostNotice": {
       "body": "{page}, {when}.",
       "bookedTitle": "{name} heeft een afspraak geboekt",
@@ -1519,6 +1533,31 @@
       "tuesday": "Dinsdag",
       "wednesday": "Woensdag"
     }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} heeft je boeking van {page} geannuleerd.",
+    "cancelledIntroInvitee": "Je boeking van {page} met {host} is geannuleerd, zoals je vroeg.",
+    "cancelledSubject": "Geannuleerd: {page} op {date}",
+    "cancelledTitle": "Boeking geannuleerd",
+    "confirmedIntro": "Je boeking van {page} met {host} is bevestigd. De agenda-uitnodiging komt in een aparte e-mail.",
+    "confirmedSubject": "Bevestigd: {page} op {date}",
+    "confirmedTitle": "Boeking bevestigd",
+    "footer": "Je krijgt deze e-mail omdat met dit adres een tijd bij {workspace} is geboekt.",
+    "greeting": "Hallo {name},",
+    "greetingNoName": "Hallo,",
+    "labelHost": "Met",
+    "labelNewWhen": "Nieuwe tijd",
+    "labelPrevious": "Vorige tijd",
+    "labelReason": "Reden",
+    "labelWhen": "Wanneer",
+    "manage": "Annuleren of verplaatsen",
+    "reminderIntro": "Een herinnering aan je boeking van {page} met {host}.",
+    "reminderSubject": "Herinnering: {page} op {date}",
+    "reminderTitle": "Je afspraak komt eraan",
+    "rescheduledIntroHost": "{host} heeft je boeking van {page} naar een nieuwe tijd verplaatst.",
+    "rescheduledIntroInvitee": "Je boeking van {page} met {host} is verplaatst naar de nieuwe tijd die je koos.",
+    "rescheduledSubject": "Verplaatst: {page} op {date}",
+    "rescheduledTitle": "Boeking verplaatst"
   },
   "BrowserFrame": {
     "open": "Openen in nieuw tabblad"
@@ -4949,6 +4988,8 @@
     "rescheduledText": "De boeking is verplaatst. Je ontvangt een bijgewerkte agenda-uitnodiging.",
     "rescheduleTitle": "Kies een nieuwe tijd",
     "stateCancelled": "Deze boeking is geannuleerd.",
+    "stateCancelledByHost": "{host} heeft deze boeking geannuleerd.",
+    "stateCancelledByHostReason": "{host} heeft deze boeking geannuleerd. Reden: {reason}",
     "statePast": "Deze afspraak heeft al plaatsgevonden.",
     "timeZone": "Tijden worden getoond in {timeZone}",
     "unavailable": "Deze boekingspagina is niet beschikbaar.",

@@ -11,9 +11,11 @@ import { looksAutomated, renderTokenIssuedTo, visitorHash } from "@/core/network
 import { stripControlCharacters } from "@/core/utils/strip-control-characters";
 import { DomainEvent } from "@/features/event/domain-events";
 import { coerceAnswers } from "@/features/records/record-value-coercion";
+import { isAppLocale } from "@/i18n/locale-registry";
 
 import type { BookingAnnouncer } from "./booking-announcer";
 import type { BookingAvailability } from "./booking-availability";
+import type { BookingMailer } from "./booking-mailer";
 import type { BookingReservationRepo } from "./booking-reservation.repo";
 import type { CalendarEventLinkRepo } from "./calendar-event-link.repo";
 import type { CalendarEventWriter } from "./calendar-event-writer";
@@ -84,6 +86,7 @@ export class SubmitPublicBookingInteractor {
     private events: Pick<EventService, "publish">,
     private announcer: Pick<BookingAnnouncer, "notifyHost">,
     private baseUrl: string,
+    private mailer: Pick<BookingMailer, "send">,
   ) {}
 
   async invoke(input: unknown, texts: PublicBookingTexts = { manageLine: "" }): Promise<PublicBookingSubmitResult> {
@@ -183,6 +186,7 @@ export class SubmitPublicBookingInteractor {
         timeZone: data.timeZone,
         answers: answers.display,
         ipHash,
+        locale: isAppLocale(data.locale) ? data.locale : null,
       },
       () => this.availability.isOpen(link, this.access.now(), startsAt),
     );
@@ -232,7 +236,7 @@ export class SubmitPublicBookingInteractor {
     const refs = [person, record].filter(isRef);
     await safely("booking-links", () => this.links.linkRecords(written.eventId, refs));
 
-    await this.reservations.confirm(reservation.id, {
+    const confirmed = await this.reservations.confirm(reservation.id, {
       calendarEventId: written.eventId,
       personTypeId: person?.typeId ?? null,
       personRecordId: person?.recordId ?? null,
@@ -282,6 +286,7 @@ export class SubmitPublicBookingInteractor {
       "booked",
       this.access.memberLocale(),
     );
+    if (confirmed) await this.mailer.send({ kind: "confirmed", booking: confirmed });
 
     return {
       status: "booked",

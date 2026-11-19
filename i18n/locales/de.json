@@ -1478,6 +1478,20 @@
       "withVideo": "Videolink hinzufügen",
       "workingHours": "Arbeitszeiten"
     },
+    "hostActions": {
+      "cancelConfirm": "Buchung stornieren",
+      "cancelled": "Buchung storniert. {name} erhält eine E-Mail.",
+      "cancelReason": "Grund für {name} (optional)",
+      "cancelText": "Der Termin wird aus dem Kalender entfernt und {name} erhält eine E-Mail.",
+      "cancelTitle": "Buchung mit {name} stornieren?",
+      "keep": "Buchung behalten",
+      "loadFailed": "Freie Zeiten konnten nicht geladen werden.",
+      "noSlots": "Diese Seite hat keine anderen freien Zeiten.",
+      "reschedule": "Verschieben",
+      "rescheduleConfirm": "Buchung verschieben",
+      "rescheduled": "Buchung verschoben. {name} erhält eine E-Mail.",
+      "rescheduleTitle": "Neuer Termin für {name}"
+    },
     "hostNotice": {
       "body": "{page}, {when}.",
       "bookedTitle": "{name} hat einen Termin gebucht",
@@ -1519,6 +1533,31 @@
       "tuesday": "Dienstag",
       "wednesday": "Mittwoch"
     }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} hat deine Buchung für {page} storniert.",
+    "cancelledIntroInvitee": "Deine Buchung für {page} mit {host} ist wie gewünscht storniert.",
+    "cancelledSubject": "Storniert: {page} am {date}",
+    "cancelledTitle": "Buchung storniert",
+    "confirmedIntro": "Deine Buchung für {page} mit {host} ist bestätigt. Die Kalendereinladung kommt in einer eigenen E-Mail.",
+    "confirmedSubject": "Bestätigt: {page} am {date}",
+    "confirmedTitle": "Buchung bestätigt",
+    "footer": "Du erhältst diese E-Mail, weil mit dieser Adresse ein Termin bei {workspace} gebucht wurde.",
+    "greeting": "Hallo {name},",
+    "greetingNoName": "Hallo,",
+    "labelHost": "Mit",
+    "labelNewWhen": "Neuer Termin",
+    "labelPrevious": "Bisheriger Termin",
+    "labelReason": "Grund",
+    "labelWhen": "Datum und Uhrzeit",
+    "manage": "Stornieren oder verschieben",
+    "reminderIntro": "Eine Erinnerung an deine Buchung für {page} mit {host}.",
+    "reminderSubject": "Erinnerung: {page} am {date}",
+    "reminderTitle": "Dein Termin steht bevor",
+    "rescheduledIntroHost": "{host} hat deine Buchung für {page} auf einen neuen Termin verschoben.",
+    "rescheduledIntroInvitee": "Deine Buchung für {page} mit {host} ist auf den neuen Termin verschoben, den du gewählt hast.",
+    "rescheduledSubject": "Verschoben: {page} am {date}",
+    "rescheduledTitle": "Buchung verschoben"
   },
   "BrowserFrame": {
     "open": "In neuem Tab öffnen"
@@ -4949,6 +4988,8 @@
     "rescheduledText": "Die Buchung wurde verschoben. Du erhältst eine aktualisierte Kalendereinladung.",
     "rescheduleTitle": "Neue Zeit wählen",
     "stateCancelled": "Diese Buchung wurde storniert.",
+    "stateCancelledByHost": "{host} hat diese Buchung storniert.",
+    "stateCancelledByHostReason": "{host} hat diese Buchung storniert. Grund: {reason}",
     "statePast": "Dieser Termin hat bereits stattgefunden.",
     "timeZone": "Zeiten werden in {timeZone} angezeigt",
     "unavailable": "Diese Buchungsseite ist nicht verfügbar.",

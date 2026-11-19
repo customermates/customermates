@@ -114,6 +114,12 @@ import { SaveBookingLinkInteractor } from "@/ee/calendar/save-booking-link.inter
 import { ScheduleMeetingInteractor } from "@/ee/calendar/schedule-meeting.interactor";
 import { SubmitPublicBookingInteractor } from "@/ee/calendar/submit-public-booking.interactor";
 import { UpdateMeetingInteractor } from "@/ee/calendar/update-meeting.interactor";
+import { BookingMailer } from "@/ee/calendar/booking-mailer";
+import { CancelHostedBookingInteractor } from "@/ee/calendar/cancel-hosted-booking.interactor";
+import { GetHostedBookingSlotsInteractor } from "@/ee/calendar/get-hosted-booking-slots.interactor";
+import { HostedBookingAccess } from "@/ee/calendar/hosted-booking-access";
+import { RescheduleHostedBookingInteractor } from "@/ee/calendar/reschedule-hosted-booking.interactor";
+import { SendBookingRemindersInteractor } from "@/ee/calendar/send-booking-reminders.interactor";
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
@@ -1929,8 +1935,44 @@ const getBookingAnnouncer = () =>
 
     return { title, body: values.reason ? `${body} ${t("reason", { reason: values.reason })}` : body };
   });
+const getBookingMailer = () => new BookingMailer(getEmailService(), env.BASE_URL);
 const getBookingEventSync = () =>
-  new BookingEventSync(getBookingRepo(), getBookingAnnouncer(), getMeetingRecordService(), runAsBookingHost);
+  new BookingEventSync(
+    getBookingRepo(),
+    getBookingAnnouncer(),
+    getMeetingRecordService(),
+    runAsBookingHost,
+    getBookingMailer(),
+  );
+const getHostedBookingAccess = () => new HostedBookingAccess(getBookingRepo(), getBookingRepo());
+export const getSendBookingRemindersInteractor = () =>
+  new SendBookingRemindersInteractor(getBookingRepo(), getBookingMailer());
+export const getGetHostedBookingSlotsInteractor = () =>
+  new GetHostedBookingSlotsInteractor(getHostedBookingAccess(), getBookingAvailability(), getEntitlementService());
+export const getCancelHostedBookingInteractor = () =>
+  new CancelHostedBookingInteractor(
+    getHostedBookingAccess(),
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getBookingAnnouncer(),
+    getBookingMailer(),
+    runAsBookingHost,
+    getEntitlementService(),
+  );
+export const getRescheduleHostedBookingInteractor = () =>
+  new RescheduleHostedBookingInteractor(
+    getHostedBookingAccess(),
+    getBookingAvailability(),
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getMeetingRecordService(),
+    getBookingAnnouncer(),
+    getBookingMailer(),
+    runAsBookingHost,
+    getEntitlementService(),
+  );
 const getMeetingRecordService = () =>
   new MeetingRecordService({
     model: getGetRecordModelInteractor(),
@@ -2037,6 +2079,7 @@ export const getSubmitPublicBookingInteractor = () =>
     getEventService(),
     getBookingAnnouncer(),
     env.BASE_URL,
+    getBookingMailer(),
   );
 export const getReadPublicBookingManageInteractor = () =>
   new ReadPublicBookingManageInteractor(publicBookingReadAccess);
@@ -2049,6 +2092,7 @@ export const getCancelPublicBookingInteractor = () =>
     getCalendarWriteAccessRepo(),
     getCalendarEventWriter(),
     getBookingAnnouncer(),
+    getBookingMailer(),
   );
 export const getReschedulePublicBookingInteractor = () =>
   new ReschedulePublicBookingInteractor(
@@ -2059,6 +2103,7 @@ export const getReschedulePublicBookingInteractor = () =>
     getCalendarEventWriter(),
     getMeetingRecordService(),
     getBookingAnnouncer(),
+    getBookingMailer(),
   );
 export const getProcessAccountAddWebhookInteractor = () =>
   new ProcessAccountAddWebhookInteractor(

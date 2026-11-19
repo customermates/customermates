@@ -98,6 +98,10 @@ Ja, tenzij je **Bezoekers kunnen annuleren en verplaatsen** op de pagina uitzet.
 
 Verplaats of verwijder je de afspraak in je eigen agenda, dan volgt de boeking: een verplaatste afspraak verplaatst de boeking, een verwijderde of geannuleerde afspraak annuleert die. Elke geannuleerde of verplaatste boeking levert de gebeurtenis `booking.changed` op, die aangeeft wat er is veranderd en wie dat heeft gedaan, zodat een [automatisering](/docs/app-automations) kan reageren, bijvoorbeeld met een melding of een opvolgtaak.
 
+Je kunt een boeking ook zelf wijzigen. In het paneel **Boekingspagina's** heeft elke komende boeking **Verplaatsen** en **Boeking annuleren**: verplaats de boeking naar een andere vrije tijd van dezelfde pagina of annuleer die met een optionele reden. De host van de boeking, de eigenaar van de pagina en beheerders kunnen dit doen. Het werkt net als de wijziging door de bezoeker: de agenda-afspraak wordt bijgewerkt, `booking.changed` wordt geleverd en de bezoeker krijgt bericht.
+
+De bezoeker krijgt een e-mail na het boeken, na elke verplaatsing en na een annulering, wie de wijziging ook heeft gedaan, en één herinnering ongeveer 24 uur voor de afspraak. Deze e-mails tonen het logo en de accentkleur van je werkruimte, zijn geschreven in de taal waarin de bezoeker heeft geboekt en bevatten de link **Annuleren of verplaatsen** als de pagina dat toestaat. Antwoorden gaan naar de host.
+
 ### Hoe werkt een boekingspagina met round robin? [#booking-page-round-robin]
 
 Een beheerder kan **Deze pagina delen met collega's (round robin)** inschakelen en collega's kiezen die een gekoppelde agenda hebben. De pagina biedt dan een tijd aan waarop minstens één host vrij is. Elke boeking gaat naar de vrije host met de minste aankomende boekingen van deze pagina, in de agenda van die host, en de bezoeker ziet met wie de afspraak is. De eigenaar van de pagina is altijd ook host. Een host van wie de agendaverbinding of toegang via het abonnement eindigt, wordt overgeslagen totdat het weer werkt, en een pagina kan tot 10 hosts hebben.

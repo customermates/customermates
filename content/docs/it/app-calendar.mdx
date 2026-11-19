@@ -98,6 +98,10 @@ Sì, a meno che tu non disattivi **I visitatori possono annullare e riprogrammar
 
 Se sposti o elimini l’evento nel tuo calendario, la prenotazione lo segue: un evento spostato sposta la prenotazione, un evento eliminato o annullato la annulla. Ogni prenotazione annullata o spostata produce l’evento `booking.changed`, che dice che cosa è cambiato e chi lo ha fatto, così che un’[automazione](/docs/app-automations) possa reagire, ad esempio con una notifica o un’attività di follow-up.
 
+Puoi anche modificare tu una prenotazione. Nel pannello **Pagine di prenotazione**, ogni prenotazione in arrivo ha **Riprogramma** e **Annulla prenotazione**: spostala a un altro orario libero della stessa pagina oppure annullala indicando, se vuoi, un motivo. Possono farlo l’organizzatore della prenotazione, il proprietario della pagina e gli amministratori. Funziona come la modifica fatta dal visitatore: l’evento di calendario viene aggiornato, viene prodotto `booking.changed` e il visitatore viene avvisato.
+
+Il visitatore riceve un’e-mail dopo la prenotazione, dopo ogni spostamento e dopo un annullamento, chiunque abbia fatto la modifica, e un promemoria circa 24 ore prima della riunione. Queste e-mail mostrano il logo e il colore di accento del tuo spazio di lavoro, sono scritte nella lingua in cui il visitatore ha prenotato e contengono il link **Annulla o riprogramma** quando la pagina lo consente. Le risposte arrivano all’organizzatore.
+
 ### Come funziona una pagina di prenotazione con round robin? [#booking-page-round-robin]
 
 Un amministratore può attivare **Condividi questa pagina con i colleghi (round robin)** e scegliere i colleghi che hanno un calendario collegato. La pagina offre allora un orario quando almeno un organizzatore è libero. Ogni prenotazione va all’organizzatore libero con meno prenotazioni in arrivo di questa pagina, nel suo calendario, e il visitatore vede con chi è la riunione. Il titolare della pagina è sempre anche organizzatore. Un organizzatore la cui connessione del calendario o il cui accesso tramite il piano termina viene saltato finché non funziona di nuovo, e una pagina può avere fino a 10 organizzatori.

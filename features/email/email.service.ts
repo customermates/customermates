@@ -10,12 +10,26 @@ type SendArgs = {
   subject: string;
   react: React.ReactElement<Record<string, unknown>>;
   from?: string;
+  replyTo?: string;
   deduplicationKey?: string;
 };
 
 type SendFailure = { name: string; message: string };
 
 const defaultSender = `Customermates <${env.RESEND_OPERATOR_EMAIL}>`;
+
+const SENDER_NAME_MAX_CHARS = 120;
+
+export function senderNamed(displayName: string): string {
+  const name = displayName
+    .replace(/[\p{Cc}"\\<>]/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim()
+    .slice(0, SENDER_NAME_MAX_CHARS)
+    .trim();
+
+  return name ? `"${name}" <${env.RESEND_OPERATOR_EMAIL}>` : defaultSender;
+}
 
 export const EMAIL_SEND_TIMEOUT_MS = 10_000;
 
@@ -34,6 +48,7 @@ export class EmailService {
         from: args.from ?? defaultSender,
         to: args.to,
         subject: args.subject,
+        ...(args.replyTo ? { replyTo: args.replyTo } : {}),
         props: args.react.props,
       });
 
@@ -58,6 +73,7 @@ export class EmailService {
           to: args.to,
           subject: args.subject,
           react: args.react,
+          ...(args.replyTo ? { replyTo: args.replyTo } : {}),
         },
         args.deduplicationKey ? { headers: { "Idempotency-Key": args.deduplicationKey } } : undefined,
       ),

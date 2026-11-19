@@ -3,6 +3,7 @@ import { stripControlCharacters } from "@/core/utils/strip-control-characters";
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
 import type { BookingAnnouncer } from "./booking-announcer";
+import type { BookingMailer } from "./booking-mailer";
 import type { BookingReservationRepo } from "./booking-reservation.repo";
 import type { CalendarEventWriter } from "./calendar-event-writer";
 import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
@@ -20,6 +21,7 @@ export class CancelPublicBookingInteractor {
     private calendars: Pick<CalendarWriteAccessRepo, "findOwnEvent">,
     private writer: Pick<CalendarEventWriter, "cancel">,
     private announcer: Pick<BookingAnnouncer, "changed" | "notifyHost">,
+    private mailer: Pick<BookingMailer, "send">,
   ) {}
 
   async invoke(input: unknown): Promise<PublicBookingCancelResult> {
@@ -49,6 +51,7 @@ export class CancelPublicBookingInteractor {
 
         await this.announcer.changed(cancelled, "cancelled", "invitee", { reason });
         await this.announcer.notifyHost(cancelled, "cancelled", this.access.memberLocale(), reason);
+        await this.mailer.send({ kind: "cancelled", booking: cancelled, by: "invitee", reason });
 
         return { status: "cancelled" };
       },

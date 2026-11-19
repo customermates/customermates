@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import AccountAccessRevoked from "../account-access-revoked";
 import AccountsRemovedNotice from "../accounts-removed-notice";
 import BillingWebhookAlert from "../billing-webhook-alert";
+import BookingEmail from "../booking-email";
 import CompanyInvite from "../company-invite";
 import ContactInquiry from "../contact-inquiry";
 import Feedback from "../feedback";
@@ -420,6 +421,36 @@ const EMAIL_PREVIEW_CASES = [
     },
   },
   {
+    key: "booking-email",
+    sendSite: "booking-email",
+    audience: "recipient-localized",
+    sourcePath: "ee/calendar/booking-mailer.ts",
+    templatePath: "components/emails/booking-email.tsx",
+    template: BookingEmail,
+    expectedText: (locale) => catalog(locale).BookingEmail.confirmedTitle,
+    render: (locale) => {
+      const copy = catalog(locale).BookingEmail;
+      const when = localizedDate(locale, "2026-11-20T09:00:00.000Z");
+      const named = (value: string) =>
+        value.replace("{page}", "Intro call").replace("{host}", "Anna Müller").replace("{date}", when);
+      return createElement(BookingEmail, {
+        ...previewLayoutProps(locale),
+        brandName: "Hoffmann Consulting",
+        subject: named(copy.confirmedSubject),
+        title: copy.confirmedTitle,
+        greeting: copy.greeting.replace("{name}", PREVIEW_FIRST_NAME),
+        intro: named(copy.confirmedIntro),
+        details: [
+          { label: copy.labelWhen, value: when },
+          { label: copy.labelHost, value: "Anna Müller" },
+        ],
+        manage: { label: copy.manage, href: `${PREVIEW_BASE_URL}/book/manage/synthetic-preview-token` },
+        accent: null,
+        footer: withWorkspace(copy.footer),
+      });
+    },
+  },
+  {
     key: "legal-document-notice-contract",
     sendSite: "legal-document-notice",
     audience: "recipient-localized",
@@ -523,11 +554,11 @@ const LOCALIZED_PREVIEW_CASES = EMAIL_PREVIEW_CASES.flatMap((definition) =>
 );
 
 describe("transactional email preview inventory", () => {
-  it("maps all 16 production send sites onto 17 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(17);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(17);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(16);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(17);
+  it("maps all 17 production send sites onto 18 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(18);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(18);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(17);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(18);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -556,11 +587,11 @@ describe("transactional email preview inventory", () => {
   });
 
   it("keeps recipient localization and internal English explicit", () => {
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(13);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(14);
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(4);
   });
 
-  it("discovers all 17 top-level production templates", () => {
+  it("discovers all 18 top-level production templates", () => {
     expect(discoveredPreviewEntries()).toEqual(
       EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath.replace("components/emails/", "")).sort(),
     );
@@ -586,7 +617,7 @@ describe("transactional email preview inventory", () => {
 
 describe("transactional email preview rendering", () => {
   it("covers every behavior in each of its locales", () => {
-    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(108);
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(116);
   });
 
   it.each(LOCALIZED_PREVIEW_CASES)(

@@ -1478,6 +1478,20 @@
       "withVideo": "Aggiungi un link per la videochiamata",
       "workingHours": "Orari di lavoro"
     },
+    "hostActions": {
+      "cancelConfirm": "Annulla prenotazione",
+      "cancelled": "Prenotazione annullata. {name} riceve un'e-mail.",
+      "cancelReason": "Motivo per {name} (facoltativo)",
+      "cancelText": "La riunione viene rimossa dal calendario e {name} riceve un'e-mail.",
+      "cancelTitle": "Annullare la prenotazione con {name}?",
+      "keep": "Mantieni prenotazione",
+      "loadFailed": "Impossibile caricare gli orari liberi.",
+      "noSlots": "Questa pagina non ha altri orari liberi.",
+      "reschedule": "Riprogramma",
+      "rescheduleConfirm": "Sposta prenotazione",
+      "rescheduled": "Prenotazione spostata. {name} riceve un'e-mail.",
+      "rescheduleTitle": "Nuovo orario per {name}"
+    },
     "hostNotice": {
       "body": "{page}, {when}.",
       "bookedTitle": "{name} ha prenotato una riunione",
@@ -1519,6 +1533,31 @@
       "tuesday": "Martedì",
       "wednesday": "Mercoledì"
     }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} ha annullato la tua prenotazione per {page}.",
+    "cancelledIntroInvitee": "La tua prenotazione per {page} con {host} è annullata, come hai chiesto.",
+    "cancelledSubject": "Annullato: {page} il {date}",
+    "cancelledTitle": "Prenotazione annullata",
+    "confirmedIntro": "La tua prenotazione per {page} con {host} è confermata. L'invito del calendario arriva in un'e-mail separata.",
+    "confirmedSubject": "Confermato: {page} il {date}",
+    "confirmedTitle": "Prenotazione confermata",
+    "footer": "Ricevi questa e-mail perché questo indirizzo è stato usato per prenotare un orario con {workspace}.",
+    "greeting": "Ciao {name},",
+    "greetingNoName": "Ciao,",
+    "labelHost": "Con",
+    "labelNewWhen": "Nuovo orario",
+    "labelPrevious": "Orario precedente",
+    "labelReason": "Motivo",
+    "labelWhen": "Quando",
+    "manage": "Annulla o riprogramma",
+    "reminderIntro": "Un promemoria della tua prenotazione per {page} con {host}.",
+    "reminderSubject": "Promemoria: {page} il {date}",
+    "reminderTitle": "Il tuo appuntamento si avvicina",
+    "rescheduledIntroHost": "{host} ha spostato la tua prenotazione per {page} a un nuovo orario.",
+    "rescheduledIntroInvitee": "La tua prenotazione per {page} con {host} è spostata al nuovo orario che hai scelto.",
+    "rescheduledSubject": "Riprogrammato: {page} il {date}",
+    "rescheduledTitle": "Prenotazione riprogrammata"
   },
   "BrowserFrame": {
     "open": "Apri in una nuova scheda"
@@ -4949,6 +4988,8 @@
     "rescheduledText": "La prenotazione è stata spostata. Riceverai un invito del calendario aggiornato.",
     "rescheduleTitle": "Scegli un nuovo orario",
     "stateCancelled": "Questa prenotazione è stata annullata.",
+    "stateCancelledByHost": "{host} ha annullato questa prenotazione.",
+    "stateCancelledByHostReason": "{host} ha annullato questa prenotazione. Motivo: {reason}",
     "statePast": "Questa riunione si è già svolta.",
     "timeZone": "Orari mostrati in {timeZone}",
     "unavailable": "Questa pagina di prenotazione non è disponibile.",

@@ -1478,6 +1478,20 @@
       "withVideo": "Adicionar um link de videochamada",
       "workingHours": "Horário de trabalho"
     },
+    "hostActions": {
+      "cancelConfirm": "Cancelar agendamento",
+      "cancelled": "Agendamento cancelado. {name} recebe um e-mail.",
+      "cancelReason": "Motivo para {name} (opcional)",
+      "cancelText": "A reunião é removida do calendário e {name} recebe um e-mail.",
+      "cancelTitle": "Cancelar o agendamento com {name}?",
+      "keep": "Manter agendamento",
+      "loadFailed": "Não foi possível carregar os horários livres.",
+      "noSlots": "Esta página não tem outros horários livres.",
+      "reschedule": "Reagendar",
+      "rescheduleConfirm": "Mover agendamento",
+      "rescheduled": "Agendamento movido. {name} recebe um e-mail.",
+      "rescheduleTitle": "Novo horário para {name}"
+    },
     "hostNotice": {
       "body": "{page}, {when}.",
       "bookedTitle": "{name} agendou uma reunião",
@@ -1519,6 +1533,31 @@
       "tuesday": "Terça-feira",
       "wednesday": "Quarta-feira"
     }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} cancelou o seu agendamento de {page}.",
+    "cancelledIntroInvitee": "O seu agendamento de {page} com {host} está cancelado, como você pediu.",
+    "cancelledSubject": "Cancelado: {page} em {date}",
+    "cancelledTitle": "Agendamento cancelado",
+    "confirmedIntro": "O seu agendamento de {page} com {host} está confirmado. O convite de calendário chega em um e-mail separado.",
+    "confirmedSubject": "Confirmado: {page} em {date}",
+    "confirmedTitle": "Agendamento confirmado",
+    "footer": "Você recebe este e-mail porque este endereço foi usado para agendar um horário com {workspace}.",
+    "greeting": "Olá, {name},",
+    "greetingNoName": "Olá,",
+    "labelHost": "Com",
+    "labelNewWhen": "Novo horário",
+    "labelPrevious": "Horário anterior",
+    "labelReason": "Motivo",
+    "labelWhen": "Quando",
+    "manage": "Cancelar ou reagendar",
+    "reminderIntro": "Um lembrete do seu agendamento de {page} com {host}.",
+    "reminderSubject": "Lembrete: {page} em {date}",
+    "reminderTitle": "Seu compromisso está chegando",
+    "rescheduledIntroHost": "{host} moveu o seu agendamento de {page} para um novo horário.",
+    "rescheduledIntroInvitee": "O seu agendamento de {page} com {host} foi movido para o novo horário que você escolheu.",
+    "rescheduledSubject": "Reagendado: {page} em {date}",
+    "rescheduledTitle": "Agendamento reagendado"
   },
   "BrowserFrame": {
     "open": "Abrir em uma nova guia"
@@ -4949,6 +4988,8 @@
     "rescheduledText": "O agendamento foi movido. Você receberá um convite de calendário atualizado.",
     "rescheduleTitle": "Escolha um novo horário",
     "stateCancelled": "Este agendamento foi cancelado.",
+    "stateCancelledByHost": "{host} cancelou este agendamento.",
+    "stateCancelledByHostReason": "{host} cancelou este agendamento. Motivo: {reason}",
     "statePast": "Esta reunião já aconteceu.",
     "timeZone": "Horários exibidos em {timeZone}",
     "unavailable": "Esta página de agendamento não está disponível.",

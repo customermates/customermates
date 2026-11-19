@@ -98,6 +98,10 @@ Ja, es sei denn, Sie schalten **Besucher können Buchungen stornieren und versch
 
 Verschieben oder löschen Sie den Termin in Ihrem eigenen Kalender, folgt die Buchung: Ein verschobener Termin verschiebt die Buchung, ein gelöschter oder abgesagter Termin storniert sie. Jede stornierte oder verschobene Buchung löst das Ereignis `booking.changed` aus, das angibt, was sich geändert hat und wer es getan hat, sodass eine [Automatisierung](/docs/app-automations) darauf reagieren kann, zum Beispiel mit einer Benachrichtigung oder einer Folgeaufgabe.
 
+Sie können eine Buchung auch selbst ändern. Im Seitenfenster **Buchungsseiten** hat jede anstehende Buchung **Verschieben** und **Buchung stornieren**: Verschieben Sie sie auf eine andere freie Zeit derselben Seite oder stornieren Sie sie mit einem optionalen Grund. Das können der Gastgeber der Buchung, der Inhaber der Seite und Administratoren. Es wirkt wie die Änderung durch den Besucher: Der Kalendertermin wird aktualisiert, `booking.changed` wird ausgelöst und der Besucher wird informiert.
+
+Der Besucher erhält eine E-Mail nach der Buchung, nach jeder Verschiebung und nach einer Stornierung, egal wer die Änderung vorgenommen hat, sowie eine Erinnerung etwa 24 Stunden vor dem Termin. Diese E-Mails zeigen das Logo und die Akzentfarbe Ihres Workspace, sind in der Sprache verfasst, in der der Besucher gebucht hat, und enthalten den Link **Stornieren oder verschieben**, wenn die Seite das erlaubt. Antworten darauf gehen an den Gastgeber.
+
 ### Wie funktioniert eine Round-Robin-Buchungsseite? [#booking-page-round-robin]
 
 Ein Administrator kann **Seite mit Kollegen teilen (Round Robin)** einschalten und Kollegen mit verbundenem Kalender auswählen. Die Seite bietet dann eine Zeit an, zu der mindestens ein Gastgeber frei ist. Jede Buchung geht an den freien Gastgeber mit den wenigsten bevorstehenden Buchungen dieser Seite, in dessen Kalender, und der Besucher sieht, mit wem der Termin stattfindet. Der Inhaber der Seite ist immer auch Gastgeber. Ein Gastgeber, dessen Kalenderverbindung oder Tarifzugang endet, wird übersprungen, bis es wieder funktioniert, und eine Seite kann bis zu 10 Gastgeber haben.

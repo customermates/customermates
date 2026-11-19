@@ -38,6 +38,7 @@ export class ReadPublicBookingManageInteractor {
       (opened): Promise<PublicBookingManageResult> => {
         const { booking, link } = opened;
         const now = this.access.now();
+        const cancelledByHost = booking.status === "cancelled" && booking.cancelledBy === "host";
 
         return Promise.resolve({
           status: "found",
@@ -51,6 +52,8 @@ export class ReadPublicBookingManageInteractor {
             durationMinutes: link.durationMinutes,
             horizonDays: link.horizonDays,
             state: managedBookingState(opened, now),
+            cancelledByHost,
+            cancelReason: cancelledByHost ? booking.cancelReason : null,
             canCancel: inviteeMayCancel(opened, now),
             canReschedule: inviteeMayReschedule(opened, now),
             bookAgainToken: link.enabled ? link.token : null,

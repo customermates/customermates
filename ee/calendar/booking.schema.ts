@@ -21,6 +21,7 @@ export const BOOKING_ANSWER_MAX_CHARS = 2000;
 export const BOOKING_HOST_LIMIT = 10;
 export const BOOKING_CANCEL_REASON_MAX_CHARS = 500;
 export const BOOKING_UPCOMING_LIST_LIMIT = 50;
+export const BOOKING_REMINDER_LEAD_MS = 24 * 60 * 60 * 1000;
 export const BOOKING_ASSIGNMENTS = ["single", "roundRobin"] as const;
 export type BookingAssignmentKind = (typeof BOOKING_ASSIGNMENTS)[number];
 
@@ -181,6 +182,53 @@ export type UpcomingBookingDto = z.infer<typeof UpcomingBookingSchema>;
 export const UpcomingBookingListSchema = z.object({ items: z.array(UpcomingBookingSchema) });
 export type UpcomingBookingList = z.infer<typeof UpcomingBookingListSchema>;
 
+export const CancelHostedBookingSchema = z
+  .object({
+    id: z.uuid().describe("An upcoming booking from the upcoming bookings list."),
+    reason: z
+      .string()
+      .trim()
+      .max(BOOKING_CANCEL_REASON_MAX_CHARS)
+      .default("")
+      .describe("Shown to the visitor in the cancellation email; empty sends none."),
+  })
+  .strict();
+export type CancelHostedBookingData = z.infer<typeof CancelHostedBookingSchema>;
+export type CancelHostedBookingInput = z.input<typeof CancelHostedBookingSchema>;
+
+export const RescheduleHostedBookingSchema = z
+  .object({
+    id: z.uuid(),
+    startsAt: z.iso.datetime({ offset: true }).describe("A free time from the booking's slots."),
+  })
+  .strict();
+export type RescheduleHostedBookingData = z.infer<typeof RescheduleHostedBookingSchema>;
+
+export const HostedBookingSlotsQuerySchema = z
+  .object({
+    id: z.uuid(),
+    from: z.iso.datetime({ offset: true }).optional(),
+    days: z.number().int().min(1).max(31).default(14),
+  })
+  .strict();
+export type HostedBookingSlotsQuery = z.infer<typeof HostedBookingSlotsQuerySchema>;
+export type HostedBookingSlotsQueryInput = z.input<typeof HostedBookingSlotsQuerySchema>;
+
+export const HostedBookingSlotsSchema = z.object({
+  timeZone: z.string(),
+  slots: z.array(z.object({ startsAt: z.iso.datetime(), endsAt: z.iso.datetime() })),
+  nextFrom: z.iso.datetime().nullable(),
+});
+export type HostedBookingSlots = z.infer<typeof HostedBookingSlotsSchema>;
+
+export const HostedBookingChangeSchema = z.object({
+  id: z.uuid(),
+  status: z.enum(["cancelled", "rescheduled"]),
+  startsAt: z.iso.datetime(),
+  endsAt: z.iso.datetime(),
+});
+export type HostedBookingChange = z.infer<typeof HostedBookingChangeSchema>;
+
 export const DeleteBookingLinkResultSchema = z.object({ id: z.uuid(), deleted: z.literal(true) });
 export type DeleteBookingLinkResult = z.infer<typeof DeleteBookingLinkResultSchema>;
 
@@ -278,6 +326,7 @@ export const SubmitPublicBookingSchema = PublicBookingQuerySchema.extend({
   answers: z.record(z.uuid(), PublicAnswerValueSchema).default({}),
   website: z.string().max(200).default(""),
   renderToken: z.string().max(200),
+  locale: z.string().max(8).nullish(),
 }).strict();
 export type SubmitPublicBookingData = z.infer<typeof SubmitPublicBookingSchema>;
 export type SubmitPublicBookingInput = z.input<typeof SubmitPublicBookingSchema>;
@@ -311,6 +360,8 @@ export type PublicManagedBooking = {
   durationMinutes: number;
   horizonDays: number;
   state: PublicBookingState;
+  cancelledByHost: boolean;
+  cancelReason: string | null;
   canCancel: boolean;
   canReschedule: boolean;
   bookAgainToken: string | null;

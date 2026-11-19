@@ -92,6 +92,8 @@ describe("ReadPublicBookingManageInteractor", () => {
         durationMinutes: 30,
         horizonDays: 30,
         state: "upcoming",
+        cancelledByHost: false,
+        cancelReason: null,
         canCancel: true,
         canReschedule: true,
         bookAgainToken: lookupLink().token,
@@ -232,7 +234,8 @@ function changeTools(booking: BookingRow) {
   };
   const calendars = { findOwnEvent: vi.fn().mockResolvedValue(eventRow()) };
   const announcer = { changed: vi.fn().mockResolvedValue(undefined), notifyHost: vi.fn().mockResolvedValue(undefined) };
-  return { reservations, calendars, announcer };
+  const mailer = { send: vi.fn().mockResolvedValue(true) };
+  return { reservations, calendars, announcer, mailer };
 }
 
 describe("CancelPublicBookingInteractor", () => {
@@ -252,12 +255,13 @@ describe("CancelPublicBookingInteractor", () => {
       tools.calendars,
       writer as never,
       tools.announcer,
+      tools.mailer,
     );
     return { interactor, writer, hostOfCancel, ...tools };
   }
 
   it("cancels as the booked host, removes the event with the reason, then announces and tells the host", async () => {
-    const { interactor, reservations, writer, announcer, calendars, hostOfCancel } = cancel({ locale: "de" });
+    const { interactor, reservations, writer, announcer, calendars, hostOfCancel, mailer } = cancel({ locale: "de" });
 
     expect(
       await interactor.invoke({ manageToken: MANAGE_TOKEN, visitor: "v", reason: "  Something came up\u0007 " }),
@@ -270,6 +274,12 @@ describe("CancelPublicBookingInteractor", () => {
     const cancelled = await reservations.cancelHosted.mock.results[0]?.value;
     expect(announcer.changed).toHaveBeenCalledWith(cancelled, "cancelled", "invitee", { reason: "Something came up" });
     expect(announcer.notifyHost).toHaveBeenCalledWith(cancelled, "cancelled", "de", "Something came up");
+    expect(mailer.send).toHaveBeenCalledWith({
+      kind: "cancelled",
+      booking: cancelled,
+      by: "invitee",
+      reason: "Something came up",
+    });
     expect(reservations.reopenHosted).not.toHaveBeenCalled();
   });
 
@@ -367,6 +377,7 @@ describe("ReschedulePublicBookingInteractor", () => {
       writer as never,
       records,
       tools.announcer,
+      tools.mailer,
     );
     return { interactor, availability, writer, records, booking, ...tools };
   }
@@ -374,7 +385,7 @@ describe("ReschedulePublicBookingInteractor", () => {
   const INPUT = { manageToken: MANAGE_TOKEN, visitor: "v", startsAt: NEW_START, timeZone: "Europe/London" };
 
   it("moves the booking when the new time is open for the host, updates the event and announces the change", async () => {
-    const { interactor, availability, reservations, writer, announcer, records, booking } = reschedule({
+    const { interactor, availability, reservations, writer, announcer, records, booking, mailer } = reschedule({
       locale: "de",
     });
 
@@ -408,6 +419,12 @@ describe("ReschedulePublicBookingInteractor", () => {
       previousStartsAt: STARTS_AT,
     });
     expect(announcer.notifyHost).toHaveBeenCalledWith(moved.booking, "rescheduled", "de");
+    expect(mailer.send).toHaveBeenCalledWith({
+      kind: "rescheduled",
+      booking: moved.booking,
+      by: "invitee",
+      previousStartsAt: STARTS_AT,
+    });
     expect(reservations.restoreTimes).not.toHaveBeenCalled();
   });
 
@@ -451,6 +468,8 @@ describe("ReschedulePublicBookingInteractor", () => {
     expect(reservations.restoreTimes).toHaveBeenCalledWith(BOOKING_ID, {
       startsAt: STARTS_AT,
       endsAt: new Date("2026-11-20T09:30:00.000Z"),
+      rescheduledAt: null,
+      reminderSentAt: null,
     });
     expect(records.moveBookingRecord).not.toHaveBeenCalled();
     expect(announcer.changed).not.toHaveBeenCalled();

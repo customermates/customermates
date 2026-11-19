@@ -207,7 +207,19 @@ export function PublicBookingManageView({
         ) : null}
 
         {!outcome && state === "cancelled" ? (
-          <p className="text-sm text-muted-foreground">{t("PublicBooking.stateCancelled")}</p>
+          <p
+            className="text-sm text-muted-foreground"
+            data-booking-cancelled-by={booking.cancelledByHost ? "host" : ""}
+          >
+            {booking.cancelledByHost
+              ? booking.cancelReason
+                ? t("PublicBooking.stateCancelledByHostReason", {
+                    host: booking.hostName,
+                    reason: booking.cancelReason,
+                  })
+                : t("PublicBooking.stateCancelledByHost", { host: booking.hostName })
+              : t("PublicBooking.stateCancelled")}
+          </p>
         ) : null}
 
         {state === "past" ? <p className="text-sm text-muted-foreground">{t("PublicBooking.statePast")}</p> : null}

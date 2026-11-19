@@ -6,6 +6,7 @@ const sweepRules = vi.hoisted(() => vi.fn());
 const sweepAgentJobs = vi.hoisted(() => vi.fn());
 const notifyRunnerOffline = vi.hoisted(() => vi.fn());
 const sendInstantFallback = vi.hoisted(() => vi.fn());
+const sendBookingReminders = vi.hoisted(() => vi.fn());
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   CRON_SECRET: "test-cron-secret" as string | undefined,
@@ -19,6 +20,7 @@ vi.mock("@/core/di", () => ({
   getSweepAgentJobTimeoutsInteractor: () => ({ invoke: sweepAgentJobs }),
   getNotifyRunnerOfflineInteractor: () => ({ invoke: notifyRunnerOffline }),
   getSendInstantNotificationFallbackInteractor: () => ({ invoke: sendInstantFallback }),
+  getSendBookingRemindersInteractor: () => ({ invoke: sendBookingReminders }),
 }));
 
 import { GET } from "../route";
@@ -41,6 +43,7 @@ describe("record delivery recovery cron", () => {
     sweepAgentJobs.mockResolvedValue({ agentJobsTimedOut: 1, agentJobsRequeued: 2, agentJobsRedispatched: 3 });
     notifyRunnerOffline.mockResolvedValue({ runnerOfflineNotified: 2 });
     sendInstantFallback.mockResolvedValue({ instantNotificationFallbacks: 5 });
+    sendBookingReminders.mockResolvedValue({ bookingReminders: 6 });
   });
 
   it("requires the configured cron secret", async () => {
@@ -76,7 +79,9 @@ describe("record delivery recovery cron", () => {
       agentJobsRedispatched: 3,
       runnerOfflineNotified: 2,
       instantNotificationFallbacks: 5,
+      bookingReminders: 6,
     });
+    expect(sendBookingReminders).toHaveBeenCalledTimes(1);
     expect(sendInstantFallback).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(sweepFiles).toHaveBeenCalledTimes(1);
@@ -123,5 +128,23 @@ describe("record delivery recovery cron", () => {
       fileIndexWorkspaces: 1,
     });
     expect(sweepFiles).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends booking reminders only where booking pages exist, in the cloud", async () => {
+    mockEnv.APP_MODE = "self-hosted";
+    const body = await (await GET(request("Bearer test-cron-secret"))).json();
+
+    expect(body).not.toHaveProperty("bookingReminders");
+    expect(sendBookingReminders).not.toHaveBeenCalled();
+  });
+
+  it("still runs the other sweeps when the booking reminders fail", async () => {
+    sendBookingReminders.mockRejectedValue(new Error("mail down"));
+
+    await expect(GET(request("Bearer test-cron-secret"))).rejects.toThrow(
+      "Sweeps failed: bookingReminders (mail down)",
+    );
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(sendInstantFallback).toHaveBeenCalledTimes(1);
   });
 });

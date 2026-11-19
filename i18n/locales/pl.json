@@ -1478,6 +1478,20 @@
       "withVideo": "Dodaj link do wideorozmowy",
       "workingHours": "Godziny pracy"
     },
+    "hostActions": {
+      "cancelConfirm": "Anuluj rezerwację",
+      "cancelled": "Rezerwacja anulowana. Osoba {name} dostanie e-mail.",
+      "cancelReason": "Powód dla osoby {name} (opcjonalnie)",
+      "cancelText": "Spotkanie zostanie usunięte z kalendarza, a osoba {name} dostanie e-mail.",
+      "cancelTitle": "Anulować rezerwację: {name}?",
+      "keep": "Zachowaj rezerwację",
+      "loadFailed": "Nie udało się wczytać wolnych terminów.",
+      "noSlots": "Ta strona nie ma innych wolnych terminów.",
+      "reschedule": "Zmień termin",
+      "rescheduleConfirm": "Przenieś rezerwację",
+      "rescheduled": "Rezerwacja przeniesiona. Osoba {name} dostanie e-mail.",
+      "rescheduleTitle": "Nowy termin: {name}"
+    },
     "hostNotice": {
       "body": "{page}, {when}.",
       "bookedTitle": "Spotkanie zarezerwowane przez {name}",
@@ -1519,6 +1533,31 @@
       "tuesday": "Wtorek",
       "wednesday": "Środa"
     }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "Twoja rezerwacja: {page} została anulowana. Anulował(a): {host}.",
+    "cancelledIntroInvitee": "Twoja rezerwacja: {page} ({host}) została anulowana zgodnie z Twoją prośbą.",
+    "cancelledSubject": "Anulowano: {page}, {date}",
+    "cancelledTitle": "Rezerwacja anulowana",
+    "confirmedIntro": "Twoja rezerwacja: {page} ({host}) jest potwierdzona. Zaproszenie do kalendarza przyjdzie w osobnym e-mailu.",
+    "confirmedSubject": "Potwierdzono: {page}, {date}",
+    "confirmedTitle": "Rezerwacja potwierdzona",
+    "footer": "Otrzymujesz ten e-mail, ponieważ ten adres posłużył do rezerwacji terminu w {workspace}.",
+    "greeting": "Cześć {name},",
+    "greetingNoName": "Cześć,",
+    "labelHost": "Z kim",
+    "labelNewWhen": "Nowy termin",
+    "labelPrevious": "Poprzedni termin",
+    "labelReason": "Powód",
+    "labelWhen": "Kiedy",
+    "manage": "Anuluj lub zmień termin",
+    "reminderIntro": "Przypomnienie o Twojej rezerwacji: {page} ({host}).",
+    "reminderSubject": "Przypomnienie: {page}, {date}",
+    "reminderTitle": "Twój termin się zbliża",
+    "rescheduledIntroHost": "Twoja rezerwacja: {page} została przeniesiona na nowy termin. Przeniósł(a): {host}.",
+    "rescheduledIntroInvitee": "Twoja rezerwacja: {page} ({host}) została przeniesiona na wybrany przez Ciebie termin.",
+    "rescheduledSubject": "Zmieniono termin: {page}, {date}",
+    "rescheduledTitle": "Termin rezerwacji zmieniony"
   },
   "BrowserFrame": {
     "open": "Otwórz w nowej karcie"
@@ -4949,6 +4988,8 @@
     "rescheduledText": "Rezerwacja została przeniesiona. Otrzymasz zaktualizowane zaproszenie do kalendarza.",
     "rescheduleTitle": "Wybierz nowy termin",
     "stateCancelled": "Ta rezerwacja została anulowana.",
+    "stateCancelledByHost": "Ta rezerwacja została anulowana przez organizatora ({host}).",
+    "stateCancelledByHostReason": "Ta rezerwacja została anulowana przez organizatora ({host}). Powód: {reason}",
     "statePast": "To spotkanie już się odbyło.",
     "timeZone": "Godziny wyświetlane w strefie {timeZone}",
     "unavailable": "Ta strona rezerwacji jest niedostępna.",

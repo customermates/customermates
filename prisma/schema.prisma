@@ -1877,6 +1877,10 @@ model Booking {
   cancelReason    String?
   cancelledAt     DateTime?
   rescheduledAt   DateTime?
+  /// The language of the visitor's booking page, used for the emails to the visitor.
+  locale          String?       @db.VarChar(8)
+  /// When the reminder about 24 hours before the start was sent, or when the booking was made or moved to a start less than 24 hours away, which needs none; null while a reminder is still due.
+  reminderSentAt  DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1888,6 +1892,7 @@ model Booking {
   @@index([companyId, bookingLinkId, startsAt])
   @@index([companyId, inviteeEmail])
   @@index([endsAt])
+  @@index([status, reminderSentAt, startsAt])
 }
 
 model MessagingFolderPassMessage {

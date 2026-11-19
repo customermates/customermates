@@ -127,7 +127,16 @@ export function bookingRow(overrides: Partial<BookingRow> = {}): BookingRow {
     recordId: null,
     hostUserId: OWNER.id,
     hostName: "Test User",
+    hostEmail: OWNER.email,
     manageToken: MANAGE_TOKEN,
+    linkInviteeChanges: true,
+    workspaceName: "Acme",
+    brand: null,
+    locale: null,
+    cancelledBy: null,
+    cancelReason: null,
+    rescheduledAt: null,
+    reminderSentAt: null,
     ...overrides,
   };
 }

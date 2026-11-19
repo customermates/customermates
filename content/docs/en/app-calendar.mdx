@@ -98,6 +98,10 @@ Yes, unless you switch **Visitors can cancel and reschedule** off on the page. A
 
 If you move or delete the event in your own calendar, the booking follows: a moved event moves the booking, a deleted or cancelled event cancels it. Every cancelled or moved booking produces the `booking.changed` event, which says what changed and who did it, so an [automation](/docs/app-automations) can react, for example with a notification or a follow-up task.
 
+You can also change a booking yourself. In the **Booking pages** panel, each upcoming booking has **Reschedule** and **Cancel booking**: move it to another free time of the same page, or cancel it with an optional reason. The host of the booking, the owner of the page and administrators can do this. It works like the visitor's own change: the calendar event is updated, `booking.changed` fires and the visitor is told.
+
+The visitor gets an email after booking, after every reschedule and after a cancellation, whoever made the change, and one reminder about 24 hours before the meeting. These emails show your workspace's logo and accent colour, are written in the language the visitor booked in and include the **Cancel or reschedule** link when the page allows it. Replies to them go to the host.
+
 ### How does a round robin booking page work? [#booking-page-round-robin]
 
 An administrator can switch **Share this page with colleagues (round robin)** on and choose colleagues who have a connected calendar. The page then offers a time when at least one host is free. Each booking goes to the free host with the fewest upcoming bookings of this page, into that host's calendar, and the visitor sees who the meeting is with. The owner of the page always hosts as well. A host whose calendar connection or plan access ends is skipped until it works again, and up to 10 people can host one page.

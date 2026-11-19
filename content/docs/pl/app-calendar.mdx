@@ -98,6 +98,10 @@ Tak, chyba że wyłączysz na stronie opcję **Odwiedzający mogą anulować i z
 
 Jeśli przeniesiesz lub usuniesz wydarzenie w swoim kalendarzu, rezerwacja za nim podąży: przeniesione wydarzenie przenosi rezerwację, usunięte lub anulowane wydarzenie ją anuluje. Każda anulowana lub przeniesiona rezerwacja wywołuje zdarzenie `booking.changed`, które mówi, co się zmieniło i kto to zrobił, dzięki czemu [automatyzacja](/docs/app-automations) może zareagować, na przykład powiadomieniem lub zadaniem następczym.
 
+Możesz też samodzielnie zmienić rezerwację. W panelu **Strony rezerwacji** każda nadchodząca rezerwacja ma przyciski **Zmień termin** i **Anuluj rezerwację**: przenieś ją na inny wolny termin tej samej strony albo anuluj, podając opcjonalnie powód. Mogą to zrobić gospodarz rezerwacji, właściciel strony i administratorzy. Działa to tak samo jak zmiana wprowadzona przez odwiedzającego: wydarzenie w kalendarzu zostaje zaktualizowane, wywoływane jest zdarzenie `booking.changed`, a odwiedzający dostaje informację.
+
+Odwiedzający dostaje e-mail po rezerwacji, po każdej zmianie terminu i po anulowaniu, niezależnie od tego, kto wprowadził zmianę, oraz jedno przypomnienie około 24 godzin przed spotkaniem. Te e-maile pokazują logo i kolor akcentu Twojej przestrzeni roboczej, są napisane w języku, w którym odwiedzający dokonał rezerwacji, i zawierają link **Anuluj lub zmień termin**, jeśli strona na to pozwala. Odpowiedzi trafiają do gospodarza.
+
 ### Jak działa strona rezerwacji z round robin? [#booking-page-round-robin]
 
 Administrator może włączyć opcję **Udostępnij tę stronę współpracownikom (round robin)** i wybrać współpracowników, którzy mają połączony kalendarz. Strona oferuje wtedy termin, gdy wolny jest co najmniej jeden gospodarz. Każda rezerwacja trafia do wolnego gospodarza z najmniejszą liczbą nadchodzących rezerwacji tej strony, do jego kalendarza, a odwiedzający widzi, z kim jest spotkanie. Właściciel strony zawsze jest też gospodarzem. Gospodarz, któremu kończy się połączenie z kalendarzem lub dostęp w ramach planu, jest pomijany, dopóki wszystko znów nie działa, a jedna strona może mieć do 10 gospodarzy.

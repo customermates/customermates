@@ -178,6 +178,8 @@ CREATE TABLE "Booking" (
     "cancelReason" TEXT,
     "cancelledAt" TIMESTAMP(3),
     "rescheduledAt" TIMESTAMP(3),
+    "locale" VARCHAR(8),
+    "reminderSentAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -363,6 +365,9 @@ CREATE UNIQUE INDEX "Booking_bookingLinkId_slotKey_key" ON "Booking"("bookingLin
 
 -- CreateIndex
 CREATE INDEX "Booking_endsAt_idx" ON "Booking"("endsAt");
+
+-- CreateIndex
+CREATE INDEX "Booking_status_reminderSentAt_startsAt_idx" ON "Booking"("status", "reminderSentAt", "startsAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Booking_manageToken_key" ON "Booking"("manageToken");

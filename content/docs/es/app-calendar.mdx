@@ -98,6 +98,10 @@ Sí, a menos que desactives **Los visitantes pueden cancelar y reprogramar** en 
 
 Si mueves o eliminas el evento en tu propio calendario, la reserva lo sigue: un evento movido mueve la reserva y un evento eliminado o cancelado la cancela. Cada reserva cancelada o movida produce el evento `booking.changed`, que indica qué cambió y quién lo hizo, de modo que una [automatización](/docs/app-automations) pueda reaccionar, por ejemplo con una notificación o una tarea de seguimiento.
 
+También puedes cambiar una reserva tú mismo. En el panel **Páginas de reservas**, cada reserva próxima tiene **Reprogramar** y **Cancelar reserva**: muévela a otro horario libre de la misma página o cancélala con un motivo opcional. Pueden hacerlo el anfitrión de la reserva, el propietario de la página y los administradores. Funciona como el cambio hecho por el visitante: el evento de calendario se actualiza, se produce `booking.changed` y se avisa al visitante.
+
+El visitante recibe un correo después de reservar, después de cada cambio de horario y después de una cancelación, la haga quien la haga, y un recordatorio unas 24 horas antes de la reunión. Estos correos muestran el logotipo y el color de acento de tu espacio de trabajo, están escritos en el idioma en el que reservó el visitante e incluyen el enlace **Cancelar o reprogramar** cuando la página lo permite. Las respuestas llegan al anfitrión.
+
 ### ¿Cómo funciona una página de reservas con round robin? [#booking-page-round-robin]
 
 Un administrador puede activar **Compartir esta página con compañeros (round robin)** y elegir compañeros que tengan un calendario conectado. La página ofrece entonces un horario cuando al menos un anfitrión está libre. Cada reserva va al anfitrión libre con menos reservas próximas de esta página, a su calendario, y el visitante ve con quién es la reunión. El propietario de la página siempre es anfitrión también. Un anfitrión cuya conexión de calendario o acceso por el plan termina queda excluido hasta que vuelva a funcionar, y una página puede tener hasta 10 anfitriones.

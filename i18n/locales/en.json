@@ -1478,6 +1478,20 @@
       "withVideo": "Add a video link",
       "workingHours": "Working hours"
     },
+    "hostActions": {
+      "cancelConfirm": "Cancel booking",
+      "cancelled": "Booking cancelled. {name} gets an email.",
+      "cancelReason": "Reason for {name} (optional)",
+      "cancelText": "The meeting is removed from the calendar and {name} gets an email.",
+      "cancelTitle": "Cancel the booking with {name}?",
+      "keep": "Keep booking",
+      "loadFailed": "Free times could not be loaded.",
+      "noSlots": "This page has no other free times.",
+      "reschedule": "Reschedule",
+      "rescheduleConfirm": "Move booking",
+      "rescheduled": "Booking moved. {name} gets an email.",
+      "rescheduleTitle": "New time for {name}"
+    },
     "hostNotice": {
       "body": "{page}, {when}.",
       "bookedTitle": "{name} booked a meeting",
@@ -1519,6 +1533,31 @@
       "tuesday": "Tuesday",
       "wednesday": "Wednesday"
     }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} cancelled your booking of {page}.",
+    "cancelledIntroInvitee": "Your booking of {page} with {host} is cancelled, as you asked.",
+    "cancelledSubject": "Cancelled: {page} on {date}",
+    "cancelledTitle": "Booking cancelled",
+    "confirmedIntro": "Your booking of {page} with {host} is confirmed. The calendar invitation arrives in a separate email.",
+    "confirmedSubject": "Confirmed: {page} on {date}",
+    "confirmedTitle": "Booking confirmed",
+    "footer": "You get this email because this address was used to book a time with {workspace}.",
+    "greeting": "Hello {name},",
+    "greetingNoName": "Hello,",
+    "labelHost": "With",
+    "labelNewWhen": "New time",
+    "labelPrevious": "Previous time",
+    "labelReason": "Reason",
+    "labelWhen": "Date and time",
+    "manage": "Cancel or reschedule",
+    "reminderIntro": "A reminder of your booking of {page} with {host}.",
+    "reminderSubject": "Reminder: {page} on {date}",
+    "reminderTitle": "Your booking is coming up",
+    "rescheduledIntroHost": "{host} moved your booking of {page} to a new time.",
+    "rescheduledIntroInvitee": "Your booking of {page} with {host} is moved to the new time you chose.",
+    "rescheduledSubject": "Rescheduled: {page} on {date}",
+    "rescheduledTitle": "Booking rescheduled"
   },
   "BrowserFrame": {
     "open": "Open in new tab"
@@ -4949,6 +4988,8 @@
     "rescheduledText": "The booking is moved. You will receive an updated calendar invitation.",
     "rescheduleTitle": "Choose a new time",
     "stateCancelled": "This booking was cancelled.",
+    "stateCancelledByHost": "{host} cancelled this booking.",
+    "stateCancelledByHostReason": "{host} cancelled this booking. Reason: {reason}",
     "statePast": "This meeting has already taken place.",
     "timeZone": "Times are shown in {timeZone}",
     "unavailable": "This booking page is not available.",

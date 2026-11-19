@@ -98,6 +98,10 @@ Sim, a menos que você desative **Os visitantes podem cancelar e reagendar** na 
 
 Se você mover ou excluir o evento no seu próprio calendário, o agendamento acompanha: um evento movido move o agendamento, e um evento excluído ou cancelado o cancela. Todo agendamento cancelado ou movido produz o evento `booking.changed`, que diz o que mudou e quem fez a mudança, para que uma [automação](/docs/app-automations) possa reagir, por exemplo com uma notificação ou uma tarefa de acompanhamento.
 
+Você também pode alterar um agendamento por conta própria. No painel **Páginas de agendamento**, cada agendamento futuro tem **Reagendar** e **Cancelar agendamento**: mova-o para outro horário livre da mesma página ou cancele-o com um motivo opcional. O anfitrião do agendamento, o proprietário da página e os administradores podem fazer isso. Funciona como a alteração feita pelo visitante: o evento de calendário é atualizado, `booking.changed` é produzido e o visitante é avisado.
+
+O visitante recebe um e-mail depois de agendar, depois de cada reagendamento e depois de um cancelamento, seja quem for que fez a alteração, e um lembrete cerca de 24 horas antes da reunião. Esses e-mails mostram o logotipo e a cor de destaque do seu espaço de trabalho, são escritos no idioma em que o visitante agendou e incluem o link **Cancelar ou reagendar** quando a página permite. As respostas vão para o anfitrião.
+
 ### Como funciona uma página de agendamento com round robin? [#booking-page-round-robin]
 
 Um administrador pode ativar **Compartilhar esta página com colegas (round robin)** e escolher colegas que tenham um calendário conectado. A página então oferece um horário quando pelo menos um anfitrião está livre. Cada agendamento vai para o anfitrião livre com menos agendamentos próximos desta página, para o calendário dele, e o visitante vê com quem é a reunião. O proprietário da página sempre é anfitrião também. Um anfitrião cuja conexão de calendário ou acesso pelo plano termina é ignorado até voltar a funcionar, e uma página pode ter até 10 anfitriões.

@@ -50,12 +50,14 @@ describe("BookingEventSync", () => {
     };
     const runAs = <T>(userId: string, work: () => Promise<T>): Promise<T | null> =>
       options.runAs === false ? Promise.resolve(null) : runWithTenant(createMockUser({ id: userId }), work);
+    const mailer = { send: vi.fn().mockResolvedValue(true) };
     return {
       bookings,
       announcer,
       records,
       ranAs,
-      subject: new BookingEventSync(bookings, announcer, records, runAs, () => NOW),
+      mailer,
+      subject: new BookingEventSync(bookings, announcer, records, runAs, mailer, () => NOW),
     };
   }
 
@@ -64,7 +66,7 @@ describe("BookingEventSync", () => {
   it("cancels the bookings of a cancelled event as the host's doing and announces each", async () => {
     const first = bookingRow({ status: "cancelled" });
     const second = bookingRow({ id: "booking-2", status: "cancelled", hostUserId: ANA.id });
-    const { subject, bookings, announcer } = sync({ cancelled: [first, second] });
+    const { subject, bookings, announcer, mailer } = sync({ cancelled: [first, second] });
 
     expect(await subject.eventCancelled(EVENT)).toBe(2);
 
@@ -72,6 +74,10 @@ describe("BookingEventSync", () => {
     expect(announcer.changed.mock.calls).toEqual([
       [first, "cancelled", "host"],
       [second, "cancelled", "host"],
+    ]);
+    expect(mailer.send.mock.calls).toEqual([
+      [{ kind: "cancelled", booking: first, by: "host", reason: null }],
+      [{ kind: "cancelled", booking: second, by: "host", reason: null }],
     ]);
   });
 
@@ -92,7 +98,7 @@ describe("BookingEventSync", () => {
       recordId: RECORD_ID,
       linkStartFieldId: START_FIELD,
     });
-    const { subject, bookings, records, announcer, ranAs } = sync({
+    const { subject, bookings, records, announcer, ranAs, mailer } = sync({
       moves: [{ booking, previousStartsAt: previous }],
     });
 
@@ -107,6 +113,12 @@ describe("BookingEventSync", () => {
     });
     expect(ranAs).toEqual([ANA.id]);
     expect(announcer.changed).toHaveBeenCalledWith(booking, "rescheduled", "host", { previousStartsAt: previous });
+    expect(mailer.send).toHaveBeenCalledWith({
+      kind: "rescheduled",
+      booking,
+      by: "host",
+      previousStartsAt: previous,
+    });
   });
 
   it("moves no record for a booking without one and still announces when the record cannot be moved", async () => {

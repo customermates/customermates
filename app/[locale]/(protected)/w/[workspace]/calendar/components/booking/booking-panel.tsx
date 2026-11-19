@@ -25,6 +25,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { IntlLink, useRouter } from "@/i18n/navigation";
 
+import { BookingHostActions } from "./booking-host-actions";
 import { bookingPublicPath, canCreateBookingPage } from "./booking-panel-model";
 import { BookingPanelStore } from "./booking-panel.store";
 
@@ -42,11 +43,13 @@ const BookingRow = observer(function BookingRow({
   link,
   store,
   upcoming,
+  onChanged,
   onEdit,
 }: {
   link: WorkspaceBookingLinkDto;
   store: BookingPanelStore;
   upcoming: UpcomingBookingDto[];
+  onChanged: () => void;
   onEdit: (link: WorkspaceBookingLinkDto, invoker: HTMLElement) => void;
 }) {
   const t = useTranslations();
@@ -71,7 +74,7 @@ const BookingRow = observer(function BookingRow({
       {upcoming.length > 0 ? (
         <ul className="flex flex-col gap-1" data-booking-upcoming="">
           {upcoming.slice(0, UPCOMING_PER_PAGE).map((booking) => (
-            <li key={booking.id} className="flex flex-col text-xs">
+            <li key={booking.id} className="flex flex-col text-xs" data-booking-upcoming-item={booking.id}>
               <span className="flex items-baseline gap-2">
                 <span className="min-w-0 flex-1 truncate font-medium">{booking.inviteeName}</span>
 
@@ -81,6 +84,8 @@ const BookingRow = observer(function BookingRow({
               {link.hosts.length > 0 ? (
                 <span className="truncate text-muted-foreground">{booking.hostName}</span>
               ) : null}
+
+              <BookingHostActions booking={booking} horizonDays={link.horizonDays} onChanged={onChanged} />
             </li>
           ))}
         </ul>
@@ -287,6 +292,7 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
                   link={link}
                   store={store}
                   upcoming={upcomingByLink.get(link.id) ?? NO_BOOKINGS}
+                  onChanged={actions.refresh}
                   onEdit={(item, invoker) => modal.start(item, invoker)}
                 />
               ))}
@@ -307,6 +313,7 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
                   link={link}
                   store={store}
                   upcoming={upcomingByLink.get(link.id) ?? NO_BOOKINGS}
+                  onChanged={actions.refresh}
                   onEdit={(item, invoker) => modal.start(item, invoker)}
                 />
               ))}

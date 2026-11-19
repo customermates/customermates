@@ -5,6 +5,7 @@ import { ConnectedAccountStatus } from "@/generated/prisma";
 
 import type { BookingAnnouncer } from "./booking-announcer";
 import type { BookingAvailability } from "./booking-availability";
+import type { BookingMailer } from "./booking-mailer";
 import type { BookingReservationRepo } from "./booking-reservation.repo";
 import type { CalendarEventWriter } from "./calendar-event-writer";
 import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
@@ -27,6 +28,7 @@ export class ReschedulePublicBookingInteractor {
     private writer: Pick<CalendarEventWriter, "update">,
     private records: Pick<MeetingRecordService, "moveBookingRecord">,
     private announcer: Pick<BookingAnnouncer, "changed" | "notifyHost">,
+    private mailer: Pick<BookingMailer, "send">,
   ) {}
 
   async invoke(input: unknown): Promise<PublicBookingRescheduleResult> {
@@ -60,7 +62,12 @@ export class ReschedulePublicBookingInteractor {
           notifyAttendees: true,
         });
         if (!written.ok) {
-          await this.reservations.restoreTimes(booking.id, { startsAt: booking.startsAt, endsAt: booking.endsAt });
+          await this.reservations.restoreTimes(booking.id, {
+            startsAt: booking.startsAt,
+            endsAt: booking.endsAt,
+            rescheduledAt: booking.rescheduledAt,
+            reminderSentAt: booking.reminderSentAt,
+          });
           return PUBLIC_BOOKING_UNAVAILABLE;
         }
 
@@ -80,6 +87,12 @@ export class ReschedulePublicBookingInteractor {
           previousStartsAt: move.previousStartsAt,
         });
         await this.announcer.notifyHost(move.booking, "rescheduled", this.access.memberLocale());
+        await this.mailer.send({
+          kind: "rescheduled",
+          booking: move.booking,
+          by: "invitee",
+          previousStartsAt: move.previousStartsAt,
+        });
 
         return { status: "rescheduled", startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() };
       },
