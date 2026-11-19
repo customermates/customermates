@@ -36,10 +36,11 @@ else
     # A branch that amends its own unreleased migration leaves the preview database with a migration recorded as
     # failed, and every later preview build then stops at P3009. The preview database holds seed data only, so in
     # exactly that case it is rebuilt from scratch, over the direct endpoint for the reason given above. Any other
-    # migration error fails the build, and production never takes this path.
+    # migration error fails the build. Production never takes this path, and neither does a custom environment,
+    # which also reports VERCEL_ENV=preview but may hold real data: only the standard preview target is rebuilt.
     migrate_log="$(mktemp)"
     if ! npx --no-install prisma migrate deploy 2>&1 | tee "$migrate_log"; then
-      if grep -q "P3009" "$migrate_log" && [[ -n "${DIRECT_URL:-}" ]]; then
+      if grep -q "P3009" "$migrate_log" && [[ "${VERCEL_TARGET_ENV:-}" == "preview" && -n "${DIRECT_URL:-}" ]]; then
         echo "Preview database has a failed migration on record (P3009); rebuilding it from the migrations."
         npx --no-install prisma migrate reset --force
       else

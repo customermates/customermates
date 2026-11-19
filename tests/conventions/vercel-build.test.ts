@@ -10,7 +10,9 @@ describe("Vercel build safety", () => {
     const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
     const preview = script.lastIndexOf('if [[ "${VERCEL_ENV:-}" == "preview" ]]; then');
     const production = script.lastIndexOf("npx --no-install prisma migrate deploy");
-    const guard = script.indexOf('if grep -q "P3009" "$migrate_log" && [[ -n "${DIRECT_URL:-}" ]]; then');
+    const guard = script.indexOf(
+      'if grep -q "P3009" "$migrate_log" && [[ "${VERCEL_TARGET_ENV:-}" == "preview" && -n "${DIRECT_URL:-}" ]]; then',
+    );
     const reset = script.lastIndexOf("npx --no-install prisma migrate reset --force");
 
     expect(preview).toBeGreaterThan(-1);
