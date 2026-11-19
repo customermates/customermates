@@ -3,7 +3,7 @@ import { z } from "zod";
 export const RecordIdentityInputSchema = z
   .object({
     provider: z
-      .enum(["google", "outlook", "mail", "linkedin", "whatsapp", "instagram", "telegram", "phone"])
+      .enum(["google", "outlook", "mail", "linkedin", "whatsapp", "instagram", "telegram", "facebook", "phone"])
       .describe(
         "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever provider is given. phone is a plain phone number in international format with + or 00 and its country dialling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two is given.",
       ),

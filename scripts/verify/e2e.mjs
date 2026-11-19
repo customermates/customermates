@@ -18,6 +18,7 @@ import { relative, resolve } from "node:path";
 
 import { appDirectory, buildAppCopy, e2eEnvironment, sourceDigest, syncAppCopy, withCopyLock, writeEnvFile } from "./lib/app-copy.mjs";
 import { prepareDatabase } from "./lib/database.mjs";
+import { defaultParallel, memoryBudgetGb, offloadMemoryStop } from "./lib/memory-budget.mjs";
 import { compareWithBaseline, mergeOutcomes, parseTarget, TARGETS, testOutcomes } from "./lib/e2e-results.mjs";
 import { dropDatabase, ensureCluster, recreateDatabase } from "./lib/postgres.mjs";
 import { assignShards } from "./lib/vitest-results.mjs";
@@ -59,20 +60,11 @@ targets.forEach(parseTarget);
 const offloaded = options.offload ? options.offload.split(",").filter((target) => targets.includes(target)) : [];
 const local = targets.filter((target) => !offloaded.includes(target));
 
-function cgroupMemoryLimit() {
-  try {
-    const group = readFileSync("/proc/self/cgroup", "utf8").split("\n").find((line) => line.startsWith("0::"))?.slice(3).trim();
-    if (!group) return null;
-    const value = readFileSync(`/sys/fs/cgroup${group}/memory.max`, "utf8").trim();
-    return /^\d+$/.test(value) ? Number(value) : null;
-  } catch {
-    return null;
-  }
-}
-
 const cores = cpus().length;
-const memoryGb = Math.min(totalmem(), cgroupMemoryLimit() ?? Infinity) / 1024 ** 3;
-const parallel = Number(options.parallel) || Math.max(1, Math.min(Math.floor(cores / 2), Math.floor(memoryGb / 6)));
+const memoryGb = memoryBudgetGb({ totalGb: totalmem() / 1024 ** 3 });
+const parallel =
+  Number(options.parallel) ||
+  defaultParallel({ cores, budgetGb: memoryGb, projects: local.map((target) => parseTarget(target).project) });
 const shardsPerTarget = Number(options.shards) || Math.max(1, Math.floor(parallel / Math.max(1, local.length)));
 
 const DURATION_FILES = [resolve(REPO_ROOT, ".runs/verify/e2e-durations.json"), resolve(REPO_ROOT, "tests/e2e/durations.json")];
@@ -128,7 +120,6 @@ async function runOffloaded() {
     "-lc",
     [
       "set -e",
-      `export NEXT_BUILD_HEAP_MB=${/^\d+$/.test(process.env.NEXT_BUILD_HEAP_MB ?? "") ? process.env.NEXT_BUILD_HEAP_MB : "7168"}`,
       `export CRM_VERIFY_ENV_TEMPLATE_B64=${readFileSync(resolve(REPO_ROOT, ".env.cloud.template")).toString("base64")}`,
       'stamp="$(sha256sum yarn.lock | cut -c1-16)"',
       'if [ ! -f node_modules/.verify-lock ] || [ "$(cat node_modules/.verify-lock)" != "$stamp" ]; then DATABASE_URL=postgresql://localhost/unused yarn install --frozen-lockfile --prefer-offline >/dev/null && echo "$stamp" > node_modules/.verify-lock; fi',
@@ -140,7 +131,13 @@ async function runOffloaded() {
   const host = (await capture("python3", ["-c", "import json,os;print(json.load(open(os.path.expanduser('~/.config/workspace-ops/config.json'))).get('offload_host','ws-test'))"]).catch(() => "ws-test")) || "ws-test";
   await run("rsync", ["-a", `${host}:${remoteDirectory}`, resolve(directory, "remote/")], { log: resolve(directory, "offload.log") });
   const summaryFile = resolve(directory, "remote/summary.json");
-  if (!existsSync(summaryFile)) return offloaded.map((target) => ({ target, error: `offload exited ${result.code} without a report` }));
+  if (!existsSync(summaryFile)) {
+    const output = existsSync(resolve(directory, "offload.log")) ? readFileSync(resolve(directory, "offload.log"), "utf8") : "";
+    const error = offloadMemoryStop(output)
+      ? "stopped at the test VM's memory limit for one job; rerun with a smaller --parallel"
+      : `offload exited ${result.code} without a report`;
+    return offloaded.map((target) => ({ target, error }));
+  }
   return JSON.parse(readFileSync(summaryFile, "utf8")).targets.map((entry) => ({ ...entry, remote: true }));
 }
 

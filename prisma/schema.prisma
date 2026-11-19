@@ -1657,6 +1657,7 @@ enum MessagingProvider {
   whatsapp
   instagram
   telegram
+  facebook
 }
 
 enum RecordIdentityProvider {
@@ -1667,6 +1668,7 @@ enum RecordIdentityProvider {
   whatsapp
   instagram
   telegram
+  facebook
   phone
 }
 

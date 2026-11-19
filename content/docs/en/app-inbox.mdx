@@ -1,11 +1,11 @@
 ---
 title: "Customermates CRM Inbox: Threads and Replies"
-description: "The Inbox puts email, LinkedIn, WhatsApp, Instagram and Telegram conversations in one list: read, reply, triage, share and match them to records."
+description: "The Inbox puts email, LinkedIn, WhatsApp, Instagram, Telegram and Messenger conversations in one list: read, reply, triage, share and match them to records."
 ---
 
 ## What is the Inbox? [#what-is-the-inbox]
 
-The [Inbox](app:inbox) is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations in one list, most recent activity first. Click a conversation to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share it with your team and match its participants to records. Mate, or your own AI agent through [MCP](/docs/mcp), can leave a reply as a draft in the conversation; you review, edit and send it (see [drafts](#how-do-drafts-and-attachments-work)). You connect the accounts themselves on [Channels & calendars](app:settings/channels), see [App guide, Profile](/docs/app-profile).
+The [Inbox](app:inbox) is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram, Telegram and Messenger conversations in one list, most recent activity first. Click a conversation to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share it with your team and match its participants to records. Mate, or your own AI agent through [MCP](/docs/mcp), can leave a reply as a draft in the conversation; you review, edit and send it (see [drafts](#how-do-drafts-and-attachments-work)). You connect the accounts themselves on [Channels & calendars](app:settings/channels), see [App guide, Profile](/docs/app-profile).
 
 ## Who can use the Inbox, and why is it locked on Starter or missing in the self-hosted version? [#who-can-use-the-inbox]
 
@@ -20,7 +20,7 @@ While the plan or subscription locks the Inbox, the upgrade notice stays visible
 
 ## Do I need a connected channel? [#do-i-need-a-connected-channel]
 
-Not to open the Inbox: without a channel of your own you still see what teammates share. To send and receive on your own accounts you need one. An empty Inbox reads **Nothing here yet**; members with **Create** on **Inbox messages** get a **Channels** button below it (when Mate is available, starter prompts appear there instead). Add an email, LinkedIn, WhatsApp, Instagram or Telegram account with [Connect channel](app:settings/channels?focus=connect), see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
+Not to open the Inbox: without a channel of your own you still see what teammates share. To send and receive on your own accounts you need one. An empty Inbox reads **Nothing here yet**; members with **Create** on **Inbox messages** get a **Channels** button below it (when Mate is available, starter prompts appear there instead). Add an email, LinkedIn, WhatsApp, Instagram, Telegram or Messenger account with [Connect channel](app:settings/channels?focus=connect), see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
 
 ## Which conversations do I see, and can an admin read my private ones? [#which-conversations-do-i-see]
 
@@ -120,6 +120,8 @@ The Inbox has no button for a new conversation. Open the person's record, for ex
 ## How do drafts and attachments work? [#how-do-drafts-and-attachments-work]
 
 **Save as draft** keeps a message without sending it; while you edit a saved draft it reads **Update draft**. A reply draft sits in its conversation with **Send draft**, **Edit** and **Discard**. A draft for a new conversation appears in the list as its own conversation ("Draft saved. Find it in the inbox."), also when you already have a draft to the same people; the **Draft** filter with **has some** lists them all. A conversation holds one draft. A new LinkedIn InMail cannot be saved as a draft. Discarding cannot be undone. The app, the REST API and MCP share the same drafts.
+
+When drafts are waiting, **Review drafts** in the top bar shows how many and opens them one at a time: the recipient, the sending account, the latest messages of the conversation and the draft itself. **Send** sends the draft (swipe right or press the Right arrow key), **Keep** leaves it for later (swipe left or press the Left arrow key), **Edit** changes the text first (E), and **Discard draft** deletes it. The review lists the drafts you may send: those on your own channels and on channels shared with you. An Inbox link ending in `?review=drafts` opens the review directly.
 
 Each saved draft version is sent at most once. If the draft changed after you opened it, for example in another tab, by Mate or by an agent, **Send** keeps your text and offers **Load latest version** or **Send mine**. If sending could not be confirmed, the draft is not sent again: check the conversation first, for email also your Sent folder, then edit and update the draft to send it anyway. For email, as soon as the sent copy of that earlier send arrives from your mailbox, the draft counts as sent and leaves the inbox; it is then not sent again, not even after an edit.
 

@@ -5,10 +5,57 @@ import { z } from "zod";
 import { normalizePhoneNumber } from "@/core/utils/phone-number";
 import { HANDLE_PROVIDERS, isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
 
+const FACEBOOK_RESERVED_PATHS = [
+  "ads",
+  "bookmarks",
+  "business",
+  "dialog",
+  "events",
+  "friends",
+  "gaming",
+  "groups",
+  "hashtag",
+  "help",
+  "login",
+  "marketplace",
+  "me",
+  "messages",
+  "notifications",
+  "pages",
+  "people",
+  "permalink\\.php",
+  "photo",
+  "photos",
+  "plugins",
+  "profile\\.php",
+  "reel",
+  "reels",
+  "settings",
+  "share",
+  "sharer",
+  "stories",
+  "story\\.php",
+  "videos",
+  "watch",
+];
+
 const HANDLE_URL_PATTERNS: Partial<Record<RecordIdentityProvider, RegExp>> = {
   linkedin: /linkedin\.com\/in\/([^/?#]+)/i,
   telegram: /t\.me\/([^/?#]+)/i,
   instagram: /instagram\.com\/([^/?#]+)/i,
+  facebook: new RegExp(
+    [
+      "(?:^|[/.@\\s])(?:",
+      "facebook\\.com/profile\\.php\\?(?:[^#\\s]*&)?id=",
+      "|facebook\\.com/people/[^/?#\\s]+/",
+      "|facebook\\.com/messages/(?:e2ee/)?t/",
+      "|messenger\\.com/(?:e2ee/)?t/",
+      `|(?:facebook|fb)\\.com/(?!(?:${FACEBOOK_RESERVED_PATHS.join("|")})(?:[/?#]|$))`,
+      "|m\\.me/",
+      ")([^/?#&\\s]+)",
+    ].join(""),
+    "i",
+  ),
 };
 
 const HANDLE_CHARSET = /^[\p{L}\p{N}\p{M}_.@+=-]{1,160}$/u;

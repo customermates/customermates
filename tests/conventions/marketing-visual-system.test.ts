@@ -428,6 +428,7 @@ describe("marketing visual brief", () => {
       "whatsapp",
       "telegram",
       "instagram",
+      "facebook",
       "imap",
     ]);
     expect(
@@ -1287,6 +1288,7 @@ describe("marketing visual boundaries", () => {
     ]);
     expect(Object.keys(VISUAL_PROVIDER_FIXTURES)).toEqual([
       "gmail",
+      "facebook",
       "imap",
       "instagram",
       "linkedin",

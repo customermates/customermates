@@ -120,6 +120,7 @@ const CHANNEL_CONNECTION_COMMANDS: Record<(typeof CONNECT_INTENT_CHANNELS)[numbe
     },
     instagram: { id: "setting.channels.instagram", labelKey: "CommandPalette.labels.connect.instagram" },
     telegram: { id: "setting.channels.telegram", labelKey: "CommandPalette.labels.connect.telegram" },
+    facebook: { id: "setting.channels.facebook", labelKey: "CommandPalette.labels.connect.facebook" },
   };
 
 const AI_CLIENT_CONNECTION_COMMANDS: Record<

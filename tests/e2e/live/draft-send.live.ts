@@ -13,12 +13,10 @@ import { mintApiKey } from "../api-key";
 import { pdfFixture } from "../../helpers/record-file-fixtures";
 import { expect, test } from "../fixtures";
 import { localE2eEnvironment } from "../local-environment";
-import { isTestInbox, TEST_ACCOUNT_IDS } from "./live-allowlist.mjs";
+import { isTestInbox, RECEIVER_ACCOUNT, SENDER_ACCOUNT, TEST_ACCOUNT_IDS } from "./live-allowlist.mjs";
 
 // Real sends through the Unipile development application, from the sender test inbox to the receiver test inbox.
 // scripts/verify/live-checks.mjs starts these with the secrets in the environment and the egress guard in the server.
-const SENDER_ACCOUNT = "acc_01m42y7hj1ecva9pb0sycgqq51";
-const RECEIVER_ACCOUNT = "acc_01m6b96qwsfesbrjkgd8xxmzjy";
 const sender = process.env.UNIPILE_TEST_SENDER_EMAIL ?? "";
 const receiver = process.env.UNIPILE_TEST_RECEIVER_EMAIL ?? "";
 const ledgerFile = process.env.CRM_LIVE_SEND_LEDGER ?? "";

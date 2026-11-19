@@ -15,6 +15,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { classifyAccountReadiness, PrepareBackfillInteractor } from "../prepare-backfill.interactor";
+import { UnipileRequestError } from "../../../unipile-request-error";
 
 const whatsapp = { status: "running" as const, provider: "whatsapp" };
 const email = { status: "running" as const, provider: "imap" };
@@ -38,6 +39,109 @@ describe("classifyAccountReadiness", () => {
   it("stalls on a disconnected or paused account regardless of provider", () => {
     expect(classifyAccountReadiness({ provider: "whatsapp", status: "disconnected" } as any)).toBe("stalled");
     expect(classifyAccountReadiness({ provider: "imap", status: "paused" } as any)).toBe("stalled");
+  });
+
+  it("drains the personal Messenger chats and every activated Facebook Page inbox", async () => {
+    const snapshot = {
+      id: "acc_facebook",
+      provider: "facebook",
+      status: "running" as const,
+      metadata: { products_connection_status: { messaging: "running", page_1357020157484056: "running" } },
+      initial_sync: { status: "completed" as const },
+    };
+    const repo = {
+      findAccountByIdUnscoped: vi.fn().mockResolvedValue({
+        id: "00000000-0000-4000-8000-000000000002",
+        unipileAccountId: snapshot.id,
+        provider: "facebook",
+        status: "ok",
+        backfillClaimToken: "test-token",
+        hasMessaging: true,
+        hasCalendar: false,
+      }),
+      updateAccountUnscoped: vi.fn().mockResolvedValue(null),
+    };
+    const service = {
+      getAccount: vi.fn().mockResolvedValue(snapshot),
+      listInboxes: vi.fn().mockResolvedValue({
+        data: [
+          { object: "Inbox", id: "INBOX", disabled: false },
+          { object: "Inbox", id: "PENDING", disabled: false },
+          { object: "Inbox", id: "PAGE_2468013579_INBOX", disabled: true },
+          { object: "Inbox", id: "PAGE_1357020157484056_INBOX", disabled: false },
+        ],
+      }),
+    };
+    const result = await new PrepareBackfillInteractor(repo as never, service as never).invoke({
+      connectedAccountId: "00000000-0000-4000-8000-000000000002",
+      token: "test-token",
+    });
+
+    expect(result).toEqual({
+      status: "ready",
+      kind: "chat",
+      sources: ["__account_wide__", "PAGE_1357020157484056_INBOX"],
+      hasCalendar: false,
+    });
+    expect(repo.updateAccountUnscoped).not.toHaveBeenCalledWith(
+      expect.objectContaining({ linkedinProducts: expect.anything() }),
+    );
+  });
+
+  it("still drains the personal Messenger chats when the Facebook inboxes cannot be listed", async () => {
+    const snapshot = { id: "acc_facebook", provider: "facebook", status: "running" as const };
+    const repo = {
+      findAccountByIdUnscoped: vi.fn().mockResolvedValue({
+        id: "00000000-0000-4000-8000-000000000002",
+        unipileAccountId: snapshot.id,
+        provider: "facebook",
+        status: "ok",
+        backfillClaimToken: "test-token",
+        hasMessaging: true,
+        hasCalendar: false,
+      }),
+      updateAccountUnscoped: vi.fn().mockResolvedValue(null),
+    };
+    const service = {
+      getAccount: vi.fn().mockResolvedValue(snapshot),
+      listInboxes: vi.fn().mockRejectedValue(new Error("inboxes unavailable")),
+    };
+    const result = await new PrepareBackfillInteractor(repo as never, service as never).invoke({
+      connectedAccountId: "00000000-0000-4000-8000-000000000002",
+      token: "test-token",
+    });
+
+    expect(result).toEqual({ status: "ready", kind: "chat", sources: ["__account_wide__"], hasCalendar: false });
+  });
+
+  it.each([
+    ["a rate limit", new UnipileRequestError(429, "api/too_many_requests", "{}", 30)],
+    ["a provider outage", new UnipileRequestError(503, "api/proxy_error", "{}")],
+  ])("retries the step instead of skipping the Facebook Page inboxes on %s", async (_label, failure) => {
+    const snapshot = { id: "acc_facebook", provider: "facebook", status: "running" as const };
+    const repo = {
+      findAccountByIdUnscoped: vi.fn().mockResolvedValue({
+        id: "00000000-0000-4000-8000-000000000002",
+        unipileAccountId: snapshot.id,
+        provider: "facebook",
+        status: "ok",
+        backfillClaimToken: "test-token",
+        hasMessaging: true,
+        hasCalendar: false,
+      }),
+      updateAccountUnscoped: vi.fn().mockResolvedValue(null),
+    };
+    const service = {
+      getAccount: vi.fn().mockResolvedValue(snapshot),
+      listInboxes: vi.fn().mockRejectedValue(failure),
+    };
+
+    await expect(
+      new PrepareBackfillInteractor(repo as never, service as never).invoke({
+        connectedAccountId: "00000000-0000-4000-8000-000000000002",
+        token: "test-token",
+      }),
+    ).rejects.toBe(failure);
   });
 
   it("does not wait on unavailable Gmail's initial sync before reading an operational calendar", async () => {

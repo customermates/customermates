@@ -7,18 +7,18 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
-import { isTestInbox, TEST_ACCOUNT_IDS } from "./live-allowlist.mjs";
+import { isTestInbox, RECEIVER_ACCOUNT, TEST_ACCOUNT_IDS } from "./live-allowlist.mjs";
 
 // Read-only email backfill against the receiver test inbox through the Unipile development application, on a local
 // database. Short pages and one page per step exercise a multi-step folder pass even with a small fixture inbox,
-// the case whose reconciliation used to be skipped. scripts/verify/live-checks.mjs loads the egress guard.
+// the case whose reconciliation used to be skipped. Pages of 10 keep both passes under the testing application's
+// 100 requests per window. scripts/verify/live-checks.mjs loads the egress guard.
 vi.mock("@/ee/messaging/ingest/backfill/paginate", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/ee/messaging/ingest/backfill/paginate")>()),
   BACKFILL_EMAIL_PAGE_BUDGET: 1,
-  UNIPILE_EMAIL_MAX_LIMIT: 2,
+  UNIPILE_EMAIL_MAX_LIMIT: 10,
 }));
 
-const RECEIVER_ACCOUNT = "acc_01m6b96qwsfesbrjkgd8xxmzjy";
 const receiver = process.env.UNIPILE_TEST_RECEIVER_EMAIL ?? "";
 const databaseUrl = process.env.CRM_E2E_LIVE_UNIPILE === "true" ? getLocalDatabaseTestUrl() : null;
 const describeLive = databaseUrl ? describe : describe.skip;

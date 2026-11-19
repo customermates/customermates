@@ -55,6 +55,7 @@ export const CONNECT_CHANNEL_OPTIONS: {
     labelKey: "Common.providers.instagram",
   },
   { key: "telegram", icon: "telegram", labelKey: "Common.providers.telegram" },
+  { key: "facebook", icon: "facebook", labelKey: "Common.providers.facebook" },
 ];
 
 const FEATURED_PROVIDERS: MessagingProvider[] = ["whatsapp", "linkedin", "google"];

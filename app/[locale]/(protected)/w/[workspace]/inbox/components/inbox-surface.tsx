@@ -5,6 +5,7 @@ import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ReactNode } from "react";
 
 import { useEffect } from "react";
+import { Action, Resource } from "@/generated/prisma";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { ForbiddenError } from "@/core/errors/app-errors";
@@ -17,7 +18,11 @@ import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
+import { DraftReviewDeck } from "./draft-review-deck";
+
 const INBOX_REFRESH_INTERVAL_MS = 10000;
+const DRAFT_REVIEW_PARAM = "review";
+const DRAFT_REVIEW_VALUE = "drafts";
 
 type Props = {
   children: ReactNode;
@@ -27,7 +32,8 @@ type Props = {
 
 const InboxSurfaceContent = observer(function InboxSurface({ children, threads, locked }: Props) {
   const t = useTranslations();
-  const { messagingThreadsStore, messagingThreadDetailStore } = useRootStore();
+  const { messagingThreadsStore, messagingThreadDetailStore, draftReviewStore, userStore } = useRootStore();
+  const canSend = userStore.can(Resource.inboxMessages, Action.create);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -36,13 +42,34 @@ const InboxSurfaceContent = observer(function InboxSurface({ children, threads, 
   useEffect(() => {
     if (locked) return;
     return startBackgroundPoll({
-      refresh: () => Promise.all([messagingThreadsStore.refresh(), messagingThreadDetailStore.refresh(true)]),
+      refresh: () =>
+        Promise.all([
+          messagingThreadsStore.refresh(),
+          messagingThreadDetailStore.refresh(true),
+          draftReviewStore.refreshCount(),
+        ]),
       onError: (error) => {
         if (!(error instanceof ForbiddenError)) reportApplicationError(error);
       },
       intervalMs: INBOX_REFRESH_INTERVAL_MS,
     });
-  }, [locked, messagingThreadsStore, messagingThreadDetailStore]);
+  }, [locked, messagingThreadsStore, messagingThreadDetailStore, draftReviewStore]);
+
+  useEffect(() => {
+    if (locked) return;
+    void draftReviewStore.refreshCount().catch((error: unknown) => {
+      if (!(error instanceof ForbiddenError)) reportApplicationError(error);
+    });
+  }, [locked, draftReviewStore]);
+
+  useEffect(() => {
+    if (locked) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get(DRAFT_REVIEW_PARAM) !== DRAFT_REVIEW_VALUE) return;
+    url.searchParams.delete(DRAFT_REVIEW_PARAM);
+    router.replace(`${pathname}${url.search}`, { scroll: false });
+    if (canSend) draftReviewStore.open();
+  }, [locked, canSend, draftReviewStore, router, pathname]);
 
   const unavailableThreadId = messagingThreadDetailStore.unavailableThreadId;
   useEffect(() => {
@@ -62,6 +89,8 @@ const InboxSurfaceContent = observer(function InboxSurface({ children, threads, 
       />
 
       {children}
+
+      {!locked && <DraftReviewDeck />}
     </div>
   );
 });
