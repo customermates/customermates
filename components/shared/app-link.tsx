@@ -2,6 +2,8 @@
 
 import type { AnchorHTMLAttributes, ComponentProps } from "react";
 
+import { useState } from "react";
+
 import NextLink from "next/link";
 import { useLocale } from "next-intl";
 
@@ -23,6 +25,7 @@ type BaseProps = {
   appearance?: "default" | "inline" | "unstyled";
   external?: boolean;
   inheritSize?: boolean;
+  prefetchOnIntent?: boolean;
   className?: string;
 };
 
@@ -76,9 +79,17 @@ export function protectedHrefFromContent(href: string, pathname: string): string
 }
 
 export function AppLink(props: Props) {
-  const { appearance = "default", external = false, inheritSize = false, className, ...rest } = props;
+  const {
+    appearance = "default",
+    external = false,
+    inheritSize = false,
+    prefetchOnIntent = false,
+    className,
+    ...rest
+  } = props;
   const locale = useLocale();
   const pathname = usePathname();
+  const [intended, setIntended] = useState(false);
 
   const mergedClassName =
     cn(
@@ -153,5 +164,21 @@ export function AppLink(props: Props) {
         : undefined
       : internalProps.prefetch;
 
-  return <IntlLink className={mergedClassName} {...internalProps} prefetch={prefetch} />;
+  if (!prefetchOnIntent) return <IntlLink className={mergedClassName} {...internalProps} prefetch={prefetch} />;
+
+  return (
+    <IntlLink
+      className={mergedClassName}
+      {...internalProps}
+      prefetch={intended ? prefetch : false}
+      onFocus={(event) => {
+        setIntended(true);
+        internalProps.onFocus?.(event);
+      }}
+      onPointerEnter={(event) => {
+        setIntended(true);
+        internalProps.onPointerEnter?.(event);
+      }}
+    />
+  );
 }

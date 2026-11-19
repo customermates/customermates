@@ -272,6 +272,19 @@ describe("draft review queue", () => {
     expect(store.openCount).toBe(1);
   });
 
+  it("shows the count loaded with the page and ignores an older count request that answers afterwards", async () => {
+    const { store } = fixture([]);
+    let answer: (value: unknown) => void = () => undefined;
+    actions.countReviewDraftsAction.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+
+    const refresh = store.refreshCount();
+    store.setOpenCount(23);
+    answer({ ok: true, data: { items: [], total: 4 } });
+    await refresh;
+
+    expect(store.openCount).toBe(23);
+  });
+
   it("addresses a chat draft without saved recipients to the other participants of its conversation", () => {
     expect(draftRecipients(entry("chat", { provider: "linkedin", to: [] }))).toEqual(["participant@example.test"]);
     expect(draftRecipients(entry("mail", { to: [] }))).toEqual([]);

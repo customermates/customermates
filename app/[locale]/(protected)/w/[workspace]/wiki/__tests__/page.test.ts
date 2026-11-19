@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   captureException: vi.fn(),
   getGraph: vi.fn(),
+  getLayout: vi.fn(),
   getPage: vi.fn(),
   getSetupState: vi.fn(),
   requireAccess: vi.fn(),
@@ -25,6 +26,9 @@ vi.mock("@/core/observability/server", () => ({
 }));
 vi.mock("@/features/auth/next/require", () => ({
   requireAccess: mocks.requireAccess,
+}));
+vi.mock("@/features/p13n/next/get-optional-p13n", () => ({
+  getOptionalP13n: mocks.getLayout,
 }));
 vi.mock("@/components/shared/page-container", () => ({
   PageContainer: "page-container",
@@ -77,6 +81,7 @@ const graph = {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.requireAccess.mockResolvedValue(undefined);
+  mocks.getLayout.mockResolvedValue(null);
   mocks.getGraph.mockResolvedValue({ ok: true, data: graph });
   mocks.getSetupState.mockResolvedValue({
     ok: true,
@@ -151,6 +156,20 @@ describe("WikiPage", () => {
 
     expect(viewProps(result).graph).toBeNull();
     expect(mocks.captureException).not.toHaveBeenCalled();
+  });
+
+  it("opens in the view the person chose last, and on the map when nothing usable is stored", async () => {
+    expect(viewProps(await WikiPage({ searchParams: Promise.resolve({}) })).initialView).toBe("map");
+    expect(mocks.getLayout).toHaveBeenCalledWith("wiki-layout");
+
+    mocks.getLayout.mockResolvedValue({ p13nId: "wiki-layout", settings: { view: "pages" } });
+    expect(viewProps(await WikiPage({ searchParams: Promise.resolve({}) })).initialView).toBe("pages");
+
+    mocks.getLayout.mockResolvedValue({ p13nId: "wiki-layout", columnWidths: { tree: 280 } });
+    expect(viewProps(await WikiPage({ searchParams: Promise.resolve({}) })).initialView).toBe("map");
+
+    mocks.getLayout.mockResolvedValue({ p13nId: "wiki-layout", settings: { view: "board" } });
+    expect(viewProps(await WikiPage({ searchParams: Promise.resolve({}) })).initialView).toBe("map");
   });
 
   it("opens the proposal review when the address asks for it", async () => {

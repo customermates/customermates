@@ -1123,6 +1123,70 @@ describeDatabase("configuration trash", () => {
     expect(await f.items()).toEqual([]);
   }, 180_000);
 
+  it("deletes a trashed list permanently while a related list in Trash still has a member's layouts", async () => {
+    const f = await fixture();
+    const employerColumn = `relationship:${f.employer}:outgoing`;
+    const layouts = () =>
+      runWithoutTenant(() =>
+        prisma.p13n.findMany({
+          where: { companyId: f.seed.company.id, p13nId: { contains: f.id("contact") } },
+          orderBy: { p13nId: "asc" },
+        }),
+      );
+    await runWithoutTenant(() =>
+      prisma.p13n.createMany({
+        data: [
+          {
+            companyId: f.seed.company.id,
+            userId: f.seed.admin.id,
+            p13nId: `records:${f.id("contact")}`,
+            columnOrder: [employerColumn],
+            hiddenColumns: [],
+          },
+          {
+            companyId: f.seed.company.id,
+            userId: f.seed.admin.id,
+            p13nId: `record-detail:${f.id("contact")}`,
+            columnOrder: [],
+            hiddenColumns: [],
+            detailOptions: {
+              starredFieldIds: [employerColumn],
+              collapsedSectionIds: [],
+              hiddenFieldIds: [],
+              fieldOrder: [employerColumn],
+            },
+          },
+        ],
+      }),
+    );
+    for (const key of ["contact", "organization"]) {
+      expect(
+        await f.as(async () =>
+          f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id(key) } }])),
+        ),
+      ).toMatchObject({ ok: true });
+    }
+    const organization = (await f.items()).find((item) => item.targetId === f.id("organization"));
+    const contact = (await f.items()).find((item) => item.targetId === f.id("contact"));
+    const preview = await f.as(() => f.trash.preview.invoke({ itemIds: [organization?.id ?? ""] }));
+    if (!preview.ok) throw new Error(JSON.stringify(preview));
+
+    expect(
+      await f.as(() =>
+        f.trash.remove.invoke({ itemIds: [organization?.id ?? ""], expectedImpactHash: preview.data.impactHash }),
+      ),
+    ).toMatchObject({ ok: true, data: { deletedItemIds: [organization?.id], failedItemIds: [] } });
+    expect((await f.items()).map((item) => item.id)).toEqual([contact?.id]);
+
+    expect((await layouts()).map((layout) => layout.columnOrder)).toEqual([[], [employerColumn]]);
+
+    expect(await f.as(() => f.trash.restore.invoke({ itemIds: [contact?.id ?? ""] }))).toMatchObject({ ok: true });
+    expect(await f.items()).toEqual([]);
+    const [detail, list] = await layouts();
+    expect(detail.detailOptions).toMatchObject({ starredFieldIds: [], fieldOrder: [] });
+    expect(list.columnOrder).toEqual([]);
+  }, 180_000);
+
   it("answers a configuration restore during an active record operation with conflict recordWritePaused", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;

@@ -6,16 +6,13 @@ const mocks = vi.hoisted(() => ({
   resolveOnboardingIntent: vi.fn(),
 }));
 
+vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
     throw new Error(`REDIRECT:${url}`);
   },
 }));
 vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
-vi.mock("@/core/auth/better-auth", () => ({
-  enabledSocialProviders: { google: false, microsoft: false },
-}));
-vi.mock("@/core/fumadocs/metadata", () => ({ generateMetadataFromMeta: vi.fn() }));
 vi.mock("@/features/auth/next/require", () => ({
   requireUnauthenticated: mocks.requireUnauthenticated,
 }));
@@ -25,10 +22,8 @@ vi.mock("@/features/auth/next/resolve-account-state", () => ({
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
 }));
-vi.mock("@/components/shared/centered-card-page", () => ({ CenteredCardPage: "centered-card-page" }));
-vi.mock("../sign-in-form", () => ({ SignInForm: "sign-in-form" }));
 
-import SignInPage from "../page";
+import { resolveSignInEntry, searchParamsOf } from "../sign-in-entry";
 
 const invitation = {
   companyId: "company-a",
@@ -42,7 +37,9 @@ const invitation = {
   type: "invitation",
 } as const;
 
-describe("SignInPage onboarding intent", () => {
+const entry = (search: string) => resolveSignInEntry(searchParamsOf(search));
+
+describe("sign-in entry", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.requireUnauthenticated.mockResolvedValue(undefined);
@@ -50,21 +47,41 @@ describe("SignInPage onboarding intent", () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
   });
 
+  it("reads the location search the way a page receives its search parameters", () => {
+    expect(searchParamsOf("")).toEqual({});
+    expect(searchParamsOf("?callbackURL=%2Fen%2Fdashboard&intent=a&intent=b&intent=c")).toEqual({
+      callbackURL: "/en/dashboard",
+      intent: ["a", "b", "c"],
+    });
+  });
+
+  it("passes a plain callback through and asks for the legacy invitation when the link names no intent", async () => {
+    expect(await entry("?callbackURL=%2Fen%2Fw%2Facme%2Finbox")).toEqual({
+      callbackURL: "/en/w/acme/inbox",
+      inviterName: undefined,
+      onboardingIntent: undefined,
+      workspaceName: undefined,
+    });
+    expect(mocks.resolveOnboardingIntent).toHaveBeenCalledWith(undefined);
+    expect(mocks.requireUnauthenticated).toHaveBeenCalledOnce();
+  });
+
+  it("sends an already signed-in visitor on instead of answering", async () => {
+    mocks.requireUnauthenticated.mockRejectedValue(new Error("REDIRECT:/en"));
+
+    await expect(entry("")).rejects.toThrow("REDIRECT:/en");
+  });
+
   it("recovers an invitation nested in a proxy callback URL", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue(invitation);
 
-    const result = await SignInPage({
-      searchParams: Promise.resolve({ callbackURL: "/onboarding/wizard?intent=signed.intent" }),
-    });
-    const form = result.props.children;
-
-    expect(mocks.resolveOnboardingIntent).toHaveBeenCalledWith("signed.intent");
-    expect(form.props).toMatchObject({
+    expect(await entry(`?callbackURL=${encodeURIComponent("/onboarding/wizard?intent=signed.intent")}`)).toEqual({
       callbackURL: "/auth/invitation?intent=signed.intent",
       inviterName: "Invite Admin",
       onboardingIntent: "signed.intent",
       workspaceName: "Hoffmann Consulting",
     });
+    expect(mocks.resolveOnboardingIntent).toHaveBeenCalledWith("signed.intent");
   });
 
   it("fails closed on duplicate nested intents instead of consulting legacy state", async () => {
@@ -74,11 +91,11 @@ describe("SignInPage onboarding intent", () => {
       status: "invalid",
     });
 
-    await expect(
-      SignInPage({
-        searchParams: Promise.resolve({ callbackURL: "/auth/invitation?intent=one&intent=two" }),
-      }),
-    ).rejects.toThrow("REDIRECT:/en/auth/error?type=invalidOnboardingIntent");
+    const nested = encodeURIComponent("/auth/invitation?intent=one&intent=two");
+
+    await expect(entry(`?callbackURL=${nested}`)).rejects.toThrow(
+      "REDIRECT:/en/auth/error?type=invalidOnboardingIntent",
+    );
     expect(mocks.resolveOnboardingIntent).toHaveBeenCalledWith([]);
     expect(mocks.requireUnauthenticated).not.toHaveBeenCalled();
   });
@@ -90,9 +107,9 @@ describe("SignInPage onboarding intent", () => {
       status: "invalid",
     });
 
-    await expect(
-      SignInPage({ searchParams: Promise.resolve({ callbackURL: ["/auth/signin", "/auth/invitation"] }) }),
-    ).rejects.toThrow("REDIRECT:/en/auth/error?type=invalidOnboardingIntent");
+    await expect(entry("?callbackURL=%2Fauth%2Fsignin&callbackURL=%2Fauth%2Finvitation")).rejects.toThrow(
+      "REDIRECT:/en/auth/error?type=invalidOnboardingIntent",
+    );
     expect(mocks.resolveOnboardingIntent).toHaveBeenCalledWith([]);
   });
 
@@ -103,9 +120,7 @@ describe("SignInPage onboarding intent", () => {
       state: "registered",
     });
 
-    await expect(SignInPage({ searchParams: Promise.resolve({ intent: "signed.intent" }) })).rejects.toThrow(
-      "REDIRECT:/en/auth/invitation?intent=signed.intent",
-    );
+    await expect(entry("?intent=signed.intent")).rejects.toThrow("REDIRECT:/en/auth/invitation?intent=signed.intent");
     expect(mocks.requireUnauthenticated).not.toHaveBeenCalled();
   });
 
@@ -118,15 +133,14 @@ describe("SignInPage onboarding intent", () => {
       type: "createCompany",
     });
 
-    const result = await SignInPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
-    const form = result.props.children;
+    const result = await entry("?intent=signed.create");
 
-    expect(form.props).toMatchObject({
+    expect(result).toMatchObject({
       callbackURL: "/onboarding/wizard?intent=signed.create",
       onboardingIntent: "signed.create",
     });
-    expect(form.props.inviterName).toBeUndefined();
-    expect(form.props.workspaceName).toBeUndefined();
+    expect(result.inviterName).toBeUndefined();
+    expect(result.workspaceName).toBeUndefined();
   });
 
   it("rejects a create decision when a different identity is already signed in", async () => {
@@ -142,7 +156,7 @@ describe("SignInPage onboarding intent", () => {
       state: "unregistered",
     });
 
-    await expect(SignInPage({ searchParams: Promise.resolve({ intent: "signed.create" }) })).rejects.toThrow(
+    await expect(entry("?intent=signed.create")).rejects.toThrow(
       "REDIRECT:/en/auth/error?type=invalidOnboardingIntent",
     );
   });

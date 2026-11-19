@@ -38,7 +38,10 @@ export default async function RoutinesPage({ searchParams }: Props) {
         <FreePlanFeatureOverlay feature="routines">{view}</FreePlanFeatureOverlay>
       ) : (
         <>
-          <RoutineAllowanceNotice plan={usage.plan} />
+          <RoutineAllowanceNotice
+            initialOwnerUserIds={routines.items.map((routine) => routine.ownerUserId)}
+            plan={usage.plan}
+          />
 
           {view}
         </>

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { env } from "@/env";
 import { errorReportingEnabled } from "@/core/errors/reporting-provider";
+import { requestAddress } from "@/core/network/request-address";
 import { safeErrorPath, safeIdentifier, scrubErrorText } from "@/core/observability/error-report";
 import { publishServerError } from "@/core/observability/publish-error";
 import { requestErrorContext } from "@/core/observability/request-context";
@@ -69,8 +70,7 @@ export async function POST(request: Request): Promise<Response> {
     return new Response(null, { status: 403 });
   if (!request.headers.get("content-type")?.startsWith("application/json")) return new Response(null, { status: 415 });
 
-  const address =
-    request.headers.get("x-real-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const address = requestAddress(request);
   const now = Date.now();
   for (const [key, admission] of admissions) if (admission.until <= now) admissions.delete(key);
   const admission = admissions.get(address) ?? {

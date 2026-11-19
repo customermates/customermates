@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 
-import SignInProviderButton from "../signin/sign-in-provider-button";
+import SignInProviderButton from "@/app/[locale]/(entry)/auth/signin/sign-in-provider-button";
 import { SocialErrorToast } from "../social-error-toast";
 
 import { AppLink } from "@/components/shared/app-link";

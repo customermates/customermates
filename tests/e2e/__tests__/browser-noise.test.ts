@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { chunkLoadErrorChunk, isAbortedLoadReport, isAppConsoleError, isBenignPageError, cancelledChunk } from "../browser-noise";
 
+import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+
 const message = (type: string, text: string) => ({ type: () => type, text: () => text }) as Parameters<typeof isAppConsoleError>[0];
 
 describe("browser engine noise filters", () => {
@@ -73,6 +75,10 @@ describe("browser engine noise filters", () => {
     ).toBe(true);
     expect(isBenignPageError("/127.0.0.1:4139/en/records/aa729920-5046-8399-8fea-6743d6535c22 due to access control checks.")).toBe(true);
     expect(isBenignPageError("/127.0.0.1:4139/en/settings/webhook-deliveries?searchTerm=order due to access control checks.")).toBe(true);
+    expect(ROUTING_LOCALES.length).toBeGreaterThan(5);
+    for (const locale of ROUTING_LOCALES)
+      expect(isBenignPageError(`/127.0.0.1:36675/${locale}/docs/mcp?_rsc=-yITRhulilRe5tjz due to access control checks.`), locale).toBe(true);
+    expect(isBenignPageError("/127.0.0.1:36675/xx/docs/mcp?_rsc=-yITRhulilRe5tjz due to access control checks.")).toBe(false);
     expect(isBenignPageError("Fetch API cannot load http://127.0.0.1:4127/api/v1/records/query due to access control checks.")).toBe(false);
     expect(isBenignPageError("/127.0.0.1:4127/_next/static/chunks/app.js due to access control checks.")).toBe(false);
     expect(isBenignPageError("/127.0.0.1:4127/entries due to access control checks.")).toBe(false);

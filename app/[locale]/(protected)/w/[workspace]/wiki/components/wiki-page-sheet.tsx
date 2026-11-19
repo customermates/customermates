@@ -8,7 +8,7 @@ import type { WikiPageStore } from "./wiki-page.store";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { BadgeCheck, Link, Pin, PinOff, Trash2 } from "lucide-react";
+import { BadgeCheck, Link, Maximize2, Pin, PinOff, Trash2, Waypoints } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
@@ -25,6 +25,7 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
+import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { SkeletonShape } from "@/components/page-state/skeleton-shape";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
@@ -68,13 +69,24 @@ type Props = {
   onSelect: (id: string) => void;
   onTogglePin: () => void;
   onReload: () => void;
+  onSwitchView?: () => void;
 };
 
-const OUTLINE_MINIMUM = 3;
+type Surface = "sheet" | "page";
 
-function SheetSkeleton({ label }: { label: string }) {
+const OUTLINE_MINIMUM = 3;
+const PAGE_COLUMN_CLASS = "mx-auto w-full max-w-5xl";
+const PAGE_BODY_COLUMN_CLASS = "*:mx-auto *:w-full *:max-w-[61rem]";
+const PAGE_SEGMENTS_CLASS = "ms-[max(1.5rem,calc((100%-64rem)/2+1.5rem))] me-auto w-fit min-w-72";
+
+function SheetSkeleton({ label, className }: { label: string; className?: string }) {
   return (
-    <div aria-label={label} className="flex flex-col gap-5 p-6" data-wiki-page-sheet-skeleton="" role="status">
+    <div
+      aria-label={label}
+      className={cn("flex flex-col gap-5 p-6", className)}
+      data-wiki-page-sheet-skeleton=""
+      role="status"
+    >
       <SkeletonShape animated className="h-7 w-2/3" />
 
       <div className="flex gap-2">
@@ -164,7 +176,38 @@ function RecordLinks({ items }: { items: Array<WikiGraphRecordType & { count: nu
   );
 }
 
-export const WikiPageSheet = observer(function WikiPageSheet({
+function OutlineLinks({
+  headings,
+  onSelect,
+}: {
+  headings: ReturnType<typeof wikiDocumentHeadings>;
+  onSelect: (index: number) => void;
+}) {
+  return (
+    <ul className="-mx-1">
+      {headings.map((heading) => (
+        <li key={heading.index}>
+          <Button
+            className={cn(
+              "h-auto min-h-7 w-full justify-start px-2 py-1 text-left font-normal",
+              heading.level === 2 && "pl-5",
+              heading.level === 3 && "pl-8 text-muted-foreground",
+            )}
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => onSelect(heading.index)}
+          >
+            <span className="truncate">{heading.text}</span>
+          </Button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const WikiPageSurface = observer(function WikiPageSurface({
+  surface,
   open,
   state,
   store,
@@ -175,7 +218,8 @@ export const WikiPageSheet = observer(function WikiPageSheet({
   onSelect,
   onTogglePin,
   onReload,
-}: Props) {
+  onSwitchView,
+}: Props & { surface: Surface }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const formId = useId();
@@ -296,6 +340,17 @@ export const WikiPageSheet = observer(function WikiPageSheet({
                 },
               ]
             : []),
+          ...(onSwitchView
+            ? [
+                {
+                  id: "switch-view",
+                  kind: "navigate" as const,
+                  icon: surface === "sheet" ? Maximize2 : Waypoints,
+                  label: surface === "sheet" ? t("Wiki.view.openFullPage") : t("Wiki.view.showOnMap"),
+                  onClick: onSwitchView,
+                },
+              ]
+            : []),
         ];
 
   const scrollToHeading = (index: number) => {
@@ -311,12 +366,22 @@ export const WikiPageSheet = observer(function WikiPageSheet({
     return Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
   };
 
+  const fullPage = surface === "page";
+  const column = fullPage ? PAGE_COLUMN_CLASS : undefined;
+  const bodyColumn = fullPage ? PAGE_BODY_COLUMN_CLASS : undefined;
+  const hasOutline = headings.length >= OUTLINE_MINIMUM;
+
   let content: ReactNode;
-  if (state === "loading") content = <SheetSkeleton label={t("PageState.loading")} />;
+  if (state === "loading")
+    content = <SheetSkeleton className={fullPage ? PAGE_COLUMN_CLASS : undefined} label={t("PageState.loading")} />;
   else if (state === "error") {
     content = (
-      <div className="p-6">
-        <AppModalTitle className="pb-3 text-lg font-semibold">{title}</AppModalTitle>
+      <div className={cn("p-6", fullPage && PAGE_COLUMN_CLASS)}>
+        {fullPage ? (
+          <h2 className="pb-3 text-lg font-semibold">{title}</h2>
+        ) : (
+          <AppModalTitle className="pb-3 text-lg font-semibold">{title}</AppModalTitle>
+        )}
 
         <Alert description={t("Wiki.unavailableBody")} variant="destructive" />
       </div>
@@ -325,11 +390,13 @@ export const WikiPageSheet = observer(function WikiPageSheet({
     content = (
       <AppForm id={formId} store={store}>
         <AppCard className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
-          <AppCardHeader className="pb-3">
-            <WikiPageTitle store={store} />
+          <AppCardHeader className={cn("pb-3", column)}>
+            <WikiPageTitle large={fullPage} store={store} />
+
+            {fullPage && <AppModalActionRail actions={actions} />}
           </AppCardHeader>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-1.5 px-6 pb-1" data-wiki-page-chips="">
+          <div className={cn("flex shrink-0 flex-wrap items-center gap-1.5 px-6 pb-1", column)} data-wiki-page-chips="">
             <AppChip variant={WIKI_KIND_CHIP[store.form.kind]}>{kindLabels[store.form.kind]}</AppChip>
 
             {pageLinks && pageLinks.linkedFrom.length > 0 && (
@@ -352,7 +419,7 @@ export const WikiPageSheet = observer(function WikiPageSheet({
           </div>
 
           {store.conflict && (
-            <div className="px-6 pt-3">
+            <div className={cn("px-6 pt-3", column)}>
               <Alert variant="warning">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p>{t("Wiki.conflict")}</p>
@@ -384,63 +451,68 @@ export const WikiPageSheet = observer(function WikiPageSheet({
               },
             ]}
             label={t("Wiki.graph.sheetSegments")}
-            listClassName="mx-6 mt-4 mb-2 w-auto"
+            listClassName={cn("mt-4 mb-2", fullPage ? PAGE_SEGMENTS_CLASS : "mx-6 w-auto")}
             value={segment}
             onValueChange={setSegment}
           >
             <SegmentedControlPanel className="m-0 flex min-h-0 flex-1 flex-col" value="page">
               <AppCardBody
                 ref={scroller}
-                className="overflow-y-auto overscroll-contain pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]"
+                className={cn(
+                  "overflow-y-auto overscroll-contain pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]",
+                  bodyColumn,
+                )}
                 data-wiki-page-scroller=""
               >
-                {headings.length >= OUTLINE_MINIMUM && (
-                  <CollapsibleSection summary={headings.length} title={t("Wiki.onThisPage")}>
-                    <ul className="-mx-1">
-                      {headings.map((heading) => (
-                        <li key={heading.index}>
-                          <Button
-                            className={cn(
-                              "h-auto min-h-7 w-full justify-start px-2 py-1 text-left font-normal",
-                              heading.level === 2 && "pl-5",
-                              heading.level === 3 && "pl-8 text-muted-foreground",
-                            )}
-                            size="sm"
-                            type="button"
-                            variant="ghost"
-                            onClick={() => scrollToHeading(heading.index)}
-                          >
-                            <span className="truncate">{heading.text}</span>
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  </CollapsibleSection>
-                )}
+                <div className={fullPage ? "flex min-w-0 flex-1 items-start gap-8" : "contents"}>
+                  <div className="flex min-w-0 flex-1 flex-col gap-4">
+                    {hasOutline && (
+                      <CollapsibleSection
+                        className={fullPage ? "@min-[52rem]/wiki:hidden" : undefined}
+                        summary={headings.length}
+                        title={t("Wiki.onThisPage")}
+                      >
+                        <OutlineLinks headings={headings} onSelect={scrollToHeading} />
+                      </CollapsibleSection>
+                    )}
 
-                {store.form.kind === "procedure" && store.form.whenToUse.trim() && (
-                  <p className="rounded-md border border-border bg-muted/50 px-3 py-2 text-sm">
-                    <span className="text-muted-foreground">{t("Wiki.whenToUse.label")}: </span>
+                    {store.form.kind === "procedure" && store.form.whenToUse.trim() && (
+                      <p className="rounded-md border border-border bg-muted/50 px-3 py-2 text-sm">
+                        <span className="text-muted-foreground">{t("Wiki.whenToUse.label")}: </span>
 
-                    {store.form.whenToUse}
-                  </p>
-                )}
+                        {store.form.whenToUse}
+                      </p>
+                    )}
 
-                <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
-                  <Editor
-                    data={store.editorDocument}
-                    headingIdPrefix={WIKI_HEADING_ID_PREFIX}
-                    label={title}
-                    readOnly={!canManage || store.isLoading}
-                    onChange={store.onEditorChange}
-                  />
-                </EditorLinkPickerContext.Provider>
+                    <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
+                      <Editor
+                        data={store.editorDocument}
+                        headingIdPrefix={WIKI_HEADING_ID_PREFIX}
+                        label={title}
+                        readOnly={!canManage || store.isLoading}
+                        onChange={store.onEditorChange}
+                      />
+                    </EditorLinkPickerContext.Provider>
+                  </div>
+
+                  {fullPage && hasOutline && (
+                    <nav
+                      aria-label={t("Wiki.onThisPage")}
+                      className="sticky top-0 hidden w-52 shrink-0 @min-[52rem]/wiki:block"
+                      data-wiki-page-outline=""
+                    >
+                      <h3 className="px-1 pb-1 text-xs font-medium text-muted-foreground">{t("Wiki.onThisPage")}</h3>
+
+                      <OutlineLinks headings={headings} onSelect={scrollToHeading} />
+                    </nav>
+                  )}
+                </div>
               </AppCardBody>
             </SegmentedControlPanel>
 
             {!store.creating && (
               <SegmentedControlPanel className="m-0 flex min-h-0 flex-1 flex-col" value="links">
-                <AppCardBody className="gap-5 overflow-y-auto overscroll-contain">
+                <AppCardBody className={cn("gap-5 overflow-y-auto overscroll-contain", bodyColumn)}>
                   {pageLinks === undefined ? (
                     <div className="space-y-3 pt-1">
                       <SkeletonShape animated className="h-4 w-2/3" />
@@ -475,7 +547,12 @@ export const WikiPageSheet = observer(function WikiPageSheet({
             )}
 
             <SegmentedControlPanel className="m-0 flex min-h-0 flex-1 flex-col" value="details">
-              <AppCardBody className="overflow-y-auto overscroll-contain pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
+              <AppCardBody
+                className={cn(
+                  "overflow-y-auto overscroll-contain pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]",
+                  bodyColumn,
+                )}
+              >
                 <FormSelect
                   disabled={!canManage}
                   id="kind"
@@ -554,6 +631,18 @@ export const WikiPageSheet = observer(function WikiPageSheet({
     );
   }
 
+  if (fullPage) {
+    return (
+      <section
+        aria-label={t("Wiki.document")}
+        className="@container/wiki relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+        data-wiki-document={state}
+      >
+        {content}
+      </section>
+    );
+  }
+
   return (
     <AppModal
       focusContentOnOpen
@@ -570,3 +659,11 @@ export const WikiPageSheet = observer(function WikiPageSheet({
     </AppModal>
   );
 });
+
+export function WikiPageSheet(props: Props) {
+  return <WikiPageSurface {...props} surface="sheet" />;
+}
+
+export function WikiPageDocument(props: Omit<Props, "open" | "canPin" | "pinned" | "onTogglePin">) {
+  return <WikiPageSurface {...props} open canPin={false} pinned={null} surface="page" onTogglePin={() => {}} />;
+}

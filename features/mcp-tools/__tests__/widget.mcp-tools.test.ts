@@ -85,6 +85,7 @@ import { WidgetKind } from "@/generated/prisma";
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
+import { WIDGET_READ_CONCURRENCY } from "@/features/widget/widget-dto-reader";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { manageWidgetsTool } from "../widget.mcp-tools";
@@ -607,6 +608,25 @@ describe("manage_widgets read and delete", () => {
     expect(decode(get)).toEqual({
       items: formatDatesInResponse([chartWidget(), activityWidget({ id: RECORD_ID })]),
     });
+  });
+
+  it("reads a whole dashboard of ids a few at a time and keeps their order", async () => {
+    const ids = Array.from({ length: 30 }, (_, index) => `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`);
+    let reading = 0;
+    let peak = 0;
+    spies.getRecordWidget.mockImplementation(async ({ id }: { id: string }) => {
+      reading += 1;
+      peak = Math.max(peak, reading);
+      await new Promise((resolve) => setTimeout(resolve, 2));
+      reading -= 1;
+      return { ok: true, data: chartWidget({ id }) };
+    });
+
+    const get = decode(await run({ action: "get", ids })) as { items: Array<{ id: string }> };
+    spies.getRecordWidget.mockReset();
+
+    expect(get.items.map((item) => item.id)).toEqual(ids);
+    expect(peak).toBe(WIDGET_READ_CONCURRENCY);
   });
 
   it("answers a missing id with an id-keyed error that fits the output schema and keeps the found widgets", async () => {

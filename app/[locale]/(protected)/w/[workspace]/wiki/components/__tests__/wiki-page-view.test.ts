@@ -5,7 +5,7 @@ import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 import type { WikiGraphView as RealWikiGraphView } from "../wiki-graph-view";
 import type { WikiPageActions as RealWikiPageActions } from "../wiki-page-actions";
 import type { WikiPageList as RealWikiPageList } from "../wiki-page-list";
-import type { WikiPageSheet as RealWikiPageSheet } from "../wiki-page-sheet";
+import type { WikiPageDocument as RealWikiPageDocument, WikiPageSheet as RealWikiPageSheet } from "../wiki-page-sheet";
 
 import { act, createElement, isValidElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -17,6 +17,9 @@ import { Action, Resource } from "@/generated/prisma";
 const harness = vi.hoisted(() => ({
   rootStore: {} as Record<string, unknown>,
   push: vi.fn(),
+  replace: vi.fn(),
+  saveLayout: vi.fn(),
+  document: null as unknown,
   refresh: vi.fn(),
   topBar: null as unknown,
   wide: true,
@@ -35,6 +38,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${Object.values(values).join("|")}` : key,
 }));
+vi.mock("@/app/actions", () => ({ upsertP13nAction: harness.saveLayout }));
 vi.mock("../../actions", () => ({
   searchWikiPagesAction: harness.search,
   pinWikiGraphNodeAction: vi.fn(),
@@ -43,7 +47,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.rootStore,
 }));
 vi.mock("@/i18n/navigation", () => ({
-  useRouter: () => ({ push: harness.push, refresh: harness.refresh }),
+  useRouter: () => ({ push: harness.push, replace: harness.replace, refresh: harness.refresh }),
 }));
 vi.mock("@/app/components/topbar-actions-context", () => ({
   useSetTopBarActions: (node: unknown) => {
@@ -118,6 +122,10 @@ vi.mock("../wiki-page-sheet", () => ({
     harness.sheet = props;
     return createElement("div", { "data-sheet": props.open ? props.state : "closed" });
   },
+  WikiPageDocument: (props: { state: string }) => {
+    harness.document = props;
+    return createElement("div", { "data-document": props.state });
+  },
 }));
 vi.mock("../wiki-page-skeleton", () => ({ WikiPageSkeleton: () => null }));
 vi.mock("../wiki-proposals", () => ({
@@ -139,6 +147,7 @@ type ViewProps = ComponentProps<typeof WikiPageView>;
 type MapProps = ComponentProps<typeof RealWikiGraphView>;
 type ListProps = ComponentProps<typeof RealWikiPageList>;
 type SheetProps = ComponentProps<typeof RealWikiPageSheet>;
+type DocumentProps = ComponentProps<typeof RealWikiPageDocument>;
 type ActionsProps = ComponentProps<typeof RealWikiPageActions>;
 
 const GUIDE = "10000000-0000-4000-8000-000000000001";
@@ -263,6 +272,7 @@ const holds = (change: Partial<typeof state>) => during(() => runInAction(() => 
 const map = () => harness.map as MapProps;
 const list = () => harness.list as ListProps;
 const sheet = () => harness.sheet as SheetProps;
+const pageDocument = () => harness.document as DocumentProps;
 function topBar(): ActionsProps {
   if (!isValidElement<ActionsProps>(harness.topBar)) throw new Error("The Knowledge Base published no top bar.");
   return harness.topBar.props;
@@ -285,6 +295,8 @@ beforeEach(() => {
   harness.map = null;
   harness.list = null;
   harness.sheet = null;
+  harness.document = null;
+  harness.saveLayout.mockResolvedValue({ ok: true });
   harness.topBar = null;
   harness.liveSetupState = null;
   harness.guarded.length = 0;
@@ -619,6 +631,129 @@ describe("Knowledge Base view", () => {
       expect(harness.proposals.bind).not.toHaveBeenCalled();
       expect(topBar().proposals).toBeUndefined();
       expect(container.querySelector("[data-proposals]")).toBeNull();
+    });
+  });
+
+  describe("the map and the pages view", () => {
+    it("offers both views on a wide screen and opens on the map unless the person chose the pages", async () => {
+      await mount();
+      expect(topBar().view).toBe("map");
+
+      const { container } = await mount({ initialView: "pages", initialPage: refunds, requestedPageId: REFUNDS });
+      await holds({ formId: REFUNDS });
+
+      expect(topBar().view).toBe("pages");
+      expect(container.querySelector("[data-map]")).toBeNull();
+      expect(container.querySelector("[data-wiki-pages-rail] [data-list]")).not.toBeNull();
+      expect(container.querySelector("[data-document]")?.getAttribute("data-document")).toBe("page");
+      expect(container.querySelector("[data-sheet]")?.getAttribute("data-sheet")).toBe("closed");
+      expect(list()).toMatchObject({ nodes: graph.nodes, currentId: REFUNDS, truncated: false });
+      expect(pageDocument()).toMatchObject({ store, otherGuide: true });
+      expect(container.querySelector("section")?.getAttribute("aria-label")).toBe("Wiki.view.pages");
+    });
+
+    it("switches the view on request, keeps the open page and remembers the choice for the person", async () => {
+      const { container } = await mount({ initialPage: refunds, requestedPageId: REFUNDS });
+      await holds({ formId: REFUNDS });
+      expect(container.querySelector("[data-sheet]")?.getAttribute("data-sheet")).toBe("page");
+
+      await during(() => topBar().onViewChange("pages"));
+
+      expect(container.querySelector("[data-document]")?.getAttribute("data-document")).toBe("page");
+      expect(container.querySelector("[data-sheet]")?.getAttribute("data-sheet")).toBe("closed");
+      expect(harness.saveLayout).toHaveBeenCalledExactlyOnceWith({
+        p13nId: "wiki-layout",
+        settings: { view: "pages" },
+      });
+      expect(harness.push).not.toHaveBeenCalled();
+
+      await during(() => pageDocument().onSwitchView?.());
+
+      expect(container.querySelector("[data-map]")).not.toBeNull();
+      expect(container.querySelector("[data-sheet]")?.getAttribute("data-sheet")).toBe("page");
+      expect(harness.saveLayout).toHaveBeenLastCalledWith({ p13nId: "wiki-layout", settings: { view: "map" } });
+    });
+
+    it("opens a page from the map's sheet as a full page", async () => {
+      const { container } = await mount({ initialPage: refunds, requestedPageId: REFUNDS });
+      await holds({ formId: REFUNDS });
+
+      await during(() => sheet().onSwitchView?.());
+
+      expect(topBar().view).toBe("pages");
+      expect(container.querySelector("[data-document]")?.getAttribute("data-document")).toBe("page");
+    });
+
+    it("opens the guide in the pages view when the address names no page, once", async () => {
+      let arrive: () => void = () => {};
+      harness.replace.mockReturnValue(new Promise<void>((resolve) => (arrive = resolve)));
+      const { container } = await mount({ initialView: "pages" });
+
+      expect(harness.replace).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${GUIDE}`);
+      expect(container.querySelector("[data-document]")?.getAttribute("data-document")).toBe("loading");
+      expect(list().currentId).toBe(GUIDE);
+
+      await during(() => arrive());
+      expect(harness.replace).toHaveBeenCalledOnce();
+    });
+
+    it("opens no page by itself on the map, on a narrow screen or while a new page is written", async () => {
+      await mount();
+      expect(harness.replace).not.toHaveBeenCalled();
+
+      harness.wide = false;
+      await mount({ initialView: "pages" });
+      expect(harness.replace).not.toHaveBeenCalled();
+      expect(topBar().view).toBeNull();
+
+      harness.wide = true;
+      runInAction(() => (state.creating = true));
+      await mount({ initialView: "pages" });
+      expect(harness.replace).not.toHaveBeenCalled();
+      expect(pageDocument().state).toBe("page");
+    });
+
+    it("returns from a new page to the page that was open, without touching the address", async () => {
+      await mount({ initialView: "pages", initialPage: refunds, requestedPageId: REFUNDS });
+      await holds({ formId: REFUNDS });
+      await holds({ creating: true });
+
+      await during(() => pageDocument().onClose());
+
+      expect(spies.load).toHaveBeenLastCalledWith(refunds);
+      expect(harness.push).not.toHaveBeenCalled();
+      expect(harness.replace).not.toHaveBeenCalled();
+    });
+
+    it("opens a page chosen in the list in place and says when the page is gone", async () => {
+      await mount({ initialView: "pages", initialPage: refunds, requestedPageId: REFUNDS });
+      await holds({ formId: REFUNDS });
+
+      await during(() => list().onSelect(PRICING));
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${PRICING}`);
+
+      const { container } = await mount({ initialView: "pages", requestedPageId: PRICING, unavailable: true });
+      expect(container.querySelector("[data-document]")?.getAttribute("data-document")).toBe("error");
+      expect(container.querySelector("[data-sheet]")?.getAttribute("data-sheet")).toBe("closed");
+    });
+
+    it("keeps the choice for the session only in the public demo", async () => {
+      harness.rootStore.appMode = "demo";
+      await mount();
+
+      await during(() => topBar().onViewChange("pages"));
+
+      expect(topBar().view).toBe("pages");
+      expect(harness.saveLayout).not.toHaveBeenCalled();
+    });
+
+    it("offers no switch while there are no pages or the pages cannot be read", async () => {
+      await mount({ graph: emptyGraph, initialView: "pages" });
+      expect(topBar().view).toBeNull();
+      expect(harness.replace).not.toHaveBeenCalled();
+
+      await mount({ graph: null, initialView: "pages" });
+      expect(topBar().view).toBeNull();
     });
   });
 });

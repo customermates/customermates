@@ -54,7 +54,7 @@ export async function runInTransaction<T>(
       const companyId = options?.companyId ?? (store?.bypass || !store?.user ? undefined : store.user.companyId);
       if (options?.readOnly) await tx.$executeRaw`SET TRANSACTION READ ONLY`;
       const locksCompany = !options?.readOnly && options?.lockCompany !== false && Boolean(companyId);
-      await tx.$executeRaw`SELECT set_config('lock_timeout', ${locksCompany ? companyLockWait : lockTimeout}, true)`;
+      await tx.$executeRaw`SELECT set_config('lock_timeout', ${locksCompany ? companyLockWait : lockTimeout}, true), set_config('jit', 'off', true)`;
       if (locksCompany) {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
         if (companyLockWait !== lockTimeout)

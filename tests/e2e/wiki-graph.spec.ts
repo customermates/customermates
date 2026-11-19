@@ -172,10 +172,123 @@ test("opens the Knowledge Base as a map and a page in the side sheet records ope
     await expect(page).not.toHaveURL(/[?&]page=/);
     await expect(map).toBeVisible();
 
-    // A direct link opens the page over the map; there is no separate full page any more.
+    // A direct link opens the page over the map for someone who has not chosen the pages view.
     await page.goto(appPath(workspace.slug, `/wiki?page=${guide.id}`));
     await expect(page.getByRole("dialog", { name: "Operating Guide", exact: true })).toBeVisible();
     await expect(canvas).toBeVisible();
+  } finally {
+    await api.dispose();
+  }
+});
+
+test("switches between the map and the page list with full-page content, and remembers the choice", async ({
+  page,
+  playwright,
+  database,
+  workspace,
+  isMobile,
+}) => {
+  test.skip(isMobile, "A phone always opens the page list; the switch is a desktop control.");
+  const { baseUrl } = localE2eEnvironment();
+  const { key } = await mintApiKey(database, workspace, "Wiki views verification");
+  const api = await playwright.request.newContext({ baseURL: baseUrl, extraHTTPHeaders: { "x-api-key": key } });
+  try {
+    const created = await api.post("/api/v1/wiki/create", {
+      data: {
+        pages: [
+          { title: "Pricing", markdown: "Three plans." },
+          { title: "Operating Guide", kind: "guide", markdown: "Be concise and specific." },
+          {
+            title: "Onboarding",
+            kind: "procedure",
+            whenToUse: "A new customer signs the contract.",
+            markdown:
+              "# Before the call\n\n1. Read the notes.\n\n## During the call\n\n1. Ask.\n\n## After the call\n\n1. Write.",
+          },
+        ],
+      },
+    });
+    expect(created.ok(), await created.text()).toBe(true);
+    const [pricing, guide, onboarding] = z.array(Page).parse(await created.json());
+    const storedView = async () => {
+      const result = await database.query(
+        'SELECT settings FROM "P13n" WHERE "userId" = $1 AND "p13nId" = \'wiki-layout\'',
+        [workspace.userId],
+      );
+      return (result.rows[0] as { settings: { view?: string } | null } | undefined)?.settings?.view ?? null;
+    };
+
+    await page.goto(appPath(workspace.slug, "/wiki"));
+    const canvas = page.locator("svg[data-wiki-graph]");
+    await expect(canvas).toBeVisible();
+    const views = page.locator("header").getByRole("tablist", { name: englishMessages.Wiki.view.label });
+    const mapTab = views.getByRole("tab", { name: englishMessages.Wiki.view.map, exact: true });
+    const pagesTab = views.getByRole("tab", { name: englishMessages.Wiki.view.pages, exact: true });
+    await expect(mapTab).toHaveAttribute("aria-selected", "true");
+
+    // The pages view lists every page beside the open one and opens the guide when the address names no page.
+    await pagesTab.click();
+    const rail = page.getByRole("navigation", { name: englishMessages.Wiki.pagesLabel });
+    const document = page.getByRole("region", { name: englishMessages.Wiki.document, exact: true });
+    const title = document.getByRole("textbox", { name: englishMessages.Wiki.pageTitle, exact: true });
+    await expect(rail.getByRole("link")).toHaveText(["Operating Guide", "Onboarding", "Pricing"]);
+    await expect(canvas).toHaveCount(0);
+    await expect(page).toHaveURL(new RegExp(`[?&]page=${guide.id}`));
+    await expect(title).toHaveValue("Operating Guide");
+    await expect(document.getByText("Be concise and specific.")).toBeVisible();
+    await expect(rail.getByRole("link", { name: "Operating Guide", exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect.poll(storedView).toBe("pages");
+
+    // A page chosen in the list replaces the content in place and gets its own address.
+    await rail.getByRole("link", { name: "Onboarding", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`[?&]page=${onboarding.id}`));
+    await expect(title).toHaveValue("Onboarding");
+    await expect(document.getByText("A new customer signs the contract.")).toBeVisible();
+    const outline = document.getByRole("navigation", { name: englishMessages.Wiki.onThisPage });
+    await expect(outline.getByRole("button")).toHaveText(["Before the call", "During the call", "After the call"]);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+
+    // An edit is saved from the full page like from the sheet.
+    await document.getByText("Read the notes.").click();
+    await page.keyboard.press("End");
+    await page.keyboard.type(" Twice.");
+    await page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
+    await expect
+      .poll(async () => {
+        const result = await database.query('SELECT markdown FROM "WikiPage" WHERE id = $1', [onboarding.id]);
+        return (result.rows[0] as { markdown: string } | undefined)?.markdown ?? "";
+      })
+      .toContain("Read the notes. Twice.");
+
+    // The choice is the person's own and survives a reload, also for a direct link.
+    await page.reload();
+    await expect(pagesTab).toHaveAttribute("aria-selected", "true");
+    await expect(title).toHaveValue("Onboarding");
+    await page.goto(appPath(workspace.slug, `/wiki?page=${pricing.id}`));
+    await expect(title).toHaveValue("Pricing");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+
+    // A new page is written in place; cancelling returns to the page that was open.
+    await page.locator("header").getByRole("button", { name: englishMessages.Wiki.newPage, exact: true }).click();
+    await expect(title).toHaveValue("");
+    await page.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
+    await expect(title).toHaveValue("Pricing");
+
+    // The page can be shown on the map and opened from there as a full page again.
+    await document.getByRole("button", { name: englishMessages.Wiki.view.showOnMap, exact: true }).click();
+    const sheet = page.getByRole("dialog", { name: "Pricing", exact: true });
+    await expect(sheet).toBeVisible();
+    await expect(canvas).toBeVisible();
+    await expect.poll(storedView).toBe("map");
+    await sheet.getByRole("button", { name: englishMessages.Wiki.view.openFullPage, exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(title).toHaveValue("Pricing");
+    await expect(pagesTab).toHaveAttribute("aria-selected", "true");
+    await expect.poll(storedView).toBe("pages");
   } finally {
     await api.dispose();
   }

@@ -187,7 +187,7 @@ const FRAMING_RULES = [
 ] as const;
 
 const MOTION_RULES = [
-  ["Hero entrance", "mk-enter: the hero's children rise 14px out of a 4px blur, 70ms apart, once on load (900ms)."],
+  ["Hero entrance", "mk-enter: the hero's children fade in and rise 14px, 70ms apart, once on load (900ms)."],
   [
     "Scroll reveal",
     "data-reveal: section headers, cards and panels rise and fade in once through a CSS view timeline. Nothing is hidden where view timelines are not supported.",

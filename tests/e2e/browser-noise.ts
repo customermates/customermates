@@ -1,8 +1,11 @@
 import type { ConsoleMessage, Request } from "@playwright/test";
 
+import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+
 const WEBKIT_IGNORED_VIEWPORT_KEY = 'Viewport argument key "interactive-widget" not recognized and ignored.';
-const WEBKIT_CANCELLED_PAGE_FETCH =
-  /^(?:Fetch API cannot load https?:)?\/{1,2}(?:127\.0\.0\.1|localhost):\d+\/(?:de|en|es|fr|it)(?:\/[^\s?]*)?(?:\?\S*)? due to access control checks\.$/;
+const WEBKIT_CANCELLED_PAGE_FETCH = new RegExp(
+  `^(?:Fetch API cannot load https?:)?\\/{1,2}(?:127\\.0\\.0\\.1|localhost):\\d+\\/(?:${ROUTING_LOCALES.join("|")})(?:\\/[^\\s?]*)?(?:\\?\\S*)? due to access control checks\\.$`,
+);
 
 const WEBKIT_CANCELLED_LOAD = "Load request cancelled";
 const CHUNK_PATH = /^\/_next\/static\/chunks\/(?:[^/?#]+\/)*[\w.-]+\.js$/;

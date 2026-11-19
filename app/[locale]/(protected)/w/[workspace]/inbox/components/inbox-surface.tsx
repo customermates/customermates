@@ -4,7 +4,7 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ReactNode } from "react";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Action, Resource } from "@/generated/prisma";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { reportApplicationError } from "@/core/errors/report-application-error";
@@ -27,10 +27,11 @@ const DRAFT_REVIEW_VALUE = "drafts";
 type Props = {
   children: ReactNode;
   threads: GetResult<MessagingThread>;
+  draftCount: number;
   locked: boolean;
 };
 
-const InboxSurfaceContent = observer(function InboxSurface({ children, threads, locked }: Props) {
+const InboxSurfaceContent = observer(function InboxSurface({ children, threads, draftCount, locked }: Props) {
   const t = useTranslations();
   const { messagingThreadsStore, messagingThreadDetailStore, draftReviewStore, userStore } = useRootStore();
   const canSend = userStore.can(Resource.inboxMessages, Action.create);
@@ -55,12 +56,10 @@ const InboxSurfaceContent = observer(function InboxSurface({ children, threads, 
     });
   }, [locked, messagingThreadsStore, messagingThreadDetailStore, draftReviewStore]);
 
+  useState(() => draftReviewStore.setOpenCount(draftCount));
   useEffect(() => {
-    if (locked) return;
-    void draftReviewStore.refreshCount().catch((error: unknown) => {
-      if (!(error instanceof ForbiddenError)) reportApplicationError(error);
-    });
-  }, [locked, draftReviewStore]);
+    draftReviewStore.setOpenCount(draftCount);
+  }, [draftCount, draftReviewStore]);
 
   useEffect(() => {
     if (locked) return;

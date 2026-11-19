@@ -233,9 +233,12 @@ export async function mateUsage(page: Page, slug: string): Promise<string> {
   await page.waitForLoadState("networkidle");
   const ring = page.getByTestId("agent-usage");
   await expect(ring).toBeVisible();
-  await ring.hover();
   const plan = page.getByText(/ plan · \d+x Mate usage$/);
-  await expect(plan).toBeVisible();
+  await expect(async () => {
+    await page.mouse.move(0, 0);
+    await ring.hover();
+    await expect(plan).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 15000 });
   return (await plan.innerText()).trim();
 }
 

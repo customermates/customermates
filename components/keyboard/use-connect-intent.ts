@@ -25,6 +25,6 @@ export function useConnectIntent<T extends string>(
     const query = params.toString();
     const path = window.location.pathname;
     window.history.replaceState(null, "", query ? `${path}?${query}` : path);
-    if (target) run.current(target);
+    if (target) queueMicrotask(() => run.current(target));
   }, [allowed, enabled, searchParams]);
 }
