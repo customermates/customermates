@@ -7037,6 +7037,13 @@
       "on": "Geprüft am {date}",
       "saveFirst": "Speichere deine Änderungen, bevor du die Seite als geprüft markierst."
     },
+    "view": {
+      "label": "Ansicht der Wissensdatenbank",
+      "map": "Karte",
+      "openFullPage": "Als ganze Seite öffnen",
+      "pages": "Seiten",
+      "showOnMap": "Auf der Karte zeigen"
+    },
     "websiteImport": {
       "faqHeading": "Häufig gestellte Fragen",
       "source": "Quelle: {url} · abgerufen am {date}"

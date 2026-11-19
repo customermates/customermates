@@ -39,7 +39,7 @@ export function AreaNav({ area, backHref, backLabel, groups, pathname, onNavigat
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip={backLabel}>
-              <AppLink appearance="unstyled" href={backHref} id="nav-area-back" onClick={onNavigate}>
+              <AppLink prefetchOnIntent appearance="unstyled" href={backHref} id="nav-area-back" onClick={onNavigate}>
                 <ArrowLeft />
 
                 <span>{backLabel}</span>
@@ -62,7 +62,13 @@ export function AreaNav({ area, backHref, backLabel, groups, pathname, onNavigat
                     isActive={pathname !== null && (pathname === item.href || pathname.startsWith(item.href + "/"))}
                     tooltip={item.title}
                   >
-                    <AppLink appearance="unstyled" href={item.href} id={`nav-${item.key}`} onClick={onNavigate}>
+                    <AppLink
+                      prefetchOnIntent
+                      appearance="unstyled"
+                      href={item.href}
+                      id={`nav-${item.key}`}
+                      onClick={onNavigate}
+                    >
                       <NavLinkPendingIcon icon={item.icon} />
 
                       <span className="min-w-0 truncate">{item.title}</span>

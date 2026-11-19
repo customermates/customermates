@@ -7037,6 +7037,13 @@
       "on": "Sprawdzona {date}",
       "saveFirst": "Zapisz zmiany, zanim oznaczysz stronę jako sprawdzoną."
     },
+    "view": {
+      "label": "Widok Bazy wiedzy",
+      "map": "Mapa",
+      "openFullPage": "Otwórz jako całą stronę",
+      "pages": "Strony",
+      "showOnMap": "Pokaż na mapie"
+    },
     "websiteImport": {
       "faqHeading": "Najczęściej zadawane pytania",
       "source": "Źródło: {url} · pobrano {date}"

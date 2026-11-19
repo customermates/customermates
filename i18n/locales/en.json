@@ -7037,6 +7037,13 @@
       "on": "Verified {date}",
       "saveFirst": "Save your changes before marking the page as verified."
     },
+    "view": {
+      "label": "Knowledge Base view",
+      "map": "Map",
+      "openFullPage": "Open as a full page",
+      "pages": "Pages",
+      "showOnMap": "Show on the map"
+    },
     "websiteImport": {
       "faqHeading": "Frequently asked questions",
       "source": "Source: {url} · fetched {date}"

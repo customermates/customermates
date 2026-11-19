@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   getAccountsState: vi.fn(),
   getThread: vi.fn(),
   getThreads: vi.fn(),
+  listReviewDrafts: vi.fn(),
   readSurfaceParams: vi.fn(),
   requireAccess: vi.fn(),
 }));
@@ -28,6 +29,7 @@ vi.mock("@/core/di", () => ({
   getGetMessagingThreadInteractor: () => ({ invoke: mocks.getThread }),
   getGetMessagingThreadsInteractor: () => ({ invoke: mocks.getThreads }),
   getGetMessagingAccountsStateInteractor: () => ({ invoke: mocks.getAccountsState }),
+  getListReviewDraftsInteractor: () => ({ invoke: mocks.listReviewDrafts }),
 }));
 vi.mock("@/components/shared/page-container", () => ({ PageContainer: "page-container" }));
 vi.mock("@/app/components/upsell/messaging-upsell-overlay", () => ({
@@ -55,6 +57,7 @@ describe("InboxPage subscription lock", () => {
     mocks.readSurfaceParams.mockResolvedValue({});
     mocks.getThread.mockResolvedValue({ ok: false, error: createZodError("paidSubscriptionRequired") });
     mocks.getThreads.mockResolvedValue({ ok: false, error: createZodError("paidSubscriptionRequired") });
+    mocks.listReviewDrafts.mockResolvedValue({ ok: true, data: { items: [], total: 0 } });
   });
 
   it("renders the refusal overlay instead of loading threads while the subscription is unusable", async () => {
@@ -84,11 +87,26 @@ describe("InboxPage subscription lock", () => {
     mocks.getThread.mockResolvedValue({ ok: true, data: { thread: { id: threadId } } });
     mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [] } });
 
+    mocks.listReviewDrafts.mockResolvedValue({ ok: true, data: { items: [], total: 7 } });
+
     const page = await renderPage();
 
     expect(page.props.children.type).toBe("inbox-surface");
+    expect(page.props.children.props).toMatchObject({ draftCount: 7, locked: false });
+    expect(mocks.listReviewDrafts).toHaveBeenCalledWith({ countOnly: true });
     expect(mocks.getThreads).toHaveBeenCalledOnce();
     expect(mocks.getThread).toHaveBeenCalledWith({ threadId });
+  });
+
+  it("opens the inbox without a drafts button when the draft count cannot be read", async () => {
+    mocks.getAccountsState.mockResolvedValue(state({ state: "available", canConnect: true, accounts: [] }));
+    mocks.getThread.mockResolvedValue({ ok: true, data: { thread: { id: threadId } } });
+    mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [] } });
+    mocks.listReviewDrafts.mockResolvedValue({ ok: false, error: createZodError("paidSubscriptionRequired") });
+
+    const page = await renderPage();
+
+    expect(page.props.children.props).toMatchObject({ draftCount: 0 });
   });
 
   it("redirects a request for the latest thread to the newest thread in the same locale and keeps other parameters", async () => {

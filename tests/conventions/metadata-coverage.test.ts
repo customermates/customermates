@@ -8,7 +8,7 @@ import {
   PUBLIC_ROUTES_SEO,
 } from "@/i18n/routing";
 
-const ROUTE_GROUPS = ["(static)", "(public)"] as const;
+const ROUTE_GROUPS = ["(static)", "(public)", "(entry)"] as const;
 
 function pageFileFor(route: string): string {
   const segments = route === "/" ? [] : route.slice(1).split("/").map(toSegmentDirectory);

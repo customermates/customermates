@@ -1,5 +1,6 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { mapInParallel } from "@/core/utils/map-in-parallel";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { MessagingProvider } from "@/generated/prisma";
@@ -106,6 +107,7 @@ type ConvertDraftToSentArgs = {
 
 const REVIEW_DRAFT_SCAN_LIMIT = 500;
 const REVIEW_DRAFT_HISTORY_SLACK = 4;
+const REVIEW_DRAFT_HISTORY_READS = 4;
 
 function draftMessageProviderId(threadId: string): string {
   return `draft_${threadId}`;
@@ -1860,24 +1862,27 @@ export class PrismaMessagingRepo
     });
     const threadById = new Map((await this.mapThreadRows(threadRows)).map((thread) => [thread.id, thread]));
 
-    const entries: ReviewDraftEntry[] = [];
-    for (const { id } of page) {
-      const draft = draftById.get(id);
-      const thread = draft ? threadById.get(draft.messagingThreadId) : undefined;
-      if (!draft || !thread) continue;
+    const entries = await mapInParallel(
+      page,
+      REVIEW_DRAFT_HISTORY_READS,
+      async ({ id }): Promise<ReviewDraftEntry | null> => {
+        const draft = draftById.get(id);
+        const thread = draft ? threadById.get(draft.messagingThreadId) : undefined;
+        if (!draft || !thread) return null;
 
-      const { messages } = await this.listMessagesForThread(thread.id, {
-        page: 1,
-        pageSize: args.historySize + REVIEW_DRAFT_HISTORY_SLACK,
-      });
-      entries.push({
-        draft,
-        thread,
-        history: messages.filter((message) => !message.isDraft && !message.isEvent).slice(-args.historySize),
-      });
-    }
+        const { messages } = await this.listMessagesForThread(thread.id, {
+          page: 1,
+          pageSize: args.historySize + REVIEW_DRAFT_HISTORY_SLACK,
+        });
+        return {
+          draft,
+          thread,
+          history: messages.filter((message) => !message.isDraft && !message.isEvent).slice(-args.historySize),
+        };
+      },
+    );
 
-    return { entries, total: open.length };
+    return { entries: entries.filter((entry) => entry !== null), total: open.length };
   }
 
   async deleteDraft(args: { messageId: string; expectedUpdatedAt: Date }): Promise<DraftDeleteResult> {

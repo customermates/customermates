@@ -5,6 +5,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 const provider = vi.hoisted(() => ({ download: vi.fn() }));
+const attachment = vi.hoisted(() => ({ fileName: "offer.pdf" }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -22,7 +23,7 @@ vi.mock("@/core/di", async () => {
           provider: "GMAIL",
           unipileThreadId: "thread",
           unipileMessageId: "message",
-          fileName: "offer.pdf",
+          fileName: attachment.fileName,
           mime: "application/pdf",
           size: 10,
         }),
@@ -72,6 +73,20 @@ describe("attachment download provider failures", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("application/pdf");
-    expect(response.headers.get("content-disposition")).toBe('inline; filename="offer.pdf"');
+    expect(response.headers.get("content-disposition")).toBe(
+      `inline; filename="offer.pdf"; filename*=UTF-8''offer.pdf`,
+    );
+  });
+
+  it("streams an attachment whose name has a decomposed umlaut, which a plain header cannot carry", async () => {
+    attachment.fileName = "De-Minimis-Erklärung-mit-Testat.pdf";
+    provider.download.mockResolvedValueOnce({ body: new Blob(["pdf"]).stream(), contentType: null });
+
+    const response = await get();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-disposition")).toBe(
+      `inline; filename="De-Minimis-Erkla_rung-mit-Testat.pdf"; filename*=UTF-8''De-Minimis-Erkla%CC%88rung-mit-Testat.pdf`,
+    );
   });
 });

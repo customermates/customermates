@@ -74,7 +74,7 @@ import { wakeEventOutbox } from "@/features/event/event-outbox.repo";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { CalculatedValueSchema, RecordModelSchema } from "./record-model.schema";
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
-import { compileRecordMeasure } from "./record-measure";
+import { compileRecordMeasure, compileRecordMeasureWithTotal } from "./record-measure";
 import { encodeRecordValue, recordJson } from "./record-storage";
 import { canonicalRecordJson } from "./record-json";
 import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
@@ -724,7 +724,8 @@ export class PrismaRecordRepo
     return { pausedWebhookIds };
   }
   async measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]> {
-    return this.prisma.$queryRaw<MeasureRow[]>(compileRecordMeasure(this.companyId, measure, model, access));
+    const compile = measure.groupBy ? compileRecordMeasureWithTotal : compileRecordMeasure;
+    return this.prisma.$queryRaw<MeasureRow[]>(compile(this.companyId, measure, model, access));
   }
   @BypassTenantGuard
   async failOperationUnscoped(input: { companyId: string; userId: string; operationId: string }): Promise<void> {

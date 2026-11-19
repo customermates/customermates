@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { PLANNER_P13N_ID } from "@/features/planner/planner.schema";
 
-import { CONFIGURE_GRAPH_P13N_ID } from "./p13n-settings.schema";
+import { CONFIGURE_GRAPH_P13N_ID, WIKI_LAYOUT_P13N_ID } from "./p13n-settings.schema";
 import { KEYBOARD_P13N_ID } from "./keyboard-preferences.schema";
 import { SIDEBAR_P13N_ID } from "./sidebar-layout.schema";
 
@@ -12,7 +12,7 @@ const WRITABLE_P13N_IDS = new Set<string>([
   SIDEBAR_P13N_ID,
   CONFIGURE_GRAPH_P13N_ID,
   KEYBOARD_P13N_ID,
-  "wiki-layout",
+  WIKI_LAYOUT_P13N_ID,
 ]);
 const WRITABLE_P13N_PREFIXES = ["record-panels:", "sublist-columns:"] as const;
 

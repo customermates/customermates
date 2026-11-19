@@ -4,7 +4,7 @@ import type { ReviewDraft } from "@/ee/messaging/outbound/list-review-drafts.int
 import type { PanInfo } from "framer-motion";
 import type { ReactNode } from "react";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -37,20 +37,19 @@ import { deckShortcutAllowed } from "./draft-review-shortcuts";
 
 const SWIPE_DISTANCE = 110;
 const SWIPE_VELOCITY = 700;
-const HISTORY_SHOWN = 2;
+const HISTORY_PEEK = 76;
 const PEEKING_CARDS = 2;
 const SIGNATURE_DELIMITER = /\n-- ?(?:\n|$)/;
 
-export function historyPreview(message: ReviewDraft["history"][number]): string | null {
+export function historyText(message: ReviewDraft["history"][number]): string | null {
   const body = message.bodyText?.trim();
-  const visible = body
-    ? splitQuotedText(body)
-        .visible.split(SIGNATURE_DELIMITER)[0]
-        .replace(/\s*\n+\s*/g, " ")
-        .trim()
-    : "";
+  const visible = body ? splitQuotedText(body).visible.split(SIGNATURE_DELIMITER)[0].trim() : "";
 
   return visible || message.subject?.trim() || null;
+}
+
+export function historyPreview(message: ReviewDraft["history"][number]): string | null {
+  return historyText(message)?.replace(/\s*\n+\s*/g, " ") ?? null;
 }
 
 function useRecipient(item: ReviewDraft) {
@@ -79,13 +78,23 @@ function ProviderMark({ item, className }: { item: ReviewDraft; className?: stri
   );
 }
 
-function RecipientHeader({ item }: { item: ReviewDraft }) {
+function useSendingLine(item: ReviewDraft): string {
   const t = useTranslations();
+
+  return [
+    isDraftThreadId(item.thread.unipileThreadId) ? t("Inbox.draftReview.newConversation") : null,
+    item.accountLabel ? t("Inbox.draftReview.from", { account: item.accountLabel }) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function RecipientHeader({ item }: { item: ReviewDraft }) {
   const { name, avatarUrl } = useRecipient(item);
-  const newConversation = isDraftThreadId(item.thread.unipileThreadId);
+  const sendingLine = useSendingLine(item);
 
   return (
-    <div className="flex min-w-0 items-center gap-3 p-4 pb-3">
+    <div className="flex min-w-0 shrink-0 items-center gap-3 p-4 pb-3 md:hidden" data-draft-review-recipient="">
       <Avatar name={name} size="lg" src={avatarUrl} />
 
       <div className="min-w-0 flex-1">
@@ -95,15 +104,23 @@ function RecipientHeader({ item }: { item: ReviewDraft }) {
           <ProviderMark item={item} />
         </div>
 
-        <p className="text-muted-foreground truncate text-xs">
-          {newConversation ? t("Inbox.draftReview.newConversation") : null}
-
-          {newConversation && item.accountLabel ? " · " : null}
-
-          {item.accountLabel ? t("Inbox.draftReview.from", { account: item.accountLabel }) : null}
-        </p>
+        <p className="text-muted-foreground truncate text-xs">{sendingLine}</p>
       </div>
     </div>
+  );
+}
+
+function SendingLine({ item }: { item: ReviewDraft }) {
+  const sendingLine = useSendingLine(item);
+  if (!sendingLine) return null;
+
+  return (
+    <p
+      className="text-muted-foreground truncate pe-1 text-end text-[11px] max-md:hidden"
+      data-draft-review-sending-line=""
+    >
+      {sendingLine}
+    </p>
   );
 }
 
@@ -134,7 +151,7 @@ const HistoryBubble = observer(function HistoryBubble({
       <div className={cn("flex min-w-0 max-w-[85%] flex-col gap-1", outbound ? "items-end" : "items-start")}>
         <MessageSurface isEmail={false} isOutbound={outbound}>
           <div className="px-3 py-2">
-            <p className="line-clamp-2">{historyPreview(message) ?? t("Inbox.attachmentUnsupported")}</p>
+            <MessageText text={historyText(message) ?? t("Inbox.attachmentUnsupported")} />
           </div>
         </MessageSurface>
 
@@ -226,6 +243,16 @@ const DraftCard = observer(function DraftCard({ item }: { item: ReviewDraft }) {
   const sendOpacity = useTransform(x, [20, SWIPE_DISTANCE], [0, 1]);
   const keepOpacity = useTransform(x, [-SWIPE_DISTANCE, -20], [1, 0]);
   const draggable = !store.editing && !store.busy;
+  const messages = useRef<HTMLDivElement>(null);
+  const draft = useRef<HTMLDivElement>(null);
+  const earlierCount = item.history.length;
+
+  useEffect(() => {
+    const area = messages.current;
+    const bubble = draft.current;
+    if (!area || !bubble || earlierCount === 0) return;
+    area.scrollTop += bubble.getBoundingClientRect().top - area.getBoundingClientRect().top - HISTORY_PEEK;
+  }, [earlierCount]);
 
   function settle(_event: unknown, info: PanInfo) {
     const far = Math.abs(info.offset.x) > SWIPE_DISTANCE;
@@ -239,7 +266,7 @@ const DraftCard = observer(function DraftCard({ item }: { item: ReviewDraft }) {
     <motion.div
       dragSnapToOrigin
       animate={{ opacity: 1, y: 0 }}
-      className={cn("relative touch-pan-y", draggable && "cursor-grab active:cursor-grabbing")}
+      className={cn("relative flex min-h-0 touch-pan-y flex-col", draggable && "cursor-grab active:cursor-grabbing")}
       data-draft-review-card={item.draft.id}
       drag={draggable ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
@@ -249,19 +276,27 @@ const DraftCard = observer(function DraftCard({ item }: { item: ReviewDraft }) {
       transition={{ duration: 0.18 }}
       onDragEnd={settle}
     >
-      <div className="bg-card border-border-strong overflow-hidden rounded-2xl border shadow-md">
+      <div className="bg-card border-border-strong flex min-h-0 flex-col overflow-hidden rounded-2xl border shadow-md">
         <RecipientHeader item={item} />
 
-        <div className="bg-muted/60 flex flex-col gap-3 p-4">
-          {item.history.length > 0 && (
+        <div
+          ref={messages}
+          className="bg-muted/60 flex min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain p-4"
+          data-draft-review-scroll=""
+        >
+          {earlierCount > 0 && (
             <ol aria-label={t("Inbox.draftReview.earlier")} className="flex flex-col gap-3">
-              {item.history.slice(-HISTORY_SHOWN).map((message) => (
+              {item.history.map((message) => (
                 <HistoryBubble key={message.id} item={item} message={message} />
               ))}
             </ol>
           )}
 
-          <DraftBubble item={item} />
+          <div ref={draft} className="flex flex-col gap-1.5">
+            <SendingLine item={item} />
+
+            <DraftBubble item={item} />
+          </div>
         </div>
       </div>
 
@@ -297,7 +332,7 @@ const CardStack = observer(function CardStack({ item }: { item: ReviewDraft }) {
   const peeking = store.queue.slice(1, 1 + PEEKING_CARDS);
 
   return (
-    <div className="relative">
+    <div className="relative flex min-h-0 flex-col">
       {peeking.map((entry, index) => (
         <div
           key={entry.draft.id}
@@ -428,11 +463,18 @@ function QueueRow({ item, active, onSelect }: { item: ReviewDraft; active: boole
 const DraftQueue = observer(function DraftQueue() {
   const t = useTranslations();
   const { draftReviewStore: store } = useRootStore();
+  const list = useRef<HTMLOListElement>(null);
+  const frontId = store.current?.draft.id;
+
+  useEffect(() => {
+    list.current?.scrollTo({ top: 0 });
+  }, [frontId]);
 
   return (
     <ol
+      ref={list}
       aria-label={t("Inbox.draftReview.queue")}
-      className="flex flex-col gap-1 max-md:hidden"
+      className="flex min-h-0 flex-col gap-1 overflow-y-auto overscroll-contain max-md:hidden"
       data-draft-review-queue=""
     >
       {store.queue.map((entry, index) => (
@@ -494,7 +536,7 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
           )}
         </AppCardHeader>
 
-        <AppCardBody>
+        <AppCardBody className={reviewing ? "in-data-overlay-surface:overflow-hidden" : undefined}>
           {store.status === "loading" || store.status === "idle" ? (
             <div aria-busy="true" aria-label={t("PageState.loading")} className="flex flex-col gap-4" role="status">
               <Skeleton className="h-8 w-48" />
@@ -510,20 +552,20 @@ export const DraftReviewDeck = observer(function DraftReviewDeck() {
               </Button>
             </div>
           ) : item ? (
-            <div className="grid min-h-0 gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
               <DraftQueue />
 
-              <div className="flex min-w-0 flex-col gap-8 pb-3">
+              <div className="flex min-h-0 min-w-0 flex-col gap-8 px-1 pt-1">
                 <CardStack item={item} />
 
                 {!store.editing && (
-                  <>
+                  <div className="flex shrink-0 flex-col items-center gap-2 pb-1" data-draft-review-actions="">
                     <DecisionButtons />
 
-                    <p className="text-muted-foreground text-center text-xs max-sm:hidden">
+                    <p className="text-muted-foreground text-center text-xs max-sm:hidden short:hidden">
                       {t("Inbox.draftReview.hint")}
                     </p>
-                  </>
+                  </div>
                 )}
               </div>
             </div>

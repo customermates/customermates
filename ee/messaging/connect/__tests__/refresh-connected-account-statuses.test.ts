@@ -10,6 +10,8 @@ vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captu
 
 import { RefreshConnectedAccountStatusesInteractor } from "../refresh-connected-account-statuses.interactor";
 
+import { UnipileRequestError } from "@/ee/messaging/unipile-request-error";
+
 function build() {
   const repo = {
     findAccountsNeedingStatusRefreshUnscoped: vi.fn().mockResolvedValue([
@@ -57,6 +59,18 @@ describe("periodic connected-account status reconciliation", () => {
     expect(repo.updateAccountUnscoped).toHaveBeenCalledOnce();
     expect(repo.updateAccountUnscoped).toHaveBeenCalledWith(expect.objectContaining({ unipileAccountId: "acc_two" }));
     expect(repo.markStatusRefreshAttemptedUnscoped.mock.calls).toEqual([["acc_one", expect.any(Date)]]);
+  });
+
+  it("reports a provider timeout or outage as a warning, since the next run checks the account again", async () => {
+    const { captureException } = await import("@/core/observability/server");
+    vi.mocked(captureException).mockClear();
+    const { repo, service, interactor } = build();
+    service.getAccount
+      .mockRejectedValueOnce(new UnipileRequestError(0, null, ""))
+      .mockRejectedValueOnce(new UnipileRequestError(400, "errors/invalid_parameters", ""));
+    expect(await interactor.invoke()).toEqual({ refreshed: 0, failed: 2 });
+    expect(repo.markStatusRefreshAttemptedUnscoped).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(captureException).mock.calls.map(([, context]) => context?.level)).toEqual(["warning", undefined]);
   });
 
   it("stops at a provider rate limit and leaves the remaining accounts for the next run", async () => {

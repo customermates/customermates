@@ -53,7 +53,7 @@ import { ErrorTestStore } from "@/app/[locale]/(protected)/w/[workspace]/test/er
 import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
 import { McpConsentStore } from "@/app/[locale]/(public)/auth/mcp-consent/mcp-consent.store";
 import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
-import { SignInStore } from "@/app/[locale]/(public)/auth/signin/sign-in.store";
+import { SignInStore } from "@/app/[locale]/(entry)/auth/signin/sign-in.store";
 import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
 import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";

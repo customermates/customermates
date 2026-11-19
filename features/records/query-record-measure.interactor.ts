@@ -40,11 +40,13 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         const issue = recordMeasureIssue(measure, model);
         if (issue) return fail(issue.code, issue.path);
-        const rows = await this.records.measure(
+        const measured = await this.records.measure(
           measure,
           model,
           policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
         );
+        const rows = measured.filter((row) => !row.total);
+        const totalRow = measured.find((row) => row.total);
         if (rows.length > measure.groupLimit) return fail(CustomErrorCode.recordCalculationBudget);
         const mapRow = (row: (typeof rows)[number]): RecordMeasureResult["groups"][number] => {
           let label: CalculatedValue = { state: "missing" };
@@ -105,15 +107,7 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
           };
         };
         if (!groups.length && !measure.groupBy) groups.push(emptyGroup());
-        const overall = measure.groupBy
-          ? ((
-              await this.records.measure(
-                { ...measure, groupBy: null },
-                model,
-                policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
-              )
-            ).map(mapRow)[0] ?? emptyGroup())
-          : groups[0];
+        const overall = measure.groupBy ? (totalRow ? mapRow(totalRow) : emptyGroup()) : groups[0];
         return {
           ok: true as const,
           data: RecordMeasureResultSchema.parse({

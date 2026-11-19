@@ -44,7 +44,7 @@ vi.mock("@/core/di", () => ({
   getRecordAgentFirstCallInteractor: () => ({ invoke: apiKeys.firstCall }),
 }));
 
-import { createMcpRoute, readMcpToolCall } from "../mcp-route-utils";
+import { ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE, createMcpRoute, readMcpToolCall } from "../mcp-route-utils";
 
 const expectedFailureTool: McpTool = {
   name: "expected_failure",
@@ -651,6 +651,34 @@ describe("anonymous MCP discovery", () => {
     });
 
     expect(challenged.response.status).toBe(401);
+  });
+
+  it("limits discovery per address and leaves other addresses and signed-in clients alone", async () => {
+    const handler = createMcpRoute({ test: [discoverableTool] });
+    const ping = (address: string, credential: Record<string, string> = {}) =>
+      handler(
+        new Request("http://localhost:4105/api/v1/mcp?toolsets=test", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            accept: "application/json, text/event-stream",
+            "x-real-ip": address,
+            ...credential,
+          },
+          body: JSON.stringify(requestBody("ping", 1)),
+        }),
+      );
+
+    for (let request = 0; request < ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE; request++)
+      expect((await ping("203.0.113.7")).status, `request ${request + 1}`).toBe(200);
+
+    const limited = await ping("203.0.113.7");
+    expect(limited.status).toBe(429);
+    expect(Number(limited.headers.get("retry-after"))).toBeGreaterThan(0);
+    expect(await limited.json()).toMatchObject({ error: "rate_limited" });
+
+    expect((await ping("203.0.113.8")).status).toBe(200);
+    expect((await ping("203.0.113.7", { "x-api-key": "valid" })).status).toBe(200);
   });
 
   it("challenges a stream or session request without a credential", async () => {

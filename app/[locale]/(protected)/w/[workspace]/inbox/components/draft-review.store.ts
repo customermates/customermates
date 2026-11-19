@@ -72,8 +72,14 @@ export class DraftReviewStore extends BaseStore {
       startEdit: action,
       cancelEdit: action,
       setEditBody: action,
+      setOpenCount: action,
     });
   }
+
+  setOpenCount = (count: number) => {
+    this.countGeneration += 1;
+    this.openCount = count;
+  };
 
   get current(): ReviewDraft | null {
     return this.queue[0] ?? null;

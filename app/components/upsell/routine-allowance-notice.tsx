@@ -14,9 +14,13 @@ import { PlanUpsellNotice } from "./plan-upsell-notice";
 
 type Props = {
   plan: PlanId | null;
+  initialOwnerUserIds: ReadonlyArray<string | null>;
 };
 
-const RoutineAllowanceNoticeContent = observer(function RoutineAllowanceNoticeContent({ plan }: Props) {
+const RoutineAllowanceNoticeContent = observer(function RoutineAllowanceNoticeContent({
+  plan,
+  initialOwnerUserIds,
+}: Props) {
   const t = useTranslations();
   const { automationsStore, userStore } = useRootStore();
   const nextPlan = nextRoutinePlan(plan);
@@ -24,7 +28,10 @@ const RoutineAllowanceNoticeContent = observer(function RoutineAllowanceNoticeCo
   if (!plan || !nextPlan || !userId) return null;
   const allowance = PLAN_CATALOG[plan].entitlements.includedRoutinesPerUser;
   if (allowance === "unlimited" || allowance <= 0) return null;
-  const owned = automationsStore.items.filter((item) => item.kind === "routine" && item.ownerUserId === userId).length;
+  const ownerUserIds = automationsStore.isReady
+    ? automationsStore.items.filter((item) => item.kind === "routine").map((item) => item.ownerUserId)
+    : initialOwnerUserIds;
+  const owned = ownerUserIds.filter((ownerUserId) => ownerUserId === userId).length;
   if (owned < allowance) return null;
 
   return (

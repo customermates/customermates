@@ -381,13 +381,11 @@ button.mk-chip:hover,
   from {
     opacity: 0;
     transform: translateY(14px);
-    filter: blur(4px);
   }
 
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 

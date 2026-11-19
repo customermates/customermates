@@ -16,6 +16,7 @@ export function PostCardDate({ date, locale }: Props) {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "UTC",
   });
 
   return (

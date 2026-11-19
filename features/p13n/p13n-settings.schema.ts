@@ -23,11 +23,18 @@ const ConfigureGraphLayoutSchema = z
 
 export type ConfigureGraphLayout = z.infer<typeof ConfigureGraphLayoutSchema>;
 
+export const WIKI_LAYOUT_P13N_ID = "wiki-layout";
+export const WIKI_VIEWS = ["map", "pages"] as const;
+export type WikiView = (typeof WIKI_VIEWS)[number];
+
+const WikiLayoutSchema = z.object({ view: z.enum(WIKI_VIEWS) }).strict();
+
 const P13N_SETTINGS_SCHEMAS = {
   [PLANNER_P13N_ID]: PlannerConfigSchema,
   [SIDEBAR_P13N_ID]: SidebarLayoutSchema,
   [CONFIGURE_GRAPH_P13N_ID]: ConfigureGraphLayoutSchema,
   [KEYBOARD_P13N_ID]: KeyboardPreferencesSchema,
+  [WIKI_LAYOUT_P13N_ID]: WikiLayoutSchema,
 } as const;
 
 type P13nSettingsId = keyof typeof P13N_SETTINGS_SCHEMAS;
@@ -39,6 +46,7 @@ export const P13nSettingsSchema = z.union([
   SidebarLayoutSchema,
   ConfigureGraphLayoutSchema,
   KeyboardPreferencesSchema,
+  WikiLayoutSchema,
   SublistColumnsSchema,
 ]);
 

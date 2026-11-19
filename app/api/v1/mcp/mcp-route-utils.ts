@@ -13,6 +13,8 @@ import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-error
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 import { ApiRateLimitExceededError } from "@/core/auth/api-rate-limit-exceeded-error";
+import { requestAddress } from "@/core/network/request-address";
+import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import { exemptCurrentRequestFromIntegrationLimit } from "@/ee/subscription/integration-request-limiter";
 import { MCP_ENDPOINT_PATH, mcpProtectedResourceMetadataUrl } from "@/features/auth/mcp-resource";
 import { AGENT_RECORD_WRITE_TOOLS } from "@/features/onboarding-funnel/record-agent-connected.interactor";
@@ -146,6 +148,27 @@ function registerPrompts(server: McpServer, tools: McpTool[]) {
         },
       ],
     }),
+  );
+}
+
+export const ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE = 120;
+
+function discoveryRateLimited(retryAfterSeconds: number) {
+  return new Response(
+    JSON.stringify({
+      error: "rate_limited",
+      message: "Too many requests without sign-in. Retry later or connect with a credential.",
+      retryAfterSeconds,
+    }),
+    {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(retryAfterSeconds),
+        "Access-Control-Expose-Headers": "Retry-After",
+        "Access-Control-Allow-Origin": "*",
+      },
+    },
   );
 }
 
@@ -433,7 +456,11 @@ export function createMcpRoute(
     );
   }
 
+  const discoveryLimiter = new TokenBucketRateLimiter(ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE, 60_000);
+
   function anonymousDiscovery(request: Request) {
+    const admission = discoveryLimiter.admit(requestAddress(request));
+    if (!admission.allowed) return discoveryRateLimited(admission.retryAfterSeconds);
     const toolsets = resolveToolsetKey(request, knownKeys);
     if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
     return handlerFor(toolsets.key, false)(request);

@@ -7,6 +7,8 @@ import * as ErrorReporter from "@/core/observability/server";
 import { getGetWikiGraphInteractor, getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor } from "@/core/di";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { requireAccess } from "@/features/auth/next/require";
+import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
+import { readP13nSettings, WIKI_LAYOUT_P13N_ID } from "@/features/p13n/p13n-settings.schema";
 
 import { WikiPageView } from "./components/wiki-page-view";
 
@@ -33,12 +35,14 @@ export default async function WikiPage({ searchParams }: Props) {
 
   const raw = await searchParams;
   const requestedId = firstString(raw.page);
-  const [graph, setupState, selectedResult] = await Promise.all([
+  const [graph, setupState, selectedResult, layout] = await Promise.all([
     loadGraph(),
     unwrapPage(getGetWikiHomepageSetupStateInteractor().invoke()),
     requestedId ? getGetWikiPageInteractor().invoke({ id: requestedId }) : null,
+    getOptionalP13n(WIKI_LAYOUT_P13N_ID),
   ]);
   const selectedPage = selectedResult?.ok ? selectedResult.data : null;
+  const view = readP13nSettings(WIKI_LAYOUT_P13N_ID, layout?.settings)?.view ?? "map";
 
   return (
     <PageContainer padded={false}>
@@ -46,6 +50,7 @@ export default async function WikiPage({ searchParams }: Props) {
         graph={graph}
         initialPage={selectedPage}
         initialSetupState={setupState}
+        initialView={view}
         openProposals={firstString(raw.proposals) === "open"}
         requestedPageId={requestedId}
         unavailable={Boolean(requestedId && !selectedPage)}

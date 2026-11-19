@@ -10,6 +10,8 @@ import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WidgetDisplayOptionsSchema } from "@/features/widget/widget.schema";
 import { WidgetPlacementSchema, occupiedGrid } from "@/features/widget/widget-grid";
 import { desktopPlacement } from "@/features/widget/widget-placement";
+import { WIDGET_READ_CONCURRENCY } from "@/features/widget/widget-dto-reader";
+import { mapInParallel } from "@/core/utils/map-in-parallel";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { CalendarWidgetQuerySchema, CalendarWidgetWindowSchema } from "@/features/widget/record-calendar-widget.schema";
 import { MapWidgetQuerySchema } from "@/features/widget/record-map-widget.schema";
@@ -182,12 +184,10 @@ export const manageWidgetsTool = {
         .strict()
         .safeParse(params);
       if (!valid.success) return mcpValidationFailure(valid.error);
-      const items = await Promise.all(
-        valid.data.ids.map(async (id) => {
-          const result = await getGetRecordWidgetInteractor().invoke({ id, window: valid.data.window });
-          return result.ok ? result.data : { id, error: nestedValidationErrorText(result.error) };
-        }),
-      );
+      const items = await mapInParallel(valid.data.ids, WIDGET_READ_CONCURRENCY, async (id) => {
+        const result = await getGetRecordWidgetInteractor().invoke({ id, window: valid.data.window });
+        return result.ok ? result.data : { id, error: nestedValidationErrorText(result.error) };
+      });
       return toonResult({ items: formatDatesInResponse(items) });
     }
     if (params.action === "delete") {

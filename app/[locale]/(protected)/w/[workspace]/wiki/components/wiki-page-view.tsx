@@ -1,17 +1,19 @@
 "use client";
 
+import type { WikiView } from "@/features/p13n/p13n-settings.schema";
 import type { WikiGraph } from "@/features/wiki/wiki-graph.schema";
 import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 import type { ReactNode } from "react";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
 import { BookOpen, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { upsertP13nAction } from "@/app/actions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { PageState } from "@/components/page-state/page-state";
@@ -27,7 +29,9 @@ import {
   useWikiSetupFailureBody,
 } from "@/components/wiki/wiki-homepage-setup";
 import { WikiSetupProgress } from "@/components/wiki/wiki-setup-progress";
+import { WIKI_LAYOUT_P13N_ID } from "@/features/p13n/p13n-settings.schema";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
+import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
@@ -36,7 +40,7 @@ import { wikiGraphVisibleIds } from "./wiki-graph-model";
 import { WikiGraphView } from "./wiki-graph-view";
 import { WikiPageActions } from "./wiki-page-actions";
 import { WikiPageList } from "./wiki-page-list";
-import { WikiPageSheet } from "./wiki-page-sheet";
+import { WikiPageDocument, WikiPageSheet } from "./wiki-page-sheet";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { resolveWikiPageState, resolveWikiSheetState } from "./wiki-page-state";
 import { WikiProposals } from "./wiki-proposals";
@@ -48,6 +52,7 @@ type Props = {
   graph: WikiGraph | null;
   initialPage: WikiPageDto | null;
   initialSetupState?: WikiHomepageSetupState;
+  initialView?: WikiView;
   openProposals?: boolean;
   requestedPageId?: string;
   unavailable?: boolean;
@@ -57,6 +62,7 @@ const WikiPageViewContent = observer(function WikiPageView({
   graph,
   initialPage,
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
+  initialView = "map",
   openProposals = false,
   requestedPageId,
   unavailable = false,
@@ -128,6 +134,37 @@ const WikiPageViewContent = observer(function WikiPageView({
     hasPages: pageCount > 0,
     setupActive: importRunning && !hasPages,
   });
+  const [view, setView] = useState<WikiView>(initialView);
+  const canSwitchView = wide && pageState === "content";
+  const showsPages = canSwitchView && view === "pages";
+  const changeView = useCallback(
+    (next: WikiView) => {
+      setView(next);
+      if (rootStore.appMode === "demo") return;
+      runUserAction(() => upsertP13nAction({ p13nId: WIKI_LAYOUT_P13N_ID, settings: { view: next } }));
+    },
+    [rootStore],
+  );
+  const firstPageId = useMemo(() => {
+    for (const kind of WIKI_PAGE_KINDS) {
+      const first = graph?.nodes.find((node) => node.kind === kind);
+      if (first) return first.id;
+    }
+    return null;
+  }, [graph]);
+  const awaitingSelection = store.awaitingSelection;
+  const creating = store.creating;
+  const openedFirstPage = useRef(false);
+  useEffect(() => {
+    if (requestedPageId !== undefined || creating) {
+      openedFirstPage.current = false;
+      return;
+    }
+    if (!showsPages || sheetState !== "closed" || awaitingSelection || openedFirstPage.current || !firstPageId) return;
+    openedFirstPage.current = true;
+    setPending({ id: firstPageId });
+    startNavigation(() => router.replace(wikiPagePath(firstPageId)));
+  }, [awaitingSelection, creating, firstPageId, requestedPageId, router, sheetState, showsPages]);
   const setupFailedBody = useWikiSetupFailureBody(setupState);
   const setupFailed = store.allows(Action.create) && setupState.status === "failed";
   const positions = useWikiGraphPositions(graph);
@@ -162,6 +199,9 @@ const WikiPageViewContent = observer(function WikiPageView({
       startNavigation(() => router.push("/wiki"));
     });
   }, [initialPage, requestedPageId, router, store, tryNavigate]);
+  const cancelCreate = useCallback(() => {
+    tryNavigate(() => store.load(initialPage));
+  }, [initialPage, store, tryNavigate]);
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
   const openFirstMatch = useCallback(() => {
     const ranked = search.foundQuery === search.query.trim() ? search.found.values().next().value : undefined;
@@ -175,11 +215,13 @@ const WikiPageViewContent = observer(function WikiPageView({
         proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
         search={pageCount > 0 ? search : null}
         store={store}
+        view={canSwitchView ? view : null}
         onCreate={create}
         onOpenFirst={openFirstMatch}
+        onViewChange={changeView}
       />
     ),
-    [canReviewProposals, create, openFirstMatch, pageCount, proposals, search, store],
+    [canReviewProposals, canSwitchView, changeView, create, openFirstMatch, pageCount, proposals, search, store, view],
   );
   useSetTopBarActions(topBar);
 
@@ -261,7 +303,33 @@ const WikiPageViewContent = observer(function WikiPageView({
             </div>
           )}
 
-          {wide ? (
+          {showsPages ? (
+            <div className="flex min-h-0 flex-1" data-wiki-pages-view="">
+              <aside
+                className="flex w-64 shrink-0 flex-col border-r border-border xl:w-72"
+                data-wiki-pages-rail=""
+                id="wiki-pages-panel"
+              >
+                <WikiPageList
+                  currentId={openId}
+                  nodes={graph.nodes}
+                  truncated={graph.truncated}
+                  visible={visible}
+                  onSelect={selectPage}
+                />
+              </aside>
+
+              <WikiPageDocument
+                otherGuide={otherGuide}
+                state={sheetState === "closed" ? "loading" : sheetState}
+                store={store}
+                onClose={cancelCreate}
+                onReload={reload}
+                onSelect={selectPage}
+                onSwitchView={() => changeView("map")}
+              />
+            </div>
+          ) : wide ? (
             <WikiGraphView
               canPin={canPin}
               found={search.found}
@@ -285,7 +353,7 @@ const WikiPageViewContent = observer(function WikiPageView({
 
   return (
     <section
-      aria-label={t("Wiki.graph.label")}
+      aria-label={showsPages ? t("Wiki.view.pages") : t("Wiki.graph.label")}
       className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
       data-wiki-document-layout=""
       id="wiki-document-panel"
@@ -300,7 +368,7 @@ const WikiPageViewContent = observer(function WikiPageView({
 
       <WikiPageSheet
         canPin={canPin && wide}
-        open={sheetState !== "closed"}
+        open={!showsPages && sheetState !== "closed"}
         otherGuide={otherGuide}
         pinned={sheetNode ? sheetNode.pinned : null}
         state={sheetState === "closed" ? "loading" : sheetState}
@@ -308,6 +376,7 @@ const WikiPageViewContent = observer(function WikiPageView({
         onClose={closeSheet}
         onReload={reload}
         onSelect={selectPage}
+        onSwitchView={canSwitchView ? () => changeView("pages") : undefined}
         onTogglePin={() => {
           if (!sheetNode) return;
           const origin = { x: sheetNode.x, y: sheetNode.y, pinned: sheetNode.pinned };

@@ -33,6 +33,9 @@
 @custom-variant fine-hover (@media (hover: hover) and (pointer: fine));
 @custom-variant touch-input (@media not all and (hover: hover) and (pointer: fine));
 
+/* A window too low for optional help text, such as a laptop with the browser's tool bars or a phone held sideways. */
+@custom-variant short (@media (max-height: 40rem));
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

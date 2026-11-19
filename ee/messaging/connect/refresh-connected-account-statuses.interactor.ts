@@ -5,7 +5,7 @@ import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { deriveAccountConnection } from "../account-connection";
-import { isUnipileRateLimit } from "../messaging.service";
+import { isUnipileRateLimit, isUnipileTransientError } from "../messaging.service";
 
 const STATUS_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
 const STATUS_REFRESH_BATCH_SIZE = 100;
@@ -40,7 +40,10 @@ export class RefreshConnectedAccountStatusesInteractor {
       } catch (error) {
         failed += 1;
         await this.repo.markStatusRefreshAttemptedUnscoped(account.unipileAccountId, checkedAt);
-        ErrorReporter.captureException(error, { tags: { unipileAccountId: account.unipileAccountId } });
+        ErrorReporter.captureException(error, {
+          ...(isUnipileTransientError(error) && { level: "warning" as const }),
+          tags: { unipileAccountId: account.unipileAccountId },
+        });
         if (isUnipileRateLimit(error)) break;
       }
     }

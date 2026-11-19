@@ -2,6 +2,8 @@ import type { StoredWidget } from "./record-widget-store.repo";
 import type { WidgetDto } from "./widget.schema";
 import type { WidgetDtoReaders } from "./widget-dto-readers";
 
+export const WIDGET_READ_CONCURRENCY = 4;
+
 export class WidgetDtoReader {
   constructor(private readonly readers: () => WidgetDtoReaders) {}
 

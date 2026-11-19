@@ -85,7 +85,16 @@ export default async function AutomationsPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      {free ? <RoutinesPausedNotice /> : usage && <RoutineAllowanceNotice plan={usage.plan} />}
+      {free ? (
+        <RoutinesPausedNotice />
+      ) : (
+        usage && (
+          <RoutineAllowanceNotice
+            initialOwnerUserIds={list.items.filter((item) => item.kind === "routine").map((item) => item.ownerUserId)}
+            plan={usage.plan}
+          />
+        )
+      )}
 
       {view}
     </PageContainer>

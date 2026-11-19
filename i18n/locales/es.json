@@ -7037,6 +7037,13 @@
       "on": "Verificada el {date}",
       "saveFirst": "Guarda tus cambios antes de marcar la página como verificada."
     },
+    "view": {
+      "label": "Vista de la base de conocimientos",
+      "map": "Mapa",
+      "openFullPage": "Abrir como página completa",
+      "pages": "Páginas",
+      "showOnMap": "Mostrar en el mapa"
+    },
     "websiteImport": {
       "faqHeading": "Preguntas frecuentes",
       "source": "Fuente: {url} · consultada el {date}"
