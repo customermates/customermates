@@ -14,6 +14,9 @@ vi.mock("@/core/di", () => ({
   getGetMeetingOptionsInteractor: () => ({ invoke: mocks.meeting }),
   getGetRecordModelInteractor: () => ({ invoke: mocks.model }),
   getGetUpcomingBookingsInteractor: () => ({ invoke: mocks.upcoming }),
+  getGetWorkspaceBrandInteractor: () => ({
+    invoke: () => Promise.resolve({ ok: true, data: { accentColor: null, logoUrl: null } }),
+  }),
 }));
 
 const HOST = { userId: "40000000-0000-4000-8000-000000000001", name: "Ana Host" };
@@ -78,7 +81,7 @@ describe("loadBookingPanel", () => {
     expect(state).toEqual({
       status: "ready",
       links: [expect.objectContaining({ title: "Intro call", ownerName: "Test User", own: true })],
-      setup: { calendars: [], lists: [], relationships: [], blockedReason: "noCalendar" },
+      setup: { calendars: [], lists: [], relationships: [], blockedReason: "noCalendar", brand: null },
       busyTimeIncomplete: true,
       hostCandidates: [HOST],
       upcoming: [UPCOMING],

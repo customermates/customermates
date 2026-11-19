@@ -1,12 +1,12 @@
-import { Resource } from "@/generated/prisma";
+import type { Resource } from "@/generated/prisma";
 
 export const CONNECTION_TABS = ["channels", "agents", "developers"] as const;
 export type ConnectionTab = (typeof CONNECTION_TABS)[number];
 
 export const CONNECTION_TAB_RESOURCES = {
-  channels: Resource.inboxMessages,
-  agents: Resource.company,
-  developers: Resource.api,
+  channels: "inboxMessages",
+  agents: "company",
+  developers: "api",
 } as const satisfies Record<ConnectionTab, Resource>;
 
 export const CONNECTION_RESOURCES: readonly Resource[] = CONNECTION_TABS.map((tab) => CONNECTION_TAB_RESOURCES[tab]);
