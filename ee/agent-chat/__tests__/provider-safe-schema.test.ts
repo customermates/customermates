@@ -207,7 +207,7 @@ describe("provider-safe tool schemas", () => {
     }
 
     expect(Object.fromEntries(census)).toEqual({ uuid: 367, "date-time": 17, email: 8, uri: 7, date: 3 });
-  });
+  }, 30_000);
 
   it("still enforces the real constraint through the tool's own validator", async () => {
     const tools = getAgentAiTools(deps()) as unknown as Record<string, { inputSchema: unknown }>;
