@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 import { getGetMessageAttachmentInteractor } from "@/core/di";
+import { recordFileContentDisposition } from "@/features/record-files/record-file-response";
 
 export async function GET(
   _req: NextRequest,
@@ -19,7 +20,7 @@ export async function GET(
       "content-type": data.contentType,
       "cache-control": "private, max-age=300",
     };
-    if (data.fileName) headers["content-disposition"] = `inline; filename="${data.fileName.replace(/"/g, "")}"`;
+    if (data.fileName) headers["content-disposition"] = recordFileContentDisposition(data.fileName, true);
 
     return new NextResponse(data.body, { status: 200, headers });
   } catch (error) {
