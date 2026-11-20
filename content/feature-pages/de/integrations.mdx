@@ -56,7 +56,7 @@ Das hat eine Kehrseite, die Sie vorher kennen sollten. Es gibt keinen Katalog mi
 | REST-API | Ihr System an CRM | Datensätze aus Code oder einem Automatisierungstool anlegen, lesen, suchen, ändern und löschen | Jeder Tarif, auch selbst gehostet |
 | MCP | KI-Client an CRM | Claude, ChatGPT, Cursor, Codex oder Gemini CLI lesen und schreiben Datensätze im Gespräch | Jeder Tarif, auch selbst gehostet |
 | n8n-Community-Node | Beide | Eigene Customermates-Nodes in einer separat betriebenen n8n-Instanz | Aktionen in jedem Tarif, Trigger in bezahlten Tarifen und selbst gehostet; Kosten für n8n separat |
-| Einheitlicher Posteingang | Kanäle an CRM | Gespräche aus Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram und Telegram direkt am Datensatz, dazu Google- und Microsoft-Kalender mit Terminplanung und Buchungsseiten | Customermates Cloud, ab Pro |
+| Einheitlicher Posteingang | Kanäle an CRM | Gespräche aus Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram und Telegram direkt am Datensatz, dazu Google- und Microsoft-Kalender mit Besprechungsplanung und Buchungsseiten | Customermates Cloud, ab Pro |
 
 Webhooks, REST und MCP sind ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten. Der [einheitliche Posteingang](/features/unified-inbox) beginnt mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat, mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Nutzer; Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer und geteilte Konten. Selbst gehostete Installationen erhalten REST, Webhooks und MCP, aber keinen Posteingang. Messaging-Ereignisse werden dort also nie ausgelöst.
 
@@ -124,7 +124,7 @@ Customermates hat keine Slack-App, keinen Slack-Kanal im Posteingang und keine S
 ## Was nicht enthalten ist
 
 <AcquisitionCallout title="Grenzen, die Sie vor der Planung kennen sollten" variant="boundary">
-  Kein App-Marktplatz und keine Ein-Klick-Konnektoren. Keine native Integration für Slack, Microsoft Teams oder Buchhaltung. Terminplanung und Buchungsseiten gibt es in Customermates Cloud ab Pro. Dateiaustausch: Import aus Excel, CSV oder JSON, Export nur als XLSX oder JSON, eine Liste nach der anderen, ohne Export des gesamten Kontos. n8n, Make und Zapier sind eigene Produkte mit eigenen Kosten.
+  Kein App-Marktplatz und keine Ein-Klick-Konnektoren. Keine native Integration für Slack, Microsoft Teams oder Buchhaltung. Besprechungsplanung und Buchungsseiten gibt es in Customermates Cloud ab Pro. Dateiaustausch: Import aus Excel, CSV oder JSON, Export nur als XLSX oder JSON, eine Liste nach der anderen, ohne Export des gesamten Kontos. n8n, Make und Zapier sind eigene Produkte mit eigenen Kosten.
 </AcquisitionCallout>
 
 Braucht Ihr Team Hunderte fertige, vom Anbieter gepflegte Konnektoren, die jemand ohne Technikkenntnisse in einer Einstellungsseite einschaltet, passt ein CRM mit eigenem App-Marktplatz besser. Customermates passt zu Teams, die einen Webhook selbst einrichten oder die Aufrufe einem KI-Client überlassen, und die in der Cloud wie im eigenen Rechenzentrum dieselben Schnittstellen haben wollen. Die Anbindung an ein ERP folgt demselben Muster; der [Leitfaden zur CRM-ERP-Integration](/blog/crm-erp-integration) zeigt den Ablauf.
