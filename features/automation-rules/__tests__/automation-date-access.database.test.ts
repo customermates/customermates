@@ -34,8 +34,8 @@ afterAll(async () => {
 });
 
 describeDatabase("a date rule of a member who reads only their own records", () => {
-  const NOW = new Date("2026-11-18T09:00:00.000Z");
-  const CLOSES = "2026-11-20";
+  const NOW = new Date("2031-03-12T09:00:00.000Z");
+  const CLOSES = "2031-03-14";
 
   it("gives no foreign record id or date in the preview, the sweep or the run history", async () => {
     const w = await createAutomationWorkspace();
@@ -112,8 +112,8 @@ describeDatabase("a date rule of a member who reads only their own records", () 
 });
 
 describeDatabase("the run history read by a member who reads every automation but only their own records", () => {
-  const DUE = new Date("2026-11-18T07:00:00.000Z");
-  const CLOSES = "2026-11-20";
+  const DUE = new Date("2031-03-12T07:00:00.000Z");
+  const CLOSES = "2031-03-14";
 
   it("gives a foreign record's run without the record, its id in the key or the due time of its date", async () => {
     const w = await createAutomationWorkspace();
