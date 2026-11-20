@@ -33,7 +33,7 @@ sections:
       - title: "Koszt"
         description: "Uruchomienie rutyny zużywa miesięczne hostowane kredyty AI jej właściciela i zatrzymuje się przy 10 kredytach. n8n rozlicza własne plany."
       - title: "Nie wchodzi w zakres"
-        description: "Brak wizualnego kreatora i rozgałęzień w CRM, brak sekwencji e-maili i brak przypomnień o zadaniach."
+        description: "Brak rozgałęzień i oczekiwań w CRM, brak sekwencji e-maili i brak wbudowanych terminów zadań."
 
 hero:
   title: Automatyzacja procesów sprzedaży w CRM z rutynami AI i otwartymi webhookami
@@ -54,15 +54,15 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-**Automatyzacja procesów sprzedaży** w CRM oznacza, że powtarzalny krok dzieje się bez pamiętania o nim: szansa sprzedaży zostaje wygrana i zadania wdrożeniowe już czekają, klient pisze e-mail i szkic odpowiedzi jest gotowy. W Customermates budujesz ją z **rutyn** (Mate, hostowany asystent, uruchamia zapisaną instrukcję według harmonogramu lub gdy rekord się zmieni, tylko w chmurze), z **webhooków, REST API i n8n** dla reguł, które mają za każdym razem działać tak samo, albo ze swoim klientem AI przez **MCP**.
+**Automatyzacja procesów sprzedaży** w CRM oznacza, że powtarzalny krok dzieje się bez pamiętania o nim: szansa sprzedaży zostaje wygrana i zadania wdrożeniowe już czekają, klient pisze e-mail i szkic odpowiedzi jest gotowy. W Customermates budujesz ją z **automatyzacji** (stałych reguł bez AI, w każdym planie), z **rutyn** (Mate, hostowany asystent, uruchamia zapisaną instrukcję według harmonogramu lub gdy rekord się zmieni, tylko w chmurze), z **webhooków, REST API i n8n** dla reguł, które mają za każdym razem działać tak samo, albo ze swoim klientem AI przez **MCP**.
 
-Granicę łatwo opisać. Customermates automatyzuje pracę na pojedynczych rekordach. Nie ma sekwencji e-maili, kampanii drip ani wysyłki masowej, punktowania leadów, formularzy webowych ani wizualnego kreatora przepływów z rozgałęzieniami w CRM; ta część mieszka w n8n, osobnym produkcie. Jeśli „CRM automation” oznacza dla Ciebie automatyzację marketingu, następna sekcja pokazuje, gdzie biegnie granica.
+Granicę łatwo opisać. Customermates automatyzuje pracę na pojedynczych rekordach. Nie ma sekwencji e-maili, kampanii drip ani wysyłki masowej, ani punktowania leadów, a automatyzacje działają jako jeden łańcuch bez rozgałęzień; przepływy z rozgałęzieniami mieszkają w n8n, osobnym produkcie. Jeśli „CRM automation” oznacza dla Ciebie automatyzację marketingu, następna sekcja pokazuje, gdzie biegnie granica.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Trzy drogi">Rutyny do pracy, która wymaga czytania i oceny. Webhooki plus n8n lub własny kod do stałych reguł. Twój własny klient AI przez MCP do aktualizacji rekordów na Twoje polecenie.</SummaryItem>
   <SummaryItem label="Plany">Rutyny w każdym płatnym planie chmurowym: [[commercial.entitlement.starter.includedRoutinesPerUser]] na użytkownika na Starterze, [[commercial.entitlement.pro.includedRoutinesPerUser]] na Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] na Business. REST i MCP w każdym planie; webhooki w każdym planie płatnym, także w self-hostingu.</SummaryItem>
   <SummaryItem label="Koszt">Uruchomienie rutyny zużywa miesięczne hostowane kredyty AI jej właściciela i zatrzymuje się przy 10 kredytach. n8n rozlicza własne plany.</SummaryItem>
-  <SummaryItem label="Nie wchodzi w zakres">Brak wizualnego kreatora i rozgałęzień w CRM, brak sekwencji e-maili, brak przypomnień o zadaniach, brak punktowania leadów.</SummaryItem>
+  <SummaryItem label="Nie wchodzi w zakres">Brak rozgałęzień i oczekiwań w CRM, brak sekwencji e-maili, brak punktowania leadów.</SummaryItem>
 </ArticleSummary>
 
 ## Co daje automatyzacja procesów sprzedaży? [#co-daje-automatyzacja-procesow-sprzedazy]
@@ -80,9 +80,9 @@ Automatyzacja CRM obejmuje dwa różne zadania. **Przepływy rekordów** działa
 
 | Rodzaj automatyzacji | Typowe przykłady | W Customermates |
 |---|---|---|
-| Przepływy rekordów | Utwórz zadania, gdy szansa sprzedaży zostanie wygrana, wyślij wpis na kanał zespołu, gdy powstanie szansa sprzedaży, wypisz szanse, których nikt nie ruszał | Tak: rutyny, webhooki, REST, n8n i MCP |
+| Przepływy rekordów | Utwórz zadania, gdy szansa sprzedaży zostanie wygrana, wyślij wpis na kanał zespołu, gdy powstanie szansa sprzedaży, wypisz szanse, których nikt nie ruszał | Tak: automatyzacje, rutyny, webhooki, REST, n8n i MCP |
 | Praca AI na rekordach | Zaktualizuj szansę sprzedaży na podstawie notatek z rozmowy, napisz odpowiedź dla klienta | Tak: Mate w czacie, rutyny (chmura), Twój własny klient AI przez MCP |
-| Automatyzacja marketingu | Sekwencje e-maili, kampanie drip, wysyłka masowa, punktowanie leadów, formularze webowe | Nie. Użyj osobnego narzędzia i wprowadzaj jego wyniki przez REST lub n8n |
+| Automatyzacja marketingu | Sekwencje e-maili, kampanie drip, wysyłka masowa, punktowanie leadów | Nie. Użyj osobnego narzędzia i wprowadzaj jego wyniki przez REST lub n8n |
 
 Szkic odpowiedzi to jedna wiadomość w jednej rozmowie, a nie sekwencja. Jeśli potrzebujesz trzeciego wiersza, zostaw do tego dedykowane narzędzie, a w Customermates trzymaj rekordy klientów, które za nim stoją.
 
@@ -90,7 +90,7 @@ Szkic odpowiedzi to jedna wiadomość w jednej rozmowie, a nie sekwencja. Jeśli
 
 | Zadanie | Użyj | Plan |
 |---|---|---|
-| Przypomnienie o follow-upie: zadanie dla każdej szansy sprzedaży, której data następnego kontaktu minęła | Rutyna według harmonogramu | Każdy płatny plan chmurowy |
+| Przypomnienie o follow-upie: powiadomienie, gdy nadejdzie data następnego kontaktu, albo zadanie dla każdej szansy sprzedaży, której data minęła | Automatyzacja na dacie albo rutyna według harmonogramu | Automatyzacja: każdy plan. Rutyna: każdy płatny plan chmurowy |
 | Szkic odpowiedzi, gdy klient pisze e-mail | Rutyna na **E-mail odebrany** | Chmura, Pro i wyżej |
 | Zadania wdrożeniowe po wygraniu szansy sprzedaży | Rutyna na **Rekord zaktualizowany** dla Szans sprzedaży albo webhook do n8n | Rutyna: płatna chmura. Webhook: plany płatne |
 | Wiadomość na czacie zespołu, gdy powstanie szansa sprzedaży | Webhook do n8n albo webhook z szablonem treści | Plany płatne |
@@ -121,7 +121,7 @@ Uruchomienie bez nadzoru może tworzyć i aktualizować rekordy, dopisywać nota
 
 ## Jak zbudować rutynę z przypomnieniem o follow-upie?
 
-Customermates nie wysyła powiadomień z przypomnieniami, a zadania nie mają terminu, więc przypomnienie to tutaj zadanie, które rutyna tworzy z daty, którą prowadzisz sam. Rutyna działa co rano, znajduje szanse sprzedaży, których data minęła, i wstawia po jednym zadaniu na szansę do listy zadań. Wymaga to pola typu **Data**, takiego jak „Następny kontakt”, w Szansach sprzedaży; [przewodnik po follow-upie](/features/follow-up) pokazuje, jak je dodać i jak zapisać pasujące widoki.
+Zadania nie mają wbudowanego terminu. Automatyzacja na polu daty może już powiadomić Cię, gdy nadejdzie data; rutyna tutaj idzie dalej i z każdej minionej daty, którą prowadzisz sam, tworzy zadanie. Rutyna działa co rano, znajduje szanse sprzedaży, których data minęła, i wstawia po jednym zadaniu na szansę do listy zadań. Wymaga to pola typu **Data**, takiego jak „Następny kontakt”, w Szansach sprzedaży; [przewodnik po follow-upie](/features/follow-up) pokazuje, jak je dodać i jak zapisać pasujące widoki.
 
 <Steps>
   <Step title="Dodaj pole daty">W sekcji **Model danych** dodaj do **Szans sprzedaży** pole typu **Data** o nazwie „Następny kontakt” i ustaw je na szansach, do których chcesz wrócić.</Step>
@@ -137,7 +137,7 @@ Znajdź każdą szansę sprzedaży, która nie jest w etapie Wygrana ani Przegra
 
 Data w nazwie zadania zapobiega temu, żeby rutyna utworzyła to samo zadanie dwa razy. Gdy osoba przesunie datę Następnego kontaktu, kolejny termin dostaje własne zadanie.
 
-Zużycie kredytów: harmonogram dzienny to 30 lub 31 uruchomień w miesiącu, a każde zatrzymuje się przy 10 kredytach, więc pułap to około 300 kredytów miesięcznie. Zanim uruchomisz ją codziennie, sprawdź miesięczny limit swojego planu na [stronie z cennikiem](/pricing); harmonogram tygodniowy ma pułap 50. Jeden kredyt to jeden cent amerykański zmierzonego kosztu dostawcy. Nikt nie dostaje powiadomienia: zadania czekają na liście zadań. Jeśli potrzebujesz wiadomości push na czacie zespołu, gdy data minie, uruchom tę kontrolę z wyzwalacza harmonogramu n8n na REST API.
+Zużycie kredytów: harmonogram dzienny to 30 lub 31 uruchomień w miesiącu, a każde zatrzymuje się przy 10 kredytach, więc pułap to około 300 kredytów miesięcznie. Zanim uruchomisz ją codziennie, sprawdź miesięczny limit swojego planu na [stronie z cennikiem](/pricing); harmonogram tygodniowy ma pułap 50. Jeden kredyt to jeden cent amerykański zmierzonego kosztu dostawcy. Sama rutyna nikogo nie powiadamia: zadania czekają na liście zadań, a automatyzacja na tej samej dacie może dodać powiadomienie. Jeśli potrzebujesz wiadomości push na czacie zespołu, gdy data minie, uruchom tę kontrolę z wyzwalacza harmonogramu n8n na REST API.
 
 ## Jak pisać szkice odpowiedzi, gdy klient wysyła e-mail?
 
@@ -196,7 +196,7 @@ Zewnętrzne wywołania MCP działają inaczej. Serwer sprawdza autoryzację i wa
 
 ## Czy jest CRM open source z kreatorem przepływów?
 
-Customermates jest source-available (fair-code), a nie open source, i nie ma kreatora przepływów w CRM. Tę rolę wypełnia [n8n](https://n8n.io/). Jego istotne tu cechy to wizualny kreator, JavaScript lub Python w dowolnym kroku i gotowe węzły do aplikacji takich jak Slack, a z Customermates łączy się przez webhooki i REST API. Możesz hostować jego Community Edition na [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), która pozwala na użycie wyłącznie do własnych wewnętrznych celów biznesowych albo do celów niekomercyjnych lub osobistych, albo wykupić n8n Cloud, [wyceniany według miesięcznych wykonań przepływów](https://n8n.io/pricing/). Customermates nie zawiera środowiska uruchomieniowego n8n ani subskrypcji.
+Customermates jest source-available (fair-code), a nie open source, a jego automatyzacje w CRM działają jako jeden łańcuch bez rozgałęzień i oczekiwań. Przy większych przepływach tę rolę wypełnia [n8n](https://n8n.io/). Jego istotne tu cechy to wizualny kreator, JavaScript lub Python w dowolnym kroku i gotowe węzły do aplikacji takich jak Slack, a z Customermates łączy się przez webhooki i REST API. Możesz hostować jego Community Edition na [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), która pozwala na użycie wyłącznie do własnych wewnętrznych celów biznesowych albo do celów niekomercyjnych lub osobistych, albo wykupić n8n Cloud, [wyceniany według miesięcznych wykonań przepływów](https://n8n.io/pricing/). Customermates nie zawiera środowiska uruchomieniowego n8n ani subskrypcji.
 
 Węzeł społeczności [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) oferuje dedykowane węzły CRM, jeśli wolisz je od węzłów HTTP Request. Używaj wersji 2 lub nowszej: wersja 1.x celuje w punkty końcowe, których API już nie ma, więc jej przepływy zawodzą, dopóki ich nie zaktualizujesz.
 
@@ -221,10 +221,10 @@ Nasza rada: pozwól rutynie zaproponować zmianę etapu w notatce, a samo przeni
 
 ## Czego Customermates nie automatyzuje?
 
-- Brak wizualnego kreatora przepływów, rozgałęzień ani oczekiwań w CRM. Użyj n8n lub podobnego narzędzia.
+- Brak rozgałęzień i oczekiwań w CRM: automatyzacje działają jako jeden łańcuch wyzwalacza, warunków i akcji. Do bardziej złożonych przepływów użyj n8n lub podobnego narzędzia.
 - Brak sekwencji e-maili, kampanii drip ani masowej wysyłki e-maili. Szkic odpowiedzi to jedna wiadomość w jednej rozmowie.
-- Brak terminów zadań, przypomnień i centrum powiadomień. Własne pole daty na szansie sprzedaży plus rutyna follow-upu z wyżej dają listę do pracy, jak w [follow-upach](/features/follow-up).
-- Brak punktowania leadów, wzbogacania danych i formularzy webowych. Wpisy z formularzy wprowadzaj przez REST lub n8n.
+- Brak wbudowanych terminów zadań. Własne pole daty na szansie sprzedaży plus automatyzacja albo rutyna follow-upu z wyżej dają przypomnienia i listę do pracy, jak w [follow-upach](/features/follow-up).
+- Brak punktowania leadów i wzbogacania danych. Publiczne formularze tworzą rekordy bezpośrednio; inne narzędzia do formularzy wprowadzają wpisy przez REST lub n8n.
 - Brak rutyn, Mate i skrzynki odbiorczej w [self-hosted Customermates](/features/self-hosted). Webhooki, REST i MCP tam działają.
 - Brak gwarancji, że rutyna się uruchomi: godzinowy limit, opóźnienie debounce albo właściciel bez kredytów mogą pominąć uruchomienie. Kroki, które muszą wykonać się dla każdego zdarzenia, należą do webhooka, gdzie nieudane dostarczenia są ponawiane i można je wysłać ponownie.
 
@@ -266,7 +266,7 @@ Cztery są opisane wyżej krok po kroku: rutyna z przypomnieniem o follow-upie, 
 </FaqItem>
 
 <FaqItem question="Czy Customermates ma wizualny kreator przepływów?">
-Nie. Nie ma kreatora drag-and-drop ani reguł z rozgałęzieniami w Customermates. Zamiast tego rutyny przyjmują instrukcję zwykłym językiem, a wizualne przepływy z rozgałęzieniami działają w n8n, podłączonym przez webhooki i REST API.
+Częściowo. Automatyzacje buduje się z kart wyzwalacza, warunków i akcji w jednej kolumnie, bez rozgałęzień. Rutyny przyjmują instrukcję zwykłym językiem, a wizualne przepływy z rozgałęzieniami działają w n8n, podłączonym przez webhooki i REST API.
 </FaqItem>
 
 <FaqItem question="Czy CRM może sam się aktualizować?">
@@ -278,7 +278,7 @@ Automatyzacja marketingu wysyła kampanie do list kontaktów według harmonogram
 </FaqItem>
 
 <FaqItem question="Co dzieje się z szansami sprzedaży, gdy zapomina się o follow-upach po spotkaniach?">
-Zostają w swoim etapie, dopóki ktoś na nie nie trafi, i nadal liczą się do ważonego pipeline'u. Customermates nikogo nie szturcha: nie ma terminów zadań ani powiadomień. Pomaga własne pole Data „Następny kontakt” na szansie sprzedaży plus rutyna follow-upu z wyżej, która tworzy zadanie dla każdej szansy, której data minęła.
+Zostają w swoim etapie, dopóki ktoś na nie nie trafi, i nadal liczą się do ważonego pipeline'u. Zadania nie mają wbudowanych terminów. Pomaga własne pole Data „Następny kontakt” na szansie sprzedaży z automatyzacją, która powiadamia osobę odpowiedzialną, gdy nadejdzie, plus rutyna follow-upu z wyżej, która tworzy zadanie dla każdej szansy, której data minęła.
 </FaqItem>
 
 <FaqItem question="Jakie są etapy procesu sprzedaży?">

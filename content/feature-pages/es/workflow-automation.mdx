@@ -33,7 +33,7 @@ sections:
       - title: "Coste"
         description: "Una ejecución de una rutina usa los créditos de IA alojados mensuales de su propietario y se detiene en 10 créditos. n8n factura sus propios planes."
       - title: "No incluido"
-        description: "Sin constructor visual ni ramificaciones dentro del CRM, sin secuencias de email y sin recordatorios de tareas."
+        description: "Sin ramificaciones ni esperas dentro del CRM, sin secuencias de email y sin fechas de vencimiento integradas en las tareas."
 
 hero:
   title: "Automatización de ventas en el CRM con rutinas de IA y webhooks abiertos"
@@ -54,15 +54,15 @@ cta:
   hint: "✓ Sin tarjeta de crédito ✓ Primeros [[commercial.trial.days]] días gratis"
 ---
 
-La automatización de ventas en el CRM significa que un paso recurrente del CRM ocurre sin que nadie tenga que acordarse: se gana una oportunidad y las tareas de onboarding ya existen, un cliente escribe un email y un borrador de respuesta ya está esperando. En Customermates se construye con **rutinas** (Mate, el asistente alojado, ejecuta una instrucción guardada según un horario o cuando cambia un registro, solo en Cloud), con **webhooks, la API REST y n8n** para las reglas que deben comportarse siempre igual, o con tu propio cliente de IA mediante **MCP**.
+La automatización de ventas en el CRM significa que un paso recurrente del CRM ocurre sin que nadie tenga que acordarse: se gana una oportunidad y las tareas de onboarding ya existen, un cliente escribe un email y un borrador de respuesta ya está esperando. En Customermates se construye con **automatizaciones** (reglas fijas sin IA, en todos los planes), con **rutinas** (Mate, el asistente alojado, ejecuta una instrucción guardada según un horario o cuando cambia un registro, solo en Cloud), con **webhooks, la API REST y n8n** para las reglas que deben comportarse siempre igual, o con tu propio cliente de IA mediante **MCP**.
 
-El límite es fácil de enunciar. Customermates automatiza el trabajo sobre registros individuales. No tiene secuencias de email, campañas por goteo ni prospección masiva, ni puntuación de leads, ni formularios web, ni un constructor visual de flujos de trabajo con ramificaciones dentro del CRM; esa parte vive en n8n, un producto aparte. Si para ti la «automatización del CRM» significa marketing automation, la sección siguiente muestra por dónde pasa la línea.
+El límite es fácil de enunciar. Customermates automatiza el trabajo sobre registros individuales. No tiene secuencias de email, campañas por goteo ni prospección masiva, ni puntuación de leads, y sus automatizaciones siguen una sola cadena sin ramificaciones; los flujos con ramificaciones viven en n8n, un producto aparte. Si para ti la «automatización del CRM» significa marketing automation, la sección siguiente muestra por dónde pasa la línea.
 
 <ArticleSummary title="De un vistazo">
   <SummaryItem label="Tres caminos">Rutinas para el trabajo que requiere lectura y criterio. Webhooks más n8n o tu propio código para las reglas fijas. Tu propio cliente de IA mediante MCP para las actualizaciones de registros que pides tú.</SummaryItem>
   <SummaryItem label="Planes">Rutinas en todos los planes de pago de Cloud: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuario en Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] en Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] en Business. REST y MCP en todos los planes; webhooks en todos los planes de pago, también en el autoalojado.</SummaryItem>
   <SummaryItem label="Coste">Una ejecución de una rutina usa los créditos de IA alojados mensuales de su propietario y se detiene en 10 créditos. n8n factura sus propios planes.</SummaryItem>
-  <SummaryItem label="No incluido">Sin constructor visual ni ramificaciones dentro del CRM, sin secuencias de email, sin recordatorios de tareas, sin puntuación de leads.</SummaryItem>
+  <SummaryItem label="No incluido">Sin ramificaciones ni esperas dentro del CRM, sin secuencias de email, sin puntuación de leads.</SummaryItem>
 </ArticleSummary>
 
 ## ¿Qué es la automatización de ventas en el CRM y qué tipo cubre Customermates?
@@ -71,9 +71,9 @@ La automatización CRM abarca dos trabajos distintos. Los **flujos de trabajo so
 
 | Tipo de automatización | Ejemplos típicos | En Customermates |
 |---|---|---|
-| Flujos de trabajo sobre registros | Crear tareas cuando se gana una oportunidad, publicar en un canal del equipo cuando se crea una oportunidad, listar las oportunidades que nadie ha tocado | Sí: rutinas, webhooks, REST, n8n y MCP |
+| Flujos de trabajo sobre registros | Crear tareas cuando se gana una oportunidad, publicar en un canal del equipo cuando se crea una oportunidad, listar las oportunidades que nadie ha tocado | Sí: automatizaciones, rutinas, webhooks, REST, n8n y MCP |
 | Trabajo de IA sobre registros | Actualizar una oportunidad a partir de las notas de una llamada, redactar la respuesta a un cliente | Sí: Mate en el chat, rutinas (Cloud), tu propio cliente de IA mediante MCP |
-| Marketing automation | Secuencias de email, campañas por goteo, prospección masiva, puntuación de leads, formularios web | No. Usa una herramienta aparte y trae sus resultados mediante REST o n8n |
+| Marketing automation | Secuencias de email, campañas por goteo, prospección masiva, puntuación de leads | No. Usa una herramienta aparte y trae sus resultados mediante REST o n8n |
 
 Un borrador de respuesta es un mensaje en una conversación, no una secuencia. Si necesitas la tercera fila, mantén una herramienta específica para ello y usa Customermates como sistema de registro detrás de ella.
 
@@ -94,7 +94,7 @@ Un borrador de respuesta es un mensaje en una conversación, no una secuencia. S
 
 | Tarea | Usa | Plan |
 |---|---|---|
-| Recordatorio de seguimiento: una tarea por cada oportunidad cuya fecha de próximo contacto ya pasó | Rutina según un horario | Cualquier plan de pago de Cloud |
+| Recordatorio de seguimiento: una notificación cuando llega la fecha de próximo contacto, o una tarea por cada oportunidad cuya fecha ya pasó | Automatización sobre la fecha, o rutina según un horario | Automatización: todos los planes. Rutina: cualquier plan de pago de Cloud |
 | Borrador de respuesta cuando un cliente escribe un email | Rutina en **Correo recibido** | Cloud, Pro y superiores |
 | Tareas de onboarding cuando se gana una oportunidad | Rutina en **Registro actualizado** para Oportunidades, o un webhook hacia n8n | Rutina: Cloud de pago. Webhook: planes de pago |
 | Mensaje en un chat del equipo cuando se crea una oportunidad | Webhook hacia n8n, o un webhook con una plantilla de cuerpo | Planes de pago |
@@ -125,7 +125,7 @@ Una ejecución sin supervisión puede crear y actualizar registros, añadir nota
 
 ## ¿Cómo creo una rutina de recordatorio de seguimiento?
 
-Customermates no envía notificaciones de recordatorio y las tareas no tienen fecha de vencimiento, así que aquí un recordatorio es una tarea que una rutina crea a partir de una fecha que llevas tú. La rutina se ejecuta cada mañana, encuentra las oportunidades cuya fecha ya pasó y pone una tarea por oportunidad en la lista de tareas. Esto necesita un campo de **Fecha** como «Próximo contacto» en Oportunidades; la [guía de seguimiento](/features/follow-up) muestra cómo añadirlo y cómo guardar las vistas correspondientes.
+Las tareas no tienen fecha de vencimiento integrada. Una automatización sobre un campo de fecha ya puede avisarte cuando llega la fecha; la rutina de aquí va más allá y convierte cada fecha vencida que llevas tú en una tarea. La rutina se ejecuta cada mañana, encuentra las oportunidades cuya fecha ya pasó y pone una tarea por oportunidad en la lista de tareas. Esto necesita un campo de **Fecha** como «Próximo contacto» en Oportunidades; la [guía de seguimiento](/features/follow-up) muestra cómo añadirlo y cómo guardar las vistas correspondientes.
 
 <Steps>
   <Step title="Añade el campo de fecha">En **Modelo de datos**, añade a **Oportunidades** un campo de tipo **Fecha** llamado «Próximo contacto» y fíjalo en las oportunidades a las que quieras hacer seguimiento.</Step>
@@ -141,7 +141,7 @@ Busca todas las oportunidades que no estén en Ganada ni en Perdida y cuya fecha
 
 La fecha en el nombre de la tarea evita que la rutina cree dos veces la misma tarea. Cuando la persona mueve la fecha de Próximo contacto, el siguiente vencimiento obtiene su propia tarea.
 
-Uso de créditos: un horario diario son 30 o 31 ejecuciones al mes y cada ejecución se detiene en 10 créditos, así que el tope es de unos 300 créditos al mes. Comprueba la asignación mensual de tu plan en la [página de precios](/pricing) antes de ejecutarla a diario; un horario semanal tiene un tope de 50. Un crédito es un centavo de dólar estadounidense del coste medido del proveedor. No avisa a nadie: las tareas esperan en la lista de tareas. Si necesitas un mensaje push en el chat de tu equipo cuando pasa una fecha, ejecuta esa comprobación desde el disparador programado de n8n contra la API REST.
+Uso de créditos: un horario diario son 30 o 31 ejecuciones al mes y cada ejecución se detiene en 10 créditos, así que el tope es de unos 300 créditos al mes. Comprueba la asignación mensual de tu plan en la [página de precios](/pricing) antes de ejecutarla a diario; un horario semanal tiene un tope de 50. Un crédito es un centavo de dólar estadounidense del coste medido del proveedor. La rutina no avisa a nadie: las tareas esperan en la lista de tareas, y una automatización sobre la misma fecha puede añadir una notificación. Si necesitas un mensaje push en el chat de tu equipo cuando pasa una fecha, ejecuta esa comprobación desde el disparador programado de n8n contra la API REST.
 
 ## ¿Cómo preparo borradores de respuesta cuando un cliente escribe un email?
 
@@ -200,7 +200,7 @@ Las llamadas MCP externas funcionan de otra manera. El servidor comprueba la aut
 
 ## ¿Existe un CRM de código abierto con un constructor de flujos de trabajo?
 
-Customermates no es de código abierto en el sentido de la OSI (tiene el código fuente disponible) y no tiene un constructor de flujos de trabajo dentro del CRM. [n8n](https://n8n.io/) cumple ese papel. Lo que importa aquí de él es un constructor visual, JavaScript o Python en cualquier paso y nodos ya hechos para apps como Slack, y se conecta con Customermates mediante webhooks y la API REST. Puedes autoalojar su Community Edition bajo la [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), que permite el uso solo para tus propios fines empresariales internos o para uso no comercial o personal, o suscribirte a n8n Cloud, [con precios según las ejecuciones mensuales de flujos de trabajo](https://n8n.io/pricing/). Customermates no incluye ningún runtime de n8n ni suscripción.
+Customermates no es de código abierto en el sentido de la OSI (tiene el código fuente disponible) y sus automatizaciones dentro del CRM siguen una sola cadena, sin ramificaciones ni esperas. Para flujos más grandes, [n8n](https://n8n.io/) cumple ese papel. Lo que importa aquí de él es un constructor visual, JavaScript o Python en cualquier paso y nodos ya hechos para apps como Slack, y se conecta con Customermates mediante webhooks y la API REST. Puedes autoalojar su Community Edition bajo la [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), que permite el uso solo para tus propios fines empresariales internos o para uso no comercial o personal, o suscribirte a n8n Cloud, [con precios según las ejecuciones mensuales de flujos de trabajo](https://n8n.io/pricing/). Customermates no incluye ningún runtime de n8n ni suscripción.
 
 El nodo de la comunidad [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) ofrece nodos de CRM específicos si los prefieres a los nodos HTTP Request. Usa la versión 2 o posterior: la versión 1.x apunta a endpoints que la API ya no tiene, así que sus flujos de trabajo fallan hasta que actualices.
 
@@ -218,10 +218,10 @@ Nuestro consejo: deja que una rutina proponga un cambio de etapa en una nota y q
 
 ## ¿Qué no automatiza Customermates?
 
-- Sin constructor visual de flujos de trabajo, ramificaciones ni esperas dentro del CRM. Usa n8n u otra herramienta similar.
+- Sin ramificaciones ni esperas dentro del CRM: las automatizaciones siguen una sola cadena de disparador, condiciones y acciones. Para más, usa n8n u otra herramienta similar.
 - Sin secuencias de email, campañas por goteo ni email masivo. Un borrador de respuesta es un mensaje en una conversación.
-- Sin fechas de vencimiento de tareas, recordatorios ni centro de notificaciones. Un campo de fecha personalizado en la oportunidad más la rutina de seguimiento de arriba te da una lista de la que trabajar, como en [seguimientos](/features/follow-up).
-- Sin puntuación de leads, enriquecimiento de datos ni formularios web. Envía las entradas de los formularios mediante REST o n8n.
+- Sin fechas de vencimiento integradas en las tareas. Un campo de fecha personalizado en la oportunidad más una automatización o la rutina de seguimiento de arriba te da recordatorios y una lista de la que trabajar, como en [seguimientos](/features/follow-up).
+- Sin puntuación de leads ni enriquecimiento de datos. Los formularios públicos crean registros directamente; otras herramientas de formularios envían sus entradas mediante REST o n8n.
 - Sin rutinas, Mate ni bandeja de entrada en [Customermates autoalojado](/features/self-hosted). Allí funcionan los webhooks, REST y MCP.
 - Sin garantía de que una rutina se ejecute: el tope por hora, el debounce o un propietario sin créditos pueden saltarse una ejecución. Los pasos que deben ejecutarse para cada evento pertenecen a un webhook, donde las entregas fallidas se reintentan y se pueden reenviar.
 
@@ -255,7 +255,7 @@ Cuatro están configurados paso a paso arriba: una rutina de recordatorio de seg
 </FaqItem>
 
 <FaqItem question="¿Customermates tiene un constructor visual de flujos de trabajo?">
-No. No hay un constructor de arrastrar y soltar ni reglas con ramificaciones dentro de Customermates. Las rutinas toman en su lugar una instrucción en lenguaje natural, y los flujos visuales con ramificaciones se ejecutan en n8n, conectado mediante webhooks y la API REST.
+En parte. Las automatizaciones se construyen con tarjetas de disparador, condiciones y acciones en una sola columna, sin ramificaciones. Las rutinas toman una instrucción en lenguaje natural, y los flujos visuales con ramificaciones se ejecutan en n8n, conectado mediante webhooks y la API REST.
 </FaqItem>
 
 <FaqItem question="¿Puede un CRM actualizarse solo de forma automática?">
@@ -267,7 +267,7 @@ La marketing automation envía campañas a listas de contactos según un calenda
 </FaqItem>
 
 <FaqItem question="¿Qué pasa con las oportunidades cuando se olvidan los seguimientos tras las reuniones?">
-Se quedan en su etapa hasta que alguien tropieza con ellas, y siguen contando en el pipeline ponderado. Customermates no empuja a nadie: no hay fechas de vencimiento de tareas ni notificaciones. Ayuda un campo de Fecha personalizado «Próximo contacto» en la oportunidad más la rutina de seguimiento de arriba, que crea una tarea por cada oportunidad cuya fecha ya pasó.
+Se quedan en su etapa hasta que alguien tropieza con ellas, y siguen contando en el pipeline ponderado. Las tareas no tienen fechas de vencimiento integradas. Ayuda un campo de Fecha personalizado «Próximo contacto» en la oportunidad con una automatización que avisa al responsable cuando llega, más la rutina de seguimiento de arriba, que crea una tarea por cada oportunidad cuya fecha ya pasó.
 </FaqItem>
 
 <FaqItem question="¿Las rutinas funcionan con autoalojamiento?">

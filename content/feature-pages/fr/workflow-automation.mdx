@@ -33,7 +33,7 @@ sections:
       - title: "Coût"
         description: "Une exécution de routine utilise les crédits IA hébergés mensuels de son propriétaire et s’arrête à 10 crédits. n8n facture ses propres formules."
       - title: "Non inclus"
-        description: "Pas de générateur visuel ni de branches dans le CRM, pas de séquences d’e-mails et pas de rappels de tâches."
+        description: "Pas de branches ni d’attentes dans le CRM, pas de séquences d’e-mails et pas d’échéances de tâches intégrées."
 
 hero:
   title: Automatisation CRM avec des routines IA et des webhooks ouverts
@@ -54,15 +54,15 @@ cta:
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 ---
 
-L’automatisation CRM consiste à faire exécuter sans y penser une étape récurrente du CRM : une affaire passe à Gagnée et les tâches d’intégration existent, un client écrit un e-mail et un brouillon de réponse attend. Dans Customermates, vous la construisez avec des **routines** (Mate, l’assistant hébergé, exécute une consigne enregistrée selon un planning ou lorsqu’un enregistrement change, uniquement dans le Cloud), avec des **webhooks, l’API REST et n8n** pour les règles qui doivent se comporter toujours pareil, ou avec votre propre client IA via **MCP**.
+L’automatisation CRM consiste à faire exécuter sans y penser une étape récurrente du CRM : une affaire passe à Gagnée et les tâches d’intégration existent, un client écrit un e-mail et un brouillon de réponse attend. Dans Customermates, vous la construisez avec des **automatisations** (règles fixes sans IA, sur toutes les formules), des **routines** (Mate, l’assistant hébergé, exécute une consigne enregistrée selon un planning ou lorsqu’un enregistrement change, uniquement dans le Cloud), avec des **webhooks, l’API REST et n8n** pour les règles qui doivent se comporter toujours pareil, ou avec votre propre client IA via **MCP**.
 
-La limite est simple à poser. Customermates automatise le travail sur des enregistrements isolés. Il n’y a ni séquences d’e-mails, ni campagnes d’envois échelonnés, ni envoi en masse, ni scoring des leads, ni formulaires web, ni générateur visuel de workflows avec branches dans le CRM ; cette partie se trouve dans n8n, un produit distinct. Si, pour vous, l’automatisation CRM veut dire automatisation marketing, la section suivante montre où passe la frontière.
+La limite est simple à poser. Customermates automatise le travail sur des enregistrements isolés. Il n’y a ni séquences d’e-mails, ni campagnes d’envois échelonnés, ni envoi en masse, ni scoring des leads, et les automatisations suivent une seule chaîne sans branches ; cette partie se trouve dans n8n, un produit distinct. Si, pour vous, l’automatisation CRM veut dire automatisation marketing, la section suivante montre où passe la frontière.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Trois voies">Les routines pour le travail qui demande de la lecture et du jugement. Les webhooks avec n8n ou votre propre code pour les règles fixes. Votre propre client IA via MCP pour les mises à jour que vous demandez.</SummaryItem>
   <SummaryItem label="Formules">Routines avec toutes les formules Cloud payantes : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business. REST et MCP avec toutes les formules, webhooks avec toutes les formules payantes, auto-hébergement compris.</SummaryItem>
   <SummaryItem label="Coût">Une exécution de routine utilise les crédits IA hébergés mensuels de son propriétaire et s’arrête à 10 crédits. n8n facture ses propres formules.</SummaryItem>
-  <SummaryItem label="Non inclus">Pas de générateur visuel ni de branches dans le CRM, pas de séquences d’e-mails, pas de rappels de tâches, pas de scoring des leads.</SummaryItem>
+  <SummaryItem label="Non inclus">Pas de branches ni d’attentes dans le CRM, pas de séquences d’e-mails, pas de scoring des leads.</SummaryItem>
 </ArticleSummary>
 
 ## Qu’est-ce que l’automatisation CRM, et quelle sorte Customermates couvre-t-il ?
@@ -71,9 +71,9 @@ L’automatisation CRM recouvre deux travaux différents. Les **workflows sur en
 
 | Sorte d’automatisation | Exemples typiques | Dans Customermates |
 |---|---|---|
-| Workflows sur enregistrements | Créer des tâches quand une affaire est gagnée, publier dans un canal d’équipe quand une affaire est créée, lister les affaires que personne n’a touchées | Oui : routines, webhooks, REST, n8n et MCP |
+| Workflows sur enregistrements | Créer des tâches quand une affaire est gagnée, publier dans un canal d’équipe quand une affaire est créée, lister les affaires que personne n’a touchées | Oui : automatisations, routines, webhooks, REST, n8n et MCP |
 | Travail IA sur enregistrements | Mettre à jour une affaire à partir de notes d’appel, rédiger une réponse à un client | Oui : Mate dans le chat, routines (Cloud), votre propre client IA via MCP |
-| Automatisation marketing | Séquences d’e-mails, campagnes d’envois échelonnés, envoi en masse, scoring des leads, formulaires web | Non. Prenez un outil distinct et ramenez ses résultats via REST ou n8n |
+| Automatisation marketing | Séquences d’e-mails, campagnes d’envois échelonnés, envoi en masse, scoring des leads | Non. Prenez un outil distinct et ramenez ses résultats via REST ou n8n |
 
 Un brouillon de réponse est un message dans une conversation, pas une séquence. Si vous avez besoin de la troisième ligne, gardez un outil dédié et faites de Customermates le système de référence derrière lui.
 
@@ -81,7 +81,7 @@ Un brouillon de réponse est un message dans une conversation, pas une séquence
 
 | Tâche | À utiliser | Formule |
 |---|---|---|
-| Rappel de relance : une tâche pour chaque affaire dont la date de prochain contact est dépassée | Routine planifiée | Toute formule Cloud payante |
+| Rappel de relance : une notification quand la date de prochain contact arrive, ou une tâche pour chaque affaire dont la date est dépassée | Automatisation sur la date, ou routine planifiée | Automatisation sur toutes les formules, routine sur toute formule Cloud payante |
 | Brouillon de réponse quand un client écrit | Routine sur **E-mail reçu** | Cloud, Pro et au-delà |
 | Tâches d’intégration quand une affaire est gagnée | Routine sur **Enregistrement mis à jour** pour Affaires, ou webhook vers n8n | Routine : Cloud payant. Webhook : formules payantes |
 | Message dans un chat d’équipe quand une affaire est créée | Webhook vers n8n, ou webhook avec un modèle de corps | Formules payantes |
@@ -112,7 +112,7 @@ Une exécution sans surveillance peut créer et mettre à jour des enregistremen
 
 ## Comment construire une routine de relance qui crée des tâches de rappel ?
 
-Customermates n’envoie aucune notification et les tâches n’ont pas d’échéance. Un rappel est donc ici une tâche qu’une routine crée à partir d’une date que vous tenez vous-même. La routine s’exécute chaque matin, trouve les affaires dont la date est dépassée et place une tâche par affaire dans la liste des tâches. Il vous faut pour cela un champ **Date** comme « Prochain contact » sur les Affaires ; le [guide de la relance](/features/follow-up) montre comment l’ajouter et enregistrer les vues correspondantes.
+Les tâches n’ont pas d’échéance intégrée. Une automatisation sur un champ date peut déjà vous prévenir quand la date arrive, et la routine ci-dessous va plus loin en créant une tâche à partir de chaque date dépassée que vous tenez vous-même. La routine s’exécute chaque matin, trouve les affaires dont la date est dépassée et place une tâche par affaire dans la liste des tâches. Il vous faut pour cela un champ **Date** comme « Prochain contact » sur les Affaires ; le [guide de la relance](/features/follow-up) montre comment l’ajouter et enregistrer les vues correspondantes.
 
 <Steps>
   <Step title="Ajoutez le champ date">Dans **Modèle de données**, ajoutez à **Affaires** un champ de type **Date** nommé « Prochain contact » et renseignez-le sur les affaires que vous voulez relancer.</Step>
@@ -128,7 +128,7 @@ Trouvez toutes les affaires qui ne sont ni à Gagnée ni à Perdue et dont la da
 
 La date dans le nom de la tâche évite que la routine crée deux fois la même tâche. Dès que la personne déplace la date de prochain contact, l’échéance suivante obtient sa propre tâche.
 
-Utilisation des crédits : un planning quotidien représente 30 ou 31 exécutions par mois et chacune s’arrête à 10 crédits, le plafond est donc d’environ 300 crédits par mois. Vérifiez sur la [page des tarifs](/pricing) ce que comprend votre formule chaque mois avant de l’exécuter tous les jours ; un planning hebdomadaire a un plafond de 50. Un crédit équivaut à un cent de dollar américain de coût fournisseur mesuré. Personne ne reçoit d’alerte : les tâches attendent dans la liste des tâches. Si vous voulez un message instantané dans le chat de l’équipe quand une date passe, faites tourner ce contrôle depuis le déclencheur planifié de n8n sur l’API REST.
+Utilisation des crédits : un planning quotidien représente 30 ou 31 exécutions par mois et chacune s’arrête à 10 crédits, le plafond est donc d’environ 300 crédits par mois. Vérifiez sur la [page des tarifs](/pricing) ce que comprend votre formule chaque mois avant de l’exécuter tous les jours ; un planning hebdomadaire a un plafond de 50. Un crédit équivaut à un cent de dollar américain de coût fournisseur mesuré. La routine ne prévient personne, les tâches attendent dans la liste des tâches, et une automatisation sur la même date peut ajouter une notification. Si vous voulez un message instantané dans le chat de l’équipe quand une date passe, faites tourner ce contrôle depuis le déclencheur planifié de n8n sur l’API REST.
 
 ## Comment rédiger des brouillons de réponse quand un client écrit ?
 
@@ -187,7 +187,7 @@ Les appels MCP externes fonctionnent autrement. Le serveur contrôle l’autoris
 
 ## Existe-t-il un CRM open source avec un générateur de workflows ?
 
-Customermates est source-available (pas open source au sens de l’OSI) et n’a pas de générateur de workflows dans le CRM. [n8n](https://n8n.io/) joue ce rôle. Ses fonctions utiles ici : un générateur visuel, du JavaScript ou du Python dans n’importe quelle étape et des nœuds prêts à l’emploi pour des applications comme Slack ; il se connecte à Customermates par les webhooks et l’API REST. Vous pouvez auto-héberger sa Community Edition sous la [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), qui n’autorise l’usage que pour vos propres besoins professionnels internes ou pour un usage non commercial ou personnel, ou souscrire à n8n Cloud, [tarifé selon les exécutions de workflow mensuelles](https://n8n.io/pricing/). Customermates n’inclut ni environnement d’exécution n8n ni abonnement n8n.
+Customermates est source-available (pas open source au sens de l’OSI) et ses automatisations dans le CRM suivent une seule chaîne, sans branches ni attentes. Pour des flux plus larges, [n8n](https://n8n.io/) joue ce rôle. Ses fonctions utiles ici : un générateur visuel, du JavaScript ou du Python dans n’importe quelle étape et des nœuds prêts à l’emploi pour des applications comme Slack ; il se connecte à Customermates par les webhooks et l’API REST. Vous pouvez auto-héberger sa Community Edition sous la [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), qui n’autorise l’usage que pour vos propres besoins professionnels internes ou pour un usage non commercial ou personnel, ou souscrire à n8n Cloud, [tarifé selon les exécutions de workflow mensuelles](https://n8n.io/pricing/). Customermates n’inclut ni environnement d’exécution n8n ni abonnement n8n.
 
 Le nœud communautaire [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) propose des nœuds CRM dédiés si vous les préférez aux nœuds HTTP Request. Utilisez la version 2 ou ultérieure : la version 1.x vise des points de terminaison que l’API n’a plus, et ses workflows échouent tant que vous ne mettez pas à jour.
 
@@ -205,10 +205,10 @@ Notre conseil : laissez une routine proposer un changement d’étape dans une 
 
 ## Qu’est-ce que Customermates n’automatise pas ?
 
-- Pas de générateur visuel de workflows, de branches ni d’attentes dans le CRM. Utilisez n8n ou un outil similaire.
+- Pas de branches ni d’attentes dans le CRM, les automatisations suivent une seule chaîne déclencheur, conditions et actions. Pour plus, utilisez n8n ou un outil similaire.
 - Pas de séquences d’e-mails, de campagnes d’envois échelonnés ni d’envois en masse. Un brouillon de réponse est un message dans une conversation.
-- Pas d’échéances de tâches, de rappels ni de centre de notifications. Un champ date personnalisé sur l’affaire et la routine de relance ci-dessus donnent une liste sur laquelle travailler, comme dans les [relances](/features/follow-up).
-- Pas de scoring des leads, d’enrichissement de données ni de formulaires web. Envoyez les saisies de formulaire via REST ou n8n.
+- Pas d’échéances de tâches intégrées. Un champ date personnalisé sur l’affaire avec une automatisation ou la routine de relance ci-dessus donne des rappels et une liste sur laquelle travailler, comme dans les [relances](/features/follow-up).
+- Pas de scoring des leads ni d’enrichissement de données. Les formulaires publics créent directement des enregistrements, et les autres outils de formulaires envoient leurs saisies via REST ou n8n.
 - Pas de routines, de Mate ni de boîte de réception dans [Customermates auto-hébergé](/features/self-hosted). Les webhooks, REST et MCP y fonctionnent.
 - Aucune garantie qu’une routine s’exécute : le plafond horaire, l’anti-rebond ou un propriétaire sans crédits peuvent faire sauter une exécution. Les étapes qui doivent s’exécuter pour chaque évènement relèvent d’un webhook, où les livraisons échouées sont retentées et peuvent être renvoyées.
 
@@ -230,7 +230,7 @@ Quatre sont décrits pas à pas plus haut : une routine de relance, un brouillo
 </FaqItem>
 
 <FaqItem question="Customermates a-t-il un générateur visuel de workflows ?">
-Non. Il n’y a ni générateur par glisser-déposer ni règles à branches dans Customermates. Les routines prennent à la place une consigne en langage courant, et les flux visuels avec branches tournent dans n8n, connecté via les webhooks et l’API REST.
+En partie. Les automatisations se construisent avec des cartes déclencheur, conditions et actions dans une seule colonne, sans branches. Les routines prennent une consigne en langage courant, et les flux visuels avec branches tournent dans n8n, connecté via les webhooks et l’API REST.
 </FaqItem>
 
 <FaqItem question="Un CRM peut-il se mettre à jour automatiquement ?">
@@ -242,7 +242,7 @@ L’automatisation marketing envoie des campagnes à des listes de contacts selo
 </FaqItem>
 
 <FaqItem question="Que deviennent les affaires quand on oublie les relances après un rendez-vous ?">
-Elles restent à leur étape jusqu’à ce que quelqu’un tombe dessus, et elles continuent de compter dans le pipeline pondéré. Customermates ne relance personne : il n’y a ni échéances de tâches ni notifications. Ce qui aide, c’est un champ Date personnalisé « Prochain contact » sur l’affaire, plus la routine de relance ci-dessus, qui crée une tâche pour chaque affaire dont la date est dépassée.
+Elles restent à leur étape jusqu’à ce que quelqu’un tombe dessus, et elles continuent de compter dans le pipeline pondéré. Les tâches n’ont pas d’échéance intégrée. Ce qui aide, c’est une automatisation qui prévient la personne responsable, sur un champ Date personnalisé « Prochain contact » sur l’affaire, plus la routine de relance ci-dessus, qui crée une tâche pour chaque affaire dont la date est dépassée.
 </FaqItem>
 
 <FaqItem question="Les routines fonctionnent-elles en auto-hébergement ?">
