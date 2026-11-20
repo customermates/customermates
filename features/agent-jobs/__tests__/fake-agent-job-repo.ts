@@ -257,9 +257,14 @@ export class FakeAgentJobRepo implements AgentJobRepo {
     return Promise.resolve(closing.length);
   }
 
-  expireQueuedUnscoped(args: { queuedBefore: Date; now: Date; limit: number }): Promise<number> {
+  expireQueuedUnscoped(args: {
+    runtimes: readonly AgentRuntime[];
+    queuedBefore: Date;
+    now: Date;
+    limit: number;
+  }): Promise<number> {
     return this.close(
-      (job) => job.status === "queued" && job.queuedAt < args.queuedBefore,
+      (job) => job.status === "queued" && args.runtimes.includes(job.runtime) && job.queuedAt < args.queuedBefore,
       { status: "timedOut", error: "queueExpired", finishedAt: args.now },
       args.limit,
     );

@@ -139,7 +139,12 @@ export abstract class AgentJobRepo {
     companyId: string;
     runtimes: readonly AgentRuntime[];
   }): Promise<AgentJobQueueEntry | null>;
-  abstract expireQueuedUnscoped(args: { queuedBefore: Date; now: Date; limit: number }): Promise<number>;
+  abstract expireQueuedUnscoped(args: {
+    runtimes: readonly AgentRuntime[];
+    queuedBefore: Date;
+    now: Date;
+    limit: number;
+  }): Promise<number>;
   abstract cancelForRunnerUnscoped(args: { companyId: string; runnerId: string; now: Date }): Promise<number>;
   abstract cancelQueuedForRuleUnscoped(args: { companyId: string; ruleId: string; now: Date }): Promise<number>;
   abstract cancelQueuedOfInactiveRulesUnscoped(args: { now: Date; limit: number }): Promise<number>;

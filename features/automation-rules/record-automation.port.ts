@@ -56,7 +56,6 @@ export class RecordAutomationPort implements AutomationRecordPort {
         alreadyApplied: code === CustomErrorCode.recordIdempotencyConflict,
       };
     }
-    if (result.data.status !== "completed") return { ok: false, message: "mutationPending" };
-    return { ok: true, refs: result.data.refs };
+    return { ok: true, refs: result.data.status === "completed" ? result.data.refs : [] };
   }
 }

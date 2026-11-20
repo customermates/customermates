@@ -433,11 +433,16 @@ describeDatabase("PrismaAgentJobRepo", () => {
     await age(waiting.id, { queuedAt: minutesAgo(14) });
     await age(running.id, { queuedAt: minutesAgo(40), status: "running" });
 
-    const expired = await repo().expireQueuedUnscoped({ queuedBefore: minutesAgo(15), now, limit: 500 });
+    const expired = await repo().expireQueuedUnscoped({
+      runtimes: ["runner"],
+      queuedBefore: minutesAgo(15),
+      now,
+      limit: 500,
+    });
 
-    expect(expired).toBeGreaterThanOrEqual(2);
+    expect(expired).toBeGreaterThanOrEqual(1);
     expect(await row(stuckRunner.id)).toMatchObject({ status: "timedOut", error: "queueExpired", finishedAt: now });
-    expect(await row(stuckHosted.id)).toMatchObject({ status: "timedOut", error: "queueExpired" });
+    expect(await row(stuckHosted.id)).toMatchObject({ status: "queued", error: null, finishedAt: null });
     expect(await row(waiting.id)).toMatchObject({ status: "queued", finishedAt: null });
     expect(await row(running.id)).toMatchObject({ status: "running" });
   });

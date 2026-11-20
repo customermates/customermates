@@ -41,6 +41,11 @@ const RunPayloadSchema = z.looseObject({
 
 const RunProgressSchema = z.looseObject({ effects: z.array(AutomationEffectOutcomeSchema) });
 
+export function storedRunEffects(outcome: unknown): AutomationEffectOutcome[] | null {
+  const progress = RunProgressSchema.safeParse(outcome);
+  return progress.success ? progress.data.effects : null;
+}
+
 function admittedDateChanged(
   trigger: AutomationTrigger,
   model: RecordModelView,
@@ -89,13 +94,13 @@ export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
     const staleBefore = new Date(now.getTime() - AUTOMATION_RUN_STALE_MS);
     if (!(await this.repo.claimRunUnscoped(runId, companyId, now, staleBefore)))
       return { ok: true as const, data: { status: "notClaimed" } };
-    const progress = RunProgressSchema.safeParse(found.run.outcome);
-    const done = progress.success ? progress.data.effects : null;
-    const settlement = await this.execute(found.run, found.rule, done, now);
+    const claimed = (await this.repo.findRunUnscoped(companyId, runId)) ?? found;
+    const done = storedRunEffects(claimed.run.outcome);
+    const settlement = await this.execute(claimed.run, claimed.rule, done, now);
     await this.repo.settleRunUnscoped({
       runId,
       companyId,
-      ruleId: found.run.ruleId,
+      ruleId: claimed.run.ruleId,
       status: settlement.status,
       outcome: {
         effects: settlement.effects ?? done ?? [],

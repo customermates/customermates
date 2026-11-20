@@ -340,9 +340,18 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
   }
 
   @BypassTenantGuard
-  async expireQueuedUnscoped(args: { queuedBefore: Date; now: Date; limit: number }): Promise<number> {
+  async expireQueuedUnscoped(args: {
+    runtimes: readonly AgentRuntime[];
+    queuedBefore: Date;
+    now: Date;
+    limit: number;
+  }): Promise<number> {
     const waiting = await this.prisma.agentJob.findMany({
-      where: { status: AgentJobStatus.queued, queuedAt: { lt: args.queuedBefore } },
+      where: {
+        status: AgentJobStatus.queued,
+        runtime: { in: [...args.runtimes] },
+        queuedAt: { lt: args.queuedBefore },
+      },
       select: { id: true },
       orderBy: { queuedAt: "asc" },
       take: args.limit,
@@ -352,6 +361,7 @@ export class PrismaAgentJobRepo extends TenantRepository implements AgentJobRepo
       where: {
         id: { in: waiting.map((job) => job.id) },
         status: AgentJobStatus.queued,
+        runtime: { in: [...args.runtimes] },
         queuedAt: { lt: args.queuedBefore },
       },
       data: { status: AgentJobStatus.timedOut, finishedAt: args.now, error: AGENT_JOB_ERROR_QUEUE_EXPIRED },

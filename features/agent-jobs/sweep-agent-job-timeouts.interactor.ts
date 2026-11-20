@@ -8,6 +8,7 @@ import { AGENT_RUNNER_LIMITS } from "@/features/agent-runners/agent-runner.schem
 
 import {
   AGENT_JOB_HOSTED_RUNTIMES,
+  AGENT_JOB_QUEUE_EXPIRY_RUNTIMES,
   AGENT_JOB_QUEUED_REDISPATCH_MS,
   AGENT_JOB_RESERVATION_MAX_AGE_MS,
 } from "./agent-job.schema";
@@ -46,6 +47,7 @@ export class SweepAgentJobTimeoutsInteractor {
 
     const cancelled = await this.repo.cancelQueuedOfInactiveRulesUnscoped({ now, limit: SWEEP_LIMIT });
     const expired = await this.repo.expireQueuedUnscoped({
+      runtimes: AGENT_JOB_QUEUE_EXPIRY_RUNTIMES,
       queuedBefore: new Date(now.getTime() - AGENT_RUNNER_LIMITS.queuedExpiryMs),
       now,
       limit: SWEEP_LIMIT,

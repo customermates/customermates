@@ -11,7 +11,7 @@ import { captureException } from "@/core/observability/server";
 import { dateReachedCandidateWindow } from "./automation-date";
 import { dueDateOccurrences } from "./automation-occurrence";
 import { AUTOMATION_DATE_LOOKBACK_DAYS, AutomationTriggerSchema } from "./automation-rule.schema";
-import { AUTOMATION_RUN_STALE_MS } from "./run-automation-rule.interactor";
+import { AUTOMATION_RUN_STALE_MS, storedRunEffects } from "./run-automation-rule.interactor";
 
 const RULE_PAGE = 500;
 const CANDIDATE_PAGE = 2000;
@@ -161,12 +161,13 @@ export class SweepAutomationRulesInteractor {
     if (now.getTime() - run.createdAt.getTime() > AUTOMATION_RUN_GIVE_UP_MS) {
       const staleBefore = new Date(now.getTime() - AUTOMATION_RUN_STALE_MS);
       if (!(await this.repo.claimRunUnscoped(run.id, run.companyId, now, staleBefore))) return "left";
+      const claimed = (await this.repo.findRunUnscoped(run.companyId, run.id)) ?? found;
       await this.repo.settleRunUnscoped({
         runId: run.id,
         companyId: run.companyId,
         ruleId: found.run.ruleId,
         status: "failed",
-        outcome: { effects: [] },
+        outcome: { effects: storedRunEffects(claimed.run.outcome) ?? [] },
         error: AUTOMATION_RUN_ABANDONED_ERROR,
         now,
       });

@@ -62,9 +62,11 @@ export class NotificationsStore {
   loadMore = async (): Promise<void> => {
     const before = this.nextBefore;
     if (!before || this.isLoadingMore) return;
+    const mutation = this.mutationGeneration;
     runInAction(() => (this.isLoadingMore = true));
     try {
       const inbox = await actionData(getNotificationsAction({ limit: NOTIFICATIONS_PAGE_SIZE, before }));
+      if (mutation !== this.mutationGeneration) return;
       const merged = appendOlderPage(this, inbox);
       runInAction(() => {
         this.items = merged.items;

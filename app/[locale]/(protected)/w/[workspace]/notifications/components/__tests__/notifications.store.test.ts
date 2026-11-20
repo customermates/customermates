@@ -178,4 +178,22 @@ describe("NotificationsStore", () => {
     expect(store.items[0].read).toBe(true);
     expect(store.unreadCount).toBe(0);
   });
+
+  it("drops an older page that a mark-read overtook and leaves the cursor for another try", async () => {
+    const store = hydrated();
+    let release: (value: unknown) => void = () => undefined;
+    harness.getNotificationsAction.mockReturnValue(new Promise((resolve) => (release = resolve)));
+    harness.markNotificationsReadAction.mockResolvedValue({ ok: true, data: { marked: 1 } });
+
+    const page = store.loadMore();
+    await store.markRead([NEWEST.id]);
+    release({ ok: true, data: inbox({ items: [OLDEST], unreadCount: 2, nextBefore: null }) });
+    await page;
+
+    expect(store.items.map((item) => item.id)).toEqual([NEWEST.id, MIDDLE.id]);
+    expect(store.items[0].read).toBe(true);
+    expect(store.unreadCount).toBe(0);
+    expect(store.nextBefore).toBe(MIDDLE.createdAt);
+    expect(store.isLoadingMore).toBe(false);
+  });
 });

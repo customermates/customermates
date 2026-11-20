@@ -592,6 +592,24 @@ describe("running a rule", () => {
     await expect(run(instance, runId)).resolves.toEqual({ ok: true, data: { status: "applied" } });
   });
 
+  it("takes the finished steps from the run as it stands after the claim, so a step saved meanwhile is not repeated", async () => {
+    const runId = (await seedRun(repo)) as string;
+    const stuck = repo.runs.get(runId);
+    if (!stuck) throw new Error("expected the run");
+    repo.runs.set(runId, { ...stuck, status: "running", startedAt: new Date(NOW.getTime() - 11 * 60 * 1000) });
+    const claim = repo.claimRunUnscoped.bind(repo);
+    vi.spyOn(repo, "claimRunUnscoped").mockImplementation(async (...args) => {
+      await repo.saveRunProgressUnscoped(COMPANY, runId, { effects: [{ kind: "notify", status: "applied" }] });
+      return claim(...args);
+    });
+    const { interactor: instance, notifications } = interactor();
+
+    await expect(run(instance, runId)).resolves.toEqual({ ok: true, data: { status: "applied" } });
+
+    expect(notifications.notify).not.toHaveBeenCalled();
+    expect(repo.runs.get(runId)?.outcome).toMatchObject({ effects: [{ kind: "notify", status: "applied" }] });
+  });
+
   it("skips a run whose rule was changed after the event matched it, and says so", async () => {
     await seedRun(repo);
     const seed = async (occurrenceKey: string, subscriptionRevision: number) => {
@@ -1533,6 +1551,18 @@ describe("sweeping date-reached rules", () => {
       automationRunsRedispatched: 0,
       automationRunsAbandoned: 0,
     });
+  });
+
+  it("keeps the steps a run already applied when it gives up on it", async () => {
+    const runId = await stalledRun(repo, 31);
+    const applied = [{ kind: "callWebhook" as const, status: "applied" as const }];
+    const stalled = repo.runs.get(runId);
+    if (stalled) repo.runs.set(runId, { ...stalled, outcome: { effects: applied } });
+
+    await expect(sweep.invoke(NOW)).resolves.toMatchObject({ automationRunsAbandoned: 1 });
+
+    expect(repo.runs.get(runId)).toMatchObject({ status: "failed", error: "runAbandoned" });
+    expect(repo.runs.get(runId)?.outcome).toEqual({ effects: applied });
   });
 
   it("leaves a run alone that a worker picked up in the meantime", async () => {

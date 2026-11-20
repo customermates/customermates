@@ -833,20 +833,32 @@ describe("jobs that wait in the queue", () => {
       now: NOW,
     });
 
-  it("end as timed out once they waited longer than the queue allows, on every runtime", async () => {
+  it("end as timed out once no runner picked them up for longer than the queue allows", async () => {
     const repo = new FakeAgentJobRepo();
     const noRunner = repo.add({ runtime: "runner", queuedAt: minutesAgo(16) });
-    const neverStarted = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(20) });
     const waiting = repo.add({ runtime: "runner", queuedAt: minutesAgo(14) });
     const dispatch = vi.fn().mockResolvedValue(undefined);
 
     const result = await sweep(repo, dispatch);
 
-    expect(result).toMatchObject({ agentJobsExpired: 2, agentJobsRedispatched: 0 });
+    expect(result).toMatchObject({ agentJobsExpired: 1, agentJobsRedispatched: 0 });
     expect(repo.jobs.get(noRunner.id)).toMatchObject({ status: "timedOut", error: "queueExpired", finishedAt: NOW });
-    expect(repo.jobs.get(neverStarted.id)).toMatchObject({ status: "timedOut", error: "queueExpired" });
     expect(repo.jobs.get(waiting.id)?.status).toBe("queued");
     expect(dispatch).not.toHaveBeenCalled();
+  });
+
+  it("stay queued on Mate and on an own key however long they wait for a free slot, and are dispatched again", async () => {
+    const repo = new FakeAgentJobRepo();
+    const ownKey = repo.add({ runtime: "ownKey", queuedAt: minutesAgo(20) });
+    const mate = repo.add({ runtime: "mate", queuedAt: minutesAgo(90) });
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+
+    const result = await sweep(repo, dispatch);
+
+    expect(result).toMatchObject({ agentJobsExpired: 0, agentJobsRedispatched: 2 });
+    expect(repo.jobs.get(ownKey.id)).toMatchObject({ status: "queued", error: null, finishedAt: null });
+    expect(repo.jobs.get(mate.id)).toMatchObject({ status: "queued", error: null, finishedAt: null });
+    expect(dispatch).toHaveBeenCalledWith("run-agent-job", expect.objectContaining({ jobId: mate.id }));
   });
 
   it("are free for any live runner again after the runner that claimed them went away", async () => {

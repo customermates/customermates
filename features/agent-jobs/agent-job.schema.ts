@@ -10,6 +10,7 @@ export const AGENT_JOB_RESERVATION_MAX_AGE_MS = AGENT_JOB_MAX_WALL_MS + 2 * 60 *
 export const AGENT_JOB_MAX_HOSTED_RUNNING_PER_WORKSPACE = 5;
 export const AGENT_JOB_PROMPT_MAX_CHARS = 4 * AUTOMATION_AGENT_PROMPT_MAX_CHARS;
 export const AGENT_JOB_HOSTED_RUNTIMES = ["mate", "ownKey"] as const;
+export const AGENT_JOB_QUEUE_EXPIRY_RUNTIMES = ["runner"] as const;
 export const AGENT_JOB_QUEUED_REDISPATCH_MS = 2 * 60 * 1000;
 export const AGENT_JOB_ERROR_QUEUE_EXPIRED = "queueExpired";
 export const AGENT_JOB_ERROR_RUNNER_REVOKED = "runnerRevoked";

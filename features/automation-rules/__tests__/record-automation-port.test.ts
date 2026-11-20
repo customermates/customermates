@@ -58,4 +58,13 @@ describe("record automation port", () => {
     const result = await port(null).mutate({ idempotencyKey: "rule:run:0", mutation: MUTATION });
     expect(result).toEqual({ ok: true, refs: [] });
   });
+
+  it("counts a write that continues in a background operation as applied", async () => {
+    const pending = { ok: true, data: { status: "pending", operationId: "operation-1", schemaRevision: 4 } };
+    const models = { invoke: vi.fn().mockResolvedValue({ ok: true, data: { revision: 4 } }) };
+    const mutations = { invoke: vi.fn().mockResolvedValue(pending) };
+    const subject = new RecordAutomationPort(models as never, { invoke: vi.fn() } as never, mutations as never);
+
+    expect(await subject.mutate({ idempotencyKey: "rule:run:0", mutation: MUTATION })).toEqual({ ok: true, refs: [] });
+  });
 });
