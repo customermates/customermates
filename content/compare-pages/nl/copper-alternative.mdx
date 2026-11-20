@@ -84,7 +84,7 @@ comparison:
         source: Mate en Routines (Customermates Cloud, gehoste AI-credits)
         competitor: Copper GPT in ChatGPT, alleen lezen; AI-generator en -herschrijver voor e-mailsjablonen vanaf Professional
       - name: Opvolging en herinneringen
-        source: Geen vervaldatums voor taken en geen herinneringen; een datumveld, opgeslagen weergaven en een widget Aankomend
+        source: Geen ingebouwde vervaldatums voor taken; een datumveld met een automatisering die je herinnert, opgeslagen weergaven en een widget Aankomend
         competitor: Herinneringen en taken in elk abonnement; dealaanbevelingen die volgende stappen voorstellen
       - name: Workflowautomatisering
         source: Routines die je zelf schrijft (Customermates Cloud)
@@ -96,7 +96,7 @@ comparison:
         source: false
         competitor: In elk abonnement
       - name: Webformulieren
-        source: false
+        source: Openbare formulieren met een link of insluitcode, in elk abonnement
         competitor: Formulieren in elk abonnement
       - name: REST API en webhooks
         source: REST API in elk abonnement, webhooks bij betaalde abonnementen en self-hosted
@@ -137,7 +137,7 @@ cta:
 |---|---|---|
 | Je wilt het CRM in Gmail: contactkaarten, taken en herinneringen naast de inbox | Copper | De Chrome-extensie brengt Copper in Gmail en Google Agenda; Customermates heeft geen Gmail-zijbalk en mail bereikt het alleen via het gekoppelde account |
 | Je wilt LinkedIn-gesprekken naast e-mail bij de klant | Customermates Pro of Business | LinkedIn-chats, InMail en Sales Navigator-gesprekken staan in de inbox; de LinkedIn-pagina van Copper beschrijft het vastleggen van profielen en noemt synchronisatie van berichten als binnenkort beschikbaar |
-| Je wilt dataverrijking, bulk-e-mail, e-mailreeksen of webformulieren | Copper | Verrijking en formulieren zitten in elk Copper-abonnement, bulk-e-mail vanaf Professional en e-mailreeksen bij Business; Customermates heeft geen van deze |
+| Je wilt dataverrijking, bulk-e-mail, e-mailreeksen of webformulieren | Copper | Verrijking en formulieren zitten in elk Copper-abonnement, bulk-e-mail vanaf Professional en e-mailreeksen bij Business; Customermates heeft openbare formulieren, maar geen van de andere |
 | Je wilt na de proefperiode een gratis plan | Customermates | Free dekt [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records; de prijspagina van Copper noemt een gratis start, geen gratis plan |
 | Je wilt dat Claude of ChatGPT het CRM leest en bijwerkt | Customermates | De MCP-server heeft [[derived.mcp.tools.total]] tools in elk abonnement; Copper noemt een MCP als binnenkort beschikbaar, en Copper GPT is alleen-lezen |
 | Je wilt de broncode inzien of hebt een eigen server nodig | Customermates | De Community Edition (Sustainable Use License) is zelf te hosten met Docker Compose, zonder inbox en Mate; Copper noemt geen self-hosted editie |
@@ -212,7 +212,7 @@ Customermates is ons eigen product, dus controleer elke regel aan de hand van de
 
 **Standaard privé.** Je gesprekken zijn privé; ook beheerders kunnen ze niet lezen. Je deelt één gesprek met het team, of, bij Business, een heel gekoppeld account.
 
-**Een volgende stap bij elke klant.** Voeg een datumveld zoals "Volgend contact" toe aan contactpersonen of deals, sorteer een opgeslagen weergave erop en zet een widget Aankomend op het dashboard. De [gids over opvolging](/features/follow-up) loopt het stap voor stap door. Er komt geen melding; jij opent de lijst.
+**Een volgende stap bij elke klant.** Voeg een datumveld zoals "Volgend contact" toe aan contactpersonen of deals, sorteer een opgeslagen weergave erop en zet een widget Aankomend op het dashboard. De [gids over opvolging](/features/follow-up) loopt het stap voor stap door. Een automatisering op die datum kan je herinneren, of je opent de lijst.
 
 **AI die concepten voor je opstelt.** In Customermates Cloud vat Mate gesprekken samen, stelt antwoorden op, werkt records bij en bouwt weergaven, met gehoste AI-credits: een maandelijkse hoeveelheid per actieve gebruiker, vermeld op de [prijspagina](/pricing). Mate verstuurt een bericht zonder te vragen als jij zegt dat het moet worden verstuurd, dus vraag om concepten als je eerst wilt controleren. Liever Claude of ChatGPT? Koppel die aan de [MCP-server](/docs/mcp), met [[derived.mcp.tools.total]] tools in elk abonnement, Free inbegrepen, en bij self-hosted installaties. De modelaanroepen lopen dan via je eigen AI-aanbieder, en onze [gids over CRM's met Claude](/blog/claude-crm) laat zien hoe de opties zich verhouden.
 
@@ -225,9 +225,8 @@ Controleer dit voordat je een proefperiode start:
 - **Geen Gmail-zijbalk en geen Chrome-extensie.** Mail bereikt Customermates alleen via het gekoppelde account, en je werkt in de inbox of bij de contactpersoon. Wil je het CRM in het Gmail-venster, kies dan Copper.
 - **Geen profielen vastleggen en geen dataverrijking.** Contactgegevens zijn wat je team of je AI-client invoert, en een LinkedIn-profiel komt niet met één klik in het CRM.
 - **Geen bulk-e-mail, geen e-mailreeksen en geen sequences.** Berichten gaan één voor één de deur uit, door jou geschreven of door Mate opgesteld.
-- **Geen webformulieren.** Er is geen insluitbaar formulier om leads vast te leggen.
-- **Geen herinneringen en geen vervaldatums voor taken.** Een datumveld en een widget Aankomend tonen wat er moet gebeuren, maar niets stuurt een melding.
-- **Agenda alleen lezen.** Customermates toont agenda-afspraken uit je Google-account maar maakt, wijzigt of boekt ze niet; de agendasynchronisatie van Copper maakt en beheert afspraken.
+- **Geen ingebouwde vervaldatums voor taken.** Een datumveld en een widget Aankomend tonen wat er moet gebeuren, en een automatisering op dat veld kan je een melding sturen zodra de datum bereikt is.
+- **Geen tweerichtingssynchronisatie van de agenda.** In Customermates Cloud vanaf Pro plan je afspraken in je Google-agenda en bied je boekingspagina's aan, maar andere afspraken blijven in Customermates alleen-lezen; de agendasynchronisatie van Copper maakt en beheert afspraken.
 - **Een smallere Google-koppeling.** Customermates koppelt Gmail en Google Agenda. Copper noemt ook koppeling met Google Drive, synchronisatie van Google Contacten en een integratie met Sheets en Looker Studio.
 - **Geen telefoon, sms, mobiele apps of single sign-on.** Customermates heeft geen telefonie, geen native iOS- of Android-app en geen SSO.
 - **Eén gekoppeld account per gebruiker bij Pro.** Gmail en LinkedIn voor dezelfde persoon vragen Business.
@@ -241,7 +240,7 @@ Neem een bureau van drie personen op Google Workspace dat klanten wint op Linked
 |---|---|
 | Personen en bedrijven | Contactpersonen en organisaties |
 | Een verkooppipeline met fasen | Deals met een fasenveld: Lead 10%, Voorstel 40%, Onderhandeling 70%, Gewonnen 100%, Verloren 0% |
-| Een taak met een herinnering | Een datumveld "Volgend contact" en een widget Aankomend; er wordt geen herinnering verstuurd |
+| Een taak met een herinnering | Een datumveld "Volgend contact" met een automatisering die je herinnert, plus een widget Aankomend |
 | De Chrome-extensie in Gmail | Gmail gekoppeld als kanaal; het gesprek staat in de inbox en bij de contactpersoon |
 | Een LinkedIn-profiel vastgelegd met de extensie | Het LinkedIn-gesprek in de inbox, gekoppeld aan de contactpersoon |
 | Dataverrijking en bulk-e-mail | Niet beschikbaar; notities met de hand of via je AI-client |

@@ -84,7 +84,7 @@ comparison:
         source: Mate et routines (Customermates Cloud, crédits IA hébergés)
         competitor: Copper GPT dans ChatGPT, en lecture seule ; générateur et réécriture d’e-mails par IA dès Professional
       - name: Relances et rappels
-        source: Pas d’échéances ni de rappels sur les tâches ; un champ date, des vues enregistrées et un widget À venir
+        source: Pas d’échéances intégrées sur les tâches ; un champ date avec une automatisation qui vous le rappelle, des vues enregistrées et un widget À venir
         competitor: Rappels et tâches sur toutes les formules ; recommandations sur les affaires qui suggèrent les prochaines étapes
       - name: Automatisation des workflows
         source: Routines que vous écrivez (Customermates Cloud)
@@ -96,7 +96,7 @@ comparison:
         source: false
         competitor: Sur toutes les formules
       - name: Formulaires web
-        source: false
+        source: Formulaires publics avec un lien ou un code d’intégration, sur toutes les formules
         competitor: Formulaires sur toutes les formules
       - name: API REST et webhooks
         source: API REST sur toutes les formules, webhooks sur les formules payantes et en auto-hébergement
@@ -137,7 +137,7 @@ cta:
 |---|---|---|
 | Vous voulez le CRM dans Gmail : fiches de contact, tâches et rappels à côté de la boîte de réception | Copper | Son extension Chrome amène Copper dans Gmail et Google Agenda ; Customermates n’a pas de barre latérale Gmail, et le courrier ne lui parvient que par le compte connecté |
 | Vous voulez les conversations LinkedIn à côté de l’e-mail sur la fiche client | Customermates Pro ou Business | Les chats LinkedIn, les InMails et les fils Sales Navigator sont dans la boîte de réception ; la page LinkedIn de Copper décrit la capture de profils et annonce la synchronisation des messages comme « coming soon » |
-| Vous voulez de l’enrichissement, des e-mails en masse, des séries d’e-mails ou des formulaires web | Copper | L’enrichissement et les formulaires sont sur toutes les formules Copper, les e-mails en masse dès Professional et les séries d’e-mails avec Business ; Customermates n’a rien de tout cela |
+| Vous voulez de l’enrichissement, des e-mails en masse, des séries d’e-mails ou des formulaires web | Copper | L’enrichissement et les formulaires sont sur toutes les formules Copper, les e-mails en masse dès Professional et les séries d’e-mails avec Business ; Customermates a des formulaires publics, mais rien d’autre de tout cela |
 | Vous voulez une formule gratuite après l’essai | Customermates | Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements ; la page tarifs de Copper indique un démarrage gratuit, pas une formule gratuite |
 | Vous voulez que Claude ou ChatGPT lise et mette à jour le CRM | Customermates | Le serveur MCP offre [[derived.mcp.tools.total]] outils sur toutes les formules ; Copper annonce un MCP comme « coming soon », et son Copper GPT ne fait que lire |
 | Vous avez besoin d’un code source consultable ou de votre propre serveur | Customermates | La Community Edition s’auto-héberge avec Docker Compose, sans la boîte de réception ni Mate ; Copper ne cite aucune édition auto-hébergée |
@@ -212,7 +212,7 @@ Customermates est notre produit : vérifiez chaque ligne dans sa propre document
 
 **Privé par défaut.** Vos conversations sont privées ; les administrateurs ne peuvent pas non plus les lire. Vous partagez une seule conversation avec l’équipe ou, avec Business, un compte connecté entier.
 
-**Une prochaine étape pour chaque client.** Ajoutez un champ date comme « Prochain contact » aux contacts ou aux affaires, triez une vue enregistrée selon ce champ et ajoutez un widget À venir au tableau de bord. Le [guide de la relance client](/features/follow-up) explique la mise en place pas à pas. Rien ne vous relance : vous ouvrez la liste.
+**Une prochaine étape pour chaque client.** Ajoutez un champ date comme « Prochain contact » aux contacts ou aux affaires, triez une vue enregistrée selon ce champ et ajoutez un widget À venir au tableau de bord. Le [guide de la relance client](/features/follow-up) explique la mise en place pas à pas. Une automatisation sur cette date peut vous le rappeler, ou vous ouvrez la liste.
 
 **Une IA qui rédige pour vous.** Dans Customermates Cloud, Mate résume les fils, rédige des réponses, met à jour les fiches et construit des vues. Il utilise des crédits IA hébergés, avec une enveloppe mensuelle par utilisateur actif indiquée sur la [page des tarifs](/pricing). Mate envoie un message sans validation quand vous lui demandez d’envoyer : demandez-lui d’enregistrer des brouillons quand vous voulez relire d’abord. Vous préférez Claude ou ChatGPT ? Connectez-le au [serveur MCP](/docs/mcp), qui offre [[derived.mcp.tools.total]] outils sur toutes les formules, Free comprise, et sur les installations auto-hébergées. Les appels au modèle passent alors par votre propre fournisseur d’IA ; notre [guide des CRM avec Claude](/blog/claude-crm) compare les options.
 
@@ -225,9 +225,8 @@ Vérifiez ces points avant de lancer un essai :
 - **Pas de barre latérale Gmail ni d’extension Chrome.** Le courrier ne parvient à Customermates que par le compte connecté, et vous travaillez dans la boîte de réception ou sur le contact. Si vous voulez le CRM dans la fenêtre Gmail, choisissez Copper.
 - **Pas de capture de profils ni d’enrichissement.** Les données de contact sont celles que votre équipe ou votre client IA saisit, et un profil LinkedIn n’entre pas dans le CRM en un clic.
 - **Ni e-mails en masse, ni séries d’e-mails, ni séquences.** La prospection se fait message par message, écrit par vous ou rédigé par Mate.
-- **Pas de formulaires web.** Il n’existe pas de formulaire de capture de leads à intégrer.
-- **Ni rappels, ni échéances sur les tâches.** Un champ date et un widget À venir montrent ce qui est dû, mais rien n’envoie de notification.
-- **Un agenda en lecture seule.** Customermates affiche les événements de votre compte Google mais ne les crée, ne les modifie ni ne les réserve ; la synchronisation d’agenda de Copper crée et gère des événements.
+- **Pas d’échéances intégrées sur les tâches.** Un champ date et un widget À venir montrent ce qui est dû, et une automatisation sur ce champ peut vous prévenir quand la date arrive.
+- **Pas de synchronisation d’agenda dans les deux sens.** Dans Customermates Cloud à partir de Pro, vous planifiez des réunions dans votre agenda Google et proposez des pages de réservation, mais les autres événements restent en lecture seule dans Customermates ; la synchronisation d’agenda de Copper crée et gère des événements.
 - **Une connexion Google plus étroite.** Customermates connecte Gmail et Google Agenda. Copper cite en plus le lien avec Google Drive, la synchronisation des contacts Google et une intégration avec Sheets et Looker Studio.
 - **Ni téléphonie, ni SMS, ni applications mobiles, ni authentification unique.** Customermates n’a pas de téléphonie, pas d’application iOS ou Android native et pas de SSO.
 - **Un compte connecté par utilisateur sur Pro.** Gmail et LinkedIn pour la même personne demandent Business.
@@ -241,7 +240,7 @@ Prenons une agence de trois personnes sur Google Workspace qui gagne ses clients
 |---|---|
 | Personnes et entreprises | Contacts et organisations |
 | Un pipeline de vente avec des étapes | Des affaires avec un champ d’étape : Prospect 10 %, Proposition 40 %, Négociation 70 %, Gagnée 100 %, Perdue 0 % |
-| Une tâche avec un rappel | Un champ date « Prochain contact » et un widget À venir ; aucun rappel n’est envoyé |
+| Une tâche avec un rappel | Un champ date « Prochain contact » avec une automatisation qui vous le rappelle, plus un widget À venir |
 | L’extension Chrome dans Gmail | Gmail connecté comme canal ; le fil apparaît dans la boîte de réception et sur le contact |
 | Un profil LinkedIn capturé avec l’extension | La conversation LinkedIn dans la boîte de réception, liée au contact |
 | Enrichissement et e-mails en masse | Non disponibles ; notes à la main ou via votre client IA |

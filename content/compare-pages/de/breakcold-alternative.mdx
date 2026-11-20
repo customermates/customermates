@@ -90,7 +90,7 @@ comparison:
         source: false
         competitor: Auf Preis- und Funktionsseite kein Sequenz-Editor genannt
       - name: Aufgaben und Erinnerungen
-        source: Keine Fälligkeiten und Erinnerungen bei Aufgaben; ein Datumsfeld, gespeicherte Ansichten und ein Widget „Anstehend“
+        source: Keine eingebauten Fälligkeiten bei Aufgaben; ein Datumsfeld mit einer Automatisierung, die erinnert, gespeicherte Ansichten und ein Widget „Anstehend“
         competitor: Aufgaben mit Erinnerungen und Zuständigen
       - name: REST-API und Webhooks
         source: REST-API in jedem Tarif, Webhooks in bezahlten Tarifen und selbst gehostet
@@ -183,7 +183,7 @@ Customermates ist unser Produkt, prüfen Sie also jede Zeile in der eigenen Doku
 
 **Gespräche direkt beim Kunden.** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) Postfächer von Gmail, Outlook und per IMAP, LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. [LinkedIn in Customermates](/features/linkedin-integration) umfasst Sales Navigator und Recruiter InMail. Verknüpfen Sie einen Gesprächspartner einmal mit einem Kontakt, erscheint jedes Gespräch mit dieser Adresse oder Kennung in der Timeline des Kontakts.
 
-**Ein nächster Schritt bei jedem Kunden.** Legen Sie bei Kontakten oder Deals ein Datumsfeld wie „Nächster Kontakt“ an, sortieren Sie eine gespeicherte Ansicht danach und fügen Sie dem Dashboard ein Widget „Anstehend“ hinzu. Die [Anleitung zum Nachfassen](/features/follow-up) führt Schritt für Schritt durch das Einrichten. Nichts meldet sich bei Ihnen; Sie öffnen die Liste.
+**Ein nächster Schritt bei jedem Kunden.** Legen Sie bei Kontakten oder Deals ein Datumsfeld wie „Nächster Kontakt“ an, sortieren Sie eine gespeicherte Ansicht danach und fügen Sie dem Dashboard ein Widget „Anstehend“ hinzu. Die [Anleitung zum Nachfassen](/features/follow-up) führt Schritt für Schritt durch das Einrichten. Eine Automatisierung auf diesem Datum kann Sie erinnern, oder Sie öffnen die Liste.
 
 **KI, die für Sie entwirft.** In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten, aktualisiert Datensätze und legt Ansichten an. Mate nutzt gehostete KI-Credits mit einem monatlichen Kontingent pro aktivem Nutzer, das auf der [Preisseite](/pricing) steht. Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz aus. Nachrichten verschickt Mate ohne gesonderte Freigabe, wenn Sie es dazu auffordern; lassen Sie deshalb Entwürfe speichern, wenn Sie vorher prüfen möchten. Sie arbeiten lieber mit Claude oder ChatGPT? Verbinden Sie den Client mit dem [MCP-Server](/docs/mcp), der in jedem Tarif, auch im kostenlosen, und bei selbst gehosteten Installationen [[derived.mcp.tools.total]] Tools bereitstellt. Die Modellaufrufe laufen dann über Ihren eigenen KI-Anbieter; unser [Überblick zu CRMs mit Claude](/blog/claude-crm) zeigt, wie sich die Optionen unterscheiden.
 
@@ -196,7 +196,7 @@ Prüfen Sie diese Punkte vor der Testphase:
 - **Keine Datenanreicherung, keine Gesprächsaufzeichnung, keine Telefonie.** Kontaktdaten sind das, was Ihr Team oder Ihr KI-Client einträgt, und Meetings bleiben in Ihrem Meeting-Tool.
 - **Keine Sequenzen und kein Serienversand.** Nachrichten verschicken Sie einzeln, selbst geschrieben oder von Mate entworfen. Auch Breakcold nennt auf Preis- und Funktionsseite keinen Sequenz-Editor; die Funktionsseite verweist für Ansprache auf Agenten wie OpenClaw und Hermes AI. Für mehrstufige Kampagnen ist also keines der beiden Werkzeuge die Wahl.
 - **Keine Browser-Erweiterung.** Profile landen nicht mit einem Klick im CRM.
-- **Keine Erinnerungen und keine Fälligkeiten bei Aufgaben.** Ein Datumsfeld und ein Widget „Anstehend“ zeigen, was fällig ist, aber nichts schickt eine Benachrichtigung.
+- **Keine eingebauten Fälligkeiten bei Aufgaben.** Ein Datumsfeld und ein Widget „Anstehend“ zeigen, was fällig ist, und eine Automatisierung auf dem Feld kann Sie benachrichtigen, wenn das Datum erreicht ist.
 - **Keine automatische Erkennung verstummter Gespräche.** Nichts achtet auf ein Gespräch, das ruhig geworden ist, es sei denn, Sie schreiben dafür eine Routine.
 - **Ein verbundenes Konto pro Nutzer in Pro.** Zwei Kanäle pro Person brauchen Business.
 - **Keine Freigabeliste für Nachrichten.** Mate sendet, wenn Sie es verlangen; deshalb empfiehlt diese Seite Entwürfe.
@@ -211,7 +211,7 @@ Nehmen wir eine Beratung mit drei Personen, die Projekte an Kunden verkauft, die
 |---|---|
 | Personen und Firmen | Kontakte und Organisationen |
 | Eine Pipeline mit Phasen | Deals, umbenannt in „Projekte“, mit einem Phasenfeld: Lead 10 %, Angebot 40 %, Verhandlung 70 %, Gewonnen 100 %, Verloren 0 % |
-| Eine Aufgabe mit Erinnerung | Ein Datumsfeld „Nächster Kontakt“ und ein Widget „Anstehend“; es wird keine Erinnerung verschickt |
+| Eine Aufgabe mit Erinnerung | Ein Datumsfeld „Nächster Kontakt“ mit einer Automatisierung, die erinnert, dazu ein Widget „Anstehend“ |
 | Chief-of-Staff-Entwürfe in der Aufgabenliste | Mate oder eine Routine speichert einen Entwurf im Gespräch; Sie prüfen und senden |
 | Ein Posteingang für alle Kanäle | Der einheitliche Posteingang mit verbundenem LinkedIn und Gmail |
 | Datenanreicherung und Gesprächsaufzeichnung | Nicht vorhanden; Notizen von Hand oder über Ihren KI-Client |
