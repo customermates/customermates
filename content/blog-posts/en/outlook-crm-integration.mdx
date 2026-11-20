@@ -58,7 +58,7 @@ Most CRMs in the next table combine the first two: an add-in for looking things 
 | Microsoft Dynamics 365 Sales | Dynamics 365 App for Outlook on desktop, web and mobile: link emails, meetings and appointments to an account, opportunity or case | Server-side synchronization runs in the background roughly every 15 minutes; contacts can sync between Exchange and Dynamics 365 | Not supported on Microsoft 365 shared mailboxes. Sales Professional is listed at $65 per user per month, paid yearly |
 | Salesforce | The Outlook integration, a side panel in Outlook | Einstein Activity Capture for email and event sync | Salesforce for Outlook, the older desktop product, is being retired; Salesforce recommends the Outlook integration and Einstein Activity Capture instead |
 | Pipedrive | Pipedrive for Outlook, a Marketplace app built by Baymats AB, for desktop and web; 7-day free trial, then a paid subscription | Email sync on Growth and higher, with Office 365 / Outlook, Exchange (EWS) and IMAP; links conversations to deals, leads or projects | Email sync also offers open tracking. The add-in is a third-party product with its own subscription |
-| Customermates | No add-in | Outlook mailbox in the CRM inbox on Pro and higher in Customermates Cloud; calendar read-only | No Outlook contact sync and no calendar writes. Details in the next sections |
+| Customermates | No add-in | Outlook mailbox in the CRM inbox on Pro and higher in Customermates Cloud; meetings you schedule go into your Outlook calendar | No Outlook contact sync and no two-way calendar sync. Details in the next sections |
 
 Prices change; the Dynamics 365 price was checked on 8 October 2026 on [Microsoft's pricing page](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).
 
@@ -99,7 +99,7 @@ What then syncs, and what does not:
 |---|---|
 | Sent and received email | Yes, from the folders you switched on. Replies go out from the Outlook account itself |
 | Moving an email to a folder | Yes, for Outlook and IMAP accounts the move happens in the real mailbox too |
-| Calendar events | Read-only. Meetings appear in the activity timeline; Customermates does not create, edit or book events |
+| Calendar events | Meetings appear in the activity timeline. Customermates writes only the meetings you schedule and the bookings from your booking pages (Cloud, Pro and higher); other events stay read-only |
 | Outlook contacts (address book) | Not synced in either direction. Contacts are created by linking a participant or in the CRM |
 | Outlook tasks | Not synced |
 
@@ -122,7 +122,7 @@ A five-person team on Pro pays [[commercial.price.pro.monthly.seats.5]] per mont
 To try it with your own Outlook, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
 
 <AcquisitionCallout title="Where Customermates is not the right fit" variant="boundary">
-There is no Outlook add-in, so CRM details are looked up in Customermates, not in an Outlook side panel. Outlook contacts and tasks do not sync, and calendar events are read-only. Customermates has no email sequences or mass email. A self-hosted installation has no inbox and no Outlook connection at all; it offers REST, webhooks and MCP. If your team must stay inside Outlook, or needs two-way contact sync with the Exchange address book, choose a CRM with a web add-in and server-side sync from the table above.
+There is no Outlook add-in, so CRM details are looked up in Customermates, not in an Outlook side panel. Outlook contacts and tasks do not sync, and calendar events stay read-only apart from the meetings you schedule and the bookings from your booking pages. Customermates has no email sequences or mass email. A self-hosted installation has no inbox and no Outlook connection at all; it offers REST, webhooks and MCP. If your team must stay inside Outlook, or needs two-way contact sync with the Exchange address book, choose a CRM with a web add-in and server-side sync from the table above.
 </AcquisitionCallout>
 
 ## Test any Outlook integration before you roll it out
