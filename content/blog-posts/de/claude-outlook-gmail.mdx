@@ -128,7 +128,7 @@ Die meisten Fragen zu „Claude und Outlook“ vermischen drei Zugriffe. Getrenn
 | Zugriff | Wofür Claude ihn braucht | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Postfach | Den Verlauf lesen, die Antwort formulieren | Gmail-Connector | Claude for Outlook oder Microsoft-365-Connector | Verläufe des verbundenen Postfachs im Posteingang, nur Ordner, die Sie eingeschaltet haben |
-| Kalender | Terminvorschläge, Verfügbarkeit | Google-Calendar-Connector, mit Schreibzugriff | Claude for Outlook (Zeiten finden, Einladung als Entwurf) oder Microsoft-365-Connector, Schreib-Tools nach Admin-Freigabe | Nur lesend (`get_calendars`), kein Buchen |
+| Kalender | Terminvorschläge, Verfügbarkeit | Google-Calendar-Connector, mit Schreibzugriff | Claude for Outlook (Zeiten finden, Einladung als Entwurf) oder Microsoft-365-Connector, Schreib-Tools nach Admin-Freigabe | `get_calendars` zum Lesen, `schedule_meeting` zum Buchen, Verschieben und Absagen von Terminen (Cloud, ab Pro) |
 | Kundenhistorie | Wer ist das, welcher Deal, was wurde zugesagt | Nicht vorhanden | Nicht vorhanden | Datensätze, Aktivitäten, Notizen, Dateien, Wissensdatenbank |
 | Senden | Die Antwort verschicken | Claude fragt standardmäßig vorher | Add-in: sendet nie, der Entwurf bleibt in Outlook; Connector, private Konten: Claude fragt vorher; Arbeitskonten: erst nach Admin-Freigabe der Schreib-Tools | `save_message_draft` legt einen Entwurf ab; `send_email` sendet sofort, wenn Sie das Tool erlauben |
 

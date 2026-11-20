@@ -160,7 +160,7 @@ Un conector da acceso a Claude, pero no le dice cómo se hace el trabajo. Para u
 - **Una tarea puntual de unas pocas líneas.** Pega el texto en el chat; no hay nada que autorizar.
 - **Cientos de registros.** Un conector trabaja registro a registro, y los proveedores limitan las llamadas masivas (el conector de HubSpot cambia 10 registros cada vez). Usa mejor la importación del CRM.
 - **Un servidor que no controlas o en el que no confías.** Un conector personalizado puede llegar a servicios que Anthropic no ha verificado.
-- **Customermates, en concreto.** Es la opción equivocada si Claude debe reservar o cambiar eventos de agenda (sus agendas conectadas son de solo lectura: añade para eso el conector de Google Calendar o de Microsoft 365), si quieres un enlace nativo con Slack (a Slack solo llega n8n) o si necesitas telefonía o secuencias de correos, que no tiene. Si tu equipo ya trabaja con HubSpot y está contento, usa el conector de HubSpot.
+- **Customermates, en concreto.** Es la opción equivocada si te autoalojas o te quedas por debajo de Pro y Claude debe reservar eventos de agenda (programar reuniones con `schedule_meeting` requiere Customermates Cloud desde Pro; si no, añade el conector de Google Calendar o de Microsoft 365), si quieres un enlace nativo con Slack (a Slack solo llega n8n) o si necesitas telefonía o secuencias de correos, que no tiene. Si tu equipo ya trabaja con HubSpot y está contento, usa el conector de HubSpot.
 
 ## ¿Qué hago si un conector de Claude no se conecta? [#troubleshooting]
 

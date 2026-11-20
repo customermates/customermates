@@ -128,7 +128,7 @@ Większość pytań o „Claude i Outlooka” miesza trzy dostępy. Rozdzielone 
 | Dostęp | Do czego potrzebuje go Claude | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Skrzynka | Przeczytać wątek, sformułować odpowiedź | Konektor Gmaila | Claude for Outlook lub konektor Microsoft 365 | Wątki podłączonej skrzynki w skrzynce odbiorczej, tylko foldery, które masz włączone |
-| Kalendarz | Zaproponować terminy, sprawdzić dostępność | Konektor Google Calendar, z zapisem | Claude for Outlook (szukanie terminów, zaproszenie jako szkic) lub konektor Microsoft 365, narzędzia zapisu po zgodzie admina | Tylko odczyt (`get_calendars`), bez rezerwacji |
+| Kalendarz | Zaproponować terminy, sprawdzić dostępność | Konektor Google Calendar, z zapisem | Claude for Outlook (szukanie terminów, zaproszenie jako szkic) lub konektor Microsoft 365, narzędzia zapisu po zgodzie admina | `get_calendars` do odczytu, `schedule_meeting` do planowania, przenoszenia i odwoływania spotkań (Cloud, od planu Pro) |
 | Historia klienta | Kim jest, jaka szansa sprzedaży, co obiecano | Nie ma | Nie ma | Rekordy, aktywność, notatki, pliki, baza wiedzy |
 | Wysyłanie | Wysłać odpowiedź | Claude domyślnie pyta wcześniej | Dodatek: nigdy nie wysyła, szkic zostaje w Outlooku; konektor, konta prywatne: Claude pyta wcześniej; konta służbowe: dopiero gdy admin włączy narzędzia zapisu | `save_message_draft` zapisuje szkic; `send_email` wysyła od razu, jeśli pozwolisz na narzędzie |
 

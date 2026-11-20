@@ -36,7 +36,7 @@ Prima vengono la definizione, i piani e l’installazione, come li descrive Anth
   <SummaryItem label="Risposta breve">Uno skill è una cartella con un file SKILL.md. All’inizio Claude legge solo nome e descrizione e carica le istruzioni quando il tuo compito corrisponde.</SummaryItem>
   <SummaryItem label="Piani">Secondo il centro assistenza di Anthropic: Free, Pro, Max, Ultra, Team ed Enterprise, con l’esecuzione del codice attiva. La documentazione dell’API cita gli skill personalizzati da Pro a Enterprise. Claude Code carica gli skill da una cartella.</SummaryItem>
   <SummaryItem label="Lo skill">Un giro di follow up nel tuo CRM Customermates tramite MCP: trovare le conversazioni aperte senza data, scrivere una bozza ciascuna, proporre una data.</SummaryItem>
-  <SummaryItem label="Limiti">Un’istruzione in uno skill non è un lucchetto. A proteggerti sono i permessi degli strumenti in Claude. Customermates non invia promemoria.</SummaryItem>
+  <SummaryItem label="Limiti">Un’istruzione in uno skill non è un lucchetto. A proteggerti sono i permessi degli strumenti in Claude. In Customermates i promemoria arrivano da un’automazione che imposti sulla data.</SummaryItem>
   <SummaryItem label="Trasparenza">Customermates pubblica questa pagina. Abbiamo verificato la struttura dello skill rispetto ai requisiti di Anthropic; non ci sono misurazioni dei suoi risultati.</SummaryItem>
 </ArticleSummary>
 
@@ -132,7 +132,7 @@ Esegui un giro di follow-up sulle conversazioni con i clienti dell'utente in Cus
 4. Per ogni record chiama `Customermates:read_crm_record`, poi `Customermates:get_activities` per quel record (messaggi, note, modifiche) e leggi la conversazione più recente con `Customermates:get_messaging_threads` e il suo threadId. Stabilisci chi ha scritto per ultimo, quando, e che cosa è stato concordato o promesso. Salta i record senza conversazione e dillo.
 5. Scrivi una bozza per record, al massimo 120 parole, nella lingua della conversazione. Conferma ciò che è stato concordato e aggiungi un prossimo passo concreto. Niente pressione, niente pitch. Non scrivere la formula di chiusura: l'account collegato aggiunge la propria firma all'invio.
 6. Salva la bozza con `Customermates:save_message_draft` e il threadId. Se lo strumento non è disponibile (nessuna posta in arrivo nel piano), mostra invece la bozza in chat.
-7. Proponi una data per il prossimo passo. Usa la data promessa nella conversazione; se non c'è, suggeriscine una e spiega perché. Dopo l'approvazione dell'utente, scrivi testo e data del prossimo passo con `Customermates:mutate_crm_record` (leggi prima il record per la versione attuale e segui lo schema dello strumento). Nulla ricorda niente in automatico: la data compare nelle viste salvate e nel widget In arrivo.
+7. Proponi una data per il prossimo passo. Usa la data promessa nella conversazione; se non c'è, suggeriscine una e spiega perché. Dopo l'approvazione dell'utente, scrivi testo e data del prossimo passo con `Customermates:mutate_crm_record` (leggi prima il record per la versione attuale e segui lo schema dello strumento). La data compare nelle viste salvate e nel widget In arrivo, e un'automazione su quel campo data può avvisare l'utente quando arriva.
 8. Chiudi con una breve tabella: record, ultimo contatto, bozza salvata (sì o no), data proposta. Elenca i record saltati con il motivo. Precisa che non è stato inviato nulla.
 ```
 
@@ -183,7 +183,7 @@ Se la selezione ti convince, lascia che lo skill salvi una bozza e imposti la da
 | Lo skill non può | Perché conta | Che cosa fai tu |
 | --- | --- | --- |
 | Impedire un invio | Un’istruzione in uno skill non è un lucchetto. Gli strumenti di invio restano disponibili nel connettore. Customermates indica ai client di chiedere prima di inviare, ma non lo impone | Imposta `send_email` e `send_chat_message` su Blocked o Needs approval |
-| Ricordartelo | Customermates non invia promemoria e le attività non hanno una scadenza integrata. La data compare nelle viste e nel widget In arrivo | Apri la dashboard; per una notifica serve un pianificatore esterno |
+| Ricordartelo | Lo skill da solo non si fa vivo più tardi, e le attività non hanno una scadenza integrata. La data compare nelle viste e nel widget In arrivo | In Customermates aggiungi un’automazione che parte quando arriva la data; ti avvisa nella pagina Notifiche e via e-mail |
 | Salvare bozze senza posta in arrivo | La posta in arrivo appartiene a Pro e superiori ed esiste solo nel cloud. Con Free, Starter e le istanze self-hosted Claude mostra la bozza in chat | Copiala nel tuo programma di posta |
 | Impostare una data senza campo data | Non esiste un campo integrato per questo | Aggiungi i due campi |
 | Sapere ciò che non è nella conversazione | Segna i dati mancanti come «[da confermare]», ma giusti o sbagliati restano una tua responsabilità | Leggi ogni bozza prima che parta |
@@ -195,7 +195,7 @@ Ciò che Claude legge arriva ad Anthropic. La [guida su Claude e la privacy dei 
 
 *Trasparenza: Customermates pubblica questa pagina.* Customermates è un CRM source-available e nativo per l’IA, sviluppato in Germania per piccoli team a contatto con i clienti. Il suo endpoint MCP fa parte del prodotto di base, quindi funziona su ogni piano cloud e sulle installazioni self-hosted, con [[derived.mcp.tools.total]] strumenti. La posta in arrivo con la cronologia e-mail e LinkedIn sul record del cliente parte da Pro, a [[commercial.price.pro.monthly]] per utente al mese. Puoi provare lo skill durante la prova: [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup), senza carta di credito.
 
-Customermates non è la scelta giusta se ti servono un dialer telefonico, sequenze di e-mail, promemoria che ti raggiungano o un’app mobile nativa. E se il tuo team usa HubSpot o Salesforce, usa il loro connettore, descritto nella [guida a HubSpot MCP](/blog/hubspot-mcp) e nella [guida a Salesforce MCP](/blog/salesforce-mcp). I passi dello skill si possono riportare: sostituisci i nomi degli strumenti con quelli del tuo CRM.
+Customermates non è la scelta giusta se ti servono un dialer telefonico, sequenze di e-mail o un’app mobile nativa. E se il tuo team usa HubSpot o Salesforce, usa il loro connettore, descritto nella [guida a HubSpot MCP](/blog/hubspot-mcp) e nella [guida a Salesforce MCP](/blog/salesforce-mcp). I passi dello skill si possono riportare: sostituisci i nomi degli strumenti con quelli del tuo CRM.
 
 Come dev’essere fatta una bozza di follow up lo spiega la [guida alla follow up email senza risposta](/blog/sales-follow-up-email). Come tenere uno scadenzario in un CRM lo racconta l’articolo sullo [scadenzario clienti](/blog/tickler-file). E come Claude può accompagnare un’intera settimana di vendita lo mostra la guida [Claude per le vendite](/blog/claude-for-sales).
 

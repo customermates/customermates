@@ -36,7 +36,7 @@ Zuerst kommen Definition, Tarife und Installation, wie Anthropic sie am 16. Nove
   <SummaryItem label="Kurze Antwort">Ein Skill ist ein Ordner mit einer Datei SKILL.md. Claude liest zuerst nur Name und Beschreibung und lädt die Anleitung, wenn Ihre Aufgabe dazu passt.</SummaryItem>
   <SummaryItem label="Tarife">Laut Hilfecenter von Anthropic in Free, Pro, Max, Ultra, Team und Enterprise, mit eingeschalteter Codeausführung. In der API-Dokumentation stehen eigene Skills für Pro bis Enterprise. Claude Code lädt Skills aus einem Ordner.</SummaryItem>
   <SummaryItem label="Der Skill">Ein Nachfass-Durchgang über Ihr Customermates-CRM per MCP: offene Gespräche ohne Termin finden, je einen Entwurf schreiben, einen Termin vorschlagen.</SummaryItem>
-  <SummaryItem label="Grenzen">Eine Anweisung im Skill ist keine Sperre. Verlässlich schützen die Tool-Berechtigungen in Claude. Erinnerungen verschickt Customermates nicht.</SummaryItem>
+  <SummaryItem label="Grenzen">Eine Anweisung im Skill ist keine Sperre. Verlässlich schützen die Tool-Berechtigungen in Claude. Erinnerungen kommen in Customermates von einer Automatisierung, die Sie auf das Datum einrichten.</SummaryItem>
   <SummaryItem label="Offenlegung">Customermates veröffentlicht diese Seite. Wir haben den Aufbau des Skills gegen die Vorgaben von Anthropic geprüft; Messwerte zu seinen Ergebnissen gibt es nicht.</SummaryItem>
 </ArticleSummary>
 
@@ -132,7 +132,7 @@ Führe einen Nachfass-Durchgang über die Kundengespräche der Nutzerin oder des
 4. Rufe je Datensatz `Customermates:read_crm_record` auf, danach `Customermates:get_activities` für diesen Datensatz (Nachrichten, Notizen, Änderungen) und lies den neuesten Verlauf mit `Customermates:get_messaging_threads` und seiner threadId. Stelle fest, wer zuletzt geschrieben hat, wann, und was vereinbart oder zugesagt wurde. Überspringe Datensätze ohne Gespräch und sage es.
 5. Schreibe je Datensatz einen Entwurf mit höchstens 120 Wörtern, in der Sprache des Verlaufs. Bestätige, was vereinbart wurde, und nenne einen konkreten nächsten Schritt. Kein Druck, kein Pitch. Schreibe keine Grußformel: Das verbundene Konto hängt seine Signatur beim Senden an.
 6. Speichere den Entwurf mit `Customermates:save_message_draft` und der threadId. Gibt es das Tool nicht (kein Posteingang im Tarif), zeige den Entwurf stattdessen im Chat.
-7. Schlage einen Termin für den nächsten Schritt vor. Nimm das im Verlauf zugesagte Datum; gibt es keins, schlage eins vor und nenne den Grund. Schreibe nach der Freigabe Text und Datum des nächsten Schritts mit `Customermates:mutate_crm_record` (lies den Datensatz vorher für seine aktuelle Version und folge dem Schema des Tools). Nichts erinnert automatisch: Das Datum erscheint in gespeicherten Ansichten und im Widget "Anstehend".
+7. Schlage einen Termin für den nächsten Schritt vor. Nimm das im Verlauf zugesagte Datum; gibt es keins, schlage eins vor und nenne den Grund. Schreibe nach der Freigabe Text und Datum des nächsten Schritts mit `Customermates:mutate_crm_record` (lies den Datensatz vorher für seine aktuelle Version und folge dem Schema des Tools). Das Datum erscheint in gespeicherten Ansichten und im Widget "Anstehend", und eine Automatisierung auf diesem Datumsfeld kann erinnern, wenn es erreicht ist.
 8. Schließe mit einer kurzen Tabelle: Datensatz, letzter Kontakt, Entwurf gespeichert (ja oder nein), vorgeschlagener Termin. Nenne übersprungene Datensätze mit Grund. Halte fest, dass nichts gesendet wurde.
 ```
 
@@ -184,7 +184,7 @@ Gefällt Ihnen die Auswahl, lassen Sie den Skill für einen Datensatz einen Entw
 | Der Skill kann nicht | Warum das zählt | Was Sie tun |
 | --- | --- | --- |
 | Das Senden verhindern | Eine Anweisung im Skill ist keine Sperre. Die Sende-Tools bleiben im Connector verfügbar. Customermates weist Clients an, vor dem Senden zu fragen, erzwingt es aber nicht | Setzen Sie `send_email` und `send_chat_message` auf Blocked oder Needs approval |
-| Sie erinnern | Customermates verschickt keine Erinnerungen, und Aufgaben haben keine eingebaute Fälligkeit. Das Datum erscheint in Ansichten und im Widget „Anstehend“ | Öffnen Sie das Dashboard; für eine Benachrichtigung brauchen Sie einen externen Zeitplaner |
+| Sie erinnern | Der Skill selbst meldet sich später nicht, und Aufgaben haben keine eingebaute Fälligkeit. Das Datum erscheint in Ansichten und im Widget „Anstehend“ | Legen Sie in Customermates eine Automatisierung an, die startet, wenn das Datum erreicht ist; sie benachrichtigt Sie auf der Seite Benachrichtigungen und per E-Mail |
 | Entwürfe ohne Posteingang speichern | Der Posteingang gehört zu Pro und höher und gibt es nur in der Cloud. In Free, Starter und selbst gehosteten Instanzen zeigt Claude den Entwurf im Chat | Kopieren Sie ihn in Ihr Mailprogramm |
 | Einen Termin ohne Datumsfeld setzen | Es gibt kein eingebautes Feld dafür | Legen Sie die beiden Felder an |
 | Wissen, was nicht im Verlauf steht | Fehlende Angaben markiert er als „[zu klären]“, richtig oder falsch sind sie trotzdem Ihre Sache | Lesen Sie jeden Entwurf, bevor er rausgeht |
@@ -196,7 +196,7 @@ Was Claude liest, geht an Anthropic. Ob Ihre Kundendaten dort unter den Bedingun
 
 *Offenlegung: Customermates veröffentlicht diese Seite.* Customermates ist ein KI-CRM mit einsehbarem Quellcode aus Deutschland für kleine Teams mit Kundenkontakt. Der MCP-Endpunkt gehört zum Kernprodukt und läuft in jedem Cloud-Tarif und auf selbst gehosteten Installationen, mit [[derived.mcp.tools.total]] Tools. Der Posteingang mit E-Mail- und LinkedIn-Verläufen am Kundendatensatz beginnt mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat. Den Skill können Sie in der Testphase ausprobieren: [Testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup), ohne Kreditkarte.
 
-Customermates ist nicht die richtige Wahl, wenn Sie einen Telefon-Dialer, E-Mail-Sequenzen, Erinnerungen, die Sie erreichen, oder eine native Mobile-App brauchen. Und wenn Ihr Team HubSpot oder Salesforce nutzt, nehmen Sie deren eigenen Connector, beschrieben im [Beitrag zu HubSpot MCP](/blog/hubspot-mcp) und im [Beitrag zu Salesforce MCP](/blog/salesforce-mcp). Die Schritte des Skills lassen sich übernehmen: Tauschen Sie die Tool-Namen gegen die Ihres CRM.
+Customermates ist nicht die richtige Wahl, wenn Sie einen Telefon-Dialer, E-Mail-Sequenzen oder eine native Mobile-App brauchen. Und wenn Ihr Team HubSpot oder Salesforce nutzt, nehmen Sie deren eigenen Connector, beschrieben im [Beitrag zu HubSpot MCP](/blog/hubspot-mcp) und im [Beitrag zu Salesforce MCP](/blog/salesforce-mcp). Die Schritte des Skills lassen sich übernehmen: Tauschen Sie die Tool-Namen gegen die Ihres CRM.
 
 Wie ein Nachfass-Entwurf aufgebaut sein sollte, steht im [Leitfaden zur Nachfass-Mail](/blog/sales-follow-up-email). Wie Sie Wiedervorlagen im CRM führen, erklärt der Beitrag zur [Wiedervorlage](/blog/tickler-file). Und wie Claude eine ganze Vertriebswoche begleitet, zeigt der Leitfaden [Claude für den Vertrieb](/blog/claude-for-sales).
 

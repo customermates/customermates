@@ -160,7 +160,7 @@ A connector gives Claude access; it does not tell Claude how the work goes. For 
 - **A one-off task on a few lines.** Paste the text into the chat; there is nothing to authorize.
 - **Hundreds of records.** A connector works record by record, and vendors cap bulk calls (HubSpot's connector changes 10 records at a time). Use the CRM's import instead.
 - **A server you do not control or trust.** A custom connector can reach services Anthropic has not verified.
-- **Customermates, specifically.** It is the wrong pick if Claude must book or change calendar events (its connected calendars are read-only, so use the Google Calendar or Microsoft 365 connector next to it), if you need a native Slack link (only n8n reaches Slack), or if you need a phone dialer or email sequences, which it does not have. If your team already runs HubSpot and is happy with it, use HubSpot's connector.
+- **Customermates, specifically.** It is the wrong pick if you self-host or stay below Pro and Claude must book calendar events (scheduling meetings with `schedule_meeting` needs Customermates Cloud on Pro or higher; otherwise use the Google Calendar or Microsoft 365 connector next to it), if you need a native Slack link (only n8n reaches Slack), or if you need a phone dialer or email sequences, which it does not have. If your team already runs HubSpot and is happy with it, use HubSpot's connector.
 
 ## What if a Claude connector will not connect? [#troubleshooting]
 

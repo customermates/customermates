@@ -128,7 +128,7 @@ A maioria das perguntas sobre "Claude e Outlook" mistura três acessos. Separado
 | Acesso | Para que o Claude precisa | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Caixa de e-mail | Ler a conversa, formular a resposta | Conector do Gmail | Claude for Outlook ou conector do Microsoft 365 | Conversas da caixa conectada na Caixa de entrada, só as pastas que você ativou |
-| Agenda | Sugerir horários, verificar disponibilidade | Conector do Google Calendar, com acesso de escrita | Claude for Outlook (buscar horários, convite como rascunho) ou conector do Microsoft 365, ferramentas de escrita após aprovação de um admin | Somente leitura (`get_calendars`), sem reservas |
+| Agenda | Sugerir horários, verificar disponibilidade | Conector do Google Calendar, com acesso de escrita | Claude for Outlook (buscar horários, convite como rascunho) ou conector do Microsoft 365, ferramentas de escrita após aprovação de um admin | `get_calendars` para ler, `schedule_meeting` para marcar, remarcar e cancelar reuniões (Cloud, a partir do Pro) |
 | Histórico do cliente | Quem é, qual negociação, o que foi prometido | Não existe | Não existe | Fichas, atividade, notas, arquivos, base de conhecimento |
 | Envio | Enviar a resposta | O Claude pergunta antes, por padrão | Suplemento: nunca envia, o rascunho fica no Outlook; conector, contas pessoais: o Claude pergunta antes; contas de trabalho: só depois que um admin ativa as ferramentas de escrita | `save_message_draft` salva um rascunho; `send_email` envia na hora se você permitir a ferramenta |
 

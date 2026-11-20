@@ -128,7 +128,7 @@ Most questions about "Claude and Outlook" mix three kinds of access. Taken apart
 | Access | What Claude needs it for | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Mailbox | Read the thread, word the reply | Gmail connector | Claude for Outlook or Microsoft 365 connector | Threads of the connected mailbox in the inbox, only folders you switched on |
-| Calendar | Suggest times, check availability | Google Calendar connector, with write access | Claude for Outlook (find times, invite as a draft) or Microsoft 365 connector, write tools after admin approval | Read-only (`get_calendars`), no booking |
+| Calendar | Suggest times, check availability | Google Calendar connector, with write access | Claude for Outlook (find times, invite as a draft) or Microsoft 365 connector, write tools after admin approval | `get_calendars` to read, `schedule_meeting` to book, move and cancel meetings (Cloud, Pro and up) |
 | Client history | Who this is, which deal, what was promised | Not there | Not there | Records, activity, notes, files, knowledge base |
 | Sending | Send the reply | Claude asks first by default | Add-in: never sends, the draft stays in Outlook; connector, personal accounts: Claude asks first; work accounts: only after an admin enables write tools | `save_message_draft` stores a draft; `send_email` sends at once if you allow the tool |
 

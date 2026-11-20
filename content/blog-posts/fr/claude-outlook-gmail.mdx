@@ -128,7 +128,7 @@ La plupart des questions sur «&nbsp;Claude et Outlook&nbsp;» mélangent trois 
 | Accès | Pourquoi Claude en a besoin | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Boîte mail | Lire le fil, formuler la réponse | Connecteur Gmail | Claude for Outlook ou connecteur Microsoft 365 | Fils de la boîte connectée dans la boîte de réception, seulement les dossiers que vous avez activés |
-| Agenda | Proposer des créneaux, vérifier la disponibilité | Connecteur Google Calendar, avec accès en écriture | Claude for Outlook (trouver des créneaux, invitation en brouillon) ou connecteur Microsoft 365, outils d’écriture après accord d’un admin | Lecture seule (`get_calendars`), pas de réservation |
+| Agenda | Proposer des créneaux, vérifier la disponibilité | Connecteur Google Calendar, avec accès en écriture | Claude for Outlook (trouver des créneaux, invitation en brouillon) ou connecteur Microsoft 365, outils d’écriture après accord d’un admin | `get_calendars` pour lire, `schedule_meeting` pour planifier, déplacer et annuler des réunions (Cloud, à partir de Pro) |
 | Historique client | Qui est-ce, quelle affaire, qu’a-t-on promis | Absent | Absent | Fiches, activité, notes, fichiers, base de connaissances |
 | Envoi | Envoyer la réponse | Claude demande d’abord par défaut | Complément&nbsp;: n’envoie jamais, le brouillon reste dans Outlook&nbsp;; connecteur, comptes personnels&nbsp;: Claude demande d’abord&nbsp;; comptes professionnels&nbsp;: seulement après activation des outils d’écriture par un admin | `save_message_draft` enregistre un brouillon&nbsp;; `send_email` envoie aussitôt si vous autorisez l’outil |
 

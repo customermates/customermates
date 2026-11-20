@@ -160,7 +160,7 @@ Un connecteur donne accès à Claude, mais ne lui dit pas comment le travail se 
 - **Une tâche ponctuelle de quelques lignes.** Collez le texte dans la conversation ; il n’y a rien à autoriser.
 - **Des centaines de fiches.** Un connecteur travaille fiche par fiche, et les éditeurs plafonnent les appels en masse (le connecteur HubSpot modifie 10 fiches à la fois). Utilisez plutôt l’import du CRM.
 - **Un serveur que vous ne contrôlez pas ou en qui vous n’avez pas confiance.** Un connecteur personnalisé peut atteindre des services qu’Anthropic n’a pas vérifiés.
-- **Customermates, en particulier.** Il est le mauvais choix si Claude doit réserver ou modifier des événements d’agenda (ses agendas connectés sont en lecture seule : ajoutez pour cela le connecteur Google Calendar ou Microsoft 365), si vous voulez une liaison Slack native (seul n8n atteint Slack), ou si vous avez besoin de téléphonie ou de séquences d’e-mails, qu’il n’a pas. Si votre équipe travaille déjà avec HubSpot et en est satisfaite, utilisez le connecteur de HubSpot.
+- **Customermates, en particulier.** Il est le mauvais choix si vous vous auto-hébergez ou restez sous Pro et que Claude doit réserver des événements d’agenda (planifier des réunions avec `schedule_meeting` demande Customermates Cloud à partir de Pro : sinon, ajoutez le connecteur Google Calendar ou Microsoft 365), si vous voulez une liaison Slack native (seul n8n atteint Slack), ou si vous avez besoin de téléphonie ou de séquences d’e-mails, qu’il n’a pas. Si votre équipe travaille déjà avec HubSpot et en est satisfaite, utilisez le connecteur de HubSpot.
 
 ## Que faire quand un connecteur Claude ne se connecte pas ? [#troubleshooting]
 

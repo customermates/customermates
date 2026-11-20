@@ -160,7 +160,7 @@ Ein Connector gibt Claude Zugriff, er sagt Claude aber nicht, wie die Arbeit abl
 - **Eine einmalige Aufgabe mit ein paar Zeilen.** Fügen Sie den Text in den Chat ein; es gibt nichts freizugeben.
 - **Hunderte Datensätze.** Ein Connector arbeitet Datensatz für Datensatz, und Anbieter begrenzen Massenaufrufe (der HubSpot-Connector ändert 10 Datensätze auf einmal). Nehmen Sie stattdessen den Import des CRM.
 - **Ein Server, den Sie nicht kontrollieren oder dem Sie nicht vertrauen.** Ein eigener Connector kann Dienste erreichen, die Anthropic nicht geprüft hat.
-- **Customermates im Besonderen.** Es ist die falsche Wahl, wenn Claude Kalendertermine buchen oder ändern soll (die verbundenen Kalender sind nur lesbar, nehmen Sie dafür den Connector für Google Calendar oder Microsoft 365 dazu), wenn Sie eine native Slack-Anbindung brauchen (Slack erreicht nur n8n) oder wenn Sie Telefonie oder E-Mail-Serien brauchen, die es nicht gibt. Arbeitet Ihr Team schon zufrieden mit HubSpot, nutzen Sie dessen Connector.
+- **Customermates im Besonderen.** Es ist die falsche Wahl, wenn Sie selbst hosten oder unter Pro bleiben und Claude Kalendertermine buchen soll (Termine mit `schedule_meeting` planen geht nur in Customermates Cloud ab Pro; sonst nehmen Sie den Connector für Google Calendar oder Microsoft 365 dazu), wenn Sie eine native Slack-Anbindung brauchen (Slack erreicht nur n8n) oder wenn Sie Telefonie oder E-Mail-Serien brauchen, die es nicht gibt. Arbeitet Ihr Team schon zufrieden mit HubSpot, nutzen Sie dessen Connector.
 
 ## Was tun, wenn sich ein Claude Connector nicht verbinden lässt? [#troubleshooting]
 

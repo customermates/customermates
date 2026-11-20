@@ -160,7 +160,7 @@ Konektor daje Claude dostęp, ale nie mówi mu, jak przebiega praca. Przy powtar
 - **Jednorazowe zadanie na kilka linijek.** Wklej tekst do czatu; nie ma czego autoryzować.
 - **Setki rekordów.** Konektor pracuje rekord po rekordzie, a dostawcy ograniczają wywołania zbiorcze (konektor HubSpot zmienia 10 rekordów naraz). Użyj raczej importu w CRM.
 - **Serwer, którego nie kontrolujesz lub któremu nie ufasz.** Własny konektor może sięgać do usług, których Anthropic nie zweryfikował.
-- **Customermates w szczególności.** To zły wybór, jeśli Claude ma rezerwować lub zmieniać wydarzenia w kalendarzu (podłączone kalendarze są tylko do odczytu: dołącz do niego konektor Google Calendar lub Microsoft 365), jeśli chcesz natywnego połączenia ze Slackiem (do Slacka dociera tylko n8n) albo potrzebujesz telefonii lub sekwencji e-maili, których nie ma. Jeśli Twój zespół już pracuje w HubSpot i jest zadowolony, użyj konektora HubSpot.
+- **Customermates w szczególności.** To zły wybór, jeśli korzystasz z self-hostingu lub planu poniżej Pro, a Claude ma rezerwować wydarzenia w kalendarzu (planowanie spotkań przez `schedule_meeting` wymaga Customermates Cloud od planu Pro; w innym razie dołącz konektor Google Calendar lub Microsoft 365), jeśli chcesz natywnego połączenia ze Slackiem (do Slacka dociera tylko n8n) albo potrzebujesz telefonii lub sekwencji e-maili, których nie ma. Jeśli Twój zespół już pracuje w HubSpot i jest zadowolony, użyj konektora HubSpot.
 
 ## Co zrobić, gdy konektor Claude się nie łączy? [#troubleshooting]
 
