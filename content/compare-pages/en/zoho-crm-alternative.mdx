@@ -70,7 +70,7 @@ comparison:
         source: false
         competitor: From Standard
       - name: Web forms
-        source: false
+        source: Public forms with a link or an embed snippet, on every plan
         competitor: Web-to-lead forms, more forms per module on higher editions
   - title: Conversations
     features:
@@ -89,7 +89,7 @@ comparison:
         source: "MCP server on every plan and self-hosted, [[derived.mcp.tools.total]] tools"
         competitor: Zoho MCP, a separate Zoho service that supports Zoho CRM
       - name: Rule-based automation
-        source: No rule builder; webhooks and REST on every paid plan, n8n run separately
+        source: Automations without AI on every plan; webhooks and REST on every paid plan, n8n run separately
         competitor: Workflow rules on every edition; process management from Professional; approval processes on Enterprise
       - name: AI automation
         source: Routines run saved instructions on a schedule or record event (Customermates Cloud)
@@ -125,7 +125,7 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-> Look for a Zoho CRM alternative when most of the edition you pay for goes unused, when your clients write on LinkedIn or WhatsApp more than they fill in web forms, or when you want to run the CRM on your own server. If your team relies on calling, quotes, inventory or workflow rules inside the CRM, stay with Zoho: Customermates has none of those. Customermates is narrower. It covers contacts, organizations, deals, services and tasks, puts Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram in one inbox from Pro, and has a source-available Community Edition you can host yourself. Customermates publishes this comparison; every Zoho detail comes from zoho.com and was checked on 8 October 2026.
+> Look for a Zoho CRM alternative when most of the edition you pay for goes unused, when your clients write on LinkedIn or WhatsApp more than they fill in web forms, or when you want to run the CRM on your own server. If your team relies on calling, quotes, inventory or approval processes inside the CRM, stay with Zoho: Customermates has none of those. Customermates is narrower. It covers contacts, organizations, deals, services and tasks, puts Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram in one inbox from Pro, and has a source-available Community Edition you can host yourself. Customermates publishes this comparison; every Zoho detail comes from zoho.com and was checked on 8 October 2026.
 
 ## Which CRM fits which team
 
@@ -182,7 +182,7 @@ Prices checked on 30 October 2026 from [Zoho's pricing page](https://www.zoho.co
 The rows do not buy the same things, so compare them in pairs:
 
 - **Zoho Standard billed yearly costs about the same as Customermates Starter and includes more communication.** Standard has email integration, calling and web forms. Customermates Starter has no inbox: it is the CRM with REST, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, and Mate on hosted AI credits. If you want email inside the CRM on a small budget, Zoho Standard gives you more.
-- **Customermates Pro sits between Zoho Professional billed yearly and billed monthly.** Pro brings the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, read-only calendar access, LinkedIn Sales Navigator and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. Zoho Professional buys process management, CPQ, inventory and unlimited reports instead, none of which Customermates offers.
+- **Customermates Pro sits between Zoho Professional billed yearly and billed monthly.** Pro brings the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, calendar sync with meeting scheduling and booking pages, LinkedIn Sales Navigator and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. Zoho Professional buys process management, CPQ, inventory and unlimited reports instead, none of which Customermates offers.
 - **Two channels per person means Business.** If everyone needs email and LinkedIn side by side, the workspace needs Business, with [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user and shared accounts.
 - **Three people or fewer pay nothing on Zoho CRM Free.** No Customermates plan beats that.
 
@@ -203,9 +203,9 @@ Zoho CRM is a large product with editions. Customermates is narrower: from Pro, 
 Check these before you start a trial:
 
 - **No quotes, invoicing or inventory.** Zoho's CPQ and inventory management have no counterpart, and invoices stay in your accounting software.
-- **No rule builder.** There are no workflow rules, approval processes or process steps. Routines in Customermates Cloud follow written instructions, and webhooks with the REST API feed an n8n instance that you run yourself.
+- **Simpler rules.** Automations run a When, If, Then chain, without approval processes or process steps. Routines in Customermates Cloud follow written instructions, and webhooks with the REST API feed an n8n instance that you run yourself.
 - **No telephony, no mass email and no sequences.** Calls happen on your own phone system, and messages go out one at a time, written by you or drafted by Mate.
-- **No web forms, scoring, enrichment or AI forecasting.** The weighted pipeline multiplies each deal's value by its stage probability. That is arithmetic on your own numbers, and it does not predict anything.
+- **No scoring, enrichment or AI forecasting.** The weighted pipeline multiplies each deal's value by its stage probability. That is arithmetic on your own numbers, and it does not predict anything.
 - **No field-level permissions.** Permissions apply per list and action, not per field.
 - **No native mobile apps and a small free plan.** Customermates runs in the phone's browser. Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; more needs a paid plan after the [[commercial.trial.days]]-day trial.
 
@@ -224,7 +224,7 @@ Take a three-person web agency. The founder finds new clients on LinkedIn, and t
 | Notes | The notes field, one rich-text field per record |
 | Attachments | Not imported; add the ones you need to a File field afterwards, the rest stays in the Zoho backup |
 | Tags | A single choice field, since records have no tags |
-| Workflow rules | Routines in Customermates Cloud, or webhooks to your own n8n |
+| Workflow rules | Automations without AI, routines in Customermates Cloud, or webhooks to your own n8n |
 
 The founder edits the Stage field's options to Brief received, Proposal sent, Negotiation, Won and Lost, and in Data model for Deals gives them win probabilities of 20%, 50%, 75%, 100% and 0%. She saves a board of all open deals grouped by Stage and shares it with the whole team. Each account manager saves a table of their own deals grouped by organization.
 
@@ -241,7 +241,7 @@ The Zoho workflow rule becomes a routine owned by the founder. Its trigger is Wh
   <Step title="Prepare the workspace">Invite your teammates first, so deal owners can be matched to users. In Data model, rename lists and set the stage probabilities on the Stage field of Deals. Create custom fields for the Zoho fields you keep, such as lead source, industry and Lifecycle.</Step>
   <Step title="Import one list at a time">On each list, open More actions, then Add from file: organizations first, then contacts and leads, then services, then deals. Link columns match records by name, so a contact's Account Name finds the organization you imported before, and an owner column maps to assigned users. Map email addresses and phone numbers to the contact's Contact details field. Size limits are in the [records documentation](/docs/app-records).</Step>
   <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings › Channels & calendars. Zoho's email history does not transfer; the inbox shows the conversations of the accounts you connect. Then set up routines, or connect your own AI client through MCP.</Step>
-  <Step title="Replace each workflow rule">List your Zoho workflow rules and decide for each one: a routine, a webhook into your own n8n, or nothing. Rules that only create tasks or update a field often collapse into one routine.</Step>
+  <Step title="Replace each workflow rule">List your Zoho workflow rules and decide for each one: an automation, a routine, a webhook into your own n8n, or nothing. Rules that only create tasks or update a field often collapse into one routine.</Step>
 </Steps>
 
 ## Other Zoho CRM alternatives worth a look
