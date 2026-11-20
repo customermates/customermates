@@ -51,7 +51,7 @@ Jest ich siedem. Tabela podaje, kto prowadzi każdy z nich i co dostaje Claude, 
 | Serwer MCP Gmaila od Google | Google | Wyszukiwanie i czytanie wątków, etykiety, tworzenie szkiców; żadne narzędzie nie wysyła | Developer Preview w Google Workspace Developer Preview Program; potrzebny projekt Google Cloud i własny klient OAuth |
 | Oferty MCP Microsoftu (Work IQ MCP, starsze narzędzia Mail) | Microsoft | Czytanie, pisanie i wysyłanie poczty przez serwer chroniony przez Entra | Work IQ wymaga Global Administratora i planu rozliczeń według zużycia w Copilot Studio; narzędzia Mail Microsoft zostawia wyłącznie dla zgodności wstecznej |
 | Mosty społeczności | Pojedynczy deweloperzy, wymienieni w katalogach | Bardzo różnie, zależnie od projektu | Brak zobowiązania dostawcy; powierzasz dostęp do skrzynki programowi nieznanej osoby |
-| CRM z podłączoną skrzynką jako konektor (Customermates) | Customermates | Wątki przy kliencie, rekordy, aktywność, notatki, baza wiedzy, zapis szkicu odpowiedzi; kalendarz tylko do odczytu | Customermates Cloud od planu Pro lub okres próbny |
+| CRM z podłączoną skrzynką jako konektor (Customermates) | Customermates | Wątki przy kliencie, rekordy, aktywność, notatki, baza wiedzy, zapis szkicu odpowiedzi; planowanie spotkań w połączonym kalendarzu | Customermates Cloud od planu Pro lub okres próbny |
 
 Co pasuje, zależy od zadania:
 
@@ -173,7 +173,7 @@ Wiadomość przychodząca to tekst od obcej osoby, a Claude go czyta. Przewodnik
 ## Kiedy Customermates to zły wybór do tego celu? [#wrong-choice]
 
 - **Chcesz tylko przeszukać jedną skrzynkę.** Wystarczy konektor Anthropic dla Gmaila lub Microsoft 365, a CRM nie jest potrzebny.
-- **Claude ma umawiać spotkania.** Customermates czyta podłączone kalendarze tylko do odczytu i nie rezerwuje terminów. Dodaj do tego konektor Google Calendar lub Microsoft 365.
+- **Claude ma umawiać spotkania.** W Customermates Cloud od planu Pro Claude planuje przez Customermates nowe spotkania w Twoim połączonym kalendarzu Google lub Microsoft, ale nie edytuje ani nie przesuwa innych wydarzeń. Dodaj do tego konektor Google Calendar lub Microsoft 365.
 - **Masz plan Free, Starter albo własną instancję.** Skrzynka odbiorcza i narzędzia wiadomości zaczynają się od planu Pro w chmurze. Przy własnej instancji zostają MCP, rekordy i baza wiedzy, ale bez skrzynki.
 - **Nie chcesz kopii historii wątków.** Customermates importuje do swojej skrzynki odbiorczej włączone przez Ciebie foldery, a odłączenie konta usuwa import. Konektory Anthropic trzymają pobrane dane tylko przy czacie.
 - **Potrzebujesz sekwencji.** Customermates nie ma sekwencji ani masowej wysyłki; każda wiadomość powstaje osobno.
@@ -203,7 +203,7 @@ Domyślnie nie. Z konektorem Gmaila Claude pyta przed każdym wysłaniem, odpowi
 </FaqItem>
 
 <FaqItem question="Czy Claude może tworzyć spotkania w Outlooku lub Google Calendar?">
-Z konektorami Anthropic tak, a w Microsoft 365 tylko z włączonymi narzędziami zapisu. Customermates czyta podłączone kalendarze tylko do odczytu i nie rezerwuje terminów.
+Z konektorami Anthropic tak, a w Microsoft 365 tylko z włączonymi narzędziami zapisu. Customermates w Cloud od planu Pro planuje nowe spotkania w połączonym kalendarzu, ale nie edytuje innych wydarzeń.
 </FaqItem>
 
 <FaqItem question="Czy działa to z prywatnym kontem Outlook.com?">

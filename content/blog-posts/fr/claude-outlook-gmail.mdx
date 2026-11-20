@@ -51,7 +51,7 @@ Il y en a sept. Le tableau indique qui exploite chacune et ce que Claude obtient
 | Serveur MCP Gmail de Google | Google | Rechercher et lire des fils, libellés, créer des brouillons&nbsp;; aucun outil n’envoie | Developer Preview dans le Google Workspace Developer Preview Program&nbsp;; projet Google Cloud et client OAuth propre nécessaires |
 | Offres MCP de Microsoft (Work IQ MCP, anciens outils Mail) | Microsoft | Lire, écrire et envoyer du courrier via un serveur protégé par Entra | Work IQ demande un Global Administrator et un forfait de facturation à l’usage dans Copilot Studio&nbsp;; Microsoft réserve les outils Mail à la compatibilité ascendante |
 | Passerelles communautaires | Des développeurs individuels, listées dans des annuaires | Très variable selon le projet | Aucun engagement d’un éditeur&nbsp;; vous confiez l’accès à votre messagerie au programme d’un inconnu |
-| Un CRM avec la boîte mail connectée, comme connecteur (Customermates) | Customermates | Fils rattachés au client, fiches, activité, notes, base de connaissances, enregistrement d’un brouillon&nbsp;; agenda en lecture seule | Customermates Cloud à partir de Pro, ou essai |
+| Un CRM avec la boîte mail connectée, comme connecteur (Customermates) | Customermates | Fils rattachés au client, fiches, activité, notes, base de connaissances, enregistrement d’un brouillon, planification de réunions dans un agenda connecté | Customermates Cloud à partir de Pro, ou essai |
 
 Le bon choix dépend de la tâche&nbsp;:
 
@@ -173,7 +173,7 @@ Un message entrant est un texte venu d’un inconnu, et Claude le lit. Le guide 
 ## Quand Customermates est-il le mauvais choix pour cela&nbsp;? [#wrong-choice]
 
 - **Vous voulez seulement parcourir une boîte mail.** Le connecteur d’Anthropic pour Gmail ou Microsoft 365 suffit, et il n’exige aucun CRM.
-- **Claude doit fixer des rendez-vous.** Customermates ne lit les agendas connectés qu’en lecture seule et ne réserve aucun rendez-vous. Ajoutez pour cela le connecteur Google Calendar ou Microsoft 365.
+- **Claude doit fixer des rendez-vous.** Dans Customermates Cloud dès Pro, Claude planifie via Customermates de nouvelles réunions dans votre agenda Google ou Microsoft connecté, mais ne modifie ni ne déplace les autres évènements. Ajoutez pour cela le connecteur Google Calendar ou Microsoft 365.
 - **Vous êtes sur Free, Starter ou une instance auto-hébergée.** La boîte de réception et les outils de messagerie commencent à Pro dans le cloud. En auto-hébergement, MCP, fiches et base de connaissances restent, mais sans boîte mail.
 - **Vous ne voulez pas de copie de l’historique des fils.** Customermates importe dans sa boîte de réception les dossiers que vous avez activés, et déconnecter le compte supprime l’import. Les connecteurs d’Anthropic ne gardent les données récupérées que dans la conversation.
 - **Il vous faut des séquences.** Customermates n’a ni séquences ni envoi en masse&nbsp;; chaque message est écrit individuellement.
@@ -203,7 +203,7 @@ Pas par défaut. Avec le connecteur Gmail, Claude demande avant chaque envoi, r�
 </FaqItem>
 
 <FaqItem question="Claude peut-il créer des rendez-vous dans Outlook ou Google Calendar ?">
-Avec les connecteurs d’Anthropic, oui, et sur Microsoft 365 seulement avec les outils d’écriture activés. Customermates ne lit les agendas connectés qu’en lecture seule et ne réserve aucun rendez-vous.
+Avec les connecteurs d’Anthropic, oui, et sur Microsoft 365 seulement avec les outils d’écriture activés. Customermates, dans Cloud dès Pro, planifie de nouvelles réunions dans un agenda connecté mais ne modifie pas les autres évènements.
 </FaqItem>
 
 <FaqItem question="Cela fonctionne-t-il avec un compte Outlook.com personnel ?">

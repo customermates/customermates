@@ -51,7 +51,7 @@ Er zijn er zeven. De tabel noemt wie elke weg beheert en wat Claude krijgt, stan
 | Gmail-MCP-server van Google | Google | Gesprekken zoeken en lezen, labels, concepten maken; geen enkele tool verstuurt | Developer Preview in het Google Workspace Developer Preview Program; een Google Cloud-project en een eigen OAuth-client nodig |
 | MCP-aanbiedingen van Microsoft (Work IQ MCP, oudere Mail-tools) | Microsoft | Mail lezen, schrijven en versturen via een door Entra beveiligde server | Work IQ vraagt een Global Administrator en een gebruiksgebaseerd factureringsplan in Copilot Studio; Microsoft houdt de Mail-tools alleen aan voor achterwaartse compatibiliteit |
 | Communitybruggen | Individuele ontwikkelaars, vermeld in gidsen | Sterk wisselend per project | Geen toezegging van een leverancier; je geeft het programma van een onbekende toegang tot je mailbox |
-| Een crm met gekoppelde mailbox als connector (Customermates) | Customermates | Gesprekken bij de klant, records, activiteit, notities, kennisbank, een antwoordconcept bewaren; agenda alleen-lezen | Customermates Cloud vanaf Pro, of een proefperiode |
+| Een crm met gekoppelde mailbox als connector (Customermates) | Customermates | Gesprekken bij de klant, records, activiteit, notities, kennisbank, een antwoordconcept bewaren; afspraken plannen in een gekoppelde agenda | Customermates Cloud vanaf Pro, of een proefperiode |
 
 Welke past, hangt van de taak af:
 
@@ -173,7 +173,7 @@ Een binnenkomend bericht is tekst van een vreemde, en Claude leest hem. De gids 
 ## Wanneer is Customermates hiervoor de verkeerde keuze? [#wrong-choice]
 
 - **Je wilt alleen een mailbox doorzoeken.** De connector van Anthropic voor Gmail of Microsoft 365 volstaat en heeft geen crm nodig.
-- **Claude moet afspraken inplannen.** Customermates leest gekoppelde agenda's alleen-lezen en boekt geen afspraken. Voeg daarvoor de connector voor Google Calendar of Microsoft 365 toe.
+- **Claude moet afspraken inplannen.** In Customermates Cloud vanaf Pro plant Claude via Customermates nieuwe afspraken in je gekoppelde Google- of Microsoft-agenda, maar bewerkt of verplaatst geen andere afspraken. Voeg daarvoor de connector voor Google Calendar of Microsoft 365 toe.
 - **Je zit op Free, Starter of een zelf gehoste instantie.** De Inbox en de berichtentools beginnen bij Pro in de cloud. Zelf gehost blijven MCP, records en kennisbank, maar zonder mailbox.
 - **Je wilt geen kopie van de gespreksgeschiedenis.** Customermates importeert de mappen die je hebt ingeschakeld in zijn Inbox, en het account loskoppelen verwijdert de import weer. De connectoren van Anthropic houden opgehaalde gegevens alleen bij de chat.
 - **Je hebt sequenties nodig.** Customermates kent geen sequenties en geen massaverzending; elk bericht ontstaat afzonderlijk.
@@ -203,7 +203,7 @@ Standaard niet. Met de Gmail-connector vraagt Claude voor elke verzending, elk a
 </FaqItem>
 
 <FaqItem question="Kan Claude afspraken maken in Outlook of Google Calendar?">
-Met de connectoren van Anthropic wel, en bij Microsoft 365 alleen met ingeschakelde schrijftools. Customermates leest gekoppelde agenda's alleen-lezen en boekt geen afspraken.
+Met de connectoren van Anthropic wel, en bij Microsoft 365 alleen met ingeschakelde schrijftools. Customermates plant in Cloud vanaf Pro nieuwe afspraken in een gekoppelde agenda, maar bewerkt geen andere afspraken.
 </FaqItem>
 
 <FaqItem question="Werkt dit met een privéaccount van Outlook.com?">

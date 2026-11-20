@@ -51,7 +51,7 @@ São sete. A tabela mostra quem opera cada uma e o que o Claude recebe, em 16 de
 | Servidor MCP do Gmail do Google | Google | Buscar e ler conversas, marcadores, criar rascunhos; nenhuma ferramenta envia | Developer Preview no Google Workspace Developer Preview Program; são necessários um projeto do Google Cloud e um cliente OAuth próprio |
 | Ofertas MCP da Microsoft (Work IQ MCP, ferramentas de e-mail antigas) | Microsoft | Ler, escrever e enviar e-mail por um servidor protegido pelo Entra | O Work IQ exige um Global Administrator e um plano de cobrança por uso no Copilot Studio; a Microsoft reserva as ferramentas de e-mail à compatibilidade com versões anteriores |
 | Pontes da comunidade | Desenvolvedores individuais, listadas em diretórios | Muito variável conforme o projeto | Sem compromisso de nenhum fornecedor; você entrega o acesso à sua caixa ao programa de um desconhecido |
-| Um CRM com a caixa conectada, como conector (Customermates) | Customermates | Conversas junto ao cliente, fichas, atividade, notas, base de conhecimento, salvar um rascunho de resposta; agenda somente leitura | Customermates Cloud a partir do Pro, ou teste |
+| Um CRM com a caixa conectada, como conector (Customermates) | Customermates | Conversas junto ao cliente, fichas, atividade, notas, base de conhecimento, salvar um rascunho de resposta; marcar reuniões em uma agenda conectada | Customermates Cloud a partir do Pro, ou teste |
 
 Qual serve depende da tarefa:
 
@@ -173,7 +173,7 @@ Uma mensagem recebida é texto de um desconhecido, e o Claude o lê. O guia do G
 ## Quando o Customermates é a escolha errada para isso? [#wrong-choice]
 
 - **Você só quer pesquisar uma caixa.** O conector da Anthropic para Gmail ou Microsoft 365 basta e não precisa de CRM.
-- **O Claude deve marcar reuniões.** O Customermates lê as agendas conectadas somente em leitura e não reserva compromissos. Acrescente para isso o conector do Google Calendar ou do Microsoft 365.
+- **O Claude deve marcar reuniões.** No Customermates Cloud a partir do Pro, o Claude marca pelo Customermates novas reuniões na sua agenda conectada do Google ou da Microsoft, mas não edita nem move outros eventos. Acrescente para isso o conector do Google Calendar ou do Microsoft 365.
 - **Você está no Free, no Starter ou em uma instância auto-hospedada.** A Caixa de entrada e as ferramentas de mensagens começam no Pro na nuvem. Auto-hospedado ficam MCP, fichas e base de conhecimento, mas sem caixa de e-mail.
 - **Você não quer uma cópia do histórico de conversas.** O Customermates importa para a sua Caixa de entrada as pastas que você ativou, e desconectar a conta apaga a importação. Os conectores da Anthropic mantêm os dados recuperados só no chat.
 - **Você precisa de sequências.** O Customermates não tem sequências nem envio em massa; cada mensagem nasce individualmente.
@@ -203,7 +203,7 @@ Não por padrão. Com o conector do Gmail, o Claude pergunta antes de cada envio
 </FaqItem>
 
 <FaqItem question="O Claude pode criar reuniões no Outlook ou no Google Calendar?">
-Com os conectores da Anthropic sim, e no Microsoft 365 só com as ferramentas de escrita ativadas. O Customermates lê as agendas conectadas somente em leitura e não reserva compromissos.
+Com os conectores da Anthropic sim, e no Microsoft 365 só com as ferramentas de escrita ativadas. O Customermates, no Cloud a partir do Pro, marca novas reuniões em uma agenda conectada, mas não edita outros eventos.
 </FaqItem>
 
 <FaqItem question="Funciona com uma conta pessoal do Outlook.com?">
