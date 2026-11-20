@@ -87,7 +87,7 @@ Gotowych konektorów do polskich programów do fakturowania i ERP, takich jak Fa
 |---|---|---|
 | Wysłać wiadomość na jeden kanał Slacka, gdy powstanie szansa sprzedaży | Webhooka z szablonem treści, wysłanego na przychodzący webhook Slacka | Nie potrzeba narzędzia do automatyzacji |
 | Przekazać wygrane szanse sprzedaży do oprogramowania księgowego | n8n, Make albo Zapier na webhooku `record.updated` dla listy Szanse sprzedaży | Te narzędzia sprawdzają wartość etapu i wywołują API narzędzia księgowego |
-| Tworzyć kontakty z formularza na stronie | Narzędzie do formularzy albo n8n wywołuje `POST /api/v1/records/mutate` | Customermates nie ma własnego osadzanego formularza |
+| Tworzyć kontakty z formularza na stronie | Narzędzie do formularzy albo n8n wywołuje `POST /api/v1/records/mutate` | Podłącza Twój obecny formularz, a publiczny formularz Customermates może też od razu utworzyć rekord |
 | Odzwierciedlać rekordy w hurtowni danych | Webhooki, deduplikowane według `id` zdarzenia | Prawie w czasie rzeczywistym, bez odpytywania |
 | Poprosić AI o zaktualizowanie pięciu szans sprzedaży po rozmowie | MCP z Claude, ChatGPT albo innego klienta | Klient sam odkrywa narzędzia i wykonuje wywołania |
 | Przenieść arkusz istniejących klientów | Import XLSX, jedna lista naraz | Szybciej niż skrypt API przy jednorazowej przeprowadzce |
@@ -154,7 +154,7 @@ Customermates nie ma aplikacji Slack, kanału Slack w skrzynce odbiorczej ani ek
 ## Czego nie ma
 
 <AcquisitionCallout title="Ograniczenia, które warto znać, zanim zaplanujesz integrację" variant="boundary">
-  Brak sklepu z aplikacjami i konektorów na jedno kliknięcie. Brak natywnej integracji ze Slackiem, Microsoft Teams, księgowością czy rezerwacją terminów w kalendarzu. Kalendarze są tylko do odczytu. Brak osadzanych formularzy internetowych. Przesyłanie danych plikami: import Excela, CSV lub JSON i eksport XLSX lub JSON, jedna lista naraz, bez eksportu całego konta. n8n, Make i Zapier to osobne produkty z osobnymi rachunkami.
+  Brak sklepu z aplikacjami i konektorów na jedno kliknięcie. Brak natywnej integracji ze Slackiem, Microsoft Teams czy księgowością. Planowanie spotkań i strony rezerwacji wymagają Customermates Cloud od planu Pro. Przesyłanie danych plikami: import Excela, CSV lub JSON i eksport XLSX lub JSON, jedna lista naraz, bez eksportu całego konta. n8n, Make i Zapier to osobne produkty z osobnymi rachunkami.
 </AcquisitionCallout>
 
 Jeśli Twój zespół potrzebuje setek gotowych konektorów utrzymywanych przez dostawcę, które osoba nietechniczna włącza na ekranie ustawień, lepiej pasuje CRM z własnym sklepem z aplikacjami. Customermates pasuje do zespołów, które chętnie podepną webhook albo pozwolą klientowi AI wykonywać wywołania i które chcą tych samych interfejsów w chmurze i przy self-hostingu. Połączenia z ERP wyglądają tak samo; [poradnik o integracji CRM i ERP](/blog/crm-erp-integration) przeprowadza przez to krok po kroku.

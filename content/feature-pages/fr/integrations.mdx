@@ -66,7 +66,7 @@ Webhooks, REST et MCP sont inclus dès Starter à [[commercial.price.starter.mon
 |---|---|---|
 | Publier un message dans un canal Slack quand une affaire est créée | Un webhook avec un modèle de corps, envoyé à un webhook entrant Slack | Aucun outil d’automatisation nécessaire |
 | Transmettre les affaires gagnées à votre logiciel de comptabilité | n8n, Make ou Zapier sur un webhook `record.updated` pour la liste Affaires | Ces outils vérifient la valeur de l’étape et appellent l’API de l’outil de comptabilité |
-| Créer des contacts à partir du formulaire de votre site | L’outil de formulaire ou n8n appelle `POST /api/v1/records/mutate` | Customermates n’a pas de formulaire intégrable propre |
+| Créer des contacts à partir du formulaire de votre site | L’outil de formulaire ou n8n appelle `POST /api/v1/records/mutate` | Il relie votre formulaire existant, et un formulaire public Customermates peut aussi créer l’enregistrement directement |
 | Répliquer les enregistrements dans un entrepôt de données | Les webhooks, dédupliqués par l’`id` de l’évènement | Quasi temps réel, sans interrogation périodique |
 | Demander à une IA de mettre à jour cinq affaires après un appel | MCP depuis Claude, ChatGPT ou un autre client | Le client découvre les outils et fait les appels |
 | Importer un tableur de clients existants | Import XLSX, une liste à la fois | Plus rapide qu’un script d’API pour un transfert ponctuel |
@@ -124,7 +124,7 @@ Customermates n’a ni application Slack, ni canal Slack dans la boîte de réce
 ## Ce qui n’est pas inclus
 
 <AcquisitionCallout title="Limites à connaître avant de planifier une intégration" variant="boundary">
-  Pas de place de marché d’applications ni de connecteurs en un clic. Slack, Microsoft Teams, la comptabilité et la prise de rendez-vous n’ont pas d’intégration native. Les agendas sont en lecture seule. Pas de formulaires web intégrables. Le transfert de données par fichier importe de l’Excel, du CSV ou du JSON et exporte en XLSX ou JSON, une liste à la fois, sans export de tout le compte. n8n, Make et Zapier sont des produits distincts avec des factures distinctes.
+  Pas de place de marché d’applications ni de connecteurs en un clic. Slack, Microsoft Teams et la comptabilité n’ont pas d’intégration native. La planification de réunions et les pages de réservation demandent Customermates Cloud à partir de Pro. Le transfert de données par fichier importe de l’Excel, du CSV ou du JSON et exporte en XLSX ou JSON, une liste à la fois, sans export de tout le compte. n8n, Make et Zapier sont des produits distincts avec des factures distinctes.
 </AcquisitionCallout>
 
 Si votre équipe a besoin de centaines de connecteurs prêts à l’emploi, maintenus par l’éditeur, qu’une personne non technique active depuis un écran de paramètres, un CRM doté de sa propre place de marché d’applications conviendra mieux. Customermates convient aux équipes qui acceptent de brancher un webhook ou de laisser un client IA faire les appels, et qui veulent les mêmes interfaces qu’elles utilisent le cloud ou qu’elles auto-hébergent. Les liens avec un ERP suivent le même schéma ; le [guide d’intégration CRM et ERP](/blog/crm-erp-integration) le détaille.
