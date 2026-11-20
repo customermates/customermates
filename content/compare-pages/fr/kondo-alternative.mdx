@@ -72,7 +72,7 @@ comparison:
         source: États Non lue, Ouverte, Fermée et Spam, plus filtres et vues enregistrées
         competitor: Chaque étiquette a sa propre boîte dans la barre latérale
       - name: Rappels et mise en attente
-        source: Un champ date que vous ajoutez à la fiche
+        source: Un champ date sur la fiche, avec une automatisation qui vous le rappelle, sans mise en attente dans la boîte de réception
         competitor: Un rappel ramène la conversation en haut de la boîte à l’échéance
       - name: Réponses enregistrées
         source: Brouillons de Mate ou de votre propre client IA
@@ -190,7 +190,7 @@ Customermates est notre produit ; pesez donc cette section face à celle sur Ko
 
 **LinkedIn à côté de l’e-mail sur la fiche client.** Dès Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit les boîtes Gmail, Outlook et IMAP, LinkedIn (Sales Navigator et InMail Recruiter compris), WhatsApp, Instagram et Telegram dans une seule liste, et vous répondez sur le canal d’origine. Liez un interlocuteur une fois à un contact, et chaque conversation avec cette adresse ou cette identité LinkedIn apparaît sur le contact. Lier une conversation à une affaire est une étape que vous ou un agent faites volontairement. [LinkedIn dans Customermates](/features/linkedin-integration) donne le détail.
 
-**Une prochaine étape pour chaque conversation ouverte.** Customermates n’a ni rappels intégrés, ni échéances de tâches. Vous ajoutez un champ date comme « Prochaine étape » aux affaires ou aux contacts, triez une vue enregistrée dessus et la partagez avec l’espace de travail, et le widget « À venir » du tableau de bord les liste selon cette date, avec une section « En retard » pour les dates passées. Personne n’est rappelé automatiquement : la liste n’aide que si quelqu’un l’ouvre. [Le suivi dans Customermates](/features/follow-up) montre la mise en place.
+**Une prochaine étape pour chaque conversation ouverte.** Customermates n’a pas d’échéances de tâches intégrées. Vous ajoutez un champ date comme « Prochaine étape » aux affaires ou aux contacts, triez une vue enregistrée dessus et la partagez avec l’espace de travail, et le widget « À venir » du tableau de bord les liste selon cette date, avec une section « En retard » pour les dates passées. Une automatisation sur cette date peut prévenir la personne assignée, pour que la relance ne dépende pas de l’ouverture de la liste. [Le suivi dans Customermates](/features/follow-up) montre la mise en place.
 
 **Des brouillons que vous relisez et envoyez.** Dans Customermates Cloud, Mate enregistre un brouillon de réponse dans la conversation, que vous modifiez et envoyez. Votre propre Claude ou ChatGPT peut le faire via le [serveur MCP](/docs/mcp), qui propose [[derived.mcp.tools.total]] outils dans toutes les formules et en auto-hébergement, avec votre propre fournisseur d’IA. Mate envoie un message dès que vous lui demandez d’envoyer ; demandez donc un brouillon quand vous voulez relire d’abord. Mate utilise des crédits d’IA hébergés, avec une allocation mensuelle par utilisateur actif indiquée sur la [page tarifs](/pricing).
 
@@ -203,7 +203,7 @@ Vérifiez ces points avant de lancer un essai :
 - **Ce n’est pas une boîte de réception pensée pour le clavier.** La [boîte de réception documentée](/docs/app-inbox) a des états de conversation, des filtres, des vues enregistrées et des brouillons. Elle n’a ni mise en attente, ni snippets, ni boîtes par étiquette. Pour des centaines de messages LinkedIn par jour, Kondo est plus rapide.
 - **Les messages ne peuvent pas rester sur votre ordinateur.** Les conversations connectées sont synchronisées dans la base de données de Customermates.
 - **La boîte de réception commence à Pro et n’existe que dans Customermates Cloud.** Free, Starter et les installations auto-hébergées n’ont aucun compte connecté, et un compte par utilisateur Pro signifie que LinkedIn plus une boîte mail demande Business.
-- **Pas de rappels qui ramènent une conversation.** Un champ date et une vue enregistrée les remplacent, et quelqu’un doit ouvrir la vue.
+- **Pas de mise en attente qui ramène une conversation.** Un champ date avec une automatisation qui vous le rappelle la remplace.
 - **Ni séquences, ni envois en masse, ni enrichissement, ni applications mobiles natives.** Les messages partent un par un, écrits par vous ou rédigés par Mate. Kondo affirme ne rien automatiser non plus.
 - **Une petite formule gratuite.** Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] fiches, sans boîte de réception, Mate ni routines ; il faut une formule payante au-delà de l’essai de [[commercial.trial.days]] jours.
 
@@ -214,7 +214,7 @@ Prenons une consultante indépendante qui mène ses conversations avec clients e
 | Dans Kondo | Dans Customermates |
 |---|---|
 | Des étiquettes comme Hot et Proposal sent | Un champ d’étape sur chaque affaire : Prospect 10 %, Proposition envoyée 50 %, Négociation 70 %, Gagnée 100 %, Perdue 0 % |
-| Un rappel « dans quatre jours » | Un champ date « Prochaine étape » sur l’affaire et une vue enregistrée triée dessus |
+| Un rappel « dans quatre jours » | Un champ date « Prochaine étape » sur l’affaire, une automatisation qui vous le rappelle ce jour-là et une vue enregistrée triée dessus |
 | Un snippet pour la première réponse | Un brouillon de Mate ou de votre propre client IA |
 | Des notes sur une personne | Le champ de notes du contact |
 | Les conversations LinkedIn dans la boîte Kondo | LinkedIn connecté sous Canaux, chaque fil lié à son affaire |
