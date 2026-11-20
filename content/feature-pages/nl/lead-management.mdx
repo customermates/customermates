@@ -35,11 +35,11 @@ sections:
       - title: "Pro en hoger"
         description: "Gesprekken via e-mail, LinkedIn, WhatsApp, Instagram en Telegram bij de lead. Alleen in Customermates Cloud."
       - title: "Niet inbegrepen"
-        description: "Geen leadscoring, verrijking, webformulieren, automatische toewijzing, e-mailreeksen of herinneringen."
+        description: "Geen leadscoring, verrijking, automatische toewijzing of e-mailreeksen."
 
 hero:
   title: "Leadbeheer: volg elke lead op"
-  description: "Houd elke lead bij als contactpersoon met een fase, een bron en elk e-mail-, LinkedIn- of WhatsApp-bericht erbij. Zie welke leads op jou wachten en laat Mate de follow-up opstellen, zodat jij die nakijkt. Geen scoring, geen formulieren."
+  description: "Houd elke lead bij als contactpersoon met een fase, een bron en elk e-mail-, LinkedIn- of WhatsApp-bericht erbij. Zie welke leads op jou wachten en laat Mate de follow-up opstellen, zodat jij die nakijkt. Openbare formulieren, geen scoring."
   buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Bekijk de livedemo
@@ -60,7 +60,7 @@ Software voor leadbeheer houdt elke potentiële klant in één lijst, laat zien 
 
 **Waar leads stilvallen.** Een lead loopt vast als het laatste bericht onbeantwoord blijft of niemand de volgende stap heeft ingesteld. Met het gesprek bij de lead zie je wat er als laatste is gezegd, en een opgeslagen weergave gesorteerd op **Bijgewerkt op**, oudste eerst, toont de leads die niemand heeft aangeraakt. Mate in Customermates Cloud kan de follow-up in het gesprek van de lead opstellen, zodat jij die nakijkt voordat er iets wordt verstuurd.
 
-Wat het weglaat, telt net zo zwaar. Customermates geeft geen scores aan leads, verrijkt geen records, host geen webformulieren en verdeelt niets via round-robin. Komen je leads bij honderden tegelijk binnen via advertenties en formulieren, dan heb je die motoren nodig, en de tabel verderop noemt tools die ze hebben.
+Wat het weglaat, telt net zo zwaar. Customermates geeft geen scores aan leads, verrijkt geen records en verdeelt niets via round-robin. Komen je leads bij honderden tegelijk binnen via advertenties en formulieren, dan heb je die motoren nodig, en de tabel verderop noemt tools die ze hebben.
 
 ## Wat is een lead en wat is leadbeheer? [#wat-is-leadbeheer]
 
@@ -76,7 +76,7 @@ Het proces bestaat uit zes stappen: vastleggen, volgen, kwalificeren, toewijzen,
 
 | Stap | In Customermates | Vraagt een andere tool |
 |---|---|---|
-| Vastleggen | Handmatig invoeren, Excel-import, een inboxgesprek koppelen aan een nieuwe contactpersoon, REST, MCP | Webformulieren, chatwidgets, leadformulieren van advertenties |
+| Vastleggen | Handmatig invoeren, openbaar formulier, Excel-import, een inboxgesprek koppelen aan een nieuwe contactpersoon, REST, MCP | Chatwidgets, leadformulieren van advertenties |
 | Volgen | Een fasenveld bij contactpersonen, dealfasen met vaste gewichten, wijzigingsgeschiedenis | |
 | Kwalificeren | Je eigen criteria als eigen velden, ingevuld door mensen, Mate of je AI-client | Automatische scores en bedrijfsgegevens (firmographics) |
 | Toewijzen | Toegewezen gebruikers bij elke contactpersoon en deal, met de hand of via een instructie ingesteld | Round-robin of toewijzing per regio |
@@ -90,7 +90,7 @@ Voor een consultant, een bureau of een oprichter die een paar tientallen aanvrag
 - **Met de hand.** **Toevoegen** in de lijst met contactpersonen, een paar velden, klaar.
 - **Vanuit een gesprek (Pro en hoger).** Schrijft een onbekend adres naar je gekoppelde inbox, open dan **Gespreksinstellingen**, klik op **Koppelen** naast de persoon en kies **"…" aanmaken**. Elk later bericht van dat adres staat dan bij de nieuwe contactpersoon. Zie de [gecombineerde inbox](/features/unified-inbox).
 - **Vanuit een spreadsheet.** Sla je lijst op als .xlsx-werkmap en gebruik **Meer acties › Toevoegen uit bestand**. Importeer eerst organisaties, daarna contactpersonen. Een leadlijst die je bij een extern leadgeneratiebureau hebt gekocht of die zo'n bureau voor je heeft opgebouwd, komt op dezelfde manier binnen.
-- **Vanuit een websiteformulier dat je al gebruikt.** Je formuliertool of een aparte [n8n-workflow](/features/workflow-automation) roept de REST API aan en maakt de contactpersoon aan met de bronwaarde. Customermates heeft geen eigen formulierbouwer.
+- **Vanuit een websiteformulier dat je al gebruikt.** Je formuliertool of een aparte [n8n-workflow](/features/workflow-automation) roept de REST API aan en maakt de contactpersoon aan met de bronwaarde. Customermates heeft ook eigen openbare formulieren met een link of insluitcode, die het record direct aanmaken.
 - **Vanuit je AI-client.** Claude, ChatGPT of een andere MCP-client kan contactpersonen aanmaken uit een geplakte e-mailhandtekening of een lijst van een evenement, met [[derived.mcp.tools.total]] beschikbare tools.
 
 ## Zo zet je het op: een adviesbureau van drie personen
@@ -126,10 +126,10 @@ Bij self-hosting is er geen Mate. Je eigen AI-client doet hetzelfde lees- en sch
 ## Wat het niet doet
 
 - Geen leadscoring en geen verrijking van gegevens. Een veld Geschiktheid bevat wat je team beslist.
-- Geen ingebouwde webformulieren of chatwidgets.
+- Geen chatwidgets.
 - Geen automatische toewijzingsregels. Een routine kan een regel volgen die je opschrijft ("wijs leads van Evenement toe aan Jana"), maar dat is een instructie, geen verdeelmotor.
 - Geen e-mailreeksen, drip-campagnes of massamailings. Follow-ups zijn losse berichten.
-- Geen herinneringen of einddatums bij taken. Zet een datum in een eigen veld en filter daarop.
+- Geen ingebouwde einddatums bij taken. Zet een datum in een eigen veld, filter daarop en laat een automatisering je herinneren.
 - Geen mobiele app. De webapp werkt op smalle schermen.
 
 ## Welk soort tool past
@@ -177,7 +177,7 @@ Dat hangt af van het volume. Bij honderden formulierleads per maand tellen scori
 </FaqItem>
 
 <FaqItem question="Kan Customermates het volgen van leads koppelen aan mijn website of advertenties?">
-Via de REST API, n8n of de eigen webhook van je formuliertool wel: die maken de contactpersoon aan en schrijven UTM- of campagnewaarden naar eigen velden. Customermates heeft geen formulierbouwer en geen eigen koppeling met advertentieplatforms.
+Via de REST API, n8n of de eigen webhook van je formuliertool wel: die maken de contactpersoon aan en schrijven UTM- of campagnewaarden naar eigen velden. Customermates heeft ook eigen openbare formulieren, maar geen eigen koppeling met advertentieplatforms.
 </FaqItem>
 
 <FaqItem question="Kan ik leads importeren van een externe leadgeneratieaanbieder?">

@@ -1,6 +1,6 @@
 ---
 title: "Lead management: software per la gestione dei lead"
-description: "Lead management: segui ogni lead dal primo messaggio alla trattativa vinta con fase, origine, viste salvate e conversazioni. Niente scoring né moduli."
+description: "Lead management: segui ogni lead dal primo messaggio alla trattativa vinta con fase, origine, viste salvate e conversazioni. Moduli pubblici, niente scoring."
 featureName: Gestione dei lead
 
 relatedHrefs:
@@ -35,11 +35,11 @@ sections:
       - title: "Pro e superiori"
         description: "Conversazioni di e-mail, LinkedIn, WhatsApp, Instagram e Telegram sul lead. Solo Customermates Cloud."
       - title: "Non incluso"
-        description: "Nessun lead scoring, arricchimento, modulo web, assegnazione automatica, sequenza di e-mail o promemoria."
+        description: "Nessun lead scoring, arricchimento, assegnazione automatica o sequenza di e-mail."
 
 hero:
   title: "Lead management: fai follow up su ogni lead"
-  description: "Tieni ogni lead come contatto con una fase, un’origine e ogni messaggio di e-mail, LinkedIn o WhatsApp accanto. Vedi quali lead aspettano te e lascia che Mate prepari il follow up per la tua revisione. Niente scoring, niente moduli."
+  description: "Tieni ogni lead come contatto con una fase, un’origine e ogni messaggio di e-mail, LinkedIn o WhatsApp accanto. Vedi quali lead aspettano te e lascia che Mate prepari il follow up per la tua revisione. Moduli pubblici, niente scoring."
   buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Guarda la demo dal vivo
@@ -60,13 +60,13 @@ Il software di lead management tiene ogni potenziale cliente in un’unica lista
 
 **Dove i lead restano in silenzio.** Un lead si ferma quando l’ultimo messaggio resta senza risposta o nessuno ha impostato il prossimo passo. Con la conversazione sul lead vedi che cosa è stato detto per ultimo, e una vista salvata ordinata per **Aggiornato il**, dal più vecchio, elenca i lead che nessuno ha toccato. Mate in Customermates Cloud può preparare il follow up nella conversazione del lead, perché tu lo rivedi prima che venga inviato qualsiasi cosa.
 
-Conta altrettanto ciò che resta fuori. Customermates non assegna punteggi ai lead, non arricchisce i record, non ospita moduli web e non smista nulla a rotazione. Se i tuoi lead arrivano a centinaia da annunci e moduli, ti servono quei motori, e la tabella più sotto indica strumenti che li hanno.
+Conta altrettanto ciò che resta fuori. Customermates non assegna punteggi ai lead, non arricchisce i record e non smista nulla a rotazione. Se i tuoi lead arrivano a centinaia da annunci e moduli, ti servono quei motori, e la tabella più sotto indica strumenti che li hanno.
 
 ## Che cosa copre la gestione dei lead, e quali parti copre Customermates
 
 | Passo | In Customermates | Richiede un altro strumento |
 |---|---|---|
-| Acquisizione | Inserimento manuale, importazione Excel, collegamento di una conversazione della posta in arrivo a un nuovo contatto, REST, MCP | Moduli web, widget di chat, moduli lead degli annunci |
+| Acquisizione | Inserimento manuale, modulo pubblico, importazione Excel, collegamento di una conversazione della posta in arrivo a un nuovo contatto, REST, MCP | Widget di chat, moduli lead degli annunci |
 | Tracciamento | Un campo fase sui contatti, fasi delle trattative con pesi fissi, cronologia delle modifiche | |
 | Qualifica | I tuoi criteri come campi personalizzati, compilati da persone, da Mate o dal tuo client IA | Punteggi automatici e dati firmografici |
 | Assegnazione | Utenti assegnati su ogni contatto e trattativa, impostati a mano o da un’istruzione | Smistamento a rotazione o per territorio |
@@ -80,7 +80,7 @@ Per una società di consulenza, un’agenzia o un fondatore che riceve qualche d
 - **A mano.** **Aggiungi** nella lista dei contatti, qualche campo, fatto.
 - **Da una conversazione (Pro e superiori).** Quando un indirizzo sconosciuto scrive alla tua posta in arrivo collegata, apri **Impostazioni della conversazione**, clicca su **Collega** accanto alla persona e scegli **Crea "…"**. Ogni messaggio successivo da quell’indirizzo compare sul nuovo contatto. Vedi la [posta in arrivo unificata](/features/unified-inbox).
 - **Da un foglio di calcolo.** Salva la tua lista come cartella di lavoro .xlsx e usa **Altre azioni › Aggiungi da file**. Importa prima le organizzazioni, poi i contatti. Una lista di lead acquistata da un’agenzia esterna di lead generation, o costruita da lei, entra allo stesso modo.
-- **Da un modulo del sito che già usi.** Il tuo strumento per i moduli o un [flusso di lavoro n8n](/features/workflow-automation) separato chiama l’API REST e crea il contatto con il valore dell’origine. Customermates non ha un costruttore di moduli proprio.
+- **Da un modulo del sito che già usi.** Il tuo strumento per i moduli o un [flusso di lavoro n8n](/features/workflow-automation) separato chiama l’API REST e crea il contatto con il valore dell’origine. Customermates ha anche moduli pubblici propri, con un link o un codice da incorporare, che creano direttamente il record.
 - **Dal tuo client IA.** Claude, ChatGPT o un altro client MCP possono creare contatti da una firma e-mail incollata o da un elenco di evento, con [[derived.mcp.tools.total]] strumenti a disposizione.
 
 ## Come si imposta: una società di consulenza di tre persone
@@ -116,10 +116,10 @@ Con il self-hosting non c’è Mate. Il tuo client IA fa la stessa lettura e scr
 ## Che cosa non fa
 
 - Nessun lead scoring e nessun arricchimento dei dati. Un campo Idoneità contiene ciò che decide il tuo team.
-- Nessun modulo web incorporato né widget di chat.
+- Nessun widget di chat.
 - Nessuna regola di assegnazione automatica. Una routine può seguire una tua regola scritta («assegna i lead da Evento a Jana»), ma è un’istruzione, non un motore di smistamento.
 - Nessuna sequenza di e-mail, campagne a goccia né e-mail di massa. I follow up sono messaggi singoli.
-- Nessun promemoria né scadenza sulle attività. Metti una data in un campo personalizzato e filtra su di essa.
+- Nessuna scadenza integrata sulle attività. Metti una data in un campo personalizzato, filtra su di essa e lascia che un’automazione te lo ricordi.
 - Nessuna app mobile. L’app web funziona sugli schermi stretti.
 
 ## Quale tipo di strumento fa per te
@@ -155,7 +155,7 @@ Dipende dal volume. Con centinaia di lead da moduli al mese contano scoring e sm
 </FaqItem>
 
 <FaqItem question="Customermates può integrare il tracciamento dei lead con il mio sito o i miei annunci?">
-Tramite l’API REST, n8n o il webhook del tuo strumento per i moduli, sì: creano il contatto e scrivono valori UTM o di campagna in campi personalizzati. Customermates non ha un costruttore di moduli né un collegamento proprio con le piattaforme pubblicitarie.
+Tramite l’API REST, n8n o il webhook del tuo strumento per i moduli, sì: creano il contatto e scrivono valori UTM o di campagna in campi personalizzati. Customermates ha anche moduli pubblici propri, ma nessun collegamento proprio con le piattaforme pubblicitarie.
 </FaqItem>
 
 <FaqItem question="Posso importare lead da un fornitore esterno di lead generation?">

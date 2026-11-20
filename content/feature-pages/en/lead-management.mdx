@@ -1,6 +1,6 @@
 ---
 title: "Lead Management Software for Small Teams"
-description: "Track every lead from first message to won deal: a stage field, a source field, saved views and conversations on the contact. No scoring or forms."
+description: "Track every lead from first message to won deal: a stage field, a source field, saved views and conversations on the contact. Public forms, no scoring."
 featureName: Lead Management
 
 relatedHrefs:
@@ -35,11 +35,11 @@ sections:
       - title: "Pro and higher"
         description: "Email, LinkedIn, WhatsApp, Instagram and Telegram conversations on the lead. Customermates Cloud only."
       - title: "Not included"
-        description: "No lead scoring, enrichment, web forms, automatic assignment, email sequences or reminders."
+        description: "No lead scoring, enrichment, automatic assignment or email sequences."
 
 hero:
   title: "Lead management: follow up on every lead"
-  description: "Keep each lead as a contact with a stage, a source and every email, LinkedIn or WhatsApp message beside it. See which leads are waiting on you and let Mate draft the follow-up for your review. No scoring, no forms."
+  description: "Keep each lead as a contact with a stage, a source and every email, LinkedIn or WhatsApp message beside it. See which leads are waiting on you and let Mate draft the follow-up for your review. Public forms, no scoring."
   buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
@@ -60,13 +60,13 @@ Lead management software keeps every potential client in one list, shows where e
 
 **Where leads go quiet.** A lead stalls when the last message sits unanswered or nobody set the next step. With the conversation on the lead, you see what was said last, and a saved view sorted by **Updated at**, oldest first, lists the leads nobody has touched. Mate in Customermates Cloud can draft the follow-up in the lead's conversation for you to review before anything is sent.
 
-What it leaves out matters just as much. Customermates scores no leads, enriches no records, hosts no web forms and routes nothing round-robin. If your leads arrive by the hundred from ads and forms, you need those engines, and the table further down names tools that have them.
+What it leaves out matters just as much. Customermates scores no leads, enriches no records and routes nothing round-robin. If your leads arrive by the hundred from ads and forms, you need those engines, and the table further down names tools that have them.
 
 ## What lead management covers, and which parts Customermates does
 
 | Step | In Customermates | Needs another tool |
 |---|---|---|
-| Capture | Manual entry, Excel import, linking an inbox conversation to a new contact, REST, MCP | Web forms, chat widgets, ad lead forms |
+| Capture | Manual entry, a public form, Excel import, linking an inbox conversation to a new contact, REST, MCP | Chat widgets, ad lead forms |
 | Track | A stage field on contacts, deal stages with fixed weights, change history | |
 | Qualify | Your own criteria as custom fields, filled by people, Mate or your AI client | Automatic scores and firmographic data |
 | Assign | Assigned users on every contact and deal, set by hand or by an instruction | Round-robin or territory routing |
@@ -80,7 +80,7 @@ For a consultancy, an agency or a founder who gets a few dozen enquiries a month
 - **By hand.** **Add** on the contacts list, a few fields, done.
 - **From a conversation (Pro and higher).** When an unknown address writes to your connected inbox, open **Thread settings**, click **Link** next to the person and choose **Create "…"**. Every later message from that address shows on the new contact. See the [unified inbox](/features/unified-inbox).
 - **From a spreadsheet.** Save your list as an .xlsx workbook and use **More actions › Add from file**. Import organizations first, then contacts. A lead list bought from or built by an outside lead generation agency comes in the same way.
-- **From a website form you already run.** Your form tool or a separate [n8n workflow](/features/workflow-automation) calls the REST API and creates the contact with its source value. Customermates has no form builder of its own.
+- **From a website form you already run.** Your form tool or a separate [n8n workflow](/features/workflow-automation) calls the REST API and creates the contact with its source value. Customermates also has its own public forms, with a link or an embed snippet, that create the record directly.
 - **From your AI client.** Claude, ChatGPT or another MCP client can create contacts from a pasted email signature or event list, with [[derived.mcp.tools.total]] tools available.
 
 ## Setting it up: a three-person consultancy
@@ -116,10 +116,10 @@ Self-hosted, there is no Mate. Your own AI client does the same reading and writ
 ## What it does not do
 
 - No lead scoring and no data enrichment. A Fit field holds what your team decides.
-- No embedded web forms or chat widgets.
+- No chat widgets.
 - No automatic assignment rules. A routine can follow your written rule ("assign leads from Event to Jana"), but it is an instruction, not a routing engine.
 - No email sequences, drip campaigns or mass email. Follow-ups are single messages.
-- No reminders or due dates on tasks. Put a date in a custom field and filter on it.
+- No built-in due dates on tasks. Put a date in a custom field, filter on it and let an automation remind you.
 - No mobile app. The web app works on narrow screens.
 
 ## Which kind of tool fits
@@ -155,7 +155,7 @@ It depends on volume. With hundreds of form leads a month, scoring and routing m
 </FaqItem>
 
 <FaqItem question="Can Customermates integrate lead tracking with my website or ads?">
-Through the REST API, n8n or your form tool's own webhook, yes: they create the contact and write UTM or campaign values into custom fields. Customermates has no form builder and no ad platform connection of its own.
+Through the REST API, n8n or your form tool's own webhook, yes: they create the contact and write UTM or campaign values into custom fields. Customermates also has its own public forms, but no ad platform connection.
 </FaqItem>
 
 <FaqItem question="Can I import leads from an external lead generation provider?">
