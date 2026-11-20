@@ -61,7 +61,7 @@ comparison:
         source: Jedno pole etapu z prawdopodobieństwami wygranej, jako tabela lub tablica
         competitor: Konfigurowalne pipeline'y w każdym planie
       - name: Zaplanowane aktywności i przypomnienia
-        source: Zadania to zwykła lista, bez wbudowanych terminów i przypomnień
+        source: Zadania to zwykła lista bez wbudowanych terminów; automatyzacja na polu daty wysyła przypomnienia
         competitor: Każdy plan
       - name: Widok przychodów
         source: Ważony pipeline z prawdopodobieństw etapów
@@ -93,7 +93,7 @@ comparison:
         source: Mate (Customermates Cloud, hostowane kredyty AI)
         competitor: Tworzenie raportów z AI w każdym planie; pisanie e-maili i podsumowania z AI od planu Premium
       - name: Automatyzacja
-        source: Rutyny uruchamiają zapisane instrukcje AI według harmonogramu lub zdarzenia rekordu (Customermates Cloud); webhooki i REST
+        source: Automatyzacje bez AI w każdym planie; rutyny uruchamiają zapisane instrukcje AI według harmonogramu lub zdarzenia rekordu (Customermates Cloud); webhooki i REST
         competitor: Automatyzacje oparte na regułach od planu Growth (50, 150 lub 250 na firmę)
       - name: Nagrywanie rozmów i transkrypcje
         source: false
@@ -132,7 +132,7 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-> Dobra alternatywa dla Pipedrive zależy od tego, co Cię od niego odpycha. Jeśli plan Growth to cena za wprowadzenie e-maila, WhatsApp i automatyzacji do CRM, porównaj HubSpot, Zoho CRM i Customermates; jeśli chcesz kodu źródłowego do wglądu lub własnego serwera, sprawdź Twenty (open source) albo Customermates (source-available). Zostań przy Pipedrive, jeśli Twój zespół pracuje na zaplanowanych aktywnościach, sekwencjach e-maili, formularzach internetowych lub aplikacji telefonicznej, bo Customermates nie ma żadnego z nich. Customermates publikuje to porównanie; każdy szczegół o Pipedrive pochodzi z pipedrive.com i został sprawdzony 9 listopada 2026.
+> Dobra alternatywa dla Pipedrive zależy od tego, co Cię od niego odpycha. Jeśli plan Growth to cena za wprowadzenie e-maila, WhatsApp i automatyzacji do CRM, porównaj HubSpot, Zoho CRM i Customermates; jeśli chcesz kodu źródłowego do wglądu lub własnego serwera, sprawdź Twenty (open source) albo Customermates (source-available). Zostań przy Pipedrive, jeśli Twój zespół pracuje na zaplanowanych aktywnościach, sekwencjach e-maili lub aplikacji telefonicznej, bo Customermates nie ma żadnego z nich. Customermates publikuje to porównanie; każdy szczegół o Pipedrive pochodzi z pipedrive.com i został sprawdzony 9 listopada 2026.
 
 ## Jaka jest najlepsza alternatywa dla Pipedrive?
 
@@ -140,9 +140,9 @@ Zależy od zadania, do którego używasz Pipedrive. Ta tabela dopasowuje typowe 
 
 | Twoja sytuacja | Lepszy wybór | Dlaczego |
 |---|---|---|
-| Twój zespół pracuje z codzienną listą zaplanowanych rozmów i spotkań | Pipedrive | Aktywności, powiadomienia i synchronizacja kalendarza są w każdym planie; Customermates nie ma wbudowanych terminów zadań ani przypomnień |
+| Twój zespół pracuje z codzienną listą zaplanowanych rozmów i spotkań | Pipedrive | Aktywności, powiadomienia i synchronizacja kalendarza są w każdym planie; Customermates nie ma wbudowanych terminów zadań; przypomnienia wysyła automatyzacja na polu daty |
 | Wysyłasz z CRM sekwencje e-maili lub kampanie | Pipedrive Growth lub wyższy albo folk Premium | Sekwencje Pipedrive zaczynają się od planu Growth, a Campaigns to dodatek; folk wymienia sekwencje e-maili w planie Premium; Customermates nie ma sekwencji ani kampanii |
-| Pozyskujesz leady na swojej stronie albo wysyłasz umowy do podpisu elektronicznego | Pipedrive Premium | LeadBooster oraz umowy z podpisami elektronicznymi są w cenie od planu Premium; Customermates nie ma formularzy, ofert ani podpisów elektronicznych |
+| Pozyskujesz leady na swojej stronie albo wysyłasz umowy do podpisu elektronicznego | Pipedrive Premium | LeadBooster oraz umowy z podpisami elektronicznymi są w cenie od planu Premium; Customermates ma formularze publiczne, ale nie ma ofert ani podpisów elektronicznych |
 | Twoi handlowcy pracują z telefonów albo potrzebujesz jednokrotnego logowania | Pipedrive | Natywne aplikacje na iOS i Androida oraz jednokrotne logowanie w każdym planie; Customermates nie ma natywnej aplikacji ani SSO i działa w przeglądarce telefonu |
 | Klienci piszą na WhatsApp, LinkedIn, Instagramie lub Telegramie, a nie tylko e-mailem | Customermates Pro lub Business | Wszystkie te kanały dzielą jedną skrzynkę odbiorczą i łączą się z kontaktem |
 | Prowadzisz akwizycję na LinkedIn i sprzedajesz przez relacje | folk | Jego plan Standard wymienia rozszerzenie do LinkedIn, synchronizację poczty, kalendarza i WhatsApp oraz wzbogacanie kontaktów |
@@ -214,9 +214,9 @@ Pipedrive też ma serwer MCP. Różnica to zasięg: [serwer MCP](/docs/mcp) Cust
 
 Sprawdź to, zanim zaczniesz okres próbny:
 
-- **Brak kalendarza aktywności.** Lista zadań to zwykła lista z nazwą, notatkami i relacjami; terminy i statusy to pola, które dodajesz sam. Nie ma wbudowanych terminów, przypomnień ani centrum powiadomień. Dla zespołu pracującego z listą aktywności Pipedrive to największa zmiana.
-- **Brak sekwencji, masowych e-maili, formularzy internetowych, ofert, podpisów elektronicznych, telefonii, nagrywania rozmów, wzbogacania danych i scoringu leadów.** Wysyłka idzie pojedynczo, napisana przez Ciebie lub przygotowana przez Mate jako szkic. Faktury zostają w Twoim programie księgowym; wygrane szanse sprzedaży mogą trafić przez webhook do instancji n8n, którą uruchamiasz osobno, i tam być dalej obsługiwane.
-- **Brak kreatora reguł.** Rutyny to instrukcje AI, a nie reguły „jeśli/to”. W przepływach deterministycznych użyj webhooków, REST API albo instancji n8n, którą uruchamiasz osobno.
+- **Brak kalendarza aktywności.** Lista zadań to zwykła lista z nazwą, notatkami i relacjami; terminy i statusy to pola, które dodajesz sam. Nie ma wbudowanych terminów; automatyzacja na polu daty wysyła przypomnienia na stronę Powiadomienia i e-mailem. Dla zespołu pracującego z listą aktywności Pipedrive to największa zmiana.
+- **Brak sekwencji, masowych e-maili, ofert, podpisów elektronicznych, telefonii, nagrywania rozmów, wzbogacania danych i scoringu leadów.** Wysyłka idzie pojedynczo, napisana przez Ciebie lub przygotowana przez Mate jako szkic. Faktury zostają w Twoim programie księgowym; wygrane szanse sprzedaży mogą trafić przez webhook do instancji n8n, którą uruchamiasz osobno, i tam być dalej obsługiwane.
+- **Prostszy kreator reguł.** Automatyzacje działają jako jeden łańcuch wyzwalacza, warunków i akcji, bez opóźnień i rozgałęzień „jeśli/w przeciwnym razie”. W dłuższych przepływach użyj webhooków, REST API albo instancji n8n, którą uruchamiasz osobno.
 - **Brak natywnych aplikacji mobilnych i SSO.** Uprawnienia dotyczą całej listy i akcji, a nie pojedynczych pól.
 - **Jedna lista etapów dla wszystkich szans sprzedaży.** Jeśli prowadzisz kilka pipeline'ów Pipedrive, dodaj pole pojedynczego wyboru dla pipeline'u i zapisz jeden widok tablicy na każdy pipeline. Etapy pozostają wspólne.
 
@@ -287,7 +287,7 @@ Tak. Wyeksportuj każdy typ elementu z Pipedrive jako plik Excel i zaimportuj do
 </FaqItem>
 
 <FaqItem question="Czy Customermates ma automatyzacje jak Pipedrive?">
-Nie takie same. Automatyzacje Pipedrive to reguły z wyzwalaczami, opóźnieniami i krokami „jeśli/w przeciwnym razie”, od planu Growth. Customermates nie ma kreatora reguł; jego rutyny uruchamiają zapisaną instrukcję dla Mate według harmonogramu lub gdy rekord się zmienia, w Customermates Cloud z hostowanymi kredytami AI: w planie Starter [[commercial.entitlement.starter.includedRoutinesPerUser]] na użytkownika, w Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Do przepływów deterministycznych służą webhooki, REST API i węzeł społeczności dla Twojego własnego n8n.
+Nie takie same. Automatyzacje Pipedrive to reguły z wyzwalaczami, opóźnieniami i krokami „jeśli/w przeciwnym razie”, od planu Growth. Automatyzacje Customermates są prostsze: jeden łańcuch wyzwalacza, warunków i akcji bez opóźnień i kroków „jeśli/w przeciwnym razie”, w każdym planie; jego rutyny uruchamiają zapisaną instrukcję dla Mate według harmonogramu lub gdy rekord się zmienia, w Customermates Cloud z hostowanymi kredytami AI: w planie Starter [[commercial.entitlement.starter.includedRoutinesPerUser]] na użytkownika, w Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Do przepływów deterministycznych służą webhooki, REST API i węzeł społeczności dla Twojego własnego n8n.
 </FaqItem>
 </Faq>
 

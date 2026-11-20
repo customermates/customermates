@@ -61,7 +61,7 @@ comparison:
         source: Um campo de etapa com probabilidades de ganho, em tabela ou quadro
         competitor: Pipelines personalizáveis em todos os planos
       - name: Atividades agendadas e lembretes
-        source: As tarefas são uma lista simples, sem datas de vencimento nem lembretes nativos
+        source: As tarefas são uma lista simples sem datas de vencimento nativas; uma automação em um campo de data envia lembretes
         competitor: Todos os planos
       - name: Visão de receita
         source: Pipeline ponderado a partir das probabilidades das etapas
@@ -93,7 +93,7 @@ comparison:
         source: Mate (Customermates Cloud, créditos de IA hospedados)
         competitor: Criação de relatórios com IA em todos os planos; redação de e-mails e resumos com IA a partir do Premium
       - name: Automação
-        source: As rotinas executam instruções de IA salvas em horário agendado ou em evento de registro (Customermates Cloud); webhooks e REST
+        source: Automações sem IA em todos os planos; as rotinas executam instruções de IA salvas em horário agendado ou em evento de registro (Customermates Cloud); webhooks e REST
         competitor: Automações baseadas em regras a partir do Growth (50, 150 ou 250 por empresa)
       - name: Gravação e transcrição de ligações
         source: false
@@ -132,7 +132,7 @@ cta:
   hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
 ---
 
-> A melhor alternativa ao Pipedrive depende do que está afastando você. Se o Growth é o preço para levar e-mail, WhatsApp e automações para dentro do CRM, compare HubSpot, Zoho CRM e Customermates; se você quer uma licença de código aberto ou o seu próprio servidor, olhe o Twenty (código aberto) ou o Customermates (código-fonte disponível). Continue com o Pipedrive se a sua equipe trabalha com atividades agendadas, sequências de e-mail, formulários web ou um aplicativo de celular, porque o Customermates não tem nada disso. O Customermates publica esta comparação; todo detalhe do Pipedrive vem de pipedrive.com e foi verificado em 9 de novembro de 2026.
+> A melhor alternativa ao Pipedrive depende do que está afastando você. Se o Growth é o preço para levar e-mail, WhatsApp e automações para dentro do CRM, compare HubSpot, Zoho CRM e Customermates; se você quer uma licença de código aberto ou o seu próprio servidor, olhe o Twenty (código aberto) ou o Customermates (código-fonte disponível). Continue com o Pipedrive se a sua equipe trabalha com atividades agendadas, sequências de e-mail ou um aplicativo de celular, porque o Customermates não tem nada disso. O Customermates publica esta comparação; todo detalhe do Pipedrive vem de pipedrive.com e foi verificado em 9 de novembro de 2026.
 
 ## Qual é a melhor alternativa ao Pipedrive?
 
@@ -140,9 +140,9 @@ Depende da função para a qual você contratou o Pipedrive. Esta tabela associa
 
 | Sua situação | Melhor opção | Por quê |
 |---|---|---|
-| Sua equipe trabalha com uma lista diária de ligações e reuniões agendadas | Pipedrive | Atividades, notificações e sincronização de agenda estão em todos os planos; o Customermates não tem datas de vencimento nem lembretes nativos nas tarefas |
+| Sua equipe trabalha com uma lista diária de ligações e reuniões agendadas | Pipedrive | Atividades, notificações e sincronização de agenda estão em todos os planos; o Customermates não tem datas de vencimento nativas nas tarefas; os lembretes vêm de uma automação em um campo de data |
 | Você envia sequências de e-mail ou campanhas pelo CRM | Pipedrive Growth ou superior, ou folk Premium | As sequências do Pipedrive começam no Growth e o Campaigns é um complemento; o folk lista sequências de e-mail no Premium; o Customermates não tem sequências nem campanhas |
-| Você capta leads no seu site ou envia contratos para assinatura eletrônica | Pipedrive Premium | LeadBooster e contratos com assinaturas eletrônicas estão incluídos a partir do Premium; o Customermates não tem formulários, cotações nem assinaturas eletrônicas |
+| Você capta leads no seu site ou envia contratos para assinatura eletrônica | Pipedrive Premium | LeadBooster e contratos com assinaturas eletrônicas estão incluídos a partir do Premium; o Customermates tem formulários públicos, mas não cotações nem assinaturas eletrônicas |
 | Seus vendedores trabalham pelo celular, ou você precisa de login único | Pipedrive | Aplicativos nativos para iOS e Android e login único em todos os planos; o Customermates não tem aplicativo nativo nem SSO e roda no navegador do celular |
 | Os clientes escrevem no WhatsApp, LinkedIn, Instagram ou Telegram além do e-mail | Customermates Pro ou Business | Todos esses canais compartilham uma só caixa de entrada e se vinculam ao contato |
 | Você prospecta no LinkedIn e vende por relacionamento | folk | O plano Standard lista uma extensão do LinkedIn, sincronização de e-mail, agenda e WhatsApp e enriquecimento de contatos |
@@ -214,9 +214,9 @@ O Pipedrive também tem um servidor MCP. A diferença é o alcance: o [servidor 
 
 Confira estes pontos antes de começar um teste:
 
-- **Sem calendário de atividades.** Uma lista de tarefas é uma lista comum com nome, notas e relacionamentos; datas de vencimento e status são campos que você mesmo adiciona. Não há datas de vencimento nativas, lembretes nem central de notificações. Para uma equipe que trabalha pela lista de atividades do Pipedrive, essa é a maior mudança.
-- **Sem sequências, e-mail em massa, formulários web, cotações, assinaturas eletrônicas, telefonia, gravação de ligações, enriquecimento nem pontuação de leads.** O contato sai uma mensagem por vez, escrita por você ou redigida pelo Mate. As faturas ficam no seu software de contabilidade; negócios ganhos podem seguir por webhook para uma instância do n8n que você mesmo executa, e continuar a partir dali.
-- **Sem construtor de regras.** As rotinas são instruções de IA, não regras se/então. Para fluxos determinísticos, use webhooks, a API REST ou uma instância do n8n que você executa separadamente.
+- **Sem calendário de atividades.** Uma lista de tarefas é uma lista comum com nome, notas e relacionamentos; datas de vencimento e status são campos que você mesmo adiciona. Não há datas de vencimento nativas; uma automação em um campo de data envia lembretes para a página Notificações e por e-mail. Para uma equipe que trabalha pela lista de atividades do Pipedrive, essa é a maior mudança.
+- **Sem sequências, e-mail em massa, cotações, assinaturas eletrônicas, telefonia, gravação de ligações, enriquecimento nem pontuação de leads.** O contato sai uma mensagem por vez, escrita por você ou redigida pelo Mate. As faturas ficam no seu software de contabilidade; negócios ganhos podem seguir por webhook para uma instância do n8n que você mesmo executa, e continuar a partir dali.
+- **Um construtor de regras mais simples.** As automações seguem uma única cadeia de gatilho, condições e ações, sem esperas nem ramificações se/senão. Para fluxos mais longos, use webhooks, a API REST ou uma instância do n8n que você executa separadamente.
 - **Sem aplicativos móveis nativos e sem SSO.** As permissões valem por lista e ação, não por campo.
 - **Uma só lista de etapas para todos os negócios.** Se você roda vários pipelines no Pipedrive, adicione um campo de escolha única para o pipeline e salve uma visualização em quadro por pipeline. As etapas continuam compartilhadas.
 
@@ -287,7 +287,7 @@ Sim. Exporte cada tipo de item do Pipedrive como um arquivo do Excel e importe n
 </FaqItem>
 
 <FaqItem question="O Customermates tem automações como o Pipedrive?">
-Não do mesmo tipo. As automações do Pipedrive são regras com gatilhos, atrasos e etapas se/senão, a partir do Growth. O Customermates não tem construtor de regras; suas rotinas executam uma instrução salva para o Mate em horário agendado ou quando um registro muda, no Customermates Cloud com créditos de IA hospedados: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter e [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro. Para fluxos determinísticos há webhooks, a API REST e um nó da comunidade para o seu próprio n8n.
+Não do mesmo tipo. As automações do Pipedrive são regras com gatilhos, atrasos e etapas se/senão, a partir do Growth. As automações do Customermates são mais simples, uma cadeia de gatilho, condições e ações sem esperas nem etapas se/senão, em todos os planos; suas rotinas executam uma instrução salva para o Mate em horário agendado ou quando um registro muda, no Customermates Cloud com créditos de IA hospedados: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter e [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro. Para fluxos determinísticos há webhooks, a API REST e um nó da comunidade para o seu próprio n8n.
 </FaqItem>
 </Faq>
 
