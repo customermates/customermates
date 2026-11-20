@@ -14,9 +14,12 @@ export type BookingReservationInput = {
   locale?: string | null;
 };
 
+export type BookingMoveTarget = { startsAt: Date; endsAt: Date; timeZone?: string };
+
 export type BookingTimes = {
   startsAt: Date;
   endsAt: Date;
+  timeZone?: string;
   rescheduledAt?: Date | null;
   reminderSentAt?: Date | null;
 };
@@ -85,7 +88,7 @@ export abstract class BookingReservationRepo {
   abstract reopenHosted(id: string): Promise<void>;
   abstract moveHosted(
     id: string,
-    to: { startsAt: Date; endsAt: Date },
+    to: BookingMoveTarget,
     now: Date,
     isOpen: () => Promise<boolean>,
   ): Promise<BookingMove | null>;
@@ -95,7 +98,7 @@ export abstract class BookingReservationRepo {
     booking: Pick<BookingRow, "id" | "companyId" | "startsAt">,
     now: Date,
   ): Promise<boolean>;
-  abstract releaseReminderUnscoped(booking: Pick<BookingRow, "id" | "companyId">): Promise<void>;
+  abstract releaseReminderUnscoped(booking: Pick<BookingRow, "id" | "companyId">, claimedAt: Date): Promise<void>;
   abstract cancelForCalendarEventUnscoped(args: {
     companyId: string;
     calendarEventId: string;

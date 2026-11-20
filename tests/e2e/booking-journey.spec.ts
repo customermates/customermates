@@ -102,7 +102,7 @@ test("a visitor books a time, moves it and cancels it through the private link",
 
   await page.goto(`/en/book/${link.token}`);
   await expect(page.locator("#public-booking-title")).toHaveText("Intro call");
-  await expect(page.locator("#public-booking-badge")).toHaveCount(0);
+  await expect(page.locator("#public-booking-badge")).toBeVisible();
   const firstTime = page.locator("[data-booking-slots] button").first();
   await clickHydrated(firstTime);
   await expect(page.locator("[data-booking-when]")).toBeVisible();
@@ -125,7 +125,6 @@ test("a visitor books a time, moves it and cancels it through the private link",
   await confirmed.locator("[data-booking-manage-link]").click();
   await expect(page).toHaveURL(/\/book\/manage\/[A-Za-z0-9_-]{16,}$/u);
   await expect(page.locator('[data-booking-manage="upcoming"]')).toContainText("Intro call");
-  await expect(page.locator("#public-booking-badge")).toHaveCount(0);
 
   await clickHydrated(page.locator("[data-booking-reschedule]"));
   const otherTime = page.locator("[data-booking-slots] button").nth(2);

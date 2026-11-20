@@ -184,7 +184,6 @@ describe("PublicBookingView on the live page", () => {
     questions: [],
     renderToken: "render",
     brand: null,
-    badge: false,
   };
   const BRAND = { accentColor: "#fde047", logoUrl: "/api/brand/logo/logo_key_abcdefghijkl" };
   const slotIn = (days: number) => {
@@ -228,12 +227,10 @@ describe("PublicBookingView on the live page", () => {
     expect(document.documentElement.style.getPropertyValue("--primary")).toBe("");
   });
 
-  it("shows the badge only on a page whose workspace plan carries it", async () => {
+  it("shows the badge on the live page", async () => {
     harness.readSlots.mockResolvedValue({ status: "available", timeZone: "UTC", slots: [slotIn(2)], nextFrom: null });
     await renderLive();
-    expect(container.querySelector("#public-booking-badge")).toBeNull();
 
-    await renderLive({ ...LIVE_PAGE, badge: true });
     expect(container.querySelector("#public-booking-badge")).not.toBeNull();
   });
 

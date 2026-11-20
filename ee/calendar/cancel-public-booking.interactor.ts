@@ -37,11 +37,9 @@ export class CancelPublicBookingInteractor {
         if (!inviteeMayCancel(opened, now)) return { status: "notAllowed" };
         const { booking } = opened;
         const event = booking.calendarEventId ? await this.calendars.findOwnEvent(booking.calendarEventId) : null;
-        if (event && event.accountStatus !== ConnectedAccountStatus.ok) return PUBLIC_BOOKING_UNAVAILABLE;
-
         const cancelled = await this.reservations.cancelHosted(booking.id, "invitee", reason, now);
         if (!cancelled) return { status: "notAllowed" };
-        if (event) {
+        if (event && event.accountStatus === ConnectedAccountStatus.ok) {
           const removed = await this.writer.cancel(event, reason ?? undefined);
           if (!removed.ok) {
             await this.reservations.reopenHosted(booking.id);

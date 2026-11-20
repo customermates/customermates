@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "Falta una respuesta o no es válida.",
       "bookingHostsNotAllowed": "Solo un administrador puede añadir a otros miembros como anfitriones.",
       "bookingHostWithoutCalendar": "Este miembro no tiene un calendario conectado y no puede ser anfitrión de una página de reservas.",
+      "bookingLinkHasUpcomingBookings": "Esta página de reservas aún tiene reservas próximas ({count}). Páusala con el interruptor o cancela primero esas reservas.",
       "bookingLinkLimitReached": "Puedes tener como máximo {limit} páginas de reservas. Elimina una para crear otra.",
       "bookingLinkNotFound": "ID de página de reservas no encontrado o no accesible.",
       "bookingListInvalid": "Esta lista o este campo no se puede usar para reservas.",

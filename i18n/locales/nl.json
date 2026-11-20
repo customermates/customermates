@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "Een antwoord ontbreekt of is ongeldig.",
       "bookingHostsNotAllowed": "Alleen een beheerder kan andere leden als hosts toevoegen.",
       "bookingHostWithoutCalendar": "Dit lid heeft geen gekoppelde agenda en kan geen host van een boekingspagina zijn.",
+      "bookingLinkHasUpcomingBookings": "Deze boekingspagina heeft nog aankomende boekingen ({count}). Pauzeer de pagina met de schakelaar of annuleer eerst deze boekingen.",
       "bookingLinkLimitReached": "Je kunt maximaal {limit} boekingspagina's hebben. Verwijder er een om een nieuwe te maken.",
       "bookingLinkNotFound": "ID van boekingspagina niet gevonden of niet toegankelijk.",
       "bookingListInvalid": "Deze lijst of dit veld kan niet voor boekingen worden gebruikt.",

@@ -173565,6 +173565,7 @@
                         "calendarNeedsReconnect",
                         "bookingLinkNotFound",
                         "bookingLinkLimitReached",
+                        "bookingLinkHasUpcomingBookings",
                         "bookingSlotTaken",
                         "bookingUnavailable",
                         "bookingRateLimited",

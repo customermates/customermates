@@ -2,7 +2,6 @@ import { renderToken } from "@/core/network/public-submit-guard";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { publicBrand } from "@/features/workspace-brand/workspace-brand.schema";
 
-import type { PublicFormQuota } from "@/features/public-form/public-form-quota";
 import type { MeetingRecordService } from "./meeting-record.service";
 import type { PublicBookingAccess } from "./public-booking-access";
 
@@ -15,7 +14,6 @@ export class ReadPublicBookingInteractor {
   constructor(
     private access: PublicBookingAccess,
     private records: Pick<MeetingRecordService, "loadModel">,
-    private quota: PublicFormQuota,
   ) {}
 
   async invoke(input: unknown): Promise<PublicBookingPageResult> {
@@ -40,7 +38,6 @@ export class ReadPublicBookingInteractor {
           questions: publicQuestions(link.recordTypeId ? await this.records.loadModel() : null, link),
           renderToken: renderToken(link.id, this.access.now(), this.access.authSecret, query.data.visitor),
           brand: publicBrand(link.brand),
-          badge: (await this.quota.limits(link.companyId)).badge,
         },
       }),
     );

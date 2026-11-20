@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "An answer is missing or not valid.",
       "bookingHostsNotAllowed": "Only an administrator can add other members as hosts.",
       "bookingHostWithoutCalendar": "This member has no connected calendar and cannot host a booking page.",
+      "bookingLinkHasUpcomingBookings": "This booking page still has upcoming bookings ({count}). Pause it with the switch instead, or cancel those bookings first.",
       "bookingLinkLimitReached": "You can have at most {limit} booking links. Delete one to create another.",
       "bookingLinkNotFound": "Booking link ID not found or not accessible.",
       "bookingListInvalid": "This list or field cannot be used for bookings.",

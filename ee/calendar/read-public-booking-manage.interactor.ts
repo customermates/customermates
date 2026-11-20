@@ -1,7 +1,8 @@
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { publicBrand } from "@/features/workspace-brand/workspace-brand.schema";
+import { ConnectedAccountStatus } from "@/generated/prisma";
 
-import type { PublicFormQuota } from "@/features/public-form/public-form-quota";
+import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
 import type { OpenBooking, PublicBookingAccess } from "./public-booking-access";
 
 import {
@@ -29,7 +30,7 @@ export function inviteeMayReschedule(opened: OpenBooking, now: Date): boolean {
 export class ReadPublicBookingManageInteractor {
   constructor(
     private access: PublicBookingAccess,
-    private quota: PublicFormQuota,
+    private calendars: Pick<CalendarWriteAccessRepo, "findOwnEvent">,
   ) {}
 
   async invoke(input: unknown): Promise<PublicBookingManageResult> {
@@ -43,6 +44,10 @@ export class ReadPublicBookingManageInteractor {
         const { booking, link } = opened;
         const now = this.access.now();
         const cancelledByHost = booking.status === "cancelled" && booking.cancelledBy === "host";
+        const event =
+          booking.calendarEventId && inviteeMayReschedule(opened, now)
+            ? await this.calendars.findOwnEvent(booking.calendarEventId)
+            : null;
 
         return {
           status: "found",
@@ -59,10 +64,9 @@ export class ReadPublicBookingManageInteractor {
             cancelledByHost,
             cancelReason: cancelledByHost ? booking.cancelReason : null,
             canCancel: inviteeMayCancel(opened, now),
-            canReschedule: inviteeMayReschedule(opened, now),
+            canReschedule: event?.accountStatus === ConnectedAccountStatus.ok,
             bookAgainToken: link.enabled ? link.token : null,
             brand: publicBrand(link.brand),
-            badge: (await this.quota.limits(booking.companyId)).badge,
           },
         };
       },

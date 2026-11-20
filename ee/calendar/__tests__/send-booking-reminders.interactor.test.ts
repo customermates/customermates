@@ -84,6 +84,6 @@ describe("SendBookingRemindersInteractor", () => {
     const { interactor, repo } = build([failing, fine], { sent: (id) => id === "booking-fine" });
 
     expect(await interactor.invoke()).toEqual({ bookingReminders: 1 });
-    expect(repo.releaseReminderUnscoped.mock.calls).toEqual([[failing]]);
+    expect(repo.releaseReminderUnscoped.mock.calls).toEqual([[failing, NOW]]);
   });
 });

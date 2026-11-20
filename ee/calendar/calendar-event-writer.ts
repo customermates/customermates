@@ -59,7 +59,29 @@ export class CalendarEventWriter {
     });
     if (!created.ok) return { ok: false, error: created.error, retryAfterSeconds: created.retryAfterSeconds };
 
-    return this.store(companyId, calendar.connectedAccountId, calendar.id, created.data);
+    const stored = await this.store(companyId, calendar.connectedAccountId, calendar.id, created.data);
+    if (!stored.ok && !created.data.is_cancelled) await this.withdraw(calendar, created.data.id);
+
+    return stored;
+  }
+
+  private async withdraw(calendar: WritableCalendarRow, eventId: string): Promise<void> {
+    const withdrawn = await this.messaging
+      .cancelCalendarEvent({
+        accountId: calendar.unipileAccountId,
+        calendarId: calendar.unipileCalendarId,
+        eventId,
+      })
+      .catch((error: unknown) => {
+        ErrorReporter.captureException(error, { tags: { kind: "calendar-event-orphan" } });
+        return null;
+      });
+    if (withdrawn && !withdrawn.ok) {
+      ErrorReporter.captureMessage("A calendar event that was not stored locally could not be cancelled", {
+        level: "warning",
+        tags: { kind: "calendar-event-orphan", error: withdrawn.error },
+      });
+    }
   }
 
   async update(companyId: string, event: WritableEventRow, patch: EventPatchInput): Promise<EventWriteResult> {

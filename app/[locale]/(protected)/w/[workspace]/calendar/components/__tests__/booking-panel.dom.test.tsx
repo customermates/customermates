@@ -210,6 +210,21 @@ describe("BookingPanel", () => {
     expect(harness.refresh).toHaveBeenCalledOnce();
   });
 
+  it("keeps the page and reports why when the delete is refused over upcoming bookings", async () => {
+    const error = { errors: ["This booking page still has upcoming bookings (2)."] };
+    harness.remove.mockResolvedValue({ ok: false, error });
+    await renderPanel(ready());
+
+    await act(async () => {
+      buttonWithText(row(MINE.id), "Common.actions.delete").click();
+      await Promise.resolve();
+    });
+
+    expect(harness.toastError).toHaveBeenCalledExactlyOnceWith(error);
+    expect(container.querySelector(`[data-booking-link="${MINE.id}"]`)).not.toBeNull();
+    expect(harness.refresh).not.toHaveBeenCalled();
+  });
+
   it("hands the setup and the refresh to the booking modal", async () => {
     await renderPanel(ready());
 

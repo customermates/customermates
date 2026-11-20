@@ -177,6 +177,7 @@ export enum CustomErrorCode {
   calendarNeedsReconnect = "calendarNeedsReconnect",
   bookingLinkNotFound = "bookingLinkNotFound",
   bookingLinkLimitReached = "bookingLinkLimitReached",
+  bookingLinkHasUpcomingBookings = "bookingLinkHasUpcomingBookings",
   bookingSlotTaken = "bookingSlotTaken",
   bookingUnavailable = "bookingUnavailable",
   bookingRateLimited = "bookingRateLimited",

@@ -24,6 +24,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import type { BookingLinkLookup } from "../booking-link.repo";
 import type { BookingMove, BookingRow } from "../booking-reservation.repo";
+import type { WritableEventRow } from "../calendar-write-access.repo";
 
 import { CancelPublicBookingInteractor } from "../cancel-public-booking.interactor";
 import { PUBLIC_BOOKING_UNAVAILABLE } from "../public-booking-access";
@@ -77,10 +78,10 @@ beforeEach(() => {
 });
 
 describe("ReadPublicBookingManageInteractor", () => {
-  const limits = vi.fn();
-  const read = (setup: Setup = {}, badge = false) => {
-    limits.mockResolvedValue({ submissionsPerMonth: null, badge });
-    return new ReadPublicBookingManageInteractor(access(setup).access, { limits });
+  const findOwnEvent = vi.fn();
+  const read = (setup: Setup = {}, event: WritableEventRow | null = eventRow()) => {
+    findOwnEvent.mockResolvedValue(event);
+    return new ReadPublicBookingManageInteractor(access(setup).access, { findOwnEvent });
   };
 
   it("shows an upcoming booking that the visitor may cancel and move", async () => {
@@ -102,16 +103,18 @@ describe("ReadPublicBookingManageInteractor", () => {
         canReschedule: true,
         bookAgainToken: lookupLink().token,
         brand: null,
-        badge: false,
       },
     });
+    expect(findOwnEvent).toHaveBeenCalledWith(EVENT_ID);
   });
 
-  it("shows the badge when the plan of the booking's workspace carries it", async () => {
-    const result = await read({}, true).invoke({ manageToken: MANAGE_TOKEN, visitor: "v" });
+  it.each([
+    ["needs a reconnect", eventRow({ accountStatus: "credentials" })],
+    ["is gone", null],
+  ] as const)("offers cancelling but not moving when the account of the booked event %s", async (_name, event) => {
+    const result = await read({}, event).invoke({ manageToken: MANAGE_TOKEN });
 
-    expect(result).toMatchObject({ status: "found", booking: { badge: true } });
-    expect(limits).toHaveBeenCalledWith(OWNER.companyId);
+    expect(result).toMatchObject({ status: "found", booking: { canCancel: true, canReschedule: false } });
   });
 
   it("carries the workspace's logo and accent colour", async () => {
@@ -224,9 +227,9 @@ describe("ReadPublicBookingManageSlotsInteractor", () => {
   });
 });
 
-function moveOf(booking: BookingRow, startsAt: Date): BookingMove {
+function moveOf(booking: BookingRow, startsAt: Date, timeZone = booking.timeZone): BookingMove {
   return {
-    booking: { ...booking, startsAt, endsAt: new Date(startsAt.getTime() + 30 * 60_000) },
+    booking: { ...booking, startsAt, endsAt: new Date(startsAt.getTime() + 30 * 60_000), timeZone },
     previousStartsAt: booking.startsAt,
   };
 }
@@ -239,8 +242,13 @@ function changeTools(booking: BookingRow) {
     ),
     reopenHosted: vi.fn().mockResolvedValue(undefined),
     moveHosted: vi.fn(
-      (_id: string, to: { startsAt: Date }, _now: Date, isOpen: () => Promise<boolean>): Promise<BookingMove | null> =>
-        isOpen().then((free) => (free ? moveOf(booking, to.startsAt) : null)),
+      (
+        _id: string,
+        to: { startsAt: Date; timeZone?: string },
+        _now: Date,
+        isOpen: () => Promise<boolean>,
+      ): Promise<BookingMove | null> =>
+        isOpen().then((free) => (free ? moveOf(booking, to.startsAt, to.timeZone) : null)),
     ),
     restoreTimes: vi.fn().mockResolvedValue(undefined),
   };
@@ -345,12 +353,21 @@ describe("CancelPublicBookingInteractor", () => {
     expect(announcer.notifyHost).not.toHaveBeenCalled();
   });
 
-  it("is unavailable while the host's calendar account needs a reconnect and cancels nothing", async () => {
-    const { interactor, reservations, calendars } = cancel();
+  it("cancels without the provider while the host's calendar account needs a reconnect, and still tells the host and the visitor", async () => {
+    const { interactor, reservations, calendars, writer, announcer, mailer } = cancel({
+      calendars: { [calendarId(OWNER.id)]: calendarRow(OWNER.id, { accountStatus: "credentials" }) },
+    });
     calendars.findOwnEvent.mockResolvedValue(eventRow({ accountStatus: "credentials" }));
 
-    expect(await interactor.invoke({ manageToken: MANAGE_TOKEN })).toEqual(PUBLIC_BOOKING_UNAVAILABLE);
-    expect(reservations.cancelHosted).not.toHaveBeenCalled();
+    expect(await interactor.invoke({ manageToken: MANAGE_TOKEN, reason: "Ill" })).toEqual({ status: "cancelled" });
+
+    expect(reservations.cancelHosted).toHaveBeenCalledWith(BOOKING_ID, "invitee", "Ill", NOW);
+    expect(writer.cancel).not.toHaveBeenCalled();
+    expect(reservations.reopenHosted).not.toHaveBeenCalled();
+    const cancelled = await reservations.cancelHosted.mock.results[0]?.value;
+    expect(announcer.changed).toHaveBeenCalledWith(cancelled, "cancelled", "invitee", { reason: "Ill" });
+    expect(announcer.notifyHost).toHaveBeenCalledWith(cancelled, "cancelled", "en", "Ill");
+    expect(mailer.send).toHaveBeenCalledWith({ kind: "cancelled", booking: cancelled, by: "invitee", reason: "Ill" });
   });
 
   it("cancels a booking whose event is gone without asking the provider", async () => {
@@ -394,7 +411,7 @@ describe("ReschedulePublicBookingInteractor", () => {
     return { interactor, availability, writer, records, booking, ...tools };
   }
 
-  const INPUT = { manageToken: MANAGE_TOKEN, visitor: "v", startsAt: NEW_START, timeZone: "Europe/London" };
+  const INPUT = { manageToken: MANAGE_TOKEN, visitor: "v", startsAt: NEW_START, timeZone: "America/New_York" };
 
   it("moves the booking when the new time is open for the host, updates the event and announces the change", async () => {
     const { interactor, availability, reservations, writer, announcer, records, booking, mailer } = reschedule({
@@ -409,7 +426,7 @@ describe("ReschedulePublicBookingInteractor", () => {
 
     expect(reservations.moveHosted).toHaveBeenCalledWith(
       BOOKING_ID,
-      { startsAt: new Date(NEW_START), endsAt: new Date("2026-11-21T10:30:00.000Z") },
+      { startsAt: new Date(NEW_START), endsAt: new Date("2026-11-21T10:30:00.000Z"), timeZone: "America/New_York" },
       NOW,
       expect.any(Function),
     );
@@ -426,7 +443,8 @@ describe("ReschedulePublicBookingInteractor", () => {
       notifyAttendees: true,
     });
     expect(records.moveBookingRecord).not.toHaveBeenCalled();
-    const moved = moveOf(booking, new Date(NEW_START));
+    const moved = moveOf(booking, new Date(NEW_START), "America/New_York");
+    expect(moved.booking.timeZone).not.toBe(booking.timeZone);
     expect(announcer.changed).toHaveBeenCalledWith(moved.booking, "rescheduled", "invitee", {
       previousStartsAt: STARTS_AT,
     });
@@ -480,6 +498,7 @@ describe("ReschedulePublicBookingInteractor", () => {
     expect(reservations.restoreTimes).toHaveBeenCalledWith(BOOKING_ID, {
       startsAt: STARTS_AT,
       endsAt: new Date("2026-11-20T09:30:00.000Z"),
+      timeZone: "Europe/London",
       rescheduledAt: null,
       reminderSentAt: null,
     });

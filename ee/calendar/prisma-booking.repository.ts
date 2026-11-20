@@ -19,6 +19,7 @@ import type {
 import type {
   BookingConfirmation,
   BookingMove,
+  BookingMoveTarget,
   BookingReservationInput,
   BookingReservationRepo,
   BookingRow,
@@ -38,6 +39,10 @@ function reminderMark(startsAt: Date, now: Date): Date | null {
 
 function upcomingWhere(now: Date): Prisma.BookingWhereInput {
   return { status: { in: OPEN_STATUSES }, endsAt: { gt: now } };
+}
+
+function upcomingConfirmedWhere(now: Date): Prisma.BookingWhereInput {
+  return { status: BookingStatus.confirmed, startsAt: { gt: now } };
 }
 
 function memberName(user: { firstName: string; lastName: string }): string {
@@ -276,12 +281,28 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
     });
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string, now: Date): Promise<boolean> {
     const { count } = await this.prisma.bookingLink.deleteMany({
-      where: { id, companyId: this.companyId, userId: this.userId },
+      where: {
+        id,
+        companyId: this.companyId,
+        userId: this.userId,
+        bookings: { none: upcomingConfirmedWhere(now) },
+      },
     });
 
     return count > 0;
+  }
+
+  countUpcomingConfirmed(id: string, now: Date): Promise<number> {
+    return this.prisma.booking.count({
+      where: {
+        companyId: this.companyId,
+        bookingLinkId: id,
+        link: { is: { userId: this.userId } },
+        ...upcomingConfirmedWhere(now),
+      },
+    });
   }
 
   @BypassTenantGuard
@@ -438,7 +459,7 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
 
   moveHosted(
     id: string,
-    to: { startsAt: Date; endsAt: Date },
+    to: BookingMoveTarget,
     now: Date,
     isOpen: () => Promise<boolean>,
   ): Promise<BookingMove | null> {
@@ -449,7 +470,13 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
         if (!current || current.status !== BookingStatus.confirmed || current.startsAt <= now) return null;
         if (!(await isOpen())) return null;
 
-        const moved = { ...to, rescheduledAt: now, reminderSentAt: reminderMark(to.startsAt, now) };
+        const moved = {
+          startsAt: to.startsAt,
+          endsAt: to.endsAt,
+          timeZone: to.timeZone ?? current.timeZone,
+          rescheduledAt: now,
+          reminderSentAt: reminderMark(to.startsAt, now),
+        };
         await this.prisma.booking.updateMany({
           where: { id, companyId: this.companyId, hostUserId: this.userId, status: BookingStatus.confirmed },
           data: moved,
@@ -467,6 +494,7 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
       data: {
         startsAt: times.startsAt,
         endsAt: times.endsAt,
+        ...(times.timeZone !== undefined ? { timeZone: times.timeZone } : {}),
         ...(times.rescheduledAt !== undefined ? { rescheduledAt: times.rescheduledAt } : {}),
         ...(times.reminderSentAt !== undefined ? { reminderSentAt: times.reminderSentAt } : {}),
       },
@@ -506,9 +534,9 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
   }
 
   @BypassTenantGuard
-  async releaseReminderUnscoped(booking: Pick<BookingRow, "id" | "companyId">): Promise<void> {
+  async releaseReminderUnscoped(booking: Pick<BookingRow, "id" | "companyId">, claimedAt: Date): Promise<void> {
     await this.prisma.booking.updateMany({
-      where: { id: booking.id, companyId: booking.companyId },
+      where: { id: booking.id, companyId: booking.companyId, reminderSentAt: claimedAt },
       data: { reminderSentAt: null },
     });
   }
@@ -591,10 +619,7 @@ export class PrismaBookingRepo extends TenantRepository implements BookingLinkRe
         startsAt: { lt: to },
         endsAt: { gt: from },
         ...(exceptBookingId ? { id: { not: exceptBookingId } } : {}),
-        OR: [
-          { status: BookingStatus.reserved, createdAt: { gte: recent } },
-          { status: BookingStatus.confirmed, updatedAt: { gte: recent } },
-        ],
+        OR: [{ status: BookingStatus.reserved, createdAt: { gte: recent } }, { status: BookingStatus.confirmed }],
       },
       select: { startsAt: true, endsAt: true },
       take: 2000,

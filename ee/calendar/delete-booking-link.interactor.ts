@@ -7,7 +7,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import type { BookingLinkRepo } from "./booking-link.repo";
@@ -24,6 +24,7 @@ export class DeleteBookingLinkInteractor extends AuthenticatedInteractor<Booking
   constructor(
     private repo: BookingLinkRepo,
     private entitlements: EntitlementService,
+    private now: () => Date = () => new Date(),
   ) {
     super();
   }
@@ -34,8 +35,13 @@ export class DeleteBookingLinkInteractor extends AuthenticatedInteractor<Booking
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    if (!(await this.repo.delete(data.id))) return failNotFound(CustomErrorCode.bookingLinkNotFound, ["id"]);
+    const now = this.now();
+    if (await this.repo.delete(data.id, now))
+      return { ok: true as const, data: { id: data.id, deleted: true as const } };
 
-    return { ok: true as const, data: { id: data.id, deleted: true as const } };
+    const upcoming = await this.repo.countUpcomingConfirmed(data.id, now);
+    if (!upcoming) return failNotFound(CustomErrorCode.bookingLinkNotFound, ["id"]);
+
+    return failConflict(CustomErrorCode.bookingLinkHasUpcomingBookings, ["id"], { count: upcoming });
   }
 }

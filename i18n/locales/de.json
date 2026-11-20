@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "Eine Antwort fehlt oder ist ungültig.",
       "bookingHostsNotAllowed": "Nur ein Admin kann andere Mitglieder als Gastgeber hinzufügen.",
       "bookingHostWithoutCalendar": "Dieses Mitglied hat keinen verbundenen Kalender und kann nicht Gastgeber einer Buchungsseite sein.",
+      "bookingLinkHasUpcomingBookings": "Diese Buchungsseite hat noch anstehende Buchungen ({count}). Pausiere sie stattdessen mit dem Schalter oder sage diese Buchungen zuerst ab.",
       "bookingLinkLimitReached": "Du kannst höchstens {limit} Buchungsseiten haben. Lösche eine, um eine neue zu erstellen.",
       "bookingLinkNotFound": "Buchungsseiten-ID nicht gefunden oder nicht zugänglich.",
       "bookingListInvalid": "Diese Liste oder dieses Feld kann nicht für Buchungen verwendet werden.",

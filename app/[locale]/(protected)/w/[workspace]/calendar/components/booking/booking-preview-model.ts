@@ -42,7 +42,6 @@ export function bookingPreviewPage(
     questions,
     renderToken: "",
     brand: setup.brand ?? null,
-    badge: false,
   };
 }
 

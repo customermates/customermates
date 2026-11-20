@@ -123,8 +123,8 @@ describe("CalendarEventWriter.create", () => {
     expect(store.upsertCalendarEventUnscoped).not.toHaveBeenCalled();
   });
 
-  it("reports an unconfirmed outcome when the event exists at the provider but cannot be stored", async () => {
-    const { writer: subject } = writer({
+  it("cancels the provider event and reports an unconfirmed outcome when the event cannot be stored", async () => {
+    const { messaging, writer: subject } = writer({
       store: { upsertCalendarEventUnscoped: vi.fn().mockRejectedValue(new Error("db down")) },
     });
 
@@ -132,6 +132,49 @@ describe("CalendarEventWriter.create", () => {
       ok: false,
       error: CustomErrorCode.unipileSendUnconfirmed,
     });
+    expect(messaging.cancelCalendarEvent).toHaveBeenCalledExactlyOnceWith({
+      accountId: "acc_1",
+      calendarId: "cal_1",
+      eventId: "evt_1",
+    });
+  });
+
+  it("cancels the provider event when its answer cannot be normalised, and still fails when that cancel is refused", async () => {
+    const {
+      messaging,
+      store,
+      writer: subject,
+    } = writer({
+      messaging: {
+        createCalendarEvent: vi.fn().mockResolvedValue({ ok: true, data: { id: "evt_2", title: "Intro call" } }),
+        cancelCalendarEvent: vi.fn().mockResolvedValue({ ok: false, error: CustomErrorCode.unipileProviderRejected }),
+      },
+    });
+
+    expect(await subject.create("company-1", CALENDAR, INPUT)).toEqual({
+      ok: false,
+      error: CustomErrorCode.unipileSendUnconfirmed,
+    });
+    expect(store.upsertCalendarEventUnscoped).not.toHaveBeenCalled();
+    expect(messaging.cancelCalendarEvent).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ eventId: "evt_2" }),
+    );
+  });
+
+  it("leaves a stored event alone, and one the provider already cancelled", async () => {
+    const stored = writer();
+    const cancelled = writer({
+      messaging: {
+        createCalendarEvent: vi.fn().mockResolvedValue({ ok: true, data: { ...PROVIDER_EVENT, is_cancelled: true } }),
+      },
+    });
+
+    await stored.writer.create("company-1", CALENDAR, INPUT);
+    const result = await cancelled.writer.create("company-1", CALENDAR, INPUT);
+
+    expect(result.ok).toBe(false);
+    expect(stored.messaging.cancelCalendarEvent).not.toHaveBeenCalled();
+    expect(cancelled.messaging.cancelCalendarEvent).not.toHaveBeenCalled();
   });
 });
 

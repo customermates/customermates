@@ -46,6 +46,7 @@ export abstract class BookingLinkRepo {
     data: Partial<BookingLinkWrite>,
     hosts?: BookingHostWrite[],
   ): Promise<BookingLinkRow | null>;
-  abstract delete(id: string): Promise<boolean>;
+  abstract delete(id: string, now: Date): Promise<boolean>;
+  abstract countUpcomingConfirmed(id: string, now: Date): Promise<number>;
   abstract findByTokenUnscoped(token: string): Promise<BookingLinkLookup | null>;
 }

@@ -245,15 +245,21 @@ describe("CancelHostedBookingInteractor", () => {
     expect(mailer.send).not.toHaveBeenCalled();
   });
 
-  it("asks to reconnect the host's calendar before changing anything", async () => {
-    const { cancel, calendars, reservations, mailer } = build();
+  it("cancels without the provider while the host's calendar account needs a reconnect, and still emails the visitor", async () => {
+    const { cancel, calendars, reservations, writer, announcer, mailer } = build();
     calendars.findOwnEvent.mockResolvedValue(eventRow({ accountStatus: "credentials" }));
 
-    expect(code(await as(HOST, () => cancel.invoke({ id: BOOKING_ID, reason: "" })))).toBe(
-      CustomErrorCode.calendarNeedsReconnect,
-    );
-    expect(reservations.cancelHosted).not.toHaveBeenCalled();
-    expect(mailer.send).not.toHaveBeenCalled();
+    const result = await as(HOST, () => cancel.invoke({ id: BOOKING_ID, reason: "Out sick" }));
+
+    expect(result).toMatchObject({ ok: true, data: { id: BOOKING_ID, status: "cancelled" } });
+    expect(reservations.cancelHosted).toHaveBeenCalledWith(BOOKING_ID, "host", "Out sick", NOW);
+    expect(writer.cancel).not.toHaveBeenCalled();
+    expect(reservations.reopenHosted).not.toHaveBeenCalled();
+    const cancelled = await reservations.cancelHosted.mock.results[0]?.value;
+    expect(announcer.changed).toHaveBeenCalledWith(cancelled, "cancelled", "host", { reason: "Out sick" });
+    expect(mailer.send.mock.calls).toEqual([
+      [{ kind: "cancelled", booking: cancelled, by: "host", reason: "Out sick" }],
+    ]);
   });
 
   it("reopens the booking and sends nothing when the calendar refuses to remove the event", async () => {

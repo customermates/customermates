@@ -336,12 +336,29 @@ describeDatabase("visitors and hosts change a booking", { timeout: 60_000 }, () 
       booking: expect.objectContaining({ id, status: "confirmed", ...to, hostUserId: w.admin.id }),
       previousStartsAt: from,
     });
-    expect(await stored(id)).toMatchObject({ ...to, rescheduledAt: now, status: "confirmed" });
+    expect(await stored(id)).toMatchObject({
+      ...to,
+      rescheduledAt: now,
+      status: "confirmed",
+      timeZone: "Europe/London",
+    });
 
     await w.as(w.member, () => repo.restoreTimes(id, { startsAt: from, endsAt: new Date(from.getTime() + 1_800_000) }));
     expect(await stored(id)).toMatchObject(to);
     await w.as(w.admin, () => repo.restoreTimes(id, { startsAt: from, endsAt: new Date(from.getTime() + 1_800_000) }));
     expect(await stored(id)).toMatchObject({ startsAt: from, endsAt: new Date(from.getTime() + 1_800_000) });
+
+    const abroad = await w.as(w.admin, () => repo.moveHosted(id, { ...to, timeZone: "America/New_York" }, now, open));
+    expect(abroad?.booking).toMatchObject({ ...to, timeZone: "America/New_York" });
+    expect(await stored(id)).toMatchObject({ ...to, timeZone: "America/New_York" });
+    await w.as(w.admin, () =>
+      repo.restoreTimes(id, {
+        startsAt: from,
+        endsAt: new Date(from.getTime() + 1_800_000),
+        timeZone: "Europe/London",
+      }),
+    );
+    expect(await stored(id)).toMatchObject({ startsAt: from, timeZone: "Europe/London" });
   });
 
   it("does not move a booking that started, was cancelled or is only reserved", async () => {

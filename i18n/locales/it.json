@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "Una risposta manca o non è valida.",
       "bookingHostsNotAllowed": "Solo un amministratore può aggiungere altri membri come organizzatori.",
       "bookingHostWithoutCalendar": "Questo membro non ha un calendario collegato e non può essere organizzatore di una pagina di prenotazione.",
+      "bookingLinkHasUpcomingBookings": "Questa pagina di prenotazione ha ancora prenotazioni in arrivo ({count}). Mettila in pausa con l’interruttore oppure annulla prima queste prenotazioni.",
       "bookingLinkLimitReached": "Puoi avere al massimo {limit} pagine di prenotazione. Eliminane una per crearne un’altra.",
       "bookingLinkNotFound": "ID della pagina di prenotazione non trovato o non accessibile.",
       "bookingListInvalid": "Questo elenco o campo non può essere usato per le prenotazioni.",

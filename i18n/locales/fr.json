@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "Une réponse est manquante ou invalide.",
       "bookingHostsNotAllowed": "Seul un administrateur peut ajouter d’autres membres comme hôtes.",
       "bookingHostWithoutCalendar": "Ce membre n’a pas d’agenda connecté et ne peut pas être hôte d’une page de réservation.",
+      "bookingLinkHasUpcomingBookings": "Cette page de réservation a encore des réservations à venir ({count}). Mettez-la plutôt en pause avec l’interrupteur ou annulez d’abord ces réservations.",
       "bookingLinkLimitReached": "Vous pouvez avoir au maximum {limit} pages de réservation. Supprimez-en une pour en créer une autre.",
       "bookingLinkNotFound": "ID de page de réservation introuvable ou inaccessible.",
       "bookingListInvalid": "Cette liste ou ce champ ne peut pas servir aux réservations.",

@@ -50,8 +50,11 @@ export class ReschedulePublicBookingInteractor {
         if (!event || event.accountStatus !== ConnectedAccountStatus.ok) return PUBLIC_BOOKING_UNAVAILABLE;
 
         const own = { bookingId: booking.id, calendarEventId: booking.calendarEventId };
-        const move = await this.reservations.moveHosted(booking.id, { startsAt, endsAt }, now, () =>
-          this.availability.isOpen(link, this.access.now(), startsAt, own),
+        const move = await this.reservations.moveHosted(
+          booking.id,
+          { startsAt, endsAt, timeZone: parsed.data.timeZone },
+          now,
+          () => this.availability.isOpen(link, this.access.now(), startsAt, own),
         );
         if (!move) return { status: "slotTaken" };
 
@@ -65,6 +68,7 @@ export class ReschedulePublicBookingInteractor {
           await this.reservations.restoreTimes(booking.id, {
             startsAt: booking.startsAt,
             endsAt: booking.endsAt,
+            timeZone: booking.timeZone,
             rescheduledAt: booking.rescheduledAt,
             reminderSentAt: booking.reminderSentAt,
           });

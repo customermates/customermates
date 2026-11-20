@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "Uma resposta está faltando ou não é válida.",
       "bookingHostsNotAllowed": "Somente um administrador pode adicionar outros membros como anfitriões.",
       "bookingHostWithoutCalendar": "Este membro não tem um calendário conectado e não pode ser anfitrião de uma página de agendamento.",
+      "bookingLinkHasUpcomingBookings": "Esta página de agendamento ainda tem agendamentos futuros ({count}). Pause a página com o interruptor ou cancele esses agendamentos primeiro.",
       "bookingLinkLimitReached": "Você pode ter no máximo {limit} páginas de agendamento. Exclua uma para criar outra.",
       "bookingLinkNotFound": "ID da página de agendamento não encontrado ou inacessível.",
       "bookingListInvalid": "Esta lista ou este campo não pode ser usado para agendamentos.",

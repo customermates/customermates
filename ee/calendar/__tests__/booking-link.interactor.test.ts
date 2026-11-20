@@ -130,6 +130,7 @@ function build(options: { repo?: object; access?: object; records?: object; busy
     create: vi.fn().mockImplementation((token: string, data: object) => Promise.resolve({ ...ROW, ...data, token })),
     update: vi.fn().mockImplementation((_id: string, data: object) => Promise.resolve({ ...ROW, ...data })),
     delete: vi.fn().mockResolvedValue(true),
+    countUpcomingConfirmed: vi.fn().mockResolvedValue(0),
     ...options.repo,
   };
   const access = {
@@ -486,5 +487,19 @@ describe("DeleteBookingLinkInteractor", () => {
         await run(() => build({ repo: { delete: vi.fn().mockResolvedValue(false) } }).remove.invoke({ id: LINK_ID })),
       ),
     ).toBe(CustomErrorCode.bookingLinkNotFound);
+  });
+
+  it("refuses to delete a page that still has upcoming confirmed bookings and says how many", async () => {
+    const { remove, repo } = build({
+      repo: { delete: vi.fn().mockResolvedValue(false), countUpcomingConfirmed: vi.fn().mockResolvedValue(3) },
+    });
+
+    const result = await run(() => remove.invoke({ id: LINK_ID }));
+
+    expect(repo.delete).toHaveBeenCalledWith(LINK_ID, expect.any(Date));
+    expect(repo.countUpcomingConfirmed).toHaveBeenCalledWith(LINK_ID, repo.delete.mock.calls[0]?.[1]);
+    expect(code(result)).toBe(CustomErrorCode.bookingLinkHasUpcomingBookings);
+    expect(result.ok ? null : serializeInteractorFailure(result.error as never).kind).toBe("conflict");
+    expect(result.ok ? null : result.error.issues[0]).toMatchObject({ params: { count: 3 } });
   });
 });

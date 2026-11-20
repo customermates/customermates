@@ -1866,6 +1866,7 @@
       "bookingAnswerInvalid": "Brakuje odpowiedzi lub jest nieprawidłowa.",
       "bookingHostsNotAllowed": "Tylko administrator może dodawać innych członków jako gospodarzy.",
       "bookingHostWithoutCalendar": "Ten członek nie ma połączonego kalendarza i nie może być gospodarzem strony rezerwacji.",
+      "bookingLinkHasUpcomingBookings": "Ta strona rezerwacji ma jeszcze nadchodzące rezerwacje ({count}). Wstrzymaj ją przełącznikiem albo najpierw odwołaj te rezerwacje.",
       "bookingLinkLimitReached": "Limit stron rezerwacji to {limit}. Usuń jedną, aby utworzyć kolejną.",
       "bookingLinkNotFound": "Nie znaleziono ID strony rezerwacji lub brak do niej dostępu.",
       "bookingListInvalid": "Tej listy lub tego pola nie można użyć do rezerwacji.",

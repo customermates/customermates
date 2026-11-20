@@ -2068,7 +2068,7 @@ const publicBookingChangeAccess = new PublicBookingAccess(
   bookingAccessSettings,
 );
 export const getReadPublicBookingInteractor = () =>
-  new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService(), getPublicFormQuota());
+  new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService());
 export const getReadPublicBookingSlotsInteractor = () =>
   new ReadPublicBookingSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
 export const getSubmitPublicBookingInteractor = () =>
@@ -2085,7 +2085,7 @@ export const getSubmitPublicBookingInteractor = () =>
     getBookingMailer(),
   );
 export const getReadPublicBookingManageInteractor = () =>
-  new ReadPublicBookingManageInteractor(publicBookingReadAccess, getPublicFormQuota());
+  new ReadPublicBookingManageInteractor(publicBookingReadAccess, getCalendarWriteAccessRepo());
 export const getReadPublicBookingManageSlotsInteractor = () =>
   new ReadPublicBookingManageSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
 export const getCancelPublicBookingInteractor = () =>

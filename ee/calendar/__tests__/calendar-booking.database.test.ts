@@ -143,9 +143,44 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
       hosts: [],
       hostCandidates: [{ userId: w.admin.id, name: expect.stringContaining("Admin"), calendarId: calendar.id }],
     });
-    expect(await w.as(w.member, () => repo.delete(created.id))).toBe(false);
-    expect(await w.as(w.admin, () => repo.delete(created.id))).toBe(true);
+    expect(await w.as(w.member, () => repo.delete(created.id, new Date()))).toBe(false);
+    expect(await w.as(w.admin, () => repo.delete(created.id, new Date()))).toBe(true);
     expect(await w.as(w.admin, () => repo.countOwn())).toBe(0);
+  });
+
+  it("keeps a page with an upcoming confirmed booking, and deletes it once that booking is past or cancelled", async () => {
+    const w = await workspace();
+    const { calendar } = await connectCalendar(w);
+    const repo = new PrismaBookingRepo();
+    const link = await w.as(w.admin, () => repo.create("token-u-0123456789abcdef", linkData(calendar.id), []));
+    const past = await w.as(w.admin, () => repo.create("token-v-0123456789abcdef", linkData(calendar.id), []));
+    const confirm = async (linkId: string, startsAt: Date, email: string) => {
+      const reserved = await w.as(w.admin, () => repo.reserve(reservation(linkId, startsAt, email), open));
+      await w.as(w.admin, () =>
+        repo.confirm(reserved?.id as string, {
+          calendarEventId: randomUUID(),
+          personTypeId: null,
+          personRecordId: null,
+          recordTypeId: null,
+          recordId: null,
+        }),
+      );
+      return reserved?.id as string;
+    };
+    const bookingId = await confirm(link.id, START, "ada@example.test");
+    await confirm(past.id, new Date(START.getTime() + 3_600_000), "bob@example.test");
+    const before = new Date(START.getTime() - 60_000);
+    const after = new Date(START.getTime() + 2 * 3_600_000);
+
+    expect(await w.as(w.admin, () => repo.delete(link.id, before))).toBe(false);
+    expect(await w.as(w.admin, () => repo.countUpcomingConfirmed(link.id, before))).toBe(1);
+    expect(await w.as(w.member, () => repo.countUpcomingConfirmed(link.id, before))).toBe(0);
+    expect(await w.as(w.admin, () => repo.countUpcomingConfirmed(past.id, after))).toBe(0);
+    expect(await w.as(w.admin, () => repo.delete(past.id, after))).toBe(true);
+
+    await w.as(w.admin, () => repo.cancelHosted(bookingId, "host", null, before));
+    expect(await w.as(w.admin, () => repo.countUpcomingConfirmed(link.id, before))).toBe(0);
+    expect(await w.as(w.admin, () => repo.delete(link.id, before))).toBe(true);
   });
 
   it("keeps a booking page, its public address and its bookings when its calendar account is disconnected", async () => {
@@ -673,7 +708,7 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
   const stored = (bookingId: string) =>
     runWithoutTenant(() => prisma.booking.findUniqueOrThrow({ where: { id: bookingId } }));
 
-  it("counts in-flight reservations as busy, keeps a confirmed booking busy until the calendar sync caught up, then drops it", async () => {
+  it("counts in-flight reservations as busy and keeps a confirmed booking busy however long ago it last changed, until it is cancelled", async () => {
     const w = await workspace();
     const { calendar } = await connectCalendar(w);
     const repo = new PrismaBookingRepo();
@@ -699,6 +734,11 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
     await runWithoutTenant(
       () =>
         prisma.$executeRaw`UPDATE "Booking" SET "updatedAt" = now() - interval '11 minutes' WHERE id = ${reserved?.id as string}`,
+    );
+    expect(await w.as(w.admin, () => repo.busyForOwner(...window))).toHaveLength(1);
+
+    await w.as(w.admin, () =>
+      repo.cancelHosted(reserved?.id as string, "host", null, new Date("2030-01-14T00:00:00.000Z")),
     );
     expect(await w.as(w.admin, () => repo.busyForOwner(...window))).toEqual([]);
   });
@@ -939,7 +979,9 @@ describeDatabase("booking slots follow the calendar", { timeout: 60_000 }, () =>
     expect(await stored(bookingId)).toMatchObject({ reminderSentAt: soon });
     expect(await due(soon)).toEqual([]);
 
-    await runWithoutTenant(() => repo.releaseReminderUnscoped(row));
+    await runWithoutTenant(() => repo.releaseReminderUnscoped(row, new Date(soon.getTime() - 60_000)));
+    expect(await stored(bookingId)).toMatchObject({ reminderSentAt: soon });
+    await runWithoutTenant(() => repo.releaseReminderUnscoped(row, soon));
     expect(await due(soon)).toHaveLength(1);
 
     await runWithoutTenant(() => repo.claimReminderUnscoped(row, soon));

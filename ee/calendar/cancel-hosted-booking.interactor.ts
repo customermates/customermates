@@ -7,7 +7,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { stripControlCharacters } from "@/core/utils/strip-control-characters";
-import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import type { BookingAnnouncer } from "./booking-announcer";
@@ -29,7 +29,6 @@ import { eventWriteFailure } from "./event-write-failure";
 type HostOutcome =
   | { kind: "cancelled"; booking: BookingRow }
   | { kind: "gone" }
-  | { kind: "reconnect" }
   | { kind: "write"; failure: EventWriteFailure };
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
@@ -64,7 +63,6 @@ export class CancelHostedBookingInteractor extends AuthenticatedInteractor<
 
     const outcome = await this.runAs(booking.hostUserId, (): Promise<HostOutcome> => this.cancel(booking, reason, now));
     if (!outcome || outcome.kind === "gone") return failNotFound(CustomErrorCode.bookingUnavailable, ["id"]);
-    if (outcome.kind === "reconnect") return fail(CustomErrorCode.calendarNeedsReconnect, ["id"]);
     if (outcome.kind === "write") return eventWriteFailure(outcome.failure);
 
     await this.announcer.changed(outcome.booking, "cancelled", "host", { reason });
@@ -83,11 +81,9 @@ export class CancelHostedBookingInteractor extends AuthenticatedInteractor<
 
   private async cancel(booking: BookingRow, reason: string | null, now: Date): Promise<HostOutcome> {
     const event = booking.calendarEventId ? await this.calendars.findOwnEvent(booking.calendarEventId) : null;
-    if (event && event.accountStatus !== ConnectedAccountStatus.ok) return { kind: "reconnect" };
-
     const cancelled = await this.reservations.cancelHosted(booking.id, "host", reason, now);
     if (!cancelled) return { kind: "gone" };
-    if (event) {
+    if (event && event.accountStatus === ConnectedAccountStatus.ok) {
       const removed = await this.writer.cancel(event, reason ?? undefined);
       if (!removed.ok) {
         await this.reservations.reopenHosted(booking.id);

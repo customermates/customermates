@@ -23,7 +23,7 @@ export class SendBookingRemindersInteractor {
     for (const booking of due) {
       if (!(await this.repo.claimReminderUnscoped(booking, now))) continue;
       if (await this.mailer.send({ kind: "reminder", booking })) sent += 1;
-      else await this.repo.releaseReminderUnscoped(booking);
+      else await this.repo.releaseReminderUnscoped(booking, now);
     }
 
     return { bookingReminders: sent };
