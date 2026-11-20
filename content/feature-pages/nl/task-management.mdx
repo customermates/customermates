@@ -35,7 +35,7 @@ sections:
       - title: "Weergaven"
         description: "Tabel of bord, gegroepeerd op een keuzeveld zoals Status, met opgeslagen weergaven die je kunt delen."
       - title: "Niet inbegrepen"
-        description: "Geen deadlines, herinneringen, meldingen, terugkerende taken, afhankelijkheden, tijdregistratie of Gantt-diagrammen."
+        description: "Geen ingebouwde deadlines, terugkerende taken, afhankelijkheden, tijdregistratie of Gantt-diagrammen."
 
 hero:
   title: "Taakbeheer in je CRM: maak van elke belofte aan een klant een taak op diens record"
@@ -60,7 +60,7 @@ Taakbeheer in je CRM betekent dat de to-do op het klantrecord staat: "stuur het 
 
 **Waar dit helpt bij follow-up.** Wat je tijdens een gesprek hebt beloofd, leeft in iemands hoofd totdat het een taak is. Als taak op de deal en de contactpersoon staat het op beide records, en een opgeslagen weergave van deals zonder enige taak toont elke klant van wie niemand de volgende stap heeft vastgelegd.
 
-Er is geen ingebouwde deadline, geen herinnering, geen melding bij achterstand en geen terugkerende taak. Een veld **Status** op taken is een gewoon veld met enkele keuze dat je aanmaakt, hernoemt of vervangt. Customermates past niet bij een team dat zijn week plant rond herinneringsmeldingen en taakdeadlines. Een CRM met geplande activiteiten past dan beter; de tabel hieronder noemt er twee. Wil je taken die hun klantcontext meedragen en die een AI kan aanmaken en bijwerken, lees dan verder.
+Er is geen ingebouwde deadline, geen status achterstallig en geen terugkerende taak; een herinnering komt van een automatisering op een datumveld dat je toevoegt. Een veld **Status** op taken is een gewoon veld met enkele keuze dat je aanmaakt, hernoemt of vervangt. Customermates past niet bij een team dat zijn week plant rond geplande activiteiten en taakdeadlines. Een CRM met geplande activiteiten past dan beter; de tabel hieronder noemt er twee. Wil je taken die hun klantcontext meedragen en die een AI kan aanmaken en bijwerken, lees dan verder.
 
 ## Wat een taak is in Customermates
 
@@ -85,7 +85,7 @@ Kom je uit een spreadsheet of een andere tool? Taken importeer je uit een XLSX-w
 
 > Elke maandag om 8:00 uur: toon mijn taken waarvan de Streefdatum voor vandaag ligt en waarvan de Status niet Afgerond of Gearchiveerd is. Groepeer ze per gekoppelde organisatie en stel voor elke taak de volgende actie voor. Wijzig of verstuur niets.
 
-Routines draaien als hun eigenaar, met de toegang en de credits van die eigenaar, en je leest het resultaat in de details van de uitvoering. Customermates stuurt geen melding wanneer een uitvoering klaar is, dus een routine vervangt geen herinnering, tenzij iemand hem opent. Een andere handige routine reageert wanneer een deal wordt bijgewerkt en maakt, als de fase nu Gewonnen is, de onboardingtaken aan en koppelt ze aan de deal.
+Routines draaien als hun eigenaar, met de toegang en de credits van die eigenaar, en je leest het resultaat in de details van de uitvoering. Customermates stuurt geen melding wanneer een uitvoering klaar is, dus gebruik voor een herinnering liever een automatisering op de datum. Een andere handige routine reageert wanneer een deal wordt bijgewerkt en maakt, als de fase nu Gewonnen is, de onboardingtaken aan en koppelt ze aan de deal.
 
 **Met je eigen AI-client** kunnen Claude, ChatGPT of een andere client die via [MCP](/docs/mcp) is gekoppeld `mutate_crm_record` gebruiken op dezelfde records. Dat werkt ook op self hosted installaties, met de kosten van je AI-aanbieder in plaats van gehoste credits.
 
@@ -113,7 +113,7 @@ Taken zitten in elk abonnement. Een team van vijf op Starter betaalt [[commercia
 
 <Faq>
 <FaqItem question="Heeft Customermates deadlines en herinneringen voor taken?">
-Nee. Taken hebben geen deadlineveld, geen herinneringen en geen meldingen. Voeg een eigen veld van het type Datum toe, sorteer een opgeslagen weergave erop en laat in Customermates Cloud een routine de taken tonen waarvan de datum is verstreken. Customermates stuurt geen herinneringsmails; daarvoor heb je een CRM met geplande activiteiten of je eigen planner die de API leest.
+Niet ingebouwd. Taken hebben geen deadlineveld, dus voeg een eigen veld van het type Datum toe en sorteer een opgeslagen weergave erop. Een automatisering op dat veld stuurt de toegewezen persoon een melding zodra de datum bereikt is, op de pagina Meldingen en per e-mail, en in Customermates Cloud kan een routine de taken tonen waarvan de datum is verstreken.
 </FaqItem>
 <FaqItem question="Kan ik de status van taken volgen op een kanbanbord?">
 Ja, via een veld met enkele keuze. Voeg een veld **Status** toe aan je takenlijst. Groepeer het bord erop en sleep kaarten tussen kolommen; je kunt de opties hernoemen of op een ander veld groeperen, zoals Prioriteit.

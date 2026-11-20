@@ -1,6 +1,6 @@
 ---
 title: "Gestione attività CRM: task collegati a ogni trattativa"
-description: "Gestione attività CRM: task collegati a contatti, organizzazioni, trattative e servizi, con assegnatari, note e campi propri. Senza scadenze né promemoria."
+description: "Gestione attività CRM: task collegati a contatti, organizzazioni, trattative e servizi, con assegnatari e campi propri. Promemoria tramite automazioni."
 featureName: Gestione delle attività
 
 relatedHrefs:
@@ -35,7 +35,7 @@ sections:
       - title: "Viste"
         description: "Tabella o board, raggruppate per un campo a scelta come Stato, con viste salvate che puoi condividere."
       - title: "Non incluso"
-        description: "Nessuna scadenza, promemoria, notifica, attività ricorrente, dipendenza, rilevazione del tempo o diagramma di Gantt."
+        description: "Nessuna scadenza integrata, attività ricorrente, dipendenza, rilevazione del tempo o diagramma di Gantt."
 
 hero:
   title: "Gestione attività CRM: ogni promessa a un cliente diventa un’attività sul suo record"
@@ -60,7 +60,7 @@ La gestione attività CRM significa che il to-do vive sul record del cliente: «
 
 **Dove ti aiuta a seguire i clienti.** Ciò che hai promesso in una chiamata resta nella testa di qualcuno finché non diventa un’attività. Come attività sulla trattativa e sul contatto compare su entrambi i record, e una vista salvata delle trattative senza alcuna attività elenca ogni cliente di cui nessuno ha registrato il prossimo passo.
 
-Non ci sono scadenze integrate, promemoria, avvisi di ritardo né attività ricorrenti. Un campo **Stato** sulle attività è un normale campo Scelta singola che puoi creare, rinominare o sostituire. Customermates non è adatto a un team che organizza la settimana attorno a notifiche di promemoria e scadenze delle attività. Per questo caso va meglio un CRM con attività pianificate, e la tabella qui sotto ne cita due. Se vuoi task che portino con sé il contesto del cliente e che un’IA possa creare e aggiornare, continua a leggere.
+Non ci sono scadenze integrate, stati di ritardo né attività ricorrenti; un promemoria arriva da un’automazione su un campo data che aggiungi. Un campo **Stato** sulle attività è un normale campo Scelta singola che puoi creare, rinominare o sostituire. Customermates non è adatto a un team che organizza la settimana attorno ad attività pianificate e scadenze. Per questo caso va meglio un CRM con attività pianificate, e la tabella qui sotto ne cita due. Se vuoi task che portino con sé il contesto del cliente e che un’IA possa creare e aggiornare, continua a leggere.
 
 ## Cos’è un’attività in Customermates
 
@@ -85,7 +85,7 @@ Vieni da un foglio di calcolo o da un altro strumento? Le attività si importano
 
 > Ogni lunedì alle 8:00: elenca le mie attività con Data obiettivo precedente a oggi e Stato diverso da Completata e Archiviata. Raggruppale per organizzazione collegata e suggerisci la prossima azione per ciascuna. Non modificare né inviare nulla.
 
-Le routine vengono eseguite come il loro proprietario, con il suo accesso e i suoi crediti, e il risultato lo leggi nei dettagli dell’esecuzione. Customermates non invia alcuna notifica al termine di un’esecuzione, quindi una routine non sostituisce un promemoria finché qualcuno non la apre. Un’altra routine utile reagisce quando una trattativa viene aggiornata e, se la sua fase è ora Vinta, crea le attività di onboarding e le collega alla trattativa.
+Le routine vengono eseguite come il loro proprietario, con il suo accesso e i suoi crediti, e il risultato lo leggi nei dettagli dell’esecuzione. Customermates non invia alcuna notifica al termine di un’esecuzione, quindi per un promemoria usa invece un’automazione sulla data. Un’altra routine utile reagisce quando una trattativa viene aggiornata e, se la sua fase è ora Vinta, crea le attività di onboarding e le collega alla trattativa.
 
 **Con il tuo client IA**, Claude, ChatGPT o un altro client collegato tramite [MCP](/docs/mcp) può usare `mutate_crm_record` sugli stessi record. Funziona anche sulle installazioni self-hosted, con i costi del tuo provider IA al posto dei crediti ospitati.
 
@@ -113,7 +113,7 @@ Le attività sono incluse in ogni piano. Un team di cinque persone su Starter pa
 
 <Faq>
 <FaqItem question="Customermates ha scadenze delle attività e promemoria?">
-No. Le attività non hanno un campo di scadenza, né promemoria né notifiche. Aggiungi un campo Data personalizzato, ordina per quello una vista salvata e, in Customermates Cloud, lascia che una routine elenchi le attività la cui data è passata. Customermates non invia email di promemoria; per quelle ti serve un CRM con attività pianificate oppure un tuo scheduler che legga l’API.
+Non integrati. Le attività non hanno un campo di scadenza, quindi aggiungi un campo Data personalizzato e ordina per quello una vista salvata. Un’automazione su quel campo avvisa l’assegnatario quando arriva la data, nella pagina Notifiche e via e-mail, e in Customermates Cloud una routine può elencare le attività la cui data è passata.
 </FaqItem>
 <FaqItem question="Posso seguire lo stato delle attività su una board Kanban?">
 Sì, tramite un campo Scelta singola. Aggiungi un campo **Stato** al tuo elenco di attività. Raggruppa il board per quel campo e trascina le schede tra le colonne; puoi rinominare le opzioni o raggruppare per un altro campo, come Priorità.

@@ -35,7 +35,7 @@ sections:
       - title: "Vistas"
         description: "Tabla o tablero, agrupados por un campo de selección como Estado, con vistas guardadas que puedes compartir."
       - title: "No incluido"
-        description: "Sin fechas de vencimiento, recordatorios, notificaciones, tareas recurrentes, dependencias, control de tiempo ni diagramas de Gantt."
+        description: "Sin fechas de vencimiento integradas, tareas recurrentes, dependencias, control de tiempo ni diagramas de Gantt."
 
 hero:
   title: "Gestión de tareas CRM: convierte cada promesa hecha a un cliente en una tarea de su ficha"
@@ -60,7 +60,7 @@ La gestión de tareas CRM significa que la tarea pendiente vive en el registro d
 
 **Dónde te ayuda a hacer seguimiento.** Lo que prometiste en una llamada vive en la cabeza de alguien hasta que es una tarea. Como tarea en la oportunidad y en el contacto, aparece en ambos registros, y una vista guardada de oportunidades sin ninguna tarea lista a cada cliente cuyo siguiente paso nadie registró.
 
-No hay fecha de vencimiento integrada, ni recordatorio, ni aviso de retraso, ni tarea recurrente. Un campo **Estado** en las tareas es un campo de selección única normal que creas, renombras o sustituyes. Customermates no encaja con un equipo que planifica su semana en torno a avisos de recordatorio y plazos de tareas. Para eso encaja mejor un CRM con actividades programadas, y la tabla de abajo nombra dos. Si buscas un CRM con gestión de tareas cuyas tareas lleven su contexto de cliente y que una IA pueda crear y actualizar, sigue leyendo.
+No hay fecha de vencimiento integrada, ni estado de retraso, ni tarea recurrente; un recordatorio llega de una automatización sobre un campo de fecha que añades. Un campo **Estado** en las tareas es un campo de selección única normal que creas, renombras o sustituyes. Customermates no encaja con un equipo que planifica su semana en torno a actividades programadas y plazos de tareas. Para eso encaja mejor un CRM con actividades programadas, y la tabla de abajo nombra dos. Si buscas un CRM con gestión de tareas cuyas tareas lleven su contexto de cliente y que una IA pueda crear y actualizar, sigue leyendo.
 
 ## Qué es una tarea en Customermates
 
@@ -85,7 +85,7 @@ Tareas es una lista normal: renómbrala, cambia sus campos o elimínala y restá
 
 > Cada lunes a las 8:00: lista mis tareas cuya Fecha objetivo sea anterior a hoy y cuyo Estado no sea Completada ni Archivada. Agrúpalas por organización vinculada y sugiere la siguiente acción para cada una. No cambies ni envíes nada.
 
-Las rutinas se ejecutan como su propietario, con el acceso y los créditos de ese propietario, y el resultado lo lees en los detalles de la ejecución. Customermates no envía ninguna notificación cuando termina una ejecución, así que una rutina no sustituye a un recordatorio a menos que alguien la abra. Otra rutina útil reacciona cuando se actualiza una oportunidad y, si su etapa pasa a ser Ganada, crea las tareas de onboarding y las vincula a la oportunidad.
+Las rutinas se ejecutan como su propietario, con el acceso y los créditos de ese propietario, y el resultado lo lees en los detalles de la ejecución. Customermates no envía ninguna notificación cuando termina una ejecución, así que, para un recordatorio, usa una automatización sobre la fecha. Otra rutina útil reacciona cuando se actualiza una oportunidad y, si su etapa pasa a ser Ganada, crea las tareas de onboarding y las vincula a la oportunidad.
 
 **Con tu propio cliente de IA**, Claude, ChatGPT u otro cliente conectado mediante [MCP](/docs/mcp) puede usar `mutate_crm_record` sobre los mismos registros. Esto funciona también en instalaciones autoalojadas, con los costes de tu proveedor de IA en lugar de créditos alojados.
 
@@ -113,7 +113,7 @@ Las tareas están incluidas en todos los planes. Un equipo de cinco personas en 
 
 <Faq>
 <FaqItem question="¿Customermates tiene fechas de vencimiento y recordatorios de tareas?">
-No. Las tareas no tienen un campo de fecha de vencimiento, ni recordatorios, ni notificaciones. Añade un campo de Fecha personalizado, ordena por él una vista guardada y, en Customermates Cloud, deja que una rutina liste las tareas cuya fecha ya pasó. Customermates no envía emails de recordatorio; para eso necesitas un CRM con actividades programadas o un planificador propio que lea la API.
+No integrados. Las tareas no tienen un campo de fecha de vencimiento, así que añade un campo de Fecha personalizado y ordena por él una vista guardada. Una automatización sobre ese campo avisa a la persona asignada cuando llega la fecha, en la página Notificaciones y por correo, y en Customermates Cloud una rutina puede listar las tareas cuya fecha ya pasó.
 </FaqItem>
 <FaqItem question="¿Puedo seguir el estado de las tareas en un tablero Kanban?">
 Sí, mediante un campo de Selección única. Añade un campo **Estado** a tu lista de tareas. Agrupa el tablero por él y arrastra las tarjetas entre columnas; puedes renombrar las opciones o agrupar por otro campo, como Prioridad.

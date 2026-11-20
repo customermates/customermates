@@ -1,6 +1,6 @@
 ---
 title: "Gestion des tâches CRM : des tâches liées à chaque affaire"
-description: "Des tâches liées aux contacts, organisations, affaires et services, avec responsables, notes et champs personnalisés. Sans échéances ni rappels intégrés."
+description: "Des tâches liées aux contacts, organisations, affaires et services, avec responsables et champs personnalisés. Rappels par automatisation sur une date."
 featureName: Gestion des tâches
 
 relatedHrefs:
@@ -35,7 +35,7 @@ sections:
       - title: "Vues"
         description: "Tableau ou board, regroupé par un champ à choix comme Statut, avec des vues enregistrées partageables."
       - title: "Non inclus"
-        description: "Pas d’échéances, de rappels, de notifications, de tâches récurrentes, de dépendances, de suivi du temps ni de diagrammes de Gantt."
+        description: "Pas d’échéances intégrées, de tâches récurrentes, de dépendances, de suivi du temps ni de diagrammes de Gantt."
 
 hero:
   title: "Transformez chaque promesse faite à un client en tâche sur sa fiche"
@@ -60,7 +60,7 @@ La gestion des tâches CRM, c’est un à-faire qui vit sur la fiche client : �
 
 **Ce que cela change pour la relance.** Ce que vous avez promis au téléphone reste dans une tête tant que ce n’est pas une tâche. Une tâche sur l’affaire et sur le contact apparaît sur les deux fiches, et une vue enregistrée des affaires sans aucune tâche liste tous les clients dont personne n’a noté la prochaine étape.
 
-Il n’y a ni échéance intégrée, ni rappel, ni alerte de retard, ni tâche récurrente. Un champ **Statut** sur les tâches est un champ Choix unique ordinaire que vous créez, renommez ou remplacez. Customermates ne convient pas à une équipe qui organise sa semaine autour de notifications de rappel et d’échéances de tâches. Un CRM avec des activités planifiées convient mieux dans ce cas, et le tableau plus bas en nomme deux. Si vous voulez des tâches qui portent leur contexte client et qu’une IA peut créer et mettre à jour, lisez la suite.
+Il n’y a ni échéance intégrée, ni état de retard, ni tâche récurrente, et un rappel vient d’une automatisation sur un champ date que vous ajoutez. Un champ **Statut** sur les tâches est un champ Choix unique ordinaire que vous créez, renommez ou remplacez. Customermates ne convient pas à une équipe qui organise sa semaine autour d’activités planifiées et d’échéances de tâches. Un CRM avec des activités planifiées convient mieux dans ce cas, et le tableau plus bas en nomme deux. Si vous voulez des tâches qui portent leur contexte client et qu’une IA peut créer et mettre à jour, lisez la suite.
 
 ## Ce qu’est une tâche dans Customermates
 
@@ -85,7 +85,7 @@ Vous venez d’un tableur ou d’un autre outil ? Les tâches s’importent dep
 
 > Chaque lundi à 8:00 : lister mes tâches dont la Date cible est antérieure à aujourd’hui et dont le Statut n’est ni Terminée ni Archivée. Les regrouper par organisation liée et proposer la prochaine action pour chacune. Ne rien modifier ni envoyer.
 
-Les routines s’exécutent au nom de leur propriétaire, avec son accès et ses crédits, et vous lisez le résultat dans les détails de l’exécution. Customermates n’envoie aucune notification à la fin d’une exécution : une routine ne remplace donc pas un rappel tant que personne ne l’ouvre. Une autre routine utile réagit lorsqu’une affaire est mise à jour et, si son étape est désormais Gagnée, crée les tâches d’intégration et les lie à l’affaire.
+Les routines s’exécutent au nom de leur propriétaire, avec son accès et ses crédits, et vous lisez le résultat dans les détails de l’exécution. Customermates n’envoie aucune notification à la fin d’une exécution : pour un rappel, utilisez donc plutôt une automatisation sur la date. Une autre routine utile réagit lorsqu’une affaire est mise à jour et, si son étape est désormais Gagnée, crée les tâches d’intégration et les lie à l’affaire.
 
 **Avec votre propre client IA**, Claude, ChatGPT ou un autre client connecté via [MCP](/docs/mcp) peut utiliser `mutate_crm_record` sur les mêmes enregistrements. Cela fonctionne aussi sur les installations auto-hébergées, avec les coûts de votre fournisseur d’IA au lieu de crédits hébergés.
 
@@ -113,7 +113,7 @@ Les tâches sont incluses dans toutes les formules. Une équipe de cinq personne
 
 <Faq>
 <FaqItem question="Customermates a-t-il des échéances de tâches et des rappels ?">
-Non. Les tâches n’ont ni champ d’échéance, ni rappels, ni notifications. Ajoutez un champ Date personnalisé, triez une vue enregistrée dessus, et dans Customermates Cloud laissez une routine lister les tâches dont la date est dépassée. Customermates n’envoie aucun e-mail de rappel ; pour cela, il vous faut un CRM avec des activités planifiées ou votre propre planificateur qui lit l’API.
+Pas en natif. Les tâches n’ont pas de champ d’échéance, ajoutez donc un champ Date personnalisé et triez une vue enregistrée dessus. Une automatisation sur ce champ prévient la personne assignée quand la date arrive, sur la page Notifications et par e-mail, et dans Customermates Cloud une routine peut lister les tâches dont la date est dépassée.
 </FaqItem>
 <FaqItem question="Puis-je suivre le statut des tâches sur un board Kanban ?">
 Oui, via un champ Choix unique. Ajoutez un champ **Statut** à votre liste de tâches. Regroupez le board dessus et faites glisser les cartes entre les colonnes ; vous pouvez renommer les options ou regrouper par un autre champ, comme Priorité.

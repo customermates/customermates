@@ -35,7 +35,7 @@ sections:
       - title: "Ansichten"
         description: "Tabelle oder Board, gruppiert nach einem Auswahlfeld wie Status, mit teilbaren gespeicherten Ansichten."
       - title: "Nicht enthalten"
-        description: "Keine Fälligkeitsdaten, Erinnerungen, Benachrichtigungen, wiederkehrenden Aufgaben, Abhängigkeiten, Zeiterfassung oder Gantt-Diagramme."
+        description: "Keine eingebauten Fälligkeitsdaten, wiederkehrenden Aufgaben, Abhängigkeiten, Zeiterfassung oder Gantt-Diagramme."
 
 hero:
   title: "Jedes Versprechen an einen Kunden als Aufgabe am Datensatz"
@@ -60,7 +60,7 @@ Aufgabenverwaltung im CRM heißt: Die Aufgabe liegt am Kundendatensatz. „Über
 
 **Wo Ihnen das beim Nachfassen hilft.** Was Sie im Gespräch zugesagt haben, steckt in einem Kopf, bis es eine Aufgabe ist. Als Aufgabe am Deal und am Kontakt erscheint es an beiden Datensätzen, und eine gespeicherte Ansicht der Deals ohne jede Aufgabe listet alle Kunden, deren nächsten Schritt niemand festgehalten hat.
 
-Ein eingebautes Fälligkeitsdatum gibt es nicht, ebenso wenig Erinnerungen, Überfälligkeitshinweise oder wiederkehrende Aufgaben. Eine klassische Wiedervorlage mit Benachrichtigung bietet Customermates also nicht. Ein Feld **Status** bei Aufgaben ist ein normales Feld vom Typ **Einzelauswahl**, das Sie anlegen, umbenennen oder ersetzen. Für ein Team, das seine Woche über Erinnerungen und Termine plant, ist Customermates nicht gemacht. Dort passt ein CRM mit geplanten Aktivitäten besser; die Tabelle weiter unten nennt zwei. Wenn Sie Aufgaben wollen, die den Kundenkontext mitbringen und die eine KI anlegen und pflegen kann, lesen Sie weiter.
+Ein eingebautes Fälligkeitsdatum gibt es nicht, ebenso wenig einen Überfällig-Zustand oder wiederkehrende Aufgaben. Eine Erinnerung kommt von einer Automatisierung auf einem Datumsfeld, das Sie anlegen. Ein Feld **Status** bei Aufgaben ist ein normales Feld vom Typ **Einzelauswahl**, das Sie anlegen, umbenennen oder ersetzen. Für ein Team, das seine Woche über geplante Aktivitäten und Termine plant, ist Customermates nicht gemacht. Dort passt ein CRM mit geplanten Aktivitäten besser; die Tabelle weiter unten nennt zwei. Wenn Sie Aufgaben wollen, die den Kundenkontext mitbringen und die eine KI anlegen und pflegen kann, lesen Sie weiter.
 
 ## Was eine Aufgabe in Customermates ist
 
@@ -85,7 +85,7 @@ Sie kommen aus Excel oder einem anderen Tool? Aufgaben lassen sich aus einer XLS
 
 > Jeden Montag um 8:00 Uhr: meine Aufgaben auflisten, deren Zieldatum vor heute liegt und deren Status nicht Erledigt oder Archiviert ist. Nach verknüpfter Organisation gruppieren und für jede Aufgabe den nächsten Schritt vorschlagen. Nichts ändern und nichts versenden.
 
-Eine Routine läuft im Namen ihres Eigentümers, mit dessen Rechten und Credits, und das Ergebnis lesen Sie in den Details des Laufs. Eine Benachrichtigung zum Abschluss eines Laufs verschickt Customermates nicht. Wer das Ergebnis nicht öffnet, erfährt also nichts davon. Eine zweite nützliche Routine reagiert, wenn ein Deal aktualisiert wird, und legt bei der Phase Gewonnen die Onboarding-Aufgaben an und verknüpft sie mit dem Deal.
+Eine Routine läuft im Namen ihres Eigentümers, mit dessen Rechten und Credits, und das Ergebnis lesen Sie in den Details des Laufs. Eine Benachrichtigung zum Abschluss eines Laufs verschickt Customermates nicht. Für eine Erinnerung nehmen Sie deshalb eine Automatisierung auf dem Datum. Eine zweite nützliche Routine reagiert, wenn ein Deal aktualisiert wird, und legt bei der Phase Gewonnen die Onboarding-Aufgaben an und verknüpft sie mit dem Deal.
 
 **Mit Ihrem eigenen KI-Client** wie Claude, ChatGPT oder einem anderen, per [MCP](/docs/mcp) verbunden, steht `mutate_crm_record` für dieselben Datensätze bereit. Das funktioniert auch bei Self-Hosting; Sie zahlen dann Ihren KI-Anbieter statt gehosteter Credits.
 
@@ -113,7 +113,7 @@ Aufgaben sind in jedem Tarif enthalten. Ein Team aus fünf Personen zahlt mit St
 
 <Faq>
 <FaqItem question="Hat Customermates Fälligkeitsdaten und Erinnerungen für Aufgaben?">
-Nein. Aufgaben haben kein Fälligkeitsfeld, keine Erinnerungen und keine Benachrichtigungen. Legen Sie ein eigenes Datumsfeld an, sortieren Sie eine gespeicherte Ansicht danach und lassen Sie in Customermates Cloud eine Routine auflisten, was überfällig ist. Erinnerungs-E-Mails verschickt Customermates nicht; dafür brauchen Sie ein CRM mit geplanten Aktivitäten oder ein eigenes Automatisierungswerkzeug, das die API liest.
+Nicht eingebaut. Aufgaben haben kein Fälligkeitsfeld, legen Sie also ein eigenes Datumsfeld an und sortieren Sie eine gespeicherte Ansicht danach. Eine Automatisierung auf diesem Feld benachrichtigt die zugewiesene Person, wenn das Datum erreicht ist, auf der Seite Benachrichtigungen und per E-Mail, und in Customermates Cloud kann eine Routine auflisten, was überfällig ist.
 </FaqItem>
 <FaqItem question="Kann ich den Aufgabenstatus auf einem Kanban-Board verfolgen?">
 Ja, über ein Einzelauswahl-Feld. Legen Sie ein eigenes Feld **Status** bei Ihren Aufgaben an. Gruppieren Sie das Board danach und ziehen Sie Karten zwischen den Spalten; die Optionen können Sie umbenennen oder nach einem anderen Feld gruppieren, etwa Priorität.
