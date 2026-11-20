@@ -110,7 +110,7 @@ landing:
     eyebrow: Cennik
     title: Pro wystarczy. [[commercial.price.pro.monthly]] za osobę miesięcznie.
     description: Wspólna skrzynka zespołu, na którą odpowiada kilka osób, wymaga planu Business za [[commercial.price.business.monthly]]. Starter za [[commercial.price.starter.monthly]] nie ma skrzynki odbiorczej. Twoja własna subskrypcja Claude lub ChatGPT zostaje u swojego dostawcy.
-    limits: To nie dla Ciebie, jeśli potrzebujesz wycen lub faktur, formularzy www, telefonu lub SMS-ów albo sekwencji e-maili. To zostaje w Twoich innych narzędziach.
+    limits: To nie dla Ciebie, jeśli potrzebujesz wycen lub faktur, telefonu lub SMS-ów albo sekwencji e-maili. To zostaje w Twoich innych narzędziach.
     primaryCta:
       label: Rozpocznij [[commercial.trial.days]]-dniowy okres próbny
       href: /auth/signup?job=followup
@@ -166,8 +166,8 @@ CRM dla MŚP to system, który trzyma w jednym miejscu klientów, ich rozmowy i 
     zatwierdzenie. Twój własny klient AI łączy się przez MCP w każdym planie.
   </SummaryItem>
   <SummaryItem label="Czego nie ma">
-    Formularzy www, natywnych aplikacji mobilnych, telefonii, SMS-ów ani
-    rezerwacji kalendarza oraz wycen i faktur.
+    Natywnych aplikacji mobilnych, telefonii, SMS-ów, wycen ani faktur. Strony
+    rezerwacji wymagają Customermates Cloud od planu Pro.
   </SummaryItem>
 </ArticleSummary>
 
@@ -222,7 +222,7 @@ Więcej o kryteriach znajdziesz w [przewodniku o tym, jak wybrać CRM](/blog/how
   <Step title="Wyznacz kolejne działanie">
     Wpisz datę kolejnego kroku przy szansie sprzedaży albo utwórz powiązane z
     nią zadanie. Zadania to rekordy, które przypisujesz; daty i status to pola,
-    które konfigurujesz, a wbudowanych przypomnień nie ma.
+    które konfigurujesz, a automatyzacja na tej dacie może Ci przypomnieć.
   </Step>
   <Step title="Przejrzyj pipeline">
     Przesuwaj szansę sprzedaży przez Zakwalifikowana, Rozmowy i Oferta wysłana.
@@ -254,9 +254,9 @@ Customermates odpowiada za relacje z klientami i stronę sprzedażową Twojej fi
 | Zadanie | Gdzie zostaje |
 |---|---|
 | Wyceny, faktury i księgowość | Twój program księgowy. Wygrane szanse sprzedaży przekazuj dalej przez [webhooki lub REST API](/features/api). |
-| Rezerwacja terminów | Twoje narzędzie do rezerwacji. Customermates nie tworzy ani nie rezerwuje wydarzeń w kalendarzu. |
+| Rezerwacja terminów | Strony rezerwacji w Customermates Cloud od planu Pro albo Twoje narzędzie do rezerwacji. |
 | Rozmowy telefoniczne i SMS-y | Twój system telefoniczny. Nie ma telefonii ani SMS-ów. |
-| Formularze do zbierania leadów | Twoja strona lub narzędzie do formularzy, które wysyła kontakty przez REST API. Nie ma formularzy www. |
+| Formularze do zbierania leadów | Formularze publiczne Customermates w każdym planie albo Twoje narzędzie do formularzy, które wysyła kontakty przez REST API. |
 | Praca specjalistyczna, taka jak projekty, planowanie czy sklep | System, który obsługuje tę pracę, połączony przez API, webhooki lub n8n. |
 
 Nie ma też natywnych aplikacji mobilnych (aplikacja webowa działa w przeglądarce), sekwencji e-maili ani wysyłki masowej, oceny leadów i logowania jednokrotnego (SSO). Jeśli któryś z tych punktów przesądza o zakupie, [przewodnik po wyborze CRM dla małej firmy](/blog/crm-for-small-business) porównuje inne narzędzia.
@@ -280,7 +280,7 @@ W Customermates Cloud baza danych działa w regionie AWS Frankfurt. [Strona podm
 
 <Faq>
 <FaqItem question="Jaki CRM dla małych firm wybrać?">
-Taki, który Twój zespół na bieżąco aktualizuje. Nie ma jednego najpopularniejszego rozwiązania dla wszystkich MŚP, a popularność niewiele mówi o tym, czy narzędzie pasuje do Twoich rozmów. Jeśli transakcje biorą się z rozmów telefonicznych, poszukaj CRM z wbudowanym dzwonieniem. Jeśli potrzebujesz formularzy www i sekwencji e-maili, lepiej pasuje narzędzie do automatyzacji sprzedaży. Jeśli Twoi klienci decydują w wątkach e-mailowych, na LinkedInie i na WhatsAppie, z udziałem kilku osób, pasuje Customermates. [Przewodnik po CRM dla małej firmy](/blog/crm-for-small-business) przeprowadza przez wybór.
+Taki, który Twój zespół na bieżąco aktualizuje. Nie ma jednego najpopularniejszego rozwiązania dla wszystkich MŚP, a popularność niewiele mówi o tym, czy narzędzie pasuje do Twoich rozmów. Jeśli transakcje biorą się z rozmów telefonicznych, poszukaj CRM z wbudowanym dzwonieniem. Jeśli potrzebujesz sekwencji e-maili, lepiej pasuje narzędzie do automatyzacji sprzedaży. Jeśli Twoi klienci decydują w wątkach e-mailowych, na LinkedInie i na WhatsAppie, z udziałem kilku osób, pasuje Customermates. [Przewodnik po CRM dla małej firmy](/blog/crm-for-small-business) przeprowadza przez wybór.
 </FaqItem>
 
 <FaqItem question="Co to jest CRM w małej firmie?">
@@ -304,11 +304,11 @@ Nie. Uczestnicy są dopasowywani do kontaktów po adresie e-mail, numerze telefo
 </FaqItem>
 
 <FaqItem question="Czy Customermates może przypominać mi o follow-upach?">
-Nie za pomocą wbudowanych przypomnień. Dodaj pole z datą, na przykład kolejny krok, do szans sprzedaży lub zadań i zapisz widok posortowany po nim. W Customermates Cloud rutyna może poprosić Mate o wypisanie szans sprzedaży, których kolejny krok już minął.
+Tak. Dodaj pole z datą, na przykład kolejny krok, do szans sprzedaży lub zadań, zapisz widok posortowany po nim i dodaj automatyzację, która powiadomi Cię, gdy data nadejdzie. W Customermates Cloud rutyna może też poprosić Mate o wypisanie szans sprzedaży, których kolejny krok już minął.
 </FaqItem>
 
 <FaqItem question="Czy zastępuje mój program księgowy lub narzędzie do rezerwacji?">
-Nie. Nie ma wycen, faktur, rezerwacji w kalendarzu, formularzy www, telefonii ani SMS-ów. Zostaw te narzędzia i połącz je przez REST API, webhooki lub n8n tam, gdzie to przydatne.
+Nie. Nie ma wycen, faktur, telefonii ani SMS-ów. Formularze publiczne są w każdym planie, a strony rezerwacji w Customermates Cloud od planu Pro. Zostaw te narzędzia i połącz je przez REST API, webhooki lub n8n tam, gdzie to przydatne.
 </FaqItem>
 
 <FaqItem question="Czy jest aplikacja mobilna?">
